@@ -1,0 +1,3 @@
+import ResourceLifecycleGlobalResourceConstraints from "./ResourceLifecycleGlobalResourceConstraints";
+
+export default ResourceLifecycleGlobalResourceConstraints;

@@ -1,0 +1,3 @@
+import ResourceCountBreakdownShowWeekendSwitch from "./ResourceCountBreakdownShowWeekendSwitch";
+
+export default ResourceCountBreakdownShowWeekendSwitch;

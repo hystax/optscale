@@ -1,0 +1,3 @@
+import HandleAssignmentRequestActionContainer from "./HandleAssignmentRequestActionContainer";
+
+export default HandleAssignmentRequestActionContainer;

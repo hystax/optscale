@@ -1,0 +1,3 @@
+import DeleteGlobalResourceConstraintContainer from "./DeleteGlobalResourceConstraintContainer";
+
+export default DeleteGlobalResourceConstraintContainer;

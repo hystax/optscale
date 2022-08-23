@@ -1,0 +1,3 @@
+kombu==4.6.8
+config-client==1.0.122
+restapi-client==1.0.655

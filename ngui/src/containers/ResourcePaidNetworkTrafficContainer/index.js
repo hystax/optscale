@@ -1,0 +1,3 @@
+import ResourcePaidNetworkTrafficContainer from "./ResourcePaidNetworkTrafficContainer";
+
+export default ResourcePaidNetworkTrafficContainer;

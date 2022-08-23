@@ -1,0 +1,19 @@
+FROM optscale_python:local
+MAINTAINER Hystax
+
+WORKDIR /usr/src/app/katara_service
+ENV PYTHONPATH /usr/src/app/
+
+COPY requirements_service.txt ./requirements.txt
+RUN pip install --no-cache-dir -r /usr/src/app/katara_service/requirements.txt
+COPY katara_service/alembic ./alembic
+COPY katara_service/controllers ./controllers
+COPY katara_service/handlers ./handlers
+COPY katara_service/models ./models
+COPY katara_service/*.py ./
+COPY katara_service/alembic.template .
+COPY katara_service/swagger ./swagger
+RUN python -u write_spec.py
+
+CMD ["python", "-u","/usr/src/app/katara_service/main.py"]
+EXPOSE 8935

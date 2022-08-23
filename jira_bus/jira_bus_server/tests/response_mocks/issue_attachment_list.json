@@ -1,0 +1,28 @@
+{
+  "jira_issue_attachments": [
+    {
+      "deleted_at": 0,
+      "id": "91a57f25-1502-40eb-9bc4-ff9bb9cf2d22",
+      "created_at": 1633606200,
+      "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+      "project_key": "DT",
+      "issue_number": 1,
+      "shareable_booking_id": "b21a28b8-e573-46ac-9121-e52f8946ddd2",
+      "status": "Backlog",
+      "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-1",
+      "auto_detach_status": "Done"
+    },
+    {
+      "deleted_at": 0,
+      "id": "f57a92d9-5095-425d-9e68-8ffeeb21e89a",
+      "created_at": 1633531077,
+      "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+      "project_key": "DT",
+      "issue_number": 1,
+      "shareable_booking_id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+      "status": "Backlog",
+      "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-1",
+      "auto_detach_status": "Done"
+    }
+  ]
+}

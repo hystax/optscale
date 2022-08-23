@@ -1,0 +1,5 @@
+auth-client==0.0.82
+config-client==1.0.114
+restapi-client==1.0.640
+slacker-client==0.0.9
+kombu==4.6.8

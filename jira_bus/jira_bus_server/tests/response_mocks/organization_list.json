@@ -1,0 +1,20 @@
+{
+  "organizations": [
+    {
+      "deleted_at": 0,
+      "created_at": 1592564296,
+      "id": "2a83dac4-fe3b-4372-896d-3fc6fe706811",
+      "name": "TestCorp",
+      "pool_id": "47e9851c-d3ac-411c-989a-5da08e58661b",
+      "is_demo": false
+    },
+    {
+      "deleted_at": 0,
+      "created_at": 1591258795,
+      "id": "ec40dd74-96c3-4e99-8ea5-084dd6454310",
+      "name": "MegaCorp",
+      "pool_id": "f10b2543-49dc-417c-85a8-f1194eebb30a",
+      "is_demo": false
+    }
+  ]
+}

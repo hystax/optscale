@@ -1,0 +1,12 @@
+{
+  "deleted_at": 0,
+  "id": "f57a92d9-5095-425d-9e68-8ffeeb21e89a",
+  "created_at": 1633531077,
+  "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+  "project_key": "DT",
+  "issue_number": 1,
+  "shareable_booking_id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+  "status": "Backlog",
+  "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-1",
+  "auto_detach_status": "Done"
+}

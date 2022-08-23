@@ -1,0 +1,3 @@
+import DetectedConstraintsHistoryContainer from "./DetectedConstraintsHistoryContainer";
+
+export default DetectedConstraintsHistoryContainer;

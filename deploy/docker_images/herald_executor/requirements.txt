@@ -1,0 +1,5 @@
+config-client==1.0.114
+restapi-client==1.0.651
+herald-client==0.0.10
+auth-client==0.0.75
+kombu==4.6.8

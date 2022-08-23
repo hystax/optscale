@@ -1,0 +1,120 @@
+{
+  "expand": "renderedFields,names,schema,transitions,operations,editmeta,changelog,versionedRepresentations",
+  "id": "10000",
+  "self": "https://ds-test-hystax.atlassian.net/rest/api/3/issue/10000",
+  "key": "DT-1",
+  "transitions": [
+    {
+      "id": "11",
+      "name": "Backlog",
+      "to": {
+        "self": "https://ds-test-hystax.atlassian.net/rest/api/3/status/10000",
+        "description": "",
+        "iconUrl": "https://ds-test-hystax.atlassian.net/",
+        "name": "Backlog",
+        "id": "10000",
+        "statusCategory": {
+          "self": "https://ds-test-hystax.atlassian.net/rest/api/3/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "blue-gray",
+          "name": "To Do"
+        }
+      },
+      "hasScreen": false,
+      "isGlobal": true,
+      "isInitial": false,
+      "isAvailable": true,
+      "isConditional": false,
+      "isLooped": false
+    },
+    {
+      "id": "21",
+      "name": "Selected for Development",
+      "to": {
+        "self": "https://ds-test-hystax.atlassian.net/rest/api/3/status/10001",
+        "description": "",
+        "iconUrl": "https://ds-test-hystax.atlassian.net/",
+        "name": "Selected for Development",
+        "id": "10001",
+        "statusCategory": {
+          "self": "https://ds-test-hystax.atlassian.net/rest/api/3/statuscategory/2",
+          "id": 2,
+          "key": "new",
+          "colorName": "blue-gray",
+          "name": "To Do"
+        }
+      },
+      "hasScreen": false,
+      "isGlobal": true,
+      "isInitial": false,
+      "isAvailable": true,
+      "isConditional": false,
+      "isLooped": false
+    },
+    {
+      "id": "31",
+      "name": "In Progress",
+      "to": {
+        "self": "https://ds-test-hystax.atlassian.net/rest/api/3/status/3",
+        "description": "This issue is being actively worked on at the moment by the assignee.",
+        "iconUrl": "https://ds-test-hystax.atlassian.net/images/icons/statuses/inprogress.png",
+        "name": "In Progress",
+        "id": "3",
+        "statusCategory": {
+          "self": "https://ds-test-hystax.atlassian.net/rest/api/3/statuscategory/4",
+          "id": 4,
+          "key": "indeterminate",
+          "colorName": "yellow",
+          "name": "In Progress"
+        }
+      },
+      "hasScreen": false,
+      "isGlobal": true,
+      "isInitial": false,
+      "isAvailable": true,
+      "isConditional": false,
+      "isLooped": false
+    },
+    {
+      "id": "41",
+      "name": "Done",
+      "to": {
+        "self": "https://ds-test-hystax.atlassian.net/rest/api/3/status/10002",
+        "description": "",
+        "iconUrl": "https://ds-test-hystax.atlassian.net/",
+        "name": "Done",
+        "id": "10002",
+        "statusCategory": {
+          "self": "https://ds-test-hystax.atlassian.net/rest/api/3/statuscategory/3",
+          "id": 3,
+          "key": "done",
+          "colorName": "green",
+          "name": "Done"
+        }
+      },
+      "hasScreen": false,
+      "isGlobal": true,
+      "isInitial": false,
+      "isAvailable": true,
+      "isConditional": false,
+      "isLooped": false
+    }
+  ],
+  "fields": {
+    "status": {
+      "self": "https://ds-test-hystax.atlassian.net/rest/api/3/status/10000",
+      "description": "",
+      "iconUrl": "https://ds-test-hystax.atlassian.net/",
+      "name": "Backlog",
+      "id": "10000",
+      "statusCategory": {
+        "self": "https://ds-test-hystax.atlassian.net/rest/api/3/statuscategory/2",
+        "id": 2,
+        "key": "new",
+        "colorName": "blue-gray",
+        "name": "To Do"
+      }
+    }
+  }
+}

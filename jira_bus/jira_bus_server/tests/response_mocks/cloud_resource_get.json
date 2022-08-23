@@ -1,0 +1,49 @@
+{
+  "name": "ds-environment-2",
+  "resource_type": "DummyResource2",
+  "cloud_resource_id": "environment_7b847909db9d8e6e5b10e46b7b370916",
+  "cloud_account_id": "fa45c186-f96e-4b2d-b709-c8cffe3af2e8",
+  "region": null,
+  "is_environment": true,
+  "active": true,
+  "shareable": true,
+  "created_at": 1631808758,
+  "deleted_at": 0,
+  "employee_id": "d572bd3f-5660-47e8-8357-148cabbdcc3d",
+  "pool_id": "c0e78662-b513-49d3-b1ea-05a2338cd50d",
+  "applied_rules": [
+    {
+      "id": "9aeb85b7-dbbd-4012-87c2-f2478b39a140",
+      "name": "Rule for Environment_1629899476",
+      "pool_id": "c0e78662-b513-49d3-b1ea-05a2338cd50d"
+    }
+  ],
+  "first_seen": 1631750400,
+  "last_seen": 1633478399,
+  "tags": {},
+  "id": "8aa7d399-d894-44f4-8d95-4c33005cd034",
+  "meta": {},
+  "cloud_console_link": null,
+  "sub_resources": [],
+  "recommendations": {},
+  "dismissed_recommendations": {},
+  "dismissed": [],
+  "details": {
+    "cloud_type": "environment",
+    "cloud_name": "Environment",
+    "total_cost": 22.590281934055557,
+    "cost": 5.400809711833334,
+    "forecast": 23.92,
+    "service_name": null,
+    "region": null,
+    "pool_name": "Environment",
+    "pool_purpose": "budget",
+    "owner_name": "Amy Rose",
+    "last_seen": 1633615932,
+    "first_seen": 1631808758,
+    "active": true,
+    "policies": {},
+    "constraints": {},
+    "shareable_bookings": []
+  }
+}

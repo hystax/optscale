@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/@atlaskit/css-reset@2.0.0/dist/bundle.css" media="all">
+    <script src="https://connect-cdn.atl-paas.net/all.js"></script>
+    <script>
+        function make_request(url, method='GET', callback=()=>{}) {
+            AP.context.getToken(token => {
+                params = {
+                    headers: {'Authorization': `JWT ${token}`},
+                    method: method
+                }
+                fetch(url, params)
+                    .then(response => response.json())
+                    .then(callback);
+            });
+        }
+    </script>
+</head>
+<body>
+    <button onclick="make_request('/jira_bus/v2/user_assignment', 'POST', json => {alert(JSON.stringify(json));})">
+        Connect to OptScale
+    </button>
+</body>
+</html>

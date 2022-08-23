@@ -1,0 +1,8 @@
+export const GET_EVENTS = "GET_EVENTS";
+export const SET_EVENTS = "SET_EVENTS";
+
+export const GET_LATEST_EVENTS = "GET_LATEST_EVENTS";
+export const SET_LATEST_EVENTS = "SET_LATEST_EVENTS";
+
+export const GET_EVENTS_COUNT = "GET_EVENTS_COUNT";
+export const SET_EVENTS_COUNT = "SET_EVENTS_COUNT";

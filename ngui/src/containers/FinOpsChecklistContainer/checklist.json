@@ -1,0 +1,52 @@
+{
+  "id": "finops_checklist",
+  "items": [
+    {
+      "id": "1",
+      "titleId": "checklist.item1.title",
+      "descriptionId": "checklist.item1.description"
+    },
+    {
+      "id": "2",
+      "titleId": "checklist.item2.title",
+      "descriptionId": "checklist.item2.description",
+      "deleted": true
+    },
+    {
+      "id": "3",
+      "titleId": "checklist.item3.title",
+      "descriptionId": "checklist.item3.description"
+    },
+    {
+      "id": "4",
+      "titleId": "checklist.item4.title",
+      "descriptionId": "checklist.item4.description"
+    },
+    {
+      "id": "5",
+      "titleId": "checklist.item5.title",
+      "descriptionId": "checklist.item5.description"
+    },
+    {
+      "id": "6",
+      "titleId": "checklist.item6.title",
+      "descriptionId": "checklist.item6.description"
+    },
+    {
+      "id": "7",
+      "titleId": "checklist.item7.title",
+      "descriptionId": "checklist.item7.description"
+    },
+    {
+      "id": "8",
+      "titleId": "checklist.item8.title",
+      "descriptionId": "checklist.item8.description"
+    },
+    {
+      "id": "9",
+      "titleId": "checklist.item9.title",
+      "descriptionId": "checklist.item9.description",
+      "deleted": true
+    }
+  ]
+}

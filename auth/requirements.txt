@@ -1,0 +1,15 @@
+SQLAlchemy==1.1.4
+mysql-connector-python==2.1.7
+tornado==6.2
+alembic==0.8.9
+pymacaroons==0.9.2
+ordered-set==2.0.2
+config-client==1.0.135
+restapi-client==1.0.511
+optscale-exceptions==0.0.23
+apispec==0.39.0
+google-auth==1.23.0
+requests>=2.25.0
+PyJWT>=1.7.1
+cryptography>=3.3.1
+zoho-integrator==1.0.5

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/@atlaskit/css-reset@2.0.0/dist/bundle.css" media="all">
+    <script src="https://connect-cdn.atl-paas.net/all.js"></script>
+    <style>
+        body {
+            background-image: url("https://thumbs.dreamstime.com/b/small-tabby-kitten-yellow-background-copy-space-gray-cat-isolated-colored-background-long-web-banner-copy-space-203485110.jpg");
+        }
+    </style>
+</head>
+<body>
+<div class="ac-content">
+    <div id="content">Loading...</div>
+</div>
+<script>
+    function make_request(url, method='GET', callback=()=>{}, json=undefined) {
+        AP.context.getToken(token => {
+            let params = {
+                headers: {'Authorization': `JWT ${token}`},
+                method: method,
+            }
+            if (json) {
+                params['body'] = JSON.stringify(json)
+            }
+            fetch(url, params)
+                .then(callback);
+        });
+    }
+
+    function book_resource(resource_id, callback=()=>{}) {
+        make_request(`/jira_bus/v2/resource_bookings`, 'POST', (resp) => {
+            callback();
+        }, {'resource_id': resource_id});
+    }
+
+    function show_resources() {
+        AP.context.getContext(function (resp) {
+            let result_html = `Current issue: ${resp.jira.issue.key}`;
+            make_request('/jira_bus/v2/shareable_resources', 'GET', (response) => {
+                response.json().then(json => {
+                    result_html += '<ul style="min-height: 400px">';
+                    json.data.forEach(item => {
+                        let book_btn = `<button onclick="book_resource('${item.id}', show_resources)">book</button>`
+                        let bookings = item.shareable_bookings.map(item => item.acquired_by.name).join(', ')
+                        result_html += `<li><b>${item.name}</b> (bookings: [${bookings}]) ${book_btn}</li>`;
+                    });
+                    result_html += '</ul>';
+                    document.getElementById('content').innerHTML = result_html;
+                });
+            });
+        });
+    }
+
+    show_resources();
+</script>
+</body>
+</html>

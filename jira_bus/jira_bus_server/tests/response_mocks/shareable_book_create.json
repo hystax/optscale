@@ -1,0 +1,40 @@
+{
+  "deleted_at": 0,
+  "id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+  "created_at": 1633531077,
+  "resource_id": "b0cd8cae-e6c2-4a47-b226-e56a1dd31bf6",
+  "organization_id": "ec40dd74-96c3-4e99-8ea5-084dd6454310",
+  "acquired_since": 1633531077,
+  "released_at": 0,
+  "jira_auto_release": true,
+  "jira_issue_attachments": [
+    {
+      "deleted_at": 0,
+      "id": "f57a92d9-5095-425d-9e68-8ffeeb21e89a",
+      "created_at": 1633531077,
+      "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+      "project_key": "DT",
+      "issue_number": 1,
+      "shareable_booking_id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+      "status": "Backlog",
+      "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-1",
+      "auto_detach_status": "Done"
+    },
+    {
+      "deleted_at": 0,
+      "id": "dc45e9e6-1f65-43fb-9e66-0dc8fe31c142",
+      "created_at": 1633606127,
+      "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+      "project_key": "DT",
+      "issue_number": 2,
+      "shareable_booking_id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+      "status": "Backlog",
+      "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-2",
+      "auto_detach_status": "Done"
+    }
+  ],
+  "acquired_by": {
+    "id": "d572bd3f-5660-47e8-8357-148cabbdcc3d",
+    "name": "Amy Rose"
+  }
+}

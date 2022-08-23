@@ -1,0 +1,71 @@
+{
+  "name": "ui",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "/jira_ui",
+  "dependencies": {
+    "@atlaskit/badge": "^15.0.4",
+    "@atlaskit/button": "^16.1.2",
+    "@atlaskit/dropdown-menu": "^10.1.9",
+    "@atlaskit/icon": "^21.9.0",
+    "@atlaskit/lozenge": "^11.1.4",
+    "@atlaskit/select": "^15.2.2",
+    "@atlaskit/spinner": "^15.1.2",
+    "@atlaskit/tabs": "^13.2.2",
+    "@atlaskit/tooltip": "^17.5.2",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^12.8.3",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^2.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-intl": "^2.9.0",
+    "react-markdown": "^7.0.1",
+    "react-router-dom": "^5.3.0",
+    "react-scripts": "4.0.3",
+    "remark-gfm": "^3.0.0",
+    "styled-components": "^3.4.10",
+    "web-vitals": "^1.1.2"
+  },
+  "scripts": {
+    "start": "PORT=3001 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "server": "node server.js",
+    "lint:check": "eslint . --ext=js --max-warnings=0",
+    "lint:fix": "eslint . --ext=js --fix",
+    "prettier:check": "prettier --check 'src/**/*.js'",
+    "prettier:fix": "prettier --write 'src/**/*.js'",
+    "check": "npm run lint:check && npm run prettier:check",
+    "fix": "npm run lint:fix && npm run prettier:fix"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^19.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-plugin-unused-imports": "^1.1.5",
+    "prettier": "^2.5.0"
+  }
+}

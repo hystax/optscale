@@ -1,0 +1,4 @@
+/build/**
+/storybook/**
+/src/utils/hotjar.js
+/src/stories

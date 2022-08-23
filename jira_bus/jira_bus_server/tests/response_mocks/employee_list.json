@@ -1,0 +1,14 @@
+{
+  "employees": [
+    {
+      "deleted_at": 0,
+      "id": "d572bd3f-5660-47e8-8357-148cabbdcc3d",
+      "created_at": 1591258796,
+      "name": "Amy Rose",
+      "organization_id": "ec40dd74-96c3-4e99-8ea5-084dd6454310",
+      "auth_user_id": "264b06d1-3706-4bfc-a152-863c5c4643b2",
+      "default_pool_id": null,
+      "slack_connected": false
+    }
+  ]
+}

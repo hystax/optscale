@@ -1,0 +1,3 @@
+import EnvironmentBookingsCalendarContainer from "./EnvironmentBookingsCalendarContainer";
+
+export default EnvironmentBookingsCalendarContainer;

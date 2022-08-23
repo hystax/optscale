@@ -1,0 +1,88 @@
+import React from "react";
+import Resources from "components/Resources";
+import { data } from "components/Resources";
+import { Provider } from "react-redux";
+import { millisecondsToSeconds } from "utils/datetime";
+import { KINDS } from "stories";
+import configureMockStore from "redux-mock-store";
+import { GET_RESOURCE_COUNT_BREAKDOWN } from "api/restapi/actionTypes";
+import { addDays } from "utils/datetime";
+
+export default {
+  title: `${KINDS.PAGES}/Resources`
+};
+
+const firstDateRangePoint = millisecondsToSeconds(+new Date());
+const lastDateRangePoint = millisecondsToSeconds(+new Date());
+
+const mockStore = configureMockStore();
+const store = mockStore({
+  api: {
+    [GET_RESOURCE_COUNT_BREAKDOWN]: {
+      isLoading: false,
+      timestamp: addDays(Date.now(), 30)
+    }
+  },
+  restapi: {
+    [GET_RESOURCE_COUNT_BREAKDOWN]: {
+      breakdown: {
+        1633046400: {
+          Instance: 3,
+          Volume: 5
+        },
+        1633132800: {
+          Instance: 3,
+          Volume: 6,
+          Snapshot: 2,
+          "SomeCluster/cluster": 1
+        }
+      }
+    }
+  }
+});
+
+export const basic = () => {
+  return (
+    <Provider store={store}>
+      <Resources
+        startDateTimestamp={firstDateRangePoint}
+        endDateTimestamp={lastDateRangePoint}
+        filterValues={data.filterValues}
+        expenses={data.expenses}
+        filters={data.filters}
+        entities={data.entities}
+        requestParams={data.requestParams}
+        totalExpenses={data.totalExpenses}
+        totalSaving={data.totalSaving}
+        onApply={() => console.log("onApply")}
+        onFilterAdd={() => console.log("onFilterAdd")}
+        onFilterDelete={() => console.log("onFilterDelete")}
+        onFiltersDelete={() => console.log("onFiltersDelete")}
+        fromMainMenu
+      />
+    </Provider>
+  );
+};
+
+export const isLoading = () => (
+  <Resources
+    startDateTimestamp={firstDateRangePoint}
+    endDateTimestamp={lastDateRangePoint}
+    filterValues={{}}
+    expenses={[]}
+    filters={{}}
+    entities={{}}
+    requestParams={{
+      startDate: firstDateRangePoint,
+      endDate: lastDateRangePoint
+    }}
+    totalExpenses={0}
+    totalSaving={0}
+    isLoadingProps={{ isLoading: true, isFilterValuesLoading: true }}
+    onApply={() => console.log("onApply")}
+    onFilterAdd={() => console.log("onFilterAdd")}
+    onFilterDelete={() => console.log("onFilterDelete")}
+    onFiltersDelete={() => console.log("onFiltersDelete")}
+    fromMainMenu
+  />
+);

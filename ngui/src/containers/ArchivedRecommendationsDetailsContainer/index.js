@@ -1,0 +1,3 @@
+import ArchivedRecommendationsDetailsContainer from "./ArchivedRecommendationsDetailsContainer";
+
+export default ArchivedRecommendationsDetailsContainer;

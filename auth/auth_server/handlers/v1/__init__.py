@@ -1,0 +1,11 @@
+import auth_server.handlers.v1.action_resources
+import auth_server.handlers.v1.actions
+import auth_server.handlers.v1.assignments
+import auth_server.handlers.v1.authorization
+import auth_server.handlers.v1.authorization_userlist
+import auth_server.handlers.v1.digests
+import auth_server.handlers.v1.roles
+import auth_server.handlers.v1.scopes
+import auth_server.handlers.v1.tokens
+import auth_server.handlers.v1.types
+import auth_server.handlers.v1.users

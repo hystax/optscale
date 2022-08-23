@@ -1,0 +1,153 @@
+import React, { useMemo } from "react";
+import { Autocomplete, Box, Typography } from "@mui/material";
+import { Controller, useFormContext } from "react-hook-form";
+import { FormattedMessage, useIntl } from "react-intl";
+import ButtonGroup from "components/ButtonGroup";
+import Input from "components/Input";
+import AvailableFiltersService from "services/AvailableFiltersService";
+import { TAG_KEY_MAX_SIZE } from "utils/constants";
+import { SPACING_1 } from "utils/layouts";
+import { getMaxLengthValidationDefinition } from "utils/validation";
+import { CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES } from "../constants";
+import { filtersRangeFunction } from "./Filters";
+
+const FIELD_NAME_BAR = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.TAGS_BAR;
+const FIELD_NAME_PROHIBITED_TAG = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.PROHIBITED_TAG;
+const FIELD_NAME_REQUIRED_TAG = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.REQUIRED_TAG;
+const FIELD_NAME_CORRELATION_TAG_1 = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.CORRELATION_TAG_1;
+const FIELD_NAME_CORRELATION_TAG_2 = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.CORRELATION_TAG_2;
+
+const ControllableButtonsGroup = ({ buttons, value, onChange }) => {
+  const handledButtons = buttons.map((buttonDef) => ({ ...buttonDef, action: () => onChange(buttonDef.id) }));
+  return (
+    <Box sx={{ my: SPACING_1 }}>
+      <ButtonGroup buttons={handledButtons} activeButtonId={value} onChange={onChange} />
+    </Box>
+  );
+};
+
+const AutocompleteInput = ({ captionId, required, fieldName, register, errors, possibleTags }) => {
+  const intl = useIntl();
+
+  const registerOptions = {
+    required: {
+      value: required,
+      message: intl.formatMessage({ id: "thisFieldIsRequired" })
+    },
+    maxLength: getMaxLengthValidationDefinition(fieldName, TAG_KEY_MAX_SIZE)
+  };
+
+  const sortedTags = [...possibleTags.sort()];
+  return (
+    <Autocomplete
+      freeSolo
+      options={sortedTags}
+      renderInput={(autoCompleteParams) => (
+        <Input
+          required={required}
+          label={<FormattedMessage id={captionId} />}
+          dataTestId={`input_${fieldName}`}
+          error={!!errors[fieldName]}
+          helperText={errors[fieldName]?.message}
+          {...register(fieldName, registerOptions)}
+          {...autoCompleteParams}
+        />
+      )}
+    />
+  );
+};
+
+export const TYPE_REQUIRED = "taggingPolicy.requiredTag";
+export const TYPE_PROHIBITED = "taggingPolicy.prohibitedTag";
+export const TYPE_CORRELATION = "taggingPolicy.tagsCorrelation";
+
+const TagsInputs = () => {
+  const {
+    register,
+    control,
+    watch,
+    formState: { errors }
+  } = useFormContext();
+
+  const typeSelected = watch(FIELD_NAME_BAR);
+
+  const buttons = [TYPE_REQUIRED, TYPE_PROHIBITED, TYPE_CORRELATION].map((strategy) => ({
+    id: strategy,
+    messageId: strategy,
+    dataTestId: `tags_strategy_${strategy}`
+  }));
+
+  const { useGet } = AvailableFiltersService();
+  const params = useMemo(() => {
+    const { startDate, endDate } = filtersRangeFunction();
+
+    return {
+      startDate,
+      endDate
+    };
+  }, []);
+  const {
+    filters: { tag = [] }
+  } = useGet(params);
+
+  return (
+    <>
+      <Controller
+        control={control}
+        name={FIELD_NAME_BAR}
+        render={({ field: { onChange, value } }) => (
+          <ControllableButtonsGroup buttons={buttons} value={value} onChange={onChange} />
+        )}
+      />
+      {typeSelected === TYPE_REQUIRED && (
+        <>
+          <AutocompleteInput
+            possibleTags={tag}
+            captionId={FIELD_NAME_REQUIRED_TAG}
+            fieldName={FIELD_NAME_REQUIRED_TAG}
+            register={register}
+            errors={errors}
+          />
+          <Typography variant="caption">
+            <FormattedMessage id="taggingPolicy.anyTagHelpText" />
+          </Typography>
+        </>
+      )}
+      {typeSelected === TYPE_PROHIBITED && (
+        <AutocompleteInput
+          required
+          possibleTags={tag}
+          captionId={FIELD_NAME_PROHIBITED_TAG}
+          fieldName={FIELD_NAME_PROHIBITED_TAG}
+          register={register}
+          errors={errors}
+        />
+      )}
+      {typeSelected === TYPE_CORRELATION && (
+        <>
+          <AutocompleteInput
+            required
+            possibleTags={tag}
+            captionId={FIELD_NAME_CORRELATION_TAG_1}
+            fieldName={FIELD_NAME_CORRELATION_TAG_1}
+            register={register}
+            errors={errors}
+          />
+          <AutocompleteInput
+            required
+            possibleTags={tag}
+            captionId={FIELD_NAME_CORRELATION_TAG_2}
+            fieldName={FIELD_NAME_CORRELATION_TAG_2}
+            register={register}
+            errors={errors}
+          />
+          <Typography variant="caption">
+            <FormattedMessage id="taggingPolicy.tagsCorrelationHelpText" />
+          </Typography>
+        </>
+      )}
+    </>
+  );
+};
+
+export default TagsInputs;

@@ -1,0 +1,3 @@
+import ResourceLifecycleGlobalPoolPolicies from "./ResourceLifecycleGlobalPoolPolicies";
+
+export default ResourceLifecycleGlobalPoolPolicies;

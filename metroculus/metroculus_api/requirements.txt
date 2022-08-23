@@ -1,0 +1,6 @@
+tornado==4.4.2
+optscale-exceptions==0.0.21
+config-client==1.0.97
+apispec==0.39.0
+cloud-adapter==0.1.990
+clickhouse-driver==0.2.1

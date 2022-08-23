@@ -1,0 +1,1 @@
+export const CHANGE_PERIOD_TYPE = "CHANGE_PERIOD_TYPE";

@@ -1,0 +1,146 @@
+{
+  "data": [
+    {
+      "name": "ds-environment",
+      "resource_type": "DummyResource",
+      "cloud_resource_id": "environment_078d82e816711c1a4908a4befa76965d",
+      "cloud_account_id": "fa45c186-f96e-4b2d-b709-c8cffe3af2e8",
+      "region": null,
+      "is_environment": true,
+      "active": true,
+      "created_at": 1629899476,
+      "deleted_at": 0,
+      "employee_id": "d572bd3f-5660-47e8-8357-148cabbdcc3d",
+      "pool_id": "c0e78662-b513-49d3-b1ea-05a2338cd50d",
+      "applied_rules": [
+        {
+          "id": "9aeb85b7-dbbd-4012-87c2-f2478b39a140",
+          "name": "Rule for Environment_1629899476",
+          "pool_id": "c0e78662-b513-49d3-b1ea-05a2338cd50d"
+        }
+      ],
+      "first_seen": 1629849600,
+      "last_seen": 1633478399,
+      "tags": {},
+      "shareable": true,
+      "shareable_bookings": [
+        {
+          "deleted_at": 0,
+          "id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+          "created_at": 1633531077,
+          "resource_id": "b0cd8cae-e6c2-4a47-b226-e56a1dd31bf6",
+          "organization_id": "ec40dd74-96c3-4e99-8ea5-084dd6454310",
+          "acquired_since": 1633531077,
+          "released_at": 0,
+          "jira_auto_release": true,
+          "jira_issue_attachments": [
+            {
+              "deleted_at": 0,
+              "id": "f57a92d9-5095-425d-9e68-8ffeeb21e89a",
+              "created_at": 1633531077,
+              "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+              "project_key": "DT",
+              "issue_number": 1,
+              "shareable_booking_id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+              "status": "Backlog",
+              "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-1",
+              "auto_detach_status": "Done"
+            },
+            {
+              "deleted_at": 0,
+              "id": "dc45e9e6-1f65-43fb-9e66-0dc8fe31c142",
+              "created_at": 1633606127,
+              "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+              "project_key": "DT",
+              "issue_number": 2,
+              "shareable_booking_id": "319a67a7-f8cf-4d7d-87b4-f77fe3760c11",
+              "status": "Backlog",
+              "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-2",
+              "auto_detach_status": "Done"
+            }
+          ],
+          "acquired_by": {
+            "id": "d572bd3f-5660-47e8-8357-148cabbdcc3d",
+            "name": "Amy Rose"
+          }
+        }
+      ],
+      "id": "b0cd8cae-e6c2-4a47-b226-e56a1dd31bf6",
+      "meta": {},
+      "cloud_console_link": null,
+      "sub_resources": [],
+      "recommendations": {},
+      "dismissed_recommendations": {},
+      "dismissed": [],
+      "cloud_account_name": "Environment",
+      "cloud_account_type": "environment",
+      "pool_name": "Environment",
+      "pool_purpose": "budget"
+    },
+    {
+      "name": "ds-environment-2",
+      "resource_type": "DummyResource2",
+      "cloud_resource_id": "environment_7b847909db9d8e6e5b10e46b7b370916",
+      "cloud_account_id": "fa45c186-f96e-4b2d-b709-c8cffe3af2e8",
+      "region": null,
+      "is_environment": true,
+      "active": true,
+      "shareable": true,
+      "created_at": 1631808758,
+      "deleted_at": 0,
+      "employee_id": "d572bd3f-5660-47e8-8357-148cabbdcc3d",
+      "pool_id": "c0e78662-b513-49d3-b1ea-05a2338cd50d",
+      "applied_rules": [
+        {
+          "id": "9aeb85b7-dbbd-4012-87c2-f2478b39a140",
+          "name": "Rule for Environment_1629899476",
+          "pool_id": "c0e78662-b513-49d3-b1ea-05a2338cd50d"
+        }
+      ],
+      "first_seen": 1631750400,
+      "last_seen": 1633478399,
+      "tags": {},
+      "shareable_bookings": [
+        {
+          "deleted_at": 0,
+          "id": "b21a28b8-e573-46ac-9121-e52f8946ddd2",
+          "created_at": 1633606200,
+          "resource_id": "8aa7d399-d894-44f4-8d95-4c33005cd034",
+          "organization_id": "ec40dd74-96c3-4e99-8ea5-084dd6454310",
+          "acquired_since": 1633606200,
+          "released_at": 0,
+          "jira_auto_release": true,
+          "jira_issue_attachments": [
+            {
+              "deleted_at": 0,
+              "id": "91a57f25-1502-40eb-9bc4-ff9bb9cf2d22",
+              "created_at": 1633606200,
+              "client_key": "36ec97ba-d4ba-3f2a-bf0f-010b107b4d88",
+              "project_key": "DT",
+              "issue_number": 1,
+              "shareable_booking_id": "b21a28b8-e573-46ac-9121-e52f8946ddd2",
+              "status": "Backlog",
+              "issue_link": "https://ds-test-hystax.atlassian.net/browse/DT-1",
+              "auto_detach_status": "Done"
+            }
+          ],
+          "acquired_by": {
+            "id": "d572bd3f-5660-47e8-8357-148cabbdcc3d",
+            "name": "Amy Rose"
+          }
+        }
+      ],
+      "id": "8aa7d399-d894-44f4-8d95-4c33005cd034",
+      "meta": {},
+      "cloud_console_link": null,
+      "sub_resources": [],
+      "recommendations": {},
+      "dismissed_recommendations": {},
+      "dismissed": [],
+      "cloud_account_name": "Environment",
+      "cloud_account_type": "environment",
+      "pool_name": "Environment",
+      "pool_purpose": "budget"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+import RecommendationsCategoriesButtonGroup from "./RecommendationsCategoriesButtonGroup";
+
+export default RecommendationsCategoriesButtonGroup;
