@@ -1,0 +1,11 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# User-specific stuff:
+.idea/
+.venv/
+venv/
+.vscode/
+.DS_Store
