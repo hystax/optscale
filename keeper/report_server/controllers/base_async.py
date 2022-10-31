@@ -1,6 +1,6 @@
+import functools
 import logging
 from tornado.ioloop import IOLoop
-from tornado.concurrent import return_future, run_on_executor
 
 from report_server.utils import tp_executor
 
@@ -10,7 +10,7 @@ LOG = logging.getLogger(__name__)
 
 class BaseAsyncControllerWrapper(object):
     """
-    Used to wrap sync controller methods to return futures
+    Used to wrap sync controller methods to return awaitable
     """
 
     def __init__(self, mongo_client, config, rabbit_client):
@@ -32,14 +32,12 @@ class BaseAsyncControllerWrapper(object):
     def _get_controller_class(self):
         raise NotImplementedError
 
-    @run_on_executor
-    @return_future
-    def get_future(self, meth_name, *args, callback=None, **kwargs):
+    def get_awaitable(self, meth_name, *args, **kwargs):
         method = getattr(self.controller, meth_name)
-        callback(method(*args, **kwargs))
+        return self.io_loop.run_in_executor(self.executor, functools.partial(method, *args, **kwargs))
 
     def __getattr__(self, name):
 
         def _missing(*args, **kwargs):
-            return self.get_future(name, *args, **kwargs)
+            return self.get_awaitable(name, *args, **kwargs)
         return _missing

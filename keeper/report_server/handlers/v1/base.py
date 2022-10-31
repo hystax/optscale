@@ -1,11 +1,13 @@
 import json
 import logging
+import functools
 import traceback
 import tornado.web
-from tornado import gen
 import requests
+from json.decoder import JSONDecodeError
+
 from tornado.ioloop import IOLoop
-from tornado.concurrent import return_future, run_on_executor
+
 from optscale_exceptions.common_exc import (WrongArgumentsException,
                                             ForbiddenException,
                                             UnauthorizedException)
@@ -14,8 +16,9 @@ from optscale_exceptions.http_exc import OptHTTPError
 from report_server.exceptions import Err
 from report_server.utils import ModelEncoder
 from report_server.utils import tp_executor, Config
+
 from auth_client.client_v2 import Client as AuthClient
-from json.decoder import JSONDecodeError
+
 
 LOG = logging.getLogger(__name__)
 
@@ -153,13 +156,14 @@ class BaseAuthHandler(BaseHandler):
             self.finish({'error': str(exc)})
         super().prepare()
 
-    @gen.coroutine
-    def check_permissions(self, action, type, resource_id):
-        yield gen.Task(self._check_permissions, action, type, resource_id)
+    def get_awaitable(self, meth, *args, **kwargs):
+        return self.io_loop.run_in_executor(
+            self.executor, functools.partial(meth, *args, **kwargs))
 
-    @run_on_executor
-    @return_future
-    def _check_permissions(self, action, type, resource_id, callback=None):
+    async def check_permissions(self, action, type, resource_id):
+        await self.get_awaitable(self._check_permissions, action, type, resource_id)
+
+    def _check_permissions(self, action, type, resource_id):
         client = AuthClient(url=Config().auth_url)
         client.token = self.token
         LOG.info('Given Auth token is %s:' % self.token)
@@ -175,7 +179,6 @@ class BaseAuthHandler(BaseHandler):
                 raise OptHTTPError(404, Err.OK0004,
                                    ["business unit", resource_id])
             raise
-        callback(None)
 
     def check_cluster_secret(self, **kwargs):
         return self._check_secret(self.cluster_secret, **kwargs)
@@ -194,17 +197,16 @@ class BaseAuthHandler(BaseHandler):
 
 
 class BaseReportHandler(BaseAuthHandler):
-    def validate_payload(self, payload_dict):
+    async def validate_payload(self, payload_dict):
         customers = payload_dict.get('customers')
         if (not customers or not isinstance(customers,
                                             list) or not len(customers) > 0):
             raise OptHTTPError(400, Err.OK0009, [])
         for customer_id in customers:
-            yield self.check_permissions('INFO_CUSTOMER', 'customer',
+            await self.check_permissions('INFO_CUSTOMER', 'customer',
                                          customer_id)
 
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         try:
             data = self.get_request_data()
         except ValueError:
@@ -220,21 +222,20 @@ class BaseReportHandler(BaseAuthHandler):
             raise OptHTTPError(400, Err.OK0008, [])
 
         try:
-            self.validate_payload(payload_dict)
-            res = yield gen.Task(self.controller.get, **payload_dict)
+            await self.validate_payload(payload_dict)
+            res = await self.controller.get(**payload_dict)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))
 
 
 class BaseReceiveHandler(BaseAuthHandler):
-    @gen.coroutine
-    def post(self, **url_params):
+    async def post(self, **url_params):
         data = self._request_body()
         data.update(url_params)
         self._validate_params(**data)
         try:
-            res = yield gen.Task(self.controller.submit, **data)
+            res = await self.controller.submit(**data)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         except ForbiddenException as ex:
@@ -242,4 +243,4 @@ class BaseReceiveHandler(BaseAuthHandler):
         except UnauthorizedException as ex:
             raise OptHTTPError.from_opt_exception(401, ex)
         self.set_status(201)
-        self.write(json.dumps(res.result()))
+        self.write(json.dumps(res))

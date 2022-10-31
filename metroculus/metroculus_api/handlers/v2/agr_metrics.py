@@ -1,6 +1,5 @@
 import json
 import logging
-from tornado import gen
 
 from metroculus_api.controllers.agr_metrics import AgrMetricsAsyncController
 from metroculus_api.handlers.v2.base import SecretHandler
@@ -17,8 +16,7 @@ class AgrMetricsCollectionHandler(SecretHandler):
     def _get_controller_class(self):
         return AgrMetricsAsyncController
 
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         """
         ---
         tags: [agr_metrics]
@@ -98,8 +96,7 @@ class AgrMetricsCollectionHandler(SecretHandler):
             'meter_names': self.get_arg('meter_name', str, repeated=True),
         }
         try:
-            res = yield gen.Task(
-                self.controller.get, **url_params)
+            res = await self.controller.get(**url_params)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         except UnauthorizedException as ex:
@@ -107,4 +104,4 @@ class AgrMetricsCollectionHandler(SecretHandler):
         except NotFoundException as ex:
             raise OptHTTPError.from_opt_exception(404, ex)
         self.set_status(200)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))

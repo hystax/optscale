@@ -1,12 +1,12 @@
 import json
-from tornado import gen
-from optscale_exceptions.http_exc import OptHTTPError
 
 from report_server.exceptions import Err
 from report_server.handlers.v2.base import BaseReceiveHandler
 from report_server.controllers.feedback import FeedbackAsyncController
+from optscale_exceptions.http_exc import OptHTTPError
 from optscale_exceptions.common_exc import (WrongArgumentsException,
                                             UnauthorizedException)
+
 from report_server.utils import ModelEncoder
 
 
@@ -32,8 +32,7 @@ class FeedbacksAsyncHandler(BaseReceiveHandler):
                 if check_key not in valid_keys:
                     raise OptHTTPError(400, Err.OK0040, [check_key])
 
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         """
         ---
         description: |
@@ -107,7 +106,7 @@ class FeedbacksAsyncHandler(BaseReceiveHandler):
         - secret: []
         """
         if not self.check_cluster_secret(raises=False):
-            yield self.check_permissions('POLL_EVENT', 'root', None)
+            await self.check_permissions('POLL_EVENT', 'root', None)
         data = {
             'time_start': self.get_arg('time_start', int),
             'time_end': self.get_arg('time_end', int),
@@ -120,15 +119,14 @@ class FeedbacksAsyncHandler(BaseReceiveHandler):
         self._validate_get_params(data)
         data.update({'token': self.token})
         try:
-            res = yield gen.Task(self.controller.list, **data)
+            res = await self.controller.list(**data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))
 
-    @gen.coroutine
-    def post(self, **kwargs):
+    async def post(self, **kwargs):
         """
         ---
         description: |
@@ -183,8 +181,8 @@ class FeedbacksAsyncHandler(BaseReceiveHandler):
         security:
         - token: []
         """
-        yield self.check_token()
+        await self.check_token()
         data = self._request_body()
         self._validate_post_params(data)
         data.update({'token': self.token})
-        yield super().post(**data)
+        await super().post(**data)

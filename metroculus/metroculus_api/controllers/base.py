@@ -1,7 +1,7 @@
+import functools
 from concurrent.futures import ThreadPoolExecutor
 from tornado.ioloop import IOLoop
 from clickhouse_driver import Client as ClickHouseClient
-from tornado.concurrent import return_future, run_on_executor
 
 tp_executor = ThreadPoolExecutor(30)
 
@@ -40,13 +40,11 @@ class BaseAsyncControllerWrapper(object):
     def _get_controller_class(self):
         raise NotImplementedError
 
-    @run_on_executor
-    @return_future
-    def get_future(self, meth_name, *args, callback=None, **kwargs):
+    def get_awaitable(self, meth_name, *args, **kwargs):
         method = getattr(self.controller, meth_name)
-        callback(method(*args, **kwargs))
+        return self.io_loop.run_in_executor(self.executor, functools.partial(method, *args, **kwargs))
 
     def __getattr__(self, name):
         def _missing(*args, **kwargs):
-            return self.get_future(name, *args, **kwargs)
+            return self.get_awaitable(name, *args, **kwargs)
         return _missing

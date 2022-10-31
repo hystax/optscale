@@ -4,7 +4,6 @@ from optscale_exceptions.common_exc import (
     UnauthorizedException, NotFoundException, WrongArgumentsException,
     ForbiddenException)
 from optscale_exceptions.http_exc import OptHTTPError
-from tornado import gen
 
 from report_server.controllers.event import (EventAsyncController,
                                              EventCountAsyncController)
@@ -17,8 +16,7 @@ class EventAsyncHandler(BaseReceiveHandler):
     def _get_controller_class(self):
         return EventAsyncController
 
-    @gen.coroutine
-    def get(self, organization_id):
+    async def get(self, organization_id):
         """
         ---
         description: |
@@ -139,7 +137,7 @@ class EventAsyncHandler(BaseReceiveHandler):
         - token: []
         """
         try:
-            yield self.check_permissions('POLL_EVENT', 'organization', organization_id)
+            await self.check_permissions('POLL_EVENT', 'organization', organization_id)
             data = {
                 'limit': self.get_arg('limit', int),
                 'time_start': self.get_arg('time_start', int),
@@ -156,17 +154,16 @@ class EventAsyncHandler(BaseReceiveHandler):
                 'token': self.token
             }
             data = {k: v for k, v in data.items() if v is not None}
-            res = yield gen.Task(self.controller.list, **data)
+            res = await self.controller.list(**data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
         except NotFoundException as exc:
             raise OptHTTPError.from_opt_exception(404, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))
 
-    @gen.coroutine
-    def post(self, organization_id, **kwargs):
+    async def post(self, organization_id, **kwargs):
         """
         ---
         description: |
@@ -245,10 +242,9 @@ class EventAsyncHandler(BaseReceiveHandler):
         - secret: []
         """
         self.check_cluster_secret(raises=True)
-        yield super().post(organization_id=organization_id, **kwargs)
+        await super().post(organization_id=organization_id, **kwargs)
 
-    @gen.coroutine
-    def patch(self, organization_id, **data):
+    async def patch(self, organization_id, **data):
         """
         ---
         description: |
@@ -299,16 +295,16 @@ class EventAsyncHandler(BaseReceiveHandler):
         security:
         - token: []
         """
-        yield self.check_permissions('POLL_EVENT', 'organization', organization_id)
+        await self.check_permissions('POLL_EVENT', 'organization', organization_id)
         data = self._request_body()
         data.update({'token': self.token, 'organization_id': organization_id})
         try:
-            res = yield gen.Task(self.controller.ack_all, **data)
+            res = await self.controller.ack_all(**data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))
 
 
 class EventCountAsyncHandler(BaseReportHandler):
@@ -323,8 +319,7 @@ class EventCountAsyncHandler(BaseReportHandler):
         }
         return {k: v for k, v in data.items() if v is not None}
 
-    @gen.coroutine
-    def get(self, organization_id):
+    async def get(self, organization_id):
         """
         ---
         description: |
@@ -383,22 +378,21 @@ class EventCountAsyncHandler(BaseReportHandler):
         security:
         - token: []
         """
-        yield self.check_permissions('POLL_EVENT', 'organization', organization_id)
+        await self.check_permissions('POLL_EVENT', 'organization', organization_id)
         data = self.get_request_data()
         data.update({'token': self.token, 'organization_id': organization_id})
         try:
-            res = yield gen.Task(self.controller.get_count, **data)
+            res = await self.controller.get_count(**data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))
 
 
 class EventAckAsyncHandler(BaseAuthHandler):
     def _get_controller_class(self):
         return EventAsyncController
 
-    @gen.coroutine
-    def get(self, id):
+    async def get(self, id):
         """
         ---
         description: |
@@ -449,17 +443,16 @@ class EventAckAsyncHandler(BaseAuthHandler):
         - token: []
         """
         try:
-            res = yield gen.Task(self.controller.get, id, self.token)
+            res = await self.controller.get(id, self.token)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
         except NotFoundException as exc:
             raise OptHTTPError.from_opt_exception(404, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))
 
-    @gen.coroutine
-    def patch(self, id, **data):
+    async def patch(self, id, **data):
         """
         ---
         description: |
@@ -507,7 +500,7 @@ class EventAckAsyncHandler(BaseAuthHandler):
         data = self._request_body()
         data.update({'token': self.token})
         try:
-            res = yield gen.Task(self.controller.ack, id, **data)
+            res = await self.controller.ack(id, **data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
         except ForbiddenException as exc:
@@ -516,4 +509,4 @@ class EventAckAsyncHandler(BaseAuthHandler):
             raise OptHTTPError.from_opt_exception(404, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))
