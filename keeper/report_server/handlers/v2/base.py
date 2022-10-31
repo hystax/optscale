@@ -2,9 +2,7 @@ import json
 import logging
 import requests
 from optscale_exceptions.common_exc import WrongArgumentsException
-from tornado import gen
 
-from tornado.concurrent import return_future, run_on_executor
 from auth_client.client_v2 import Client as AuthClient
 
 from report_server.exceptions import Err
@@ -47,13 +45,10 @@ class BaseAuthHandler(BaseAuthHandlerV1):
             'payload': json.dumps(payload)
         }
 
-    @gen.coroutine
-    def check_token(self):
-        yield gen.Task(self._check_token)
+    async def check_token(self):
+        await self.get_awaitable(self._check_token)
 
-    @run_on_executor
-    @return_future
-    def _check_token(self, callback=None):
+    def _check_token(self):
         client = AuthClient(url=Config().auth_url)
         client.token = self.token
         try:
@@ -62,7 +57,6 @@ class BaseAuthHandler(BaseAuthHandlerV1):
             if exc.response.status_code == 401:
                 raise OptHTTPError(401, Err.OK0003, [])
             raise
-        callback(None)
 
 
 class BaseReportHandler(BaseAuthHandler, BaseReportHandlerV1):

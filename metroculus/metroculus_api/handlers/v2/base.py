@@ -2,15 +2,14 @@ import json
 import logging
 import traceback
 from json.decoder import JSONDecodeError
-from concurrent.futures import ThreadPoolExecutor
 import tornado.web
-from tornado.ioloop import IOLoop
 
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            UnauthorizedException)
-from optscale_exceptions.http_exc import OptHTTPError
 from metroculus_api.exceptions import Err
 from metroculus_api.utils import ModelEncoder
+
+from optscale_exceptions.common_exc import UnauthorizedException
+from optscale_exceptions.http_exc import OptHTTPError
+
 
 LOG = logging.getLogger(__name__)
 

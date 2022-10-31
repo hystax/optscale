@@ -1,5 +1,5 @@
-tornado==4.4.2
-optscale-exceptions==0.0.21
+tornado==6.2
+optscale-exceptions==0.0.23
 config-client==1.0.97
 apispec==0.39.0
 cloud-adapter==0.1.990

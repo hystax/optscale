@@ -1,6 +1,5 @@
 import json
 import logging
-from tornado import gen
 
 from metroculus_api.controllers.k8s_metric import K8sMetricsAsyncController
 from metroculus_api.handlers.v2.base import SecretHandler
@@ -17,8 +16,7 @@ class K8sMetricsCollectionHandler(SecretHandler):
     def _get_controller_class(self):
         return K8sMetricsAsyncController
 
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         """
         ---
         tags: [k8s_metrics]
@@ -111,8 +109,7 @@ class K8sMetricsCollectionHandler(SecretHandler):
             'end_date': self.get_arg('end_date', int),
         }
         try:
-            res = yield gen.Task(
-                self.controller.get, **url_params)
+            res = await self.controller.get(**url_params)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         except UnauthorizedException as ex:
@@ -120,4 +117,4 @@ class K8sMetricsCollectionHandler(SecretHandler):
         except NotFoundException as ex:
             raise OptHTTPError.from_opt_exception(404, ex)
         self.set_status(200)
-        self.write(json.dumps(res.result(), cls=ModelEncoder))
+        self.write(json.dumps(res, cls=ModelEncoder))

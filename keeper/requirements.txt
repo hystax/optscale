@@ -1,8 +1,9 @@
-tornado==4.4.2
+tornado==6.2
 pymongo==3.5.1
 mongoengine==0.19.1
 config-client==1.0.38
-auth-client==0.0.66
-optscale-exceptions==0.0.18
+auth-client==0.0.82
+optscale-exceptions==0.0.23
+requests==2.25.0
 pika==1.1.0
 apispec==0.39.0
