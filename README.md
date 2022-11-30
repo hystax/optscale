@@ -1,4 +1,4 @@
-# OptScale - FinOps and multi-cloud cost management platform
+# OptScale - FinOps and multi-cloud cost optimization platform
 
 <p align="center">
 <a href="documentation/images/cover_github.png"><img src="documentation/images/cover_github.png" width="60%" align="middle"></a>
