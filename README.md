@@ -4,6 +4,8 @@
 <a href="documentation/images/cover_github.png"><img src="documentation/images/cover_github.png" width="60%" align="middle"></a>
 </p>
 OptScale is a solution to optimize cloud & Kubernetes costs and improve IT infrastructure usage by implementing various optimization scenarios and a FinOps strategy.
+<br>
+<br>
 
 [Live Demo](https://my.optscale.com/live-demo)
 
