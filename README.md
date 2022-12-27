@@ -5,6 +5,8 @@
 </p>
 OptScale is a solution to optimize cloud & Kubernetes costs and improve IT infrastructure usage by implementing various optimization scenarios and a FinOps strategy.
 
+[Live Demo](https://my.optscale.com/live-demo)
+
 ## Overview
 
 OptScale is available either in a form of open source code or as a [SaaS solution](https://my.optscale.com) hosted by Hystax team. The SaaS solution allows businesses of any size to optimize cloud & K8s costs and implement an efficient cloud usage experience, makes FinOps adoption more affordable than ever before.
