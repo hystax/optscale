@@ -28,6 +28,10 @@ You can check OptScale [live demo](https://my.optscale.com/live-demo) to explore
 
 Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com).
 
+## Deployment
+
+Please follow [deployment guide](optscale-deploy/README.md) to spin up your own instance of OptScale from pre-built Docker images.
+
 ## Community
 
 Hystax drives FinOps methodology, and has crafted a community of FinOps-related people. The community discusses FinOps and cost optimization best practices, our experts offer users how-tos and technical recommendations, and provide ongoing details and updates regarding the open source OptScale solution. 
