@@ -59,10 +59,6 @@ def as_dict(obj):
             for c in inspect(obj).mapper.column_attrs}
 
 
-def get_encryption_key():
-    return Config().client.read('/encryption_key').value.encode()
-
-
 def is_valid_port(value):
     try:
         port = int(value)

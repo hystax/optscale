@@ -1,0 +1,100 @@
+{{- $config := .Values.katara_service -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}{{ $config.api.role }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.externalPort }}
+      targetPort: {{ $config.service.internalPort }}
+      protocol: TCP
+      name: {{ $config.service.name }}
+  selector:
+    app: {{ $config.name }}{{ $config.api.role }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}{{ $config.scheduler.role }}
+  labels:
+    app: {{ $config.name }}{{ $config.scheduler.role }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.scheduler.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}{{ $config.scheduler.role }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}{{ $config.scheduler.role }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{ include "wait_for_service" .Values.katara_service | indent 6 }}
+      containers:
+      - name: {{ $config.name }}{{ $config.scheduler.role }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: HX_ETCD_HOST
+          value: {{ .Values.etcd.service.name }}
+        - name: HX_ETCD_PORT
+          value: {{ .Values.etcd.service.externalPort | quote }}
+        - name: HX_KATARA_ROLE
+          value: {{ $config.scheduler.role }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}{{ $config.api.role }}
+  labels:
+    app: {{ $config.name }}{{ $config.api.role }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}{{ $config.api.role }}
+      release: {{ .Release.Name }}
+  serviceName: {{ $config.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}{{ $config.api.role }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+{{ include "wait_for_service" .Values.etcd | indent 6 }}
+{{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
+{{ include "wait_for_service" .Values.restapi | indent 6 }}
+      containers:
+      - name: {{ $config.name }}{{ $config.api.role }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        ports:
+        - containerPort: {{ $config.service.internalPort }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: HX_ETCD_HOST
+          value: {{ .Values.etcd.service.name }}
+        - name: HX_ETCD_PORT
+          value: {{ .Values.etcd.service.externalPort | quote }}
+        - name: HX_KATARA_ROLE
+          value: {{ $config.api.role }}

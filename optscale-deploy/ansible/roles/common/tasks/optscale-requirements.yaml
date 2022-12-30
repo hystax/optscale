@@ -1,0 +1,21 @@
+---
+- name: Change mmap limit
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: 'vm.max_map_count=262144'
+  become: yes
+
+- name: Disable ipv6
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: 'net.ipv6.conf.all.disable_ipv6=1'
+  become: yes
+
+- name: Change current mmap limit
+  shell: sysctl -w vm.max_map_count=262144
+  become: yes
+
+- name: Disable ipv6
+  shell: sysctl -q -w net.ipv6.conf.all.disable_ipv6=1
+  become: yes
+

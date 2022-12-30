@@ -1,0 +1,117 @@
+---
+- name: BUILD SCRIPT RUNNER using Local Passwd
+  block:
+  - name: Install cmake
+    apt:
+      name: cmake
+      update_cache: yes
+    when: install_cmake | bool
+
+  - name: Build script runner
+    shell: "{{ tools_local_path }}script-runner/scripts/build.sh"
+  when: local_sudo_pass != ""
+  become: yes
+  run_once: true
+  delegate_to: 127.0.0.1
+  vars:
+    ansible_sudo_pass: "{{ local_sudo_pass }}"
+
+- name: BUILD SCRIPT RUNNER without Local Passwd
+  block:
+  - name: Install cmake
+    apt:
+      name: cmake
+      update_cache: yes
+    when: install_cmake | bool
+
+  - name: Build script runner
+    shell: "{{ tools_local_path }}script-runner/scripts/build.sh"
+  when: local_sudo_pass == ""
+  become: yes
+  run_once: true
+  delegate_to: 127.0.0.1
+
+- name: Copy script-runner to host
+  copy:
+    src: "{{ item }}"
+    dest: "{{ script_path }}"
+    owner: root
+    group: root
+    mode: 04555
+  with_items:
+   - "{{ tools_local_path }}script-runner/build/src/script-runner/script-runner"
+  become: yes
+
+- name: Copy sign tools to host
+  copy:
+    src: "{{ item }}"
+    dest: "{{ script_path }}"
+    owner: root
+    group: root
+    mode: 0455
+  with_items:
+   - "{{ tools_local_path }}script-runner/scripts/sign-file"
+   - "{{ tools_local_path }}script-runner/certs/hystax.certificate"
+  become: yes
+
+- name: Install rng-tools
+  apt:
+    name: rng-tools
+    update_cache: yes
+  become: yes
+
+- name: Install gnupg2
+  apt:
+    name: gnupg2
+  become: yes
+
+- name: Check gpg keys
+  shell: "gpg --list-keys root@hystax.com"
+  register: result
+  ignore_errors: yes
+  become: yes
+
+- name: Generate random bytes for gpg --gen-key
+  shell: rngd -r /dev/urandom
+  when: result.failed
+  become: yes
+
+- name: Create gpg certificate for host
+  shell: "gpg --batch --gen-key {{ script_path }}hystax.certificate"
+  when: result.failed
+  become: yes
+
+- name: Remove certificate config file from host
+  file:
+    path: "{{ script_path }}hystax.certificate"
+    state: absent
+  become: yes
+
+- name: Get key ID
+  shell: "gpg --list-secret-keys --keyid-format LONG root@hystax.com | awk '/^ssb/ {print $2}' | awk -F '/' '{print $2}'"
+  register: key_details
+  become: yes
+
+- name: Show key ID
+  debug:
+    msg: "Key ID = {{ key_details.stdout }}"
+
+- name: Remove script-runner config
+  file:
+    path: "{{ script_config }}"
+    state: absent
+  become: yes
+
+- name: Create script-runner config
+  lineinfile:
+    path: "{{ script_config }}"
+    line: "{{ key_details.stdout }}"
+    create: yes
+    owner: root
+    group: root
+    mode: 0400
+  become: yes
+
+- name: Sign script-runner config
+  shell: "bash {{ script_path }}sign-file {{ script_config }} {{ key_details.stdout }} {{ gpg_passphrase }}"
+  become: yes

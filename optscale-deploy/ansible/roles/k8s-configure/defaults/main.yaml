@@ -1,0 +1,5 @@
+---
+image_gc_high_threshold: 98
+image_gc_low_threshold: 95
+eviction_hard: "imagefs.available<5%,memory.available<100Mi,nodefs.available<2Gi,nodefs.inodesFree<5%"
+configure_dts_domain: true

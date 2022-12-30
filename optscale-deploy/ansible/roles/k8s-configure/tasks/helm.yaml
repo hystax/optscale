@@ -1,0 +1,14 @@
+---
+- name: Download Helm install script
+  get_url:
+    url: https://git.io/get_helm.sh
+    dest: /tmp/helm-install.sh
+    mode: 0755
+
+- name: Install Helm
+  shell: /tmp/helm-install.sh -v v2.17.0
+  become: yes
+
+- name: Install Tiller
+  shell: helm init
+  become: no

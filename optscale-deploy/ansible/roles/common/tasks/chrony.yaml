@@ -1,0 +1,66 @@
+---
+- name: Deploy chrony for HA cluster
+  block:
+    - name: Ensure ntpdate isn't installed
+      apt:
+        name: ntpdate
+        state: absent
+
+    - name: Install chrony
+      apt:
+        name: chrony
+        state: present
+        update_cache: yes
+
+    - name: Mask NTP service
+      systemd:
+        name: ntpd
+        enabled: no
+        masked: yes
+        state: stopped
+      ignore_errors: True
+
+    - name: Ensure chrony is active
+      service:
+        name: chrony
+        state: started
+
+    - name: Lets the first node be an chrony master
+      replace:
+        path: /etc/chrony/chrony.conf
+        regexp: '^#local stratum 10'
+        replace: 'local stratum 10'
+      when: inventory_hostname == groups['all'][0]
+      run_once: true
+
+    - name: Allow slaves connect to the chrony master
+      blockinfile:
+        path: /etc/chrony/chrony.conf
+        insertbefore: "^#allow foo.example.net"
+        block: "allow 0/0"
+      when: inventory_hostname == groups['all'][0]
+      run_once: true
+
+    - name: Disable sync with Internet
+      replace:
+        path: /etc/chrony/chrony.conf
+        regexp: "^pool "
+        replace: "#pool "
+
+    - name: Set IP address of chrony master
+      set_fact:
+        chrony_ip: "{{ hostvars[groups['all'][0]]['ansible_default_ipv4']['address'] }}"
+
+    - name: Add chrony server to slaves
+      blockinfile:
+        path: /etc/chrony/chrony.conf
+        insertafter: "^# NTP server"
+        block: "server {{ chrony_ip }} iburst prefer"
+      when: inventory_hostname != groups['all'][0]
+
+    - name: Reload service chrony
+      service:
+        name: chrony
+        state: restarted
+  when: groups['all'] | length > 1
+  become: yes

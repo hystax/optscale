@@ -1,0 +1,45 @@
+{{- $config := .Values.metroculus_scheduler }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "{{ $config.schedule }}"
+  startingDeadlineSeconds: {{ $config.startingDeadlineSeconds }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: {{ $config.name }}
+            release: {{ .Release.Name }}
+        spec:
+          initContainers:
+{{ include "wait_for_service" .Values.rabbitmq | indent 10 }}
+{{ include "wait_for_service" .Values.etcd | indent 10 }}
+{{ include "wait_for_service" .Values.restapi | indent 10 }}
+          containers:
+          - name: {{ $config.name }}
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            imagePullPolicy: {{ $config.image.pullPolicy }}
+            env:
+            - name: IMAGE_ID
+              value: {{ $config.image.id }}
+            - name: HX_ETCD_HOST
+              value: {{ .Values.etcd.service.name }}
+            - name: HX_ETCD_PORT
+              value: {{ .Values.etcd.service.externalPort | quote }}
+          restartPolicy: Never

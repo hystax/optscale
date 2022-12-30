@@ -1,0 +1,95 @@
+---
+- name: Get docker version
+  shell: docker version -f "{% raw %}{{.Server.Version}}{% endraw %}" | awk -F "." '{print $1"."$2}'
+  register: docker_version
+  ignore_errors: True
+  become: yes
+
+- name: Install proper docker version
+  block:
+    - name: Remove docker-engine package
+      apt:
+        name: "{{ docker_package_names }}"
+        state: absent
+
+    - name: Add an apt key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        validate_certs: no
+        state: present
+
+    - name: Get release name
+      shell: lsb_release -cs
+      register: release_name
+
+    - name: Add docker repo
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ release_name.stdout }} stable
+        state: present
+        filename: docker
+
+    - name: Install docker-ce
+      apt:
+        update_cache: yes
+        name: docker-ce=5:{{ required_docker_version }}.*
+        state: present
+  when: (docker_version is failed or docker_version.stdout != required_docker_version)
+  become: yes
+
+- name: Mark docker for hold
+  shell: apt-mark hold docker-ce
+  become: yes
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_ssh_user }}"
+    groups:
+    - docker
+    append: yes
+  become: yes
+
+- name: Reset ssh connection to allow user changes to affect 'current login user'
+  meta: reset_connection
+
+- name: Copy docker config file
+  shell: cp /lib/systemd/system/docker.service /etc/systemd/system/docker.service
+  become: yes
+
+- name: Set insecure-registry string
+  set_fact:
+    insecure_registry: >-
+      {%- set space = joiner(" ") -%}
+      {% for host in groups['all'] -%}
+      {{ space() }}--insecure-registry {{ host }}:{{ local_registry_port }} --insecure-registry {{ host }}:{{ local_patch_port }}
+      {%- endfor %}
+      {{ space() }}--insecure-registry localhost:{{ local_registry_port }} --insecure-registry localhost:{{ local_patch_port }}
+
+- name: Add registry as insecure
+  lineinfile:
+    path: /etc/systemd/system/docker.service
+    regexp: '^ExecStart='
+    line: 'ExecStart=/usr/bin/dockerd -H fd:// --insecure-registry optscale-dr.dts.loc {{ insecure_registry }}'
+  become: yes
+
+- name: Enable docker remote API
+  lineinfile:
+    path: /etc/systemd/system/docker.service
+    regexp: '^ExecStart=/usr/bin/dockerd -H fd:// --insecure-registry optscale-dr.dts.loc {{ insecure_registry }}'
+    line: 'ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2376 --insecure-registry optscale-dr.dts.loc {{ insecure_registry }}'
+  when: open_docker_port
+  become: yes
+
+- name: Configure logging in docker daemon.json
+  template:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+  when: log_to_elk
+  become: yes
+
+- name: Restart docker service
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: docker
+  become: yes
+  when: (docker_version is failed or docker_version.stdout != required_docker_version)

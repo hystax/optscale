@@ -1,0 +1,22 @@
+---
+- name: Copy renew certs script
+  copy:
+    src: "{{ user_scripts_local_path }}{{ renew_certs_script }}"
+    dest: "{{ script_path }}{{ renew_certs_script }}"
+    owner: root
+    group: root
+    mode: 0500
+  become: yes
+
+- name: Configure cron
+  cron:
+    name: renew Kubernetes certificates
+    special_time: monthly
+    user: root
+    job: "bash {{ script_path }}{{ renew_certs_script }}"
+    cron_file: renew_kubernetes_certs
+  become: yes
+
+- name: sync
+  shell: "sync"
+  become: yes

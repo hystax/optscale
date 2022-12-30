@@ -1,0 +1,138 @@
+---
+- name: Add engineer to docker group
+  user:
+    name: "engineer"
+    groups:
+    - docker
+    append: yes
+  become: yes
+
+- name: Create engineer k8s config directory
+  file:
+    path: "/home/engineer/.kube"
+    state: directory
+    owner: "engineer"
+    group: "engineer"
+  become: yes
+
+- name: Copy k8s config to engineer directory
+  copy:
+    remote_src: yes
+    src: "{{ K8S_PATH }}/admin.conf"
+    dest: "/home/engineer/.kube/config"
+    mode: 0600
+    owner: engineer
+  become: yes
+
+- name: Create user k8s config directory
+  file:
+    path: "{{ USER_K8S_PATH }}"
+    state: directory
+    owner: "{{ customer_user }}"
+    group: users
+  become: yes
+
+- name: Copy k8s config to user directory
+  copy:
+    remote_src: yes
+    src: "{{ K8S_PATH }}/admin.conf"
+    dest: "{{ USER_K8S_PATH }}/config"
+    mode: 0644
+    owner: engineer
+  become: yes
+
+- name: Create user certs directory
+  file:
+    path: "{{ USER_CERTS_PATH }}"
+    state: directory
+    owner: "{{ customer_user }}"
+    group: users
+  become: yes
+
+- name:  Create user.key
+  command: openssl genrsa -out "{{ USER_CERTS_PATH }}/{{ customer_user }}.key" 2048
+  become: yes
+
+- name:  Create user.csr
+  command: openssl req -new -key "{{ USER_CERTS_PATH }}/{{ customer_user }}.key" -out "{{ USER_CERTS_PATH }}/{{ customer_user }}.csr" -subj "/CN={{ customer_user }}/O=users"
+  become: yes
+
+- name:  Create user.crt
+  command: openssl x509 -req -in "{{ USER_CERTS_PATH }}/{{ customer_user }}.csr" -CA "{{ K8S_CERTS_PATH }}/ca.crt" -CAkey "{{ K8S_CERTS_PATH }}/ca.key" -CAcreateserial -out "{{ USER_CERTS_PATH }}/{{ customer_user }}.crt" -days 3650
+  become: yes
+
+- name:  Set user credentials in k8s config
+  command: kubectl --kubeconfig={{ USER_K8S_PATH }}/config config set-credentials {{ customer_user }} --client-certificate={{ USER_CERTS_PATH }}/{{ customer_user }}.crt --client-key={{ USER_CERTS_PATH }}/{{ customer_user }}.key
+  become: yes
+
+- name: Create user context in k8s config
+  command: kubectl --kubeconfig={{ USER_K8S_PATH }}/config config set-context user-context --cluster=kubernetes --namespace=default --user={{ customer_user }}
+  become: yes
+
+- name: Set default context in k8s config
+  command: kubectl --kubeconfig={{ USER_K8S_PATH }}/config config use-context user-context
+  become: yes
+
+- name:  Delete admin context in k8s config
+  command: kubectl --kubeconfig={{ USER_K8S_PATH }}/config config delete-context kubernetes-admin@kubernetes
+  become: yes
+
+- name:  Delete admin user in k8s config
+  command: kubectl --kubeconfig={{ USER_K8S_PATH }}/config config unset users.kubernetes-admin
+  become: yes
+
+- name: Create file role.yaml
+  copy:
+    dest: "{{ ROLE_YAML }}"
+    content: |
+      kind: Role
+      apiVersion: rbac.authorization.k8s.io/v1beta1
+      metadata:
+        namespace: default
+        name: users
+      rules:
+      - apiGroups: ["", "extensions", "apps"]
+        resources: ["services", "pods"]
+        verbs: ["get", "list", "watch"]
+
+- name: Create file rolebinding.yaml
+  copy:
+    dest: "{{ ROLEBINDING_YAML }}"
+    content: |
+      kind: RoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1beta1
+      metadata:
+        name: users-binding
+        namespace: default
+      subjects:
+      - kind: User
+        name: {{ customer_user }}
+        apiGroup: ""
+      roleRef:
+        kind: Role
+        name: users
+        apiGroup: ""
+
+- name: Create user role
+  command: kubectl create -f {{ ROLE_YAML }}
+
+- name: Create user rolebinding
+  command: kubectl create -f {{ ROLEBINDING_YAML }}
+
+- name: Delete file role.yaml
+  file:
+    path: "{{ ROLE_YAML }}"
+    state: absent
+  become: yes
+
+- name: Delete file rolebinding.yaml
+  file:
+    path: "{{ ROLEBINDING_YAML }}"
+    state: absent
+  become: yes
+
+- name: Set user.key file permissions
+  file:
+    path: "{{ USER_CERTS_PATH }}/{{ customer_user }}.key"
+    mode: 0644
+  become: yes

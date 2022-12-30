@@ -1,0 +1,2 @@
+---
+- import_tasks: remove_user.yaml

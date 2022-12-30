@@ -1,0 +1,205 @@
+---
+# sha512_crypt.encrypt("example-password!") Please change
+- name: Create engineer user
+  user:
+    name: engineer
+    shell: /bin/bash
+    groups: 
+      - adm
+      - sudo
+    password: "$6$rounds=656000$oaDhY60vvrgktlnk$Io5zWH0lWtysqJio7897yoP69x.PdLI4WM/R4LzaJ5nQ5JjYACdGQfLZty5JycAC9QkbiTidDlFkJWFrEeNjE1"
+  become: yes
+
+- name: Create customer user
+  user:
+    name: "{{ customer_user }}"
+    shell: /bin/bash
+    groups: 
+      - users
+  become: yes
+
+- name: Grant abilities to user
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^{{ customer_user }}'
+    line: '{{ customer_user }} ALL=(ALL) NOPASSWD: /sbin/halt, /sbin/reboot, /sbin/poweroff, /etc/init.d/networking, /sbin/ifconfig *'
+  become: yes
+
+- name: Get release name
+  shell: lsb_release -cs
+  register: release_name
+
+- name: Allow user to edit /etc/network/interfaces
+  file:
+    path: /etc/network/interfaces
+    mode: 0666
+  become: yes
+  when: release_name.stdout == "xenial"
+
+- name: Allow user to edit /etc/netplan
+  file:
+    path: /etc/netplan
+    mode: 0666
+    recurse: yes
+    state: directory
+  become: yes
+  when: release_name.stdout == "bionic"
+
+- name: Verify existing of cloud.cfg
+  stat:
+    path: /etc/cloud/cloud.cfg
+  register: cloud_init_exist
+  become: yes
+
+- name: Change default user name
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^     name: ubuntu'
+    replace: '     name: {{ customer_user }}'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Change sudo previlegios for default user
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^     sudo: .+'
+    replace: '     sudo: False'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Change default group for default user
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^     groups: .+'
+    replace: '     groups: [{{ customer_user }}]'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block runcmd in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - runcmd'
+    replace: '# - runcmd'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block migrator in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - migrator'
+    replace: '# - migrator'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block seed_random in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - seed_random'
+    replace: '# - seed_random'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block bootcmd in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - bootcmd'
+    replace: '# - bootcmd'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block write-files in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - write-files'
+    replace: '# - write-files'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block mounts in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - mounts'
+    replace: '# - mounts'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block ca-certs in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - ca-certs'
+    replace: '# - ca-certs'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block rsyslog in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - rsyslog'
+    replace: '# - rsyslog'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Block set-passwords in cloud-init
+  replace:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ - set-passwords'
+    replace: '# - set-passwords'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Enable manage_etc_hosts in cloud init to place hostname into /etc/hosts
+  lineinfile:
+    path: /etc/cloud/cloud.cfg
+    line: 'manage_etc_hosts: true'
+  when: cloud_init_exist.stat.exists
+  become: yes
+
+- name: Allow ssh connection by password
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication no'
+    replace: 'PasswordAuthentication yes'
+  become: yes
+
+- name: Restart service ssh
+  service:
+    name: ssh
+    state: restarted
+  become: yes
+
+- name: Turn Off Ubuntu Automatic Updates
+  replace:
+    path: /etc/apt/apt.conf.d/10periodic
+    regexp: 'APT::Periodic::Update-Package-Lists "1";'
+    replace: 'APT::Periodic::Update-Package-Lists "0";'
+  ignore_errors: yes
+  become: yes
+
+- name: Turn Off Ubuntu Automatic Updates
+  replace:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    regexp: 'APT::Periodic::Update-Package-Lists "1";'
+    replace: 'APT::Periodic::Update-Package-Lists "0";'
+  ignore_errors: yes
+  become: yes
+
+- name: Turn Off Ubuntu Automatic Updates
+  replace:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    regexp: 'APT::Periodic::Unattended-Upgrade "1";'
+    replace: 'APT::Periodic::Unattended-Upgrade "0";'
+  ignore_errors: yes
+  become: yes
+
+- name: Turn Off Ubuntu Automatic Updates
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+   - "apt-daily.timer"
+   - "apt-daily.service"
+   - "apt-daily-upgrade.timer"
+   - "apt-daily-upgrade.service"
+  ignore_errors: yes
+  become: yes

@@ -1,0 +1,12 @@
+---
+- name: Configure rsyslog rotation
+  template:
+    src: rsyslog
+    dest: /etc/logrotate.d/rsyslog
+  become: yes
+
+- name: Configure crontab to execute rotation of logs every minute
+  cron:
+    name: "Run log rotation job"
+    job: "/usr/sbin/logrotate /etc/logrotate.conf"
+  become: yes

@@ -1,0 +1,15 @@
+---
+kind: ConfigMap
+apiVersion: v1
+data:
+  config.xml: |-
+{{ include "ch-config.xml" . | indent 4 }}
+  users.xml: |-
+{{ include "ch-users.xml" . | indent 4}}
+metadata:
+  name: {{ .Values.clickhouse.name }}-config
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    app: {{ .Values.clickhouse.name }}

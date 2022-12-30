@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.clickhouse.service.name }}
+  labels:
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    app: {{ .Values.clickhouse.name }}
+spec:
+{{- if (or (eq .Values.clickhouse.service.type "ClusterIP") (empty .Values.clickhouse.service.type)) }}
+  type: ClusterIP
+  {{- if .Values.clickhouse.service.clusterIP }}
+  clusterIP: {{ .Values.clickhouse.service.clusterIP }}
+  {{end}}
+{{- else if eq .Values.clickhouse.service.type "LoadBalancer" }}
+  type: {{ .Values.clickhouse.service.type }}
+  {{- if .Values.clickhouse.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.clickhouse.service.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.clickhouse.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.clickhouse.service.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.clickhouse.service.type }}
+{{- end }}
+{{- if .Values.clickhouse.service.externalIPs }}
+  externalIPs:
+{{ toYaml .Values.clickhouse.service.externalIPs | indent 4 }}
+{{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.clickhouse.service.httpPort }}
+      targetPort: {{ .Values.clickhouse.service.httpPort }}
+      protocol: TCP
+{{ if (and (eq .Values.clickhouse.service.type "NodePort") (not (empty .Values.clickhouse.service.nodePort))) }}
+      nodePort: {{.Values.clickhouse.service.nodePort}}
+{{ end }}
+    - name: native
+      port: {{ .Values.clickhouse.service.externalPort }}
+      targetPort: {{ .Values.clickhouse.service.externalPort }}
+      protocol: TCP
+  selector:
+    app: {{ .Values.clickhouse.name }}
+    release: {{ .Release.Name }}

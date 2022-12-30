@@ -1,0 +1,44 @@
+---
+- hosts: all
+  vars:
+    download_file: false
+  remote_user: dts
+
+  tasks:
+  - name: Get last character of remote path
+    shell: "echo -n {{ remote_path }} | tail -c 1"
+    register: last_character
+
+  - name: Get dirname
+    shell: "dirname {{ remote_path }}"
+    register: dirname
+    when: last_character.stdout != "/"
+
+  - name: Creates directory
+    file:
+      path: "{{ dirname.stdout }}"
+      state: directory
+      recurse: yes
+    become: yes
+    when: last_character.stdout != "/"
+
+  - name: Copy file
+    copy:
+      src: "{{ local_path }}"
+      dest: "{{ remote_path }}"
+      mode: 0644
+    when: not download_file
+    become: yes
+
+  - name: Download file
+    get_url:
+      url: "{{ download_url }}"
+      dest: "{{ remote_path }}"
+      tmp_dest: "{{ dirname.stdout }}"
+      mode: 0644
+    when: download_file
+    become: yes
+
+  - name: Sync
+    shell: "sync"
+    become: yes

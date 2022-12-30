@@ -1,0 +1,22 @@
+# secrets should be permanent for cluster installation
+# change them in overlay before cluster installation
+secrets:
+  cluster: cf8b407e-a7e3-498d-8809-28f6abbe2619
+  agent: 355d14dd-73b1-4834-aa0e-ccf10849c496
+
+# used for password encryption with generated salt
+encryption_salt: Pl3ase-replace-me
+
+cluster_name:
+
+# docker will send container logs to this logstash
+logstash_host: 172.22.1.37
+logstash_port: 12201
+
+
+# used for recommendations etc
+smtp:
+  server:
+  email:
+  port:
+  password:

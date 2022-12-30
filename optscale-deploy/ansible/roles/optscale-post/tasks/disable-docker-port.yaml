@@ -1,0 +1,7 @@
+---
+- name: Disable docker remote API
+  replace:
+    path: /etc/systemd/system/docker.service
+    regexp: '-H tcp://0.0.0.0:2376'
+    replace: ''
+  become: yes

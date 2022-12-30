@@ -1,0 +1,7 @@
+---
+- name: Install tools
+  apt:
+    name: "{{ tools_list }}"
+    state: present
+    update_cache: yes
+  become: yes

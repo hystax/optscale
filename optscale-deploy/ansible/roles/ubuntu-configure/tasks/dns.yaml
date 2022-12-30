@@ -1,0 +1,19 @@
+---
+- name: configure DNS file for k8s
+  blockinfile:
+    path: /etc/dhcp/dhclient.conf
+    block: |
+      append domain-name " default.svc.cluster.local";
+      prepend domain-name-servers 10.96.0.10;
+  become: yes
+
+- name: Install resolvconf
+  apt:
+    name: resolvconf
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Rebuild resolv.conf
+  shell: resolvconf -u
+  become: yes

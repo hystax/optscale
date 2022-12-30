@@ -1,0 +1,66 @@
+{{- $config := .Values.auth -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.externalPort }}
+      targetPort: {{ $config.service.internalPort }}
+      protocol: TCP
+      name: {{ $config.service.name }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ $config.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+{{ include "wait_for_service" .Values.etcd | indent 6 }}
+{{ include "wait_mariadb" . | indent 6 }}
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        ports:
+        - containerPort: {{ $config.service.internalPort }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: HX_ETCD_HOST
+          value: {{ .Values.etcd.service.name }}
+        - name: HX_ETCD_PORT
+          value: {{ .Values.etcd.service.externalPort | quote }}
+        - name: GOOGLE_OAUTH_CLIENT_ID
+          value: {{ $config.google_oauth_client_id | quote }}
+        - name: MICROSOFT_OAUTH_CLIENT_ID
+          value: {{ $config.microsoft_oauth_client_id | quote }}
+{{ include "ready_probe" $config | indent 8 }}

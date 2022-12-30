@@ -1,0 +1,62 @@
+{{- $config := .Values.report_import_scheduler }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-secret
+  labels:
+    app: {{ $config.name }}
+    release: "{{ .Release.Name }}"
+type: Opaque
+data:
+  cluster_secret: {{ .Values.secrets.cluster | b64enc | quote }}
+{{- range $period, $schedule := .Values.report_import_schedules }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $config.name }}-{{ $period }}
+  labels:
+    app: {{ $config.name }}-{{ $period }}
+    chart: {{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}
+    release: {{ $.Release.Name }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "{{ $schedule }}"
+  startingDeadlineSeconds: {{ $config.startingDeadlineSeconds }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ $config.name }}-{{ $period }}
+        release: {{ $.Release.Name }}
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: {{ $config.name }}-{{ $period }}
+            release: {{ $.Release.Name }}
+        spec:
+          initContainers:
+{{ include "wait_for_service" $.Values.restapi | indent 10 }}
+          containers:
+          - name: {{ $config.name }}-{{ $period }}
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            imagePullPolicy: {{ $config.image.pullPolicy }}
+            env:
+            - name: PERIOD
+              value: "{{ $period }}"
+            - name: CLUSTER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-secret
+                  key: cluster_secret
+            command:
+            - "/bin/sh"
+            - "-ec"
+            - |
+{{ include "report_import_schedule_cmd" $ | indent 14 }}
+          restartPolicy: Never
+{{- end }}

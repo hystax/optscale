@@ -1,8 +1,12 @@
 import os
 import logging
-import smtplib, ssl
-from cryptography.fernet import Fernet
-from herald_server.utils import (is_valid_port, is_email_format, get_encryption_key)
+import smtplib
+import ssl
+
+from herald_server.utils import (
+    is_valid_port,
+    is_email_format
+)
 
 
 LOG = logging.getLogger(__name__)
@@ -14,9 +18,7 @@ def send_email(message, config_client=None):
         if smtp_params is not None:
             if _is_valid_smtp_params(smtp_params):
                 server, port, email, password = smtp_params
-                fernet = Fernet(get_encryption_key())
-                decrypted_password = fernet.decrypt(password.encode()).decode()
-                _send_email_to_user_smtp(server, port, email, decrypted_password, message)
+                _send_email_to_user_smtp(server, port, email, password, message)
                 return
             else:
                 LOG.warning("User SMTP parameters are not valid")

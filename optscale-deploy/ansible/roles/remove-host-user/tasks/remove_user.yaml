@@ -1,0 +1,11 @@
+---
+- name: Remove ubuntu user
+  user:
+    name: "{{ user_to_remove }}"
+    state: absent
+    remove: yes
+    home: "/home/{{ user_to_remove }}"
+    force: yes
+  when: user_to_remove != "root"
+  ignore_errors: yes
+  become: yes

@@ -1,0 +1,47 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    vhd_path: '/tmp/hystax-ogi.vhd'
+    vhd_name: 'hystax-ogi-test.vhd'
+    container_name: 'hystax-optscale'
+    storage_account: 'optscalegoldenimageus2'
+    resource_group: 'OptScaleGoldenImageUS2'
+    image_name: 'Hystax_OGI_TEST'
+
+  tasks:
+  - name: Check if the image was already uploaded
+    azure_rm_image_info:
+      name: '{{ image_name }}'
+      resource_group: '{{ resource_group }}'
+    register: result
+    ignore_errors: yes
+
+  - name: Create storage container and upload a vhd file
+    azure_rm_storageblob:
+      resource_group: '{{ resource_group }}'
+      storage_account_name: '{{ storage_account }}'
+      container: '{{ container_name }}'
+      blob: '{{ vhd_name }}'
+      blob_type: page
+      src: '{{ vhd_path }}'
+      public_access: container
+      content_type: 'application/image'
+    when: result.failed
+
+  - name: Create an image from uploaded blob
+    azure_rm_image:
+      resource_group: '{{ resource_group }}'
+      name: '{{ image_name }}'
+      source: 'https://{{ storage_account }}.blob.core.windows.net/{{ container_name }}/{{ vhd_name }}'
+      os_type: Linux
+    when: result.failed
+
+  - name: Delete uploaded blob
+    azure_rm_storageblob:
+      resource_group: '{{ resource_group }}'
+      storage_account_name: '{{ storage_account }}'
+      container: '{{ container_name }}'
+      blob: '{{ vhd_name }}'
+      state: absent
+    when: result.failed

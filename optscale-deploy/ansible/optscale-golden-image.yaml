@@ -1,0 +1,60 @@
+---
+- hosts: all
+  serial: 1
+  order: sorted
+  vars_prompt:
+    - name: password
+      prompt: What is your SUDO password -> required to build Script Runner (stay empty if your local user does not prompt sudo password)?
+    - name: cloud_type
+      prompt: What is the Cloud Name? [google, amazon, azure, digital-ocean, openstack, huawei, other]?
+      default: "openstack"
+      private: no
+    - name: set_user_password
+      prompt: Do you want to set a customer user password? yes/No
+      default: "no"
+      private: no
+    - name: disable_ssh
+      prompt: Do you want to disable SSH using password (required for AGI)? yes/No
+      default: "no"
+      private: no
+    - name: remove_all_users_passwords
+      prompt: Do you want to remove all Users passwords (required for AGI)? yes/No
+      default: "no"
+      private: no
+    - name: download_patch_url
+      prompt: What is the OptScale Patch S3 URL?
+      private: no
+  roles:
+  - role: ubuntu-configure
+  - role: common
+    vars:
+      logstash_host: "127.0.0.1"
+  - role: k8s-init
+  - role: k8s-configure
+  - role: startup
+    vars:
+      script_remote_path: '/optscale/startup/'
+      script_remote_file: 'startup.sh'
+      script_remote_old_ip: 'old_ip'
+  - role: optscale
+    vars:
+      overlay_list: []
+      download_patch: true
+  - role: optscale-post
+    vars:
+      defragmentation: false
+      install_cmake: false
+      local_sudo_pass: "{{ password }}"
+  - role: set-user-password
+    when: set_user_password | bool
+  - role: gcp-post
+    when: cloud_type == "google"
+  - role: azure-post
+    when: cloud_type == "azure"
+  - role: digital-ocean-post
+    when: cloud_type == "digital-ocean"
+  - role: yandex-post
+    when: cloud_type == "yandex"
+  - role: remove-host-user
+    vars:
+      user_to_remove: "{{ ansible_ssh_user }}"

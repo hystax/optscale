@@ -7,3 +7,4 @@ cloud-adapter==0.1.1221
 restapi-client==1.0.687
 concurrencytest==0.1.2
 mongomock==3.22.1
+pyyaml==5.3.1

@@ -1,0 +1,41 @@
+---
+bigfile: "/optscale/tools/VeryBigFile.txt"
+customer_user: "user"
+USER_K8S_PATH: "/home/{{ customer_user }}/.kube"
+USER_CERTS_PATH: "/home/{{ customer_user }}/.certs"
+K8S_PATH: "/etc/kubernetes"
+ROLE_YAML: "/tmp/role-deployment-manager.yaml"
+ROLEBINDING_YAML: "/tmp/rolebinding-deployment-manager.yaml"
+K8S_CERTS_PATH: "{{ K8S_PATH }}/pki"
+script_config: "/etc/script-runner"
+tools_local_path: "{{lookup('pipe', 'pwd')}}/../tools/"
+script_path: "/optscale/tools/"
+gpg_passphrase: ""
+services_2_stop:
+  - "docker"
+  - "kubelet"
+
+user_scripts_local_path: "../tools/golden_image/"
+user_scripts:
+  - "set-public-ip.sh"
+  - "set-smtp-server.sh"
+  - "get-smtp-server.sh"
+  - "cluster-info.sh"
+  - "update-nginx-ssl.sh"
+  - "enable-engineer.sh"
+renew_certs_script: "renew-kubernetes-certs.sh"
+
+defragmentation: true
+disable_docker: true
+prepare_k8s_user: true
+install_script_runner: true
+install_user_scripts: true
+install_cmake: true
+install_renew_certs: true
+disable_ssh: false
+remove_all_users_passwords: false
+
+local_sudo_pass: ""
+
+tools_list_to_remove:
+- git

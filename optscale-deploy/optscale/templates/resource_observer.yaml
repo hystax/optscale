@@ -1,0 +1,79 @@
+{{- $config := .Values.resource_observer }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}-worker
+  labels:
+    app: {{ $config.name }}-worker
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}-worker
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}-worker
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
+{{ include "wait_for_service" .Values.restapi | indent 6 }}
+      containers:
+      - name: {{ $config.name }}-worker
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: HX_ETCD_HOST
+          value: {{ .Values.etcd.service.name }}
+        - name: HX_ETCD_PORT
+          value: {{ .Values.etcd.service.externalPort | quote }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $config.name }}-scheduler
+  labels:
+    app: {{ $config.name }}-scheduler
+    chart: {{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}
+    release: {{ $.Release.Name }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "{{ $config.schedule }}"
+  startingDeadlineSeconds: {{ $config.startingDeadlineSeconds }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ $config.name }}-scheduler
+        release: {{ $.Release.Name }}
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: {{ $config.name }}-scheduler
+            release: {{ $.Release.Name }}
+        spec:
+          initContainers:
+{{ include "wait_for_service" $.Values.restapi | indent 10 }}
+          containers:
+          - name: {{ $config.name }}-scheduler
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            imagePullPolicy: {{ $config.image.pullPolicy }}
+            command:
+            - "python3"
+            - "/src/scheduler.py"
+            env:
+            - name: HX_ETCD_HOST
+              value: {{ $.Values.etcd.service.name }}
+            - name: HX_ETCD_PORT
+              value: {{ $.Values.etcd.service.externalPort | quote }}
+          restartPolicy: Never

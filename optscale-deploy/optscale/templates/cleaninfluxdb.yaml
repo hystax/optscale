@@ -1,0 +1,42 @@
+{{- $config := .Values.cleaninfluxdb }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "{{ $config.schedule }}"
+  startingDeadlineSeconds: {{ $config.startingDeadlineSeconds }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: {{ $config.name }}
+            release: {{ .Release.Name }}
+        spec:
+          initContainers:
+{{ include "wait_for_service" .Values.influxdb | indent 10 }}
+          containers:
+          - name: {{ $config.name }}
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            env:
+            - name: HX_INFLUXDB_HOST
+              value: "{{ $config.influxdb_host }}"
+            - name: HX_INFLUXDB_PORT
+              value: "{{ $config.influxdb_port }}"
+            - name: HX_DAYS_TO_STORE
+              value: "{{ $config.days_to_store }}"
+          restartPolicy: Never

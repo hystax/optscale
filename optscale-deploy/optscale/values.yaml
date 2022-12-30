@@ -1,0 +1,811 @@
+# Default values for optscale.
+
+tag: &tag local
+
+etcd:
+  name: &etcd_name etcd
+  replicaCount: 1
+  image:
+    id:
+    repository: *etcd_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: etcd-client
+    type: ClusterIP
+    externalPort: 2379
+    internalPort: 2379
+    discovery_name: etcd-cluster
+    peerPort: 2380
+  hb_interval: 500 # Adjust if you have slow system
+  election_timeout: 5000 # hb_interval x10
+
+mariadb:
+  name: &mariadb_name mariadb
+  replicaCount: 1
+  image:
+    id:
+    repository: *mariadb_name
+    tag: *tag
+    pullPolicy: Never
+  credentials:
+    username: root
+    password: my-password-01
+  service:
+    name: *mariadb_name
+    type: ClusterIP
+    externalPort: 3306
+    internalPort: 3306
+
+mongo:
+  name: &mongo_name mongo
+  replicaCount: 1
+  cache_size: 1.0
+  image:
+    id:
+    repository: *mongo_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *mongo_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 27017
+  credentials:
+    username: root
+    password: SecurePassword-01-02
+    key: secureShardingKeyFFFDDa129
+
+rabbitmq:
+  name: &rabbit_name rabbitmq
+  replicaCount: 1
+  mnesiaSize: 10Gi
+  memory_limit: 512
+  image:
+    id:
+    repository: *rabbit_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *rabbit_name
+    type: ClusterIP
+    externalPort: 5672
+    internalPort: 5672
+    managerPort: 15672
+    empdPort: 4369
+  credentials:
+    username: optscale
+    password: secure-password-here
+    cookie: dWkhXehOApH1OHshvByfpfTf3Cd8wwkADei7mWd5JF
+
+restapi:
+  name: &restapi_name restapi
+  replicaCount: 1
+  image:
+    id:
+    repository: *restapi_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *restapi_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8999
+
+auth:
+  name: &auth_name auth
+  replicaCount: 1
+  image:
+    id:
+    repository: *auth_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *auth_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8905
+  # filled from overlay
+  google_oauth_client_id:
+  microsoft_oauth_client_id:
+
+keeper:
+  name: &keeper_name keeper
+  replicaCount: 1
+  image:
+    id:
+    repository: *keeper_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *keeper_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8973
+
+phpmyadmin:
+  name: &php_name myadmin
+  replicaCount: 1
+  image:
+    id:
+    repository: phpmyadmin
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *php_name
+    type: NodePort
+    externalPort: 30080
+    internalPort: 80
+
+herald:
+  name: &herald_name herald
+  api:
+    role: api
+    replicaCount: 1
+  engine:
+    role: engine
+    replicaCount: 2
+  image:
+    id:
+    repository: *herald_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *herald_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8906
+
+elk:
+  enabled: false
+  name: &elk_name elk
+  es_connect_retry: "90"
+  ls_heap_size: 2g
+  es_heap_size: 1g
+  image:
+    id:
+    repository: *elk_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *elk_name
+    elastic_port: &ex_port 9200
+    externalPort: *ex_port
+    logstash_tcp_port: 12201
+    logstash_udp_port: 12201
+    internal_kibana_port: 80
+    external_kibana_port: 30081
+
+elastic_cluster:
+  name: &es_name elasticsearch
+  master:
+    role: master
+    replicaCount: 3
+    host_data_dir: /optscale/esdb_master
+    port: 9300
+    java_opts: -Xms256m -Xmx256m
+  data:
+    role: data
+    replicaCount: 3
+    host_data_dir: /optscale/esdb_data
+    port: 9200
+    java_opts: -Xms256m -Xmx256m
+  image:
+    id:
+    repository: *es_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *es_name
+    port: 9200
+    discovery_name: es-discovery
+
+logstash:
+  name: &logstash logstash
+  image:
+    id:
+    repository: *logstash
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *logstash
+    tcp_port: 12201
+    udp_port: 12201
+
+kibana:
+  name: &kibana kibana
+  replicaCount: 1
+  image:
+    id:
+    repository: *kibana
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *kibana
+    internalPort: 80
+    externalPort: 30081
+
+ngui:
+  name: &ngui_name ngui
+  replicaCount: 1
+  image:
+    id:
+    repository: *ngui_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *ngui_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 9999
+
+minio:
+  name: &minio_name minio
+  replicaCount: 1
+  image:
+    id:
+    repository: *minio_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *minio_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 9000
+  credentials:
+    access: optscale-minio
+    secret: secret_password
+
+diworker:
+  name: &diworker_name diworker
+  replicaCount: 1
+  image:
+    id:
+    repository: *diworker_name
+    tag: *tag
+    pullPolicy: Never
+
+katara_service:
+  name: &katara_name katara
+  api:
+    role: api
+    replicaCount: 1
+  scheduler:
+    role: scheduler
+    replicaCount: 1
+  image:
+    id:
+    repository: katara_service
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *katara_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8935
+
+katara_worker:
+  name: &katara_name kataraworker
+  replicaCount: 1
+  image:
+    id:
+    repository: katara_worker
+    tag: *tag
+    pullPolicy: Never
+
+bumischeduler:
+  name: &bumi_scheduler_name bumischeduler
+  replicaCount: 1
+  image:
+    id:
+    repository: *bumi_scheduler_name
+    tag: *tag
+    pullPolicy: Never
+
+bumiworker:
+  name: &bumi_worker_name bumiworker
+  replicaCount: 1
+  image:
+    id:
+    repository: *bumi_worker_name
+    tag: *tag
+    pullPolicy: Never
+
+report_import_scheduler:
+  name: report-import-scheduler
+  image:
+    repository: cleanelkdb  # using cleanelkdb, because it has curl inside
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+
+resource_discovery:
+  name: resource-discovery
+  replicaCount: 2   # amount of workers
+  image:
+    repository: resource_discovery
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+  memory_limit: 1024
+
+demo_org_cleanup:
+  name: demoorgcleanup
+  image:
+    repository: demo_org_cleanup
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+
+resource_observer:
+  name: resource-observer
+  replicaCount: 1   # amount of workers
+  image:
+    repository: resource_observer
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+resource_violations:
+  name: resource-violations
+  replicaCount: 1   # amount of workers
+  image:
+    repository: resource_violations
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+calendar_observer:
+  name: calendar-observer
+  replicaCount: 1   # amount of workers
+  image:
+    repository: calendar_observer
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 * * * *"
+
+influxdb:
+  name: &influx_name influxdb
+  replicaCount: 1
+  image:
+    id:
+    repository: *influx_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *influx_name
+    type: ClusterIP
+    externalPort: &influx_external_port 80
+    internalPort: 8086
+
+# enable to deploy cleaninfluxdb pod
+deploy_cleaninfluxdb: "true"
+cleaninfluxdb:
+  name: &cleaninfluxdb cleaninfluxdb
+  schedule: "@weekly"
+  startingDeadlineSeconds: 100
+  days_to_store: 90
+  influxdb_host: *influx_name
+  influxdb_port: *influx_external_port
+  image:
+    repository: *cleaninfluxdb
+    tag: local
+
+grafana:
+  name: &grafana_name grafana
+  replicaCount: 1
+  internalPort: 3000
+  image:
+    id:
+    repository: *grafana_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *grafana_name
+    type: NodePort
+    externalPort: 30082
+    internalPort: 80
+  grafana_nginx:
+    name: grafana-nginx
+    image:
+      id:
+      repository: grafana_nginx
+      tag: *tag
+      pullPolicy: Never
+
+insider_scheduler:
+  name: insider-scheduler
+  replicaCount: 1
+  image:
+    repository: insider_scheduler
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+
+insider_worker:
+  name: insider-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: insider_worker
+    tag: *tag
+    pullPolicy: Never
+
+insider_api:
+  name: &insider_api_name insider-api
+  replicaCount: 1
+  image:
+    id:
+    repository: insider_api
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *insider_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8945
+
+cloud_nurse:
+  name: cloudnurse
+  replicaCount: 0
+  image:
+    repository: cloud_nurse
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 */6 * * *"
+
+slacker:
+  name: &slacker_name slacker
+  replicaCount: 1
+  image:
+    id:
+    repository: *slacker_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *slacker_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 80
+  # filled from overlay
+  slack_signing_secret:
+  slack_client_id:
+  slack_client_secret:
+
+error_pages:
+  name: &error_pages_name error-pages
+  replicaCount: 1
+  image:
+    id:
+    repository: error_pages
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *error_pages_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8080
+
+clickhouse:
+  name: &clickhouse_name clickhouse
+  replicaCount: 1
+  shardsCount: 1
+  db:
+    name: default
+    user: default
+    password: secure-password-1-clk
+  image:
+    id:
+    repository: *clickhouse_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *clickhouse_name
+    type: ClusterIP
+    httpPort: 8123
+    externalPort: 9000
+  replicas: 1
+
+zohocrm:
+  regapp:
+
+metroculus_scheduler:
+  name: metroculusscheduler
+  replicaCount: 1
+  image:
+    repository: metroculus_scheduler
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/30 * * * *"
+
+metroculus_worker:
+  name: metroculusworker
+  replicaCount: 1
+  image:
+    id:
+    repository: metroculus_worker
+    tag: *tag
+    pullPolicy: Never
+
+metroculus_api:
+  name: &metroculus_api_name metroculusapi
+  replicaCount: 1
+  image:
+    id:
+    repository: metroculus_api
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *metroculus_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8969
+
+webhook_executor:
+  name: webhook-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: webhook_executor
+    tag: *tag
+    pullPolicy: Never
+
+slacker_executor:
+  name: slacker-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: slacker_executor
+    tag: *tag
+    pullPolicy: Never
+
+herald_executor:
+  name: herald-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: herald_executor
+    tag: *tag
+    pullPolicy: Never
+
+keeper_executor:
+  name: keeper-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: keeper_executor
+    tag: *tag
+    pullPolicy: Never
+
+booking_observer:
+  name: booking-observer
+  replicaCount: 2   # amount of workers
+  image:
+    repository: booking_observer
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/1 * * * *"
+
+jira_bus:
+  name: &jira_bus_name jira-bus
+  replicaCount: 1
+  image:
+    id:
+    repository: jira_bus
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *jira_bus_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8977
+
+jira_ui:
+  name: &jira_ui_name jira-ui
+  replicaCount: 1
+  image:
+    id:
+    repository: jira_ui
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *jira_ui_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 80
+
+organization_violations:
+  name: organization-violations
+  replicaCount: 1   # amount of workers
+  image:
+    repository: organization_violations
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+trapper_scheduler:
+  name: trapper-scheduler
+  replicaCount: 1
+  image:
+    repository: trapper_scheduler
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "45 */1 * * *"
+
+trapper_worker:
+  name: trapper-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: trapper_worker
+    tag: *tag
+    pullPolicy: Never
+
+users_dataset_generator:
+  name: users-dataset-generator
+  image:
+    repository: users_dataset_generator
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+  enable: false
+  bucket:
+  s3_path:
+  filename:
+  aws_access_key_id:
+  aws_secret_access_key:
+
+# list of databases to create (if not exist) during DC initialization
+databases:
+  - auth-db
+  - my-db
+  - tasks
+  - herald
+  - katara
+  - slacker
+  - jira-bus
+
+# filled from base overlay
+# we need it to fill agent config correctly
+public_ip:
+
+# helm release name
+release:
+
+public_port: 443
+
+# filled from base overlay
+# only for humans, no robots here
+docker_registry:
+docker_tag:
+
+# filled from base overlay
+optscale_key:
+
+# SSL certificates (filled from base overlay)
+# (make sure to use ">" here and "|" in overlays)
+certificates:
+  optscale:
+
+events_queue: events_queue
+
+# configure mysql db replication
+db_backup:
+  enabled: false
+  mountpoint: /optscale/backup # can be mounted from remote, mount propagation used
+  keep: 5 # keep last 5 backups by default
+  schedule: "0 12 * * *"
+
+# enable to deploy cleanelkdb pod
+deploy_cleanelkdb: "false"
+cleanelkdb:
+  name: &cleanelkdb_name cleanelkdb
+  schedule: "*/15 * * * *"
+  startingDeadlineSeconds: 100
+  log_max_size: 5120
+  image:
+    repository: *cleanelkdb_name
+    tag: local
+
+# Set to true if you want to start/update cluster without touching existing config
+# Used when --update-only runkube flag is set
+skip_config_update: false
+
+# set to true to deploy HA Optscale on multi-master k8s cluster (tested with 3 nodes)
+ha: false
+
+# list of overlays used by runkube to start Optscale (necessary to use proper defaults when adding new keys on update)
+overlay_list: ''
+
+# k8s cluster domain
+clusterDomain: cluster.local
+
+report_import_schedules:
+  0: "*/15 * * * *"
+  1: "0 * * * *"
+  6: "0 */6 * * *"
+  24: "0 0 * * *"
+
+# amount of hours until token becomes expired
+token_expiration: 168 # one week
+
+invite_expiration_days: 30 # days before invite url expiration
+
+demo:
+  multiplier: 2 # demo multiplier default value
+
+katara_scheduler_timeout: 3600
+
+# filled from optscale overlay
+# Optscale recipient for service emails
+optscale_service_emails:
+  recipient:
+  enabled: false
+
+# filled from optscale overlay
+# Optscale recipient for error emails
+optscale_error_emails:
+  recipient:
+  enabled: false
+
+# filled from optscale overlay
+# Optscale email domains blacklists
+domains_blacklists:
+  registration:
+  new_employee_email:
+
+# filled from optscale overlay
+# Service account to work with Google calendars
+google_calendar_service:
+  access_key:
+    type:
+    project_id:
+    private_key_id:
+    private_key:
+    client_email:
+    client_id:
+    auth_uri:
+    token_uri:
+    auth_provider_x509_cert_url:
+    client_x509_cert_url:
+  enabled: false
+
+bumi_scheduler_timeout: 300
+bumi_worker:
+  max_retries: 5
+  wait_timeout: 7200
+  task_timeout: 3600
+  run_period: 10800
+
+optscale_meter_enabled: 0
+
+fake_cad_enabled: 0
+
+#filled from smtp overlay - smtp settings for testing
+smtp:
+  server:
+  email:
+  port:
+  password:
+
+#resource discovery settings - the page size for requesting resources from
+#the cloud adapter and the number of resources stored in memory before writing
+resource_discovery_settings:
+  discover_size: 10000
+  timeout:
+  writing_timeout: 60
+  observe_timeout: 7200
+
+encryption_salt:

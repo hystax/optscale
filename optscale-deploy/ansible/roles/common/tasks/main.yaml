@@ -1,0 +1,9 @@
+---
+- import_tasks: optscale-requirements.yaml
+- import_tasks: docker.yaml
+- import_tasks: kubernetes.yaml
+- import_tasks: tools.yaml
+- import_tasks: optscale-tools.yaml
+- import_tasks: hosts.yaml
+- import_tasks: syslog-rotation.yaml
+- import_tasks: chrony.yaml

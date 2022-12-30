@@ -1,0 +1,52 @@
+---
+# latest tested with k8s
+required_docker_version: "19.03"
+
+kubernetes_version: 1.17.3
+
+logstash_host: 127.0.0.1
+
+tools_list:
+- htop
+- bmon
+- sysstat
+- vim
+- iotop
+- nmap
+- unzip
+- python3-dev
+- python3-venv
+- jq
+- moreutils
+- libsodium-dev
+- libssl-dev
+- gcc
+
+docker_package_names:
+- docker
+- docker.io
+- docker-engine
+- docker-ce
+
+kubernetes_packages:
+- kubectl
+- kubelet
+- kubeadm
+
+local_registry_port: 15000
+local_patch_port: 5000
+
+cluster_info_local_path: ../cluster_info.py
+
+tools_directory_path: /optscale/tools
+cluster_info_remote_path: "{{ tools_directory_path }}/cluster_info.py"
+tools_venv_path: "{{ tools_directory_path }}/venv_for_tools"
+remote_requirements_path: "{{ tools_directory_path }}/requirements.txt"
+
+etcd_restore_tools:
+  - restore_etcd.sh
+  - restore_editor.py
+
+open_docker_port: true
+log_to_elk: true
+syslog_rotation_size: 100M

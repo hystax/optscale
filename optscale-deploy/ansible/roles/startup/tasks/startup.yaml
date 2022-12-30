@@ -1,0 +1,64 @@
+---
+- name: copy startup.sh script to host
+  copy:
+    src: "startup.sh"
+    dest: "{{ script_remote_path }}"
+    mode: 0755
+  become: yes
+
+- name: copy rc-local config to host
+  copy:
+    src: "rc-local.service"
+    dest: "/etc/systemd/system/rc-local.service"
+    mode: 0755
+  become: yes
+
+- name: delete old_ip file
+  file:
+    path: "{{ script_remote_path }}{{ script_remote_old_ip }}"
+    state: absent
+  become: yes
+
+- name: Get ip of the main interface
+  shell: ip addr show dev "$(awk '$2 == 00000000 { print $1 }' /proc/net/route)" | awk '$1 == "inet" { sub("/.*", "", $2); print $2 }'
+  register: vm_ip
+
+- name: write DC's ip to old_ip file
+  lineinfile:
+    path: "{{ script_remote_path }}{{ script_remote_old_ip }}"
+    line: "{{ vm_ip.stdout }}"
+    insertbefore: BOF
+    mode: 0664
+    create: true
+  become: yes
+
+- name: configure /etc/rc.local
+  template:
+    src: "rc.local"
+    dest: "/etc/rc.local"
+    mode: 0755
+  become: yes
+
+- name: Enable and start rc-local service
+  systemd:
+    enabled: yes
+    state: started
+    daemon_reload: yes
+    name: rc-local
+  become: yes
+
+- name: Disable kubelet service
+  service:
+    name: kubelet
+    enabled: no
+  become: yes
+
+- name: Disable docker service
+  service:
+    name: docker
+    enabled: no
+  become: yes
+
+- name: Synchronize cached writes to persistent storage
+  shell: sync
+  become: yes

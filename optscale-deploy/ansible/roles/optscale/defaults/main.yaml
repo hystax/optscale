@@ -1,0 +1,12 @@
+---
+copy_patch: false
+download_patch: false
+update_cluster: false
+download_patch_url: ""
+local_patch_path: "optscale-patch.gpg"
+remote_patch_path: "/optscale/optscale-patch.gpg"
+patch_password: ""
+registry_port: 5000
+registry_image: "optscale_patch:local"
+with_elk: true
+with_elk_command: "--with-elk"

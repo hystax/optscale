@@ -1,0 +1,88 @@
+{{- $config := .Values.minio -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ $config.name }}-secret"
+type: Opaque
+data:
+  access: "{{ $config.credentials.access | b64enc }}"
+  secret: "{{ $config.credentials.secret | b64enc }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.externalPort }}
+      targetPort: {{ $config.service.internalPort }}
+      protocol: TCP
+      name: {{ $config.service.name }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ $config.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+      containers:
+      - name: "{{ $config.name }}"
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ $config.name }}-secret"
+              key: access
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ $config.name }}-secret"
+              key: secret
+        ports:
+        - name: {{ $config.service.name }}
+          containerPort: {{ $config.service.internalPort }}
+        args:
+        - "server"
+        - "/data"
+        volumeMounts:
+        - name: minio-persistent-storage
+          mountPath: /data
+          readOnly: false
+{{ include "ready_probe" $config | indent 8 }}
+      volumes:
+      - name: minio-persistent-storage
+        hostPath:
+          path: /optscale/minio
+          type: DirectoryOrCreate

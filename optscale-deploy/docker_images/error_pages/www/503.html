@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>The solution is currently being loaded...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&family=Roboto&display=swap" rel="stylesheet">
+</head>
+<script type="text/javascript">
+    function setupReload() {
+        function scheduleSend(request) {
+            setTimeout(function () {
+                request.open('GET', window.location.href);
+                request.send();
+            }, 3000);
+        }
+
+        var request = new XMLHttpRequest();
+        request.overrideMimeType("text/html");
+        request.onload = function() {
+            if (request.status === 503) {
+                scheduleSend(request);
+            } else {
+                window.location.reload();
+            }
+        };
+        request.onerror = function () {
+            scheduleSend(request);
+        }
+
+        scheduleSend(request);
+    }
+</script>
+<style>
+    body {
+        background-color: #F3F4F6;
+        color: #333F53;
+        text-align: center;
+    }
+
+    h1 {
+        color: #004C74;
+    }
+
+    .p1 {
+        font-family: "Montserrat", "Roboto", "Lato", sans-serif;
+    }
+</style>
+<body onload="setupReload()">
+    <h1 class="p1">The solution is currently being loaded...</h1>
+    <p class="p1">It may take up to 20 minutes for all the services to start. This page will be reloaded automatically when everything is ready.</p>
+    <p class="p1">Note for solution administrators: execute 'kubectl get pods' in the instance console to get pod statuses.</p>
+</body>
+</html>

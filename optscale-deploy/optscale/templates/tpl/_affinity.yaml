@@ -1,0 +1,12 @@
+{{- define "anti-affinity" -}}
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - topologyKey: "kubernetes.io/hostname"
+      labelSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - {{ .name }}
+{{- end -}}

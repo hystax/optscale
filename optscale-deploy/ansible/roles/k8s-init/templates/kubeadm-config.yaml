@@ -1,0 +1,15 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: {{ kubernetes_version }}
+{% if lb_address is defined %}
+controlPlaneEndpoint: "{{ lb_address }}:{{ lb_port }}"
+{% endif %}
+apiServer:
+  extraArgs:
+    service-node-port-range: 12200-32000
+etcd:
+  local:
+    extraArgs:
+      heartbeat-interval: "{{ etcd_hb_interval }}"
+      election-timeout: "{{ etcd_election_timeout }}"

@@ -1,0 +1,30 @@
+---
+- name: Stop docker and kubelet services
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ services_2_stop }}"
+  become: yes
+
+- name: Get free space
+  shell: "disk_free_space=$(df -BM | awk '/vda1/ {print $4}') && echo ${disk_free_space%?}"
+  register: result
+
+- name: Show free space
+  debug:
+    msg: "free space = {{ result.stdout }}M"
+
+- name: Create big file
+  shell: "dd if=/dev/zero of={{ bigfile }} count={{ (result.stdout|int - 1) }} bs=1M"
+  ignore_errors: yes
+  become: yes
+
+- name: Remove big file
+  file:
+    path: "{{ bigfile }}"
+    state: absent
+  become: yes
+
+- name: sync
+  shell: "sync"
+  become: yes

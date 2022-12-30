@@ -1,0 +1,42 @@
+---
+- set_fact:
+     kubeapi_url: "{{ lb_address }}:{{ lb_port }}"
+     kubeadm_token: "{{ hostvars[groups['all'][0]]['master_token'] }}"
+     kubeadm_discovery_token: "sha256:{{ hostvars[groups['all'][0]]['master_discovery_token'] }}"
+     kubeadm_cert: "{{ hostvars[groups['all'][0]]['master_cert_key'] }}"
+
+- name: Run join pre-flight checks
+  shell: "kubeadm join phase preflight {{ kubeapi_url }} --control-plane --token {{ kubeadm_token }} --discovery-token-ca-cert-hash {{ kubeadm_discovery_token }} --certificate-key {{ kubeadm_cert }}"
+  become: yes
+
+- name: Download certificates shared among control-plane nodes from the kubeadm-certs Secret
+  shell: "kubeadm join phase control-plane-prepare download-certs {{ kubeapi_url }} --control-plane --token {{ kubeadm_token }} --discovery-token-ca-cert-hash {{ kubeadm_discovery_token }} --certificate-key {{ kubeadm_cert }}"
+  become: yes
+
+- name: Generate the certificates for the new control plane components
+  shell: "kubeadm join phase control-plane-prepare certs {{ kubeapi_url }} --control-plane --token {{ kubeadm_token }} --discovery-token-ca-cert-hash {{ kubeadm_discovery_token }}"
+  become: yes
+
+- name: Generate the kubeconfig for the new control plane components
+  shell: "kubeadm join phase control-plane-prepare kubeconfig {{ kubeapi_url }} --control-plane --token {{ kubeadm_token }} --discovery-token-ca-cert-hash {{ kubeadm_discovery_token }} --certificate-key {{ kubeadm_cert }}"
+  become: yes
+
+- name: Generate the manifests for the new control plane components
+  shell: "kubeadm join phase control-plane-prepare control-plane --control-plane"
+  become: yes
+
+- name: Write kubelet settings, certificates and (re)start the kubelet
+  shell: "kubeadm join phase kubelet-start {{ kubeapi_url }} --token {{ kubeadm_token }} --discovery-token-ca-cert-hash {{ kubeadm_discovery_token }}"
+  become: yes
+
+- name: Add a new local etcd member
+  shell: "kubeadm join phase control-plane-join etcd --control-plane"
+  become: yes
+
+- name: Register the new control-plane node into the ClusterStatus maintained in the kubeadm-config ConfigMap
+  shell: "kubeadm join phase control-plane-join update-status --control-plane"
+  become: yes
+
+- name: Mark a node as a control-plane
+  shell: "kubeadm join phase control-plane-join mark-control-plane --control-plane"
+  become: yes

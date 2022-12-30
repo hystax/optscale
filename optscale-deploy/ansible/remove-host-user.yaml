@@ -1,0 +1,4 @@
+
+- hosts: all
+  roles:
+  - remove-host-user

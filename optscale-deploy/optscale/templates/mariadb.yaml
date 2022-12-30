@@ -1,0 +1,221 @@
+{{- $config := .Values.mariadb -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mariadb-secret
+type: Opaque
+data:
+  password: {{ $config.credentials.password | b64enc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.externalPort }}
+      targetPort: {{ $config.service.internalPort }}
+      protocol: TCP
+      name: {{ $config.service.name }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+{{- if .Values.ha }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  name: galera
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  ports:
+  - port: {{ $config.service.internalPort }}
+    name: {{ $config.service.name }}
+  clusterIP: None
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config-vol
+data:
+{{- if .Values.ha }}
+  galera.cnf: |
+{{ include "galera.cnf" . | indent 4 }}
+{{- end }}
+  mariadb.cnf: |
+{{ include "mariadb.cnf" . | indent 4 }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+{{- if .Values.ha }}
+  serviceName: galera
+{{- else }}
+  serviceName: {{ $config.service.name }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+{{ include "anti-affinity" $config | indent 6 }}
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+      - name: copy-mariadb-config
+        image: "busybox:local"
+        imagePullPolicy: Never
+        command: ['sh', '-c', 'cp /configmap/* /etc/mysql/conf.d']
+        volumeMounts:
+        - name: configmap
+          mountPath: /configmap
+        - name: config
+          mountPath: /etc/mysql/conf.d
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: MARIADB_CNF_SHA
+          value: {{ include "mariadb.cnf" . | sha256sum }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secret
+              key: password
+{{- if .Values.ha }}
+        - name: GALERA_SERVICE
+          value: galera
+        - name: GALERA_CNF_SHA
+          value: {{ include "galera.cnf" . | sha256sum }}
+{{- end }}
+        ports:
+        - name: {{ $config.service.name }}
+          containerPort: {{ $config.service.internalPort }}
+{{- if .Values.ha }}
+        - name: sst
+          containerPort: 4444
+        - name: replication
+          containerPort: 4567
+        - name: ist
+          containerPort: 4568
+{{- end }}
+        args: ["--max_connections=4096"]
+        readinessProbe:
+          exec:
+            command:
+            - bash
+            - -c
+            - |
+              mysql -h 127.0.0.1 -e "SELECT 1" -p$MYSQL_ROOT_PASSWORD
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 20
+        volumeMounts:
+        - name: mariadb-persistent-storage
+          mountPath: /var/lib/mysql
+          readOnly: false
+        - name: config
+          mountPath: /etc/mysql/conf.d
+      volumes:
+      - name: mariadb-persistent-storage
+        hostPath:
+          path: /optscale/db
+          type: DirectoryOrCreate
+      - name: config
+        emptyDir: {}
+      - name: configmap
+        configMap:
+          name: mysql-config-vol
+          items:
+{{- if .Values.ha }}
+          - path: "galera.cnf"
+            key: galera.cnf
+{{- end }}
+          - path: "mariadb.cnf"
+            key: mariadb.cnf
+{{- if .Values.db_backup.enabled }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: db-backup
+  labels:
+    release: {{ .Release.Name }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: {{ .Values.db_backup.schedule | quote }}
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          name: db-backup
+          labels:
+            release: {{ .Release.Name }}
+        spec:
+          containers:
+          - name: db-backup
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: password
+            - name: KEEP_COUNT
+              value: {{ .Values.db_backup.keep | quote }}
+            command:
+            - /bin/bash
+            - -c
+            - |
+{{ include "backup.sh" $config | indent 14 }}
+            volumeMounts:
+            - name: backups
+              mountPath: /backup
+              readOnly: false
+              mountPropagation: HostToContainer
+          restartPolicy: Never
+          volumes:
+          - name: backups
+            hostPath:
+              path: {{ .Values.db_backup.mountpoint | quote }}
+              type: DirectoryOrCreate
+{{- end -}}

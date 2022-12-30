@@ -1,0 +1,157 @@
+---
+- name: Create .kube
+  file:
+    path: "{{ ansible_env.HOME }}/.kube"
+    state: directory
+    group: "{{ ansible_ssh_user }}"
+    owner: "{{ ansible_ssh_user }}"
+
+- name: Copy config to .kube
+  copy:
+    remote_src: true
+    src: "/etc/kubernetes/admin.conf"
+    dest: "{{ ansible_env.HOME }}/.kube/config"
+    group: "{{ ansible_ssh_user }}"
+    owner: "{{ ansible_ssh_user }}"
+  become: yes
+
+- name: Enable kubectl autocompletion
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    state: present
+    line: 'source <(kubectl completion bash)'
+  become: yes
+
+- name: Enable scheduling on master node
+  shell: kubectl taint nodes --all node-role.kubernetes.io/master-
+  ignore_errors: true
+  run_once: true
+
+- name: Install dashboard
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+  run_once: true
+
+- import_tasks: helm.yaml
+
+- name: Fix helm cluster roles
+  shell: kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
+  ignore_errors: true
+  run_once: true
+
+- name: Wait untill Tiller is up and running
+  shell: kubectl --namespace kube-system get pods | awk '/tiller/ { print $0 }'
+  register: result
+  until: (result.stdout.find("Running") != -1) and (result.stdout.find("1/1") != -1)
+  retries: 30
+  delay: 10
+  run_once: true
+
+- name: Copy openssl config
+  template:
+    src: openssl.cfg
+    dest: /tmp/openssl.cfg
+
+- name: Generate SSL certificate
+  shell: openssl req -x509 -sha256 -nodes -newkey rsa:4096 -keyout /tmp/key.pem -out /tmp/cert.pem -extensions v3_req -days 9001 -config /tmp/openssl.cfg
+  run_once: true
+
+- name: Creating tls secret
+  shell: kubectl create secret tls defaultcert --key /tmp/key.pem --cert /tmp/cert.pem
+  ignore_errors: true
+  run_once: true
+
+- name: Creating second tls secret for initial config ingress
+  shell: kubectl create secret tls initialconfig-cert --key /tmp/key.pem --cert /tmp/cert.pem
+  ignore_errors: true
+  run_once: true
+
+- name: Add Helm repos
+  shell: helm repo add {{ item }}
+  with_items:
+    - stable https://charts.helm.sh/stable
+
+- name: Update Helm repos
+  shell: helm repo update
+
+- name: Install nginx ingress controller
+  shell: helm upgrade --install ngingress stable/nginx-ingress --set rbac.create=true --set controller.hostNetwork=true --set controller.extraArgs.default-ssl-certificate=default/defaultcert --set controller.kind=DaemonSet
+  run_once: true
+
+- name: Copy custom nginx-ingress chart
+  copy:
+    src: nginx-ingress
+    dest: "{{ ansible_env.HOME }}"
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+    mode: 0644
+  run_once: true
+
+- name: Install additional ingress controller
+  shell: helm upgrade --install initial-config nginx-ingress --set rbac.create=true --set controller.hostNetwork=true --set controller.extraArgs.default-ssl-certificate=default/initialconfig-cert --set controller.ingressClass=initial-config --set controller.service.enableHttp=false --set controller.service.targetPorts.https=4443 --set controller.kind=DaemonSet
+  run_once: true
+
+- name: Install etcd-operator
+  shell: helm upgrade --install etcd-operator --set backupOperator.replicaCount=0 --set restoreOperator.replicaCount=0 stable/etcd-operator --set etcdOperator.image.pullPolicy=IfNotPresent
+  run_once: true
+
+- name: Check domain presence
+  shell: kubectl get cm -o json coredns -n kube-system | grep -v "last-applied-configuration" | grep "dts.loc"
+  run_once: true
+  register: domain_set
+  when: configure_dts_domain
+  ignore_errors: True
+
+- name: Add dts.loc domain into coredns config
+  shell: kubectl get cm -o json coredns -n kube-system | jq '.data.Corefile = .data.Corefile + "dts.loc:53 {\n    errors\n    cache 30\n    forward . 172.22.1.2\n}\n"' | kubectl apply -f -
+  run_once: true
+  when: configure_dts_domain and domain_set.rc == 1
+
+- name: Delete coredns pods
+  shell: kubectl -n kube-system delete pod $(kubectl -n kube-system get pod | awk '/coredns/ {print $1}')
+  run_once: true
+  when: configure_dts_domain and domain_set.rc == 1
+
+- name: Place current hostname into kubelet args (so change of hostname won't break k8s); also place image eviction policy
+  lineinfile:
+    path: /etc/default/kubelet
+    regexp: '^KUBELET_EXTRA_ARGS='
+    line: 'KUBELET_EXTRA_ARGS=--hostname-override={{ ansible_hostname }} --image-gc-high-threshold={{ image_gc_high_threshold }} --image-gc-low-threshold={{ image_gc_low_threshold }} --eviction-hard={{ eviction_hard }}'
+    state: present
+    create: yes
+  become: yes
+
+- name: Restart kubelet service
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: kubelet
+  become: yes
+
+- name: Create etcd directories
+  file:
+    path: "/optscale/etcd"
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+  become: yes
+
+- name: Place current hostname into /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "127.0.0.2 {{ ansible_hostname }}"
+    state: present
+  become: yes
+
+- name: Check cloud-init hosts template exists
+  stat:
+    path: /etc/cloud/templates/hosts.debian.tmpl
+  register: cloud_init_hosts
+
+- name: Place hostname into cloud init /etc/hosts template
+  lineinfile:
+    insertafter: '127.0.0.1 localhost'
+    path: /etc/cloud/templates/hosts.debian.tmpl
+    line: "127.0.0.2 {{ ansible_hostname }}"
+    state: present
+  become: yes
+  when: cloud_init_hosts.stat.exists

@@ -1,0 +1,47 @@
+---
+- name: Create tools dir
+  file:
+    path: "{{ tools_directory_path }}"
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+  become: yes
+
+- name: Copy tools requirements file
+  copy:
+    src: "requirements.txt"
+    dest: "{{ remote_requirements_path }}"
+
+- name: Create a venv
+  shell: python3 -m venv {{ tools_venv_path }}
+
+- name: Upgrade pip
+  shell: "{{ tools_venv_path }}/bin/pip install --upgrade pip==20.3.4"
+
+- name: Install requirements
+  shell: "{{ tools_venv_path }}/bin/pip install -r {{ remote_requirements_path }}"
+
+- name: Copy cluster info script
+  copy:
+    src: "{{ cluster_info_local_path }}"
+    dest: "{{ cluster_info_remote_path }}"
+    mode: 0755
+
+- name: Copy etcd restore scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tools_directory_path }}/{{ item }}"
+    mode: 0755
+  loop: "{{ etcd_restore_tools }}"
+
+- name: Make sure .bash_aliases exists
+  file:
+    path: "{{ ansible_env.HOME }}/.bash_aliases"
+    state: touch
+    mode: 0664
+
+- name: Create alias for cluster info
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.bash_aliases"
+    line: "alias hx_cluster_info='{{ tools_venv_path }}/bin/python {{ cluster_info_remote_path }}'"
+    regexp: "^alias hx_cluster_info*"

@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: optscale-version
+data:
+{{- $files := .Files }}
+  component_versions.yaml: {{ $files.Get "component_versions.yaml" | quote }}

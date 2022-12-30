@@ -1,0 +1,9 @@
+---
+- name: Update /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*{{ item }}$'
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ item }}"
+    state: present
+  with_items: "{{ groups.all }}"
+  become: yes

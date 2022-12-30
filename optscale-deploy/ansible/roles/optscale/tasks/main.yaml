@@ -1,0 +1,158 @@
+---
+- name: Copy patch
+  copy:
+    src: "{{ local_patch_path }}"
+    dest: "{{ remote_patch_path }}"
+    mode: 0644
+  become: yes
+  when: (copy_patch and (inventory_hostname == groups['all'][0]))
+  run_once: true
+
+- name: Download patch
+  get_url:
+    url: "{{ download_patch_url }}"
+    dest: "{{ remote_patch_path }}"
+    mode: 0644
+  become: yes
+  when: (download_patch and (inventory_hostname == groups['all'][0]))
+  run_once: true
+
+- name: Load registry image from patch
+  shell: gpg --batch --passphrase {{ patch_password }} -d {{ remote_patch_path }} | docker load
+  run_once: true
+  when: inventory_hostname == groups['all'][0]
+
+- name: Get helm path
+  shell: which helm
+  register: which_helm
+  run_once: true
+
+- name: Set helm_path
+  set_fact:
+    helm_path: "{{ which_helm.stdout }}"
+  run_once: true
+
+- name: Remove existing registry container
+  shell: docker rm -f registry
+  ignore_errors: yes
+  run_once: true
+  when: inventory_hostname == groups['all'][0]
+
+- name: Start new registry from patch
+  shell: docker run -d --name registry -p {{ registry_port }}:{{ registry_port }} -v {{ helm_path }}:{{ helm_path }} -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.kube/config:/root/.kube/config {{ registry_image }}
+  run_once: true
+  when: inventory_hostname == groups['all'][0]
+
+- name: Wait for a registry
+  shell: curl {{ groups['all'][0] }}:{{ registry_port }}/v2/_catalog || echo $?
+  register: result
+  until: result.rc == 0
+  retries: 5
+  delay: 5
+  run_once: true
+
+- name: Cat component versions
+  shell: docker exec registry cat /component_versions.yaml
+  register: component_versions_file
+  run_once: true
+
+- name: Set components
+  set_fact:
+    components: "{{ component_versions_file.stdout | from_yaml }}"
+  run_once: true
+
+- name: Unset with_elk_command if with_elk=False
+  set_fact:
+    with_elk_command: ""
+  run_once: true
+  when: (inventory_hostname == groups['all'][0]) and (not with_elk | bool)
+
+- name: Print with_elk_command
+  debug:
+    var: with_elk_command
+
+- name: Pull images from first node registry
+  shell: docker pull {{ groups['all'][0] }}:{{ registry_port }}/{{ item.key }}:{{ item.value }} && docker tag {{ groups['all'][0] }}:{{ registry_port }}/{{ item.key }}:{{ item.value }} {{ item.key }}:local
+  loop: "{{ components.images | dict2items }}"
+  when: groups['all'] | length > 1
+  register: result
+  until: result.rc == 0
+  retries: 5
+  delay: 5
+
+- name: Pull images from localhost registry
+  shell: docker pull localhost:{{ registry_port }}/{{ item.key }}:{{ item.value }} && docker tag localhost:{{ registry_port }}/{{ item.key }}:{{ item.value }} {{ item.key }}:local
+  loop: "{{ components.images | dict2items }}"
+  when: groups['all'] | length == 1
+  register: result
+  until: result.rc == 0
+  retries: 5
+  delay: 5
+
+- name: Re-tag etcd image
+  shell: docker tag etcd:local etcd:vlocal
+
+- name: Set overlays str
+  set_fact:
+    overlays: >-
+      {%- set space = joiner(" ") -%}
+      {% for file in overlay_list -%}
+      {{ space() }}{{ file }}
+      {%- endfor %}
+  run_once: true
+  when: not update_cluster
+
+- name: Show overlays str
+  debug:
+    var: overlays
+
+- name: Run OptScale
+  shell: docker exec registry python3 runkube.py --use-socket --no-pull --skip-login {{ with_elk_command }} -w 600 -o {{ overlays }} -- optscale component_versions.yaml
+  register: result
+  run_once: true
+  when: ((not update_cluster) and (inventory_hostname == groups['all'][0]))
+
+- name: Print OptScale deploy result
+  debug:
+    var: result.stdout_lines
+  when: ((not update_cluster) and (inventory_hostname == groups['all'][0]))
+
+- name: Update OptScale
+  shell: docker exec registry python3 runkube.py --use-socket --update-only --dregistry localhost:5000 --skip-login {{ with_elk_command }} -w 300 $(helm list -a | awk '/optscale/ {print $1}') component_versions.yaml
+  register: result
+  run_once: true
+  when: ((update_cluster) and (inventory_hostname == groups['all'][0]))
+
+- name: Print OptScale update result
+  debug:
+    var: result.stdout_lines
+  when: ((update_cluster) and (inventory_hostname == groups['all'][0]))
+
+- name: Get cluster info
+  shell: docker exec registry python3 cluster_info.py
+  register: cluster_info
+  run_once: true
+  when: inventory_hostname == groups['all'][0]
+
+- name: Print cluster info
+  debug:
+    var: cluster_info.stdout_lines
+  when: inventory_hostname == groups['all'][0]
+
+- name: Remove registry
+  shell: docker rm -f registry
+  run_once: true
+  when: inventory_hostname == groups['all'][0]
+
+- name: Remove registry image
+  shell: docker rmi -f {{ registry_image }}
+  run_once: true
+  when: inventory_hostname == groups['all'][0]
+
+- name: Remove patch
+  file:
+    state: absent
+    path: "{{ remote_patch_path }}"
+  become: yes
+  when: ((copy_patch or download_patch) and (inventory_hostname == groups['all'][0]))
+  run_once: true

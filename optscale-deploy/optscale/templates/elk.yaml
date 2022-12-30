@@ -1,0 +1,97 @@
+{{- $config := .Values.elk -}}
+{{- if and (not .Values.ha) .Values.elk.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elkservice
+  labels:
+    app: elkservice
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: NodePort
+  ports:
+  - port: {{ $config.service.logstash_udp_port }}
+    nodePort: {{ $config.service.logstash_udp_port }}
+    protocol: UDP
+    name: logstash-udp
+  - port: {{ $config.service.logstash_tcp_port }}
+    nodePort: {{ $config.service.logstash_tcp_port }}
+    protocol: TCP
+    name: logstash-tcp
+  - port: 81
+    targetPort: {{ $config.service.internal_kibana_port }}
+    nodePort: {{ $config.service.external_kibana_port }}
+    name: kibana
+  selector:
+    app: {{ $config.name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: elkservice
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  ports:
+  - port: {{ $config.service.externalPort }}
+    name: elastic
+  - port: {{ $config.service.logstash_tcp_port }}
+    name: logstash-tcp
+  selector:
+    app: {{ $config.name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: elkservice
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: ES_CONNECT_RETRY
+          value: "{{ $config.es_connect_retry }}"
+        - name: LS_HEAP_SIZE
+          value: {{ $config.ls_heap_size }}
+        - name: ES_HEAP_SIZE
+          value: {{ $config.es_heap_size }}
+        ports:
+        - containerPort: {{ $config.service.logstash_udp_port }}
+          protocol: UDP
+        - containerPort: {{ $config.service.elastic_port }}
+        - containerPort: {{ $config.service.logstash_tcp_port }}
+        - containerPort: {{ $config.service.internal_kibana_port }}
+        volumeMounts:
+        - name: etcd-persistent-storage
+          mountPath: /var/lib/elasticsearch
+          readOnly: false
+          mountPropagation: HostToContainer
+      volumes:
+      - name: etcd-persistent-storage
+        hostPath:
+          path: /optscale/elk
+          type: DirectoryOrCreate
+{{- end -}}

@@ -1,0 +1,226 @@
+{{- $config := .Values.mongo -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "mongo-secret"
+  labels:
+    app: {{ $config.name }}
+type: Opaque
+data:
+  username: {{ $config.credentials.username | b64enc }}
+  password: {{ $config.credentials.password | b64enc }}
+  key.txt: {{ $config.credentials.key | b64enc }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ $config.name }}-config"
+  labels:
+    app: "{{ $config.name }}"
+data:
+  mongod.conf: ""
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ $config.name }}"
+  labels:
+    app: "{{ $config.name }}"
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: "{{ $config.name }}"
+      release: "{{ .Release.Name }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+  - port: {{ $config.service.externalPort }}
+    targetPort: {{ $config.service.internalPort }}
+    protocol: TCP
+    name: {{ $config.service.name }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+# A headless service to create DNS records for discovery purposes
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ $config.service.name }}-discovery"
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: mongodb
+    port: {{ $config.service.internalPort }}
+  publishNotReadyAddresses: true
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: "{{ $config.service.name }}-discovery"
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 30
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+      - name: copy-config
+        image: "busybox:local"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        command:
+          - "sh"
+        args:
+          - "-c"
+          - |
+            set -e
+            set -x
+            cp /configdb-readonly/mongod.conf /data/configdb/mongod.conf
+            cp /keydir-readonly/key.txt /data/configdb/key.txt
+            chmod 600 /data/configdb/key.txt
+        volumeMounts:
+        - name: config
+          mountPath: /configdb-readonly
+        - name: configdir
+          mountPath: /data/configdb
+        - name: keydir
+          mountPath: /keydir-readonly
+      - name: bootstrap
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        command:
+          - peer-finder
+        args:
+          - -on-start=/on-start.sh
+          - "-service={{ $config.service.name }}-discovery"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: REPLICA_SET
+          value: "{{ $config.name }}"
+        - name: TIMEOUT
+          value: "900"
+        - name: SKIP_INIT
+          value: "false"
+        - name: TLS_MODE
+          value: "requireSSL"
+        - name: AUTH
+          value: "true"
+        - name: ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: "mongo-secret"
+              key: username
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "mongo-secret"
+              key: password
+        volumeMounts:
+        - name: configdir
+          mountPath: /data/configdb
+        - name: datadir
+          mountPath: /data/db
+        - name: workdir
+          mountPath: /work-dir
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: "{{ $config.image.pullPolicy }}"
+        ports:
+        - name: mongodb
+          containerPort: {{ $config.service.internalPort }}
+        command:
+          - mongod
+        args:
+          - --config=/data/configdb/mongod.conf
+          - --dbpath=/data/db
+          - --replSet={{ $config.name }}
+          - --port=27017
+          - --bind_ip=0.0.0.0
+          - --auth
+          - --keyFile=/data/configdb/key.txt
+          - --storageEngine=wiredTiger
+          - --wiredTigerCacheSizeGB={{ $config.cache_size }}
+        livenessProbe:
+          exec:
+            command:
+              - mongo
+              - --eval
+              - "db.adminCommand('ping')"
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - mongo
+              - --eval
+              - "db.adminCommand('ping')"
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+        volumeMounts:
+        - name: datadir
+          mountPath: /data/db
+        - name: configdir
+          mountPath: /data/configdb
+      volumes:
+      - name: config
+        configMap:
+          name: {{ $config.name }}-config
+      - name: keydir
+        secret:
+          defaultMode: 0400
+          secretName: mongo-secret
+      - name: configdir
+        emptyDir: {}
+      - name: workdir
+        emptyDir: {}
+      - name: datadir
+        hostPath:
+          path: /optscale/mongo
+          type: DirectoryOrCreate
+{{ include "anti-affinity" $config | indent 6 }}

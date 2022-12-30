@@ -1,0 +1,7 @@
+---
+- name: Disable ssh connection by password
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication yes'
+    replace: 'PasswordAuthentication no'
+  become: yes

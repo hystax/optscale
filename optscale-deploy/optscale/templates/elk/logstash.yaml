@@ -1,0 +1,51 @@
+{{- $config := .Values.logstash -}}
+{{- if and .Values.ha .Values.elk.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.name }}
+  labels:
+    component: {{ $config.name }}
+spec:
+  type: NodePort
+  ports:
+  - port: {{ $config.service.udp_port }}
+    nodePort: {{ $config.service.udp_port }}
+    protocol: UDP
+    name: udp
+  - port: {{ $config.service.tcp_port }}
+    nodePort: {{ $config.service.tcp_port }}
+    protocol: TCP
+    name: tcp
+  selector:
+    component: {{ $config.name }}
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    component: {{ $config.name }}
+spec:
+  selector:
+    matchLabels:
+      component: {{ $config.name }}
+  template:
+    metadata:
+      labels:
+        component: {{ $config.name }}
+    spec:
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        ports:
+        - containerPort: {{ $config.service.udp_port }}
+          protocol: UDP
+        - containerPort: {{ $config.service.tcp_port }}
+          protocol: TCP
+{{- end -}}

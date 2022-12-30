@@ -1,0 +1,71 @@
+{{- $config := .Values.influxdb -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.externalPort }}
+      targetPort: {{ $config.service.internalPort }}
+      protocol: TCP
+      name: {{ $config.service.name }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ $config.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+{{- if .Values.elk.enabled }}
+      initContainers:
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        ports:
+        - containerPort: {{ $config.service.internalPort }}
+        volumeMounts:
+        - name: influxdb-storage
+          mountPath: /var/lib/influxdb
+          readOnly: false
+          mountPropagation: HostToContainer
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: {{ $config.service.internalPort }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+      volumes:
+      - name: influxdb-storage
+        hostPath:
+          path: /optscale/influxdb
+          type: DirectoryOrCreate
+      nodeSelector:
+        node-role.kubernetes.io/master:

@@ -1,0 +1,2 @@
+config-client==1.0.68
+restapi-client==1.0.404

@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.clickhouse.name }}
+  labels:
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    app: {{ .Values.clickhouse.name }}
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: {{ .Values.clickhouse.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.clickhouse.name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ .Values.clickhouse.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.clickhouse.name }}
+        release: {{ .Release.Name }}
+{{- if .Values.elk.enabled }}
+      initContainers:
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+    spec:
+      containers:
+        - name: {{ .Values.clickhouse.name }}
+          image: {{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}
+          imagePullPolicy: {{ .Values.clickhouse.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.clickhouse.service.httpPort }}
+            - name: native
+              containerPort: {{ .Values.clickhouse.service.externalPort }}
+          livenessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: {{ .Values.clickhouse.service.externalPort }}
+          readinessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 5
+            tcpSocket:
+              port: {{ .Values.clickhouse.service.externalPort }}
+{{- if .Values.clickhouse.resources }}
+          resources:
+            requests:
+              cpu: {{ .Values.clickhouse.resources.requests.cpu }}
+              memory: {{ .Values.clickhouse.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.clickhouse.resources.limits.cpu }}
+              memory: {{ .Values.clickhouse.resources.limits.memory }}
+{{- end }}
+          volumeMounts:
+            - name: clickhouse-data-volume
+              mountPath: /var/lib/clickhouse/
+            - name: config-volume
+              mountPath: /etc/clickhouse-server/
+      volumes:
+        - name: clickhouse-data-volume
+          hostPath:
+            path: /optscale/clickhouse
+            type: DirectoryOrCreate
+        - name: config-volume
+          configMap:
+            name: {{ .Values.clickhouse.name }}-config

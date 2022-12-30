@@ -1,0 +1,32 @@
+---
+- name: Initialize kubernetes master
+  shell: kubeadm init --config {{ kubeadm_conf_path }} --upload-certs > {{ kubeadm_init_log }}
+  become: yes
+
+- name: Install weave
+  shell: kubectl apply -f {{ weave_net_manifest_path }}
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  become: yes
+
+- name: Generate certificate key
+  shell: kubeadm init phase upload-certs --upload-certs
+  register: cert_key
+  become: yes
+
+- name: Get discovery token
+  shell: "openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
+  register: discovery_token
+  become: yes
+
+- name: Generate kubeadm token
+  shell:  "kubeadm token create"
+  register: kubeadm_token
+  become: yes
+
+- name: Save master variables for join other nodes
+  set_fact:
+    master_token: "{{ kubeadm_token.stdout_lines | last }}"
+    master_discovery_token: "{{ discovery_token.stdout }}"
+    master_cert_key: "{{ cert_key.stdout_lines | last }}"
+

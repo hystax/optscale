@@ -1,0 +1,42 @@
+{{- $config := .Values.cleanelkdb }}
+{{ if eq .Values.deploy_cleanelkdb "true" }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "{{ $config.schedule }}"
+  startingDeadlineSeconds: {{ $config.startingDeadlineSeconds }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: {{ $config.name }}
+            release: {{ .Release.Name }}
+        spec:
+          containers:
+          - name: {{ $config.name }}
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            env:
+            - name: HX_ELK_LOG_MAX_SIZE
+              value: "{{ $config.log_max_size }}"
+            - name: HX_ELK_URL
+              value: "{{ .Values.elk.service.name }}"
+            - name: HX_ELK_PORT
+              value: "{{ .Values.elk.service.externalPort }}"
+          restartPolicy: Never
+{{ end }}

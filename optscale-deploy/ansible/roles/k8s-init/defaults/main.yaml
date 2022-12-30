@@ -1,0 +1,44 @@
+---
+cluster_mode: >-
+  {%- if ansible_play_hosts | length == 1 -%}
+  single
+  {%- else -%}
+  ha
+  {%- endif -%}
+
+files_to_copy:
+  - src: /etc/kubernetes/pki/ca.crt
+    tmp: ca.crt
+  - src: /etc/kubernetes/pki/ca.key
+    tmp: ca.key
+  - src: /etc/kubernetes/pki/sa.key
+    tmp: sa.key
+  - src: /etc/kubernetes/pki/sa.pub
+    tmp: sa.pub
+  - src: /etc/kubernetes/pki/front-proxy-ca.crt
+    tmp: front-proxy-ca.crt
+  - src: /etc/kubernetes/pki/front-proxy-ca.key
+    tmp: front-proxy-ca.key
+  - src: /etc/kubernetes/pki/etcd/ca.crt
+    tmp: etcd-ca.crt
+  - src: /etc/kubernetes/pki/etcd/ca.key
+    tmp: etcd-ca.key
+  - src: /etc/kubernetes/admin.conf
+    tmp: admin.conf
+
+# local path to save certs from first node
+tmp_folder: /tmp
+
+kubeadm_conf_path: /tmp/kubeadm-init.conf
+kubeadm_template_name: kubeadm-config.yaml
+kubeadm_init_log: kube_init.log
+
+k8s_cidr: 10.254.0.0/16
+
+lb_port: 6443
+
+etcd_hb_interval: 500
+etcd_election_timeout: 5000
+
+weave_net_manifest_path: /tmp/weave-daemonset-k8s-1.11.yaml
+weave_net_template_name: weave-daemonset-k8s-1.11.yaml

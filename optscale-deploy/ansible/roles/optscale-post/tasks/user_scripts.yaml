@@ -1,0 +1,35 @@
+---
+- name: Copy user script
+  copy:
+    src: "{{ user_scripts_local_path }}{{ item }}"
+    dest: "{{ script_path }}{{ item }}"
+    owner: root
+    group: root
+    mode: 0500
+  with_items: "{{ user_scripts }}"
+  become: yes
+
+- name: Get key ID
+  shell: "gpg --list-secret-keys --keyid-format LONG root@hystax.com | awk '/^ssb/ {print $2}' | awk -F '/' '{print $2}'"
+  register: key_details
+  become: yes
+
+- name: Show key ID
+  debug:
+    msg: "Key ID = {{ key_details.stdout }}"
+
+- name: Sign user script
+  shell: "bash {{ script_path }}sign-file {{ script_path }}{{ item }} {{ key_details.stdout }} {{ gpg_passphrase }}"
+  with_items: "{{ user_scripts }}"
+  become: yes
+
+- name: Create alias for users script
+  lineinfile:
+    path: "/home/{{ item[1] }}/.bash_aliases"
+    line: "alias hx_{{ item[0] | replace('-','_') | replace('.sh','') }}='{{ script_path }}script-runner {{ script_path }}{{ item[0] }}'"
+    regexp: "^alias hx_{{ item[0] | replace('-','_') | replace('.sh','') }}*"
+    create: yes
+  with_nested:
+  - "{{ user_scripts }}"
+  - ["engineer", "user", "{{ ansible_ssh_user }}"]
+  become: yes

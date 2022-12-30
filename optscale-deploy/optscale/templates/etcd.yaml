@@ -1,0 +1,220 @@
+{{- $config := .Values.etcd }}
+{{- if .Values.ha }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+{{- range $index, $name := .Values.nodes }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: etcd-data-{{ $index }}
+  labels:
+    type: local
+spec:
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  volumeMode: Filesystem
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: "/optscale/etcd"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - "{{ $name }}"
+{{- end }}
+---
+apiVersion: "etcd.database.coreos.com/v1beta2"
+kind: "EtcdCluster"
+metadata:
+  name: "{{ $config.name }}"
+spec:
+  size: {{ $config.replicaCount }}
+  repository: "etcd"
+  version: "local"
+  pod:
+    busyboxImage: "busybox:local"
+    etcdEnv:
+      - name: ETCD_HEARTBEAT_INTERVAL
+        value: {{ $config.hb_interval | quote }}
+      - name: ETCD_ELECTION_TIMEOUT
+        value: {{ $config.election_timeout | quote }}
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchExpressions:
+                - key: etcd_cluster
+                  operator: In
+                  values:
+                    - {{ $config.name }}
+    persistentVolumeClaimSpec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+{{- else }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.externalPort }}
+      targetPort: {{ $config.service.internalPort }}
+      protocol: TCP
+      name: {{ $config.service.name }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ $config.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+{{- if .Values.elk.enabled }}
+      initContainers:
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        command:
+          - "/usr/local/bin/etcd"
+          - "-listen-client-urls"
+          - "http://0.0.0.0:{{ $config.service.internalPort }}"
+          - "-advertise-client-urls"
+          - "http://0.0.0.0:{{ $config.service.internalPort }}"
+        ports:
+        - name: client
+          containerPort: {{ $config.service.internalPort }}
+        - name: peer
+          containerPort: {{ $config.service.peerPort }}
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -ec
+            - |
+              etcdctl --endpoints=http://[127.0.0.1]:2379 cluster-health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 20
+        volumeMounts:
+        - name: etcd-persistent-storage
+          mountPath: /default.etcd
+          readOnly: false
+          mountPropagation: HostToContainer
+        env:
+        - name: INITIAL_CLUSTER_SIZE
+          value: {{ $config.replicaCount | quote }}
+        - name: SET_NAME
+          value: {{ $config.service.discovery_name }}
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: ETCD_HEARTBEAT_INTERVAL
+          value: {{ $config.hb_interval | quote }}
+        - name: ETCD_ELECTION_TIMEOUT
+          value: {{ $config.election_timeout | quote }}
+      volumes:
+      - name: etcd-persistent-storage
+        hostPath:
+          path: /optscale/etcd
+          type: DirectoryOrCreate
+      nodeSelector:
+        node-role.kubernetes.io/master:
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: optscale-etcd
+data:
+  config: {{ include "config.yml" . | quote }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pre-configurator
+  annotations:
+    checksum/config: {{ include "config.yml" . | sha256sum }}
+  labels:
+    app: configurator
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  template:
+    metadata:
+      name: pre-configurator
+      labels:
+        app: configurator
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: configurator
+        image: configurator:local
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+        env:
+        - name: HX_ETCD_HOST
+          value: {{ .Values.etcd.service.name }}
+        - name: HX_ETCD_PORT
+          value: {{ .Values.etcd.service.externalPort | quote }}
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+{{ include "wait_for_service" .Values.etcd | indent 6 }}
+{{ include "wait_mariadb" . | indent 6 }}
+{{ include "wait_for_service" .Values.mongo | indent 6 }}
+{{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
+{{ include "wait_for_service" .Values.influxdb | indent 6 }}
+      restartPolicy: Never
+      volumes:
+      - name: config-volume
+        configMap:
+          name: optscale-etcd
+      nodeSelector:
+        node-role.kubernetes.io/master:
+  backoffLimit: 10

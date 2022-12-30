@@ -1,0 +1,7 @@
+---
+- name: Remove tools
+  apt:
+    name: "{{ tools_list_to_remove }}"
+    state: absent
+  ignore_errors: yes
+  become: yes

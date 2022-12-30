@@ -1,0 +1,24 @@
+---
+- name: Cleanup APT cache
+  apt:
+    autoclean: yes
+    autoremove: yes
+  become: yes
+
+- name: APT autoremove
+  shell: "apt -y autoremove"
+  args:
+    warn: false
+  become: yes
+
+- name: APT autoclean
+  shell: "apt autoclean"
+  args:
+    warn: false
+  become: yes
+
+- name: APT clean cache
+  shell: "apt clean"
+  args:
+    warn: false
+  become: yes

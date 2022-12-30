@@ -13,6 +13,8 @@ from sqlalchemy import create_engine
 from pymongo import MongoClient
 from influxdb import InfluxDBClient
 
+from cryptography.fernet import Fernet
+
 LOG = logging.getLogger(__name__)
 
 RETRY_ARGS = dict(stop_max_attempt_number=300, wait_fixed=500)
@@ -66,10 +68,50 @@ class Configurator(object):
         LOG.info("Creating /configured key")
         self.etcd_cl.write('/configured', time.time())
 
+    def _get_encryption_key(self):
+        return self.etcd_cl.read('/encryption_key').value.encode()
+
+    def _get_smtp_params(self):
+        LOG.info("getting SMTP password")
+        try:
+            v = self.etcd_cl.read_branch('/smtp')
+        except etcd.EtcdKeyNotFound:
+            v = dict()
+        return v
+
+    @staticmethod
+    def _is_password_encrypted(settings):
+        return settings.get('encrypted', True) and settings.get('password')
+
+    @staticmethod
+    def _decrypt_password(password, enc_key):
+        fernet = Fernet(enc_key)
+        return fernet.decrypt(password.encode()).decode()
+
+    def decrypt_smtp_password(self):
+        LOG.info("checking smtp password")
+        settings = self._get_smtp_params()
+        LOG.info(settings)
+        if self._is_password_encrypted(settings):
+            LOG.info("decrypting password")
+            enc_key = self._get_encryption_key()
+            if enc_key:
+                decrypted_password = self._decrypt_password(
+                    settings.get('password'), enc_key)
+                d = {
+                    'email': settings.get('email', ''),
+                    'port': settings.get('port', 0),
+                    'password': decrypted_password,
+                    'server': settings.get('server', ''),
+                    'encrypted': False,
+                }
+                self.etcd_cl.write_branch('smtp', d)
+
     def pre_configure(self):
         LOG.info("Creating databases")
         self.create_databases()
         self.configure_influx()
+        self.decrypt_smtp_password()
         # setting to 0 to block updates until update is finished
         # and new images pushed into registry
         self.etcd_cl.write('/registry_ready', 0)

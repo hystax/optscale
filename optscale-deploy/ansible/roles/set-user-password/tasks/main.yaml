@@ -1,0 +1,11 @@
+---
+# hash = sha512_crypt.encrypt("example-password!") Please change
+- name: Set password for customer user
+  user:
+    name: "user"
+    password: "$6$rounds=656000$oaDhY60vvrgktlnk$Io5zWH0lWtysqJio7897yoP69x.PdLI4WM/R4LzaJ5nQ5JjYACdGQfLZty5JycAC9QkbiTidDlFkJWFrEeNjE1"
+  become: yes
+
+- name: sync
+  shell: "sync"
+  become: yes

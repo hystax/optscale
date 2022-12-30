@@ -1,0 +1,20 @@
+---
+- import_tasks: remove-tools.yaml
+- import_tasks: prepare_k8s_user.yaml
+  when: prepare_k8s_user | bool
+- import_tasks: disable-docker-port.yaml
+  when: disable_docker | bool
+- import_tasks: script_runner.yaml
+  when: install_script_runner | bool
+- import_tasks: user_scripts.yaml
+  when: install_user_scripts | bool
+- import_tasks: defragmentation.yaml
+  when: defragmentation | bool
+- import_tasks: renew_certs_script.yaml
+  when: install_renew_certs|bool
+- import_tasks: cleanup-apt.yaml
+- import_tasks: remove-log-files.yaml
+- import_tasks: disable-ssh.yaml
+  when: disable_ssh | bool
+- import_tasks: remove-all-users-passwords.yaml
+  when: remove_all_users_passwords | bool

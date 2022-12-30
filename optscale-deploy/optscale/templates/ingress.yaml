@@ -1,0 +1,67 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/custom-http-errors: "503"
+    nginx.ingress.kubernetes.io/default-backend: {{.Values.error_pages.service.name}}
+    nginx.ingress.kubernetes.io/proxy-body-size: "512m"
+    nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
+    nginx.ingress.kubernetes.io/client-body-buffer-size:  "512m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  name: optscale
+  namespace: default
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: {{ .Values.auth.service.name }}
+          servicePort: {{ .Values.auth.service.externalPort }}
+        path: /auth
+      - backend:
+          serviceName: {{ .Values.restapi.service.name }}
+          servicePort: {{ .Values.restapi.service.externalPort }}
+        path: /restapi
+      - backend:
+          serviceName: {{ .Values.keeper.service.name }}
+          servicePort: {{ .Values.keeper.service.externalPort }}
+        path: /report
+      - backend:
+          serviceName: {{ .Values.ngui.service.name }}
+          servicePort: {{ .Values.ngui.service.externalPort }}
+        path: /
+      - backend:
+          serviceName: {{ .Values.herald.service.name }}
+          servicePort: {{ .Values.herald.service.externalPort }}
+        path: /herald
+      - backend:
+          serviceName: {{ .Values.katara_service.service.name }}
+          servicePort: {{ .Values.katara_service.service.externalPort }}
+        path: /katara
+      - backend:
+          serviceName: {{ .Values.insider_api.service.name }}
+          servicePort: {{ .Values.insider_api.service.externalPort }}
+        path: /insider
+      - backend:
+          serviceName: {{ .Values.slacker.service.name }}
+          servicePort: {{ .Values.slacker.service.externalPort }}
+        path: /slacker
+      - backend:
+          serviceName: {{ .Values.metroculus_api.service.name }}
+          servicePort: {{ .Values.metroculus_api.service.externalPort }}
+        path: /metroculus
+      - backend:
+          serviceName: {{ .Values.jira_bus.service.name }}
+          servicePort: {{ .Values.jira_bus.service.externalPort }}
+        path: /jira_bus
+      - backend:
+          serviceName: {{ .Values.jira_ui.service.name }}
+          servicePort: {{ .Values.jira_ui.service.externalPort }}
+        path: /jira_ui
+  tls:
+  - secretName: defaultcert

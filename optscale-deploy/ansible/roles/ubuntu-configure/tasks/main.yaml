@@ -1,0 +1,21 @@
+---
+- name: Wait 300 seconds for the connection
+  wait_for_connection:
+    timeout: 300
+
+- name: Gather facts for first time
+  setup:
+
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+    state: latest
+  become: yes
+
+- import_tasks: prepare_ubuntu_cloud_image.yaml
+
+- import_tasks: dns.yaml
+  when: configure_dns

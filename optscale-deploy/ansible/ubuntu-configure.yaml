@@ -1,0 +1,5 @@
+
+- hosts: all
+  gather_facts: no
+  roles:
+  - ubuntu-configure

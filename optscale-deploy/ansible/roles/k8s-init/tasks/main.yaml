@@ -1,0 +1,29 @@
+---
+- name: Get version of k8s packages
+  shell: kubectl version --client -o json
+  register: kube_version
+  run_once: true
+
+- name: Set version
+  set_fact:
+    kubernetes_version: "{{ (kube_version.stdout | from_json)['clientVersion']['gitVersion'] }}"
+
+- name: Check cluster config
+  stat: path="{{ ansible_env.HOME }}/.kube/config"
+  register: k8s_config
+
+- name: Copy kubeadm config
+  template:
+    src: "{{ kubeadm_template_name }}"
+    dest: "{{ kubeadm_conf_path }}"
+
+- name: Copy weave manifest
+  template:
+    src: "{{ weave_net_template_name }}"
+    dest: "{{ weave_net_manifest_path }}"
+
+- import_tasks: first.yaml
+  when: inventory_hostname == groups['all'][0] and k8s_config.stat.exists == False
+
+- import_tasks: others.yaml
+  when: inventory_hostname != groups['all'][0] and k8s_config.stat.exists == False

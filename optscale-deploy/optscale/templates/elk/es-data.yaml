@@ -1,0 +1,145 @@
+{{- $config := .Values.elastic_cluster -}}
+{{- $data := $config.data -}}
+{{- if and .Values.ha .Values.elk.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    component: {{ $config.name }}
+    role: {{ $data.role }}
+spec:
+  selector:
+    component: {{ $config.name }}
+    role: {{ $data.role }}
+  ports:
+  - name: http
+    port: {{ $data.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.name }}-{{ $data.role }}
+  labels:
+    component: {{ $config.name }}
+    role: {{ $data.role }}
+spec:
+  ports:
+  - port: 9300
+    name: transport
+  - port: {{ $data.port }}
+    name: http
+  selector:
+    component: {{ $config.name }}
+    role: {{ $data.role }}
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $config.name }}-{{ $data.role }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      component: {{ $config.name }}
+      role: {{ $data.role }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}-{{ $data.role }}
+  labels:
+    component: {{ $config.name }}
+    role: {{ $data.role }}
+spec:
+  selector:
+    matchLabels:
+      component: {{ $config.name }}
+      role: {{ $data.role }}
+  serviceName: {{ $config.name }}-{{ $data.role }}
+  replicas: {{ $data.replicaCount }}
+  template:
+    metadata:
+      labels:
+        component: {{ $config.name }}
+        role: {{ $data.role }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - {{ $config.name }}
+              - key: role
+                operator: In
+                values:
+                - {{ $data.role }}
+      containers:
+      - name: {{ $config.name }}-{{ $data.role }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: CLUSTER_NAME
+          value: myesdb
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_INGEST
+          value: "true"
+        - name: HTTP_ENABLE
+          value: "true"
+        - name: ES_JAVA_OPTS
+          value: {{ $data.java_opts }}
+        - name: NETWORK_HOST
+          value: _site_,_lo_
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: DISCOVERY_SERVICE
+          value: {{ $config.service.discovery_name }}
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        resources:
+          requests:
+            cpu: 0.25
+          limits:
+            cpu: 1
+        ports:
+        - containerPort: {{ $data.port }}
+          name: http
+        - containerPort: 9300
+          name: transport
+        livenessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /_cluster/health
+            port: http
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: {{ $config.name }}-{{ $data.role }}
+          mountPath: /data
+          mountPropagation: HostToContainer
+      volumes:
+      - name: {{ $config.name }}-{{ $data.role }}
+        hostPath:
+          path: {{ $data.host_data_dir }}
+          type: DirectoryOrCreate
+{{- end -}}

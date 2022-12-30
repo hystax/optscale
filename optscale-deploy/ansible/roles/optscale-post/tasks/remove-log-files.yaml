@@ -1,0 +1,22 @@
+---
+- name: Remove log files and users trash
+  shell: "rm -rf {{ item }}"
+  args:
+    warn: false
+  with_items:
+   - /tmp/*
+   - /var/tmp/*
+   - /var/log/alternatives*
+   - /var/log/auth*
+   - /var/log/cloud-init*
+   - /var/log/cloud-init-output*
+   - /var/log/dmesg*
+   - /var/log/dpkg*
+   - /var/log/kern*
+   - /var/log/apt/*
+   - /var/log/pods/*
+   - /var/log/ubuntu-advantage*
+   - /var/log/ufw*
+   - /var/log/syslog*
+   - /var/log/unattended-upgrades*
+  become: yes

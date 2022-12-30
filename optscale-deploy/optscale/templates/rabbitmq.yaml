@@ -1,0 +1,338 @@
+{{- $config := .Values.rabbitmq -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbit-secret
+  labels:
+    app: {{ $config.name }}
+    release: "{{ .Release.Name }}"
+type: Opaque
+data:
+  username: {{ $config.credentials.username | b64enc | quote }}
+  password: {{ $config.credentials.password | b64enc | quote }}
+  management-username: {{ $config.credentials.username | b64enc | quote }}
+  management-password: {{ $config.credentials.password | b64enc | quote }}
+  erlang-cookie: {{ $config.credentials.cookie | b64enc | quote }}
+  definitions.json: {{ include "definitions.json" . | b64enc | quote }}
+---
+# discovery service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}-discovery
+  labels:
+    app: {{ $config.name }}
+    release: "{{ .Release.Name }}"
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ $config.service.managerPort }}
+      targetPort: http
+    - name: amqp
+      protocol: TCP
+      port: {{ $config.service.externalPort }}
+      targetPort: amqp
+    - name: epmd
+      protocol: TCP
+      port: {{ $config.service.empdPort }}
+      targetPort: epmd
+  publishNotReadyAddresses: true
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.externalPort }}
+      targetPort: {{ $config.service.internalPort }}
+      protocol: TCP
+      name: {{ $config.service.name }}
+    - name: http
+      protocol: TCP
+      port: {{ $config.service.managerPort }}
+      targetPort: http
+    - name: epmd
+      protocol: TCP
+      port: {{ $config.service.empdPort }}
+      targetPort: epmd
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $config.service.name }}-config
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+data:
+  enabled_plugins: |
+{{ include "rabbit-plugins" . | indent 4 }}
+  rabbitmq.conf: |
+{{ include "rabbitmq.conf" . | indent 4 }}
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ $config.name }}"
+  labels:
+    app: "{{ $config.name }}"
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: "{{ $config.name }}"
+      release: "{{ .Release.Name }}"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+  name: {{ $config.name }}
+rules:
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+  name: {{ $config.name }}
+subjects:
+- kind: ServiceAccount
+  name: {{ $config.name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $config.name }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+  name: {{ $config.name }}
+automountServiceAccountToken: true
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ $config.name }}-storage
+  labels:
+    type: local
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: {{ $config.name }}-storage
+spec:
+  storageClassName: {{ $config.name }}-storage
+  capacity:
+    storage: {{ $config.mnesiaSize }}
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: "/optscale/rabbitmq"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ $config.name }}-claim
+spec:
+  storageClassName: {{ $config.name }}-storage
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ $config.mnesiaSize }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ $config.service.name }}-discovery
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      serviceAccountName: {{ $config.name }}
+      initContainers:
+      - name: bootstrap
+        image: "busybox:local"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        command: ['sh']
+        args:
+          - "-c"
+          - |
+            set -ex
+            cp /configmap/* /etc/rabbitmq
+            echo "${RABBITMQ_ERLANG_COOKIE}" > /var/lib/rabbitmq/.erlang.cookie
+            {{- if .Values.forceBoot }}
+            if [ -d "${RABBITMQ_MNESIA_DIR}" ]; then
+              touch "${RABBITMQ_MNESIA_DIR}/force_load"
+            fi
+            {{- end }}
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: RABBITMQ_MNESIA_DIR
+          value: /var/lib/rabbitmq/mnesia/rabbit@$(POD_NAME).{{ $config.service.name }}-discovery.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}
+        - name: RABBITMQ_ERLANG_COOKIE
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-secret
+              key: erlang-cookie
+        volumeMounts:
+        - name: configmap
+          mountPath: /configmap
+        - name: config
+          mountPath: /etc/rabbitmq
+        - name: datadir
+          mountPath: /var/lib/rabbitmq
+        - name: mnesia
+          mountPath: /var/lib/rabbitmq/mnesia/
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-secret
+              key: username
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-secret
+              key: password
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: RABBITMQ_USE_LONGNAME
+          value: "true"
+        - name: RABBITMQ_NODENAME
+          value: rabbit@$(MY_POD_NAME).{{ $config.service.name }}-discovery.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}
+        - name: K8S_HOSTNAME_SUFFIX
+          value: .{{ $config.service.name }}-discovery.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}
+        - name: K8S_SERVICE_NAME
+          value: {{ $config.service.name }}-discovery
+        - name: RABBITMQ_ERLANG_COOKIE
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-secret
+              key: erlang-cookie
+        - name: RABBIT_MANAGEMENT_USER
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-secret
+              key: management-username
+        - name: RABBIT_MANAGEMENT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-secret
+              key: management-password
+        - name: CONFIG_HASH
+          value: {{ include "rabbitmq.conf" . | sha256sum }}
+        - name: PLUGINS_HASH
+          value: {{ include "rabbit-plugins" . | sha256sum }}
+        ports:
+        - name: epmd
+          protocol: TCP
+          containerPort: {{ $config.service.empdPort }}
+        - name: amqp
+          protocol: TCP
+          containerPort: {{ $config.service.internalPort }}
+        - name: http
+          protocol: TCP
+          containerPort: {{ $config.service.managerPort }}
+        livenessProbe:
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - 'wget -O - -q --header "Authorization: Basic `echo -n \"$RABBIT_MANAGEMENT_USER:$RABBIT_MANAGEMENT_PASSWORD\" | base64`" http://localhost:15672/api/healthchecks/node | grep -qF "{\"status\":\"ok\"}"'
+        readinessProbe:
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 6
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - 'wget -O - -q --header "Authorization: Basic `echo -n \"$RABBIT_MANAGEMENT_USER:$RABBIT_MANAGEMENT_PASSWORD\" | base64`" http://localhost:15672/api/healthchecks/node | grep -qF "{\"status\":\"ok\"}"'
+        volumeMounts:
+        - name: datadir
+          mountPath: /var/lib/rabbitmq
+        - name: mnesia
+          mountPath: /var/lib/rabbitmq/mnesia
+        - name: config
+          mountPath: /etc/rabbitmq
+        - name: definitions
+          mountPath: /etc/definitions
+          readOnly: true
+      volumes:
+      - name: config
+        emptyDir: {}
+      - name: configmap
+        configMap:
+          name: {{ $config.name }}-config
+      - name: datadir
+        emptyDir: {}
+      - name: mnesia
+        persistentVolumeClaim:
+          claimName: {{ $config.name }}-claim
+      - name: definitions
+        secret:
+          secretName: rabbit-secret
+          items:
+          - key: definitions.json
+            path: definitions.json
+{{ include "anti-affinity" $config | indent 6 }}

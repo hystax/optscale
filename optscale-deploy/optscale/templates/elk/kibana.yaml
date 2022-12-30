@@ -1,0 +1,53 @@
+{{- $config := .Values.kibana -}}
+{{- if and .Values.ha .Values.elk.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.name }}
+  labels:
+    component: {{ $config.name }}
+spec:
+  type: NodePort
+  ports:
+  - port: {{ $config.service.internalPort }}
+    targetPort: {{ $config.service.internalPort }}
+    nodePort: {{ $config.service.externalPort }}
+    name: {{ $config.name }}
+  selector:
+    component: {{ $config.name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}
+  labels:
+    component: {{ $config.name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+     component: {{ $config.name }}
+  template:
+    metadata:
+      labels:
+        component: {{ $config.name }}
+    spec:
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: KIBANA_ES_URL
+          value: "http://{{ .Values.elastic_cluster.service.name }}:{{ .Values.elastic_cluster.service.port }}"
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: {{ $config.service.internalPort }}
+          name: http
+{{- end -}}

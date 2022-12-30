@@ -1,0 +1,7 @@
+{
+  "storage-driver": "overlay2",
+  "log-driver": "gelf",
+  "log-opts": {
+    "gelf-address": "udp://{{ logstash_host }}:12201"
+  }
+}
