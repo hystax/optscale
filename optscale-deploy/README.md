@@ -8,12 +8,11 @@ OS: [Ubuntu 20.04](https://releases.ubuntu.com/focal/).
 #### Installing required packages
 run following commands:
 ```
-sudo apt update ; sudo apt install git python3-venv python3-dev
+sudo apt update ; sudo apt install git python3-venv python3-dev sshpass
 ```
 #### Pulling optscale-deploy scripts
-run following commands:
+change current directory:
 ```
-git clone https://gitlab.com/hystax/optscale-deploy.git
 cd optscale-deploy
 ```
 
