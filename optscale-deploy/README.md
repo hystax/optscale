@@ -25,6 +25,8 @@ pip install -r requirements.txt
 ```
 #### Kubernetes installation
 run following command:
+
+(comma after ip address is required)
 ```
 ansible-playbook -e "ansible_ssh_user=<user>" -k -K -i "<ip address>," ansible/k8s-master.yaml
 ```
@@ -33,7 +35,6 @@ ip address should be private address of the machine, you can check it with
 ```
 ip a
 ```
-
 
 #### Creating user overlay
 place file with overlay e.g. *overlay/user_template.yml*
