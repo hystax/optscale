@@ -107,6 +107,12 @@ run following command:
 ```
 ./runkube.py --with-elk  -o overlay/user_template.yml -- <deployment name> component_versions.yaml
 ```
+or if you want to use socket:
+```
+./runkube.py --use-socket --with-elk  -o overlay/user_template.yml -- <deployment name> component_versions.yaml
+
+```
+
 **please note**: if you use key authentication, you should have required key (id_rsa) on the machine
 
 #### Troubleshooting
