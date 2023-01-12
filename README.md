@@ -32,6 +32,11 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 Please follow [deployment guide](optscale-deploy/README.md) to spin up your own instance of OptScale from pre-built Docker images.
 
+## Contributing
+
+Please read and accept our [Contribution Agreement](CLA.md) before submitting pull requests.
+
+
 ## Community
 
 Hystax drives FinOps methodology, and has crafted a community of FinOps-related people. The community discusses FinOps and cost optimization best practices, our experts offer users how-tos and technical recommendations, and provide ongoing details and updates regarding the open source OptScale solution. 
