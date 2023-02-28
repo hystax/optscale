@@ -9,3 +9,4 @@ __pycache__/
 venv/
 .vscode/
 .DS_Store
+ngui/.env
