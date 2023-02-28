@@ -37,70 +37,8 @@ ip a
 ```
 
 #### Creating user overlay
-place file with overlay e.g. *overlay/user_template.yml*
-```
-# secrets should be permanent for cluster installation
-# change them in overlay before cluster installation
-secrets:
-  cluster: fc83d31-461d-44c5-b4d5-41a32d6c36a1
-  agent: 355d14dd-73b1-4834-aa0e-ccf10849c496
+Edit file with overlay - [overlay/user_template.yml](overlay/user_template.yml), see comments in overlay file for guidance.
 
-# service credentials for service tasks (getting pricings for the recommendations)
-# recommendations will not work without this
-service_credentials:
-  aws:
-    access_key_id: 
-    secret_access_key: 
-  azure:
-    client_id: 
-    tenant: 
-    secret: 
-    subscription_id: 
-  alibaba:
-    access_key_id: 
-    secret_access_key: 
-
-#  encryption salt for encode user information
-encryption_salt: my~encypt10n~s@lt
-
-# used for recommendations etc
-smtp:
-  server:
-  email:
-  port:
-  password:
-
-slacker:
-  slack_signing_secret: 
-  slack_client_id:
-  slack_client_secret:
-
-# google calendar service settings
-google_calendar_service:
-  access_key:
-    type: service_account
-    project_id: optscale
-    private_key_id: eeee000
-    private_key: |
-      -----BEGIN PRIVATE KEY-----
-      -----END PRIVATE KEY-----
-    client_email: calendar-service@optscale.iam.gserviceaccount.com
-    client_id: ""
-    auth_uri: https://accounts.google.com/o/oauth2/auth
-    token_uri: https://oauth2.googleapis.com/token
-    auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
-    client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/calendar-service@optscale.iam.gserviceaccount.com
-
-#  encryption key
-encryption_key: fffffxdddeadb33f
-
-# This overlay should be used for all non-production environments (?)
-# - https://console.developers.google.com/ to see registered origins for the Google OAuth client"
-# - https://portal.azure.com/ to see registered origins for the Microsoft OAuth client"
-auth:
-  google_oauth_client_id: ""
-  microsoft_oauth_client_id: ""
-```
 
 #### Cluster installation
 run following command:

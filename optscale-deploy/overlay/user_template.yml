@@ -1,22 +1,88 @@
-# secrets should be permanent for cluster installation
-# change them in overlay before cluster installation
+# secret should be permanent for cluster installation
+# change it before cluster installation
 secrets:
-  cluster: cf8b407e-a7e3-498d-8809-28f6abbe2619
-  agent: 355d14dd-73b1-4834-aa0e-ccf10849c496
+  cluster: fc83d31-461d-44c5-b4d5-41a32d6c36a1
 
-# used for password encryption with generated salt
-encryption_salt: Pl3ase-replace-me
+# service credentials for getting pricing information from the different clouds
+# recommendations will not work without this
+service_credentials:
+  aws:
+    access_key_id: accesskeyid
+    secret_access_key: secretaccesskey
+  azure:
+    client_id: clientid
+    tenant: tenant
+    secret: secret
+    subscription_id: subscriptionid
+  alibaba:
+    access_key_id: accesskeyid
+    secret_access_key: secretaccesskey
+  gcp:
+    credentials:
+    # You'll need a service account with the following permissions to the 
+    # project where you set up pricing data export:
+    # - bigquery.jobs.create
+    # - bigquery.tables.getData
+    # - compute.machineTypes.list
+      type: service_account
+      project_id: yourprojectid
+      private_key_id: yourprivatekeyid
+      private_key: |
+        -----BEGIN PRIVATE KEY-----
+        -----END PRIVATE KEY-----
+      client_email: optscale-service-credentials@yourproject.iam.gserviceaccount.com
+      client_id: '111111111'
+      auth_uri: https://accounts.google.com/o/oauth2/auth
+      token_uri: https://oauth2.googleapis.com/token
+      auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+      client_x509_cert_url: >-
+        https://www.googleapis.com/robot/v1/metadata/x509/optscale-service-credentials%40yourproject.iam.gserviceaccount.com
+    # See https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables#pricing-data-schema
+    # for setting up pricing data export
+    pricing_data:
+      dataset_name: pricing_dataset
+      table_name: cloud_pricing_export
+    project_id: yourprojectid
 
-cluster_name:
+#  encryption salt for encode user information
+encryption_salt: my~encypt10n~s@lt
 
-# docker will send container logs to this logstash
-logstash_host: 172.22.1.37
-logstash_port: 12201
-
-
-# used for recommendations etc
+# SMTP server and credentials used for sending emails
 smtp:
   server:
   email:
   port:
   password:
+
+# Slack application credentials
+slacker:
+  slack_signing_secret: 
+  slack_client_id:
+  slack_client_secret:
+
+# google calendar service settings - used for IT Environments booking 
+# integration with Google Calendar
+google_calendar_service:
+  access_key:
+    type: service_account
+    project_id: optscale
+    private_key_id: eeee000
+    private_key: |
+      -----BEGIN PRIVATE KEY-----
+      -----END PRIVATE KEY-----
+    client_email: calendar-service@optscale.iam.gserviceaccount.com
+    client_id: ""
+    auth_uri: https://accounts.google.com/o/oauth2/auth
+    token_uri: https://oauth2.googleapis.com/token
+    auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+    client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/calendar-service@optscale.iam.gserviceaccount.com
+
+#  encryption key
+encryption_key: fffffxdddeadb33f
+
+# This overlay should be used for all non-production environments (?)
+# - https://console.developers.google.com/ to see registered origins for the Google OAuth client"
+# - https://portal.azure.com/ to see registered origins for the Microsoft OAuth client"
+auth:
+  google_oauth_client_id: ""
+  microsoft_oauth_client_id: ""
