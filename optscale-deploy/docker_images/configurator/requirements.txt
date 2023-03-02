@@ -8,3 +8,4 @@ boto3==1.12.25
 
 # our dependencies
 config-client==1.0.77
+cryptography==3.3.1
