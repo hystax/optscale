@@ -1,0 +1,6 @@
+boto
+config-client==1.0.114
+restapi-client==1.0.683
+optscale-exceptions==0.0.21
+# TODO: update version
+tornado==6.2

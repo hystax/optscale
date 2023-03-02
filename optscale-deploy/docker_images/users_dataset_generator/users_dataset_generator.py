@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from urllib import parse
 
 DEFAULT_ETCD_HOST = 'etcd'
 DEFAULT_ETCD_PORT = 80
@@ -20,6 +21,7 @@ HEADERS = ["user id", "email", "name", "user_created_at", "last_login_at",
            "employee_id", "organization_joined_at", "organization_id",
            "organization name", "currency", "pools count", "total_saving",
            "last_30_days_cost"]
+TAGS = {"public": "yes"}
 
 
 def _get_session_to_auth_db(config_cl):
@@ -61,7 +63,8 @@ def _get_aws_s3_session(access_key, secret_key):
 
 def _upload(s3_client, bucket, path, filename):
     LOG.info(f"Uploading to S3: {filename}")
-    s3_client.upload_file(filename, bucket, os.path.join(path, filename))
+    s3_client.upload_file(filename, bucket, os.path.join(path, filename),
+                          ExtraArgs={"Tagging": parse.urlencode(TAGS)})
     LOG.info(f"Uploaded to S3: {filename}")
     manifest_file_name = f"manifest.yaml"
     manifest = {
@@ -178,7 +181,7 @@ def _get_checklist(mydb, org_id):
         FROM checklist
         WHERE organization_id='{org_id}' AND deleted_at=0
         """).first()
-    return result[0]
+    return result[0] if result else None
 
 
 def _get_expenses_by_clouds(ch_cl, cloud_account_ids):
@@ -246,10 +249,12 @@ def main(config_cl):
 
         for user_id, user_data in users.items():
             _, email, display_name, created_at, last_login = user_data
+            display_name = display_name.replace(',', ' ')
             for row in auth_user_org_data.get(user_id, (
                     None, None, None, None, None)):
                 (_, employee_id, emp_created_at, organization_name,
                  organization_currency, pools_count) = row
+                organization_name = organization_name.replace(',', ' ')
 
                 total_saving = 0
                 last_completed = _get_checklist(mydb_cl, org_id)

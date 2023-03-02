@@ -18,6 +18,13 @@
   command: ['sh', '-c', 'until nc -z {{ .service.name }}.default.svc.cluster.local {{ .service.externalPort }} -w 2; do sleep 2; done']
 {{- end -}}
 
+{{- define "wait_for_thanos_service" -}}
+- name: "wait-{{ .service.name }}"
+  image: "busybox:local"
+  imagePullPolicy: Never
+  command: ['sh', '-c', 'until nc -z {{ .service.name }}.default.svc.cluster.local {{ .service.httpExternalPort }} -w 2; do sleep 2; done']
+{{- end -}}
+
 {{- define "wait_for_elk" -}}
 - name: "wait-elk"
   image: "busybox:local"

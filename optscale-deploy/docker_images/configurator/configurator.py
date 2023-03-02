@@ -7,13 +7,13 @@ import pika
 import pika.exceptions
 import yaml
 import etcd
+import boto3
+from boto3.session import Config as BotoConfig
 from config_client.client import Client as EtcdClient
 from retrying import retry
 from sqlalchemy import create_engine
 from pymongo import MongoClient
 from influxdb import InfluxDBClient
-
-from cryptography.fernet import Fernet
 
 LOG = logging.getLogger(__name__)
 
@@ -58,6 +58,15 @@ class Configurator(object):
             config['influxdb']['pass'],
             config['influxdb']['database'],
         )
+        s3_params = config['minio']
+        self.s3_client = boto3.client(
+            's3',
+            endpoint_url='http://{}:{}'.format(
+                s3_params['host'], s3_params['port']),
+            aws_access_key_id=s3_params['access'],
+            aws_secret_access_key=s3_params['secret'],
+            config=BotoConfig(s3={'addressing_style': 'path'})
+        )
 
     @retry(**RETRY_ARGS, retry_on_exception=lambda x: True)
     def configure_influx(self):
@@ -68,50 +77,11 @@ class Configurator(object):
         LOG.info("Creating /configured key")
         self.etcd_cl.write('/configured', time.time())
 
-    def _get_encryption_key(self):
-        return self.etcd_cl.read('/encryption_key').value.encode()
-
-    def _get_smtp_params(self):
-        LOG.info("getting SMTP password")
-        try:
-            v = self.etcd_cl.read_branch('/smtp')
-        except etcd.EtcdKeyNotFound:
-            v = dict()
-        return v
-
-    @staticmethod
-    def _is_password_encrypted(settings):
-        return settings.get('encrypted', True) and settings.get('password')
-
-    @staticmethod
-    def _decrypt_password(password, enc_key):
-        fernet = Fernet(enc_key)
-        return fernet.decrypt(password.encode()).decode()
-
-    def decrypt_smtp_password(self):
-        LOG.info("checking smtp password")
-        settings = self._get_smtp_params()
-        LOG.info(settings)
-        if self._is_password_encrypted(settings):
-            LOG.info("decrypting password")
-            enc_key = self._get_encryption_key()
-            if enc_key:
-                decrypted_password = self._decrypt_password(
-                    settings.get('password'), enc_key)
-                d = {
-                    'email': settings.get('email', ''),
-                    'port': settings.get('port', 0),
-                    'password': decrypted_password,
-                    'server': settings.get('server', ''),
-                    'encrypted': False,
-                }
-                self.etcd_cl.write_branch('smtp', d)
-
     def pre_configure(self):
         LOG.info("Creating databases")
         self.create_databases()
         self.configure_influx()
-        self.decrypt_smtp_password()
+        self.configure_thanos()
         # setting to 0 to block updates until update is finished
         # and new images pushed into registry
         self.etcd_cl.write('/registry_ready', 0)
@@ -120,7 +90,9 @@ class Configurator(object):
         if self.config.get('skip_config_update', False):
             LOG.info('Only making structure updates')
             self.etcd_cl.update_structure('/', config, always_update=[
-                '/cluster_capabilities/common/optscale_version',
+                '/cloud_agent_services',
+                '/cluster_capabilities/supported_clouds',
+                '/cluster_capabilities/common/acura_version',
             ])
             self.commit_config()
             return
@@ -130,6 +102,8 @@ class Configurator(object):
         except etcd.EtcdKeyNotFound:
             pass
         self.etcd_cl.write_branch('/', config, overwrite_lists=True)
+        LOG.info("Configuring database server")
+        self.configure_databases()
         self.configure_mongo()
         self.configure_rabbit()
 
@@ -166,14 +140,38 @@ class Configurator(object):
         _ = self.mongo_client[self.config['etcd']['mongo']['database']]
 
     @retry(**RETRY_ARGS, retry_on_exception=lambda x: True)
+    def configure_databases(self):
+        # in case of foreman model changes recreate db
+        if self.config.get('drop_tasks_db'):
+            self.engine.execute("DROP DATABASE IF EXISTS tasks")
+
+    @retry(**RETRY_ARGS, retry_on_exception=lambda x: True)
     def create_databases(self):
         for db in self.config.get('databases'):
-            # http://dev.mysql.com/doc/refman/5.6/en/innodb-row-format-dynamic.html NOQA
-            self.engine.execute(
-                "CREATE DATABASE IF NOT EXISTS `{0}` "
-                "DEFAULT CHARACTER SET `utf8mb4` "
-                "DEFAULT COLLATE `utf8mb4_unicode_ci`".format(db))
+            # heat migrations fail with utf8mb4
+            if db != 'heat':
+                # http://dev.mysql.com/doc/refman/5.6/en/innodb-row-format-dynamic.html NOQA
+                self.engine.execute(
+                    "CREATE DATABASE IF NOT EXISTS `{0}` "
+                    "DEFAULT CHARACTER SET `utf8mb4` "
+                    "DEFAULT COLLATE `utf8mb4_unicode_ci`".format(db))
+            else:
+                self.engine.execute(
+                    'CREATE DATABASE IF NOT EXISTS `{0}`'.format(db))
 
+    @retry(**RETRY_ARGS, retry_on_exception=lambda x: True)
+    def configure_thanos(self):
+        bucket_name = 'thanos'
+        prefix = 'data'
+        try:
+            self.s3_client.create_bucket(Bucket=bucket_name)
+            LOG.info('Created %s bucket in minio', bucket_name)
+            self.s3_client.put_object(
+                Bucket=bucket_name, Body='', Key='%s/' % prefix)
+            LOG.info('Created %s folder in %s bucket', prefix, bucket_name)
+        except self.s3_client.exceptions.BucketAlreadyOwnedByYou:
+            LOG.info('Skipping bucket %s creation. Bucket already exists',
+                     bucket_name)
 
 
 if __name__ == "__main__":
