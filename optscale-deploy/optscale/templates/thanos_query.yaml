@@ -1,0 +1,105 @@
+{{- $config := .Values.thanos_query -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.httpType }}
+  ports:
+    - port: {{ $config.service.httpExternalPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    {{- if $config.service.httpNodePort }}
+      nodePort: {{ $config.service.httpNodePort }}
+    {{- end }}
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}-grpc
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.grpcType }}
+  ports:
+    - port: {{ $config.service.grpcExternalPort }}
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ $config.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+{{ include "wait_for_thanos_service" .Values.thanos_receive | indent 6 }}
+{{ include "wait_for_thanos_service" .Values.thanos_storegateway | indent 6 }}
+      containers:
+        - name: query
+          image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+          imagePullPolicy: "{{ $config.image.pullPolicy }}"
+          command:
+            - thanos
+          args:
+            - query
+            - --grpc-address=0.0.0.0:10901
+            - --http-address=0.0.0.0:10902
+            - --endpoint=dnssrv+_grpc._tcp.thanos-storegateway.{{ .Release.Namespace }}.svc.cluster.local
+            - --endpoint=dnssrv+_grpc._tcp.thanos-receive.{{ .Release.Namespace }}.svc.cluster.local
+          ports:
+            - name: http
+              containerPort: 10902
+              protocol: TCP
+            - name: grpc
+              containerPort: 10901
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: http
+              initialDelaySeconds: 30
+              timeoutSeconds: 30
+              periodSeconds: 10
+              successThreshold: 1
+              failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+              initialDelaySeconds: 30
+              timeoutSeconds: 30
+              periodSeconds: 10
+              successThreshold: 1
+              failureThreshold: 6

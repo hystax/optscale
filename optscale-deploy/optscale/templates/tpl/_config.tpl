@@ -80,9 +80,19 @@ etcd:
   jirabus:
     host: {{ .Values.jira_bus.service.name }}
     port: {{ .Values.jira_bus.service.externalPort }}
+  arcee:
+    host: {{ .Values.arcee.service.name }}
+    port: {{ .Values.arcee.service.externalPort }}
   metroculus:
     host: {{ .Values.metroculus_api.service.name }}
     port: {{ .Values.metroculus_api.service.externalPort }}
+  thanos_query:
+    host: {{ .Values.thanos_query.service.name }}
+    port: {{ .Values.thanos_query.service.httpExternalPort }}
+  thanos_receive:
+    host: {{ .Values.thanos_receive.service.name }}
+    port: {{ .Values.thanos_receive.service.remoteWriteExternalPort }}
+    path: {{ .Values.thanos_receive.remoteWritePath }}
   authdb:
     host: {{ .Values.mariadb.service.name }}
     user: {{ .Values.mariadb.credentials.username }}
@@ -145,6 +155,9 @@ etcd:
     password: {{ .Values.clickhouse.db.password }}
     host: {{ .Values.clickhouse.service.name }}
     db: {{ .Values.clickhouse.db.name }}
+  cleanmongodb:
+    chunk_size: {{ .Values.cleanmongodb.chunk_size }}
+    rows_limit: {{ .Values.cleanmongodb.rows_limit }}
 {{ if .Values.zohocrm.regapp }}
   zohocrm:
     regapp_email: {{ .Values.zohocrm.regapp.email }}
@@ -177,12 +190,7 @@ etcd:
     aws_access_key_id: {{ .Values.users_dataset_generator.aws_access_key_id }}
     aws_secret_access_key: {{ .Values.users_dataset_generator.aws_secret_access_key }}
   service_credentials:
-  {{- range $obj_name, $obj := .Values.service_credentials }}
-    {{ $obj_name }}:
-      {{- range $key, $value := $obj }}
-        {{ $key }}: {{ $value }}
-      {{- end }}
-  {{- end }}
+{{ toYaml .Values.service_credentials | indent 4 }}
   optscale_meter_enabled: {{ .Values.optscale_meter_enabled }}
 {{ if .Values.fake_cad_config }}
   fake_cad:

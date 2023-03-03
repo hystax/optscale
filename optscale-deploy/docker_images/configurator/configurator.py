@@ -7,6 +7,8 @@ import pika
 import pika.exceptions
 import yaml
 import etcd
+import boto3
+from boto3.session import Config as BotoConfig
 from config_client.client import Client as EtcdClient
 from retrying import retry
 from sqlalchemy import create_engine
@@ -57,6 +59,15 @@ class Configurator(object):
             config['influxdb']['user'],
             config['influxdb']['pass'],
             config['influxdb']['database'],
+        )
+        s3_params = config['minio']
+        self.s3_client = boto3.client(
+            's3',
+            endpoint_url='http://{}:{}'.format(
+                s3_params['host'], s3_params['port']),
+            aws_access_key_id=s3_params['access'],
+            aws_secret_access_key=s3_params['secret'],
+            config=BotoConfig(s3={'addressing_style': 'path'})
         )
 
     @retry(**RETRY_ARGS, retry_on_exception=lambda x: True)
@@ -111,6 +122,7 @@ class Configurator(object):
         LOG.info("Creating databases")
         self.create_databases()
         self.configure_influx()
+        self.configure_thanos()
         self.decrypt_smtp_password()
         # setting to 0 to block updates until update is finished
         # and new images pushed into registry
@@ -120,6 +132,8 @@ class Configurator(object):
         if self.config.get('skip_config_update', False):
             LOG.info('Only making structure updates')
             self.etcd_cl.update_structure('/', config, always_update=[
+                '/cloud_agent_services',
+                '/cluster_capabilities/supported_clouds',
                 '/cluster_capabilities/common/optscale_version',
             ])
             self.commit_config()
@@ -130,6 +144,7 @@ class Configurator(object):
         except etcd.EtcdKeyNotFound:
             pass
         self.etcd_cl.write_branch('/', config, overwrite_lists=True)
+        LOG.info("Configuring database server")
         self.configure_mongo()
         self.configure_rabbit()
 
@@ -174,6 +189,19 @@ class Configurator(object):
                 "DEFAULT CHARACTER SET `utf8mb4` "
                 "DEFAULT COLLATE `utf8mb4_unicode_ci`".format(db))
 
+    @retry(**RETRY_ARGS, retry_on_exception=lambda x: True)
+    def configure_thanos(self):
+        bucket_name = 'thanos'
+        prefix = 'data'
+        try:
+            self.s3_client.create_bucket(Bucket=bucket_name)
+            LOG.info('Created %s bucket in minio', bucket_name)
+            self.s3_client.put_object(
+                Bucket=bucket_name, Body='', Key='%s/' % prefix)
+            LOG.info('Created %s folder in %s bucket', prefix, bucket_name)
+        except self.s3_client.exceptions.BucketAlreadyOwnedByYou:
+            LOG.info('Skipping bucket %s creation. Bucket already exists',
+                     bucket_name)
 
 
 if __name__ == "__main__":

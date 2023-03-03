@@ -2,6 +2,7 @@
 import os
 import requests
 import time
+import traceback
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
@@ -113,8 +114,7 @@ class ResourcesSaver:
 
     def build_payload(self, resource, resource_type):
         obj = {}
-        cad_resource_model = self.get_resource_type_model(resource_type)()
-        for field in cad_resource_model.fields(meta_fields_incl=False):
+        for field in resource.fields(meta_fields_incl=False):
             val = getattr(resource, field)
             if val is not None and (isinstance(val, bool) or val):
                 obj[field] = val
@@ -133,7 +133,8 @@ class ResourcesSaver:
             _, response = self.rest_cl.cloud_resource_create_bulk(
                 cloud_acc_id, {'resources': payload},
                 behavior='update_existing', return_resources=True)
-
+        for resource in resources:
+            resource.post_discover()
 
 class DiscoveryWorker(ConsumerMixin):
     def __init__(self, connection, config_cl):
@@ -184,6 +185,8 @@ class DiscoveryWorker(ConsumerMixin):
     def get_config(self, cloud_account_id):
         _, cloud_account = self.rest_cl.cloud_account_get(cloud_account_id)
         cloud_account.update(cloud_account.get('config', {}))
+        if cloud_account['type'] == 'kubernetes_cnr':
+            cloud_account['url'] = self.config_cl.thanos_query_url()
         return cloud_account
 
     def check_discover_enabled(self, cloud_account_id, resource_type):
@@ -195,13 +198,21 @@ class DiscoveryWorker(ConsumerMixin):
             break
         return enabled
 
+    @staticmethod
+    def max_parallel_requests(config):
+        # check if MAX_PARALLEL_REQUESTS is set for cloud adapter
+        # otherwise use default parallelism
+        adapter = CloudAdapter.get_adapter(config)
+        return getattr(adapter, 'MAX_PARALLEL_REQUESTS', MAX_PARALLEL_REQUESTS)
+
     def discover(self, config, resource_type):
         res = []
         if not config:
             return res
         adapter = CloudAdapter.get_adapter(config)
+        max_parallel_requests = self.max_parallel_requests(config)
         with ThreadPoolExecutor(
-                max_workers=MAX_PARALLEL_REQUESTS) as executor:
+                max_workers=max_parallel_requests) as executor:
             try:
                 discover_calls = adapter.get_discovery_calls(resource_type)
             except InvalidResourceTypeException:
@@ -237,29 +248,32 @@ class DiscoveryWorker(ConsumerMixin):
         gen_list = self.discover(config, resource_type)
         discovered_resources = []
         resources_count = 0
-        while gen_list:
-            futures = []
-            with ThreadPoolExecutor(
-                    max_workers=MAX_PARALLEL_REQUESTS) as executor:
-                for gen in gen_list:
-                    futures.append(
-                        executor.submit(self.extract_from_generator, gen))
-            for f in futures:
-                res, gen = f.result()
-                if isinstance(res, Exception):
-                    gen_list.remove(gen)
-                    LOG.exception('Discovery call failed for cloud %s: %s',
-                                  cloud_acc_id, str(res))
-                    raise Exception(str(res))
-                elif res:
-                    discovered_resources.append(res)
-                else:
-                    gen_list.remove(gen)
-                if len(discovered_resources) >= CHUNK_SIZE:
-                    resources_count += len(discovered_resources)
-                    self.res_saving.send((discovered_resources.copy(),
-                                          resource_type, cloud_acc_id))
-                    discovered_resources.clear()
+        max_parallel_requests = self.max_parallel_requests(config)
+        errors = set()
+        for i in range(0, len(gen_list), max_parallel_requests):
+            gen_list_chunk = gen_list[i:i + max_parallel_requests]
+            while gen_list_chunk:
+                futures = []
+                with ThreadPoolExecutor(
+                        max_workers=max_parallel_requests) as executor:
+                    for gen in gen_list_chunk:
+                        futures.append(
+                            executor.submit(self.extract_from_generator, gen))
+                for f in futures:
+                    res, gen = f.result()
+                    if isinstance(res, Exception):
+                        LOG.error("Exception: % %", str(res), traceback.print_tb(res.__traceback__))
+                        gen_list_chunk.remove(gen)
+                        errors.add(str(res))
+                    elif res:
+                        discovered_resources.append(res)
+                    else:
+                        gen_list_chunk.remove(gen)
+                    if len(discovered_resources) >= CHUNK_SIZE:
+                        resources_count += len(discovered_resources)
+                        self.res_saving.send((discovered_resources.copy(),
+                                              resource_type, cloud_acc_id))
+                        discovered_resources.clear()
         if len(discovered_resources):
             resources_count += len(discovered_resources)
             self.res_saving.send((
@@ -272,6 +286,10 @@ class DiscoveryWorker(ConsumerMixin):
                         ' cloud account %s has been exceeded',
                         resource_type, cloud_acc_id)
         self.res_saving.resume()
+        if errors:
+            LOG.error('%s discovery call failed for cloud %s with errors %s',
+                      resource_type, cloud_acc_id, errors)
+            raise Exception(next(iter(errors)))
         self._update_discovery_info(
             cloud_acc_id, resource_type,
             last_discovery_at=int(start_time.timestamp()))

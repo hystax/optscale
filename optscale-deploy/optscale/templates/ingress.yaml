@@ -63,5 +63,21 @@ spec:
           serviceName: {{ .Values.jira_ui.service.name }}
           servicePort: {{ .Values.jira_ui.service.externalPort }}
         path: /jira_ui
+      - backend:
+          serviceName: {{ .Values.diproxy.service.name }}
+          servicePort: {{ .Values.diproxy.service.externalPort }}
+        path: /storage
+      - backend:
+          serviceName: {{ .Values.pharos_receiver.service.name }}
+          servicePort: {{ .Values.pharos_receiver.service.externalPort }}
+        path: /pharos_receiver
+      - backend:
+          serviceName: {{ .Values.ohsu.service.name }}
+          servicePort: {{ .Values.ohsu.service.externalPort }}
+        path: /ohsu
+      - backend:
+          serviceName: {{ .Values.arcee.service.name }}
+          servicePort: {{ .Values.arcee.service.externalPort }}
+        path: /arcee
   tls:
   - secretName: defaultcert

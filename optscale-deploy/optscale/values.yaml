@@ -595,6 +595,20 @@ booking_observer:
   startingDeadlineSeconds: 100
   schedule: "*/1 * * * *"
 
+arcee:
+  name: &arcee_name arcee
+  replicaCount: 1
+  image:
+    id:
+    repository: arcee
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *arcee_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8891
+
 jira_bus:
   name: &jira_bus_name jira-bus
   replicaCount: 1
@@ -608,6 +622,18 @@ jira_bus:
     type: ClusterIP
     externalPort: 80
     internalPort: 8977
+
+cleanmongodb:
+  name: cleanmongodb
+  image:
+    id:
+    repository: cleanmongodb
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/3 * * * *"
+  chunk_size: 500
+  rows_limit: 10000
 
 jira_ui:
   name: &jira_ui_name jira-ui
@@ -651,6 +677,109 @@ trapper_worker:
     repository: trapper_worker
     tag: *tag
     pullPolicy: Never
+
+thanos_receive:
+  name: &thanos_receive_name thanos-receive
+  dataSize: 10Gi
+  replicaCount: 1
+  tsdbRetention: 15d
+  memory_limit: 6144
+  image:
+    id:
+    repository: thanos
+    tag: *tag
+    pullPolicy: Never
+  remoteWritePath: 'api/v1/receive'
+  service:
+    name: *thanos_receive_name
+    type: ClusterIP
+    httpExternalPort: 10902
+    grpcExternalPort: 10901
+    remoteWriteExternalPort: 19291
+
+thanos_storegateway:
+  name: &thanos_storegateway_name thanos-storegateway
+  dataSize: 10Gi
+  replicaCount: 1
+  image:
+    id:
+    repository: thanos
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *thanos_storegateway_name
+    type: ClusterIP
+    httpExternalPort: 10902
+    grpcExternalPort: 10901
+
+thanos_query:
+  name: &thanos_query_name thanos-query
+  replicaCount: 1
+  image:
+    id:
+    repository: thanos
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *thanos_query_name
+    httpType: ClusterIP
+    httpExternalPort: 10902
+    httpNodePort: 0
+    grpcType: ClusterIP
+    grpcExternalPort: 10901
+
+diproxy:
+  name: &diproxy_name diproxy
+  replicaCount: 1
+  image:
+    id:
+    repository: *diproxy_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *diproxy_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8935
+
+pharos_receiver:
+  name: pharos-receiver
+  replicaCount: 1
+  image:
+    id:
+    repository: pharos_receiver
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: pharos-receiver
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8946
+
+pharos_worker:
+  name: pharos-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: pharos_worker
+    tag: *tag
+    pullPolicy: Never
+
+ohsu:
+  name: ohsu
+  replicaCount: 1
+  image:
+    id:
+    repository: ohsu
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: ohsu
+    type: NodePort
+    # TODO: list of ports?
+    clientPort: 9377
+    historyPort: 30180
+    externalPort: 80
 
 users_dataset_generator:
   name: users-dataset-generator
