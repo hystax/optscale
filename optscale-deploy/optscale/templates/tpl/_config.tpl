@@ -189,6 +189,7 @@ etcd:
     filename: {{ .Values.users_dataset_generator.filename }}
     aws_access_key_id: {{ .Values.users_dataset_generator.aws_access_key_id }}
     aws_secret_access_key: {{ .Values.users_dataset_generator.aws_secret_access_key }}
+  service_credentials:
 {{ toYaml .Values.service_credentials | indent 4 }}
   optscale_meter_enabled: {{ .Values.optscale_meter_enabled }}
 {{ if .Values.fake_cad_config }}
