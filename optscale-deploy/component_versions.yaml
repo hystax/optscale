@@ -21,7 +21,7 @@ images:
   etcd: 5240609a13b566e5e2a2574c1a1ef7babbc917ce
   grafana: 952bc3a90326fc5c3f1351dc08c43bc6436a34bd
   grafana_nginx: 952bc3a90326fc5c3f1351dc08c43bc6436a34bd
-  herald: 6bd9a9aed85d54518e770c8d08a667aed4d40ce2
+  herald: 326ecf8db4deec7e2d6e7a01d05d4450cfa48e29
   herald_executor: 5240609a13b566e5e2a2574c1a1ef7babbc917ce
   influxdb: 952bc3a90326fc5c3f1351dc08c43bc6436a34bd
   insider_api: ea90fd710f97fd1b291f8c3614677c4106c15151
@@ -69,7 +69,7 @@ repos:
   deploy: 5240609a13b566e5e2a2574c1a1ef7babbc917ce
   diproxy: bc145c55bbda0e7649cc204adae7a97d3a23109a
   diworker: c03be22523f9e8a63a4f07bc0e7a1d8cd54bacb8
-  herald: 6bd9a9aed85d54518e770c8d08a667aed4d40ce2
+  herald: 326ecf8db4deec7e2d6e7a01d05d4450cfa48e29
   insider: ea90fd710f97fd1b291f8c3614677c4106c15151
   jira_bus: 89b65206499de11c5f9894624d5881e93b20ea36
   jira_ui: bea4e0ae42432af2fa2dea98e7e0f194b5b853e8
