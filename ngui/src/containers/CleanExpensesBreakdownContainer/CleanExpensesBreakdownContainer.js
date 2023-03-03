@@ -1,16 +1,14 @@
 import React from "react";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { Grid } from "@mui/material";
-import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 import { useDispatch } from "react-redux";
 import { getCleanExpenses, REST_API_URL } from "api";
 import CleanExpensesTable from "components/CleanExpensesTable";
 import CleanExpensesTableGroup from "components/CleanExpensesTableGroup";
 import ExpensesDailyBreakdown from "components/ExpensesDailyBreakdown";
 import { ExpensesDailyBreakdownByMockup } from "components/ExpensesDailyBreakdownBy";
-import Icon from "components/Icon";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import TableLoader from "components/TableLoader";
 import ExpensesDailyBreakdownByContainer from "containers/ExpensesDailyBreakdownByContainer";
 import { useFetchAndDownload } from "hooks/useFetchAndDownload";
@@ -25,24 +23,13 @@ const LimitWarning = ({ limit }) => {
   const intl = useIntl();
 
   return (
-    <div
-      style={{
-        display: "flex",
-        marginBottom: "8px"
+    <InlineSeverityAlert
+      messageId="rowsLimitWarning"
+      messageValues={{
+        entities: intl.formatMessage({ id: "resources" }).toLocaleLowerCase(),
+        count: limit
       }}
-    >
-      <Icon icon={InfoOutlinedIcon} hasRightMargin color="warning" />
-      <Typography>
-        <FormattedMessage
-          id="rowsLimitWarning"
-          values={{
-            entities: intl.formatMessage({ id: "resources" }).toLocaleLowerCase(),
-            count: limit
-          }}
-        />{" "}
-        <FormattedMessage id="adjustFiltersWarning" />
-      </Typography>
-    </div>
+    />
   );
 };
 

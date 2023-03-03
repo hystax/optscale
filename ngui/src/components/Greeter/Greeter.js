@@ -10,20 +10,24 @@ import { useNavigate } from "react-router-dom";
 import certifiedFinopsSolution from "assets/welcome/certified-finops-solution.svg";
 import costAnomalyDetection from "assets/welcome/cost-anomaly-detection.svg";
 import finopsReadinessMaturityAssessment from "assets/welcome/finops-readiness-maturity-assessment.svg";
-import freeCloudK8sCostOptimization from "assets/welcome/free-cloud-K8s-cost-optimization.svg";
+import costOptimization from "assets/welcome/free-cloud-K8s-cost-optimization.svg";
 import geoNetworkTrafficCostMap from "assets/welcome/geo-network-traffic-cost-map.svg";
 import itEnvironmentManagement from "assets/welcome/it-environment-management.svg";
+import mlAiOptimizationProfiling from "assets/welcome/ml-ai-optimization-profiling.svg";
+import mlMetricsAndKpiTracking from "assets/welcome/ml-metrics-and-kpi-tracking.svg";
+import mlRunsets from "assets/welcome/ml-runsets.svg";
+import sparkIntgration from "assets/welcome/spark-intgration.svg";
 import Button from "components/Button";
 import CustomersGallery from "components/CustomersGallery";
-
+import IconLabel from "components/IconLabel";
 import IntegrationsGallery from "components/IntegrationsGallery";
 import Logo from "components/Logo";
-import OAuthSignIn from "components/OAuthSignIn";
 import SubTitle from "components/SubTitle";
 import { useIsDownMediaQuery, useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { HYSTAX, LIVE_DEMO, HYSTAX_FORRESTER } from "urls";
 import { tag as tagHotjar } from "utils/hotjar";
-import { SPACING_4, SPACING_2 } from "utils/layouts";
+import { SPACING_4, SPACING_2, SPACING_6 } from "utils/layouts";
+import { getQueryParams } from "utils/network";
 import useStyles from "./Greeter.styles";
 
 const OptScaleLink = () => {
@@ -31,42 +35,68 @@ const OptScaleLink = () => {
   const intl = useIntl();
 
   return (
-    <SubTitle className={classes.rightTextColor}>
-      <LanguageOutlinedIcon className={cx(classes.icon, classes.rightTextColor)} />
-      <Link
-        data-test-id="link_optscale_site"
-        href={HYSTAX}
-        onClick={() => {
-          tagHotjar(["went_optscale_website"]);
-        }}
-        color="inherit"
-        target="_blank"
-        rel="noopener"
-      >
-        {intl.formatMessage({ id: "hystaxDotCom" })}
-      </Link>
-    </SubTitle>
+    <Typography component="div" variant="body2" color="white">
+      <IconLabel
+        icon={<LanguageOutlinedIcon className={cx(classes.webIconMargin)} />}
+        label={
+          <Link
+            data-test-id="link_optscale_site"
+            href={HYSTAX}
+            onClick={() => {
+              tagHotjar(["went_optscale_website"]);
+            }}
+            color="inherit"
+            target="_blank"
+            rel="noopener"
+          >
+            {intl.formatMessage({ id: "hystaxDotCom" })}
+          </Link>
+        }
+      />
+    </Typography>
   );
+};
+
+const GREETER_IMAGES_MODE = Object.freeze({
+  OPTSCALE: "optscale",
+  ML_AI: "ml-ai"
+});
+
+const getImagesWithCaption = () => {
+  const { mode = GREETER_IMAGES_MODE.OPTSCALE } = getQueryParams();
+
+  if (mode === GREETER_IMAGES_MODE.ML_AI) {
+    return [
+      { caption: "ml.welcome.caption1", src: mlMetricsAndKpiTracking },
+      { caption: "ml.welcome.caption2", src: mlAiOptimizationProfiling },
+      { caption: "ml.welcome.caption3", src: costOptimization },
+      { caption: "ml.welcome.caption4", src: mlRunsets },
+      { caption: "ml.welcome.caption5", src: sparkIntgration },
+      { caption: "ml.welcome.caption6", src: certifiedFinopsSolution }
+    ];
+  }
+
+  return [
+    { caption: "optscale.welcome.caption1", src: certifiedFinopsSolution },
+    { caption: "optscale.welcome.caption2", src: finopsReadinessMaturityAssessment },
+    { caption: "optscale.welcome.caption3", src: costOptimization },
+    { caption: "optscale.welcome.caption4", src: costAnomalyDetection },
+    { caption: "optscale.welcome.caption5", src: itEnvironmentManagement },
+    { caption: "optscale.welcome.caption6", src: geoNetworkTrafficCostMap }
+  ];
 };
 
 const ImagesWithCaptions = () => {
   const intl = useIntl();
   const { classes, cx } = useStyles();
 
-  const data = [
-    { caption: "welcome.caption1", src: certifiedFinopsSolution },
-    { caption: "welcome.caption2", src: finopsReadinessMaturityAssessment },
-    { caption: "welcome.caption3", src: freeCloudK8sCostOptimization },
-    { caption: "welcome.caption4", src: costAnomalyDetection },
-    { caption: "welcome.caption5", src: itEnvironmentManagement },
-    { caption: "welcome.caption6", src: geoNetworkTrafficCostMap }
-  ];
+  const imagesWithCaption = getImagesWithCaption();
 
   const isUpLg = useIsUpMediaQuery("lg");
 
   return (
-    <Grid container spacing={isUpLg ? SPACING_4 : SPACING_2} className={classes.imagesWithCaptions}>
-      {data.map(({ caption, src }, index) => (
+    <Grid container spacing={isUpLg ? SPACING_6 : SPACING_2} className={classes.imagesWithCaptions}>
+      {imagesWithCaption.map(({ caption, src }, index) => (
         <Grid item lg={4} md={4} sm={6} key={caption} className={classes.imageWithCaptionWrapper}>
           <img
             src={src}
@@ -74,7 +104,7 @@ const ImagesWithCaptions = () => {
             data-test-id={`img_banner_${index}`}
             className={classes.image}
           />
-          <SubTitle dataTestId={`img_banner_caption_${index}`} className={cx(classes.rightTextColor, classes.caption)}>
+          <SubTitle dataTestId={`img_banner_caption_${index}`} color="white" className={cx(classes.caption)}>
             <FormattedMessage id={caption} />
           </SubTitle>
         </Grid>
@@ -104,7 +134,7 @@ const getVerticalOrder = () => {
   return [...evenNumbers, ...oddNumbers];
 };
 
-const Greeter = ({ form, withOAuth = true }) => {
+const Greeter = ({ form, oAuthForm }) => {
   const { classes, cx } = useStyles();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -149,11 +179,9 @@ const Greeter = ({ form, withOAuth = true }) => {
             <Logo width={200} dataTestId="img_logo" />
             {form}
           </Grid>
-          {withOAuth && (
-            <Grid item xs={12}>
-              <OAuthSignIn />
-            </Grid>
-          )}
+          <Grid item xs={12}>
+            {oAuthForm}
+          </Grid>
         </Grid>
       ),
       className: classes.centeredFlexColumnDirection
@@ -235,7 +263,7 @@ LiveDemoButton.propTypes = {
 
 Greeter.propTypes = {
   form: PropTypes.node.isRequired,
-  withOAuth: PropTypes.bool
+  oAuthForm: PropTypes.node.isRequired
 };
 
 export default Greeter;

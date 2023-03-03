@@ -1,10 +1,12 @@
 import json
 import logging
 import uuid
-from sqlalchemy import and_, true
+from sqlalchemy import and_, true, or_
 
 import boto3
-from optscale_exceptions.common_exc import NotFoundException, FailedDependency
+from optscale_exceptions.common_exc import (
+    NotFoundException, FailedDependency, WrongArgumentsException
+)
 from boto3.session import Config as BotoConfig
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
@@ -32,13 +34,13 @@ class ReportImportBaseController(BaseController):
     RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                     'interval_step': 1, 'interval_max': 3}
 
-    def create(self, cloud_account_id, import_file=None, recalculate=False):
+    def create(self, cloud_account_id, import_file=None, recalculate=False, priority=1):
         report_import = super().create(
             cloud_account_id=cloud_account_id,
             import_file=import_file,
             is_recalculation=recalculate
         )
-        self.publish_task({'report_import_id': report_import.id})
+        self.publish_task({'report_import_id': report_import.id}, priority)
         if recalculate:
             self._publish_report_import_activity(
                 report_import, 'recalculation_started')
@@ -101,7 +103,7 @@ class ReportImportBaseController(BaseController):
                 error_reason=error_reason, level='ERROR')
         return updated_report
 
-    def publish_task(self, task_params):
+    def publish_task(self, task_params, priority=1):
         queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
             **self._config.read_branch('/rabbit')),
             transport_options=self.RETRY_POLICY)
@@ -115,33 +117,94 @@ class ReportImportBaseController(BaseController):
                 declare=[task_exchange],
                 routing_key=self.REPORT_IMPORT_QUEUE,
                 retry=True,
-                retry_policy=self.RETRY_POLICY
+                retry_policy=self.RETRY_POLICY,
+                priority=priority,
             )
 
 
 class ReportImportScheduleController(ReportImportBaseController):
-    def schedule(self, **kwargs):
-        period = kwargs.pop('period', None)
-        check_int_attribute('period', period)
-        if kwargs:
-            raise_unexpected_exception(kwargs.keys())
 
+    def _get_cloud_accounts(self, import_period, org_id,
+                            cloud_account_id, cloud_account_type):
         org_subq = self.session.query(Organization.id).filter(
             Organization.deleted.is_(False)
         ).subquery()
-        cloud_accounts = self.session.query(CloudAccount).filter(
-            CloudAccount.organization_id.in_(org_subq),
-            CloudAccount.deleted.is_(False),
-            CloudAccount.auto_import == true(),
-            CloudAccount.import_period == period,
-        ).all()
+
+        if import_period is not None:
+            q = self.session.query(CloudAccount).filter(
+                CloudAccount.organization_id.in_(org_subq),
+                CloudAccount.deleted.is_(False),
+                CloudAccount.auto_import == true(),
+                CloudAccount.import_period == import_period,
+            )
+        else:
+            q = self.session.query(CloudAccount).filter(
+                or_(
+                    CloudAccount.id == cloud_account_id,
+                    CloudAccount.organization_id == org_id
+                ),
+                # ignoring auto import, because starting with this params only manually
+                CloudAccount.deleted.is_(False),
+                CloudAccount.organization_id.in_(org_subq),
+            )
+            if cloud_account_type:
+                q = q.filter(CloudAccount.type == cloud_account_type)
+        res = q.all()
+        return res
+
+    @staticmethod
+    def _check_args(org_id,
+                    cloud_account_id,
+                    cloud_account_type,
+                    priority):
+        if org_id and cloud_account_id:
+            raise WrongArgumentsException(
+                Err.OE0528, []
+            )
+        if cloud_account_type and not org_id:
+            raise WrongArgumentsException(
+                Err.OE0529, []
+            )
+        if priority is not None and priority not in range(1, 10):
+            raise WrongArgumentsException(Err.OE0530, [])
+        if cloud_account_type is not None:
+            try:
+                CloudTypes(cloud_account_type)
+            except ValueError:
+                raise WrongArgumentsException(Err.OE0533, [cloud_account_type])
+
+    def schedule(self, **kwargs):
+        period = kwargs.pop('period', None)
+        organization_id = kwargs.pop("organization_id", None)
+        cloud_account_type = kwargs.pop("cloud_account_type", None)
+        cloud_account_id = kwargs.pop("cloud_account_id", None)
+        priority = kwargs.pop("priority", 1)
+        if period is not None:
+            # if import period is set there should be no other parameters
+            if (organization_id is not None or
+                    cloud_account_id is not None or
+                    cloud_account_type is not None):
+                raise WrongArgumentsException(Err.OE0531, [])
+            check_int_attribute('period', period)
+        if period is None and organization_id is None and cloud_account_id is None:
+            raise WrongArgumentsException(Err.OE0532, [])
+        if kwargs:
+            raise_unexpected_exception(kwargs.keys())
+        self._check_args(
+            organization_id, cloud_account_id, cloud_account_type, priority)
+        if cloud_account_type is not None:
+            cloud_account_type = CloudTypes(cloud_account_type)
+
+        cloud_accounts = self._get_cloud_accounts(
+            period, organization_id, cloud_account_id, cloud_account_type)
 
         result = []
         for ca in cloud_accounts:
             if ca.type == CloudTypes.AWS_CNR:
-                if ca.decoded_config.get('linked', False):
+                decoded_cfg = ca.decoded_config
+                if decoded_cfg.get('linked', False):
                     continue
-            result.append(self.create(ca.id))
+            result.append(self.create(ca.id, priority=priority))
         return result
 
 

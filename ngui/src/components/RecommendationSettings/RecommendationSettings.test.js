@@ -1,11 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import RecommendationSettings from "./RecommendationSettings";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <RecommendationSettings
         options={{}}
@@ -15,8 +16,7 @@ it("renders without crashing", () => {
         withThresholds
         withRightsizingStrategy
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

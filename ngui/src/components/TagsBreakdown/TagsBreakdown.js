@@ -11,9 +11,9 @@ import { SPACING_1 } from "utils/layouts";
 import TagsBreakdownTable from "./TagsBreakdownTable";
 
 // count key is null due to we fetch resources breakdown without specifying breakdownBy
-const COUNT_KEY = "null";
+export const BREAKDOWN_COUNT_KEY = "null";
 
-const useLineData = (breakdown) => {
+const useLineData = (breakdown = {}) => {
   const allDates = Object.keys(breakdown);
   if (isEmpty(allDates)) {
     return [];
@@ -21,7 +21,13 @@ const useLineData = (breakdown) => {
 
   const getDateString = (date) => format(secondsToMilliseconds(Number(date)));
 
-  const getResourceTypeBreakdownByDate = (date, countKey) => breakdown[date][countKey];
+  /**
+   * Optional chaining and nullish coalescing are required to prevent reading properties
+   * of undefined in cases when the data has not yet been fully loaded
+   *
+   * -> https://gitlab.com/hystax/ngui/-/merge_requests/2865
+   */
+  const getResourceTypeBreakdownByDate = (date, countKey) => breakdown[date]?.[countKey] ?? {};
   const getResourceBreakdownProperty = (resourceTypeBreakdown, property) => resourceTypeBreakdown[property];
 
   const getResourcesCount = (date, countKey) =>
@@ -29,20 +35,20 @@ const useLineData = (breakdown) => {
 
   return [
     {
-      id: COUNT_KEY,
+      id: BREAKDOWN_COUNT_KEY,
       data: allDates.map((date) => {
         const {
           created,
           deleted_day_before: deletedDayBefore,
-          id = COUNT_KEY,
+          id = BREAKDOWN_COUNT_KEY,
           name,
           purpose,
           type
-        } = getResourceTypeBreakdownByDate(date, COUNT_KEY);
+        } = getResourceTypeBreakdownByDate(date, BREAKDOWN_COUNT_KEY);
 
         return {
           x: getDateString(date),
-          y: getResourcesCount(date, COUNT_KEY),
+          y: getResourcesCount(date, BREAKDOWN_COUNT_KEY),
           translatedSerieId: <FormattedMessage id="count" />,
           details: {
             id,
@@ -98,6 +104,7 @@ const TagsBreakdown = ({
           colors={chartColors}
           isLoading={isChartLoading}
           style={{ height: 25 }}
+          dataTestId="tags_breakdown_chart"
         />
       </Grid>
       <Grid item xs={12}>

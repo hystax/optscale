@@ -1,2 +1,2 @@
-Hystax Acura Herald client package
+Hystax OptScale Herald client package
 ==================================

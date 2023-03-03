@@ -21,7 +21,7 @@ from azure.mgmt.subscription import SubscriptionClient
 from msrestazure.azure_exceptions import CloudError
 from msrest.exceptions import AuthenticationError, ClientRequestError
 from azure.mgmt.monitor import MonitorManagementClient
-from azure.core.exceptions import HttpResponseError
+from azure.core.exceptions import HttpResponseError, ClientAuthenticationError
 from azure.identity import ClientSecretCredential
 from msrest import Deserializer
 
@@ -42,6 +42,8 @@ from cloud_adapter.exceptions import (
     InvalidParameterException,
     CloudSettingNotSupported,
     CloudConnectionError,
+    MetricsNotFoundException,
+    MetricsServerTimeoutException
 )
 from cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
@@ -67,6 +69,7 @@ DESERIALIZER = Deserializer(classes={
 # defining it to use outside CAd
 AzureConsumptionException = HttpResponseError
 AzureErrorResponseException = ErrorResponseException
+AzureAuthenticationError = ClientAuthenticationError
 
 
 def _retry_on_error(exc):
@@ -78,6 +81,8 @@ def _retry_on_error(exc):
             LOG.info('Too many requests. Will sleep for 60 seconds')
             time.sleep(60)
             return True
+    if isinstance(exc, MetricsServerTimeoutException):
+        return True
     return False
 
 
@@ -134,6 +139,27 @@ class Azure(CloudBase):
         self._usage = None
         self._monitor = None
         self._currency = self.DEFAULT_CURRENCY
+
+    @staticmethod
+    def get_currency_iso(currency):
+        return {
+            'USD': 'US',
+            'EUR': 'DE',
+            'AUD': 'AU',
+            'BRL': 'BR',
+            'CAD': 'CA',
+            'DKK': 'DK',
+            'INR': 'IN',
+            'JPY': 'JP',
+            'KRW': 'KR',
+            'NZD': 'NZ',
+            'NOK': 'NO',
+            'RUB': 'RU',
+            'SEK': 'SE',
+            'CHF': 'CH',
+            'TWD': 'TW',
+            'GBP': 'GB'
+        }.get(currency) or 'US'
 
     def discovery_calls_map(self):
         return {
@@ -413,7 +439,7 @@ class Azure(CloudBase):
 
     def _get_billing_info(self):
         consumption_api_supported = True
-        currency = 'USD'
+        currency = self._currency
         subscription_type = self._guess_subscription_type(
             self._subscription_id)
         warnings = []
@@ -714,11 +740,15 @@ class Azure(CloudBase):
         load_balancers = self.network.load_balancers.list_all()
         for lb in load_balancers:
             for ip_cfg in lb.frontend_ip_configurations:
+                if not ip_cfg.public_ip_address:
+                    continue
                 lbs[ip_cfg.public_ip_address.id] = lb.id
         gateways = {}
         app_gateways = self.network.application_gateways.list_all()
         for app_gateway in app_gateways:
             for ip_cfg in app_gateway.frontend_ip_configurations:
+                if not ip_cfg.public_ip_address:
+                    continue
                 gateways[ip_cfg.public_ip_address.id] = app_gateway.id
         all_ip_addresses = list(self.network.public_ip_addresses.list_all())
         for public_ip_address in all_ip_addresses:
@@ -870,7 +900,7 @@ class Azure(CloudBase):
             aggregation_granularity=granularity,
         )
 
-    def get_public_prices(self, currency='USD', region='US',
+    def get_public_prices(self, currency=None, region=None,
                           offer_id='MS-AZR-0003P', locale='en-US'):
         """
         Get public Azure prices
@@ -891,6 +921,10 @@ class Azure(CloudBase):
             reduce RAM overhead.
             TODO: include more fields once we start caching prices in database
         """
+        if not currency:
+            currency = self._currency
+        if not region:
+            region = self.get_currency_iso(currency)
         prices = self.usage.rate_card.get(
              filter=f"OfferDurableId eq '{offer_id}' "
                     f"and Currency eq '{currency}' "
@@ -906,7 +940,7 @@ class Azure(CloudBase):
             for p in prices.meters
         }
 
-    def get_partner_prices(self, currency='USD', region='US'):
+    def get_partner_prices(self, currency=None, region=None):
         """
         Get CSP Azure prices from Partner Center
         :param currency: result currency
@@ -920,6 +954,10 @@ class Azure(CloudBase):
             reduce RAM overhead.
             TODO: include more fields once we start caching prices in database
         """
+        if not currency:
+            currency = self._currency
+        if not region:
+            region = self.get_currency_iso(currency)
         prices = self.partner.ratecards().azure().get(
             currency=currency, region=region)
         return {
@@ -1142,10 +1180,13 @@ class Azure(CloudBase):
         response = self.raw_client.send(batch_request, stream=False)
         return response.json()
 
+    @retry(stop_max_attempt_number=5, wait_fixed=5000,
+           retry_on_exception=_retry_on_error)
     def get_metric(self, namespace, metric_names, instance_ids, interval,
                    start_date, end_date):
         """
         Get metrics for instances
+        :param namespace: metric namespace
         :param metric_names: metric names list
         :param instance_ids: instance ids
         :param interval: time interval in seconds
@@ -1177,9 +1218,22 @@ class Azure(CloudBase):
             responses = self._batch_request(request_specs)['responses']
             for j, response in enumerate(responses):
                 instance_id = instance_ids[i + j]
+                if ('error' in response['content'] and
+                        response['content']['error']['code'] == 'ServerTimeout'):
+                    raise MetricsServerTimeoutException(
+                        response['content']['error'])
+                elif 'error' in response['content']:
+                    raise MetricsNotFoundException(response['content']['error'])
+                elif ('value' not in response['content'] and
+                      response['content']['code'] == 'BadRequest'):
+                    raise MetricsNotFoundException(response['content']['message'])
+
                 for metric in response['content']['value']:
                     metric_name = metric['name']['value']
-                    points = metric['timeseries'][0]['data']
+                    try:
+                        points = metric['timeseries'][0]['data']
+                    except (KeyError, IndexError):
+                        points = []
                     result.setdefault(instance_id, {})[metric_name] = points
         return result
 

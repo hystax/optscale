@@ -1,15 +1,14 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getToken, getOrganizations, getInvitations, createOrganization, signIn, createUser, AUTH, RESTAPI } from "api";
 import { GET_TOKEN, SIGN_IN, CREATE_USER } from "api/auth/actionTypes";
 import { GET_ORGANIZATIONS, GET_INVITATIONS, CREATE_ORGANIZATION } from "api/restapi/actionTypes";
-import { GAEvent, GA_EVENT_CATEGORIES } from "components/ActivityListener";
 import { setScopeId } from "containers/OrganizationSelectorContainer/actionCreators";
 import { SCOPE_ID } from "containers/OrganizationSelectorContainer/reducer";
-import { HOME } from "urls";
+import { ACCEPT_INVITATIONS, HOME } from "urls";
+import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
 import { checkError } from "utils/api";
-
 import { isEmpty } from "utils/arrays";
 import { getQueryParams } from "utils/network";
 import { useApiState } from "./useApiState";
@@ -26,6 +25,9 @@ export const PROVIDERS = Object.freeze({
 export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams().next || HOME } = {}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [isAuthInProgress, setIsAuthInProgress] = useState(false);
+  const [isRegistrationInProgress, setIsRegistrationInProgress] = useState(false);
 
   const { isLoading: isGetTokenLoading } = useApiState(GET_TOKEN);
   const { isLoading: isGetInvitationsLoading, isDataReady: isGetInvitationsDataReady } = useApiState(GET_INVITATIONS);
@@ -80,16 +82,21 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
           .then(() => {
             const { register, provider } = getState()?.[AUTH]?.[GET_TOKEN] ?? {};
             if (register) {
-              Promise.resolve(GAEvent({ category: GA_EVENT_CATEGORIES.USER, action: "Registered", label: provider }));
+              Promise.resolve(trackEvent({ category: GA_EVENT_CATEGORIES.USER, action: "Registered", label: provider }));
             }
           })
           .catch(() => Promise.reject())
+          .finally(() => {
+            setIsAuthInProgress(false);
+            setIsRegistrationInProgress(false);
+          })
       ),
     [dispatch, redirectOnSuccess, updateScopeId, onSuccessRedirectionPath]
   );
 
   const authorize = useCallback(
-    (email, password) =>
+    (email, password) => {
+      setIsAuthInProgress(true);
       dispatch((_, getState) =>
         dispatch(getToken(email, password))
           .then(() => checkError(GET_TOKEN, getState()))
@@ -99,15 +106,21 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
           .then((pendingInvitations) => {
             if (isEmpty(pendingInvitations)) {
               Promise.resolve(activateScope(email));
+            } else {
+              navigate(ACCEPT_INVITATIONS);
             }
           })
-          .catch(() => {})
-      ),
-    [dispatch, activateScope]
+          .catch(() => {
+            setIsAuthInProgress(false);
+          })
+      );
+    },
+    [dispatch, activateScope, navigate]
   );
 
   const register = useCallback(
-    (name, email, password) =>
+    (name, email, password) => {
+      setIsRegistrationInProgress(true);
       dispatch((_, getState) =>
         dispatch(createUser(name, email, password))
           .then(() => checkError(CREATE_USER, getState()))
@@ -117,15 +130,21 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
           .then((pendingInvitations) => {
             if (isEmpty(pendingInvitations)) {
               Promise.resolve(activateScope(email));
+            } else {
+              navigate(ACCEPT_INVITATIONS);
             }
           })
-          .catch(() => {})
-      ),
-    [dispatch, activateScope]
+          .catch(() => {
+            setIsRegistrationInProgress(false);
+          })
+      );
+    },
+    [dispatch, activateScope, navigate]
   );
 
   const thirdPartySignIn = useCallback(
-    (provider, params) =>
+    (provider, params) => {
+      setIsAuthInProgress(true);
       dispatch((_, getState) =>
         dispatch(signIn(provider, params))
           .then(() => checkError(SIGN_IN, getState()))
@@ -136,17 +155,23 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
             if (isEmpty(pendingInvitations)) {
               const email = getState()?.[AUTH]?.[GET_TOKEN]?.userEmail;
               Promise.resolve(activateScope(email));
+            } else {
+              navigate(ACCEPT_INVITATIONS);
             }
           })
-          .catch(() => {})
-      ),
-    [dispatch, activateScope]
+          .catch(() => {
+            setIsAuthInProgress(false);
+          })
+      );
+    },
+    [dispatch, activateScope, navigate]
   );
 
   return {
     authorize,
     register,
     thirdPartySignIn,
+    setIsAuthInProgress,
     isGetTokenLoading,
     isGetOrganizationsLoading,
     isGetInvitationsLoading,
@@ -155,6 +180,8 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
     isCreateUserLoading,
     isSignInLoading,
     isGetOrganizationsDataReady,
-    activateScope
+    activateScope,
+    isAuthInProgress,
+    isRegistrationInProgress
   };
 };

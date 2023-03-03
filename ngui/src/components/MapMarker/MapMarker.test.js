@@ -1,15 +1,16 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
+import { AWS_CNR } from "utils/constants";
 import MapMarker from "./MapMarker";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
-      <MapMarker cloudType="test" region="test" value={1} startDateTimestamp="" endDateTimestamp="" />
-    </TestProvider>,
-    div
+      <MapMarker markerData={{ type: AWS_CNR }} startDateTimestamp="" endDateTimestamp="" />
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

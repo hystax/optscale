@@ -83,6 +83,7 @@ const EnvironmentsCard = ({ isLoading, environments }) => {
         wrapper: "block_environments",
         title: "lbl_environments"
       }}
+      elevation={0}
     >
       {isLoading ? renderLoader() : renderContent()}
     </WrapperCard>

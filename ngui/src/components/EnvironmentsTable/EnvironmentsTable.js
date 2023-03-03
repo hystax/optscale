@@ -26,6 +26,7 @@ import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { ENVIRONMENTS_TOUR_IDS } from "components/Tour";
 import UpcomingBooking from "components/UpcomingBooking";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { ENVIRONMENTS_TABLE } from "reducers/columns";
@@ -34,24 +35,33 @@ import { isEmpty, sortObjects } from "utils/arrays";
 import { SCOPE_TYPES, RESOURCE_PAGE_TABS, ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
+import { getCloudResourceIdentifier, getResourceDisplayedName } from "utils/resources";
 import useStyles from "./EnvironmentsTable.styles";
 
 const NAME_COLUMN_ACCESSOR = "displayedName";
 
-const renderEnvironmentCell = ({ id, cloudResourceId, name, resourceType, requireSshKey, index }) => (
-  <CaptionedCell caption={resourceType}>
-    {name ? (
-      <ResourceLink tabName={RESOURCE_PAGE_TABS.DETAILS} resourceId={id} dataTestId={`environment_name_${index}`}>
-        {name}
-      </ResourceLink>
-    ) : (
-      <CloudResourceId cloudResourceId={cloudResourceId} resourceId={id} dataTestId={`environment_name_${index}`} />
-    )}
-    {requireSshKey && (
-      <Icon icon={VpnKeyOutlinedIcon} hasLeftMargin tooltip={{ show: true, messageId: "sshKeyRequired" }} fontSize="small" />
-    )}
-  </CaptionedCell>
-);
+const renderEnvironmentCell = ({ resource, index }) => {
+  const { id, name, resource_type: resourceType, ssh_only: requireSshKey } = resource;
+
+  return (
+    <CaptionedCell caption={resourceType}>
+      {name ? (
+        <ResourceLink tabName={RESOURCE_PAGE_TABS.DETAILS} resourceId={id} dataTestId={`environment_name_${index}`}>
+          {name}
+        </ResourceLink>
+      ) : (
+        <CloudResourceId
+          cloudResourceIdentifier={getCloudResourceIdentifier(resource)}
+          resourceId={id}
+          dataTestId={`environment_name_${index}`}
+        />
+      )}
+      {requireSshKey && (
+        <Icon icon={VpnKeyOutlinedIcon} hasLeftMargin tooltip={{ show: true, messageId: "sshKeyRequired" }} fontSize="small" />
+      )}
+    </CaptionedCell>
+  );
+};
 
 // TODO: seems like we don't need resourceId to get active and upcoming bookings
 // since «allBookings» already includes bookings only for a particular resource
@@ -77,7 +87,7 @@ const getTableData = (data) => {
   const patchedWithDisplayedName = data.map((obj) => ({
     ...obj,
     // used for sorting
-    [NAME_COLUMN_ACCESSOR]: obj.name || obj.cloud_resource_id
+    [NAME_COLUMN_ACCESSOR]: obj.name || obj.cloud_resource_id || obj.cloud_resource_hash
   }));
   return patchedWithDisplayedName;
 };
@@ -98,36 +108,27 @@ const ShortTable = ({ data, isLoadingProps }) => {
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_environment">
             <FormattedMessage id="environment" />
           </TextWithDataTestId>
         ),
-        accessor: NAME_COLUMN_ACCESSOR,
-        Cell: ({
-          row: {
-            original: { id, cloud_resource_id: cloudResourceId, name, resource_type: resourceType, ssh_only: requireSshKey },
-            index
-          }
-        }) =>
+        accessorKey: NAME_COLUMN_ACCESSOR,
+        cell: ({ row: { original, index } }) =>
           renderEnvironmentCell({
-            id,
-            cloudResourceId,
-            name,
-            resourceType,
-            requireSshKey,
+            resource: original,
             index
           }),
         defaultSort: "asc"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_pool">
             <FormattedMessage id="pool" />
           </TextWithDataTestId>
         ),
-        accessor: "pool_name",
-        Cell: ({ row: { original, index } }) => (
+        accessorKey: "pool_name",
+        cell: ({ row: { original, index } }) => (
           <PoolLabel
             id={original.pool_id}
             name={original.pool_name}
@@ -137,20 +138,22 @@ const ShortTable = ({ data, isLoadingProps }) => {
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_current_booking">
             <FormattedMessage id="currentBookings" />
           </TextWithDataTestId>
         ),
         id: "currentBookings",
-        accessor: "shareable_bookings",
-        disableSortBy: true,
-        Cell: ({
-          cell: { value = [] },
+        accessorKey: "shareable_bookings",
+        enableSorting: false,
+        cell: ({
+          cell,
           row: {
             original: { id, active: isActive }
           }
         }) => {
+          const value = cell.getValue() ?? [];
+
           const activeBooking = getActiveBooking(value, id);
 
           const renderCurrentBooking = () => {
@@ -263,7 +266,7 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
     const getBookingAction = ({
       id,
       resourceName,
-      cloudResourceId,
+      resourceDisplayedName,
       upcomingBookings,
       activeBooking,
       allBookings,
@@ -277,7 +280,7 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
         openSideModal(BookEnvironmentModal, {
           id,
           resourceName,
-          cloudResourceId,
+          resourceDisplayedName,
           upcomingBookings,
           activeBooking,
           allBookings,
@@ -313,30 +316,29 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
 
     const defaultColumns = [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_environment">
             <FormattedMessage id="environment" />
           </TextWithDataTestId>
         ),
-        accessor: NAME_COLUMN_ACCESSOR,
-        isStatic: true,
-        Cell: ({
-          row: {
-            original: { id, cloud_resource_id: cloudResourceId, name, resource_type: resourceType, ssh_only: requireSshKey },
+        accessorKey: NAME_COLUMN_ACCESSOR,
+        enableHiding: false,
+        cell: ({ row: { original, index } }) =>
+          renderEnvironmentCell({
+            resource: original,
             index
-          }
-        }) => renderEnvironmentCell({ id, cloudResourceId, name, resourceType, requireSshKey, index }),
+          }),
         defaultSort: "asc"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_pool">
             <FormattedMessage id="pool" />
           </TextWithDataTestId>
         ),
-        accessor: "pool_name",
-        isStatic: true,
-        Cell: ({ row: { original, index } }) => (
+        accessorKey: "pool_name",
+        enableHiding: false,
+        cell: ({ row: { original, index } }) => (
           <PoolLabel
             dataTestId={`environment_pool_${index}`}
             id={original.pool_id}
@@ -346,29 +348,21 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_status">
             <FormattedMessage id="status" />
           </TextWithDataTestId>
         ),
         id: "currentBookings",
-        accessor: "shareable_bookings",
-        isStatic: true,
-        dataProductTourId: "environmentsStatus",
-        disableSortBy: true,
-        Cell: ({
-          cell: { value: shareableBookings = [] },
-          row: {
-            original: {
-              active: isActive,
-              id,
-              name: resourceName,
-              cloud_resource_id: cloudResourceId,
-              ssh_only: isSshRequired
-            } = {},
-            index: rowIndex
-          }
-        }) => {
+        accessorKey: "shareable_bookings",
+        enableHiding: false,
+        dataProductTourId: ENVIRONMENTS_TOUR_IDS.STATUS_CELL,
+        enableSorting: false,
+        cell: ({ cell, row: { original = {}, index: rowIndex } }) => {
+          const shareableBookings = cell.getValue() ?? [];
+
+          const { active: isActive, id, name: resourceName, ssh_only: isSshRequired } = original;
+
           const activeBooking = getActiveBooking(shareableBookings, id);
           const issues = activeBooking?.jira_issue_attachments ?? [];
 
@@ -384,7 +378,7 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
               ? getBookingAction({
                   id,
                   resourceName,
-                  cloudResourceId,
+                  resourceDisplayedName: getResourceDisplayedName(original),
                   upcomingBookings: getUpcomingBookings(shareableBookings, id),
                   activeBooking,
                   index: rowIndex,
@@ -427,21 +421,23 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
         }
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_upcoming_bookings">
             <FormattedMessage id="upcomingBookings" />
           </TextWithDataTestId>
         ),
         id: "upcomingBookings",
-        accessor: "shareable_bookings",
-        isStatic: true,
-        disableSortBy: true,
-        Cell: ({
-          cell: { value = [] },
+        accessorKey: "shareable_bookings",
+        enableHiding: false,
+        enableSorting: false,
+        cell: ({
+          cell,
           row: {
             original: { id }
           }
         }) => {
+          const value = cell.getValue() ?? [];
+
           const upcomingBookings = getUpcomingBookings(value, id);
           if (!isEmpty(upcomingBookings)) {
             return (
@@ -479,35 +475,36 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
     ];
 
     const envPropertiesColumns = getUniqueSortedEnvironmentProperties(memoizedData).map((field) => ({
-      Header: <TextWithDataTestId dataTestId={`lbl_environment_property_${field}`}>{field}</TextWithDataTestId>,
-      accessor: `env_properties.${field}`,
-      columnsSelector: {
+      header: <TextWithDataTestId dataTestId={`lbl_environment_property_${field}`}>{field}</TextWithDataTestId>,
+      accessorFn: (originalRow) => originalRow.env_properties?.[field],
+      id: `env_properties.${field}`,
+      columnSelector: {
+        accessor: `env_properties.${field}`,
         title: field,
         dataTestId: `btn_toggle_column_${field}`
       },
       dataProductTourId: getProductTourIdForDynamicField(field),
-      disableSortBy: true,
       style: {
         minWidth: 200,
         maxWidth: 400,
         overflow: "auto"
       },
-      Cell: ({ cell: { value } }) => <Markdown>{value}</Markdown>
+      cell: ({ cell }) => <Markdown>{cell.getValue()}</Markdown>
     }));
 
     return [
       ...defaultColumns,
       ...envPropertiesColumns,
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_actions">
             <FormattedMessage id="actions" />
           </TextWithDataTestId>
         ),
         id: "actions",
-        disableSortBy: true,
-        isStatic: true,
-        Cell: ({ row: { original: { active: isActive, id, name, is_environment: isEnvironment } = {}, index } }) => (
+        enableSorting: false,
+        enableHiding: false,
+        cell: ({ row: { original: { active: isActive, id, name, is_environment: isEnvironment } = {}, index } }) => (
           <TableCellActions
             entityType={SCOPE_TYPES.RESOURCE}
             entityId={id}
@@ -543,7 +540,7 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
               type: "button",
               link: ENVIRONMENT_CREATE,
               dataTestId: "btn_add",
-              dataProductTourId: "environmentsAddButton",
+              dataProductTourId: ENVIRONMENTS_TOUR_IDS.ADD_BUTTON,
               requiredActions: ["MANAGE_RESOURCES"],
               isLoading: isGetResourceAllowedActionsLoading
             }

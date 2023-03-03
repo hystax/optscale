@@ -1,45 +1,50 @@
-import React, { useState } from "react";
+import React from "react";
 import LineChart from "components/LineChart";
-import { boolean, object } from "@storybook/addon-knobs";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/LineChart`
+  title: `${KINDS.COMPONENTS}/LineChart`,
+  argTypes: {
+    data: {
+      name: "Data",
+      control: "select",
+      options: [
+        {
+          id: "Item 1",
+          data: [
+            { x: "01/03/2021", y: 100 },
+            { x: "01/04/2021", y: 100 },
+            { x: "01/05/2021", y: 100 },
+            { x: "01/06/2021", y: 100 },
+            { x: "01/07/2021", y: 100 }
+          ]
+        },
+        {
+          id: "Item 2",
+          data: [
+            { x: "01/03/2021", y: 200 },
+            { x: "01/04/2021", y: 200 },
+            { x: "01/05/2021", y: 200 },
+            { x: "01/06/2021", y: 200 },
+            { x: "01/07/2021", y: 200 }
+          ]
+        },
+        {
+          id: "Item 3",
+          data: [
+            { x: "01/03/2021", y: 300 },
+            { x: "01/04/2021", y: 300 },
+            { x: "01/05/2021", y: 300 },
+            { x: "01/06/2021", y: 300 },
+            { x: "01/07/2021", y: 300 }
+          ]
+        }
+      ],
+      defaultValue: {}
+    },
+    stacked: { name: "Stacked", control: "boolean", defaultValue: true },
+    isLoading: { name: "Loading", control: "boolean", defaultValue: false }
+  }
 };
 
-const data = [
-  {
-    id: "Item 1",
-    data: [
-      { x: "01/03/2021", y: 100 },
-      { x: "01/04/2021", y: 100 },
-      { x: "01/05/2021", y: 100 },
-      { x: "01/06/2021", y: 100 },
-      { x: "01/07/2021", y: 100 }
-    ]
-  },
-  {
-    id: "Item 2",
-    data: [
-      { x: "01/03/2021", y: 200 },
-      { x: "01/04/2021", y: 200 },
-      { x: "01/05/2021", y: 200 },
-      { x: "01/06/2021", y: 200 },
-      { x: "01/07/2021", y: 200 }
-    ]
-  },
-  {
-    id: "Item 3",
-    data: [
-      { x: "01/03/2021", y: 300 },
-      { x: "01/04/2021", y: 300 },
-      { x: "01/05/2021", y: 300 },
-      { x: "01/06/2021", y: 300 },
-      { x: "01/07/2021", y: 300 }
-    ]
-  }
-];
-
-export const withKnobs = () => (
-  <LineChart data={object("data", data)} stacked={boolean("stacked", true)} isLoading={boolean("isLoading", false)} />
-);
+export const withKnobs = (args) => <LineChart data={args.data} stacked={args.stacked} isLoading={args.isLoading} />;

@@ -5,7 +5,7 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { RECOMMENDATION_OBSOLETE_SNAPSHOTS, OBSOLETE_SNAPSHOTS_TYPE } from "utils/constants";
 import { unixTimestampToDateTime } from "utils/datetime";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class ObsoleteSnapshotsRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_OBSOLETE_SNAPSHOTS;
@@ -37,31 +37,38 @@ class ObsoleteSnapshotsRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_os_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_os_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_os_location"
       }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_os_first_seen">
             <FormattedMessage id="firstSeenOn" />
           </TextWithDataTestId>
         ),
-        accessor: "first_seen",
-        Cell: ({ cell: { value } }) => (value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value))
+        accessorKey: "first_seen",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
+        }
       },
       {
-        Header: (
+        header: (
           <HeaderHelperCell
             titleDataTestId="lbl_os_last_used"
             titleMessageId="lastSeenUsed"
             helperMessageId="snapshotObsoleteLastUsedHelp"
           />
         ),
-        accessor: "last_used",
-        Cell: ({ cell: { value } }) => (value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value))
+        accessorKey: "last_used",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
+        }
       },
       detectedAt({ headerDataTestId: "lbl_os_detected_at" }),
       possibleMonthlySavings({

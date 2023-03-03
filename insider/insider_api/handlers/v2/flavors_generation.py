@@ -26,7 +26,8 @@ class FlavorsGenerationHandler(SecretHandler):
 
         optional_params = [('os_type', str),
                            ('preinstalled', str),
-                           ('meter_id', str)]
+                           ('meter_id', str),
+                           ('currency', str)]
         supported_cloud_types = ['aws_cnr', 'azure_cnr', 'alibaba_cnr']
 
         if not isinstance(params, dict):
@@ -90,6 +91,8 @@ class FlavorsGenerationHandler(SecretHandler):
                        this pre-installed software, default - NA (AWS only)"}
                     meter_id: {type: string,
                         description: "Pricing meter id (Azure only)"}
+                    currency: {type: string,
+                        description: "Flavor price currency"}
         responses:
             200:
                 description: suitable flavor info

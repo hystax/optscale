@@ -1,12 +1,11 @@
 import React from "react";
 import NavigationIcon from "@mui/icons-material/Navigation";
-import Grid from "@mui/material/Grid";
+import { Box, Stack } from "@mui/system";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { getInvitations } from "api";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import ButtonLoader from "components/ButtonLoader";
-import GridContainerWithNegativeMarginCompensation from "components/GridContainerWithNegativeMarginCompensation";
 import Invitations from "components/Invitations";
 import Logo from "components/Logo";
 import { useApiData } from "hooks/useApiData";
@@ -33,11 +32,11 @@ const AcceptInvitations = ({ invitations = [], activateScope, isLoadingProps = {
   } = isLoadingProps;
 
   return (
-    <GridContainerWithNegativeMarginCompensation direction="column" alignItems="center" spacing={SPACING_6}>
-      <Grid item xs={12}>
+    <Stack alignItems="center" spacing={SPACING_6}>
+      <Box>
         <Logo width={200} />
-      </Grid>
-      <Grid xs={12} item>
+      </Box>
+      <Box pl={2} pr={2}>
         <Invitations
           invitations={invitations}
           styleProps={{ buttonsJustifyContent: "center" }}
@@ -45,8 +44,8 @@ const AcceptInvitations = ({ invitations = [], activateScope, isLoadingProps = {
           onSuccessDecline={onSuccessDecline}
           isLoading={isGetInvitationsLoading}
         />
-      </Grid>
-      <Grid xs={12} item>
+      </Box>
+      <Box>
         <ButtonLoader
           messageId="goToDashboard"
           size="medium"
@@ -57,8 +56,8 @@ const AcceptInvitations = ({ invitations = [], activateScope, isLoadingProps = {
           startIcon={<NavigationIcon />}
           customWrapperClass={classes.dashboardButton}
         />
-      </Grid>
-    </GridContainerWithNegativeMarginCompensation>
+      </Box>
+    </Stack>
   );
 };
 

@@ -1,8 +1,9 @@
+import { IS_EXISTING_USER } from "components/TopAlertWrapper/TopAlertWrapper";
 import { RANGE_DATES } from "containers/RangePickerFormContainer/reducer";
 import { millisecondsToSeconds } from "utils/datetime";
 import { objectMap } from "utils/objects";
 
-export const CURRENT_VERSION = 7;
+export const CURRENT_VERSION = 9;
 
 // When we modify storage structure, we will need to properly use migrations:
 // https://github.com/rt2zz/redux-persist/blob/master/docs/migrations.md
@@ -57,6 +58,24 @@ const migrations = {
     return {
       ...restState,
       alerts: {}
+    };
+  },
+  8: (state) => ({
+    ...state,
+    [IS_EXISTING_USER]: true
+  }),
+  9: (state) => {
+    const newAlerts = Object.fromEntries(
+      Object.entries(state.alerts).map(([orgId, payload]) => [
+        orgId,
+        // AVAILABLE_FOR_PRIVATE_DEPLOYMENT = 1
+        payload.filter(({ id }) => id !== 1)
+      ])
+    );
+
+    return {
+      ...state,
+      alerts: newAlerts
     };
   }
 };

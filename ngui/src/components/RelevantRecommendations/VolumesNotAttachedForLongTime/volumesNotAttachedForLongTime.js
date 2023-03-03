@@ -10,7 +10,7 @@ import {
   VOLUMES_NOT_ATTACHED_FOR_A_LONG_TIME_TYPE
 } from "utils/constants";
 import { EN_FULL_FORMAT, unixTimestampToDateTime } from "utils/datetime";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class VolumesNotAttachedForLongTimeRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_VOLUMES_NOT_ATTACHED_FOR_LONG_TIME;
@@ -42,33 +42,39 @@ class VolumesNotAttachedForLongTimeRecommendation extends RecommendationFactory 
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_vna_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_vna_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_vna_location"
       }),
       {
-        Header: (
+        header: (
           <HeaderHelperCell
             titleDataTestId="lbl_vna_last_time"
             titleMessageId="lastTimeAttached"
             helperMessageId="volumesNotAttachedLastTimeHelp"
           />
         ),
-        accessor: "last_seen_in_attached_state",
-        Cell: ({ cell: { value } }) =>
-          value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value, EN_FULL_FORMAT)
+        accessorKey: "last_seen_in_attached_state",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value, EN_FULL_FORMAT);
+        }
       },
       detectedAt({ headerDataTestId: "lbl_vna_detected_at" }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_vna_expenses">
             <FormattedMessage id="expensesWhenDetached" />
           </TextWithDataTestId>
         ),
-        accessor: "cost_in_detached_state",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        accessorKey: "cost_in_detached_state",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
+        }
       },
       possibleMonthlySavings({
         headerDataTestId: "lbl_vna_possible_monthly_savings",

@@ -1,8 +1,13 @@
+from functools import cached_property
+import re
 import requests
 from datetime import datetime
 from pymongo import MongoClient
 from kombu.log import get_logger
 from clickhouse_driver import Client as ClickHouseClient
+from cloud_adapter.cloud import Cloud as CloudAdapter
+from rest_api_client.client_v2 import Client as RestClient
+
 from cloud_adapter.cloud import Cloud as CloudAdapter
 from rest_api_client.client_v2 import Client as RestClient
 
@@ -60,6 +65,9 @@ class BaseTrafficExpenseProcessor:
                 region_names_map[value.lower()] = k
         return region_names_map
 
+    def extract_resource_id(self, e):
+        return e.get('resource_id', 'Unknown')
+
     def get_existing_expenses(self, cloud_account_id, tasks):
         date_intervals = []
         for task in tasks:
@@ -111,7 +119,7 @@ class BaseTrafficExpenseProcessor:
         }, self.TRAFFIC_FIELDS + ['resource_id', 'start_date', 'cost'])
         expenses_map = {}
         for r in res:
-            resource_id = r.get('resource_id', 'Unknown')
+            resource_id = self.extract_resource_id(r)
             date = r['start_date'].replace(
                 hour=0, minute=0, second=0, microsecond=0)
             _from, _to, _usage = self.extract_locations_and_usage(r)
@@ -228,11 +236,92 @@ class AlibabaTrafficExpenseProcessor(BaseTrafficExpenseProcessor):
         return _from, _to, _usage
 
 
+class GcpTrafficExpenseProcessor(BaseTrafficExpenseProcessor):
+    TRAFFIC_SKU_PATTERN = "^Network (.*) Egress(.*)"
+    TRAFFIC_PATTERN_REGEX = re.compile(TRAFFIC_SKU_PATTERN)
+    TRAFFIC_LOCATION_REGEX = re.compile("^from (.+) to (.+)$")
+
+    TRAFFIC_IDENTIFIER = {
+        "sku": {'$regex': TRAFFIC_SKU_PATTERN},
+    }
+    TRAFFIC_FIELDS = [
+        'sku', 'usage_amount_in_pricing_units', 'resource_hash', 'region',
+    ]
+
+    def _get_instances(self, cloud_account_id, start_date):
+        if not cloud_account_id:
+            return []
+        instances_filter = {
+            'cloud_account_id': cloud_account_id,
+            'active': True,
+            'resource_type': 'Instance',
+            'last_seen': {'$gte': start_date},
+        }
+        fields = ["cloud_resource_id", "cloud_resource_hash"]
+        return self.mongo_cl.restapi.resources.find(instances_filter, fields)
+
+    def _get_hash_to_id_map(self, cloud_account_id, tasks):
+        start_date = min([t['start_date'] for t in tasks])
+        instances = self._get_instances(cloud_account_id, start_date)
+        result = {}
+        for instance in instances:
+            resource_hash = instance.get("cloud_resource_hash")
+            resource_id = instance.get("cloud_resource_id")
+            if resource_hash and resource_id:
+                result[resource_hash] = resource_id
+        return result
+
+    def process(self, cloud_account_id, tasks):
+        self.r_hash_to_r_id = self._get_hash_to_id_map(cloud_account_id, tasks)
+        super().process(cloud_account_id, tasks)
+
+    def _parse_location_from_sku(self, location: str) -> tuple[str, str]:
+        location = location.lstrip()
+        match = GcpTrafficExpenseProcessor.TRAFFIC_LOCATION_REGEX.match(location)
+        _from = match.group(1)
+        _to = match.group(2)
+        return _from, _to
+
+    def extract_locations_and_usage(self, e):
+        sku = e.get("sku", "")
+        match = GcpTrafficExpenseProcessor.TRAFFIC_PATTERN_REGEX.match(sku)
+        traffic_type = match.group(1)
+        if traffic_type in ("Inter Region", "Internet", "Google", "Vpn Inter Region", "Vpn Internet"):
+            # Network Inter Region Egress from Netherlands to Hong Kong
+            location = match.group(2)
+            _from, _to = self._parse_location_from_sku(location)
+            _from = e.get("region") or _from
+        elif traffic_type in ("Internet Standard Tier", "Internet Premium Tier"):
+            # Network Internet Standard Tier Egress from Frankfurt
+            _from = e.get("region")
+            _to = 'External'
+        elif traffic_type in ("Intra Zone", "Inter Zone"):
+            # Network Inter Zone Egress
+            _from = e.get("region")
+            _to = e.get("region")
+        else:
+            LOG.warning("unknown network sku `%s`", sku)
+            _from = 'Unknown'
+            _to = 'Unknown'
+        _from = _from or 'Unknown'
+        _to = _to or 'Unknown'
+        _usage = float(e.get('usage_amount_in_pricing_units') or 0)
+        return _from, _to, _usage
+
+    def extract_resource_id(self, e):
+        resource_id = e.get('resource_id')
+        if resource_id is None:
+            resource_hash = e.get('resource_hash')
+            resource_id = self.r_hash_to_r_id.get(resource_hash)
+        return resource_id or 'Unknown'
+
+
 class ProcessorFactory:
     __modules__ = {
         'aws_cnr': AwsTrafficExpenseProcessor,
         'azure_cnr': AzureTrafficExpenseProcessor,
         'alibaba_cnr': AlibabaTrafficExpenseProcessor,
+        'gcp_cnr': GcpTrafficExpenseProcessor,
     }
 
     @staticmethod

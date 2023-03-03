@@ -6,7 +6,6 @@ import ActionBar from "components/ActionBar";
 import { getBasicRangesSet } from "components/DateRangePicker/defaults";
 import PageContentWrapper from "components/PageContentWrapper";
 import PanelLoader from "components/PanelLoader";
-import WrapperCard from "components/WrapperCard";
 import ArchivedRecommendationsBreakdownContainer from "containers/ArchivedRecommendationsBreakdownContainer";
 import ArchivedRecommendationsDetailsContainer from "containers/ArchivedRecommendationsDetailsContainer";
 import RangePickerFormContainer from "containers/RangePickerFormContainer";
@@ -59,16 +58,14 @@ const ArchivedRecommendations = ({
             />
           </Grid>
           <Grid item xs={12}>
-            <WrapperCard>
-              <ArchivedRecommendationsBreakdownContainer
-                isLoading={isChartLoading}
-                onBarChartSelect={onBarChartSelect}
-                breakdown={archivedRecommendationsChartBreakdown}
-              />
-            </WrapperCard>
+            <ArchivedRecommendationsBreakdownContainer
+              isLoading={isChartLoading}
+              onBarChartSelect={onBarChartSelect}
+              breakdown={archivedRecommendationsChartBreakdown}
+            />
           </Grid>
           <Grid item xs={12}>
-            <WrapperCard>{renderArchivedRecommendationsDetails()}</WrapperCard>
+            {renderArchivedRecommendationsDetails()}
           </Grid>
         </Grid>
       </PageContentWrapper>

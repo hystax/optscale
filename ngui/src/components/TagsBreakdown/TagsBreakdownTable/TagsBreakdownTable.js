@@ -24,16 +24,16 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tag_key">
             <FormattedMessage id="tagKey" />
           </TextWithDataTestId>
         ),
-        accessor: "tag",
-        Cell: ({ cell: { value } }) => <TagKey tagKey={value} />
+        accessorKey: "tag",
+        cell: ({ cell }) => <TagKey tagKey={cell.getValue()} />
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_resource_count">
             <TextWithDate
               text={<FormattedMessage id="resourceCount" />}
@@ -42,10 +42,10 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
             />
           </TextWithDataTestId>
         ),
-        accessor: "count"
+        accessorKey: "count"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_expenses">
             <TextWithDate
               text={<FormattedMessage id="expenses" />}
@@ -54,19 +54,19 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
             />
           </TextWithDataTestId>
         ),
-        accessor: "cost",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />,
+        accessorKey: "cost",
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
         defaultSort: "desc"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_actions">
             <FormattedMessage id="actions" />
           </TextWithDataTestId>
         ),
         id: "actions",
-        disableSortBy: true,
-        Cell: ({ row: { original: { tag } = {}, index } }) => (
+        enableSorting: false,
+        cell: ({ row: { original: { tag } = {}, index } }) => (
           <TableCellActions
             items={[
               {

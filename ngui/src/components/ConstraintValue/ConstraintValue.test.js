@@ -1,15 +1,15 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import ConstraintValue from "./ConstraintValue";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <ConstraintValue hitValue={120} constraintLimit={100} type="test" />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

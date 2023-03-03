@@ -1,11 +1,6 @@
 import React from "react";
-import { boolean, object } from "@storybook/addon-knobs";
 import EventsOverviewList from "components/EventsOverviewList";
 import { KINDS } from "stories";
-
-export default {
-  title: `${KINDS.OTHER}/EventsOverviewList`
-};
 
 const events = [
   {
@@ -29,8 +24,15 @@ const events = [
   }
 ];
 
-export const basic = () => <EventsOverviewList isLoading={false} events={object("events", events)} />;
+export default {
+  title: `${KINDS.OTHER}/EventsOverviewList`,
+  argTypes: {
+    events: { name: "Event", control: "object", defaultValue: events }
+  }
+};
 
-export const loading = () => <EventsOverviewList isLoading={boolean("loading", true)} events={[]} />;
+export const basic = (args) => <EventsOverviewList isLoading={false} events={args.events} />;
+
+export const loading = () => <EventsOverviewList isLoading={true} events={[]} />;
 
 export const empty = () => <EventsOverviewList isLoading={false} events={[]} />;

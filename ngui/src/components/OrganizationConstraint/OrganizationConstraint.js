@@ -13,7 +13,6 @@ import KeyValueLabel from "components/KeyValueLabel";
 import PageContentWrapper from "components/PageContentWrapper";
 import { DeleteOrganizationConstraintModal } from "components/SideModalManager/SideModals";
 import SubTitle from "components/SubTitle";
-import WrapperCard from "components/WrapperCard";
 import DetectedConstraintsHistoryContainer from "containers/DetectedConstraintsHistoryContainer";
 import EditOrganizationConstraintNameFormContainer from "containers/EditOrganizationConstraintNameFormContainer";
 import { useIsAllowed } from "hooks/useAllowedActions";
@@ -151,7 +150,7 @@ const FiltersSection = ({ filters = {}, isLoading }) => (
     <SubTitle>
       <FormattedMessage id="filters" />
     </SubTitle>
-    {isLoading ? <Skeleton height={80} /> : <AnomaliesFilters filters={filters} />}
+    {isLoading ? <Skeleton height={80} /> : <AnomaliesFilters filters={filters} showAll />}
   </>
 );
 
@@ -163,7 +162,6 @@ const OrganizationConstraint = ({ actionBarTitleDefinition, constraint, isLoadin
   const { id, name, type, definition, filters = {} } = constraint;
 
   const actionBarDefinition = {
-    goBack: true,
     title: actionBarTitleDefinition,
     items: [
       {
@@ -193,21 +191,19 @@ const OrganizationConstraint = ({ actionBarTitleDefinition, constraint, isLoadin
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <WrapperCard>
-          <Stack spacing={SPACING_1}>
-            <div>
-              {isLoading ? (
-                <Skeleton width="100%">
-                  <ConstraintProperties />
-                </Skeleton>
-              ) : (
-                <ConstraintProperties id={id} name={name} type={type} definition={definition} />
-              )}
-            </div>
-            <div>{renderFiltersSection()}</div>
-            <DetectedConstraintsHistoryContainer constraint={constraint} isGetConstraintLoading={isLoading} />
-          </Stack>
-        </WrapperCard>
+        <Stack spacing={SPACING_1}>
+          <div>
+            {isLoading ? (
+              <Skeleton width="100%">
+                <ConstraintProperties />
+              </Skeleton>
+            ) : (
+              <ConstraintProperties id={id} name={name} type={type} definition={definition} />
+            )}
+          </div>
+          <div>{renderFiltersSection()}</div>
+          <DetectedConstraintsHistoryContainer constraint={constraint} isGetConstraintLoading={isLoading} />
+        </Stack>
       </PageContentWrapper>
     </>
   );

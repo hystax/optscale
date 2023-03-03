@@ -7,10 +7,11 @@ def gbs_to_bytes(gbs):
 
 class CloudParameter:
     def __init__(self, name, type, required, protected=False,
-                 dependencies=None, default=None):
+                 dependencies=None, default=None, readonly=False):
         self.name = name
         self.type = type
         self.required = required
         self.protected = protected
         self.dependencies = dependencies
         self.default = default
+        self.readonly = readonly

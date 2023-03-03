@@ -1,4 +1,6 @@
 import { API } from "api/reducer";
+import { reset } from "reducers/route";
+import requestManager from "utils/requestManager";
 
 /**
  *
@@ -55,3 +57,8 @@ export const reformatBreakdown = (breakdown) =>
       return [secondsTimestamp, breakdownsDataArray];
     })
   );
+
+export const signOut = (dispatch) => {
+  dispatch(reset());
+  requestManager.cancelAllPendingRequests();
+};

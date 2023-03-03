@@ -40,7 +40,7 @@ CURRENCY_MAP = {
     "BYR": "Br",
     "BYN": "Br",
     "BZD": "BZ$",
-    "CAD": "$",
+    "CAD": "CA$",
     "CDF": "FC",
     "CHF": "CHF",
     "CLP": "$",

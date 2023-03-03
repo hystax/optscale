@@ -33,6 +33,7 @@ class BaseReportImporter:
         if detect_period_start:
             self.detect_period_start()
         self.imported_raw_dates_map = defaultdict(dict)
+        self.report_identity = datetime.utcnow().timestamp()
 
     @property
     def cloud_acc(self):
@@ -45,6 +46,10 @@ class BaseReportImporter:
             cloud_acc = self.cloud_acc.copy()
             cloud_acc.update(self.cloud_acc['config'])
             self._cloud_adapter = CloudAdapter.get_adapter(cloud_acc)
+            _, organization = self.rest_cl.organization_get(
+                cloud_acc['organization_id'])
+            self._cloud_adapter.set_currency(
+                organization.get('currency', 'USD'))
         return self._cloud_adapter
 
     @property
@@ -78,14 +83,17 @@ class BaseReportImporter:
             return False
         return True
 
+    def get_raw_upsert_filters(self, expense):
+        return {f: expense.get(f, {'$exists': False})
+                for f in self.get_unique_field_list()}
+
     def update_raw_records(self, chunk):
         update_fields = self.get_update_fields()
         upsert_bulk = []
         for e in chunk:
             self._update_imported_raw_interval(e)
             upsert_bulk.append(UpdateOne(
-                filter={f: e.get(f, {'$exists': False})
-                        for f in self.get_unique_field_list()},
+                filter=self.get_raw_upsert_filters(e),
                 update={
                     '$set': {k: e[k] for k in update_fields if k in e},
                     '$setOnInsert': {k: v for k, v in e.items()
@@ -108,9 +116,10 @@ class BaseReportImporter:
     def _get_cloud_extras(self, info):
         return {}
 
-    def get_resource_data(self, r_id, info):
+    def get_resource_data(self, r_id, info,
+                          unique_id_field='cloud_resource_id'):
         return {
-            'cloud_resource_id': r_id,
+            unique_id_field: r_id,
             'resource_type': info['type'],
             'name': info['name'],
             'tags': info['tags'],
@@ -123,14 +132,16 @@ class BaseReportImporter:
         }
 
     def create_resources_if_not_exist(self, cloud_account_id,
-                                      resources_info_map):
+                                      resources_info_map,
+                                      unique_id_field='cloud_resource_id'):
         resources_data = [
-            self.get_resource_data(r_id, info)
+            self.get_resource_data(r_id, info, unique_id_field=unique_id_field)
             for r_id, info in resources_info_map.items()
         ]
         _, result = self.rest_cl.cloud_resource_create_bulk(
             cloud_account_id, {'resources': resources_data},
-            behavior='skip_existing', return_resources=True, is_report_import=True)
+            behavior='skip_existing', return_resources=True,
+            is_report_import=True)
         return result['resources']
 
     def get_resource_info_from_expenses(self, expenses):
@@ -184,16 +195,19 @@ class BaseReportImporter:
             'resource_ids': list(resource_ids)
         })
 
-    def save_clean_expenses(self, cloud_account_id, chunk):
+    def save_clean_expenses(self, cloud_account_id, chunk,
+                            unique_id_field='resource_id'):
         info_map = {
             r_id: self.get_resource_info_from_expenses(expenses)
             for r_id, expenses in chunk.items()
         }
+        cloud_unique_id_field = 'cloud_%s' % unique_id_field
 
         resources_map = {
-            r['cloud_resource_id']: r
+            r[cloud_unique_id_field]: r
             for r in self.create_resources_if_not_exist(
-                cloud_account_id, info_map)
+                cloud_account_id, info_map,
+                unique_id_field=cloud_unique_id_field)
         }
 
         clean_expenses = []
@@ -306,7 +320,6 @@ class BaseReportImporter:
             distinct_filters.update(f)
         resource_ids = self.mongo_raw.aggregate([
             {'$match': distinct_filters},
-            {'$project': {'resource_id': 1}},
             {'$group': {'_id': '$resource_id'}}
         ], allowDiskUse=True)
         resource_ids = [x['_id'] for x in resource_ids]
@@ -351,9 +364,7 @@ class BaseReportImporter:
     def process_alerts(self):
         self.rest_cl.alert_process(self.cloud_acc['organization_id'])
 
-    def import_report(self):
-        LOG.info('Started import for %s', self.cloud_acc_id)
-        self.prepare()
+    def data_import(self):
         if self.recalculate:
             LOG.info('Recalculating raw expenses')
             self.recalculate_raw_expenses()
@@ -363,9 +374,13 @@ class BaseReportImporter:
             LOG.info('Importing raw data')
             self.load_raw_data()
             regeneration = False
-
         LOG.info('Generating clean records')
         self.generate_clean_records(regeneration=regeneration)
+
+    def import_report(self):
+        LOG.info('Started import for %s', self.cloud_acc_id)
+        self.prepare()
+        self.data_import()
 
         LOG.info('Cleanup')
         self.cleanup()
@@ -387,7 +402,8 @@ class BaseReportImporter:
 
     def update_cloud_import_time(self, ts):
         self.rest_cl.cloud_account_update(self.cloud_acc_id,
-                                          {'last_import_at': ts})
+                                          {'last_import_at': ts,
+                                           'last_import_attempt_at': ts})
 
     def update_cloud_import_attempt(self, ts, error=None):
         self.rest_cl.cloud_account_update(self.cloud_acc_id,
@@ -444,12 +460,14 @@ class BaseReportImporter:
             self.period_start = get_month_start(datetime.utcnow())
 
     def get_last_import_date(self, cloud_account_id, tzinfo=None):
-        result = None
         max_dt = self.clickhouse_cl.execute(
-            'SELECT max(date) from expenses WHERE cloud_account_id=%(ca_id)s',
+            'SELECT max(date), count(date) from expenses '
+            'WHERE cloud_account_id=%(ca_id)s',
             params={'ca_id': cloud_account_id})
+        result, count = 0, 0
         for dt in max_dt:
-            result, = dt
+            m_dt, count = dt
+            result = m_dt if count else 0
         if result and tzinfo:
             result = result.replace(tzinfo=tzinfo)
         return result
@@ -488,7 +506,23 @@ class BaseReportImporter:
         cl_acc_dates = self.imported_raw_dates_map[cloud_account_id]
         raw_first_dt = cl_acc_dates.get('start_date')
         raw_last_date = cl_acc_dates.get('end_date')
+        last_start_date = cl_acc_dates.get('last_start_date')
         if not raw_first_dt or raw_first_dt > start_date:
             cl_acc_dates['start_date'] = start_date
         if not raw_last_date or raw_last_date < start_date:
             cl_acc_dates['end_date'] = start_date
+        if not last_start_date or last_start_date < start_date:
+            cl_acc_dates['last_start_date'] = start_date
+
+    def clear_rudiments(self):
+        for cloud_account_id, dates in self.imported_raw_dates_map.items():
+            result = self.mongo_raw.delete_many({
+                'cloud_account_id': cloud_account_id,
+                'start_date': {
+                    '$gte': dates.get('start_date'),
+                    '$lte': dates.get('last_start_date')
+                },
+                'report_identity': {'$ne': self.report_identity}
+            })
+            LOG.info('Cleared %s rudiments for cloud_account %s' %
+                     (result.deleted_count, cloud_account_id))

@@ -1,3 +1,0 @@
-import GridContainerWithNegativeMarginCompensation from "./GridContainerWithNegativeMarginCompensation";
-
-export default GridContainerWithNegativeMarginCompensation;

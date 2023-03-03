@@ -39,28 +39,28 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
   const columns = useMemo(
     () => [
       {
-        Header: <span data-test-id="lbl_name">{intl.formatMessage({ id: "name" })}</span>,
-        accessor: "name",
-        Cell: ({
+        header: <span data-test-id="lbl_name">{intl.formatMessage({ id: "name" })}</span>,
+        accessorKey: "name",
+        cell: ({
           row: {
             original: { name, id: organizationId }
           }
         }) => <OrganizationLabel name={name} id={organizationId} dataTestId={`link_org_${organizationId}`} />
       },
       {
-        Header: <span data-test-id="lbl_pool">{intl.formatMessage({ id: "limit" })}</span>,
-        accessor: "limit",
-        Cell: ({
+        header: <span data-test-id="lbl_pool">{intl.formatMessage({ id: "limit" })}</span>,
+        accessorKey: "limit",
+        cell: ({
           row: {
             original: { currency }
           },
-          cell: { value }
-        }) => <FormattedMoney format={currency} type={FORMATTED_MONEY_TYPES.COMMON} value={value || 0} />
+          cell
+        }) => <FormattedMoney format={currency} type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue() || 0} />
       },
       {
-        Header: <span data-test-id="lbl_expenses">{intl.formatMessage({ id: "expenses" })}</span>,
-        accessor: "cost",
-        Cell: ({
+        header: <span data-test-id="lbl_expenses">{intl.formatMessage({ id: "expenses" })}</span>,
+        accessorKey: "cost",
+        cell: ({
           row: {
             original: { last_month_cost: lastMonthCost = 0, cost = 0, forecast = 0, currency }
           }
@@ -83,9 +83,9 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
         defaultSort: "desc"
       },
       {
-        Header: <span data-test-id="lbl_savings">{intl.formatMessage({ id: "possibleMonthlySavings" })}</span>,
-        accessor: "saving",
-        Cell: ({
+        header: <span data-test-id="lbl_savings">{intl.formatMessage({ id: "possibleMonthlySavings" })}</span>,
+        accessorKey: "saving",
+        cell: ({
           row: {
             original: { saving, id: organizationId, currency }
           }
@@ -97,19 +97,19 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
           ) : null
       },
       {
-        Header: <span data-test-id="lbl_pools_exceeding_limits">{intl.formatMessage({ id: "poolsExceedingLimit" })}</span>,
-        accessor: "exceededPools",
-        disableSortBy: true,
-        Cell: ({ row: { original } }) =>
+        header: <span data-test-id="lbl_pools_exceeding_limits">{intl.formatMessage({ id: "poolsExceedingLimit" })}</span>,
+        accessorKey: "exceededPools",
+        enableSorting: false,
+        cell: ({ row: { original } }) =>
           getExceedingLimits("exceededPools", original).map((pool) => getExceedingLabel("cost", pool, original))
       },
       {
-        Header: (
+        header: (
           <span data-test-id="lbl_forecasts_exceeding_limits">{intl.formatMessage({ id: "forecastsExceedingLimit" })}</span>
         ),
-        disableSortBy: true,
-        accessor: "exceededForecasts",
-        Cell: ({ row: { original } }) =>
+        enableSorting: false,
+        accessorKey: "exceededForecasts",
+        cell: ({ row: { original } }) =>
           getExceedingLimits("exceededForecasts", original).map((pool) => getExceedingLabel("forecast", pool, original))
       }
     ],
@@ -126,9 +126,8 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
         emptyMessageId: "noOrganizations"
       }}
       pageSize={50}
-      totalNumberOverride={total}
-      counters={{ showCounters: true, hideTotal: false }}
-      getConditionalRowStyle={(rowData) => ({
+      counters={{ showCounters: true, hideTotal: false, total }}
+      getRowStyle={(rowData) => ({
         backgroundColor: rowData.exceededOrganizationIds.has(rowData.id)
           ? alpha(theme.palette.error.main, ALPHA)
           : alpha(theme.palette.success.main, ALPHA)

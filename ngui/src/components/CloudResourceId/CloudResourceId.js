@@ -7,61 +7,77 @@ import { getResourceUrl } from "urls";
 
 const SHORTENED_CLOUD_RESOURCE_ID_PREFIX = ".../";
 
-const renderLink = ({ resourceId, cloudResourceId, resourceType, dataTestId }) => (
+const renderLink = ({ resourceId, cloudResourceIdentifier, resourceType, dataTestId }) => (
   <Link
     to={resourceType ? `${getResourceUrl(resourceId)}?resourceType=${resourceType}` : getResourceUrl(resourceId)}
     component={RouterLink}
     data-test-id={dataTestId}
   >
-    {cloudResourceId}
+    {cloudResourceIdentifier}
   </Link>
 );
 
-const renderCloudResourceId = ({ cloudResourceId, resourceId, resourceType, dataTestId }) =>
-  resourceId ? (
-    renderLink({ resourceId, cloudResourceId, resourceType, dataTestId })
+const renderCloudResourceId = ({ cloudResourceIdentifier, resourceId, resourceType, dataTestId, disableLink = false }) =>
+  resourceId && !disableLink ? (
+    renderLink({ resourceId, cloudResourceIdentifier, resourceType, dataTestId })
   ) : (
-    <span data-test-id={dataTestId}>{cloudResourceId}</span>
+    <span data-test-id={dataTestId}>{cloudResourceIdentifier}</span>
   );
 
 const renderShortenedCloudResourceId = ({
   shortenedCloudResourceId,
-  cloudResourceId,
+  cloudResourceIdentifier,
   resourceId,
   resourceType,
-  dataTestId
+  dataTestId,
+  disableLink
 }) => (
-  <Tooltip title={cloudResourceId}>
-    {renderCloudResourceId({ cloudResourceId: shortenedCloudResourceId, resourceId, resourceType, dataTestId })}
+  <Tooltip title={cloudResourceIdentifier}>
+    {renderCloudResourceId({
+      cloudResourceIdentifier: shortenedCloudResourceId,
+      resourceId,
+      resourceType,
+      dataTestId,
+      disableLink
+    })}
   </Tooltip>
 );
 
-const getShortenedCloudResourceId = (cloudResourceId, separator) => cloudResourceId.split(separator).pop();
+const getShortenedCloudResourceId = (cloudResourceIdentifier, separator) => cloudResourceIdentifier.split(separator).pop();
 
 const getCloudResourceIdWithPrefix = (id) => `${SHORTENED_CLOUD_RESOURCE_ID_PREFIX}${id}`;
 
-const CloudResourceId = ({ cloudResourceId, resourceId = "", resourceType = "", separator = "/", dataTestId }) => {
-  // Additional check to handle cloudResourceId having 'null' or 'undefined' substring
-  if (separator && cloudResourceId.includes(separator)) {
-    const shortenedCloudResourceId = getShortenedCloudResourceId(cloudResourceId, separator);
+const CloudResourceId = ({
+  cloudResourceIdentifier = "",
+  resourceId = "",
+  resourceType = "",
+  separator = "/",
+  dataTestId,
+  disableLink
+}) => {
+  // Additional check to handle cloudResourceIdentifier having 'null' or 'undefined' substring
+  if (separator && cloudResourceIdentifier.includes(separator)) {
+    const shortenedCloudResourceId = getShortenedCloudResourceId(cloudResourceIdentifier, separator);
     return renderShortenedCloudResourceId({
       shortenedCloudResourceId: getCloudResourceIdWithPrefix(shortenedCloudResourceId),
-      cloudResourceId,
+      cloudResourceIdentifier,
       resourceId,
       resourceType,
-      dataTestId
+      dataTestId,
+      disableLink
     });
   }
 
-  return renderCloudResourceId({ cloudResourceId, resourceId, resourceType, dataTestId });
+  return renderCloudResourceId({ cloudResourceIdentifier, resourceId, resourceType, dataTestId, disableLink });
 };
 
 CloudResourceId.propTypes = {
-  cloudResourceId: PropTypes.string.isRequired,
+  cloudResourceIdentifier: PropTypes.string.isRequired,
   resourceId: PropTypes.string,
   resourceType: PropTypes.string,
   separator: PropTypes.string,
-  dataTestId: PropTypes.string
+  dataTestId: PropTypes.string,
+  disableLink: PropTypes.bool
 };
 
 export default CloudResourceId;

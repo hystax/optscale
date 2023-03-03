@@ -1,62 +1,51 @@
 import React from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box } from "@mui/material";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
-import ListItemTextDivider from "components/ListItemTextDivider";
-import { COLLAPSED_MENU_ITEMS } from "components/MenuGroupWrapper/reducer";
-import { useRootData } from "hooks/useRootData";
-import { updateCollapsedMenuItems } from "./actionCreators";
+import useMenuItemState from "hooks/useMenuItemState";
 import useStyles from "./MenuGroupWrapper.styles";
 
-const MainMenuGroupWrapper = ({ sectionTitleMessageId, showSection = true, children, id }) => {
+// TODO: there is a refactoring proposition https://gitlab.com/hystax/ngui/-/merge_requests/2936#note_1123674985
+const MenuGroupWrapper = ({ menuSectionTitle, menuSectionBadge, children, id, keepExpanded = false }) => {
   const { classes } = useStyles();
-  const dispatch = useDispatch();
+  const { isExpanded, updateIsExpanded } = useMenuItemState(id);
 
-  const { rootData: collapsedItems = [] } = useRootData(COLLAPSED_MENU_ITEMS);
-
-  const persistedIsCollapsed = collapsedItems.includes(id);
-
-  const onAccordionChange = (_, expanded) => {
-    let updatedItemsList;
-    if (expanded) {
-      updatedItemsList = collapsedItems.filter((itemId) => itemId !== id);
-    } else {
-      updatedItemsList = [...collapsedItems, id];
-    }
-    dispatch(updateCollapsedMenuItems(updatedItemsList));
-  };
-
-  if (!showSection) {
-    return null;
-  }
-
-  if (!sectionTitleMessageId) {
+  if (!menuSectionTitle) {
     return children;
   }
 
   return (
     <Accordion
-      expanded={!persistedIsCollapsed}
+      expanded={keepExpanded || isExpanded}
       className={classes.menu}
       disableGutters
       elevation={0}
       square
-      onChange={onAccordionChange}
+      onChange={(_, expanded) => !keepExpanded && updateIsExpanded(expanded)}
     >
-      <AccordionSummary expandIcon={<ArrowDropDownIcon fontSize="small" />}>
-        <ListItemTextDivider messageId={sectionTitleMessageId} />
-      </AccordionSummary>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          height: "32px"
+        }}
+      >
+        <AccordionSummary sx={{ paddingRight: "0px" }} expandIcon={<ArrowDropDownIcon fontSize="small" />}>
+          {menuSectionTitle}
+        </AccordionSummary>
+        {menuSectionBadge}
+      </Box>
       <AccordionDetails>{children}</AccordionDetails>
     </Accordion>
   );
 };
 
-MainMenuGroupWrapper.propTypes = {
+MenuGroupWrapper.propTypes = {
   children: PropTypes.node.isRequired,
-  sectionTitleMessageId: PropTypes.string,
-  showSection: PropTypes.bool,
-  id: PropTypes.string.isRequired
+  menuSectionTitle: PropTypes.node,
+  menuSectionBadge: PropTypes.node,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  keepExpanded: PropTypes.bool
 };
 
-export default MainMenuGroupWrapper;
+export default MenuGroupWrapper;

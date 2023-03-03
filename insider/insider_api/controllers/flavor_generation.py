@@ -87,12 +87,14 @@ class FlavorGenerationController(FlavorController):
             'current_flavor': current_flavor,
             'os_type': kwargs.get('os_type'),
             'preinstalled': kwargs.get('preinstalled'),
-            'meter_id': kwargs.get('meter_id')
+            'meter_id': kwargs.get('meter_id'),
+            'currency': kwargs.get('currency') or 'USD'
         }
         return find_flavor_function_map[cloud_type](**params)
 
     def find_aws_flavor_generation(self, region, current_flavor, os_type=None,
-                                   preinstalled=None, meter_id=None):
+                                   preinstalled=None, meter_id=None,
+                                   currency='USD'):
         if not os_type or os_type == 'NA':
             os_type = 'Linux'
         preinstalled = preinstalled or 'NA'
@@ -147,7 +149,8 @@ class FlavorGenerationController(FlavorController):
         }
 
     def find_azure_flavor_generation(self, region, current_flavor, os_type=None,
-                                     preinstalled=None, meter_id=None):
+                                     preinstalled=None, meter_id=None,
+                                     currency='USD'):
         windows_key = 'Windows'
         linux_key = 'Linux'
         if not os_type or os_type == 'NA':
@@ -179,11 +182,13 @@ class FlavorGenerationController(FlavorController):
                 raise WrongArgumentsException(Err.OI0012, [region])
             current_prices = executor.submit(
                 self.get_azure_prices, location,
-                re.sub(r'[0-9]+', '[0-9]+', current_flavor, 1)).result()
+                re.sub(r'[0-9]+', '[0-9]+', current_flavor, 1), currency
+            ).result()
             for flavor_name in proposed_flavor_map:
                 instance_family = re.sub(r'[0-9]+', '[0-9]+', flavor_name, 1)
-                flavor_prices = executor.submit(self.get_azure_prices, location,
-                                                instance_family).result()
+                flavor_prices = executor.submit(
+                    self.get_azure_prices, location, instance_family, currency
+                ).result()
                 if flavor_prices:
                     proposed_prices.extend(flavor_prices)
 
@@ -260,7 +265,7 @@ class FlavorGenerationController(FlavorController):
 
     def find_alibaba_flavor_generation(self, region, current_flavor,
                                        os_type=None, preinstalled=None,
-                                       meter_id=None):
+                                       meter_id=None, currency='USD'):
         with CachedThreadPoolExecutor(self.mongo_client) as executor:
             try:
                 all_flavors = executor.submit(

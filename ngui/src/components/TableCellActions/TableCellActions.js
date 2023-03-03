@@ -1,11 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
-import Dropdown from "components/Dropdown";
 import IconButton from "components/IconButton";
 import { useAllowedItems } from "hooks/useAllowedActions";
 import { useApiState } from "hooks/useApiState";
-import { useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { isEmpty } from "utils/arrays";
 import { SCOPE_TYPES } from "utils/constants";
 
@@ -28,10 +26,7 @@ const renderActions = (items, allowedItems, isGetAllowedActionsLoading) => {
   ));
 };
 
-const renderDropdown = (allowedItems) => <Dropdown popupId="mobilePopup" items={allowedItems} trigger="iconButton" isMobile />;
-
 const TableCellActions = ({ items, entityId, entityType }) => {
-  const isUpMd = useIsUpMediaQuery("md");
   const allowedItems = useAllowedItems({ entityId, entityType, items });
 
   const allowedActionsLabel = Object.values(SCOPE_TYPES).includes(entityType)
@@ -46,7 +41,7 @@ const TableCellActions = ({ items, entityId, entityType }) => {
         display: "flex"
       }}
     >
-      {isUpMd ? renderActions(items, allowedItems, isGetAllowedActionsLoading) : renderDropdown(allowedItems)}
+      {renderActions(items, allowedItems, isGetAllowedActionsLoading)}
     </div>
   );
 };

@@ -59,6 +59,11 @@ class RightsizingInstances(RightsizingBase):
                 'family_specs': self.get_base_family_specs,
                 'metric': self.get_base_agr_cpu_metric,
             },
+            'gcp_cnr': {
+                'instances_info': self.get_base_gcp_instances_info,
+                'family_specs': self.get_base_family_specs,
+                'metric': self.get_base_agr_cpu_metric,
+            },
         }
 
     def get_insider_resource_type(self):

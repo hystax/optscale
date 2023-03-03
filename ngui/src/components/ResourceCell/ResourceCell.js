@@ -10,11 +10,18 @@ import CircleLabel from "components/CircleLabel";
 import IconLabel from "components/IconLabel";
 import ResourceLabel from "components/ResourceLabel";
 import { getResourceUrl } from "urls";
+import { getCloudResourceIdentifier } from "utils/resources";
 import { sliceByLimitWithEllipsis } from "utils/strings";
 
 const NAME_SIZE_LIMIT = 32;
 
-const getCaptionedCellProps = ({ resourceName, resourceId, cloudResourceId, showIsActive, showIsConstraintViolated }) => {
+const getCaptionedCellProps = ({
+  resourceName,
+  resourceId,
+  cloudResourceIdentifier,
+  showIsActive,
+  showIsConstraintViolated
+}) => {
   const resourceNameString = resourceName ?? "";
 
   const captionSettings = [
@@ -25,7 +32,7 @@ const getCaptionedCellProps = ({ resourceName, resourceId, cloudResourceId, show
           ? resourceNameString
           : sliceByLimitWithEllipsis(resourceNameString, NAME_SIZE_LIMIT),
       tooltipText: resourceNameString.length <= NAME_SIZE_LIMIT ? "" : resourceNameString,
-      show: resourceNameString !== cloudResourceId
+      show: resourceNameString !== cloudResourceIdentifier
     },
     {
       key: `isActive-${resourceId}`,
@@ -67,7 +74,6 @@ const getCaptionedCellProps = ({ resourceName, resourceId, cloudResourceId, show
 const ResourceCell = ({ rowData, disableActivityIcon, disableConstraintViolationIcon, dataTestIds = {} }) => {
   const {
     resource_id: resourceId,
-    cloud_resource_id: cloudResourceId,
     resource_name: resourceName,
     active: isActive = false,
     constraint_violated: isConstraintViolated = false
@@ -80,12 +86,16 @@ const ResourceCell = ({ rowData, disableActivityIcon, disableConstraintViolation
       caption={getCaptionedCellProps({
         resourceName,
         resourceId,
-        cloudResourceId,
+        cloudResourceIdentifier: getCloudResourceIdentifier(rowData),
         showIsActive: isActive && !disableActivityIcon,
         showIsConstraintViolated: isConstraintViolated && !disableConstraintViolationIcon
       })}
     >
-      <ResourceLabel resourceId={resourceId} cloudResourceId={cloudResourceId} dataTestIds={labelDataTestIds} />
+      <ResourceLabel
+        resourceId={resourceId}
+        cloudResourceIdentifier={getCloudResourceIdentifier(rowData)}
+        dataTestIds={labelDataTestIds}
+      />
     </CaptionedCell>
   );
 };

@@ -1,29 +1,33 @@
 import React from "react";
 import CloudResourceId from "components/CloudResourceId";
-import { text } from "@storybook/addon-knobs";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/CloudResourceId`
+  title: `${KINDS.COMPONENTS}/CloudResourceId`,
+  argTypes: {
+    cloudResourceIdentifier: {
+      name: "Cloud resource ID",
+      control: "text",
+      defaultValue:
+        "/subscriptions/46d16706-da10-4700-951b-fc9b5dd13c6b/randomname/randomname/providers/microsoft.randomname/randomipaddresses/random-ip"
+    }
+  }
 };
 
 export const awsResourceLink = () => (
-  <CloudResourceId resourceId="46d16706-da10-4700-951b-fc9b5dd13c6b" cloudResourceId="i-11111111111111111" />
+  <CloudResourceId resourceId="46d16706-da10-4700-951b-fc9b5dd13c6b" cloudResourceIdentifier="i-11111111111111111" />
 );
 
 export const azureResourceLink = () => (
   <CloudResourceId
     resourceId="46d16706-da10-4700-951b-fc9b5dd13c6b"
-    cloudResourceId="/subscriptions/46d16706-da10-4700-951b-fc9b5dd13c6b/randomname/randomname/providers/microsoft.randomname/randomipaddresses/random-ip"
+    cloudResourceIdentifier="/subscriptions/46d16706-da10-4700-951b-fc9b5dd13c6b/randomname/randomname/providers/microsoft.randomname/randomipaddresses/random-ip"
   />
 );
 
-export const withKnobs = () => (
+export const withKnobs = (args) => (
   <CloudResourceId
     resourceId={"46d16706-da10-4700-951b-fc9b5dd13c6b"}
-    cloudResourceId={text(
-      "cloudResourceId",
-      "/subscriptions/46d16706-da10-4700-951b-fc9b5dd13c6b/randomname/randomname/providers/microsoft.randomname/randomipaddresses/random-ip"
-    )}
+    cloudResourceIdentifier={argTypes.cloudResourceIdentifier}
   />
 );

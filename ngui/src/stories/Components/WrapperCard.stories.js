@@ -1,41 +1,44 @@
 import React from "react";
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
-import { text } from "@storybook/addon-knobs";
 import WrapperCard from "components/WrapperCard";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/WrapperCard`
+  title: `${KINDS.COMPONENTS}/WrapperCard`,
+  argTypes: {
+    link: { name: "Link", control: "text", defaultValue: "/test" },
+    href: { name: "Href", control: "text", defaultValue: "https://hystax.com/" }
+  }
 };
 
-export const basic = () => <WrapperCard title="Tasks" buttonText="Go to Tasks" />;
+export const basic = () => <WrapperCard title="Optscale" buttonText="Go to OptScale" />;
 
 export const withText = () => (
-  <WrapperCard title="Tasks" button={{ show: true, messageId: "goToTasks" }}>
+  <WrapperCard title="Optscale" button={{ show: true, messageId: "goToDashboard" }}>
     Some text
   </WrapperCard>
 );
 
-export const withInternalLink = () => (
+export const withInternalLink = (args) => (
   <WrapperCard
-    title="Tasks"
+    title="Optscale"
     button={{
       show: true,
-      messageId: "goToTasks",
-      link: text("link", "/test")
+      messageId: "goToDashboard",
+      link: args.link
     }}
   >
     Some text
   </WrapperCard>
 );
 
-export const withExternalLink = () => (
+export const withExternalLink = (args) => (
   <WrapperCard
     title="Optscale"
     button={{
       show: true,
       messageId: "buy",
-      href: text("href", "https://hystax.com/")
+      href: args.href
     }}
   >
     Some text

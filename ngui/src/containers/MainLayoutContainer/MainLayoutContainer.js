@@ -8,7 +8,9 @@ import {
   getCloudAccounts,
   getOrganizationAllowedActions,
   getOrganizationFeatures,
-  getOrganizationThemeSettings
+  getOrganizationThemeSettings,
+  getInvitations,
+  getOrganizationPerspectives
 } from "api";
 import { GET_ORGANIZATION_ALLOWED_ACTIONS } from "api/auth/actionTypes";
 import {
@@ -16,7 +18,9 @@ import {
   GET_CURRENT_EMPLOYEE,
   GET_CLOUD_ACCOUNTS,
   GET_ORGANIZATION_FEATURES,
-  GET_ORGANIZATION_THEME_SETTINGS
+  GET_ORGANIZATION_THEME_SETTINGS,
+  GET_INVITATIONS,
+  GET_ORGANIZATION_PERSPECTIVES
 } from "api/restapi/actionTypes";
 import Backdrop from "components/Backdrop";
 import { useApiState } from "hooks/useApiState";
@@ -47,6 +51,8 @@ const MainLayoutContainer = ({ children }) => {
     GET_ORGANIZATION_THEME_SETTINGS,
     organizationId
   );
+  const { shouldInvoke: shouldInvokeGetInvitations } = useApiState(GET_INVITATIONS);
+  const { shouldInvoke: shouldInvokeGetOrganizationPerspectives } = useApiState(GET_ORGANIZATION_PERSPECTIVES, organizationId);
 
   useEffect(() => {
     if (shouldInvokeGetOrganizations) {
@@ -84,6 +90,18 @@ const MainLayoutContainer = ({ children }) => {
     }
   }, [dispatch, organizationId, shouldInvokeGetOrganizationThemeSettings]);
 
+  useEffect(() => {
+    if (shouldInvokeGetInvitations) {
+      dispatch(getInvitations());
+    }
+  }, [dispatch, shouldInvokeGetInvitations]);
+
+  useEffect(() => {
+    if (organizationId && shouldInvokeGetOrganizationPerspectives) {
+      dispatch(getOrganizationPerspectives(organizationId));
+    }
+  }, [dispatch, organizationId, shouldInvokeGetOrganizationPerspectives]);
+
   const apiIsLoading = useIsLoading([
     GET_ORGANIZATIONS,
     GET_ORGANIZATION_ALLOWED_ACTIONS,
@@ -94,7 +112,7 @@ const MainLayoutContainer = ({ children }) => {
   const isLoading = useShouldRenderLoader(isInitialMount, [apiIsLoading]);
 
   return isLoading ? (
-    <Backdrop>
+    <Backdrop aboveDrawers>
       <CircularProgress />
     </Backdrop>
   ) : (

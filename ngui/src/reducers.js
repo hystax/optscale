@@ -11,22 +11,22 @@ import SlackerReducer, { SLACKER } from "api/slacker/reducer";
 import ResourcesSortGroupsByReducer, {
   RESOURCES_SORT_GROUPS_BY
 } from "components/CleanExpensesTableGroup/SortGroupsBySelector/reducer";
-import CloudHealthReducer, { CLOUD_HEALTH } from "components/CloudHealth/reducer";
+import MainMenuExpandedReducer, { MAIN_MENU_EXPANDED } from "components/CollapsableMenuDrawer/reducer";
 import ExpensesBreakdownPeriodTypeReducer, {
   EXPENSES_BREAKDOWN_PERIOD_TYPE
 } from "components/ExpensesBreakdown/BreakdownByPeriodWidget/reducer";
 import CollapsedMenuItemsReducer, { COLLAPSED_MENU_ITEMS } from "components/MenuGroupWrapper/reducer";
 import PoolsTableReducer, { EXPANDED_POOL_ROWS } from "components/PoolsTable/reducer";
-import { reducer as ProductTourReducer, TOURS } from "components/ProductTour";
 import TopAlertReducer, { ALERTS } from "components/TopAlertWrapper/reducer";
+import { IS_EXISTING_USER } from "components/TopAlertWrapper/TopAlertWrapper";
+import { reducer as TourReducer, TOURS } from "components/Tour";
 import ScopeIdReducer, { SCOPE_ID } from "containers/OrganizationSelectorContainer/reducer";
 import RangeDatesReducer, { RANGE_DATES } from "containers/RangePickerFormContainer/reducer";
-import { SHOW_EXPENSES_DAILY_BREAKDOWN, reducer as ShowExpensesBreakdownReducer } from "hooks/useShowExpensesDailyBreakdown";
 import { SHOW_LESS_THAN_VALUE, reducer as ShowLessThanValueReducer } from "hooks/useShowLessThanValue";
 import { SHOW_WEEKENDS, reducer as ShowWeekendsReducer } from "hooks/useShowWeekends";
 import migrations, { CURRENT_VERSION } from "migrations";
+import ApplicationBreakdown, { APPLICATION_BREAKDOWN } from "reducers/applicationBreakdown/reducer";
 import ColumnsReducer, { COLUMNS } from "reducers/columns/reducer";
-import ResourcesReducers, { RESOURCES } from "reducers/resources/reducer";
 import { RESET } from "reducers/route/actionTypes";
 
 const ROOT = "root";
@@ -43,7 +43,7 @@ const persistConfig = {
   key: ROOT,
   storage: localForage,
   keyPrefix: "",
-  blacklist: [API, AUTH, KEEPER, RESTAPI],
+  blacklist: [AUTH, API, KEEPER, RESTAPI, JIRA_BUS],
   version: CURRENT_VERSION,
   migrate: createMigrate(migrations, { debug: true })
 };
@@ -63,9 +63,7 @@ const appReducer = combineReducers({
   [RESTAPI]: RestapiReducer,
   [SLACKER]: SlackerReducer,
   [JIRA_BUS]: JiraBusReducer,
-  [CLOUD_HEALTH]: CloudHealthReducer,
   [RESOURCES_SORT_GROUPS_BY]: ResourcesSortGroupsByReducer,
-  [RESOURCES]: ResourcesReducers,
   [SCOPE_ID]: ScopeIdReducer,
   [RANGE_DATES]: RangeDatesReducer,
   [EXPANDED_POOL_ROWS]: PoolsTableReducer,
@@ -74,9 +72,11 @@ const appReducer = combineReducers({
   [EXPENSES_BREAKDOWN_PERIOD_TYPE]: ExpensesBreakdownPeriodTypeReducer,
   [SHOW_WEEKENDS]: ShowWeekendsReducer,
   [SHOW_LESS_THAN_VALUE]: ShowLessThanValueReducer,
-  [TOURS]: ProductTourReducer,
-  [SHOW_EXPENSES_DAILY_BREAKDOWN]: ShowExpensesBreakdownReducer,
-  [COLLAPSED_MENU_ITEMS]: CollapsedMenuItemsReducer
+  [IS_EXISTING_USER]: (state) => state || false,
+  [TOURS]: TourReducer,
+  [COLLAPSED_MENU_ITEMS]: CollapsedMenuItemsReducer,
+  [MAIN_MENU_EXPANDED]: MainMenuExpandedReducer,
+  [APPLICATION_BREAKDOWN]: ApplicationBreakdown
 });
 
 const rootReducer = (incomingState, action) => {
@@ -93,10 +93,12 @@ const rootReducer = (incomingState, action) => {
     // Do not persist the following keys after signing out
     const {
       [API]: api,
+      [RESTAPI]: restapi,
+      [KEEPER]: keeper,
+      [JIRA_BUS]: jiraBus,
       [RANGE_DATES]: rangeDates,
       [EXPANDED_POOL_ROWS]: expandedPoolRows,
       [COLUMNS]: columns,
-      [CLOUD_HEALTH]: cloudHealth,
       ...rest
     } = state;
 

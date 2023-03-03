@@ -4,6 +4,7 @@ import { useTheme } from "@mui/material/styles";
 import PropTypes from "prop-types";
 import { FormattedMessage, useIntl } from "react-intl";
 import BreakdownBy from "components/ExpensesDailyBreakdownBy/BreakdownBy";
+import WrapperCard from "components/WrapperCard";
 import { splitIntoTwoChunks, isEmpty as isEmptyArray } from "utils/arrays";
 import { getColorScale } from "utils/charts";
 import { RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY_VALUES } from "utils/constants";
@@ -155,7 +156,7 @@ const useChartLinesDisplaySettings = (countKeys) => {
 
 const ResourceCountBreakdown = ({
   countKeys,
-  breakdownBy,
+  breakdownByValue,
   onBreakdownByChange,
   counts,
   breakdown,
@@ -172,27 +173,35 @@ const ResourceCountBreakdown = ({
   const lineData = useLineData(breakdown, excludeHiddenResourceTypes());
 
   return (
-    <Grid container spacing={SPACING_1}>
-      <Grid item xs={12} sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <ResourceCountBreakdownShowWeekendSwitch />
-        <BreakdownBy value={breakdownBy} onChange={onBreakdownByChange} />
+    <WrapperCard>
+      <Grid container spacing={SPACING_1}>
+        <Grid xs={12} sx={{ display: "flex" }}>
+          <BreakdownBy value={breakdownByValue} onChange={onBreakdownByChange} />
+          <ResourceCountBreakdownShowWeekendSwitch />
+        </Grid>
+        <Grid item xs={12}>
+          <ResourceCountBreakdownLineChart
+            data={lineData}
+            colors={chartColors}
+            isLoading={isLoading}
+            breakdownBy={breakdownByValue}
+            dataTestId="resource_count_breakdown_chart"
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <ResourceCountBreakdownTable
+            counts={counts}
+            colors={tableColors}
+            isLoading={isLoading}
+            appliedRange={appliedRange}
+            onToggleResourceCountDisplay={updateLineDisplaySettings}
+            onToggleAllResourceCountsDisplay={updateAllLinesDisplaySettings}
+            resourceCountBreakdownChartDisplaySettings={chartLinesDisplaySettings}
+            breakdownBy={breakdownByValue}
+          />
+        </Grid>
       </Grid>
-      <Grid item xs={12}>
-        <ResourceCountBreakdownLineChart data={lineData} colors={chartColors} isLoading={isLoading} breakdownBy={breakdownBy} />
-      </Grid>
-      <Grid item xs={12}>
-        <ResourceCountBreakdownTable
-          counts={counts}
-          colors={tableColors}
-          isLoading={isLoading}
-          appliedRange={appliedRange}
-          onToggleResourceCountDisplay={updateLineDisplaySettings}
-          onToggleAllResourceCountsDisplay={updateAllLinesDisplaySettings}
-          resourceCountBreakdownChartDisplaySettings={chartLinesDisplaySettings}
-          breakdownBy={breakdownBy}
-        />
-      </Grid>
-    </Grid>
+    </WrapperCard>
   );
 };
 
@@ -204,7 +213,7 @@ ResourceCountBreakdown.propTypes = {
     startSecondsTimestamp: PropTypes.number,
     endSecondsTimestamp: PropTypes.number
   }).isRequired,
-  breakdownBy: PropTypes.oneOf(RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY_VALUES).isRequired,
+  breakdownByValue: PropTypes.oneOf(RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY_VALUES).isRequired,
   onBreakdownByChange: PropTypes.func.isRequired,
   counts: PropTypes.object.isRequired
 };

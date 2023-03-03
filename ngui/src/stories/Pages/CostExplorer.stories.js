@@ -1,7 +1,7 @@
 import React from "react";
 import CostExplorer from "components/CostExplorer";
-import { millisecondsToSeconds } from "utils/datetime";
 import { KINDS } from "stories";
+import { millisecondsToSeconds } from "utils/datetime";
 
 export default {
   title: `${KINDS.PAGES}/CostExplorer`

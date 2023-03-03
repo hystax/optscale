@@ -1,9 +1,9 @@
 import React from "react";
-import Box from "@mui/material/Box";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import Box from "@mui/material/Box";
 import awsLogo from "assets/clouds/aws.svg";
-import Image from "components/Image";
 import ActionBarHeader from "components/ActionBarHeader";
+import Image from "components/Image";
 import { KINDS } from "stories";
 
 export default {

@@ -1,12 +1,15 @@
 import React from "react";
-import { text, boolean } from "@storybook/addon-knobs";
+import InputAdornment from "@mui/material/InputAdornment";
 import Input from "components/Input";
 import QuestionMark from "components/QuestionMark";
-import InputAdornment from "@mui/material/InputAdornment";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Input`
+  title: `${KINDS.COMPONENTS}/Input`,
+  argTypes: {
+    label: { name: "Label", control: "text", defaultValue: "Label" },
+    isMasked: { name: "Masked", control: "boolean", defaultValue: false }
+  }
 };
 
 export const basic = () => <Input />;
@@ -24,4 +27,4 @@ export const withHelp = () => (
   />
 );
 
-export const withKnobs = () => <Input label={text("label", "Label")} isMasked={boolean("isMasked", false)} />;
+export const withKnobs = (args) => <Input label={args.label} isMasked={args.isMasked} />;

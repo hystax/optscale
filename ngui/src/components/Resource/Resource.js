@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import AssignmentLateOutlinedIcon from "@mui/icons-material/AssignmentLateOutlined";
-import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
 import GroupWorkOutlinedIcon from "@mui/icons-material/GroupWorkOutlined";
 import LaunchOutlinedIcon from "@mui/icons-material/LaunchOutlined";
@@ -11,7 +10,6 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import ActionBar from "components/ActionBar";
-import { GAEvent, GA_EVENT_CATEGORIES } from "components/ActivityListener";
 import ClusterSubResourcesTable from "components/ClusterSubResourcesTable";
 import EnvironmentBookings from "components/EnvironmentBookings";
 import EnvironmentProperties from "components/EnvironmentProperties";
@@ -21,7 +19,7 @@ import ResourceConstraints from "components/ResourceConstraints";
 import ResourceDetails from "components/ResourceDetails";
 import ResourceExpenses from "components/ResourceExpenses";
 import ResourceRecommendations from "components/ResourceRecommendations";
-import { AssignResourcesModal, CiCdIntegrationModal, UnmarkEnvironmentModal } from "components/SideModalManager/SideModals";
+import { CiCdIntegrationModal, UnmarkEnvironmentModal } from "components/SideModalManager/SideModals";
 import SummaryGrid from "components/SummaryGrid";
 import TabsWrapper from "components/TabsWrapper";
 import Tooltip from "components/Tooltip";
@@ -32,9 +30,11 @@ import { useDataSources } from "hooks/useDataSources";
 import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { getCreateResourceAssignmentRuleUrl } from "urls";
+import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
 import { isEmpty as isEmptyArray, getSumByObjectKey } from "utils/arrays";
 import { SUMMARY_VALUE_COMPONENT_TYPES, RESOURCE_PAGE_TABS } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
+import { getCloudResourceIdentifier, getResourceDisplayedName } from "utils/resources";
 import { sliceFromEndByLimitWithEllipsis } from "utils/strings";
 
 const {
@@ -48,7 +48,7 @@ const {
   BOOKINGS: BOOKINGS_TAB
 } = RESOURCE_PAGE_TABS;
 
-const getTitleLogo = ({ feType, logo, imgDataTestId, clusterTypeId, isEnvironment, shareable }) => {
+const getTitleLogo = ({ cloudType, logo, imgDataTestId, clusterTypeId, isEnvironment, shareable }) => {
   if (clusterTypeId && shareable) {
     return {
       icon: [
@@ -65,7 +65,7 @@ const getTitleLogo = ({ feType, logo, imgDataTestId, clusterTypeId, isEnvironmen
   }
   return {
     src: logo,
-    alt: feType,
+    alt: cloudType,
     dataTestId: imgDataTestId
   };
 };
@@ -80,7 +80,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
   const {
     id,
     name,
-    cloud_resource_id: cloudResourceId,
+    k8s_service: k8sService,
     k8s_namespace: k8sNamespace,
     k8s_node: k8sNode,
     resource_type: resourceType,
@@ -101,9 +101,10 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
     shareable = false,
     env_properties: environmentProperties = {},
     ssh_only: isSshRequired = false,
-    meta: { cloud_console_link: cloudConsoleLink, vpc_name: vpcName, vpc_id: vpcId } = {}
+    meta = {}
   } = resource;
 
+  const { cloud_console_link: cloudConsoleLink } = meta;
   const {
     active = false,
     cloud_type: cloudType,
@@ -123,17 +124,12 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
 
   const isPartOfCluster = !!clusterId;
 
-  const {
-    feType,
-    logo,
-    dataTestIds: { img: imgDataTestId }
-  } = useDataSources(cloudType);
+  const { logo } = useDataSources(cloudType);
 
   const actionBarDefinition = {
-    goBack: true,
     title: {
       text: () => {
-        const value = name ?? cloudResourceId;
+        const value = getResourceDisplayedName(resource);
         const valueSizeLimit = 20;
         return shouldSliceTitle ? (
           <Tooltip title={<FormattedMessage id="detailsOf" values={{ title: value }} />} placement="right">
@@ -145,7 +141,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
       },
       dataTestId: "lbl_resource_name",
       isLoading: isGetResourceLoading,
-      logo: getTitleLogo({ feType, logo, imgDataTestId, clusterTypeId, isEnvironment, shareable })
+      logo: getTitleLogo({ cloudType, logo, imgDataTestId: `img_{cloud_type}`, clusterTypeId, isEnvironment, shareable })
     },
     items: [
       {
@@ -166,16 +162,6 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         action: () => openSideModal(CiCdIntegrationModal, { envPropertiesCollectorLink }),
         show: !!envPropertiesCollectorLink,
         dataTestId: "btn_env_properties_collector_link",
-        isLoading: isGetResourceLoading
-      },
-      {
-        key: "assign",
-        icon: <AssignmentOutlinedIcon fontSize="small" />,
-        messageId: "assign",
-        type: "button",
-        action: () => openSideModal(AssignResourcesModal, { resourceIds: [id] }),
-        dataTestId: "btn_assign",
-        show: !isPartOfCluster,
         isLoading: isGetResourceLoading
       },
       {
@@ -287,7 +273,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
           <ResourceDetails
             poolId={poolId}
             resourceType={resourceType}
-            cloudResourceId={cloudResourceId}
+            cloudResourceIdentifier={getCloudResourceIdentifier(resource)}
             name={name}
             tags={tags}
             subResources={subResources}
@@ -305,11 +291,11 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
             lastSeen={details.last_seen}
             isActive={details.active}
             isEnvironment={details.is_environment}
+            k8sService={k8sService}
             k8sNamespace={k8sNamespace}
             k8sNode={k8sNode}
             shareable={shareable}
-            vpcName={vpcName}
-            vpcId={vpcId}
+            meta={meta}
           />
         </>
       )
@@ -322,7 +308,6 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
           resourceId={id}
           resourceName={name}
           isSshRequired={isSshRequired}
-          cloudResourceId={cloudResourceId}
           poolId={poolId}
           poolName={details.pool_name}
           poolType={details.pool_purpose}
@@ -350,6 +335,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
           clusterId={clusterId}
           resourceId={id}
           billingOnly={!active}
+          isResourceActive={active}
         />
       )
     },
@@ -407,7 +393,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
   const handleChange = (event, value) => {
     setActiveTab(value);
     if (value === BOOKINGS_TAB) {
-      GAEvent({ category: GA_EVENT_CATEGORIES.ENVIRONMENT, action: "Clicked bookings tab" });
+      trackEvent({ category: GA_EVENT_CATEGORIES.ENVIRONMENT, action: "Clicked bookings tab" });
     }
   };
 

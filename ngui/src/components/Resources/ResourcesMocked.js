@@ -1,6 +1,12 @@
 import React from "react";
-import PropTypes from "prop-types";
+import { RESOURCE_FILTERS_NAMES } from "components/Filters/constants";
 import { PageMockupContextProvider } from "contexts/PageMockupContext";
+import {
+  CLEAN_EXPENSES_BREAKDOWN_TYPES,
+  END_DATE_FILTER,
+  RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY,
+  START_DATE_FILTER
+} from "utils/constants";
 import { getLastWeekRange } from "utils/datetime";
 import Resources from "./Resources";
 
@@ -8,17 +14,8 @@ const data = {
   filterValues: {
     active: [false, true]
   },
-  filters: {
-    start_date: 1600905600,
-    end_date: 1600991999,
-    resource_type: [
-      {
-        name: "Instance",
-        type: null
-      }
-    ]
-  },
-  requestParams: { startDate: 1637452800, endDate: 1638057599, limit: 5000 }
+  filters: Object.fromEntries(RESOURCE_FILTERS_NAMES.map((name) => [name, undefined])),
+  requestParams: { [START_DATE_FILTER]: 1637452800, [END_DATE_FILTER]: 1638057599, limit: 5000 }
 };
 
 const ResourcesMocked = () => {
@@ -29,22 +26,32 @@ const ResourcesMocked = () => {
       <Resources
         startDateTimestamp={firstDateRangePoint}
         endDateTimestamp={lastDateRangePoint}
-        filterValues={data.filterValues}
         filters={data.filters}
-        requestParams={data.requestParams}
+        filterValues={data.filterValues}
         onApply={() => console.log("onApply")}
         onFilterAdd={() => console.log("onFilterAdd")}
         onFilterDelete={() => console.log("onFilterDelete")}
         onFiltersDelete={() => console.log("onFiltersDelete")}
-        fromMainMenu
-        isInScopeOfPageMockup
+        requestParams={data.requestParams}
+        activeBreakdown={{
+          name: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
+          value: "expenses"
+        }}
+        selectedPerspective={undefined}
+        isFilterValuesLoading={false}
+        expensesBreakdownPageState={{
+          breakdownBy: [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID, null],
+          groupBy: [{}, null]
+        }}
+        resourceCountBreakdownPageState={{
+          breakdownBy: [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID, null]
+        }}
+        perspectives={{}}
+        onBreakdownChange={() => console.log("onBreakdownChange")}
+        onPerspectiveApply={() => console.log("onPerspectiveApply")}
       />
     </PageMockupContextProvider>
   );
-};
-
-ResourcesMocked.propTypes = {
-  isInScopeOfStory: PropTypes.bool
 };
 
 export default ResourcesMocked;

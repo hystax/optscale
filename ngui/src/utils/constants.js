@@ -1,3 +1,5 @@
+import { NIL as NIL_UUID } from "uuid";
+
 // Roles
 export const ORGANIZATION_MANAGER = "organization_optscale_manager"; // Not a real role, just to distinguish from a Pool manager
 export const MANAGER = "optscale_manager";
@@ -36,10 +38,7 @@ export const POOL_TYPES = Object.freeze({
   [POOL_TYPE_ASSET_POOL]: "assetPool"
 });
 
-// Assignment Request actions
-export const ACCEPT = "accept";
-export const DECLINE = "decline";
-export const CANCEL = "cancel";
+export const POOL_TYPES_LIST = Object.freeze(Object.keys(POOL_TYPES));
 
 // Data Sources
 export const AWS_CNR = "aws_cnr";
@@ -54,6 +53,7 @@ export const AWS_LINKED_ACCOUNT = "awsLinked";
 export const AZURE_SUBSCRIPTION = "azure";
 export const KUBERNETES = "kubernetes";
 export const ALIBABA_ACCOUNT = "alibaba";
+export const GCP_ACCOUNT = "gcp";
 
 export const DATASOURCE_TYPE = "type";
 
@@ -87,14 +87,6 @@ export const EXPENSES_FILTERBY_TYPES = Object.freeze({
   NODE: "k8s_node",
   NAMESPACE: "k8s_namespace"
 });
-
-// Split resources
-export const OWNED = "owned";
-export const MANAGED = "managed";
-export const RESTRICTED = "restricted";
-
-// Assignment requests
-export const REQUESTED = "requested";
 
 // Assignment rules
 export const NAME_ID_STARTS_WITH = "name_starts_with";
@@ -148,49 +140,10 @@ export const ERROR = "error";
 export const SUCCESS = "success";
 export const UNKNOWN = "unknown";
 
-// Tasks
-export const TASK_INCOMING_ASSIGNMENT_REQUESTS = "incomingAssignmentRequests";
-export const INCOMING_ASSIGNMENT_REQUESTS_TYPE = "incoming_assignment_requests";
-
-export const TASK_OUTGOING_ASSIGNMENT_REQUESTS = "outgoingAssignmentRequests";
-export const OUTGOING_ASSIGNMENT_REQUESTS_TYPE = "outgoing_assignment_requests";
-
-export const TASK_EXCEEDED_POOLS = "exceededPools";
-export const EXCEEDED_POOLS_TYPE = "exceeded_pools";
-
-export const TASK_EXCEEDED_POOL_FORECASTS = "exceededPoolForecasts";
-export const EXCEEDED_POOL_FORECASTS_TYPE = "exceeded_pool_forecasts";
-
-export const TASK_VIOLATED_RESOURCE_CONSTRAINTS = "violatedResourceConstraints";
-export const VIOLATED_RESOURCE_CONSTRAINTS_TYPE = "violated_constraints";
-
-export const TASK_VIOLATED_ORGANIZATION_CONSTRAINTS = "violatedOrganizationConstraints";
-export const VIOLATED_ORGANIZATION_CONSTRAINTS_TYPE = "violated_organization_constraints";
-
-export const TASK_DIVERGENT_CONSTRAINTS = "divergentConstraints";
-export const DIVERGENT_CONSTRAINTS_TYPE = "differ_constraints";
-
-export const MAP_MY_TASKS_TYPES = Object.freeze({
-  [INCOMING_ASSIGNMENT_REQUESTS_TYPE]: TASK_INCOMING_ASSIGNMENT_REQUESTS,
-  [OUTGOING_ASSIGNMENT_REQUESTS_TYPE]: TASK_OUTGOING_ASSIGNMENT_REQUESTS,
-  [EXCEEDED_POOLS_TYPE]: TASK_EXCEEDED_POOLS,
-  [EXCEEDED_POOL_FORECASTS_TYPE]: TASK_EXCEEDED_POOL_FORECASTS,
-  [VIOLATED_RESOURCE_CONSTRAINTS_TYPE]: TASK_VIOLATED_RESOURCE_CONSTRAINTS,
-  [VIOLATED_ORGANIZATION_CONSTRAINTS_TYPE]: TASK_VIOLATED_ORGANIZATION_CONSTRAINTS,
-  [DIVERGENT_CONSTRAINTS_TYPE]: TASK_DIVERGENT_CONSTRAINTS,
-  [TASK_INCOMING_ASSIGNMENT_REQUESTS]: INCOMING_ASSIGNMENT_REQUESTS_TYPE,
-  [TASK_OUTGOING_ASSIGNMENT_REQUESTS]: OUTGOING_ASSIGNMENT_REQUESTS_TYPE,
-  [TASK_EXCEEDED_POOLS]: EXCEEDED_POOLS_TYPE,
-  [TASK_EXCEEDED_POOL_FORECASTS]: EXCEEDED_POOL_FORECASTS_TYPE,
-  [TASK_VIOLATED_RESOURCE_CONSTRAINTS]: VIOLATED_RESOURCE_CONSTRAINTS_TYPE,
-  [TASK_VIOLATED_ORGANIZATION_CONSTRAINTS]: VIOLATED_ORGANIZATION_CONSTRAINTS_TYPE,
-  [TASK_DIVERGENT_CONSTRAINTS]: DIVERGENT_CONSTRAINTS_TYPE
-});
-
 export const EVENT_LEVEL = Object.freeze({
-  ALL: "ALL",
+  // The events API doesn't support the "ALL" level string, so we need to use the "undefined" in order to get a list of all events
+  ALL: undefined,
   INFO: "INFO",
-  SUCCESS: "SUCCESS",
   WARNING: "WARNING",
   ERROR: "ERROR"
 });
@@ -200,51 +153,11 @@ export const CLOUD_ACCOUNT_TYPE = Object.freeze({
   [AZURE_CNR]: "azure",
   [KUBERNETES_CNR]: "kubernetes",
   [ALIBABA_CNR]: "alibaba",
+  [GCP_CNR]: "gcp",
   [ENVIRONMENT]: "environment"
 });
 
-export const MENU_ITEM_ID = Object.freeze({
-  ASSIGNMENT_RULES: "assignmentRules",
-  HOME: "home",
-  EXPENSES: "expenses",
-  EXPENSES_MAP: "costMap",
-  EXPENSES_BY_CLOUD: "expensesByCloud",
-  EXPENSES_BY_POOL: "expensesByPool",
-  EXPENSES_BY_OWNER: "expensesByOwner",
-  ORGANIZATION: "organization",
-  POOLS: "pools",
-  ANOMALIES: "anomalies",
-  QUOTAS_AND_BUDGETS: "quotasAndBudgets",
-  TAGGING_POLICIES: "taggingPolicies",
-  OPTIMIZATIONS: "recommendations",
-  ARCHIVED_OPTIMIZATIONS: "archived_recommendations",
-  CLOUD_HEALTH: "cloudHealth",
-  K8S_RIGHTSIZING: "k8sRightsizing",
-  PROJECTS: "projects",
-  USER_MANAGEMENT: "userManagement",
-  CLOUD_ACCOUNTS: "dataSources",
-  RESOURCES: "resources",
-  EVENTS: "events",
-  CLOUD_MIGRATION: "cloudMigration",
-  DISASTER_RECOVERY: "disasterRecovery",
-  SETTINGS: "settings",
-  TTL_ANALYSIS: "ttlAnalysis",
-  FINOPS_PORTAL: "finOpsProtal",
-  BUSINESS_INTELLIGENCE: "businessIntelligence",
-  TECHNICAL_AUDIT: "technicalAudit",
-  CLUSTER_TYPES: "clusterTypes",
-  ENVIRONMENTS: "environments",
-  INTEGRATIONS: "integrations",
-  RESOURCE_LIFECYCLE: "resourceLifecycle"
-});
-
-export const MENU_SECTIONS = Object.freeze({
-  FINOPS: "finops",
-  OPTIMIZATION: "optimization",
-  SYSTEM: "system",
-  TECHNICAL_AUDIT: "technicalAudit",
-  POLICIES: "policies"
-});
+export const CLOUD_ACCOUNT_TYPES_LIST = Object.keys(CLOUD_ACCOUNT_TYPE);
 
 export const DEFAULT_MAX_INPUT_LENGTH = 255;
 export const NAME_MAX_SIZE = 255;
@@ -255,7 +168,7 @@ export const MAX_ORGANIZATION_NAME_LENGTH = DEFAULT_MAX_INPUT_LENGTH;
 export const ENVIRONMENT_PROPERTY_NAME_MAX_INPUT_LENGTH = 64;
 export const ENVIRONMENT_PROPERTY_VALUE_MAX_INPUT_LENGTH = 2000;
 
-export const EMPTY_UUID = "00000000-0000-0000-0000-000000000000";
+export const EMPTY_UUID = NIL_UUID;
 export const NOT_SET_BACKEND_FILTER_VALUE = null;
 
 export const DEFAULT_PAGE_KEY = "page";
@@ -301,6 +214,12 @@ export const REGION_FILTER = "region";
 
 export const SERVICE_NAME_BE_FILTER = "service_name";
 export const SERVICE_NAME_FILTER = "serviceName";
+
+export const STATUS_BE_FILTER = "status";
+export const STATUS_FILTER = "status";
+
+export const GOALS_BE_FILTER = "goals";
+export const GOALS_FILTER = "goals";
 
 export const RESOURCE_TYPE_BE_FILTER = "resource_type";
 export const RESOURCE_TYPE_FILTER = "resourceType";
@@ -474,6 +393,24 @@ export const RECOMMENDATIONS_TABS = Object.freeze({
   EXCLUDED: "excluded"
 });
 
+export const RECOMMENDATION_EXECUTORS_UPGRADE = "executorsUpgrade";
+export const RECOMMENDATION_EXECUTORS_UPGRADE_TYPE = "executors_upgrade";
+
+export const RECOMMENDATION_EXECUTORS_RESERVATION = "executorsReservation";
+export const RECOMMENDATION_EXECUTORS_RESERVATION_TYPE = "executors_reservation";
+
+export const SPOT_INSTANCES_USAGE = "spotInstancesUsage";
+export const SPOT_INSTANCES_USAGE_TYPE = "spot_instances_usage";
+
+export const CROSS_REGION_TRAFFIC = "crossRegionTraffic";
+export const CROSS_REGION_TRAFFIC_TYPE = "cross_region_traffic";
+
+export const LOCAL_STORAGE_BOTTLENECK = "localStorageBottleneck";
+export const LOCAL_STORAGE_BOTTLENECK_TYPE = "local_storage_bottleneck";
+
+export const GPU_MEMORY = "gpuMemory";
+export const GPU_MEMORY_TYPE = "gpu_memory";
+
 // AWS Root account connection schemes
 export const AWS_ROOT_CONNECT_CONFIG_SCHEMES = Object.freeze({
   FIND_REPORT: "find_report",
@@ -497,84 +434,6 @@ export const SCOPE_TYPES = Object.freeze({
   ORGANIZATION: "organization",
   POOL: "pool",
   RESOURCE: "resource"
-});
-
-export const BEST_OVERALL_REGION = "best_overall_region";
-export const RUNNER_UP_REGION = "runner_up_region";
-export const CHEAPEST_FROM_TOP_FIVE_REGION = "cheapest_top_five_region";
-export const BEST_AVAILABILITY_ZONE = "best_az";
-export const BEST_AVAILABILITY_ZONE_FOR_SPOT = "best_az_for_spot";
-
-// Currently not provided by the API
-export const BEST_FOR_NEW_WORKLOADS = "best_for_new_workloads";
-export const BEST_FOR_EXISTING_WORKLOADS_SCALING = "best_for_existing_workloads_scaling";
-export const BEST_FOR_SPOT = "best_for_spot";
-
-export const CLOUD_HEALTH_TYPES = Object.freeze({
-  [BEST_OVERALL_REGION]: "bestOverallScoredRegion",
-  [RUNNER_UP_REGION]: "runnerUpRegion",
-  [CHEAPEST_FROM_TOP_FIVE_REGION]: "cheapestRegionFromTopFive",
-  [BEST_AVAILABILITY_ZONE]: "bestScoredAvailabilityZone",
-  [BEST_AVAILABILITY_ZONE_FOR_SPOT]: "bestAvailabilityZoneForSpotInstances",
-  [BEST_FOR_NEW_WORKLOADS]: "bestForNewWorkLoads",
-  [BEST_FOR_EXISTING_WORKLOADS_SCALING]: "bestForExistingWorkLoadsScaling",
-  [BEST_FOR_SPOT]: "bestForSpotInstances"
-});
-
-export const CLOUD_HEALTH_SCORES = Object.freeze({
-  BASE_BOTTOM_LOW_LIMIT: 3,
-  BASE_BOTTOM_MEDIUM_LIMIT: 7,
-  PRICE: Object.freeze({
-    INDEPENDENT_COMPUTE: 8,
-    DATA_STORAGE: 7,
-    NEW_WORKLOADS: 8
-  }),
-  PROXIMITY: Object.freeze({
-    COMPUTE_SCALING: 8,
-    DATA_STORAGE: 7,
-    EXISTING_WORKLOADS: 8,
-    HOME_REGION: 9
-  }),
-  NETWORK_LATENCY: Object.freeze({
-    COMPUTE_SCALING: 9,
-    EXISTING_WORKLOADS: 9
-  }),
-  CAPACITY: Object.freeze({
-    SPOT_INSTANCES: 9
-  })
-});
-
-export const CLOUD_HEALTH_DOMESTIC_REGIONS = Object.freeze({
-  AWS_US: Object.freeze(["us-east-1", "us-east-2", "us-west-1", "us-west-2"]),
-  AWS_EU: Object.freeze(["eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "eu-south-1", "eu-north-1"]),
-  AZURE_US: Object.freeze([
-    "westcentralus",
-    "southcentralus",
-    "usseceast",
-    "usdodeast",
-    "northcentralus",
-    "westus",
-    "ussecwest",
-    "eastus2",
-    "westus2",
-    "centralus",
-    "usdodcentral",
-    "eastus"
-  ]),
-  AZURE_EU: Object.freeze([
-    "germanycentral",
-    "switzerlandwest",
-    "germanynortheast",
-    "francecentral",
-    "germanynorth",
-    "switzerlandnorth",
-    "westeurope",
-    "norwaywest",
-    "norwayeast",
-    "germanywestcentral",
-    "francesouth",
-    "northeurope"
-  ])
 });
 
 export const START_DATE_PICKER_NAME = "startDate";
@@ -647,9 +506,11 @@ export const RESOURCE_PAGE_TABS = Object.freeze({
 // Cloud account details page
 export const CLOUD_ACCOUNT_DETAILS_PAGE_TABS = Object.freeze({
   DETAILS: "details",
+  ADVANCED: "advanced",
   UPLOAD: "upload",
   NODES: "nodes"
 });
+
 // Resource page expenses tab
 export const RESOURCE_PAGE_EXPENSES_TABS = Object.freeze({
   GROUPED: "grouped",
@@ -704,7 +565,7 @@ export const ORGANIZATIONS_OVERVIEW_FILTERS = Object.freeze({
 });
 
 export const ENVIRONMENTS_STATUS_FILTERS = Object.freeze({
-  ALL: "all",
+  ALL: "anyStatus",
   AVAILABLE: "available",
   UNAVAILABLE: "unavailable",
   IN_USE: "inUse"
@@ -762,6 +623,8 @@ export const CLEAN_EXPENSES_GROUP_TYPES = Object.freeze({
   TAG: "tag"
 });
 
+export const CLEAN_EXPENSES_GROUP_TYPES_LIST = Object.values(CLEAN_EXPENSES_GROUP_TYPES);
+
 export const ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER = "conditions";
 
 export const ALERT_SEVERITY = Object.freeze({
@@ -808,6 +671,23 @@ export const RESOURCE_LIMIT_HIT_STATE = Object.freeze({
   GREEN: "green"
 });
 
+export const GOAL_STATUS = Object.freeze({
+  MET: "goalMet",
+  NOT_MET: "goalNotMet"
+});
+
+export const GOALS_FILTER_TYPES = Object.freeze({
+  LESS_IS_BETTER: "less",
+  MORE_IS_BETTER: "more"
+});
+
+export const AGGREGATE_FUNCTIONS = Object.freeze({
+  LAST: "last",
+  SUM: "sum",
+  MAX: "max",
+  AVERAGE: "average"
+});
+
 export const CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX = "expenses";
 
 export const PROVIDE_DATA_STEPS = Object.freeze({
@@ -819,8 +699,6 @@ export const PROVIDE_DATA_STEPS = Object.freeze({
 });
 
 export const DEFAULT_CHART_BORDER_WIDTH = 0;
-
-export const GANALYTICS_ID = "UA-82924850-6";
 
 export const RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY = Object.freeze({
   EMPLOYEE_ID: "employee_id",
@@ -835,6 +713,24 @@ export const RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY = Object.freeze({
 });
 
 export const RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY_VALUES = Object.freeze(Object.values(RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY));
+
+export const ML_EXECUTORS_DAILY_BREAKDOWN_BY = Object.freeze({
+  CPU: "cpu",
+  RAM: "ram",
+  EXECUTORS_COUNT: "executors_count",
+  PROCESS_CPU: "process_cpu",
+  PROCESS_RAM: "process_ram"
+});
+
+export const ML_EXECUTORS_BREAKDOWN_BY_MESSAGES = Object.freeze({
+  CPU: "cpu",
+  RAM: "ram",
+  EXECUTORS_COUNT: "executorsCount",
+  PROCESS_CPU: "processCPU",
+  PROCESS_RAM: "processRAM"
+});
+
+export const ML_MODEL_RUN_DAILY_BREAKDOWN_BY_VALUES = Object.freeze(Object.values(ML_EXECUTORS_DAILY_BREAKDOWN_BY));
 
 export const RESOURCE_COUNT_ANOMALY = "resource_count_anomaly";
 
@@ -990,4 +886,57 @@ export const ARCHIVATION_REASON_DESCRIPTION_MESSAGE_ID = Object.freeze({
   recommendation_applied: "archivationReason.recommendationHasBeenApplied.description",
   recommendation_irrelevant: "archivationReason.recommendationHasBecomeIrrelevant.description",
   failed_dependency: "archivationReason.dataSourceSettingsHaveBeenUpdated.description"
+});
+
+export const CLEAN_EXPENSES_BREAKDOWN_TYPES = Object.freeze({
+  EXPENSES: "expenses",
+  RESOURCE_COUNT: "resourceCount",
+  TAGS: "tags"
+});
+
+export const CLEAN_EXPENSES_BREAKDOWN_TYPES_LIST = Object.values(CLEAN_EXPENSES_BREAKDOWN_TYPES);
+
+// TODO: add render here to the definitions
+// value is obsolete
+export const BREAKDOWN_LINEAR_SELECTOR_ITEMS = [
+  {
+    name: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
+    value: "expenses",
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
+    dataTestId: "breakdown_ls_item_expenses"
+  },
+  {
+    name: CLEAN_EXPENSES_BREAKDOWN_TYPES.RESOURCE_COUNT,
+    value: "resource_type",
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
+    dataTestId: "breakdown_ls_item_resource_count"
+  },
+  {
+    name: CLEAN_EXPENSES_BREAKDOWN_TYPES.TAGS,
+    value: "tags",
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
+    dataTestId: "breakdown_ls_item_tags"
+  }
+];
+export const ML_MODEL_DETAILS_TABS = Object.freeze({
+  OVERVIEW: "overview",
+  RUNS: "runs",
+  EXECUTORS: "executors"
+});
+
+export const ORGANIZATION_FEATURE_FLAG_NAMES = Object.freeze({
+  ML_PROFILING_ENABLED: "ml_profiling_enabled"
+});
+
+export const ML_RUN_STATUS = Object.freeze({
+  COMPLETED: "completed",
+  RUNNING: "running",
+  FAILED: "failed"
+});
+
+export const ML_APPLICATION_STATUS = Object.freeze({
+  CREATED: "created",
+  COMPLETED: "completed",
+  RUNNING: "running",
+  FAILED: "failed"
 });

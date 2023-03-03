@@ -5,7 +5,7 @@ import PoolLabel from "components/PoolLabel";
 import TextWithDataTestId from "components/TextWithDataTestId";
 
 const poolOwner = ({ headerDataTestId, id }) => ({
-  Header: (
+  header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
       <FormattedMessage id="pool/owner" />
     </TextWithDataTestId>
@@ -14,7 +14,7 @@ const poolOwner = ({ headerDataTestId, id }) => ({
   style: {
     whiteSpace: "nowrap"
   },
-  Cell: ({ row: { original } }) =>
+  cell: ({ row: { original } }) =>
     original.owner || original.pool ? (
       <CaptionedCell caption={original.owner?.name}>
         {original.pool.id && <PoolLabel id={original.pool.id} name={original.pool.name} type={original.pool.purpose} />}

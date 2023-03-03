@@ -45,7 +45,7 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         example: AWS HQ
                     type:
                         type: string
-                        enum: [aws_cnr, azure_cnr]
+                        enum: [aws_cnr, azure_cnr, kubernetes_cnr, alibaba_cnr]
                         description: Cloud account type
                         example: aws_cnr
                     config:
@@ -241,7 +241,9 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     last_import_attempt_error:
                                         type: string
                                         description: Error message of last data import attempt, null if no error
-
+                                    cleaned_at:
+                                        type: integer
+                                        description: UTC timestamp of date when cloud account was cleaned up
             400:
                 description: |
                     Wrong arguments:
@@ -386,6 +388,9 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         last_import_attempt_error:
                             type: string
                             description: Error message of last data import attempt, null if no error
+                        cleaned_at:
+                            type: integer
+                            description: UTC timestamp of date when cloud account was cleaned up
             400:
                 description: |
                     Wrong arguments:
@@ -463,6 +468,10 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         type: integer
                         description: Attention! This field is for internal use, it is undesirable to change it!
                                      Last imported report modification time in timestamp format
+                    cleaned_at:
+                        type: integer
+                        description: Attention! This field is for internal use, it is undesirable to change it!
+                                     UTC timestamp of date when cloud account was cleaned up
                     name:
                         type: string
                         description: Cloud account name
@@ -475,6 +484,9 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             Object with credentials to access
                             cloud. See https://datatrendstech.atlassian.net/wiki/x/OgBVPQ
                             for more info about cloud-specific parameters
+                    auto_import:
+                        type: boolean
+                        description: Is automatic import enabled?
         responses:
             200: {description: Success (returns modified object)}
             400:

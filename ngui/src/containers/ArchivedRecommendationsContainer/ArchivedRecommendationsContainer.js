@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ArchivedRecommendations from "components/ArchivedRecommendations";
-import { useDefaultDateRange } from "hooks/useDefaultDateRange";
+import { useReactiveDefaultDateRange } from "hooks/useReactiveDefaultDateRange";
 import RecommendationService from "services/RecommendationService";
 import { DATE_RANGE_TYPE } from "utils/constants";
 import { updateQueryParams } from "utils/network";
@@ -9,7 +9,7 @@ const ArchivedRecommendationsContainer = () => {
   const { useGetArchivedOptimizationsBreakdown } = RecommendationService();
   const { useGetArchivedOptimizationsCount } = RecommendationService();
 
-  const [startDateTimestamp, endDateTimestamp] = useDefaultDateRange(DATE_RANGE_TYPE.ARCHIVED_RECOMMENDATIONS);
+  const [startDateTimestamp, endDateTimestamp] = useReactiveDefaultDateRange(DATE_RANGE_TYPE.ARCHIVED_RECOMMENDATIONS);
 
   const [dateRange, setDateRange] = useState({
     startDate: startDateTimestamp,

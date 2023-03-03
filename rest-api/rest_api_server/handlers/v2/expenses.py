@@ -631,6 +631,7 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
         super().__init__(*args, **kwargs)
         self.str_filters.append('format')
         self.int_filters.append('limit')
+        self.list_filters.append('field')
 
     def _get_controller_class(self):
         return CleanExpenseAsyncController
@@ -656,7 +657,66 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
 
         return expenses_data
 
-    def _respond_data(self, exp_format, response):
+    def _filter_expense_fields(self, expense: dict, fields_to_keep: list[list[str]]) -> dict:
+        """
+        Implements response fields whitelisting for a specific element in expenses response.
+        """
+        if not isinstance(expense, dict):
+            return expense
+        processed_expense = {}
+        for field_list in fields_to_keep:
+            if not field_list:
+                continue
+            first_field = field_list[0]
+            value = expense.get(first_field)
+            if value is None:
+                continue
+            if len(field_list) > 1:
+                # provided whitelist field is complex, e.g. "owner.id".
+                # need to read out the value of the "owner" key and
+                # perform whitelisting for the underlying dict.
+                value = self._filter_expense_fields(value, [field_list[1:]])
+            processed_expense[first_field] = value
+        return processed_expense
+
+    def _filter_response_fields(self, response, fields_to_keep):
+        """
+        Implements response fields whitelisting.
+        Given a list of fileds to keep ["id", "owner.id"], turns response:
+        [
+            {
+                "id": "1",
+                "owner": {
+                    "id": "1",
+                    "name": "2"
+                },
+                "cost": 0
+            }
+        ]
+
+        into a filtered response:
+        [
+            {
+                "id": "1",
+                "owner": {
+                    "id": "1"
+                }
+            }
+        ]
+        """
+        if not fields_to_keep:
+            return
+        expenses = response.get(self.expenses_key)
+        if expenses is None:
+            return
+        processed_expenses = []
+        fields_to_keep = [field.split(".") for field in fields_to_keep]
+        for expense in expenses:
+            processed_expenses.append(self._filter_expense_fields(expense, fields_to_keep))
+        response[self.expenses_key] = processed_expenses
+
+    def _respond_data(self, exp_format, response, fields=None):
+        self._filter_response_fields(response, fields)
         if exp_format == 'json':
             self.set_content_type('application/json; charset="utf-8"')
             expenses = response.get(self.expenses_key)
@@ -677,6 +737,7 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
             raise OptHTTPError(400, Err.OE0473, [exp_format])
 
     async def get(self, organization_id, **url_params):
+        # language=yaml
         """
         ---
         description: |
@@ -864,6 +925,16 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
             collectionFormat: multi
             items:
                 type: string
+        -   name: field
+            in: query
+            description: >
+                If provided, only specified fields will be set for expenses.
+                Inner fields can be specified using dots. E.g. 'owner.id'.
+            required: false
+            type: array
+            collectionFormat: multi
+            items:
+                type: string
         responses:
             200:
                 description: Clean expense data
@@ -874,6 +945,226 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
                             type: array
                             items:
                                 type: object
+                                properties:
+                                    cloud_account_id:
+                                        type: string
+                                        description: cloud account id
+                                        example: 060dccbf-616f-4bcf-b9d2-0ce9678454bc
+                                    cloud_resource_id:
+                                        type: string
+                                        description: cloud-native resource id
+                                        example: i-09dc9f5553f84a9ad
+                                    active:
+                                        type: boolean
+                                        description: resource is discovered in cloud during the last discovery attempt
+                                        example: true
+                                    applied_rules:
+                                        type: array
+                                        description: Applied rules
+                                        items:
+                                            type: object
+                                            properties:
+                                                id:
+                                                    type: string
+                                                    description: Applied rule id
+                                                    example: 128bdcc4-7c18-423a-a257-e1479aa0bd85
+                                                name:
+                                                    type: string
+                                                    description: Applied rule name
+                                                    example: Rule for AWS_1666950422
+                                                pool_id:
+                                                    type: string
+                                                    description: Pool id
+                                                    example: 4703dd9a-b3d2-437e-a63c-18b749edf2ca
+                                            example:
+                                                -   id: 128bdcc4-7c18-423a-a257-e1479aa0bd85
+                                                    name: Rule for AWS_1666950422
+                                                    pool_id: 4703dd9a-b3d2-437e-a63c-18b749edf2ca
+                                                -   id: 31dc4700-2591-4c57-8bba-d1ae9b408df8
+                                                    name: My rule
+                                                    pool_id: 4703dd9a-b3d2-437e-a63c-18b749edf2ca
+                                    cloud_created_at:
+                                        type: integer
+                                        description: created in cloud timestamp
+                                        example: 1662978587
+                                    created_at:
+                                        type: integer
+                                        description: discovered timestamp
+                                        example: 1666950653
+                                    deleted_at:
+                                        type: integer
+                                        description: deleted timestamp
+                                        example: 0
+                                    employee_id:
+                                        type: string
+                                        description: cloud resource owner id
+                                        example: fdf1146f-5209-42f9-b946-ea6dcc9941e3
+                                    first_seen:
+                                        type: integer
+                                        description: first appearance in timestamp
+                                        example: 1662976800
+                                    last_seen:
+                                        type: integer
+                                        description: last appearance timestamp
+                                        example: 1667214000
+                                    meta:
+                                        type: object
+                                        description: |
+                                            flavor: t2.large
+                                            spotted: False
+                                            vpc_id: vpc-83d1f6e8
+                                            os: Linux
+                                    pool_id:
+                                        type: string
+                                        description: pool for resource
+                                        example: 4703dd9a-b3d2-437e-a63c-18b749edf2ca
+                                    region:
+                                        type: string
+                                        description: resource region
+                                        example: eu-central-1
+                                    resource_type:
+                                        type: string
+                                        description: resource type
+                                        example: Instance
+                                    tags:
+                                        type: object
+                                        description: resource's tags fields
+                                        example:
+                                            aws:createdBy: IAMUser:AKIDa:sd-iam-full
+                                            mytag: myval
+                                    has_metrics:
+                                        type: boolean
+                                        description: resource has usage metrics
+                                        example: true
+                                    service_name:
+                                        type: string
+                                        description: resource service name
+                                        example: AmazonEC2
+                                    last_expense:
+                                        type: object
+                                        description: Last expense information
+                                        properties:
+                                            date:
+                                                type: integer
+                                                description: date of last expense
+                                                example: 1667174400
+                                            cost:
+                                                type: number
+                                                description: cost of last expense
+                                                example: 1.37
+                                        example:
+                                            date: 1667174400
+                                            cost: 1.37
+                                    total_cost:
+                                        type: number
+                                        description: cost for all time of existence
+                                        example: 182.66
+                                    id:
+                                        type: string
+                                        description: id of resource
+                                        example: 245137c1-7605-4ae2-b8ef-ce0b4f979780
+                                    is_environment:
+                                        type: boolean
+                                        description: resource has been created as environment
+                                        example: false
+                                    saving:
+                                        type: number
+                                        description: possible savings for resource
+                                        example: 182.66
+                                    cost:
+                                        type: number
+                                        description: cost for selected time interval
+                                        example: 5.14
+                                    cloud_account_name:
+                                        type: string
+                                        description: cloud account name
+                                        example: AWS
+                                    cloud_account_type:
+                                        type: string
+                                        description: cloud account type
+                                        example: aws_cnr
+                                    owner:
+                                        type: object
+                                        description:
+                                        properties:
+                                            id:
+                                                type: string
+                                                description: owner id
+                                                example: fdf1146f-5209-42f9-b946-ea6dcc9941e3
+                                            name:
+                                                type: string
+                                                description: owner name
+                                                example: sd
+                                        example:
+                                            id: fdf1146f-5209-42f9-b946-ea6dcc9941e3
+                                            name: sd
+                                    pool:
+                                        type:
+                                        description:
+                                        properties:
+                                            id:
+                                                type: string
+                                                description: pool id
+                                                example: 4703dd9a-b3d2-437e-a63c-18b749edf2ca
+                                            name:
+                                                type: string
+                                                description: pool name
+                                                example: AWS
+                                            purpose:
+                                                type: string
+                                                description: pool purpose
+                                                example: budget
+                                        example:
+                                            id: 4703dd9a-b3d2-437e-a63c-18b749edf2ca
+                                            name: AWS
+                                            purpose: budget
+                                    resource_id:
+                                        type: string
+                                        description: resource id
+                                        example: 245137c1-7605-4ae2-b8ef-ce0b4f979780
+                                    resource_name:
+                                        type: string
+                                        description: resource name
+                                        example: vl-arcee-debug
+                                    shareable:
+                                        type: boolean
+                                        description: resource is marked as environment
+                                        example: false
+                                    constraint_violated:
+                                        type: boolean
+                                        description: resource has constraint violations
+                                        example: true
+                                    traffic_expenses:
+                                        type: array
+                                        description: Resource's traffic expenses
+                                        items:
+                                            type: object
+                                            properties:
+                                                from:
+                                                    type: string
+                                                    description: traffic from region
+                                                    example: eu-central-1
+                                                to:
+                                                    type: string
+                                                    description: traffic to region
+                                                    example: eu-west-1
+                                                usage:
+                                                    type: number
+                                                    description: usage in megabytes
+                                                    example: 5.21
+                                                cost:
+                                                    type: number
+                                                    description: traffic cost
+                                                    example: 1.05
+                                            example:
+                                                -   from: eu-central-1
+                                                    to: eu-west-1
+                                                    usage: 5.21
+                                                    cost: 1.05
+                                                -   from: eu-central-1
+                                                    to: us-east-1
+                                                    usage: 0.11
+                                                    cost: 0.03
                             example:
                             -   cloud_account_id:
                                     2329c0fb-8e09-432c-b985-f52d1ebe5e61
@@ -974,7 +1265,6 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
                                 k8s_namespace: default (for kubernetes only)
                                 k8s_node: ubuntu (for kubernetes only)
                                 k8s_service: kube-dns (for kubernetes only)
-                                is_environment: false
                                 shareable: true
                                 recommendations:
                                     run_timestamp: 1604854829
@@ -996,12 +1286,6 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
                                 total cost of resources matched before limit
                                 applied
                             example: 34.421556461467894
-                        total_saving:
-                            type: number
-                            description: >
-                                total saving of resources matched before limit
-                                applied
-                            example: 12.614
                         start_date:
                             type: integer
                             description: >
@@ -1055,11 +1339,12 @@ class CleanExpenseAsyncHandler(FilteredExpensesBaseAsyncHandler):
                 'INFO_ORGANIZATION', 'organization', organization_id)
         args = self.get_expense_arguments()
         exp_format = args.pop('format', 'advanced_json')
+        fields = args.pop('field', None)
         try:
             res = await run_task(self.controller.get, organization_id, **args)
         except NotFoundException as exc:
             raise OptHTTPError.from_opt_exception(404, exc)
-        self._respond_data(exp_format, res)
+        self._respond_data(exp_format, res, fields)
 
 
 class RawExpenseAsyncHandler(CleanExpenseAsyncHandler):
@@ -1293,6 +1578,7 @@ class SummaryExpenseAsyncHandler(CleanExpenseAsyncHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.int_filters.remove('limit')
+        self.list_filters.remove('field')
 
     def _get_controller_class(self):
         return SummaryExpenseAsyncController
@@ -1302,7 +1588,7 @@ class SummaryExpenseAsyncHandler(CleanExpenseAsyncHandler):
         ---
         description: |
             Get expenses summary
-            Required permission: INFO_ORGANIZATION
+            Required permission: INFO_ORGANIZATION or CLUSTER_SECRET
         tags: [expenses]
         summary: Get expenses summary
         parameters:
@@ -1541,9 +1827,11 @@ class SummaryExpenseAsyncHandler(CleanExpenseAsyncHandler):
                     - OE0445: Organization doesn't have any cloud accounts connected
         security:
         - token: []
+        - secret: []
         """
-        await self.check_permissions('INFO_ORGANIZATION',
-                                     'organization', organization_id)
+        if not self.check_cluster_secret(raises=False):
+            await self.check_permissions('INFO_ORGANIZATION',
+                                         'organization', organization_id)
         args = self.get_expense_arguments()
         exp_format = args.pop('format', 'advanced_json')
         try:

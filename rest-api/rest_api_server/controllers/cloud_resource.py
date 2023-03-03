@@ -27,7 +27,7 @@ from rest_api_server.models.models import (
 from rest_api_server.models.enums import (CloudTypes, ThresholdBasedTypes)
 from rest_api_server.utils import (
     check_string_attribute, check_int_attribute, check_dict_attribute,
-    encoded_tags, retry_mongo_upsert, update_tags,
+    encoded_tags, encoded_map, retry_mongo_upsert, update_tags,
     generate_discovered_cluster_resources_stat, check_bool_attribute)
 from cloud_adapter.model import RES_MODEL_MAP, ResourceTypes
 
@@ -36,20 +36,22 @@ LOG = logging.getLogger(__name__)
 RESOURCE_MODEL_MAP = {
     obj.value: RES_MODEL_MAP.get(obj.name) for obj in ResourceTypes.objects()
 }
+CLOUD_RESOURCE_ID_FIELD = 'cloud_resource_id'
+CLOUD_RESOURCE_HASH_FIELD = 'cloud_resource_hash'
 
 
 class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
     @staticmethod
     def get_split_fields():
-        return {'cloud_account_id', 'cloud_resource_id', 'pool_id',
+        return {'cloud_account_id', CLOUD_RESOURCE_ID_FIELD, 'pool_id',
                 'employee_id', 'created_at', 'deleted_at', '_id',
                 'applied_rules', 'cluster_id', 'cluster_type_id',
-                'organization_id', 'is_environment'}
+                'organization_id', 'is_environment', CLOUD_RESOURCE_HASH_FIELD}
 
     @staticmethod
     def get_validation_parameters(resource_type):
         required_fields = {
-            'cloud_resource_id', 'resource_type', 'cloud_account_id'
+            'resource_type', 'cloud_account_id'
         }
         immutable_params = {
             'created_at', 'deleted_at', 'id', '_id', 'resource_id',
@@ -60,6 +62,7 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             'first_seen', 'last_seen', 'created_by_kind', 'created_by_name',
             'k8s_namespace', 'k8s_node', 'k8s_service', 'cloud_created_at',
             'shareable', 'env_properties', 'service_name', 'active',
+            CLOUD_RESOURCE_ID_FIELD, CLOUD_RESOURCE_HASH_FIELD,
             # TODO: OS-4730: leave one allowed field for resource owner id
             'owner_id', 'employee_id'
         }
@@ -175,7 +178,7 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                             resource['active']),
                         'new_state': active_text_status_map.get(
                             kwargs['active'])}
-            elif kwargs.get('env_properties') is not None:
+            if kwargs.get('env_properties') is not None:
                 task_type = 'env_property_updated'
                 kwargs['env_properties'] = self.update_history_properties(
                     resource, kwargs.get('env_properties'))
@@ -190,6 +193,8 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                             'previous_value': previous_env_prop,
                             'new_value': new_env_prop
                         })
+
+                kwargs['env_properties'] = encoded_map(kwargs['env_properties'])
                 meta['env_properties'] = changed_properties_list
 
             if task_type:
@@ -279,7 +284,7 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         if is_new:
             extra_params.update(model_specific_params)
             for field in required_params:
-                max_len = 512 if field == 'cloud_resource_id' else 255
+                max_len = 255
                 val = kwargs.get(field)
                 if val is None:
                     raise WrongArgumentsException(Err.OE0216, [field])
@@ -304,7 +309,8 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             elif field == 'name':
                 check_string_attribute(field, value, max_length=512)
             else:
-                check_string_attribute(field, value)
+                max_len = 512 if field == CLOUD_RESOURCE_ID_FIELD else 255
+                check_string_attribute(field, value, max_length=max_len)
         immutables_matches = set(filter(lambda x: x in kwargs,
                                         immutable_params))
         if immutables_matches:
@@ -521,12 +527,53 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         )
         return result[0]
 
+    def get_resources_by_hash_or_id(self, cloud_account_id, resources,
+                                    include_deleted=True, unique=False,
+                                    unique_field_name=False):
+        hashes = [x.get(CLOUD_RESOURCE_HASH_FIELD) for x in resources
+                  if x.get(CLOUD_RESOURCE_HASH_FIELD)]
+        ids = [x.get(CLOUD_RESOURCE_ID_FIELD) for x in resources
+               if x.get(CLOUD_RESOURCE_ID_FIELD)]
+        cond_list = [
+            {'$or': [
+                {'cloud_resource_id': {'$in': ids}},
+                {'cloud_resource_hash': {'$in': hashes}}
+            ]},
+            {'cloud_account_id': cloud_account_id}]
+        if not include_deleted:
+            cond_list.append({'deleted_at': 0})
+        db_resources = self.resources_collection.aggregate([
+            {
+                '$match': {
+                    '$and': cond_list
+                }
+            }
+        ])
+        db_resources_map = {}
+        for r in db_resources:
+            id_ = r.get(CLOUD_RESOURCE_ID_FIELD)
+            hash_ = r.get(CLOUD_RESOURCE_HASH_FIELD)
+            if id_ and hash_:
+                db_resources_map[id_] = (
+                    r, CLOUD_RESOURCE_ID_FIELD) if unique_field_name else r
+                if not unique:
+                    db_resources_map[hash_] = (
+                        r, CLOUD_RESOURCE_HASH_FIELD) if unique_field_name else r
+            elif id_:
+                db_resources_map[id_] = (
+                    r, CLOUD_RESOURCE_ID_FIELD) if unique_field_name else r
+            elif hash_:
+                db_resources_map[hash_] = (
+                    r, CLOUD_RESOURCE_HASH_FIELD) if unique_field_name else r
+        return db_resources_map
+
     def get_resources(
-            self, cloud_account_id, cloud_resource_ids, include_deleted=True):
+            self, cloud_account_id, cloud_resource_ids, include_deleted=True,
+            search_field='cloud_resource_id'):
         if not cloud_resource_ids:
             return []
         cond_list = [{
-            'cloud_resource_id': {'$in': cloud_resource_ids}},
+            search_field: {'$in': cloud_resource_ids}},
             {'cloud_account_id': cloud_account_id}]
         if not include_deleted:
             cond_list.append({'deleted_at': 0})
@@ -603,14 +650,14 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         meta = resource.pop('meta', None) or {}
         meta = {k: v for k, v in meta.items()
                 if v is not None}
-        os = meta.pop('os', None)
-        preinstalled = meta.pop('preinstalled', None)
-        db_meta = db_resource.pop('meta', {})
 
-        if os:
-            db_meta['os'] = os
-        if preinstalled:
-            db_meta['preinstalled'] = preinstalled
+        db_meta = db_resource.pop('meta', {})
+        updatable_meta_keys = ('os', 'preinstalled', 'cpu_count', 'flavor')
+        for key in updatable_meta_keys:
+            value = meta.pop(key, None)
+            if value:
+                db_meta[key] = value
+
         if behavior in ['update_existing', 'error_existing']:
             db_meta.update(meta)
         if db_meta:
@@ -618,12 +665,33 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
 
         if behavior == 'update_existing':
             split_fields = self.get_split_fields()
+            id_fields = [CLOUD_RESOURCE_ID_FIELD, CLOUD_RESOURCE_HASH_FIELD]
+            db_res_id = db_resource.get(CLOUD_RESOURCE_ID_FIELD)
+            db_hash = db_resource.get(CLOUD_RESOURCE_HASH_FIELD)
+            res_id = resource.get(CLOUD_RESOURCE_ID_FIELD)
+            hash_ = resource.get(CLOUD_RESOURCE_HASH_FIELD)
             for field, value in resource.items():
-                if (field in split_fields and field != 'meta' or
-                        value == db_resource.get(field)):
+                if field in id_fields:
+                    continue
+                if (field in split_fields and
+                        field != 'meta' or value == db_resource.get(field)):
                     unchanged[field] = db_resource.get(field) if db_resource else value
                 elif field != 'meta':
                     changed[field] = value
+            if not db_res_id and not db_hash or (
+              res_id == db_res_id and hash_ == db_hash):
+                if res_id:
+                    unchanged[CLOUD_RESOURCE_ID_FIELD] = res_id
+                if hash_:
+                    unchanged[CLOUD_RESOURCE_HASH_FIELD] = hash_
+            elif res_id == db_res_id:
+                unchanged[CLOUD_RESOURCE_ID_FIELD] = res_id
+                if hash_:
+                    changed[CLOUD_RESOURCE_HASH_FIELD] = hash_
+            elif hash_ == db_hash:
+                unchanged[CLOUD_RESOURCE_HASH_FIELD] = hash_
+                if res_id:
+                    changed[CLOUD_RESOURCE_ID_FIELD] = res_id
         elif behavior == 'error_existing':
             unchanged = resource
             unchanged.update(changed)
@@ -659,26 +727,9 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             if env_props_resources:
                 raise WrongArgumentsException(Err.OE0212, ['env_properties'])
 
-    def save_bulk(self, cloud_account_id, resources, behavior, return_resources,
-                  is_report_import=False, new_environment=False):
-        self.check_env_properties(resources, new_environment, behavior)
-        rac = RuleApplyController(self.session, self._config, self.token)
-        cloud_account_map, employee_allowed_pools = rac.collect_relations(
-            [cloud_account_id])
-        cloud_account = cloud_account_map[cloud_account_id]
-        rules = rac.get_valid_rules(cloud_account.organization_id,
-                                    employee_allowed_pools)
-        resources = self.gen_cloud_resource_ids(resources)
-        cloud_resources_ids = list(filter(
-            lambda x: x is not None,
-            map(lambda y: y.get('cloud_resource_id'), resources)))
-        include_deleted = False if behavior == 'error_existing' else True
-        db_resources_map = {
-            r['cloud_resource_id']: r for r in
-            self.get_resources(
-                cloud_account_id, cloud_resources_ids, include_deleted)}
+    def _env_changes_notify(self, db_resources_map, cloud_account):
         not_active_envs = [
-            r for _, r in db_resources_map.items()
+            r for r in db_resources_map.values()
             if (r['resource_type'] == ResourceTypes.instance.value and
                 r['deleted_at'] == 0 and r.get('shareable') and
                 not r.get('active'))]
@@ -706,11 +757,28 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                         'resource', 'env_active_state_changed', meta,
                         'alert.violation.env_change')
 
+    def _save_bulk(
+            self, cloud_account_id, resources, behavior,
+            include_deleted, is_report_import, new_environment,
+            cloud_account_map, employee_allowed_pools):
+        if not resources:
+            return [], {}, {}, {}
+        rac = RuleApplyController(self.session, self._config, self.token)
+        cloud_account = cloud_account_map[cloud_account_id]
+        rules = rac.get_valid_rules(cloud_account.organization_id,
+                                    employee_allowed_pools)
+        db_resources_map = self.get_resources_by_hash_or_id(
+            cloud_account_id, resources, include_deleted,
+            unique=False, unique_field_name=False)
+        self._env_changes_notify(db_resources_map, cloud_account)
         now = int(datetime.utcnow().timestamp())
+        unique_resources_map = self.get_resources_by_hash_or_id(
+            cloud_account_id, resources, include_deleted, unique=True,
+            unique_field_name=True)
         ctc = ClusterTypeController(self.session, self._config, self.token)
         resource_cluster_map = ctc.bind_clusters(
-            cloud_account.organization_id, resources, db_resources_map, rules,
-            is_report_import, now)
+            cloud_account.organization_id, resources, unique_resources_map,
+            rules, is_report_import, now)
 
         updates_bulk = []
         insertions_bulk = []
@@ -723,9 +791,9 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                 resource['cloud_account_id'] = cloud_account_id
             self.check_restrictions(**resource)
             resource = self.extend_payload(resource, now)
-
-            cluster = resource_cluster_map.get(
-                resource.get('cloud_resource_id'))
+            resource_id_value = (resource.get(CLOUD_RESOURCE_ID_FIELD) or
+                                 resource.get(CLOUD_RESOURCE_HASH_FIELD))
+            cluster = resource_cluster_map.get(resource_id_value)
             if cluster:
                 resource['cluster_id'] = cluster['_id']
                 # use cluster assignment or clear direct
@@ -741,13 +809,18 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             tags = encoded_tags(resource.get('tags'))
             if tags:
                 resource['tags'] = tags
+            env_properties = encoded_map(resource.get('env_properties'))
+            if env_properties:
+                resource['env_properties'] = env_properties
 
             db_resource = db_resources_map.get(
-                resource['cloud_resource_id'], {})
+                resource.get(CLOUD_RESOURCE_HASH_FIELD), {}) or db_resources_map.get(
+                resource.get(CLOUD_RESOURCE_ID_FIELD), {})
             if not db_resource:
                 newly_discovered_resources.update({resource['_id']: resource})
 
-            set_status_func = self.get_set_status_func(resource.get('resource_type'))
+            set_status_func = self.get_set_status_func(
+                resource.get('resource_type'))
             if set_status_func:
                 set_status_func(resource, db_resource)
 
@@ -759,7 +832,8 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         updated_ids = []
         if behavior in {'skip_existing', 'update_existing'}:
             update_operations = []
-            filter_fields = ['cloud_resource_id', 'cloud_account_id', 'organization_id']
+            filter_fields = [CLOUD_RESOURCE_ID_FIELD, CLOUD_RESOURCE_HASH_FIELD,
+                             'cloud_account_id', 'organization_id']
             field_op_map = {
                 'first_seen': '$min',
                 'last_seen': '$max'
@@ -770,12 +844,14 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                     val = update.pop(field, None)
                     if val is not None:
                         op_details[op] = {field: val}
-                for cmd, data in {'$set': update, '$setOnInsert': insertion}.items():
+                for cmd, data in {'$set': update,
+                                  '$setOnInsert': insertion}.items():
                     if data:
                         op_details[cmd] = {k: v for k, v in data.items()}
                 update_operations.append(UpdateOne(
                     filter={
-                        k: insertion[k] for k in filter_fields if insertion.get(k)
+                        k: insertion[k] for k in filter_fields
+                        if insertion.get(k)
                     },
                     update=op_details,
                     upsert=True,
@@ -811,19 +887,44 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                             new_environment)
             except BulkWriteError as ex:
                 self.resources_collection.delete_many(
-                    {'_id': {'$in': list(map(lambda x: x['_id'], insertions_bulk))}})
+                    {'_id': {'$in': list(
+                        map(lambda x: x['_id'], insertions_bulk))}})
                 raise WrongArgumentsException(Err.OE0003, [str(ex)])
+        return (inserted_ids, newly_discovered_resources, resource_events,
+                resource_cluster_map)
 
-        if resource_events:
-            for events in resource_events.values():
+    def save_bulk(self, cloud_account_id, resources, behavior, return_resources,
+                  is_report_import=False, new_environment=False):
+        self.check_env_properties(resources, new_environment, behavior)
+        resources = self.gen_cloud_resource_ids(resources)
+        include_deleted = False if behavior == 'error_existing' else True
+        rac = RuleApplyController(self.session, self._config, self.token)
+        cloud_account_map, employee_allowed_pools = rac.collect_relations(
+            [cloud_account_id])
+        invalid_resources = [x for x in resources
+                             if x.get(CLOUD_RESOURCE_ID_FIELD) is None and
+                             x.get(CLOUD_RESOURCE_HASH_FIELD) is None]
+        if invalid_resources:
+            raise WrongArgumentsException(
+                Err.OE0517, [CLOUD_RESOURCE_ID_FIELD,
+                             CLOUD_RESOURCE_HASH_FIELD])
+        results = self._save_bulk(
+                cloud_account_id, resources, behavior, include_deleted,
+                is_report_import, new_environment, cloud_account_map,
+                employee_allowed_pools)
+
+        inserted_ids, new_resources, r_events, resource_cluster_map = results
+
+        if r_events:
+            for events in r_events.values():
                 for event in events:
                     rac.publish_cloud_acc_activities(*event)
 
         if is_report_import and inserted_ids:
             newly_discovered_stat = generate_discovered_cluster_resources_stat(
-                [newly_discovered_resources.get(inserted_id) for inserted_id in inserted_ids],
-                resource_cluster_map,
-                cluster_key='cloud_resource_id')
+                [new_resources.get(inserted_id) for inserted_id in inserted_ids
+                 if new_resources.get(inserted_id)],
+                resource_cluster_map, cluster_key='cloud_resource_id')
             for acc_id, stat in newly_discovered_stat.items():
                 cloud_account = cloud_account_map[acc_id]
                 meta = {
@@ -836,12 +937,13 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                     'cloud_account.resources_discovered', add_token=True)
 
         if return_resources:
-            resources = self.get_resources(
-                cloud_account_id, cloud_resources_ids, include_deleted)
+            resources = self.get_resources_by_hash_or_id(
+                cloud_account_id, resources, include_deleted,
+                unique=True).values()
             for resource in resources:
                 self.format_resource(
                     resource, is_report_import=is_report_import)
-            return resources
+            return list(resources)
 
     def delete(self, item_id):
         r = self.resources_collection.update_one(
@@ -905,6 +1007,8 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         for key, value in properties.items():
             old_value = old_properties.get(key)
             changes[key] = {'old': old_value, 'new': value}
+        if not new_environment:
+            changes = encoded_map(changes)
         try:
             resource_id = resource['id'] if resource.get(
                 'id') else resource['_id']
@@ -931,7 +1035,13 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             filter_cond['time'] = time_cond
         res = self.property_history_collection.find(
             filter_cond, {'_id': False}).sort('time')
-        return resource.get('name', resource.get('cloud_resource_id')), list(res)
+        history = []
+        for r in res:
+            changes = r.get('changes')
+            if changes:
+                r['changes'] = encoded_map(changes, True)
+            history.append(r)
+        return resource.get('name', resource.get('cloud_resource_id')), history
 
 
 class CloudResourceAsyncController(BaseAsyncControllerWrapper):

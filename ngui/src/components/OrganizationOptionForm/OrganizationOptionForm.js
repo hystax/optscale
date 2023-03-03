@@ -16,7 +16,7 @@ const OrganizationOptionForm = ({ onSubmit, onCancel, isLoading = false }) => {
   const methods = useForm();
   const { handleSubmit } = methods;
 
-  const [jsonValue, setJsonValue] = useState({});
+  const [jsonValue, setJsonValue] = useState({ key: "value" });
   const [isValidJson, setIsValidJson] = useState(true);
 
   const onJsonChange = ({ error, jsObject }) => {

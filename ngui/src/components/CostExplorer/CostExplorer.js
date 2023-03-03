@@ -85,7 +85,7 @@ const CostExplorer = ({
 
             { type: PDF_ELEMENTS.markup.logo },
 
-            { type: PDF_ELEMENTS.basics.h1, value: "expensesOf", parameters: { data: { name: organizationName } } },
+            { type: PDF_ELEMENTS.basics.H1, value: "expensesOf", parameters: { data: { name: organizationName } } },
 
             { id: PDF_ELEMENTS.costExplorer.dates }, // find component on page with that id and call its pdf render
             { id: PDF_ELEMENTS.costExplorer.expensesSummary }, // another component
@@ -168,7 +168,6 @@ const CostExplorer = ({
           </Grid>
           <Grid item xs={12}>
             <ExpensesBreakdownByPeriodWidget
-              titlePdfId={PDF_ELEMENTS.costExplorer.periodWidgetTitle}
               render={(periodType) => (
                 <Grid container spacing={SPACING_2}>
                   {renderBarChart(periodType)}

@@ -9,20 +9,22 @@ import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
-import { GAEvent, GA_EVENT_CATEGORIES } from "components/ActivityListener";
 import Button from "components/Button";
+import CollapsableMenuDrawer from "components/CollapsableMenuDrawer";
 import ErrorBoundary from "components/ErrorBoundary";
 import HeaderButtons from "components/HeaderButtons";
 import Hidden from "components/Hidden";
 import IconButton from "components/IconButton";
 import Logo from "components/Logo";
+import MainMenu from "components/MainMenu";
+import PendingInvitationsAlert from "components/PendingInvitationsAlert";
 import TopAlertWrapper from "components/TopAlertWrapper";
 import MainLayoutContainer from "containers/MainLayoutContainer";
-import MainMenu from "containers/MainMenuContainer";
 import OrganizationSelectorContainer from "containers/OrganizationSelectorContainer";
 import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { REGISTER } from "urls";
+import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
 import { LOGO_SIZE } from "utils/constants";
 import useStyles from "./BaseLayout.styles";
 
@@ -35,9 +37,8 @@ const getLogoSize = (isDemo, isDownMd, isDownSm) => {
   return isDownSm ? LOGO_SIZE.SHORT : LOGO_SIZE.FULL;
 };
 
-const AppToolbar = ({ showMainMenu = false, onMenuIconClick, showOrganizationSelector = false }) => {
+const AppToolbar = ({ onMenuIconClick, mainMenu, showMainMenu = false, showOrganizationSelector = false }) => {
   const { classes, cx } = useStyles();
-
   const navigate = useNavigate();
   const isDownMd = useIsDownMediaQuery("md");
   const isDownSm = useIsDownMediaQuery("sm");
@@ -46,7 +47,7 @@ const AppToolbar = ({ showMainMenu = false, onMenuIconClick, showOrganizationSel
 
   const onLiveDemoRegisterClick = () => {
     navigate(REGISTER);
-    GAEvent({ category: GA_EVENT_CATEGORIES.LIVE_DEMO, action: "Try register" });
+    trackEvent({ category: GA_EVENT_CATEGORIES.LIVE_DEMO, action: "Try register" });
   };
 
   return (
@@ -56,24 +57,17 @@ const AppToolbar = ({ showMainMenu = false, onMenuIconClick, showOrganizationSel
           sx={{ display: { xs: "inherit", md: "none" } }}
           customClass={classes.marginRight1}
           icon={<MenuIcon />}
-          color="inherit"
+          color="primary"
           onClick={onMenuIconClick}
           aria-label="open drawer"
         />
       )}
       <div style={{ height: logoHeight }} className={classes.logo}>
-        <Logo
-          size={getLogoSize(isDemo, isDownMd, isDownSm)}
-          dataTestId="img_logo"
-          height={logoHeight}
-          demo={isDemo}
-          white
-          active
-        />
+        <Logo size={getLogoSize(isDemo, isDownMd, isDownSm)} dataTestId="img_logo" height={logoHeight} demo={isDemo} active />
       </div>
       {isDemo ? (
         <Box display="flex" alignItems="center">
-          <Typography data-test-id="p_live_demo_mode" sx={{ display: { xs: "none", md: "inherit" } }}>
+          <Typography data-test-id="p_live_demo_mode" sx={{ display: { xs: "none", md: "inherit" } }} color="primary">
             <FormattedMessage id="liveDemoMode" />
           </Typography>
           <Button
@@ -89,14 +83,14 @@ const AppToolbar = ({ showMainMenu = false, onMenuIconClick, showOrganizationSel
         </Box>
       ) : null}
       <Box display="flex" alignItems="center">
-        {showOrganizationSelector && <OrganizationSelectorContainer />}
+        {showOrganizationSelector && <OrganizationSelectorContainer mainMenu={mainMenu} />}
         <HeaderButtons />
       </Box>
     </Toolbar>
   );
 };
 
-const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector = false }) => {
+const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector = false, mainMenu }) => {
   const { organizationId } = useOrganizationInfo();
 
   const { classes } = useStyles();
@@ -110,26 +104,22 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
   return (
     <>
       <TopAlertWrapper />
+      <PendingInvitationsAlert />
       <AppBar position="static" className={classes.appBar}>
         <AppToolbar
           showMainMenu={showMainMenu}
           onMenuIconClick={handleDrawerToggle}
           showOrganizationSelector={showOrganizationSelector}
+          mainMenu={mainMenu}
         />
       </AppBar>
       <Box display="flex" flexGrow={1}>
         {showMainMenu && (
           <>
             <Hidden mode="down" breakpoint="md">
-              <Drawer
-                variant="permanent"
-                classes={{
-                  paper: classes.drawerPaper
-                }}
-                open
-              >
-                <MainMenu />
-              </Drawer>
+              <CollapsableMenuDrawer>
+                <MainMenu menu={mainMenu} />
+              </CollapsableMenuDrawer>
             </Hidden>
             <Hidden mode="up" breakpoint="md">
               <Drawer
@@ -143,7 +133,7 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
                   keepMounted: true
                 }}
               >
-                <MainMenu />
+                <MainMenu menu={mainMenu} />
               </Drawer>
             </Hidden>
           </>
@@ -159,15 +149,17 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
 };
 
 AppToolbar.propTypes = {
-  showMainMenu: PropTypes.bool.isRequired,
   onMenuIconClick: PropTypes.func.isRequired,
-  showOrganizationSelector: PropTypes.bool.isRequired
+  showMainMenu: PropTypes.bool,
+  showOrganizationSelector: PropTypes.bool,
+  mainMenu: PropTypes.array
 };
 
 BaseLayout.propTypes = {
   children: PropTypes.node.isRequired,
   showMainMenu: PropTypes.bool,
-  showOrganizationSelector: PropTypes.bool
+  showOrganizationSelector: PropTypes.bool,
+  mainMenu: PropTypes.array
 };
 
 export default BaseLayout;

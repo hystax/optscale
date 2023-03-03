@@ -1,9 +1,6 @@
 import {
   MARK_RESOURCES_AS_ENVIRONMENTS,
   UPLOAD_CLOUD_REPORT,
-  ASSIGN_RESOURCES,
-  ASSIGN_RESOURCES_REQUEST,
-  ASSIGNMENT_REQUEST_UPDATE,
   CREATE_INVITATIONS,
   CREATE_ASSIGNMENT_RULE,
   DELETE_EMPLOYEE,
@@ -24,19 +21,8 @@ const labelToSuccessSettingsMap = Object.freeze({
   [UPLOAD_CODE_REPORT]: {
     code: "FE0001"
   },
-  [ASSIGN_RESOURCES]: {
-    code: "FE0002",
-    getMessageParams: (params) => [params.resource_ids.length]
-  },
-  [ASSIGN_RESOURCES_REQUEST]: {
-    code: "FE0003"
-  },
-  [ASSIGNMENT_REQUEST_UPDATE]: {
-    code: "FE0004",
-    getMessageParams: (params) => [params.action]
-  },
   [CREATE_INVITATIONS]: {
-    code: "FE0005",
+    code: "FE0003",
     getMessageParams: (params) => [Object.keys(params.invites).length]
   },
   [MARK_RESOURCES_AS_ENVIRONMENTS]: {

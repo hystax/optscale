@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { FormProvider, useForm } from "react-hook-form";
 import TestProvider from "tests/TestProvider";
 import CreateSshKeyValueField from "./CreateSshKeyValueField";
@@ -19,11 +19,11 @@ const Form = () => {
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <Form />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

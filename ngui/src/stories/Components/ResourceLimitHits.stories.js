@@ -1,5 +1,5 @@
-import ResourceLimitHits from "components/ResourceLimitHits";
 import React from "react";
+import ResourceLimitHits from "components/ResourceLimitHits";
 
 export default {
   title: "Components/ResourceLimitHits"

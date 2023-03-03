@@ -77,46 +77,50 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
   const nodeTableColumns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_node_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
-        Cell: ({
-          cell: { value },
+        accessorKey: "name",
+        cell: ({
+          cell,
           row: {
             original: { provider }
           }
-        }) => <CloudLabel label={value} type={provider} />
+        }) => <CloudLabel label={cell.getValue()} type={provider} />
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_node_flavor">
             <FormattedMessage id="size" />
           </TextWithDataTestId>
         ),
-        accessor: "flavorInfoString",
-        Cell: ({ row: { original } }) => original.renderFlavorInfoCell()
+        accessorKey: "flavorInfoString",
+        cell: ({ row: { original } }) => original.renderFlavorInfoCell()
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_node_hourly_price">
             <FormattedMessage id="hourlyPrice" />
           </TextWithDataTestId>
         ),
-        accessor: "hourly_price",
-        Cell: ({ cell: { value } }) => <CostModelFormattedMoney value={value} />,
+        accessorKey: "hourly_price",
+        cell: ({ cell }) => <CostModelFormattedMoney value={cell.getValue()} />,
         defaultSort: "desc"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_node_last_seen">
             <FormattedMessage id="lastSeenOn" />
           </TextWithDataTestId>
         ),
-        accessor: "last_seen",
-        Cell: ({ cell: { value } }) => (value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value))
+        accessorKey: "last_seen",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
+        }
       }
     ],
     []

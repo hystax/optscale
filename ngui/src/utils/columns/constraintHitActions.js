@@ -4,9 +4,8 @@ import { FormattedMessage } from "react-intl";
 import Filters from "components/Filters";
 import { RESOURCE_FILTERS } from "components/Filters/constants";
 import IconButton from "components/IconButton";
-import { BREAKDOWN_BY_QUERY_PARAMETER_NAME, CLEAN_EXPENSES_BREAKDOWN_TYPES } from "components/Resources/Resources";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { RESOURCES } from "urls";
+import { RESOURCES, RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME } from "urls";
 import {
   END_DATE_FILTER,
   EXPENSE_ANOMALY,
@@ -15,7 +14,8 @@ import {
   RECURRING_BUDGET_POLICY,
   TAGGING_POLICY,
   RESOURCE_COUNT_ANOMALY,
-  START_DATE_FILTER
+  START_DATE_FILTER,
+  CLEAN_EXPENSES_BREAKDOWN_TYPES
 } from "utils/constants";
 import {
   secondsToMilliseconds,
@@ -71,14 +71,14 @@ const constraintHitActions = ({ navigate, constraint }) => {
   };
 
   return {
-    Header: (
+    header: (
       <TextWithDataTestId dataTestId="lbl_actions">
         <FormattedMessage id="actions" />
       </TextWithDataTestId>
     ),
-    disableSortBy: true,
+    enableSorting: false,
     id: "actions",
-    Cell: ({
+    cell: ({
       row: {
         original: { created_at: createdAt },
         index
@@ -99,12 +99,13 @@ const constraintHitActions = ({ navigate, constraint }) => {
 
           const dateRangeQueryParams = [`${START_DATE_FILTER}=${startDate}`, `${END_DATE_FILTER}=${endDate}`].join("&");
 
-          const breakdownByQueryParam = `${BREAKDOWN_BY_QUERY_PARAMETER_NAME}=${mapConstraintTypeToResourcesBreakdown(
+          const breakdownByQueryParam = `${RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME}=${mapConstraintTypeToResourcesBreakdown(
             constraint.type
           )}`;
 
           const queryParams = [filtersQueryParams, dateRangeQueryParams, breakdownByQueryParam].join("&");
 
+          // TODO: Use getResourcesExpensesUrl util to get a link
           const link = `${RESOURCES}?${queryParams}`;
 
           navigate(link);

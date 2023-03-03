@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
 import OrganizationConstraints from "components/OrganizationConstraints/OrganizationConstraints";
-import { QUOTAS_AND_BUDGETS, TAGGING_POLICIES } from "urls";
+import { ANOMALIES, QUOTAS_AND_BUDGETS, TAGGING_POLICIES } from "urls";
 
 const mockedData = {
   [TAGGING_POLICIES]: [
@@ -159,11 +159,171 @@ const mockedData = {
       },
       last_run: 1651064162
     }
+  ],
+  [ANOMALIES]: [
+    {
+      deleted_at: 0,
+      id: "4decea30-a86e-4d17-812c-eb3b4d5b500e",
+      created_at: 1658576668,
+      name: "AWS/Engineering policy",
+      organization_id: "f5e43ac0-87b0-4a81-8eba-b6e4f6324879",
+      type: "expense_anomaly",
+      definition: {
+        threshold_days: 4,
+        threshold: 10
+      },
+      filters: {
+        cloud_account: [
+          {
+            id: "be176e7c-e233-4225-9fef-6df899567875",
+            name: "AWS HQ",
+            type: "aws_cnr"
+          }
+        ],
+        pool: [
+          {
+            id: "8ac078ee-69cb-43d3-9814-41d21280ecbf+",
+            name: "Engineering",
+            purpose: "business_unit"
+          }
+        ]
+      },
+      last_run: 1660285844,
+      last_run_result: {
+        average: 14.0827872279,
+        today: 0,
+        breakdown: {
+          1659916800: 18.5225175343,
+          1660003200: 16.339856684600004,
+          1660089600: 12.989782186100001,
+          1660176000: 8.478992506600001
+        }
+      },
+      limit_hits: []
+    },
+    {
+      deleted_at: 0,
+      id: "9762943f-5536-4b52-8515-ffc891e45b1b",
+      created_at: 1648020282,
+      name: "Instance count",
+      organization_id: "f5e43ac0-87b0-4a81-8eba-b6e4f6324879",
+      type: "resource_count_anomaly",
+      definition: {
+        threshold_days: 7,
+        threshold: 20
+      },
+      filters: {
+        resource_type: [
+          {
+            name: "Instance",
+            type: "regular"
+          }
+        ]
+      },
+      last_run: 1660285844,
+      last_run_result: {
+        average: 62,
+        today: 44,
+        breakdown: {
+          1659657600: 49,
+          1659744000: 49,
+          1659830400: 49,
+          1659916800: 65,
+          1660003200: 94,
+          1660089600: 79,
+          1660176000: 49
+        }
+      },
+      limit_hits: [
+        {
+          deleted_at: 0,
+          id: "d9dcd862-7260-4b61-a28f-4b7d0a18a056",
+          organization_id: "f5e43ac0-87b0-4a81-8eba-b6e4f6324879",
+          constraint_id: "9762943f-5536-4b52-8515-ffc891e45b1b",
+          constraint_limit: 57.5714,
+          value: 78,
+          created_at: 1660138812,
+          run_result: {
+            average: 57.57142857142857,
+            today: 78,
+            breakdown: {
+              1659484800: 49,
+              1659571200: 48,
+              1659657600: 49,
+              1659744000: 49,
+              1659830400: 49,
+              1659916800: 65,
+              1660003200: 94
+            }
+          }
+        }
+      ]
+    },
+    {
+      deleted_at: 0,
+      id: "d1ec25ab-aa71-4313-8541-6b0cca90bb99",
+      created_at: 1648023435,
+      name: "Marketing expenses",
+      organization_id: "f5e43ac0-87b0-4a81-8eba-b6e4f6324879",
+      type: "expense_anomaly",
+      definition: {
+        threshold_days: 30,
+        threshold: 10
+      },
+      filters: {
+        pool: [
+          {
+            id: "f85a2ef0-0c03-41f2-9973-a6057076516b+",
+            name: "Marketing",
+            purpose: "business_unit"
+          }
+        ]
+      },
+      last_run: 1660285844,
+      last_run_result: {
+        average: 0.06362612984333335,
+        today: 0,
+        breakdown: {
+          1657670400: 0.0676947153,
+          1657756800: 0.06636138200000001,
+          1657843200: 0.06636138200000001,
+          1657929600: 0.06636138200000001,
+          1658016000: 0.06636138200000001,
+          1658102400: 0.06636133200000001,
+          1658188800: 0.06422037,
+          1658275200: 0.06422027,
+          1658361600: 0.06422027,
+          1658448000: 0.06422027,
+          1658534400: 0.06422027,
+          1658620800: 0.06422027,
+          1658707200: 0.06422027,
+          1658793600: 0.06422027,
+          1658880000: 0.06422027,
+          1658966400: 0.06422027,
+          1659052800: 0.06422027,
+          1659139200: 0.06400832,
+          1659225600: 0.06422027,
+          1659312000: 0.06422027,
+          1659398400: 0.06422027,
+          1659484800: 0.06422027,
+          1659571200: 0.06422027,
+          1659657600: 0.06422027,
+          1659744000: 0.06422027,
+          1659830400: 0.06422027000000001,
+          1659916800: 0.06422027,
+          1660003200: 0.06422027,
+          1660089600: 0.06422027,
+          1660176000: 0.03242796
+        }
+      },
+      limit_hits: []
+    }
   ]
 };
 
 const OrganizationConstraintsMocked = ({ actionBarDefinition }) => {
   const { pathname } = useLocation();
+
   const constraints = mockedData[pathname] || mockedData[TAGGING_POLICIES];
 
   return (

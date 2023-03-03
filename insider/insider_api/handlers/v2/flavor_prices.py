@@ -62,6 +62,11 @@ class FlavorPricesCollectionHandler(SecretHandler):
             required: false
             type: string
             enum: ['subscription', 'pay_as_you_go']
+        -   in: query
+            name: currency
+            description: currency
+            required: false
+            type: string
         responses:
             200:
                 description: suitable flavor prices
@@ -111,7 +116,8 @@ class FlavorPricesCollectionHandler(SecretHandler):
             'os_type': self.get_arg('os_type', str),
             'preinstalled': self.get_arg('preinstalled', str),
             'quantity': self.get_arg('quantity', int),
-            'billing_method': self.get_arg('billing_method', str)
+            'billing_method': self.get_arg('billing_method', str),
+            'currency': self.get_arg('currency', str, default='USD')
         }
         try:
             res = await self.controller.get(

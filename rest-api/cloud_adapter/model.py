@@ -53,7 +53,7 @@ class CloudResource:
         self.cloud_account_name = None  # placeholder
 
     def _is_field(self, attribute):
-        if attribute.startswith('__'):
+        if attribute.startswith('_'):
             return False
         if callable(getattr(self, attribute)):
             return False
@@ -75,6 +75,10 @@ class CloudResource:
         return {
             'cloud_console_link': self.cloud_console_link,
         }
+
+    def post_discover(self):
+        # Method that will be called after resource has been discovered
+        pass
 
 
 class InstanceResource(CloudResource):
@@ -283,11 +287,12 @@ class SnapshotChainResource(CloudResource):
 class RdsInstanceResource(CloudResource):
     __slots__ = ('name', 'flavor', 'zone_id', 'category', 'engine',
                  'engine_version', 'storage_type', 'cloud_created_at',
-                 'cpu_count')
+                 'cpu_count', 'vpc_id', 'vpc_name')
 
     def __init__(self, name=None, flavor=None, zone_id=None, category=None,
                  engine=None, engine_version=None, storage_type=None,
-                 cloud_created_at=0, cpu_count=None, **kwargs):
+                 cloud_created_at=0, cpu_count=None, vpc_id=None,
+                 vpc_name=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.flavor = flavor
@@ -298,6 +303,8 @@ class RdsInstanceResource(CloudResource):
         self.storage_type = storage_type
         self.cloud_created_at = cloud_created_at
         self.cpu_count = cpu_count
+        self.vpc_id = vpc_id
+        self.vpc_name = vpc_name
 
     def __repr__(self):
         return 'RDS Instance {0} name={1} flavor={2}'.format(
@@ -313,7 +320,9 @@ class RdsInstanceResource(CloudResource):
             'engine_version': self.engine_version,
             'storage_type': self.storage_type,
             'cpu_count': self.cpu_count,
-            'flavor': self.flavor
+            'flavor': self.flavor,
+            'vpc_id': self.vpc_id,
+            'vpc_name': self.vpc_name,
         })
         return meta
 

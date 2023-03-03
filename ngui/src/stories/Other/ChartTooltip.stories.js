@@ -1,21 +1,27 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import { ResponsiveBar } from "@nivo/bar";
-import { text, boolean } from "@storybook/addon-knobs";
-import { MONO_CHART_PALETTE } from "theme";
-import ChartTooltip from "components/ChartTooltip";
 import { useTheme } from "@mui/material/styles";
+import { ResponsiveBar } from "@nivo/bar";
+import ChartTooltip from "components/ChartTooltip";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.OTHER}/ChartTooltip`
+  title: `${KINDS.OTHER}/ChartTooltip`,
+  argTypes: {
+    title: { name: "Title", control: "text", defaultValue: "Title" },
+    text: { name: "Text", control: "text", defaultValue: "Text" },
+    value: { name: "Value", control: "text", defaultValue: "Value" },
+    isBoldTitle: { name: "Bold title", control: "boolean", defaultValue: false },
+    isBoldText: { name: "Bold text", control: "boolean", defaultValue: false },
+    isBoldValue: { name: "Bold value", control: "boolean", defaultValue: false }
+  }
 };
 
 const chartData = [
   { date: 1606780799, total: 87.07, expensesPeriod: "thisMonthForecast", index: "Hover your mouse to see the tooltip" }
 ];
 
-export const basic = () => {
+export const basic = (args) => {
   const theme = useTheme();
   const colors = theme.palette.chart;
 
@@ -31,12 +37,12 @@ export const basic = () => {
         borderColor={{ from: "color", modifiers: [["darker", 1.3]] }}
         tooltip={() => (
           <ChartTooltip
-            title={text("title", "Title")}
-            boldTitle={boolean("bold title", false)}
-            text={text("text", "Title")}
-            boldText={boolean("bold text", false)}
-            value={text("value", "value")}
-            boldValue={boolean("bold value", false)}
+            title={args.title}
+            boldTitle={args.boldTitle}
+            text={args.text}
+            boldText={args.boldText}
+            value={args.value}
+            boldValue={args.boldValue}
           />
         )}
         margin={{

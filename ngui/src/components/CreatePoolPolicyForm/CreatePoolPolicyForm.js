@@ -7,8 +7,6 @@ import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import WrapperCard from "components/WrapperCard";
-import { useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { CreatePoolPolicyPoolSelector, CreatePoolPolicyPolicyTypeSelector, CreatePoolPolicyLimitInput } from "./FormElements";
 
@@ -40,8 +38,6 @@ const CreatePoolPolicyForm = ({
     formState: { isValidating },
     trigger
   } = methods;
-
-  const isUpXl = useIsUpMediaQuery("xl");
 
   const policyType = watch(POLICY_TYPE);
 
@@ -98,7 +94,7 @@ const CreatePoolPolicyForm = ({
   };
 
   return (
-    <WrapperCard className={isUpXl ? "halfWidth" : ""}>
+    <Box sx={{ width: { xl: "50%" } }}>
       <Typography paragraph data-test-id="p_form_description">
         <FormattedMessage id="createPoolPolicyFormDescription" />
       </Typography>
@@ -130,7 +126,7 @@ const CreatePoolPolicyForm = ({
           </FormButtonsWrapper>
         </form>
       </FormProvider>
-    </WrapperCard>
+    </Box>
   );
 };
 

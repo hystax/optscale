@@ -82,7 +82,8 @@ class ShortLivingInstances(ModuleBase):
                     {'resource_id': {'$in': bulk_ids}}]},
                 ['_id', 'resource_id', 'cloud_account_id', 'cost', 'start_date',
                  'end_date', 'lineItem/UsageType', 'meter_details.meter_category',
-                 'BillingItem', 'usage_quantity', 'Usage', 'Tags'])
+                 'BillingItem', 'usage_quantity', 'Usage', 'Tags',
+                 'lineItem/UsageStartDate'])
 
             inst_map = {}
             inst_to_remove = set()
@@ -90,7 +91,12 @@ class ShortLivingInstances(ModuleBase):
                 r_id = exp['resource_id']
                 if r_id in inst_to_remove:
                     continue
-                if exp['start_date'] < start_date:
+                if exp.get('lineItem/UsageStartDate'):
+                    exp_start_date = datetime.strptime(
+                        exp['lineItem/UsageStartDate'], '%Y-%m-%dT%H:%M:%SZ')
+                else:
+                    exp_start_date = exp['start_date']
+                if exp_start_date < start_date:
                     inst_to_remove.add(r_id)
                     continue
                 if not inst_map.get(r_id):
@@ -108,11 +114,10 @@ class ShortLivingInstances(ModuleBase):
                 else:
                     inst_map[r_id]['other_cost'] += exp['cost']
                 if (inst_map[r_id]['start_date'] == start_datetime or
-                        inst_map[r_id]['start_date'] > exp['start_date']):
-                    inst_map[r_id]['start_date'] = exp['start_date']
+                        inst_map[r_id]['start_date'] > exp_start_date):
+                    inst_map[r_id]['start_date'] = exp_start_date
                 if inst_map[r_id]['end_date'] < exp['end_date']:
                     inst_map[r_id]['end_date'] = exp['end_date']
-
             for res_id, values in inst_map.items():
                 if res_id in inst_to_remove:
                     continue

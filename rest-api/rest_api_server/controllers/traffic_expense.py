@@ -81,7 +81,9 @@ class TrafficExpenseController(CleanExpenseController):
                 {'cluster_id': {'$in': list(clusters)}, 'deleted_at': 0},
                 ['cloud_resource_id'])
             for s in sub_resources:
-                cloud_resource_ids.add(s.get('cloud_resource_id'))
+                cloud_resource_id = s.get('cloud_resource_id')
+                if cloud_resource_id:
+                    cloud_resource_ids.add(cloud_resource_id)
         return cloud_resource_ids
 
     def process_data(self, resources_data, organization_id, filters, **kwargs):

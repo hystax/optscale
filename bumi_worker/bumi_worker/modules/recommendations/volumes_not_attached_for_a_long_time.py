@@ -3,6 +3,12 @@ from collections import OrderedDict
 from bumi_worker.modules.base import ModuleBase
 
 DEFAULT_DAYS_THRESHOLD = 1
+SUPPORTED_CLOUD_TYPES = {
+    'alibaba_cnr',
+    'aws_cnr',
+    'azure_cnr',
+    'gcp_cnr'
+}
 
 
 class VolumesNotAttachedForALongTime(ModuleBase):
@@ -21,6 +27,7 @@ class VolumesNotAttachedForALongTime(ModuleBase):
         (days_threshold, excluded_pools,
          skip_cloud_accounts) = self.get_options_values()
         ca_type_map = self.get_cloud_accounts(
+            supported_cloud_types=SUPPORTED_CLOUD_TYPES,
             skip_cloud_accounts=skip_cloud_accounts, only_type=True)
         date_field_name = 'last_attached'
         detached_volumes = self.get_resources_stuck_in_state(

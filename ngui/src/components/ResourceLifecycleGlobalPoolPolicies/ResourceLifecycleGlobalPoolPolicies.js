@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { CircularProgress, Stack, Typography } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import Switch from "@mui/material/Switch";
 import { Box } from "@mui/system";
 import PropTypes from "prop-types";
@@ -8,6 +8,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import { useFormatConstraintLimitMessage } from "components/ConstraintMessage/ConstraintLimitMessage";
 import EditablePoolPolicyLimit from "components/EditablePoolPolicyLimit";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PoolLabel from "components/PoolLabel";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
@@ -17,7 +18,6 @@ import PoolPolicyService from "services/PoolPolicyService";
 import { RESOURCE_LIFECYCLE_CREATE_POOL_POLICY } from "urls";
 import { SCOPE_TYPES } from "utils/constants";
 import { CONSTRAINTS_TYPES, CONSTRAINT_MESSAGE_FORMAT } from "utils/constraints";
-import { SPACING_2 } from "utils/layouts";
 
 const UpdatePoolPolicyActivityContainer = ({ policyId, poolId, active }) => {
   const { useUpdateGlobalPoolPolicyActivity } = PoolPolicyService();
@@ -161,34 +161,34 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
   const columns = useMemo(() => {
     const baseColumns = [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_pool">
             <FormattedMessage id="pool" />
           </TextWithDataTestId>
         ),
-        accessor: "details.name",
-        Cell: ({ row: { original } }) => (
+        accessorKey: "details.name",
+        cell: ({ row: { original } }) => (
           <PoolLabel name={original.details.name} type={original.details.purpose} id={original.details.id} />
         ),
         defaultSort: "asc"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_policy_type">
             <FormattedMessage id="policyType" />
           </TextWithDataTestId>
         ),
-        accessor: "translatedType"
+        accessorKey: "translatedType"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_limit">
             <FormattedMessage id="limit" />
           </TextWithDataTestId>
         ),
-        disableSortBy: true,
-        accessor: "formattedPolicyLimit",
-        Cell: ({ row: { original } }) => {
+        enableSorting: false,
+        accessorKey: "formattedPolicyLimit",
+        cell: ({ row: { original } }) => {
           const { id, limit, type, pool_id: poolId, formattedPolicyLimit } = original;
           return (
             <UpdatePoolPolicyContainer
@@ -207,14 +207,14 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
       ...(isAllowedToManageAnyPool
         ? [
             {
-              Header: (
+              header: (
                 <TextWithDataTestId dataTestId="lbl_actions">
                   <FormattedMessage id="actions" />
                 </TextWithDataTestId>
               ),
-              disableSortBy: false,
+              enableSorting: false,
               id: "actions",
-              Cell: ({ row: { original } }) => {
+              cell: ({ row: { original } }) => {
                 const { id, pool_id: poolId, active } = original;
 
                 return <UpdatePoolPolicyActivityContainer policyId={id} poolId={poolId} active={active} />;
@@ -241,15 +241,7 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
   };
 
   return (
-    <Stack spacing={SPACING_2}>
-      <div>
-        <Typography>
-          <FormattedMessage id="globalPoolPoliciesDescription" />
-        </Typography>
-        <Typography>
-          <FormattedMessage id="poolConstraintsDescription2" />
-        </Typography>
-      </div>
+    <>
       {isLoading ? (
         <TableLoader columnsCounter={columns.length} />
       ) : (
@@ -266,7 +258,8 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
           }}
         />
       )}
-    </Stack>
+      <InlineSeverityAlert messageId="globalPoolPoliciesDescription" />
+    </>
   );
 };
 

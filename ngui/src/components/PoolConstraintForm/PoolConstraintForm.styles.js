@@ -1,25 +1,14 @@
 import { makeStyles } from "tss-react/mui";
 
-const useStyles = makeStyles()((theme) => ({
-  card: {
-    boxShadow: "none",
-    overflow: "visible",
-    width: 340,
-    height: 170,
-    [theme.breakpoints.down("xl")]: {
-      width: 320,
-      height: 160
-    },
-    [theme.breakpoints.down("lg")]: {
-      width: 300,
-      height: 150
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "auto"
-    }
+const useStyles = makeStyles()(() => ({
+  switchWrapper: {
+    position: "relative"
   },
-  cardHeader: {
-    paddingBottom: 0
+  absoluteSwitch: {
+    position: "absolute",
+    transform: "translateY(-50%)",
+    top: "50%",
+    left: "0"
   }
 }));
 

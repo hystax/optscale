@@ -514,11 +514,6 @@ class Err(enum.Enum):
         [],
         []
     ]
-    OE0458 = [
-        "Cloud health calculation hasn't been completed yet",
-        [],
-        []
-    ]
     OE0459 = [
         "The pool %s does not have default_owner_id",
         ["pool_id"],
@@ -836,4 +831,60 @@ class Err(enum.Enum):
         "%s should be empty dict",
         ['last_run_result'],
         ['last_run_result should be empty dict']
+    ]
+    OE0528 = [
+        "Cannot use organization_id with cloud_account_id",
+        [],
+        []
+    ]
+
+    OE0529 = [
+        "Cannot use cloud_account_type without organization_id",
+        [],
+        []
+    ]
+    OE0530 = [
+        "Priority should be 1...9",
+        [],
+        []
+    ]
+    OE0531 = [
+        "period should be used exclusively",
+        [],
+        []
+    ]
+    OE0532 = [
+        "period, organization_id or cloud_account_id is required",
+        [],
+        []
+    ]
+    OE0533 = [
+        "invalid cloud account type: %s",
+        ["cloud_account_type"],
+        ["invalid"]
+    ]
+    OE0526 = [
+        "Profiling token already exists in organization %s",
+        ["Organization uuid"],
+        ["5c9c947b-8833-474d-a2f1-c99758196c76"]
+    ]
+    OE0527 = [
+        "Profiling token not found for organization %s",
+        ["Organization uuid"],
+        ["5c9c947b-8833-474d-a2f1-c99758196c76"]
+    ]
+    OE0534 = [
+        "Application with key \"%s\" is already exist",
+        ['Application key'],
+        ['test_key']
+    ]
+    OE0535 = [
+        "Goal with key \"%s\" is already exist",
+        ['Goal key'],
+        ['test_key']
+    ]
+    OE0536 = [
+        "Currency %s is not supported",
+        ["currency"],
+        ["BRL"]
     ]

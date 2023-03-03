@@ -8,6 +8,7 @@ import { useApiState } from "hooks/useApiState";
 import { useInitialMount } from "hooks/useInitialMount";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { isEmpty } from "utils/arrays";
+import { EVENT_LEVEL } from "utils/constants";
 import { scrolledToBottom } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
@@ -20,7 +21,7 @@ const EventsContainer = () => {
   const { level, timeStart, timeEnd, lastId } = getQueryParams();
 
   const [requestParams, setRequestParams] = useState({
-    level,
+    level: Object.values(EVENT_LEVEL).includes(level) ? level : undefined,
     timeStart,
     timeEnd,
     lastId
@@ -76,7 +77,15 @@ const EventsContainer = () => {
     }
   };
 
-  return <Events events={events} isLoading={isLoading} onScroll={handleScroll} applyFilter={applyFilter} />;
+  return (
+    <Events
+      eventLevel={requestParams.level}
+      events={events}
+      isLoading={isLoading}
+      onScroll={handleScroll}
+      applyFilter={applyFilter}
+    />
+  );
 };
 
 export default EventsContainer;

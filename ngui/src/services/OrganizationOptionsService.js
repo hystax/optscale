@@ -3,8 +3,6 @@ import { useDispatch } from "react-redux";
 import {
   getOptimizationOptions,
   updateOptimizationOptions,
-  getFinOpsAssessment,
-  updateFinOpsAssessment,
   getTechnicalAudit,
   updateTechnicalAudit,
   getOrganizationOptions,
@@ -13,21 +11,24 @@ import {
   createOrganizationOption,
   deleteOrganizationOption
 } from "api";
-import { getRecommendationsDownloadLimit, updateOrganizationThemeSettings } from "api/restapi/actionCreators";
+import {
+  getRecommendationsDownloadLimit,
+  updateOrganizationThemeSettings,
+  updateOrganizationPerspectives
+} from "api/restapi/actionCreators";
 import {
   GET_ORGANIZATION_OPTIONS,
   GET_ORGANIZATION_OPTION,
   GET_OPTIMIZATION_OPTIONS,
   UPDATE_OPTIMIZATION_OPTIONS,
-  GET_FINOPS_ASSESSMENT,
-  UPDATE_FINOPS_ASSESSMENT,
   GET_TECHNICAL_AUDIT,
   UPDATE_TECHNICAL_AUDIT,
   UPDATE_ORGANIZATION_OPTION,
   CREATE_ORGANIZATION_OPTION,
   DELETE_ORGANIZATION_OPTION,
   GET_RECOMMENDATIONS_DOWNLOAD_OPTIONS,
-  UPDATE_ORGANIZATION_THEME_SETTINGS
+  UPDATE_ORGANIZATION_THEME_SETTINGS,
+  UPDATE_ORGANIZATION_PERSPECTIVES
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -213,48 +214,25 @@ export const useUpdateRecommendationOptions = () => {
   return { isLoading, updateRecommendationOptions };
 };
 
-export const useGetFinOpsAssessment = () => {
+const useUpdateOrganizationPerspectives = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
-  const {
-    apiData: { value: options = "{}" }
-  } = useApiData(GET_FINOPS_ASSESSMENT, {});
+  const { isLoading } = useApiState(UPDATE_ORGANIZATION_PERSPECTIVES);
 
-  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_FINOPS_ASSESSMENT, organizationId);
-
-  useEffect(() => {
-    if (shouldInvoke) {
-      dispatch(getFinOpsAssessment(organizationId));
-    }
-  }, [dispatch, organizationId, shouldInvoke]);
-
-  return { options: parseJSON(options), isGetFinOpsAssessmentLoading: isLoading, isGetFinOpsAssessmentDataReady: isDataReady };
-};
-
-export const useUpdateFinOpsAssessment = () => {
-  const dispatch = useDispatch();
-
-  const { organizationId } = useOrganizationInfo();
-
-  const { isLoading } = useApiState(UPDATE_FINOPS_ASSESSMENT);
-
-  const {
-    apiData: { value: options = "{}" }
-  } = useApiData(GET_FINOPS_ASSESSMENT, {});
-
-  const update = (value = {}) => {
-    const resultValue = {
-      ...parseJSON(options),
-      ...value
-    };
-
-    dispatch(updateFinOpsAssessment(organizationId, resultValue));
+  const update = (value, onSuccess) => {
+    dispatch((_, getState) => {
+      dispatch(updateOrganizationPerspectives(organizationId, value))
+        .then(() => checkError(UPDATE_ORGANIZATION_PERSPECTIVES, getState()))
+        .then(() => {
+          if (typeof onSuccess === "function") {
+            onSuccess();
+          }
+        });
+    });
   };
 
-  const reset = () => dispatch(updateFinOpsAssessment(organizationId, { step: 0 }));
-
-  return { update, reset, isUpdateFinOpsAssessmentLoading: isLoading };
+  return { isLoading, update };
 };
 
 export const useGetTechnicalAudit = () => {
@@ -338,12 +316,11 @@ function OrganizationOptionsService() {
     useGetRecommendationOptions,
     useGetRecommendationOptionsOnce,
     useUpdateRecommendationOptions,
-    useGetFinOpsAssessment,
-    useUpdateFinOpsAssessment,
     useGetTechnicalAudit,
     useUpdateTechnicalAudit,
     useGetRecommendationsDownloadOptions,
-    useUpdateThemeSettings
+    useUpdateThemeSettings,
+    useUpdateOrganizationPerspectives
   };
 }
 

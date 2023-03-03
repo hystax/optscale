@@ -1,6 +1,7 @@
 class BasePriceProcessor(object):
-    def __init__(self, mongo_client):
+    def __init__(self, mongo_client, config_client):
         self.mongo_client = mongo_client
+        self.config_client = config_client
 
     @property
     def discoveries(self):

@@ -1,16 +1,15 @@
 import React from "react";
-import { boolean, text } from "@storybook/addon-knobs";
 import ResetPasswordForm from "components/ResetPasswordForm";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.FORMS}/ResetPasswordForm`
+  title: `${KINDS.FORMS}/ResetPasswordForm`,
+  argTypes: {
+    isLoading: { name: "Loading", control: "boolean", defaultValue: false },
+    sendState: { name: "Send state", control: "text", defaultValue: "unknown" }
+  }
 };
 
-export const basic = () => (
-  <ResetPasswordForm
-    isLoading={boolean("isLoading", false)}
-    onSubmit={() => console.log("submit")}
-    sendState={text("sendState(success, error, unknown)", "success")}
-  />
+export const basic = (args) => (
+  <ResetPasswordForm isLoading={args.isLoading} onSubmit={() => console.log("submit")} sendState={args.sendState} />
 );

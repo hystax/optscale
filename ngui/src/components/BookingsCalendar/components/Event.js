@@ -8,6 +8,7 @@ import PoolLabel from "components/PoolLabel";
 import ResourceLink from "components/ResourceLink";
 import { RESOURCE_PAGE_TABS } from "utils/constants";
 import { EN_FULL_FORMAT, format, MAX_UTC_DATE_TIMESTAMP } from "utils/datetime";
+import { getCloudResourceIdentifier, getResourceDisplayedName } from "utils/resources";
 import useStyles from "../BookingsCalendar.styles";
 import Popover from "./Popover";
 
@@ -22,7 +23,6 @@ const Event = ({ event }) => {
   } = event;
   const {
     name: environmentName,
-    cloud_resource_id: cloudResourceId,
     resource_type: resourceType,
     pool_id: poolId,
     pool_name: poolName,
@@ -42,12 +42,12 @@ const Event = ({ event }) => {
   };
 
   const renderLinkedTitle = () =>
-    environmentName !== undefined || environmentName !== null ? (
+    environmentName !== undefined && environmentName !== null ? (
       <ResourceLink tabName={RESOURCE_PAGE_TABS.DETAILS} resourceId={environmentId}>
         {environmentName}
       </ResourceLink>
     ) : (
-      <CloudResourceId cloudResourceId={cloudResourceId} resourceId={environmentId} />
+      <CloudResourceId cloudResourceIdentifier={getCloudResourceIdentifier(environment)} resourceId={environmentId} />
     );
 
   return (
@@ -56,7 +56,7 @@ const Event = ({ event }) => {
       popoverContent={
         <div className={classes.eventPopupWrapper}>
           <Typography paragraph component="div">
-            <div>{linkedTitle ? renderLinkedTitle() : <strong>{environmentName ?? cloudResourceId}</strong>}</div>
+            <div>{linkedTitle ? renderLinkedTitle() : <strong>{getResourceDisplayedName(environment)}</strong>}</div>
             <div>{getTimeLabel()}</div>
           </Typography>
           <KeyValueLabel value={employeeName} messageId="user" />

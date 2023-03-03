@@ -10,7 +10,7 @@ import {
   RECOMMENDATION_RIGHTSIZING_RDS_INSTANCES,
   RIGHTSIZING_RDS_INSTANCES_TYPE
 } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 const RightsizingCpuUsageCell = ({ currentUsage, projectedUsage }) => (
   <Stack spacing={1}>
@@ -82,8 +82,7 @@ class RightsizingRdsInstancesRecommendation extends RecommendationFactory {
   static configureColumns(optimization) {
     return [
       resource({
-        headerDataTestId: "lbl_rightsizing_rds_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_rightsizing_rds_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_rightsizing_rds_instance_cloud"
@@ -96,10 +95,10 @@ class RightsizingRdsInstancesRecommendation extends RecommendationFactory {
         headerDataTestId: "lbl_rightsizing_rds_instance_recommended_flavor"
       }),
       {
-        Header: <RightsizingCpuUsageHeaderCell options={optimization.options} />,
+        header: <RightsizingCpuUsageHeaderCell options={optimization.options} />,
         id: "cpuUsage",
-        disableSortBy: true,
-        Cell: ({ row: { original } }) => (
+        enableSorting: false,
+        cell: ({ row: { original } }) => (
           <RightsizingCpuUsageCell
             currentUsage={{
               cpuUsage: original.cpu_usage,
@@ -118,14 +117,14 @@ class RightsizingRdsInstancesRecommendation extends RecommendationFactory {
       },
       detectedAt({ headerDataTestId: "lbl_rightsizing_rds_instance_detected_at" }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_rightsizing_rds_instance_possible_savings">
             <FormattedMessage id="possibleMonthlySavings" />
           </TextWithDataTestId>
         ),
-        accessor: "saving",
+        accessorKey: "saving",
         defaultSort: "desc",
-        Cell: ({ row: { original } }) => (
+        cell: ({ row: { original } }) => (
           <RightsizingPossibleSavingCell possibleSaving={original.saving} possibleSavingPercent={original.saving_percent} />
         )
       }

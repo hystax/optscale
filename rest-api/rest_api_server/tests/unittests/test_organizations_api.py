@@ -59,7 +59,6 @@ class TestOrganizationApi(TestApiBase):
         self.assertEqual(org_pool['name'], organization_dict['name'])
         _, customer_dict = self.client.organization_get(organization_id)
         self.assertEqual(customer_dict["name"], "new name")
-        self.assertEqual(self.p_health_task.call_count, 0)
 
     def test_get_organization(self):
         organization_id = self.organization['id']
@@ -87,7 +86,6 @@ class TestOrganizationApi(TestApiBase):
         code, organization1 = self.create_organization(self.organization['name'])
         self.assertEqual(code, 201)
         self.assertEqual(organization1['name'], self.organization['name'])
-        self.assertEqual(self.p_health_task.call_count, 0)
 
     def test_update_organization_with_duplicated_name(self):
         _, organization = self.create_organization("super organization")
@@ -470,7 +468,8 @@ class TestOrganizationApi(TestApiBase):
         self.assertEqual(code, 200)
         self.assertEqual(organization['currency'], 'RUB')
 
-    def test_get_orgs_with_shareables(self):
+    @patch('rest_api_server.controllers.report_import.ReportImportBaseController.publish_task')
+    def test_get_orgs_with_shareables(self, m_publish_task):
         org_id = self.organization['id']
         code, new_org = self.client.organization_create({'name': 'new_org'})
         self.assertEqual(code, 201)
@@ -537,3 +536,15 @@ class TestOrganizationApi(TestApiBase):
             OrganizationLimitHit.deleted.is_(False)
             )).one_or_none()
         self.assertEqual(hits, None)
+
+    def test_invalid_currency(self):
+        code, org = self.client.organization_create({'name': 'org'})
+        self.assertEqual(code, 201)
+        code, resp = self.client.organization_create(
+            {'name': 'org1', 'currency': 'asd'})
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0536')
+        code, resp = self.client.organization_update(
+            org['id'], {'currency': 'inv'})
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0536')

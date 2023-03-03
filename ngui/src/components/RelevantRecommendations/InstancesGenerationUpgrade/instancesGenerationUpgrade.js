@@ -4,7 +4,7 @@ import {
   METADATA_FIELDS,
   RECOMMENDATION_INSTANCES_GENERATION_UPGRADE
 } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class InstancesGenerationUpgradeRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_INSTANCES_GENERATION_UPGRADE;
@@ -34,11 +34,11 @@ class InstancesGenerationUpgradeRecommendation extends RecommendationFactory {
     return [
       resource({ headerDataTestId: "lbl_igu_resource" }),
       resourceLocation({ headerDataTestId: "lbl_igu_location" }),
-      text({ headerMessageId: METADATA_FIELDS.SIZE, headerDataTestId: "lbl_igu_flavor", accessor: "flavor" }),
+      text({ headerMessageId: METADATA_FIELDS.SIZE, headerDataTestId: "lbl_igu_flavor", accessorKey: "flavor" }),
       text({
         headerMessageId: "recommendedSize",
         headerDataTestId: "lbl_igu_recommended_flavor",
-        accessor: "recommended_flavor"
+        accessorKey: "recommended_flavor"
       }),
       detectedAt({ headerDataTestId: "lbl_igu_detected_at" }),
       savings({ headerDataTestId: "lbl_igu_possible_monthly_savings", options: { defaultSort: "desc" } })

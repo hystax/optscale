@@ -1,15 +1,7 @@
 import React from "react";
-import { object } from "@storybook/addon-knobs";
 import ResourceRawExpenses from "components/ResourceRawExpenses";
-import { millisecondsToSeconds } from "utils/datetime";
 import { KINDS } from "stories";
-
-export default {
-  title: `${KINDS.COMPONENTS}/ResourceRawExpenses`
-};
-
-const firstDateRangePoint = millisecondsToSeconds(+new Date());
-const lastDateRangePoint = millisecondsToSeconds(+new Date());
+import { millisecondsToSeconds } from "utils/datetime";
 
 const expensesAllWithBothRateAndUnit = [
   {
@@ -40,6 +32,20 @@ const expensesAllWithBothRateAndUnit = [
     _id: "6048d5866ed6e23aab17e06f"
   }
 ];
+
+export default {
+  title: `${KINDS.COMPONENTS}/ResourceRawExpenses`,
+  argTypes: {
+    expenses: {
+      name: "Expenses",
+      control: "object",
+      defaultValue: expensesAllWithBothRateAndUnit
+    }
+  }
+};
+
+const firstDateRangePoint = millisecondsToSeconds(+new Date());
+const lastDateRangePoint = millisecondsToSeconds(+new Date());
 
 export const allWithBothRateAndUnit = () => (
   <ResourceRawExpenses
@@ -115,9 +121,9 @@ export const someUnitIsMissing = () => (
   </>
 );
 
-export const withDynamicData = () => (
+export const withDynamicData = (args) => (
   <ResourceRawExpenses
-    expenses={object("expenses", expensesAllWithBothRateAndUnit)}
+    expenses={args.expenses}
     shownExpenses={1000}
     startDateTimestamp={firstDateRangePoint}
     endDateTimestamp={lastDateRangePoint}

@@ -43,24 +43,24 @@ const DismissedResourceRecommendations = ({
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_table_dismissed_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
+        accessorKey: "name",
         defaultSort: "asc",
-        Cell: ({ cell: { value } }) => <FormattedMessage id={BE_TO_FE_MAP_RECOMMENDATION_TYPES[value]} />
+        cell: ({ cell }) => <FormattedMessage id={BE_TO_FE_MAP_RECOMMENDATION_TYPES[cell.getValue()]} />
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_table_dismissed_actions">
             <FormattedMessage id="actions" />
           </TextWithDataTestId>
         ),
-        disableSortBy: true,
+        enableSorting: false,
         id: "actions",
-        Cell: ({ row: { original, index } }) => (
+        cell: ({ row: { original, index } }) => (
           <IconButton
             dataTestId={`btn_dismiss_${index}`}
             isLoading={isLoading}
@@ -103,13 +103,13 @@ const ActiveResourceRecommendations = ({ patchResource, activeRecommendations = 
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_table_active_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
-        Cell: ({ row: { original } }) => (
+        accessorKey: "name",
+        cell: ({ row: { original } }) => (
           <FormattedMessage
             values={{
               size: original.recommended_flavor,
@@ -122,24 +122,24 @@ const ActiveResourceRecommendations = ({ patchResource, activeRecommendations = 
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_table_active_savings">
             <FormattedMessage id="possibleMonthlySavings" />
           </TextWithDataTestId>
         ),
-        accessor: "saving",
+        accessorKey: "saving",
         defaultSort: "desc",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_table_active_actions">
             <FormattedMessage id="actions" />
           </TextWithDataTestId>
         ),
-        disableSortBy: true,
+        enableSorting: false,
         id: "actions",
-        Cell: ({ row: { original, index } }) =>
+        cell: ({ row: { original, index } }) =>
           ACTIONABLE_RECOMMENDATIONS.includes(original.name) && (
             <IconButton
               dataTestId={`btn_activate_${index}`}

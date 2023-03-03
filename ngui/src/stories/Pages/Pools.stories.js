@@ -1,10 +1,9 @@
 import React from "react";
-import { MOCKED_ORGANIZATION_POOL_ID } from "mocks/idsMock";
+import { Provider } from "react-redux";
 import { OrganizationOverviewMocked } from "components/OrganizationOverview";
 import { EXPANDED_POOL_ROWS } from "components/PoolsTable/reducer";
-import { Provider } from "react-redux";
+import { KINDS, MOCKED_ORGANIZATION_POOL_ID } from "stories";
 import { mockStore, MockState } from "utils/mockStore";
-import { KINDS } from "stories";
 
 export default {
   title: `${KINDS.PAGES}/Pools`

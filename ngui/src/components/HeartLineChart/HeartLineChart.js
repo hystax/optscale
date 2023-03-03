@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useCallback, useMemo, forwardRef } from "react";
 import PropTypes from "prop-types";
+import { minMaxNormalize } from "utils/math";
 
 /**
  * When plot is straight line (delta is 0) — place it at center(height/2) of canvas
@@ -14,16 +15,17 @@ import PropTypes from "prop-types";
  * @param {number} props.height Actual height of plot (without paddings)
  * @returns normalized to height reversed value
  */
-const getNormalValue = ({ value, min, delta, height }) => (delta === 0 ? height / 2 : (1 - (value - min) / delta) * height);
+const getNormalValue = ({ value, min, max, delta, height }) =>
+  delta === 0 ? height / 2 : height - minMaxNormalize(value, { min, max }, height);
 
-const getNormalizedDots = ({ values, width, height, min, delta }) => {
+const getNormalizedDots = ({ values, width, height, min, delta, max }) => {
   // if only one dot is present for chart — we place it at center
   if (values.length === 1) {
     return [[width / 2, height / 2]];
   }
 
   const step = width / (values.length - 1);
-  return values.map((rawY, i) => [i * step, getNormalValue({ value: rawY, min, delta, height })]);
+  return values.map((rawY, i) => [i * step, getNormalValue({ value: rawY, min, delta, max, height })]);
 };
 
 const HeartLineChart = forwardRef(({ values, redZoneValue, width, height, average, ...rest }, ref) => {
@@ -39,11 +41,11 @@ const HeartLineChart = forwardRef(({ values, redZoneValue, width, height, averag
   const delta = max - min;
 
   const dots = useMemo(
-    () => getNormalizedDots({ values, width, height, min, delta }).map(([x, y]) => [x + padding, y + padding]),
-    [values, width, height, min, delta]
+    () => getNormalizedDots({ values, width, height, min, max, delta }).map(([x, y]) => [x + padding, y + padding]),
+    [values, width, height, min, delta, max]
   );
-  const averagePercentage = getNormalValue({ value: average, min, delta, height: 1 });
-  const redY = getNormalValue({ value: redZoneValue, min, delta, height });
+  const averagePercentage = getNormalValue({ value: average, min, delta, max, height: 1 });
+  const redY = getNormalValue({ value: redZoneValue, min, delta, max, height });
 
   const draw = useCallback(
     (ctx) => {

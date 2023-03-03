@@ -2,16 +2,18 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { updateEnvironmentActivity } from "api";
 import { UPDATE_ENVIRONMENT_ACTIVITY } from "api/restapi/actionTypes";
-import { MESSAGE_TYPES } from "components/ContentBackdrop";
 import Environments, { EnvironmentsMocked } from "components/Environments";
-import Mocked from "components/Mocked";
-import { ENVIRONMENTS_TOUR, TOURS, startTour } from "components/ProductTour";
+import Mocked, { MESSAGE_TYPES } from "components/Mocked";
+import { useStartTour, ENVIRONMENTS_TOUR, TOURS } from "components/Tour";
 import { useApiState } from "hooks/useApiState";
+import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { useRootData } from "hooks/useRootData";
 import EnvironmentsService from "services/EnvironmentsService";
 import { isEmpty } from "utils/arrays";
 
 const EnvironmentsContainer = () => {
+  const startTour = useStartTour();
+
   const { useGet } = EnvironmentsService();
   const dispatch = useDispatch();
 
@@ -19,14 +21,17 @@ const EnvironmentsContainer = () => {
     rootData: { [ENVIRONMENTS_TOUR]: { isOpen, isFinished } = {} }
   } = useRootData(TOURS);
 
+  const isMobile = useIsDownMediaQuery("sm");
+
+  // opens tour on first page visit
   useEffect(() => {
-    if (!isOpen && !isFinished) {
-      dispatch(startTour(ENVIRONMENTS_TOUR));
+    if (!isOpen && !isFinished && !isMobile) {
+      startTour(ENVIRONMENTS_TOUR);
     }
-  }, [dispatch, isFinished, isOpen]);
+  }, [startTour, isFinished, isOpen, isMobile]);
 
   const startEnvironmentsTour = () => {
-    dispatch(startTour(ENVIRONMENTS_TOUR));
+    startTour(ENVIRONMENTS_TOUR);
   };
 
   const { isGetEnvironmentsLoading, isGetResourceAllowedActionsLoading, environments } = useGet();
@@ -36,7 +41,7 @@ const EnvironmentsContainer = () => {
   // TODO: improve loading, currently we need to reset these APIs in order to update activity and activity action icon
   // Idea: show full table loading state on initial load (see FinOps approach)
   const updateActivity = (environmentId, isActive) => {
-    dispatch(updateEnvironmentActivity(environmentId, { active: isActive }));
+    dispatch(updateEnvironmentActivity(environmentId, isActive));
   };
 
   return (

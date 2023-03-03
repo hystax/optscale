@@ -36,6 +36,26 @@ class ScheduleImportsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         description: >
                             schedule imports only for account with specified
                             import period
+                    organization_id:
+                        type: string
+                        description: >
+                            organization id for import
+                            organization id
+                    cloud_account_type:
+                        type: string
+                        description: >
+                            specify cloud_account_type for import
+                            cloud_account_type
+                    cloud_account_id:
+                        type: string
+                        description: >
+                            specify cloud_account_id for import
+                            cloud_account_id
+                    priority:
+                        type: integer
+                        description: >
+                            specify priority for import task
+                            priority
         responses:
             200:
                 description: Success (returns modified object)
@@ -45,6 +65,12 @@ class ScheduleImportsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     - OE0212: Unexpected parameters
                     - OE0223: Should be integer
                     - OE0224: Wrong integer value
+                    - OE0528: Cannot use organization_id with cloud_account_id
+                    - OE0529: Cannot use cloud_account_type without organization_id
+                    - OE0530: Priority should be 1...9
+                    - OE0531: Period should be used exclusively
+                    - OE0532: Period, organization_id or cloud_account_id is required
+                    - OE0533: Invalid cloud account type
             401:
                 description: |
                     Unauthorized:

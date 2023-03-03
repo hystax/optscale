@@ -2,12 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import { IntlProvider } from "react-intl";
 import { Provider } from "react-redux";
-import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import createMockStore from "redux-mock-store";
 import ThemeProviderWrapper from "components/ThemeProviderWrapper";
 import apiMiddleware from "middleware/api";
 import intlConfig from "translations/react-intl-config";
-import history from "../history";
 
 const mockStore = createMockStore([apiMiddleware]);
 
@@ -18,7 +17,7 @@ const TestProvider = ({ children, state = {} }) => {
     <Provider store={store}>
       <ThemeProviderWrapper>
         <IntlProvider {...intlConfig}>
-          <HistoryRouter history={history}>{children}</HistoryRouter>
+          <MemoryRouter>{children}</MemoryRouter>
         </IntlProvider>
       </ThemeProviderWrapper>
     </Provider>

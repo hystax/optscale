@@ -2,10 +2,31 @@ import { makeStyles } from "tss-react/mui";
 import { SPACING_1 } from "utils/layouts";
 
 const useStyles = makeStyles()((theme) => ({
-  marker: {
+  markerBase: {
+    position: "absolute",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.common.white,
+    overflow: "hidden",
+    fontWeight: "bold",
+    cursor: "pointer",
+    borderWidth: "4px",
+    borderStyle: "solid",
     "&:hover": {
       zIndex: theme.zIndex.drawer
     }
+  },
+  marker: {
+    borderRadius: "50% 50% 50% 0",
+    transform: "rotate(-45deg)"
+  },
+  cluster: {
+    borderRadius: "50%",
+    borderColor: theme.palette.divider,
+    transform: "translate(-50%, -100%)"
   },
   markerTooltip: {
     border: "1px solid",
@@ -31,6 +52,14 @@ const useStyles = makeStyles()((theme) => ({
   },
   markerTooltipWrapperShow: {
     display: "block"
+  },
+  tooltipItem: {
+    "&:not(:last-child)": {
+      borderBottom: "1px solid",
+      borderBottomColor: theme.palette.divider,
+      paddingBottom: theme.spacing(SPACING_1),
+      marginBottom: theme.spacing(SPACING_1)
+    }
   }
 }));
 

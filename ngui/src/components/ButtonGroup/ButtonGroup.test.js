@@ -1,11 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import ButtonGroup from "./ButtonGroup";
 
 it("renders with action", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <ButtonGroup
         activeButtonIndex={0}
@@ -17,8 +18,7 @@ it("renders with action", () => {
           }
         ]}
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

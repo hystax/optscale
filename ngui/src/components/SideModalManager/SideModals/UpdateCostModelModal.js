@@ -15,7 +15,14 @@ class UpdateCostModelModal extends BaseSideModal {
   dataTestId = "smodal_update_cost_model";
 
   get content() {
-    return <CostModelFormContainer cloudAccountId={this.payload?.cloudAccountId} costModel={this.payload?.costModel} />;
+    return (
+      <CostModelFormContainer
+        cloudAccountId={this.payload?.cloudAccountId}
+        costModel={this.payload?.costModel}
+        onSuccess={this.closeSideModal}
+        onCancel={this.closeSideModal}
+      />
+    );
   }
 }
 

@@ -19,7 +19,6 @@ const properties = {
     types: Object.keys(ANOMALY_TYPES),
     navigateAwayLink: ANOMALIES,
     actionBar: {
-      goBack: true,
       title: {
         messageId: "createAnomalyDetectionPolicyTitle",
         dataTestId: "lbl_create_anomaly_detection_policy"
@@ -30,7 +29,6 @@ const properties = {
     types: Object.keys(QUOTAS_AND_BUDGETS_TYPES),
     navigateAwayLink: QUOTAS_AND_BUDGETS,
     actionBar: {
-      goBack: true,
       title: {
         messageId: "createQuotaAndBudgetPolicyTitle",
         dataTestId: "lbl_create_quota_and_budget_policy"
@@ -41,7 +39,6 @@ const properties = {
     types: Object.keys(TAGGING_POLICY_TYPES),
     navigateAwayLink: TAGGING_POLICIES,
     actionBar: {
-      goBack: true,
       title: {
         messageId: "taggingPolicy.createTaggingPolicyTitle",
         dataTestId: "lbl_create_tagging_policy"

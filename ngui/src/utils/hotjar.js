@@ -1,6 +1,6 @@
 import { isEmpty } from "utils/arrays";
 
-export const initialize = (id, sv) => {
+export const initialize = (id, sv = 6) => {
   (function (h, o, t, j, a, r) {
     h.hj =
       h.hj ||

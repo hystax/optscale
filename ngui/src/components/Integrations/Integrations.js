@@ -5,7 +5,7 @@ import PageContentWrapper from "components/PageContentWrapper";
 import IntegrationJiraContainer from "containers/IntegrationJiraContainer";
 import IntegrationsGoogleCalendarContainer from "containers/IntegrationsGoogleCalendarContainer";
 import IntegrationsSlackContainer from "containers/IntegrationsSlackContainer";
-import { SPACING_2 } from "utils/layouts";
+import { useInnerBorders } from "hooks/useInnerBorders";
 import GitHub from "./GitHub";
 import { GITHUB } from "./GitHub/GitHub";
 import GitLab from "./GitLab";
@@ -49,19 +49,37 @@ const integrationsGridItems = [
   }
 ];
 
-const Integrations = () => (
-  <>
-    <ActionBar data={actionBarDefinition} />
-    <PageContentWrapper>
-      <Grid container spacing={SPACING_2}>
-        {integrationsGridItems.map(({ key, node }) => (
-          <Grid key={key} item xs={12} sm={6}>
-            {node}
-          </Grid>
-        ))}
-      </Grid>
-    </PageContentWrapper>
-  </>
-);
+const Integrations = () => {
+  const makeBorders = useInnerBorders({
+    tileCount: integrationsGridItems.length,
+    columns: 2,
+    borderStyle: "1px solid",
+    lastChildBorderOnMobile: false
+  });
+
+  return (
+    <>
+      <ActionBar data={actionBarDefinition} />
+      <PageContentWrapper>
+        <Grid container>
+          {integrationsGridItems.map(({ key, node }, i) => (
+            <Grid
+              key={key}
+              item
+              xs={12}
+              sm={6}
+              sx={{
+                ...makeBorders(i),
+                borderColor: "divider"
+              }}
+            >
+              {node}
+            </Grid>
+          ))}
+        </Grid>
+      </PageContentWrapper>
+    </>
+  );
+};
 
 export default Integrations;

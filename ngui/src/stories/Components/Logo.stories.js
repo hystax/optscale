@@ -1,19 +1,21 @@
 import React from "react";
-import { boolean, select } from "@storybook/addon-knobs";
-import { KINDS } from "stories";
 import Logo from "components/Logo";
+import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Logo`
-};
-
-const sizeOptions = {
-  small: "small",
-  medium: "medium"
+  title: `${KINDS.COMPONENTS}/Logo`,
+  argTypes: {
+    size: {
+      name: "Size",
+      control: "select",
+      options: ["small", "medium"],
+      defaultValue: "small"
+    },
+    active: { name: "Active", control: "boolean", defaultValue: false },
+    white: { name: "White", control: "boolean", defaultValue: false }
+  }
 };
 
 export const basic = () => <Logo />;
 
-export const withKnobs = () => (
-  <Logo active={boolean("active", false)} white={boolean("white", false)} size={select("size", sizeOptions, "medium")} />
-);
+export const withKnobs = (args) => <Logo active={args.active} white={args.white} size={args.size} />;

@@ -1,10 +1,10 @@
 import React from "react";
+import { Box } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import ActionBar from "components/ActionBar";
 import AssignmentRuleForm from "components/AssignmentRuleForm";
 import PageContentWrapper from "components/PageContentWrapper";
-import WrapperCard from "components/WrapperCard";
 import { isEmpty } from "utils/arrays";
 
 const getCreateActionBarConfig = (poolId, pools) => ({
@@ -45,7 +45,6 @@ const AssignmentRuleFormWrapper = ({
   const actionBarConfig = isEdit ? getEditActionBarConfig(assignmentRuleName) : getCreateActionBarConfig(poolId, pools);
 
   const actionBarDefinition = {
-    goBack: true,
     title: {
       ...actionBarConfig,
       isLoading: isActionBarLoading
@@ -56,7 +55,11 @@ const AssignmentRuleFormWrapper = ({
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <WrapperCard className="halfWidth">
+        <Box
+          sx={{
+            width: { md: "50%" }
+          }}
+        >
           <AssignmentRuleForm
             onSubmit={onSubmit}
             onCancel={onCancel}
@@ -69,7 +72,7 @@ const AssignmentRuleFormWrapper = ({
             isLoadingProps={restIsLoadingProps}
             isEdit={isEdit}
           />
-        </WrapperCard>
+        </Box>
       </PageContentWrapper>
     </>
   );

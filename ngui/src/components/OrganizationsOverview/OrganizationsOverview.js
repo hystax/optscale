@@ -5,7 +5,6 @@ import ActionBar from "components/ActionBar";
 import ButtonGroup from "components/ButtonGroup";
 import OrganizationsOverviewTable from "components/OrganizationsOverviewTable";
 import PageContentWrapper from "components/PageContentWrapper";
-import WrapperCard from "components/WrapperCard";
 import { ORGANIZATIONS_OVERVIEW_FILTERS } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
@@ -103,19 +102,17 @@ const OrganizationOverview = ({ data, isLoading = false }) => {
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <WrapperCard>
-          <Grid container spacing={SPACING_2}>
-            <Grid item xs={12}>
-              <ButtonGroup
-                buttons={buttonsGroupDefinition}
-                activeButtonIndex={buttonsGroupDefinition.findIndex((button) => button.id === activeFilter)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <OrganizationsOverviewTable data={tableData} total={data.length} isLoading={isLoading} />
-            </Grid>
+        <Grid container spacing={SPACING_2}>
+          <Grid item xs={12}>
+            <ButtonGroup
+              buttons={buttonsGroupDefinition}
+              activeButtonIndex={buttonsGroupDefinition.findIndex((button) => button.id === activeFilter)}
+            />
           </Grid>
-        </WrapperCard>
+          <Grid item xs={12}>
+            <OrganizationsOverviewTable data={tableData} total={data.length} isLoading={isLoading} />
+          </Grid>
+        </Grid>
       </PageContentWrapper>
     </>
   );

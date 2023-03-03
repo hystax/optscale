@@ -122,6 +122,7 @@ const OrganizationExpenses = ({ data, isLoading }) => {
         wrapper: "block_org_expenses",
         title: "lbl_org_expenses"
       }}
+      elevation={0}
     >
       {isLoading ? renderLoading : renderContent}
     </WrapperCard>

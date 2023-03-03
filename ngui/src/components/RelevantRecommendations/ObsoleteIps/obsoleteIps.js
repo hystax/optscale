@@ -5,7 +5,7 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { RECOMMENDATION_OBSOLETE_IPS, OBSOLETE_IPS_TYPE, FORMATTED_MONEY_TYPES } from "utils/constants";
 import { EN_FULL_FORMAT, unixTimestampToDateTime } from "utils/datetime";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class ObsoleteIpsRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_OBSOLETE_IPS;
@@ -34,31 +34,37 @@ class ObsoleteIpsRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_obsolete_ips_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_obsolete_ips_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_obsolete_ips_location"
       }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_obsolete_ips_last_associated">
             <FormattedMessage id="lastSeenAssociated" />
           </TextWithDataTestId>
         ),
-        accessor: "last_seen_active",
-        Cell: ({ cell: { value } }) =>
-          value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value, EN_FULL_FORMAT)
+        accessorKey: "last_seen_active",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value, EN_FULL_FORMAT);
+        }
       },
       detectedAt({ headerDataTestId: "lbl_obsolete_ips_detected_at" }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_obsolete_ips_cost">
             <FormattedMessage id="costInUnassociatedState" />
           </TextWithDataTestId>
         ),
-        accessor: "cost_not_active_ip",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        accessorKey: "cost_not_active_ip",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
+        }
       },
       possibleMonthlySavings({
         headerDataTestId: "lbl_obsolete_ips_possible_monthly_savings",

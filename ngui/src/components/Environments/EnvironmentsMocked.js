@@ -263,6 +263,6 @@ const liveDemoData = [
   }
 ];
 
-const EnvironmentsMocked = () => <Environments environments={liveDemoData} />;
+const EnvironmentsMocked = () => <Environments disableFilters environments={liveDemoData} />;
 
 export default EnvironmentsMocked;

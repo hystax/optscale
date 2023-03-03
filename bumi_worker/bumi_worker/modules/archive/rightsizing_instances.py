@@ -21,6 +21,10 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
         self.reason_description_map[ArchiveReason.RECOMMENDATION_IRRELEVANT] = (
             'recommended flavor more expensive')
 
+    @property
+    def supported_cloud_types(self):
+        return list(self._get_supported_func_map().keys())
+
     def _get_instances(self, cloud_account_ids, start_date):
         instances = super()._get_instances(cloud_account_ids, start_date)
         instances_by_account_map = {x: [] for x in cloud_account_ids}
@@ -29,13 +33,9 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
             instances_by_account_map[cloud_account_id].append(instance)
         return instances_by_account_map
 
-    def _get(self, previous_options, optimizations, **kwargs):
+    def _get(self, previous_options, optimizations, cloud_accounts_map,
+             **kwargs):
         days_threshold = previous_options['days_threshold']
-        skip_cloud_accounts = previous_options['skip_cloud_accounts']
-
-        supported_func_map = self._get_supported_func_map()
-        cloud_accounts_map = self.get_cloud_accounts(
-            list(supported_func_map.keys()), skip_cloud_accounts)
 
         cloud_acc_instances_map = defaultdict(dict)
         min_dt = datetime.utcnow() - timedelta(days=days_threshold)
@@ -62,7 +62,7 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
                 continue
 
             instances_map = cloud_acc_instances_map.get(cloud_account_id, {})
-            cloud_resource_id_map = {}
+            cloud_resource_map = {}
             cloud_resource_id_instance_map = {}
             for instance_key, optimization in optimizations_dict.items():
                 instance = instances_map.get(instance_key)
@@ -77,17 +77,17 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
                     result.append(optimization)
                     continue
                 else:
-                    cloud_resource_id_map[instance['cloud_resource_id']] = instance['_id']
+                    cloud_resource_map[instance['_id']] = instance
                     cloud_resource_id_instance_map[instance['cloud_resource_id']] = instance
 
             if not cloud_resource_id_instance_map:
                 continue
 
             cloud_resource_id_info_map = self._get_instances_info(
-                list(cloud_resource_id_map.keys()), cloud_account_id,
+                list(cloud_resource_map.values()), cloud_account_id,
                 cloud_account['type'])
             metrics_map = self._get_metrics(
-                list(cloud_resource_id_map.values()), cloud_account_id,
+                list(cloud_resource_map.keys()), cloud_account_id,
                 days_threshold, cloud_account['type'])
             current_flavor_params = self._get_flavor_params(
                 cloud_resource_id_info_map, cloud_resource_id_instance_map,

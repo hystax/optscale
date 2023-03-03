@@ -26,23 +26,13 @@ const AcquireReleaseHooksDescription = () => (
   </Typography>
 );
 
-const EnvironmentBookings = ({
-  resourceId,
-  resourceType,
-  isSshRequired,
-  cloudResourceId,
-  poolId,
-  poolName,
-  poolType,
-  resourceName
-}) => (
+const EnvironmentBookings = ({ resourceId, resourceType, isSshRequired, poolId, poolName, poolType, resourceName }) => (
   <Grid container direction="row" justifyContent="flex-start" spacing={SPACING_4}>
     <Grid item xs={12} lg={6} xl={4}>
       <EnvironmentBookingsCalendarContainer
         resourceId={resourceId}
         resourceType={resourceType}
         resourceName={resourceName}
-        cloudResourceId={cloudResourceId}
         poolId={poolId}
         poolName={poolName}
         poolType={poolType}
@@ -61,7 +51,6 @@ EnvironmentBookings.propTypes = {
   resourceId: PropTypes.string.isRequired,
   resourceType: PropTypes.string.isRequired,
   isSshRequired: PropTypes.bool,
-  cloudResourceId: PropTypes.string.isRequired,
   poolId: PropTypes.string.isRequired,
   poolName: PropTypes.string.isRequired,
   poolType: PropTypes.string.isRequired,

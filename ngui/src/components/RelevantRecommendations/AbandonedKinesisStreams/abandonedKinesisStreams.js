@@ -8,7 +8,7 @@ import {
   ABANDONED_KINESIS_STREAMS_TYPE,
   FORMATTED_MONEY_TYPES
 } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class AbandonedKinesisStreamsRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_ABANDONED_KINESIS_STREAMS;
@@ -40,8 +40,7 @@ class AbandonedKinesisStreamsRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_abandoned_kinesis_streams_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_abandoned_kinesis_streams_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_abandoned_kinesis_streams_location",
@@ -49,21 +48,21 @@ class AbandonedKinesisStreamsRecommendation extends RecommendationFactory {
       }),
       // TODO: replace with text.js column util
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_abandoned_kinesis_streams_provisioned_shards">
             <FormattedMessage id="provisionedShards" />
           </TextWithDataTestId>
         ),
-        accessor: "shardhours_capacity"
+        accessorKey: "shardhours_capacity"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_abandoned_kinesis_streams_cost_per_hour">
             <FormattedMessage id="costPerHour" />
           </TextWithDataTestId>
         ),
-        accessor: "shardhours_price",
-        Cell: ({ cell: { value } }) => <FormattedMoney value={value} type={FORMATTED_MONEY_TYPES.TINY} />
+        accessorKey: "shardhours_price",
+        cell: ({ cell }) => <FormattedMoney value={cell.getValue()} type={FORMATTED_MONEY_TYPES.TINY} />
       },
       detectedAt({ headerDataTestId: "lbl_abandoned_kinesis_streams_detected_at" }),
       possibleMonthlySavings({

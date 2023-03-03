@@ -16,16 +16,16 @@ const getDefaultValues = (palette, options) => ({
 const PaletteSettingsForm = ({ palette, options, onUpdate }) => {
   const themeSettings = useThemeSettingsOptions();
 
-  const { control, register, handleSubmit, reset, getValues } = useForm({
+  const { control, register, handleSubmit, reset } = useForm({
     defaultValues: getDefaultValues(palette, options)
   });
 
   useEffect(() => {
-    reset({
-      ...getValues(),
+    reset((formValues) => ({
+      ...formValues,
       ...getDefaultValues(palette, options)
-    });
-  }, [getValues, options, palette, reset]);
+    }));
+  }, [options, palette, reset]);
 
   const { fields } = useFieldArray({
     control,

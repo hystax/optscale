@@ -10,7 +10,15 @@ import { useRangePickerValidationRules } from "hooks/useRangePickerValidationRul
 const START_DATE = "startDate";
 const END_DATE = "endDate";
 
-const RangePickerForm = ({ initialStartDateValue, initialEndDateValue, onApply, definedRanges = [], minDate, maxDate }) => {
+const RangePickerForm = ({
+  initialStartDateValue,
+  initialEndDateValue,
+  onApply,
+  definedRanges = [],
+  minDate,
+  maxDate,
+  notSetMessageId
+}) => {
   const intl = useIntl();
 
   const {
@@ -71,6 +79,7 @@ const RangePickerForm = ({ initialStartDateValue, initialEndDateValue, onApply, 
           definedRanges={definedRanges}
           minDate={minDate}
           maxDate={maxDate}
+          notSetMessageId={notSetMessageId}
         />
       </Box>
     </form>
@@ -78,12 +87,13 @@ const RangePickerForm = ({ initialStartDateValue, initialEndDateValue, onApply, 
 };
 
 RangePickerForm.propTypes = {
-  initialStartDateValue: PropTypes.number.isRequired,
-  initialEndDateValue: PropTypes.number.isRequired,
+  initialStartDateValue: PropTypes.number,
+  initialEndDateValue: PropTypes.number,
   onApply: PropTypes.func.isRequired,
   definedRanges: DefinedRangesType,
   minDate: PropTypes.number,
-  maxDate: PropTypes.number
+  maxDate: PropTypes.number,
+  notSetMessageId: PropTypes.string
 };
 
 export default RangePickerForm;

@@ -10,8 +10,8 @@ import {
 import { GET_RESOURCE_ALLOWED_ACTIONS } from "api/auth/actionTypes";
 import { GET_OPTIMIZATIONS, UPDATE_OPTIMIZATIONS, UPDATE_RESOURCE_VISIBILITY } from "api/restapi/actionTypes";
 import { getApiUrl } from "api/utils";
-import { MESSAGE_TYPES } from "components/ContentBackdrop";
-import Mocked from "components/Mocked";
+import ContentBackdropLoader from "components/ContentBackdropLoader";
+import Mocked, { MESSAGE_TYPES } from "components/Mocked";
 import RelevantRecommendations, { RelevantRecommendationsMocked } from "components/RelevantRecommendations";
 import { SUPPORTED_CATEGORIES, ALL_CATEGORY } from "components/RelevantRecommendations/constants";
 import { useApiData } from "hooks/useApiData";
@@ -81,7 +81,7 @@ const initializeRecommendationCategoryState = () => {
   return ALL_CATEGORY;
 };
 
-const RelevantRecommendationsContainer = () => {
+const RelevantRecommendationsDataContainer = ({ downloadLimit }) => {
   const { organizationId } = useOrganizationInfo();
   const dispatch = useDispatch();
   const { isInitialMount, setIsInitialMount } = useInitialMount();
@@ -112,9 +112,6 @@ const RelevantRecommendationsContainer = () => {
     apiData: { optimizations = {} }
   } = useApiData(GET_OPTIMIZATIONS);
 
-  const { useGetRecommendationsDownloadOptions } = OrganizationOptionsService();
-  const { options: downloadOptions, isGetRecommendationsDownloadOptionsLoading } = useGetRecommendationsDownloadOptions();
-
   const { categorizedRecommendations = {}, categoriesSizes = {} } = optimizations;
 
   const { isLoading: isUpdateRecommendationsLoading } = useApiState(UPDATE_OPTIMIZATIONS);
@@ -128,7 +125,7 @@ const RelevantRecommendationsContainer = () => {
 
   const [isTabWrapperReady, setIsTabWrapperReady] = useState(!shouldInvoke);
 
-  const updateExpanded = (taskName) => {
+  const updateExpanded = (recommendationName) => {
     setExpanded((prevState) => ({
       ...prevState,
       ...supportedRecommendationTypes.reduce(
@@ -138,7 +135,7 @@ const RelevantRecommendationsContainer = () => {
         }),
         {}
       ),
-      [taskName]: !prevState[taskName]
+      [recommendationName]: !prevState[recommendationName]
     }));
   };
 
@@ -238,7 +235,7 @@ const RelevantRecommendationsContainer = () => {
     if (recommendationName) {
       getOptimizations({
         type: MAP_RECOMMENDATION_TYPES[recommendationName],
-        limit: RECOMMENDATIONS_LIMIT_FILTER,
+        limit: downloadLimit,
         status: getStatusBySelectedTab(selectedTab)
       });
     }
@@ -287,10 +284,10 @@ const RelevantRecommendationsContainer = () => {
     if (isInitialMount && shouldInvoke) {
       const status = getStatusBySelectedTab(selectedTab);
       const type = MAP_RECOMMENDATION_TYPES[queryParamRecommendationType];
-      const limit = type && RECOMMENDATIONS_LIMIT_FILTER;
+      const limit = type && downloadLimit;
       getOptimizations({ type, limit, status: type ? status : undefined });
     }
-  }, [queryParamRecommendationType, isInitialMount, shouldInvoke, selectedTab, getOptimizations]);
+  }, [queryParamRecommendationType, isInitialMount, shouldInvoke, selectedTab, getOptimizations, downloadLimit]);
 
   useEffect(() => {
     setIsInitialMount(false);
@@ -310,7 +307,7 @@ const RelevantRecommendationsContainer = () => {
         if (!isError(UPDATE_RESOURCE_VISIBILITY, getState())) {
           getOptimizations({
             type: recommendationType,
-            limit: RECOMMENDATIONS_LIMIT_FILTER,
+            limit: downloadLimit,
             status: getStatusBySelectedTab(selectedTab)
           });
         }
@@ -333,16 +330,14 @@ const RelevantRecommendationsContainer = () => {
     fetchAndDownloadRecommendation({
       url: `${getApiUrl(
         RESTAPI
-      )}/organizations/${organizationId}/optimization_data?type=${moduleName}&status=${status}&format=${format}&limit=${
-        downloadOptions?.limit ?? RECOMMENDATIONS_LIMIT_FILTER
-      }`,
+      )}/organizations/${organizationId}/optimization_data?type=${moduleName}&status=${status}&format=${format}&limit=${downloadLimit}`,
       fallbackFilename: `${moduleName}.${format}`
     });
   };
 
   const applyFilterCallback = (dataSourceIds) => {
     const type = MAP_RECOMMENDATION_TYPES[queryParamRecommendationType];
-    const limit = type && RECOMMENDATIONS_LIMIT_FILTER;
+    const limit = type && downloadLimit;
     let status;
     if (type) {
       status = getStatusBySelectedTab(selectedTab);
@@ -363,7 +358,7 @@ const RelevantRecommendationsContainer = () => {
           isTabWrapperReady,
           isUpdateRecommendationsLoading,
           isGetResourceAllowedActionsLoading,
-          isDownloadingRecommendation: isDownloadingRecommendation || isGetRecommendationsDownloadOptionsLoading,
+          isDownloadingRecommendation,
           isDownloadingCleanupScript
         }}
         selectedTab={selectedTab}
@@ -382,6 +377,18 @@ const RelevantRecommendationsContainer = () => {
         applyFilterCallback={applyFilterCallback}
       />
     </Mocked>
+  );
+};
+
+const RelevantRecommendationsContainer = () => {
+  const { useGetRecommendationsDownloadOptions } = OrganizationOptionsService();
+  const { options: downloadOptions, isGetRecommendationsDownloadOptionsLoading } = useGetRecommendationsDownloadOptions();
+  const downloadLimit = downloadOptions?.limit ?? RECOMMENDATIONS_LIMIT_FILTER;
+
+  return isGetRecommendationsDownloadOptionsLoading ? (
+    <ContentBackdropLoader isLoading />
+  ) : (
+    <RelevantRecommendationsDataContainer downloadLimit={downloadLimit} />
   );
 };
 

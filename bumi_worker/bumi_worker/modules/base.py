@@ -382,6 +382,10 @@ class ArchiveBase(ModuleBase):
             ArchiveReason.RECOMMENDATION_APPLIED: 'recommendation applied'
         }
 
+    @property
+    def supported_cloud_types(self):
+        raise NotImplementedError
+
     def _set_reason_properties(self, recommendation_object, reason,
                                description=None):
         recommendation_object['reason'] = reason
@@ -404,7 +408,8 @@ class ArchiveBase(ModuleBase):
         ]
         return list(self.mongo_client.restapi.checklists.aggregate(pipeline))
 
-    def get_archive_candidates(self, module_data, previous_module_data):
+    def get_archive_candidates(self, module_data, previous_module_data,
+                               cloud_accounts_map):
         result = []
         current_data = {self.get_record_key(r) for r in module_data}
         for record in previous_module_data:
@@ -412,6 +417,8 @@ class ArchiveBase(ModuleBase):
             if record_key not in current_data:
                 if not record.get('is_excluded', False) and not record.get(
                         'is_dismissed', False):
+                    record['cloud_account_name'] = cloud_accounts_map.get(
+                        record['cloud_account_id'], {}).get('name')
                     result.append(record)
         return result
 
@@ -461,10 +468,15 @@ class ArchiveBase(ModuleBase):
                     if current.get('created_at') != self.created_at:
                         raise ValueError('Running checklist not found')
                     previous_options = previous.get('options', {})
+                    skip_cloud_accounts = previous_options['skip_cloud_accounts']
+                    cloud_accounts_map = self.get_cloud_accounts(
+                        self.supported_cloud_types, skip_cloud_accounts)
                     archive_candidates = self.get_archive_candidates(
-                        current.get('data', []), previous.get('data', []))
+                        current.get('data', []), previous.get('data', []),
+                        cloud_accounts_map)
                     if archive_candidates:
-                        res = self._get(previous_options, archive_candidates)
+                        res = self._get(previous_options, archive_candidates,
+                                        cloud_accounts_map)
                         self._archive_data(res, previous['created_at'])
         except Exception as ex:
             error = str(ex) or str(type(ex))

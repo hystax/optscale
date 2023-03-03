@@ -9,24 +9,36 @@ const PlanSubmission = () => {
   const tableData = useMemo(
     () => [
       {
-        action: <FormattedMessage id="technicalAudit.planSubmissionConnectDataSourcesAction" />,
-        averageDuration: <FormattedMessage id="{value}minutes" values={{ value: "30-60" }} />,
-        recommendedJobTitle: <FormattedMessage id="opsDevOpsEngineer" />
+        action: "technicalAudit.planSubmissionConnectDataSourcesAction",
+        averageDuration: {
+          messageId: "{value}minutes",
+          values: { value: "30-60" }
+        },
+        recommendedJobTitle: "opsDevOpsEngineer"
       },
       {
-        action: <FormattedMessage id="technicalAudit.planSubmissionConnectJiraAndCiCdAction" />,
-        averageDuration: <FormattedMessage id="{value}minutes" values={{ value: 30 }} />,
-        recommendedJobTitle: <FormattedMessage id="opsDevOpsEngineer" />
+        action: "technicalAudit.planSubmissionConnectJiraAndCiCdAction",
+        averageDuration: {
+          messageId: "{value}minutes",
+          values: { value: 30 }
+        },
+        recommendedJobTitle: "opsDevOpsEngineer"
       },
       {
-        action: <FormattedMessage id="technicalAudit.planSubmissionSourceCodeStateAction" />,
-        averageDuration: <FormattedMessage id="{value}minutes" values={{ value: 30 }} />,
-        recommendedJobTitle: <FormattedMessage id="opsDevOpsEngineer" />
+        action: "technicalAudit.planSubmissionSourceCodeStateAction",
+        averageDuration: {
+          messageId: "{value}minutes",
+          values: { value: 30 }
+        },
+        recommendedJobTitle: "opsDevOpsEngineer"
       },
       {
-        action: <FormattedMessage id="technicalAudit.planSubmissionSurveyAction" />,
-        averageDuration: <FormattedMessage id="{value}minutes" values={{ value: 30 }} />,
-        recommendedJobTitle: <FormattedMessage id="Cto" />
+        action: "technicalAudit.planSubmissionSurveyAction",
+        averageDuration: {
+          messageId: "{value}minutes",
+          values: { value: 30 }
+        },
+        recommendedJobTitle: "Cto"
       }
     ],
     []
@@ -35,16 +47,21 @@ const PlanSubmission = () => {
   const columns = useMemo(
     () => [
       {
-        Header: <FormattedMessage id="action" />,
-        accessor: "action"
+        id: "action",
+        header: <FormattedMessage id="action" />,
+        cell: ({ row: { original } }) => <FormattedMessage id={original.action} />
       },
       {
-        Header: <FormattedMessage id="averageDuration" />,
-        accessor: "averageDuration"
+        id: "averageDuration",
+        header: <FormattedMessage id="averageDuration" />,
+        cell: ({ row: { original } }) => (
+          <FormattedMessage id={original.averageDuration.messageId} values={original.averageDuration.values} />
+        )
       },
       {
-        Header: <FormattedMessage id="recommendedJobTitle" />,
-        accessor: "recommendedJobTitle"
+        id: "recommendedJobTitle",
+        header: <FormattedMessage id="recommendedJobTitle" />,
+        cell: ({ row: { original } }) => <FormattedMessage id={original.recommendedJobTitle} />
       }
     ],
     []
@@ -56,11 +73,11 @@ const PlanSubmission = () => {
         <Table data={tableData} columns={columns} />
       </Grid>
       <Grid item xs={12}>
-        {/* TODO: probably need to remove p from app.json and component from here */}
         <Typography component="div">
           <FormattedMessage
             id="technicalAudit.planSubmissionDetails"
             values={{
+              // TODO: probably need to remove p from app.json and component from here
               p: (chunks) => <p>{chunks}</p>
             }}
           />

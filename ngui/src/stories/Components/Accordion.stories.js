@@ -1,24 +1,30 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
-import { text, boolean } from "@storybook/addon-knobs";
 import Accordion from "components/Accordion";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Accordion`
+  title: `${KINDS.COMPONENTS}/Accordion`,
+  argTypes: {
+    disableExpandedSpacing: { name: "Disable expanded spacing", control: "boolean", defaultValue: false },
+    zeroSummaryMinHeight: { name: "Zero summary min height", control: "boolean", defaultValue: false },
+    hideExpandIcon: { name: "Hide expand icon", control: "boolean", defaultValue: false },
+    summary: { name: "Summary", control: "text", defaultValue: "Accordion summary" },
+    details: { name: "Details", control: "text", defaultValue: "Accordion details" }
+  }
 };
 
-export const withKnobs = () => (
+export const withKnobs = (args) => (
   <>
     {[...Array(3).keys()].map((key) => (
       <Accordion
         key={key}
-        disableExpandedSpacing={boolean("disableExpandedSpacing", false)}
-        zeroSummaryMinHeight={boolean("zeroSummaryMinHeight", false)}
-        hideExpandIcon={boolean("hideExpandIcon", false)}
+        disableExpandedSpacing={args.disableExpandedSpacing}
+        zeroSummaryMinHeight={args.zeroSummaryMinHeight}
+        hideExpandIcon={args.hideExpandIcon}
       >
-        <Typography>{text(`summary ${key}`, `Accordion summary ${key}`)}</Typography>
-        <Typography>{text(`details ${key}`, `Accordion details ${key}`)}</Typography>
+        <Typography>{`${args.summary} ${key}`}</Typography>
+        <Typography>{`${args.details} ${key}`}</Typography>
       </Accordion>
     ))}
   </>

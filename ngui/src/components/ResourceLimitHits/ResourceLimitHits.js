@@ -31,38 +31,38 @@ const ResourceLimitHits = ({ limitHits, isLoading }) => {
 
     return [
       {
-        Header: <TextWithDataTestId messageId="type" dataTestId="lbl_type" />,
-        accessor: "type",
-        Cell: ({ cell: { value } }) => <FormattedMessage id={CONSTRAINTS_TYPES[value]} />
+        header: <TextWithDataTestId messageId="type" dataTestId="lbl_type" />,
+        accessorKey: "type",
+        cell: ({ cell }) => <FormattedMessage id={CONSTRAINTS_TYPES[cell.getValue()]} />
       },
       {
-        Header: <TextWithDataTestId messageId="scope" dataTestId="lbl_scope" />,
+        header: <TextWithDataTestId messageId="scope" dataTestId="lbl_scope" />,
         id: "scope",
-        Cell: ({ row: { original } }) =>
+        cell: ({ row: { original } }) =>
           original.pool_id ? <FormattedMessage id="poolPolicy" /> : <FormattedMessage id="resourceSpecific" />
       },
       {
-        Header: <TextWithDataTestId messageId="event" dataTestId="lbl_event" />,
+        header: <TextWithDataTestId messageId="event" dataTestId="lbl_event" />,
         id: "event",
-        Cell: ({ row: { original } }) => <ResourceLimitHitEvent state={original.state} />
+        cell: ({ row: { original } }) => <ResourceLimitHitEvent state={original.state} />
       },
       {
-        Header: <TextWithDataTestId messageId="limit" dataTestId="lbl_limit" />,
-        accessor: "constraint_limit",
-        Cell: ({ row: { original } }) => <ConstraintLimitMessage limit={original.constraint_limit} type={original.type} />
+        header: <TextWithDataTestId messageId="limit" dataTestId="lbl_limit" />,
+        accessorKey: "constraint_limit",
+        cell: ({ row: { original } }) => <ConstraintLimitMessage limit={original.constraint_limit} type={original.type} />
       },
       {
-        Header: <TextWithDataTestId messageId="value" dataTestId="lbl_value" />,
+        header: <TextWithDataTestId messageId="value" dataTestId="lbl_value" />,
         id: "hit_value",
-        Cell: ({ row: { original } }) => (
+        cell: ({ row: { original } }) => (
           <ConstraintHitMessage limit={getResourceLimitHitValue(original)} type={original.type} />
         )
       },
       {
-        Header: <TextWithDataTestId messageId="time" dataTestId="lbl_time" />,
-        accessor: "time",
+        header: <TextWithDataTestId messageId="time" dataTestId="lbl_time" />,
+        accessorKey: "time",
         defaultSort: "desc",
-        Cell: ({ cell: { value } }) => format(secondsToMilliseconds(value), EN_FULL_FORMAT)
+        cell: ({ cell }) => format(secondsToMilliseconds(cell.getValue()), EN_FULL_FORMAT)
       }
     ];
   }, []);

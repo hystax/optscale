@@ -7,19 +7,16 @@ import PropTypes from "prop-types";
 import { FormattedMessage, FormattedNumber } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import CloudLabel from "components/CloudLabel";
-import { getBasicRangesSet } from "components/DateRangePicker/defaults";
 import ExpensesTableHeader from "components/ExpensesTableHeader";
 import FormattedMoney from "components/FormattedMoney";
 import IconButton from "components/IconButton";
 import MapLegend from "components/MapLegend";
-import PageContentWrapper from "components/PageContentWrapper";
 import RegionExpensesMap from "components/RegionExpensesMap";
 import SummaryGrid from "components/SummaryGrid";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TypographyLoader from "components/TypographyLoader";
-import WrapperCard from "components/WrapperCard";
-import RangePickerFormContainer from "containers/RangePickerFormContainer";
+import { useReactiveDefaultDateRange } from "hooks/useReactiveDefaultDateRange";
 import { intl } from "translations/react-intl-config";
 import { getResourcesExpensesUrl } from "urls";
 import { getColorScale } from "utils/charts";
@@ -48,26 +45,29 @@ const getFilteredMarkers = (markers, total, getColor) =>
 
 const getColumns = (navigate, startDate, endDate) => [
   {
-    Header: intl.formatMessage({ id: "name" }),
-    accessor: "name",
-    Cell: ({ row: { original }, cell: { value } }) =>
-      original.type ? <CloudLabel label={value} type={original.type} /> : value ?? <FormattedMessage id="(not set)" />
+    header: intl.formatMessage({ id: "name" }),
+    accessorKey: "name",
+    cell: ({ row: { original }, cell }) => {
+      const value = cell.getValue();
+
+      return original.type ? <CloudLabel label={value} type={original.type} /> : value ?? <FormattedMessage id="(not set)" />;
+    }
   },
   {
-    Header: <ExpensesTableHeader startDateTimestamp={startDate} endDateTimestamp={endDate} />,
-    accessor: "total",
-    Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />,
+    header: <ExpensesTableHeader startDateTimestamp={startDate} endDateTimestamp={endDate} />,
+    accessorKey: "total",
+    cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
     defaultSort: "desc"
   },
   {
-    Header: intl.formatMessage({ id: "percent" }),
-    accessor: "percent",
-    Cell: ({ cell: { value } }) => <FormattedNumber value={value} format="percentage" />
+    header: intl.formatMessage({ id: "percent" }),
+    accessorKey: "percent",
+    cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />
   },
   {
-    Header: intl.formatMessage({ id: "actions" }),
+    header: intl.formatMessage({ id: "actions" }),
     id: "actions",
-    Cell: ({ row: { original } }) => (
+    cell: ({ row: { original } }) => (
       <IconButton
         onClick={() => navigate(getGoToExpensesLink(original.id === null ? EMPTY_UUID : original.name, startDate, endDate))}
         icon={<ListAltOutlinedIcon />}
@@ -77,20 +77,18 @@ const getColumns = (navigate, startDate, endDate) => [
         }}
       />
     ),
-    disableSortBy: true
+    enableSorting: true
   }
 ];
 
-const RegionExpenses = ({ expenses, applyFilter, startDateTimestamp, endDateTimestamp, isLoading = false }) => {
+const RegionExpenses = ({ expenses, isLoading = false }) => {
   const navigate = useNavigate();
   const theme = useTheme();
 
   const { regions: markers = [], total = 0, previous_total: previousTotal = 0 } = expenses;
-
-  const columns = useMemo(
-    () => getColumns(navigate, startDateTimestamp, endDateTimestamp),
-    [navigate, startDateTimestamp, endDateTimestamp]
-  );
+  const dates = useReactiveDefaultDateRange(DATE_RANGE_TYPE.EXPENSES);
+  const [startDateTimestamp, endDateTimestamp] = dates;
+  const columns = useMemo(() => getColumns(navigate, dates[0], dates[1]), [navigate, dates]);
 
   const data = useMemo(() => {
     const getColor = getColorScale(theme.palette.chart);
@@ -137,71 +135,52 @@ const RegionExpenses = ({ expenses, applyFilter, startDateTimestamp, endDateTime
 
   return (
     <>
-      <PageContentWrapper>
-        <Grid direction="row" container spacing={SPACING_2} justifyContent="space-between">
-          <Grid item>
-            <SummaryGrid summaryData={summaryData} />
-          </Grid>
-          <Grid item>
-            <RangePickerFormContainer
-              onApply={applyFilter}
-              initialStartDateValue={startDateTimestamp}
-              initialEndDateValue={endDateTimestamp}
-              rangeType={DATE_RANGE_TYPE.EXPENSES}
-              definedRanges={getBasicRangesSet()}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            {isLoading ? <TypographyLoader linesCount={1} /> : <MapLegend markers={data} />}
-          </Grid>
-          <Grid item xs={12}>
-            {isLoading ? (
-              <Skeleton variant="rectangular" height={REGION_EXPENSES_HEIGHT} />
-            ) : (
-              <RegionExpensesMap
-                markers={data}
-                defaultCenter={{ lat: 0, lng: 0 }}
-                defaultZoom={1}
-                startDateTimestamp={startDateTimestamp}
-                endDateTimestamp={endDateTimestamp}
-              />
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <WrapperCard
-              title={
-                <FormattedMessage
-                  id="summaryBy"
-                  values={{
-                    name: "region"
-                  }}
-                />
-              }
-            >
-              {isLoading ? (
-                <TableLoader columnsCounter={columns.length} showHeader />
-              ) : (
-                <Table
-                  data={data}
-                  columns={columns}
-                  localization={{
-                    emptyMessageId: "noRegionExpenses"
-                  }}
-                />
-              )}
-            </WrapperCard>
-          </Grid>
+      <Grid direction="row" container spacing={SPACING_2} justifyContent="space-between">
+        <Grid item>
+          <SummaryGrid summaryData={summaryData} />
         </Grid>
-      </PageContentWrapper>
+        <Grid item xs={12}>
+          {isLoading ? <TypographyLoader linesCount={1} /> : <MapLegend markers={data} />}
+        </Grid>
+        <Grid item xs={12}>
+          {isLoading ? (
+            <Skeleton variant="rectangular" height={REGION_EXPENSES_HEIGHT} />
+          ) : (
+            <RegionExpensesMap
+              markers={data}
+              defaultCenter={{ lat: 0, lng: 0 }}
+              defaultZoom={1}
+              startDateTimestamp={startDateTimestamp}
+              endDateTimestamp={endDateTimestamp}
+            />
+          )}
+        </Grid>
+        <Grid item xs={12}>
+          <FormattedMessage
+            id="summaryBy"
+            values={{
+              name: "region"
+            }}
+          />
+          {isLoading ? (
+            <TableLoader columnsCounter={columns.length} showHeader />
+          ) : (
+            <Table
+              data={data}
+              columns={columns}
+              localization={{
+                emptyMessageId: "noRegionExpenses"
+              }}
+            />
+          )}
+        </Grid>
+      </Grid>
     </>
   );
 };
 
 RegionExpenses.propTypes = {
   expenses: PropTypes.object.isRequired,
-  applyFilter: PropTypes.func.isRequired,
-  startDateTimestamp: PropTypes.number,
-  endDateTimestamp: PropTypes.number,
   isLoading: PropTypes.bool
 };
 

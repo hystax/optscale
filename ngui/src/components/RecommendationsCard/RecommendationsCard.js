@@ -61,6 +61,7 @@ const RecommendationsCard = ({ isLoading, possibleMonthlySavings, costRecommenda
         wrapper: "block_recommendations",
         title: "lbl_recommendations"
       }}
+      elevation={0}
     >
       {
         <Grid container spacing={SPACING_2}>

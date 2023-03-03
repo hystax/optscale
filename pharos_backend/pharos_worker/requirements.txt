@@ -1,0 +1,2 @@
+config-client==1.0.122
+kombu==4.6.8

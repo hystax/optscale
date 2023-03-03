@@ -266,7 +266,7 @@ const AssignmentRuleForm = ({
       <Grid container spacing={SPACING_1}>
         <Grid item xs={12} sm={4} md={5} lg={4}>
           <Controller
-            name={`${CONDITIONS}[${count}].${TYPE}`}
+            name={`${CONDITIONS}.${count}.${TYPE}`}
             defaultValue={field[TYPE]}
             control={control}
             render={({ field: { value, onChange } }) => (

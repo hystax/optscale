@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { useForm, FormProvider } from "react-hook-form";
 import TestProvider from "tests/TestProvider";
 import EnvironmentSshKey from "./EnvironmentSshKey";
@@ -11,13 +11,13 @@ const WrapWithFormProvider = (props) => {
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <WrapWithFormProvider>
         <EnvironmentSshKey />
       </WrapWithFormProvider>
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

@@ -1,10 +1,10 @@
-cloud-adapter==0.1.1210
+cloud-adapter==0.1.1485
 pymongo==3.5.1
-restapi-client==1.0.640
-config-client==1.0.122
+restapi-client==1.0.723
+config-client==1.0.145
 kombu==4.6.8
 boto3==1.12.25
-herald-client==0.0.10
-insider_client==0.0.20
+herald-client==0.0.12
+insider_client==0.0.24
 metroculus-client==0.0.3
 clickhouse-driver==0.2.2

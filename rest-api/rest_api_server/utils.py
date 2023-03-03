@@ -8,7 +8,6 @@ import base64
 import uuid
 import hashlib
 import cryptocode
-import functools
 from urllib.parse import urlencode
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -67,20 +66,23 @@ CURRENCY_MAP = {
     "BMD": "$",
     "BND": "$",
     "BOB": "$b",
+    "BOV": "BOV",
     "BRL": "R$",
     "BSD": "$",
-    "BTC": "฿",
     "BTN": "Nu.",
     "BWP": "P",
-    "BYR": "Br",
     "BYN": "Br",
     "BZD": "BZ$",
-    "CAD": "$",
+    "CAD": "CA$",
     "CDF": "FC",
+    "CHE": "CHE",
     "CHF": "CHF",
+    "CHW": "CHW",
+    "CLF": "UF",
     "CLP": "$",
     "CNY": "¥",
     "COP": "$",
+    "COU": "COU",
     "CRC": "₡",
     "CUC": "$",
     "CUP": "₱",
@@ -90,18 +92,14 @@ CURRENCY_MAP = {
     "DKK": "kr",
     "DOP": "RD$",
     "DZD": "دج",
-    "EEK": "kr",
     "EGP": "£",
     "ERN": "Nfk",
     "ETB": "Br",
-    "ETH": "Ξ",
     "EUR": "€",
     "FJD": "$",
     "FKP": "£",
     "GBP": "£",
     "GEL": "₾",
-    "GGP": "£",
-    "GHC": "₵",
     "GHS": "GH₵",
     "GIP": "£",
     "GMD": "D",
@@ -115,12 +113,10 @@ CURRENCY_MAP = {
     "HUF": "Ft",
     "IDR": "Rp",
     "ILS": "₪",
-    "IMP": "£",
     "INR": "₹",
     "IQD": "ع.د",
     "IRR": "﷼",
     "ISK": "kr",
-    "JEP": "£",
     "JMD": "J$",
     "JOD": "JD",
     "JPY": "¥",
@@ -138,9 +134,6 @@ CURRENCY_MAP = {
     "LKR": "₨",
     "LRD": "$",
     "LSL": "M",
-    "LTC": "Ł",
-    "LTL": "Lt",
-    "LVL": "Ls",
     "LYD": "LD",
     "MAD": "MAD",
     "MDL": "lei",
@@ -149,12 +142,12 @@ CURRENCY_MAP = {
     "MMK": "K",
     "MNT": "₮",
     "MOP": "MOP$",
-    "MRO": "UM",
     "MRU": "UM",
     "MUR": "₨",
     "MVR": "Rf",
     "MWK": "MK",
     "MXN": "$",
+    "MXV": "MXV",
     "MYR": "RM",
     "MZN": "MT",
     "NAD": "$",
@@ -172,7 +165,6 @@ CURRENCY_MAP = {
     "PLN": "zł",
     "PYG": "Gs",
     "QAR": "﷼",
-    "RMB": "￥",
     "RON": "lei",
     "RSD": "Дин.",
     "RUB": "₽",
@@ -184,11 +176,11 @@ CURRENCY_MAP = {
     "SEK": "kr",
     "SGD": "$",
     "SHP": "£",
+    "SLE": "Le",
     "SLL": "Le",
     "SOS": "S",
     "SRD": "$",
     "SSP": "£",
-    "STD": "Db",
     "STN": "Db",
     "SVC": "$",
     "SYP": "£",
@@ -198,29 +190,34 @@ CURRENCY_MAP = {
     "TMT": "T",
     "TND": "د.ت",
     "TOP": "T$",
-    "TRL": "₤",
     "TRY": "₺",
     "TTD": "TT$",
-    "TVD": "$",
     "TWD": "NT$",
     "TZS": "TSh",
     "UAH": "₴",
     "UGX": "USh",
     "USD": "$",
+    "USN": "USN",
+    "UYI": "UYI",
     "UYU": "$U",
+    "UYW": "UYW",
     "UZS": "лв",
-    "VEF": "Bs",
+    "VED": "VED",
+    "VES": "BsS",
     "VND": "₫",
     "VUV": "VT",
     "WST": "WS$",
     "XAF": "FCFA",
-    "XBT": "Ƀ",
     "XCD": "$",
+    "XDR": "XDR",
     "XOF": "CFA",
     "XPF": "₣",
+    "XSU": "XSU",
+    "XUA": "XUA",
     "YER": "﷼",
     "ZAR": "R",
-    "ZWD": "Z$",
+    "ZMW": "K",
+    "ZWL": "ZWL",
 }
 
 
@@ -266,6 +263,10 @@ class Config(object):
     @property
     def clickhouse_params(self):
         return self.client.clickhouse_params()
+
+    @property
+    def arcee_url(self):
+        return self.client.arcee_url()
 
 
 def humanize_storage_size(size, precision=2):
@@ -578,13 +579,17 @@ def encode_string(val, decode=False):
 
 
 def encoded_tags(tags, decode=False):
-    if not tags:
+    return encoded_map(tags, decode)
+
+
+def encoded_map(map, decode=False):
+    if not map:
         return {}
-    new_tags = {}
-    for k, v in tags.items():
+    new_map = {}
+    for k, v in map.items():
         new_key = encode_string(k, decode)
-        new_tags[new_key] = v
-    return new_tags
+        new_map[new_key] = v
+    return new_map
 
 
 def update_tags(db_value, value, is_report_import=False, decode=True):
@@ -604,7 +609,8 @@ def update_tags(db_value, value, is_report_import=False, decode=True):
     return value
 
 
-def generate_discovered_cluster_resources_stat(newly_discovered_resources, cluster_map, cluster_key='cluster_id'):
+def generate_discovered_cluster_resources_stat(
+        newly_discovered_resources, cluster_map, cluster_key='cluster_id'):
     newly_discovered_stat = {}
     for r in newly_discovered_resources:
         cloud_account_id = r['cloud_account_id']
@@ -686,12 +692,14 @@ def _get_encryption_salt():
 
 
 def encode_config(config_dict):
+    s = _get_encryption_salt()
     return cryptocode.encrypt(
-        json.dumps(config_dict), _get_encryption_salt())
+        json.dumps(config_dict), s)
 
 
 def decode_config(encoded_str):
-    return json.loads(cryptocode.decrypt(encoded_str, _get_encryption_salt()))
+    s = _get_encryption_salt()
+    return json.loads(cryptocode.decrypt(encoded_str, s))
 
 
 class SupportedFiltersMixin(object):

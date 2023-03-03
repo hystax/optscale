@@ -2,22 +2,7 @@ import { GET_ORGANIZATIONS } from "api/restapi/actionTypes";
 import { SCOPE_ID } from "containers/OrganizationSelectorContainer/reducer";
 import { useApiData } from "hooks/useApiData";
 import { useRootData } from "hooks/useRootData";
-
-// TODO: Try to get a currency symbol from localization
-const getCurrencySymbol = (currency) => {
-  switch (currency) {
-    case "RUB":
-      return "₽";
-    case "EUR":
-      return "€";
-    case "BRL":
-      return "R$";
-    case "CAD":
-      return "CA$";
-    default:
-      return "$";
-  }
-};
+import localeManager from "translations/localeManager";
 
 const getActiveOrganization = (organizationId, organizations) => {
   // 1. Take organization by id from storage
@@ -34,6 +19,9 @@ const getActiveOrganization = (organizationId, organizations) => {
 };
 
 export const useOrganizationInfo = () => {
+  // TODO: need to check setScopeId function, which is not being called
+  // after authorization, so old organization id is still persisted,
+  // even after login with another user (with another organizations set)
   const { rootData: organizationId } = useRootData(SCOPE_ID);
 
   const {
@@ -49,13 +37,11 @@ export const useOrganizationInfo = () => {
   } = getActiveOrganization(organizationId, organizations);
 
   return {
-    // Return either new or existed organization id from the storage
-    // The existed organization id will be returned in cases when there is not organizations in the store, e.g on the login page
-    organizationId: newOrganizationId || organizationId,
+    organizationId: newOrganizationId,
     name,
     organizationPoolId,
     isDemo,
     currency,
-    currencySymbol: getCurrencySymbol(currency)
+    currencySymbol: currency ? localeManager.getCurrencySymbol(currency) : undefined
   };
 };

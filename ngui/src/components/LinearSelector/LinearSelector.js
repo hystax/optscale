@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState } from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
@@ -123,7 +124,8 @@ const MultiPopoverItem = ({ name, items, label, handleApply, values }) => {
           messageId: "apply",
           variant: "contained",
           onClick: () => handleApply({ name, value: selectedItems }),
-          closable: true
+          closable: true,
+          dataTestId: "apply_multi_popover_button"
         }
       ]}
       handleClose={() => setSelectedItems(values)}
@@ -202,7 +204,7 @@ const Item = ({
   return <Component />;
 };
 
-const PickedItem = ({ name, value, type, onDelete, displayedName, displayedValue }) => {
+const PickedItem = ({ name, dataTestId = name, value, type, onDelete, displayedName, displayedValue }) => {
   const getChipLabel = () => {
     const nameDisplayed = displayedName || <FormattedMessage id={name} />;
     const valueDisplayed = displayedValue || value;
@@ -214,13 +216,13 @@ const PickedItem = ({ name, value, type, onDelete, displayedName, displayedValue
         value={valueDisplayed}
         variant={typographyVariant}
         dataTestIds={{
-          typography: `chip_${name}_typography`,
-          key: `chip_${name}_key`,
-          value: `chip_${name}_value`
+          typography: `chip_${dataTestId}_typography`,
+          key: `chip_${dataTestId}_key`,
+          value: `chip_${dataTestId}_value`
         }}
       />
     ) : (
-      <Typography component="div" variant={typographyVariant} data-test-id={`chip_${name}_label`}>
+      <Typography component="div" variant={typographyVariant} data-test-id={`chip_${dataTestId}_label`}>
         {nameDisplayed}
       </Typography>
     );
@@ -229,8 +231,8 @@ const PickedItem = ({ name, value, type, onDelete, displayedName, displayedValue
     <Chip
       label={getChipLabel()}
       dataTestIds={{
-        chip: `chip_${name}`,
-        deleteIcon: `btn_${name}_close`
+        chip: `chip_${dataTestId}`,
+        deleteIcon: `btn_${dataTestId}_close`
       }}
       color="info"
       size="medium"
@@ -298,37 +300,49 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
 
   return (
     <Box className={classes.wrapper}>
-      <Typography component="div" data-test-id={labelDataTestId}>
-        {label}
-        {": "}
-      </Typography>
+      {label && (
+        <Typography component="div" data-test-id={labelDataTestId}>
+          {label}
+          {": "}
+        </Typography>
+      )}
       {isEmptyObject(value) || valuesArray.length === 0 ? (
         <Typography component="span">
           <FormattedMessage id={NONE} />
         </Typography>
       ) : (
         <>
-          {valuesArray.map(
-            ({ name: itemName, value: itemValue, displayedName: customDisplayedName, displayedValue: itemDisplayedValue }) => {
-              const { type: itemType, displayedName: itemDisplayedName } = items.find((item) => item.name === itemName);
-              return (
-                <PickedItem
-                  key={`${itemName}-${itemValue}`}
-                  name={itemName}
-                  // equal to node that was defined in "values" array (LinearSelector)
-                  // or to node that was defined as a displayedName in items
-                  // or <FormattedMessage id={name}/>
-                  displayedName={customDisplayedName || itemDisplayedName}
-                  displayedValue={itemDisplayedValue}
-                  value={itemValue}
-                  type={itemType}
-                  onDelete={
-                    typeof onClear === "function" ? () => onClear({ filterName: itemName, filterValue: itemValue }) : undefined
-                  }
-                />
-              );
-            }
-          )}
+          {valuesArray.map((pickedValue) => {
+            const {
+              name: itemName,
+              value: itemValue,
+              displayedName: customDisplayedName,
+              displayedValue: itemDisplayedValue
+            } = pickedValue;
+
+            const {
+              type: itemType,
+              displayedName: itemDisplayedName,
+              dataTestId
+            } = items.find((item) => item.name === itemName);
+            return (
+              <PickedItem
+                key={`${itemName}-${itemValue}`}
+                name={itemName}
+                dataTestId={dataTestId}
+                // equal to node that was defined in "values" array (LinearSelector)
+                // or to node that was defined as a displayedName in items
+                // or <FormattedMessage id={name}/>
+                displayedName={customDisplayedName || itemDisplayedName}
+                displayedValue={itemDisplayedValue}
+                value={itemValue}
+                type={itemType}
+                onDelete={
+                  typeof onClear === "function" ? () => onClear({ filterName: itemName, filterValue: itemValue }) : undefined
+                }
+              />
+            );
+          })}
           {valuesArray.length > 1 && onClearAll ? (
             <Button
               dataTestId="btn_clear"
@@ -341,7 +355,12 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
           ) : null}
         </>
       )}
-      <Divider style={{ marginLeft: "8px", marginRight: "8px", width: "2px" }} flexItem orientation="vertical" />
+      <Divider
+        component="span"
+        style={{ marginLeft: "8px", marginRight: "8px", width: "2px" }}
+        flexItem
+        orientation="vertical"
+      />
       <SelectorItems items={items} values={valuesArray} onApply={onApply} onChange={onChange} />
     </Box>
   );
@@ -379,7 +398,8 @@ PickedItem.propTypes = {
   type: PropTypes.string.isRequired,
   onDelete: PropTypes.func,
   displayedName: PropTypes.node,
-  displayedValue: PropTypes.node
+  displayedValue: PropTypes.node,
+  dataTestId: PropTypes.string
 };
 
 Item.propTypes = {
@@ -412,7 +432,7 @@ const valuePropTypesDefinition = PropTypes.shape({
 });
 
 LinearSelector.propTypes = {
-  label: PropTypes.node.isRequired,
+  label: PropTypes.node,
   items: PropTypes.array.isRequired, // List of selector items (see Item.propTypes)
   onClear: PropTypes.func,
   value: PropTypes.oneOfType([PropTypes.arrayOf(valuePropTypesDefinition), valuePropTypesDefinition, PropTypes.shape({})])

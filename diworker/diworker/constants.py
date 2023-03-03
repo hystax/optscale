@@ -8,6 +8,7 @@ AWS_PARQUET_CSV_MAP = {
     'bill_payer_account_id': 'bill/PayerAccountId',
     'bill_billing_period_start_date': 'bill/BillingPeriodStartDate',
     'bill_billing_period_end_date': 'bill/BillingPeriodEndDate',
+    'bill_invoicing_entity': 'bill/InvoicingEntity',
     'line_item_usage_account_id': 'lineItem/UsageAccountId',
     'line_item_line_item_type': 'lineItem/LineItemType',
     'line_item_usage_start_date': 'lineItem/UsageStartDate',
@@ -18,6 +19,7 @@ AWS_PARQUET_CSV_MAP = {
     'line_item_availability_zone': 'lineItem/AvailabilityZone',
     'line_item_resource_id': 'lineItem/ResourceId',
     'line_item_usage_amount': 'lineItem/UsageAmount',
+    'line_item_net_unblended_cost': 'lineItem/NetUnblendedCost',
     'line_item_normalization_factor': 'lineItem/NormalizationFactor',
     'line_item_normalized_usage_amount': 'lineItem/NormalizedUsageAmount',
     'line_item_currency_code': 'lineItem/CurrencyCode',
@@ -127,6 +129,17 @@ AWS_PARQUET_CSV_MAP = {
     'reservation_effective_cost': 'reservation/EffectiveCost',
     'reservation_end_time': 'reservation/EndTime',
     'reservation_modification_status': 'reservation/ModificationStatus',
+    'reservation_net_amortized_upfront_cost_for_usage':
+        'reservation/NetAmortizedUpfrontCostForUsage',
+    'reservation_net_amortized_upfront_fee_for_billing_period':
+        'reservation/NetAmortizedUpfrontFeeForBillingPeriod',
+    'reservation_net_recurring_fee_for_usage':
+        'reservation/NetRecurringFeeForUsage',
+    'reservation_net_unused_recurring_fee': 'reservation/NetUnusedRecurringFee',
+    'reservation_net_upfront_value': 'reservation/NetUpfrontValue',
+    'reservation_net_unused_amortized_upfront_fee_for_billing_period':
+        'reservation/NetUnusedAmortizedUpfrontFeeForBillingPeriod',
+    'reservation_net_effective_cost': 'reservation/NetEffectiveCost',
     'reservation_normalized_units_per_reservation':
         'reservation/NormalizedUnitsPerReservation',
     'reservation_number_of_reservations': 'reservation/NumberOfReservations',
@@ -162,6 +175,12 @@ AWS_PARQUET_CSV_MAP = {
     'savings_plan_payment_option': 'savingsPlan/PaymentOption',
     'savings_plan_purchase_term': 'savingsPlan/PurchaseTerm',
     'savings_plan_region': 'savingsPlan/Region',
+    'savings_plan_net_savings_plan_effective_cost':
+        'savingsPlan/NetSavingsPlanEffectiveCost',
+    'savings_plan_net_amortized_upfront_commitment_for_billing_period':
+        'savingsPlan/NetAmortizedUpfrontCommitmentForBillingPeriod',
+    'savings_plan_net_recurring_commitment_for_billing_period':
+        'savingsPlan/NetRecurringCommitmentForBillingPeriod',
     'resource_tags_user_name': 'resourceTags/user:Name',
     'resource_tags_aws_cloudformation_stack_id':
         'resourceTags/aws:cloudformation:stack-id',

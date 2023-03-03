@@ -1,8 +1,8 @@
 import React from "react";
-import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
-import WrapperCard from "components/WrapperCard";
 import Link from "@mui/material/Link";
-import { isEmpty } from "utils/arrays";
+import WrapperCard from "components/WrapperCard";
+import { KINDS } from "stories";
+import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
 import {
   PRODUCTION,
   HYSTAX,
@@ -20,9 +20,6 @@ import {
   HYSTAX_DISASTER_RECOVERY_VMWARE,
   HYSTAX_DISASTER_RECOVERY_ALIBABA,
   HYSTAX_DISASTER_RECOVERY_OPENSTACK,
-  AWS_MARKETPLACE,
-  AZURE_MARKETPLACE,
-  ALIBABA_MARKETPLACE,
   // Hystax documentation urls
   DOCS_HYSTAX_OPTSCALE,
   DOCS_HYSTAX_AUTO_BILLING_AWS,
@@ -32,10 +29,9 @@ import {
   GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR,
   GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS,
   DOCS_HYSTAX_CLUSTERS,
-  DOCS_HYSTAX_CLEANUP_SCRIPTS,
-  HYSTAX_MARKETPLACES_ANCHOR
+  DOCS_HYSTAX_CLEANUP_SCRIPTS
 } from "urls";
-import { KINDS } from "stories";
+import { isEmpty } from "utils/arrays";
 
 export default {
   title: `${KINDS.OTHER}/ExternalLinks`
@@ -72,22 +68,6 @@ const linksDefinition = {
     {
       link: HYSTAX_DISASTER_RECOVERY,
       usages: ['In a description on the "Disaster Recovery" page']
-    },
-    {
-      link: AWS_MARKETPLACE,
-      usages: ["cloud-account/connect"]
-    },
-    {
-      link: AZURE_MARKETPLACE,
-      usages: ["cloud-account/connect"]
-    },
-    {
-      link: ALIBABA_MARKETPLACE,
-      usages: ["cloud-account/connect"]
-    },
-    {
-      link: HYSTAX_MARKETPLACES_ANCHOR,
-      usages: ["Top Alert"]
     }
   ],
   "Live cloud migration to": [
@@ -187,25 +167,23 @@ const linksDefinition = {
 
 const getTableData = () =>
   Object.entries(linksDefinition)
-    .map(([groupName, links]) => {
-      return [
-        {
-          link: "",
-          name: groupName,
-          divider: true
-        },
-        ...links
-      ];
-    })
+    .map(([groupName, links]) => [
+      {
+        link: "",
+        name: groupName,
+        divider: true
+      },
+      ...links
+    ])
     .flat();
 
 export const basic = () => {
   const columns = [
     {
-      Header: "Link",
-      accessor: "link",
-      disableSortBy: true,
-      Cell: ({ row: { original } }) =>
+      header: "Link",
+      accessorKey: "link",
+      enableSorting: false,
+      cell: ({ row: { original } }) =>
         original.divider ? (
           <strong>{original.name}</strong>
         ) : (
@@ -217,10 +195,10 @@ export const basic = () => {
         )
     },
     {
-      Header: "Usage",
-      accessor: "usages",
-      disableSortBy: true,
-      Cell: ({ row: { original } }) =>
+      header: "Usage",
+      accessorKey: "usages",
+      enableSorting: false,
+      cell: ({ row: { original } }) =>
         !isEmpty(original.usages) && (
           <ul>
             {original.usages.map((usage) => (

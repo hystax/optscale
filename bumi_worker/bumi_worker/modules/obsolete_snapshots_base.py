@@ -64,8 +64,8 @@ class ObsoleteSnapshotsBase(ModuleBase):
                     'cloud_resource_id': {'$nin': excluded_ids},
                     'resource_type': resource_type,
                     '$or': [
-                        {'last_used': {'$exists': False}},
-                        {'last_used': {'$lt': int(
+                        {'meta.last_used': {'$exists': False}},
+                        {'meta.last_used': {'$lt': int(
                             (now - obsolete_threshold).timestamp())}}
                     ]
                 }
@@ -191,7 +191,7 @@ class ObsoleteSnapshotsBase(ModuleBase):
                         'last_seen': int(end_date.timestamp()),
                         'saving': saving,
                         'region': resource.get('region'),
-                        'last_used': resource.get('last_used') or 0,
+                        'last_used': resource['meta'].get('last_used') or 0,
                         'is_excluded': resource.get(
                             'pool_id') in excluded_pools,
                         # For snapshot chains that have nested snapshots

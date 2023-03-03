@@ -3,6 +3,7 @@ import CachedOutlinedIcon from "@mui/icons-material/CachedOutlined";
 import CloudDownloadOutlinedIcon from "@mui/icons-material/CloudDownloadOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import ErrorIcon from "@mui/icons-material/Error";
+import RestoreOutlinedIcon from "@mui/icons-material/RestoreOutlined";
 import SettingsIcon from "@mui/icons-material/Settings";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -15,33 +16,33 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import Accordion from "components/Accordion";
 import ActionBar from "components/ActionBar";
 import CloudLabel from "components/CloudLabel";
 import ConditionWrapper from "components/ConditionWrapper";
-import FormattedMoney from "components/FormattedMoney";
 import Icon from "components/Icon";
 import IconButton from "components/IconButton";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import KeyValueLabel from "components/KeyValueLabel";
 import PageContentWrapper from "components/PageContentWrapper";
 import RecommendationAccordionTitle from "components/RecommendationAccordionTitle";
 import RecommendationDescription from "components/RecommendationDescription";
-import RecommendationFilters from "components/RecommendationFilters";
 import RecommendationLimitWarning from "components/RecommendationLimitWarning";
-import RecommendationsCategoriesButtonGroup from "components/RecommendationsCategoriesButtonGroup";
+import RecommendationSaving from "components/RecommendationSaving/RecommendationSaving";
+import RecommendationsCategoriesSelector from "components/RecommendationsCategoriesSelector";
+import RecommendationsDataSourceFilters from "components/RecommendationsDataSourceFilters";
 import SearchInput from "components/SearchInput";
 import SummaryGrid from "components/SummaryGrid";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TabsWrapper from "components/TabsWrapper";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import WrapperCard from "components/WrapperCard";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { useSyncQueryParamWithState } from "hooks/useSyncQueryParamWithState";
-import { DOCS_HYSTAX_CLEANUP_SCRIPTS, getRecommendationSettingsUrl } from "urls";
+import { ARCHIVED_RECOMMENDATIONS, DOCS_HYSTAX_CLEANUP_SCRIPTS, getRecommendationSettingsUrl } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import {
   RECOMMENDATION_VOLUMES_NOT_ATTACHED_FOR_LONG_TIME,
@@ -102,35 +103,6 @@ import { volumesNotAttachedForLongTimeRecommendation } from "./VolumesNotAttache
 
 const { ACTIVE: ACTIVE_RECOMMENDATIONS_TAB, DISMISSED: DISMISSED_TAB, EXCLUDED: EXCLUDED_TAB } = RECOMMENDATIONS_TABS;
 
-const actionBarDefinition = {
-  title: {
-    messageId: "recommendations",
-    dataTestId: "lbl_recommendations"
-  }
-};
-
-const Saving = ({ saving }) => {
-  const intlFormatter = useIntl();
-
-  const monthTranslation = intlFormatter.formatMessage({ id: "month" }).toLowerCase();
-  const perMonthTranslation = intlFormatter.formatMessage({ id: "perX" }, { x: monthTranslation }).toLowerCase();
-
-  return (
-    <KeyValueLabel
-      messageId="savings"
-      isBoldValue={false}
-      value={() => (
-        <>
-          <strong>
-            <FormattedMoney value={saving} />
-          </strong>{" "}
-          {perMonthTranslation}
-        </>
-      )}
-    />
-  );
-};
-
 const nextCheckRender = (nextRun) => {
   if (!nextRun) {
     return { id: "never" };
@@ -152,7 +124,7 @@ const getActionBarDownloadItem = ({
   items
 }) => ({
   key: type,
-  icon: <CloudDownloadOutlinedIcon fontSize="small" />,
+  startIcon: <CloudDownloadOutlinedIcon />,
   messageId: "download",
   type: "dropdown",
   dataTestId: isEmptyArray(buttonTestIds) ? null : buttonTestIds[0],
@@ -178,7 +150,7 @@ const getActionBarDropDownItem = ({ data, moduleName, downloadCleanupScript, isD
   const uniqueCloudAccounts = [...new Map(data.map((item) => [item.cloud_account_name, item])).values()];
   return {
     key: "clouds-add",
-    icon: <DescriptionOutlinedIcon fontSize="small" />,
+    startIcon: <DescriptionOutlinedIcon />,
     messageId: "cleanupScripts",
     type: "dropdown",
     dataTestId: isEmptyArray(buttonTestIds) ? null : buttonTestIds[1],
@@ -278,7 +250,7 @@ const RecommendationAccordion = ({
             messages={[
               <React.Fragment key={1}>{translatedType}</React.Fragment>,
               <KeyValueLabel key={2} messageId="count" value={count} />,
-              saving && <Saving key={3} saving={saving} />
+              saving && <RecommendationSaving key={3} saving={saving} />
             ].filter(Boolean)}
           />
           {error ? (
@@ -291,34 +263,44 @@ const RecommendationAccordion = ({
         </ListItem>
         {expanded[type] && (
           <Stack spacing={SPACING_1}>
-            <RecommendationDescription
-              messageId={descriptionMessageId}
-              messageValues={{
-                strong: (chunks) => <strong>{chunks}</strong>,
-                daysThreshold: options?.days_threshold,
-                cpuPercentThreshold: options?.cpu_percent_threshold,
-                networkBpsThreshold: options?.network_bps_threshold,
-                dataSizeAvg: options?.data_size_threshold,
-                tier1RequestsQuantity: options?.tier_1_request_quantity_threshold,
-                tier2RequestsQuantity: options?.tier_2_request_quantity_threshold,
-                metricType: options?.metric?.type,
-                metricLimit: options?.metric?.limit
-              }}
-              dataTestId={dataTestIds.textTestId}
-              isLoading={isGetRecommendationsLoading}
-            />
-            {count > limit ? <RecommendationLimitWarning limit={limit} /> : null}
-            {error ? (
-              <Typography color="error">
-                <FormattedMessage
-                  id="recommendationError"
-                  values={{
-                    errorText: error
-                  }}
-                />
-              </Typography>
-            ) : null}
-            <TableWithLoadingAndMemo isLoading={isGetRecommendationsLoading} table={table} />
+            <div>
+              <RecommendationDescription
+                messageId={descriptionMessageId}
+                messageValues={{
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                  daysThreshold: options?.days_threshold,
+                  cpuPercentThreshold: options?.cpu_percent_threshold,
+                  networkBpsThreshold: options?.network_bps_threshold,
+                  dataSizeAvg: options?.data_size_threshold,
+                  tier1RequestsQuantity: options?.tier_1_request_quantity_threshold,
+                  tier2RequestsQuantity: options?.tier_2_request_quantity_threshold,
+                  metricType: options?.metric?.type,
+                  metricLimit: options?.metric?.limit
+                }}
+                dataTestId={dataTestIds.textTestId}
+                isLoading={isGetRecommendationsLoading}
+              />
+            </div>
+            {count > limit && (
+              <div>
+                <RecommendationLimitWarning limit={limit} />
+              </div>
+            )}
+            {error && (
+              <div>
+                <Typography color="error">
+                  <FormattedMessage
+                    id="recommendationError"
+                    values={{
+                      errorText: error
+                    }}
+                  />
+                </Typography>
+              </div>
+            )}
+            <div>
+              <TableWithLoadingAndMemo isLoading={isGetRecommendationsLoading} table={table} />
+            </div>
           </Stack>
         )}
       </Accordion>
@@ -411,6 +393,28 @@ const ActiveRecommendationTabContent = ({
   );
 };
 
+const ActionCell = ({ setting, resourceId, type, index, isGetResourceAllowedActionsLoading, patchResource }) => {
+  const isAllowedAction = useIsAllowed({
+    entityType: SCOPE_TYPES.RESOURCE,
+    entityId: resourceId,
+    requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"]
+  });
+
+  return (
+    <IconButton
+      icon={setting.icon}
+      onClick={() => patchResource(resourceId, type)}
+      isLoading={isGetResourceAllowedActionsLoading}
+      disabled={!isAllowedAction}
+      dataTestId={`btn_${type}_${setting.dataTestIdPrefix}_${index}`}
+      tooltip={{
+        show: true,
+        value: <FormattedMessage id={isAllowedAction ? setting.tooltipMessageId : "youDoNotHaveEnoughPermissions"} />
+      }}
+    />
+  );
+};
+
 const RecommendationTabContent = ({ expanded, handleChange, optimizationsView, isGetRecommendationsLoading = false }) => (
   <RecommendationAccordions
     optimizations={optimizationsView}
@@ -426,41 +430,104 @@ const getTableColumns = ({ columns, type, setting, patchResource, dataTestId, is
   }
   return columns.concat([
     {
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId={dataTestId}>
           <FormattedMessage id="actions" />
         </TextWithDataTestId>
       ),
       id: "actions",
-      disableSortBy: true,
-      Cell: ({
+      enableSorting: false,
+      cell: ({
         row: {
           original: { resource_id: resourceId },
           index
         }
-      }) => {
-        const isAllowedAction = useIsAllowed({
-          entityType: SCOPE_TYPES.RESOURCE,
-          entityId: resourceId,
-          requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"]
-        });
-
-        return (
-          <IconButton
-            icon={setting.icon}
-            onClick={() => patchResource(resourceId, type)}
-            isLoading={isGetResourceAllowedActionsLoading}
-            disabled={!isAllowedAction}
-            dataTestId={`btn_${type}_${setting.dataTestIdPrefix}_${index}`}
-            tooltip={{
-              show: true,
-              value: <FormattedMessage id={isAllowedAction ? setting.tooltipMessageId : "youDoNotHaveEnoughPermissions"} />
-            }}
-          />
-        );
-      }
+      }) => (
+        <ActionCell
+          setting={setting}
+          resourceId={resourceId}
+          type={type}
+          index={index}
+          isGetResourceAllowedActionsLoading={isGetResourceAllowedActionsLoading}
+          patchResource={patchResource}
+        />
+      )
     }
   ]);
+};
+
+const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, isLoadingProps = {}, onForceCheck }) => {
+  const isManageChecklistsAllowed = useIsAllowed({
+    requiredActions: ["MANAGE_CHECKLISTS"]
+  });
+
+  const { isDemo } = useOrganizationInfo();
+
+  const { isGetRecommendationsLoading, isUpdateRecommendationsLoading } = isLoadingProps;
+
+  const summaryData = [
+    {
+      key: "possibleMonthlySavings",
+      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
+      valueComponentProps: {
+        value: totalSaving
+      },
+      dataTestIds: {
+        cardTestId: "card_saving",
+        titleTestId: "p_saving",
+        valueTestId: "p_saving_value"
+      },
+      captionMessageId: "possibleMonthlySavings",
+      isLoading: isGetRecommendationsLoading
+    },
+    {
+      key: "lastCheckTime",
+      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
+      valueComponentProps: {
+        id: !lastCompleted ? "never" : "valueAgo",
+        values: {
+          value: !lastCompleted ? null : getTimeDistance(lastCompleted)
+        }
+      },
+      dataTestIds: {
+        cardTestId: "card_last_check",
+        titleTestId: "p_last_check",
+        valueTestId: "p_last_time"
+      },
+      captionMessageId: "lastCheckTime",
+      isLoading: isGetRecommendationsLoading || isUpdateRecommendationsLoading
+    },
+    {
+      key: "nextCheckTime",
+      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
+      valueComponentProps:
+        lastRun !== lastCompleted
+          ? {
+              id: "runningRightNow"
+            }
+          : nextCheckRender(nextRun),
+      captionMessageId: "nextCheckTime",
+      dataTestIds: {
+        cardTestId: "card_next_check",
+        titleTestId: "p_next_check",
+        valueTestId: "p_next_time"
+      },
+      button: {
+        show: isManageChecklistsAllowed && !isDemo,
+        icon: <CachedOutlinedIcon />,
+        onClick: onForceCheck,
+        dataTestId: "btn_force_check",
+        tooltip: {
+          show: true,
+          messageId: "forceCheck",
+          placement: "top"
+        }
+      },
+      isLoading: isGetRecommendationsLoading || isUpdateRecommendationsLoading
+    }
+  ];
+
+  return <SummaryGrid summaryData={summaryData} />;
 };
 
 const RelevantRecommendations = ({
@@ -480,6 +547,8 @@ const RelevantRecommendations = ({
   applyFilterCallback,
   forceCheck
 }) => {
+  const navigate = useNavigate();
+
   const {
     total_saving: totalSaving = 0,
     last_run: lastRun = 0,
@@ -487,13 +556,26 @@ const RelevantRecommendations = ({
     next_run: nextRun = 0
   } = data;
 
-  const navigate = useNavigate();
-
-  const { isDemo } = useOrganizationInfo();
+  const actionBarDefinition = {
+    title: {
+      messageId: "recommendations",
+      dataTestId: "lbl_recommendations"
+    },
+    items: [
+      {
+        key: "archive",
+        dataTestId: "btn_archive",
+        icon: <RestoreOutlinedIcon />,
+        messageId: "archive",
+        type: "button",
+        action: () => navigate(ARCHIVED_RECOMMENDATIONS)
+      }
+    ]
+  };
 
   const [showEmptyRecommendationsInActiveTab, setShowEmptyRecommendationsInActiveTab] = useState(false);
 
-  const [search, setSearch] = useSyncQueryParamWithState("search", "");
+  const [search, setSearch] = useSyncQueryParamWithState({ queryParamName: "search" });
 
   const {
     isGetRecommendationsLoading = false,
@@ -849,67 +931,6 @@ const RelevantRecommendations = ({
     )
     .sort((a, b) => b.saving - a.saving);
 
-  const summaryData = [
-    {
-      key: "possibleMonthlySavings",
-      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
-      valueComponentProps: {
-        value: totalSaving
-      },
-      dataTestIds: {
-        cardTestId: "card_saving",
-        titleTestId: "p_saving",
-        valueTestId: "p_saving_value"
-      },
-      captionMessageId: "possibleMonthlySavings",
-      isLoading: isGetRecommendationsLoading
-    },
-    {
-      key: "lastCheckTime",
-      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
-      valueComponentProps: {
-        id: !lastCompleted ? "never" : "valueAgo",
-        values: {
-          value: !lastCompleted ? null : getTimeDistance(lastCompleted)
-        }
-      },
-      dataTestIds: {
-        cardTestId: "card_last_check",
-        titleTestId: "p_last_check",
-        valueTestId: "p_last_time"
-      },
-      captionMessageId: "lastCheckTime",
-      isLoading: isGetRecommendationsLoading || isUpdateRecommendationsLoading
-    },
-    {
-      key: "nextCheckTime",
-      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
-      valueComponentProps:
-        lastRun !== lastCompleted
-          ? {
-              id: "runningRightNow"
-            }
-          : nextCheckRender(nextRun),
-      captionMessageId: "nextCheckTime",
-      dataTestIds: {
-        cardTestId: "card_next_check",
-        titleTestId: "p_next_check",
-        valueTestId: "p_next_time"
-      },
-      button: {
-        show: !isDemo,
-        icon: <CachedOutlinedIcon />,
-        onClick: forceCheck,
-        tooltip: {
-          show: true,
-          messageId: "forceCheck",
-          placement: "top"
-        }
-      },
-      isLoading: isGetRecommendationsLoading || isUpdateRecommendationsLoading
-    }
-  ];
-
   const renderTab = (render) =>
     isEmptyArray(optimizationsView) ? (
       <Box pt={1}>
@@ -960,7 +981,7 @@ const RelevantRecommendations = ({
         }
       }}
       headerAdornment={
-        <Box display="flex">
+        <Box display="flex" alignItems="center">
           {selectedTab === ACTIVE_RECOMMENDATIONS_TAB && (
             <FormControlLabel
               control={
@@ -984,13 +1005,6 @@ const RelevantRecommendations = ({
               setShowEmptyRecommendationsInActiveTab(true);
             }}
             initialSearchText={search}
-            sx={{
-              marginTop: {
-                xs: 2,
-                sm: 0
-              },
-              alignSelf: "flex-end"
-            }}
           />
         </Box>
       }
@@ -1010,33 +1024,37 @@ const RelevantRecommendations = ({
       <PageContentWrapper>
         <Grid container spacing={SPACING_2}>
           <Grid item>
-            <SummaryGrid summaryData={summaryData} />
+            <Summary
+              totalSaving={totalSaving}
+              lastCompleted={lastCompleted}
+              lastRun={lastRun}
+              nextRun={nextRun}
+              isLoadingProps={{
+                isGetRecommendationsLoading,
+                isUpdateRecommendationsLoading
+              }}
+              onForceCheck={forceCheck}
+            />
           </Grid>
           <Grid item xs={12}>
-            <RecommendationFilters applyFilterCallback={applyFilterCallback} />
+            <RecommendationsDataSourceFilters applyFilterCallback={applyFilterCallback} />
+          </Grid>
+          <Grid item xs={12}>
+            <RecommendationsCategoriesSelector
+              value={recommendationCategory}
+              onChange={({ value }) => updateCategoryAndSelectedTab(value)}
+              categoriesSizes={categoriesSizes}
+              isLoading={!isTabWrapperReady}
+            />
           </Grid>
           {isTabWrapperReady && lastCompleted === 0 ? (
             <Grid item xs={12}>
-              <WrapperCard>
-                <Typography>
-                  <FormattedMessage id="recommendationProceeding" />
-                </Typography>
-              </WrapperCard>
+              <InlineSeverityAlert messageId="recommendationProceeding" />
             </Grid>
           ) : (
-            <>
-              <Grid item xs={12}>
-                <RecommendationsCategoriesButtonGroup
-                  categoriesSizes={categoriesSizes}
-                  category={recommendationCategory}
-                  onClick={updateCategoryAndSelectedTab}
-                  isLoading={!isTabWrapperReady}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                {renderRecommendations()}
-              </Grid>
-            </>
+            <Grid item xs={12}>
+              {renderRecommendations()}
+            </Grid>
           )}
         </Grid>
       </PageContentWrapper>

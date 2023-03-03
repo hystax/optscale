@@ -1,5 +1,5 @@
 import React from "react";
-import { MOCKED_ORGANIZATION_POOL_ID } from "mocks/idsMock";
+import { MOCKED_ORGANIZATION_POOL_ID } from "stories";
 import OrganizationOverview from "./OrganizationOverview";
 
 const OrganizationOverviewMocked = () => (

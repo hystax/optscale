@@ -7,20 +7,20 @@ import useStyles from "./LayoutWrapper.styles";
 
 const ComponentWrapper = ({ children }) => <Suspense fallback={<ContentBackdropLoader isLoading />}>{children}</Suspense>;
 
-const LayoutWrapper = ({ component: Component, layout: Layout, componentProps, context }) => {
+const LayoutWrapper = ({ component: Component, layout: Layout, context, mainMenu }) => {
   const { classes } = useStyles();
 
   return Layout ? (
-    <Layout>
+    <Layout mainMenu={mainMenu}>
       <ComponentWrapper>
-        <Component {...componentProps} context={context} />
+        <Component context={context} />
       </ComponentWrapper>
     </Layout>
   ) : (
     <Container component="main" className={classes.container}>
       <ErrorBoundary>
         <ComponentWrapper>
-          <Component {...componentProps} context={context} />
+          <Component context={context} />
         </ComponentWrapper>
       </ErrorBoundary>
     </Container>
@@ -34,8 +34,8 @@ ComponentWrapper.propTypes = {
 LayoutWrapper.propTypes = {
   component: PropTypes.elementType.isRequired,
   layout: PropTypes.elementType,
-  componentProps: PropTypes.object,
-  context: PropTypes.object
+  context: PropTypes.object,
+  mainMenu: PropTypes.array
 };
 
 export default LayoutWrapper;

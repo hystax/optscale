@@ -1,21 +1,4 @@
-import {
-  INCOMING_ASSIGNMENT_REQUESTS_TYPE,
-  TASK_INCOMING_ASSIGNMENT_REQUESTS,
-  OUTGOING_ASSIGNMENT_REQUESTS_TYPE,
-  TASK_OUTGOING_ASSIGNMENT_REQUESTS,
-  EXCEEDED_POOLS_TYPE,
-  TASK_EXCEEDED_POOLS,
-  EXCEEDED_POOL_FORECASTS_TYPE,
-  TASK_EXCEEDED_POOL_FORECASTS,
-  TASK_VIOLATED_RESOURCE_CONSTRAINTS,
-  VIOLATED_RESOURCE_CONSTRAINTS_TYPE,
-  TASK_VIOLATED_ORGANIZATION_CONSTRAINTS,
-  VIOLATED_ORGANIZATION_CONSTRAINTS_TYPE,
-  TASK_DIVERGENT_CONSTRAINTS,
-  DIVERGENT_CONSTRAINTS_TYPE,
-  MAP_RECOMMENDATION_TYPES,
-  BE_TO_FE_MAP_RECOMMENDATION_TYPES
-} from "utils/constants";
+import { MAP_RECOMMENDATION_TYPES, BE_TO_FE_MAP_RECOMMENDATION_TYPES } from "utils/constants";
 import { categorizeRecommendations } from "utils/recommendationCategories";
 import {
   GET_ORGANIZATION_OPTION,
@@ -29,8 +12,6 @@ import {
   SET_POOL,
   GET_POOL,
   DELETE_POOL,
-  GET_MY_TASKS,
-  SET_MY_TASKS,
   GET_CURRENT_EMPLOYEE,
   SET_CURRENT_EMPLOYEE,
   GET_ASSIGNMENT_RULES,
@@ -46,8 +27,6 @@ import {
   SET_ASSIGNMENT_RULES,
   SET_FINOPS_CHECKLIST,
   GET_FINOPS_CHECKLIST,
-  GET_FINOPS_ASSESSMENT,
-  SET_FINOPS_ASSESSMENT,
   GET_TECHNICAL_AUDIT,
   SET_TECHNICAL_AUDIT,
   UPDATE_POOL_EXPENSES_EXPORT,
@@ -66,7 +45,13 @@ import {
   GET_GLOBAL_RESOURCE_CONSTRAINTS,
   UPDATE_GLOBAL_RESOURCE_CONSTRAINT,
   UPDATE_ORGANIZATION_THEME_SETTINGS,
-  GET_ORGANIZATION_THEME_SETTINGS
+  GET_ORGANIZATION_THEME_SETTINGS,
+  UPDATE_ORGANIZATION_PERSPECTIVES,
+  GET_ORGANIZATION_PERSPECTIVES,
+  CREATE_ORGANIZATION,
+  UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
+  GET_ML_APPLICATION,
+  SET_ML_APPLICATION
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -99,61 +84,17 @@ export const onSuccessCreatePool = (data) => ({
   label: GET_POOL
 });
 
+export const onSuccessCreateOrganization = (data) => ({
+  type: CREATE_ORGANIZATION,
+  payload: data,
+  label: CREATE_ORGANIZATION
+});
+
 export const onSuccessDeletePool = (id) => () => ({
   type: DELETE_POOL,
   payload: { id },
   label: GET_POOL
 });
-
-export const onSuccessGetMyTasks = (type) => (data) => {
-  const myTasks = Object.keys(data).reduce((resultObject, taskKey) => {
-    switch (taskKey) {
-      case INCOMING_ASSIGNMENT_REQUESTS_TYPE:
-        return {
-          ...resultObject,
-          [TASK_INCOMING_ASSIGNMENT_REQUESTS]: data[taskKey]
-        };
-      case OUTGOING_ASSIGNMENT_REQUESTS_TYPE:
-        return {
-          ...resultObject,
-          [TASK_OUTGOING_ASSIGNMENT_REQUESTS]: data[taskKey]
-        };
-      case EXCEEDED_POOLS_TYPE:
-        return {
-          ...resultObject,
-          [TASK_EXCEEDED_POOLS]: data[taskKey]
-        };
-      case EXCEEDED_POOL_FORECASTS_TYPE:
-        return {
-          ...resultObject,
-          [TASK_EXCEEDED_POOL_FORECASTS]: data[taskKey]
-        };
-      case VIOLATED_RESOURCE_CONSTRAINTS_TYPE:
-        return {
-          ...resultObject,
-          [TASK_VIOLATED_RESOURCE_CONSTRAINTS]: data[taskKey]
-        };
-      case VIOLATED_ORGANIZATION_CONSTRAINTS_TYPE:
-        return {
-          ...resultObject,
-          [TASK_VIOLATED_ORGANIZATION_CONSTRAINTS]: data[taskKey]
-        };
-      case DIVERGENT_CONSTRAINTS_TYPE:
-        return {
-          ...resultObject,
-          [TASK_DIVERGENT_CONSTRAINTS]: data[taskKey]
-        };
-      default:
-        return resultObject;
-    }
-  }, {});
-
-  return {
-    type: SET_MY_TASKS,
-    payload: { myTasks, type },
-    label: GET_MY_TASKS
-  };
-};
 
 export const onSuccessGetCurrentEmployee = ({ employees = [] }) => ({
   type: SET_CURRENT_EMPLOYEE,
@@ -282,12 +223,6 @@ export const onFinOpsChecklist = (data) => ({
   label: GET_FINOPS_CHECKLIST
 });
 
-export const onUpdateFinOpsAssessment = (data) => ({
-  type: SET_FINOPS_ASSESSMENT,
-  payload: data,
-  label: GET_FINOPS_ASSESSMENT
-});
-
 export const onUpdateTechnicalAudit = (data) => ({
   type: SET_TECHNICAL_AUDIT,
   payload: data,
@@ -302,6 +237,12 @@ export const onSuccessExportLinkChange = (data) => ({
 
 export const onSuccessUpdateEnvironmentProperty = (data) => ({
   type: UPDATE_ENVIRONMENT_PROPERTY,
+  payload: data,
+  label: GET_RESOURCE
+});
+
+export const onSuccessUpdateEnvironmentSshRequirement = (data) => ({
+  type: UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
   payload: data,
   label: GET_RESOURCE
 });
@@ -334,4 +275,16 @@ export const onUpdateOrganizationThemeSettings = (data) => ({
   type: UPDATE_ORGANIZATION_THEME_SETTINGS,
   payload: data,
   label: GET_ORGANIZATION_THEME_SETTINGS
+});
+
+export const onUpdateOrganizationPerspectives = (data) => ({
+  type: UPDATE_ORGANIZATION_PERSPECTIVES,
+  payload: data,
+  label: GET_ORGANIZATION_PERSPECTIVES
+});
+
+export const onUpdateMlApplication = (data) => ({
+  type: SET_ML_APPLICATION,
+  payload: data,
+  label: GET_ML_APPLICATION
 });

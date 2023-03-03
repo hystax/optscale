@@ -14,10 +14,13 @@ const TopAlert = ({ alert }) => {
     }
   }, [alert]);
 
+  const alertType = alert.type ?? "secondary";
+
   return (
     <Alert
       action={
         <IconButton
+          customClass="close-alert-button"
           dataTestId="btn_close_top_alert"
           onClick={() => {
             if (typeof alert.onClose === "function") {
@@ -29,7 +32,7 @@ const TopAlert = ({ alert }) => {
       }
       data-test-id={alert.dataTestId}
       icon={false}
-      className={cx(classes.alert, alert.success && classes.success)}
+      className={cx(classes.alert, classes[alertType])}
     >
       <span data-test-id="title_top_alert">{alert.getContent()}</span>
     </Alert>
@@ -41,7 +44,7 @@ TopAlert.propTypes = {
     onClose: PropTypes.func,
     triggered: PropTypes.bool,
     onTrigger: PropTypes.func,
-    success: PropTypes.bool,
+    type: PropTypes.oneOf(["secondary", "success", "info"]),
     getContent: PropTypes.func,
     dataTestId: PropTypes.string
   })

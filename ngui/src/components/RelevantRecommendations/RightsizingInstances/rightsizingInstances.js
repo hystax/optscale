@@ -6,7 +6,7 @@ import RightsizingCpuUsageHeaderCell from "components/RightsizingCpuUsageHeaderC
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, recommendedRightsizingSize, resource, resourceLocation, rightsizingSize } from "utils/columns";
 import { FORMATTED_MONEY_TYPES, RECOMMENDATION_RIGHTSIZING_INSTANCES, RIGHTSIZING_INSTANCES_TYPE } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 const RightsizingCpuUsageCell = ({ currentUsage, projectedUsage }) => (
   <Stack spacing={1}>
@@ -78,8 +78,7 @@ class RightsizingInstancesRecommendation extends RecommendationFactory {
   static configureColumns(optimization) {
     return [
       resource({
-        headerDataTestId: "lbl_rightsizing_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_rightsizing_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_rightsizing_instance_cloud"
@@ -93,10 +92,10 @@ class RightsizingInstancesRecommendation extends RecommendationFactory {
         headerDataTestId: "lbl_rightsizing_instance_recommended_flavor"
       }),
       {
-        Header: <RightsizingCpuUsageHeaderCell options={optimization.options} />,
+        header: <RightsizingCpuUsageHeaderCell options={optimization.options} />,
         id: "cpuUsage",
-        disableSortBy: true,
-        Cell: ({ row: { original } }) => (
+        enableSorting: false,
+        cell: ({ row: { original } }) => (
           <RightsizingCpuUsageCell
             currentUsage={{
               cpuUsage: original.cpu_usage,
@@ -115,14 +114,14 @@ class RightsizingInstancesRecommendation extends RecommendationFactory {
       },
       detectedAt({ headerDataTestId: "lbl_rightsizing_instance_detected_at" }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_rightsizing_instance_possible_savings">
             <FormattedMessage id="possibleMonthlySavings" />
           </TextWithDataTestId>
         ),
-        accessor: "saving",
+        accessorKey: "saving",
         defaultSort: "desc",
-        Cell: ({ row: { original } }) => (
+        cell: ({ row: { original } }) => (
           <RightsizingPossibleSavingCell possibleSaving={original.saving} possibleSavingPercent={original.saving_percent} />
         )
       }

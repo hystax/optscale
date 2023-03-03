@@ -1,19 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
-export const useSyncQueryParamWithState = (queryParamName, defaultValue = "") => {
-  const [state, setState] = useState(() => {
-    const { [queryParamName]: queryParamValue = defaultValue } = getQueryParams();
+/**
+ * Syncing url query param with state
+ * @param {Object} props State definition object
+ * @param {string} props.queryParamName Parameter name from url search string
+ * @param {string[]} [props.possibleStates] Possible query values array
+ * @param {string} [props.defaultValue] Default state value if query is not set or not presented in possible states
+ * @returns {[string | string[], function]} React state/setState
+ */
+export const useSyncQueryParamWithState = ({ queryParamName, possibleStates, defaultValue = "" }) => {
+  const [query, setQuery] = useState(() => {
+    const { [queryParamName]: queryValue } = getQueryParams();
 
-    return queryParamValue;
+    if (possibleStates) {
+      return possibleStates.includes(queryValue) ? queryValue : defaultValue;
+    }
+
+    return queryValue ?? defaultValue;
   });
 
-  const onChange = (newStateValue) => {
-    setState(newStateValue);
-    updateQueryParams({
-      [queryParamName]: newStateValue
-    });
-  };
+  useEffect(() => {
+    updateQueryParams({ [queryParamName]: query });
+  }, [query, queryParamName]);
 
-  return [state, onChange];
+  return [query, setQuery];
 };

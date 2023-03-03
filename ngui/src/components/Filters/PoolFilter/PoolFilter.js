@@ -1,9 +1,10 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 import PoolLabel from "components/PoolLabel";
+import { intl } from "translations/react-intl-config";
 import { getPoolIdWithSubPools, isPoolIdWithSubPools } from "urls";
 import { sortObjects } from "utils/arrays";
-import { POOL_BE_FILTER, POOL_ID_FILTER } from "utils/constants";
+import { POOL_BE_FILTER, POOL_ID_FILTER, POOL_TYPES_LIST } from "utils/constants";
 import Filter from "../Filter";
 
 class PoolFilter extends Filter {
@@ -13,9 +14,35 @@ class PoolFilter extends Filter {
 
   static displayedName = (<FormattedMessage id="pool" />);
 
+  static displayedNameString = intl.formatMessage({ id: "pool" });
+
   static enablePopoverCheckbox = true;
 
   static checkboxLabel = (<FormattedMessage id="withSubPools" />);
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static filterItemSchema = {
+    type: "object",
+    required: ["id", "name", "purpose"],
+    additionalProperties: false,
+    properties: {
+      id: {
+        type: "string"
+      },
+      name: {
+        type: "string"
+      },
+      purpose: {
+        type: "string",
+        enum: POOL_TYPES_LIST
+      }
+    }
+  };
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static appliedFilterSchema = {
+    type: "string"
+  };
 
   static _getValue(filterItem) {
     return filterItem.id;
@@ -23,6 +50,16 @@ class PoolFilter extends Filter {
 
   static _getDisplayedValueRenderer(filterItem, props) {
     return <PoolLabel name={filterItem.name} type={filterItem.purpose} disableLink {...props} />;
+  }
+
+  static _getDisplayedValueStringRenderer(filterItem, props) {
+    const { withSubPools } = props;
+
+    if (withSubPools) {
+      return `${filterItem.name} ${intl.formatMessage({ id: "(withSubPools)" })}`;
+    }
+
+    return filterItem.name;
   }
 
   findFilterValue(value) {
@@ -42,13 +79,10 @@ class PoolFilter extends Filter {
         iconProps: {
           dataTestId: `${this.constructor.filterName}_filter_logo`
         },
-        name: (
-          <>
-            {filterItem.name}
-            &nbsp;
-            {isPoolIdWithSubPools(appliedFilter) && <FormattedMessage id="(withSubPools)" />}
-          </>
-        )
+        withSubpools: isPoolIdWithSubPools(appliedFilter)
+      })),
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem, () => ({
+        withSubPools: isPoolIdWithSubPools(appliedFilter)
       }))
     };
   }

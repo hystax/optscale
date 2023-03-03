@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { boolean } from "@storybook/addon-knobs";
 import { Provider } from "react-redux";
 import RelevantRecommendations from "components/RelevantRecommendations";
 import { ALL_CATEGORY } from "components/RelevantRecommendations/constants";
-import { MOCKED_ORGANIZATION_ID } from "mocks/idsMock";
-import { KINDS } from "stories";
+import { KINDS, MOCKED_ORGANIZATION_ID } from "stories";
 import {
   RECOMMENDATION_SHORT_LIVING_INSTANCES,
   RECOMMENDATION_VOLUMES_NOT_ATTACHED_FOR_LONG_TIME,
@@ -34,7 +32,32 @@ import { mockCategorizedRecommendations } from "utils/recommendationCategories";
 const { ACTIVE: ACTIVE_RECOMMENDATIONS_TAB } = RECOMMENDATIONS_TABS;
 
 export default {
-  title: `${KINDS.COMPONENTS}/Recommendations`
+  title: `${KINDS.COMPONENTS}/Recommendations`,
+  argTypes: {
+    isGetRecommendationsLoading: { name: "Get recommendations loading", control: "boolean", defaultValue: false },
+    isTabWrapperReady: { name: "TabWrapper ready", control: "boolean", defaultValue: true },
+    isUpdateRecommendationsLoading: { name: "Update recommendations loading", control: "boolean", defaultValue: false },
+    isGetResourceAllowedActionsLoading: {
+      name: "Get resource allowed actions loading",
+      control: "boolean",
+      defaultValue: false
+    },
+    withManageResourcePermissions: {
+      name: "with [MANAGE_RESOURCES, MANAGE_OWN_RESOURCES] permissions (enables activate and dismissed actions)",
+      control: "boolean",
+      defaultValue: false
+    },
+    withManageChecklistsPermission: {
+      name: "with [MANAGE_CHECKLISTS] permission (enables force check button)",
+      control: "boolean",
+      defaultValue: false
+    },
+    withManageCloudCredentialsPermission: {
+      name: "with [MANAGE_CLOUD_CREDENTIALS] permission (renders data source name as a link)",
+      control: "boolean",
+      defaultValue: false
+    }
+  }
 };
 
 const options = {
@@ -577,16 +600,16 @@ const initExpandedState = {
   [RECOMMENDATION_PUBLIC_S3_BUCKETS]: false
 };
 
-const RecommendationsStory = ({ data }) => {
+const RecommendationsStory = ({ data, args }) => {
   const [expanded, setExpanded] = useState(initExpandedState);
   const [selectedTab, setSelectedTab] = useState(ACTIVE_RECOMMENDATIONS_TAB);
 
-  const updateExpanded = (taskName) => {
+  const updateExpanded = (recommendationName) => {
     setExpanded((prevState) => ({
       ...{
         ...prevState,
         ...initExpandedState,
-        [taskName]: !prevState[taskName]
+        [recommendationName]: !prevState[recommendationName]
       }
     }));
   };
@@ -600,15 +623,10 @@ const RecommendationsStory = ({ data }) => {
     handleAccordionsChange();
   };
 
-  const withManageResourcePermissions = boolean(
-    "with [MANAGE_RESOURCES, MANAGE_OWN_RESOURCES] permissions (enables activate and dismissed actions)",
-    false
-  );
-  const withManageChecklistsPermission = boolean("with [MANAGE_CHECKLISTS] permission (enables force check button)", false);
-  const withManageCloudCredentialsPermission = boolean(
-    "with [MANAGE_CLOUD_CREDENTIALS] permission (renders data source name as a link)",
-    false
-  );
+  const withManageResourcePermissions = args.withManageResourcePermissions;
+  const withManageChecklistsPermission = args.withManageChecklistsPermission;
+  const withManageCloudCredentialsPermission = args.withManageCloudCredentialsPermission;
+
   const getPermissions = () => {
     const permissions = [];
     if (withManageResourcePermissions) {
@@ -639,10 +657,10 @@ const RecommendationsStory = ({ data }) => {
     <Provider store={store}>
       <RelevantRecommendations
         isLoadingProps={{
-          isGetRecommendationsLoading: boolean("isGetRecommendationsLoading", false),
-          isTabWrapperReady: boolean("isTabWrapperReady", true),
-          isUpdateRecommendationsLoading: boolean("isUpdateRecommendationsLoading", false),
-          isGetResourceAllowedActionsLoading: boolean("isGetResourceAllowedActionsLoading", false)
+          isGetRecommendationsLoading: args.isGetRecommendationsLoading,
+          isTabWrapperReady: args.isTabWrapperReady,
+          isUpdateRecommendationsLoading: args.isUpdateRecommendationsLoading,
+          isGetResourceAllowedActionsLoading: args.isGetResourceAllowedActionsLoading
         }}
         selectedTab={selectedTab}
         handleTabChange={handleTabChange}
@@ -662,7 +680,7 @@ const RecommendationsStory = ({ data }) => {
   );
 };
 
-export const basic = () => <RecommendationsStory data={basicDataWithDismissed} />;
+export const basic = (args) => <RecommendationsStory data={basicDataWithDismissed} args={args} />;
 
 export const pluralTitles = () => {
   const pluralData = {

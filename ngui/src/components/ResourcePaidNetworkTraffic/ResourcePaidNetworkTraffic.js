@@ -8,7 +8,6 @@ import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TrafficExpensesMap from "components/TrafficExpensesMap";
 import TrafficFromToLabel from "components/TrafficFromToLabel";
-import WrapperCard from "components/WrapperCard";
 import { TABLE_SELECTION_STATE, useTrafficExpenses } from "hooks/useTrafficExpenses";
 import { SPACING_1 } from "utils/layouts";
 import { REGION_EXPENSES_HEIGHT } from "utils/maps";
@@ -47,19 +46,18 @@ const ResourcePaidNetworkTraffic = ({ trafficExpenses, isLoading }) => {
         )}
       </Grid>
       <Grid item xs={12}>
-        <WrapperCard title={title}>
-          {isLoading ? (
-            <TableLoader columnsCounter={columns.length} showHeader />
-          ) : (
-            <Table
-              data={tableData}
-              columns={columns}
-              localization={{
-                emptyMessageId: "noTrafficExpenses"
-              }}
-            />
-          )}
-        </WrapperCard>
+        {title}
+        {isLoading ? (
+          <TableLoader columnsCounter={columns.length} showHeader />
+        ) : (
+          <Table
+            data={tableData}
+            columns={columns}
+            localization={{
+              emptyMessageId: "noTrafficExpenses"
+            }}
+          />
+        )}
       </Grid>
     </Grid>
   );

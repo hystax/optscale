@@ -18,14 +18,15 @@ class AbandonedInstances(ArchiveBase, AbandonedInstancesRecommendation):
         self.reason_description_map[ArchiveReason.RECOMMENDATION_APPLIED] = (
             self.reason_description_map[ArchiveReason.RESOURCE_DELETED])
 
-    def _get(self, previous_options, optimizations, **kwargs):
+    @property
+    def supported_cloud_types(self):
+        return SUPPORTED_CLOUD_TYPES
+
+    def _get(self, previous_options, optimizations, cloud_accounts_map,
+             **kwargs):
         days_threshold = previous_options['days_threshold']
         cpu_percent_threshold = previous_options['cpu_percent_threshold']
         network_bps_threshold = previous_options['network_bps_threshold']
-        skip_cloud_accounts = previous_options['skip_cloud_accounts']
-
-        cloud_accounts_map = self.get_cloud_accounts(
-            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
 
         now = datetime.utcnow()
         start_date = now - timedelta(days=days_threshold)

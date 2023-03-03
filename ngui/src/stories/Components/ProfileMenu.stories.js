@@ -1,17 +1,13 @@
 import React from "react";
-import { text } from "@storybook/addon-knobs";
 import ProfileMenu from "components/ProfileMenu";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ProfileMenu`
+  title: `${KINDS.COMPONENTS}/ProfileMenu`,
+  argTypes: {
+    email: { name: "Name", control: "text", defaultValue: "example@email.com" },
+    name: { name: "Email", control: "text", defaultValue: "Some Name" }
+  }
 };
 
-export const withKnobs = () => (
-  <ProfileMenu
-    email={text("email", "example@email.com")}
-    name={text("name", "Some Name")}
-    isLoading={false}
-    signOut={() => {}}
-  />
-);
+export const withKnobs = (args) => <ProfileMenu email={args.email} name={args.name} isLoading={false} signOut={() => {}} />;

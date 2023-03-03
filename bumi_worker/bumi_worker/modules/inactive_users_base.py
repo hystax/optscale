@@ -96,6 +96,10 @@ class ArchiveInactiveUsersBase(ArchiveBase, InactiveUsersBase):
     PASSWORD_USED_DESCRIPTION = 'password was used'
     ACCESS_KEY_USED_DESCRIPTION = 'access key was used'
 
+    @property
+    def supported_cloud_types(self):
+        return SUPPORTED_CLOUD_TYPES
+
     def collect_aws_info(self, config, days_threshold):
         users = super().collect_aws_info(config, days_threshold)
         return {self.get_record_key(u): u for u in users}
@@ -103,12 +107,9 @@ class ArchiveInactiveUsersBase(ArchiveBase, InactiveUsersBase):
     def _handle_optimization(self, user_info, optimization):
         raise NotImplementedError
 
-    def _get(self, previous_options, optimizations, **kwargs):
+    def _get(self, previous_options, optimizations, cloud_accounts_map,
+             **kwargs):
         days_threshold = previous_options['days_threshold']
-        skip_cloud_accounts = previous_options['skip_cloud_accounts']
-
-        cloud_accounts_map = self.get_cloud_accounts(
-            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
 
         account_optimizations_map = defaultdict(list)
         for optimization in optimizations:

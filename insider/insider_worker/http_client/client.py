@@ -13,13 +13,15 @@ def retry_if_connection_error(exception):
 
 
 class Client:
-    def __init__(self):
+    def __init__(self, verify=True):
         self._session = None
+        self.verify = verify
 
     @property
     def session(self):
         if not self._session:
             self._session = requests.session()
+            self._session.verify = self.verify
         return self._session
 
     @retry(retry_on_exception=retry_if_connection_error, wait_fixed=10000,

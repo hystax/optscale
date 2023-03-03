@@ -451,10 +451,12 @@ class Alibaba(CloudBase):
         tag_map = self._get_rds_tags(region_details['RegionId'])
         details_map = {x['DBInstanceId']: x for x in self._get_rds_details(
             instance_ids, region_details['RegionId'])}
+        vpc_id_to_name = self._discover_region_vpcs(region_details)
         for item in instances:
             link = self._CLOUD_CONSOLE_LINKS[RdsInstanceResource].format(
                 id=item['DBInstanceId'], region_id=region_details['RegionId'])
             details = details_map[item['DBInstanceId']]
+            vpc_id = item.get('VpcId')
             resource = RdsInstanceResource(
                 cloud_account_id=self.cloud_account_id,
                 organization_id=self.organization_id,
@@ -475,6 +477,8 @@ class Alibaba(CloudBase):
                 cpu_count=int(details['DBInstanceCPU']),
                 cloud_created_at=int(self._datetime_from_str(
                     details['CreationTime'], seconds=True).timestamp()),
+                vpc_id=vpc_id,
+                vpc_name=vpc_id_to_name.get(vpc_id)
             )
             yield resource
 
@@ -1097,11 +1101,14 @@ class Alibaba(CloudBase):
             else:
                 raise
 
-    def get_round_down_discount(self, billing_date):
-        service_rdd_map = {}
+    def get_bill_overview(self, billing_date):
         request = QueryBillOverviewRequest.QueryBillOverviewRequest()
         request.set_BillingCycle(billing_date.strftime('%Y-%m'))
-        response = self._send_request(request)
+        return self._send_request(request)
+
+    def get_round_down_discount(self, billing_date):
+        service_rdd_map = {}
+        response = self.get_bill_overview(billing_date)
         try:
             for i in response['Data']['Items']['Item']:
                 item_resource_id = '%s RDD' % i['ProductName']

@@ -3,7 +3,6 @@ import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { deleteOrganization } from "api";
 import { DELETE_ORGANIZATION } from "api/restapi/actionTypes";
 import DeleteEntity from "components/DeleteEntity";
@@ -11,14 +10,13 @@ import Input from "components/Input";
 import OrganizationLabel from "components/OrganizationLabel";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { SIGNOUT } from "urls";
+import { useSignOut } from "hooks/useSignOut";
 import { isError } from "utils/api";
 
 const CONFIRMATION_TEXT = "delete";
 
 const DeleteOrganizationContainer = ({ onCancel }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { name: organizationName, organizationId } = useOrganizationInfo();
 
@@ -26,12 +24,14 @@ const DeleteOrganizationContainer = ({ onCancel }) => {
 
   const { isLoading } = useApiState(DELETE_ORGANIZATION);
 
+  const signOut = useSignOut();
+
   const onDelete = () => {
     dispatch((_, getState) => {
       dispatch(deleteOrganization(organizationId)).then(() => {
         if (!isError(DELETE_ORGANIZATION, getState())) {
           onCancel();
-          navigate(SIGNOUT);
+          signOut();
         }
       });
     });

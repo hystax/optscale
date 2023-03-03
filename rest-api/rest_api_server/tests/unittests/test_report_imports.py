@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from unittest.mock import patch, ANY
 
@@ -11,6 +12,7 @@ from rest_api_server.tests.unittests.test_api_base import TestApiBase
 class TestReportImportsApi(TestApiBase):
 
     def setUp(self, version='v2'):
+        os.environ['ASYNC_TEST_TIMEOUT'] = '20'
         super().setUp(version)
         _, self.org = self.client.organization_create(
             {'name': "organization"})
@@ -26,8 +28,9 @@ class TestReportImportsApi(TestApiBase):
         }
         self.user_id_1 = self.gen_id()
         _, self.employee_1 = self.client.employee_create(
-            self.org_id,
-            {'name': 'Eliot Alderson', 'auth_user_id': self.user_id_1})
+            self.org_id, {'name': 'Eliot Alderson', 'auth_user_id': self.user_id_1})
+
+        patch('rest_api_server.controllers.report_import.ReportImportBaseController.create').start()
         patch('rest_api_server.controllers.cloud_account.'
               'CloudAccountController._configure_report').start()
         _, self.cloud_acc = self.create_cloud_account(

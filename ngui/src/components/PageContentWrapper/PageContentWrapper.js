@@ -1,9 +1,13 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
-import { SPACING_4 } from "utils/layouts";
+import useStyles from "./PageContentWrapper.styles";
 
-const PageContentWrapper = ({ children }) => <Box padding={SPACING_4}>{children}</Box>;
+const PageContentWrapper = ({ children }) => {
+  const { classes } = useStyles();
+
+  return <Box className={classes.page}>{children}</Box>;
+};
 
 PageContentWrapper.propTypes = {
   children: PropTypes.node

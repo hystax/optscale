@@ -49,7 +49,7 @@ const TagsBreakdownContainer = ({ requestParams }) => {
   return (
     <TagsBreakdown
       data={tagsBreakdown || []}
-      chartData={breakdown || {}}
+      chartData={breakdown}
       isLoading={isGetTagsBreakdownLoading}
       isChartLoading={isGetResourceCountBreakdownLoading}
       selectedTag={selectedTag}

@@ -133,3 +133,12 @@ class TestFlavorGenerationsApi(TestBase):
         valid_params['preinstalled'] = 'NA'
         code, _ = self.client.find_flavor_generation(**self.valid_params)
         self.assertEqual(code, 200)
+
+    def test_currency(self):
+        code, _ = self.client.find_flavor_generation(
+            currency=0, **self.valid_params)
+        self.assertEqual(code, 400)
+
+        code, _ = self.client.find_flavor_generation(
+            currency='BRL', **self.valid_params)
+        self.assertEqual(code, 200)

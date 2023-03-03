@@ -145,7 +145,8 @@ class OrganizationAsyncCollectionHandler(OrganizationAsyncCollectionHandler_v1, 
                                     currency: {type: string,
                                         description: "Organization currency"}
             400: {description: "Unauthorized: \n\n
-                - OE0212: Unexpected parameters"}
+                - OE0212: Unexpected parameters\n\n
+                - OE0536: Invalid currency"}
             401: {description: "Unauthorized: \n\n
                 - OE0235: Unauthorized\n\n
                 - OE0237: This resource requires authorization"}
@@ -301,7 +302,8 @@ class OrganizationAsyncItemHandler(OrganizationAsyncItemHandler_v1, BaseHandler)
                 - OE0223: Argument should be integer \n\n
                 - OE0224: Wrong int argument value \n\n
                 - OE0214: Argument should be a string \n\n
-                - OE0215: Wrong argument's length \n\n"}
+                - OE0215: Wrong argument's length \n\n
+                - OE0536: Invalid currency"}
             404: {description: "Not found: \n\n
                 - OE0002: Organization not found"}
             403:

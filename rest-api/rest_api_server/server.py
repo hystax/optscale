@@ -54,6 +54,38 @@ def get_handlers(handler_kwargs, version=None):
 
     # v2 only
     if not version or version == 'v2':
+        profiling_urls = [
+            (urls_v2.applications_collection,
+             h_v2.profiling.applications.ApplicationsAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.applications,
+             h_v2.profiling.applications.ApplicationsAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.profiling_executors,
+             h_v2.profiling.executors.ExecutorAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.executors_breakdown,
+             h_v2.profiling.executors.ExecutorBreakdownAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.goals_collection,
+             h_v2.profiling.goals.GoalAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.goals,
+             h_v2.profiling.goals.GoalsAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.profiling_token_collection,
+             h_v2.profiling.profiling_tokens.ProfilingTokenAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.runs,
+             h_v2.profiling.runs.RunAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.runs_breakdown,
+             h_v2.profiling.runs.RunBreakdownItemHandler,
+             handler_kwargs),
+            (urls_v2.application_runs,
+             h_v2.profiling.runs.RunAsyncCollectionHandler,
+             handler_kwargs),
+        ]
         result.extend([
             (urls_v2.organizations_collection,
              h_v2.organizations.OrganizationAsyncCollectionHandler, handler_kwargs),
@@ -190,8 +222,6 @@ def get_handlers(handler_kwargs, version=None):
              h_v2.optimizations.OptimizationDataAsyncCollectionHandler,
              handler_kwargs),
             (urls_v2.live_demo, h_v2.live_demos.LiveDemoAsyncCollectionHandler,
-             handler_kwargs),
-            (urls_v2.cloud_health, h_v2.cloud_health.CloudHealthAsyncHandler,
              handler_kwargs),
             (urls_v2.resource_observer, h_v2.resources_observer.ResourcesObserverAsyncCollectionHandler,
              handler_kwargs),
@@ -359,6 +389,7 @@ def get_handlers(handler_kwargs, version=None):
              handler_kwargs),
             (urls_v2.k8s_rightsizing, h_v2.k8s_rightsizing.K8sRightsizingAsyncHandler,
              handler_kwargs),
+            *profiling_urls,
         ])
     return result
 

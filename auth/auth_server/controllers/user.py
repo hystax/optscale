@@ -68,6 +68,8 @@ class UserController(BaseController):
         for domain in self.domain_blacklist:
             if domain.startswith('@'):
                 domain_regex = '{}$'.format(re.escape(domain))
+            elif domain.startswith('/'):
+                domain_regex = domain[1:]
             else:
                 domain_regex = '@{}$'.format(re.escape(domain))
             if re.search(domain_regex, email.lower()):

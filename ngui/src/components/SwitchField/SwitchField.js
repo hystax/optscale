@@ -9,9 +9,9 @@ import { FormattedMessage } from "react-intl";
 import useStyles from "./SwitchField.styles";
 
 const SwitchField = ({ name, labelMessageId, control, endAdornment = null, defaultValue = false, dataTestIds = {} }) => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
   return (
-    <FormControl fullWidth className={cx(classes.formControl, endAdornment ? classes.formControlAdornedEnd : "")}>
+    <FormControl fullWidth className={classes.formControl}>
       <FormControlLabel
         control={
           <Controller
@@ -32,7 +32,7 @@ const SwitchField = ({ name, labelMessageId, control, endAdornment = null, defau
             <FormattedMessage id={labelMessageId} />
           </Typography>
         }
-        className={endAdornment ? classes.labelAdornedEnd : ""}
+        className={classes.labelAdornedEnd}
       />
       {endAdornment}
     </FormControl>

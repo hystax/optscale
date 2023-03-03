@@ -1,6 +1,7 @@
-import React, { useState, forwardRef } from "react";
+import React, { useState, forwardRef, useMemo } from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import { Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
@@ -8,9 +9,10 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import Icon from "components/Icon";
 import IconButton from "components/IconButton";
+import Tooltip from "components/Tooltip";
 import { capitalize } from "utils/strings";
 import useStyles from "./Selector.styles";
 
@@ -19,7 +21,7 @@ const renderMenuItemIcon = (item, iconDefinition) => {
   return <IconComponent color="inherit" hasRightMargin {...getComponentProps(item)} />;
 };
 
-const renderMenuItem = (item, menuItemIcon) =>
+const renderMenuItemContent = (item, menuItemIcon) =>
   menuItemIcon ? (
     <>
       {renderMenuItemIcon(item, menuItemIcon)}
@@ -47,7 +49,7 @@ const Selector = forwardRef(
       fullWidth = false,
       readOnly,
       shrinkLabel = undefined,
-      sx = {},
+      sx,
       ...rest
     },
     ref
@@ -75,32 +77,70 @@ const Selector = forwardRef(
       }
     };
 
-    const { items: targetItems = [], selected } = data;
-    const selectedItem = targetItems.some((item) => item.value === selected) ? selected : "";
+    const { items: selectorItems = [], selected } = data;
+    const selectedItemValue = selectorItems.some((item) => item.value === selected) ? selected : "";
 
-    const getMenuItemClasses = ({ isRoot, value }) =>
-      cx(isRoot ? classes.menuTitle : classes.menuItem, selectedItem !== value ? classes.notSelectedItem : "");
+    const isItemSelected = (itemValue) => itemValue === selected;
 
-    const selectionList = (items) =>
-      items.map((item) => {
-        const { value, key, isRoot, customItem, dataTestId: menuItemDataTestId, name, disabled, onClick } = item;
-        const menuItemProps = {
-          // TODO: There is always a value, but not an id for some cases, should migrate to 'key' field eventually
-          key: `menuItem-${value || key}`,
-          value: isRoot || customItem ? null : value,
-          className: getMenuItemClasses({ isRoot, value }),
-          "data-test-id": menuItemDataTestId,
-          name, // Name is used as the second parameter in the onChange handler, name is used when a selector has a read-only mode.
-          disabled,
-          onClick
-        };
+    const getMenuItemClasses = ({ isSelected }) => cx(classes.menuItem, isSelected ? "" : classes.notSelectedItem);
 
-        return (
-          <MenuItem key={menuItemProps.key} {...menuItemProps}>
-            {customItem || renderMenuItem(item, menuItemIcon)}
-          </MenuItem>
-        );
-      });
+    const selectionList = selectorItems.map((item) => {
+      if (typeof item.render === "function") {
+        return item.render({
+          button: (menuItemProps) => {
+            const { onClick, dataTestId: itemDataTestId, disabled, children: itemChildren, tooltip = {} } = menuItemProps;
+            const { show: showTooltip = false, content: tooltipContent } = tooltip;
+
+            const menuItem = (
+              <MenuItem
+                key={item.key}
+                onClick={onClick}
+                value={null}
+                className={classes.menuItem}
+                data-test-id={itemDataTestId}
+                disabled={disabled}
+              >
+                {itemChildren}
+              </MenuItem>
+            );
+
+            return showTooltip ? (
+              <Tooltip title={tooltipContent} key={item.key}>
+                <span>{menuItem}</span>
+              </Tooltip>
+            ) : (
+              menuItem
+            );
+          },
+          title: (titleProps) => (
+            <MenuItem key={item.key} dataTestId={titleProps.dataTestId} className={classes.menuTitle}>
+              {titleProps.children}
+            </MenuItem>
+          ),
+          divider: () => <Divider key={item.key} />
+        });
+      }
+
+      const { value, key, dataTestId: menuItemDataTestId, name, disabled, onClick } = item;
+      const menuItemProps = {
+        // TODO: There is always a value, but not an id for some cases, should migrate to 'key' field eventually
+        key: `menuItem-${value || key}`,
+        value,
+        className: getMenuItemClasses({
+          isSelected: isItemSelected(value)
+        }),
+        "data-test-id": menuItemDataTestId,
+        name, // Name is used as the second parameter in the onChange handler, name is used when a selector has a read-only mode.
+        disabled,
+        onClick
+      };
+
+      return (
+        <MenuItem key={menuItemProps.key} {...menuItemProps}>
+          {renderMenuItemContent(item, menuItemIcon)}
+        </MenuItem>
+      );
+    });
 
     const formControlClasses = cx(
       classes.selector,
@@ -108,11 +148,26 @@ const Selector = forwardRef(
       customClass || ""
     );
 
-    const label = labelId ? <FormattedMessage id={labelId} /> : null;
+    const intl = useIntl();
+
+    const label = labelId ? intl.formatMessage({ id: labelId }) : null;
+
+    // Set min-width to something near floating label value https://github.com/mui/material-ui/issues/10917
+    const memoizedPatchedSx = useMemo(() => {
+      const labelApproximateWidth = (label?.length || 0) * 11;
+      const userSx = sx || {};
+      return { minWidth: `${labelApproximateWidth}px`, ...userSx };
+    }, [label, sx]);
 
     return (
       <>
-        <FormControl fullWidth={fullWidth} variant="outlined" className={formControlClasses} error={error} sx={sx}>
+        <FormControl
+          fullWidth={fullWidth}
+          variant="outlined"
+          className={formControlClasses}
+          error={error}
+          sx={memoizedPatchedSx}
+        >
           {label && (
             <InputLabel shrink={shrinkLabel} id={`${labelId}-selector-label`} required={required}>
               {label}
@@ -121,7 +176,7 @@ const Selector = forwardRef(
           <Select
             notched={shrinkLabel}
             data-test-id={dataTestId}
-            value={selectedItem}
+            value={selectedItemValue}
             label={label}
             classes={{
               root: cx(classes.selectRoot, rest.classes?.root),
@@ -133,7 +188,7 @@ const Selector = forwardRef(
             inputRef={ref}
             {...rest}
           >
-            {selectionList(targetItems)}
+            {selectionList}
           </Select>
           {helperText ? <FormHelperText>{helperText}</FormHelperText> : null}
         </FormControl>
@@ -148,7 +203,7 @@ const Selector = forwardRef(
             <Select
               data-test-id={dataTestId}
               className={classes.mobileSelect}
-              value={selectedItem}
+              value={selectedItemValue}
               label={label}
               open={open}
               onClose={handleClose}
@@ -156,7 +211,7 @@ const Selector = forwardRef(
               ref={ref}
               {...rest}
             >
-              {selectionList(targetItems)}
+              {selectionList}
             </Select>
           </Box>
         ) : null}

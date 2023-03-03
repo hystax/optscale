@@ -20,7 +20,7 @@ from rest_api_server.exceptions import Err
 from rest_api_server.models.models import (PermissionKeys, Checklist,
                                            CloudAccount)
 from rest_api_server.utils import (
-    Config, encoded_tags, RetriableException,
+    Config, encoded_tags, encoded_map, RetriableException,
     should_retry, SupportedFiltersMixin, check_list_attribute,
     check_regex_attribute, check_bool_attribute, check_int_attribute, get_nil_uuid)
 
@@ -153,6 +153,7 @@ class ResourceFormatMixin(object):
         if not active:
             resource['meta']['cloud_console_link'] = None
         resource['tags'] = encoded_tags(resource.get('tags'), True)
+        resource['env_properties'] = encoded_map(resource.get('env_properties'), True)
 
         if last_run_ts is None and not is_report_import:
             if resource.get('cloud_account_id'):
@@ -212,10 +213,6 @@ class MongoMixin(object):
     @property
     def raw_expenses_collection(self):
         return self.mongo_client.restapi.raw_expenses
-
-    @property
-    def health_collection(self):
-        return self.mongo_client.restapi.health
 
     @property
     def property_history_collection(self):

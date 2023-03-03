@@ -10,10 +10,10 @@ const getRowId = (row) => row.id;
 const ExcludedPoolsTable = ({
   availablePools,
   currentExcludedPools,
-  setSelectedPools,
   isChangeSettingsAllowed,
   isLoading = false,
-  onSelectionChange
+  selectedPoolIds,
+  onSelectedPoolIdsChange
 }) => {
   const tableData = useMemo(() => {
     const excludedPoolsIds = Object.keys(currentExcludedPools);
@@ -23,9 +23,9 @@ const ExcludedPoolsTable = ({
   const columns = useMemo(
     () => [
       {
-        Header: <FormattedMessage id="name" />,
-        accessor: "name",
-        Cell: ({ row: { original } }) => (
+        header: <FormattedMessage id="name" />,
+        accessorKey: "name",
+        cell: ({ row: { original } }) => (
           <PoolLabel id={original.id} name={original.name} type={original.pool_purpose} disableLink />
         ),
         defaultSort: "asc"
@@ -33,6 +33,18 @@ const ExcludedPoolsTable = ({
     ],
     []
   );
+
+  const getRowSelectionProps = () => {
+    const rowSelectionState = Object.fromEntries(selectedPoolIds.map((id) => [id, true]));
+
+    return {
+      withSelection: true,
+      rowSelection: rowSelectionState,
+      onRowSelectionChange: (newState) => {
+        onSelectedPoolIdsChange(Object.keys(newState));
+      }
+    };
+  };
 
   return isLoading ? (
     <TableLoader columnsCounter={columns.length} />
@@ -44,23 +56,21 @@ const ExcludedPoolsTable = ({
         emptyMessageId: "noExclusions"
       }}
       counters={{ showCounters: true, hideDisplayed: true }}
-      addSelectionColumn={isChangeSettingsAllowed}
-      setSelectedRows={isChangeSettingsAllowed ? setSelectedPools : undefined}
       withSearch
       initialSelectedRows={currentExcludedPools}
       getRowId={getRowId}
-      onSelectionChange={onSelectionChange}
+      {...(isChangeSettingsAllowed ? getRowSelectionProps() : {})}
     />
   );
 };
 
 ExcludedPoolsTable.propTypes = {
   availablePools: PropTypes.array.isRequired,
-  setSelectedPools: PropTypes.func.isRequired,
   currentExcludedPools: PropTypes.object.isRequired,
-  onSelectionChange: PropTypes.func.isRequired,
+  onSelectedPoolIdsChange: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
-  isChangeSettingsAllowed: PropTypes.bool
+  isChangeSettingsAllowed: PropTypes.bool,
+  selectedPoolIds: PropTypes.array
 };
 
 export default ExcludedPoolsTable;

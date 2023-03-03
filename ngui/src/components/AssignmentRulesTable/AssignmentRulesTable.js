@@ -32,13 +32,13 @@ const isPriorityActionDisabled = (priority, condition) => priority === condition
 const getColumns = (tableActions, poolId) => {
   const columns = [
     {
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId="lbl_name">
           <FormattedMessage id="name" />
         </TextWithDataTestId>
       ),
-      accessor: "name",
-      Cell: ({ row: { original } }) => (
+      accessorKey: "name",
+      cell: ({ row: { original } }) => (
         <CircleLabel
           figureColor={original.active ? "success" : "info"}
           label={<SlicedText limit={32} text={original.name} />}
@@ -47,24 +47,23 @@ const getColumns = (tableActions, poolId) => {
       )
     },
     {
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId="lbl_conditions">
           <FormattedMessage id="conditions" />
         </TextWithDataTestId>
       ),
-      accessor: "conditionsObject.conditionsString",
-      disableSortBy: false,
-      Cell: ({ row: { original } }) => original.conditionsObject.conditionsRender
+      accessorKey: "conditionsObject.conditionsString",
+      cell: ({ row: { original } }) => original.conditionsObject.conditionsRender
     },
     {
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId="lbl_actions">
           <FormattedMessage id="actions" />
         </TextWithDataTestId>
       ),
-      disableSortBy: false,
+      enableSorting: false,
       id: "actions",
-      Cell: ({ row: { id, original } }) => (
+      cell: ({ row: { id, original } }) => (
         <TableCellActions
           items={tableActions.map((item) => ({
             key: item.messageId,
@@ -81,34 +80,34 @@ const getColumns = (tableActions, poolId) => {
   ];
   if (poolId) {
     columns.splice(1, 0, {
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId="lbl_owner">
           <FormattedMessage id="owner" />
         </TextWithDataTestId>
       ),
-      accessor: "owner_name"
+      accessorKey: "owner_name"
     });
   } else {
     columns.splice(1, 0, {
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId="lbl_assign">
           <FormattedMessage id="assignTo" />
         </TextWithDataTestId>
       ),
-      accessor: "pool/owner",
-      Cell: ({ row: { original } }) => (
+      accessorKey: "pool/owner",
+      cell: ({ row: { original } }) => (
         <CaptionedCell caption={original.owner_name}>
           <PoolLabel id={original.pool_id} name={original.pool_name} type={original.pool_purpose} />
         </CaptionedCell>
       )
     });
     columns.splice(columns.length - 1, 0, {
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId="lbl_priority">
           <FormattedMessage id="priority" />
         </TextWithDataTestId>
       ),
-      accessor: "priority",
+      accessorKey: "priority",
       defaultSort: "asc"
     });
   }

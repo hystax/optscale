@@ -6,7 +6,7 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { RECOMMENDATION_OBSOLETE_IMAGES, OBSOLETE_IMAGES_TYPE } from "utils/constants";
 import { unixTimestampToDateTime } from "utils/datetime";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class ObsoleteImagesRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_OBSOLETE_IMAGES;
@@ -35,46 +35,56 @@ class ObsoleteImagesRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_oi_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_oi_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_oi_location"
       }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_oi_created_at">
             <FormattedMessage id="createdAt" />
           </TextWithDataTestId>
         ),
-        accessor: "first_seen",
-        Cell: ({ cell: { value } }) => (value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value))
+        accessorKey: "first_seen",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
+        }
       },
       {
-        Header: (
+        header: (
           <HeaderHelperCell
             titleDataTestId="lbl_oi_last_used"
             titleMessageId="lastUsed"
             helperMessageId="imageObsoleteLastUsedHelp"
           />
         ),
-        accessor: "last_used",
-        Cell: ({ cell: { value } }) => (value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value))
+        accessorKey: "last_used",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
+        }
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_oi_snapshots">
             <FormattedMessage id="snapshots" />
           </TextWithDataTestId>
         ),
-        accessor: "snapshots",
-        disableSortBy: true,
-        Cell: ({ cell: { value: snapshots = [] } }) =>
-          snapshots.map((snapshot) => (
+        accessorKey: "snapshots",
+        enableSorting: false,
+        cell: ({ cell }) => {
+          const snapshots = cell.getValue();
+
+          return snapshots.map((snapshot) => (
             <div key={snapshot.resource_id} style={{ whiteSpace: "nowrap" }}>
-              <CloudResourceId resourceId={snapshot.resource_id} cloudResourceId={snapshot.cloud_resource_id} />
+              <CloudResourceId resourceId={snapshot.resource_id} cloudResourceIdentifier={snapshot.cloud_resource_id} />
             </div>
-          ))
+          ));
+        }
       },
       detectedAt({ headerDataTestId: "lbl_oi_detected_at" }),
       possibleMonthlySavings({

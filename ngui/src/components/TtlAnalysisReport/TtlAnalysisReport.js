@@ -27,14 +27,14 @@ const TtlAnalysisReport = ({
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_resource">
             <FormattedMessage id="resource" />
           </TextWithDataTestId>
         ),
-        accessor: "resource",
+        accessorKey: "resource",
         style: RESOURCE_ID_COLUMN_CELL_STYLE,
-        Cell: ({ row: { original } }) => (
+        cell: ({ row: { original } }) => (
           <ResourceCell
             rowData={{
               resource_name: original.name,
@@ -45,13 +45,13 @@ const TtlAnalysisReport = ({
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_type">
             <FormattedMessage id="type" />
           </TextWithDataTestId>
         ),
-        accessor: "type",
-        Cell: ({
+        accessorKey: "type",
+        cell: ({
           row: {
             original: { type, cluster_type_id: clusterTypeId, is_environment: isEnvironment }
           }
@@ -66,41 +66,41 @@ const TtlAnalysisReport = ({
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_owner">
             <FormattedMessage id="owner" />
           </TextWithDataTestId>
         ),
-        accessor: "owner_name"
+        accessorKey: "owner_name"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_cloud">
             <FormattedMessage id="source" />
           </TextWithDataTestId>
         ),
-        accessor: "cloud_account_name",
-        Cell: ({ row: { original } }) =>
+        accessorKey: "cloud_account_name",
+        cell: ({ row: { original } }) =>
           original.cloud_account_id ? (
             <CloudLabel id={original.cloud_account_id} name={original.cloud_account_name} type={original.cloud_type} />
           ) : null
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_hours">
             <FormattedMessage id="hoursOutsideOfTtl" />
           </TextWithDataTestId>
         ),
-        accessor: "hours_outside_of_ttl"
+        accessorKey: "hours_outside_of_ttl"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_expenses">
             <FormattedMessage id="expensesOutsideOfTtl" />
           </TextWithDataTestId>
         ),
-        accessor: "expenses_outside_of_ttl",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />,
+        accessorKey: "expenses_outside_of_ttl",
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
         defaultSort: "desc"
       }
     ],

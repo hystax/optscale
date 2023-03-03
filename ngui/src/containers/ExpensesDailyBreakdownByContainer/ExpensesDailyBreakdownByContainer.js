@@ -4,17 +4,18 @@ import ExpensesDailyBreakdownBy from "components/ExpensesDailyBreakdownBy";
 import { useBreakdownBy } from "hooks/useBreakdownBy";
 import { mapCleanExpensesFilterParamsToApiParams } from "services/CleanExpensesService";
 import DailyExpensesBreakdownByService from "services/DailyExpensesBreakdownByService";
-
-const DAILY_EXPENSES_BREAKDOWN_QUERY_PARAM_NAME = "dailyExpensesBreakdownBy";
+import { DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME } from "urls";
 
 const ExpensesDailyBreakdownByContainer = ({ cleanExpensesRequestParams }) => {
   const { useGet } = DailyExpensesBreakdownByService();
 
-  const [breakdownBy, onBreakdownByChange] = useBreakdownBy({ queryParamName: DAILY_EXPENSES_BREAKDOWN_QUERY_PARAM_NAME });
+  const [{ value: breakdownByValue }, onBreakdownByChange] = useBreakdownBy({
+    queryParamName: DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME
+  });
 
   const requestParams = useMemo(
-    () => ({ ...mapCleanExpensesFilterParamsToApiParams(cleanExpensesRequestParams), breakdown_by: breakdownBy }),
-    [breakdownBy, cleanExpensesRequestParams]
+    () => ({ ...mapCleanExpensesFilterParamsToApiParams(cleanExpensesRequestParams), breakdown_by: breakdownByValue }),
+    [breakdownByValue, cleanExpensesRequestParams]
   );
 
   const { isLoading, data: { breakdown = {} } = {} } = useGet(requestParams);
@@ -23,7 +24,7 @@ const ExpensesDailyBreakdownByContainer = ({ cleanExpensesRequestParams }) => {
     <ExpensesDailyBreakdownBy
       isLoading={isLoading}
       breakdown={breakdown}
-      breakdownBy={breakdownBy}
+      breakdownByValue={breakdownByValue}
       onBreakdownByChange={onBreakdownByChange}
     />
   );

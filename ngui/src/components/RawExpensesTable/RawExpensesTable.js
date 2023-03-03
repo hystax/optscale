@@ -11,22 +11,25 @@ const getUniqueFields = (expenses) => expenses.reduce((res, curr) => [...new Set
 
 const buildColumnsDefinition = (fields) =>
   fields.map((field) => ({
-    Header: <TextWithDataTestId dataTestId={`lbl_${field}`}>{field}</TextWithDataTestId>,
-    accessor: field,
-    isStatic: STATIC_RAW_EXPENSES_COLUMNS.indexOf(field) !== -1,
-    columnsSelector: {
+    header: <TextWithDataTestId dataTestId={`lbl_${field}`}>{field}</TextWithDataTestId>,
+    accessorKey: field,
+    enableHiding: !STATIC_RAW_EXPENSES_COLUMNS.includes(field),
+    columnSelector: {
+      accessor: field,
       title: field,
       dataTestId: `btn_toggle_column_${field}`
     },
-    Cell: ({ cell: { value } }) => value
+    cell: ({ cell }) => cell.getValue()
   }));
 
 const RawExpensesTable = ({ expenses, isLoading }) => {
-  // patching expenses: all rows object-type props replacing with json
   const data = useMemo(
     () =>
-      expenses.map((e) =>
-        Object.fromEntries(Object.entries(e).map(([key, value]) => [key, isObject(value) ? JSON.stringify(value) : value]))
+      expenses.map((expense) =>
+        Object.fromEntries(
+          // Stringify all the object-type expenses props
+          Object.entries(expense).map(([key, value]) => [key, isObject(value) ? JSON.stringify(value) : value])
+        )
       ),
     [expenses]
   );
@@ -39,6 +42,8 @@ const RawExpensesTable = ({ expenses, isLoading }) => {
     <Table
       dataTestIds={{
         searchInput: "input_search",
+        searchButton: "btn_search",
+        deleteSearchButton: "btn_delete_search",
         infoArea: {
           totalKey: "lbl_total",
           totalValue: "lbl_total_value",
@@ -55,7 +60,7 @@ const RawExpensesTable = ({ expenses, isLoading }) => {
       localization={{
         emptyMessageId: "noExpenses"
       }}
-      order={STATIC_RAW_EXPENSES_COLUMNS}
+      columnOrder={STATIC_RAW_EXPENSES_COLUMNS}
       pageSize={50}
       withSearch
       counters={{ showCounters: true }}

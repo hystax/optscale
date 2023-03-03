@@ -1,3 +1,4 @@
+import os
 import uuid
 from datetime import datetime
 from unittest.mock import patch
@@ -5,6 +6,9 @@ from unittest.mock import patch
 from rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api_server.models.db_base import BaseDB
 from rest_api_server.models.models import CloudAccount
+from rest_api_server.models.enums import (
+    CloudTypes
+)
 from rest_api_server.tests.unittests.test_api_base import TestApiBase
 from rest_api_server.utils import MAX_32_INT, encode_config
 
@@ -12,10 +16,14 @@ from rest_api_server.utils import MAX_32_INT, encode_config
 class TestScheduleImportsApi(TestApiBase):
 
     def setUp(self, version='v2'):
+        os.environ['ASYNC_TEST_TIMEOUT'] = '20'
         super().setUp(version)
         _, self.org = self.client.organization_create(
             {'name': "organization"})
         self.org_id = self.org['id']
+        _, self.org2 = self.client.organization_create(
+            {'name': "organization2"})
+        self.org_id2 = self.org2['id']
         patch('rest_api_server.controllers.report_import.'
               'ReportImportBaseController.publish_task').start()
 
@@ -37,20 +45,38 @@ class TestScheduleImportsApi(TestApiBase):
             'Value of "period" should be between 0 and %s' % MAX_32_INT
         )
 
+    def test_schedule_imports_argument_required(self):
         code, ret = self.client.schedule_import(None)
         self.assertEqual(code, 400)
         self.assertEqual(ret['error']['reason'],
-                         'period is not provided')
+                         'period, organization_id or cloud_account_id is required')
 
     def test_schedule_unexpected(self):
         code, ret = self.client.post(self.client.schedule_import_url(),
-                                     {'period': 1, 'str': 1})
+                                     {'str': 1, 'cloud_account_id': str(uuid.uuid4())})
         self.assertEqual(code, 400)
         self.assertEqual(ret['error']['reason'],
                          'Unexpected parameters: str')
 
-    def _create_cloud_acc_object(self, import_period, auto_import=True,
-                                 config={}, org_id=None):
+    def test_schedule_exclusive_period(self):
+        code, ret = self.client.post(self.client.schedule_import_url(),
+                                     {'period': 1, 'cloud_account_id': str(uuid.uuid4())})
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['reason'],
+                         "period should be used exclusively")
+
+    def test_schedule_invalid_priority(self):
+        for i in [-1, 0, 99]:
+            code, ret = self.client.post(self.client.schedule_import_url(),
+                                         {'cloud_account_id': str(uuid.uuid4()), 'priority': i})
+            self.assertEqual(code, 400)
+            self.assertEqual(ret['error']['reason'],
+                             "Priority should be 1...9")
+
+    def _create_cloud_acc_object(self, import_period=None, auto_import=True,
+                                 config=None, org_id=None, cloud_type=CloudTypes.AWS_CNR):
+        if config is None:
+            config = dict()
         if org_id is None:
             org_id = self.org_id
         db = DBFactory(DBType.Test, None).db
@@ -64,6 +90,7 @@ class TestScheduleImportsApi(TestApiBase):
             organization_id=org_id,
             auto_import=auto_import,
             import_period=import_period,
+            type=cloud_type
         )
         session.add(cloud_acc)
         session.commit()
@@ -87,6 +114,31 @@ class TestScheduleImportsApi(TestApiBase):
         self.assertEqual(len(ret['report_imports']), 1)
         self.assertEqual(
             ret['report_imports'][0]['cloud_account_id'], cloud_acc2)
+
+    def test_schedule_imports_org_id(self):
+        self._create_cloud_acc_object(org_id=self.org_id)
+        self._create_cloud_acc_object(org_id=self.org_id)
+        self._create_cloud_acc_object(org_id=self.org_id2)
+        code, ret = self.client.schedule_import(organization_id=self.org_id)
+        self.assertEqual(code, 201)
+        self.assertEqual(len(ret['report_imports']), 2)
+
+    def test_schedule_imports_org_id_specify_cloud(self):
+        self._create_cloud_acc_object(org_id=self.org_id)
+        self._create_cloud_acc_object(org_id=self.org_id)
+        self._create_cloud_acc_object(org_id=self.org_id, cloud_type=CloudTypes.GCP_CNR)
+        code, ret = self.client.schedule_import(organization_id=self.org_id,
+                                                cloud_account_type='gcp_cnr')
+        self.assertEqual(code, 201)
+        self.assertEqual(len(ret['report_imports']), 1)
+
+    def test_schedule_imports_invalid_cloud_type(self):
+        self._create_cloud_acc_object(org_id=self.org_id)
+        code, ret = self.client.schedule_import(organization_id=self.org_id,
+                                                cloud_account_type='invalid')
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['reason'],
+                         "invalid cloud account type: invalid")
 
     def test_dont_schedule_for_linked_aws(self):
         main_cloud_acc = self._create_cloud_acc_object(import_period=0)
@@ -114,3 +166,22 @@ class TestScheduleImportsApi(TestApiBase):
         self.assertEqual(code, 201)
         self.assertEqual(len(ret['report_imports']), 1)
         self.assertEqual(ret['report_imports'][0]['cloud_account_id'], ca2)
+
+    def test_schedule_org_id_with_ca_id(self):
+        code, ret = self.client.post(self.client.schedule_import_url(),
+                                     {'organization_id': self.org_id, 'cloud_account_id': str(uuid.uuid4())})
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['reason'],
+                         'Cannot use organization_id with cloud_account_id')
+        self.assertEqual(ret['error']['error_code'],
+                         'OE0528')
+
+    def test_schedule_org_account_type_without_org_id(self):
+        code, ret = self.client.post(self.client.schedule_import_url(),
+                                     {'cloud_account_type': CloudTypes.AWS_CNR.value,
+                                      'cloud_account_id': str(uuid.uuid4())})
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['reason'],
+                         'Cannot use cloud_account_type without organization_id')
+        self.assertEqual(ret['error']['error_code'],
+                         'OE0529')

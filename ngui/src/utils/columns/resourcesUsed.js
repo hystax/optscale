@@ -11,13 +11,14 @@ const APPROXIMATE_ZERO_THRESHOLD = 0.01;
 
 const resourcesUsed = ({
   headerDataTestId = "lbl_total_pod_memory_gb",
+  dataTestId = "total_pod_memory_gb",
   messageId = "memoryHours",
   questionMarkMessageId = "totalPodMemoryUsedTooltip",
-  accessor = "recommended_flavor",
+  accessorKey = "recommended_flavor",
   totalAccessor = "total_pod_memory_gb",
   totalRequestsAccessor = "total_pod_memory_requests_gb"
 }) => ({
-  Header: (
+  header: (
     <Box display="flex" alignItems="center">
       <TextWithDataTestId dataTestId={headerDataTestId}>
         <FormattedMessage id={messageId} />
@@ -30,10 +31,10 @@ const resourcesUsed = ({
       />
     </Box>
   ),
-  accessor,
-  disableSortBy: true,
-  disableGlobalFilter: true,
-  Cell: ({ row: { original } }) => {
+  accessorKey,
+  enableSorting: false,
+  enableGlobalFilter: false,
+  cell: ({ row: { original } }) => {
     let value1;
     let value2;
     if (original[totalAccessor] < APPROXIMATE_ZERO_THRESHOLD) {
@@ -49,13 +50,15 @@ const resourcesUsed = ({
       value2 = intl.formatNumber(original[totalRequestsAccessor], { maximumFractionDigits: MAXIMUM_FRACTION_DIGITS });
     }
     return (
-      <FormattedMessage
-        id="value / value"
-        values={{
-          value1,
-          value2
-        }}
-      />
+      <TextWithDataTestId dataTestId={dataTestId}>
+        <FormattedMessage
+          id="value / value"
+          values={{
+            value1,
+            value2
+          }}
+        />
+      </TextWithDataTestId>
     );
   },
   style: {

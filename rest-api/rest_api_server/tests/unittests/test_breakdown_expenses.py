@@ -33,8 +33,6 @@ class TestBreakdownExpensesApi(TestApiBase):
             'name': 'cloud_acc2',
             'type': 'kubernetes_cnr',
             'config': {
-                'url': 'https://test.cnr',
-                'port': 4433,
                 'password': 'secret',
                 'user': 'user',
                 'cost_model': {}

@@ -16,7 +16,6 @@ const MenuItem = ({
   onClick,
   dataTestId,
   nested = false,
-  fromMainMenu = false,
   isRootPath: isRootPathFn,
   icon: Icon = null,
   dataProductTourId
@@ -26,13 +25,12 @@ const MenuItem = ({
 
   const listItemClasses = cx("listItem", { [classes.nested]: nested });
 
-  // TODO: NGUI-1509. Need to bring the solution to one type(MenuItem, Button, Dropdown).
   const onLinkClick = (e) => {
     const pathname = getPathname();
 
     const isRootPath = typeof isRootPathFn === "function" ? isRootPathFn(pathname, getQueryParams()) : pathname === link;
 
-    if (fromMainMenu && isRootPath) {
+    if (isRootPath) {
       e.preventDefault();
     }
 
@@ -67,7 +65,7 @@ const MenuItem = ({
     <Link
       className={cx(classes.menuLink, isLinkActive ? classes.activeLink : "")}
       onClick={onLinkClick}
-      to={{ pathname: link, fromMainMenu }}
+      to={{ pathname: link }}
     >
       {renderItem}
     </Link>
@@ -82,10 +80,11 @@ MenuItem.propTypes = {
   onClick: PropTypes.func,
   icon: PropTypes.object,
   nested: PropTypes.bool,
-  fromMainMenu: PropTypes.bool,
   link: PropTypes.string,
   dataTestId: PropTypes.string,
-  isActive: PropTypes.func
+  isActive: PropTypes.func,
+  isRootPath: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  dataProductTourId: PropTypes.string
 };
 
 export default MenuItem;

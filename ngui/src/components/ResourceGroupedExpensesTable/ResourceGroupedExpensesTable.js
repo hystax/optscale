@@ -21,36 +21,36 @@ const ResourceGroupedExpensesTable = ({ data, isLoading, startDate, endDate, sho
     const colorScale = getColorScale(theme.palette.chart);
     return [
       {
-        accessor: "category",
-        Header: (
+        accessorKey: "category",
+        header: (
           <TextWithDataTestId dataTestId="lbl_table_category">
             <FormattedMessage id="category" />
           </TextWithDataTestId>
         ),
-        Cell: ({ row: { original = {} } }) => (
+        cell: ({ row: { original = {} } }) => (
           <CircleLabel figureColor={colorScale(original.category)} label={original.category} textFirst={false} />
         )
       },
       {
-        accessor: "expenses",
-        Header: (
+        accessorKey: "expenses",
+        header: (
           <TextWithDataTestId dataTestId="lbl_table_expenses">
             <ExpensesTableHeader startDate={startDate} endDate={endDate} />
           </TextWithDataTestId>
         ),
-        Cell: ({ row: { original = {} } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={original.expenses} />,
+        cell: ({ row: { original = {} } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={original.expenses} />,
         defaultSort: "desc"
       },
       ...(shouldShowUsageColumn
         ? [
             {
-              accessor: "usage",
-              Header: (
+              accessorKey: "usage",
+              header: (
                 <TextWithDataTestId dataTestId="lbl_table_usage">
                   <FormattedMessage id="usage" />
                 </TextWithDataTestId>
               ),
-              Cell: ({ row: { original = {} } }) =>
+              cell: ({ row: { original = {} } }) =>
                 original.usage && original.usageUnit && original.expenses >= ONE_CENT ? (
                   <ResourceUsageFormattedNumber usage={original.usage} unit={original.usageUnit} />
                 ) : (
@@ -68,7 +68,9 @@ const ResourceGroupedExpensesTable = ({ data, isLoading, startDate, endDate, sho
     <Table
       dataTestIds={{
         container: "table_grouped",
-        searchInput: "input_search"
+        searchInput: "input_search",
+        searchButton: "btn_search",
+        deleteSearchButton: "btn_delete_search"
       }}
       withSearch
       data={tableData}

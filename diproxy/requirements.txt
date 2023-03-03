@@ -1,0 +1,7 @@
+tornado==6.2
+config-client==1.0.141
+restapi_client==1.0.683
+requests==2.25.0
+async_lru==1.0.3
+apispec==0.39.0
+pyyaml==5.3.1

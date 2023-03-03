@@ -1,41 +1,37 @@
 import React from "react";
+import { InteractionStatus } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
+import PropTypes from "prop-types";
 import ButtonLoader from "components/ButtonLoader";
-import { useNewAuthorization, PROVIDERS } from "hooks/useNewAuthorization";
+import { PROVIDERS } from "hooks/useNewAuthorization";
 import MicrosoftIcon from "icons/MicrosoftIcon";
 
-const handleClick = async (instance, callback) => {
+const handleClick = async (instance, callback, setIsAuthInProgress) => {
   try {
     const { tenantId, idToken } = await instance.loginPopup({ prompt: "select_account" });
     callback(PROVIDERS.MICROSOFT, { token: idToken, tenant_id: tenantId });
   } catch (error) {
-    console.log(error);
+    console.log("Microsoft login failure ", error);
+    setIsAuthInProgress(false);
   }
 };
 
-const MicrosoftSignInButton = () => {
+const MicrosoftSignInButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthInProgress, isRegistrationInProgress }) => {
   const { instance, inProgress } = useMsal();
 
-  const {
-    thirdPartySignIn,
-    isGetTokenLoading,
-    isGetOrganizationsLoading,
-    isGetInvitationsLoading,
-    isCreateOrganizationLoading,
-    isSignInLoading
-  } = useNewAuthorization();
-
-  const isLoading =
-    isGetTokenLoading || isGetOrganizationsLoading || isGetInvitationsLoading || isSignInLoading || isCreateOrganizationLoading;
+  const isLoading = isAuthInProgress || isRegistrationInProgress;
 
   const renderMicrosoftLogin = () => (
     <ButtonLoader
       variant="outlined"
       messageId="microsoft"
       size="medium"
-      onClick={() => handleClick(instance, thirdPartySignIn)}
+      onClick={() => {
+        setIsAuthInProgress(true);
+        handleClick(instance, thirdPartySignIn, setIsAuthInProgress);
+      }}
       startIcon={<MicrosoftIcon />}
-      disabled={inProgress === "startup"}
+      disabled={inProgress === InteractionStatus.Startup}
       fullWidth
       isLoading={isLoading}
     />
@@ -43,4 +39,12 @@ const MicrosoftSignInButton = () => {
 
   return renderMicrosoftLogin();
 };
+
+MicrosoftSignInButton.propTypes = {
+  thirdPartySignIn: PropTypes.func.isRequired,
+  setIsAuthInProgress: PropTypes.func.isRequired,
+  isAuthInProgress: PropTypes.bool.isRequired,
+  isRegistrationInProgress: PropTypes.bool.isRequired
+};
+
 export default MicrosoftSignInButton;

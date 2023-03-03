@@ -9,6 +9,7 @@ from pymongo import UpdateOne
 from diworker.utils import bytes_to_gb
 from diworker.importers.base import BaseReportImporter
 
+from cloud_adapter.cloud import Cloud as CloudAdapter
 from insider_client.client import Client as InsiderClient
 
 LOG = logging.getLogger(__name__)
@@ -65,7 +66,9 @@ class Node:
 
 
 class NodesProvider:
-    def __init__(self, cloud_adapter, insider_client, default_cost_model):
+    def __init__(self, cloud_account_id, cloud_adapter, insider_client,
+                 default_cost_model):
+        self.cloud_account_id = cloud_account_id
         self._cloud_adapter = cloud_adapter
         self._insider_client = insider_client
         self.default_cost_model = default_cost_model
@@ -73,8 +76,9 @@ class NodesProvider:
 
     def _get_node_names(self, period, dt):
         pod_infos = self._cloud_adapter.get_metric(
-            'last_over_time(kube_pod_info{node != ""}[%sd:1h])[%sd:1d]' % (
-                period, period), int(dt.timestamp()))
+            'last_over_time(kube_pod_info{'
+            'cloud_account_id = "%s",node != ""}[%sd:1h])[%sd:1d]' % (
+                self.cloud_account_id, period, period), int(dt.timestamp()))
         return {pod_info['metric']['node'] for pod_info in pod_infos}
 
     @property
@@ -95,8 +99,10 @@ class NodesProvider:
         node_names = self._get_node_names(period, dt)
         names_filter = '|'.join(node_names)
         node_labels = self._cloud_adapter.get_metric(
-            'last_over_time(kube_node_labels{node=~"%s"}[%sd: 1h])[%sd: 1d]' % (
-                names_filter, period, period), dt.timestamp())
+            'last_over_time(kube_node_labels{'
+            'cloud_account_id = "%s", node=~"%s"}[%sd: 1h])[%sd: 1d]' % (
+                self.cloud_account_id, names_filter, period, period),
+            dt.timestamp())
         for node_label in node_labels:
             metric = node_label.get('metric', {})
             node_metrics[metric['node']] = {
@@ -107,9 +113,11 @@ class NodesProvider:
             }
 
         node_capacities = self._cloud_adapter.get_metric(
-            'last_over_time(kube_node_status_capacity'
-            '{resource =~ "cpu|memory", node =~ "%s"}[%sd:1h])[%sd: 1d]' % (
-                names_filter, period, period), int(dt.timestamp()))
+            'last_over_time(kube_node_status_capacity{'
+            'cloud_account_id = "%s", resource =~ "cpu|memory", node =~ "%s"'
+            '}[%sd:1h])[%sd: 1d]' % (
+                self.cloud_account_id, names_filter, period, period),
+            int(dt.timestamp()))
         for node_capacity in node_capacities:
             metric = node_capacity.get('metric', {})
             val = int(max(map(lambda x: x[1], node_capacity.get('values', []))))
@@ -118,8 +126,10 @@ class NodesProvider:
             node_metrics[metric['node']][metric['resource']] = val
 
         node_infos = self._cloud_adapter.get_metric(
-            'last_over_time(kube_node_info{node=~"%s"}[%sd: 1h])[%sd: 1d]' % (
-                names_filter, period, period), dt.timestamp())
+            'last_over_time(kube_node_info{'
+            'cloud_account_id = "%s", node=~"%s"}[%sd: 1h])[%sd: 1d]' % (
+                self.cloud_account_id, names_filter, period, period),
+            dt.timestamp())
         for node_info in node_infos:
             metric = node_info.get('metric', {})
             provider_id = metric.get('provider_id')
@@ -175,6 +185,15 @@ class KubernetesReportImporter(BaseReportImporter):
         if self.period_start is None:
             self.set_period_start()
 
+    @property
+    def cloud_adapter(self):
+        if self._cloud_adapter is None:
+            cloud_acc = self.cloud_acc.copy()
+            cloud_acc.update(self.cloud_acc['config'])
+            cloud_acc['url'] = self.config_cl.thanos_query_url()
+            self._cloud_adapter = CloudAdapter.get_adapter(cloud_acc)
+        return self._cloud_adapter
+
     def prepare(self):
         pass
 
@@ -187,6 +206,7 @@ class KubernetesReportImporter(BaseReportImporter):
                     'Cost_model for cloud_account %s is not provided' %
                     self.cloud_acc['id'])
             self._nodes_provider = NodesProvider(
+                cloud_account_id=self.cloud_acc_id,
                 cloud_adapter=self.cloud_adapter,
                 insider_client=self.insider_client,
                 default_cost_model=ca_cost_model)
@@ -203,16 +223,18 @@ class KubernetesReportImporter(BaseReportImporter):
 
     def get_node_info(self, days, dt):
         pod_infos = self.cloud_adapter.get_metric(
-            'avg_over_time(kube_pod_info{node != ""}[%sd:1h])[%sd:1d]' % (
-                days, days), int(dt.timestamp()))
+            'avg_over_time(kube_pod_info{'
+            'cloud_account_id = "%s", node != ""}[%sd:1h])[%sd:1d]' % (
+                self.cloud_acc_id, days, days), int(dt.timestamp()))
         pod_nodes = {pod_info['metric']['node'] for pod_info in pod_infos}
         # Here for azure we have capacity for node and for pool of scalesets.
         # Scaleset has huge capacity of cpu and memory that we don't really use,
         # so ignore it and get capacity from nodes that we really use.
         infos = self.cloud_adapter.get_metric(
-            'avg_over_time(kube_node_status_capacity'
-            '{resource =~ \'cpu|memory\'}[%sd:1h])[%sd:1d]' % (
-                days, days), int(dt.timestamp()))
+            'avg_over_time(kube_node_status_capacity{'
+            'cloud_account_id = "%s", resource =~ \'cpu|memory\''
+            '}[%sd:1h])[%sd:1d]' % (
+                self.cloud_acc_id, days, days), int(dt.timestamp()))
         info_timestamp_map = defaultdict(dict)
         node_usage_map = defaultdict(dict)
         for info in infos:
@@ -224,6 +246,15 @@ class KubernetesReportImporter(BaseReportImporter):
                 node_usage_map[node_name].update({resource: float(value)})
                 info_timestamp_map[timestamp].update(node_usage_map)
         return info_timestamp_map
+
+    @staticmethod
+    def _handle_negative_metrics(metrics):
+        # use value=0 for negative metric values
+        for r in metrics:
+            for i, value_set in enumerate(r['values']):
+                _, value = value_set
+                value = value if float(value) > 0 else "0.0"
+                r['values'][i][1] = value
 
     @staticmethod
     def calculate_total_pods_metrics(metrics):
@@ -297,20 +328,25 @@ class KubernetesReportImporter(BaseReportImporter):
             self.period_start, dt))
         meter_map = {
             'container_memory_usage_bytes': (
-                'avg_over_time(%s{pod != "", name =""}[%sd: 1h])[%sd: 1d]',
+                'avg_over_time(%s{cloud_account_id = "%s", pod != "", '
+                'name =""}[%sd: 1h])[%sd: 1d]',
                 self.get_cost_by_avg_memory_usage),
             'container_cpu_usage_seconds_total': (
-                'idelta(%s{pod != "", name =""}[%sd: 1h])[%sd: 1d]',
+                'idelta(%s{cloud_account_id = "%s", pod != "", name =""}'
+                '[%sd: 1h])[%sd: 1d]',
                 self.get_cost_by_cpu_usage_delta)
         }
         node_info = self.get_node_info(days, dt)
         self.nodes_provider.load_data(period=days, dt=dt)
-        _pod_service_map = self.cloud_adapter.get_pod_services()
+        pod_service_map = self.cloud_adapter.get_pod_services(
+            int(now.timestamp()))
         chunk = []
         for metric_name, query_cost_func_set in meter_map.items():
             query, cost_func = query_cost_func_set
             resp = self.cloud_adapter.get_metric(
-                query % (metric_name, days, days), dt.timestamp())
+                query % (metric_name, self.cloud_acc_id, days, days),
+                dt.timestamp())
+            self._handle_negative_metrics(resp)
             total_metrics = self.calculate_total_pods_metrics(resp)
             for r in resp:
                 node_name = r['metric']['instance']
@@ -345,7 +381,7 @@ class KubernetesReportImporter(BaseReportImporter):
                         'cost': cost,
                         'node_info': node_info[dt_timestamp][node_name],
                         'total_pods_value': total_metrics[dt_timestamp][node_name],
-                        'service': _pod_service_map.get(pod_name)
+                        'service': pod_service_map.get(pod_name)
                     })
                     chunk.append(expense)
         if chunk:
@@ -356,8 +392,8 @@ class KubernetesReportImporter(BaseReportImporter):
                                      total_pods_value, worked_hrs):
         hourly_cost = node.cost_model['memory_hourly_cost']
         node_cost = bytes_to_gb(node_capacity['memory']) * hourly_cost * worked_hrs
-        cost = bytes_to_gb(
-            float(value)) * node_cost / bytes_to_gb(total_pods_value)
+        cost = bytes_to_gb(float(value)) * node_cost / bytes_to_gb(
+            total_pods_value) if total_pods_value else 0
         return cost
 
     @staticmethod
@@ -365,7 +401,7 @@ class KubernetesReportImporter(BaseReportImporter):
                                     total_pods_value, worked_hrs):
         hourly_cost = node.cost_model['cpu_hourly_cost']
         node_cost = node_capacity['cpu'] * hourly_cost * worked_hrs
-        cost = float(value) * node_cost / total_pods_value
+        cost = float(value) * node_cost / total_pods_value if total_pods_value else 0
         return cost
 
     def get_update_fields(self):
@@ -419,7 +455,8 @@ class KubernetesReportImporter(BaseReportImporter):
         LOG.debug('Detected resource info: %s', info)
         return info
 
-    def get_resource_data(self, r_id, info):
+    def get_resource_data(self, r_id, info,
+                          unique_id_field='cloud_resource_id'):
         return {
             'cloud_resource_id': r_id,
             'resource_type': info['type'],

@@ -114,7 +114,8 @@ class EnvironmentReportImporter(BaseReportImporter):
         LOG.debug('Detected resource info: %s', info)
         return info
 
-    def get_resource_data(self, r_id, info):
+    def get_resource_data(self, r_id, info,
+                          unique_id_field='cloud_resource_id'):
         return {
             'cloud_resource_id': r_id,
             'tags': info['tags'],

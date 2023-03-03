@@ -1,4 +1,4 @@
-import { isObject } from "utils/objects";
+import { isObject, removeUndefinedValues } from "utils/objects";
 import { getHash } from "utils/strings";
 import { API } from "./actionTypes";
 import { ERROR_HANDLER_TYPE_ALERT, SUCCESS_HANDLER_TYPE_LOCAL } from "./constants";
@@ -75,3 +75,10 @@ const sortedStringify = (value) => JSON.stringify(sortValue(value));
 
 // we using sort util to prevent different hashes for not-the-same-props-order objects or arrays
 export const hashParams = (params) => getHash(sortedStringify(params));
+
+const convertSearchParamValuesToArray = (params) =>
+  Object.fromEntries(Object.entries(params).map(([paramName, paramValue]) => [paramName, [paramValue].flat()]));
+
+export const areSearchParamsEqual = (params1, params2) =>
+  hashParams(convertSearchParamValuesToArray(removeUndefinedValues(params1))) ===
+  hashParams(convertSearchParamValuesToArray(removeUndefinedValues(params2)));

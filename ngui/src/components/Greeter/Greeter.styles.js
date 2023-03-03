@@ -45,9 +45,6 @@ const useStyles = makeStyles()((theme) => ({
       maxWidth: "690px"
     }
   },
-  rightTextColor: {
-    color: theme.palette.common.white
-  },
   imageWithCaptionWrapper: {
     alignItems: "center",
     display: "flex",
@@ -55,24 +52,25 @@ const useStyles = makeStyles()((theme) => ({
     width: "100%"
   },
   image: {
+    maxWidth: "122px",
     width: "80%",
-    marginBottom: theme.spacing(1),
+    marginBottom: theme.spacing(1.5),
     [theme.breakpoints.down("md")]: {
       width: "50%"
     }
   },
   caption: {
-    textAlign: "center"
+    textAlign: "center",
+    lineHeight: 1.25
   },
-  icon: {
-    verticalAlign: "bottom",
+  webIconMargin: {
     marginRight: "0.5rem"
   },
   leftSideGrid: {
     backgroundColor: theme.palette.common.white
   },
   rightSideGrid: {
-    backgroundColor: theme.palette.info.dark
+    backgroundColor: "#333F53"
   },
   ...getFormAndMapWrapperClasses(theme)
 }));

@@ -2,30 +2,31 @@ import React from "react";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { FormattedMessage } from "react-intl";
 import IconButton from "components/IconButton";
-import { select, boolean } from "@storybook/addon-knobs";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/IconButton`
-};
-
-const colorOptions = {
-  info: "info",
-  inherit: "inherit",
-  primary: "primary",
-  success: "success",
-  error: "error"
-};
-
-const sizeOptions = {
-  small: "small",
-  medium: "medium"
-};
-
-const edgeOptions = {
-  false: false,
-  end: "end",
-  start: "start"
+  title: `${KINDS.COMPONENTS}/IconButton`,
+  argTypes: {
+    color: {
+      name: "Color",
+      control: "select",
+      options: ["info", "inherit", "primary", "success", "error"],
+      defaultValue: "info"
+    },
+    size: {
+      name: "Size",
+      control: "select",
+      options: ["small", "medium"],
+      defaultValue: "small"
+    },
+    edge: {
+      name: "Edge",
+      control: "select",
+      options: [false, "end", "start"],
+      defaultValue: false
+    },
+    disabled: { name: "Disabled", control: "boolean", defaultValue: false }
+  }
 };
 
 export const basic = () => <IconButton icon={<EditOutlinedIcon />} />;
@@ -40,12 +41,6 @@ export const withTooltip = () => (
   />
 );
 export const disabled = () => <IconButton icon={<EditOutlinedIcon />} disabled />;
-export const withKnobs = () => (
-  <IconButton
-    icon={<EditOutlinedIcon />}
-    disabled={boolean("disabled", false)}
-    edge={select("edge", edgeOptions, false)}
-    size={select("size", sizeOptions, "small")}
-    color={select("color", colorOptions, "info")}
-  />
+export const withKnobs = (args) => (
+  <IconButton icon={<EditOutlinedIcon />} disabled={args.disabled} edge={args.edge} size={args.size} color={args.color} />
 );

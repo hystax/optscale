@@ -3,7 +3,7 @@ import { FormattedMessage } from "react-intl";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, poolOwner, resource, resourceLocation } from "utils/columns";
 import { RECOMMENDATION_PUBLIC_S3_BUCKETS, PUBLIC_S3_BUCKETS_TYPE } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class PublicS3BucketsRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_PUBLIC_S3_BUCKETS;
@@ -32,8 +32,7 @@ class PublicS3BucketsRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_s3_public_buckets",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_s3_public_buckets"
       }),
       resourceLocation({
         headerDataTestId: "lbl_s3_public_buckets_location",
@@ -44,22 +43,30 @@ class PublicS3BucketsRecommendation extends RecommendationFactory {
         id: "pool/owner"
       }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_s3_public_buckets_is_public_policy">
             <FormattedMessage id="publicPolicy" />
           </TextWithDataTestId>
         ),
-        accessor: "is_public_policy",
-        Cell: ({ cell: { value } }) => <FormattedMessage id={value ? "yes" : "no"} />
+        accessorKey: "is_public_policy",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return <FormattedMessage id={value ? "yes" : "no"} />;
+        }
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_s3_public_buckets_is_public_acls">
             <FormattedMessage id="publicAcls" />
           </TextWithDataTestId>
         ),
-        accessor: "is_public_acls",
-        Cell: ({ cell: { value } }) => <FormattedMessage id={value ? "yes" : "no"} />
+        accessorKey: "is_public_acls",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return <FormattedMessage id={value ? "yes" : "no"} />;
+        }
       },
       detectedAt({ headerDataTestId: "lbl_s3_public_buckets_detected_at" })
     ];

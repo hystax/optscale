@@ -1,12 +1,11 @@
 import React from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import { Box, Stack } from "@mui/system";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import ConditionWrapper from "components/ConditionWrapper";
-import GridContainerWithNegativeMarginCompensation from "components/GridContainerWithNegativeMarginCompensation";
 import Logo from "components/Logo";
 import MailTo from "components/MailTo";
 import PageTitle from "components/PageTitle";
@@ -14,22 +13,22 @@ import { EMAIL_SUPPORT, HOME } from "urls";
 import { SPACING_4 } from "utils/layouts";
 
 const ConnectJira = ({ isLoading, isError = false }) => (
-  <GridContainerWithNegativeMarginCompensation spacing={SPACING_4} direction="column" alignItems="center">
-    <Grid item>
+  <Stack spacing={SPACING_4} justifyContent="center" alignItems="center">
+    <Box>
       <Logo width={200} dataTestId="img_logo" />
-    </Grid>
+    </Box>
     <ConditionWrapper
       condition={isLoading}
       conditionTemplate={
         <>
-          <Grid item>
+          <Box pr={2} pl={2}>
             <PageTitle dataTestId="p_connecting_ju" align="center">
               <FormattedMessage id="connectingJiraUser" />
             </PageTitle>
-          </Grid>
-          <Grid item>
+          </Box>
+          <Box height={60}>
             <CircularProgress data-test-id="svg_loading" />
-          </Grid>
+          </Box>
         </>
       }
     >
@@ -37,12 +36,12 @@ const ConnectJira = ({ isLoading, isError = false }) => (
         condition={isError}
         conditionTemplate={
           <>
-            <Grid item>
+            <Box pr={2} pl={2}>
               <PageTitle align="center">
                 <FormattedMessage id="somethingWentWrong" />
               </PageTitle>
-            </Grid>
-            <Grid item>
+            </Box>
+            <Box pr={2} pl={2}>
               <Typography>
                 <FormattedMessage
                   id="pleaseContactSupport"
@@ -51,26 +50,26 @@ const ConnectJira = ({ isLoading, isError = false }) => (
                   }}
                 />
               </Typography>
-            </Grid>
+            </Box>
           </>
         }
       >
-        <Grid item>
+        <Box pr={2} pl={2}>
           <PageTitle align="center">
             <FormattedMessage id="jiraUserConnected" />
           </PageTitle>
-        </Grid>
-        <Grid item>
+        </Box>
+        <Box pr={2} pl={2}>
           <Typography align="center">
             <FormattedMessage id="jiraUserConnectedOptions" />
           </Typography>
-        </Grid>
-        <Grid item>
+        </Box>
+        <Box>
           <Button color="primary" variant="contained" messageId="goToDashboard" size="medium" link={HOME} />
-        </Grid>
+        </Box>
       </ConditionWrapper>
     </ConditionWrapper>
-  </GridContainerWithNegativeMarginCompensation>
+  </Stack>
 );
 
 ConnectJira.propTypes = {

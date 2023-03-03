@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 import json
+import time
 import logging
 from datetime import datetime, timezone, timedelta
-from retrying import retry
-
+from diworker.utils import retry_backoff
 from cloud_adapter.clouds.azure import (
     AzureConsumptionException, ExpenseImportScheme,
-    AzureErrorResponseException)
+    AzureErrorResponseException, AzureAuthenticationError)
 
 from diworker.importers.base import BaseReportImporter
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200
-# the interval during which repeated attempts will be made for get_usage in ms
-GET_USAGE_TIMEOUT = 600000
 
 REGION_NAMES = {
   "AU Central 2": "Australia Central 2",
@@ -63,20 +61,8 @@ REGION_NAMES = {
   "uswest2": "West US 2",
   "EastUS": "East US",
   "USNorth": "North Central US",
+  "EastUS2": "East US 2"
 }
-
-
-def _retry_on_error(exc):
-    try:
-        # retry if not Too Many Requests
-        return isinstance(exc, AzureConsumptionException) and int(
-            exc.response.status_code) != 429
-    except Exception:
-        return False
-
-
-class NoReadyReportsYetInCloudException(Exception):
-    pass
 
 
 class AzureReportImporter(BaseReportImporter):
@@ -99,11 +85,25 @@ class AzureReportImporter(BaseReportImporter):
             'cloud_account_id',
             'additional_properties',
             'obtained_by_date',
+            'billing_period_start_date'
         ]
+
+    def get_raw_upsert_filters(self, expense):
+        filters = super().get_raw_upsert_filters(expense)
+        # upsert in two cases:
+        # record from another report import OR
+        # record from the same report and equal _rec_n
+        filters.update({
+            '$or': [
+                {'report_identity': {'$ne': self.report_identity}},
+                {'_rec_n': expense['_rec_n']}
+            ]
+        })
+        return filters
 
     def get_update_fields(self):
         custom_fields = {
-            'end_date', 'usage_quantity', 'cost'}
+            'end_date', 'usage_quantity', 'cost', 'report_identity', '_rec_n'}
         legacy_fields = {
             'cost', 'effective_price'}
         modern_fields = {
@@ -122,8 +122,20 @@ class AzureReportImporter(BaseReportImporter):
         return date_obj.replace(tzinfo=timezone.utc).strftime(
             '%Y-%m-%dT%H:%M:%S.%fZ')
 
-    @retry(retry_on_exception=_retry_on_error, wait_fixed=2000,
-           stop_max_attempt_number=10, stop_max_delay=GET_USAGE_TIMEOUT)
+    def detect_period_start(self):
+        # When choosing period_start for Azure, prioritize last expense date
+        # over date of the last import run. That is because for Azure the latest
+        # expenses are not available immediately and we need to load these
+        # expenses again on the next run.
+        last_import_at = self.get_last_import_date(self.cloud_acc_id)
+        if last_import_at:
+            self.period_start = last_import_at.replace(
+                hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
+        else:
+            super().detect_period_start()
+
+    @retry_backoff(AzureConsumptionException,
+                   raise_errors=[AzureAuthenticationError])
     def load_raw_data(self):
         import_scheme = self.cloud_adapter.expense_import_scheme
         if import_scheme == ExpenseImportScheme.usage.value:
@@ -143,19 +155,32 @@ class AzureReportImporter(BaseReportImporter):
         else:
             raise Exception('Unsupported expense import scheme: {}'.format(
                 import_scheme))
+        self.clear_rudiments()
 
+    @retry_backoff(AzureConsumptionException,
+                   raise_errors=[AzureAuthenticationError])
     def _load_usage_data(self):
         chunk = []
-        for usage_obj in self.cloud_adapter.get_usage(self.period_start):
+        usages = self.cloud_adapter.get_usage(self.period_start) or []
+        record_number = 0
+        for usage_obj in usages:
             if len(chunk) == CHUNK_SIZE:
                 self.update_raw_records(chunk)
                 chunk = []
             usage_dict = usage_obj.as_dict()
+            record_number += 1
+            usage_dict['_rec_n'] = record_number
             self._fill_custom_fields(usage_dict)
             self._clean_tree(usage_dict)
             chunk.append(usage_dict)
         if chunk:
             self.update_raw_records(chunk)
+
+    @retry_backoff(AzureConsumptionException,
+                   raise_errors=[AzureAuthenticationError])
+    def _get_day_raw_usage(self, current_day):
+        return self.cloud_adapter.get_raw_usage(
+            current_day, current_day + timedelta(days=1), 'Daily')
 
     def _load_raw_usage_data(self, prices):
         chunk = []
@@ -176,20 +201,26 @@ class AzureReportImporter(BaseReportImporter):
             # collect all usage parts without them being overwritten by each
             # other. Later, on clean expense generation, all entries for one
             # day will be summed together.
-            daily_usages = self.cloud_adapter.get_raw_usage(
-                current_day, current_day + timedelta(days=1), 'Daily')
+            daily_usages = self._get_day_raw_usage(current_day)
+            record_number = 0
             try:
                 for usage_obj in daily_usages:
                     usage_dict = usage_obj.as_dict()
-                    price_item = prices.get(usage_dict['meter_id'])
+                    inst_data = json.loads(usage_dict.get('instance_data', '{}'))
+                    alt_sku_id = inst_data.get('Microsoft.Resources', {}).get(
+                        'additionalInfo', {}).get('ConsumptionMeter')
+                    price_item = prices.get(usage_dict['meter_id']) or prices.get(
+                        alt_sku_id)
                     if price_item is None:
                         skus_without_prices.add(usage_dict['meter_id'])
-                        continue
                     usage_dict['kind'] = 'raw'
                     usage_dict['obtained_by_date'] = self.str_from_datetime(
                         current_day)
+                    # TODO: support rates properly
                     usage_dict['cost'] = usage_obj.quantity * price_item[
-                        'rates'][0][1]  # TODO: support rates properly
+                        'rates'][0][1] if price_item else 0
+                    record_number += 1
+                    usage_dict['_rec_n'] = record_number
                     self._fill_custom_fields(usage_dict)
                     self._clean_tree(usage_dict)
                     chunk.append(usage_dict)
@@ -199,9 +230,10 @@ class AzureReportImporter(BaseReportImporter):
             except AzureErrorResponseException as ex:
                 error_message = str(ex)
                 if 'Unknown error' in error_message:
-                    LOG.error('No ready reports yet in cloud. Will skip this '
-                              'report import and try next time later.')
-                    raise NoReadyReportsYetInCloudException(str(ex))
+                    LOG.error('No ready reports yet in cloud for %s. Will skip the '
+                              'remaining report import days and try next time'
+                              ' later.', current_day)
+                    break
                 raise
             current_day += timedelta(days=1)
         if chunk:
@@ -246,7 +278,6 @@ class AzureReportImporter(BaseReportImporter):
         :param u: usage dict
         :return: does not return anything, it updates usage dict in-place
         """
-
         usage_kind = u.get('kind')
         if usage_kind == 'legacy':
             u['cost'] = float(u['cost'])
@@ -310,6 +341,7 @@ class AzureReportImporter(BaseReportImporter):
             u['usage_quantity'] = u.pop('quantity')
 
         u['cloud_account_id'] = self.cloud_acc_id
+        u['report_identity'] = self.report_identity
 
     def _get_resource_type_and_name(self, instance_id):
         if instance_id:

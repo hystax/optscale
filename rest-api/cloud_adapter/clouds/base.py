@@ -17,3 +17,7 @@ class CloudBase:
             return func()
         else:
             return []
+
+    @classmethod
+    def configure_credentials(cls, config):
+        return config

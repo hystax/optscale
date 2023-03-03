@@ -158,6 +158,12 @@ class EnvironmentResourcePropertiesHistoryAsyncItemHandler(BaseAsyncItemHandler,
         else:
             raise OptHTTPError(400, Err.OE0473, [exp_format])
 
+    def patch(self, id, **kwargs):
+        self.raise405()
+
+    def delete(self, id, **kwargs):
+        self.raise405()
+
 
 class EnvironmentResourcePropertiesScriptAsyncItemHandler(BaseAsyncItemHandler,
                                                           BaseAuthHandler,

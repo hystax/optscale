@@ -1,16 +1,15 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import selectorsMock from "mocks/selectorsMock";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import Selector from "./Selector";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
-      <Selector data={selectorsMock} labelId="organization" onChange={() => {}} />
-    </TestProvider>,
-    div
+      <Selector data={{}} labelId="organization" onChange={() => {}} />
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

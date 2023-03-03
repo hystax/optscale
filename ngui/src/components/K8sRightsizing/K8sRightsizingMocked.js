@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { getBasicRelativeRangesSet } from "components/RelativeDateTimePicker/defaults";
 import K8sRightsizing from "./K8sRightsizing";
 
 const namespacesMockData = [
@@ -1002,7 +1001,6 @@ const K8sRightsizingMocked = ({ actionBarDefinition }) => (
     actionBarDefinition={actionBarDefinition}
     isLoading={false}
     applyFilter={() => {}}
-    definedRanges={getBasicRelativeRangesSet()}
   />
 );
 K8sRightsizingMocked.propTypes = {

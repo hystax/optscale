@@ -1,12 +1,10 @@
 import React from "react";
-import Resources from "components/Resources";
-import { data } from "components/Resources";
 import { Provider } from "react-redux";
-import { millisecondsToSeconds } from "utils/datetime";
-import { KINDS } from "stories";
 import configureMockStore from "redux-mock-store";
 import { GET_RESOURCE_COUNT_BREAKDOWN } from "api/restapi/actionTypes";
-import { addDays } from "utils/datetime";
+import Resources, { data } from "components/Resources";
+import { KINDS } from "stories";
+import { millisecondsToSeconds, addDays } from "utils/datetime";
 
 export default {
   title: `${KINDS.PAGES}/Resources`
@@ -41,28 +39,25 @@ const store = mockStore({
   }
 });
 
-export const basic = () => {
-  return (
-    <Provider store={store}>
-      <Resources
-        startDateTimestamp={firstDateRangePoint}
-        endDateTimestamp={lastDateRangePoint}
-        filterValues={data.filterValues}
-        expenses={data.expenses}
-        filters={data.filters}
-        entities={data.entities}
-        requestParams={data.requestParams}
-        totalExpenses={data.totalExpenses}
-        totalSaving={data.totalSaving}
-        onApply={() => console.log("onApply")}
-        onFilterAdd={() => console.log("onFilterAdd")}
-        onFilterDelete={() => console.log("onFilterDelete")}
-        onFiltersDelete={() => console.log("onFiltersDelete")}
-        fromMainMenu
-      />
-    </Provider>
-  );
-};
+export const basic = () => (
+  <Provider store={store}>
+    <Resources
+      startDateTimestamp={firstDateRangePoint}
+      endDateTimestamp={lastDateRangePoint}
+      filterValues={data.filterValues}
+      expenses={data.expenses}
+      filters={data.filters}
+      entities={data.entities}
+      requestParams={data.requestParams}
+      totalExpenses={data.totalExpenses}
+      totalSaving={data.totalSaving}
+      onApply={() => console.log("onApply")}
+      onFilterAdd={() => console.log("onFilterAdd")}
+      onFilterDelete={() => console.log("onFilterDelete")}
+      onFiltersDelete={() => console.log("onFiltersDelete")}
+    />
+  </Provider>
+);
 
 export const isLoading = () => (
   <Resources
@@ -83,6 +78,5 @@ export const isLoading = () => (
     onFilterAdd={() => console.log("onFilterAdd")}
     onFilterDelete={() => console.log("onFilterDelete")}
     onFiltersDelete={() => console.log("onFiltersDelete")}
-    fromMainMenu
   />
 );

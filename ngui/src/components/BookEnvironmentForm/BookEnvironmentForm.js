@@ -79,14 +79,14 @@ const BookEnvironmentForm = ({
     shouldUnregister: true
   });
 
-  const { handleSubmit, getValues, reset, watch } = methods;
+  const { handleSubmit, reset, watch } = methods;
 
   useEffect(() => {
-    reset({
-      ...getValues(),
+    reset((formValues) => ({
+      ...formValues,
       [BOOKING_OWNER]: defaultBookingOwner?.id || ""
-    });
-  }, [defaultBookingOwner?.id, getValues, reset]);
+    }));
+  }, [defaultBookingOwner?.id, reset]);
 
   const watchBookingOwner = watch(BOOKING_OWNER);
   const isBookingForMyself = watchBookingOwner === defaultBookingOwner?.id;
@@ -140,27 +140,30 @@ const BookEnvironmentForm = ({
             }}
             rules={{
               validate: {
-                unique: (sinceTimestamp) => {
+                unique: (sinceTimestamp, formValues) => {
                   if (sinceTimestamp === undefined) {
                     return true;
                   }
-
-                  const { [BOOK_UNTIL_PICKER_NAME]: untilTimestamp } = getValues();
-                  return sinceTimestamp !== untilTimestamp || intl.formatMessage({ id: "startDateShouldNotBeEqualToEndDate" });
+                  return (
+                    sinceTimestamp !== formValues[BOOK_UNTIL_PICKER_NAME] ||
+                    intl.formatMessage({ id: "startDateShouldNotBeEqualToEndDate" })
+                  );
                 },
-                isLessThanEndDate: (value) => {
-                  const { [BOOK_UNTIL_PICKER_NAME]: endTimestamp } = getValues();
+                isLessThanEndDate: (value, formValues) => {
+                  const bookUntil = formValues[BOOK_UNTIL_PICKER_NAME];
 
-                  if (!(endTimestamp && value)) {
+                  if (!(bookUntil && value)) {
                     return true;
                   }
 
-                  return value <= endTimestamp || intl.formatMessage({ id: "startDateShouldNotBeGreaterThanEndTime" });
+                  return value <= bookUntil || intl.formatMessage({ id: "startDateShouldNotBeGreaterThanEndTime" });
                 },
-                isNotBooked: (sinceTimestamp) => {
-                  const { [BOOK_UNTIL_PICKER_NAME]: untilTimestamp } = getValues();
-
-                  const overlappingInterval = findOverlappingInterval(sinceTimestamp, untilTimestamp, allBookings);
+                isNotBooked: (sinceTimestamp, formValues) => {
+                  const overlappingInterval = findOverlappingInterval(
+                    sinceTimestamp,
+                    formValues[BOOK_UNTIL_PICKER_NAME],
+                    allBookings
+                  );
 
                   return !overlappingInterval || intl.formatMessage({ id: "selectedIntervalIsOverlappingWithExistedBooking" });
                 }
@@ -179,26 +182,28 @@ const BookEnvironmentForm = ({
             notSetMessageId="notLimited"
             rules={{
               validate: {
-                unique: (untilTimestamp) => {
+                unique: (untilTimestamp, formValues) => {
                   if (untilTimestamp === undefined) {
                     return true;
                   }
-                  const { [BOOK_SINCE_PICKER_NAME]: startTimestamp } = getValues();
-                  return untilTimestamp !== startTimestamp || intl.formatMessage({ id: "endDateShouldNotBeEqualToStartDate" });
+                  return (
+                    untilTimestamp !== formValues[BOOK_SINCE_PICKER_NAME] ||
+                    intl.formatMessage({ id: "endDateShouldNotBeEqualToStartDate" })
+                  );
                 },
-                isGreaterThanStartDate: (value) => {
-                  const { [BOOK_SINCE_PICKER_NAME]: startTimestamp } = getValues();
-
-                  if (!(startTimestamp && value)) {
+                isGreaterThanStartDate: (value, formValues) => {
+                  const bookSince = formValues[BOOK_SINCE_PICKER_NAME];
+                  if (!(bookSince && value)) {
                     return true;
                   }
-
-                  return value >= startTimestamp || intl.formatMessage({ id: "endDateShouldBeGreaterThanStartTime" });
+                  return value >= bookSince || intl.formatMessage({ id: "endDateShouldBeGreaterThanStartTime" });
                 },
-                isNotBooked: (untilTimestamp) => {
-                  const { [BOOK_SINCE_PICKER_NAME]: sinceTimestamp } = getValues();
-
-                  const overlappingInterval = findOverlappingInterval(sinceTimestamp, untilTimestamp, allBookings);
+                isNotBooked: (untilTimestamp, formValues) => {
+                  const overlappingInterval = findOverlappingInterval(
+                    formValues[BOOK_SINCE_PICKER_NAME],
+                    untilTimestamp,
+                    allBookings
+                  );
 
                   return !overlappingInterval || intl.formatMessage({ id: "selectedIntervalIsOverlappingWithExistedBooking" });
                 }

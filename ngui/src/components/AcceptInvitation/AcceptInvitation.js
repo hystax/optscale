@@ -1,11 +1,10 @@
 import React from "react";
 import NavigationIcon from "@mui/icons-material/Navigation";
-import Grid from "@mui/material/Grid";
+import { Box, Stack } from "@mui/system";
 import PropTypes from "prop-types";
 import Button from "components/Button";
 import ConditionWrapper from "components/ConditionWrapper";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import GridContainerWithNegativeMarginCompensation from "components/GridContainerWithNegativeMarginCompensation";
 import IconError from "components/IconError";
 import Invitation from "components/Invitation";
 import Logo from "components/Logo";
@@ -30,11 +29,11 @@ const AcceptInvitation = ({ invitation, sendState, onSuccessAccept, onSuccessDec
   );
 
   return (
-    <GridContainerWithNegativeMarginCompensation direction="column" alignItems="center" spacing={SPACING_6}>
+    <Stack container direction="column" alignItems="center" spacing={SPACING_6}>
       <ConditionWrapper
         condition={sendState === ERROR}
         conditionTemplate={
-          <Grid item xs={12}>
+          <Box>
             <IconError messageId="invitationNotFound">
               <Button
                 color="primary"
@@ -45,21 +44,21 @@ const AcceptInvitation = ({ invitation, sendState, onSuccessAccept, onSuccessDec
                 startIcon={<NavigationIcon />}
               />
             </IconError>
-          </Grid>
+          </Box>
         }
       >
-        <Grid item xs={12}>
+        <Box>
           <Logo width={200} />
-        </Grid>
-        <Grid xs={12} item>
-          <div style={{ marginBottom: "1rem" }}>
+        </Box>
+        <Box>
+          <Box mb="1rem" pl={2} pr={2}>
             <Invitation
               owner={{ name: ownerName, email: ownerEmail }}
               organizationNameInvitedTo={organization}
               invitesToOrganization={invitesToOrganization}
               invitesToPools={invitesToPools}
             />
-          </div>
+          </Box>
           <FormButtonsWrapper withTopMargin={false} justifyContent="center">
             <InvitationActionsContainer
               invitationId={invitationId}
@@ -67,9 +66,9 @@ const AcceptInvitation = ({ invitation, sendState, onSuccessAccept, onSuccessDec
               onSuccessDecline={onSuccessDecline}
             />
           </FormButtonsWrapper>
-        </Grid>
+        </Box>
       </ConditionWrapper>
-    </GridContainerWithNegativeMarginCompensation>
+    </Stack>
   );
 };
 

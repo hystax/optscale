@@ -93,11 +93,18 @@ class ObsoleteImages(ModuleBase):
                 '$match': {
                     '$and': [
                         {'cloud_account_id': {'$in': account_ids}},
-                        {'snapshots': {'$size': 1}},
+                        {'meta.snapshots': {'$size': 1}},
                         {'first_seen': {
                             '$lte': int(
                                 last_week_time.timestamp())}}
                     ]
+                }
+            },
+            {
+                '$project': {
+                    '_id': '$_id',
+                    'cloud_resource_id': '$cloud_resource_id',
+                    'snapshots': '$meta.snapshots'
                 }
             },
             {

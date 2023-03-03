@@ -54,6 +54,11 @@ class RightsizingBase(ModuleBase):
                 verify=False)
         return self._metroculus_cl
 
+    def get_organization_currency(self):
+        _, organization = self.rest_client.organization_get(
+            self.organization_id)
+        return organization.get('currency', 'USD')
+
     def _get_supported_func_map(self):
         raise NotImplementedError
 
@@ -138,10 +143,10 @@ class RightsizingBase(ModuleBase):
             ))
         return metrics_map
 
-    def _get_instances_info(self, cloud_resource_ids, cloud_account_id,
+    def _get_instances_info(self, cloud_resources, cloud_account_id,
                             cloud_type):
         info_func = self._get_instances_info_func(cloud_type)
-        return info_func(cloud_resource_ids, [cloud_account_id])
+        return info_func(cloud_resources, [cloud_account_id])
 
     def _get_flavor_params(self, cloud_resource_id_info_map,
                            cloud_resource_id_instance_map, cloud_type):
@@ -178,10 +183,10 @@ class RightsizingBase(ModuleBase):
 
     def _find_flavor(self, cloud_type, region, family_specs, mode, **params):
         try:
+            currency = self.get_organization_currency()
             _, flavor = self.insider_cl.find_flavor(
                 cloud_type, self.get_insider_resource_type(),
-                region, family_specs, mode,
-                **params)
+                region, family_specs, mode, currency=currency, **params)
             return flavor
         except HTTPError as ex:
             LOG.warning('Unable to get %s flavor: %s' % (mode, str(ex)))
@@ -239,13 +244,13 @@ class RightsizingBase(ModuleBase):
                 current_cost = r_info[res_id].get('day_cost', 0) * DAYS_IN_MONTH
                 discount_multiplier = r_info[res_id].get(
                     'discount_multiplier', 1)
-                recommended_cost = (
-                        recommended_flavor.get('price') * HOURS_IN_DAY *
-                        DAYS_IN_MONTH * discount_multiplier)
-                if recommended_cost >= current_cost:
+                multiplier = HOURS_IN_DAY * DAYS_IN_MONTH * discount_multiplier
+                recommended_cost = recommended_flavor.get('price') * multiplier
+                current_flavor_cost = current_flavor.get('price') * multiplier
+                if recommended_cost >= current_flavor_cost:
                     write_stat_func('current_cost_less_recommended')
                     continue
-                saving = current_cost - recommended_cost
+                saving = current_flavor_cost - recommended_cost
                 is_pool_excluded = instance.get('pool_id') in excluded_pools
                 is_flavor_excluded = bool(excluded_flavor_prog.pattern and
                                           excluded_flavor_prog.match(
@@ -270,7 +275,8 @@ class RightsizingBase(ModuleBase):
                     'flavor': instance['meta']['flavor'],
                     'recommended_flavor': recommended_flavor['flavor'],
                     'saving': round(saving, 2),
-                    'saving_percent': round(saving / current_cost * 100, 2),
+                    'saving_percent': round(
+                        saving / current_cost * 100, 2) if current_cost else 0,
                     'current_cost': round(current_cost, 2),
                     'recommended_flavor_cost': round(recommended_cost, 2),
                     'cpu': current_cpu,
@@ -318,18 +324,18 @@ class RightsizingBase(ModuleBase):
 
         resource_info_map = {}
         cloud_resource_resource_map = dict()
-        ca_id_resource_id_map = defaultdict(list)
+        ca_id_resource_map = defaultdict(list)
         for instance in instances:
             cloud_resource_id = instance['cloud_resource_id']
             resource_info_map[cloud_resource_id] = instance
-            ca_id_resource_id_map[instance['cloud_account_id']].append(
-                cloud_resource_id)
+            ca_id_resource_map[instance['cloud_account_id']].append(
+                instance)
             cloud_resource_resource_map[cloud_resource_id] = instance['_id']
         result = []
         for ca_id, ca in cloud_account_map.items():
             stats_map = {}
-            cloud_resource_ids = ca_id_resource_id_map[ca_id]
-            if not cloud_resource_ids:
+            cloud_resources = ca_id_resource_map[ca_id]
+            if not cloud_resources:
                 self._create_or_increment(stats_map, 'no_instances')
                 continue
 
@@ -337,7 +343,7 @@ class RightsizingBase(ModuleBase):
                 self._create_or_increment(stats_map, msg)
 
             cloud_type = ca['type']
-            info = self._get_instances_info(cloud_resource_ids, ca_id, cloud_type)
+            info = self._get_instances_info(cloud_resources, ca_id, cloud_type)
             resource_ids = list(map(lambda x: cloud_resource_resource_map[x],
                                     info.keys()))
             metrics_map = self._get_metrics(
@@ -365,10 +371,11 @@ class RightsizingBase(ModuleBase):
             int(now.timestamp()), 'cpu')
         return {k: v['cpu'] for k, v in metrics.items()}
 
-    def get_base_aws_instances_info(self, resource_ids, cloud_account_ids):
+    def get_base_aws_instances_info(self, cloud_resources, cloud_account_ids):
         result = {}
-        for i in range(0, len(resource_ids), BULK_SIZE):
-            bulk_ids = resource_ids[i:i + BULK_SIZE]
+        for i in range(0, len(cloud_resources), BULK_SIZE):
+            bulk_resources = cloud_resources[i:i + BULK_SIZE]
+            bulk_ids = [r["cloud_resource_id"] for r in bulk_resources]
             match_pipeline = self.get_common_match_pipeline(
                 bulk_ids, cloud_account_ids)
             group_pipeline = self.get_common_group_pipeline()
@@ -390,10 +397,11 @@ class RightsizingBase(ModuleBase):
                 }
         return result
 
-    def get_base_azure_instances_info(self, resource_ids, cloud_account_ids):
+    def get_base_azure_instances_info(self, cloud_resources, cloud_account_ids):
         result = {}
-        for i in range(0, len(resource_ids), BULK_SIZE):
-            bulk_ids = resource_ids[i:i + BULK_SIZE]
+        for i in range(0, len(cloud_resources), BULK_SIZE):
+            bulk_resources = cloud_resources[i:i + BULK_SIZE]
+            bulk_ids = [r["cloud_resource_id"] for r in bulk_resources]
             match_pipeline = self.get_common_match_pipeline(
                 bulk_ids, cloud_account_ids)
             sort_pipeline = {'$sort': {'end_date': 1}}
@@ -415,11 +423,12 @@ class RightsizingBase(ModuleBase):
                 }
         return result
 
-    def get_base_alibaba_instances_info(self, resource_ids, cloud_account_ids,
+    def get_base_alibaba_instances_info(self, cloud_resources, cloud_account_ids,
                                         pay_as_you_go_item):
         result = {}
-        for i in range(0, len(resource_ids), BULK_SIZE):
-            bulk_ids = resource_ids[i:i + BULK_SIZE]
+        for i in range(0, len(cloud_resources), BULK_SIZE):
+            bulk_resources = cloud_resources[i:i + BULK_SIZE]
+            bulk_ids = [r["cloud_resource_id"] for r in bulk_resources]
             match_pipeline = self.get_common_match_pipeline(
                 bulk_ids, cloud_account_ids)
             group_pipeline = self.get_common_group_pipeline()
@@ -465,6 +474,25 @@ class RightsizingBase(ModuleBase):
                     'discount_multiplier': r['cost'] / r[
                         'cost_without_discount'] if r[
                         'cost_without_discount'] else 1
+                }
+        return result
+
+    def get_base_gcp_instances_info(self, cloud_resources, cloud_account_ids):
+        result = {}
+        for cloud_resource in cloud_resources:
+            resource_id = cloud_resource["cloud_resource_id"]
+            current_flavor = self._find_flavor(
+                "gcp_cnr", cloud_resource["region"], {"source_flavor_id": cloud_resource["meta"]["flavor"]}, 'current')
+            if not current_flavor:
+                # we do not currently support custom flavors,
+                # so insider might return empty response
+                continue
+            hourly_cost = current_flavor["price"]
+            daily_cost = hourly_cost * HOURS_IN_DAY
+            result[resource_id] = {
+                    'day_cost': daily_cost,
+                    'cloud_account_id': cloud_resource['cloud_account_id'],
+                    'resource_id': resource_id,
                 }
         return result
 

@@ -12,7 +12,6 @@ import RecommendationDescription from "components/RecommendationDescription";
 import RecommendationLimitWarning from "components/RecommendationLimitWarning";
 import { getRecommendationInstanceByType } from "components/RelevantRecommendations";
 import Table from "components/Table";
-import TableLoader from "components/TableLoader";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -25,13 +24,21 @@ import {
 import { EN_FULL_FORMAT, formatUTC } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
 
-const ArchivedRecommendationAccordion = ({ recommendationType, count, reason, archivedAt, onChange, isExpanded = false }) => {
+const ArchivedRecommendationAccordion = ({
+  recommendationType,
+  count,
+  reason,
+  archivedAt,
+  onChange,
+  isExpanded = false,
+  dataTestId
+}) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { items = [] }
+    apiData: { items = [], limit }
   } = useApiData(GET_ARCHIVED_OPTIMIZATION_DETAILS, {});
 
   const { isLoading, shouldInvoke } = useApiState(GET_ARCHIVED_OPTIMIZATION_DETAILS, {
@@ -54,9 +61,9 @@ const ArchivedRecommendationAccordion = ({ recommendationType, count, reason, ar
     }
   }, [archivedAt, dispatch, isExpanded, recommendationType, organizationId, reason, shouldInvoke]);
 
-  /* 
+  /*
     TODO: create getRecommendationInstanceByModuleName util and use it here:
-    For examples: 
+    For examples:
       const recommendationInstance = getRecommendationInstanceByModuleName(recommendationType);
   */
   const recommendationInstance = getRecommendationInstanceByType(BE_TO_FE_MAP_RECOMMENDATION_TYPES[recommendationType]);
@@ -66,6 +73,7 @@ const ArchivedRecommendationAccordion = ({ recommendationType, count, reason, ar
   return (
     <Accordion expanded={isExpanded} onChange={onChange} disableExpandedSpacing>
       <RecommendationAccordionTitle
+        dataTestId={dataTestId}
         messages={[
           <FormattedMessage key={1} id={recommendationInstance.messageId} />,
           <KeyValueLabel key={2} messageId="count" value={count} />,
@@ -74,21 +82,25 @@ const ArchivedRecommendationAccordion = ({ recommendationType, count, reason, ar
         ]}
       />
       <Stack spacing={SPACING_1}>
-        <RecommendationDescription messageId={ARCHIVATION_REASON_DESCRIPTION_MESSAGE_ID[reason]} isLoading={isLoading} />
-        {isLoading ? (
-          <TableLoader columnsCounter={columns.length} />
-        ) : (
-          <>
-            {count > items.length && <RecommendationLimitWarning limit={RECOMMENDATIONS_LIMIT_FILTER} />}
-            <Table
-              columns={columns}
-              data={items}
-              localization={{
-                emptyMessageId: "noRecommendations"
-              }}
-            />
-          </>
+        <div>
+          <RecommendationDescription messageId={ARCHIVATION_REASON_DESCRIPTION_MESSAGE_ID[reason]} isLoading={isLoading} />
+        </div>
+        {count > limit && (
+          <div>
+            <RecommendationLimitWarning limit={limit} />
+          </div>
         )}
+        <div>
+          <Table
+            columns={columns}
+            isLoading={isLoading}
+            data={items}
+            localization={{
+              emptyMessageId: "noRecommendations"
+            }}
+            dataTestIds={{ container: "archived_recommendation_accordion_table" }}
+          />
+        </div>
       </Stack>
     </Accordion>
   );
@@ -100,7 +112,8 @@ ArchivedRecommendationAccordion.propTypes = {
   isExpanded: PropTypes.bool.isRequired,
   reason: PropTypes.string.isRequired,
   archivedAt: PropTypes.number.isRequired,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
+  dataTestId: PropTypes.string
 };
 
 export default ArchivedRecommendationAccordion;

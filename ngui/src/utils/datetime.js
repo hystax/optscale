@@ -64,6 +64,10 @@ const MILLISECONDS_IN_HOUR = 60 * MILLISECONDS_IN_MINUTE;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
 const MILLISECONDS_IN_WEEK = 7 * MILLISECONDS_IN_DAY;
 
+const SECOND = 1;
+const SECONDS_IN_MINUTE = 60 * SECOND;
+const SECONDS_IN_HOUR = 60 * SECONDS_IN_MINUTE;
+
 export const MAX_UTC_DATE_TIMESTAMP = +new Date("01/01/2071 GMT+0");
 
 export const SHORT_MONTHS = [...Array(12).keys()].map((i) => enUS.localize.month(i, { width: "abbreviated" }));
@@ -84,7 +88,7 @@ export const EN_PICKER_FORMAT = "LLL dd, yyyy";
 export const FORMAT_YYYY_MM_DD = "yyyyMMdd";
 export const FORMAT_YYYY = "yyyy";
 
-const getTimezoneOffset = () => new Date().getTimezoneOffset();
+const getDateTimezoneOffset = (date) => new Date(date).getTimezoneOffset();
 export const HOURS_PER_DAY = 24;
 
 export const AMOUNT_30_MINUTES = 30;
@@ -98,13 +102,13 @@ export const getNYearsFromToday = (n) => +addYears(new Date(), n);
 export const moveDateToUTC = (date) => {
   // todo: rename everywhere both functions
   // for GMT+3 its -180, so adding offset
-  const timezoneOffset = getTimezoneOffset();
+  const timezoneOffset = getDateTimezoneOffset(date);
   return getTime(addMinutes(date, timezoneOffset));
 };
 
 export const moveDateFromUTC = (date) => {
   // for GMT+3 its -180, so substracting offset
-  const timezoneOffset = getTimezoneOffset();
+  const timezoneOffset = getDateTimezoneOffset(date);
   return getTime(subMinutes(date, timezoneOffset));
 };
 
@@ -118,6 +122,7 @@ export const performDateTimeFunction = (...args) => {
 export const getMinPickerDateSec = (isUtc) =>
   millisecondsToSeconds(isUtc ? Date.UTC(2020, 0, 1, 0, 0, 0, 0) : new Date(2020, 0, 1, 0, 0, 0, 0));
 export const getMaxPickerDateSec = (isUtc) => millisecondsToSeconds(performDateTimeFunction(endOfDay, isUtc, new Date()));
+export const getMaxPickerDateMsec = (isUtc) => performDateTimeFunction(endOfDay, isUtc, new Date());
 
 export const formatUTC = (timestamp, dateFormat = EN_FORMAT) =>
   formatFNS(moveDateToUTC(secondsToMilliseconds(timestamp)), dateFormat);
@@ -396,9 +401,7 @@ export const fitRangeIntoInterval = ({ minDate, maxDate }, { startDate, endDate 
 export const formatRangeToShortNotation = (startDateTimestamp, endDateTimestamp, showInUTC = true) => {
   const formatterFunction = showInUTC
     ? formatUTC
-    : (timestamp, formatString) => {
-        format(secondsToMilliseconds(timestamp), formatString);
-      };
+    : (timestamp, formatString) => format(secondsToMilliseconds(timestamp), formatString);
 
   const currentYear = formatterFunction(millisecondsToSeconds(+new Date()), FORMAT_YYYY);
 
@@ -465,6 +468,35 @@ export const intervalToDuration = ({ start, end }) => {
   };
 };
 
+// TODO: Try date-fns utils
+export const formatSecondsToHHMMSS = (seconds) => {
+  let delta = seconds;
+
+  const hours = Math.floor(delta / SECONDS_IN_HOUR);
+  delta -= hours * SECONDS_IN_HOUR;
+
+  const minutes = Math.floor(delta / SECONDS_IN_MINUTE);
+  delta -= minutes * SECONDS_IN_MINUTE;
+
+  return [hours, minutes, delta].map((value) => String(value).padStart(2, "0")).join(":");
+};
+
+// TODO: Try date-fns utils
+export const millisecondsToHHMMSSMSFormat = (ms) => {
+  const milliseconds = ms % 1000;
+  let seconds = Math.floor(ms / 1000);
+  let minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  seconds %= 60;
+  minutes %= 60;
+
+  return `${[hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":")},${String(milliseconds).padStart(
+    3,
+    "0"
+  )}`;
+};
+
 /**
  * Converts given day and hour pair to local values based on a timezone
 
@@ -477,9 +509,8 @@ export const intervalToDuration = ({ start, end }) => {
  * - Does not work with locales, weekdays are generated from a enUS list (starts with Su, but accepts Mo as a first day, hence, +1 index shift)
  * - Does not handle DST
  */
-
 export const convertToLocalNumericDayAndHour = (hour, dayOfWeek) => {
-  const timezoneOffsetInHours = getTimezoneOffset() / 60;
+  const timezoneOffsetInHours = getDateTimezoneOffset(new Date()) / 60;
   const localHour = hour - timezoneOffsetInHours;
   const localDayIndexOffset = Math.floor(localHour / 24);
 

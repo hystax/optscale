@@ -1,4 +1,6 @@
 import datetime
+import copy
+import os
 import uuid
 from copy import deepcopy
 
@@ -18,13 +20,21 @@ from rest_api_server.tests.unittests.test_api_base import TestApiBase
 class TestCloudAccountApi(TestApiBase):
 
     def setUp(self, version='v2'):
+        os.environ['ASYNC_TEST_TIMEOUT'] = '20'
         super().setUp(version)
         _, self.org = self.client.organization_create({'name': "organization"})
+        _, self.org2 = self.client.organization_create({'name': "organization2"})
         self.org_id = self.org['id']
+        self.org_id2 = self.org2['id']
         self.auth_user_1 = self.gen_id()
         _, self.employee_1 = self.client.employee_create(
             self.org['id'], {'name': 'employee_1',
                              'auth_user_id': self.auth_user_1})
+        _, self.employee_2 = self.client.employee_create(
+            self.org2['id'], {'name': 'employee_2',
+                              'auth_user_id': self.auth_user_1})
+        patch('rest_api_server.controllers.report_import.ReportImportBaseController.'
+              'publish_task').start()
         patch('rest_api_server.controllers.base.BaseController.'
               'get_user_id',
               return_value=self.auth_user_1).start()
@@ -69,9 +79,8 @@ class TestCloudAccountApi(TestApiBase):
             'name': 'k8s cloud_acc',
             'type': 'kubernetes_cnr',
             'config': {
-                'url': 'url',
-                'port': 1,
-                'cost_model': {}
+                'user': 'user',
+                'password': 'secure_pass'
             }
         }
         self.default_kubernetes_cost_model = {
@@ -81,6 +90,25 @@ class TestCloudAccountApi(TestApiBase):
         self.valid_kubernetes_response = deepcopy(self.valid_kubernetes_cloud_acc)
         self.valid_kubernetes_response['config'].update(
             {'cost_model': self.default_kubernetes_cost_model})
+        self.valid_kubernetes_response['config'].pop('password')
+
+        self.valid_gcp_cloud_acc = {
+            'name': 'gcp cloud_acc',
+            'type': 'gcp_cnr',
+            'config': {
+                'credentials': {
+                    "type": "service_account",
+                    "project_id": "hystax",
+                    "private_key_id": "redacted",
+                    "private_key": "redacted",
+
+                },
+                'billing_data': {
+                    'dataset_name': 'billing_data',
+                    'table_name': 'gcp_billing_export_v1',
+                },
+            }
+        }
 
     @staticmethod
     def get_cloud_account_object(ca_id):
@@ -644,21 +672,6 @@ class TestCloudAccountApi(TestApiBase):
             self.assertEqual(details['resources'], 2)
             self.assertDictEqual(cloud_discovery_info, res_discovery_info)
 
-    def test_create_cloud_acc_auto_import_immutable(self):
-        ca_params = self.valid_aws_cloud_acc
-        ca_params['auto_import'] = False
-        code, cloud_acc_1 = self.create_cloud_account(
-            self.org_id, ca_params)
-        self.assertEqual(code, 400)
-        self.assertEqual(cloud_acc_1['error']['error_code'], 'OE0211')
-
-        ca_params['auto_import'] = True
-        code, cloud_acc_2 = self.create_cloud_account(
-            self.org_id, ca_params)
-        self.assertEqual(code, 400)
-        self.assertEqual(cloud_acc_2['error']['error_code'], 'OE0211')
-        self.p_configure_aws.assert_not_called()
-
     def test_patch_enable_import(self):
         ca_params = self.valid_aws_cloud_acc
         code, cloud_acc = self.create_cloud_account(
@@ -670,14 +683,12 @@ class TestCloudAccountApi(TestApiBase):
         ca_patch = {'auto_import': True}
         code, cloud_acc_patched = self.client.cloud_account_update(
             cloud_acc['id'], ca_patch)
-        self.assertEqual(code, 400)
-        self.assertEqual(cloud_acc_patched['error']['error_code'], 'OE0211')
+        self.assertEqual(code, 200)
 
         ca_patch = {'auto_import': False}
         code, cloud_acc_patched = self.client.cloud_account_update(
             cloud_acc['id'], ca_patch)
-        self.assertEqual(code, 400)
-        self.assertEqual(cloud_acc_patched['error']['error_code'], 'OE0211')
+        self.assertEqual(code, 200)
 
     def test_create_cloud_acc_report_configure_error(self):
         self.p_configure_aws.side_effect = ReportConfigurationException(
@@ -711,6 +722,23 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(ca['id'], cloud_acc['id'])
         self.assertDictEqual(self.valid_aws_cloud_acc['config'],
                              cloud_acc['config'])
+
+    @patch('rest_api_server.handlers.v2.cloud_account.'
+           'CloudAccountAsyncItemHandler.check_cluster_secret',
+           return_value=True)
+    def test_get_k8s_cloud_acc_secure(self, m_secret):
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_kubernetes_cloud_acc)
+        self.assertEqual(code, 201)
+
+        code, ca = self.client.cloud_account_get(cloud_acc['id'])
+        self.assertEqual(code, 200)
+        self.assertIsNotNone(ca['config'].get('credentials'))
+
+        m_secret.return_value = False
+        code, ca = self.client.cloud_account_get(cloud_acc['id'])
+        self.assertEqual(code, 200)
+        self.assertIsNone(ca['config'].get('credentials'))
 
     def test_list_deleted_cloud_acc(self):
         code, cloud_acc = self.create_cloud_account(
@@ -959,6 +987,10 @@ class TestCloudAccountApi(TestApiBase):
             self.org_id, type='azure_cnr')
         self.assertEqual(len(cloud_acc_list['cloud_accounts']), 0)
 
+        _, cloud_acc_list = self.client.cloud_account_list(
+            self.org_id, type='gcp_cnr')
+        self.assertEqual(len(cloud_acc_list['cloud_accounts']), 0)
+
         cloud_acc2_dict = deepcopy(self.valid_aws_cloud_acc)
         cloud_acc2_dict['name'] = 'manual import cloud_acc'
         code, cloud_acc = self.create_cloud_account(self.org_id, cloud_acc2_dict)
@@ -1078,6 +1110,26 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 200)
         self.assertEqual(cloud_acc['process_recommendations'], False)
 
+    def test_create_with_cleaned_at(self):
+        ca_params = self.valid_aws_cloud_acc
+        ca_params['cleaned_at'] = 123
+        code, resp = self.create_cloud_account(
+            self.org_id, ca_params)
+        self.assertEqual(code, 400)
+        self.assertEqual(resp['error']['error_code'], 'OE0211')
+
+    def test_patch_cleaned_at(self):
+        ca_params = self.valid_aws_cloud_acc
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, ca_params)
+        self.assertEqual(code, 201)
+
+        ca_patch = {'cleaned_at': 123}
+        code, cloud_acc = self.client.cloud_account_update(
+            cloud_acc['id'], ca_patch)
+        self.assertEqual(code, 200)
+        self.assertEqual(cloud_acc['cleaned_at'], 123)
+
     def test_validation_warning(self):
         p_publish_activities = patch(
             'rest_api_server.controllers.base.BaseController.'
@@ -1172,19 +1224,25 @@ class TestCloudAccountApi(TestApiBase):
         self.assertDictEqual(self.valid_kubernetes_response['config'],
                              cloud_acc['config'])
 
-        kubernetes_cost_model = self.default_kubernetes_cost_model.copy()
-        kubernetes_cost_model['cpu_hourly_cost'] = 0.123
-        valid_kubernetes_cloud_acc = self.valid_kubernetes_cloud_acc.copy()
-        valid_kubernetes_cloud_acc['config']['cost_model'] = kubernetes_cost_model
-
-        params = {'config': valid_kubernetes_cloud_acc['config']}
-        patch('cloud_adapter.clouds.kubernetes.Kubernetes.validate_credentials',
-              return_value={'account_id': cloud_acc['account_id'], 'warnings': []}).start()
+        valid_kubernetes_config = self.valid_kubernetes_cloud_acc['config'].copy()
+        valid_kubernetes_config['user'] = 'name'
+        params = {'config': valid_kubernetes_config}
         code, ret = self.client.cloud_account_update(
             cloud_acc['id'], params)
         self.assertEqual(code, 200)
-        cloud_acc['config'] = valid_kubernetes_cloud_acc['config']
-        self.assertDictEqual(ret, cloud_acc, '%s and %s' % (ret, cloud_acc))
+
+        kubernetes_cost_model = self.default_kubernetes_cost_model.copy()
+        kubernetes_cost_model['cpu_hourly_cost'] = 0.123
+        valid_kubernetes_config['cost_model'] = kubernetes_cost_model
+        valid_kubernetes_config.pop('user')
+        valid_kubernetes_config.pop('password')
+        params = {'config': valid_kubernetes_config}
+        code, ret = self.client.cloud_account_update(
+            cloud_acc['id'], params)
+        self.assertEqual(code, 200)
+
+        self.assertDictEqual(ret.get('config', {}).get('cost_model'),
+                             valid_kubernetes_config.get('cost_model'))
         self.assertEqual(schedule_patch.call_count, 1)
 
     def test_recalculation_start_event(self):
@@ -1230,8 +1288,6 @@ class TestCloudAccountApi(TestApiBase):
         kubernetes_cost_model['cpu_hourly_cost'] = 0.123
 
         params = {'config': {'cost_model': kubernetes_cost_model}}
-        patch('cloud_adapter.clouds.kubernetes.Kubernetes.validate_credentials',
-              return_value={'account_id': cloud_acc['account_id'], 'warnings': []}).start()
         code, ret = self.client.cloud_account_update(
             cloud_acc['id'], params)
         self.assertEqual(code, 200)
@@ -1463,3 +1519,149 @@ class TestCloudAccountApi(TestApiBase):
             cloud_acc['id'], params)
         ca_obj = self.get_cloud_account_object(cloud_acc['id'])
         self.assertEqual(decode_config(ca_obj.config), params['config'])
+
+    def test_create_gcp_cloud_acc(self):
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_gcp_cloud_acc)
+        self.assertEqual(code, 201)
+        config = self.valid_gcp_cloud_acc['config'].copy()
+        config.pop('credentials')
+        self.assertDictEqual(config, cloud_acc['config'])
+
+    def test_create_gcp_non_standard_billing(self):
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "bad_table_name"
+        code, resp = self.client.cloud_account_create(
+            self.org_id, ca_config)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0455')
+
+    def test_create_gcp_incorrect_table_name(self):
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "gcp_billing_export_v1.something"
+        code, response = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 400)
+        self.assertTrue('Invalid billing table_name' in response['error']['reason'])
+
+    def test_create_gcp_incorrect_dataset_name(self):
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['dataset_name'] = "dataset.table"
+        code, response = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 400)
+        self.assertTrue('Invalid billing dataset_name' in response['error']['reason'])
+
+    @patch('rest_api_server.controllers.report_import.ReportImportBaseController.create')
+    def test_assign_task(self, p_create):
+        self.p_configure_aws.stop()
+        _, cloud_acc = self.create_cloud_account(self.org_id,
+                                                 self.valid_aws_cloud_acc)
+        self.assertEqual(p_create.call_count, 1)
+        p_create.assert_called_with(cloud_acc['id'], priority=8)
+
+    @patch('rest_api_server.controllers.report_import.ReportImportBaseController.create')
+    def test_assign_task_linked_acc(self, p_create):
+        self.p_configure_aws.stop()
+        _, cloud_acc = self.create_cloud_account(self.org_id2,
+                                                 self.valid_aws_cloud_acc)
+        self.assertEqual(p_create.call_count, 1)
+        p_create.assert_called_with(cloud_acc['id'], priority=8)
+        p_create.reset_mock()
+        self.valid_aws_cloud_acc['config']['linked'] = True
+        self.valid_aws_cloud_acc['name'] = 'linked_acc'
+
+        self.create_cloud_account(self.org_id2, self.valid_aws_cloud_acc)
+        self.assertEqual(p_create.call_count, 1)
+        p_create.assert_called_with(cloud_acc['id'], priority=8)
+
+    @patch('rest_api_server.controllers.cloud_account.CloudAccountController._publish_cloud_acc_activity')
+    @patch('rest_api_server.controllers.cloud_account.ExpensesRecalculationScheduleController.schedule')
+    def test_notify_ca_changed_succeed(self, schedule_patch, publish_patch):
+        account_id = self.gen_id()
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_aws_cloud_acc, account_id=account_id)
+        self.assertEqual(code, 201)
+
+        params = {'config': {
+            'access_key_id': 'new_key',
+            'secret_access_key': 'new_secret',
+            'config_scheme': 'create_report'
+        }}
+        patch('cloud_adapter.clouds.aws.Aws.validate_credentials',
+              return_value={'account_id': account_id, 'warnings': []}).start()
+        publish_patch.reset_mock()
+        code, ret = self.client.cloud_account_update(cloud_acc['id'], params)
+        self.assertEqual(code, 200)
+        publish_patch.assert_called_once()
+
+    @patch('rest_api_server.controllers.cloud_account.CloudAccountController._publish_cloud_acc_activity')
+    @patch('rest_api_server.controllers.cloud_account.ExpensesRecalculationScheduleController.schedule')
+    def test_notify_ca_changed_skip_sending(self, schedule_patch, publish_patch):
+        account_id = self.gen_id()
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_aws_cloud_acc, account_id=account_id)
+        self.assertEqual(code, 201)
+
+        params = {'last_import_at': int(datetime.datetime.utcnow().timestamp())}
+        patch('cloud_adapter.clouds.aws.Aws.validate_credentials',
+              return_value={'account_id': account_id, 'warnings': []}).start()
+        publish_patch.reset_mock()
+        code, ret = self.client.cloud_account_update(cloud_acc['id'], params)
+        self.assertEqual(code, 200)
+        publish_patch.assert_not_called()
+
+    def test_auto_import_change(self):
+        p_schedule_import = patch(
+            'rest_api_server.controllers.cloud_account.CloudAccountController.'
+            '_schedule_report_import'
+        ).start()
+        body = {
+            'name': 'my cloud_acc 1', 'type': 'aws_cnr',
+            'config': self.valid_cloud_config, 'auto_import': False
+        }
+        code, cloud_acc = self.create_cloud_account(self.org_id, body)
+        self.assertEqual(code, 201)
+        self.assertEqual(cloud_acc['auto_import'], False)
+        p_schedule_import.assert_not_called()
+
+        body = {
+            'name': 'my cloud_acc 2', 'type': 'aws_cnr',
+            'config': self.valid_cloud_config
+        }
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, body)
+        self.assertEqual(code, 201)
+        self.assertEqual(cloud_acc['auto_import'], True)
+        p_schedule_import.assert_called_once()
+
+        body.update({
+            'name': 'my cloud_acc 3', 'auto_import': True
+        })
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, body)
+        self.assertEqual(code, 201)
+        self.assertEqual(cloud_acc['auto_import'], True)
+        self.assertEqual(p_schedule_import.call_count, 2)
+
+        code, resp = self.client.cloud_account_update(
+            cloud_acc['id'], {'auto_import': False})
+        self.assertEqual(code, 200)
+
+    def test_auto_import_negative(self):
+        valid_body = {
+            'name': 'my cloud_acc 1', 'type': 'aws_cnr',
+            'config': self.valid_cloud_config
+        }
+        for k in [2, '', 'False']:
+            body = valid_body.copy()
+            body['auto_import'] = k
+            code, resp = self.create_cloud_account(
+                self.org_id, body)
+            self.assertEqual(code, 400)
+
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, valid_body)
+        self.assertEqual(code, 201)
+        for k in [2, '', 'False']:
+            code, resp = self.client.cloud_account_update(
+                cloud_acc['id'], {'auto_import': k})
+            self.assertEqual(code, 400)

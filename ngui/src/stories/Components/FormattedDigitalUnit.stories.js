@@ -1,16 +1,24 @@
 import React from "react";
-import { number, select } from "@storybook/addon-knobs";
-import FormattedDigitalUnit, { IEC_UNITS, SI_UNITS, SYSTEM_OF_UNITS } from "components/FormattedDigitalUnit";
+import FormattedDigitalUnit, { IEC_UNITS, SI_UNITS } from "components/FormattedDigitalUnit";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/FormattedDigitalUnit`
+  title: `${KINDS.COMPONENTS}/FormattedDigitalUnit`,
+  argTypes: {
+    iec: {
+      name: "IEC units",
+      control: "select",
+      options: Object.values(IEC_UNITS)
+    },
+    si: {
+      name: "SI units",
+      control: "select",
+      options: Object.values(SI_UNITS)
+    },
+    value: { name: "Value", control: "number", defaultValue: 0 }
+  }
 };
 
-export const iecDigitalUnitWithKnobs = () => (
-  <FormattedDigitalUnit value={number("value", 0)} baseUnit={select("baseUnit", IEC_UNITS)} />
-);
+export const iecDigitalUnitWithKnobs = (args) => <FormattedDigitalUnit value={args.number} baseUnit={args.iec} />;
 
-export const siDigitalUnitWithKnobs = () => (
-  <FormattedDigitalUnit value={number("value", 0)} baseUnit={select("baseUnit", SI_UNITS)} />
-);
+export const siDigitalUnitWithKnobs = (args) => <FormattedDigitalUnit value={args.number} baseUnit={args.si} />;

@@ -26,7 +26,6 @@ const RegistrationForm = ({ onSubmit, isLoading = false, isInvited }) => {
   const {
     register,
     handleSubmit,
-    getValues,
     formState: { errors }
   } = useForm();
 
@@ -130,7 +129,7 @@ const RegistrationForm = ({ onSubmit, isLoading = false, isInvited }) => {
             value: true,
             message: intl.formatMessage({ id: "thisFieldIsRequired" })
           },
-          validate: (value) => value === getValues("password") || intl.formatMessage({ id: "passwordsDoNotMatch" })
+          validate: (value, formValues) => value === formValues.password || intl.formatMessage({ id: "passwordsDoNotMatch" })
         })}
       />
       <Typography data-test-id="p_no_credit" align="center">

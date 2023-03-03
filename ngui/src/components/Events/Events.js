@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
-import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import InfoIcon from "@mui/icons-material/Info";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -11,16 +9,25 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Accordion from "components/Accordion";
 import ActionBar from "components/ActionBar";
-import EventsFilter from "components/EventsFilter";
-import IconButton from "components/IconButton";
+import { getBasicRangesSet } from "components/DateRangePicker/defaults";
+import LinearSelector from "components/LinearSelector";
 import PageContentWrapper from "components/PageContentWrapper";
+import RangePickerForm from "components/RangePickerForm";
 import Table from "components/Table";
 import { useInitialMount } from "hooks/useInitialMount";
 import { isEmpty } from "utils/arrays";
+import { EVENT_LEVEL } from "utils/constants";
 import { formatUTC } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
 import { getQueryParams, updateQueryParams, removeQueryParam } from "utils/network";
 import useStyles from "./Events.styles";
+
+const actionBarDefinition = {
+  title: {
+    messageId: "events",
+    dataTestId: "lbl_events"
+  }
+};
 
 const Loader = () => (
   <Box textAlign="center" pt={2}>
@@ -28,9 +35,84 @@ const Loader = () => (
   </Box>
 );
 
-export default function Events({ isLoading, onScroll, applyFilter, events }) {
+const Picker = ({ onApply }) => {
+  const filterParams = getQueryParams();
+
+  const initialStartDateValue = filterParams.timeStart ? Number(filterParams.timeStart) : null;
+  const initialEndDateValue = filterParams.timeEnd ? Number(filterParams.timeEnd) : null;
+
+  return (
+    <RangePickerForm
+      initialStartDateValue={initialStartDateValue}
+      initialEndDateValue={initialEndDateValue}
+      onApply={(startDate, endDate) =>
+        onApply({
+          timeStart: startDate,
+          timeEnd: endDate
+        })
+      }
+      notSetMessageId="latest"
+      definedRanges={getBasicRangesSet()}
+    />
+  );
+};
+
+const EVENT_LEVEL_ITEMS = [
+  {
+    name: "all",
+    value: EVENT_LEVEL.ALL,
+    type: "text",
+    dataTestId: "event_lvl_all"
+  },
+  {
+    name: "info",
+    value: EVENT_LEVEL.INFO,
+    type: "text",
+    dataTestId: "event_lvl_info"
+  },
+  {
+    name: "warning",
+    value: EVENT_LEVEL.WARNING,
+    type: "text",
+    dataTestId: "event_lvl_warning"
+  },
+  {
+    name: "error",
+    value: EVENT_LEVEL.ERROR,
+    type: "text",
+    dataTestId: "event_lvl_error"
+  }
+];
+
+const EventLevelSelector = ({ eventLevel, onApply }) => {
+  const getValue = () => {
+    const { name, value } =
+      eventLevel === undefined
+        ? EVENT_LEVEL_ITEMS.find(({ value: itemValue }) => itemValue === EVENT_LEVEL.ALL)
+        : EVENT_LEVEL_ITEMS.find(({ value: itemValue }) => eventLevel === itemValue);
+
+    return {
+      name,
+      value
+    };
+  };
+
+  return (
+    <LinearSelector
+      value={getValue()}
+      label={<FormattedMessage id="eventLevel" />}
+      onChange={({ value }) =>
+        onApply({
+          level: value
+        })
+      }
+      items={EVENT_LEVEL_ITEMS}
+    />
+  );
+};
+
+const Events = ({ eventLevel, onScroll, applyFilter, events, isLoading = false }) => {
   const [expanded, setExpanded] = useState("");
-  const [open, setOpen] = useState(true);
   const { classes, cx } = useStyles();
   const queryParams = getQueryParams();
 
@@ -41,10 +123,6 @@ export default function Events({ isLoading, onScroll, applyFilter, events }) {
     } else {
       removeQueryParam("event");
     }
-  };
-
-  const handleDrawer = () => {
-    setOpen(!open);
   };
 
   const { isInitialMount, setIsInitialMount } = useInitialMount();
@@ -59,23 +137,22 @@ export default function Events({ isLoading, onScroll, applyFilter, events }) {
 
   const addIcon = (level) =>
     ({
-      INFO: <InfoIcon className={cx(classes.tableIcon, classes.infoIcon)} />,
-      SUCCESS: <CheckCircleIcon className={cx(classes.tableIcon, classes.successIcon)} />,
-      WARNING: <ErrorIcon className={cx(classes.tableIcon, classes.warningIcon)} />,
-      ERROR: <ErrorIcon color="error" className={classes.tableIcon} />
+      [EVENT_LEVEL.INFO]: <InfoIcon className={cx(classes.tableIcon, classes.infoIcon)} />,
+      [EVENT_LEVEL.WARNING]: <ErrorIcon className={cx(classes.tableIcon, classes.warningIcon)} />,
+      [EVENT_LEVEL.ERROR]: <ErrorIcon color="error" className={classes.tableIcon} />
     }[level]);
 
   const eventTableColumns = useMemo(
     () => [
       {
-        accessor: "name",
-        Cell: ({ row: { original } }) => <div data-test-id={original.dataTestId}>{original.name}</div>,
+        accessorKey: "name",
+        cell: ({ row: { original } }) => <div data-test-id={original.dataTestId}>{original.name}</div>,
         style: {
           whiteSpace: "nowrap"
         }
       },
       {
-        accessor: "value"
+        accessorKey: "value"
       }
     ],
     []
@@ -170,19 +247,20 @@ export default function Events({ isLoading, onScroll, applyFilter, events }) {
       </Box>
     ));
 
-  const actionBarDefinition = {
-    title: {
-      messageId: "events",
-      dataTestId: "lbl_events"
-    }
-  };
-
   return (
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
         <Grid container spacing={SPACING_1}>
-          <Grid item xs={open ? 6 : 12} sm={open ? 7 : 12} md={open ? 9 : 12}>
+          <Grid container item xs={12} direction="row" justifyContent="space-between">
+            <Grid item>
+              <EventLevelSelector eventLevel={eventLevel} onApply={applyFilter} />
+            </Grid>
+            <Grid item>
+              <Picker onApply={applyFilter} />
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
             <Box className={classes.eventsWrapper}>
               {isLoading && isEmpty(events) ? (
                 <Box className={cx(classes.events)}>
@@ -196,32 +274,18 @@ export default function Events({ isLoading, onScroll, applyFilter, events }) {
               )}
             </Box>
           </Grid>
-          {open ? (
-            <Grid item xs={open ? 6 : 0} sm={open ? 5 : 0} md={open ? 3 : 0}>
-              <EventsFilter open={open} handleDrawer={handleDrawer} applyFilter={applyFilter} />
-            </Grid>
-          ) : (
-            <IconButton
-              dataTestId="btn_op_filter"
-              icon={<FilterListOutlinedIcon />}
-              size="small"
-              customClass={classes.button}
-              onClick={handleDrawer}
-              tooltip={{
-                show: true,
-                value: <FormattedMessage id="openFilter" />
-              }}
-            />
-          )}
         </Grid>
       </PageContentWrapper>
     </>
   );
-}
+};
+
+export default Events;
 
 Events.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
   onScroll: PropTypes.func.isRequired,
   applyFilter: PropTypes.func.isRequired,
-  events: PropTypes.array.isRequired
+  events: PropTypes.array.isRequired,
+  eventLevel: PropTypes.oneOf(Object.values(EVENT_LEVEL)),
+  isLoading: PropTypes.bool
 };

@@ -1,7 +1,6 @@
 import React from "react";
 import AssignmentRules, { AssignmentRulesMocked } from "components/AssignmentRules";
-import { MESSAGE_TYPES } from "components/ContentBackdrop";
-import Mocked from "components/Mocked";
+import Mocked, { MESSAGE_TYPES } from "components/Mocked";
 import AssignmentRulePriorityService from "services/AssignmentRulePriorityService";
 import AssignmentRuleService from "services/AssignmentRuleService";
 import { isEmpty } from "utils/arrays";

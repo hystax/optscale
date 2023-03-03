@@ -235,7 +235,8 @@ class Pool(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
 
 
 class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
-    name = Column(NotWhiteSpaceString('name'), nullable=False, info=ColumnPermissions.full)
+    name = Column(NotWhiteSpaceString('name'), nullable=False,
+                  info=ColumnPermissions.full)
     type = Column(CloudType, default=CloudTypes.AWS_CNR,
                   info=ColumnPermissions.create_only, nullable=False)
     config = Column(NullableText('config'), nullable=False,
@@ -249,7 +250,7 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
                            nullable=True, info=ColumnPermissions.create_only)
     cost_model = relationship('CostModel')
     auto_import = Column(NullableBool('auto_import'), nullable=False,
-                         default=True, info=ColumnPermissions.none)
+                         default=True, info=ColumnPermissions.full)
     import_period = Column(NullableInt('import_period'), default=1,
                            nullable=False, info=ColumnPermissions.none)
     last_import_at = Column(NullableInt('last_import_at'), default=0,
@@ -268,6 +269,17 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     last_import_attempt_error = Column(
         NullableText('last_import_attempt_error'),
         nullable=True, info=ColumnPermissions.update_only)
+    last_getting_metrics_at = Column(
+        NullableInt('last_getting_metrics_at'), default=0,
+        nullable=False, info=ColumnPermissions.update_only)
+    last_getting_metric_attempt_at = Column(
+        NullableInt('last_getting_metric_attempt_at'), default=0, nullable=False,
+        info=ColumnPermissions.update_only)
+    last_getting_metric_attempt_error = Column(
+        NullableText('last_getting_metric_attempt_error'),
+        nullable=True, info=ColumnPermissions.update_only)
+    cleaned_at = Column(NullableInt('cleaned_at'), default=0, nullable=False,
+                        info=ColumnPermissions.update_only)
 
     __table_args__ = (
         UniqueConstraint("organization_id", "name", "deleted_at",
@@ -275,49 +287,15 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         UniqueConstraint("account_id", "type", 'organization_id',
                          'deleted_at', name="uc_account_type_org_id_del_at"),)
 
-    @validates('name')
-    def _validate_name(self, key, name):
-        return self.get_validator(key, name)
-
-    @validates('type')
-    def _validate_type(self, key, type_):
-        return self.get_validator(key, type_)
-
-    @validates('organization_id')
-    def _validate_organization_id(self, key, organization_id):
-        return self.get_validator(key, organization_id)
-
-    @validates('config')
-    def _validate_config(self, key, config):
-        return self.get_validator(key, config)
-
-    @validates('auto_import')
-    def _validate_auto_import(self, key, auto_import):
-        return self.get_validator(key, auto_import)
-
-    @validates('import_period')
-    def _validate_import_period(self, key, import_period):
-        return self.get_validator(key, import_period)
-
-    @validates('last_import_at')
-    def _validate_last_import_at(self, key, last_import_at):
-        return self.get_validator(key, last_import_at)
+    @validates('name', 'type', 'organization_id', 'config', 'auto_import',
+               'import_period', 'last_import_at', 'account_id',
+               'last_import_modified_at', 'process_recommendations')
+    def _validate_params(self, key, param):
+        return self.get_validator(key, param)
 
     @hybrid_property
     def unique_fields(self):
         return ['name', 'organization_id']
-
-    @validates('account_id')
-    def _validate_account_id(self, key, account_id):
-        return self.get_validator(key, account_id)
-
-    @validates('last_import_modified_at')
-    def _validate_last_import_modified_at(self, key, last_import_modified_at):
-        return self.get_validator(key, last_import_modified_at)
-
-    @validates('process_recommendations')
-    def _validate_process_recommendations(self, key, process_recommendations):
-        return self.get_validator(key, process_recommendations)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1451,3 +1429,22 @@ class TrafficProcessingTask(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     @validates('end_date')
     def _validate_end_date(self, key, end_date):
         return self.get_validator(key, end_date)
+
+
+class ProfilingToken(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
+    __tablename__ = 'profiling_token'
+
+    organization_id = Column(
+        Uuid('organization_id'), ForeignKey('organization.id'), nullable=False,
+        info=ColumnPermissions.create_only)
+    token = Column(NullableUuid('token'), nullable=False, default=gen_id)
+    __table_args__ = (UniqueConstraint(
+        "organization_id", "deleted_at", name="organization_deleted_at"),)
+
+    @hybrid_property
+    def unique_fields(self):
+        return ['organization_id']
+
+    @validates('organization_id')
+    def _validate_organization_id(self, key, organization_id):
+        return self.get_validator(key, organization_id)

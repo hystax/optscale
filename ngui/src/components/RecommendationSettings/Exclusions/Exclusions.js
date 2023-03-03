@@ -7,10 +7,10 @@ import ExcludedPoolsTable from "../ExcludedPoolsTable";
 const Exclusions = ({
   availablePools,
   currentExcludedPools,
-  setSelectedPools,
   isLoading,
   isChangeSettingsAllowed,
-  onSelectionChange
+  selectedPoolIds,
+  onSelectedPoolIdsChange
 }) => (
   <>
     <Typography gutterBottom>
@@ -19,10 +19,10 @@ const Exclusions = ({
     <ExcludedPoolsTable
       availablePools={availablePools}
       currentExcludedPools={currentExcludedPools}
-      setSelectedPools={setSelectedPools}
       isLoading={isLoading}
       isChangeSettingsAllowed={isChangeSettingsAllowed}
-      onSelectionChange={onSelectionChange}
+      selectedPoolIds={selectedPoolIds}
+      onSelectedPoolIdsChange={onSelectedPoolIdsChange}
     />
   </>
 );
@@ -30,10 +30,10 @@ const Exclusions = ({
 Exclusions.propTypes = {
   availablePools: PropTypes.array,
   currentExcludedPools: PropTypes.object,
-  setSelectedPools: PropTypes.func,
   isLoading: PropTypes.bool,
   isChangeSettingsAllowed: PropTypes.bool,
-  onSelectionChange: PropTypes.func
+  selectedPoolIds: PropTypes.array,
+  onSelectedPoolIdsChange: PropTypes.func
 };
 
 export default Exclusions;

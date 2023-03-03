@@ -11,6 +11,18 @@ class WithAvailableSavingsFilter extends Filter {
 
   static displayedName = (<FormattedMessage id="withAvailableSavings" />);
 
+  static displayedNameString = intl.formatMessage({ id: "withAvailableSavings" });
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static filterItemSchema = {
+    type: "boolean"
+  };
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static appliedFilterSchema = {
+    type: "boolean"
+  };
+
   static _getValue(filterItem) {
     return filterItem;
   }
@@ -19,10 +31,15 @@ class WithAvailableSavingsFilter extends Filter {
     return intl.formatMessage({ id: filterItem ? "yes" : "no" });
   }
 
+  static _getDisplayedValueStringRenderer(filterItem) {
+    return intl.formatMessage({ id: filterItem ? "yes" : "no" });
+  }
+
   _getAppliedFilterItem(appliedFilter, filterItem) {
     return {
       value: appliedFilter,
-      displayedValue: this.constructor.getDisplayedValueRenderer(filterItem)
+      displayedValue: this.constructor.getDisplayedValueRenderer(filterItem),
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
     };
   }
 }

@@ -27,24 +27,24 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
   const columns = useMemo(
     () => [
       {
-        Header: <FormattedMessage id="port" />,
-        accessor: "portString",
+        header: <FormattedMessage id="port" />,
+        accessorKey: "portString",
         style: {
           minWidth: 400
         },
         defaultSort: "asc",
-        isStatic: true
+        enableHiding: false
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_actions">
             <FormattedMessage id="actions" />
           </TextWithDataTestId>
         ),
         id: "actions",
-        disableSortBy: true,
-        isStatic: true,
-        Cell: ({ row: { original: { id, protocol, port } = {}, index } }) => (
+        enableSorting: false,
+        enableHiding: false,
+        cell: ({ row: { original: { id, protocol, port } = {}, index } }) => (
           <TableCellActions
             entityId={id}
             items={[
@@ -78,7 +78,6 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
         emptyMessageId: "noPorts"
       }}
       queryParamPrefix="ports"
-      autoResetSortBy={false}
     />
   );
 };

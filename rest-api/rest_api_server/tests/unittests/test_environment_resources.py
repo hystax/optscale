@@ -294,6 +294,19 @@ class TestEnvironmentResourceApi(TestApiBase):
         self.assertEqual(code, 200)
         self.assertEqual(len(list(self.property_history_collection.find())), 1)
 
+        env_props = {'field': 'val2'}
+        code, res = self.client.environment_resource_update(
+            res['id'], {
+                'active': True,
+                'env_properties': env_props
+            }
+        )
+        self.assertEqual(code, 200)
+        self.assertTrue(res['active'])
+        self.assertEqual(res['env_properties'], env_props)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(list(self.property_history_collection.find())), 2)
+
     def test_patch_activities_task(self):
         self.valid_resource.pop('cloud_resource_id')
         code, res = self.environment_resource_create(

@@ -1,0 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# User-specific stuff:
+.idea/
+.coverage
+venv/
+reports/
+.venv/
+.vscode/
+dist/
+*.egg-info/

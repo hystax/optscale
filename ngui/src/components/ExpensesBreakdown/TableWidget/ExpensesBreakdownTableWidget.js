@@ -3,7 +3,8 @@ import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import ExpensesBreakdownTable from "components/ExpensesBreakdown/Table";
-import WrapperCard from "components/WrapperCard";
+import IconButton from "components/IconButton";
+import Tooltip from "components/Tooltip";
 import { isEmpty, sortObjects } from "utils/arrays";
 import { EXPENSES_FILTERBY_TYPES } from "utils/constants";
 import { percentXofY } from "utils/math";
@@ -87,25 +88,13 @@ const ExpensesBreakdownTableWidget = ({
   };
 
   return (
-    <WrapperCard
-      needAlign
-      title={title}
-      titleButton={
-        !isEmpty(filteredBreakdown)
-          ? {
-              type: "icon",
-              tooltip: {
-                title: <FormattedMessage id="showResources" />
-              },
-              buttonProps: {
-                icon: <ListAltOutlinedIcon />,
-                isLoading,
-                onClick: onTitleButtonClick
-              }
-            }
-          : null
-      }
-    >
+    <>
+      {title}
+      {!isEmpty(filteredBreakdown) ? (
+        <Tooltip title={<FormattedMessage id="showResources" />}>
+          <IconButton icon={<ListAltOutlinedIcon />} isLoading={isLoading} onClick={onTitleButtonClick} />
+        </Tooltip>
+      ) : null}
       <ExpensesBreakdownTable
         data={tableOptions.data}
         localization={tableOptions.localization}
@@ -115,7 +104,7 @@ const ExpensesBreakdownTableWidget = ({
         startDateTimestamp={startDateTimestamp}
         endDateTimestamp={endDateTimestamp}
       />
-    </WrapperCard>
+    </>
   );
 };
 

@@ -5,8 +5,8 @@ import Switch from "@mui/material/Switch";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";
-import { updateEnvironmentActivity } from "api";
-import { UPDATE_ENVIRONMENT_ACTIVITY, GET_RESOURCE } from "api/restapi/actionTypes";
+import { updateEnvironmentSshRequirement } from "api";
+import { GET_RESOURCE, UPDATE_ENVIRONMENT_SSH_REQUIREMENT } from "api/restapi/actionTypes";
 import Tooltip from "components/Tooltip";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -17,12 +17,12 @@ const SshRequiredSwitchContainer = ({ isSshRequired, environmentId }) => {
 
   const { isDemo } = useOrganizationInfo();
 
-  const { isLoading: isLoadingEnvironmentPatch } = useApiState(UPDATE_ENVIRONMENT_ACTIVITY);
+  const { isLoading: isLoadingEnvironmentPatch } = useApiState(UPDATE_ENVIRONMENT_SSH_REQUIREMENT);
   const { isLoading: isGetResourceLoading } = useApiState(GET_RESOURCE);
   const isApiLoading = isLoadingEnvironmentPatch || isGetResourceLoading;
 
-  const toggle = (newIsActive) => {
-    dispatch(updateEnvironmentActivity(environmentId, { requireSshKey: newIsActive }));
+  const toggle = (requireSshKey) => {
+    dispatch(updateEnvironmentSshRequirement(environmentId, requireSshKey));
   };
 
   const switchWithLabel = (

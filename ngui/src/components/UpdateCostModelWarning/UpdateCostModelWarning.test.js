@@ -1,16 +1,16 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import { COST_MODEL_TYPES } from "utils/constants";
 import UpdateCostModelWarning from "./UpdateCostModelWarning";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <UpdateCostModelWarning costModelType={COST_MODEL_TYPES.K8S} />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

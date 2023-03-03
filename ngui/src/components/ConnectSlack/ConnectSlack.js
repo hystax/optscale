@@ -1,13 +1,12 @@
 import React from "react";
 import NavigationIcon from "@mui/icons-material/Navigation";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import { Box, Stack } from "@mui/system";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import ConditionWrapper from "components/ConditionWrapper";
-import GridContainerWithNegativeMarginCompensation from "components/GridContainerWithNegativeMarginCompensation";
 import Logo from "components/Logo";
 import MailTo from "components/MailTo";
 import PageTitle from "components/PageTitle";
@@ -15,22 +14,22 @@ import { EMAIL_SUPPORT, HOME } from "urls";
 import { SPACING_4 } from "utils/layouts";
 
 const ConnectSlack = ({ isLoading, isError = false }) => (
-  <GridContainerWithNegativeMarginCompensation spacing={SPACING_4} direction="column" alignItems="center">
-    <Grid item>
+  <Stack spacing={SPACING_4} direction="column" alignItems="center">
+    <Box>
       <Logo width={200} dataTestId="img_logo" />
-    </Grid>
+    </Box>
     <ConditionWrapper
       condition={isLoading}
       conditionTemplate={
         <>
-          <Grid item>
+          <Box pr={2} pl={2}>
             <PageTitle dataTestId="p_connecting_su" align="center">
               <FormattedMessage id="connectingSlackUser" />
             </PageTitle>
-          </Grid>
-          <Grid item>
+          </Box>
+          <Box height={60}>
             <CircularProgress data-test-id="svg_loading" />
-          </Grid>
+          </Box>
         </>
       }
     >
@@ -38,12 +37,12 @@ const ConnectSlack = ({ isLoading, isError = false }) => (
         condition={isError}
         conditionTemplate={
           <>
-            <Grid item>
+            <Box pr={2} pl={2}>
               <PageTitle align="center">
                 <FormattedMessage id="somethingWentWrong" />
               </PageTitle>
-            </Grid>
-            <Grid item>
+            </Box>
+            <Box pr={2} pl={2}>
               <Typography>
                 <FormattedMessage
                   id="pleaseContactSupport"
@@ -52,21 +51,21 @@ const ConnectSlack = ({ isLoading, isError = false }) => (
                   }}
                 />
               </Typography>
-            </Grid>
+            </Box>
           </>
         }
       >
-        <Grid item>
+        <Box pr={2} pl={2}>
           <PageTitle align="center">
             <FormattedMessage id="slackUserConnected" />
           </PageTitle>
-        </Grid>
-        <Grid item>
+        </Box>
+        <Box pr={2} pl={2}>
           <Typography align="center">
             <FormattedMessage id="slackUserConnectedOptions" />
           </Typography>
-        </Grid>
-        <Grid item>
+        </Box>
+        <Box>
           <Button
             color="primary"
             variant="contained"
@@ -75,10 +74,10 @@ const ConnectSlack = ({ isLoading, isError = false }) => (
             link={HOME}
             startIcon={<NavigationIcon />}
           />
-        </Grid>
+        </Box>
       </ConditionWrapper>
     </ConditionWrapper>
-  </GridContainerWithNegativeMarginCompensation>
+  </Stack>
 );
 
 ConnectSlack.propTypes = {

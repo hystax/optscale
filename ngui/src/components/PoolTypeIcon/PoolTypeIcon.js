@@ -17,7 +17,8 @@ import {
   POOL_TYPE_PROJECT,
   POOL_TYPE_CICD,
   POOL_TYPE_MLAI,
-  POOL_TYPE_ASSET_POOL
+  POOL_TYPE_ASSET_POOL,
+  POOL_TYPES_LIST
 } from "utils/constants";
 
 const getIcon = (type) =>
@@ -32,7 +33,7 @@ const getIcon = (type) =>
   }[type]);
 
 const PoolTypeIcon = ({ type, ...rest }) =>
-  Object.keys(POOL_TYPES).includes(type) ? (
+  POOL_TYPES_LIST.includes(type) ? (
     <Icon
       icon={getIcon(type)}
       tooltip={{ show: true, value: <FormattedMessage id={POOL_TYPES[type] || " "} />, messageId: "type" }}

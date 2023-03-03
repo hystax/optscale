@@ -46,9 +46,9 @@ class BaseProvider:
         raise NotImplementedError()
 
     def get(self, region, flavor, os_type, preinstalled=None,
-            billing_method=None, quantity=None):
+            billing_method=None, quantity=None, currency='USD'):
         price_infos = self._load(region, flavor, os_type, preinstalled,
-                                 billing_method, quantity)
+                                 billing_method, quantity, currency)
         return self._format(price_infos, region, os_type)
 
 
@@ -102,7 +102,7 @@ class AwsProvider(BaseProvider):
         return self.mongo_client.restapi.aws_prices
 
     def _load(self, region, flavor, os_type, preinstalled=None,
-              billing_method=None, quantity=None):
+              billing_method=None, quantity=None, currency='USD'):
         location = self.region_map.get(region)
         if not location:
             raise WrongArgumentsException(Err.OI0012, [region])
@@ -175,7 +175,7 @@ class AzureProvider(BaseProvider):
         return self.mongo_client.insider.discoveries
 
     def _load(self, region, flavor, os_type, preinstalled=None,
-              billing_method=None, quantity=None):
+              billing_method=None, quantity=None, currency='USD'):
         regions = set(self.cloud_adapter.get_regions_coordinates())
         if region not in regions:
             raise WrongArgumentsException(Err.OI0012, [region])
@@ -195,7 +195,8 @@ class AzureProvider(BaseProvider):
                 {'effectiveEndDate': {'$exists': False}}
             ],
             'productName': {'$regex': product_name_regex},
-            'skuName': {'$regex': ".*[^Spot][^Priority]$"}
+            'skuName': {'$regex': ".*[^Spot][^Priority]$"},
+            'currencyCode': currency
         }
         return list(self.prices_collection.find(query).sort(
             [('last_seen', -1)]).limit(1))
@@ -226,7 +227,7 @@ class AlibabaProvider(BaseProvider):
         return self._cloud_adapter
 
     def _load(self, region, flavor, os_type='linux', preinstalled=None,
-              billing_method='pay_as_you_go', quantity=1):
+              billing_method='pay_as_you_go', quantity=1, currency='USD'):
         now = datetime.utcnow()
         query = {
             'region': region,
@@ -323,9 +324,10 @@ class FlavorPriceController(BaseController):
         preinstalled = kwargs.get('preinstalled')
         quantity = kwargs.get('quantity')
         billing_method = kwargs.get('billing_method')
+        currency = kwargs.get('currency')
         provider = PricesProvider.get_provider(cloud_type)
         return provider(self._config).get(region, flavor, os_type, preinstalled,
-                                          billing_method, quantity)
+                                          billing_method, quantity, currency)
 
 
 class FlavorPriceAsyncController(BaseAsyncControllerWrapper):

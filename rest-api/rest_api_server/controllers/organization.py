@@ -18,7 +18,7 @@ from rest_api_server.models.models import (CloudAccount, CloudTypes,
 from optscale_exceptions.common_exc import (
     FailedDependency, NotFoundException, UnauthorizedException,
     WrongArgumentsException)
-from rest_api_server.utils import Config
+from rest_api_server.utils import Config, CURRENCY_MAP
 
 from auth_client.client_v2 import Client as AuthClient
 from katara_client.client import Client as KataraClient
@@ -40,7 +40,6 @@ VIOLATED_CONSTRAINTS_CRONTAB = '0 0 * * MON'
 VIOLATED_CONSTRAINTS_DIFF_REPORT_NAME = 'violated_constraints_diff'
 VIOLATED_CONSTRAINTS_DIFF_CRONTAB = '0 0 * * MON'
 
-HEALTH_QUEUE = 'health'
 RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
 DEFAULT_CONSTRAINT_SETTINGS = {
@@ -64,6 +63,11 @@ class OrganizationController(BaseController):
 
     def _get_model_type(self):
         return Organization
+
+    def _validate(self, item, is_new=True, **kwargs):
+        currency = kwargs.get('currency')
+        if currency is not None and currency not in CURRENCY_MAP:
+            raise WrongArgumentsException(Err.OE0536, [currency])
 
     def get_cloud_accounts(self, item_id, only_external=False):
         conditions = and_(CloudAccount.organization_id == item_id,
@@ -155,25 +159,6 @@ class OrganizationController(BaseController):
     def delete_report_subscriptions(self, org_id):
         # hardcoded for now. Will be moved somewhere else later (UI/Herald)
         self.katara_client.recipients_delete(scope_ids=[org_id])
-
-    def post_cloud_health_processing_task(self, organization_id):
-        queue_conn = QConnection(
-            'amqp://{user}:{pass}@{host}:{port}'.format(
-                **self._config.read_branch('/rabbit')),
-            transport_options=RETRY_POLICY)
-        task_exchange = Exchange('health', type='direct')
-        task_queue = Queue(HEALTH_QUEUE, task_exchange,
-                           routing_key=HEALTH_QUEUE)
-        with producers[queue_conn].acquire(block=True) as producer:
-            producer.publish(
-                {'organization_id': organization_id},
-                serializer='json',
-                exchange=task_exchange,
-                declare=[task_exchange, task_queue],
-                routing_key=HEALTH_QUEUE,
-                retry=True,
-                retry_policy=RETRY_POLICY
-            )
 
     def create_organization_pool(self, organization):
         b_ctrl = PoolController(self.session, self._config, self.token)

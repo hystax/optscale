@@ -1,26 +1,24 @@
 import React from "react";
-import { Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import ButtonLoader from "components/ButtonLoader";
 import ConditionWrapper from "components/ConditionWrapper";
-import GridContainerWithNegativeMarginCompensation from "components/GridContainerWithNegativeMarginCompensation";
 import Logo from "components/Logo";
 import PageTitle from "components/PageTitle";
 import { SPACING_4 } from "utils/layouts";
 
 const LiveDemo = ({ isLoading, retry, showRetry = false }) => (
-  <GridContainerWithNegativeMarginCompensation spacing={SPACING_4} direction="column" alignItems="center">
-    <Grid item xs={12}>
+  <Stack spacing={SPACING_4} alignItems="center">
+    <Box>
       <Logo width={200} dataTestId="img_logo" />
-    </Grid>
+    </Box>
     <ConditionWrapper
       condition={isLoading}
       conditionTemplate={
         <>
-          <Grid item xs={12}>
+          <Box pl={2} pr={2}>
             <PageTitle dataTestId="p_preparing_ld" align="center">
               <FormattedMessage id="preparingLiveDemoMessage" />
             </PageTitle>
@@ -32,10 +30,10 @@ const LiveDemo = ({ isLoading, retry, showRetry = false }) => (
                 }}
               />
             </Typography>
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+          <Box height={60}>
             <CircularProgress data-test-id="svg_loading" />
-          </Grid>
+          </Box>
         </>
       }
     >
@@ -43,12 +41,12 @@ const LiveDemo = ({ isLoading, retry, showRetry = false }) => (
         condition={showRetry}
         conditionTemplate={
           <>
-            <Grid item xs={12}>
+            <Box pl={2} pr={2}>
               <PageTitle align="center">
                 <FormattedMessage id="failedLiveDemoMessage" />
               </PageTitle>
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box>
               <ButtonLoader
                 size="large"
                 messageId="retry"
@@ -57,12 +55,12 @@ const LiveDemo = ({ isLoading, retry, showRetry = false }) => (
                 onClick={retry}
                 isLoading={isLoading}
               />
-            </Grid>
+            </Box>
           </>
         }
       />
     </ConditionWrapper>
-  </GridContainerWithNegativeMarginCompensation>
+  </Stack>
 );
 
 LiveDemo.propTypes = {

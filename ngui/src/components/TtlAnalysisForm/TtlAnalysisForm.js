@@ -4,7 +4,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import WrapperCard from "components/WrapperCard";
-import { useDefaultDateRange } from "hooks/useDefaultDateRange";
+import { useReactiveDefaultDateRange } from "hooks/useReactiveDefaultDateRange";
 import { START_DATE_PICKER_NAME, END_DATE_PICKER_NAME, TTL_MODES, DATE_RANGE_TYPE } from "utils/constants";
 import TtlAnalysisFormPoolSelector from "./Fields/TtlAnalysisFormPoolSelector";
 import TtlAnalysisFormRangePicker from "./Fields/TtlAnalysisFormRangePicker";
@@ -17,7 +17,7 @@ const getTtlPolicy = (pool) => pool?.policies?.find((p) => p.type === "ttl") ?? 
 const getPool = (pools = [], poolId) => pools.find((b) => b.id === poolId);
 
 const TtlAnalysisForm = ({ pools, isLoading, isPoolSelectorReadOnly, onSubmit, defaultValues = {}, fieldNames }) => {
-  const [startDateTimestamp, endDateTimestamp] = useDefaultDateRange(DATE_RANGE_TYPE.TTL_ANALYSIS);
+  const [startDateTimestamp, endDateTimestamp] = useReactiveDefaultDateRange(DATE_RANGE_TYPE.TTL_ANALYSIS);
 
   const { poolFieldName, ttlModeFieldName, customTtlFieldName, startDateFieldName, endDateFieldName } = fieldNames;
 
@@ -35,11 +35,11 @@ const TtlAnalysisForm = ({ pools, isLoading, isPoolSelectorReadOnly, onSubmit, d
   const { handleSubmit: rhfHandleSubmit, setValue, getValues, watch, reset } = methods;
 
   useEffect(() => {
-    reset({
-      ...getValues(),
+    reset((formValues) => ({
+      ...formValues,
       ...defaultValues
-    });
-  }, [defaultValues, getValues, reset]);
+    }));
+  }, [defaultValues, reset]);
 
   const [watchPoolId, watchTtlMode] = watch([poolFieldName, ttlModeFieldName]);
 

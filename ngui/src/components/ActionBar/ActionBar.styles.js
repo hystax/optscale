@@ -1,5 +1,5 @@
 import { makeStyles } from "tss-react/mui";
-import { SPACING_4 } from "utils/layouts";
+import { SPACING_2 } from "utils/layouts";
 
 const useStyles = makeStyles()((theme) => ({
   bar: {
@@ -8,8 +8,8 @@ const useStyles = makeStyles()((theme) => ({
     boxShadow: "none"
   },
   isPage: {
-    borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-    paddingRight: theme.spacing(SPACING_4)
+    paddingRight: theme.spacing(SPACING_2),
+    paddingLeft: theme.spacing(SPACING_2)
   },
   itemsWrapper: {
     whiteSpace: "nowrap",
@@ -26,6 +26,13 @@ const useStyles = makeStyles()((theme) => ({
   },
   actions: {
     display: "inline-flex"
+  },
+  link: {
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "none"
+    },
+    color: "inherit"
   }
 }));
 

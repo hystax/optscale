@@ -1,13 +1,11 @@
 import React from "react";
 import Grid from "@mui/material/Grid";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
 import ActionBar from "components/ActionBar";
 import CloudAccountsTable from "components/CloudAccountsTable";
 import CloudExpensesChart from "components/CloudExpensesChart";
 import PageContentWrapper from "components/PageContentWrapper";
 import SummaryGrid from "components/SummaryGrid";
-import WrapperCard from "components/WrapperCard";
 import { getSumByNestedObjectKey } from "utils/arrays";
 import { SUMMARY_VALUE_COMPONENT_TYPES, SUMMARY_CARD_TYPES } from "utils/constants";
 import { SPACING_2, SPACING_3 } from "utils/layouts";
@@ -106,23 +104,21 @@ const CloudAccountsOverview = ({ isLoading, cloudAccounts, organizationLimit }) 
             <SummaryGrid summaryData={getSummaryData()} />
           </Grid>
           <Grid item xs={12}>
-            <WrapperCard dataTestIds={{ wrapper: "div_sum", title: "lbl_sum" }} title={<FormattedMessage id="summary" />}>
-              <Grid container spacing={SPACING_3}>
-                {(organizationLimit === 0 && totalForecast === 0) || totalExpenses === 0 ? null : (
-                  <Grid item xs={12}>
-                    <CloudExpensesChart
-                      cloudAccounts={cloudAccounts}
-                      limit={organizationLimit}
-                      forecast={totalForecast}
-                      isLoading={isLoading}
-                    />
-                  </Grid>
-                )}
+            <Grid container spacing={SPACING_3}>
+              {(organizationLimit === 0 && totalForecast === 0) || totalExpenses === 0 ? null : (
                 <Grid item xs={12}>
-                  <CloudAccountsTable cloudAccounts={cloudAccounts} isLoading={isLoading} />
+                  <CloudExpensesChart
+                    cloudAccounts={cloudAccounts}
+                    limit={organizationLimit}
+                    forecast={totalForecast}
+                    isLoading={isLoading}
+                  />
                 </Grid>
+              )}
+              <Grid item xs={12}>
+                <CloudAccountsTable cloudAccounts={cloudAccounts} isLoading={isLoading} />
               </Grid>
-            </WrapperCard>
+            </Grid>
           </Grid>
         </Grid>
       </PageContentWrapper>
