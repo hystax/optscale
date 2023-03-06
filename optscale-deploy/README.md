@@ -53,6 +53,14 @@ or if you want to use socket:
 
 **please note**: if you use key authentication, you should have required key (id_rsa) on the machine
 
+
+#### Cluster update
+Run following command:
+```
+./runkube.py --with-elk  --update-only -- <deployment name>  component_versions.yaml
+```
+
+
 #### Troubleshooting
 
 In case of following error:
