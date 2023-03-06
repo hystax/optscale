@@ -3,7 +3,7 @@ import FormattedMoney from "components/FormattedMoney";
 import HeaderHelperCell from "components/HeaderHelperCell";
 import { detectedAt, resource, resourceLocation, size } from "utils/columns";
 import { FORMATTED_MONEY_TYPES, RECOMMENDATION_RESERVED_INSTANCES, RESERVED_INSTANCES_TYPE } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class ReservedInstancesRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_RESERVED_INSTANCES;
@@ -32,8 +32,7 @@ class ReservedInstancesRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_ri_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_ri_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_ri_location"
@@ -43,27 +42,35 @@ class ReservedInstancesRecommendation extends RecommendationFactory {
       }),
       detectedAt({ headerDataTestId: "lbl_ri_detected_at" }),
       {
-        Header: (
+        header: (
           <HeaderHelperCell
             titleDataTestId="lbl_ri_savings_min"
             titleMessageId="savingsWithMinimalCommitment"
             helperMessageId="savingsWithMinimalCommitmentHelp"
           />
         ),
-        accessor: "saving",
+        accessorKey: "saving",
         defaultSort: "desc",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
+        }
       },
       {
-        Header: (
+        header: (
           <HeaderHelperCell
             titleDataTestId="lbl_ri_savings_avg"
             titleMessageId="savingsWithAverageCommitment"
             helperMessageId="savingsWithAverageCommitmentHelp"
           />
         ),
-        accessor: "average_saving",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        accessorKey: "average_saving",
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
+        }
       }
     ];
   }

@@ -1,12 +1,11 @@
 import React from "react";
 import Grid from "@mui/material/Grid";
+import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
-import GoogleAuthButton from "components/GoogleAuthButton";
-import MicrosoftSignInButton from "components/MicrosoftSignInButton";
 import SubTitle from "components/SubTitle";
 import { SPACING_1 } from "utils/layouts";
 
-const OAuthSignIn = () => (
+const OAuthSignIn = ({ googleButton, microsoftButton }) => (
   <Grid container alignItems="center" justifyContent="center" spacing={SPACING_1}>
     <Grid item xs={12}>
       <SubTitle>
@@ -14,12 +13,17 @@ const OAuthSignIn = () => (
       </SubTitle>
     </Grid>
     <Grid item xs={6}>
-      <GoogleAuthButton />
+      {googleButton}
     </Grid>
     <Grid item xs={6}>
-      <MicrosoftSignInButton />
+      {microsoftButton}
     </Grid>
   </Grid>
 );
+
+OAuthSignIn.propTypes = {
+  googleButton: PropTypes.node.isRequired,
+  microsoftButton: PropTypes.node.isRequired
+};
 
 export default OAuthSignIn;

@@ -1,5 +1,6 @@
 import React from "react";
-import { RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY } from "utils/constants";
+import { useBreakdownBy } from "hooks/useBreakdownBy";
+import { DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME } from "urls";
 import { addDaysToTimestamp } from "utils/datetime";
 import ExpensesDailyBreakdownBy from "./ExpensesDailyBreakdownBy";
 
@@ -134,12 +135,19 @@ const getBreakdown = (startDateSecondsTimestamp) => ({
   ]
 });
 
-const ExpensesDailyBreakdownByMockup = ({ startDateTimestamp: startDateSecondsTimestamp }) => (
-  <ExpensesDailyBreakdownBy
-    breakdown={getBreakdown(startDateSecondsTimestamp)}
-    breakdownBy={RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID}
-    onBreakdownByChange={() => console.log("Click")}
-  />
-);
+const ExpensesDailyBreakdownByMockup = ({ startDateTimestamp: startDateSecondsTimestamp }) => {
+  const [{ value: breakdownByValue }] = useBreakdownBy({
+    queryParamName: DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME
+  });
+
+  return (
+    <ExpensesDailyBreakdownBy
+      isLoading={false}
+      breakdown={getBreakdown(startDateSecondsTimestamp)}
+      breakdownByValue={breakdownByValue}
+      onBreakdownByChange={() => console.log("Click")}
+    />
+  );
+};
 
 export default ExpensesDailyBreakdownByMockup;

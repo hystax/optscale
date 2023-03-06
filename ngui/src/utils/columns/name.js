@@ -3,16 +3,16 @@ import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import TextWithDataTestId from "components/TextWithDataTestId";
 
-const name = ({ captionAccessor, headerDataTestId, accessor = "name", enableTextCopy = false }) => ({
-  Header: (
+const name = ({ captionAccessor, headerDataTestId, accessorKey = "name", enableTextCopy = false }) => ({
+  header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
       <FormattedMessage id="name" />
     </TextWithDataTestId>
   ),
-  accessor,
-  Cell: ({ row: { original }, cell: { value } }) => (
+  accessorKey,
+  cell: ({ row: { original }, cell }) => (
     <CaptionedCell caption={original[captionAccessor]} enableTextCopy={enableTextCopy}>
-      <strong>{value}</strong>
+      <strong>{cell.getValue()}</strong>
     </CaptionedCell>
   )
 });

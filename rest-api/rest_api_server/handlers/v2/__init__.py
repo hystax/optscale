@@ -31,7 +31,6 @@ import rest_api_server.handlers.v2.resource_constraints
 import rest_api_server.handlers.v2.checklists
 import rest_api_server.handlers.v2.optimizations
 import rest_api_server.handlers.v2.live_demos
-import rest_api_server.handlers.v2.cloud_health
 import rest_api_server.handlers.v2.resources_observer
 import rest_api_server.handlers.v2.discovery_infos
 import rest_api_server.handlers.v2.discovery_infos_bulk
@@ -67,3 +66,4 @@ import rest_api_server.handlers.v2.traffic_processing_tasks
 import rest_api_server.handlers.v2.traffic_expenses
 import rest_api_server.handlers.v2.archived_recommendations
 import rest_api_server.handlers.v2.k8s_rightsizing
+import rest_api_server.handlers.v2.profiling

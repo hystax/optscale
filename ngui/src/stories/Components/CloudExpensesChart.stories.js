@@ -1,13 +1,16 @@
 import React from "react";
-import { number } from "@storybook/addon-knobs";
-import { FormattedMessage } from "react-intl";
 import Grid from "@mui/material/Grid";
-import WrapperCard from "components/WrapperCard";
+import { FormattedMessage } from "react-intl";
 import CloudExpensesChart from "components/CloudExpensesChart";
+import WrapperCard from "components/WrapperCard";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/CloudExpensesChart`
+  title: `${KINDS.COMPONENTS}/CloudExpensesChart`,
+  argTypes: {
+    pool: { name: "Pool", control: "number", defaultValue: 123 },
+    forecast: { name: "Forecast", control: "number", defaultValue: 321 }
+  }
 };
 
 const cloudAccounts = [
@@ -61,7 +64,7 @@ export const basic = () => <CloudExpensesChart cloudAccounts={cloudAccounts} poo
 
 export const loading = () => <CloudExpensesChart cloudAccounts={[]} pool={0} forecast={0} isLoading />;
 
-export const withKnobs = () => (
+export const withKnobs = (args) => (
   <WrapperCard title={<FormattedMessage id="summary" />}>
     <div>
       <p>percent = (forecast / pool) * 100</p>
@@ -74,7 +77,7 @@ export const withKnobs = () => (
     </div>
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <CloudExpensesChart cloudAccounts={cloudAccounts} pool={number("pool", 123)} forecast={number("forecast", 321)} />
+        <CloudExpensesChart cloudAccounts={cloudAccounts} pool={args.pool} forecast={args.forecast} />
       </Grid>
     </Grid>
   </WrapperCard>

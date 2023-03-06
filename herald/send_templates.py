@@ -31,14 +31,6 @@ PARAMETER_DUMPS = {
             }
         }
     },
-    'cloud_health_calculation_failed': {
-        'email': 'test_user@service.com',
-        'subject': '[127.0.0.1] Cloud health calculation failed',
-        'template_type': 'cloud_health_calculation_failed',
-        'template_params': {
-            'texts': {
-                'organization': {
-                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415'}}}},
     'employee_greetings': {
         'email': ['andersonmatthew_hwp@hystax.com'],
         'subject': 'Thank you for registering at OptScale. Please proceed with the setup',
@@ -1293,6 +1285,31 @@ PARAMETER_DUMPS = {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                     'currency_code': '$'
+                }}}},
+    'insider_prices_sslerror': {
+        "email": ["optscale-staging-notifications@hystax.com"],
+        "subject": "[172.22.20.6] Insider faced Azure SSLError",
+        'template_type': 'insider_prices_sslerror',
+        'template_params': {
+            'texts': {
+                'title': 'Insider faced Azure SSLError',
+                }}},
+    'incorrect_alibaba_expenses': {
+        "email": ["optscale-staging-notifications@hystax.com"],
+        "subject": "[172.22.20.6] Incorrect expenses for Alibaba cloud account",
+        'template_type': 'incorrect_alibaba_expenses',
+        'template_params': {
+            'texts': {
+                'clean_expenses': 18256.11,
+                'cloud_expenses': 17822.97,
+                'period': '2022-11',
+                'organization': {
+                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
+                    'name': 'AQA_1617018508.3637385',
+                },
+                'cloud_account': {
+                    'id': 'c063973e-0bb2-4134-9ebe-2e68104d7aa8',
+                    'name': 'Test cloud account',
                 }}}},
 }
 

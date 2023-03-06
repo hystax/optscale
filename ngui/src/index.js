@@ -1,14 +1,14 @@
 import React from "react";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
-import ReactDOM from "react-dom";
 import "intl-pluralrules";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import "text-security/text-security-disc.css";
+import { createRoot } from "react-dom/client";
 import { RawIntlProvider } from "react-intl";
 import { Provider } from "react-redux";
-import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import ActivityListener from "components/ActivityListener";
 import ApiErrorAlert from "components/ApiErrorAlert";
@@ -16,41 +16,42 @@ import ApiSuccessAlert from "components/ApiSuccessAlert";
 import App from "components/App";
 import SideModalManager from "components/SideModalManager";
 import ThemeProviderWrapper from "components/ThemeProviderWrapper";
-import OrganizationChangeListener from "containers/OrganizationChangeListener";
-import PendingInvitationsAlertContainer from "containers/PendingInvitationsAlertContainer";
+import Tour from "components/Tour";
 import * as serviceWorker from "serviceWorker";
 import configureStore from "store";
 import { intl } from "translations/react-intl-config";
 import { microsoftOAuthConfiguration } from "utils/integrations";
-import history from "./history";
 
 const { store, persistor } = configureStore();
 
 const pca = new PublicClientApplication(microsoftOAuthConfiguration);
 
-ReactDOM.render(
+const container = document.getElementById("root");
+const root = createRoot(container);
+
+root.render(
+  // Enable when google-map-react supports strict mode
+  // <StrictMode>
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <RawIntlProvider value={intl}>
-        <HistoryRouter history={history}>
+        <BrowserRouter>
           <ActivityListener />
-          <OrganizationChangeListener>
-            <MsalProvider instance={pca}>
-              <ThemeProviderWrapper>
-                <SideModalManager>
-                  <App />
-                </SideModalManager>
-                <ApiErrorAlert />
-                <ApiSuccessAlert />
-                <PendingInvitationsAlertContainer />
-              </ThemeProviderWrapper>
-            </MsalProvider>
-          </OrganizationChangeListener>
-        </HistoryRouter>
+          <MsalProvider instance={pca}>
+            <ThemeProviderWrapper>
+              <SideModalManager>
+                <App />
+              </SideModalManager>
+              <Tour />
+              <ApiErrorAlert />
+              <ApiSuccessAlert />
+            </ThemeProviderWrapper>
+          </MsalProvider>
+        </BrowserRouter>
       </RawIntlProvider>
     </PersistGate>
-  </Provider>,
-  document.getElementById("root")
+  </Provider>
+  // </StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change

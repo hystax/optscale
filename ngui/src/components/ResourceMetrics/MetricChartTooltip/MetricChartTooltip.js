@@ -1,5 +1,6 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
+import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import CircleLabel from "components/CircleLabel";
 import KeyValueLabel from "components/KeyValueLabel";
@@ -28,6 +29,8 @@ const MetricChartTooltip = ({ slice }) => {
   return body;
 };
 
-MetricChartTooltip.propTypes = {};
+MetricChartTooltip.propTypes = {
+  slice: PropTypes.object
+};
 
 export default MetricChartTooltip;

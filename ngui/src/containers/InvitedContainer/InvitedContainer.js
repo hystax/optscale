@@ -14,7 +14,7 @@ import { SPACING_6 } from "utils/layouts";
 import { getQueryParams, getStringUrl } from "utils/network";
 
 const InvitedContainer = () => {
-  const { dispatchReset, cancelAllPendingRequests } = useSignOut();
+  const signOut = useSignOut();
 
   const {
     apiData: { token, userId }
@@ -47,8 +47,7 @@ const InvitedContainer = () => {
   const redirectUrl = generateInvitedRedirectUrl();
 
   const onSignOut = () => {
-    cancelAllPendingRequests();
-    dispatchReset();
+    signOut();
   };
 
   return (

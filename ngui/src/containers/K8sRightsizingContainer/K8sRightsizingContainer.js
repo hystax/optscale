@@ -1,46 +1,80 @@
-import React, { useMemo, useState } from "react";
-import { MESSAGE_TYPES } from "components/ContentBackdrop";
+import React, { useState, useEffect } from "react";
 import K8sRightsizing from "components/K8sRightsizing";
 import K8sRightsizingMocked from "components/K8sRightsizing/K8sRightsizingMocked";
-import Mocked from "components/Mocked";
-import { getBasicRelativeRangesSet } from "components/RelativeDateTimePicker/defaults";
+import Mocked, { MESSAGE_TYPES } from "components/Mocked";
+import RelativeDateTimePicker, { k8sRightsizingRelativeDates } from "components/RelativeDateTimePicker";
 import { useShouldRenderConnectCloudAccountMock } from "hooks/useShouldRenderConnectCloudAccountMock";
 import K8sRightsizingService from "services/K8sRightsizingService";
 import { KUBERNETES_CNR } from "utils/constants";
-import { datetimeToUnix, millisecondsToSeconds } from "utils/datetime";
+import { getQueryParams, updateQueryParams } from "utils/network";
 
 const actionBarDefinition = {
   title: {
-    messageId: "k8sRightsizing",
+    messageId: "k8sRightsizingTitle",
     dataTestId: "lbl_k8s_rightsizing"
   }
 };
 
+const RELATIVE_PERIOD_QUERY_PARAMETER_NAME = "period";
+
 const K8sRightsizingContainer = () => {
   const { useGet } = K8sRightsizingService();
   const shouldRenderConnectCloudAccountMock = useShouldRenderConnectCloudAccountMock(KUBERNETES_CNR);
-  const basicRelativeRangesSet = useMemo(() => getBasicRelativeRangesSet(), []);
-  const firstRange = basicRelativeRangesSet[0];
-  const { startDateFn } = firstRange;
-  const defaultEndDate = new Date();
-  const defaultStartDate = startDateFn(defaultEndDate);
-  const [requestParams, setRequestParams] = useState({
-    startDate: millisecondsToSeconds(defaultStartDate),
-    endDate: datetimeToUnix(defaultEndDate)
+
+  const { [RELATIVE_PERIOD_QUERY_PARAMETER_NAME]: relativePeriodQueryParameter } = getQueryParams();
+
+  const [requestParams, setRequestParams] = useState(() => {
+    const defaultRequestParams =
+      k8sRightsizingRelativeDates.find((relativeDate) => relativeDate.id === relativePeriodQueryParameter) ??
+      k8sRightsizingRelativeDates[0];
+
+    return {
+      startDate: defaultRequestParams.startDateFn(),
+      endDate: defaultRequestParams.endDateFn(),
+      id: defaultRequestParams.id
+    };
   });
+
+  useEffect(() => {
+    updateQueryParams({
+      [RELATIVE_PERIOD_QUERY_PARAMETER_NAME]: requestParams.id
+    });
+  }, [requestParams.id]);
 
   const {
     isLoading,
     k8sRightsizing: { k8s_app_rightsizing: namespaces = [] }
-  } = useGet(requestParams);
+  } = useGet({ startDate: requestParams.startDate, endDate: requestParams.endDate });
 
-  const applyFilter = ({ startDate, endDate }) => {
-    const params = {
-      ...requestParams,
-      startDate,
-      endDate
-    };
-    setRequestParams(params);
+  const applyFilter = ({ startDateFn, endDateFn, id }) => {
+    setRequestParams((prevState) => ({
+      ...prevState,
+      id,
+      startDate: startDateFn(),
+      endDate: endDateFn()
+    }));
+  };
+
+  const tableActionBarDefinition = {
+    show: true,
+    definition: {
+      items: [
+        (tableContext) => ({
+          key: "date-range-select",
+          dataTestId: "btn_add",
+          node: (
+            <RelativeDateTimePicker
+              definedRanges={k8sRightsizingRelativeDates}
+              onChange={(range) => {
+                applyFilter(range);
+                tableContext.setPageIndex(0);
+              }}
+            />
+          ),
+          type: "custom"
+        })
+      ]
+    }
   };
 
   return (
@@ -52,9 +86,8 @@ const K8sRightsizingContainer = () => {
       <K8sRightsizing
         actionBarDefinition={actionBarDefinition}
         namespaces={namespaces}
-        applyFilter={applyFilter}
-        definedRanges={basicRelativeRangesSet}
         isLoading={isLoading}
+        tableActionBarDefinition={tableActionBarDefinition}
       />
     </Mocked>
   );

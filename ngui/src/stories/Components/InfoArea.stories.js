@@ -1,10 +1,12 @@
 import React from "react";
-import { number } from "@storybook/addon-knobs";
-import InfoArea from "components/Table/InfoArea";
+import InfoArea from "components/Table/components/InfoArea";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/InfoArea`
+  title: `${KINDS.COMPONENTS}/InfoArea`,
+  argTypes: {
+    rowCount: { name: "Row count", control: "number", defaultValue: 1 }
+  }
 };
 
 export const basic = () => (
@@ -24,8 +26,6 @@ export const displayedFromTo = () => (
   />
 );
 
-export const withKnobs = () => {
-  const displayed = { count: number("count", 1) };
-
-  return <InfoArea showCounters hideTotal rowsLength={displayed.count} />;
+export const withKnobs = (args) => {
+  return <InfoArea showCounters hideTotal rowsLength={args.rowCount} />;
 };

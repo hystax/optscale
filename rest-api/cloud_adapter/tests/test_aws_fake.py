@@ -301,7 +301,12 @@ class TestAwsFake(TestFakeCloudBase):
                 self.assertTrue(now.year == date_start.year and
                                 now.month == date_start.month)
 
-        fs_offset = timedelta(days=monthrange(now.year, now.month)[1])
+        prev_month_end = (now.replace(day=1) - timedelta(days=1))
+        month_ago = prev_month_end.replace(
+            day=min(now.day, monthrange(prev_month_end.year, prev_month_end.month)[1]))
+
+        fs_offset = now - month_ago
+
         config['objects']['buckets']['common']['first_seen_offset'] = str(
             int(fs_offset.total_seconds()))
         p_config.return_value = config

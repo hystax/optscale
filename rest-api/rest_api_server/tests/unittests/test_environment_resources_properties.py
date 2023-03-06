@@ -1,15 +1,20 @@
 import datetime
+import os
+import uuid
+import copy
 
 from unittest.mock import patch, ANY
 
 from freezegun import freeze_time
 
 from rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api_server.utils import encoded_map
 
 
 class TestEnvironmentResourceApi(TestApiBase):
 
     def setUp(self, version='v2'):
+        os.environ['ASYNC_TEST_TIMEOUT'] = '20'
         super().setUp(version)
         patch('rest_api_server.controllers.cloud_account.'
               'CloudAccountController._configure_report').start()
@@ -81,9 +86,10 @@ class TestEnvironmentResourceApi(TestApiBase):
         self.assertEqual(resp.get('env_properties'), init_props)
         history = list(self.property_history_collection.find())
         self.assertEqual(len(history), 2)
+        latest_changes = encoded_map(history[-1]['changes'], decode=True)
         self.assertCountEqual(
-            history[1]['changes'].keys(), list(init_props.keys()))
-        for key, value in history[1]['changes'].items():
+            latest_changes.keys(), list(init_props.keys()))
+        for key, value in latest_changes.items():
             self.assertEqual(init_props.get(key), value.get('new'))
             self.assertIsNone(value.get('old'))
 
@@ -104,9 +110,10 @@ class TestEnvironmentResourceApi(TestApiBase):
         self.assertEqual(set(new_props) - set(result_props), set())
         history = list(self.property_history_collection.find())
         self.assertEqual(len(history), 3)
+        latest_changes = encoded_map(history[-1]['changes'], decode=True)
         self.assertCountEqual(
-            history[2]['changes'].keys(), list(new_props.keys()))
-        for key, value in history[2]['changes'].items():
+            latest_changes.keys(), list(new_props.keys()))
+        for key, value in latest_changes.items():
             self.assertEqual(new_props.get(key), value.get('new'))
             self.assertEqual(init_props.get(key), value.get('old'))
 
@@ -235,7 +242,10 @@ class TestEnvironmentResourceApi(TestApiBase):
                 }
             }
         ]
-        r = self.property_history_collection.insert_many(property_history)
+        history_to_insert = copy.deepcopy(property_history)
+        for element in history_to_insert:
+            element['changes'] = encoded_map(element['changes'])
+        r = self.property_history_collection.insert_many(history_to_insert)
         self.assertEqual(len(r.inserted_ids), len(property_history))
         for prop in property_history:
             prop.pop('_id', None)
@@ -275,3 +285,50 @@ class TestEnvironmentResourceApi(TestApiBase):
         code, resp = self.client.env_properties_history_get('1234', -1, 1)
         self.assertEqual(code, 400)
         self.assertEqual(resp['error']['error_code'], 'OE0224')
+
+    def test_patched_environment_history(self):
+        env_resource = {
+            'name': 'my_env',
+            'resource_type': 'some_env_type',
+            'tags': {},
+            'env_properties': {'field': 'value_1'}
+        }
+        code, resource = self.environment_resource_create(
+            self.org_id, env_resource)
+        self.assertEqual(code, 201)
+        self.assertTrue(resource['shareable'])
+        self.assertTrue(resource['is_environment'])
+
+        db_history = list(self.property_history_collection.find({}))
+        self.assertEqual(len(db_history), 1)
+        self.assertDictEqual(db_history[0]['changes'],
+                             {'ZmllbGQ=': {'old': None, 'new': 'value_1'}})
+        code, resp = self.client.env_properties_history_get(resource['id'])
+        self.assertEqual(code, 200)
+        self.assertDictEqual(resp['history'][0]['changes'],
+                             {'field': {'old': None, 'new': 'value_1'}})
+
+        params = {'env_properties': {'field': 'value_2'}}
+        code, response = self.client.cloud_resource_update(
+            resource['id'], params)
+        self.assertEqual(code, 200)
+        db_history = list(self.property_history_collection.find({}))
+        self.assertEqual(len(db_history), 2)
+        self.assertDictEqual(db_history[0]['changes'],
+                             {'ZmllbGQ=': {'old': None, 'new': 'value_1'}})
+        self.assertDictEqual(db_history[1]['changes'],
+                             {'ZmllbGQ=': {'old': 'value_1', 'new': 'value_2'}})
+        code, resp = self.client.env_properties_history_get(resource['id'])
+        self.assertEqual(code, 200)
+        self.assertDictEqual(resp['history'][0]['changes'],
+                             {'field': {'old': None, 'new': 'value_1'}})
+        self.assertDictEqual(resp['history'][1]['changes'],
+                             {'field': {'old': 'value_1', 'new': 'value_2'}})
+        code, resp = self.client.patch(
+            self.client.env_properties_history_url(
+                resource['id']),  {'field': 'value_3'})
+        self.assertEqual(code, 405)
+        code, resp = self.client.delete(
+            self.client.env_properties_history_url(
+                resource['id']))
+        self.assertEqual(code, 405)

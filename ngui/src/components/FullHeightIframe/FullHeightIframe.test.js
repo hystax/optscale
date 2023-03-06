@@ -1,11 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import FullHeightIframe from "./FullHeightIframe";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <FullHeightIframe
         source="https://hystax.com"
@@ -14,8 +15,7 @@ it("renders without crashing", () => {
         fallbackMessageId="unableToLoad"
         fallbackButtonMessageId="proceedToFinopsWebsite"
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

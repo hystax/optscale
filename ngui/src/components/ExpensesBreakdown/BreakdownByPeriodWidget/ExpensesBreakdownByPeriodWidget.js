@@ -3,82 +3,104 @@ import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
 import { useDispatch, useSelector } from "react-redux";
+import LinearSelector from "components/LinearSelector";
+import { DynamicTextPdf } from "components/PDFAble";
 import QuestionMark from "components/QuestionMark";
-import Selector from "components/Selector";
-import WrapperCard from "components/WrapperCard";
-import { EXPENSES_BREAKDOWN_PERIODS } from "utils/constants";
+import { EXPENSES_BREAKDOWN_PERIODS, LINEAR_SELECTOR_ITEMS_TYPES, PDF_ELEMENTS } from "utils/constants";
+import { SPACING_1 } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
 import { changePeriodType } from "./actionCreator";
-import useStyles from "./ExpensesBreakdownByPeriodWidget.styles";
 import { EXPENSES_BREAKDOWN_PERIOD_TYPE } from "./reducer";
 
 const PERIOD_TYPE_QUERY_PARAMETER_NAME = "expenses";
 
-const ExpensesBreakdownByPeriodWidget = ({ render, titlePdfId }) => {
+const breakdownLinearSelectorItems = [
+  {
+    name: EXPENSES_BREAKDOWN_PERIODS.DAILY,
+    value: EXPENSES_BREAKDOWN_PERIODS.DAILY,
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
+    dataTestId: "breakdown_ls_item_daily"
+  },
+  {
+    name: EXPENSES_BREAKDOWN_PERIODS.WEEKLY,
+    value: EXPENSES_BREAKDOWN_PERIODS.WEEKLY,
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
+    dataTestId: "breakdown_ls_item_weekly"
+  },
+  {
+    name: EXPENSES_BREAKDOWN_PERIODS.MONTHLY,
+    value: EXPENSES_BREAKDOWN_PERIODS.MONTHLY,
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
+    dataTestId: "breakdown_ls_item_monthly"
+  }
+];
+
+// todo: unify with resources selector
+const BreakdownLinearSelector = ({ value, items, onChange }) => {
+  useEffect(() => {
+    updateQueryParams({ [PERIOD_TYPE_QUERY_PARAMETER_NAME]: value.name });
+  }, [value.name]);
+
+  return <LinearSelector value={value} onChange={onChange} items={items} />;
+};
+
+const ExpensesBreakdownByPeriodWidget = ({ render }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const { [PERIOD_TYPE_QUERY_PARAMETER_NAME]: periodTypeQueryParameter } = getQueryParams();
 
-  const { classes } = useStyles();
-
   const periodTypeState = useSelector((state) => state[EXPENSES_BREAKDOWN_PERIOD_TYPE]);
 
-  const [periodType, setPeriodType] = useState(
-    [Object.values(EXPENSES_BREAKDOWN_PERIODS)].includes(periodTypeQueryParameter) ? periodTypeQueryParameter : periodTypeState
-  );
+  const [periodType, setPeriodType] = useState(() => {
+    const breakdown =
+      breakdownLinearSelectorItems.find(({ name }) => name === periodTypeQueryParameter) ||
+      breakdownLinearSelectorItems.find(({ name }) => name === periodTypeState);
+
+    if (breakdown) {
+      return breakdown;
+    }
+
+    return breakdownLinearSelectorItems[0];
+  });
 
   useEffect(() => {
     updateQueryParams({
-      [PERIOD_TYPE_QUERY_PARAMETER_NAME]: periodType
+      [PERIOD_TYPE_QUERY_PARAMETER_NAME]: periodType.value
     });
-    dispatch(changePeriodType(periodType));
+    dispatch(changePeriodType(periodType.value));
   }, [dispatch, periodType]);
 
   return (
-    <WrapperCard
-      title={
-        <Box display="flex" alignItems="center">
-          <Selector
-            data={{
-              selected: periodType,
-              items: Object.values(EXPENSES_BREAKDOWN_PERIODS).map((periodName) => ({
-                name: intl.formatMessage({ id: periodName }),
-                value: periodName
-              }))
-            }}
-            variant="standard"
-            dataTestId="select_org"
-            onChange={(value) => {
-              setPeriodType(value);
-            }}
-            customClass={classes.selector}
-          />
-          {intl.formatMessage({ id: "expenses" }).toLowerCase()}
-          <QuestionMark
-            messageId="expensesBreakdownBarChartDescription"
-            messageValues={{ periodType: intl.formatMessage({ id: periodType }) }}
-          />
-        </Box>
-      }
-      titlePdf={{
-        id: titlePdfId,
-        renderData: () => ({
-          titleText: {
+    <>
+      <Box display="flex" alignItems="center" mb={SPACING_1}>
+        <BreakdownLinearSelector
+          value={periodType}
+          onChange={({ name, value }) => setPeriodType({ name, value })}
+          items={breakdownLinearSelectorItems}
+        />
+        <QuestionMark
+          messageId="expensesBreakdownBarChartDescription"
+          messageValues={{ periodType: intl.formatMessage({ id: periodType.value }) }}
+        />
+      </Box>
+      <DynamicTextPdf
+        pdfId={PDF_ELEMENTS.costExplorer.periodWidgetTitle}
+        renderData={() => ({
+          text: {
             [EXPENSES_BREAKDOWN_PERIODS.DAILY]: "dailyExpenses",
             [EXPENSES_BREAKDOWN_PERIODS.WEEKLY]: "weeklyExpenses",
             [EXPENSES_BREAKDOWN_PERIODS.MONTHLY]: "monthlyExpenses"
-          }[periodType]
-        })
-      }}
-    >
-      {render(periodType)}
-    </WrapperCard>
+          }[periodType.value],
+          elementType: PDF_ELEMENTS.basics.H2
+        })}
+      />
+      {render(periodType.value)}
+    </>
   );
 };
 
 ExpensesBreakdownByPeriodWidget.propTypes = {
-  render: PropTypes.func.isRequired,
-  titlePdfId: PropTypes.string
+  render: PropTypes.func.isRequired
 };
 
 export default ExpensesBreakdownByPeriodWidget;

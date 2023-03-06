@@ -8,7 +8,6 @@ import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
 import FormattedDigitalUnit, { IEC_UNITS } from "components/FormattedDigitalUnit";
 import Table from "components/Table";
-import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import Tooltip from "components/Tooltip";
 import { getResourcesExpensesUrl } from "urls";
@@ -21,7 +20,7 @@ import ApproximatelyZero from "../ApproximatelyZero";
 const MAXIMUM_FRACTION_DIGITS = 2;
 const APPROXIMATE_ZERO_THRESHOLD = 0.01;
 
-const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
+const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefinition }) => {
   const { today, startOfMonth } = getCurrentMonthRange(true);
   const memoizedNamespaces = useMemo(
     () =>
@@ -35,26 +34,27 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_application">
             <FormattedMessage id="application" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
+        accessorKey: "name",
         defaultSort: "asc",
         style: {
           maxWidth: 200
-        }
+        },
+        cell: ({ cell }) => <TextWithDataTestId dataTestId="application">{cell.getValue()}</TextWithDataTestId>
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_location">
             <FormattedMessage id="location" />
           </TextWithDataTestId>
         ),
-        accessor: "location",
+        accessorKey: "location",
         defaultSort: "asc",
-        Cell: ({
+        cell: ({
           row: {
             original: { application, namespace, cloud_account_id: cloudAccountId, cloud_account_name: cloudAccountName }
           }
@@ -62,7 +62,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
           const link = (
             <Tooltip title={<FormattedMessage id={"showResources"} />}>
               <Link
-                data-test-id={`dt_show_resources_${cloudAccountId}`}
+                data-test-id="namespase"
                 color="primary"
                 to={getResourcesExpensesUrl({
                   [CLOUD_ACCOUNT_ID_FILTER]: cloudAccountId,
@@ -82,12 +82,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
           };
           return (
             <CaptionedCell caption={namespaceCaption}>
-              <CloudLabel
-                dataTestId={`resource_location_${application}`}
-                id={cloudAccountId}
-                name={cloudAccountName}
-                type={"kubernetes_cnr"}
-              />
+              <CloudLabel dataTestId="data_source" id={cloudAccountId} name={cloudAccountName} type="kubernetes_cnr" />
             </CaptionedCell>
           );
         }
@@ -95,6 +90,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
       resourcesMeter({
         id: "cpu_utilization",
         headerDataTestId: "lbl_cpu_utilization",
+        dataTestId: "cpu_utilization",
         messageId: "cpuUtilization",
         questionMarkMessageId: "cpuUtilizationTooltip",
         questionMarkUsedMessageId: "cpuUtilizationTooltip.used",
@@ -116,15 +112,17 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
       }),
       resourcesUsed({
         headerDataTestId: "lbl_total_pod_cpu_hours",
+        dataTestId: "cpu_used",
         messageId: "cpuUsed",
         questionMarkMessageId: "cpuUsedTooltip",
-        accessor: "total_pod_cpu_hours",
+        accessorKey: "total_pod_cpu_hours",
         totalAccessor: "total_pod_cpu_hours",
         totalRequestsAccessor: "total_pod_cpu_requests"
       }),
       resourcesMeter({
         id: "memory_utilization",
         headerDataTestId: "lbl_memory_utilization",
+        dataTestId: "memory_utilization",
         messageId: "memoryUtilization",
         questionMarkMessageId: "memoryUtilizationTooltip",
         questionMarkUsedMessageId: "memoryUtilizationTooltip.used",
@@ -143,9 +141,10 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
       }),
       resourcesUsed({
         headerDataTestId: "lbl_total_pod_memory_gb",
+        dataTestId: "memory_used",
         messageId: "memoryHours",
         questionMarkMessageId: "totalPodMemoryUsedTooltip",
-        accessor: "total_pod_memory_gb",
+        accessorKey: "total_pod_memory_gb",
         totalAccessor: "total_pod_memory_gb",
         totalRequestsAccessor: "total_pod_memory_requests_gb"
       })
@@ -153,26 +152,28 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false }) => {
     [startOfMonth, today]
   );
 
-  return isLoading ? (
-    <TableLoader columnsCounter={columns.length} showHeader />
-  ) : (
-    <>
-      <Table
-        data={memoizedNamespaces}
-        columns={columns}
-        withSearch
-        dataTestIds={{
-          searchInput: "input_search"
-        }}
-        localization={{ emptyMessageId: "noApplications" }}
-      />
-    </>
+  return (
+    <Table
+      data={memoizedNamespaces}
+      columns={columns}
+      withSearch
+      dataTestIds={{
+        searchInput: "input_search",
+        searchButton: "btn_search",
+        deleteSearchButton: "btn_delete_search"
+      }}
+      localization={{ emptyMessageId: "noApplications" }}
+      actionBar={tableActionBarDefinition}
+      pageSize={10}
+      isLoading={isLoading}
+    />
   );
 };
 
 K8sRightsizingTable.propTypes = {
   namespaces: PropTypes.array.isRequired,
-  isLoading: PropTypes.bool
+  isLoading: PropTypes.bool,
+  tableActionBarDefinition: PropTypes.object
 };
 
 export default K8sRightsizingTable;

@@ -1,3 +1,4 @@
+from functools import cached_property
 import json
 import logging
 import re
@@ -6,6 +7,7 @@ from insider_api.exceptions import Err
 from cloud_adapter.clouds.alibaba import Alibaba
 from cloud_adapter.clouds.aws import Aws
 from cloud_adapter.clouds.azure import Azure
+from cloud_adapter.clouds.gcp import Gcp
 from cloud_adapter.exceptions import RegionNotFoundException
 from insider_api.controllers.base import (BaseController,
                                           BaseAsyncControllerWrapper,
@@ -49,6 +51,11 @@ class FlavorController(BaseController):
             self._alibaba = Alibaba(config)
         return self._alibaba
 
+    @cached_property
+    def gcp(self):
+        config = self._config.read_branch('/service_credentials/gcp')
+        return Gcp(config)
+
     def find_flavor(self, cloud_type, resource_type, region,
                     family_specs, mode, **kwargs):
         find_flavor_function_map = {
@@ -57,6 +64,9 @@ class FlavorController(BaseController):
             },
             'azure_cnr': {
                 'instance': self.find_azure_flavor,
+            },
+            'gcp_cnr': {
+                'instance': self.find_gcp_flavor,
             },
             'alibaba_cnr': {
                 'instance': self.find_alibaba_flavor,
@@ -74,7 +84,7 @@ class FlavorController(BaseController):
         except TypeNotMatchedException:
             return {}
 
-    def get_azure_prices(self, region, instance_family):
+    def get_azure_prices(self, region, instance_family, currency='USD'):
         discoveries = self.discoveries_collection.find(
             {'cloud_type': 'azure_cnr'}
         ).sort(
@@ -83,7 +93,8 @@ class FlavorController(BaseController):
             'armSkuName': {'$regex': instance_family},
             'type': 'Consumption',
             'serviceName': 'Virtual Machines',
-            'armRegionName': region
+            'armRegionName': region,
+            'currencyCode': currency
         }
         pricings = list()
         next_start = int(datetime.now().timestamp())
@@ -137,6 +148,7 @@ class FlavorController(BaseController):
         vcpu = additional_params.get('cpu', 0)
         os_type = additional_params.get('os_type')
         meter_id = additional_params.get('meter_id')
+        currency = additional_params.get('currency') or 'USD'
         windows_key = 'Windows'
         linux_key = 'Linux'
         if not os_type or os_type == 'NA':
@@ -153,7 +165,7 @@ class FlavorController(BaseController):
                 raise WrongArgumentsException(Err.OI0012, [region])
             flavors_future = executor.submit(self.get_azure_flavors)
             prices_future = executor.submit(
-                self.get_azure_prices, location, instance_family)
+                self.get_azure_prices, location, instance_family, currency)
         flavors_info = flavors_future.result()
         prices = prices_future.result()
 
@@ -293,6 +305,56 @@ class FlavorController(BaseController):
             flavor_cpu = flavor_details['CpuCoreCount']
             flavor_ram = flavor_details['MemorySize']
             price = available_prices.get(flavor_id)
+            if price is None:
+                continue
+            flavor_result = {
+                'cpu': flavor_cpu,
+                'ram': flavor_ram,
+                'flavor': flavor_id,
+                'price': price,
+            }
+            if mode == 'current':
+                if flavor_id == source_flavor_id:
+                    flavors.append(flavor_result)
+                    break
+            else:
+                if flavor_cpu < vcpu:
+                    continue
+                if flavor_cpu == vcpu:
+                    flavors.append(flavor_result)
+                    continue
+                if not relevant_flavor:
+                    relevant_flavor = flavor_result
+                    continue
+                if relevant_flavor['cpu'] > flavor_result['cpu']:
+                    relevant_flavor = flavor_result
+        if not flavors and mode == 'search_relevant' and relevant_flavor:
+            flavors = [relevant_flavor]
+        if not flavors:
+            raise TypeNotMatchedException()
+        return min(flavors, key=lambda x: x['price'])
+
+    def find_gcp_flavor(self, region, family_specs, mode,
+                        additional_params=None):
+        additional_params = additional_params or {}
+        vcpu = additional_params.get('cpu', 0)
+        source_flavor_id = family_specs['source_flavor_id']
+        with CachedThreadPoolExecutor(self.mongo_client) as executor:
+            try:
+                instance_types = executor.submit(
+                    self.gcp.get_instance_types_priced, region).result()
+            except RegionNotFoundException:
+                raise WrongArgumentsException(Err.OI0012, [region])
+
+        source_flavor_family = source_flavor_id.split("-")[0]
+        flavors = []
+        relevant_flavor = None
+        for flavor_id, flavor_details in instance_types.items():
+            if flavor_details['family'] != source_flavor_family:
+                continue
+            flavor_cpu = flavor_details['cpu_cores']
+            flavor_ram = flavor_details['ram_gb']
+            price = flavor_details.get("price")
             if price is None:
                 continue
             flavor_result = {

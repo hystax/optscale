@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import AssignmentRulesTable from "components/AssignmentRulesTable";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import AssignmentRuleService from "services/AssignmentRuleService";
 import { getEditPoolUrl, ASSIGNMENT_RULES } from "urls";
 import { isEmpty } from "utils/arrays";
@@ -28,9 +29,10 @@ const GetAssignmentRulesContainer = ({ poolId, defaultResourceOwner = "" }) => {
           }}
         />
       )}
-      <FormattedMessage
-        id="assignmentRulesTabDescription"
-        values={{
+      <AssignmentRulesTable rules={assignmentRules} poolId={poolId} isLoading={isLoading} />
+      <InlineSeverityAlert
+        messageId="assignmentRulesTabDescription"
+        messageValues={{
           assignmentRulesLink: (chunks) => (
             <Link to={ASSIGNMENT_RULES} component={RouterLink}>
               {chunks}
@@ -38,7 +40,6 @@ const GetAssignmentRulesContainer = ({ poolId, defaultResourceOwner = "" }) => {
           )
         }}
       />
-      <AssignmentRulesTable rules={assignmentRules} poolId={poolId} isLoading={isLoading} />
     </>
   );
 };

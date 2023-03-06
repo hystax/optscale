@@ -1,6 +1,7 @@
 import { TAG_BE_FILTER, WITHOUT_TAG_BE_FILTER } from "utils/constants";
 import DataSourceFilter from "./DataSourceFilter";
 import DataSourceFilterMultiple from "./DataSourceFilterMultiple";
+import GoalsFilter from "./GoalsFilter";
 import K8sNamespaceFilter from "./K8sNamespaceFilter";
 import K8sNodeFilter from "./K8sNodeFilter";
 import K8sServiceFilter from "./K8sServiceFilter";
@@ -12,6 +13,7 @@ import RegionFilter from "./RegionFilter";
 import ResourceStateFilter from "./ResourceStateFilter";
 import ResourceTypeFilter from "./ResourceTypeFilter";
 import ServiceFilter from "./ServiceType";
+import StatusFilter from "./StatusFilter";
 import TagFilter from "./TagFilter";
 import WithAvailableSavingsFilter from "./WithAvailableSavingsFilter";
 import WithoutTagFilter from "./WithoutTagFilter";
@@ -53,4 +55,11 @@ export const RESOURCE_FILTERS = [
 
 export const RESOURCE_FILTERS_NAMES = RESOURCE_FILTERS.map((ResourceFilter) => ResourceFilter.filterName);
 
+export const RESOURCE_FILTERS_API_NAMES = RESOURCE_FILTERS.map((ResourceFilter) => ResourceFilter.apiName);
+
 export const RECOMMENDATION_FILTERS = [DataSourceFilterMultiple];
+
+export const ML_MODELS_FILTERS = [OwnerFilter, StatusFilter, GoalsFilter];
+export const ML_MODEL_RUNS_FILTERS = [StatusFilter, GoalsFilter];
+
+export const ML_MODELS_FILTERS_NAMES = ML_MODELS_FILTERS.map((ResourceFilter) => ResourceFilter.filterName);

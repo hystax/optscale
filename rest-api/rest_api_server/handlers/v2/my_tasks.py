@@ -284,7 +284,7 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                                     constraint (only for TTL
                                                     constraint)
                                             expense_value:
-                                                type: float
+                                                type: number
                                                 description: |
                                                     Value that violated
                                                     constraint (only for expense
@@ -437,12 +437,12 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                                     timestamp of limit hit
                                                     creation
                                             constraint_limit:
-                                                type: float
+                                                type: number
                                                 description: >
                                                     constraint limit that was
                                                     violated
                                             value:
-                                                type: float
+                                                type: number
                                                 description: violated value
                                             name:
                                                 type: string

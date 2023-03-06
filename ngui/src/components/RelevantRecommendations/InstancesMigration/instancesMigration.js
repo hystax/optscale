@@ -5,7 +5,7 @@ import IconLabelGrid from "components/IconLabelGrid";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, possibleMonthlySavings, resource, resourceLocation, size } from "utils/columns";
 import { RECOMMENDATION_INSTANCE_MIGRATION, INSTANCE_MIGRATION_TYPE } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class InstancesMigrationRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_INSTANCE_MIGRATION;
@@ -34,8 +34,7 @@ class InstancesMigrationRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_im_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_im_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_im_location",
@@ -45,13 +44,13 @@ class InstancesMigrationRecommendation extends RecommendationFactory {
         headerDataTestId: "lbl_im_size"
       }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_im_recomm_region">
             <FormattedMessage id="recommendedRegion" />
           </TextWithDataTestId>
         ),
-        accessor: "recommended_region",
-        Cell: ({ row: { original } }) => (
+        accessorKey: "recommended_region",
+        cell: ({ row: { original } }) => (
           <IconLabelGrid
             label={original.recommended_region}
             startIcon={<CloudTypeIcon fontSize="small" type={original.cloud_type} />}

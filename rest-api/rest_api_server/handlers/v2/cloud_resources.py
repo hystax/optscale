@@ -168,6 +168,8 @@ class CloudResourceAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         description: "Cloud resource name"}
                     cloud_resource_id: {type: string,
                         description: "Resource id in cloud"}
+                    cloud_resource_hash: {type: string,
+                        description: "Resource hash in cloud"}
                     resource_type: {type: string,
                         description: "Type of cloud resource"}
                     pool_id: {type: string,

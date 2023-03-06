@@ -1,10 +1,60 @@
 import React from "react";
-import { select, object } from "@storybook/addon-knobs";
 import RawExpensesTable from "components/RawExpensesTable";
 import { KINDS } from "stories";
 
+const dataSample1 = [
+  {
+    start_date: "start_date_3",
+    end_date: "end_date_3",
+    cost: "cost_3",
+    "lineItem/LineItemDescription": "lineItem/LineItemDescription_3",
+    meter_details: "meter_details_3",
+    usage_quantity: "usage_quantity_3",
+    column1: "column1",
+    column6: "column6"
+  }
+];
+
+const dataSample2 = [
+  {
+    start_date: "start_date_2",
+    end_date: "end_date_2",
+    cost: "cost_2",
+    "lineItem/LineItemDescription": "lineItem/LineItemDescription_2",
+    "lineItem/BlendedRate": "lineItem/BlendedRate_2",
+    column10: "column10",
+    column5: "column5",
+    column6: "column6",
+    column7: "column7",
+    column9: "column9"
+  }
+];
+
+const dataSample3 = [
+  {
+    start_date: "start_date_3",
+    end_date: "end_date_3",
+    cost: "cost_3",
+    "lineItem/LineItemDescription": "lineItem/LineItemDescription_3",
+    meter_details: "meter_details_3",
+    usage_quantity: "usage_quantity_3",
+    column1: "column1",
+    column6: "column6",
+    column7: "column7",
+    column9: "column9"
+  }
+];
+
 export default {
-  title: `${KINDS.COMPONENTS}/RawExpensesTable`
+  title: `${KINDS.COMPONENTS}/RawExpensesTable`,
+  argTypes: {
+    dataSample: {
+      name: "Data",
+      control: "select",
+      options: [dataSample1, dataSample2, dataSample3],
+      defaultValue: dataSample1
+    }
+  }
 };
 
 const expenses = [
@@ -167,71 +217,8 @@ export const basic = () => <RawExpensesTable expenses={expenses} />;
 
 export const isLoading = () => <RawExpensesTable isLoading expenses={[]} />;
 
-const dataSample1 = [
-  {
-    start_date: "start_date_3",
-    end_date: "end_date_3",
-    cost: "cost_3",
-    "lineItem/LineItemDescription": "lineItem/LineItemDescription_3",
-    meter_details: "meter_details_3",
-    usage_quantity: "usage_quantity_3",
-    column1: "column1",
-    column6: "column6"
-  }
-];
-
-const dataSample2 = [
-  {
-    start_date: "start_date_2",
-    end_date: "end_date_2",
-    cost: "cost_2",
-    "lineItem/LineItemDescription": "lineItem/LineItemDescription_2",
-    "lineItem/BlendedRate": "lineItem/BlendedRate_2",
-    column10: "column10",
-    column5: "column5",
-    column6: "column6",
-    column7: "column7",
-    column9: "column9"
-  }
-];
-
-const dataSample3 = [
-  {
-    start_date: "start_date_3",
-    end_date: "end_date_3",
-    cost: "cost_3",
-    "lineItem/LineItemDescription": "lineItem/LineItemDescription_3",
-    meter_details: "meter_details_3",
-    usage_quantity: "usage_quantity_3",
-    column1: "column1",
-    column6: "column6",
-    column7: "column7",
-    column9: "column9"
-  }
-];
-
 const DifferentDataSamples = () => {
-  const samples = {
-    dataSample1: object("dataSample1", dataSample1),
-    dataSample2: object("dataSample2", dataSample2),
-    dataSample3: object("dataSample3", dataSample3)
-  };
-
-  return (
-    <RawExpensesTable
-      expenses={select(
-        "Data sample",
-        Object.entries(samples).reduce(
-          (res, [sampleName, value]) => ({
-            ...res,
-            [sampleName]: value
-          }),
-          {}
-        ),
-        dataSample1
-      )}
-    />
-  );
+  return <RawExpensesTable expenses={args.dataSample} />;
 };
 
 export const differentDataSamples = () => <DifferentDataSamples />;

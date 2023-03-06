@@ -31,7 +31,9 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
 
         return {
           ...subResource,
-          resource: `${subResource.cloud_resource_id} ${subResource.name}`,
+          resource: [subResource.cloud_resource_id, subResource.cloud_resource_hash, subResource.name]
+            .filter(Boolean)
+            .join(" "),
           tagsString: Object.entries(subResource.tags || {})
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
@@ -47,18 +49,19 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tb_resources">
             <FormattedMessage id="resource" />
           </TextWithDataTestId>
         ),
-        accessor: "resource",
+        accessorKey: "resource",
         style: RESOURCE_ID_COLUMN_CELL_STYLE,
-        Cell: ({ row: { original } }) => (
+        cell: ({ row: { original } }) => (
           <ResourceCell
             rowData={{
               resource_name: original.name,
               cloud_resource_id: original.cloud_resource_id,
+              cloud_resource_hash: original.cloud_resource_hash,
               resource_id: original.id,
               active: original.active
             }}
@@ -66,24 +69,24 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tb_type">
             <FormattedMessage id="type" />
           </TextWithDataTestId>
         ),
-        accessor: "resource_type"
+        accessorKey: "resource_type"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tb_location">
             <FormattedMessage id="location" />
           </TextWithDataTestId>
         ),
-        accessor: "locationString",
+        accessorKey: "locationString",
         style: {
           whiteSpace: "nowrap"
         },
-        Cell: ({ row: { original } }) => (
+        cell: ({ row: { original } }) => (
           <CaptionedCell caption={original.locationCaptionNodes}>
             <CloudLabel
               enableLink={isManageCloudCredentialsAllowed}
@@ -95,14 +98,14 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tb_tags">
             <FormattedMessage id="tags" />
           </TextWithDataTestId>
         ),
-        accessor: "tagsString",
-        disableSortBy: true,
-        Cell: ({ row: { original } }) => <CollapsableTableCell maxRows={5} tags={original.tags} />
+        accessorKey: "tagsString",
+        enableSorting: false,
+        cell: ({ row: { original } }) => <CollapsableTableCell maxRows={5} tags={original.tags} />
       }
     ],
     [isManageCloudCredentialsAllowed]

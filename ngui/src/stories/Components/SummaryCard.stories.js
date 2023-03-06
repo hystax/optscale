@@ -1,11 +1,22 @@
 import React from "react";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import SummaryCard from "components/SummaryCard";
-import { select, text, boolean } from "@storybook/addon-knobs";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/SummaryCard`
+  title: `${KINDS.COMPONENTS}/SummaryCard`,
+  argTypes: {
+    color: {
+      name: "Color",
+      control: "select",
+      options: ["primary", "secondary", "success", "error", "warning"],
+      defaultValue: "primary"
+    },
+    withHelp: { name: "With help", control: "boolean", defaultValue: true },
+    withButton: { name: "With button", control: "boolean", defaultValue: true },
+    caption: { name: "Caption", control: "text", defaultValue: "This is some caption" },
+    value: { name: "Value", control: "text", defaultValue: "$123456.321" }
+  }
 };
 
 export const basic = () => <SummaryCard value="$123456.321" caption="This is some caption" />;
@@ -14,13 +25,13 @@ export const withHelp = () => (
   <SummaryCard value="$123456.321" caption="This is some caption" help={{ show: true, messageId: "hystax" }} />
 );
 
-export const withKnobs = () => (
+export const withKnobs = (args) => (
   <SummaryCard
-    value={text("value", "$123456.321")}
-    caption={text("caption", "This is some caption")}
-    color={select("color", ["primary", "secondary", "success", "error", "warning"], "primary")}
-    help={{ show: boolean("show help", true), messageId: "hystax" }}
-    button={{ show: boolean("show button", true), icon: <ArrowForwardOutlinedIcon /> }}
+    value={args.value}
+    caption={args.caption}
+    color={args.color}
+    help={{ show: args.withHelp, messageId: "hystax" }}
+    button={{ show: args.withButton, icon: <ArrowForwardOutlinedIcon /> }}
   />
 );
 

@@ -126,7 +126,7 @@ class RecourceCostModelsAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, Base
                             description: Cost model value
                             properties:
                                 hourly_cost:
-                                    type: float
+                                    type: number
                                     description: Hourly cost
                         deleted_at:
                             type: integer
@@ -181,7 +181,7 @@ class RecourceCostModelsAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, Base
                         required: true
                         properties:
                             hourly_cost:
-                                type: float
+                                type: number
                                 description: Hourly cost
         responses:
             200: {description: Success (returns modified object)}
@@ -260,10 +260,10 @@ class CloudAccountCostModelsAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, 
                             description: Cost model value
                             properties:
                                 cpu_hourly_cost:
-                                    type: float
+                                    type: number
                                     description: CPU hourly cost
                                 memory_hourly_cost:
-                                    type: float
+                                    type: number
                                     description: RAM memory hourly cost
                         deleted_at:
                             type: integer
@@ -318,10 +318,10 @@ class CloudAccountCostModelsAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, 
                         required: true
                         properties:
                             cpu_hourly_cost:
-                                type: float
+                                type: number
                                 description: CPU hourly cost
                             memory_hourly_cost:
-                                type: float
+                                type: number
                                 description: RAM memory hourly cost
         responses:
             200: {description: Success (returns modified object)}

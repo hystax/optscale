@@ -36,6 +36,11 @@ class InstanceGenerationUpgrade(ModuleBase):
                 verify=False)
         return self._insider_cl
 
+    def get_organization_currency(self):
+        _, organization = self.rest_client.organization_get(
+            self.organization_id)
+        return organization.get('currency', 'USD')
+
     def _get(self):
         (excluded_pools, skip_cloud_accounts) = self.get_options_values()
         cloud_account_map = self.get_cloud_accounts(
@@ -55,6 +60,7 @@ class InstanceGenerationUpgrade(ModuleBase):
         cloud_resource_ids = list(instance_map.keys())
         result = []
         stats_map = {}
+        currency = self.get_organization_currency()
         for i in range(0, len(cloud_resource_ids), BULK_SIZE):
             bulk_ids = cloud_resource_ids[i:i + BULK_SIZE]
             raw_expenses = self.mongo_client.restapi.raw_expenses.aggregate([
@@ -107,7 +113,7 @@ class InstanceGenerationUpgrade(ModuleBase):
                 if meter_id and cloud_type == 'azure_cnr':
                     generation_params['meter_id'] = meter_id
                 _, gen_resp = self.insider_cl.find_flavor_generation(
-                    **generation_params)
+                    **generation_params, currency=currency)
                 if not gen_resp:
                     stats_map[cloud_account_id][
                         'not_found_recommended_flavors'] += 1

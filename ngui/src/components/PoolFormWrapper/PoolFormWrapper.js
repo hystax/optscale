@@ -1,9 +1,9 @@
 import React from "react";
+import { Box } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import ActionBar from "components/ActionBar";
 import PageContentWrapper from "components/PageContentWrapper";
 import PoolForm, { FormPropTypes } from "components/PoolForm";
-import WrapperCard from "components/WrapperCard";
 
 const PoolFormWrapper = ({
   parentPoolName,
@@ -20,7 +20,6 @@ const PoolFormWrapper = ({
 
   const actionBarDefinition = poolId
     ? {
-        goBack: true,
         title: {
           text: <FormattedMessage id="edit{}" values={{ value: defaultValues.name }} />,
           isLoading: isGetPoolLoading,
@@ -28,7 +27,6 @@ const PoolFormWrapper = ({
         }
       }
     : {
-        goBack: true,
         title: {
           text: <FormattedMessage id="addPoolToTitle" values={{ poolName: parentPoolName }} />,
           isLoading: isGetParentPoolLoading,
@@ -40,7 +38,7 @@ const PoolFormWrapper = ({
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <WrapperCard className="halfWidth">
+        <Box sx={{ width: { md: "50%" } }}>
           <PoolForm
             defaultValues={defaultValues}
             onSubmit={onSubmit}
@@ -51,7 +49,7 @@ const PoolFormWrapper = ({
             poolId={poolId}
             hasSubPools={hasSubPools}
           />
-        </WrapperCard>
+        </Box>
       </PageContentWrapper>
     </>
   );

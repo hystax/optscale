@@ -1,10 +1,7 @@
 {
   "FE0000": "Success",
-  "FE0001": "Report has been uploaded",
-  "FE0002": "{0, plural,\n  =1 {resource has been}\n  other {resources have been}\n} assigned",
-  "FE0003": "Request has been sent",
-  "FE0004": "Request {0, select,\n decline {has been declined}\n accept {has been accepted}\n cancel {has been canceled}\n other {status has been changed}}",
-  "FE0005": "{0, plural,\n  =1 {User has been}\n  other {Users have been}\n} invited",
+  "FE0001": "File has been uploaded",
+  "FE0003": "{0, plural,\n  =1 {User has been}\n  other {Users have been}\n} invited",
   "FE0006": "{0} of {1} resources have been marked as IT Environments",
   "FE0007": "Assignment rule \"{0}\" has been created",
   "FE0008": "User has been deleted",

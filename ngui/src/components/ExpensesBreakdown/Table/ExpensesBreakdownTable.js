@@ -59,25 +59,25 @@ const ExpensesBreakdownTable = ({
   const columns = useMemo(
     () => [
       {
-        accessor: "name",
-        Header: <FormattedMessage id="name" />,
-        Cell: ({ row }) => renderNameCell(row, filterBy)
+        accessorKey: "name",
+        header: <FormattedMessage id="name" />,
+        cell: ({ row }) => renderNameCell(row, filterBy)
       },
       {
-        accessor: "total",
-        Header: <ExpensesTableHeader startDateTimestamp={startDateTimestamp} endDateTimestamp={endDateTimestamp} />,
-        Cell: ({ cell: { value: total } }) => <FormattedMoney value={total} type={FORMATTED_MONEY_TYPES.COMMON} />,
+        accessorKey: "total",
+        header: <ExpensesTableHeader startDateTimestamp={startDateTimestamp} endDateTimestamp={endDateTimestamp} />,
+        cell: ({ cell }) => <FormattedMoney value={cell.getValue()} type={FORMATTED_MONEY_TYPES.COMMON} />,
         defaultSort: "desc"
       },
       {
-        accessor: "percent",
-        Header: <FormattedMessage id="percent" />,
-        Cell: ({ cell: { value: percent } }) => <FormattedNumber value={percent} format="percentage" />
+        accessorKey: "percent",
+        header: <FormattedMessage id="percent" />,
+        cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />
       },
       {
         id: "actions",
-        Header: <FormattedMessage id="actions" />,
-        Cell: ({ row: { original = {} } }) =>
+        header: <FormattedMessage id="actions" />,
+        cell: ({ row: { original = {} } }) =>
           rowActions.map(({ key, tooltipMessageId, onClick, icon }) => (
             <IconButton
               key={key}
@@ -89,7 +89,7 @@ const ExpensesBreakdownTable = ({
               }}
             />
           )),
-        disableSortBy: true
+        enableSorting: false
       }
     ],
     [endDateTimestamp, filterBy, rowActions, startDateTimestamp]

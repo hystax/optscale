@@ -50,16 +50,12 @@ import {
   SET_AVAILABLE_POOLS,
   GET_POOL_OWNERS,
   SET_POOL_OWNERS,
-  ASSIGN_RESOURCES,
-  ASSIGN_RESOURCES_REQUEST,
   GET_AUTHORIZED_EMPLOYEES,
   GET_EMPLOYEES,
   DELETE_EMPLOYEE,
   SET_AUTHORIZED_EMPLOYEES,
   SET_EMPLOYEES,
   GET_CURRENT_EMPLOYEE,
-  GET_MY_TASKS,
-  ASSIGNMENT_REQUEST_UPDATE,
   CREATE_ORGANIZATION,
   GET_ORGANIZATION_EXPENSES,
   SET_ORGANIZATION_EXPENSES,
@@ -99,8 +95,6 @@ import {
   GET_LIVE_DEMO,
   SET_LIVE_DEMO,
   CREATE_LIVE_DEMO,
-  GET_CLOUD_HEALTH,
-  SET_CLOUD_HEALTH,
   GET_TTL_ANALYSIS,
   SET_TTL_ANALYSIS,
   APPLY_ASSIGNMENT_RULES,
@@ -108,9 +102,6 @@ import {
   GET_FINOPS_CHECKLIST,
   SET_FINOPS_CHECKLIST,
   UPDATE_FINOPS_CHECKLIST,
-  GET_FINOPS_ASSESSMENT,
-  SET_FINOPS_ASSESSMENT,
-  UPDATE_FINOPS_ASSESSMENT,
   GET_TECHNICAL_AUDIT,
   SET_TECHNICAL_AUDIT,
   UPDATE_TECHNICAL_AUDIT,
@@ -202,7 +193,37 @@ import {
   GET_K8S_RIGHTSIZING,
   UPDATE_ORGANIZATION_THEME_SETTINGS,
   SET_ORGANIZATION_THEME_SETTINGS,
-  GET_ORGANIZATION_THEME_SETTINGS
+  GET_ORGANIZATION_THEME_SETTINGS,
+  SET_ORGANIZATION_PERSPECTIVES,
+  GET_ORGANIZATION_PERSPECTIVES,
+  UPDATE_ORGANIZATION_PERSPECTIVES,
+  UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
+  GET_ML_APPLICATIONS,
+  SET_ML_APPLICATIONS,
+  GET_ML_GLOBAL_PARAMETERS,
+  SET_ML_GLOBAL_PARAMETERS,
+  GET_ML_GLOBAL_PARAMETER,
+  SET_ML_GLOBAL_PARAMETER,
+  CREATE_GLOBAL_PARAMETER,
+  UPDATE_GLOBAL_PARAMETER,
+  DELETE_GLOBAL_PARAMETER,
+  CREATE_ML_APPLICATION,
+  GET_PROFILING_TOKEN,
+  SET_PROFILING_TOKEN,
+  GET_ML_EXECUTORS,
+  SET_ML_EXECUTORS,
+  GET_ML_EXECUTORS_BREAKDOWN,
+  SET_ML_EXECUTORS_BREAKDOWN,
+  SET_ML_APPLICATION,
+  GET_ML_APPLICATION,
+  UPDATE_ML_APPLICATION,
+  DELETE_ML_APPLICATION,
+  SET_ML_APPLICATION_RUNS,
+  GET_ML_APPLICATION_RUNS,
+  SET_ML_RUN_DETAILS,
+  GET_ML_RUN_DETAILS,
+  SET_ML_RUN_DETAILS_BREAKDOWN,
+  GET_ML_RUN_DETAILS_BREAKDOWN
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -211,7 +232,6 @@ import {
   onSuccessDisconnectCloudAccount,
   onSuccessCreatePool,
   onSuccessDeletePool,
-  onSuccessGetMyTasks,
   onSuccessGetCurrentEmployee,
   onSuccessCreatePoolPolicy,
   onSuccessCreateResourceConstraint,
@@ -222,7 +242,6 @@ import {
   onSuccessCreateLiveDemo,
   onSuccessUpdateAssignmentRulePriority,
   onFinOpsChecklist,
-  onUpdateFinOpsAssessment,
   onUpdateTechnicalAudit,
   onSuccessExportLinkChange,
   onSuccessUpdateEnvironmentProperty,
@@ -235,7 +254,11 @@ import {
   onSuccessUpdateGlobalPoolPolicyLimit,
   onSuccessUpdateGlobalPoolPolicyActivity,
   onSuccessUpdateGlobalResourceConstraintLimit,
-  onUpdateOrganizationThemeSettings
+  onUpdateOrganizationThemeSettings,
+  onUpdateOrganizationPerspectives,
+  onSuccessCreateOrganization,
+  onSuccessUpdateEnvironmentSshRequirement,
+  onUpdateMlApplication
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -258,6 +281,27 @@ export const getOrganizationThemeSettings = (organizationId) =>
     onSuccess: handleSuccess(SET_ORGANIZATION_THEME_SETTINGS),
     hash: hashParams(organizationId),
     label: GET_ORGANIZATION_THEME_SETTINGS
+  });
+
+export const getOrganizationPerspectives = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/options/perspectives`,
+    method: "GET",
+    ttl: HOUR,
+    onSuccess: handleSuccess(SET_ORGANIZATION_PERSPECTIVES),
+    hash: hashParams(organizationId),
+    label: GET_ORGANIZATION_PERSPECTIVES
+  });
+
+export const updateOrganizationPerspectives = (organizationId, value) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/options/perspectives`,
+    method: "PATCH",
+    onSuccess: onUpdateOrganizationPerspectives,
+    label: UPDATE_ORGANIZATION_PERSPECTIVES,
+    params: {
+      value: JSON.stringify(value)
+    }
   });
 
 export const getOrganizationOptions = (organizationId) =>
@@ -415,6 +459,7 @@ export const createCloudAccount = (organizationId, params) =>
     url: `${API_URL}/organizations/${organizationId}/cloud_accounts`,
     method: "POST",
     onSuccess: onSuccessCreateCloudAccount,
+    affectedRequests: [GET_AVAILABLE_FILTERS],
     label: CREATE_CLOUD_ACCOUNT,
     params
   });
@@ -455,23 +500,17 @@ export const disconnectCloudAccount = (id) =>
     url: `${API_URL}/cloud_accounts/${id}`,
     method: "DELETE",
     onSuccess: onSuccessDisconnectCloudAccount(id),
+    affectedRequests: [GET_AVAILABLE_FILTERS],
     label: DELETE_CLOUD_ACCOUNT
   });
 
-export const updateCloudAccount = (id, { cpuHour, memoryMbHour }) =>
+export const updateCloudAccount = (id, params) =>
   apiAction({
     url: `${API_URL}/cloud_accounts/${id}`,
     method: "PATCH",
     label: UPDATE_CLOUD_ACCOUNT,
     affectedRequests: [GET_CLOUD_ACCOUNT_DETAILS, GET_DATA_SOURCE_NODES],
-    params: {
-      config: {
-        cost_model: {
-          cpu_hourly_cost: cpuHour,
-          memory_hourly_cost: memoryMbHour
-        }
-      }
-    }
+    params
   });
 
 export const getPool = (poolId, children = false, details = false) =>
@@ -491,7 +530,8 @@ export const getPool = (poolId, children = false, details = false) =>
 export const createOrganization = (name) =>
   apiAction({
     url: `${API_URL}/organizations`,
-    affectedRequests: [GET_ORGANIZATIONS],
+    method: "POST",
+    onSuccess: onSuccessCreateOrganization,
     label: CREATE_ORGANIZATION,
     params: { name }
   });
@@ -501,7 +541,7 @@ export const createPool = (organizationId, params) =>
     url: `${API_URL}/organizations/${organizationId}/pools`,
     method: "POST",
     onSuccess: onSuccessCreatePool,
-    affectedRequests: [GET_AVAILABLE_POOLS],
+    affectedRequests: [GET_AVAILABLE_POOLS, GET_AVAILABLE_FILTERS],
     label: CREATE_POOL,
     params: {
       name: params.name,
@@ -542,6 +582,7 @@ export const deletePool = (id) =>
     url: `${API_URL}/pools/${id}`,
     method: "DELETE",
     onSuccess: onSuccessDeletePool(id),
+    affectedRequests: [GET_AVAILABLE_FILTERS],
     label: DELETE_POOL
   });
 
@@ -703,20 +744,6 @@ export const getPoolOwners = (poolId, excludeMyself = false) =>
     }
   });
 
-export const assignResources = (organizationId, params) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/assignments/bulk`,
-    method: "POST",
-    label: ASSIGN_RESOURCES,
-    successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
-    affectedRequests: [GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN, GET_CLEAN_EXPENSES],
-    params: {
-      resource_ids: params.resourceIds,
-      pool_id: params.poolId,
-      owner_id: params.ownerId
-    }
-  });
-
 export const getAuthorizedEmployees = (organizationId, params = {}) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/authorized_employees`,
@@ -768,44 +795,6 @@ export const getCurrentEmployee = (organizationId) =>
     hash: hashParams(organizationId),
     params: {
       current_only: true
-    }
-  });
-
-export const sendAssignResourcesRequest = (organizationId, params) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/assignment_requests/bulk`,
-    method: "POST",
-    label: ASSIGN_RESOURCES_REQUEST,
-    successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
-    params: {
-      resource_ids: params.resourceIds,
-      approver_id: params.employeeId
-    }
-  });
-
-export const getMyTasks = ({ organizationId, type, limit = 20, startFrom = 0 }) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/my_tasks`,
-    method: "GET",
-    onSuccess: onSuccessGetMyTasks(type),
-    label: GET_MY_TASKS,
-    params: {
-      type,
-      limit,
-      start_from: startFrom
-    }
-  });
-
-export const assignmentRequestUpdate = ({ requestId, action, poolId }) =>
-  apiAction({
-    url: `${API_URL}/assignment_requests/${requestId}`,
-    method: "PATCH",
-    label: ASSIGNMENT_REQUEST_UPDATE,
-    entityId: requestId,
-    successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
-    params: {
-      action,
-      pool_id: poolId
     }
   });
 
@@ -1346,16 +1335,6 @@ export const createLiveDemo = () =>
     errorHandlerType: ERROR_HANDLER_TYPE_LOCAL
   });
 
-export const getCloudHealth = (organizationId) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/cloud_health`,
-    method: "GET",
-    onSuccess: handleSuccess(SET_CLOUD_HEALTH),
-    hash: hashParams({ organizationId }),
-    ttl: HOUR,
-    label: GET_CLOUD_HEALTH
-  });
-
 export const getTtlAnalysis = (poolId, params) =>
   apiAction({
     url: `${API_URL}/pools/${poolId}/ttl_analysis`,
@@ -1408,27 +1387,6 @@ export const updateFinOpsChecklist = (organizationId, value) =>
     method: "PATCH",
     label: UPDATE_FINOPS_CHECKLIST,
     onSuccess: onFinOpsChecklist,
-    params: {
-      value: JSON.stringify(value)
-    }
-  });
-
-export const getFinOpsAssessment = (organizationId) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/options/finops_assessment`,
-    method: "GET",
-    onSuccess: handleSuccess(SET_FINOPS_ASSESSMENT),
-    ttl: HOUR,
-    hash: hashParams(organizationId),
-    label: GET_FINOPS_ASSESSMENT
-  });
-
-export const updateFinOpsAssessment = (organizationId, value) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/options/finops_assessment`,
-    method: "PATCH",
-    label: UPDATE_FINOPS_ASSESSMENT,
-    onSuccess: onUpdateFinOpsAssessment,
     params: {
       value: JSON.stringify(value)
     }
@@ -1511,7 +1469,7 @@ export const applyClusterTypes = (organizationId) =>
     url: `${API_URL}/organizations/${organizationId}/cluster_types_apply`,
     method: "POST",
     label: APPLY_CLUSTER_TYPES,
-    affectedRequests: [GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
+    affectedRequests: [GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN, GET_AVAILABLE_FILTERS],
     params: {}
   });
 
@@ -1554,7 +1512,7 @@ export const deleteEnvironment = (environmentId) =>
     ]
   });
 
-export const updateEnvironmentActivity = (environmentId, params = {}) =>
+export const updateEnvironmentActivity = (environmentId, isActive) =>
   apiAction({
     url: `${API_URL}/environment_resources/${environmentId}`,
     method: "PATCH",
@@ -1567,7 +1525,18 @@ export const updateEnvironmentActivity = (environmentId, params = {}) =>
       GET_RESOURCE_COUNT_BREAKDOWN,
       GET_RESOURCE
     ],
-    params: { active: params.active, ssh_only: params.requireSshKey }
+    params: { active: isActive }
+  });
+
+export const updateEnvironmentSshRequirement = (environmentId, requireSshKey) =>
+  apiAction({
+    url: `${API_URL}/environment_resources/${environmentId}`,
+    method: "PATCH",
+    label: UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
+    onSuccess: onSuccessUpdateEnvironmentSshRequirement,
+    entityId: environmentId,
+    affectedRequests: [GET_ENVIRONMENTS, GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
+    params: { ssh_only: requireSshKey }
   });
 
 export const updateEnvironmentProperty = (environmentId, { propertyName, propertyValue }) =>
@@ -1903,5 +1872,169 @@ export const getArchivedOptimizationDetails = (organizationId, params) =>
       reason: params.reason,
       type: params.type,
       limit: params.limit
+    }
+  });
+
+export const getMlApplications = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_APPLICATIONS),
+    hash: hashParams(organizationId),
+    label: GET_ML_APPLICATIONS
+  });
+
+export const getMlApplication = (organizationId, applicationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${applicationId}`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_APPLICATION),
+    hash: hashParams({ organizationId, applicationId }),
+    label: GET_ML_APPLICATION
+  });
+
+export const getMlApplicationRuns = (organizationId, applicationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${applicationId}/runs`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_APPLICATION_RUNS),
+    hash: hashParams({ organizationId, applicationId }),
+    label: GET_ML_APPLICATION_RUNS
+  });
+
+export const getMlRunDetails = (organizationId, runId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/runs/${runId}`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_RUN_DETAILS),
+    hash: hashParams({ organizationId, runId }),
+    label: GET_ML_RUN_DETAILS
+  });
+
+export const getMlRunDetailsBreakdown = (organizationId, runId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/runs/${runId}/breakdown`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_RUN_DETAILS_BREAKDOWN),
+    hash: hashParams({ organizationId, runId }),
+    label: GET_ML_RUN_DETAILS_BREAKDOWN
+  });
+
+export const createMlApplication = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications`,
+    method: "POST",
+    label: CREATE_ML_APPLICATION,
+    params,
+    affectedRequests: [GET_ML_APPLICATIONS]
+  });
+
+export const updateMlApplication = (organizationId, applicationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${applicationId}`,
+    method: "PATCH",
+    label: UPDATE_ML_APPLICATION,
+    onSuccess: onUpdateMlApplication,
+    params,
+    affectedRequests: [GET_ML_APPLICATIONS]
+  });
+
+export const deleteMlApplication = (organizationId, applicationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${applicationId}`,
+    method: "DELETE",
+    label: DELETE_ML_APPLICATION,
+    affectedRequests: [GET_ML_APPLICATIONS]
+  });
+
+export const getMlGlobalParameters = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/goals`,
+    method: "GET",
+    label: GET_ML_GLOBAL_PARAMETERS,
+    ttl: 5 * MINUTE,
+    hash: hashParams({ organizationId }),
+    errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
+    onSuccess: handleSuccess(SET_ML_GLOBAL_PARAMETERS)
+  });
+
+export const getMlGlobalParameter = (organizationId, parameterId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/goals/${parameterId}`,
+    method: "GET",
+    label: GET_ML_GLOBAL_PARAMETER,
+    ttl: 5 * MINUTE,
+    hash: hashParams({ organizationId, parameterId }),
+    onSuccess: handleSuccess(SET_ML_GLOBAL_PARAMETER)
+  });
+
+export const createGlobalParameter = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/goals`,
+    method: "POST",
+    label: CREATE_GLOBAL_PARAMETER,
+    params,
+    affectedRequests: [GET_ML_GLOBAL_PARAMETERS]
+  });
+
+export const updateGlobalParameter = (organizationId, parameterId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/goals/${parameterId}`,
+    method: "PATCH",
+    label: UPDATE_GLOBAL_PARAMETER,
+    affectedRequests: [GET_ML_GLOBAL_PARAMETERS],
+    params
+  });
+
+export const deleteGlobalParameter = (organizationId, parameterId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/goals/${parameterId}`,
+    method: "DELETE",
+    label: DELETE_GLOBAL_PARAMETER,
+    affectedRequests: [GET_ML_GLOBAL_PARAMETERS]
+  });
+
+export const getProfilingToken = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/profiling_token`,
+    method: "GET",
+    label: GET_PROFILING_TOKEN,
+    ttl: 5 * MINUTE,
+    hash: hashParams({ organizationId }),
+    onSuccess: handleSuccess(SET_PROFILING_TOKEN)
+  });
+
+export const getMlExecutors = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/executors`,
+    method: "GET",
+    label: GET_ML_EXECUTORS,
+    ttl: 5 * MINUTE,
+    hash: hashParams({ organizationId, ...params }),
+    onSuccess: handleSuccess(SET_ML_EXECUTORS),
+    params: {
+      application_id: params.applicationIds,
+      run_id: params.runIds
+    }
+  });
+
+export const getMlExecutorsBreakdown = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/executors_breakdown`,
+    method: "GET",
+    onSuccess: handleSuccess(SET_ML_EXECUTORS_BREAKDOWN),
+    label: GET_ML_EXECUTORS_BREAKDOWN,
+    ttl: 5 * MINUTE,
+    hash: hashParams({ organizationId, ...params }),
+    // Filtering by date is not yet supported by the backend
+    params: {
+      breakdown_by: params.breakdownBy
+      // start_date: params.startDate,
+      // end_date: params.endDate,
     }
   });

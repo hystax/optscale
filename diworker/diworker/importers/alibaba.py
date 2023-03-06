@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from diworker.importers.base import BaseReportImporter
 from diworker.utils import bytes_to_gb
+from herald_client.client_v2 import Client as HeraldClient
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200
@@ -364,6 +365,64 @@ class AlibabaReportImporter(BaseReportImporter):
                     self.update_raw_records(chunk)
         if chunk:
             self.update_raw_records(chunk)
+
+    def send_service_incorrect_expenses_email(self, cloud_account, period,
+                                              clean_expenses, cloud_expenses):
+        _, organization = self.rest_cl.organization_get(
+            cloud_account['organization_id'])
+        recipient = self.config_cl.optscale_error_email_recipient()
+        if not recipient:
+            return
+        title = "Incorrect expenses for Alibaba cloud account"
+        subject = '[%s] %s' % (self.config_cl.public_ip(), title)
+        template_params = {
+            'texts': {
+                'organization': {
+                    'id': organization['id'],
+                    'name': organization['name']},
+                'cloud_account': {
+                    'id': cloud_account['id'],
+                    'name': cloud_account['name'],
+                },
+                'period': period,
+                'clean_expenses': clean_expenses,
+                'cloud_expenses': cloud_expenses
+            }}
+        HeraldClient(url=self.config_cl.herald_url(),
+                     secret=self.config_cl.cluster_secret()).email_send(
+            [recipient], subject, template_params=template_params,
+            template_type="incorrect_alibaba_expenses")
+
+    def check_exp_for_previous_month(self, now):
+        billing_date = now - timedelta(days=now.day)
+        bill = self.cloud_adapter.get_bill_overview(billing_date)
+        total_cloud_bill = 0
+        for data in bill.get('Data', {}).get('Items', {}).get('Item', []):
+            total_cloud_bill += data['AfterTaxAmount']
+
+        params = {'cloud_account_id': self.cloud_acc_id}
+        _, last_day = monthrange(billing_date.year, billing_date.month)
+        start_date = billing_date.replace(day=1, hour=0, minute=0, second=0)
+        end_date = billing_date.replace(day=last_day, hour=23, minute=59,
+                                        second=59)
+        _, expenses = self.rest_cl.summary_expenses_get(
+            self.cloud_acc['organization_id'], int(start_date.timestamp()),
+            int(end_date.timestamp()), params)
+        if round(expenses['total_cost'], 2) != round(total_cloud_bill, 2):
+            LOG.error(
+                'Total cost of cloud expenses %s doesn\'t match to clean '
+                'expenses total cost %s' % (
+                    total_cloud_bill, round(expenses['total_cost'], 2)))
+            self.send_service_incorrect_expenses_email(
+                self.cloud_acc, billing_date.strftime('%Y-%m'),
+                round(expenses['total_cost'], 2), total_cloud_bill)
+
+    def generate_clean_records(self, regeneration=False):
+        super().generate_clean_records(regeneration=regeneration)
+        now = datetime.utcnow()
+        if (self.period_start.month != now.month or
+                self.period_start.year != now.year):
+            self.check_exp_for_previous_month(now)
 
     def create_traffic_processing_tasks(self):
         self._create_traffic_processing_tasks()

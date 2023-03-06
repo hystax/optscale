@@ -1,4 +1,5 @@
 import queryString from "query-string";
+import { dispatchSearchParamsChangeEvent } from "./events";
 import { filterEmpty, removeKey } from "./objects";
 
 // TODO: make network utils reactive
@@ -14,6 +15,7 @@ export const getFullPath = () => `${window.location.pathname}${window.location.s
 export const getPathname = () => window.location.pathname;
 
 export const setQueryParams = (stringURL) => {
+  dispatchSearchParamsChangeEvent(queryString.parse(stringURL, { parseBooleans: true }));
   window.history.replaceState(null, null, stringURL);
 };
 
@@ -63,7 +65,7 @@ export const getMenuRootUrl = (menu) => {
     (el) => typeof el.isActive === "function" && el.isActive(currentPath, currentQueryParams)
   );
   if (activeElement) {
-    return activeElement.link;
+    return activeElement.route.link;
   }
   return currentPath;
 };

@@ -1,28 +1,20 @@
 import React from "react";
-import { select, number } from "@storybook/addon-knobs";
 import TypographyLoader from "components/TypographyLoader";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/TypographyLoader`
-};
-
-const variantOptions = {
-  h1: "h1",
-  h2: "h2",
-  h3: "h3",
-  h4: "h4",
-  h5: "h5",
-  h6: "h6",
-  subtitle1: "subtitle1",
-  subtitle2: "subtitle2",
-  body1: "body1",
-  body2: "body2",
-  caption: "caption"
+  title: `${KINDS.COMPONENTS}/TypographyLoader`,
+  argTypes: {
+    variant: {
+      name: "Color",
+      control: "select",
+      options: ["h1", "h2", "h3", "h4", "h5", "h6", "subtitle1", "subtitle2", "body1", "body2", "caption"],
+      defaultValue: "body1"
+    },
+    lineCount: { name: "Line count", control: "number", defaultValue: 5 }
+  }
 };
 
 export const basic = () => <TypographyLoader variant="body1" linesCount={1} />;
 
-export const withKnobs = () => (
-  <TypographyLoader variant={select("variant", variantOptions, "body1")} linesCount={number("linesCount", 1)} />
-);
+export const withKnobs = (args) => <TypographyLoader variant={args.variant} linesCount={args.lineCount} />;

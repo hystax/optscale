@@ -1,12 +1,16 @@
 import React from "react";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ApartmentIcon from "@mui/icons-material/Apartment";
-import ListItemText from "@mui/material/ListItemText";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import Icon from "components/Icon";
-import Selector from "components/Selector";
+import SelectorComponent from "components/Selector";
 import SelectorLoader from "components/SelectorLoader";
+import { CreateOrganizationModal } from "components/SideModalManager/SideModals";
+import { useOpenSideModal } from "hooks/useOpenSideModal";
+import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ORGANIZATIONS_OVERVIEW } from "urls";
 import useStyles from "./OrganizationSelector.styles";
 
@@ -16,26 +20,69 @@ const prepareSelectorData = (organizationId, organizations) => ({
     .map((obj, index) => ({
       name: obj.name,
       value: obj.id,
-      type: obj.purpose,
       dataTestId: `org_${index}`
     }))
     .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
 });
 
-const renderSelector = ({ organizations = [], organizationId, onChange, navigate, classes }) => {
+const Selector = ({ organizations = [], organizationId, onChange }) => {
+  const { isDemo } = useOrganizationInfo();
+  const openSideModal = useOpenSideModal();
+  const navigate = useNavigate();
+  const { classes } = useStyles();
+
   const selectorDefinition = prepareSelectorData(organizationId, organizations);
 
   const organizationOverviewItem = {
-    customItem: <ListItemText primary={<FormattedMessage id="organizationsOverview" />} />,
-    onClick: () => navigate(ORGANIZATIONS_OVERVIEW),
     key: "organizationsOverview",
-    dataTestId: "orgs_dashboard"
+    render: ({ button }) =>
+      button({
+        children: (
+          <>
+            <Icon color="inherit" hasRightMargin icon={VisibilityOutlinedIcon} />
+            <FormattedMessage id="organizationsOverview" />
+          </>
+        ),
+        onClick: () => navigate(ORGANIZATIONS_OVERVIEW),
+        dataTestId: "orgs_dashboard"
+      })
   };
 
-  const data = { ...selectorDefinition, items: [...selectorDefinition.items, organizationOverviewItem] };
+  const createOrganizationItem = {
+    key: "creteOrganization",
+    render: ({ button }) =>
+      button({
+        children: (
+          <>
+            <Icon color="inherit" hasRightMargin icon={AddOutlinedIcon} />
+            <FormattedMessage id="createNewOrganization" />
+          </>
+        ),
+        onClick: () => openSideModal(CreateOrganizationModal, { onSuccess: onChange }),
+        dataTestId: "orgs_create_new",
+        disabled: isDemo,
+        tooltip: {
+          content: <FormattedMessage id="notAvailableInLiveDemo" />,
+          show: isDemo
+        }
+      })
+  };
+
+  const data = {
+    ...selectorDefinition,
+    items: [
+      ...selectorDefinition.items,
+      {
+        key: "divider",
+        render: ({ divider }) => divider()
+      },
+      organizationOverviewItem,
+      createOrganizationItem
+    ]
+  };
 
   return (
-    <Selector
+    <SelectorComponent
       data={data}
       labelId="organization"
       dataTestId="select_org"
@@ -56,12 +103,10 @@ const renderSelector = ({ organizations = [], organizationId, onChange, navigate
 const OrganizationSelector = ({ organizations = [], organizationId, onChange, isLoading }) => {
   const { classes } = useStyles();
 
-  const navigate = useNavigate();
-
   return isLoading ? (
     <SelectorLoader customClass={classes.organizationSelector} labelId="organization" />
   ) : (
-    renderSelector({ organizations, organizationId, onChange, navigate, classes })
+    <Selector organizations={organizations} organizationId={organizationId} onChange={onChange} />
   );
 };
 

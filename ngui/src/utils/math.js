@@ -25,7 +25,11 @@ export const percentXofY = (x, y) => {
 
 export const intPercentXofY = (x, y) => parseFloat((percentXofY(x, y) * 100).toFixed());
 
-export const round = (value, precision) => {
-  const multiplier = 10 ** (precision || 0);
+export const round = (value, precision = 0) => {
+  const multiplier = 10 ** precision;
   return Math.round(value * multiplier) / multiplier;
 };
+
+export const minMaxNormalize = (x, { min, max }, maxThreshold = 1) => ((x - min) / (max - min)) * maxThreshold;
+
+export const minMaxDenormalize = (y, { min, max }, maxThreshold = 1) => min + (y / maxThreshold) * (max - min);

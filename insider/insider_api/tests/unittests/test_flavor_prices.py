@@ -149,8 +149,14 @@ class TestFlavorPricesApi(TestBase):
                 'type': 'Consumption'
             }
         ]
+        bulk = []
         for pricing in pricings:
-            self.mongo_client.insider.azure_prices.insert_one(pricing)
+            brl_pricing = pricing.copy()
+            brl_pricing['currencyCode'] = 'BRL'
+            for k in ['retailPrice', 'unitPrice']:
+                brl_pricing[k] = pricing[k] * 2
+            bulk.extend([pricing, brl_pricing])
+        self.mongo_client.insider.azure_prices.insert_many(bulk)
 
     def insert_aws_pricing(self, ts):
         pricings = [
@@ -453,6 +459,20 @@ class TestFlavorPricesApi(TestBase):
         self.assertEqual(len(res.get('prices', [])), 1)
         price = res['prices'][0]
         self.assertEqual(price['price'], 0.15)
+        self.assertEqual(price['currency'], 'USD')
+
+        code, res = self.client.get_flavor_prices(
+            currency='BRL', **self.azure_valid_params)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res.get('prices', [])), 1)
+        price = res['prices'][0]
+        self.assertEqual(price['price'], 0.3)
+        self.assertEqual(price['currency'], 'BRL')
+
+        code, res = self.client.get_flavor_prices(
+            currency='EU', **self.azure_valid_params)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res.get('prices', [])), 0)
 
     def test_aws_valid_params(self):
         now = int(datetime.utcnow().timestamp())

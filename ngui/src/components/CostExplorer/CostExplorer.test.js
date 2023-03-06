@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { EXPENSES_BREAKDOWN_PERIOD_TYPE } from "components/ExpensesBreakdown/BreakdownByPeriodWidget/reducer";
 import TestProvider from "tests/TestProvider";
 import { EXPENSES_BREAKDOWN_PERIODS } from "utils/constants";
@@ -11,7 +11,8 @@ const lastDateRangePoint = millisecondsToSeconds(+new Date());
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider
       state={{
         rangeDates: {},
@@ -28,8 +29,7 @@ it("renders without crashing", () => {
         startDateTimestamp={firstDateRangePoint}
         endDateTimestamp={lastDateRangePoint}
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

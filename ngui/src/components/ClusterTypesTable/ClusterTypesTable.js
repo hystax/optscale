@@ -75,14 +75,14 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
     ];
 
     const getActionsColumnDefinition = () => ({
-      Header: (
+      header: (
         <TextWithDataTestId dataTestId="lbl_actions">
           <FormattedMessage id="actions" />
         </TextWithDataTestId>
       ),
       id: "actions",
-      disableSortBy: true,
-      Cell: ({ row: { original, index } }) => (
+      enableSorting: false,
+      cell: ({ row: { original, index } }) => (
         <TableCellActions
           items={[
             ...priorityActions.map((item) => ({
@@ -106,28 +106,28 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
 
     const basicColumns = [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name"
+        accessorKey: "name"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tag_key">
             <FormattedMessage id="tagKey" />
           </TextWithDataTestId>
         ),
-        accessor: "tag_key"
+        accessorKey: "tag_key"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_priority">
             <FormattedMessage id="priority" />
           </TextWithDataTestId>
         ),
-        accessor: "priority",
+        accessorKey: "priority",
         defaultSort: "asc"
       }
     ];
@@ -168,7 +168,9 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
       columns={columns}
       withSearch
       dataTestIds={{
-        searchInput: "input_search"
+        searchInput: "input_search",
+        searchButton: "btn_search",
+        deleteSearchButton: "btn_delete_search"
       }}
       localization={{ emptyMessageId: "noClusterTypes" }}
     />

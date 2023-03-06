@@ -1,64 +1,93 @@
-import React, { useState } from "react";
+import React from "react";
+import { Box } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import ActionBar from "components/ActionBar";
+import { getBasicRangesSet } from "components/DateRangePicker/defaults";
 import Mocked from "components/Mocked";
+import PageContentWrapper from "components/PageContentWrapper";
 import { RegionExpensesMocked } from "components/RegionExpenses";
+import TabsWrapper from "components/TabsWrapper";
 import { TrafficExpensesMocked } from "components/TrafficExpenses";
 import TrafficExpensesContainer from "components/TrafficExpensesContainer";
+import RangePickerFormContainer from "containers/RangePickerFormContainer";
 import RegionExpensesContainer from "containers/RegionExpensesContainer";
-import { EXPENSES_MAP_TYPES } from "utils/constants";
-import { getQueryParams, updateQueryParams } from "utils/network";
+import { useReactiveDefaultDateRange } from "hooks/useReactiveDefaultDateRange";
+import { DATE_RANGE_TYPE, EXPENSES_MAP_TYPES } from "utils/constants";
+import { SPACING_2 } from "utils/layouts";
+import { updateQueryParams } from "utils/network";
+
+const actionBarDefinition = {
+  hideItemsOnSmallScreens: false,
+  title: {
+    messageId: "costMapTitle"
+  }
+};
 
 const ExpensesMap = () => {
-  const { type } = getQueryParams();
-
-  const [costMapType, setCostMapType] = useState(type || EXPENSES_MAP_TYPES.REGION);
-
-  const handleButtonGroupChange = (mapType) => {
-    updateQueryParams({ type: mapType });
-    setCostMapType(mapType);
-  };
-
-  const actionBarDefinition = {
-    hideItemsOnSmallScreens: false,
-    title: {
-      messageId: "costMapTitle"
+  const theme = useTheme();
+  const tabs = [
+    {
+      title: EXPENSES_MAP_TYPES.REGION,
+      dataTestId: `tab_${EXPENSES_MAP_TYPES.REGION}`,
+      node: (
+        <Mocked mock={<RegionExpensesMocked />}>
+          <RegionExpensesContainer />
+        </Mocked>
+      )
     },
-    items: [
-      {
-        key: "switch",
-        type: "buttonGroup",
-        activeButtonId: costMapType,
-        buttons: [
-          {
-            id: EXPENSES_MAP_TYPES.REGION,
-            messageId: EXPENSES_MAP_TYPES.REGION,
-            action: () => handleButtonGroupChange(EXPENSES_MAP_TYPES.REGION),
-            dataTestId: "region_map"
-          },
-          {
-            id: EXPENSES_MAP_TYPES.TRAFFIC,
-            messageId: EXPENSES_MAP_TYPES.TRAFFIC,
-            action: () => handleButtonGroupChange(EXPENSES_MAP_TYPES.TRAFFIC),
-            dataTestId: "traffic_map"
-          }
-        ]
-      }
-    ]
+    {
+      title: EXPENSES_MAP_TYPES.TRAFFIC,
+      dataTestId: `tab_${EXPENSES_MAP_TYPES.TRAFFI}`,
+      node: (
+        <Mocked mock={<TrafficExpensesMocked />}>
+          <TrafficExpensesContainer />
+        </Mocked>
+      )
+    }
+  ];
+
+  // dates query handlers
+  const [startDateTimestamp, endDateTimestamp] = useReactiveDefaultDateRange(DATE_RANGE_TYPE.EXPENSES);
+
+  const applyDates = ({ startDate, endDate }) => {
+    updateQueryParams({
+      startDate,
+      endDate
+    });
   };
 
   return (
     <>
       <ActionBar data={actionBarDefinition} />
-      {costMapType === EXPENSES_MAP_TYPES.REGION && (
-        <Mocked mock={<RegionExpensesMocked />}>
-          <RegionExpensesContainer />
-        </Mocked>
-      )}
-      {costMapType === EXPENSES_MAP_TYPES.TRAFFIC && (
-        <Mocked mock={<TrafficExpensesMocked />}>
-          <TrafficExpensesContainer />
-        </Mocked>
-      )}
+      <PageContentWrapper>
+        <TabsWrapper
+          tabsProps={{
+            name: "expensesMapsTab",
+            queryTabName: "type",
+            tabs,
+            defaultTab: EXPENSES_MAP_TYPES.REGION
+          }}
+          headerSx={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: {
+              sm: "row",
+              xs: "column"
+            }
+          }}
+          headerAdornment={
+            <Box display="flex" alignItems="center" sx={{ py: { xs: theme.spacing(SPACING_2), sm: 0 } }}>
+              <RangePickerFormContainer
+                onApply={applyDates}
+                initialStartDateValue={startDateTimestamp}
+                initialEndDateValue={endDateTimestamp}
+                rangeType={DATE_RANGE_TYPE.EXPENSES}
+                definedRanges={getBasicRangesSet()}
+              />
+            </Box>
+          }
+        />
+      </PageContentWrapper>
     </>
   );
 };

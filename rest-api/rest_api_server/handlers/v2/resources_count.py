@@ -213,7 +213,7 @@ class ResourcesCountAsyncHandler(BreakdownExpensesBaseAsyncHandler):
                                             description: >
                                                 total number of resources
                                         average:
-                                            type: float
+                                            type: number
                                             description: >
                                                 average number of resources
                             example: {

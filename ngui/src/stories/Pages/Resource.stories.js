@@ -1,14 +1,16 @@
 import React from "react";
-import { boolean } from "@storybook/addon-knobs";
 import Resource from "components/Resource";
-import { MOCKED_RESOURCE_ID } from "mocks/idsMock";
-import { KINDS } from "stories";
+import { KINDS, MOCKED_RESOURCE_ID } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/Resource`
+  title: `${KINDS.PAGES}/Resource`,
+  argTypes: {
+    isGetResourceLoading: { name: "Get resource loading", control: "boolean", defaultValue: false },
+    isLoadingPatch: { name: "Loading patch", control: "boolean", defaultValue: false }
+  }
 };
 
-export const basic = () => (
+export const basic = (args) => (
   <Resource
     resource={{
       cloud_account_id: "57a11699-fe34-4cdd-8768-98dae4b39809",
@@ -104,13 +106,13 @@ export const basic = () => (
         }
       }
     }}
-    isGetResourceLoading={boolean("isGetResourceLoading", false)}
-    isLoadingPatch={boolean("isLoadingPatch", false)}
+    isGetResourceLoading={args.isGetResourceLoading}
+    isLoadingPatch={args.isLoadingPatch}
     patchResource={() => console.log("patchResource")}
   />
 );
 
-export const cluster = () => (
+export const cluster = (args) => (
   <Resource
     resource={{
       cloud_account_id: null,
@@ -239,13 +241,13 @@ export const cluster = () => (
         }
       ]
     }}
-    isGetResourceLoading={boolean("isGetResourceLoading", false)}
-    isLoadingPatch={boolean("isLoadingPatch", false)}
+    isGetResourceLoading={args.isGetResourceLoading}
+    isLoadingPatch={args.isLoadingPatch}
     patchResource={() => console.log("patchResource")}
   />
 );
 
-export const clusterDependent = () => (
+export const clusterDependent = (args) => (
   <Resource
     resource={{
       cluster_id: "11111111-fe34-4cdd-8768-98dae4b39809",
@@ -342,8 +344,8 @@ export const clusterDependent = () => (
         }
       }
     }}
-    isGetResourceLoading={boolean("isGetResourceLoading", false)}
-    isLoadingPatch={boolean("isLoadingPatch", false)}
+    isGetResourceLoading={args.isGetResourceLoading}
+    isLoadingPatch={args.isLoadingPatch}
     patchResource={() => console.log("patchResource")}
   />
 );

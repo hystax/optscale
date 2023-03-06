@@ -91,14 +91,14 @@ const ChartTooltip = ({ points: allPoints, isOrganizationWeekend, breakdownBy })
   );
 };
 
-const ResourceCountBreakdownLineChart = ({ data, colors, isLoading, style, breakdownBy }) => {
+const ResourceCountBreakdownLineChart = ({ data, colors, isLoading, style, breakdownBy, dataTestId }) => {
   const isOrganizationWeekend = useIsOrganizationWeekend();
 
   const { showWeekends } = useShowWeekends();
 
   return (
     <LineChart
-      dataTestId="resource_count_breakdown_chart"
+      dataTestId={dataTestId}
       data={data}
       stacked
       style={style}
@@ -136,7 +136,8 @@ ResourceCountBreakdownLineChart.propTypes = {
   emptyMessageId: PropTypes.string,
   isLoading: PropTypes.bool,
   colors: PropTypes.object,
-  style: PropTypes.object
+  style: PropTypes.object,
+  dataTestId: PropTypes.string
 };
 
 export default ResourceCountBreakdownLineChart;

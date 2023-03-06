@@ -12,16 +12,16 @@ import { isMedia } from "theme";
 
 const TypographySettingsForm = ({ variant, options, onUpdate }) => {
   const themeSettings = useThemeSettingsOptions();
-  const { handleSubmit, register, reset, getValues } = useForm({
+  const { handleSubmit, register, reset } = useForm({
     defaultValues: options
   });
 
   useEffect(() => {
-    reset({
-      ...getValues(),
+    reset((formValues) => ({
+      ...formValues,
       ...options
-    });
-  }, [getValues, options, reset]);
+    }));
+  }, [options, reset]);
 
   const handleOnSubmit = (formData) => {
     const updatedSettings = {

@@ -13,7 +13,8 @@ const BufferedProgressBar = ({
   valueColor,
   valueBufferColor,
   totalColor,
-  tooltip = {}
+  tooltip = {},
+  dataTestId
 }) => {
   const { classes, cx } = useStyles({ mainColor: valueColor, secondaryColor: valueBufferColor, backgroundColor: totalColor });
 
@@ -29,6 +30,7 @@ const BufferedProgressBar = ({
   const renderProgress = () => (
     <Box className={classes.wrapper} width={width}>
       <LinearProgress
+        data-test-id={dataTestId}
         className={cx(classes.progress)}
         classes={{
           bar1Buffer: classes.bar1Buffer,
@@ -70,7 +72,8 @@ BufferedProgressBar.propTypes = {
   valueColor: PropTypes.string,
   valueBufferColor: PropTypes.string,
   totalColor: PropTypes.string,
-  tooltip: PropTypes.object
+  tooltip: PropTypes.object,
+  dataTestId: PropTypes.string
 };
 
 export default BufferedProgressBar;

@@ -1,12 +1,13 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import ExpensesBreakdownLayoutWrapper from "./ExpensesBreakdownLayoutWrapper";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <ExpensesBreakdownLayoutWrapper
         top={<Box>Child 1</Box>}
@@ -16,8 +17,7 @@ it("renders without crashing", () => {
         }}
         bottom={<Box>Child 4</Box>}
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

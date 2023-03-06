@@ -1,4 +1,4 @@
-import { calculateOverflowSettings } from "utils/charts";
+import { getBarChartBottomTickValues } from "utils/charts";
 
 export const useChartLayoutOptions = ({
   layout,
@@ -9,28 +9,36 @@ export const useChartLayoutOptions = ({
   indexBy,
   padding,
   chartTheme,
-  gridValues
+  gridValues,
+  enableGridY: enableGridYOption,
+  enableGridX: enableGridXOption,
+  axisBottom: axisBottomOption,
+  axisLeft: axisLeftOption
 }) => {
   let axisLeft = {};
   let axisBottom = {};
-  let enableGridX = false;
-  let enableGridY = true;
+  let enableGridX;
+  let enableGridY;
   let gridXValues;
   let gridYValues;
 
   if (layout === "vertical") {
-    axisLeft = {
-      format: formatAxis,
-      tickSize: 0,
-      tickPadding: 5,
-      tickValues
-    };
+    axisLeft =
+      axisLeftOption || axisLeftOption === null
+        ? axisLeftOption
+        : {
+            format: formatAxis,
+            tickSize: 0,
+            tickPadding: 5,
+            tickValues
+          };
+
     const bottomTickSize = 5;
 
     // TODO - without chartWidth > 0 tests fail, investigate
     const bottomTickValues =
       chartWidth > 0 &&
-      calculateOverflowSettings({
+      getBarChartBottomTickValues({
         data,
         indexBy,
         padding,
@@ -38,27 +46,38 @@ export const useChartLayoutOptions = ({
           fontSize: chartTheme.axis.ticks.text.fontSize,
           fontFamily: chartTheme.axis.ticks.text.fontFamily
         },
-        chartWidth
+        innerWidth: chartWidth
       });
 
-    axisBottom = {
-      ...axisBottom,
-      tickSize: bottomTickSize,
-      tickValues: bottomTickValues
-    };
+    axisBottom =
+      axisBottomOption || axisBottomOption === null
+        ? axisBottomOption
+        : {
+            ...axisBottom,
+            tickSize: bottomTickSize,
+            tickValues: bottomTickValues
+          };
+
+    enableGridX = enableGridYOption ?? false;
+    enableGridY = enableGridXOption ?? true;
 
     gridYValues = gridValues;
   }
 
   if (layout === "horizontal") {
-    axisBottom = {
-      format: formatAxis,
-      tickSize: 0,
-      tickPadding: 5,
-      tickValues
-    };
-    enableGridX = true;
-    enableGridY = false;
+    axisBottom =
+      axisBottomOption || axisBottomOption === null
+        ? axisBottomOption
+        : {
+            format: formatAxis,
+            tickSize: 0,
+            tickPadding: 5,
+            tickValues
+          };
+
+    enableGridX = enableGridYOption ?? true;
+    enableGridY = enableGridXOption ?? false;
+
     gridXValues = gridValues;
   }
 

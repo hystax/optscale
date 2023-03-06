@@ -27,7 +27,6 @@ export const getHomeUrl = (organizationId) =>
 export const SHOW_POLICY_QUERY_PARAM = "showPolicy";
 export const HOME_FIRST_TIME = `/?${SHOW_POLICY_QUERY_PARAM}=true`;
 export const LOGIN = "/login";
-export const SIGNOUT = "/signout";
 export const REGISTER = "/register";
 export const INVITED = "/invited";
 export const RESET_PASSWORD = "/reset-password";
@@ -65,8 +64,6 @@ export const EXPENSES_BY_POOL = concatenateUrl([EXPENSES_BASE, `?filterBy=${EXPE
 export const POOL_EXPENSES = concatenateUrl([POOL_EXPENSES_BASE, POOL_IDENTIFIER]);
 
 export const FINOPS_PORTAL = "/finops-portal";
-
-export const BUSINESS_INTELLIGENCE = "/business-intelligence";
 
 // Technical audit
 export const TECHNICAL_AUDIT = "/technical-audit";
@@ -210,10 +207,28 @@ export const getThisMonthResourcesByPoolUrl = (poolId) => {
   return `${thisMonthResourcesUrl}&${POOL_ID_FILTER}=${getPoolIdWithSubPoolsEncoded(poolId)}`;
 };
 
-export const getResourcesExpensesUrl = ({ sStartDate, sEndDate, computedParams, ...restFilters }) => {
+export const RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME = "breakdownBy";
+export const GROUP_TYPE_PARAM_NAME = "groupType";
+export const GROUP_BY_PARAM_NAME = "groupBy";
+export const DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME = "dailyExpensesBreakdownBy";
+export const DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME = "resourceCountBreakdownBy";
+export const SHOW_EXPENSES_DAILY_BREAKDOWN_PARAMETER_NAME = "showExpensesDailyBreakdown";
+export const RESOURCES_PERSPECTIVE_PARAMETER_NAME = "perspective";
+export const RESOURCES_SELECTED_PERSPECTIVE_PARAMETER_NAME = "selectedPerspective";
+
+export const getResourcesExpensesUrl = ({
+  sStartDate,
+  sEndDate,
+  computedParams,
+  perspective,
+  organizationId,
+  ...restFilters
+}) => {
   const query = formQueryString({
     [START_DATE_FILTER]: sStartDate,
     [END_DATE_FILTER]: sEndDate,
+    [RESOURCES_PERSPECTIVE_PARAMETER_NAME]: perspective,
+    organizationId,
     ...restFilters
   });
 
@@ -225,6 +240,9 @@ export const getResourcesExpensesUrl = ({ sStartDate, sEndDate, computedParams, 
     "&"
   )}`;
 };
+
+const PERSPECTIVES = "perspectives";
+export const RESOURCE_PERSPECTIVES = concatenateUrl([RESOURCES_BASE, PERSPECTIVES]);
 
 // Resource assignment rules
 export const RESOURCE_ASSIGNMENT_RULE_CREATE = concatenateUrl([
@@ -271,8 +289,57 @@ export const getRecommendationsUrl = ({ category } = {}) => {
 const ARCHIVED_RECOMMENDATIONS_BASE = "archived-recommendations";
 export const ARCHIVED_RECOMMENDATIONS = concatenateUrl([ARCHIVED_RECOMMENDATIONS_BASE]);
 
-// Cloud health
-export const CLOUD_HEALTH = "/cloud-health";
+// ML profiling
+const ML_MODEL_IDENTIFIER = ":modelId";
+const ML_MODEL_RUN_IDENTIFIER = ":runId";
+const ML_MODELS_PARAMETER_IDENTIFIER = ":parameterId";
+const ML_EXECUTORS_BASE = "executors";
+const ML_APPLICATIONS_BASE = "applications";
+const ML_MODELS_PARAMETERS_BASE = "parameters";
+
+export const ML_APPLICATIONS = concatenateUrl([ML_APPLICATIONS_BASE]);
+export const ML_APPLICATION_CREATE = concatenateUrl([ML_APPLICATIONS_BASE, CREATE]);
+
+export const ML_APPLICATIONS_PARAMETERS = concatenateUrl([ML_APPLICATIONS_BASE, ML_MODELS_PARAMETERS_BASE]);
+export const ML_MODELS_PARAMETER_CREATE = concatenateUrl([ML_APPLICATIONS_BASE, ML_MODELS_PARAMETERS_BASE, CREATE]);
+export const ML_MODELS_PARAMETER_EDIT = concatenateUrl([
+  ML_APPLICATIONS_BASE,
+  ML_MODELS_PARAMETERS_BASE,
+  ML_MODELS_PARAMETER_IDENTIFIER,
+  EDIT
+]);
+export const getEditModelParameterUrl = (parameterId) =>
+  ML_MODELS_PARAMETER_EDIT.replace(ML_MODELS_PARAMETER_IDENTIFIER, parameterId);
+
+export const ML_MODEL_DETAILS = concatenateUrl([ML_APPLICATIONS_BASE, ML_MODEL_IDENTIFIER]);
+export const getMlDetailsUrl = (identificator) => ML_MODEL_DETAILS.replace(ML_MODEL_IDENTIFIER, identificator);
+
+export const ML_APPLICATION_EDIT = concatenateUrl([ML_APPLICATIONS_BASE, ML_MODEL_IDENTIFIER, EDIT]);
+export const getEditMlUrl = (mlId, params) => {
+  const base = ML_APPLICATION_EDIT.replace(ML_MODEL_IDENTIFIER, mlId);
+
+  if (params) {
+    return concatenateUrl(
+      [
+        base,
+        Object.entries(params)
+          .map(([name, value]) => `${name}=${value}`)
+          .join("&")
+      ],
+      "",
+      "?"
+    );
+  }
+
+  return base;
+};
+
+export const ML_EXECUTORS = concatenateUrl([ML_EXECUTORS_BASE]);
+
+// TODO ML: update the route to be /ml-profiling-models/{model_id}/run/{run_id}
+export const ML_MODEL_RUN = concatenateUrl([ML_APPLICATIONS_BASE, ML_MODEL_IDENTIFIER, "run", ML_MODEL_RUN_IDENTIFIER]);
+export const getMlModelRunUrl = (mlModelId, mlRunId) =>
+  ML_MODEL_RUN.replace(ML_MODEL_IDENTIFIER, mlModelId).replace(ML_MODEL_RUN_IDENTIFIER, mlRunId);
 
 // Live demo
 export const LIVE_DEMO = "/live-demo";
@@ -344,11 +411,6 @@ export const FINOPS = "https://finopsinpractice.org/";
 export const FINOPS_FEATURES = "https://finopsinpractice.org/finops-in-practice-features-for-optscale/";
 export const FINOPS_HOWTOS = "https://finopsinpractice.org/blog-posts-list-for-optscale/";
 
-export const AWS_MARKETPLACE = "https://aws.amazon.com/marketplace/pp/prodview-j2knb36hzq74o";
-export const AZURE_MARKETPLACE =
-  "https://azuremarketplace.microsoft.com/en-us/marketplace/apps/hystaxinc.hystax-optscale?tab=Overview";
-export const ALIBABA_MARKETPLACE = "https://marketplace.alibabacloud.com/products/56718005/sgcmjj00025834.html";
-export const DIGITAL_OCEAN_MARKETPLACE = "https://marketplace.digitalocean.com/apps/free-cost-management";
 export const JIRA_MARKETPLACE = "https://marketplace.atlassian.com/apps/1227110/hystax-optscale-for-jira";
 
 export const CODECLIMATE = "https://github.com/codeclimate/codeclimate";
@@ -357,7 +419,6 @@ export const SEMGREP = "https://github.com/returntocorp/semgrep";
 export const SEMGREP_GUIDE = "https://semgrep.dev/docs/getting-started/";
 export const SEMGREP_SETTING = "https://github.com/returntocorp/semgrep/issues/2387#issuecomment-759411656";
 export const CLOC = "https://github.com/AlDanial/cloc";
-export const FINOPS_ASSESSMENT_SURVEY = "https://survey.hystax.com/zs/wuB33j";
 export const TECHNICAL_AUDIT_SURVEY = "https://survey.hystax.com/zs/jED7SK";
 
 // Hystax documentation urls
@@ -365,6 +426,7 @@ export const DOCS_HYSTAX_OPTSCALE = "https://hystax.com/documentation/optscale/"
 export const DOCS_HYSTAX_AUTO_BILLING_AWS = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_root_cur.html#automatic-billing-data-import-in-aws`;
 export const DOCS_HYSTAX_DISCOVER_RESOURCES = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_linked.html#discover-resources`;
 export const DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_alibaba.html`;
+export const DOCS_HYSTAX_CONNECT_GCP_CLOUD = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_gcp.html`;
 export const DOCS_HYSTAX_CONNECT_AZURE_ACCOUNT = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_azure.html`;
 export const DOCS_HYSTAX_RESOURCE_CONSTRAINTS = `${DOCS_HYSTAX_OPTSCALE}resource_constraints.html`;
 export const DOCS_HYSTAX_CLUSTERS = `${DOCS_HYSTAX_OPTSCALE}clusters.html`;
@@ -372,14 +434,15 @@ export const DOCS_HYSTAX_CLEANUP_SCRIPTS = `${DOCS_HYSTAX_OPTSCALE}optscales_rec
 export const DOCS_HYSTAX_SLACK_INTEGRATION = `${DOCS_HYSTAX_OPTSCALE}integrations.html#slack-app`;
 
 // Hystax open source links
-export const GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR = "https://github.com/hystax/optscale-k8s-cost-metrics-collector";
+export const GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR =
+  "https://github.com/hystax/helm-charts/tree/main/charts/kube-cost-metrics-collector";
 export const GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS = "https://github.com/hystax/optscale_tools/tree/main/extract_linked_reports";
+export const GITHUB_HYSTAX_OPTSCALE_REPO = "https://github.com/hystax/optscale";
 
 // Emails
 export const EMAIL_SUPPORT = "support@hystax.com";
 export const EMAIL_INFO = "info@hystax.com";
 
-export const HYSTAX_MARKETPLACES_ANCHOR = "https://hystax.com/optscale/#marketplaces";
 export const HYSTAX_FORRESTER =
   "https://hystax.com/hystax-named-to-forresters-report-of-top-cloud-cost-management-and-optimization-providers/";
 

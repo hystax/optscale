@@ -36,6 +36,14 @@ class Filter {
     return this._getDisplayedValueRenderer(filterItem, getRendererProps?.() ?? {});
   }
 
+  static getDisplayedValueStringRenderer(filterItem, getRendererProps) {
+    if (filterItem === null) {
+      return intl.formatMessage({ id: "notSet" });
+    }
+
+    return this._getDisplayedValueStringRenderer(filterItem, getRendererProps?.() ?? {});
+  }
+
   static getName() {
     return this.filterName;
   }
@@ -69,15 +77,25 @@ class Filter {
 
   getAppliedFilterItem(appliedFilter) {
     const filterItem = this.findFilterValue(appliedFilter);
+    const commonData = {
+      name: this.constructor.filterName,
+      displayedName: this.constructor.displayedName,
+      displayedNameString: this.constructor.displayedNameString
+    };
 
     if (filterItem === undefined) {
       return {
+        ...commonData,
         value: appliedFilter,
-        displayedValue: intl.formatMessage({ id: "notFound" })
+        displayedValue: intl.formatMessage({ id: "notFound" }),
+        displayedValueString: intl.formatMessage({ id: "notFound" })
       };
     }
 
-    return this._getAppliedFilterItem(appliedFilter, filterItem);
+    return {
+      ...commonData,
+      ...this._getAppliedFilterItem(appliedFilter, filterItem)
+    };
   }
 
   getSuggestionValues() {

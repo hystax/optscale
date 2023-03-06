@@ -1,43 +1,33 @@
 import React, { useState } from "react";
-import { Grid } from "@mui/material";
 import PropTypes from "prop-types";
-import { isEmpty } from "utils/arrays";
-import { datetimeToUnix, millisecondsToSeconds } from "utils/datetime";
-import ButtonGroup from "../ButtonGroup";
+import { useIntl } from "react-intl";
+import LinearSelector from "components/LinearSelector";
+import { LINEAR_SELECTOR_ITEMS_TYPES } from "utils/constants";
 
-const RelativeDateTimePicker = ({ definedRanges, onChange }) => {
-  const [activeButtonId, setActiveButtonId] = useState();
+const RelativeDateTimePicker = ({ definedRanges, defaultActiveRange, onChange }) => {
+  const intl = useIntl();
 
-  if (!isEmpty(definedRanges) && !activeButtonId) {
-    setActiveButtonId(definedRanges[0].key);
-  }
+  const [selectedRange, setSelectedRange] = useState(
+    () => definedRanges.find((range) => range.id === defaultActiveRange)?.id ?? definedRanges[0].id
+  );
 
-  const setActive = (id) => {
-    setActiveButtonId(id);
-    const endDate = new Date();
-    const currentRange = definedRanges.find((range) => range.key === id);
-    const { startDateFn } = currentRange;
-    const startDate = startDateFn(endDate);
-    onChange({ startDate: millisecondsToSeconds(startDate), endDate: datetimeToUnix(endDate) });
-  };
-  const buttons = definedRanges.map((range) => ({
-    id: range.key,
-    messageId: range.messageId,
-    messageValues: range.messageValues,
-    action: () => setActive(range.key),
-    dataTestId: `tab_${range.key}`
+  const timeItems = definedRanges.map(({ id, messageId, messageValues, dataTestId }) => ({
+    displayedName: intl.formatMessage({ id: messageId }, messageValues),
+    name: id,
+    value: id,
+    dataTestId,
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT
   }));
 
-  return (
-    <Grid container direction="row">
-      <Grid item>
-        <ButtonGroup
-          buttons={buttons}
-          activeButtonIndex={buttons.indexOf(buttons.find((button) => button.id === activeButtonId))}
-        />
-      </Grid>
-    </Grid>
-  );
+  const selectedTimeItem = timeItems.find(({ value }) => value === selectedRange);
+
+  const handleChange = ({ value }) => {
+    const selectedRangeDefinition = definedRanges.find(({ id }) => id === value);
+    setSelectedRange(value);
+    onChange(selectedRangeDefinition);
+  };
+
+  return <LinearSelector value={selectedTimeItem} onChange={handleChange} items={timeItems} />;
 };
 
 const DateType = PropTypes.oneOfType([PropTypes.object, PropTypes.number]);
@@ -45,7 +35,7 @@ const DateType = PropTypes.oneOfType([PropTypes.object, PropTypes.number]);
 const DefinedRangesType = PropTypes.arrayOf(
   PropTypes.shape({
     messageId: PropTypes.string,
-    key: PropTypes.string,
+    id: PropTypes.string,
     startDate: DateType,
     endDate: DateType,
     dataTestId: PropTypes.string
@@ -54,6 +44,7 @@ const DefinedRangesType = PropTypes.arrayOf(
 
 RelativeDateTimePicker.propTypes = {
   definedRanges: DefinedRangesType,
+  defaultActiveRange: PropTypes.string,
   onChange: PropTypes.func.isRequired
 };
 

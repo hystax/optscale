@@ -1,16 +1,14 @@
 import React from "react";
+import { Box } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import ActionBar from "components/ActionBar";
 import InviteEmployeesForm from "components/InviteEmployeesForm";
 import PageContentWrapper from "components/PageContentWrapper";
-import WrapperCard from "components/WrapperCard";
-import { useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { USER_MANAGEMENT } from "urls";
 
 const actionBarDefinition = {
-  goBack: true,
   title: {
     text: <FormattedMessage id="inviteUsersTitle" />,
     dataTestId: "lbl_users_invitation"
@@ -18,22 +16,20 @@ const actionBarDefinition = {
 };
 
 const InviteEmployees = ({ onSubmit, availablePools, isLoadingProps = {} }) => {
-  const isUpXl = useIsUpMediaQuery("xl");
-
   const navigate = useNavigate();
 
   return (
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <WrapperCard className={isUpXl ? "halfWidth" : ""}>
+        <Box sx={{ width: { xl: "50%" } }}>
           <InviteEmployeesForm
             availablePools={availablePools}
             onSubmit={onSubmit}
             onCancel={() => navigate(USER_MANAGEMENT)}
             isLoadingProps={isLoadingProps}
           />
-        </WrapperCard>
+        </Box>
       </PageContentWrapper>
     </>
   );

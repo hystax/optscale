@@ -1,14 +1,12 @@
-const ZIP = "zip";
-const GZIP = "gz";
-const CSV = "csv";
+export const readFileAsText = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-const cloudReportExtensions = Object.freeze([GZIP, ZIP, CSV]);
-const codeReportExtensions = Object.freeze([ZIP]);
+    reader.onload = () => {
+      resolve(reader.result);
+    };
 
-const getFileExtension = (fileName) => fileName.split(".").pop();
+    reader.onerror = reject;
 
-const isExtensionSupported = (fileName, supportedExtensions) => supportedExtensions.includes(getFileExtension(fileName));
-
-export const isCloudReportExtensionSupported = (moduleName) => isExtensionSupported(moduleName, cloudReportExtensions);
-
-export const isCodeReportExtensionSupported = (moduleName) => isExtensionSupported(moduleName, codeReportExtensions);
+    reader.readAsText(file);
+  });

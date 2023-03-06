@@ -29,7 +29,8 @@ const applyPaletteSettings = (settings) => {
 
   const info = mergeIfSettingIsNotEmpty(
     {
-      main: "#5E6A7F"
+      main: "#5E6A7F",
+      header: getLighten("#5E6A7F", 0.93)
     },
     "info"
   );
@@ -220,6 +221,16 @@ const applyGoogleMapPaletteSettings = (basicColorsPalette) => [
   }
 ];
 
+export const getThemeSpacingCoefficient = (theme) => {
+  const coefficient = theme.spacing(1).match(/[-]?[0-9]+\.?[0-9]*/g);
+
+  if (coefficient !== null) {
+    return Number(coefficient[0]);
+  }
+
+  return 0;
+};
+
 // Main theme config
 const getThemeConfig = (settings = {}) => {
   const baseColorsPalette = applyPaletteSettings(settings);
@@ -240,7 +251,10 @@ const getThemeConfig = (settings = {}) => {
 
   return Object.freeze({
     typography: {
-      fontFamily: "Montserrat,Roboto,sans-serif"
+      fontFamily: "'Ubuntu', sans-serif",
+      mono: {
+        fontFamily: "'Ubuntu Mono', monospace"
+      }
     },
     components: {
       MuiAccordion: {

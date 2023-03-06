@@ -7,6 +7,7 @@ from retrying import retry
 
 LOG = logging.getLogger(__name__)
 ETCD_CODE_INTERNAL_ERROR = 300
+CERTIFICATE_FOLDER = '/usr/local/share/ca-certificates/'
 DEFAULT_RETRY_ARGS = dict(stop_max_attempt_number=300, wait_fixed=1000)
 OBSERVE_TIMEOUT = 2 * 60 * 60
 
@@ -241,6 +242,13 @@ class Client(etcd.Client):
         """
         return self._get_url_from_branch('/keeper')
 
+    def arcee_url(self):
+        """
+        Url for arcee client
+        :return: 'http://<cluster_ip>:80'
+        """
+        return self._get_url_from_branch('/arcee')
+
     def katara_url(self):
         """
         Url for katara client
@@ -269,6 +277,13 @@ class Client(etcd.Client):
         """
         return self._get_url_from_branch('/jira_bus')
 
+    def storages(self):
+        """
+        Get list of mountpoint templates
+        :return:
+        """
+        return self.read_list('/storages')
+
     @retry(**DEFAULT_RETRY_ARGS, retry_on_exception=_retry_not_exist)
     def wait_until_exist(self, key):
         """
@@ -284,8 +299,27 @@ class Client(etcd.Client):
         LOG.info('Waiting until cluster initialization completed')
         self.wait_until_exist('/configured')
 
+    def install_certificates(self):
+        """
+        takes all certificates from /certificates branch
+        adds them to /usr/local/share/ca-certificates/ folder
+        runs update-ca-certificates
+        """
+        try:
+            certificates = self.read_branch('/certificates')
+        except KeyError:
+            return
+        for cert_name, cert in certificates.items():
+            with open(os.path.join(CERTIFICATE_FOLDER,
+                                   '{0}.crt'.format(cert_name)), 'w') as f_cert:
+                f_cert.write(cert)
+        subprocess.run(['update-ca-certificates'], check=True)
+
     def cluster_secret(self):
         return self.get("/secret/cluster").value
+
+    def agent_secret(self):
+        return self.get("/secret/agent").value
 
     @retry(**DEFAULT_RETRY_ARGS, retry_on_exception=_should_retry)
     def increase_and_return(self, key, max_value=50000):
@@ -307,6 +341,26 @@ class Client(etcd.Client):
         except ValueError:
             LOG.warning("Detected external change of %s key, retrying", key)
             raise ConcurrencyException(key)
+
+    def get_new_cow_port(self):
+        """
+        Locks etcd, finds first port not in use, acquires it
+        port key has 10s ttl for fatcow to start refreshing it
+        :return: key name for acquired port, port value
+        """
+        port_branch = '/fatcow_ports'
+        with etcd.Lock(self, 'fatcow_ports'):
+            ports = sorted([int(x) for x in self.read_list(port_branch)])
+            port_value = ports[-1] + 1
+            for i, port in enumerate(ports):
+                try:
+                    if ports[i + 1] - ports[i] > 1:
+                        port_value = ports[i] + 1
+                        break
+                except IndexError:
+                    break
+            return self.write(
+                key=port_branch, value=port_value, append=True, ttl=180)
 
     def mongo_params(self):
         """
@@ -455,8 +509,17 @@ class Client(etcd.Client):
         return self.read_list("/{0}/{1}".format(blacklist_branch,
                                                 blacklist_key))
 
-    def encryption_salt(self):
+    def thanos_remote_write_url(self):
         """
-        Salt for encode user information
+        Url to send prometheus metrics
+        :return: 'http://<cluster_ip>:<port>/<path>'
         """
-        return self.get("/encryption_salt").value
+        return "http://{host}:{port}/{path}".format(
+            **self.read_branch('/thanos_receive'))
+
+    def thanos_query_url(self):
+        """
+        Url to get prometheus metrics
+        :return: 'http://<cluster_ip>:<port>'
+        """
+        return self._get_url_from_branch('/thanos_query')

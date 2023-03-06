@@ -3,11 +3,9 @@ import { PDF_THEME } from "theme";
 import { intl } from "translations/react-intl-config";
 import { PRODUCTION as URL_PRODUCTION } from "urls";
 import { PDF_ELEMENTS } from "utils/constants";
-import { remToPx } from "utils/fonts";
-import MontserratFilePath from "../assets/fonts/Montserrat-Regular.ttf";
-import logoSvg from "../assets/logo/logo.svg";
+import UbuntuFilePath from "../assets/fonts/Ubuntu-Regular.ttf";
 import "jspdf-autotable";
-import "svg2pdf.js";
+import logo from "../assets/logo/logo_pdf.png";
 
 const defaultFileName = "optscale-report-%___time___%";
 let fileName = "";
@@ -17,7 +15,6 @@ let alsoRenderIntoFileName = {}; // pairs of (pdfId, "%patternName%"")
 const TYPES = {
   text: "text",
   simpleSummaryCard: "simple summary card",
-  svg: "svg",
   image: "image"
 };
 
@@ -111,32 +108,18 @@ const createFooter = (doc) => {
 };
 
 // todo: I bet it wont work right after more pages added (image will appear on the last page)
-const createLogo = (doc) =>
-  new Promise((accept, reject) => {
-    fetch(logoSvg)
-      .then((svg) => svg.text())
-      .then((text) => {
-        const div = document.createElement("div");
-        div.innerHTML = text.trim();
-        const svgElement = div.firstChild;
-        const { width, height } = svgElement.viewBox.baseVal;
-        return doc.svg(svgElement, {
-          width: PDF_THEME.logoWidth,
-          height: height * (PDF_THEME.logoWidth / width),
-          x: doc.internal.pageSize.width - currentSettings.pageMarginLR - PDF_THEME.logoWidth,
-          y: currentSettings.pageMarginLR
-        });
-      })
-      .catch(reject)
-      .finally(accept);
-  });
+const createLogo = (doc) => {
+  const imageWidth = 100;
+  const imageX = doc.internal.pageSize.width - currentSettings.pageMarginLR - imageWidth;
+  doc.addImage(logo, "PNG", imageX, 20, imageWidth, 30);
+};
 
 const createH1 = (doc, value, parameters) => {
   addWrappedText(doc, intl.formatMessage({ id: value }, parameters.data), PDF_THEME.fontSizes.h1);
 };
 
 const createH2 = (doc, value, parameters) => {
-  addWrappedText(doc, intl.formatMessage({ id: value }, parameters.data), PDF_THEME.fontSizes.h1);
+  addWrappedText(doc, intl.formatMessage({ id: value }, parameters.data), PDF_THEME.fontSizes.h2);
 };
 
 const createText = (doc, value, parameters) => {
@@ -204,7 +187,7 @@ const createSummaryCard = (doc, value, parameters) => {
     styles: {
       lineWidth: 0,
       overflow: "linebreak",
-      font: "Montserrat"
+      font: "Ubuntu"
     },
 
     columnStyles: {
@@ -225,34 +208,6 @@ const createSummaryCard = (doc, value, parameters) => {
     cursorY = doc.lastAutoTable.finalY + currentSettings.spacingV; // todo: won't work for cards with different heights (big first)
     currentColumn = 0;
   }
-};
-
-const createSvg = async (doc, value) => {
-  // https://github.com/yWorks/svg2pdf.js/issues/82
-  const svgElementReal = document.querySelector(`[data-pdf-id="${value}"] svg`);
-  const div = document.createElement("div");
-  div.innerHTML = svgElementReal.outerHTML
-    .replace(/font-size:\s(.*?)rem;/g, (str, fontSize) => `font-size: ${remToPx(fontSize)}px;`)
-    .replace(/<text\s/g, '<text y="4" ')
-    .trim();
-
-  const svgElement = div.firstChild;
-
-  // https://css-tricks.com/scale-svg/
-  // svgElement.setAttribute( "viewBox", "0 0 2200 615" ); // 1144/ (595/1144) ||| 320 / (595/1144)
-  svgElement.getBoundingClientRect(); // force layout calculation
-  const width = svgElement.width.baseVal.value;
-  const height = svgElement.height.baseVal.value;
-  const scaleCoeff = Math.min(doc.internal.pageSize.width / width, 1); // scale to: a4 width, or no scale if width is smaller than a4 width
-  svgElement.setAttribute("viewBox", `0 0 ${Math.ceil(width / scaleCoeff)} ${height / scaleCoeff}`);
-
-  const finalHeight = height * scaleCoeff;
-  checkAvailablePageSpace({ doc, dy: finalHeight, addPage: true, moveCursor: false });
-
-  const resAwait = doc.svg(svgElement, { width, height, y: cursorY });
-
-  cursorY += finalHeight; // 320*(595/1144);
-  return resAwait;
 };
 
 // "rendering" static filename fields
@@ -307,7 +262,6 @@ const updateFileName = (fileNameData) => {
 const TYPES_RENDERS = {
   [TYPES.text]: createText,
   [TYPES.simpleSummaryCard]: createSummaryCard,
-  [TYPES.svg]: createSvg,
   [TYPES.image]: createImage,
   [PDF_ELEMENTS.markup.newPortraitPage]: createNewPortraitPage,
   [PDF_ELEMENTS.markup.newLandscapePage]: createNewLandscapePage,
@@ -316,8 +270,8 @@ const TYPES_RENDERS = {
   [PDF_ELEMENTS.markup.initPortrait]: createNothing,
   [PDF_ELEMENTS.markup.spacer]: addSpacing,
   [PDF_ELEMENTS.markup.footer]: createFooter,
-  [PDF_ELEMENTS.basics.h1]: createH1,
-  [PDF_ELEMENTS.basics.h2]: createH2,
+  [PDF_ELEMENTS.basics.H1]: createH1,
+  [PDF_ELEMENTS.basics.H2]: createH2,
   [PDF_ELEMENTS.basics.fileName]: createFileName
 };
 
@@ -371,9 +325,9 @@ const createPdf = async (elements) => {
 
   const doc = new JSPDF(initialSettings.orientation, initialSettings.units, initialSettings.size);
   await loadFont(doc, {
-    font: MontserratFilePath,
-    vfsName: "Montserrat-Regular.ttf",
-    name: "Montserrat",
+    font: UbuntuFilePath,
+    vfsName: "Ubuntu-Regular.ttf",
+    name: "Ubuntu",
     style: "normal"
   });
 

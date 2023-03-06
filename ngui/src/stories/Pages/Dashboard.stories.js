@@ -1,12 +1,14 @@
 import React, { useContext } from "react";
-import { boolean } from "@storybook/addon-knobs";
 import { Provider } from "react-redux";
 import { GET_CLOUD_ACCOUNTS, GET_ENVIRONMENTS } from "api/restapi/actionTypes";
 import Dashboard from "components/Dashboard";
 import { KINDS, MockPermissionsStateContext } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/Dashboard`
+  title: `${KINDS.PAGES}/Dashboard`,
+  argTypes: {
+    withEnvironments: { name: "With environments", control: "boolean", defaultValue: false }
+  }
 };
 
 const environments = [
@@ -398,14 +400,14 @@ export const NoDataSources = () => (
   </MockPermissionsContextWrapper>
 );
 
-export const OnlyEnvironmentDataSources = () => (
+export const OnlyEnvironmentDataSources = (args) => (
   <MockPermissionsContextWrapper>
     {({ mockStore, mockState }) => {
       mockState.mockRestapi({
         [GET_CLOUD_ACCOUNTS]: {
           cloudAccounts: onlyEnvironmentDataSources
         },
-        [GET_ENVIRONMENTS]: boolean("No environments", false) ? [] : environments
+        [GET_ENVIRONMENTS]: args.withEnvironments ? [] : environments
       });
 
       const store = mockStore(mockState);
@@ -419,14 +421,14 @@ export const OnlyEnvironmentDataSources = () => (
   </MockPermissionsContextWrapper>
 );
 
-export const AllDataSources = () => (
+export const AllDataSources = (args) => (
   <MockPermissionsContextWrapper>
     {({ mockStore, mockState }) => {
       mockState.mockRestapi({
         [GET_CLOUD_ACCOUNTS]: {
           cloudAccounts: allDataSources
         },
-        [GET_ENVIRONMENTS]: boolean("No environments", false) ? [] : environments
+        [GET_ENVIRONMENTS]: args.withEnvironments ? [] : environments
       });
 
       const store = mockStore(mockState);

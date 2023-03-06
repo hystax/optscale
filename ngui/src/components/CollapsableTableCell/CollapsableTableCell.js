@@ -1,11 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
 import CopyText from "components/CopyText";
-import DashedTypography from "components/DashedTypography";
+import ExpandableList from "components/ExpandableList";
 import KeyValueLabel from "components/KeyValueLabel";
 import Tooltip from "components/Tooltip";
-import { useToggle } from "hooks/useToggle";
 import { sliceByLimitWithEllipsis } from "utils/strings";
 
 // TODO - copy icon appears only on value hover, but key + value is copied, enable the icon appear on a "key: value" string hover
@@ -15,13 +13,14 @@ const copyTextWrapper = (copyValue, text, dataTestId) => (
   </CopyText>
 );
 
-const renderItems = (tags, limit, startWithIndex = 0) =>
-  tags.map(([key, value], index) => {
+const renderItems =
+  (limit) =>
+  ([key, value], index) => {
     let tag;
     const keyLength = key.length;
     const valueLength = value.length;
     const text = `${key}: ${value}`;
-    const dataTestIdIndex = index + startWithIndex;
+    const dataTestIdIndex = index;
     if (keyLength + valueLength < limit) {
       tag = (
         <KeyValueLabel
@@ -38,7 +37,13 @@ const renderItems = (tags, limit, startWithIndex = 0) =>
       tag = (
         <Tooltip
           key={key}
-          title={<KeyValueLabel text={key} value={value} style={{ flexWrap: "wrap", wordBreak: "break-all" }} />}
+          title={
+            <KeyValueLabel
+              text={key}
+              value={value}
+              style={{ flexWrap: "wrap", wordBreak: "break-all", whiteSpace: "break-spaces" }}
+            />
+          }
           placement="top"
         >
           {keyLength < limit ? (
@@ -54,36 +59,16 @@ const renderItems = (tags, limit, startWithIndex = 0) =>
       );
     }
     return tag;
-  });
+  };
 
 const CollapsableTableCell = ({ tags, limit = 64, sorted = true, maxRows = undefined }) => {
-  const [isExpanded, setIsExpanded] = useToggle(false);
   const tagsArray = sorted ? Object.entries(tags).sort() : Object.entries(tags);
 
-  const expander = () =>
-    isExpanded ? (
-      <>
-        {renderItems(tagsArray.slice(maxRows), limit, maxRows)}
-        <DashedTypography onClick={() => setIsExpanded()}>
-          <FormattedMessage id="showLess" />
-        </DashedTypography>
-      </>
-    ) : (
-      <DashedTypography onClick={() => setIsExpanded()}>
-        <FormattedMessage id="showMore" />
-      </DashedTypography>
-    );
-
-  return (
-    <>
-      {renderItems(tagsArray.slice(0, maxRows), limit)}
-      {!!maxRows && maxRows < tagsArray.length && expander()}
-    </>
-  );
+  return <ExpandableList items={tagsArray} render={renderItems(limit)} maxRows={maxRows} />;
 };
 
 CollapsableTableCell.propTypes = {
-  tags: PropTypes.object,
+  tags: PropTypes.object.isRequired,
   maxRows: PropTypes.number,
   limit: PropTypes.number,
   sorted: PropTypes.bool

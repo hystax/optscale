@@ -1,34 +1,39 @@
 import React from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { boolean } from "@storybook/addon-knobs";
-import { FORMATTED_MONEY_TYPES } from "utils/constants";
 import PropTypes from "prop-types";
-import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
-import FormattedMoney from "components/FormattedMoney";
 import { v4 as uuidv4 } from "uuid";
+import FormattedMoney from "components/FormattedMoney";
 import { KINDS } from "stories";
+import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
+import { FORMATTED_MONEY_TYPES } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Table`
+  title: `${KINDS.COMPONENTS}/Table`,
+  argTypes: {
+    showSearch: { name: "Show search", control: "boolean", defaultValue: true },
+    showSelection: { name: "Show selection", control: "boolean", defaultValue: true },
+    showCounters: { name: "Show counters", control: "boolean", defaultValue: true },
+    showActionBar: { name: "Show action bar", control: "boolean", defaultValue: true }
+  }
 };
 
 const defaultColumns = [
   {
-    Header: "String",
-    accessor: "string"
+    header: "String",
+    accessorKey: "string"
   },
   {
-    Header: "Type",
-    accessor: "type"
+    header: "Type",
+    accessorKey: "type"
   },
   {
-    Header: "Number",
-    accessor: "number"
+    header: "Number",
+    accessorKey: "number"
   },
   {
-    Header: "Formatted Number",
+    header: "Formatted Number",
     id: "formattedNumber",
-    Cell: ({ row: { original } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={original.number} />
+    cell: ({ row: { original } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={original.number} />
   }
 ];
 
@@ -111,7 +116,7 @@ export const withSelection = () => (
     }}
     data={data}
     columns={defaultColumns}
-    addSelectionColumn
+    withSelection
   />
 );
 
@@ -122,42 +127,38 @@ export const withCounters = () => (
     }}
     data={data}
     columns={defaultColumns}
-    addSelectionColumn
+    withSelection
     counters={{ showCounters: true, hideTotal: false }}
   />
 );
 
-const TableWithKnobs = ({ showSearch, showSelection, showCounters, showActionBar, ...rest }) => {
-  return (
-    <TableUseMemoWrapper
-      {...rest}
-      withSearch={showSearch}
-      addSelectionColumn={showSelection}
-      counters={{ showCounters: showCounters, hideTotal: false }}
-      actionBar={{
-        show: showActionBar,
-        definition: actionBarDefinition //  todo: action bar does not working
-      }}
-      key={uuidv4()} // each time updating key to completely remount table (to avoid hooks length difference error)
-    />
-  );
-};
+const TableWithKnobs = ({ showSearch, showSelection, showCounters, showActionBar, ...rest }) => (
+  <TableUseMemoWrapper
+    {...rest}
+    withSearch={showSearch}
+    withSelection={showSelection}
+    counters={{ showCounters, hideTotal: false }}
+    actionBar={{
+      show: showActionBar,
+      definition: actionBarDefinition //  todo: action bar does not working
+    }}
+    key={uuidv4()} // each time updating key to completely remount table (to avoid hooks length difference error)
+  />
+);
 
-export const WithKnobs = () => {
-  return (
-    <TableWithKnobs
-      showSearch={boolean("show search:", true)}
-      showSelection={boolean("selection:", true)}
-      showCounters={boolean("show counters:", true)}
-      showActionBar={boolean("show action bar:", true)}
-      localization={{
-        emptyMessageId: "notFound"
-      }}
-      data={data}
-      columns={defaultColumns}
-    />
-  );
-};
+export const WithKnobs = (args) => (
+  <TableWithKnobs
+    showSearch={args.showSearch}
+    showSelection={args.showSelection}
+    showCounters={args.showCounters}
+    showActionBar={args.showActionBar}
+    localization={{
+      emptyMessageId: "notFound"
+    }}
+    data={data}
+    columns={defaultColumns}
+  />
+);
 
 export const empty = () => (
   <TableUseMemoWrapper

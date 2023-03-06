@@ -33,12 +33,16 @@ class MetroculusWorker(ConsumerMixin):
         start_process_time = datetime.utcnow()
         cloud_account_id = task.get('cloud_account_id')
         processor = MetricsProcessor(self.config_cl, cloud_account_id)
-        result = processor.start()
-        LOG.info(
-            'Metrics received for cloud_account %s (%s resources). '
-            'The processing took %s seconds' % (
-                cloud_account_id, len(result),
-                (datetime.utcnow() - start_process_time).total_seconds()))
+        try:
+            result = processor.start()
+            LOG.info(
+                'Metrics received for cloud_account %s (%s resources). '
+                'The processing took %s seconds' % (
+                    cloud_account_id, len(result),
+                    (datetime.utcnow() - start_process_time).total_seconds()))
+        except Exception as exc:
+            processor.update_getting_metrics_attempt(error=str(exc))
+            raise
 
     def process_task(self, body, message):
         try:

@@ -11,6 +11,18 @@ class WithViolatedConstraintsFilter extends Filter {
 
   static displayedName = (<FormattedMessage id="withViolatedConstraints" />);
 
+  static displayedNameString = intl.formatMessage({ id: "withViolatedConstraints" });
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static filterItemSchema = {
+    type: "boolean"
+  };
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static appliedFilterSchema = {
+    type: "boolean"
+  };
+
   suggestions = [
     {
       name: this.constructor.filterName,
@@ -27,10 +39,15 @@ class WithViolatedConstraintsFilter extends Filter {
     return intl.formatMessage({ id: filterItem ? "yes" : "no" });
   }
 
+  static _getDisplayedValueStringRenderer(filterItem) {
+    return intl.formatMessage({ id: filterItem ? "yes" : "no" });
+  }
+
   _getAppliedFilterItem(appliedFilter, filterItem) {
     return {
       value: appliedFilter,
-      displayedValue: this.constructor.getDisplayedValueRenderer(filterItem)
+      displayedValue: this.constructor.getDisplayedValueRenderer(filterItem),
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
     };
   }
 }

@@ -877,6 +877,16 @@ class Aws(CloudBase):
             'Unable to read report data. Checked reports: {}'.format(
                 ', '.join(reports.keys())))
 
+    def _check_report_download(self, bucket_name, prefix):
+        reports = self._wrap(
+            'check {}/{} access'.format(bucket_name, prefix),
+            self.get_report_files)
+        if reports:
+            report = reports.popitem()[1][0]
+            with open(os.devnull, 'wb') as f:
+                self._wrap('perform test {} download'.format(report),
+                           self.download_report_file, report['Key'], f)
+
     def _configure_bucket_only(self):
         for param in ['bucket_name', 'report_name', 'bucket_prefix']:
             if self.config.get(param) is None:
@@ -897,17 +907,22 @@ class Aws(CloudBase):
 
         self.check_prefix_report_name(prefix, report_name)
         try:
-            reports = self._wrap(
-                'check {}/{} access'.format(bucket_name, prefix),
-                self.get_report_files)
-            if reports:
-                report = reports.popitem()[1][0]
-                with open(os.devnull, 'wb') as f:
-                    self._wrap('perform test {} download'.format(report),
-                               self.download_report_file, report['Key'], f)
+            self._check_report_download(bucket_name, prefix)
         except ReportFilesNotFoundException:
-            raise ReportConfigurationException(
-                'Unable to find report {} files'.format(report_name))
+            try:
+                # AWS shows prefix in console as '<prefix>/<report_name>', let's
+                # try to connect cloud removing report_name from prefix
+                pattern = '^(.*)(\/.*)$'
+                match = re.match(pattern, prefix)
+                if match:
+                    prefix = match.group(1)
+                    LOG.warning('Changing bucket prefix from {0} to {1}'.format(
+                        self.config['bucket_prefix'], prefix))
+                    self.config['bucket_prefix'] = prefix
+                    self._check_report_download(bucket_name, prefix)
+            except ReportFilesNotFoundException:
+                raise ReportConfigurationException(
+                    'Unable to find report {} files'.format(report_name))
 
     def configure_report(self):
         if self.config.get('linked'):

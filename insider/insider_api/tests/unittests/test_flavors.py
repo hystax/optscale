@@ -25,7 +25,8 @@ class TestFlavorsApi(TestBase):
             'insider_api.controllers.flavor.'
             'FlavorController.find_azure_flavor',
             return_value=('eu-central-1', 't2.small', 'eu-central-1a', [])
-        ).start()
+        )
+        self.find_azure_flavor.start()
         self.alibaba_rds_params = {
               "cloud_type": "alibaba_cnr",
               "cpu": 1,
@@ -139,4 +140,70 @@ class TestFlavorsApi(TestBase):
             'source_flavor_id': 'ecs.t5-c1m1.xlarge'}
         self.alibaba_rds_params['resource_type'] = 'instance'
         code, _ = self.client.find_flavor(**self.alibaba_rds_params)
+        self.assertEqual(code, 200)
+
+    def test_gcp(self):
+        gcp = patch("insider_api.controllers.flavor." "FlavorController.gcp").start()
+        gcp.get_instance_types_priced.return_value = {
+            "e2-micro": {
+                "cpu_cores": 2,
+                "family": "e2",
+                "price": 0.052426890000000004,
+                "ram_gb": 1.0,
+            },
+            "e2-small": {
+                "cpu_cores": 2,
+                "family": "e2",
+                "price": 0.05571888,
+                "ram_gb": 2.0,
+            },
+            "e2-standard-16": {
+                "cpu_cores": 16,
+                "family": "e2",
+                "price": 0.60376656,
+                "ram_gb": 64.0,
+            },
+        }
+        gcp.get_instance_types_priced.__name__ = "get_instance_types_priced"
+        gcp_params = {
+            "cloud_type": "gcp_cnr",
+            "resource_type": "instance",
+            "cpu": 2,
+            "region": "test",
+            "mode": "current",
+            "family_specs": {"source_flavor_id": "e2-small"},
+        }
+        code, resp = self.client.find_flavor(**gcp_params)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp, {
+                "cpu": 2,
+                "flavor": "e2-small",
+                "price": 0.05571888,
+                "ram": 2.0,
+            })
+
+        gcp_params = {
+            "cloud_type": "gcp_cnr",
+            "resource_type": "instance",
+            "cpu": 16,
+            "region": "test",
+            "mode": "search_relevant",
+            "family_specs": {"source_flavor_id": "e2-small"},
+        }
+        code, resp = self.client.find_flavor(**gcp_params)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp, {
+                "cpu": 16,
+                "flavor": "e2-standard-16",
+                "price": 0.60376656,
+                "ram": 64.0,
+            })
+
+    def test_find_azure_flavor_currency(self):
+        code, resp = self.client.find_flavor(
+            currency=0, **self.valid_params)
+        self.assertEqual(code, 400)
+
+        code, resp = self.client.find_flavor(
+            currency='BRL', **self.valid_params)
         self.assertEqual(code, 200)

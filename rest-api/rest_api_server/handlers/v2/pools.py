@@ -83,8 +83,8 @@ class PoolAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                   default_owner_name: name
                                 - organization_id: 75d0c441-2a3e-47f4-a651-493325a87ae8
                                   id: 7cf3f859-7282-467a-bcd8-c7c2f766f7ba
-                                  name: SberCloud
-                                  full_name: Development->Acura->Sber->SberCloud
+                                  name: AnyCloud
+                                  full_name: Development->OptScale->AnyCloud
                                   pool_purpose: pool
                                   limit: 0
                                   parent_id: d6f8fd73-a8f3-402a-9c37-b9cf65c6e94f

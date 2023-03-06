@@ -27,7 +27,14 @@ ALERT_THRESHOLD = 60 * 60 * 24
 EXCHANGE_NAME = 'billing-reports'
 QUEUE_NAME = 'report-imports'
 task_exchange = Exchange(EXCHANGE_NAME, type='direct')
-task_queue = Queue(QUEUE_NAME, task_exchange, routing_key=QUEUE_NAME)
+
+ARGUMENTS = {'x-max-priority': 10}
+task_queue = Queue(
+    QUEUE_NAME, task_exchange,
+    routing_key=QUEUE_NAME,
+    queue_arguments=ARGUMENTS
+)
+
 LOG = get_logger(__name__)
 ENVIRONMENT_CLOUD_TYPE = 'environment'
 
@@ -86,8 +93,12 @@ class DIWorker(ConsumerMixin):
             )
 
     def get_consumers(self, Consumer, channel):
-        return [Consumer(queues=[task_queue], accept=['json'],
-                         callbacks=[self.process_task])]
+        return [Consumer(
+            queues=[task_queue],
+            accept=['json'],
+            callbacks=[self.process_task],
+            prefetch_count=1,
+        )]
 
     def report_import(self, task):
         report_import_id = task.get('report_import_id')
@@ -123,7 +134,6 @@ class DIWorker(ConsumerMixin):
             importer.import_report()
             self.rest_cl.report_import_update(
                 report_import_id, {'state': 'completed'})
-            importer.update_cloud_import_attempt(int(time.time()))
             if start_last_import_ts == 0 and cc_type != ENVIRONMENT_CLOUD_TYPE:
                 all_reports_finished = True
                 _, resp = self.rest_cl.cloud_account_list(organization_id)
@@ -204,15 +214,16 @@ if __name__ == '__main__':
         port=int(os.environ.get('HX_ETCD_PORT')),
     )
     config_cl.wait_configured()
+    migrator = Migrator(config_cl, 'restapi', 'diworker/migrations')
+    # Use lock to avoid migration problems with several diworkers
+    # starting at the same time on cluster
+    with EtcdLock(config_cl, 'diworker_migrations'):
+        migrator.migrate()
+    LOG.info("starting worker")
     conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
         **config_cl.read_branch('/rabbit'))
     with QConnection(conn_str) as conn:
         try:
-            migrator = Migrator(config_cl, 'restapi', 'diworker/migrations')
-            # Use lock to avoid migration problems with several diworkers
-            # starting at the same time on cluster
-            with EtcdLock(config_cl, 'diworker_migrations'):
-                migrator.migrate()
             worker = DIWorker(conn, config_cl)
             worker.run()
         except KeyboardInterrupt:

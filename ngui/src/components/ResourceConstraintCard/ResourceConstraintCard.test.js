@@ -1,11 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import ResourceConstraintCard from "./ResourceConstraintCard";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <ResourceConstraintCard
         updateConstraint={() => console.log("update")}
@@ -15,8 +16,7 @@ it("renders without crashing", () => {
         constraintType="ttl"
         poolPolicy={{}}
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

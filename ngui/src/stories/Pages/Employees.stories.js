@@ -1,10 +1,12 @@
 import React from "react";
 import Employees from "components/Employees";
-import { boolean } from "@storybook/addon-knobs";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/Employees`
+  title: `${KINDS.PAGES}/Employees`,
+  argTypes: {
+    isLoading: { name: "Loading", control: "boolean", defaultValue: false }
+  }
 };
 
 const employees = [
@@ -225,4 +227,4 @@ const employees = [
   }
 ];
 
-export const basic = () => <Employees employees={employees} isLoading={boolean("isLoading", false)} />;
+export const basic = (args) => <Employees employees={employees} isLoading={args.isLoading} />;

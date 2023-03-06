@@ -1,9 +1,11 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 import CloudLabel from "components/CloudLabel";
+import { intl } from "translations/react-intl-config";
 import { sortObjects } from "utils/arrays";
 import {
   ANY_NETWORK_TRAFFIC_LOCATION,
+  CLOUD_ACCOUNT_TYPES_LIST,
   LINEAR_SELECTOR_ITEMS_TYPES,
   NETWORK_TRAFFIC_TO_BE_FILTER,
   NETWORK_TRAFFIC_TO_FILTER
@@ -17,7 +19,38 @@ class NetworkTrafficToFilter extends Filter {
 
   static displayedName = (<FormattedMessage id="paidNetworkTrafficTo" />);
 
+  static displayedNameString = intl.formatMessage({ id: "paidNetworkTrafficTo" });
+
   static type = LINEAR_SELECTOR_ITEMS_TYPES.MULTISELECT_POPOVER;
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static filterItemSchema = {
+    oneOf: [
+      {
+        type: "object",
+        required: ["name", "cloud_type"],
+        additionalProperties: false,
+        properties: {
+          name: {
+            type: "string"
+          },
+          cloud_type: {
+            type: "string",
+            enum: CLOUD_ACCOUNT_TYPES_LIST
+          }
+        }
+      },
+      {
+        type: "string",
+        const: "ANY"
+      }
+    ]
+  };
+
+  // TODO: Use ajv TS integration to create schema based on types def
+  static appliedFilterSchema = {
+    type: "string"
+  };
 
   static _getValue(filterItem) {
     if (typeof filterItem === "string") {
@@ -37,6 +70,14 @@ class NetworkTrafficToFilter extends Filter {
     return <CloudLabel name={filterItem.name} type={filterItem.cloud_type} disableLink {...props} />;
   }
 
+  static _getDisplayedValueStringRenderer(filterItem) {
+    if (this._getValue(filterItem) === ANY_NETWORK_TRAFFIC_LOCATION) {
+      return intl.formatMessage({ id: "any" });
+    }
+
+    return filterItem.name;
+  }
+
   _getAppliedFilterItem(appliedFilter, filterItem) {
     return {
       value: appliedFilter,
@@ -44,7 +85,8 @@ class NetworkTrafficToFilter extends Filter {
         iconProps: {
           dataTestId: `${this.constructor.filterName}_filter_logo`
         }
-      }))
+      })),
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
     };
   }
 

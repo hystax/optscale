@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import { EXPENSES_FILTERBY_TYPES, COST_EXPLORER } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
@@ -10,7 +10,8 @@ const lastDateRangePoint = millisecondsToSeconds(+new Date());
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider
       state={{
         rangeDates: {}
@@ -31,8 +32,7 @@ it("renders without crashing", () => {
         updateFilter={jest.fn}
         name="name"
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

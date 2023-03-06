@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import { Stack, Typography } from "@mui/material";
 import Link from "@mui/material/Link";
 import { Box } from "@mui/system";
 import PropTypes from "prop-types";
@@ -13,6 +12,7 @@ import CaptionedCell from "components/CaptionedCell";
 import { useFormatConstraintLimitMessage } from "components/ConstraintMessage/ConstraintLimitMessage";
 import EditResourceConstraintForm from "components/EditResourceConstraintForm";
 import IconButton from "components/IconButton";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PoolLabel from "components/PoolLabel";
 import ResourceCell from "components/ResourceCell";
 import { DeleteGlobalResourceConstraintModal } from "components/SideModalManager/SideModals";
@@ -27,7 +27,7 @@ import {
 import { RESOURCES } from "urls";
 import { checkError } from "utils/api";
 import { CONSTRAINTS_TYPES, CONSTRAINT_MESSAGE_FORMAT } from "utils/constraints";
-import { SPACING_2 } from "utils/layouts";
+import { getResourceDisplayedName } from "utils/resources";
 import { RESOURCE_ID_COLUMN_CELL_STYLE } from "utils/tables";
 
 const UpdateConstraintLimitContainer = ({ limit, formattedConstraintLimit, constraintId, type, employeeId, resourceId }) => {
@@ -111,7 +111,9 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
       constraints.map((constraint) => ({
         ...constraint,
         // make fields searchable
-        resource: [constraint.details?.cloud_resource_id, constraint.details?.name].filter(Boolean).join(" "),
+        resource: [constraint.details?.cloud_resource_id, constraint.details?.cloud_resource_hash, constraint.details?.name]
+          .filter(Boolean)
+          .join(" "),
         "pool/owner": [constraint.details?.pool?.name, constraint.details?.owner?.name].filter(Boolean).join(" "),
         translatedType: intl.formatMessage({ id: CONSTRAINTS_TYPES[constraint.type] }),
         formattedConstraintLimit: formatConstraintLimitMessage({
@@ -132,17 +134,18 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
   const columns = useMemo(() => {
     const baseColumns = [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_resource">
             <FormattedMessage id="resource" />
           </TextWithDataTestId>
         ),
-        accessor: "resource",
+        accessorKey: "resource",
         style: RESOURCE_ID_COLUMN_CELL_STYLE,
-        Cell: ({ row: { original, id } }) => {
+        cell: ({ row: { original, id } }) => {
           const rowData = {
             resource_id: original.resource_id,
             cloud_resource_id: original.details.cloud_resource_id,
+            cloud_resource_hash: original.details.cloud_resource_hash,
             resource_name: original.details.name,
             active: original.details.active,
             constraint_violated: original.details.constraint_violated
@@ -157,19 +160,19 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
           );
         },
         defaultSort: "asc",
-        isStatic: true
+        enableHiding: false
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_pool_owner">
             <FormattedMessage id="pool/owner" />
           </TextWithDataTestId>
         ),
-        accessor: "pool/owner",
+        accessorKey: "pool/owner",
         style: {
           whiteSpace: "nowrap"
         },
-        Cell: ({ row: { original } }) => {
+        cell: ({ row: { original } }) => {
           const {
             details: {
               pool: { id: poolId, name: poolName, purpose: poolPurpose } = {},
@@ -185,25 +188,25 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
         }
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_policy_type">
             <FormattedMessage id="policyType" />
           </TextWithDataTestId>
         ),
-        accessor: "translatedType"
+        accessorKey: "translatedType"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_limit">
             <FormattedMessage id="limit" />
           </TextWithDataTestId>
         ),
-        accessor: "formattedConstraintLimit",
+        accessorKey: "formattedConstraintLimit",
         style: {
           minWidth: "400px"
         },
-        disableSortBy: true,
-        Cell: ({ row: { original } }) => {
+        enableSorting: false,
+        cell: ({ row: { original } }) => {
           const {
             formattedConstraintLimit,
             limit,
@@ -232,19 +235,19 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
       ...(isAllowedToEditAnyResourcePolicy
         ? [
             {
-              Header: (
+              header: (
                 <TextWithDataTestId dataTestId="lbl_actions">
                   <FormattedMessage id="actions" />
                 </TextWithDataTestId>
               ),
-              disableSortBy: false,
+              enableSorting: false,
               id: "actions",
-              Cell: ({ row: { original } }) => {
+              cell: ({ row: { original } }) => {
                 const {
                   id,
                   type,
                   resource_id: resourceId,
-                  details: { name: resourceName, cloud_resource_id: cloudResourceId, employee_id: employeeId } = {}
+                  details: { name: resourceName, employee_id: employeeId } = {}
                 } = original;
 
                 return (
@@ -256,7 +259,7 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
                         id,
                         type,
                         resourceName,
-                        cloudResourceId
+                        resourceDisplayedName: getResourceDisplayedName(original.details)
                       });
                     }}
                   />
@@ -269,33 +272,23 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
   }, [isAllowedToEditAnyResourcePolicy, openSideModal]);
 
   return (
-    <Stack spacing={SPACING_2}>
-      <div>
-        <Typography>
-          <FormattedMessage id="globalResourceConstraintsDescription1" />
-        </Typography>
-        <Typography>
-          <FormattedMessage id="globalResourceConstraintsDescription2" />
-        </Typography>
-        <Typography>
-          <FormattedMessage
-            id="globalResourceConstraintsDescription3"
-            values={{
-              link: (chunks) => (
-                <Link href={RESOURCES} target="_blank" rel="noopener">
-                  {chunks}
-                </Link>
-              )
-            }}
-          />
-        </Typography>
-      </div>
+    <>
       {isLoading ? (
         <TableLoader columnsCounter={columns.length} />
       ) : (
         <Table withSearch data={data} columns={columns} localization={{ emptyMessageId: "noResourceConstraints" }} />
       )}
-    </Stack>
+      <InlineSeverityAlert
+        messageId="globalResourceConstraintsDescription"
+        messageValues={{
+          link: (chunks) => (
+            <Link href={RESOURCES} target="_blank" rel="noopener">
+              {chunks}
+            </Link>
+          )
+        }}
+      />
+    </>
   );
 };
 

@@ -13,3 +13,4 @@ requests>=2.25.0
 PyJWT>=1.7.1
 cryptography>=3.3.1
 zoho-integrator==1.0.5
+pyyaml==5.3.1

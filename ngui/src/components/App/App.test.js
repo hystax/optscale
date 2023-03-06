@@ -1,23 +1,16 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import "regenerator-runtime/runtime";
 import App from "./App";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
-    <TestProvider
-      state={{
-        mainMenuItems: [],
-        auth: {},
-        routes: {},
-        api: { latestErrorLabel: "" }
-      }}
-    >
+  const root = createRoot(div);
+  root.render(
+    <TestProvider>
       <App />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

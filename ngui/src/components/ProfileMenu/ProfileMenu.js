@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import Avatar from "@mui/material/Avatar";
@@ -9,43 +9,37 @@ import MenuList from "@mui/material/MenuList";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
 import MenuItem from "components/MenuItem";
 import Tooltip from "components/Tooltip";
-import { SIGNOUT } from "urls";
+import { useSignOut } from "hooks/useSignOut";
 import { getInitialsFromName, isEllipsisActive } from "utils/strings";
 import useStyles from "./ProfileMenu.styles";
+
+const ProfileItemLabel = ({ dataTestId, variant, label }) => {
+  const ref = useRef();
+  const [isOverflow, setIsOverflow] = useState(false);
+
+  useEffect(() => {
+    if (ref.current) {
+      setIsOverflow(isEllipsisActive(ref));
+    }
+  }, []);
+
+  const getLabel = (
+    <Typography style={{ display: "block" }} data-test-id={dataTestId} variant={variant} noWrap ref={ref}>
+      {label}
+    </Typography>
+  );
+
+  return isOverflow ? <Tooltip title={label}>{getLabel}</Tooltip> : getLabel;
+};
 
 const ProfileMenu = ({ name, email, isLoading }) => {
   const { classes } = useStyles();
 
-  const navigate = useNavigate();
-
-  const nameRef = React.createRef();
-  const emailRef = React.createRef();
-
-  const [isNameOverflow, setNameEllipsis] = useState(false);
-  const [isEmailOverflow, setEmailEllipsis] = useState(false);
-
-  useEffect(() => {
-    setNameEllipsis(isEllipsisActive(nameRef));
-    setEmailEllipsis(isEllipsisActive(emailRef));
-  }, [nameRef, emailRef]);
-
   const getProfileIcon = (nameString) => getInitialsFromName(nameString) || <AccountCircleOutlinedIcon />;
 
-  const renderString = ({ string, ref, variant, dataTestId }) => (
-    <Typography data-test-id={dataTestId} variant={variant} noWrap ref={ref}>
-      {string}
-    </Typography>
-  );
-
-  const buildString = ({ condition, string, ref, variant, dataTestId }) =>
-    condition ? (
-      <Tooltip title={string}>{renderString({ string, ref, variant, dataTestId })}</Tooltip>
-    ) : (
-      renderString({ string, ref, variant, dataTestId })
-    );
+  const signOut = useSignOut();
 
   const menuItems = [
     // {
@@ -57,7 +51,7 @@ const ProfileMenu = ({ name, email, isLoading }) => {
       messageId: "signOut",
       icon: ExitToAppOutlinedIcon,
       onClick: () => {
-        navigate(SIGNOUT);
+        signOut();
       },
       dataTestId: "btn_signout",
       key: "signOutKey"
@@ -78,28 +72,15 @@ const ProfileMenu = ({ name, email, isLoading }) => {
         }
         title={
           isLoading ? (
-            <Skeleton />
+            <>
+              <Skeleton />
+              <Skeleton height={16} />
+            </>
           ) : (
-            buildString({
-              condition: isNameOverflow,
-              string: name,
-              ref: nameRef,
-              variant: "subtitle1",
-              dataTestId: "p_user_name"
-            })
-          )
-        }
-        subheader={
-          isLoading ? (
-            <Skeleton height={16} />
-          ) : (
-            buildString({
-              condition: isEmailOverflow,
-              string: email,
-              ref: emailRef,
-              variant: "caption",
-              dataTestId: "p_user_email"
-            })
+            <>
+              <ProfileItemLabel label={name} dataTestId="p_user_name" variant="subtitle1" />
+              <ProfileItemLabel label={email} dataTestId="p_user_email" variant="caption" />
+            </>
           )
         }
       />
@@ -121,8 +102,8 @@ const ProfileMenu = ({ name, email, isLoading }) => {
 };
 
 ProfileMenu.propTypes = {
-  name: PropTypes.string.isRequired,
-  email: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  email: PropTypes.string,
   isLoading: PropTypes.bool.isRequired
 };
 

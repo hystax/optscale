@@ -2,5 +2,5 @@ auth-client==0.0.75
 config-client==1.0.78
 katara-client==0.0.15
 kombu==4.6.8
-restapi_client==1.0.640
+restapi_client==1.0.706
 boto3==1.12.25

@@ -248,7 +248,8 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
         resources = self.resources_collection.find({
             'cluster_id': {'$in': cluster_ids},
             'deleted_at': 0,
-            'cloud_resource_id': {'$nin': exclusions}
+            'cloud_resource_id': {'$nin': exclusions},
+            'cloud_resource_hash': {'$nin': exclusions}
         })
         for r in resources:
             cluster_id = r.get('cluster_id')
@@ -298,7 +299,7 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
         tag_cluster_type_map = self.get_tag_cluster_type_map(
             organization_id)
         db_clusters_ids = {
-            r.get('cluster_id') for r in db_resources_map.values()
+            r.get('cluster_id') for r, _ in db_resources_map.values()
             if r.get('cluster_id') is not None}
         clusters_map = {
             c['_id']: c for c in self.resources_collection.find(
@@ -308,17 +309,18 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
         cluster_cid_changes_map = {}
         exclusions = set()
         for resource in resources:
-            cloud_resource_id = resource.get('cloud_resource_id')
-            if not cloud_resource_id:
+            resource_unique_id = resource.get(
+                'cloud_resource_id') or resource.get('cloud_resource_hash')
+            if not resource_unique_id:
                 continue
-            db_resource = db_resources_map.get(cloud_resource_id, {})
+            db_resource, unique_field = db_resources_map.get(
+                resource_unique_id, ({}, None))
             if db_resource:
                 cluster_cid = clusters_map.get(
-                    db_resource.get('cluster_id'), {}).get(
-                    'cloud_resource_id')
+                    db_resource.get('cluster_id'), {}).get(unique_field)
                 if not cluster_cid:
                     continue
-                exclusions.add(cloud_resource_id)
+                exclusions.add(resource_unique_id)
                 cluster = clusters_definitions_map.get(cluster_cid)
                 if not cluster:
                     cluster = clusters_map[db_resource['cluster_id']]
@@ -358,8 +360,7 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
                 cluster_cid_changes_map[cluster_cid] = []
             cluster_cid_changes_map[cluster_cid].append(change)
             clusters_definitions_map[cluster_cid] = cluster
-            rss_cluster_requirement_map[
-                resource['cloud_resource_id']] = cluster_cid
+            rss_cluster_requirement_map[resource_unique_id] = cluster_cid
 
         rac = RuleApplyController(self.session, self._config, self.token)
         for cluster_cid, cluster in clusters_definitions_map.items():

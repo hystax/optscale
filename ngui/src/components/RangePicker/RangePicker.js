@@ -126,25 +126,18 @@ RangePicker.propTypes = {
     error: PropTypes.bool,
     helperText: PropTypes.string
   }),
-
   initialDateRange: PropTypes.shape({
     startDate: PropTypes.number,
     endDate: PropTypes.number
   }),
-
   minTimestamp: PropTypes.number,
   maxTimestamp: PropTypes.number,
-
   definedRanges: DefinedRangesType,
-
   onChange: PropTypes.func.isRequired,
   format: PropTypes.string,
   onApply: PropTypes.func,
-
   notSetMessageId: PropTypes.string,
-
   fullWidth: PropTypes.bool,
-
   isUtc: PropTypes.bool
 };
 

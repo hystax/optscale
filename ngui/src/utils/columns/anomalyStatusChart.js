@@ -5,13 +5,15 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import { isEmpty } from "utils/objects";
 
 const anomalyStatusChart = ({ constraint, headerMessageId = "statusAtHit", todayMessageId = "hit" }) => ({
-  Header: (
+  header: (
     <TextWithDataTestId dataTestId="lbl_status">
       <FormattedMessage id={headerMessageId} />
     </TextWithDataTestId>
   ),
-  accessor: "run_result",
-  Cell: ({ cell: { value } }) => {
+  accessorKey: "run_result",
+  cell: ({ cell }) => {
+    const value = cell.getValue();
+
     if (!value || isEmpty(value)) {
       return "-";
     }

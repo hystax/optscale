@@ -71,7 +71,7 @@ const Button = forwardRef(
         button
       );
 
-    // TODO: NGUI-1509. Need to bring the solution to one type(MenuItem, Button, Dropdown).
+    // TODO: NGUI-1509. Need to bring the solution to one type(MenuItem, Button, Popover).
     const renderLinkButton = () => {
       if (link) {
         return disabled ? (

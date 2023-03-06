@@ -13,13 +13,15 @@ class TestEmailApi(TestHeraldBase):
                            'customer_id': "b2ed3073-8c48-417f-9275-eb0d6cc5c7f1",
                            'object_name': "Object_name", 'object_type': "INFO",
                            'level': "INFO"}
+        reply_to_email = 'test_reply_to@hystax.com'
         code, response = self.client_v2.email_send(
-            email, "Email_subject", template_type, template_params)
+            email, "Email_subject", template_type, template_params, reply_to_email)
         result = {
             'email': email,
             'subject': 'Email_subject',
             'template_type': template_type,
-            'template_params': template_params
+            'template_params': template_params,
+            'reply_to_email': reply_to_email
         }
         self.assertEqual(201, code)
         self.assertEquals(result, response)
@@ -41,7 +43,8 @@ class TestEmailApi(TestHeraldBase):
             'email': ["test@hystax.com"],
             'subject': 'Email_subject',
             'template_type': template_type,
-            'template_params': template_params
+            'template_params': template_params,
+            'reply_to_email': None
         }
         self.assertEqual(201, code)
         self.assertEquals(result, response)
@@ -63,7 +66,8 @@ class TestEmailApi(TestHeraldBase):
             'email': ["test@hystax.com"],
             'subject': 'Email_subject',
             'template_type': template_type,
-            'template_params': template_params
+            'template_params': template_params,
+            'reply_to_email': None
         }
         self.assertEqual(201, code)
         self.assertEquals(result, response)

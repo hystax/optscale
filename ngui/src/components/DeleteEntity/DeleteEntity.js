@@ -18,6 +18,7 @@ const DeleteEntity = ({ children, onCancel, message = {}, dataTestIds, isLoading
     messageId: deleteButtonMessageId = "delete",
     color: deleteButtonColor = "error",
     variant: deleteButtonVariant = "contained",
+    tooltip,
     onDelete
   } = deleteButtonProps;
 
@@ -40,6 +41,7 @@ const DeleteEntity = ({ children, onCancel, message = {}, dataTestIds, isLoading
           onClick={(event) => onDelete(event)}
           disabled={deleteButtonDisabled}
           isLoading={isLoading}
+          tooltip={tooltip}
         />
         <Button
           dataTestId={cancelButtonDataTestId}
@@ -64,7 +66,8 @@ DeleteEntity.propTypes = {
     color: PropTypes.string,
     variant: PropTypes.string,
     disabled: PropTypes.bool,
-    onDelete: PropTypes.func.isRequired
+    onDelete: PropTypes.func.isRequired,
+    tooltip: PropTypes.object
   }).isRequired,
   dataTestIds: PropTypes.object,
   isLoading: PropTypes.bool

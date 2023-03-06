@@ -1,3 +1,4 @@
+import { isEmpty as isEmptyArray } from "utils/arrays";
 import Suggestions from "./Suggestions/Suggestions";
 
 class Filters {
@@ -37,6 +38,12 @@ class Filters {
     };
   }
 
+  getFilterValuesAsAppliedItems() {
+    return this.filters.flatMap((filter) =>
+      filter.filterValues.map((item) => filter.getAppliedFilterItem(filter.constructor.getValue(item), item))
+    );
+  }
+
   getAppliedValues() {
     return this.filters.flatMap((filter) => {
       const appliedFilterItems = filter.getAppliedFilterItems();
@@ -44,8 +51,10 @@ class Filters {
       return appliedFilterItems.map((appliedFilterItem) => ({
         name: filter.constructor.filterName,
         displayedName: filter.constructor.displayedName,
+        displayedNameString: filter.constructor.displayedNameString,
         value: appliedFilterItem.value,
-        displayedValue: appliedFilterItem.displayedValue
+        displayedValue: appliedFilterItem.displayedValue,
+        displayedValueString: appliedFilterItem.displayedValueString
       }));
     });
   }
@@ -60,6 +69,25 @@ class Filters {
         return values.map((value) => `${queryParameterName}=${encodeURIComponent(value)}`);
       })
       .join("&");
+  }
+
+  getFilterValuesForAppliedFilters() {
+    return Object.fromEntries(
+      this.filters
+        .map((filter) => [
+          filter.constructor.apiName,
+          filter.appliedFilters.map((applied) => filter.findFilterValue(applied)).filter((el) => el !== undefined)
+        ])
+        .filter(([, values]) => !isEmptyArray(values))
+    );
+  }
+
+  getAppliedFilters() {
+    return Object.fromEntries(
+      this.filters
+        .map((filter) => [filter.constructor.filterName, filter.appliedFilters])
+        .filter(([, values]) => !isEmptyArray(values))
+    );
   }
 }
 

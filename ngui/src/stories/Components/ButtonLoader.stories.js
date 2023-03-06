@@ -1,57 +1,60 @@
 import React from "react";
-import { text, boolean, select } from "@storybook/addon-knobs";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ButtonLoader from "components/ButtonLoader";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ButtonLoader`
+  title: `${KINDS.COMPONENTS}/ButtonLoader`,
+  argTypes: {
+    messageId: { name: "Message ID", control: "text", defaultValue: "checkConnection" },
+    size: {
+      name: "Size",
+      control: "select",
+      options: ["small", "medium", "large"],
+      defaultValue: "medium"
+    },
+    variant: {
+      name: "Variant",
+      control: "select",
+      options: ["text", "outlined", "contained"],
+      defaultValue: "outlined"
+    },
+    color: {
+      name: "Color",
+      control: "select",
+      options: ["info", "inherit", "primary", "success", "error"],
+      defaultValue: "info"
+    },
+    isLoading: { name: "Loading", control: "boolean", defaultValue: false },
+    disabled: { name: "Disabled", control: "boolean", defaultValue: false }
+  }
 };
 
 const action = () => {
   console.log("Action");
 };
 
-const colorOptions = {
-  info: "info",
-  primary: "primary",
-  success: "success",
-  error: "error"
-};
-
-const sizeOptions = {
-  small: "small",
-  medium: "medium",
-  large: "large"
-};
-
-const variantOptions = {
-  text: "text",
-  outlined: "outlined",
-  contained: "contained"
-};
-
-export const basic = () => (
+export const basic = (args) => (
   <ButtonLoader
-    isLoading={boolean("isLoading", true)}
-    disabled={boolean("disabled", false)}
-    messageId={text("text", "checkConnection")}
-    size={select("size", sizeOptions, "small")}
-    variant={select("variant", variantOptions, "outlined")}
-    color={select("color", colorOptions, "info")}
+    isLoading={args.isLoading}
+    disabled={args.disabled}
+    messageId={args.messageId}
+    size={args.size}
+    variant={args.variant}
+    color={args.color}
     onClick={action}
   />
 );
 
-export const withIcon = () => (
+export const withIcon = (args) => (
   <ButtonLoader
     startIcon={<AddOutlinedIcon />}
-    isLoading={boolean("isLoading", true)}
-    disabled={boolean("disabled", false)}
-    messageId={text("text", "checkConnection")}
-    size={select("size", sizeOptions, "small")}
-    variant={select("variant", variantOptions, "outlined")}
-    color={select("color", colorOptions, "info")}
+    isLoading={args.isLoading}
+    disabled={args.disabled}
+    messageId={args.messageId}
+    size={args.size}
+    variant={args.variant}
+    color={args.color}
     onClick={action}
   />
 );

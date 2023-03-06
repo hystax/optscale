@@ -1,11 +1,13 @@
 import React from "react";
 import SummaryGrid from "components/SummaryGrid";
-import { SUMMARY_VALUE_COMPONENT_TYPES, SUMMARY_CARD_TYPES } from "utils/constants";
-import { number } from "@storybook/addon-knobs";
 import { KINDS } from "stories";
+import { SUMMARY_VALUE_COMPONENT_TYPES, SUMMARY_CARD_TYPES } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/SummaryGrid`
+  title: `${KINDS.COMPONENTS}/SummaryGrid`,
+  argTypes: {
+    value: { name: "Value", control: "number", defaultValue: 100 }
+  }
 };
 
 const basicCardsSummaryData = [
@@ -116,7 +118,7 @@ const extendedCardsSummaryData = [
 
 export const commonCards = () => <SummaryGrid summaryData={basicCardsSummaryData} />;
 
-export const cardsWithFormattedMoney = () => (
+export const cardsWithFormattedMoney = (args) => (
   <SummaryGrid
     summaryData={[
       {
@@ -124,7 +126,7 @@ export const cardsWithFormattedMoney = () => (
         captionMessageId: "totalExpensesMonthToDate",
         valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
         valueComponentProps: {
-          value: number("value", 100)
+          value: args.value
         }
       },
       {
@@ -132,7 +134,7 @@ export const cardsWithFormattedMoney = () => (
         type: SUMMARY_CARD_TYPES.EXTENDED,
         valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
         valueComponentProps: {
-          value: number("value", 100)
+          value: args.value
         },
         captionMessageId: "totalExpensesMonthToDate",
         relativeValue: 12,

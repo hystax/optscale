@@ -1,11 +1,13 @@
 import React from "react";
-import { number } from "@storybook/addon-knobs";
-import PieChartLoader from "components/PieChartLoader";
 import PieChart from "components/PieChart";
+import PieChartLoader from "components/PieChartLoader";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/PieChartLoader`
+  title: `${KINDS.COMPONENTS}/PieChartLoader`,
+  argTypes: {
+    height: { name: "Height", control: "number", defaultValue: 30 }
+  }
 };
 
 const data = [
@@ -43,8 +45,8 @@ export const defaultHeight = () => (
   </div>
 );
 
-export const withKnobs = () => {
-  const height = number("height", 30);
+export const withKnobs = (args) => {
+  const height = args.height;
   return (
     <div>
       <PieChartLoader height={height} />

@@ -1,7 +1,7 @@
 import React from "react";
-import OutlinedDiv from "components/OutlinedDiv";
-import IconButton from "components/IconButton";
 import PetsIcon from "@mui/icons-material/Pets";
+import IconButton from "components/IconButton";
+import OutlinedDiv from "components/OutlinedDiv";
 import { KINDS } from "stories";
 
 export default {

@@ -1,3 +1,5 @@
+import time
+from functools import wraps
 from pymongo.errors import BulkWriteError
 from retrying import retry
 
@@ -24,3 +26,22 @@ def get_month_start(date, timezone=None):
 
 def bytes_to_gb(value):
     return value / 2**30
+
+
+def retry_backoff(exc_class, tries=8, delay=2, backoff=2, raise_errors=None):
+    def deco_retry(f):
+        @wraps(f)
+        def f_retry(*args, **kwargs):
+            m_tries, m_delay = tries, delay
+            while m_tries > 1:
+                try:
+                    return f(*args, **kwargs)
+                except exc_class as e:
+                    if raise_errors and type(e) in raise_errors:
+                        raise
+                    time.sleep(m_delay)
+                    m_tries -= 1
+                    m_delay *= backoff
+            return f(*args, **kwargs)
+        return f_retry
+    return deco_retry

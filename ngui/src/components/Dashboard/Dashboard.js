@@ -1,23 +1,19 @@
 import React from "react";
 import Link from "@mui/material/Link";
 import { FormattedMessage } from "react-intl";
-import { useDispatch } from "react-redux";
 import { GET_CLOUD_ACCOUNTS } from "api/restapi/actionTypes";
 import AlertDialog from "components/AlertDialog";
-import { MESSAGE_TYPES } from "components/ContentBackdrop";
 import DashboardGridLayout from "components/DashboardGridLayout";
 import MailTo from "components/MailTo";
-import Mocked from "components/Mocked";
+import Mocked, { MESSAGE_TYPES } from "components/Mocked";
 import PageContentWrapper from "components/PageContentWrapper";
-import { startTour, PRODUCT_TOUR, TOURS } from "components/ProductTour";
+import { PRODUCT_TOUR, useProductTour, useStartTour } from "components/Tour";
 import EnvironmentsCardContainer from "containers/EnvironmentsCardContainer";
-import MyTasksContainer from "containers/MyTasksContainer";
 import OrganizationExpensesContainer from "containers/OrganizationExpensesContainer";
 import RecommendationsCardContainer from "containers/RecommendationsCardContainer";
 import TopResourcesExpensesCardContainer from "containers/TopResourcesExpensesCardContainer";
 import { useApiData } from "hooks/useApiData";
 import { useIsUpMediaQuery } from "hooks/useMediaQueries";
-import { useRootData } from "hooks/useRootData";
 import { EMAIL_SUPPORT, DOCS_HYSTAX_OPTSCALE, SHOW_POLICY_QUERY_PARAM } from "urls";
 import { ENVIRONMENT } from "utils/constants";
 import { getQueryParams, removeQueryParam } from "utils/network";
@@ -26,7 +22,7 @@ import DashboardMocked from "./DashboardMocked";
 const Dashboard = () => {
   const isUpMd = useIsUpMediaQuery("md");
 
-  const dispatch = useDispatch();
+  const startTour = useStartTour();
 
   const {
     apiData: { cloudAccounts = [] }
@@ -34,7 +30,7 @@ const Dashboard = () => {
 
   const thereAreOnlyEnvironmentDataSources = cloudAccounts.every(({ type }) => type === ENVIRONMENT);
 
-  const { rootData: { [PRODUCT_TOUR]: { isFinished } = {} } = {} } = useRootData(TOURS);
+  const { isFinished } = useProductTour(PRODUCT_TOUR);
 
   const { showPolicy } = getQueryParams();
   const firstTimeOpen = !!showPolicy;
@@ -43,7 +39,7 @@ const Dashboard = () => {
     removeQueryParam(queryParams);
     // TODO: https://datatrendstech.atlassian.net/browse/NGUI-2808 to handle dynamic header buttons, product tour is hidden on mdDown (when hamburger menu is activated)
     if (!isFinished && isUpMd) {
-      dispatch(startTour(PRODUCT_TOUR));
+      startTour(PRODUCT_TOUR);
     }
   };
 
@@ -51,8 +47,7 @@ const Dashboard = () => {
     topResourcesExpensesCard: thereAreOnlyEnvironmentDataSources ? null : <TopResourcesExpensesCardContainer />,
     environmentsCard: <EnvironmentsCardContainer />,
     organizationExpenses: thereAreOnlyEnvironmentDataSources ? null : <OrganizationExpensesContainer />,
-    recommendationsCard: <RecommendationsCardContainer />,
-    myTasksCard: <MyTasksContainer />
+    recommendationsCard: <RecommendationsCardContainer />
   };
 
   return (

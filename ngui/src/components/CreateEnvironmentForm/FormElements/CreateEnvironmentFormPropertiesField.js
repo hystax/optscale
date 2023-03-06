@@ -16,8 +16,7 @@ const CreateEnvironmentFormPropertiesField = ({ fieldName, propertyFieldNames })
   const {
     register,
     control,
-    formState: { errors },
-    getValues
+    formState: { errors }
   } = useFormContext();
   const intl = useIntl();
 
@@ -58,10 +57,8 @@ const CreateEnvironmentFormPropertiesField = ({ fieldName, propertyFieldNames })
                       errors[fieldName]?.[index]?.[propertyNameFieldName]?.message
                     }
                     validate={{
-                      unique: (value) => {
-                        const { [fieldName]: properties } = getValues();
-
-                        const propertiesWithSameName = properties.filter(
+                      unique: (value, formValues) => {
+                        const propertiesWithSameName = formValues[fieldName].filter(
                           ({ [propertyNameFieldName]: propertyName }) => propertyName === value
                         );
                         const isPropertyUnique = propertiesWithSameName.length === 1;

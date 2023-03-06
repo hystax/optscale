@@ -45,7 +45,6 @@ const ExpensesBreakdownActionBar = ({ expensesBreakdownType, filterBy, name, isL
     : getExpensesBreakdownTitle(name, getEntityTypeByBreakdownType(expensesBreakdownType));
 
   const actionBarData = {
-    goBack: !isCostExplorerBreakdown,
     title: {
       text: title,
       isLoading

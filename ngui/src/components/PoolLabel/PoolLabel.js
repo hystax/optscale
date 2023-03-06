@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "@mui/material/Link";
 import PropTypes from "prop-types";
+import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import IconLabel from "components/IconLabel";
 import PoolTypeIcon from "components/PoolTypeIcon";
@@ -21,16 +22,18 @@ const SlicedPoolName = ({ name }) => <SlicedText limit={SLICED_POOL_NAME_LENGTH}
 
 const PoolLink = ({ id, name, dataTestId, organizationId }) => (
   <Link data-test-id={dataTestId} color="primary" to={getUrl(id, organizationId)} component={RouterLink}>
-    <SlicedPoolName name={name} />
+    {name}
   </Link>
 );
 
-const renderLabel = ({ disableLink, name, id, dataTestId, organizationId }) =>
-  disableLink ? (
-    <span data-test-id={dataTestId}>{name}</span>
+const renderLabel = ({ disableLink, name, id, dataTestId, organizationId }) => {
+  const slicedName = <SlicedPoolName name={name} />;
+  return disableLink ? (
+    <span data-test-id={dataTestId}>{slicedName}</span>
   ) : (
-    <PoolLink id={id} name={name} dataTestId={dataTestId} organizationId={organizationId} />
+    <PoolLink id={id} name={slicedName} dataTestId={dataTestId} organizationId={organizationId} />
   );
+};
 
 const PoolLabel = ({
   type,
@@ -41,23 +44,32 @@ const PoolLabel = ({
   disableLink = false,
   organizationId,
   endAdornment = null,
-  iconProps = {}
+  iconProps = {},
+  withSubpools = false
 }) => (
   <>
     <IconLabel
       icon={<PoolTypeIcon type={type} hasRightMargin {...iconProps} />}
       label={
-        label ? (
-          <span data-test-id={dataTestId}>{label}</span>
-        ) : (
-          renderLabel({
-            disableLink,
-            name,
-            id,
-            dataTestId,
-            organizationId
-          })
-        )
+        <>
+          {label ? (
+            <span data-test-id={dataTestId}>{label}</span>
+          ) : (
+            renderLabel({
+              disableLink,
+              name,
+              id,
+              dataTestId,
+              organizationId
+            })
+          )}
+          {withSubpools && (
+            <>
+              &nbsp;
+              <FormattedMessage id="(withSubPools)" />
+            </>
+          )}
+        </>
       }
     />
     {endAdornment}
@@ -65,7 +77,7 @@ const PoolLabel = ({
 );
 
 PoolLink.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.node.isRequired,
   id: PropTypes.string.isRequired,
   dataTestId: PropTypes.string,
   disableLink: PropTypes.bool,
@@ -94,7 +106,8 @@ PoolLabel.propTypes = {
   disableLink: PropTypes.bool,
   dataTestId: PropTypes.string,
   organizationId: PropTypes.string,
-  iconProps: PropTypes.object
+  iconProps: PropTypes.object,
+  withSubpools: PropTypes.bool
 };
 
 export default PoolLabel;

@@ -8,10 +8,11 @@ import useStyles from "./Popover.styles";
 const Popover = ({
   anchorOrigin,
   transformOrigin,
-  buttons = [],
+  buttons: buttonsProperty = [],
   handleClose,
   label,
   menu,
+  renderMenu,
   dataTestIds = {},
   rightLabelPosition = false
 }) => {
@@ -33,7 +34,7 @@ const Popover = ({
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
-  const renderButtons = () => (
+  const renderButtons = (buttons) => (
     <div className={classes.buttonsWrapper}>
       {buttons.map(({ messageId, variant = "text", color = "primary", onClick, closable, dataTestId }) => (
         <Button
@@ -59,7 +60,6 @@ const Popover = ({
     <div className={classes.container}>
       <div
         aria-describedby={id}
-        variant="contained"
         onClick={handleClick}
         data-test-id={labelDataTestId}
         className={rightLabelPosition ? classes.rightLabelPosition : ""}
@@ -86,8 +86,14 @@ const Popover = ({
         }
         PaperProps={{ "data-test-id": popOverDataTestId }}
       >
-        {menu}
-        {!isEmpty(buttons) && renderButtons()}
+        {typeof renderMenu === "function" ? (
+          renderMenu({ closeHandler: onClose })
+        ) : (
+          <>
+            {menu}
+            {!isEmpty(buttonsProperty) && renderButtons(buttonsProperty)}
+          </>
+        )}
       </MuiPopover>
     </div>
   );
@@ -95,7 +101,7 @@ const Popover = ({
 
 Popover.propTypes = {
   label: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
-  menu: PropTypes.node.isRequired,
+  menu: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   anchorOrigin: PropTypes.object,
   handleClose: PropTypes.func,
   transformOrigin: PropTypes.object,
@@ -103,7 +109,8 @@ Popover.propTypes = {
   dataTestIds: PropTypes.shape({
     label: PropTypes.string
   }),
-  rightLabelPosition: PropTypes.bool
+  rightLabelPosition: PropTypes.bool,
+  renderMenu: PropTypes.func
 };
 
 export default Popover;

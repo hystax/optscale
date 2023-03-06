@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import ActionBar from "components/ActionBar";
 import EmployeesTable from "components/EmployeesTable";
 import PageContentWrapper from "components/PageContentWrapper";
-import WrapperCard from "components/WrapperCard";
 
 const Employees = ({ employees, isLoading }) => (
   <>
@@ -16,9 +15,7 @@ const Employees = ({ employees, isLoading }) => (
       }}
     />
     <PageContentWrapper>
-      <WrapperCard>
-        <EmployeesTable employees={employees} isLoading={isLoading} />
-      </WrapperCard>
+      <EmployeesTable employees={employees} isLoading={isLoading} />
     </PageContentWrapper>
   </>
 );

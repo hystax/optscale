@@ -41,8 +41,8 @@ class TestCostModelsApi(TestApiBase):
             'name': 'k8s cloud_acc',
             'type': 'kubernetes_cnr',
             'config': {
-                'url': 'url',
-                'port': 1,
+                'user': 'user',
+                'password': 'password',
                 'cost_model': self.k8s_cost_model
             }
         }

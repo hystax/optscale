@@ -1,7 +1,7 @@
 import { makeStyles } from "tss-react/mui";
 import { SPACING_1 } from "utils/layouts";
 
-const drawerWidth = 215;
+export const DRAWER_WIDTH = 200;
 
 const useStyles = makeStyles()((theme) => ({
   appBar: {
@@ -10,7 +10,8 @@ const useStyles = makeStyles()((theme) => ({
   toolbar: {
     display: "flex",
     height: theme.spacing(7),
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    backgroundColor: theme.palette.info.header
   },
   logo: {
     [theme.breakpoints.down("md")]: {
@@ -25,13 +26,16 @@ const useStyles = makeStyles()((theme) => ({
   },
   drawerPaper: {
     position: "relative",
-    width: drawerWidth
+    width: DRAWER_WIDTH
   },
   content: {
     overflowY: "auto",
     paddingLeft: "0",
     paddingRight: "0",
-    maxWidth: "none"
+    maxWidth: "none",
+    // that way PageContentWrapper will fill whole page height
+    display: "flex",
+    flexDirection: "column"
   },
   mobileRegisterButton: {
     backgroundColor: theme.palette.success.main,

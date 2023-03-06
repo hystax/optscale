@@ -4,12 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 import { apiEnd, apiError, apiStart, apiSuccess, resetTtl } from "api";
 import { API } from "api/actionTypes";
 import { GET_TOKEN } from "api/auth/actionTypes";
-import { getUrlWithNextQueryParam, SIGNOUT } from "urls";
+import { signOut } from "utils/api";
 import { ALERT_SEVERITY } from "utils/constants";
-import { getFullPath } from "utils/network";
 import requestManager from "utils/requestManager";
 import { getSuccessAlertSettingsByLabel } from "utils/successCodes";
-import history from "../history";
 
 axios.interceptors.request.use(
   (config) => {
@@ -80,7 +78,9 @@ const apiMiddleware =
         signal: requestSignal,
         affectedRequests,
         // ?foo[]=bar1&foo[]=bar2 -> ?foo=bar1&foo=bar2
-        paramsSerializer: (queryParams) => queryString.stringify(queryParams)
+        paramsSerializer: {
+          serialize: queryString.stringify
+        }
       })
       .then((response) => {
         if (typeof onSuccess === "function") {
@@ -114,21 +114,18 @@ const apiMiddleware =
           // Specific error codes handling
           // TODO - investigate error codes handling instead of using Protector/Error page wrappers everywhere
           if (error.response.status === 401) {
-            requestManager.cancelAllPendingRequests();
-            const to = getUrlWithNextQueryParam(SIGNOUT, getFullPath());
-            history.push(to);
+            signOut(dispatch);
           }
         } else if (error.request) {
           // The request was made but no response was received
           // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
           // http.ClientRequest in node.js
-          console.log(error.request);
           errorResponse = { config: { url: error.request, params: {} } };
         } else {
           // Something happened in setting up the request that triggered an error
-          console.log("error: ", error.message);
           errorResponse = { config: { url: error.message, params: {} } };
         }
+        console.log("error: ", error, { url });
         dispatch(apiError(label, errorResponse, errorHandlerType));
       })
       .finally(() => {

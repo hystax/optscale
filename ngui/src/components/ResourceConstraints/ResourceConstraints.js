@@ -1,58 +1,42 @@
 import React from "react";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import EnabledConstraints from "components/EnabledConstraints";
-import KeyValueLabel from "components/KeyValueLabel";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import ResourceLink from "components/ResourceLink";
 import ResourceConstraintContainer from "containers/ResourceConstraintContainer";
 import ResourceLimitHitsContainer from "containers/ResourceLimitHitsContainer";
 import { DOCS_HYSTAX_RESOURCE_CONSTRAINTS, CLUSTER_TYPES } from "urls";
 import { RESOURCE_PAGE_TABS } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
+import useStyles from "./ResourceConstraints.styles";
 
-const GetMoreHelp = () => (
-  <Typography>
-    <FormattedMessage
-      id="linkedText"
-      values={{
-        text: <FormattedMessage id="getMoreHelp" />,
-        link: (chunks) => (
-          <Link href={DOCS_HYSTAX_RESOURCE_CONSTRAINTS} data-test-id="link_help" target="_blank" rel="noopener">
-            {chunks}
-          </Link>
-        )
-      }}
-    />
-  </Typography>
+const linkRender = (chunks) => (
+  <Link href={DOCS_HYSTAX_RESOURCE_CONSTRAINTS} data-test-id="link_help" target="_blank" rel="noopener">
+    {chunks}
+  </Link>
 );
 
 const BillingOnly = () => (
   <Grid item xs={12}>
-    <Typography variant="body2">
-      <FormattedMessage id="resourceConstraintsBillingOnlyDescription" />
-    </Typography>
-    <GetMoreHelp />
+    <InlineSeverityAlert
+      messageId="resourceConstraintsBillingOnlyDescription"
+      messageValues={{
+        link: linkRender
+      }}
+    />
   </Grid>
 );
 
-const CommonConstraints = ({ poolId, resourceId, constraints, poolPolicies, isLoading, employeeId }) => (
-  <>
-    <Grid item xs={12} data-test-id="p_info">
-      <Typography variant="body2">
-        <FormattedMessage id="resourceConstraintsDescription1" />
-      </Typography>
-      <Typography variant="body2">
-        <FormattedMessage id="resourceConstraintsDescription2" />
-      </Typography>
-      <GetMoreHelp />
-    </Grid>
+const CommonConstraints = ({ poolId, resourceId, constraints, poolPolicies, isLoading, employeeId }) => {
+  const { classes } = useStyles();
+  return (
     <EnabledConstraints
       render={(type) => (
-        <Grid item>
+        <div className={classes.constraintWrapper}>
           <ResourceConstraintContainer
             poolId={poolId}
             resourceId={resourceId}
@@ -62,11 +46,11 @@ const CommonConstraints = ({ poolId, resourceId, constraints, poolPolicies, isLo
             constraintType={type}
             employeeId={employeeId}
           />
-        </Grid>
+        </div>
       )}
     />
-  </>
-);
+  );
+};
 
 const ResourceConstraints = ({
   resourceId,
@@ -76,52 +60,59 @@ const ResourceConstraints = ({
   employeeId,
   clusterId,
   isLoading,
-  billingOnly = false
+  billingOnly = false,
+  isResourceActive
 }) => {
   const renderCommonConstraintsContent = () => (
-    <>
-      {billingOnly ? (
-        <BillingOnly />
-      ) : (
-        <CommonConstraints
-          poolId={poolId}
-          resourceId={resourceId}
-          constraints={constraints}
-          poolPolicies={poolPolicies}
-          isLoading={isLoading}
-          employeeId={employeeId}
-        />
+    <Grid container spacing={SPACING_2}>
+      <Grid item xs={12}>
+        {billingOnly ? (
+          <BillingOnly />
+        ) : (
+          <CommonConstraints
+            poolId={poolId}
+            resourceId={resourceId}
+            constraints={constraints}
+            poolPolicies={poolPolicies}
+            isLoading={isLoading}
+            employeeId={employeeId}
+          />
+        )}
+      </Grid>
+      {isResourceActive && (
+        <Grid item xs={12} data-test-id="p_info">
+          <InlineSeverityAlert
+            messageId="resourceConstraintsDescription"
+            messageValues={{
+              link: linkRender
+            }}
+          />
+        </Grid>
       )}
       <Grid item xs={12}>
         <ResourceLimitHitsContainer resourceId={resourceId} />
       </Grid>
-    </>
+    </Grid>
   );
 
   const renderClusterDependentConstraintsContent = () => (
     <Grid item xs={12}>
-      <Typography data-test-id="p_cluster_part">
-        <FormattedMessage
-          id="resourceIsPartOfCluster"
-          values={{
-            link: (chunks) => (
-              <ResourceLink resourceId={clusterId} tabName={RESOURCE_PAGE_TABS.CONSTRAINTS} dataTestId="link_cluster">
-                {chunks}
-              </ResourceLink>
-            )
-          }}
-        />{" "}
-        <FormattedMessage
-          id="checkClusterPage"
-          values={{
-            link: (chunks) => (
-              <Link to={CLUSTER_TYPES} component={RouterLink}>
-                {chunks}
-              </Link>
-            )
-          }}
-        />
-      </Typography>
+      <InlineSeverityAlert
+        messageId="resourceIsPartOfClusterPleaseCheckClustersPage"
+        messageDataTestId="p_cluster_part"
+        messageValues={{
+          link: (chunks) => (
+            <ResourceLink resourceId={clusterId} tabName={RESOURCE_PAGE_TABS.CONSTRAINTS} dataTestId="link_cluster">
+              {chunks}
+            </ResourceLink>
+          ),
+          pageLink: (chunks) => (
+            <Link to={CLUSTER_TYPES} component={RouterLink}>
+              {chunks}
+            </Link>
+          )
+        }}
+      />
     </Grid>
   );
 
@@ -136,13 +127,18 @@ const ResourceConstraints = ({
   return (
     <Grid container direction="row" justifyContent="flex-start" spacing={SPACING_2}>
       <Grid item xs={12}>
-        <KeyValueLabel
-          data-test-id="p_tracking_status"
+        <InlineSeverityAlert
           messageId="resourceTrackingStatus"
-          value={<FormattedMessage id={billingOnly ? "billingOnly" : "active"} />}
+          messageDataTestId="p_tracking_status"
+          messageValues={{
+            status: <FormattedMessage id={billingOnly ? "billingOnly" : "active"} />,
+            strong: (chunks) => <strong>{chunks}</strong>
+          }}
         />
       </Grid>
-      {renderResourceConstraintContent()}
+      <Grid item xs={12}>
+        {renderResourceConstraintContent()}
+      </Grid>
     </Grid>
   );
 };
@@ -155,7 +151,8 @@ ResourceConstraints.propTypes = {
   employeeId: PropTypes.string,
   billingOnly: PropTypes.bool,
   isLoading: PropTypes.bool,
-  clusterId: PropTypes.string
+  clusterId: PropTypes.string,
+  isResourceActive: PropTypes.bool
 };
 
 export default ResourceConstraints;

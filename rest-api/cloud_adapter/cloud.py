@@ -8,6 +8,7 @@ from cloud_adapter.clouds.azure import Azure
 from cloud_adapter.clouds.azure_fake import AzureFake
 from cloud_adapter.clouds.kubernetes import Kubernetes
 from cloud_adapter.clouds.environment import Environment
+from cloud_adapter.clouds.gcp import Gcp
 
 
 FAKE_SUPPORTED_BILLING_TYPES = {
@@ -21,7 +22,8 @@ SUPPORTED_BILLING_TYPES = {
     'azure_cnr': Azure,
     'kubernetes_cnr': Kubernetes,
     'alibaba_cnr': Alibaba,
-    'environment': Environment
+    'environment': Environment,
+    'gcp_cnr': Gcp,
 }
 
 

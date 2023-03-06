@@ -1,6 +1,6 @@
 import { detectedAt, poolOwner, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { RECOMMENDATION_ABANDONED_INSTANCES, ABANDONED_INSTANCES_TYPE } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class AbandonedInstancesRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_ABANDONED_INSTANCES;
@@ -32,8 +32,7 @@ class AbandonedInstancesRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_ai_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_ai_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_ai_location",

@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
-import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
-import { Box, Grid } from "@mui/material";
-import Typography from "@mui/material/Typography";
+import { Checkbox, FormControlLabel, Grid, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import ActionBar from "components/ActionBar";
@@ -11,34 +8,19 @@ import BookingsCalendar from "components/BookingsCalendar";
 import ButtonGroup from "components/ButtonGroup";
 import EnvironmentsTable from "components/EnvironmentsTable";
 import Hidden from "components/Hidden";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PageContentWrapper from "components/PageContentWrapper";
-import ProductTour, { ENVIRONMENTS_TOUR } from "components/ProductTour";
 import Selector from "components/Selector";
-import WrapperCard from "components/WrapperCard";
+import { ENVIRONMENTS_TOUR_IDS } from "components/Tour";
 import { useFilterByPermissions } from "hooks/useAllowedActions";
 import { useIsDownMediaQuery } from "hooks/useMediaQueries";
-import {
-  ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS,
-  ENVIRONMENT_SOFTWARE_FIELD,
-  ENVIRONMENT_JIRA_TICKETS_FIELD,
-  ENVIRONMENTS_STATUS_FILTERS,
-  ENVIRONMENTS_ACCESS_FILTERS,
-  SCOPE_TYPES
-} from "utils/constants";
+import { ENVIRONMENTS_STATUS_FILTERS, SCOPE_TYPES } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
 import { SPACING_1, SPACING_4 } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
-const Description = () => (
-  <Box mb={SPACING_1}>
-    <Typography data-test-id="p_environments_list">
-      <FormattedMessage id="environmentsDescription" />
-    </Typography>
-  </Box>
-);
-
 // TODO: maybe move into separate component and use it in ExpensesBreakdownBreakdownByButtonsGroup as well
-const ButtonsGroupWithLabel = ({ labelDataTestId, labelId, buttons, activeButtonIndex, isMobile }) => (
+const ButtonsGroupWithLabel = ({ labelId, buttons, activeButtonIndex, isMobile }) => (
   <Grid item container direction="row" spacing={isMobile ? 0 : SPACING_1} alignItems="center" style={{ width: "auto" }}>
     <Hidden mode="up" breakpoint="sm">
       <Selector
@@ -56,12 +38,7 @@ const ButtonsGroupWithLabel = ({ labelDataTestId, labelId, buttons, activeButton
       />
     </Hidden>
     <Hidden mode="down" breakpoint="sm">
-      <Grid item>
-        <Typography data-test-id={labelDataTestId}>
-          <FormattedMessage id={labelId} />
-        </Typography>
-      </Grid>
-      <Grid item>
+      <Grid item style={{ paddingTop: 0 }}>
         <ButtonGroup buttons={buttons} activeButtonIndex={activeButtonIndex} />
       </Grid>
     </Hidden>
@@ -74,28 +51,25 @@ const ENVIRONMENTS_VIEWS = Object.freeze({
 });
 
 const ENVIRONMENTS_VIEW_QUERY_PARAMETER = "view";
+const ENVIRONMENTS_ACCESS_QUERY_PARAMETER = "accessGranted";
+const ENVIRONMENTS_STATUS_QUERY_PARAMETER = "filterByStatus";
 
-const initializeView = () => {
-  const { [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: view } = getQueryParams();
-
-  return Object.values(ENVIRONMENTS_VIEWS).includes(view) ? view : ENVIRONMENTS_VIEWS.TABLE;
-};
-
-const Environments = ({ environments, onUpdateActivity, entityId, isLoadingProps = {}, startEnvironmentsTour }) => {
-  const [view, setView] = useState(initializeView);
-
-  useEffect(() => {
-    updateQueryParams({
-      [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: view
-    });
-  }, [view]);
+const Environments = ({
+  disableFilters = false,
+  environments,
+  onUpdateActivity,
+  entityId,
+  isLoadingProps = {},
+  startEnvironmentsTour
+}) => {
+  const isMobile = useIsDownMediaQuery("sm");
 
   const actionBarDefinition = {
     hideItemsOnSmallScreens: false,
     title: {
       messageId: "environments",
       dataTestId: "lbl_environments",
-      dataProductTourId: "environmentsPageHeader"
+      dataProductTourId: ENVIRONMENTS_TOUR_IDS.HEADER
     },
     items: [
       {
@@ -106,41 +80,37 @@ const Environments = ({ environments, onUpdateActivity, entityId, isLoadingProps
           show: true,
           value: <FormattedMessage id="startTour" values={{ value: <FormattedMessage id="environments" /> }} />
         },
+        show: !isMobile,
         type: "iconButton"
-      },
-      {
-        key: "switch",
-        type: "buttonGroup",
-        activeButtonId: view,
-        buttons: [
-          {
-            id: ENVIRONMENTS_VIEWS.TABLE,
-            action: () => setView(ENVIRONMENTS_VIEWS.TABLE),
-            messageIcon: <TableChartOutlinedIcon />
-          },
-          {
-            id: ENVIRONMENTS_VIEWS.CALENDAR,
-            action: () => setView(ENVIRONMENTS_VIEWS.CALENDAR),
-            messageIcon: <EventOutlinedIcon />
-          }
-        ]
       }
     ]
   };
 
-  const { filterByStatus, filterByAccess } = getQueryParams();
+  const {
+    [ENVIRONMENTS_STATUS_QUERY_PARAMETER]: filterByStatusQuery,
+    [ENVIRONMENTS_ACCESS_QUERY_PARAMETER]: accessGrantedQuery,
+    [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: view
+  } = getQueryParams();
+
+  const [showAccessGranted, setShowAccessGranted] = useState(() => accessGrantedQuery ?? true);
 
   const [activeStatusFilter, setActiveStatusFilter] = useState(
-    Object.values(ENVIRONMENTS_STATUS_FILTERS).includes(filterByStatus) ? filterByStatus : ENVIRONMENTS_STATUS_FILTERS.ALL
+    Object.values(ENVIRONMENTS_STATUS_FILTERS).includes(filterByStatusQuery)
+      ? filterByStatusQuery
+      : ENVIRONMENTS_STATUS_FILTERS.ALL
   );
 
-  const [activeAccessFilter, setActiveAccessFilter] = useState(
-    Object.values(ENVIRONMENTS_ACCESS_FILTERS).includes(filterByAccess) ? filterByAccess : ENVIRONMENTS_ACCESS_FILTERS.ALL
+  const [activeViewFilter, setActiveViewFilter] = useState(
+    Object.values(ENVIRONMENTS_VIEWS).includes(view) ? view : ENVIRONMENTS_VIEWS.TABLE
   );
 
   useEffect(() => {
-    updateQueryParams({ filterByStatus: activeStatusFilter, filterByAccess: activeAccessFilter });
-  }, [activeStatusFilter, activeAccessFilter]);
+    updateQueryParams({
+      [ENVIRONMENTS_STATUS_QUERY_PARAMETER]: activeStatusFilter,
+      [ENVIRONMENTS_ACCESS_QUERY_PARAMETER]: showAccessGranted,
+      [ENVIRONMENTS_VIEW_QUERY_PARAMETER]: activeViewFilter
+    });
+  }, [activeStatusFilter, activeViewFilter, showAccessGranted]);
 
   const getActiveBooking = ({ shareable_bookings: bookings }, nowSecondsTimestamp) =>
     bookings.find(
@@ -155,6 +125,10 @@ const Environments = ({ environments, onUpdateActivity, entityId, isLoadingProps
   });
 
   const filteredEnvironments = useMemo(() => {
+    if (disableFilters) {
+      return environments;
+    }
+
     const nowSecondsTimestamp = millisecondsToSeconds(Date.now());
 
     const filtered = environments
@@ -166,126 +140,100 @@ const Environments = ({ environments, onUpdateActivity, entityId, isLoadingProps
             [ENVIRONMENTS_STATUS_FILTERS.IN_USE]: environment.active && !!getActiveBooking(environment, nowSecondsTimestamp)
           }[activeStatusFilter] ?? true)
       )
-      .filter(
-        (environment) =>
-          ({
-            [ENVIRONMENTS_ACCESS_FILTERS.GRANTED]: environmentsWithBookingPermissionIds.includes(environment.id),
-            [ENVIRONMENTS_ACCESS_FILTERS.RESTRICTED]: !environmentsWithBookingPermissionIds.includes(environment.id)
-          }[activeAccessFilter] ?? true)
-      );
+      .filter((environment) => (showAccessGranted ? environmentsWithBookingPermissionIds.includes(environment.id) : true));
 
     return filtered;
-  }, [activeStatusFilter, activeAccessFilter, environments, environmentsWithBookingPermissionIds]);
+  }, [activeStatusFilter, environments, environmentsWithBookingPermissionIds, showAccessGranted, disableFilters]);
 
-  const statusButtonsGroup = Object.values(ENVIRONMENTS_STATUS_FILTERS).map((filter) => ({
+  const viewButtonsGroup = Object.values(ENVIRONMENTS_VIEWS).map((filter) => ({
     id: filter,
     messageId: filter,
-    action: () => setActiveStatusFilter(filter),
-    dataTestId: `filter_${filter}_status`
-  }));
-
-  const accessButtonsGroup = Object.values(ENVIRONMENTS_ACCESS_FILTERS).map((filter) => ({
-    id: filter,
-    messageId: filter,
-    action: () => setActiveAccessFilter(filter),
+    action: () => setActiveViewFilter(filter),
     dataTestId: `filter_${filter}_access`
   }));
 
-  const activeStatusIndex = statusButtonsGroup.findIndex((button) => button.id === activeStatusFilter);
-  const activeAccessIndex = accessButtonsGroup.findIndex((button) => button.id === activeAccessFilter);
-
-  const isMobile = useIsDownMediaQuery("sm");
+  const activeViewIndex = viewButtonsGroup.findIndex((button) => button.id === activeViewFilter);
 
   return (
     <>
-      <ProductTour
-        label={ENVIRONMENTS_TOUR}
-        steps={[
-          {
-            content: (
-              <FormattedMessage
-                id="environmentsPageHeaderTourContent"
-                values={{ strong: (chunks) => <strong>{chunks}</strong> }}
-              />
-            ),
-            placement: "auto",
-            disableBeacon: true,
-            target: "[data-product-tour-id='environmentsPageHeader']"
-          },
-          {
-            content: (
-              <FormattedMessage
-                id="environmentsAddButtonTourContent"
-                values={{ strong: (chunks) => <strong>{chunks}</strong> }}
-              />
-            ),
-            placement: "auto",
-            disableBeacon: true,
-            target: "[data-product-tour-id='environmentsAddButton']"
-          },
-          {
-            content: <FormattedMessage id="environmentsStatusTourContent" />,
-            placement: "auto",
-            disableBeacon: true,
-            target: "[data-product-tour-id='environmentsStatus']"
-          },
-          {
-            content: <FormattedMessage id="environmentsJiraTicketsTourContent" />,
-            placement: "auto",
-            disableBeacon: true,
-            target: `[data-product-tour-id='${ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS[ENVIRONMENT_JIRA_TICKETS_FIELD]}']`
-          },
-          {
-            content: (
-              <FormattedMessage
-                id="environmentsSoftwareTourContent"
-                values={{ strong: (chunks) => <strong>{chunks}</strong> }}
-              />
-            ),
-            placement: "auto",
-            disableBeacon: true,
-            target: `[data-product-tour-id='${ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS[ENVIRONMENT_SOFTWARE_FIELD]}']`
-          }
-        ]}
-      />
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
         <Grid container spacing={SPACING_1}>
           <Grid item container spacing={isMobile ? SPACING_1 : SPACING_4}>
             <ButtonsGroupWithLabel
-              labelDataTestId="group_title_status"
-              labelId="status"
-              buttons={statusButtonsGroup}
-              activeButtonIndex={activeStatusIndex}
+              labelId="view"
+              buttons={viewButtonsGroup}
+              activeButtonIndex={activeViewIndex}
               isMobile={isMobile}
             />
-            <ButtonsGroupWithLabel
-              labelDataTestId="group_title_access"
-              labelId="access"
-              buttons={accessButtonsGroup}
-              activeButtonIndex={activeAccessIndex}
-              isMobile={isMobile}
-            />
+
+            <Grid
+              item
+              container
+              direction="row"
+              spacing={isMobile ? 0 : SPACING_1}
+              sx={{ width: "auto", alignItems: "center" }}
+            >
+              <FormControlLabel
+                sx={{ mr: 0 }}
+                onChange={() => {
+                  setShowAccessGranted((prev) => !prev);
+                }}
+                control={<Checkbox data-test-id="checkbox_filter_access" checked={showAccessGranted} />}
+                label={<FormattedMessage id="onlyAccessibleByMe" />}
+              />
+            </Grid>
+            <Grid
+              item
+              container
+              direction="row"
+              spacing={isMobile ? 0 : SPACING_1}
+              alignItems="center"
+              style={{ width: "auto" }}
+            >
+              <Selector
+                sx={{ "& .MuiInput-input": { display: "flex", alignItems: "center" } }}
+                data={{
+                  selected: activeStatusFilter,
+                  items: Object.values(ENVIRONMENTS_STATUS_FILTERS).map((filter) => ({
+                    name: <FormattedMessage id={filter} />,
+                    value: filter,
+                    dataTestId: `dropdown_item_filter_${filter}`
+                  }))
+                }}
+                renderValue={(value) => (
+                  <Typography variant="body2" component="span">
+                    <FormattedMessage id={value} />
+                  </Typography>
+                )}
+                size="small"
+                variant="standard"
+                dataTestId="dropdown_filter_status"
+                onChange={(value) => {
+                  setActiveStatusFilter(value);
+                }}
+              />
+            </Grid>
           </Grid>
           <Grid item xs={12}>
-            <WrapperCard>
-              <Description />
-              {view === ENVIRONMENTS_VIEWS.TABLE && (
-                <EnvironmentsTable
-                  data={filteredEnvironments}
-                  onUpdateActivity={onUpdateActivity}
-                  entityId={entityId}
-                  isLoadingProps={isLoadingProps}
-                />
-              )}
-              {view === ENVIRONMENTS_VIEWS.CALENDAR && (
-                <Grid container spacing={SPACING_1}>
-                  <Grid item xs={12} sx={{ minHeight: "600px" }}>
-                    <BookingsCalendar environments={filteredEnvironments} isLoadingProps={isLoadingProps} />
-                  </Grid>
+            {activeViewFilter === ENVIRONMENTS_VIEWS.TABLE && (
+              <EnvironmentsTable
+                data={filteredEnvironments}
+                onUpdateActivity={onUpdateActivity}
+                entityId={entityId}
+                isLoadingProps={isLoadingProps}
+              />
+            )}
+            {activeViewFilter === ENVIRONMENTS_VIEWS.CALENDAR && (
+              <Grid container spacing={SPACING_1}>
+                <Grid item xs={12} sx={{ minHeight: "600px" }}>
+                  <BookingsCalendar environments={filteredEnvironments} isLoadingProps={isLoadingProps} />
                 </Grid>
-              )}
-            </WrapperCard>
+              </Grid>
+            )}
+          </Grid>
+          <Grid item xs={12}>
+            <InlineSeverityAlert messageId="environmentsDescription" messageDataTestId="p_environments_list" />
           </Grid>
         </Grid>
       </PageContentWrapper>
@@ -295,6 +243,7 @@ const Environments = ({ environments, onUpdateActivity, entityId, isLoadingProps
 
 Environments.propTypes = {
   environments: PropTypes.array.isRequired,
+  disableFilters: PropTypes.bool,
   entityId: PropTypes.string,
   onUpdateActivity: PropTypes.func,
   startEnvironmentsTour: PropTypes.func,

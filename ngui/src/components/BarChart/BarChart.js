@@ -19,7 +19,6 @@ import {
   DEFAULT_CHART_BORDER_WIDTH
 } from "utils/constants";
 import { isEmpty } from "utils/objects";
-import BarChartPdf from "./BarChartPdf";
 
 const formatAxis = (format) =>
   ({
@@ -64,7 +63,6 @@ const BarChart = ({
   layout = "vertical",
   onClick,
   renderTooltipBody,
-  pdfId,
   enableLabel = false,
   borderWidth = DEFAULT_CHART_BORDER_WIDTH,
   label,
@@ -106,6 +104,9 @@ const BarChart = ({
     minValue: minBarValue
   });
 
+  /**
+   * TODO: Try to use the "useDimensions" hook to get all the dimension parameters as we do for the LineChart
+   */
   const chartWidth = getChartWidth(wrapperWidth, margin, layout);
 
   const { axisLeft, axisBottom, enableGridX, enableGridY, gridXValues, gridYValues } = useChartLayoutOptions({
@@ -156,8 +157,7 @@ const BarChart = ({
   const colors = useBarChartColors(chartPalette, colorsMap);
 
   return (
-    <Box data-pdf-id={pdfId} ref={wrapperRef} className={wrapperClass} height={chartHeight} data-test-id={dataTestId}>
-      {pdfId ? <BarChartPdf pdfId={pdfId} /> : null}
+    <Box ref={wrapperRef} className={wrapperClass} height={chartHeight} data-test-id={dataTestId}>
       {chartWidth > 0 && (
         <ResponsiveBar
           data={data}
@@ -213,7 +213,6 @@ BarChart.propTypes = {
   layout: PropTypes.oneOf(["vertical", "horizontal"]),
   onClick: PropTypes.func,
   renderTooltipBody: PropTypes.func.isRequired,
-  pdfId: PropTypes.string,
   enableLabel: PropTypes.bool,
   label: PropTypes.func,
   dataTestId: PropTypes.string,

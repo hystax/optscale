@@ -10,21 +10,37 @@ import useStyles from "./CopyText.styles";
 const STATIC = "static";
 const ANIMATED = "animated";
 
-const CopyText = ({ text, children, variant, copyIconType = STATIC, dataTestIds = {} }) => {
+const CopyText = ({
+  text,
+  children,
+  variant,
+  copyIconType = STATIC,
+  dataTestIds = {},
+  normalWhitespace = false,
+  Icon = FileCopyOutlinedIcon,
+  copyMessageId = "copy",
+  copiedMessageId = "copied"
+}) => {
   const { classes, cx } = useStyles();
 
   const { text: textDataTestId, button: buttonDataTestId } = dataTestIds;
 
-  const [titleMessageId, setTitleMessageId] = useState("copy");
+  const [titleMessageId, setTitleMessageId] = useState(copyMessageId);
 
   return (
-    <Typography component="span" variant={variant} className={classes.wrapper} data-test-id={textDataTestId}>
+    <Typography
+      component="span"
+      variant={variant}
+      className={cx(classes.wrapper, normalWhitespace ? classes.normalWhitespace : undefined)}
+      data-test-id={textDataTestId}
+    >
       {children}
       <Typography
         component="span"
         onMouseLeave={() => {
-          setTitleMessageId("copy");
+          setTitleMessageId(copyMessageId);
         }}
+        variant={variant}
         data-test-id={buttonDataTestId}
         className={cx(classes.copyWrapper, copyIconType === ANIMATED ? "animatedCopyIcon" : "")}
       >
@@ -32,7 +48,7 @@ const CopyText = ({ text, children, variant, copyIconType = STATIC, dataTestIds 
           text={text}
           onCopy={(copiedText, result) => {
             if (result) {
-              setTitleMessageId("copied");
+              setTitleMessageId(copiedMessageId);
             }
           }}
         >
@@ -45,7 +61,7 @@ const CopyText = ({ text, children, variant, copyIconType = STATIC, dataTestIds 
             disableFocusListener
             disableTouchListener
           >
-            <FileCopyOutlinedIcon className={classes.copyIconFontSize} />
+            <Icon fontSize="inherit" />
           </Tooltip>
         </CopyToClipboard>
       </Typography>
@@ -61,7 +77,11 @@ CopyText.propTypes = {
   dataTestIds: PropTypes.shape({
     text: PropTypes.string,
     button: PropTypes.string
-  })
+  }),
+  normalWhitespace: PropTypes.bool,
+  copyMessageId: PropTypes.string,
+  copiedMessageId: PropTypes.string,
+  Icon: PropTypes.elementType
 };
 
 export default CopyText;

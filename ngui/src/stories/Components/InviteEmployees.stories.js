@@ -1,5 +1,4 @@
 import React from "react";
-import { boolean } from "@storybook/addon-knobs";
 import InviteEmployees from "components/InviteEmployees";
 import { KINDS } from "stories";
 

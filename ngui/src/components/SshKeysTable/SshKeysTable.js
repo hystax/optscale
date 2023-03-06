@@ -19,32 +19,31 @@ const SshKeysTable = ({ isLoading, sshKeys = [], isMakeDefaultLoading, onMakeDef
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
+        accessorKey: "name",
         defaultSort: "asc"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_fingerprint">
             <FormattedMessage id="fingerprint" />
           </TextWithDataTestId>
         ),
-        accessor: "fingerprint"
+        accessorKey: "fingerprint"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_actions">
             <FormattedMessage id="actions" />
           </TextWithDataTestId>
         ),
         id: "actions",
-        disableSortBy: true,
-        isStatic: true,
-        Cell: ({ row: { original: { id: keyId, default: isDefault } = {}, index } }) => (
+        enableSorting: false,
+        cell: ({ row: { original: { id: keyId, default: isDefault } = {}, index } }) => (
           <TableCellActions
             items={[
               {

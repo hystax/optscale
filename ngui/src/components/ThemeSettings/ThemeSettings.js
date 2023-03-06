@@ -90,7 +90,6 @@ const ThemeSettings = () => {
 
   return (
     <TabsWrapper
-      withWrapperCard={false}
       tabsProps={{
         tabs,
         defaultTab: "typography",

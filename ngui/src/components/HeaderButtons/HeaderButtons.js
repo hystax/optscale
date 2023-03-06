@@ -6,17 +6,19 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
 import { FormattedMessage } from "react-intl";
-import { useDispatch } from "react-redux";
 import IconButton from "components/IconButton";
 import Popover from "components/Popover";
-import { startTour, PRODUCT_TOUR } from "components/ProductTour";
+import { PRODUCT_TOUR, useStartTour } from "components/Tour";
 import ProfileMenuContainer from "containers/ProfileMenuContainer";
+import { useMainMenuState } from "hooks/useMainMenuState";
 import { DOCS_HYSTAX_OPTSCALE } from "urls";
 import useStyles from "./HeaderButtons.styles";
 
 const HeaderButtons = () => {
+  const startTour = useStartTour();
   const { classes } = useStyles();
-  const dispatch = useDispatch();
+
+  const { updateIsExpanded } = useMainMenuState();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const openMobileMenu = (event) => {
@@ -28,7 +30,8 @@ const HeaderButtons = () => {
   };
 
   const startProductTour = () => {
-    dispatch(startTour(PRODUCT_TOUR));
+    updateIsExpanded(true);
+    startTour(PRODUCT_TOUR);
   };
 
   return (
@@ -38,7 +41,7 @@ const HeaderButtons = () => {
       <LatestEventsContainer /> */}
         <IconButton
           dataTestId="btn_doc"
-          color="inherit"
+          color="primary"
           href={DOCS_HYSTAX_OPTSCALE}
           icon={<MenuBookOutlinedIcon />}
           tooltip={{
@@ -48,7 +51,7 @@ const HeaderButtons = () => {
         />
         <IconButton
           dataTestId="btn_product_tour"
-          color="inherit"
+          color="primary"
           icon={<LiveHelpOutlinedIcon />}
           onClick={startProductTour}
           tooltip={{
@@ -61,7 +64,7 @@ const HeaderButtons = () => {
             <IconButton
               dataTestId="btn_profile"
               icon={<AccountCircleIcon />}
-              color="inherit"
+              color="primary"
               tooltip={{
                 show: true,
                 value: <FormattedMessage id="profile" />
@@ -74,7 +77,7 @@ const HeaderButtons = () => {
       {/* TODO: Maybe we can make the Popup component more universal and include the case below */}
       {/* TODO: https://datatrendstech.atlassian.net/browse/NGUI-2808 to handle dynamic header buttons, product tour is hidden on mdDown (when hamburger menu is activated) */}
       <Box component="div" className={classes.sectionMobile}>
-        <IconButton icon={<MoreVertIcon />} color="inherit" onClick={openMobileMenu} />
+        <IconButton icon={<MoreVertIcon />} color="primary" onClick={openMobileMenu} />
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMobileMenu}>
           {/* Was commented out due to the NGUI-1039 task
         <Box className={classes.customMenuItem}>

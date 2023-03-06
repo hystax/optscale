@@ -8,4 +8,6 @@ optscale-exceptions==0.0.23
 auth-client==0.0.75
 kombu==4.6.8
 apispec==0.39.0
-restapi_client==1.0.511
+restapi_client==1.0.706
+pyyaml==5.3.1
+

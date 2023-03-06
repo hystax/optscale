@@ -42,6 +42,4 @@ const Input = () => {
   );
 };
 
-export const basic = () => {
-  return <Input />;
-};
+export const basic = () => <Input />;

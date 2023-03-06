@@ -13,8 +13,8 @@ import { SPACING_2 } from "utils/layouts";
 
 const getValueComponentSettings = (type, CustomComponent) => ({
   component: {
-    FormattedNumber,
-    FormattedMoney: ({ value, ...rest }) => {
+    [SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber]: FormattedNumber,
+    [SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney]: ({ value, ...rest }) => {
       const { currency = "USD" } = useOrganizationInfo();
 
       return (
@@ -25,8 +25,8 @@ const getValueComponentSettings = (type, CustomComponent) => ({
         </Tooltip>
       );
     },
-    FormattedMessage,
-    Custom: CustomComponent
+    [SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage]: FormattedMessage,
+    [SUMMARY_VALUE_COMPONENT_TYPES.Custom]: CustomComponent
   }[type],
   computedProps: {
     FormattedMoney: {}
@@ -38,6 +38,8 @@ const renderSummaryCard = ({
   valueComponentType,
   valueComponentProps,
   captionMessageId,
+  caption,
+  rawCaption,
   CustomValueComponent = null,
   isLoading,
   color,
@@ -45,7 +47,8 @@ const renderSummaryCard = ({
   button,
   dataTestIds,
   icon,
-  pdfId
+  pdfId,
+  backdrop
 }) => {
   const { component: ValueComponent } = getValueComponentSettings(valueComponentType, CustomValueComponent);
 
@@ -54,14 +57,15 @@ const renderSummaryCard = ({
       value={ValueComponent ? <ValueComponent {...valueComponentProps} /> : value}
       icon={icon}
       rawValue={valueComponentProps?.value}
-      caption={<FormattedMessage id={captionMessageId} />}
-      rawCaption={captionMessageId}
+      caption={caption ?? <FormattedMessage id={captionMessageId} />}
+      rawCaption={rawCaption ?? captionMessageId}
       isLoading={isLoading}
       color={color}
       help={help}
       button={button}
       dataTestIds={dataTestIds}
       pdfId={pdfId}
+      backdrop={backdrop}
     />
   );
 };
@@ -72,6 +76,7 @@ const renderExtendedSummaryCard = ({
   valueComponentProps,
   CustomValueComponent = null,
   captionMessageId,
+  caption,
   relativeValue,
   relativeValueComponentType,
   relativeValueComponentProps,
@@ -82,7 +87,8 @@ const renderExtendedSummaryCard = ({
   help,
   button,
   dataTestIds,
-  icon
+  icon,
+  backdrop
 }) => {
   const { component: ValueComponent, computedProps: computedValueComponentProps = {} } = getValueComponentSettings(
     valueComponentType,
@@ -102,7 +108,7 @@ const renderExtendedSummaryCard = ({
           relativeValue
         )
       }
-      caption={<FormattedMessage id={captionMessageId} />}
+      caption={caption ?? <FormattedMessage id={captionMessageId} />}
       relativeValueCaption={<FormattedMessage id={relativeValueCaptionMessageId} />}
       icon={icon}
       isLoading={isLoading}
@@ -110,6 +116,7 @@ const renderExtendedSummaryCard = ({
       help={help}
       button={button}
       dataTestIds={dataTestIds}
+      backdrop={backdrop}
     />
   );
 };
@@ -153,7 +160,8 @@ const basicCardProps = PropTypes.shape({
   valueComponentType: PropTypes.oneOf(supportedValueComponents),
   CustomValueComponent: PropTypes.elementType,
   valueComponentProps: PropTypes.object,
-  captionMessageId: PropTypes.string.isRequired,
+  caption: PropTypes.node,
+  captionMessageId: PropTypes.string,
   isLoading: PropTypes.bool,
   renderCondition: PropTypes.func,
   color: PropTypes.string,

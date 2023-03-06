@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+import { useTheme } from "@mui/material/styles";
 import PropTypes from "prop-types";
 import Backdrop from "components/Backdrop";
 import TextBlock from "components/TextBlock";
@@ -22,8 +23,17 @@ const Integration = ({ title, button, blocks, withBackdrop = false, backdropMess
     }
   }, [raised]);
 
+  const theme = useTheme();
+
   return (
-    <WrapperCard needAlign title={title} raised={raised} ref={cardRef}>
+    <WrapperCard
+      elevation={0}
+      needAlign
+      title={title}
+      sx={{ backgroundColor: raised ? theme.palette.info.header : null }}
+      raised={raised}
+      ref={cardRef}
+    >
       <Box height="100%" position="relative">
         {withBackdrop && (
           <Backdrop customClass="contentLoader">

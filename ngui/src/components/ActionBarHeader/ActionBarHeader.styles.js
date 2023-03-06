@@ -1,4 +1,5 @@
 import { makeStyles } from "tss-react/mui";
+import { SPACING_2 } from "utils/layouts";
 
 const useStyles = makeStyles()((theme) => ({
   logo: {
@@ -12,7 +13,9 @@ const useStyles = makeStyles()((theme) => ({
     }
   },
   title: {
-    wordBreak: "break-all"
+    wordBreak: "break-all",
+    paddingTop: theme.spacing(SPACING_2),
+    paddingBottom: theme.spacing(SPACING_2)
   }
 }));
 

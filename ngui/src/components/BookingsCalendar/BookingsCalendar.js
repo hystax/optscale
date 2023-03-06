@@ -8,6 +8,7 @@ import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { format, secondsToMilliseconds, MAX_UTC_DATE_TIMESTAMP } from "utils/datetime";
+import { getResourceDisplayedName } from "utils/resources";
 import useStyles from "./BookingsCalendar.styles";
 import BookingsCalendarLoader from "./BookingsCalendarLoader";
 import Event from "./components/Event";
@@ -30,17 +31,13 @@ const getBookingEvents = (environments, eventProps) =>
   environments
     .filter(({ shareable_bookings: shareableBookings }) => !isEmptyArray(shareableBookings))
     .flatMap((environmentWithBookings) => {
-      const {
-        cloud_resource_id: cloudResourceId,
-        name: environmentName,
-        shareable_bookings: shareableBookings
-      } = environmentWithBookings;
+      const { shareable_bookings: shareableBookings } = environmentWithBookings;
 
       return shareableBookings.map((booking) => {
         const { acquired_since: bookedSince, released_at: bookedUntil } = booking;
 
         return {
-          title: environmentName ?? cloudResourceId,
+          title: getResourceDisplayedName(environmentWithBookings),
           start: new Date(secondsToMilliseconds(bookedSince)),
           end: bookedUntil === 0 ? new Date(MAX_UTC_DATE_TIMESTAMP) : new Date(secondsToMilliseconds(bookedUntil)),
           environment: environmentWithBookings,

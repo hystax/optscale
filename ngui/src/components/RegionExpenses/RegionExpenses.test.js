@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import { millisecondsToSeconds } from "utils/datetime";
 import RegionExpenses from "./RegionExpenses";
@@ -9,7 +9,8 @@ const lastDateRangePoint = millisecondsToSeconds(+new Date());
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider
       state={{
         rangeDates: {}
@@ -21,8 +22,7 @@ it("renders without crashing", () => {
         startDateTimestamp={firstDateRangePoint}
         endDateTimestamp={lastDateRangePoint}
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

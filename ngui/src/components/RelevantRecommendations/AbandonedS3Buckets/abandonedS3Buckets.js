@@ -4,7 +4,7 @@ import HeaderHelperCell from "components/HeaderHelperCell";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, poolOwner, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { RECOMMENDATION_ABANDONED_S3_BUCKETS, ABANDONED_S3_BUCKETS_TYPE } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class AbandonedS3BucketsRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_ABANDONED_S3_BUCKETS;
@@ -36,8 +36,7 @@ class AbandonedS3BucketsRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_s3_abandoned_buckets_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_s3_abandoned_buckets_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_s3_abandoned_buckets_location",
@@ -48,37 +47,37 @@ class AbandonedS3BucketsRecommendation extends RecommendationFactory {
         id: "pool/owner"
       }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_s3_abandoned_buckets_avg_data_size">
             <FormattedMessage id="dataSizeAvg" />
           </TextWithDataTestId>
         ),
-        accessor: "avg_data_size",
-        Cell: ({ cell: { value } }) => (
+        accessorKey: "avg_data_size",
+        cell: ({ cell }) => (
           <>
-            <FormattedNumber value={value} maximumFractionDigits={2} />
+            <FormattedNumber value={cell.getValue()} maximumFractionDigits={2} />
             &nbsp;
             <FormattedMessage id="digitalUnits" values={{ unit: "megabyte" }} />
           </>
         )
       },
       {
-        Header: (
+        header: (
           <HeaderHelperCell
             titleDataTestId="lbl_s3_abandoned_buckets_tier1_requests"
             titleMessageId="tier1Requests"
             helperMessageId="tier1S3BucketRequestHelp"
           />
         ),
-        accessor: "tier_1_request_quantity"
+        accessorKey: "tier_1_request_quantity"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_s3_abandoned_buckets_get_requests">
             <FormattedMessage id="getRequests" />
           </TextWithDataTestId>
         ),
-        accessor: "tier_2_request_quantity"
+        accessorKey: "tier_2_request_quantity"
       },
       detectedAt({ headerDataTestId: "lbl_s3_abandoned_buckets_detected_at" }),
       possibleMonthlySavings({

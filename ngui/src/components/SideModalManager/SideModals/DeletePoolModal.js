@@ -14,8 +14,6 @@ class DeletePoolModal extends BaseSideModal {
 
   dataTestId = "smodal_delete";
 
-  contentPadding = 0;
-
   get content() {
     return <DeletePoolContainer id={this.payload?.poolId} onCancel={this.closeSideModal} />;
   }

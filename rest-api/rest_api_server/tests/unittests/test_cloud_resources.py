@@ -316,6 +316,24 @@ class TestCloudResourceApi(TestApiBase):
         history_len = self.property_history_collection.count()
         self.assertEqual(history_len, 1)
 
+    def test_properties_with_dots(self):
+        env_resource = {
+            'name': 'resource',
+            'resource_type': 'some_env_type',
+            'tags': {}
+        }
+        code, resource = self.environment_resource_create(
+            self.org_id, env_resource)
+        self.assertEqual(code, 201)
+        self.assertTrue(resource['shareable'])
+        self.assertTrue(resource['is_environment'])
+
+        params = {'env_properties': {'field.1': 'value'}}
+        code, response = self.client.cloud_resource_update(resource['id'], params)
+        self.assertEqual(code, 200)
+        history_len = self.property_history_collection.count()
+        self.assertEqual(history_len, 1)
+
     def test_patch_shareable_with_bookings(self):
         patch('rest_api_server.controllers.shareable_resource.'
               'ShareableBookingController.publish_task').start()
@@ -984,6 +1002,21 @@ class TestCloudResourceApi(TestApiBase):
         code, response = self.client.cloud_resource_get(
             resource['id'], details=True)
         self.assertEqual(code, 200)
+
+        resource_dict = {
+            'cloud_resource_hash': str(uuid.uuid4()),
+            'name': 'res1',
+            'resource_type': 'res_test',
+            'tags': {'tk': 'tv'}
+        }
+        _, resource = self.cloud_resource_create(
+            self.cloud_acc_id, resource_dict)
+        self.assertIsNotNone(resource.get('cluster_id'))
+        code, response = self.client.cloud_resource_get(
+            resource['cluster_id'], details=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(response['cluster_type_id'], c_type['id'])
+        self.assertTrue(len(response.get('sub_resources', [])), 2)
 
     def test_resource_details_deleted_constraints(self):
         user_id = self.gen_id()

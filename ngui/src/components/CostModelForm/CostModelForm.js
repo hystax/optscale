@@ -4,6 +4,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
+import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import Input from "components/Input";
@@ -18,7 +19,7 @@ const MEMORY_HOUR_INPUT_NAME = "memoryMbHour";
 
 // TODO: We need to check the "number" type in the Mozilla firefox browser, for example. The value is not validated correctly and the string values show a error in the required field.
 
-const CostModelForm = ({ onSubmit, cpuHour, memoryMbHour, isLoading }) => {
+const CostModelForm = ({ onSubmit, cpuHour, memoryMbHour, isLoading, onCancel }) => {
   const { classes } = useStyles();
   const intl = useIntl();
   const {
@@ -111,6 +112,7 @@ const CostModelForm = ({ onSubmit, cpuHour, memoryMbHour, isLoading }) => {
             loaderDataTestId="loading_btn_save"
             dataTestId="btn_save"
           />
+          <Button messageId="cancel" onClick={onCancel} dataTestId="btn_cancel" />
         </FormButtonsWrapper>
       </form>
     </Box>
@@ -121,6 +123,7 @@ CostModelForm.propTypes = {
   cpuHour: PropTypes.number.isRequired,
   memoryMbHour: PropTypes.number.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
   isLoading: PropTypes.bool
 };
 

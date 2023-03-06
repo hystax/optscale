@@ -90,52 +90,57 @@ const getMarkers = (expenses, uniqueDestinations) => {
 const getColumns = ({ uniqueToDestinations, onColumnHeaderClick, onRowHeaderClick, onCellClick, selectedState, tableData }) => {
   const { selectedColumnNames } = selectedState;
   let columns = uniqueToDestinations.map((field) => ({
-    Header: (
+    header: (
       <Link component="button" onClick={() => onColumnHeaderClick(field)} color="inherit">
         <Typography variant="subtitle2" component="div">
           <strong>{field}</strong>
         </Typography>
       </Link>
     ),
-    accessor: `${field}`,
-    disableSortBy: true,
+    accessorKey: `${field}`,
+    enableSorting: false,
     style: {
       whiteSpace: "nowrap"
     },
-    Cell: ({ cell: { value: expense } }) => (
-      <Link component="button" onClick={() => onCellClick(expense)} color="inherit">
-        <Typography variant="caption" component="div" align={"left"}>
-          <strong>
-            <FormattedMoney value={expense.cost} type={FORMATTED_MONEY_TYPES.COMPACT} disableTooltip />{" "}
-          </strong>
-        </Typography>
-        <Typography variant="caption" component="div" align={"left"}>
-          <FormattedDigitalUnit value={expense.usage} baseUnit={SI_UNITS.GIGABYTE} />
-        </Typography>
-      </Link>
-    )
+    cell: ({ cell }) => {
+      const expense = cell.getValue();
+
+      return (
+        <Link component="button" onClick={() => onCellClick(expense)} color="inherit">
+          <Typography variant="caption" component="div" align={"left"}>
+            <strong>
+              <FormattedMoney value={expense.cost} type={FORMATTED_MONEY_TYPES.COMPACT} disableTooltip />{" "}
+            </strong>
+          </Typography>
+          <Typography variant="caption" component="div" align={"left"}>
+            <FormattedDigitalUnit value={expense.usage} baseUnit={SI_UNITS.GIGABYTE} />
+          </Typography>
+        </Link>
+      );
+    }
   }));
 
   if (tableData.length === 1) {
     const rowValues = new Map(Object.values(tableData[0]).map((value) => [value?.to?.name, value.cost]));
     columns = columns
-      .filter((column) => Object.keys(tableData[0]).includes(column.accessor))
-      .sort((a, b) => rowValues.get(b.accessor) - rowValues.get(a.accessor));
+      .filter((column) => Object.keys(tableData[0]).includes(column.accessorKey))
+      .sort((a, b) => rowValues.get(b.accessorKey) - rowValues.get(a.accessorKey));
   }
+
   if (!isEmptyArray(selectedColumnNames)) {
-    columns = columns.filter((column) => selectedColumnNames.includes(column.accessor));
+    columns = columns.filter((column) => selectedColumnNames.includes(column.accessorKey));
   }
 
   return [
     {
       id: "name_col",
-      Header: <FormattedMessage id="from/to" />,
-      accessor: "col_name",
-      disableSortBy: true,
+      header: <FormattedMessage id="from/to" />,
+      accessorKey: "col_name",
+      enableSorting: false,
       style: {
         whiteSpace: "nowrap"
       },
-      Cell: ({ row: { original } }) => (
+      cell: ({ row: { original } }) => (
         <Link component="button" onClick={() => onRowHeaderClick(original.col_name)} color="inherit">
           <Typography variant="subtitle2" component="div" align={"left"}>
             <strong>{original.col_name}</strong>

@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import TestProvider from "tests/TestProvider";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -55,9 +55,10 @@ it("Common renders without crashing", () => {
     }
   ];
   const div = document.createElement("div");
+  const root = createRoot(div);
   cases.forEach(({ value, expected }) => {
     act(() => {
-      render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.COMMON }), div);
+      root.render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.COMMON }));
     });
     expect(div.textContent).toBe(expected);
   });
@@ -107,12 +108,14 @@ it("Compact renders without crashing", () => {
     }
   ];
   const div = document.createElement("div");
+  const root = createRoot(div);
   cases.forEach(({ value, expected }) => {
     act(() => {
-      render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.COMPACT }), div);
+      root.render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.COMPACT }));
     });
     expect(div.textContent).toBe(expected);
   });
+  root.unmount();
 });
 
 it("Tiny renders without crashing", () => {
@@ -159,12 +162,14 @@ it("Tiny renders without crashing", () => {
     }
   ];
   const div = document.createElement("div");
+  const root = createRoot(div);
   cases.forEach(({ value, expected }) => {
     act(() => {
-      render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.TINY }), div);
+      root.render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.TINY }));
     });
     expect(div.textContent).toBe(expected);
   });
+  root.unmount();
 });
 
 it("Tiny compact renders without crashing", () => {
@@ -211,10 +216,12 @@ it("Tiny compact renders without crashing", () => {
     }
   ];
   const div = document.createElement("div");
+  const root = createRoot(div);
   cases.forEach(({ value, expected }) => {
     act(() => {
-      render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.TINY_COMPACT }), div);
+      root.render(renderMoney({ value, type: FORMATTED_MONEY_TYPES.TINY_COMPACT }));
     });
     expect(div.textContent).toBe(expected);
   });
+  root.unmount();
 });

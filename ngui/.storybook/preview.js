@@ -1,38 +1,38 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import { text } from "@storybook/addon-knobs";
 import { addDecorator, addParameters } from "@storybook/react";
 import intlConfig from "translations/react-intl-config";
 import { MockState, mockStore } from "utils/mockStore";
 import { splitAndTrim } from "utils/strings";
 import ThemeProviderWrapper from "components/ThemeProviderWrapper";
 import { IntlProvider } from "react-intl";
-import { MOCKED_ORGANIZATION_POOL_ID, MOCKED_RESOURCE_ID, MOCKED_ORGANIZATION_ID } from "mocks/idsMock";
-import { KINDS, MockPermissionsStateContext } from "stories";
+import {
+  KINDS,
+  MOCKED_ORGANIZATION_POOL_ID,
+  MOCKED_RESOURCE_ID,
+  MOCKED_ORGANIZATION_ID,
+  MockPermissionsStateContext
+} from "stories";
 import { Provider } from "react-redux";
 
 // TODO - find out how to add font dependency to storybook, take a look at https://storybook.js.org/docs/react/essentials/viewport
 addDecorator((story) => <ThemeProviderWrapper>{story()}</ThemeProviderWrapper>);
 addDecorator((story) => <IntlProvider {...intlConfig}>{story()}</IntlProvider>);
 addDecorator((story) => <Provider store={mockStore({ state: {} })}>{story()}</Provider>);
-addDecorator((story, { kind }) => {
+addDecorator((story, { kind, argTypes }) => {
   const [storyKind] = kind.split("/");
 
   if (storyKind === KINDS.PAGES) {
-    const organizationAllowedActions = text("Organization allowed actions");
-    const poolAllowedActions = text("Pool allowed actions");
-    const resourceAllowedActions = text("Resource allowed actions");
-
     const getResourceAllowedActions = () => {
-      return splitAndTrim(resourceAllowedActions);
+      return splitAndTrim(argTypes.resourceAllowedActions.defaultValue);
     };
 
     const getOrganizationAllowedActions = () => {
-      return splitAndTrim(organizationAllowedActions);
+      return splitAndTrim(argTypes.organizationAllowedActions.defaultValue);
     };
 
     const getPoolAllowedActions = () => {
-      return splitAndTrim(poolAllowedActions);
+      return splitAndTrim(argTypes.poolAllowedActions.defaultValue);
     };
 
     const mockState = new MockState();
@@ -52,7 +52,7 @@ addDecorator((story, { kind }) => {
     );
   }
 
-  return story();
+  return story(argTypes);
 });
 addDecorator((story) => <Router>{story()}</Router>);
 addParameters({
@@ -67,3 +67,9 @@ addParameters({
     ]
   }
 });
+
+export const argTypes = {
+  organizationAllowedActions: { name: "Organization allowed actions", control: "text", defaultValue: "" },
+  poolAllowedActions: { name: "Pool allowed actions", control: "text", defaultValue: "" },
+  resourceAllowedActions: { name: "Resource allowed actions", control: "text", defaultValue: "" }
+};

@@ -1,18 +1,18 @@
 import React, { useEffect, useState, useCallback } from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import { Box } from "@mui/material";
 import Link from "@mui/material/Link";
-import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { Controller, useForm, FormProvider } from "react-hook-form";
-import { FormattedMessage } from "react-intl";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import TabsWrapper from "components/TabsWrapper";
-import WrapperCard from "components/WrapperCard";
 import { RECOMMENDATIONS } from "urls";
 import { RIGHTSIZING_METRIC_LIMIT_TYPES, TAB_QUERY_PARAM_NAME } from "utils/constants";
+import { SPACING_2 } from "utils/layouts";
 import { getQueryParams } from "utils/network";
 import Exclusions from "./Exclusions";
 import InsecurePorts from "./InsecurePorts";
@@ -24,11 +24,9 @@ import RightsizingStrategy, {
 } from "./RightsizingStrategy";
 import Thresholds, { THRESHOLDS_FORM_FIELD_NAME_ROOT, THRESHOLD_INPUT_NAMES } from "./Thresholds";
 
-const getExcludedPoolsIds = (selectedPools) => selectedPools.map(({ id }) => id);
-
 const TAB_NAME = TAB_QUERY_PARAM_NAME;
 
-const SETTINGS_TYPE = Object.freeze({
+export const SETTINGS_TYPE = Object.freeze({
   THRESHOLDS: "thresholds",
   RIGHTSIZING_STRATEGY: "rightsizingStrategy",
   EXCLUSIONS: "exclusions",
@@ -100,11 +98,11 @@ const ThresholdsForm = ({
     defaultValues: getFormValues()
   });
 
-  const { getValues, handleSubmit, reset } = methods;
+  const { handleSubmit, reset } = methods;
 
   useEffect(() => {
-    reset(getFormValues(getValues()));
-  }, [reset, getValues, getFormValues]);
+    reset((formValues) => getFormValues(formValues));
+  }, [reset, getFormValues]);
 
   const onSubmit = (formData) => {
     const { thresholds } = formData;
@@ -186,8 +184,8 @@ const RightsizingStrategyForm = ({ options, isGetDataLoading, onSave, onSuccess,
   } = methods;
 
   useEffect(() => {
-    reset(getFormValues(getValues()));
-  }, [reset, getValues, getFormValues]);
+    reset((formValues) => getFormValues(formValues));
+  }, [reset, getFormValues]);
 
   const onSubmit = (formData) => {
     const { rightsizingStrategy } = formData;
@@ -271,15 +269,24 @@ const ExclusionsForm = ({
 }) => {
   const { excluded_pools: excludedPools = {} } = options;
 
-  const [selectedPools, setSelectedPools] = useState([]);
+  const [selectedPoolIds, setSelectedPoolsIds] = useState([]);
+
+  useEffect(() => {
+    setSelectedPoolsIds(Object.keys(excludedPools));
+  }, [excludedPools]);
 
   const onSubmit = () => {
     const newOptions = {
       ...options,
-      excluded_pools: Object.fromEntries(getExcludedPoolsIds(selectedPools).map((id) => [id, true]))
+      excluded_pools: Object.fromEntries(selectedPoolIds.map((id) => [id, true]))
     };
 
     onSave(SETTINGS_TYPE.EXCLUSIONS, newOptions, onSuccess);
+  };
+
+  const onSelectedPoolIdsChange = (poolIds) => {
+    setSelectedPoolsIds(poolIds);
+    onFormFieldChange();
   };
 
   return (
@@ -287,10 +294,10 @@ const ExclusionsForm = ({
       <Exclusions
         availablePools={availablePools}
         currentExcludedPools={excludedPools}
-        setSelectedPools={setSelectedPools}
         isLoading={isGetDataLoading}
         isChangeSettingsAllowed={isChangeSettingsAllowed}
-        onSelectionChange={onFormFieldChange}
+        selectedPoolIds={selectedPoolIds}
+        onSelectedPoolIdsChange={onSelectedPoolIdsChange}
       />
       {renderFormButtons(onSubmit)}
     </div>
@@ -318,11 +325,11 @@ const InsecurePortsForm = ({
     defaultValues: getFormValues()
   });
 
-  const { control, getValues, handleSubmit, reset } = methods;
+  const { control, handleSubmit, reset } = methods;
 
   useEffect(() => {
-    reset(getFormValues(getValues()));
-  }, [reset, getValues, getFormValues]);
+    reset((formValues) => getFormValues(formValues));
+  }, [reset, getFormValues]);
 
   const onSubmit = (formData) => {
     const { insecurePorts } = formData;
@@ -493,22 +500,8 @@ const RecommendationSettings = ({
   ].filter(Boolean);
 
   return (
-    <WrapperCard>
-      <Typography paragraph>
-        <FormattedMessage
-          id="recommendationSettingsDescription"
-          values={{
-            strong: (chunks) => <strong>{chunks}</strong>,
-            link: (chunks) => (
-              <Link to={RECOMMENDATIONS} component={RouterLink}>
-                {chunks}
-              </Link>
-            )
-          }}
-        />
-      </Typography>
+    <>
       <TabsWrapper
-        withWrapperCard={false}
         tabsProps={{
           tabs,
           defaultTab: tabs[0]?.title,
@@ -519,7 +512,20 @@ const RecommendationSettings = ({
           keepTabContentMounted: true
         }}
       />
-    </WrapperCard>
+      <Box sx={{ mt: SPACING_2 }}>
+        <InlineSeverityAlert
+          messageId="recommendationSettingsDescription"
+          messageValues={{
+            strong: (chunks) => <strong>{chunks}</strong>,
+            link: (chunks) => (
+              <Link to={RECOMMENDATIONS} component={RouterLink}>
+                {chunks}
+              </Link>
+            )
+          }}
+        />
+      </Box>
+    </>
   );
 };
 

@@ -1,93 +1,113 @@
-import React, { createRef, useEffect, useState } from "react";
-import Box from "@mui/material/Box";
+import React from "react";
+import { Box, Typography } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
+import { useTheme } from "@mui/material/styles";
 import PropTypes from "prop-types";
-import IconButton from "components/IconButton";
-import QuestionMark from "components/QuestionMark";
+import { FormattedMessage } from "react-intl";
+import { useNavigate } from "react-router-dom";
+import Backdrop from "components/Backdrop";
 import Skeleton from "components/Skeleton";
-import TitleValue from "components/TitleValue";
+import SummaryCardContent from "components/SummaryCardContent";
 import Tooltip from "components/Tooltip";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { SPACING_1 } from "utils/layouts";
-import { isEllipsisActive } from "utils/strings";
 import useStyles from "./SummaryCard.styles";
 import SummaryCardPdf from "./SummaryCardPdf";
 
-const renderString = (value, ref, dataTestId) => (
-  <TitleValue dataTestId={dataTestId} noWrap ref={ref}>
-    {value}
-  </TitleValue>
-);
+const CardLayout = React.forwardRef(({ children, color, button = {}, onClick, cardTestId, ...rest }, ref) => {
+  const { classes, cx } = useStyles(color);
+  const cardColorClasses = cx(classes.root, button.show ? classes.button : "");
 
-const renderValue = ({ isValueOverflow, value, valueRef, dataTestId }) =>
-  isValueOverflow ? (
-    <Tooltip placement="top" title={value}>
-      {renderString(value, valueRef, dataTestId)}
-    </Tooltip>
-  ) : (
-    renderString(value, valueRef, dataTestId)
+  return (
+    <Card {...rest} elevation={0} data-test-id={cardTestId} className={cardColorClasses} onClick={onClick} ref={ref}>
+      <CardContent className={classes.content}>{children}</CardContent>
+    </Card>
   );
-
-const renderWithIcon = ({ value, icon, isValueOverflow, valueRef, valueTestId }) => (
-  <Grid container wrap="nowrap" alignItems="baseline" spacing={SPACING_1}>
-    <Grid item>{icon}</Grid>
-    <Grid item xs={10}>
-      {renderValue({ isValueOverflow, value, valueRef, dataTestId: valueTestId })}
-    </Grid>
-  </Grid>
-);
+});
 
 const SummaryCard = ({
   value,
-  rawValue = value,
   caption,
   dataTestIds,
-  rawCaption = caption,
   icon = {},
   color = "primary",
   isLoading = false,
   help = {},
   button = {},
-  pdfId
+  rawValue = value,
+  rawCaption = caption,
+  pdfId,
+  customContent,
+  backdrop
 }) => {
+  const theme = useTheme();
+
+  const themeColor = theme.palette[color].main;
+
   const { currency } = useOrganizationInfo();
-  const { classes, cx } = useStyles();
-  const [isValueOverflow, setValueEllipsis] = useState(false);
-  const valueRef = createRef();
+  const { cardTestId } = dataTestIds || {};
 
-  const { show: showHelp = false, messageId: helpMessageId, dataTestId: helpDataTestId } = help;
-  const { show: showButton = false, icon: buttonIcon, tooltip, onClick, link } = button;
-  const { show: showIcon = false, value: iconValue } = icon;
-  const { cardTestId, titleTestId, valueTestId } = dataTestIds || {};
+  const tooltipMessage = button.show && button.tooltip?.show ? <FormattedMessage id={button.tooltip.messageId} /> : "";
 
-  const cardColorClasses = cx(classes.root, classes[color] || "");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    setValueEllipsis(isEllipsisActive(valueRef));
-  }, [valueRef]);
+  const cardClickHandler = () => {
+    if (!button?.show) {
+      return;
+    }
 
-  const renderCard = (
-    <Card data-test-id={cardTestId} className={cardColorClasses}>
-      <CardContent className={classes.content}>
-        <Typography data-test-id={titleTestId} color="textSecondary" variant="caption">
-          {caption}
-        </Typography>
-        {showHelp ? <QuestionMark messageId={helpMessageId} fontSize="small" dataTestId={helpDataTestId} /> : null}
-        <Box className={classes.valueWrapper}>
-          {showIcon
-            ? renderWithIcon({ value, icon: iconValue, isValueOverflow, valueRef, valueTestId })
-            : renderValue({ isValueOverflow, value, valueRef, dataTestId: valueTestId })}
-          {showButton ? <IconButton icon={buttonIcon} tooltip={tooltip} onClick={onClick} link={link} /> : null}
+    if (typeof button.onClick === "function") {
+      button.onClick();
+    }
+
+    if (button.link) {
+      navigate(button.link);
+    }
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <Skeleton>
+          <CardLayout color={themeColor} />
+        </Skeleton>
+      );
+    }
+
+    return (
+      <Tooltip title={tooltipMessage} placement={button.tooltip?.placement}>
+        <Box height="100%" position="relative">
+          {backdrop && backdrop.show ? (
+            <>
+              <Backdrop customClass="content" />
+              <Typography
+                sx={{
+                  position: "absolute",
+                  zIndex: () => theme.zIndex.drawer,
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)"
+                }}
+                variant="body1"
+                fontWeight="bold"
+                textAlign="center"
+              >
+                {backdrop.message}
+              </Typography>
+            </>
+          ) : null}
+          <CardLayout button={button} cardTestId={cardTestId} onClick={cardClickHandler} color={themeColor}>
+            {customContent || <SummaryCardContent {...{ value, caption, dataTestIds, icon, help, button }} />}
+            {pdfId ? (
+              <SummaryCardPdf pdfId={pdfId} renderData={() => ({ rawValue, rawCaption, color: themeColor, currency })} />
+            ) : null}
+          </CardLayout>
         </Box>
-      </CardContent>
-      {pdfId ? <SummaryCardPdf pdfId={pdfId} renderData={() => ({ rawValue, rawCaption, color, currency })} /> : null}
-    </Card>
-  );
+      </Tooltip>
+    );
+  };
 
-  return isLoading ? <Skeleton>{renderCard}</Skeleton> : renderCard;
+  return renderContent();
 };
 
 SummaryCard.propTypes = {
@@ -101,7 +121,12 @@ SummaryCard.propTypes = {
   button: PropTypes.object,
   icon: PropTypes.object,
   dataTestIds: PropTypes.object,
-  pdfId: PropTypes.string
+  pdfId: PropTypes.string,
+  customContent: PropTypes.node,
+  backdrop: PropTypes.shape({
+    show: PropTypes.bool,
+    message: PropTypes.node
+  })
 };
 
 export default SummaryCard;

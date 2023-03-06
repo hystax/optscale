@@ -1,5 +1,4 @@
 import React from "react";
-import { boolean, text } from "@storybook/addon-knobs";
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 import QuestionMark from "components/QuestionMark";
@@ -7,7 +6,11 @@ import SwitchField from "components/SwitchField";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/SwitchField`
+  title: `${KINDS.COMPONENTS}/SwitchField`,
+  argTypes: {
+    labelMessageId: { name: "Label message ID", control: "text", defaultValue: "name" },
+    withEndAdornment: { name: "With end adornment", control: "boolean", defaultValue: false }
+  }
 };
 
 const Component = ({ labelMessageId, endAdornment }) => {
@@ -23,11 +26,11 @@ const Component = ({ labelMessageId, endAdornment }) => {
   );
 };
 
-export const withKnobs = () => (
+export const withKnobs = (args) => (
   <Component
-    labelMessageId={text("labelMessageId", "name")}
+    labelMessageId={args.labelMessageId}
     endAdornment={
-      boolean("render endAdornment", false) ? (
+      args.withEndAdornment ? (
         <QuestionMark
           messageId="costAndUsageReportDetectionTooltip"
           messageValues={{

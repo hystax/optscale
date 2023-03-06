@@ -1,17 +1,27 @@
 from datetime import datetime
 from kombu.log import get_logger
+from requests.exceptions import SSLError
+from kombu import Connection as QConnection
+from kombu import Exchange, Queue
+from kombu.pools import producers
 
 from insider_worker.processors.base import BasePriceProcessor
 from insider_worker.http_client.client import Client
 
 
+ACTIVITIES_EXCHANGE_NAME = 'activities-tasks'
+ACTIVITIES_EXCHANGE = Exchange(ACTIVITIES_EXCHANGE_NAME, type='topic')
 LOG = get_logger(__name__)
+PRICES_PER_REQUEST = 100
+PRICES_COUNT_TO_LOG = 1000
 
 
 class AzurePriceProcessor(BasePriceProcessor):
     # common unique params + 2 additional keys for reservations
-    UNIQUE_FIELDS = ['meterId', 'type', 'productName', 'reservationTerm', 'tierMinimumUnits']
-    CHANGE_FIELDS = ['retailPrice', 'unitPrice', 'meterName', 'effectiveStartDate']
+    UNIQUE_FIELDS = ['meterId', 'type', 'productName', 'reservationTerm',
+                     'tierMinimumUnits', 'currencyCode']
+    CHANGE_FIELDS = ['retailPrice', 'unitPrice', 'meterName',
+                     'effectiveStartDate']
     CLOUD_TYPE = 'azure_cnr'
 
     @property
@@ -40,6 +50,26 @@ class AzurePriceProcessor(BasePriceProcessor):
     def change_values(price):
         return tuple(price.get(p) for p in AzurePriceProcessor.CHANGE_FIELDS)
 
+    def publish_activities_tasks(self, task):
+        queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
+            **self.config_client.read_branch('/rabbit')))
+        with producers[queue_conn].acquire(block=True) as producer:
+            producer.publish(
+                task,
+                serializer='json',
+                exchange=ACTIVITIES_EXCHANGE,
+                declare=[ACTIVITIES_EXCHANGE],
+                routing_key='insider.error.sslerror',
+                retry=True
+            )
+
+    def send_sslerror_service_email(self):
+        task = {
+            'action': 'insider_prices_sslerror',
+            'object_id': None
+        }
+        self.publish_activities_tasks(task)
+
     def process_prices(self):
         last_discovery = self.get_last_discovery()
         old_prices = self.prices.find(
@@ -48,25 +78,41 @@ class AzurePriceProcessor(BasePriceProcessor):
         )
         old_prices_map = {self.unique_values(p): p for p in old_prices}
 
-        next_page = 'https://prices.azure.com/api/retail/prices'
         http_client = Client()
         processed_keys = {}
-        while True:
-            code, response = http_client.get(next_page)
-            items = response.get('Items', [])
-            new_prices_map = {self.unique_values(p): p for p in items}
-            self.update_price_records(new_prices_map, old_prices_map,
-                                      processed_keys)
-            new_url = response.get('NextPageLink')
-            if not new_url or new_url == next_page:
-                break
-            next_page = new_url
+        prices_counter = 0
+        for currency in ['USD', 'EUR', 'CAD', 'TRY', 'BRL']:
+            next_page = 'https://prices.azure.com/api/retail/prices'
+            next_page += '?currencyCode=%s' % currency
+            while True:
+                if prices_counter % PRICES_COUNT_TO_LOG == 0:
+                    LOG.info('Total number of prices got from '
+                             'cloud: %s' % prices_counter)
+                try:
+                    code, response = http_client.get(next_page)
+                except SSLError:
+                    LOG.error('Getting Azure prices failed with SSL verification '
+                              'error. Will try to get prices without SSL '
+                              'verification')
+                    self.send_sslerror_service_email()
+                    http_client = Client(verify=False)
+                    code, response = http_client.get(next_page)
+                items = response.get('Items', [])
+                new_prices_map = {self.unique_values(p): p for p in items}
+                self.update_price_records(new_prices_map, old_prices_map,
+                                          processed_keys)
+                new_url = response.get('NextPageLink')
+                if not new_url or new_url == next_page:
+                    LOG.info('Total number of prices got from '
+                             'cloud: %s' % prices_counter)
+                    break
+                next_page = new_url
+                prices_counter += PRICES_PER_REQUEST
 
     def update_price_records(self, new_prices_map, old_prices_map,
                              processed_keys):
         if not new_prices_map:
             return
-
         now_ts = int(datetime.utcnow().timestamp())
         update_ids = []
         for key, new_price in new_prices_map.copy().items():

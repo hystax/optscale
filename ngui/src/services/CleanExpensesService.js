@@ -6,7 +6,7 @@ import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useInScopeOfPageMockup } from "hooks/useInScopeOfPageMockup";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { MOCKED_ORGANIZATION_POOL_ID } from "mocks/idsMock";
+import { MOCKED_ORGANIZATION_POOL_ID } from "stories";
 import { START_DATE_FILTER, END_DATE_FILTER } from "utils/constants";
 import { mapAvailableFilterKeys } from "./AvailableFiltersService";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "@mui/material/Link";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { FormattedMessage } from "react-intl";
 import MailTo from "components/MailTo";
 import TestProvider from "tests/TestProvider";
@@ -9,7 +9,8 @@ import AlertDialog from "./AlertDialog";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <AlertDialog
         show
@@ -33,8 +34,7 @@ it("renders without crashing", () => {
         }
         buttonMessageId="proceedToOptScale"
       />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

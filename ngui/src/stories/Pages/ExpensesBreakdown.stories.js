@@ -1,12 +1,19 @@
 import React from "react";
-import { select } from "@storybook/addon-knobs";
 import ExpensesBreakdown from "components/ExpensesBreakdown";
+import { KINDS } from "stories";
 import { COST_EXPLORER, EXPENSES_FILTERBY_TYPES, CLOUD_DETAILS, OWNER_DETAILS, POOL_DETAILS } from "utils/constants";
 import { getLastWeekRange, addDaysToTimestamp } from "utils/datetime";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/ExpensesBreakdown`
+  title: `${KINDS.PAGES}/ExpensesBreakdown`,
+  argTypes: {
+    type: {
+      name: "Type",
+      control: "select",
+      options: [COST_EXPLORER, CLOUD_DETAILS, OWNER_DETAILS, POOL_DETAILS],
+      defaultValue: COST_EXPLORER
+    }
+  }
 };
 
 const { lastWeekStart: firstDateRangePoint, lastWeekEnd: lastDateRangePoint } = getLastWeekRange(true);
@@ -337,8 +344,8 @@ const onApply = () => console.log("onApply");
 
 const updateFilter = () => console.log("updateFilter");
 
-const Basic = () => {
-  const type = select("type", [COST_EXPLORER, CLOUD_DETAILS, OWNER_DETAILS, POOL_DETAILS], COST_EXPLORER);
+const Basic = (args) => {
+  const type = args.type;
   const { name, entityId } =
     type !== COST_EXPLORER
       ? {

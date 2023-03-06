@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import PropTypes from "prop-types";
@@ -8,17 +8,20 @@ import CleanExpensesTable from "components/CleanExpensesTable";
 import GroupedTables from "components/GroupedTables";
 import LinearSelector from "components/LinearSelector";
 import PoolLabel from "components/PoolLabel";
+import { useReactiveSearchParams } from "hooks/useReactiveSearchParams";
 import { intl } from "translations/react-intl-config";
+import { GROUP_BY_PARAM_NAME, GROUP_TYPE_PARAM_NAME } from "urls";
 import { createGroupsObjectFromArray, getLength, isEmpty as isEmptyArray } from "utils/arrays";
 import {
   LINEAR_SELECTOR_ITEMS_TYPES,
   CLEAN_EXPENSES_GROUP_TYPES,
   ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER,
   TAG_IS,
-  CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX
+  CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX,
+  CLEAN_EXPENSES_GROUP_TYPES_LIST
 } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
-import { getQueryParams, removeQueryParam, updateQueryParams } from "utils/network";
+import { updateQueryParams } from "utils/network";
 import { isEmpty as isEmptyObject } from "utils/objects";
 import { getPaginationQueryKey, getSearchQueryKey } from "utils/tables";
 import { TOTAL_EXPENSES, COUNT } from "./constant";
@@ -28,18 +31,10 @@ import { RESOURCES_SORT_GROUPS_BY } from "./SortGroupsBySelector/reducer";
 
 const DEFAULT_GROUP_STATE = {};
 
-const GROUP_TYPE_PARAM_NAME = "groupType";
-const GROUP_BY_PARAM_NAME = "groupBy";
-
 const OTHER_TAG_GROUP_VALUE = "other";
 const EMPTY_GROUP_VALUE = "";
 
 const getUniqueTags = (expenses) => [...new Set(expenses.map((expense) => Object.keys(expense.tags || {})).flat())].sort();
-
-const clearSearchAndPageQueryParams = () => {
-  removeQueryParam(getPaginationQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX));
-  removeQueryParam(getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX));
-};
 
 const getGroupedExpenses = ({ expenses, groupType, groupBy, sortGroupsBy }) => {
   const groupByIteratee = {
@@ -129,15 +124,10 @@ const getGroupedExpenses = ({ expenses, groupType, groupBy, sortGroupsBy }) => {
   return sortedGroups;
 };
 
-const validateGroupTypeQueryParameter = (groupType) => Object.values(CLEAN_EXPENSES_GROUP_TYPES).includes(groupType);
+const validateGroupTypeQueryParameter = (groupType) => CLEAN_EXPENSES_GROUP_TYPES_LIST.includes(groupType);
 const validateGroupByQueryParameter = (groupBy, { tags }) => tags.includes(groupBy);
 
-const updateGroupQueryParam = (groupType, groupBy) => {
-  updateQueryParams({
-    groupType,
-    groupBy: groupType === CLEAN_EXPENSES_GROUP_TYPES.TAG ? groupBy : undefined
-  });
-};
+const SEARCH_PARAMS = [GROUP_TYPE_PARAM_NAME, GROUP_BY_PARAM_NAME];
 
 const CleanExpensesTableGroup = ({
   expenses,
@@ -146,16 +136,52 @@ const CleanExpensesTableGroup = ({
   startDateTimestamp,
   endDateTimestamp
 }) => {
-  const [cachedGroups, setCachedGroups] = useState({});
-  const [groupState, setGroupState] = useState(DEFAULT_GROUP_STATE);
+  const {
+    [GROUP_TYPE_PARAM_NAME]: groupTypeQueryParameter = "",
+    [GROUP_BY_PARAM_NAME]: groupByQueryParameter = groupTypeQueryParameter
+  } = useReactiveSearchParams(SEARCH_PARAMS);
+
+  const dispatch = useDispatch();
 
   const tags = useMemo(() => getUniqueTags(expenses), [expenses]);
 
-  const dispatch = useDispatch();
+  const validateQueryParameters = useCallback(() => {
+    const isGroupTypeQueryParameterValid = validateGroupTypeQueryParameter(groupTypeQueryParameter);
+    const isGroupByQueryParameterValid =
+      groupTypeQueryParameter === CLEAN_EXPENSES_GROUP_TYPES.TAG
+        ? validateGroupByQueryParameter(groupByQueryParameter, { tags })
+        : true;
+
+    return isGroupTypeQueryParameterValid && isGroupByQueryParameterValid;
+  }, [groupByQueryParameter, groupTypeQueryParameter, tags]);
+
   const sortGroupsBy = useSelector((state) => state[RESOURCES_SORT_GROUPS_BY]);
   const setSortGroupsBy = (value) => {
     dispatch(changeSortGroupsBy(value));
   };
+
+  const [cachedGroups, setCachedGroups] = useState({});
+
+  useEffect(() => {
+    if (validateQueryParameters()) {
+      setCachedGroups((cache) => ({
+        ...cache,
+        [groupByQueryParameter]: getGroupedExpenses({
+          expenses,
+          groupType: groupTypeQueryParameter,
+          groupBy: groupByQueryParameter,
+          sortGroupsBy
+        })
+      }));
+    }
+  }, [expenses, groupByQueryParameter, groupTypeQueryParameter, sortGroupsBy, validateQueryParameters]);
+
+  const groupState = validateQueryParameters()
+    ? {
+        groupType: groupTypeQueryParameter,
+        groupBy: groupByQueryParameter
+      }
+    : DEFAULT_GROUP_STATE;
 
   const handleGroupSelectorChange = ({ groupType, groupBy }) => {
     if (!cachedGroups[groupBy]) {
@@ -164,42 +190,7 @@ const CleanExpensesTableGroup = ({
         [groupBy]: getGroupedExpenses({ expenses, groupType, groupBy, sortGroupsBy })
       }));
     }
-    setGroupState({
-      groupType,
-      groupBy
-    });
   };
-
-  useEffect(() => {
-    const {
-      [GROUP_TYPE_PARAM_NAME]: groupTypeQueryParameter = "",
-      [GROUP_BY_PARAM_NAME]: groupByQueryParameter = groupTypeQueryParameter
-    } = getQueryParams();
-
-    if (groupTypeQueryParameter) {
-      const isGroupTypeQueryParameterValid = validateGroupTypeQueryParameter(groupTypeQueryParameter);
-      const isGroupByQueryParameterValid =
-        groupTypeQueryParameter === CLEAN_EXPENSES_GROUP_TYPES.TAG
-          ? validateGroupByQueryParameter(groupByQueryParameter, { tags })
-          : true;
-
-      if (isGroupTypeQueryParameterValid && isGroupByQueryParameterValid) {
-        setCachedGroups((cache) => ({
-          ...cache,
-          [groupByQueryParameter]: getGroupedExpenses({
-            expenses,
-            groupType: groupTypeQueryParameter,
-            groupBy: groupByQueryParameter,
-            sortGroupsBy
-          })
-        }));
-        setGroupState({
-          groupType: groupTypeQueryParameter,
-          groupBy: groupByQueryParameter
-        });
-      }
-    }
-  }, [expenses, sortGroupsBy, tags]);
 
   const isGroupStateEmpty = isEmptyObject(groupState);
 
@@ -218,18 +209,24 @@ const CleanExpensesTableGroup = ({
             }
             label={<FormattedMessage id="groupBy" />}
             onChange={({ name: groupType, value: groupBy }) => {
-              updateGroupQueryParam(groupType, groupBy);
+              updateQueryParams({
+                [getPaginationQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
+                [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
+                [GROUP_TYPE_PARAM_NAME]: groupType,
+                [GROUP_BY_PARAM_NAME]: groupBy
+              });
               handleGroupSelectorChange({
                 groupType,
                 groupBy
               });
-              clearSearchAndPageQueryParams();
             }}
             onClear={() => {
-              removeQueryParam(GROUP_TYPE_PARAM_NAME);
-              removeQueryParam(GROUP_BY_PARAM_NAME);
-              clearSearchAndPageQueryParams();
-              setGroupState(DEFAULT_GROUP_STATE);
+              updateQueryParams({
+                [GROUP_TYPE_PARAM_NAME]: undefined,
+                [GROUP_BY_PARAM_NAME]: undefined,
+                [getPaginationQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
+                [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined
+              });
             }}
             items={[
               {
@@ -268,15 +265,18 @@ const CleanExpensesTableGroup = ({
           {!isGroupStateEmpty && <SortGroupsBySelector sortGroupsBy={sortGroupsBy} setSortGroupsBy={setSortGroupsBy} />}
         </Box>
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} style={{ paddingTop: 0 }}>
         {!isGroupStateEmpty ? (
           <GroupedTables
             startDateTimestamp={startDateTimestamp}
             endDateTimestamp={endDateTimestamp}
             onAccordionChange={() => {
-              clearSearchAndPageQueryParams();
+              updateQueryParams({
+                [getPaginationQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
+                [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined
+              });
             }}
-            groupedResources={cachedGroups[groupState.groupBy]}
+            groupedResources={cachedGroups[groupState.groupBy] ?? []}
             getGroupHeaderDataTestId={(index) => `group_${groupState.groupType}_${index}`}
           />
         ) : (

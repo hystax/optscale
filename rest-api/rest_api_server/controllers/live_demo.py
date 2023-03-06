@@ -41,6 +41,7 @@ EMAIL_TEMPLATE = '%s@sunflower.demo'
 PRESET_FILENAME = 'live_demo.json'
 DUPLICATION_MODULE_NAMES = {'abandoned_instances', 'rightsizing_instances'}
 DUPLICATION_COUNT = 3
+TOP_NO_DUPLICATE_RESOURCES = 10
 DUPLICATION_FORMAT = '-x{ending}'
 WITH_SUBPOOLS_SIGN = '+'
 RECOMMENDATION_MULTIPLIED_FIELDS = ['saving', 'annually_monthly_saving',
@@ -284,13 +285,14 @@ class LiveDemoController(BaseController, MongoMixin):
                 res_id = module_data.get('resource_id')
                 duplicate_res_info_map = (
                     self._origin_res_duplication_info.get(res_id))
-                for new_res_id, new_res_info in duplicate_res_info_map.items():
-                    new_data = copy.deepcopy(module_data)
-                    new_data['resource_id'] = new_res_id
-                    new_data['cloud_resource_id'] = new_res_info.get(
-                        'cloud_resource_id')
-                    new_data['resource_name'] = new_res_info.get('name')
-                    module_data_list.append(new_data)
+                if duplicate_res_info_map:
+                    for new_res_id, new_res_info in duplicate_res_info_map.items():
+                        new_data = copy.deepcopy(module_data)
+                        new_data['resource_id'] = new_res_id
+                        new_data['cloud_resource_id'] = new_res_info.get(
+                            'cloud_resource_id')
+                        new_data['resource_name'] = new_res_info.get('name')
+                        module_data_list.append(new_data)
             preset_object['data'] = module_data_list
 
     def add_duplicated_objects(self, objects_group, preset_object,
@@ -907,7 +909,17 @@ class LiveDemoController(BaseController, MongoMixin):
 
         return target_employee_id
 
+    @staticmethod
+    def get_top_resources_by_total_cost(preset):
+        resources = preset.get(ObjectGroups.Resources.value, [])
+        not_clusters = [x for x in resources
+                        if x.get('cluster_type_id') is None]
+        top_res = sorted(not_clusters, key=lambda x: x.get('total_cost', 0),
+                         reverse=True)[:TOP_NO_DUPLICATE_RESOURCES]
+        return [x['_id'] for x in top_res]
+
     def init_duplication_resources(self, preset):
+        top_resources = self.get_top_resources_by_total_cost(preset)
         optimizations = preset.get(ObjectGroups.Optimizations.value, [])
         for optimization in optimizations:
             module_name = optimization.get('module')
@@ -919,7 +931,8 @@ class LiveDemoController(BaseController, MongoMixin):
                 for module_data in module_data_list:
                     resource_id = module_data.get('resource_id')
                     cloud_resource_id = module_data.get('cloud_resource_id')
-                    if resource_id and cloud_resource_id:
+                    if (resource_id and cloud_resource_id and
+                            resource_id not in top_resources):
                         self._duplication_module_res_info_map[
                             module_name][resource_id] = cloud_resource_id
 
@@ -939,10 +952,6 @@ class LiveDemoController(BaseController, MongoMixin):
                 organization, employee_id_to_replace, employee.id, preset)
         except Exception as exc:
             raise InternalServerError(Err.OE0451, [str(exc)])
-
-        OrganizationController(
-            self.session, self._config, self.token
-        ).post_cloud_health_processing_task(organization.id)
 
         return {
             'organization_id': organization.id,

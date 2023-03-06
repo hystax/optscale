@@ -8,28 +8,25 @@ import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import ButtonGroup from "components/ButtonGroup";
 import DashedTypography from "components/DashedTypography";
-import { getBasicRangesSet } from "components/DateRangePicker/defaults";
 import FormattedDigitalUnit, { SI_UNITS } from "components/FormattedDigitalUnit";
 import FormattedMoney from "components/FormattedMoney";
-import PageContentWrapper from "components/PageContentWrapper";
 import SummaryGrid from "components/SummaryGrid";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TrafficExpensesMap from "components/TrafficExpensesMap";
 import TrafficFromToLabel from "components/TrafficFromToLabel";
-import WrapperCard from "components/WrapperCard";
-import RangePickerFormContainer from "containers/RangePickerFormContainer";
+import { useReactiveDefaultDateRange } from "hooks/useReactiveDefaultDateRange";
 import { useShowLessThanValue } from "hooks/useShowLessThanValue";
 import { TABLE_SELECTION_STATE, useTrafficExpenses } from "hooks/useTrafficExpenses";
 import { getResourcesExpensesUrl } from "urls";
 import {
   SUMMARY_VALUE_COMPONENT_TYPES,
-  DATE_RANGE_TYPE,
   CLOUD_ACCOUNT_TYPE,
   FORMATTED_MONEY_TYPES,
   NETWORK_TRAFFIC_FROM_FILTER,
   NETWORK_TRAFFIC_TO_FILTER,
-  ANY_NETWORK_TRAFFIC_LOCATION
+  ANY_NETWORK_TRAFFIC_LOCATION,
+  DATE_RANGE_TYPE
 } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import { REGION_EXPENSES_HEIGHT } from "utils/maps";
@@ -78,7 +75,7 @@ const Summary = ({ isLoading, totalCost, totalUsage }) => {
   return <SummaryGrid summaryData={summaryData} />;
 };
 
-const TrafficExpenses = ({ expenses, applyFilter, startDateTimestamp, endDateTimestamp, isLoading = false }) => {
+const TrafficExpenses = ({ expenses, isLoading = false }) => {
   const navigate = useNavigate();
 
   const { showLessThanValue } = useShowLessThanValue();
@@ -137,6 +134,26 @@ const TrafficExpenses = ({ expenses, applyFilter, startDateTimestamp, endDateTim
     />
   );
 
+  const [startDateTimestamp, endDateTimestamp] = useReactiveDefaultDateRange(DATE_RANGE_TYPE.EXPENSES);
+  const goToResourcesHandler = () => {
+    const parseLocations = (locations) => [locations].flat().map((location) => `${location}:${selectedCloudType}`);
+
+    const { from: fromLocations, to: toLocations } = tableSelectionState.data;
+    const [fromFilters, toFilters] =
+      tableSelectionState.state === TABLE_SELECTION_STATE.NOTHING_SELECTED
+        ? [ANY_NETWORK_TRAFFIC_LOCATION, ANY_NETWORK_TRAFFIC_LOCATION]
+        : [fromLocations && parseLocations(fromLocations), toLocations && parseLocations(toLocations)];
+
+    navigate(
+      getResourcesExpensesUrl({
+        sStartDate: startDateTimestamp,
+        sEndDate: endDateTimestamp,
+        [NETWORK_TRAFFIC_FROM_FILTER]: fromFilters,
+        [NETWORK_TRAFFIC_TO_FILTER]: toFilters
+      })
+    );
+  };
+
   const title = (
     <div
       style={{
@@ -156,27 +173,7 @@ const TrafficExpenses = ({ expenses, applyFilter, startDateTimestamp, endDateTim
           <FormattedMessage id="clearFilter" />
         </DashedTypography>
       )}
-      <div
-        style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-        onClick={() => {
-          const parseLocations = (locations) => [locations].flat().map((location) => `${location}:${selectedCloudType}`);
-
-          const { from: fromLocations, to: toLocations } = tableSelectionState.data;
-          const [fromFilters, toFilters] =
-            tableSelectionState.state === TABLE_SELECTION_STATE.NOTHING_SELECTED
-              ? [ANY_NETWORK_TRAFFIC_LOCATION, ANY_NETWORK_TRAFFIC_LOCATION]
-              : [fromLocations && parseLocations(fromLocations), toLocations && parseLocations(toLocations)];
-
-          navigate(
-            getResourcesExpensesUrl({
-              sStartDate: startDateTimestamp,
-              sEndDate: endDateTimestamp,
-              [NETWORK_TRAFFIC_FROM_FILTER]: fromFilters,
-              [NETWORK_TRAFFIC_TO_FILTER]: toFilters
-            })
-          );
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={goToResourcesHandler}>
         <DashedTypography disablePointerOnHover component="span" dataTestId="lbl_see_resources">
           <FormattedMessage id="seeResources" />
         </DashedTypography>
@@ -187,62 +184,47 @@ const TrafficExpenses = ({ expenses, applyFilter, startDateTimestamp, endDateTim
 
   return (
     <>
-      <PageContentWrapper>
-        <Grid direction="row" container spacing={SPACING_2} justifyContent="space-between">
-          <Grid item>
-            <Summary isLoading={isLoading} totalCost={totalCost} totalUsage={totalUsage} />
-          </Grid>
-          <Grid item>
-            <RangePickerFormContainer
-              onApply={applyFilter}
-              initialStartDateValue={startDateTimestamp}
-              initialEndDateValue={endDateTimestamp}
-              rangeType={DATE_RANGE_TYPE.EXPENSES}
-              definedRanges={getBasicRangesSet()}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            {isLoading ? <Skeleton>{buttonsGroup}</Skeleton> : buttonsGroup}
-            <ShowLessThanValueSwitch />
-          </Grid>
-          <Grid item xs={12}>
-            {isLoading ? (
-              <Skeleton variant="rectangular" height={REGION_EXPENSES_HEIGHT} />
-            ) : (
-              <TrafficExpensesMap
-                markers={markers}
-                defaultZoom={defaultZoom}
-                defaultCenter={defaultCenter}
-                onMapClick={onMapClick}
-              />
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <WrapperCard title={title}>
-              {isLoading ? (
-                <TableLoader columnsCounter={columns.length} showHeader />
-              ) : (
-                <Table
-                  data={tableData}
-                  columns={columns}
-                  localization={{
-                    emptyMessageId: showLessThanValue ? "noTrafficExpenses" : "noTrafficExpensesHint"
-                  }}
-                />
-              )}
-            </WrapperCard>
-          </Grid>
+      <Grid direction="row" container spacing={SPACING_2} justifyContent="space-between">
+        <Grid item>
+          <Summary isLoading={isLoading} totalCost={totalCost} totalUsage={totalUsage} />
         </Grid>
-      </PageContentWrapper>
+        <Grid item xs={12}>
+          {isLoading ? <Skeleton>{buttonsGroup}</Skeleton> : buttonsGroup}
+          <ShowLessThanValueSwitch />
+        </Grid>
+        <Grid item xs={12}>
+          {isLoading ? (
+            <Skeleton variant="rectangular" height={REGION_EXPENSES_HEIGHT} />
+          ) : (
+            <TrafficExpensesMap
+              markers={markers}
+              defaultZoom={defaultZoom}
+              defaultCenter={defaultCenter}
+              onMapClick={onMapClick}
+            />
+          )}
+        </Grid>
+        <Grid item xs={12}>
+          {title}
+          {isLoading ? (
+            <TableLoader columnsCounter={columns.length} showHeader />
+          ) : (
+            <Table
+              data={tableData}
+              columns={columns}
+              localization={{
+                emptyMessageId: showLessThanValue ? "noTrafficExpenses" : "noTrafficExpensesHint"
+              }}
+            />
+          )}
+        </Grid>
+      </Grid>
     </>
   );
 };
 
 TrafficExpenses.propTypes = {
   expenses: PropTypes.object.isRequired,
-  applyFilter: PropTypes.func.isRequired,
-  startDateTimestamp: PropTypes.number,
-  endDateTimestamp: PropTypes.number,
   isLoading: PropTypes.bool
 };
 

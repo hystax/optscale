@@ -145,13 +145,13 @@ class BaseHandler(tornado.web.RequestHandler):
         out_list = traceback.format_exception(typ, value, tb)
         if isinstance(value, tornado.web.HTTPError):
             if value.log_message:
-                format = "%d %s: " + value.log_message + "\\n%s"
+                format = "%d %s: " + value.log_message + " %s"
                 args = ([value.status_code, self._request_summary()] +
-                        list(value.args) + [repr(''.join(out_list))])
+                        list(value.args) + [str(value)])
             else:
-                format = "%d %s:\\n%s"
+                format = "%d %s: %s"
                 args = ([value.status_code, self._request_summary()] +
-                        [repr(''.join(out_list))])
+                        [str(value)])
             LOG.warning(format, *args)
         else:
             LOG.error("Uncaught exception %s\\n%r\\n %s",

@@ -61,3 +61,6 @@ export const toKeyValueString = (object, separator = ":", joinWith = ",") =>
 
 export const objectMap = (object, mapFunction) =>
   Object.fromEntries(Object.entries(object).map(([key, value], index) => [key, mapFunction(value, key, index)]));
+
+export const removeUndefinedValues = (object) =>
+  Object.fromEntries(Object.entries(object).filter(([, value]) => value !== undefined));

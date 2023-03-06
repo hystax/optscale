@@ -1,16 +1,15 @@
 import React from "react";
-import { boolean, text } from "@storybook/addon-knobs";
 import RegistrationForm from "components/RegistrationForm";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.FORMS}/RegistrationForm`
+  title: `${KINDS.FORMS}/RegistrationForm`,
+  argTypes: {
+    isLoading: { name: "Loading", control: "boolean", defaultValue: false },
+    sendState: { name: "Send state", control: "text", defaultValue: "unknown" }
+  }
 };
 
-export const basic = () => (
-  <RegistrationForm
-    isLoading={boolean("isLoading", false)}
-    onSubmit={() => console.log("submit")}
-    sendState={text("sendState(success, error, unknown)", "unknown")}
-  />
+export const basic = (args) => (
+  <RegistrationForm isLoading={args.isLoading} onSubmit={() => console.log("submit")} sendState={args.sendState} />
 );

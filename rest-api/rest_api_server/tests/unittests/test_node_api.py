@@ -40,8 +40,8 @@ class TestNodeApi(TestApiBase):
             'name': 'k8s cloud_acc',
             'type': 'kubernetes_cnr',
             'config': {
-                'url': 'url',
-                'port': 1,
+                'user': 'user',
+                'password': 'password',
                 'cost_model': {
                     'cpu_hourly_cost': cpu_price,
                     'memory_hourly_cost': memory_price

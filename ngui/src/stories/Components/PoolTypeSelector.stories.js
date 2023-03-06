@@ -1,25 +1,29 @@
 import React, { useState } from "react";
 import PoolTypeSelector from "components/PoolTypeSelector";
-import { text, boolean } from "@storybook/addon-knobs";
 import { KINDS } from "stories";
 import { POOL_TYPE_BUDGET } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/PoolTypeSelector`
+  title: `${KINDS.COMPONENTS}/PoolTypeSelector`,
+  argTypes: {
+    required: { name: "Required", control: "boolean", defaultValue: true },
+    error: { name: "Error", control: "boolean", defaultValue: false },
+    helperText: { name: "Helper text", control: "text", defaultValue: "" }
+  }
 };
 
-const BasicSelector = () => {
+const BasicSelector = (args) => {
   const [selected, setSelected] = useState(POOL_TYPE_BUDGET);
 
   const onChange = (value) => setSelected(value);
 
   return (
     <PoolTypeSelector
-      required={boolean("required", true)}
+      required={args.required}
       value={selected}
       onChange={onChange}
-      error={boolean("error", false)}
-      helperText={text("helperText", "")}
+      error={args.error}
+      helperText={args.helperText}
     />
   );
 };

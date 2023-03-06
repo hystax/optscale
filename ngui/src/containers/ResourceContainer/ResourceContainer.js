@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { getResource, updateResourceVisibility } from "api";
@@ -16,12 +16,6 @@ const ResourceContainer = ({ resourceId }) => {
 
   const { isLoading: isLoadingPatch } = useApiState(UPDATE_RESOURCE_VISIBILITY);
   const { isDataReady: isGetResourceDataReady, shouldInvoke } = useApiState(GET_RESOURCE, { resourceId, details });
-
-  // Using state isGetResourcesInitiallyLoaded to replace tabs with loader only on initial load
-  const [isGetResourcesInitiallyLoaded, setIsGetResourcesInitiallyLoaded] = useState(false);
-  useEffect(() => {
-    setIsGetResourcesInitiallyLoaded(isGetResourcesInitiallyLoaded || isGetResourceDataReady);
-  }, [isGetResourceDataReady, isGetResourcesInitiallyLoaded]);
 
   const dispatch = useDispatch();
 
@@ -44,7 +38,7 @@ const ResourceContainer = ({ resourceId }) => {
       resource={resource}
       patchResource={patchResource}
       isLoadingPatch={isLoadingPatch}
-      isGetResourceLoading={!isGetResourcesInitiallyLoaded}
+      isGetResourceLoading={!isGetResourceDataReady}
     />
   );
 };

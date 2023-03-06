@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { DATE_RANGE_TYPE, DATE_RANGE_FILTERS } from "utils/constants";
 import { removeQueryParam, getQueryParams } from "utils/network";
-import { useDefaultDateRange } from "./useDefaultDateRange";
+import { useReactiveDefaultDateRange } from "./useReactiveDefaultDateRange";
 
 const useDateRange = ({ lastSeen, firstSeen, syntheticDateFilter }) => {
-  const [startDateTimestamp, endDateTimestamp] = useDefaultDateRange(DATE_RANGE_TYPE.RESOURCES);
+  const [startDateTimestamp, endDateTimestamp] = useReactiveDefaultDateRange(DATE_RANGE_TYPE.RESOURCES);
 
   const startDateValue = syntheticDateFilter === DATE_RANGE_FILTERS.ALL && firstSeen ? firstSeen : startDateTimestamp;
   const endDateValue = syntheticDateFilter === DATE_RANGE_FILTERS.ALL && lastSeen ? lastSeen : endDateTimestamp;

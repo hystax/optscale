@@ -1,7 +1,6 @@
 import React from "react";
 import ArchivedRecommendationsMocked from "components/ArchivedRecommendations/ArchivedRecommendationsMocked";
-import { MESSAGE_TYPES } from "components/ContentBackdrop";
-import Mocked from "components/Mocked";
+import Mocked, { MESSAGE_TYPES } from "components/Mocked";
 import ArchivedRecommendationsContainer from "containers/ArchivedRecommendationsContainer";
 
 const ArchivedRecommendations = () => (

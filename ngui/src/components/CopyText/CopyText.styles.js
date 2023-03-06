@@ -15,14 +15,12 @@ const useStyles = makeStyles()((theme) => ({
       transform: "translate(0px, 0px)"
     }
   },
-  copyIconFontSize: {
-    fontSize: "1rem"
-  },
   copyWrapper: {
     display: "inline-flex",
     paddingLeft: theme.spacing(0.5),
     cursor: "pointer"
-  }
+  },
+  normalWhitespace: { whiteSpace: "normal" }
 }));
 
 export default useStyles;

@@ -15,8 +15,8 @@ class TestK8sRightsizing(TestApiBase):
             'name': 'k8s cloud_acc',
             'type': 'kubernetes_cnr',
             'config': {
-                'url': 'url',
-                'port': 1,
+                'user': 'user',
+                'password': 'password',
                 'cost_model': {
                     'cpu_hourly_cost': 0.002,
                     'memory_hourly_cost': 0.001

@@ -4,13 +4,13 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import { EN_FULL_FORMAT, secondsToMilliseconds, format } from "utils/datetime";
 
 const violatedAt = () => ({
-  Header: (
+  header: (
     <TextWithDataTestId dataTestId="lbl_violated_at">
       <FormattedMessage id="violatedAt" />
     </TextWithDataTestId>
   ),
-  accessor: "created_at",
-  Cell: ({ cell: { value } }) => format(secondsToMilliseconds(value), EN_FULL_FORMAT),
+  accessorKey: "created_at",
+  cell: ({ cell }) => format(secondsToMilliseconds(cell.getValue()), EN_FULL_FORMAT),
   defaultSort: "desc"
 });
 

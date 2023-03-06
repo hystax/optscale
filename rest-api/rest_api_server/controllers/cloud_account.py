@@ -6,7 +6,7 @@ from calendar import monthrange
 
 from herald_client.client_v2 import Client as HeraldClient
 
-from sqlalchemy import Enum
+from sqlalchemy import Enum, true, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import and_, exists
 from cloud_adapter.exceptions import (InvalidParameterException,
@@ -42,7 +42,10 @@ from rest_api_server.controllers.expense import (
 from rest_api_server.controllers.organization import OrganizationController
 from rest_api_server.controllers.organization_constraint import OrganizationConstraintController
 from rest_api_server.controllers.pool import PoolController
-from rest_api_server.controllers.report_import import ExpensesRecalculationScheduleController
+from rest_api_server.controllers.report_import import (
+    ExpensesRecalculationScheduleController,
+    ReportImportBaseController
+)
 from rest_api_server.controllers.rule import RuleController
 from rest_api_server.exceptions import Err
 from rest_api_server.models.models import (CloudAccount, DiscoveryInfo,
@@ -55,8 +58,11 @@ from rest_api_server.utils import (check_bool_attribute, check_dict_attribute,
                                    check_string, check_string_attribute,
                                    raise_invalid_argument_exception,
                                    raise_not_provided_exception, CURRENCY_MAP,
-                                   encode_config, is_valid_meta)
+                                   encode_config, decode_config, is_valid_meta)
 LOG = logging.getLogger(__name__)
+
+
+NOTIFY_FIELDS = ["name", "config"]
 
 
 class CloudAccountController(BaseController):
@@ -104,8 +110,27 @@ class CloudAccountController(BaseController):
             if process_recommendations:
                 raise FailedDependency(Err.OE0476, [])
 
+    def handle_config(self, adapter_cls, config, organization=None):
+        self.validate_config(adapter_cls, config,
+                             {'bucket_prefix': check_string})
+        config = adapter_cls.configure_credentials(config)
+        adapter = adapter_cls(config)
+        org_id = None
+        if organization:
+            adapter.set_currency(organization.currency)
+            org_id = organization.id
+        try:
+            response = adapter.validate_credentials(org_id=org_id)
+        except InvalidParameterException as ex:
+            raise ForbiddenException(Err.OE0433, [str(ex)])
+        except CloudSettingNotSupported as ex:
+            raise WrongArgumentsException(Err.OE0437, [adapter_cls.__name__, str(ex)])
+        except CloudConnectionError as ex:
+            raise WrongArgumentsException(Err.OE0455, [str(ex)])
+        return config, response['account_id'], response['warnings']
+
     def validate_config(self, adapter_cls, config,
-                        except_cloud_acc_name_func=None, organization=None):
+                        except_cloud_acc_name_func=None):
 
         def validate_part(expected_params, config_part):
             required_field_names = [p.name for p in expected_params
@@ -115,7 +140,7 @@ class CloudAccountController(BaseController):
                 message = ', '.join(missing_required)
                 raise_not_provided_exception(message)
 
-            all_param_names = [p.name for p in expected_params]
+            all_param_names = [p.name for p in expected_params if not p.readonly]
             unexpected_params = [p for p in config_part if p not in all_param_names]
             if unexpected_params:
                 raise WrongArgumentsException(Err.OE0212, [unexpected_params])
@@ -144,20 +169,6 @@ class CloudAccountController(BaseController):
                         validate_part(param.dependencies, config_part[param_name])
 
         validate_part(adapter_cls.BILLING_CREDS, config)
-        adapter = adapter_cls(config)
-        org_id = None
-        if organization:
-            adapter.set_currency(organization.currency)
-            org_id = organization.id
-        try:
-            response = adapter.validate_credentials(org_id=org_id)
-        except InvalidParameterException as ex:
-            raise ForbiddenException(Err.OE0433, [str(ex)])
-        except CloudSettingNotSupported as ex:
-            raise WrongArgumentsException(Err.OE0437, [adapter_cls.__name__, str(ex)])
-        except CloudConnectionError as ex:
-            raise WrongArgumentsException(Err.OE0455, [str(ex)])
-        return response['account_id'], response['warnings']
 
     def check_cloud_account_exists(
             self, organization_id, cloud_acc_type, account_id,
@@ -187,7 +198,7 @@ class CloudAccountController(BaseController):
         adapter_cls = self.get_adapter(cloud_acc_type)
         config = params.get('config', {})
         # TODO: handle validation warnings
-        self.validate_config(adapter_cls, config)
+        self.handle_config(adapter_cls, config)
 
     def get_adapter(self, cloud_acc_type):
         try:
@@ -256,6 +267,20 @@ class CloudAccountController(BaseController):
             [recipient], subject, template_type=template,
             template_params=template_params)
 
+    def _get_non_linked_org_aws_accounts(self, org_id):
+        result = list()
+        q = self.session.query(CloudAccount).filter(
+            CloudAccount.organization_id == org_id,
+            CloudAccount.deleted.is_(False),
+            CloudAccount.type == CloudTypes.AWS_CNR,
+            CloudAccount.auto_import == true()
+        ).all()
+        for i in q:
+            decoded_config = decode_config(i.config)
+            if not decoded_config.get('linked', False):
+                result.append(i)
+        return result
+
     def create(self, **kwargs):
         LOG.info('Creating cloud account. Input data: %s', kwargs)
         org_id = kwargs.get('organization_id')
@@ -270,9 +295,8 @@ class CloudAccountController(BaseController):
         cost_model = config.pop('cost_model', {}) if config else {}
         organization = OrganizationController(
             self.session, self._config, self.token).get(org_id)
-        account_id, warnings = self.validate_config(
-            adapter_cls, config, {'bucket_prefix': check_string},
-            organization=organization)
+        config, account_id, warnings = self.handle_config(
+            adapter_cls, config, organization)
         self.check_cloud_account_exists(org_id, cloud_acc_type, account_id)
         kwargs['account_id'] = account_id
         last_import_modified_at = self._configure_last_import_modified_at(
@@ -322,10 +346,33 @@ class CloudAccountController(BaseController):
                 }
             ]
         )
+        if ca_obj.auto_import:
+            self._schedule_report_import(ca_obj)
         self._publish_validation_warnings_activities(ca_obj, warnings)
         self._publish_cloud_acc_activity(ca_obj, 'cloud_account_created')
         self.send_cloud_account_email(ca_obj, action='created')
         return ca_obj
+
+    def _schedule_report_import(self, ca_obj):
+        # schedule report import for this CA immediately
+        import_ctrl = ReportImportBaseController(self.session, self._config)
+        ids = list()
+        linked = False
+        if ca_obj.type == CloudTypes.AWS_CNR:
+            decoded_config = decode_config(ca_obj.config)
+            linked = decoded_config.get('linked', False)
+        if linked:
+            # trigger import tasks for all non-linked AWS accounts for current org id
+            # please see OS-5622
+            accounts = self._get_non_linked_org_aws_accounts(
+                ca_obj.organization_id)
+            for a in accounts:
+                ids.append(a.id)
+        else:
+            ids.append(ca_obj.id)
+        for i in ids:
+            # set priority 8 according to comments in OS-5602
+            import_ctrl.create(i, priority=8)
 
     def _get_evironment_cloud_account(self, organization_id):
         return self.session.query(CloudAccount).filter(
@@ -389,6 +436,10 @@ class CloudAccountController(BaseController):
         adapter = adapter_cls(config)
         return adapter.configure_last_import_modified_at()
 
+    @staticmethod
+    def _need_notification(kwargs):
+        return bool(set(kwargs.keys()).intersection(set(NOTIFY_FIELDS)))
+
     def edit(self, item_id, **kwargs):
         LOG.info('Editing cloud account %s. Input: %s', item_id, kwargs)
         self.check_update_restrictions(**kwargs)
@@ -409,13 +460,15 @@ class CloudAccountController(BaseController):
         if config:
             cost_model = config.pop('cost_model', {})
             if config:
-                account_id, warnings = self.validate_config(
-                    adapter_cls, config, {'bucket_prefix': check_string},
-                    organization=organization)
+                config, account_id, warnings = self.handle_config(
+                    adapter_cls, config, organization)
                 self.check_cloud_account_exists(cloud_acc_obj.organization_id,
                                                 cloud_acc_type, account_id,
                                                 cloud_acc_obj.id)
-                kwargs['account_id'] = account_id
+                # k8s config is always different but must not be changed
+                # on update
+                if cloud_acc_obj.type != CloudTypes.KUBERNETES_CNR:
+                    kwargs['account_id'] = account_id
                 kwargs['config'] = encode_config(config)
                 config_changed = config != old_config
             if cost_model:
@@ -445,7 +498,7 @@ class CloudAccountController(BaseController):
         else:
             updated_cloud_account = cloud_acc_obj
 
-        if kwargs:
+        if kwargs and self._need_notification(kwargs):
             self._publish_cloud_acc_activity(
                 updated_cloud_account, 'cloud_account_updated')
         return updated_cloud_account

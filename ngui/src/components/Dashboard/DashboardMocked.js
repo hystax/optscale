@@ -2,74 +2,12 @@ import React from "react";
 
 import DashboardGridLayout from "components/DashboardGridLayout";
 import EnvironmentsCard from "components/EnvironmentsCard";
-import MyTasks from "components/MyTasks";
 import OrganizationExpenses from "components/OrganizationExpenses";
 import PageContentWrapper from "components/PageContentWrapper";
 import RecommendationsCard from "components/RecommendationsCard";
 import TopResourcesExpensesCard from "components/TopResourcesExpensesCard";
-import { MOCKED_ORGANIZATION_POOL_ID } from "mocks/idsMock";
-import {
-  TASK_INCOMING_ASSIGNMENT_REQUESTS,
-  TASK_OUTGOING_ASSIGNMENT_REQUESTS,
-  TASK_EXCEEDED_POOLS,
-  TASK_EXCEEDED_POOL_FORECASTS,
-  TASK_VIOLATED_RESOURCE_CONSTRAINTS,
-  TASK_VIOLATED_ORGANIZATION_CONSTRAINTS,
-  TASK_DIVERGENT_CONSTRAINTS
-} from "utils/constants";
+import { MOCKED_ORGANIZATION_POOL_ID } from "stories";
 import { getLastMonthRange, millisecondsToSeconds } from "utils/datetime";
-
-const expanded = {
-  [TASK_INCOMING_ASSIGNMENT_REQUESTS]: false,
-  [TASK_OUTGOING_ASSIGNMENT_REQUESTS]: false,
-  [TASK_EXCEEDED_POOLS]: false,
-  [TASK_EXCEEDED_POOL_FORECASTS]: false,
-  [TASK_VIOLATED_RESOURCE_CONSTRAINTS]: false,
-  [TASK_VIOLATED_ORGANIZATION_CONSTRAINTS]: false,
-  [TASK_DIVERGENT_CONSTRAINTS]: false
-};
-
-const MyTasksCard = () => (
-  <MyTasks
-    isLoading={false}
-    isEmpty={false}
-    data={{
-      exceededPools: {
-        count: 5,
-        tasks: []
-      },
-      exceededPoolForecasts: {
-        count: 8,
-        tasks: []
-      },
-      violatedResourceConstraints: {
-        count: 12,
-        tasks: []
-      },
-      violatedOrganizationConstraints: {
-        count: 3,
-        tasks: []
-      },
-      divergentConstraints: {
-        count: 14,
-        tasks: []
-      },
-      incomingAssignmentRequests: {
-        count: 17,
-        tasks: []
-      },
-      outgoingAssignmentRequests: {
-        count: 94,
-        tasks: []
-      }
-    }}
-    expanded={expanded}
-    organizationId="2a03382a-a036-4881-b6b5-68c08192cc44"
-    hasTaskTypeInUrl={false}
-    handleChange={() => console.log("handleChange")}
-    onSideModalClose={() => console.log("onSideModalClose")}
-  />
-);
 
 const cleanExpenses = [
   {
@@ -543,7 +481,6 @@ const DashboardMocked = () => (
           securityRecommendationsCount={21}
         />
       }
-      myTasksCard={<MyTasksCard />}
     />
   </PageContentWrapper>
 );

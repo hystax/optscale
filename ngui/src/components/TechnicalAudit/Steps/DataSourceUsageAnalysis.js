@@ -34,14 +34,14 @@ const DataSourceUsageAnalysis = ({ isConfirmed, onConfirm, dataSources = [], isL
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tb_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
+        accessorKey: "name",
         style: RESOURCE_ID_COLUMN_CELL_STYLE,
-        Cell: ({
+        cell: ({
           row: {
             original: { id, name, type },
             index
@@ -49,14 +49,14 @@ const DataSourceUsageAnalysis = ({ isConfirmed, onConfirm, dataSources = [], isL
         }) => <CloudLabel id={id} name={name} type={type} dataTestId={`link_cloud_${index}`} />
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_tb_status">
             <FormattedMessage id="status" />
           </TextWithDataTestId>
         ),
-        accessor: "last_import_at",
-        Cell: ({ cell: { value } }) =>
-          value === 0 ? <FormattedMessage id="dataIsUnderProcessing" /> : <FormattedMessage id="ready" />
+        accessorKey: "last_import_at",
+        cell: ({ cell }) =>
+          cell.getValue() === 0 ? <FormattedMessage id="dataIsUnderProcessing" /> : <FormattedMessage id="ready" />
       }
     ],
     []
@@ -65,11 +65,11 @@ const DataSourceUsageAnalysis = ({ isConfirmed, onConfirm, dataSources = [], isL
   return (
     <Grid container spacing={SPACING_1}>
       <Grid item xs={12}>
-        {/* TODO: probably need to remove p from app.json and component from here */}
         <Typography component="div">
           <FormattedMessage
             id="technicalAudit.dataSourceUsageAnalysisDescription"
             values={{
+              // TODO: probably need to remove p from app.json and component from here
               p: (chunks) => <p>{chunks}</p>,
               itEnvironmentsLink: (chunks) => (
                 <Link to={ENVIRONMENTS} component={RouterLink}>

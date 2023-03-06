@@ -9,6 +9,24 @@ import { getQueryParams, removeQueryParam, updateQueryParams } from "utils/netwo
 
 const GROUP_VALUE_QUERY_PARAM_NAME = "groupValue";
 
+const TitleItemsSeparator = () => <div>&nbsp;-&nbsp;</div>;
+
+const AccordionTitle = ({ name, count, totalExpenses }) => (
+  <Typography component="div" style={{ justifyContent: "center", display: "flex", alignItems: "center" }}>
+    <strong
+      style={{
+        display: "inline-flex"
+      }}
+    >
+      {name}
+    </strong>
+    <TitleItemsSeparator />
+    <FormattedMessage id="resourcesPlural" values={{ count }} />
+    <TitleItemsSeparator />
+    <FormattedMoney value={totalExpenses} />
+  </Typography>
+);
+
 const GroupedTables = ({
   groupedResources,
   onAccordionChange,
@@ -50,17 +68,6 @@ const GroupedTables = ({
     return () => removeQueryParam(GROUP_VALUE_QUERY_PARAM_NAME);
   }, [groupedResources]);
 
-  const separator = <div>&nbsp;-&nbsp;</div>;
-  const renderTitle = ({ name, count, totalExpenses }) => (
-    <Typography style={{ justifyContent: "center", display: "flex" }}>
-      <strong>{name}</strong>
-      {separator}
-      {<FormattedMessage id="resourcesPlural" values={{ count }} />}
-      {separator}
-      <FormattedMoney value={totalExpenses} />
-    </Typography>
-  );
-
   const renderCleanExpensesTable = (expenses, { assignmentRuleCreationQueryParameters }) => (
     <CleanExpensesTable
       startDateTimestamp={startDateTimestamp}
@@ -95,7 +102,7 @@ const GroupedTables = ({
           }}
           headerDataTestId={typeof getGroupHeaderDataTestId === "function" ? getGroupHeaderDataTestId(index) : undefined}
         >
-          {renderTitle({ name: displayedGroupName, count, totalExpenses })}
+          <AccordionTitle name={displayedGroupName} count={count} totalExpenses={totalExpenses} />
           {isExpanded && renderCleanExpensesTable(expenses, { assignmentRuleCreationQueryParameters })}
         </Accordion>
       );

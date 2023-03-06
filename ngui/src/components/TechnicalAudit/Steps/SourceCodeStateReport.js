@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
+import React from "react";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
@@ -7,50 +6,15 @@ import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
-import ButtonLoader from "components/ButtonLoader";
-import FormButtonsWrapper from "components/FormButtonsWrapper";
+import { DropzoneForm } from "components/Dropzone";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import KeyValueLabel from "components/KeyValueLabel";
-import QuestionMark from "components/QuestionMark";
-import Upload from "components/Upload";
 import { CODECLIMATE, CODECLIMATE_GITLAB_WRAPPER, SEMGREP, SEMGREP_GUIDE, SEMGREP_SETTING, CLOC } from "urls";
-import { isEmpty } from "utils/arrays";
-import { SUCCESS } from "utils/constants";
-import { isCodeReportExtensionSupported } from "utils/files";
 import { SPACING_1 } from "utils/layouts";
 
-const SourceCodeStateReport = ({
-  isConfirmed,
-  onConfirm,
-  onUpload,
-  isLoadingProps,
-  uploadStatus,
-  alreadyUploadedFilesCount = 0
-}) => {
-  const [errorText, setErrorText] = useState("");
-  const [files, setFiles] = useState(null);
+const FILE_TYPES = ["application/gzip", "application/x-gzip", "application/zip", "application/x-zip-compressed", ""];
 
-  useEffect(() => {
-    if (uploadStatus === SUCCESS) {
-      setErrorText("");
-    }
-  }, [uploadStatus]);
-
-  const uploadHandleChange = (newFiles) => {
-    setErrorText("");
-    setFiles(newFiles);
-  };
-
-  const uploadCodeReport = () => {
-    if (isEmpty(files)) {
-      return setErrorText("selectFileToUpload");
-    }
-    const [file] = files;
-    if (!isCodeReportExtensionSupported(file.name)) {
-      return setErrorText("fileFormatNotSupported");
-    }
-    return onUpload(file);
-  };
-
+const SourceCodeStateReport = ({ isConfirmed, onConfirm, onUpload, isLoadingProps, alreadyUploadedFilesCount = 0 }) => {
   const { isUploadCodeReportLoading = false } = isLoadingProps;
 
   return (
@@ -101,31 +65,13 @@ const SourceCodeStateReport = ({
         </Typography>
       </Grid>
       <Grid item xs={12} sm={8} lg={6} xl={4}>
-        <Upload
-          errorText={errorText}
-          setErrorText={setErrorText}
-          handleChange={uploadHandleChange}
-          maxFileSize={10}
-          acceptedFiles={["application/gzip", "application/x-gzip", "application/zip", "application/x-zip-compressed", ""]}
-        />
-        <Box display="flex" alignItems="center">
-          <FormButtonsWrapper alignItems="center">
-            <ButtonLoader
-              variant="outlined"
-              color="primary"
-              isLoading={isUploadCodeReportLoading}
-              messageId="upload"
-              onClick={uploadCodeReport}
-            />
-            <QuestionMark
-              dataTestId="conditions_help"
-              messageId="technicalAudit.sourceCodeStateReportUploadHint"
-              messageValues={{ br: <br /> }}
-              fontSize="small"
-            />
-          </FormButtonsWrapper>
-        </Box>
+        <DropzoneForm acceptedFiles={FILE_TYPES} onUpload={onUpload} isLoading={isUploadCodeReportLoading} maxFileSizeMb={10} />
         <KeyValueLabel messageId="alreadyUploadedFiles" value={alreadyUploadedFilesCount} />
+        <InlineSeverityAlert
+          messageId="technicalAudit.sourceCodeStateReportUploadHint"
+          messageValues={{ br: <br /> }}
+          messageDataTestId="conditions_help"
+        />
       </Grid>
       <Grid item xs={12}>
         <FormControlLabel
@@ -146,7 +92,6 @@ SourceCodeStateReport.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   onUpload: PropTypes.func.isRequired,
   alreadyUploadedFilesCount: PropTypes.number,
-  uploadStatus: PropTypes.string,
   isLoadingProps: PropTypes.shape({
     isGetTechnicalAuditLoading: PropTypes.bool,
     isUpdateTechnicalAuditLoading: PropTypes.bool,

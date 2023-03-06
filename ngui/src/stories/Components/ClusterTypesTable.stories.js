@@ -1,15 +1,16 @@
 import React from "react";
-import ClusterTypesTable from "components/ClusterTypesTable";
-import configureMockStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import { GET_ORGANIZATIONS } from "api/restapi/actionTypes";
+import configureMockStore from "redux-mock-store";
 import { GET_ORGANIZATION_ALLOWED_ACTIONS } from "api/auth/actionTypes";
-import { MOCKED_ORGANIZATION_ID } from "mocks/idsMock";
-import { boolean } from "@storybook/addon-knobs";
-import { KINDS } from "stories";
+import { GET_ORGANIZATIONS } from "api/restapi/actionTypes";
+import ClusterTypesTable from "components/ClusterTypesTable";
+import { KINDS, MOCKED_ORGANIZATION_ID } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ClusterTypesTable`
+  title: `${KINDS.COMPONENTS}/ClusterTypesTable`,
+  argTypes: {
+    isLoading: { name: "Loading", control: "boolean", defaultValue: false }
+  }
 };
 
 const mockStore = configureMockStore();
@@ -19,11 +20,11 @@ const clusterTypes = [
   { name: "name2", tag_key: "tag2", priority: 2 }
 ];
 
-export const withoutManageResourcePermission = () => (
-  <ClusterTypesTable clusterTypes={clusterTypes} isLoading={boolean("isLoading", false)} />
+export const withoutManageResourcePermission = (args) => (
+  <ClusterTypesTable clusterTypes={clusterTypes} isLoading={args.isLoading} />
 );
 
-export const withManageResourcePermission = () => {
+export const withManageResourcePermission = (args) => {
   const store = mockStore({
     organizationId: MOCKED_ORGANIZATION_ID,
     restapi: {
@@ -46,7 +47,7 @@ export const withManageResourcePermission = () => {
 
   return (
     <Provider store={store}>
-      <ClusterTypesTable clusterTypes={clusterTypes} isLoading={boolean("isLoading", false)} />
+      <ClusterTypesTable clusterTypes={clusterTypes} isLoading={args.isLoading} />
     </Provider>
   );
 };

@@ -57,7 +57,8 @@ class InsiderWorker(ConsumerMixin):
             'completed_at': 0
         }).inserted_id
 
-        get_processor_class(cloud_type)(self.mongo_client).process_prices()
+        get_processor_class(cloud_type)(
+            self.mongo_client, self.config_cl).process_prices()
 
         end_process_time = int(datetime.utcnow().timestamp())
         self.discoveries.update_one(
@@ -70,6 +71,7 @@ class InsiderWorker(ConsumerMixin):
 
     def process_task(self, body, message):
         try:
+            LOG.info('Started processing for task: %s' % body)
             self._process_task(body)
         except Exception as exc:
             LOG.exception('Prices discovery failed: %s', str(exc))

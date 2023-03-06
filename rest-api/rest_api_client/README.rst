@@ -1,2 +1,2 @@
-Hystax Acura Rest API client package
+Hystax OptScale Rest API client package
 ====================================

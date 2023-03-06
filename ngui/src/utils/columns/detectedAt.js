@@ -10,16 +10,16 @@ const DetectedAt = ({ secondTimestamp }) => {
   return <CaptionedCell caption={timeAgo}>{format(secondsToMilliseconds(secondTimestamp), EN_FULL_FORMAT)}</CaptionedCell>;
 };
 
-const lastUsed = ({ headerDataTestId, accessor = "detected_at" }) => ({
-  Header: (
+const detectedAt = ({ headerDataTestId, accessor = "detected_at" }) => ({
+  header: (
     <HeaderHelperCell
       titleMessageId="detectedAt"
       titleDataTestId={headerDataTestId}
       helperMessageId="recommendationDetectedAtDescription"
     />
   ),
-  accessor,
-  Cell: ({ cell: { value: secondTimestamp } }) => <DetectedAt secondTimestamp={secondTimestamp} />
+  accessorKey: accessor,
+  cell: ({ cell }) => <DetectedAt secondTimestamp={cell.getValue()} />
 });
 
-export default lastUsed;
+export default detectedAt;

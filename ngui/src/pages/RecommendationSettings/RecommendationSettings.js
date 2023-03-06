@@ -17,7 +17,6 @@ const RecommendationSettings = () => {
   }
 
   const actionBarDefinition = {
-    goBack: true,
     title: {
       text: (
         <FormattedMessage

@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import PriorityHighOutlinedIcon from "@mui/icons-material/PriorityHighOutlined";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardHeader from "@mui/material/CardHeader";
 import Link from "@mui/material/Link";
 import Skeleton from "@mui/material/Skeleton";
 import Switch from "@mui/material/Switch";
@@ -211,34 +208,25 @@ const ResourceConstraintCard = ({
     );
 
   const card = (
-    <Card className={classes.card} data-test-id={`block_${constraintType}`}>
-      <CardHeader
-        className={classes.cardHeader}
-        title={
-          <Box display="flex" alignItems="center">
-            <WidgetTitle dataTestId={`p_${constraintType}`}>
-              <FormattedMessage id={CONSTRAINTS_TYPES[constraintType]} />
-            </WidgetTitle>
+    <div data-test-id={`block_${constraintType}`}>
+      <Box display="flex" alignItems="center">
+        <WidgetTitle dataTestId={`p_${constraintType}`}>
+          <FormattedMessage id={CONSTRAINTS_TYPES[constraintType]} />
+        </WidgetTitle>
 
-            {canEdit && (
-              <Switch data-test-id={`checkbox_${constraintType}`} checked={isSwitchEnabled} onChange={() => changeSwitch()} />
-            )}
-            {getStatus(constraintStatus, { classes, constraintType, poolId })}
-          </Box>
-        }
-        subheader={
-          <Typography variant="caption">
-            <FormattedMessage id={`${CONSTRAINTS_TYPES[constraintType]}ExplanatoryText`} />
-          </Typography>
-        }
-      />
-      <CardContent>
-        {isCreateLoading || isDeleteLoading ? <Skeleton width={"100%"}>{renderPolicy()}</Skeleton> : renderPolicy()}
-      </CardContent>
-    </Card>
+        {canEdit && (
+          <Switch data-test-id={`checkbox_${constraintType}`} checked={isSwitchEnabled} onChange={() => changeSwitch()} />
+        )}
+        {getStatus(constraintStatus, { classes, constraintType, poolId })}
+      </Box>
+      <Typography variant="caption">
+        <FormattedMessage id={`${CONSTRAINTS_TYPES[constraintType]}ExplanatoryText`} />
+      </Typography>
+      {isCreateLoading || isDeleteLoading ? <Skeleton width="100%">{renderPolicy()}</Skeleton> : renderPolicy()}
+    </div>
   );
 
-  return isGetDataLoading ? <Skeleton>{card}</Skeleton> : card;
+  return isGetDataLoading ? <Skeleton width="100%">{card}</Skeleton> : card;
 };
 
 ResourceConstraintCard.propTypes = {

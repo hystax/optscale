@@ -60,3 +60,11 @@ class ConnectionTimeout(CloudAdapterBaseException):
 
 class InvalidResourceTypeException(CloudAdapterBaseException):
     pass
+
+
+class MetricsNotFoundException(ResourceNotFound):
+    pass
+
+
+class MetricsServerTimeoutException(ResourceNotFound):
+    pass

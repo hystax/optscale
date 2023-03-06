@@ -1,5 +1,5 @@
 import { reformatBreakdown } from "utils/api";
-import { removeObjects, isEmpty } from "utils/arrays";
+import { removeObjects } from "utils/arrays";
 import { isEmpty as isEmptyObject } from "utils/objects";
 import {
   SET_ORGANIZATION_FEATURES,
@@ -22,7 +22,6 @@ import {
   SET_POOL_OWNERS,
   SET_AUTHORIZED_EMPLOYEES,
   SET_EMPLOYEES,
-  SET_MY_TASKS,
   SET_ORGANIZATION_EXPENSES,
   SET_CURRENT_EMPLOYEE,
   SET_RAW_EXPENSES,
@@ -40,10 +39,8 @@ import {
   SET_TRAFFIC_EXPENSES,
   SET_OPTIMIZATIONS,
   SET_LIVE_DEMO,
-  SET_CLOUD_HEALTH,
   SET_TTL_ANALYSIS,
   SET_FINOPS_CHECKLIST,
-  SET_FINOPS_ASSESSMENT,
   SET_TECHNICAL_AUDIT,
   SET_CLUSTER_TYPES,
   SET_ENVIRONMENTS,
@@ -82,7 +79,21 @@ import {
   SET_K8S_RIGHTSIZING,
   DELETE_POOL,
   UPDATE_ORGANIZATION_THEME_SETTINGS,
-  SET_ORGANIZATION_THEME_SETTINGS
+  SET_ORGANIZATION_THEME_SETTINGS,
+  SET_ORGANIZATION_PERSPECTIVES,
+  UPDATE_ORGANIZATION_PERSPECTIVES,
+  CREATE_ORGANIZATION,
+  UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
+  SET_ML_APPLICATIONS,
+  SET_ML_GLOBAL_PARAMETERS,
+  SET_ML_GLOBAL_PARAMETER,
+  SET_PROFILING_TOKEN,
+  SET_ML_EXECUTORS,
+  SET_ML_EXECUTORS_BREAKDOWN,
+  SET_ML_APPLICATION,
+  SET_ML_APPLICATION_RUNS,
+  SET_ML_RUN_DETAILS,
+  SET_ML_RUN_DETAILS_BREAKDOWN
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -228,6 +239,12 @@ const reducer = (state = {}, action) => {
         }
       };
     }
+    case CREATE_ORGANIZATION: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
     case SET_ORGANIZATIONS: {
       return {
         ...state,
@@ -314,26 +331,6 @@ const reducer = (state = {}, action) => {
         ...state,
         [action.label]: action.payload.invites
       };
-    case SET_MY_TASKS: {
-      const { myTasks } = action.payload;
-      const mapState = Object.entries(myTasks).reduce((resultObject, [key, value]) => {
-        const stateTasks = state?.[action.label]?.myTasks?.key?.tasks ?? [];
-        const tasks = isEmpty(value.tasks) ? stateTasks : value.tasks || [];
-        return {
-          ...resultObject,
-          [key]: {
-            count: value.count,
-            tasks
-          }
-        };
-      }, {});
-      return {
-        ...state,
-        [action.label]: {
-          myTasks: mapState
-        }
-      };
-    }
     case SET_RAW_EXPENSES: {
       return {
         ...state,
@@ -487,12 +484,6 @@ const reducer = (state = {}, action) => {
         [action.label]: { ...liveDemo, ...action.payload }
       };
     }
-    case SET_CLOUD_HEALTH: {
-      return {
-        ...state,
-        [action.label]: action.payload
-      };
-    }
     case SET_TTL_ANALYSIS: {
       return {
         ...state,
@@ -500,12 +491,6 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_FINOPS_CHECKLIST: {
-      return {
-        ...state,
-        [action.label]: action.payload
-      };
-    }
-    case SET_FINOPS_ASSESSMENT: {
       return {
         ...state,
         [action.label]: action.payload
@@ -611,6 +596,17 @@ const reducer = (state = {}, action) => {
         ...state,
         [action.label]: action.payload
       };
+    case SET_ORGANIZATION_PERSPECTIVES:
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    case UPDATE_ORGANIZATION_PERSPECTIVES: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
     case UPDATE_ENVIRONMENT_PROPERTY: {
       return {
         ...state,
@@ -619,6 +615,17 @@ const reducer = (state = {}, action) => {
           resource: {
             ...state[action.label].resource,
             ...action.payload
+          }
+        }
+      };
+    }
+    case UPDATE_ENVIRONMENT_SSH_REQUIREMENT: {
+      return {
+        ...state,
+        [action.label]: {
+          resource: {
+            ...state[action.label].resource,
+            ssh_only: action.payload.ssh_only
           }
         }
       };
@@ -690,6 +697,66 @@ const reducer = (state = {}, action) => {
       };
     }
     case UPDATE_ORGANIZATION_THEME_SETTINGS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_APPLICATIONS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_GLOBAL_PARAMETERS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_GLOBAL_PARAMETER: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_PROFILING_TOKEN: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_EXECUTORS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_EXECUTORS_BREAKDOWN: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_APPLICATION: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_APPLICATION_RUNS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_RUN_DETAILS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_RUN_DETAILS_BREAKDOWN: {
       return {
         ...state,
         [action.label]: action.payload

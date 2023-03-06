@@ -5,7 +5,6 @@ import { SPACING_1 } from "utils/layouts";
 const useStyles = makeStyles()((theme) => ({
   selector: {
     marginRight: theme.spacing(SPACING_1),
-    minWidth: theme.spacing(12),
     "&:last-child": {
       marginRight: 0
     }
@@ -76,9 +75,9 @@ const useStyles = makeStyles()((theme) => ({
     }
   },
   button: {
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.primary.main,
     "&:hover": {
-      backgroundColor: alpha(theme.palette.primary.contrastText, 0.2)
+      backgroundColor: alpha(theme.palette.primary.main, 0.2)
     }
   },
   mobileSelect: {

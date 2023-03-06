@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from "react";
 import { CircularProgress } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { useFormContext, Controller } from "react-hook-form";
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 import ButtonGroup from "components/ButtonGroup";
 import CreateSshKeyNameField from "components/CreateSshKeyNameField";
 import CreateSshKeyValueField from "components/CreateSshKeyValueField";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import Selector from "components/Selector";
 import { isEmpty } from "utils/arrays";
 
@@ -92,9 +92,7 @@ const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) =>
       {activeTab === ADD_KEY && (
         <>
           <Grid item xs={12}>
-            <Typography data-test-id="ssh-hint">
-              <FormattedMessage id={"sshHint"} />
-            </Typography>
+            <InlineSeverityAlert messageDataTestId="ssh-hint" messageId="sshHint" />
           </Grid>
           <CreateSshKeyNameField />
           <CreateSshKeyValueField />

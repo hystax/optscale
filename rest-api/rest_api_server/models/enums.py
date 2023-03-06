@@ -7,6 +7,7 @@ class CloudTypes(enum.Enum):
     AZURE_CNR = 'azure_cnr'
     KUBERNETES_CNR = 'kubernetes_cnr'
     ENVIRONMENT = 'environment'
+    GCP_CNR = 'gcp_cnr'
 
 
 class ImportStates(enum.Enum):

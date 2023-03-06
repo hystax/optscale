@@ -27,7 +27,8 @@ class FlavorsHandler(SecretHandler):
 
         optional_params = [('os_type', str),
                            ('preinstalled', str),
-                           ('meter_id', str)]
+                           ('meter_id', str),
+                           ('currency', str)]
 
         mode_params = {
             'current': [],
@@ -48,6 +49,9 @@ class FlavorsHandler(SecretHandler):
                                  ('engine', str), ('engine_version', str),
                                  ('storage_type', str),
                                  ('source_flavor_id', str)]
+            },
+            'gcp_cnr': {
+                'instance': [('source_flavor_id', str)],
             },
         }
 
@@ -149,6 +153,8 @@ class FlavorsHandler(SecretHandler):
                         (for `search_*` modes)"}
                     meter_id: {type: string,
                         description: "Pricing meter id (Azure only)"}
+                    currency: {type: string,
+                        description: "Flavor price currency"}
         responses:
             200:
                 description: suitable flavor info

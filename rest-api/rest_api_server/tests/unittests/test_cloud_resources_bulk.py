@@ -85,15 +85,32 @@ class TestCloudResourceApi(TestApiBase):
                 self.valid_resource2,
             ]
         }
+        self.valid_hash_resource1 = {
+            'cloud_resource_hash': 'res_id_4',
+            'name': 'resource_4',
+            'resource_type': 'testo',
+        }
+        self.valid_hash_resource2 = {
+            'cloud_resource_hash': 'res_id_5',
+            'name': 'resource_5',
+            'resource_type': 'testo',
+        }
+        self.valid_hash_body = {
+            'resources': [
+                self.valid_hash_resource1,
+                self.valid_hash_resource2,
+            ]
+        }
 
-    def _check_response_body(self, response_body, valid_body):
+    def _check_response_body(self, response_body, valid_body,
+                             search_field='cloud_resource_id'):
         self.assertEqual(len(response_body['resources']),
                          len(valid_body['resources']))
-        valid_resources_by_id = {r['cloud_resource_id']: r
+        valid_resources_by_id = {r[search_field]: r
                                  for r in valid_body['resources']}
         for created_resource in response_body['resources']:
             valid_resource = valid_resources_by_id[
-                created_resource['cloud_resource_id']]
+                created_resource[search_field]]
             for k, v in valid_resource.items():
                 self.assertEqual(created_resource[k], v)
 
@@ -123,12 +140,23 @@ class TestCloudResourceApi(TestApiBase):
             self.cloud_acc1_id, self.valid_body)
         self.assertEqual(code, 204)
         self.assertEqual(result, None)
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, self.valid_hash_body)
+        self.assertEqual(code, 204)
+        self.assertEqual(result, None)
 
     def test_create_with_response(self):
         code, result = self.cloud_resource_create_bulk(
             self.cloud_acc1_id, self.valid_body, return_resources=True)
         self.assertEqual(code, 200)
         self._check_response_body(result, self.valid_body)
+
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, self.valid_hash_body,
+            return_resources=True)
+        self.assertEqual(code, 200)
+        self._check_response_body(result, self.valid_hash_body,
+                                  search_field='cloud_resource_hash')
 
     def test_create_with_response_on_report_import(self):
         resource = {
@@ -149,6 +177,110 @@ class TestCloudResourceApi(TestApiBase):
         self._check_response_body(result, self.valid_body)
         for r in result['resources']:
             self.assertEqual(r['recommendations'], {})
+
+    def test_create_with_hash_update_with_resource_id(self):
+        # resource created by diworker
+        hash_ = 'hash'
+        resource = {
+            'cloud_account_id': self.cloud_acc1_id,
+            'region': 'test_region',
+            'service_name': 'test_service',
+            'cloud_resource_hash': hash_,
+            'name': 'resource_2',
+            'resource_type': 'testo'
+        }
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, {'resources': [resource]},
+            return_resources=True, is_report_import=True,
+            behavior='skip_existing')
+        self.assertEqual(code, 200)
+        self.assertEqual(len(result['resources']), 1)
+        self.assertEqual(result['resources'][0]['cloud_resource_hash'],
+                         hash_)
+        self.assertIsNone(result['resources'][0].get('cloud_resource_id'))
+
+        # resource updated by resource-discovery
+        res_id = 'res_id'
+        resource = {
+            'cloud_account_id': self.cloud_acc1_id,
+            'region': 'test_region',
+            'service_name': 'test_service',
+            'cloud_resource_id': res_id,
+            'cloud_resource_hash': hash_,
+            'name': 'resource_2',
+            'resource_type': 'testo',
+        }
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, {'resources': [resource]},
+            return_resources=True, behavior='update_existing')
+        self.assertEqual(code, 200)
+        self.assertEqual(len(result['resources']), 1)
+        self.assertEqual(len(list(
+            self.mongo_client.restapi.resources.find())), 1)
+        self.assertEqual(result['resources'][0]['cloud_resource_hash'],
+                         hash_)
+        self.assertEqual(result['resources'][0]['cloud_resource_id'],
+                         res_id)
+
+    def test_create_with_resource_id_update_with_hash(self):
+        # resource created by resource-discovery
+        res_id = 'res_id'
+        hash_ = 'hash'
+        resource = {
+            'cloud_account_id': self.cloud_acc1_id,
+            'region': 'test_region',
+            'service_name': 'test_service',
+            'cloud_resource_id': res_id,
+            'cloud_resource_hash': hash_,
+            'name': 'resource_2',
+            'resource_type': 'testo',
+        }
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, {'resources': [resource]},
+            return_resources=True, behavior='update_existing')
+        self.assertEqual(code, 200)
+        self.assertEqual(len(result['resources']), 1)
+        self.assertEqual(result['resources'][0]['cloud_resource_id'],
+                         res_id)
+        self.assertEqual(result['resources'][0]['cloud_resource_hash'],
+                         hash_)
+
+        # resource updated by diworker
+        resource = {
+            'cloud_account_id': self.cloud_acc1_id,
+            'region': 'test_region',
+            'service_name': 'test_service',
+            'cloud_resource_hash': hash_,
+            'name': 'resource_2',
+            'resource_type': 'testo'
+        }
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, {'resources': [resource]},
+            return_resources=True, is_report_import=True,
+            behavior='skip_existing')
+        self.assertEqual(code, 200)
+        self.assertEqual(len(result['resources']), 1)
+        self.assertEqual(len(list(
+            self.mongo_client.restapi.resources.find())), 1)
+        self.assertEqual(result['resources'][0]['cloud_resource_hash'],
+                         hash_)
+        self.assertEqual(result['resources'][0]['cloud_resource_id'],
+                         res_id)
+
+    def test_create_without_resource_id_and_hash(self):
+        resource = {
+            'cloud_account_id': self.cloud_acc1_id,
+            'region': 'test_region',
+            'service_name': 'test_service',
+            'name': 'resource_2',
+            'resource_type': 'testo'
+        }
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, {'resources': [resource]},
+            return_resources=True, is_report_import=True,
+            behavior='skip_existing')
+        self.assertEqual(code, 400)
+        self.assertEqual(result['error']['error_code'], 'OE0517')
 
     def test_dismissed_recommendation_on_report_import(self):
         resource = {
@@ -1143,6 +1275,26 @@ class TestCloudResourceApi(TestApiBase):
             cluster_id = rss.get('cluster_id')
             self.assertIsNotNone(cluster_id)
             self._check_cluster(ct, cluster_id, 'tv', tags={})
+
+    def test_cluster_cloud_resource_hash(self):
+        code, ct = self.client.cluster_type_create(
+            self.org1_id, {'name': 'my_ct', 'tag_key': 'tn'})
+        self.assertEqual(code, 201)
+        common_tags = {
+            'tn': 'tv',
+        }
+        valid_resource = self.valid_hash_resource1.copy()
+        valid_resource['tags'] = common_tags
+
+        code, res = self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, {'resources': [valid_resource]},
+            return_resources=True, behavior='update_existing')
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res['resources']), 1)
+        for rss in res['resources']:
+            cluster_id = rss.get('cluster_id')
+            self.assertIsNotNone(cluster_id)
+            self._check_cluster(ct, cluster_id, 'tv', tags=common_tags)
 
     def test_create_resources_threshold_fields(self):
         for fields in [

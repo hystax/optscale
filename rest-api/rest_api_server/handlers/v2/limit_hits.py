@@ -74,7 +74,7 @@ class PoolLimitHitsAsyncCollectionHandler(LimitHitsAsyncCollectionHandler):
                                         "Violated value"}
                                     ttl_value: {type: integer, description:
                                         "Timestamp that violated constraint (only for TTL constraint)"}
-                                    expense_value: {type: float, description:
+                                    expense_value: {type: number, description:
                                         "Value that violated constraint (only for expense constraint)"}
                                     state: {type: string, description:
                                         "Constraint current state"}
@@ -147,7 +147,7 @@ class RecourceLimitHitsAsyncItemHandler(LimitHitsAsyncCollectionHandler):
                                         "Violated value"}
                                     ttl_value: {type: integer, description:
                                         "Timestamp that violated constraint (only for TTL constraint)"}
-                                    expense_value: {type: float, description:
+                                    expense_value: {type: number, description:
                                         "Value that violated constraint (only for expense constraint)"}
                                     state: {type: string, description:
                                         "Constraint current state"}

@@ -1,16 +1,16 @@
 import React from "react";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import IconButton from "./IconButton";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <IconButton icon={<EditOutlinedIcon />} />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

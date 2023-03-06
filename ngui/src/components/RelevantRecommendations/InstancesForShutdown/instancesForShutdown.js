@@ -1,6 +1,6 @@
 import { resource, resourceLocation, poolAndOwner, possibleShutdownPeriods, savings } from "utils/columns";
 import { RECOMMENDATION_INSTANCES_FOR_SHUTDOWN, INSTANCES_FOR_SHUTDOWN_TYPE } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class InstancesForShutdown extends RecommendationFactory {
   type = RECOMMENDATION_INSTANCES_FOR_SHUTDOWN;

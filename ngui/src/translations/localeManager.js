@@ -1,4 +1,10 @@
+import { currencyCodes } from "utils/currency";
 import messagesEnUS from "./en-US/index";
+
+const getCurrencySymbol = (currency, locale) =>
+  new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "narrowSymbol" })
+    .formatToParts(1)
+    .find((x) => x.type === "currency").value;
 
 export default (() => {
   const DEFAULT_LOCALE = "en-US";
@@ -22,16 +28,14 @@ export default (() => {
     [DEFAULT_LOCALE]: {
       formats: {
         number: {
-          USD: getCurrencyConfiguration("USD"),
-          USDCompact: getCompactCurrencyConfiguration("USD"),
-          EUR: getCurrencyConfiguration("EUR"),
-          EURCompact: getCompactCurrencyConfiguration("EUR"),
-          CAD: getCurrencyConfiguration("CAD"),
-          CADCompact: getCompactCurrencyConfiguration("CAD"),
-          BRL: getCurrencyConfiguration("BRL"),
-          BRLCompact: getCompactCurrencyConfiguration("BRL"),
-          RUB: getCurrencyConfiguration("RUB", { currencyDisplay: "narrowSymbol" }),
-          RUBCompact: getCompactCurrencyConfiguration("RUB", { currencyDisplay: "narrowSymbol" }),
+          ...Object.fromEntries(
+            currencyCodes
+              .map((code) => [
+                [code, getCurrencyConfiguration(code, { currencyDisplay: "narrowSymbol" })],
+                [`${code}Compact`, getCompactCurrencyConfiguration(code, { currencyDisplay: "narrowSymbol" })]
+              ])
+              .flat()
+          ),
           percentage: {
             style: "percent"
           },
@@ -54,6 +58,7 @@ export default (() => {
   const getConfig = () => ({ ...localeConfigMap[locale], locale, messages: messagesMap[locale] });
 
   return {
-    getConfig
+    getConfig,
+    getCurrencySymbol: (currencyCode) => getCurrencySymbol(currencyCode, locale)
   };
 })();

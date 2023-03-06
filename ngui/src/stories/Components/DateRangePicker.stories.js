@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DateRangePicker from "components/DateRangePicker";
-import { startOfDay, endOfDay } from "utils/datetime";
 import { KINDS } from "stories";
+import { startOfDay, endOfDay } from "utils/datetime";
 
 export default {
   title: `${KINDS.COMPONENTS}/DateRangePicker`

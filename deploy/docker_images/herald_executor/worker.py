@@ -48,7 +48,8 @@ TASK_QUEUE = Queue(QUEUE_NAME, TASK_EXCHANGE, bindings=[
         routing_key='organization.recommendation.new_security_recommendation'),
     binding(TASK_EXCHANGE,
             routing_key='organization.recommendation.saving_spike'),
-    binding(TASK_EXCHANGE, routing_key='organization.report_import.passed')
+    binding(TASK_EXCHANGE, routing_key='organization.report_import.passed'),
+    binding(TASK_EXCHANGE, routing_key='insider.error.sslerror')
 ])
 
 
@@ -80,7 +81,7 @@ CURRENCY_MAP = {
     "BYR": "Br",
     "BYN": "Br",
     "BZD": "BZ$",
-    "CAD": "$",
+    "CAD": "CA$",
     "CDF": "FC",
     "CHF": "CHF",
     "CLP": "$",
@@ -245,6 +246,7 @@ class HeraldTemplates(Enum):
     RESOURCE_OWNER_VIOLATION_ALERT = 'resource_owner_violation_alert'
     TAGGING_POLICY = 'organization_policy_tagging'
     REPORT_IMPORT_PASSED = 'report_imports_passed_for_org'
+    INSIDER_SSLERROR = 'insider_prices_sslerror'
 
 
 class HeraldExecutorWorker(ConsumerMixin):
@@ -314,6 +316,9 @@ class HeraldExecutorWorker(ConsumerMixin):
                     'email': manager.get('user_email')
                 }
         return all_user_info
+
+    def _get_service_emails(self):
+        return self.config_cl.optscale_email_recipient()
 
     @staticmethod
     def _filter_bookings(shareable_bookings, resource_id, now_ts):
@@ -881,6 +886,22 @@ class HeraldExecutorWorker(ConsumerMixin):
             template_type=HeraldTemplates.REPORT_IMPORT_PASSED.value,
             template_params=template_params)
 
+    def execute_insider_prices(self):
+        email = self._get_service_emails()
+        if email:
+            public_ip = self.config_cl.public_ip()
+            title = 'Insider faced Azure SSLError'
+            subject = f'[{public_ip}] {title}'
+            template_params = {
+                'texts': {
+                    'title': title
+                }
+            }
+            self.herald_cl.email_send(
+                [email], subject,
+                template_type=HeraldTemplates.INSIDER_SSLERROR.value,
+                template_params=template_params)
+
     def execute(self, task):
         organization_id = task.get('organization_id')
         action = task.get('action')
@@ -900,9 +921,10 @@ class HeraldExecutorWorker(ConsumerMixin):
             'organization_constraint_violated': task_params,
             'new_security_recommendation': [organization_id, meta],
             'saving_spike': [object_id, meta],
-            'report_import_passed': [object_id]
+            'report_import_passed': [object_id],
+            'insider_prices_sslerror': []
         }
-        if not action_param_required.get(action) or any(
+        if action_param_required.get(action) is None or any(
                 map(lambda x: x is None, action_param_required.get(action))):
             raise Exception('Invalid task received: {}'.format(task))
 
@@ -918,7 +940,8 @@ class HeraldExecutorWorker(ConsumerMixin):
             'new_security_recommendation':
                 self.execute_new_security_recommendation,
             'saving_spike': self.execute_saving_spike,
-            'report_import_passed': self.execute_report_imports_passed_for_org
+            'report_import_passed': self.execute_report_imports_passed_for_org,
+            'insider_prices_sslerror': self.execute_insider_prices
         }
         LOG.info('Started processing for object %s task type for %s '
                  'for organization %s' % (object_id, action, organization_id))

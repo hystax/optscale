@@ -1,12 +1,19 @@
 import React from "react";
-import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
-import { text, select, boolean } from "@storybook/addon-knobs";
-import Box from "@mui/material/Box";
 import DeleteEntity from "components/DeleteEntity";
 import { KINDS } from "stories";
+import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
 
 export default {
-  title: `${KINDS.OTHER}/DeleteEntity`
+  title: `${KINDS.OTHER}/DeleteEntity`,
+  argTypes: {
+    messageId: {
+      name: "Message ID",
+      control: "select",
+      options: ["deleteResourcesQuestion", "deleteDRPlansQuestion", "custom"],
+      defaultValue: "deleteResourcesQuestion"
+    },
+    withChildren: { name: "With children", control: "boolean", defaultValue: true }
+  }
 };
 
 const data = [
@@ -26,13 +33,13 @@ export const basic = () => (
       data={data}
       columns={[
         {
-          Header: "Name",
-          accessor: "name",
+          header: "Name",
+          accessorKey: "name",
           defaultSort: "asc"
         },
         {
-          Header: "Cloud",
-          accessor: "cloud"
+          header: "Cloud",
+          accessorKey: "cloud"
         }
       ]}
       localization={{
@@ -42,29 +49,29 @@ export const basic = () => (
   </DeleteEntity>
 );
 
-export const withChildren = () => (
+export const withChildren = (args) => (
   <DeleteEntity
     message={{
       messageId: "deleteResourcesQuestion",
-      values: { count: boolean("render children", true) ? data.length : 1 }
+      values: { count: args.withChildren ? data.length : 1 }
     }}
     deleteButtonProps={{
       onDelete: () => console.log("Delete")
     }}
     onCancel={() => console.log("Cancel")}
   >
-    {boolean("render children", true) ? (
+    {args.withChildren ? (
       <TableUseMemoWrapper
         data={data}
         columns={[
           {
-            Header: "Name",
-            accessor: "name",
+            header: "Name",
+            accessorKey: "name",
             defaultSort: "asc"
           },
           {
-            Header: "Cloud",
-            accessor: "cloud"
+            header: "Cloud",
+            accessorKey: "cloud"
           }
         ]}
         localization={{
@@ -75,35 +82,33 @@ export const withChildren = () => (
   </DeleteEntity>
 );
 
-export const withKnobs = () => (
-  <Box width={text("Wrapper width", "300px")}>
-    <DeleteEntity
-      message={{
-        messageId: select("message", ["deleteResourcesQuestion", "deleteDRPlansQuestion", "custom"], "deleteResourcesQuestion"),
-        values: { count: data.length }
+export const withKnobs = (args) => (
+  <DeleteEntity
+    message={{
+      messageId: args.messageId,
+      values: { count: data.length }
+    }}
+    deleteButtonProps={{
+      onDelete: () => console.log("Delete")
+    }}
+    onCancel={() => console.log("Cancel")}
+  >
+    <TableUseMemoWrapper
+      data={data}
+      columns={[
+        {
+          header: "Name",
+          accessorKey: "name",
+          defaultSort: "asc"
+        },
+        {
+          header: "Cloud",
+          accessorKey: "cloud"
+        }
+      ]}
+      localization={{
+        emptyMessageId: "notResources"
       }}
-      deleteButtonProps={{
-        onDelete: () => console.log("Delete")
-      }}
-      onCancel={() => console.log("Cancel")}
-    >
-      <TableUseMemoWrapper
-        data={data}
-        columns={[
-          {
-            Header: "Name",
-            accessor: "name",
-            defaultSort: "asc"
-          },
-          {
-            Header: "Cloud",
-            accessor: "cloud"
-          }
-        ]}
-        localization={{
-          emptyMessageId: "notResources"
-        }}
-      />
-    </DeleteEntity>
-  </Box>
+    />
+  </DeleteEntity>
 );

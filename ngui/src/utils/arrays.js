@@ -112,38 +112,6 @@ export const setObjectsOrder = (arrayOfObject, order, objectKey) =>
     return resultArray;
   }, arrayOfObject);
 
-/**
- * Summarize values of one key by another key
- *
- * @param {array} arrayOfObject
- * @param {string} byKey - key to group
- * @param {string} valueKey - key to get value from and summarize
- *
- * @returns Array of objects
- *
- * @example
- * const arrayOfObject = [
- *  { x: 1, y: 5 },
- *  { x: 2, y: 12 },
- *  { x: 3, y: 1 },
- *  { x: 1, y: 2 },
- *  { x: 2, y: 8 },
- *  { x: 3, y: 0 },
- * ];
- *
- * [
- *  { x: 1, y: 7 },
- *  { x: 2, y: 20 },
- *  { x: 3, y: 1 },
- * ];
- *
- */
-export const sumObjectsKeyByAnotherKey = (arrayOfObject, byKey, valueKey) =>
-  Array.from(
-    arrayOfObject.reduce((m, { [byKey]: x, [valueKey]: y }) => m.set(x, (m.get(x) || 0) + y), new Map()),
-    ([x, y]) => ({ x, y })
-  );
-
 // TODO - can use getChunks ???
 export const splitIntoTwoChunks = (array, firstChunkLength) => [
   array.slice(0, firstChunkLength),
@@ -214,3 +182,8 @@ export const getArithmeticMean = (numbers) => {
 };
 
 export const getLastElement = (array) => array[array.length - 1];
+
+export const isLastItem = (itemIndex, itemsCount) => itemIndex === itemsCount - 1;
+
+export const findMaxNumber = (array) =>
+  array.reduce((maxValue, currentValue) => Math.max(currentValue, maxValue), Number.MIN_VALUE);

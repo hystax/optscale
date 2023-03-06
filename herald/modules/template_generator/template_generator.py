@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 def generate_event_template_params(event, config_client):
-    subject = 'Hystax Acura Notification (%s) - %s' % (
+    subject = 'Hystax OptScale Notification (%s) - %s' % (
         event.get('level'), event.get('evt_class'))
     template_params = {
         'images': {

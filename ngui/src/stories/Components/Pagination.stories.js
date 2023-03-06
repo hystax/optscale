@@ -1,19 +1,23 @@
 import React from "react";
-import { number, select } from "@storybook/addon-knobs";
-import Pagination from "components/Table/Pagination";
+import Pagination from "components/Table/components/Pagination";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Pagination`
+  title: `${KINDS.COMPONENTS}/Pagination`,
+  argTypes: {
+    position: {
+      name: "Position",
+      control: "select",
+      options: ["right", "center", "left"],
+      defaultValue: "right"
+    },
+    count: { name: "Count", control: "number", defaultValue: 2 },
+    limit: { name: "Limit", control: "number", defaultValue: 1 }
+  }
 };
 
 export const basic = () => <Pagination paginationHandler={(page) => console.log(page)} count={5} limit={1} />;
 
-export const withKnobs = () => (
-  <Pagination
-    paginationHandler={(page) => console.log(page)}
-    position={select("position", { right: "right", center: "center", left: "left" }, "right")}
-    count={number("count", 2)}
-    limit={number("limit", 1)}
-  />
+export const withKnobs = (args) => (
+  <Pagination paginationHandler={(page) => console.log(page)} position={args.position} count={args.count} limit={args.limit} />
 );

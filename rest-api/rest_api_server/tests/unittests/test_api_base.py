@@ -68,10 +68,6 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
               'OrganizationController.create_report_subscriptions').start()
         patch('rest_api_server.controllers.organization.'
               'OrganizationController.delete_report_subscriptions').start()
-        self.p_health_task = patch(
-            'rest_api_server.controllers.organization.'
-            'OrganizationController.post_cloud_health_processing_task'
-        ).start()
         http_provider = rest_api_client.client.FetchMethodHttpProvider(
             self.fetch, rethrow=False)
         self.client = TestApiBase.get_client(version).Client(
@@ -85,8 +81,9 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         self.resources_collection = self.mongo_client.restapi.resources
         self.resources_collection.create_index(
             [
-                ('cloud_resource_id', 1), ('deleted_at', 1),
-                ('cloud_account_id', 1)
+                ('cloud_resource_id', 1), ('cloud_resource_hash', 1),
+                ('cloud_account_id', 1), ('organization_id', 1),
+                ('deleted_at', 1)
             ],
             name='OptResourceUnique',
             unique=True
@@ -262,7 +259,7 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         ctrl_map = {
             'aws_cnr': 'aws.Aws',
             'azure_cnr': 'azure.Azure',
-            'kubernetes_cnr': 'kubernetes.Kubernetes'
+            'gcp_cnr': 'gcp.Gcp',
         }
         if not account_id:
             account_id = self.gen_id()
@@ -282,6 +279,8 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         patch(
             'rest_api_server.controllers.assignment.AssignmentController._authorize_action_for_pool',
             return_value=True).start()
+        patch('rest_api_server.controllers.report_import.ReportImportBaseController.'
+              'publish_task').start()
         code, cloud_acc = self.client.cloud_account_create(
             organization_id, config)
         if code == 201 and update_discovery_info:

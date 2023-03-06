@@ -1,8 +1,5 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardHeader from "@mui/material/CardHeader";
 import Skeleton from "@mui/material/Skeleton";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
@@ -99,12 +96,15 @@ const PoolConstraintForm = ({ update, create, updateActivity, policy = {}, polic
 
   const renderCardTitleSwitch = () =>
     isManagePoolsAllowed ? (
-      <Switch
-        key="switch"
-        onChange={() => updateActivity(policy.id, !policy.active)}
-        checked={!isEmpty(policy) && policy.active}
-        data-test-id={switchDataTestId}
-      />
+      <div className={classes.switchWrapper}>
+        <Switch
+          className={classes.absoluteSwitch}
+          key="switch"
+          onChange={() => updateActivity(policy.id, !policy.active)}
+          checked={!isEmpty(policy) && policy.active}
+          data-test-id={switchDataTestId}
+        />
+      </div>
     ) : null;
 
   const renderCardTitle = () => {
@@ -136,23 +136,16 @@ const PoolConstraintForm = ({ update, create, updateActivity, policy = {}, polic
   };
 
   const renderCard = (
-    <Card className={classes.card} data-test-id={cardDataTestId}>
-      <CardHeader
-        className={classes.cardHeader}
-        title={renderCardTitle()}
-        subheader={
-          <Typography variant="caption" data-test-id={subheaderTextDataTestId}>
-            <FormattedMessage id={`${CONSTRAINTS_TYPES[policyType]}ExplanatoryText`} />
-          </Typography>
-        }
-      />
-      <CardContent>
-        {isUpdateActivityLoading ? <Skeleton width={"100%"}>{renderPolicy()}</Skeleton> : renderPolicy()}
-      </CardContent>
-    </Card>
+    <div data-test-id={cardDataTestId}>
+      {renderCardTitle()}
+      <Typography variant="caption" data-test-id={subheaderTextDataTestId}>
+        <FormattedMessage id={`${CONSTRAINTS_TYPES[policyType]}ExplanatoryText`} />
+      </Typography>
+      {isUpdateActivityLoading ? <Skeleton width="100%">{renderPolicy()}</Skeleton> : renderPolicy()}
+    </div>
   );
 
-  return isGetDataLoading ? <Skeleton>{renderCard}</Skeleton> : renderCard;
+  return isGetDataLoading ? <Skeleton width="100%">{renderCard}</Skeleton> : renderCard;
 };
 
 PoolConstraintForm.propTypes = {

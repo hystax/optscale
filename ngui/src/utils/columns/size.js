@@ -2,13 +2,13 @@ import React from "react";
 import { FormattedMessage } from "react-intl";
 import TextWithDataTestId from "components/TextWithDataTestId";
 
-const size = ({ headerDataTestId, accessor = "flavor" }) => ({
-  Header: (
+const size = ({ headerDataTestId, accessorKey = "flavor" }) => ({
+  header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
       <FormattedMessage id="size" />
     </TextWithDataTestId>
   ),
-  accessor
+  accessorKey
 });
 
 export default size;

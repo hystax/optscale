@@ -1,48 +1,58 @@
 import { lighten } from "@mui/material/styles";
 
 import { makeStyles } from "tss-react/mui";
+import { SPACING_1 } from "utils/layouts";
 
-const ALPHA = 0.7;
+const ALPHA = 0.8;
 
 const useStyles = makeStyles()((theme) => ({
   wrapper: {
     position: "relative",
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
     justifyContent: "center"
   },
   progress: {
+    position: "absolute",
     height: "2rem",
     borderRadius: "0.3rem",
     width: "100%",
-    backgroundColor: "white"
+    backgroundColor: lighten(theme.palette.common.black, 0.95)
   },
-  progressPrimary: {
-    border: `2px solid ${theme.palette.primary.main}`
-  },
-  progressSuccess: {
-    border: `2px solid ${theme.palette.success.main}`
-  },
-  progressError: {
-    border: `2px solid ${theme.palette.error.main}`
-  },
-  progressWarning: {
-    border: `2px solid ${theme.palette.warning.main}`
+  valuePrimary: {
+    color: theme.palette.primary.main
   },
   barPrimary: {
     backgroundColor: lighten(theme.palette.primary.main, ALPHA)
   },
+
+  valueSuccess: {
+    color: theme.palette.success.main
+  },
   barSuccess: {
     backgroundColor: lighten(theme.palette.success.main, ALPHA)
   },
+
+  valueError: {
+    color: theme.palette.error.main
+  },
   barError: {
     backgroundColor: lighten(theme.palette.error.main, ALPHA)
+  },
+
+  valueWarning: {
+    color: theme.palette.warning.main
   },
   barWarning: {
     backgroundColor: lighten(theme.palette.warning.main, ALPHA)
   },
   valueWrapper: {
-    position: "absolute"
+    width: "100%",
+    zIndex: "1",
+    textAlign: "center",
+    paddingLeft: theme.spacing(SPACING_1),
+    paddingRight: theme.spacing(SPACING_1),
+    fontWeight: "bold"
   }
 }));
 

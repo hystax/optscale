@@ -5,10 +5,29 @@ import { GET_TOKEN } from "api/auth/actionTypes";
 import ErrorBoundary from "components/ErrorBoundary";
 import LayoutWrapper from "components/LayoutWrapper";
 import { useApiData } from "hooks/useApiData";
+import { useIsProfilingEnabled } from "hooks/useIsProfilingEnabled";
 import { useOrganizationIdQueryParameterListener } from "hooks/useOrganizationIdQueryParameterListener";
-import routes from "routes";
 import { getUrlWithNextQueryParam, LOGIN } from "urls";
+import mainMenu from "utils/menus";
+import { MAIN_MENU_SECTION_IDS } from "utils/menus/mainMenu";
 import { getFullPath } from "utils/network";
+import { routes } from "utils/routes";
+
+const RouteContent = ({ component, layout, context }) => {
+  const isMlProfilingEnabled = useIsProfilingEnabled();
+
+  const excludedMainMenuSections = [...(isMlProfilingEnabled ? [] : [MAIN_MENU_SECTION_IDS.ML_PROFILING])];
+
+  // By mapping a layout to menu we can make this prop might be dynamic depending on what menu we would like to display at each route
+  return (
+    <LayoutWrapper
+      component={component}
+      layout={layout}
+      context={context}
+      mainMenu={mainMenu.filter(({ id }) => !excludedMainMenuSections.includes(id))}
+    />
+  );
+};
 
 const RouteRender = ({ isTokenRequired, component, layout, context }) => {
   const {
@@ -25,20 +44,13 @@ const RouteRender = ({ isTokenRequired, component, layout, context }) => {
 
   return (
     <ErrorBoundary>
-      <LayoutWrapper component={component} layout={layout} context={context} />
+      <RouteContent component={component} layout={layout} context={context} />
     </ErrorBoundary>
   );
 };
 
 RouteRender.propTypes = {
   isTokenRequired: PropTypes.bool.isRequired,
-  redirectIfTokenNotExists: PropTypes.shape({
-    getPath: PropTypes.func,
-    push: PropTypes.bool
-  }),
-  redirectIfTokenExists: PropTypes.shape({
-    getPath: PropTypes.func
-  }),
   component: PropTypes.elementType,
   layout: PropTypes.elementType,
   context: PropTypes.object

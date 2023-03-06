@@ -1,5 +1,6 @@
 import math
 from collections import defaultdict
+import time
 from kombu.log import get_logger
 from datetime import datetime, timedelta, timezone
 from pymongo import MongoClient, UpdateOne
@@ -19,62 +20,73 @@ POD_CPU_AVERAGE_USAGE_KEY = 'pod_cpu_average_usage'
 K8S_METRIC_QUERY_MAP = {
     POD_LIMIT_KEY: {
         POD_CPU_AVERAGE_USAGE_KEY:
-            'idelta(container_cpu_usage_seconds_total{pod != "", name=""}'
-            '[%sm:%ss])[%sm:%ss]',
+            'idelta(container_cpu_usage_seconds_total{'
+            'cloud_account_id = "%s", pod != "", name=""}[%sm:%ss])[%sm:%ss]',
         'pod_memory_average_usage':
-            'avg_over_time(container_memory_usage_bytes{pod != "", name=""}'
-            '[%sm:%ss])[%sm:%ss]',
+            'avg_over_time(container_memory_usage_bytes{'
+            'cloud_account_id = "%s", pod != "", name=""}[%sm:%ss])[%sm:%ss]',
         'pod_cpu_provision':
-            'kube_pod_container_resource_limits{resource="cpu"}[%sm:%ss]',
+            'kube_pod_container_resource_limits{'
+            'cloud_account_id = "%s", resource="cpu"}[%sm:%ss]',
         'pod_cpu_requests':
-            'kube_pod_container_resource_requests{resource="cpu"}[%sm:%ss]',
+            'kube_pod_container_resource_requests{'
+            'cloud_account_id = "%s", resource="cpu"}[%sm:%ss]',
         'pod_memory_provision':
-            'kube_pod_container_resource_limits{resource="memory"}[%sm:%ss]',
+            'kube_pod_container_resource_limits{'
+            'cloud_account_id = "%s", resource="memory"}[%sm:%ss]',
         'pod_memory_requests':
-            'kube_pod_container_resource_requests{resource="memory"}[%sm:%ss]',
+            'kube_pod_container_resource_requests{'
+            'cloud_account_id = "%s", resource="memory"}[%sm:%ss]',
     },
     NAMESPACE_RESOURCE_QUOTAS_KEY: {
         'namespace_cpu_provision_used':
-            'kube_resourcequota{resource="limits.cpu", type="used"}[%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.cpu", type="used"}[%sm:%ss]',
         'namespace_memory_provision_used':
-            'kube_resourcequota{resource="limits.memory", type="used"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.memory", type="used"}[%sm:%ss]',
         'namespace_cpu_requests_used':
-            'kube_resourcequota{resource="requests.cpu", type="used"}[%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.cpu", type="used"}[%sm:%ss]',
         'namespace_memory_requests_used':
-            'kube_resourcequota{resource="requests.memory", type="used"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.memory", type="used"}[%sm:%ss]',
         'namespace_quota_cpu_provision_hard':
-            'kube_resourcequota{resource="limits.cpu", type="hard"}[%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.cpu", type="hard"}[%sm:%ss]',
         'namespace_quota_memory_provision_hard':
-            'kube_resourcequota{resource="limits.memory", type="hard"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.memory", type="hard"}[%sm:%ss]',
         'namespace_quota_cpu_provision_medium':
-            'kube_resourcequota{resource="limits.cpu", type="medium"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.cpu", type="medium"}[%sm:%ss]',
         'namespace_quota_memory_provision_medium':
-            'kube_resourcequota{resource="limits.memory", type="medium"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.memory", type="medium"}[%sm:%ss]',
         'namespace_quota_cpu_provision_low':
-            'kube_resourcequota{resource="limits.cpu", type="low"}[%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.cpu", type="low"}[%sm:%ss]',
         'namespace_quota_memory_provision_low':
-            'kube_resourcequota{resource="limits.memory", type="low"}[%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="limits.memory", type="low"}[%sm:%ss]',
         'namespace_quota_cpu_requests_hard':
-            'kube_resourcequota{resource="requests.cpu", type="hard"}[%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.cpu", type="hard"}[%sm:%ss]',
         'namespace_quota_memory_requests_hard':
-            'kube_resourcequota{resource="requests.memory", type="hard"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.memory", type="hard"}[%sm:%ss]',
         'namespace_quota_cpu_requests_medium':
-            'kube_resourcequota{resource="requests.cpu", type="medium"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.cpu", type="medium"}[%sm:%ss]',
         'namespace_quota_memory_requests_medium':
-            'kube_resourcequota{resource="requests.memory", type="medium"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.memory", type="medium"}[%sm:%ss]',
         'namespace_quota_cpu_requests_low':
-            'kube_resourcequota{resource="requests.cpu", type="low"}[%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.cpu", type="low"}[%sm:%ss]',
         'namespace_quota_memory_requests_low':
-            'kube_resourcequota{resource="requests.memory", type="low"}['
-            '%sm:%ss]',
+            'kube_resourcequota{cloud_account_id = "%s", '
+            'resource="requests.memory", type="low"}[%sm:%ss]',
     }
 }
 
@@ -132,6 +144,29 @@ class MetricsProcessor(object):
                 ) for r_id in resource_ids
             ])
 
+    def _get_cloud_adapter(self, cloud_account):
+        cloud_config = cloud_account.copy()
+        cloud_config.update(cloud_config.pop('config'))
+        if cloud_config['type'] == 'kubernetes_cnr':
+            cloud_config['url'] = self.config_cl.thanos_query_url()
+        return CloudAdapter.get_adapter(cloud_config)
+
+    def update_getting_metrics_time(self, ts=None):
+        if ts is None:
+            ts = int(time.time())
+        self.rest_client.cloud_account_update(
+            self.cloud_account_id,
+            {'last_getting_metrics_at': ts,
+             'last_getting_metric_attempt_at': ts})
+
+    def update_getting_metrics_attempt(self, ts=None, error=None):
+        if ts is None:
+            ts = int(time.time())
+        self.rest_client.cloud_account_update(
+            self.cloud_account_id,
+            {'last_getting_metric_attempt_at': ts,
+             'last_getting_metric_attempt_error': error})
+
     def start(self):
         now = datetime.utcnow()
         _, cloud_account = self.rest_client.cloud_account_get(
@@ -142,7 +177,8 @@ class MetricsProcessor(object):
             'aws_cnr': ('average_metrics', self.get_aws_metrics),
             'azure_cnr': ('average_metrics', self.get_azure_metrics),
             'alibaba_cnr': ('average_metrics', self.get_alibaba_metrics),
-            KUBERNETES_CLOUD_TYPE: ('k8s_metrics', self.get_k8s_metrics)
+            KUBERNETES_CLOUD_TYPE: ('k8s_metrics', self.get_k8s_metrics),
+            'gcp_cnr': ('average_metrics', self.get_gcp_metrics),
         }
         cloud_type = cloud_account['type']
         metric_table_name, cloud_func = cloud_func_map.get(cloud_type,
@@ -151,9 +187,7 @@ class MetricsProcessor(object):
             raise ValueError(
                 'Cloud %s is not supported' % cloud_type)
 
-        cloud_config = cloud_account.copy()
-        cloud_config.update(cloud_config.pop('config'))
-        adapter = CloudAdapter.get_adapter(cloud_config)
+        adapter = self._get_cloud_adapter(cloud_account)
         cloud_account_resources = list(
             self.mongo_client.restapi.resources.find({
                 'cloud_account_id': cloud_account['id'],
@@ -219,6 +253,8 @@ class MetricsProcessor(object):
                 ), []).append(resource['cloud_resource_id'])
         for (region, r_type, start_date, end_date
              ), cloud_resource_ids in grouped_resources_map.items():
+            if start_date >= end_date:
+                continue
             all_bulk_ids, metric_chunk = [], []
             # for k8s we don't need to bulk request to prometheus to get
             # relevant values for pods and namespaces we need to use
@@ -238,7 +274,9 @@ class MetricsProcessor(object):
                 self.clickhouse_client.execute(
                     'INSERT INTO %s VALUES' % metric_table_name, chunk)
                 resource_ids.update(r['resource_id'] for r in chunk)
-        self.update_metrics_flag(self.cloud_account_id, resource_ids)
+        if cloud_type != KUBERNETES_CLOUD_TYPE:
+            self.update_metrics_flag(self.cloud_account_id, resource_ids)
+        self.update_getting_metrics_time()
         return list(resource_ids)
 
     @staticmethod
@@ -394,8 +432,8 @@ class MetricsProcessor(object):
                 res_id, pod, namespace) in resource_ids_map.items():
             namespace_pod_map[namespace][pod] = res_id
         period = int((end_date - start_date).total_seconds() / 60.0)
-        params = (period, METRIC_INTERVAL)
-        extended_params = params + params
+        params = (cloud_account_id, period, METRIC_INTERVAL)
+        extended_params = params + params[1:]
         now = int(end_date.timestamp())
         default_limit_values = defaultdict(float)
         for limit_key in [POD_LIMIT_KEY, NAMESPACE_RESOURCE_QUOTAS_KEY]:
@@ -463,5 +501,87 @@ class MetricsProcessor(object):
                             if pod_metrics.get(metric_name) else default_value
                             for metric_name, default_value
                             in default_limit_values.items()}
+                    })
+        return result
+
+    @staticmethod
+    def get_gcp_metrics(cloud_account_id, cloud_resource_ids, resource_ids_map,
+                        r_type, adapter, region, start_date, end_date):
+        result = []
+
+        # to get metric values INCLUDING start_date, we need to query metrics
+        # for 15 minutes before the start_date
+        start_date -= timedelta(seconds=METRIC_INTERVAL)
+
+        # Note that we NEED ram_size be queried before ram_used to calculate % usage.
+        # We rely on the fact that from python3.6 dictionaries remember the order of items inserted.
+        metric_cloud_names_map = {
+            "cpu": "compute.googleapis.com/instance/cpu/utilization",
+            "network_in_io": "compute.googleapis.com/instance/network/received_bytes_count",
+            "network_out_io": "compute.googleapis.com/instance/network/sent_bytes_count",
+            "ram_size": "compute.googleapis.com/instance/memory/balloon/ram_size",
+            "ram": "compute.googleapis.com/instance/memory/balloon/ram_used",
+            "disk_read_io": "compute.googleapis.com/instance/disk/read_ops_count",
+            "disk_write_io": "compute.googleapis.com/instance/disk/write_ops_count",
+        }
+        ram_sizes = {}
+        for metric_name, cloud_metric_name in metric_cloud_names_map.items():
+            response = adapter.get_metric(
+                cloud_metric_name,
+                cloud_resource_ids, METRIC_INTERVAL,
+                start_date, end_date)
+            for record in response:
+                cloud_resource_id = str(record.resource.labels["instance_id"])
+                resource_id = resource_ids_map.get(cloud_resource_id)
+                if resource_id is None:
+                    LOG.warn("Unknown cloud resource id returned - %s", cloud_resource_id)
+                    continue
+                # some metrics can contain records that belong not to the instance itself and to
+                # its devices, e.g. disk_read_io for instance and for each of its disks.
+                # here we filter out such extra records.
+                cloud_resource_name = record.metric.labels["instance_name"]
+                cloud_device_name = record.metric.labels.get("device_name")
+                if cloud_device_name and cloud_resource_name != cloud_device_name:
+                    continue
+                # skip the first value in the list of points.
+                # we rely on the fact that the points are always returned ordered by date
+                # and the newest date is the first. we want to skip the newest date because
+                # the value of the latest metric changes over time and it is better to request
+                # it again later.
+                for point in list(record.points)[1:]:
+                    value = point.value.double_value
+                    date = datetime.fromtimestamp(point.interval.start_time.timestamp())
+                    if metric_name in ['network_in_io', 'network_out_io', 'disk_read_io', 'disk_write_io']:
+                        # change values per min to values per second
+                        value = value / 60
+                    # to determine RAM value in % instead of absolute values,
+                    # we need to know values of 2 metrics - ram_used and ram_size - for the same time
+                    # so we store ram_size in a map and pop values from it later when processing ram_used.
+                    # we rely on the fact that the metrics API returns metrics in the same order
+                    # as they were requested.
+                    elif metric_name == "ram_size":
+                        key = (resource_id, date)
+                        ram_sizes[key] = value
+                        continue
+                    elif metric_name == "ram":
+                        key = (resource_id, date)
+                        ram_size = ram_sizes.pop(key, None)
+                        if ram_size is None:
+                            LOG.warn("Unexpected ram_used without ram_size for GCP")
+                            # should never happen as we query ram_size before ram_used
+                            continue
+                        # Gcp can sometimes report ram_size as 0 (saw this for windows server instance).
+                        # Set ram usage to 0 in this case to avoid division by zero.
+                        value = value / ram_size * 100 if ram_size else 0.0
+                    elif metric_name == "cpu":
+                        # metrics API returns CPU usage in range [0;1].
+                        # transform it into %.
+                        value *= 100
+                    result.append({
+                        'cloud_account_id': cloud_account_id,
+                        'resource_id': resource_id,
+                        'date': date,
+                        'metric': metric_name,
+                        'value': value
                     })
         return result

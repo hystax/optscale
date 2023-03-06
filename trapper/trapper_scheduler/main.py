@@ -10,7 +10,7 @@ from rest_api_client.client_v2 import Client as RestClient
 LOG = logging.getLogger(__name__)
 RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
-SUPPORTED_CLOUD_TYPES = {'aws_cnr', 'azure_cnr', 'alibaba_cnr'}
+SUPPORTED_CLOUD_TYPES = {'aws_cnr', 'azure_cnr', 'alibaba_cnr', 'gcp_cnr'}
 
 
 def publish_tasks(config_cl):

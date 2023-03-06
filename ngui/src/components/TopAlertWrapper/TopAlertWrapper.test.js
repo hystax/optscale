@@ -1,11 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(<TestProvider>null</TestProvider>, div);
-  ReactDOM.unmountComponentAtNode(div);
+  const root = createRoot(div);
+  root.render(<TestProvider>null</TestProvider>);
+  root.unmount();
 });
 
 // import React from "react";

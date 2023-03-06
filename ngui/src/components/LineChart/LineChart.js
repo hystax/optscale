@@ -4,26 +4,33 @@ import Skeleton from "@mui/material/Skeleton";
 import { useTheme as useMuiTheme } from "@mui/material/styles";
 import { ResponsiveWrapper, useDimensions } from "@nivo/core";
 import { Line as NivoLine, LineDefaultProps } from "@nivo/line";
+import { computeXYScalesForSeries } from "@nivo/scales";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import ChartTooltip from "components/ChartTooltip";
 import { useChartTheme } from "hooks/useChartTheme";
-import { getFirstAndLastElements as getFirstAndLastArrayElements, isEmpty as isEmptyArray } from "utils/arrays";
-import {
-  getLineTicks,
-  getStackedLineChartMaxValue,
-  getColorScale,
-  TICK_COUNT,
-  calculateOverflowSettings,
-  getLineChartMaxValue
-} from "utils/charts";
+import { isEmpty as isEmptyArray } from "utils/arrays";
+import { getColorScale, TICK_COUNT, getLineYTicks, getLineChartBottomTickValues } from "utils/charts";
 
 const DEFAULT_POINT_SIZE = 2;
+
+const useDefaultPalette = (data, stacked) => {
+  const theme = useMuiTheme();
+
+  return useMemo(() => {
+    const colorScale = getColorScale(theme.palette.chart);
+
+    const paletteColors = [...Array(data.length)].map((_, index) => colorScale(index));
+
+    return stacked ? paletteColors.reverse() : paletteColors;
+  }, [data.length, stacked, theme.palette.chart]);
+};
 
 const Line = ({
   data,
   axisBottom,
   axisLeft,
+  axisRight,
   renderTooltipBody,
   stacked = false,
   shouldRenderOnlyFirstAndLastBottomTickValues = false,
@@ -33,76 +40,103 @@ const Line = ({
   wrapperDimensions,
   margin: partialMargin,
   pointColor,
-  highlightsLayer
+  highlightsLayer,
+  verticalThresholdsLayer,
+  enableGridY = true,
+  animate = true,
+  xScale: xScaleSpec = {
+    type: "point",
+    min: 0,
+    max: "auto"
+  }
 }) => {
-  const theme = useMuiTheme();
-
   const { height: wrapperHeight, width: wrapperWidth } = wrapperDimensions;
   const chartTheme = useChartTheme();
 
-  const { margin, innerWidth, outerHeight } = useDimensions(wrapperWidth, wrapperHeight, partialMargin);
+  const { margin, innerWidth, outerHeight, innerHeight } = useDimensions(wrapperWidth, wrapperHeight, partialMargin);
 
-  const getBottomTickValues = () => {
-    // TODO: Investigate behavior if lines have different amount of points
-    const lines = data.map((d) => d.data);
-    const maxLengthLineData = lines.reduce(
-      (maxLengthData, currentData) => (currentData.length > maxLengthData.length ? currentData : maxLengthData),
-      lines[0] || []
-    );
+  const defaultYScaleSpec = { type: "linear", min: 0, max: "auto", stacked };
 
-    const valueIndexBy = "x";
+  const { xScale, x, y } = computeXYScalesForSeries(data, xScaleSpec, defaultYScaleSpec, innerWidth, innerHeight);
 
-    const calculatedValuesWithOverflow = calculateOverflowSettings({
-      data: maxLengthLineData,
-      // TODO: calculate overflow based on the formatted X value, not raw
-      indexBy: valueIndexBy,
-      padding: 0,
-      font: {
-        fontSize: chartTheme.axis.ticks.text.fontSize,
-        fontFamily: chartTheme.axis.ticks.text.fontFamily
-      },
-      chartWidth: innerWidth
-    });
+  const { maxValue: calculatedMaxYValue, tickValues: yTickValues } = getLineYTicks({
+    ticksCount: TICK_COUNT,
+    yMax: stacked ? y.maxStacked : y.max,
+    height: outerHeight
+  });
 
-    const getOnlyFirstAndLastTickValues = () => {
-      const points = maxLengthLineData.length > 1 ? getFirstAndLastArrayElements(maxLengthLineData) : [...maxLengthLineData];
-      return points.map(({ x }) => x);
+  // Override max value in order to add one more vertical line (tick) above lines
+  const yScaleSpec = { ...defaultYScaleSpec, max: calculatedMaxYValue };
+
+  const defaultPalette = useDefaultPalette(data, stacked);
+
+  const getAxisBottom = () => {
+    if (axisBottom === null) {
+      return null;
+    }
+
+    const getTickValues = () => {
+      // TODO - without chartWidth > 0 tests fail, investigate
+      if (innerWidth > 0) {
+        return shouldRenderOnlyFirstAndLastBottomTickValues
+          ? [x.min, x.max]
+          : getLineChartBottomTickValues({
+              x,
+              scale: xScale,
+              font: {
+                fontSize: chartTheme.axis.ticks.text.fontSize,
+                fontFamily: chartTheme.axis.ticks.text.fontFamily
+              },
+              axisBottom
+            });
+      }
+
+      return undefined;
     };
 
-    return shouldRenderOnlyFirstAndLastBottomTickValues ? getOnlyFirstAndLastTickValues() : calculatedValuesWithOverflow;
+    return {
+      ...axisBottom,
+      tickValues: getTickValues()
+    };
   };
-
-  // TODO - without chartWidth > 0 tests fail, investigate
-  const bottomTickValues = innerWidth > 0 && getBottomTickValues();
-
-  const maxValueFromData = stacked ? getStackedLineChartMaxValue(data) : getLineChartMaxValue(data);
-
-  const { maxValue, tickValues } = getLineTicks({ height: outerHeight, ticksCount: TICK_COUNT, maxValue: maxValueFromData });
-
-  const defaultPalette = useMemo(() => {
-    const colorScale = getColorScale(theme.palette.chart);
-
-    const paletteColors = [...Array(data.length)].map((_, index) => colorScale(index));
-
-    return stacked ? paletteColors.reverse() : paletteColors;
-  }, [data.length, stacked, theme.palette.chart]);
 
   return (
     <NivoLine
       data={data}
+      animate={animate}
       height={wrapperDimensions.height}
       width={wrapperDimensions.width}
       margin={margin}
       enableGridX={false}
+      enableGridY={enableGridY}
       enableSlices="x"
-      yScale={{ type: "linear", min: 0, max: maxValue, stacked }}
+      yScale={yScaleSpec}
+      /**
+       * Use linear scale in order to fill gaps in the chart - https://github.com/plouc/nivo/issues/1026
+       *
+       * For storybook docs:
+       *  By default, xScale is a point scale, but you can switch to linear using the xScale.type property.
+       *  It supports irregular intervals while point scale doesn’t.
+       *  If you want missing datums to appear as holes instead of connecting defined ones,
+       *  you should set their y value to null.
+       */
+      xScale={xScaleSpec}
       colors={typeof colors === "function" ? colors : defaultPalette}
       enableArea
       areaOpacity={0.1}
       useMesh
       sliceTooltip={({ slice }) => <ChartTooltip body={renderTooltipBody({ slice, stacked })} />}
-      axisLeft={{ ...axisLeft, tickValues, tickSize: 0 }}
-      axisBottom={{ ...axisBottom, tickValues: bottomTickValues }}
+      axisLeft={axisLeft ? { ...axisLeft, tickValues: yTickValues, tickSize: 0 } : null}
+      axisBottom={getAxisBottom()}
+      axisRight={
+        axisRight
+          ? {
+              ...axisRight,
+              tickValues: yTickValues,
+              tickSize: 0
+            }
+          : null
+      }
       pointSize={pointSize}
       pointColor={pointColor}
       pointBorderWidth={1}
@@ -110,7 +144,7 @@ const Line = ({
       pointBorderColor={{ from: "serieColor" }}
       theme={chartTheme}
       lineWidth={1}
-      layers={[highlightsLayer, ...LineDefaultProps.layers].filter(Boolean)}
+      layers={[highlightsLayer, ...LineDefaultProps.layers, verticalThresholdsLayer].filter(Boolean)}
     />
   );
 };
@@ -119,11 +153,14 @@ Line.propTypes = {
   data: PropTypes.array.isRequired,
   renderTooltipBody: PropTypes.func.isRequired,
   axisBottom: PropTypes.shape({
-    renderTick: PropTypes.func
+    renderTick: PropTypes.func,
+    format: PropTypes.func,
+    formatString: PropTypes.func
   }),
   axisLeft: PropTypes.shape({
     format: PropTypes.func
   }),
+  axisRight: PropTypes.object,
   stacked: PropTypes.bool,
   margin: PropTypes.object,
   pointSize: PropTypes.number,
@@ -132,7 +169,11 @@ Line.propTypes = {
   yFormat: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   wrapperDimensions: PropTypes.object,
   pointColor: PropTypes.string,
-  highlightsLayer: PropTypes.func
+  highlightsLayer: PropTypes.func,
+  verticalThresholdsLayer: PropTypes.func,
+  xScale: PropTypes.object,
+  enableGridY: PropTypes.bool,
+  animate: PropTypes.bool
 };
 
 const ResponsiveLine = ({ data, isLoading, dataTestId, emptyMessageId = "noDataToDisplay", style = {}, ...rest }) => {

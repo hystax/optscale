@@ -1,5 +1,6 @@
 import { useIntl } from "react-intl";
 import { formatApproximatelyZero } from "components/ApproximatelyZero";
+import { formatCompactNumber } from "components/CompactFormattedNumber";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { usePolyfillIntlNumberFormat } from "hooks/usePolyfillIntlNumberFormat";
 import { ONE_CENT, FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -8,14 +9,8 @@ const COMPACT_VALUE_THRESHOLD = 1000;
 
 const formatCompactMoney =
   (formatter) =>
-  ({ value, format }) => {
-    const formattedNumber = formatter(value, { format: `${format}Compact`, notation: "compact" });
-    return formattedNumber.endsWith("K")
-      ? `${formattedNumber.slice(0, formattedNumber.length - 1)}${formattedNumber
-          .slice(formattedNumber.length - 1)
-          .toLocaleLowerCase()}`
-      : formattedNumber;
-  };
+  ({ value, format }) =>
+    formatCompactNumber(formatter)({ value, format: `${format}Compact` });
 
 const formatCommon =
   (formatter) =>

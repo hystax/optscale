@@ -1,10 +1,12 @@
 import React from "react";
-import { object, number } from "@storybook/addon-knobs";
 import ButtonGroup from "components/ButtonGroup";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ButtonGroup`
+  title: `${KINDS.COMPONENTS}/ButtonGroup`,
+  argTypes: {
+    activeButtonIndex: { name: "Active button index", control: "number", defaultValue: 0 }
+  }
 };
 
 const buttons = [
@@ -54,7 +56,5 @@ export const twoActions = () => (
     ]}
   />
 );
-export const threeActions = () => <ButtonGroup activeButtonIndex={0} buttons={buttons} />;
-export const withKnobs = () => (
-  <ButtonGroup activeButtonIndex={number("activeButtonIndex", 0)} buttons={object("buttons", buttons)} />
-);
+
+export const withKnobs = (args) => <ButtonGroup activeButtonIndex={args.activeButtonIndex} buttons={buttons} />;

@@ -1,29 +1,40 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import Link from "@mui/material/Link";
+import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";
+import { GET_TOKEN } from "api/auth/actionTypes";
 import { GET_CLOUD_ACCOUNTS } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { HYSTAX_MARKETPLACES_ANCHOR } from "urls";
+import { useRootData } from "hooks/useRootData";
+import { GITHUB_HYSTAX_OPTSCALE_REPO } from "urls";
 import { ENVIRONMENT } from "utils/constants";
 import { updateOrganizationTopAlert as updateOrganizationTopAlertActionCreator } from "./actionCreators";
 import { useAllAlertsSelector } from "./selectors";
 import TopAlert from "./TopAlert";
 
 export const ALERT_TYPES = Object.freeze({
-  AVAILABLE_FOR_PRIVATE_DEPLOYMENT: 1,
   DATA_SOURCES_ARE_PROCESSING: 2,
-  DATA_SOURCES_PROCEEDED: 3
+  DATA_SOURCES_PROCEEDED: 3,
+  OPEN_SOURCE_ANNOUNCEMENT: 4
 });
 
-const TopAlertWrapper = () => {
+export const IS_EXISTING_USER = "isExistingUser";
+
+const TopAlertWrapper = ({ blacklistIds = [] }) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
 
+  const {
+    apiData: { userId }
+  } = useApiData(GET_TOKEN);
+
   const storedAlerts = useAllAlertsSelector(organizationId);
+
+  const { rootData: isExistingUser = false } = useRootData(IS_EXISTING_USER);
 
   const {
     apiData: { cloudAccounts = [] }
@@ -78,30 +89,6 @@ const TopAlertWrapper = () => {
 
     return [
       {
-        id: ALERT_TYPES.AVAILABLE_FOR_PRIVATE_DEPLOYMENT,
-        condition: isDataSourceReady && thereAreOnlyEnvironmentDataSources,
-        getContent: () => (
-          <FormattedMessage
-            id="optscaleIsAvailableForPrivateDeployment"
-            values={{
-              link: (chunks) => (
-                <Link href={HYSTAX_MARKETPLACES_ANCHOR} target="_blank" rel="noopener">
-                  {chunks}
-                </Link>
-              )
-            }}
-          />
-        ),
-        onClose: () => {
-          updateOrganizationTopAlert({ id: ALERT_TYPES.AVAILABLE_FOR_PRIVATE_DEPLOYMENT, closed: true });
-        },
-        triggered: isTriggered(ALERT_TYPES.AVAILABLE_FOR_PRIVATE_DEPLOYMENT),
-        onTrigger: () => {
-          updateOrganizationTopAlert({ id: ALERT_TYPES.AVAILABLE_FOR_PRIVATE_DEPLOYMENT, triggered: true });
-        },
-        dataTestId: "top_alert_private_deployment"
-      },
-      {
         id: ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING,
         condition: isDataSourceReady && !thereAreOnlyEnvironmentDataSources && hasDataSourceInProcessing,
         getContent: () => <FormattedMessage id="someDataSourcesAreProcessing" />,
@@ -122,7 +109,7 @@ const TopAlertWrapper = () => {
           !hasDataSourceInProcessing &&
           isDataSourcesAreProceedingAlertTriggered,
         getContent: () => <FormattedMessage id="allDataSourcesProcessed" />,
-        success: true,
+        type: "success",
         triggered: isTriggered(ALERT_TYPES.DATA_SOURCES_PROCEEDED),
         onTrigger: () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_PROCEEDED, triggered: true });
@@ -132,29 +119,73 @@ const TopAlertWrapper = () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_PROCEEDED, closed: false, triggered: false });
         },
         dataTestId: "top_alert_data_proceeded"
+      },
+      {
+        id: ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT,
+        // isExistingUser — true only if user was logged in/visited optscale before. Set in migrations.
+        // organizationId — wont be presented on initial load (so storedAlerts will be empty, so even if banner was closed, we would not know that,
+        //                  so we need to wait for organizationId. But if user is not logged in — there also wont be organizationId, so we use next flag)
+        // userId — presented after login
+        // this check means "condition: not logged in new user (!isExistingUser && !userId) OR new user and we know organization id (!isExistingUser && organizationId)"
+        condition: !isExistingUser && (!userId || organizationId),
+        getContent: () => (
+          <FormattedMessage
+            id="openSourceAnnouncement"
+            values={{
+              link: (chunks) => (
+                <Link
+                  href={GITHUB_HYSTAX_OPTSCALE_REPO}
+                  style={{
+                    textDecoration: "underline",
+                    color: "white"
+                  }}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {chunks}
+                </Link>
+              )
+            }}
+          />
+        ),
+        type: "info",
+        triggered: isTriggered(ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT),
+        onClose: () => {
+          updateOrganizationTopAlert({ id: ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT, closed: true });
+        },
+        dataTestId: "top_alert_open_source_announcement"
       }
     ];
   }, [
+    storedAlerts,
     isDataSourceReady,
     thereAreOnlyEnvironmentDataSources,
     hasDataSourceInProcessing,
-    storedAlerts,
-    updateOrganizationTopAlert
+    isExistingUser,
+    updateOrganizationTopAlert,
+    userId,
+    organizationId
   ]);
 
   const currentAlert = useMemo(
     () =>
       alerts
         .filter(({ condition }) => condition)
+        // white list of notifications which might be showed on login page
+        .filter(({ id }) => !blacklistIds.includes(id))
         // alerts are processed in order as they present in array => we show first non closed alert
         .find((alertDefinition) => {
           const { closed } = storedAlerts.find(({ id }) => id === alertDefinition.id) || {};
           return !closed;
         }),
-    [alerts, storedAlerts]
+    [alerts, blacklistIds, storedAlerts]
   );
 
   return currentAlert ? <TopAlert alert={currentAlert} /> : null;
+};
+
+TopAlertWrapper.propTypes = {
+  blacklistIds: PropTypes.array
 };
 
 export default TopAlertWrapper;

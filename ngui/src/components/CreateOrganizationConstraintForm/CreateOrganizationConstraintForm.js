@@ -1,9 +1,9 @@
 import React from "react";
+import { Box } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormProvider, useForm } from "react-hook-form";
 import { TAGS_RELATED_FILTERS } from "components/Filters/constants";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import WrapperCard from "components/WrapperCard";
 import { ANOMALY_TYPES, EXPIRING_BUDGET_POLICY, QUOTA_POLICY, RECURRING_BUDGET_POLICY, TAGGING_POLICY } from "utils/constants";
 import { CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES } from "./constants";
 import {
@@ -46,7 +46,7 @@ const CreateOrganizationConstraintForm = ({ onSubmit, types, navigateAway }) => 
   const typeSelected = watch(CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.TYPE);
 
   return (
-    <WrapperCard className="halfWidth">
+    <Box sx={{ width: { md: "50%" } }}>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <NameInput />
@@ -69,7 +69,7 @@ const CreateOrganizationConstraintForm = ({ onSubmit, types, navigateAway }) => 
           </FormButtonsWrapper>
         </form>
       </FormProvider>
-    </WrapperCard>
+    </Box>
   );
 };
 

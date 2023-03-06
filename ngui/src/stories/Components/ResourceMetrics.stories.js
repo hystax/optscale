@@ -1,10 +1,5 @@
 import React from "react";
 import ResourceMetrics from "components/ResourceMetrics";
-import { boolean, object } from "@storybook/addon-knobs";
-
-export default {
-  title: "Components/ResourceMetrics"
-};
 
 const cpuData = [
   {
@@ -66,6 +61,42 @@ const networkOutIoData = [
   { date: 1628186400, value: 0.2847914256776373 }
 ];
 
+export default {
+  title: "Components/ResourceMetrics",
+  argTypes: {
+    cpu: {
+      name: "CPU",
+      control: "object",
+      defaultValue: cpuData
+    },
+    ram: {
+      name: "RAM",
+      control: "object",
+      defaultValue: ramData
+    },
+    diskReadIo: {
+      name: "Disk read I/O",
+      control: "object",
+      defaultValue: diskReadIoData
+    },
+    diskWriteIo: {
+      name: "Disk write I/O",
+      control: "object",
+      defaultValue: diskWriteIoData
+    },
+    networkInIo: {
+      name: "Network in",
+      control: "object",
+      defaultValue: networkInIoData
+    },
+    networkOutIo: {
+      name: "Network out",
+      control: "object",
+      defaultValue: networkOutIoData
+    }
+  }
+};
+
 export const noData = () => <ResourceMetrics metrics={{}} />;
 
 export const withData = () => (
@@ -88,43 +119,43 @@ const WithKnobsLayout = ({ children }) => (
   </div>
 );
 
-export const dynamicCpu = () => (
+export const dynamicCpu = (args) => (
   <WithKnobsLayout>
     <ResourceMetrics
       metrics={{
-        cpu: object("metric data", cpuData)
+        cpu: args.cpu
       }}
     />
   </WithKnobsLayout>
 );
 
-export const dynamicMemory = () => (
+export const dynamicMemory = (args) => (
   <WithKnobsLayout>
     <ResourceMetrics
       metrics={{
-        ram: object("metric data", ramData)
+        ram: args.ram
       }}
     />
   </WithKnobsLayout>
 );
 
-export const dynamicDiskIO = () => (
+export const dynamicDiskIO = (args) => (
   <WithKnobsLayout>
     <ResourceMetrics
       metrics={{
-        disk_read_io: object("disk_read_io data", diskReadIoData),
-        disk_write_io: object("disk_write_io data", diskWriteIoData)
+        disk_read_io: args.diskReadIo,
+        disk_write_io: args.diskWriteIo
       }}
     />
   </WithKnobsLayout>
 );
 
-export const dynamicNetwork = () => (
+export const dynamicNetwork = (args) => (
   <WithKnobsLayout>
     <ResourceMetrics
       metrics={{
-        network_in_io: object("network_in_io data", networkInIoData),
-        network_out_io: object("network_out_io data", networkOutIoData)
+        network_in_io: args.networkInIo,
+        network_out_io: args.networkOutIo
       }}
     />
   </WithKnobsLayout>

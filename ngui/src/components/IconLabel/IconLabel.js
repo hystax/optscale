@@ -1,15 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const IconLabel = ({ icon, label }) => (
+const IconLabel = ({ icon: startIcon, endIcon, label }) => (
   <div style={{ display: "inline-flex", verticalAlign: "middle", alignItems: "center" }}>
-    {icon}
+    {startIcon}
     {label}
+    {endIcon}
   </div>
 );
 
 IconLabel.propTypes = {
-  icon: PropTypes.node.isRequired,
+  icon: PropTypes.node,
+  endIcon: PropTypes.node,
   label: PropTypes.any.isRequired
 };
 

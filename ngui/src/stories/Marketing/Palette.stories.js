@@ -1,8 +1,8 @@
 import React from "react";
-import { useTheme } from "@mui/material/styles";
-import Grid from "@mui/material/Grid";
-import WrapperCard from "components/WrapperCard";
 import { capitalize } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import { useTheme } from "@mui/material/styles";
+import WrapperCard from "components/WrapperCard";
 import { KINDS } from "stories";
 
 export default {
@@ -24,47 +24,41 @@ const ColorCard = ({ colorName, colorDefinition }) => {
           padding: "4px"
         }}
       >
-        {Object.entries(colorDefinition).map(([variant, value]) => {
-          return (
+        {Object.entries(colorDefinition).map(([variant, value]) => (
+          <div
+            key={variant}
+            style={{
+              backgroundColor: value,
+              color: getContrastText(value),
+              padding: "15px"
+            }}
+          >
             <div
-              key={variant}
               style={{
-                backgroundColor: value,
-                color: getContrastText(value),
-                padding: "15px"
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between"
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between"
-                }}
-              >
-                <span>{variant}</span>
-                <span>{value}</span>
-              </div>
+              <span>{variant}</span>
+              <span>{value}</span>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </WrapperCard>
   );
 };
 
-const Palette = ({ colorsDefinition }) => {
-  return (
-    <Grid container spacing={3}>
-      {Object.entries(colorsDefinition).map(([colorName, colorDefinition]) => {
-        return (
-          <Grid key={colorName} item>
-            <ColorCard colorName={capitalize(colorName)} colorDefinition={colorDefinition} />
-          </Grid>
-        );
-      })}
-    </Grid>
-  );
-};
+const Palette = ({ colorsDefinition }) => (
+  <Grid container spacing={3}>
+    {Object.entries(colorsDefinition).map(([colorName, colorDefinition]) => (
+      <Grid key={colorName} item>
+        <ColorCard colorName={capitalize(colorName)} colorDefinition={colorDefinition} />
+      </Grid>
+    ))}
+  </Grid>
+);
 
 export const basicPalette = () => {
   const theme = useTheme();

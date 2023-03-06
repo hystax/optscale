@@ -69,7 +69,6 @@ class UrlsV2(Urls):
         'optimizations': r"%s/organizations/(?P<organization_id>[^/]+)/optimizations",
         'optimization_data': r"%s/organizations/(?P<organization_id>[^/]+)/optimization_data",
         'live_demo': r"%s/live_demo",
-        'cloud_health': r"%s/organizations/(?P<organization_id>[^/]+)/cloud_health",
         'resource_observer': r"%s/organizations/(?P<organization_id>[^/]+)/resource_observer",
         'resource_violations': r"%s/organizations/(?P<organization_id>[^/]+)/resource_violations",
         'discovery_info_collection': r"%s/cloud_accounts/(?P<cloud_account_id>[^/]+)/discovery_info",
@@ -142,6 +141,20 @@ class UrlsV2(Urls):
         'archived_recommendations_count': r"%s/organizations/(?P<organization_id>[^/]+)/"
                                             r"archived_recommendations_count",
         'k8s_rightsizing': r"%s/organizations/(?P<organization_id>[^/]+)/k8s_rightsizing",
+        'applications_collection': r"%s/organizations/(?P<organization_id>[^/]+)/applications",
+        'applications': r"%s/organizations/(?P<organization_id>[^/]+)/applications/(?P<application_id>[^/]+)",
+        'profiling_token_collection': r"%s/organizations/(?P<organization_id>[^/]+)/profiling_token",
+        'profiling_token': r"%s/organizations/(?P<organization_id>[^/]+)/profiling_token/(?P<id>[^/]+)",
+        'goals_collection': r"%s/organizations/(?P<organization_id>[^/]+)/goals",
+        'goals': r"%s/organizations/(?P<organization_id>[^/]+)/goals/(?P<id>[^/]+)",
+        'profiling_executors':
+            r"%s/organizations/(?P<organization_id>[^/]+)/executors",
+        'executors_breakdown':
+            r"%s/organizations/(?P<organization_id>[^/]+)/executors_breakdown",
+        'application_runs':
+            r"%s/organizations/(?P<organization_id>[^/]+)/applications/(?P<application_id>[^/]+)/runs",
+        'runs': r"%s/organizations/(?P<organization_id>[^/]+)/runs/(?P<id>[^/]+)",
+        'runs_breakdown': r"%s/organizations/(?P<organization_id>[^/]+)/runs/(?P<id>[^/]+)/breakdown",
     })
 
 

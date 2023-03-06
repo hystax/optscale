@@ -1,4 +1,5 @@
 import React from "react";
+import { Box } from "@mui/material";
 import PropTypes from "prop-types";
 import { useForm, FormProvider } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
@@ -7,8 +8,6 @@ import Button from "components/Button";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import PageContentWrapper from "components/PageContentWrapper";
 import SubmitButtonLoader from "components/SubmitButtonLoader";
-import WrapperCard from "components/WrapperCard";
-import { useIsUpMediaQuery } from "hooks/useMediaQueries";
 import {
   CreateEnvironmentFormNameField,
   CreateEnvironmentFormPropertiesField,
@@ -17,7 +16,6 @@ import {
 } from "./FormElements";
 
 const actionBarDefinition = {
-  goBack: true,
   title: {
     text: <FormattedMessage id="addEnvironment" />,
     dataTestId: "lbl_add_environment"
@@ -29,8 +27,6 @@ const PROPERTY_NAME = "propertyName";
 const PROPERTY_VALUE = "propertyValue";
 
 const CreateEnvironmentForm = ({ onSubmit, onCancel, isSubmitLoading = false }) => {
-  const isUpXl = useIsUpMediaQuery("xl");
-
   const methods = useForm({
     defaultValues: {
       [PROPERTIES]: [
@@ -55,7 +51,7 @@ const CreateEnvironmentForm = ({ onSubmit, onCancel, isSubmitLoading = false }) 
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <WrapperCard className={isUpXl ? "halfWidth" : ""}>
+        <Box sx={{ width: { xl: "50%" } }}>
           <FormProvider {...methods}>
             <form data-test-id="create_environment_form" onSubmit={onSubmitHandler} noValidate>
               <CreateEnvironmentFormNameField />
@@ -76,7 +72,7 @@ const CreateEnvironmentForm = ({ onSubmit, onCancel, isSubmitLoading = false }) 
               </FormButtonsWrapper>
             </form>
           </FormProvider>
-        </WrapperCard>
+        </Box>
       </PageContentWrapper>
     </>
   );

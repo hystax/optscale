@@ -1,33 +1,36 @@
 import React from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import Tooltip from "components/Tooltip";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
-import { select, boolean, text } from "@storybook/addon-knobs";
+import Tooltip from "components/Tooltip";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Button`
-};
-
-const colorOptions = {
-  info: "info",
-  inherit: "inherit",
-  primary: "primary",
-  success: "success",
-  error: "error"
-};
-
-const sizeOptions = {
-  small: "small",
-  medium: "medium",
-  large: "large"
-};
-
-const variantOptions = {
-  text: "text",
-  outlined: "outlined",
-  contained: "contained"
+  title: `${KINDS.COMPONENTS}/Button`,
+  argTypes: {
+    messageId: { name: "Message ID", control: "text", defaultValue: "add" },
+    size: {
+      name: "Size",
+      control: "select",
+      options: ["small", "medium", "large"],
+      defaultValue: "medium"
+    },
+    variant: {
+      name: "Variant",
+      control: "select",
+      options: ["text", "outlined", "contained"],
+      defaultValue: "outlined"
+    },
+    color: {
+      name: "Color",
+      control: "select",
+      options: ["info", "inherit", "primary", "success", "error"],
+      defaultValue: "info"
+    },
+    withIcon: { name: "With icon", control: "boolean", defaultValue: false },
+    uppercase: { name: "Uppercase", control: "boolean", defaultValue: false },
+    disabled: { name: "Disabled", control: "boolean", defaultValue: false }
+  }
 };
 
 export const basic = () => <Button messageId="add" />;
@@ -40,15 +43,15 @@ export const withTooltip = () => (
   </Tooltip>
 );
 export const disabled = () => <Button messageId="add" disabled />;
-export const withKnobs = () => (
+export const withKnobs = (args) => (
   <Button
-    messageId={text("messageId", "add")}
-    startIcon={boolean("with icon", false) ? <AddOutlinedIcon /> : null}
-    uppercase={boolean("uppercase", false)}
+    messageId={args.messageId}
+    startIcon={args.withIcon ? <AddOutlinedIcon /> : null}
+    uppercase={args.uppercase}
     onClick={() => console.log("Button clicked")}
-    size={select("size", sizeOptions, "small")}
-    variant={select("variant", variantOptions, "outlined")}
-    disabled={boolean("disabled", false)}
-    color={select("color", colorOptions, "info")}
+    size={args.size}
+    variant={args.variant}
+    disabled={args.disabled}
+    color={args.color}
   />
 );

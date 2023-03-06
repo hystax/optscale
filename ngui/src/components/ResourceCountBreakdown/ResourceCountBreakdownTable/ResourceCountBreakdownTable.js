@@ -37,13 +37,13 @@ const ResourceCountBreakdownTable = ({
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
-        Cell: ({ row: { original = {} } }) => (
+        accessorKey: "name",
+        cell: ({ row: { original = {} } }) => (
           <CircleLabel
             figureColor={colors[original.id]}
             label={<BreakdownLabel breakdownBy={breakdownBy} details={original} />}
@@ -52,7 +52,7 @@ const ResourceCountBreakdownTable = ({
         )
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_resource_average">
             <TextWithDate
               text={<FormattedMessage id="average" />}
@@ -61,17 +61,20 @@ const ResourceCountBreakdownTable = ({
             />
           </TextWithDataTestId>
         ),
-        accessor: "average",
+        accessorKey: "average",
         defaultSort: "desc",
-        Cell: ({ cell: { value } }) =>
-          value <= AVERAGE_APPROXIMATE_ZERO_THRESHOLD ? (
+        cell: ({ cell }) => {
+          const value = cell.getValue();
+
+          return value <= AVERAGE_APPROXIMATE_ZERO_THRESHOLD ? (
             <ApproximatelyZero />
           ) : (
             <FormattedNumber value={value} maximumFractionDigits={0} />
-          )
+          );
+        }
       },
       {
-        Header: (
+        header: (
           <HeaderHelperCell
             titleDataTestId="lbl_resource_total"
             title={
@@ -84,10 +87,10 @@ const ResourceCountBreakdownTable = ({
             helperMessageId="totalResourceCountForSelectedPeriod"
           />
         ),
-        accessor: "total"
+        accessorKey: "total"
       },
       {
-        Header: () => {
+        header: () => {
           const showAll = Object.values(resourceCountBreakdownChartDisplaySettings).some((isVisible) => isVisible === false);
 
           const { messageId, Icon } = showAll
@@ -113,8 +116,8 @@ const ResourceCountBreakdownTable = ({
           );
         },
         id: "actions",
-        disableSortBy: true,
-        Cell: ({ row: { original: { id } = {}, index } }) => {
+        enableSorting: false,
+        cell: ({ row: { original: { id } = {}, index } }) => {
           const isLineVisible = resourceCountBreakdownChartDisplaySettings[id];
           const { messageId, Icon } = isLineVisible
             ? {

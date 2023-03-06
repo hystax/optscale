@@ -1,13 +1,15 @@
 import React from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import ActionBar from "components/ActionBar";
 import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { boolean } from "@storybook/addon-knobs";
+import ActionBar from "components/ActionBar";
 import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ActionBar`
+  title: `${KINDS.COMPONENTS}/ActionBar`,
+  argTypes: {
+    withMobileMessageId: { name: "With mobile message", control: "boolean", defaultValue: true }
+  }
 };
 
 const actionBarDefinition = {
@@ -53,7 +55,7 @@ const actionBarDefinitionWithPopup = {
   items: [
     {
       key: "clouds-add",
-      icon: <AddOutlinedIcon fontSize="small" />,
+      startIcon: <AddOutlinedIcon />,
       messageId: "add",
       type: "dropdown",
       menu: {
@@ -88,7 +90,7 @@ const withMobileMessageId = {
   items: [
     {
       key: "clouds-add",
-      icon: <AddOutlinedIcon fontSize="small" />,
+      startIcon: <AddOutlinedIcon />,
       messageId: "add",
       type: "dropdown",
       menu: {
@@ -96,13 +98,11 @@ const withMobileMessageId = {
           {
             key: "pool",
             messageId: "pool",
-            mobileMessageId: "add",
             link: "#"
           },
           {
             key: "employees",
             messageId: "employees",
-            mobileMessageId: "add",
             link: "#"
           }
         ]
@@ -122,6 +122,6 @@ export const basic = () => <ActionBar data={actionBarDefinition} />;
 
 export const withDropdown = () => <ActionBar data={actionBarDefinitionWithPopup} />;
 
-export const withKnobs = () => (
-  <ActionBar data={boolean("with mobileMessageId:", true) ? withMobileMessageId : actionBarDefinitionWithPopup} />
+export const withKnobs = (args) => (
+  <ActionBar data={args.withMobileMessageId ? withMobileMessageId : actionBarDefinitionWithPopup} />
 );

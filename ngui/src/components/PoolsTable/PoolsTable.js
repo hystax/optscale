@@ -15,7 +15,7 @@ import PoolLabel from "components/PoolLabel";
 import ProgressBar from "components/ProgressBar";
 import { ShareSettingsModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
-import Expander from "components/Table/Expander";
+import Expander from "components/Table/components/Expander";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
@@ -95,10 +95,17 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
       }
       return result;
     }, []);
-    dispatch(setExpandedRows(expandArray));
+
+    /**
+     * TODO: Update expandArray calculation - make it return unique ids
+     */
+    const uniqueExpandArray = [...new Set(expandArray)];
+
+    dispatch(setExpandedRows(uniqueExpandArray));
   }, [rootPool, dispatch, rootPoolChildren]);
 
-  const { rootData = [] } = useRootData(EXPANDED_POOL_ROWS);
+  const { rootData: expandedPoolIds = [] } = useRootData(EXPANDED_POOL_ROWS);
+
   const onExpand = (rowData, isExpanded) => dispatch(setExpandedRow(rowData.id, isExpanded));
 
   const { isGetPoolLoading = false, isGetPoolAllowedActionsLoading = false } = isLoadingProps;
@@ -157,9 +164,9 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
 
   const columns = [
     {
-      Header: <TextWithDataTestId dataTestId="lbl_name" messageId="name" />,
-      accessor: "name",
-      Cell: ({ row }) => {
+      header: <TextWithDataTestId dataTestId="lbl_name" messageId="name" />,
+      accessorKey: "name",
+      cell: ({ row }) => {
         const { original, id: rowId } = row;
         const { purpose: type, id, name, expenses_export_link: expensesExportLink } = original;
 
@@ -193,29 +200,37 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
       }
     },
     {
-      Header: <TextWithDataTestId dataTestId="lbl_limit" messageId="limit" />,
-      accessor: "limit",
-      Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value || 0} />
+      header: <TextWithDataTestId dataTestId="lbl_limit" messageId="limit" />,
+      accessorKey: "limit",
+      cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue() || 0} />
     },
     {
-      Header: <TextWithDataTestId dataTestId="lbl_expenses" messageId="expensesThisMonth" />,
-      accessor: "cost",
-      Cell: ({ row: { original } }) => {
-        const cost = original.cost || 0;
-        const xDividedByY = cost / original.limit;
+      header: <TextWithDataTestId dataTestId="lbl_expenses" messageId="expensesThisMonth" />,
+      accessorKey: "cost",
+      cell: ({
+        row: {
+          original: { cost = 0, limit = 0 }
+        }
+      }) => {
+        const xDividedByY = cost / limit;
         const percent = xDividedByY * 100;
         return (
           <ProgressBar
-            width={isDownLg ? "100%" : "50%"}
+            minWidth={isDownLg ? "100%" : "50%"}
             tooltip={{
-              show: cost !== 0 && original.limit !== 0,
-              value: getTextByPercent({
-                percent,
-                value: round(xDividedByY, 1),
-                textForLess: "thisMonthExpensesIsOfPool",
-                textForEqual: "thisMonthExpensesEqualPool",
-                textForMore: "thisMonthExpensesAreTimesMoreThanPool"
-              })
+              show: cost !== 0,
+              value:
+                limit === 0 ? (
+                  <FormattedMessage id="thisPoolHasNoLimit" />
+                ) : (
+                  getTextByPercent({
+                    percent,
+                    value: round(xDividedByY, 1),
+                    textForLess: "thisMonthExpensesIsOfPool",
+                    textForEqual: "thisMonthExpensesEqualPool",
+                    textForMore: "thisMonthExpensesAreTimesMoreThanPool"
+                  })
+                )
             }}
             color={getPoolColorStatus(percent)}
             value={percent}
@@ -227,24 +242,32 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
       defaultSort: "desc"
     },
     {
-      Header: <TextWithDataTestId dataTestId="lbl_forecast" messageId="forecastThisMonth" />,
-      accessor: "forecast",
-      Cell: ({ row: { original } }) => {
-        const forecast = original.forecast || 0;
-        const xDividedByY = forecast / original.limit;
+      header: <TextWithDataTestId dataTestId="lbl_forecast" messageId="forecastThisMonth" />,
+      accessorKey: "forecast",
+      cell: ({
+        row: {
+          original: { forecast = 0, limit = 0 }
+        }
+      }) => {
+        const xDividedByY = forecast / limit;
         const percent = xDividedByY * 100;
         return (
           <ProgressBar
-            width={isDownLg ? "100%" : "50%"}
+            minWidth={isDownLg ? "100%" : "50%"}
             tooltip={{
-              show: forecast !== 0 && original.limit !== 0,
-              value: getTextByPercent({
-                percent,
-                value: round(xDividedByY, 1),
-                textForLess: "thisMonthForecastIsOfPool",
-                textForEqual: "thisMonthForecastEqualsPool",
-                textForMore: "thisMonthForecastIsTimesMoreThanPool"
-              })
+              show: forecast !== 0,
+              value:
+                limit === 0 ? (
+                  <FormattedMessage id="thisPoolHasNoLimit" />
+                ) : (
+                  getTextByPercent({
+                    percent,
+                    value: round(xDividedByY, 1),
+                    textForLess: "thisMonthForecastIsOfPool",
+                    textForEqual: "thisMonthForecastEqualsPool",
+                    textForMore: "thisMonthForecastIsTimesMoreThanPool"
+                  })
+                )
             }}
             color={getPoolColorStatus(percent)}
             value={percent}
@@ -255,10 +278,10 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
       }
     },
     {
-      Header: <TextWithDataTestId dataTestId="lbl_actions" messageId="actions" />,
+      header: <TextWithDataTestId dataTestId="lbl_actions" messageId="actions" />,
       id: "actions",
-      disableSortBy: true,
-      Cell: ({ row }) => (
+      enableSorting: false,
+      cell: ({ row }) => (
         <TableCellActions
           entityType={SCOPE_TYPES.POOL}
           entityId={row.original.id}
@@ -279,6 +302,13 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
     [rootPool, rootPoolChildren]
   );
 
+  const expanded = Object.fromEntries(expandedPoolIds.map((poolId) => [poolId, true]));
+  const onExpandedChange = (newState) => {
+    const newExpandedPoolIds = Object.keys(newState);
+
+    dispatch(setExpandedRows(newExpandedPoolIds));
+  };
+
   return (
     <>
       {isGetPoolLoading ? (
@@ -291,9 +321,11 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
             show: true,
             definition: actionBarDefinition
           }}
-          withSubRows
+          withExpanded
           getSubRows={getSubRows}
-          expandedByDefault={(rowData) => rootData.includes(rowData.id)}
+          getRowId={(row) => row.id}
+          expanded={expanded}
+          onExpandedChange={onExpandedChange}
           localization={{
             emptyMessageId: "noPools"
           }}

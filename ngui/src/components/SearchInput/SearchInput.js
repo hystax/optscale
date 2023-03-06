@@ -60,7 +60,8 @@ const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = 
               onSearchClear();
             }}
           />
-        )
+        ),
+        sx: { paddingLeft: 0 }
       }}
       ref={inputRef}
       margin="none"
@@ -77,7 +78,11 @@ const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = 
 SearchInput.propTypes = {
   onSearch: PropTypes.func,
   initialSearchText: PropTypes.string,
-  dataTestIds: PropTypes.object,
+  dataTestIds: PropTypes.shape({
+    searchInput: PropTypes.string,
+    searchButton: PropTypes.string,
+    deleteSearchButton: PropTypes.string
+  }),
   sx: PropTypes.object
 };
 

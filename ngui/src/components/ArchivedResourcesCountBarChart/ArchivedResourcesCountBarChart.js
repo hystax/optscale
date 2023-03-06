@@ -89,6 +89,7 @@ const ArchivedResourcesCountBarChart = ({ onSelect, breakdown }) => {
 
   return (
     <CanvasBarChart
+      dataTestId="archived_recommendations_chart"
       indexBy="date"
       data={getChartData(breakdown)}
       keys={["count"]}

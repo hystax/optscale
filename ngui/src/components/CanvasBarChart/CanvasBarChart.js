@@ -53,8 +53,8 @@ const drawLabel = (ctx, { label, labelColor, x, y, width, height }) => {
 };
 
 const drawBar = (ctx, settings) => {
-  const { bar, borderColor, borderWidth, labelColor, shouldRenderLabel } = settings;
-  const { color, width, height, label, x, y } = bar;
+  const { bar, borderColor, borderWidth, label, labelColor, shouldRenderLabel } = settings;
+  const { color, width, height, x, y } = bar;
 
   ctx.fillStyle = color;
 
@@ -76,8 +76,8 @@ const drawBar = (ctx, settings) => {
 };
 
 const drawHoveredBar = (ctx, settings) => {
-  const { bar, borderColor, borderWidth, labelColor, shouldRenderLabel } = settings;
-  const { color, width, height, label, x, y } = bar;
+  const { bar, borderColor, borderWidth, label, labelColor, shouldRenderLabel } = settings;
+  const { color, width, height, x, y } = bar;
 
   const border = borderWidth === 0 ? 1 : borderWidth;
 
@@ -117,7 +117,7 @@ const addClassName = (element, className) => element.classList.add(className);
 
 const removeClassName = (element, className) => element.classList.remove(className);
 
-const useClickableBarHover = ({ refs, margin, isClickable, selectedBar }) => {
+const useClickableBarHover = ({ refs, margin, isClickable, selectedBar, wrapperDimensions }) => {
   const { classes } = useStyles();
 
   useEffect(() => {
@@ -126,6 +126,8 @@ const useClickableBarHover = ({ refs, margin, isClickable, selectedBar }) => {
     }
 
     let previouslyHoveredBarKey = "";
+    // Reset saved image data on resize (there is a dependency on wrapperDimensions.width)
+    let savedImageData = null;
 
     function mouseMoveHandler(e) {
       e.preventDefault();
@@ -137,6 +139,11 @@ const useClickableBarHover = ({ refs, margin, isClickable, selectedBar }) => {
       const ctx = refs.canvasRef.current.getContext("2d");
       const bars = refs.barsRef.current;
 
+      // Save current image data *before* drawing a hovered bar
+      if (savedImageData === null) {
+        savedImageData = ctx.getImageData(0, 0, refs.canvasRef.current.width, refs.canvasRef.current.height);
+      }
+
       const cursorPosition = getRelativeCursorPosition(e, {
         left: margin.left,
         top: margin.top
@@ -144,18 +151,19 @@ const useClickableBarHover = ({ refs, margin, isClickable, selectedBar }) => {
 
       const bar = findBarUnderCursor(bars, cursorPosition);
 
-      const barKey = bar.bar.key;
+      const currentlyHoveredBarKey = bar.bar.key;
 
-      if (previouslyHoveredBarKey && (previouslyHoveredBarKey !== barKey || barKey === NULLISH_BAR_KEY)) {
-        drawBar(
-          ctx,
-          bars.find(({ bar: { key } }) => key === previouslyHoveredBarKey)
-        );
+      const previousBarWasJustUnhovered =
+        !!previouslyHoveredBarKey &&
+        (previouslyHoveredBarKey !== currentlyHoveredBarKey || currentlyHoveredBarKey === NULLISH_BAR_KEY);
+
+      if (previousBarWasJustUnhovered) {
+        ctx.putImageData(savedImageData, 0, 0);
       }
 
-      previouslyHoveredBarKey = barKey;
+      previouslyHoveredBarKey = currentlyHoveredBarKey;
 
-      if (barKey !== NULLISH_BAR_KEY && !isBarEmpty(bar.bar.data)) {
+      if (currentlyHoveredBarKey !== NULLISH_BAR_KEY && !isBarEmpty(bar.bar.data)) {
         addClassName(refs.canvasRef.current, classes.hover);
         drawHoveredBar(ctx, bar);
       } else {
@@ -170,7 +178,17 @@ const useClickableBarHover = ({ refs, margin, isClickable, selectedBar }) => {
         refs.wrapperRef.current.removeEventListener("mousemove", mouseMoveHandler);
       }
     };
-  }, [refs.wrapperRef, refs.canvasRef, refs.barsRef, margin.left, margin.top, classes.hover, isClickable, selectedBar]);
+  }, [
+    wrapperDimensions.width,
+    refs.wrapperRef,
+    refs.canvasRef,
+    refs.barsRef,
+    margin.left,
+    margin.top,
+    classes.hover,
+    isClickable,
+    selectedBar
+  ]);
 };
 
 const CanvasBarChart = ({
@@ -192,7 +210,15 @@ const CanvasBarChart = ({
   padding,
   innerPadding,
   wrapperDimensions,
-  axisFormat = AXIS_FORMATS.RAW
+  axisFormat = AXIS_FORMATS.RAW,
+  dataTestId,
+  enableGridX: enableGridXProperty,
+  enableGridY: enableGridYProperty,
+  labelSkipWidth,
+  labelTextColor,
+  axisBottom: axisBottomProperty,
+  axisLeft: axisLeftProperty,
+  minMaxTicksEqualToMinMaxValues
 }) => {
   const wrapperRef = useRef();
   const canvasRef = useRef();
@@ -208,7 +234,8 @@ const CanvasBarChart = ({
     },
     margin,
     isClickable: typeof onClick === "function",
-    selectedBar
+    selectedBar,
+    wrapperDimensions
   });
 
   const chartTheme = useChartTheme();
@@ -224,7 +251,8 @@ const CanvasBarChart = ({
     layout,
     ticksCount: TICK_COUNT,
     maxValue: maxBandValue,
-    minValue: minBandValue
+    minValue: minBandValue,
+    minMaxTicksEqualToMinMaxValues
   });
 
   const chartWidth = getChartWidth(wrapperWidth, margin, layout);
@@ -246,7 +274,11 @@ const CanvasBarChart = ({
     indexBy,
     padding,
     chartTheme,
-    gridValues
+    gridValues,
+    enableGridY: enableGridYProperty,
+    enableGridX: enableGridXProperty,
+    axisBottom: axisBottomProperty,
+    axisLeft: axisLeftProperty
   });
 
   const borderColorProp = { from: "color", modifiers: [["darker", 1.3]] };
@@ -276,12 +308,29 @@ const CanvasBarChart = ({
   };
 
   return (
-    <div ref={wrapperRef} style={{ height: "100%" }}>
+    <div ref={wrapperRef} style={{ height: "100%" }} data-test-id={dataTestId}>
       {pdfId ? <CanvasBarChartPdf pdfId={pdfId} renderData={() => ({ canvasRef })} /> : null}
       <ResponsiveBarCanvas
         data={data}
         keys={keys}
         ref={canvasRef}
+        /*
+            According to discussions on the github, with `round: true` the chart allocates a bit blank space
+            for each band from the left and from the right and if there are a lot of bands than this
+            small unused space grows quite large
+            Source
+              * https://github.com/plouc/nivo/issues/929#issuecomment-1192271248
+
+            See also:
+              * https://github.com/plouc/nivo/issues/2019
+              * https://github.com/plouc/nivo/issues/840
+              * https://github.com/plouc/nivo/issues/929
+              * https://github.com/plouc/nivo/pull/1282
+
+            See screenshots with comparisons between round `false` and `true` on large data sets
+              * https://gitlab.com/hystax/ngui/-/merge_requests/2902#note_1091122047
+        */
+        indexScale={{ type: "band", round: false }}
         indexBy={indexBy}
         margin={margin}
         padding={padding}
@@ -303,10 +352,9 @@ const CanvasBarChart = ({
         animate={false}
         pixelRatio={2}
         onClick={(sectionData) => {
-          if (isBarEmpty(sectionData)) {
-            return;
+          if (typeof onClick === "function" && !isBarEmpty(sectionData)) {
+            onClick(sectionData, getBarName(sectionData));
           }
-          onClick(sectionData, getBarName(sectionData));
         }}
         tooltip={(bandData) => {
           if (isBarEmpty(bandData)) {
@@ -333,6 +381,8 @@ const CanvasBarChart = ({
         ]}
         theme={chartTheme}
         axisFormat={AXIS_FORMATS.MONEY}
+        labelSkipWidth={labelSkipWidth}
+        labelTextColor={labelTextColor}
       />
     </div>
   );
@@ -345,6 +395,7 @@ const ResponsiveCanvasBarChart = ({
   isLoading = false,
   emptyMessageId = "noDataToDisplay",
   palette,
+  dataTestId,
   ...rest
 }) => {
   const theme = useMuiTheme();
@@ -384,6 +435,7 @@ const ResponsiveCanvasBarChart = ({
           }
           return (
             <CanvasBarChart
+              dataTestId={dataTestId}
               wrapperDimensions={{
                 width: wrapperWidth,
                 height: wrapperHeight

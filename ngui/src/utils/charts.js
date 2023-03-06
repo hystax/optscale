@@ -1,7 +1,7 @@
 import React from "react";
 import { scaleLinear, scaleOrdinal, scaleBand } from "d3-scale";
 import CloudLabel from "components/CloudLabel";
-import { isEmpty, sortObjects, sumObjectsKeyByAnotherKey, getArithmeticMean, getElementsSum } from "utils/arrays";
+import { isEmpty, sortObjects, getArithmeticMean, getElementsSum } from "utils/arrays";
 import { EXPENSES_FILTERBY_TYPES } from "utils/constants";
 import { remToPx } from "utils/fonts";
 import { getTextWidth } from "utils/layouts";
@@ -123,6 +123,11 @@ export const getColorsMapByIds = ({ data, key = "name", uniqueDataIdentifier = "
   return Object.fromEntries(data.map((value) => [value[key], colorScale(value[uniqueDataIdentifier])]));
 };
 
+export const getColorsMap = (values, colors) => {
+  const colorScale = getColorScale(colors);
+  return Object.fromEntries(values.map((value) => [value, colorScale(value)]));
+};
+
 export const getMaxAndMinBandValues = (data, keys) => {
   const { positiveBandValues, negativeBandValues } = extractBarChartValues(data, keys);
 
@@ -142,33 +147,24 @@ export const addEntityIconToTooltipKey = (text, details, entityName) => {
   return textWithIcon || text;
 };
 
-const getPointsArray = (data) => data.flatMap((line) => line.data);
-
-const getMaxPointsYValue = (points) => Math.max(...points.map(({ y }) => y));
-
-export const getLineChartMaxValue = (data) => {
-  const points = getPointsArray(data);
-  return getMaxPointsYValue(points);
-};
-
-const getStackedPoints = (data) => {
-  const points = getPointsArray(data);
-  return sumObjectsKeyByAnotherKey(points, "x", "y");
-};
-
-export const getStackedLineChartMaxValue = (data) => {
-  const points = getStackedPoints(data);
-  return getMaxPointsYValue(points);
-};
-
 const getTickValues = ({ range, minValue, maxValue, ticksCount }) =>
   scaleLinear().rangeRound(range).domain([minValue, maxValue]).ticks(ticksCount);
 
 export const getScale = (tickValues) => (tickValues.length === 1 ? 0 : tickValues[1] - tickValues[0]);
 
-const getTicks = ({ minValue, maxValue, range, ticksCount }) => {
+const getTicks = ({ minValue, maxValue, range, ticksCount, minMaxTicksEqualToMinMaxValues = false }) => {
   // «getTickValues» returns array with 1 element if «minValue» === «maxValue»
   const tickValues = getTickValues({ range, minValue, maxValue, ticksCount });
+
+  if (minMaxTicksEqualToMinMaxValues) {
+    return {
+      tickValues,
+      gridValues: tickValues,
+      maxValue,
+      minValue
+    };
+  }
+
   const scale = getScale(tickValues);
 
   const newMaxValue = maxValue + scale;
@@ -180,7 +176,7 @@ const getTicks = ({ minValue, maxValue, range, ticksCount }) => {
   let maxTick = Math.max(...newTickValues);
   let minTick = Math.min(...newTickValues);
 
-  if (maxTick <= maxValue) {
+  if (maxTick !== 0 && maxTick <= maxValue) {
     newTickValues.push(maxTick + newScale);
     maxTick += newScale;
   }
@@ -199,14 +195,15 @@ const getTicks = ({ minValue, maxValue, range, ticksCount }) => {
   };
 };
 
-export const getBarTicks = ({ height, layout, ticksCount, maxValue, minValue = 0 }) => {
+export const getBarTicks = ({ height, layout, ticksCount, maxValue, minValue = 0, minMaxTicksEqualToMinMaxValues }) => {
   const range = layout === "vertical" ? [height, minValue] : [minValue, height];
-  return getTicks({ minValue, maxValue, range, ticksCount });
+  return getTicks({ minValue, maxValue, range, ticksCount, minMaxTicksEqualToMinMaxValues });
 };
 
-export const getLineTicks = ({ height, ticksCount, maxValue, minValue = 0 }) => {
+export const getLineYTicks = ({ yMax, height, ticksCount, minMaxTicksEqualToMinMaxValues }) => {
   const range = [height, 0];
-  return getTicks({ minValue, maxValue, range, ticksCount });
+
+  return getTicks({ minValue: 0, maxValue: yMax, range, ticksCount, minMaxTicksEqualToMinMaxValues });
 };
 
 /**
@@ -380,122 +377,96 @@ export const getExpensesPieChartOptions = ({
     tooltipIcon
   });
 
-/**
- * Constructs scaleBand
- * @param {array} domain - Specified array of values
- * @param {array} range - Specified two-element array of numbers
- * @param {number} padding - The inner and outer padding
- *
- * @description
- * Constructs a new band scale with the specified domain, range and padding
- *
- * @see https://github.com/d3/d3-scale#scaleBand
- * @see https://github.com/d3/d3-scale#band_domain
- * @see https://github.com/d3/d3-scale#band_range
- * @see https://github.com/d3/d3-scale#band_padding
- *
- * @returns {Object} scaleBand
- */
-const getBandScale = (domain, range, padding = 1) => scaleBand().range(range).domain(domain).padding(padding);
-
-/**
- * Returns an array of the width of the labels
- * @param {array} domain - Chart domain
- * @param {string} font - Font size and family (e.g. "11px sans-serif")
- *
- * @description
- * Calculates width of every element in domain
- * @returns {array} Array of numbers (width)
- */
-const getTickLabelsWidthArray = (domain, font) => {
+export const getTickLabelWidth = (label, font) => {
   // TODO - calculate average character size based on font
   const minSpaceBetweenLabels = 6;
-  return domain.map((domainElement) => minSpaceBetweenLabels + getTextWidth(domainElement, font));
+
+  return minSpaceBetweenLabels + getTextWidth(label, font);
 };
 
-/**
- * Get band domain from bar chart data
- * @param {array} data - Chart data
- * @param {string} indexBy - Key to use to index the data
- *
- * @description
- * Calculates 'domain' for use in 'scaleBand'
- *
- * @see https://github.com/d3/d3-scale#band_domain
- * @see https://github.com/d3/d3-scale#scaleBand
- * @returns {Object} Domain
- */
-const setupBandDomain = (data, indexBy) => data.map((el) => el[indexBy]);
+const checkCollision = (tickA, tickB) => {
+  const { coordinate: tickACoordinate, width: tickAWidth } = tickA;
+  const { coordinate: tickBCoordinate, width: tickBWidth } = tickB;
 
-const didLabelsCollisionOccur = (tickLabelsWidthArray, distanceBetweenBands) => {
-  let collisionOccurred = false;
-  for (let i = 0; i < tickLabelsWidthArray.length - 1; i += 1) {
-    // If half the sum of the width of two adjacent labels is greater than the distance between ticks
-    // then collision occurred
-    if ((tickLabelsWidthArray[i] + tickLabelsWidthArray[i + 1]) / 2 >= distanceBetweenBands) {
-      collisionOccurred = true;
-      break;
+  const distance = Math.abs(tickACoordinate - tickBCoordinate);
+
+  /**
+   * If half the sum of the width of two adjacent labels is greater
+   * or equal to the distance between ticks then collision occurred
+   */
+  return (tickAWidth + tickBWidth) / 2 >= distance;
+};
+
+export const calculateTickValues = (xValues) => {
+  if (xValues.length <= 1) return xValues.map(({ value }) => value);
+
+  let pointerA = 0;
+  let pointerB = 1;
+
+  let lastPushedTickPointer = 0;
+
+  const ticks = [];
+
+  while (pointerA < xValues.length && pointerB < xValues.length) {
+    if (checkCollision(xValues[pointerA], xValues[pointerB])) {
+      pointerB += 1;
+    } else {
+      ticks.push(xValues[pointerA]);
+      lastPushedTickPointer = pointerA;
+      pointerA = pointerB;
+      pointerB += 1;
     }
   }
-  return collisionOccurred;
+
+  /**
+   * We go from left-to-right so there can be a case where there are no more ticks to the right
+   * and we cannot check if the last tick fits in the available space.
+   * So we need to check if there is available space for the last tick relatively to the last pushed tick
+   */
+  if (pointerA !== lastPushedTickPointer) {
+    ticks.push(xValues[pointerA]);
+  }
+
+  return ticks.map(({ value }) => value);
 };
 
-const calculateTickValues = (bandScale, fontSettings) => {
-  const domain = bandScale.domain();
+const getBottomAxisFontSettings = (font) => ({
+  // We usually work with 'rem' for font sizes, but pixels are used for calculations, so here we convert rem to px
+  fontSize: font.fontSize.toString().includes("rem") ? remToPx(parseFloat(font.fontSize)) : parseInt(font.fontSize, 10),
+  fontFamily: font.fontFamily
+});
 
-  const adjustElementsCountByCoefficient = (array, coefficient) => array.filter((_el, index) => index % coefficient === 0);
+export const getBarChartBottomTickValues = ({ data, indexBy, padding, font, innerWidth }) => {
+  const domain = data.map((el) => el[indexBy]);
+  const range = [0, innerWidth];
 
-  let coefficient = 1;
+  const scale = scaleBand().range(range).domain(domain).padding(padding);
 
-  const tickLabelsWidthArray = getTickLabelsWidthArray(
-    domain,
-    getFontString(fontSettings.fontSize, fontSettings.fontFamily, "px")
+  const fontSettings = getBottomAxisFontSettings(font);
+
+  return calculateTickValues(
+    domain.map((xValue) => ({
+      value: xValue,
+      width: getTickLabelWidth(xValue, getFontString(fontSettings.fontSize, fontSettings.fontFamily, "px")),
+      coordinate: scale(xValue)
+    }))
   );
-
-  const calculateNewDomain = () => {
-    const collisionOccurred = didLabelsCollisionOccur(
-      adjustElementsCountByCoefficient(tickLabelsWidthArray, coefficient),
-      coefficient * bandScale.step()
-    );
-
-    if (collisionOccurred) {
-      coefficient += 1;
-      return calculateNewDomain(adjustElementsCountByCoefficient(domain, coefficient));
-    }
-    return adjustElementsCountByCoefficient(domain, coefficient);
-  };
-
-  return calculateNewDomain(domain);
 };
 
-/**
- * Calculate overflow settings
- * @param {Object} chartInfo - Chart info
- * @param {array}  chartInfo.data - Chart data
- * @param {string} chartInfo.indexBy - Key to use to index the data
- * @param {number} chartInfo.padding - Padding between each bar
- * @param {Object} chartInfo.font - Font settings
- * @param {string} chartInfo.font.fontSize - Font size (in rem)
- * @param {string} chartInfo.font.fontFamily - Font family
- * @param {number} chartInfo.chartWidth - Chart width
- *
- * @description
- * Calculates overflow parameters, such as rotation degree, margin and tickValues
- *
- * @returns {Object} Computed overflow settings
- */
-export const calculateOverflowSettings = ({ data, indexBy, padding, font, chartWidth }) => {
-  const domain = setupBandDomain(data, indexBy);
-  const range = [0, chartWidth];
-  const bandScale = getBandScale(domain, range, padding);
+export const getLineChartBottomTickValues = ({ x, scale, font, axisBottom = {} }) => {
+  const fontSettings = getBottomAxisFontSettings(font);
 
-  const fontSettings = {
-    // We usually work with 'rem' for font sizes, but pixels are used for calculations, so here we convert rem to px
-    fontSize: font.fontSize.toString().includes("rem") ? remToPx(parseFloat(font.fontSize)) : parseInt(font.fontSize, 10),
-    fontFamily: font.fontFamily
-  };
-  const tickValues = calculateTickValues(bandScale, fontSettings);
-  return tickValues;
+  return calculateTickValues(
+    x.all.map((xValue) => {
+      const formattedXValue = typeof axisBottom.formatString === "function" ? axisBottom.formatString(xValue) : xValue;
+
+      return {
+        value: xValue,
+        width: getTickLabelWidth(formattedXValue, getFontString(fontSettings.fontSize, fontSettings.fontFamily, "px")),
+        coordinate: scale(xValue)
+      };
+    })
+  );
 };
 
 /**

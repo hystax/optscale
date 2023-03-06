@@ -1,18 +1,19 @@
 import React from "react";
+import { Provider } from "react-redux";
 import { OrganizationOverviewMocked } from "components/OrganizationOverview";
 import { EXPANDED_POOL_ROWS } from "components/PoolsTable/reducer";
-import { MOCKED_ORGANIZATION_POOL_ID } from "mocks/idsMock";
-import { boolean } from "@storybook/addon-knobs";
-import { Provider } from "react-redux";
+import { KINDS, MOCKED_ORGANIZATION_POOL_ID } from "stories";
 import { mockStore, MockState } from "utils/mockStore";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.MOCKUPS}/OrganizationOverviewMocked`
+  title: `${KINDS.MOCKUPS}/OrganizationOverviewMocked`,
+  argTypes: {
+    withManagePoolsPermission: { name: "With MANAGE_POOLS permission", control: "boolean", defaultValue: false }
+  }
 };
 
-export const basic = () => {
-  const withManagePoolPermission = boolean("with [MANAGE_POOLS] permission", false);
+export const basic = (args) => {
+  const withManagePoolPermission = args.withManagePoolsPermission;
   const getPermissions = () => {
     const permissions = [];
     if (withManagePoolPermission) {

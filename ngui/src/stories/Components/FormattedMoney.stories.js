@@ -1,14 +1,22 @@
 import React from "react";
-import { number, select } from "@storybook/addon-knobs";
-import { useTheme } from "@mui/material/styles";
 import Grid from "@mui/material/Grid";
+import { useTheme } from "@mui/material/styles";
+import { v4 as uuidv4 } from "uuid";
+import FormattedMoney from "components/FormattedMoney";
 import { KINDS } from "stories";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
-import FormattedMoney from "components/FormattedMoney";
-import { v4 as uuidv4 } from "uuid";
 
 export default {
-  title: `${KINDS.COMPONENTS}/FormattedMoney`
+  title: `${KINDS.COMPONENTS}/FormattedMoney`,
+  argTypes: {
+    purpose: {
+      name: "Purpose",
+      control: "select",
+      options: [FORMATTED_MONEY_TYPES.COMMON, FORMATTED_MONEY_TYPES.COMPACT, FORMATTED_MONEY_TYPES.TINY],
+      defaultValue: FORMATTED_MONEY_TYPES.COMMON
+    },
+    value: { name: "Value", control: "number", defaultValue: 5821 }
+  }
 };
 
 const getMoneyString = (value, isNegative = false) => (isNegative ? `-$${value}` : `$${value}`);
@@ -235,13 +243,9 @@ const GridRow = ({ children }) => {
   );
 };
 
-export const expectedValues = () => {
-  const customNumber = number("Number", 5821);
-  const type = select(
-    "Purpose",
-    [FORMATTED_MONEY_TYPES.COMMON, FORMATTED_MONEY_TYPES.COMPACT, FORMATTED_MONEY_TYPES.TINY],
-    FORMATTED_MONEY_TYPES.COMMON
-  );
+export const expectedValues = (args) => {
+  const customNumber = args.value;
+  const type = args.purpose;
   const Title = ({ text }) => <strong>{text}</strong>;
   return (
     <Grid container spacing={2}>
@@ -259,7 +263,7 @@ export const expectedValues = () => {
       <GridRow>
         <Grid xs={8} item>
           <span>
-            <Title text={"Number:"}></Title> {customNumber}
+            <Title text={"Number:"} /> {customNumber}
           </span>
         </Grid>
         <Grid xs={4} item>

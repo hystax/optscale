@@ -4,7 +4,7 @@ tornado==6.2
 requests==2.25.0
 optscale-exceptions==0.0.23
 alembic==0.8.9
-auth-client==0.0.75
+auth-client==0.0.86
 pika==1.1.0
 mysql-connector==2.1.4
 pystache==0.5.4

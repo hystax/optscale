@@ -1,14 +1,13 @@
 import React from "react";
 import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormProvider, useForm } from "react-hook-form";
-import { FormattedMessage } from "react-intl";
 import CreateSshKeyNameField, { KEY_NAME_FIELD_ID } from "components/CreateSshKeyNameField";
 import CreateSshKeyValueField, { KEY_VALUE_FIELD_ID } from "components/CreateSshKeyValueField";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import SubmitButtonLoader from "components/SubmitButtonLoader";
-import { SPACING_4 } from "utils/layouts";
+import { SPACING_2 } from "utils/layouts";
 
 const CreateSshKey = ({ onSubmit, isSubmitLoading = false }) => {
   const methods = useForm({
@@ -19,11 +18,9 @@ const CreateSshKey = ({ onSubmit, isSubmitLoading = false }) => {
   });
 
   return (
-    <Grid container spacing={SPACING_4}>
+    <Grid container spacing={SPACING_2}>
       <Grid item xs={12}>
-        <Typography data-test-id="ssh-hint">
-          <FormattedMessage id={"sshHint"} />
-        </Typography>
+        <InlineSeverityAlert messageDataTestId="ssh-hint" messageId="sshHint" />
       </Grid>
       <Grid item>
         <FormProvider {...methods}>

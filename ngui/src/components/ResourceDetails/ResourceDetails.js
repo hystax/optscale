@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
@@ -11,43 +11,20 @@ import ResourceLabel from "components/ResourceLabel";
 import ResourceLink from "components/ResourceLink";
 import ResourceTypeLabel from "components/ResourceTypeLabel";
 import SubTitle from "components/SubTitle";
-import Table from "components/Table";
 import { RESOURCE_PAGE_TABS } from "utils/constants";
 import { formatUTC, EN_FULL_FORMAT } from "utils/datetime";
-import { toKeyValueString, isEmpty } from "utils/objects";
+import { SPACING_2 } from "utils/layouts";
+import { MetadataNodes } from "utils/metadata";
+import { isEmpty } from "utils/objects";
 import CollapsableTableCell from "../CollapsableTableCell";
 
 const renderKeyValueLabels = (options) => options.map((opt) => <KeyValueLabel key={opt.messageId} {...opt} />);
 
-const TagsTable = ({ tags }) => {
-  const tableData = useMemo(() => [{ tags }], [tags]);
-  const columns = useMemo(
-    () => [
-      {
-        accessor: "tags",
-        Cell: ({ cell: { value } }) => <CollapsableTableCell tags={value} limit={Infinity} />,
-        style: {
-          border: "none"
-        }
-      }
-    ],
-    []
-  );
-  return <Table withHeader={false} data={tableData} columns={columns} localization={{ emptyMessageId: "noTags" }} />;
-};
-
-const renderTagsTable = (tags) => (
-  <>
-    <KeyValueLabel dataTestIds={{ key: "lbl_tags" }} messageId="tags" placeholder={null} />
-    <TagsTable tags={tags} />
-  </>
-);
-
-const getIdLabelDefinition = ({ cloudResourceId, isActive }) => ({
+const getIdLabelDefinition = ({ cloudResourceIdentifier, isActive }) => ({
   value: () => (
-    <CopyText variant="inherit" text={cloudResourceId} dataTestIds={{ button: "btn_copy" }}>
+    <CopyText variant="inherit" text={cloudResourceIdentifier} normalWhitespace dataTestIds={{ button: "btn_copy" }}>
       <ResourceLabel
-        cloudResourceId={cloudResourceId}
+        cloudResourceIdentifier={cloudResourceIdentifier}
         isActive={isActive}
         FigureLabelProps={{ textFirst: false }}
         separator={null}
@@ -187,38 +164,8 @@ const getLastSeenLabelDefinition = (lastSeen) =>
     }
   });
 
-const getTagsLabelDefinition = (tags) =>
-  getLabelDefinition({
-    value: toKeyValueString(tags),
-    messageId: "tags",
-    dataTestIds: {
-      key: "lbl_tags",
-      value: "lbl_tags_value"
-    }
-  });
-
-const getVPCNameLabelDefinition = (vpcName) =>
-  getLabelDefinition({
-    value: vpcName,
-    messageId: "metadata.vpcName",
-    dataTestIds: {
-      key: "lbl_vpc_name",
-      value: "lbl_vpc_name_value"
-    }
-  });
-
-const getVPCIdLabelDefinition = (vpcId) =>
-  getLabelDefinition({
-    value: vpcId,
-    messageId: "metadata.vpcId",
-    dataTestIds: {
-      key: "lbl_vpc_id",
-      value: "lbl_vpc_id_value"
-    }
-  });
-
 const getCommonLabelsDefinition = ({
-  cloudResourceId,
+  cloudResourceIdentifier,
   isActive,
   clusterTypeId,
   poolId,
@@ -227,14 +174,11 @@ const getCommonLabelsDefinition = ({
   ownerName,
   firstSeen,
   lastSeen,
-  vpcName,
-  vpcId,
   resourceType,
-  tags,
   isEnvironment,
   shareable
 }) => ({
-  idLabelDefinition: getIdLabelDefinition({ cloudResourceId, isActive }),
+  idLabelDefinition: getIdLabelDefinition({ cloudResourceIdentifier, isActive }),
   resourceTypeLabelDefinition: getResourceTypeLabelDefinition(
     <ResourceTypeLabel
       resourceInfo={{
@@ -249,24 +193,19 @@ const getCommonLabelsDefinition = ({
   poolNameLabelDefinition: getPoolNameLabelDefinition(poolId, poolName, poolType),
   ownerNameLabelDefinition: getOwnerNameLabelDefinition(ownerName),
   firstSeenLabelDefinition: getFirstSeenLabelDefinition(firstSeen),
-  lastSeenLabelDefinition: getLastSeenLabelDefinition(lastSeen),
-  vpcIdLabelDefinition: getVPCIdLabelDefinition(vpcId),
-  vpcNameLabelDefinition: getVPCNameLabelDefinition(vpcName),
-  tagsLabelDefinition: getTagsLabelDefinition(tags)
+  lastSeenLabelDefinition: getLastSeenLabelDefinition(lastSeen)
 });
 
 const ClusterDetails = ({ commonLabels, resourceDetails }) => {
-  const { subResources = [], tags } = resourceDetails;
+  const { subResources = [] } = resourceDetails;
 
-  const shouldRenderTagsTable = !isEmpty(tags);
   const {
     idLabelDefinition,
     resourceTypeLabelDefinition,
     poolNameLabelDefinition,
     ownerNameLabelDefinition,
     firstSeenLabelDefinition,
-    lastSeenLabelDefinition,
-    tagsLabelDefinition
+    lastSeenLabelDefinition
   } = commonLabels;
 
   return (
@@ -280,11 +219,9 @@ const ClusterDetails = ({ commonLabels, resourceDetails }) => {
             poolNameLabelDefinition,
             ownerNameLabelDefinition,
             firstSeenLabelDefinition,
-            lastSeenLabelDefinition,
-            !shouldRenderTagsTable && tagsLabelDefinition
+            lastSeenLabelDefinition
           ].filter(Boolean)
         )}
-        {shouldRenderTagsTable && renderTagsTable(tags)}
       </Grid>
     </Grid>
   );
@@ -299,13 +236,11 @@ const SimpleResourceDetails = ({ commonLabels, resourceDetails }) => {
     firstSeenLabelDefinition,
     lastSeenLabelDefinition,
     vpcNameLabelDefinition,
-    vpcIdLabelDefinition,
-    tagsLabelDefinition
+    vpcIdLabelDefinition
   } = commonLabels;
 
-  const { name, cloudName, serviceName, region, k8sNode, k8sNamespace, tags, cloudAccountId, cloudType } = resourceDetails;
-
-  const shouldRenderTagsTable = !isEmpty(tags);
+  const { name, cloudName, serviceName, region, k8sService, k8sNode, k8sNamespace, cloudAccountId, cloudType } =
+    resourceDetails;
 
   return (
     <Grid container spacing={2}>
@@ -316,7 +251,7 @@ const SimpleResourceDetails = ({ commonLabels, resourceDetails }) => {
             getNameLabelDefinition(name),
             getCloudNameLabelDefinition(cloudName, cloudAccountId, cloudType),
             resourceTypeLabelDefinition,
-            getServiceNameLabelDefinition(serviceName),
+            getServiceNameLabelDefinition(serviceName || k8sService),
             region ? getRegionLabelDefinition(region) : null,
             k8sNode ? getK8sNodeLabelDefinition(k8sNode) : null,
             k8sNamespace ? getK8sNamespaceLabelDefinition(k8sNamespace) : null,
@@ -325,11 +260,9 @@ const SimpleResourceDetails = ({ commonLabels, resourceDetails }) => {
             firstSeenLabelDefinition,
             lastSeenLabelDefinition,
             vpcIdLabelDefinition,
-            vpcNameLabelDefinition,
-            !shouldRenderTagsTable && tagsLabelDefinition
+            vpcNameLabelDefinition
           ].filter(Boolean)
         )}
-        {shouldRenderTagsTable && renderTagsTable(tags)}
       </Grid>
     </Grid>
   );
@@ -366,16 +299,51 @@ const getResourceProperties = (props) => {
   return simpleResourceDetails;
 };
 
+const getColumnSize = (shouldRenderTagsTable, shouldRenderMetadata) => {
+  if (shouldRenderTagsTable && shouldRenderMetadata) {
+    return 4;
+  }
+  if (shouldRenderTagsTable || shouldRenderMetadata) {
+    return 6;
+  }
+  return 12;
+};
+
 const ResourceDetails = (props) => {
+  const metadataTags = MetadataNodes(props).getTags();
   const resourceProperties = getResourceProperties(props);
+  const { tags } = props;
+
+  const shouldRenderTagsTable = !isEmpty(tags) && Object.values(tags).filter(Boolean);
+  const shouldRenderMetadata = !isEmpty(metadataTags) && Object.values(metadataTags).filter(Boolean);
+
+  const columnSize = getColumnSize(shouldRenderTagsTable, shouldRenderMetadata);
 
   return (
-    <>
-      <SubTitle>
-        <FormattedMessage id="resourceProperties" />
-      </SubTitle>
-      {resourceProperties}
-    </>
+    <Grid container spacing={SPACING_2}>
+      <Grid item xs={12} sm={columnSize}>
+        <SubTitle>
+          <FormattedMessage id="resourceProperties" />
+        </SubTitle>
+        {resourceProperties}
+      </Grid>
+      {shouldRenderMetadata && (
+        <Grid item xs={12} sm={columnSize}>
+          <SubTitle>
+            <FormattedMessage id="resourceMetadata" />
+          </SubTitle>
+          <CollapsableTableCell maxRows={10} tags={metadataTags} sorted={false} />
+        </Grid>
+      )}
+      {shouldRenderTagsTable && (
+        <Grid item xs={12} sm={columnSize}>
+          <SubTitle>
+            <FormattedMessage id="tags" />
+          </SubTitle>
+          <CollapsableTableCell tags={tags} />
+        </Grid>
+      )}
+    </Grid>
   );
 };
 
@@ -391,11 +359,9 @@ SimpleResourceDetails.propTypes = {
 
 ResourceDetails.propTypes = {
   clusterTypeId: PropTypes.string,
-  clusterId: PropTypes.string
-};
-
-TagsTable.propTypes = {
-  tags: PropTypes.object.isRequired
+  clusterId: PropTypes.string,
+  tags: PropTypes.object,
+  meta: PropTypes.object
 };
 
 export default ResourceDetails;

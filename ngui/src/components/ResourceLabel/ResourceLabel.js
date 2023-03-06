@@ -3,13 +3,13 @@ import PropTypes from "prop-types";
 import CircleLabel from "components/CircleLabel";
 import CloudResourceId from "components/CloudResourceId";
 
-const ResourceLabel = ({ resourceId, cloudResourceId, isActive, FigureLabelProps, separator, dataTestIds = {} }) => {
+const ResourceLabel = ({ resourceId, cloudResourceIdentifier, isActive, FigureLabelProps, separator, dataTestIds = {} }) => {
   const { label: labelDataTestId } = dataTestIds;
 
   const cloudResourceIdLabel = (
     <CloudResourceId
       resourceId={resourceId}
-      cloudResourceId={cloudResourceId}
+      cloudResourceIdentifier={cloudResourceIdentifier}
       separator={separator}
       dataTestId={labelDataTestId}
     />
@@ -28,7 +28,7 @@ const ResourceLabel = ({ resourceId, cloudResourceId, isActive, FigureLabelProps
 };
 
 ResourceLabel.propTypes = {
-  cloudResourceId: PropTypes.string.isRequired,
+  cloudResourceIdentifier: PropTypes.string.isRequired,
   resourceId: PropTypes.string,
   isActive: PropTypes.bool,
   FigureLabelProps: PropTypes.object,

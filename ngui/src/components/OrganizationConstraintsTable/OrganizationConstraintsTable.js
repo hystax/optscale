@@ -11,7 +11,9 @@ import { GET_CLOUD_ACCOUNTS } from "api/restapi/actionTypes";
 import AnomaliesFilters from "components/AnomaliesFilters";
 import AnomalyRunChartCell from "components/AnomalyRunChartCell";
 import CaptionedCell from "components/CaptionedCell";
-import FormattedMoney from "components/FormattedMoney";
+import Filters from "components/Filters";
+import { RESOURCE_FILTERS } from "components/Filters/constants";
+import FormattedMoney, { useMoneyFormatter } from "components/FormattedMoney";
 import IconLabel from "components/IconLabel";
 import KeyValueLabel from "components/KeyValueLabel";
 import ProgressBar from "components/ProgressBar";
@@ -43,59 +45,51 @@ import { CELL_EMPTY_VALUE } from "utils/tables";
 import SlicedText from "../SlicedText";
 import useStyles from "./OrganizationConstraintsTable.styles";
 
-const buildDescription = (type, definition) => {
+const buildDescription = ({ type, definition, formatter, rawString = false }) => {
   if (ANOMALY_TYPES[type]) {
     const { threshold, threshold_days: period } = definition;
-    return (
-      <FormattedMessage
-        id="anomalyPolicyDescription"
-        values={{
-          sentenceType: intl.formatMessage({ id: ANOMALY_TYPES[type] }).toLowerCase(),
-          period,
-          threshold,
-          strong: (chunks) => <strong>{chunks}</strong>
-        }}
-      />
+    return intl.formatMessage(
+      { id: "anomalyPolicyDescription" },
+      {
+        sentenceType: intl.formatMessage({ id: ANOMALY_TYPES[type] }).toLowerCase(),
+        period,
+        threshold,
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+      }
     );
   }
 
   if (type === QUOTA_POLICY) {
     const { max_value: maxValue } = definition;
-    return (
-      <FormattedMessage
-        id="quotaPolicyDescription"
-        values={{
-          value: maxValue,
-          strong: (chunks) => <strong>{chunks}</strong>
-        }}
-      />
+    return intl.formatMessage(
+      { id: "quotaPolicyDescription" },
+      {
+        value: maxValue,
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+      }
     );
   }
 
   if (type === RECURRING_BUDGET_POLICY) {
     const { monthly_budget: monthlyBudget } = definition;
-    return (
-      <FormattedMessage
-        id="recurringBudgetPolicyDescription"
-        values={{
-          budget: <FormattedMoney value={monthlyBudget} />,
-          strong: (chunks) => <strong>{chunks}</strong>
-        }}
-      />
+    return intl.formatMessage(
+      { id: "recurringBudgetPolicyDescription" },
+      {
+        budget: formatter(FORMATTED_MONEY_TYPES.COMMON, monthlyBudget),
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+      }
     );
   }
 
   if (type === EXPIRING_BUDGET_POLICY) {
     const { total_budget: totalBudget, start_date: startDate } = definition;
-    return (
-      <FormattedMessage
-        id="expiringBudgetPolicyDescription"
-        values={{
-          budget: <FormattedMoney value={totalBudget} />,
-          startDate: formatUTC(startDate),
-          strong: (chunks) => <strong>{chunks}</strong>
-        }}
-      />
+    return intl.formatMessage(
+      { id: "expiringBudgetPolicyDescription" },
+      {
+        budget: formatter(FORMATTED_MONEY_TYPES.COMMON, totalBudget),
+        startDate: formatUTC(startDate),
+        strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+      }
     );
   }
 
@@ -105,28 +99,28 @@ const buildDescription = (type, definition) => {
       start_date: startDate
     } = definition;
 
-    const commonValues = { startDate: formatUTC(startDate), strong: (chunks) => <strong>{chunks}</strong> };
+    const commonValues = {
+      startDate: formatUTC(startDate),
+      strong: (chunks) => (rawString ? chunks : <strong>{chunks}</strong>)
+    };
 
     if (prohibitedTag === EMPTY_UUID) {
-      return <FormattedMessage id="taggingPolicy.anyTags" values={commonValues} />;
+      return intl.formatMessage({ id: "taggingPolicy.anyTags" }, commonValues);
     }
 
     if (!prohibitedTag) {
-      return <FormattedMessage id="taggingPolicy.requiredTagDescription" values={{ requiredTag, ...commonValues }} />;
+      return intl.formatMessage({ id: "taggingPolicy.requiredTagDescription" }, { requiredTag, ...commonValues });
     }
 
     if (!requiredTag) {
-      return <FormattedMessage id="taggingPolicy.prohibitedTagDescription" values={{ prohibitedTag, ...commonValues }} />;
+      return intl.formatMessage({ id: "taggingPolicy.prohibitedTagDescription" }, { prohibitedTag, ...commonValues });
     }
 
-    return (
-      <FormattedMessage
-        id="taggingPolicy.tagsCorrelationDescription"
-        values={{ firstTag: prohibitedTag, secondTag: requiredTag, ...commonValues }}
-      />
+    return intl.formatMessage(
+      { id: "taggingPolicy.tagsCorrelationDescription" },
+      { firstTag: prohibitedTag, secondTag: requiredTag, ...commonValues }
     );
   }
-
   return null;
 };
 
@@ -164,7 +158,7 @@ const ConstraintStatusCell = ({ lastRun, lastRunResult, type, definition }) => {
 
     const label = type === QUOTA_POLICY ? current : <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={current} />;
     return (
-      <ProgressBar color={getPoolColorStatus(percent)} value={percent} width="160px">
+      <ProgressBar color={getPoolColorStatus(percent)} value={percent} minWidth="160px">
         {label}
       </ProgressBar>
     );
@@ -187,95 +181,126 @@ const ConstraintStatusCell = ({ lastRun, lastRunResult, type, definition }) => {
   );
 };
 
+const NameCell = ({ lastRun, limitHits, id, type, name }) => {
+  const timeAgo = useIntervalTimeAgo(lastRun, 1);
+  const hitsNum = limitHits.length;
+  return (
+    <CaptionedCell
+      caption={{
+        key: "lastRunCaption",
+        node: lastRun ? (
+          <IconLabel
+            icon={
+              hitsNum !== 0 && (
+                <Tooltip title={intl.formatMessage({ id: "hitsForLastDays" }, { value: hitsNum, amount: 3 })}>
+                  <ErrorOutlineIcon fontSize="inherit" />
+                </Tooltip>
+              )
+            }
+            label={<KeyValueLabel variant="caption" messageId="lastCheck" value={timeAgo} />}
+            component={RouterLink}
+          />
+        ) : null
+      }}
+    >
+      <Link to={getLink(id, type)} component={RouterLink}>
+        <SlicedText limit={40} text={name} />
+      </Link>
+    </CaptionedCell>
+  );
+};
+
 const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = false }) => {
   const isManageResourcesAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
+  const formatter = useMoneyFormatter();
 
   const {
     apiData: { cloudAccounts = [] }
   } = useApiData(GET_CLOUD_ACCOUNTS);
 
-  const memoizedClusterTypes = useMemo(() => constraints, [constraints]);
+  const memoizedConstraints = useMemo(
+    () =>
+      constraints.map((constraint) => {
+        const filtersResources = new Filters({
+          filters: RESOURCE_FILTERS,
+          filterValues: constraint.filters
+        });
+        const filtersString = isEmptyObject(constraint.filters)
+          ? ""
+          : filtersResources
+              .getFilterValuesAsAppliedItems()
+              .map(({ displayedNameString, displayedValueString }) => `${displayedNameString}: ${displayedValueString}`)
+              .join(" ");
+
+        return {
+          ...constraint,
+          descriptionForSearch: buildDescription({
+            type: constraint.type,
+            definition: constraint.definition,
+            formatter,
+            rawString: true
+          }),
+          filtersString
+        };
+      }),
+    [constraints, formatter]
+  );
 
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_name">
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
-        Cell: ({
+        accessorKey: "name",
+        cell: ({
           row: {
             original: { id, type, last_run: lastRun, limit_hits: limitHits = [] }
           },
-          cell: { value }
-        }) => {
-          const timeAgo = useIntervalTimeAgo(lastRun, 1);
-          const hitsNum = limitHits.length;
-          return (
-            <CaptionedCell
-              caption={{
-                key: "lastRunCaption",
-                node: lastRun ? (
-                  <IconLabel
-                    icon={
-                      hitsNum !== 0 && (
-                        <Tooltip title={intl.formatMessage({ id: "hitsForLastDays" }, { value: hitsNum, amount: 3 })}>
-                          <ErrorOutlineIcon fontSize="inherit" />
-                        </Tooltip>
-                      )
-                    }
-                    label={<KeyValueLabel variant="caption" messageId="lastCheck" value={timeAgo} />}
-                    component={RouterLink}
-                  />
-                ) : null
-              }}
-            >
-              <Link to={getLink(id, type)} component={RouterLink}>
-                <SlicedText limit={40} text={value} />
-              </Link>
-            </CaptionedCell>
-          );
-        },
+          cell
+        }) => <NameCell lastRun={lastRun} limitHits={limitHits} id={id} type={type} name={cell.getValue()} />,
         defaultSort: "asc"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_status">
             <FormattedMessage id="status" />
           </TextWithDataTestId>
         ),
         id: "status",
-        Cell: ({
+        cell: ({
           row: {
             original: { last_run: lastRun, last_run_result: lastRunResult = {}, definition, type }
           }
         }) => <ConstraintStatusCell lastRun={lastRun} lastRunResult={lastRunResult} type={type} definition={definition} />,
-        disableSortBy: true
+        enableSorting: false,
+        enableGlobalFilter: false
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_description">
             <FormattedMessage id="description" />
           </TextWithDataTestId>
         ),
-        accessor: "type",
-        Cell: ({ row: { original: { type, definition } = {} } }) => buildDescription(type, definition),
-        disableSortBy: true
+        accessorKey: "descriptionForSearch",
+        cell: ({ row: { original: { type, definition } = {} } }) => buildDescription({ type, definition, formatter }),
+        enableSorting: false
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_filters">
             <FormattedMessage id="filters" />
           </TextWithDataTestId>
         ),
-        accessor: "filters",
-        disableSortBy: true,
-        Cell: ({ cell: { value } }) => (isEmptyObject(value) ? CELL_EMPTY_VALUE : <AnomaliesFilters filters={value} />)
+        accessorKey: "filtersString",
+        enableSorting: false,
+        cell: ({ row: { original: { filters } = {} } }) =>
+          isEmptyObject(filters) ? CELL_EMPTY_VALUE : <AnomaliesFilters filters={filters} />
       }
     ],
-    []
+    [formatter]
   );
 
   return isLoading ? (
@@ -300,10 +325,13 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
             ]
           }
         }}
-        data={memoizedClusterTypes}
+        data={memoizedConstraints}
         columns={columns}
+        withSearch
         dataTestIds={{
-          searchInput: "input_search"
+          searchInput: "input_search",
+          searchButton: "btn_search",
+          deleteSearchButton: "btn_delete_search"
         }}
         localization={{ emptyMessageId: "noPolicies" }}
       />

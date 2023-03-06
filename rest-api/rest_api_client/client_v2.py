@@ -228,9 +228,14 @@ class Client(Client_v1):
     def schedule_import_url():
         return 'schedule_imports'
 
-    def schedule_import(self, period):
+    def schedule_import(self, period=None, cloud_account_id=None, organization_id=None,
+                        cloud_account_type=None, priority=None):
         body = {
             'period': period,
+            'cloud_account_id': cloud_account_id,
+            'organization_id': organization_id,
+            'cloud_account_type': cloud_account_type,
+            'priority': priority
         }
         return self.post(self.schedule_import_url(), body)
 
@@ -761,14 +766,6 @@ class Client(Client_v1):
     def live_demo_get(self):
         url = self.live_demo_url()
         return self.get(url, {})
-
-    @staticmethod
-    def cloud_health_url(organization_id):
-        return '%s/cloud_health' % Client.organization_url(organization_id)
-
-    def cloud_health_get(self, organization_id):
-        url = self.cloud_health_url(organization_id)
-        return self.get(url)
 
     @staticmethod
     def observe_resources_url(organization_id):
@@ -1580,4 +1577,104 @@ class Client(Client_v1):
             query_params.update(params)
         url = self.archived_recommendations_count_url(
             organization_id) + self.query_url(**query_params)
+        return self.get(url)
+
+    @staticmethod
+    def applications_url(organization_id, id=None):
+        url = '%s/applications' % Client.organization_url(organization_id)
+        if id is not None:
+            url += '/%s' % id
+        return url
+
+    @staticmethod
+    def profiling_token_url(organization_id):
+        return '%s/profiling_token' % Client.organization_url(organization_id)
+
+    @staticmethod
+    def goals_url(organization_id, id=None):
+        url = '%s/goals' % Client.organization_url(organization_id)
+        if id is not None:
+            url += '/%s' % id
+        return url
+
+    @staticmethod
+    def executors_url(organization_id):
+        return '%s/executors' % Client.organization_url(organization_id)
+
+    @staticmethod
+    def executors_breakdown_url(organization_id):
+        return '%s/executors_breakdown' % Client.organization_url(
+            organization_id)
+
+    @staticmethod
+    def runs_url(organization_id, id=None, application_id=None):
+        base_url = Client.organization_url(organization_id)
+        if application_id:
+            base_url += '/applications/%s' % application_id
+        base_url += '/runs'
+        if id:
+            base_url += '/%s' % id
+        return base_url
+
+    @staticmethod
+    def runs_breakdown_url(organization_id, id):
+        return '%s/breakdown' % Client.runs_url(organization_id, id)
+
+    def application_create(self, organization_id, params):
+        return self.post(self.applications_url(organization_id), params)
+
+    def application_list(self, organization_id):
+        return self.get(self.applications_url(organization_id))
+
+    def application_get(self, organization_id, application_id):
+        return self.get(self.applications_url(
+            organization_id, application_id))
+
+    def application_update(self, organization_id, application_id, params):
+        return self.patch(
+            self.applications_url(organization_id, application_id), params)
+
+    def application_delete(self, organization_id, application_id):
+        return self.delete(self.applications_url(
+            organization_id, application_id))
+
+    def profiling_token_get(self, organization_id):
+        return self.get(self.profiling_token_url(organization_id))
+
+    def goal_create(self, organization_id, params):
+        return self.post(self.goals_url(organization_id), params)
+
+    def goal_list(self, organization_id):
+        return self.get(self.goals_url(organization_id))
+
+    def goal_get(self, organization_id, goal_id):
+        return self.get(self.goals_url(organization_id, goal_id))
+
+    def goal_update(self, organization_id, name, goal_id):
+        return self.patch(self.goals_url(organization_id, name), goal_id)
+
+    def goal_delete(self, organization_id, goal_id):
+        return self.delete(self.goals_url(
+            organization_id, goal_id))
+
+    def executor_list(self, organization_id, application_ids=None,
+                      run_ids=None):
+        url = self.executors_url(organization_id) + self.query_url(
+            application_id=application_ids, run_id=run_ids)
+        return self.get(url)
+
+    def executors_breakdown_get(self, organization_id, breakdown_by):
+        url = self.executors_breakdown_url(
+            organization_id) + self.query_url(breakdown_by=breakdown_by)
+        return self.get(url)
+
+    def run_get(self, organization_id, run_id):
+        return self.get(self.runs_url(organization_id, run_id))
+
+    def run_breakdown_get(self, organization_id, run_id):
+        return self.get(self.runs_breakdown_url(organization_id, run_id))
+
+    def run_list(self, organization_id, application_id, **kwargs):
+        url = self.runs_url(organization_id, application_id=application_id
+                            ) + self.query_url(**kwargs)
         return self.get(url)

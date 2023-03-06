@@ -1,19 +1,44 @@
 import React, { useState } from "react";
-import selectorsMock from "mocks/selectorsMock";
-import Selector from "components/Selector";
 import DomainOutlinedIcon from "@mui/icons-material/DomainOutlined";
-import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import DynamicFeedOutlinedIcon from "@mui/icons-material/DynamicFeedOutlined";
+import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import Icon from "components/Icon";
+import Selector from "components/Selector";
 import { KINDS } from "stories";
 
 export default {
   title: `${KINDS.COMPONENTS}/Selector`
 };
 
-export const basic = () => <Selector data={selectorsMock} labelId="organization" onChange={() => {}} />;
+const data = {
+  selected: "",
+  items: [
+    {
+      id: 1,
+      name: "CommunityMSP.org",
+      isRoot: true
+    },
+    {
+      id: 2,
+      name: "Acme Inc",
+      value: "acme"
+    },
+    {
+      id: 3,
+      name: "FutureOps.com",
+      value: "futureops"
+    },
+    {
+      id: 4,
+      name: "AnyWhereGo LLC",
+      value: "anywherego"
+    }
+  ]
+};
 
-export const mobile = () => <Selector isMobile data={selectorsMock} labelId="organization" onChange={() => {}} />;
+export const basic = () => <Selector data={data} labelId="organization" onChange={() => {}} />;
+
+export const mobile = () => <Selector isMobile data={data} labelId="organization" onChange={() => {}} />;
 
 const DOMAIN = "domain";
 const WORK = "word";

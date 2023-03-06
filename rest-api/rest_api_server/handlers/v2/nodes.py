@@ -51,7 +51,7 @@ class NodesAsyncCollectionBulkHandler(BaseAsyncCollectionHandler,
                                     description: "Provider id"}
                                 last_seen: {type: integer,
                                     description: "Last seen"}
-                                hourly_price: {type: float,
+                                hourly_price: {type: number,
                                     description: "Node price per hour"}
         responses:
             200:
@@ -86,7 +86,7 @@ class NodesAsyncCollectionBulkHandler(BaseAsyncCollectionHandler,
                                     created_at: {type: integer,
                                         description:
                                         "Created timestamp (service field)"}
-                                    hourly_price: {type: float,
+                                    hourly_price: {type: number,
                                         description: "Node price per hour"}
             400:
                 description: |
@@ -190,7 +190,7 @@ class NodesAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     created_at: {type: integer,
                                         description:
                                         "Created timestamp (service field)"}
-                                    hourly_price: {type: float,
+                                    hourly_price: {type: number,
                                         description: "Node price per hour"}
             400:
                 description: |

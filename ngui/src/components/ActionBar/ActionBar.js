@@ -1,17 +1,22 @@
 import React, { Fragment, createRef } from "react";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import MoreVertOutlinedIcon from "@mui/icons-material/MoreVertOutlined";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import List from "@mui/material/List";
+import MenuItem from "@mui/material/MenuItem";
 import Switch from "@mui/material/Switch";
 import Toolbar from "@mui/material/Toolbar";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
+import { NavLink } from "react-router-dom";
 import ActionBarHeader from "components/ActionBarHeader";
 import ButtonGroup from "components/ButtonGroup";
 import ButtonLoader from "components/ButtonLoader";
-import Dropdown from "components/Dropdown";
-import GoBackButton from "components/GoBackButton";
 import IconButton from "components/IconButton";
+import Popover from "components/Popover";
 import { useAllowedItems } from "hooks/useAllowedActions";
 import { isEmpty, splitIntoTwoChunks } from "utils/arrays";
 import { SCOPE_TYPES } from "utils/constants";
@@ -48,7 +53,6 @@ const renderIconButton = (item) => (
     dataTestId={item.dataTestId}
     dataProductTourId={item.dataProductTourId}
     tooltip={item.tooltip}
-    size="large"
   />
 );
 
@@ -72,17 +76,90 @@ const renderSwitch = (item) => (
   </Box>
 );
 
+const onMenuItemClick = (action, onClose) => {
+  if (typeof action === "function") {
+    action();
+  }
+  onClose();
+};
+
+const DropDownMenu = ({ items, onClose }) => {
+  const { classes } = useStyles();
+
+  const getItem = (menuItem, parentMenuItem = null) => {
+    const item = (
+      <MenuItem
+        key={menuItem.key}
+        onClick={() => {
+          if (!menuItem.disabled) {
+            onMenuItemClick(menuItem.action, onClose);
+          }
+        }}
+        data-test-id={menuItem.dataTestId}
+        disabled={menuItem.disabled}
+        style={menuItem.disabled ? { pointerEvents: "all" } : {}}
+      >
+        {parentMenuItem && (
+          // If an item is nested, skip the "parent" and
+          // render just nested items with combined parent and child messages
+          <>
+            <FormattedMessage id={parentMenuItem.messageId} />
+            &nbsp;
+          </>
+        )}
+        {menuItem.text ?? <FormattedMessage id={menuItem.messageId} />}
+      </MenuItem>
+    );
+
+    if (menuItem.link) {
+      return (
+        <NavLink to={menuItem.link} className={classes.link}>
+          {item}
+        </NavLink>
+      );
+    }
+
+    if (menuItem.href) {
+      return (
+        <Link href={menuItem.href} className={classes.link} target="_blank" rel="noopener">
+          {item}
+        </Link>
+      );
+    }
+
+    return item;
+  };
+
+  return (
+    <List>
+      {items.map((menuItem) => {
+        const { show = true } = menuItem;
+        if (show) {
+          if (menuItem?.menu?.items) {
+            return menuItem.menu.items.map((nestedMenuItem) => getItem(nestedMenuItem, menuItem));
+          }
+          return getItem(menuItem);
+        }
+        return null;
+      })}
+    </List>
+  );
+};
+
 const renderDropdown = (item) => (
-  <Dropdown
-    dataTestId={item.dataTestId}
-    popupId="desktopPopup"
-    icon={item.icon}
-    messageId={item.messageId}
-    items={item.menu.items}
-    tooltip={item.tooltip}
-    trigger="button"
-    isLoading={item.isLoading}
-    disabled={item.disabled}
+  <Popover
+    renderMenu={({ closeHandler }) => <DropDownMenu items={item.menu.items} onClose={closeHandler} />}
+    label={({ isOpen }) => (
+      <ButtonLoader
+        dataTestId={item.dataTestId}
+        messageId={item.messageId}
+        variant="text"
+        startIcon={item.startIcon}
+        isLoading={item.isLoading}
+        endIcon={isOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+        tooltip={item.tooltip}
+      />
+    )}
   />
 );
 
@@ -97,7 +174,8 @@ const renderItems = (barItems) => {
       iconButton: renderIconButton,
       dropdown: renderDropdown,
       switch: renderSwitch,
-      buttonGroup: renderButtonGroup
+      buttonGroup: renderButtonGroup,
+      custom: ({ node }) => node
     };
     return types[type];
   };
@@ -120,19 +198,11 @@ const renderTitle = (title, ref) =>
     title.custom
   );
 
-const getTitleMargin = (goBack, isUpSm) => {
-  if (isUpSm) {
-    return goBack ? 2 : 4;
-  }
-  return goBack ? 0 : 2;
-};
-
 const getUseIsAllowedParameters = (poolId) => (poolId ? { entityType: SCOPE_TYPES.POOL, entityId: poolId } : {});
 
 const ActionBar = ({ data, isPage = true }) => {
-  const isUpSm = useMediaQuery((theme) => theme.breakpoints.up("sm"));
   const { classes, cx } = useStyles();
-  const { items = [], title, goBack, barClass = classes.bar, poolId = null, hideItemsOnSmallScreens = true } = data;
+  const { items = [], title, barClass = classes.bar, poolId = null, hideItemsOnSmallScreens = true } = data;
 
   const mapBarClass = cx(barClass, isPage ? classes.isPage : "");
   const actionsClasses = cx(classes.margin, classes.actions);
@@ -162,9 +232,8 @@ const ActionBar = ({ data, isPage = true }) => {
   return title || !isEmptyActions ? (
     <AppBar position="static" className={mapBarClass}>
       <Toolbar disableGutters ref={wrapperRef}>
-        {goBack ? <GoBackButton /> : null}
         {title ? (
-          <Box display="flex" flexGrow="1" alignItems="center" ml={getTitleMargin(goBack, isUpSm)}>
+          <Box display="flex" flexGrow="1" alignItems="center">
             {renderTitle(title, titleRef)}
           </Box>
         ) : null}
@@ -172,7 +241,10 @@ const ActionBar = ({ data, isPage = true }) => {
           <Box className={classes.itemsWrapper} ref={buttonsRef}>
             {!isEmpty(hidden) && (
               <Box component="div" className={actionsClasses}>
-                <Dropdown popupId="mobilePopup" items={hidden} trigger="iconButton" isMobile />
+                <Popover
+                  renderMenu={({ closeHandler }) => <DropDownMenu items={hidden} onClose={closeHandler} />}
+                  label={<IconButton isLoading={hidden.some((item) => item.isLoading)} icon={<MoreVertOutlinedIcon />} />}
+                />
               </Box>
             )}
             {!isEmpty(visible) && (

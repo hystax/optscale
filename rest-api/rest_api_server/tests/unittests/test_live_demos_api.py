@@ -362,7 +362,6 @@ class TestLiveDemosApi(TestApiBase):
             self.assertEqual(response['is_demo'], True)
             self.check_db(check_empty=False)
             self.check_mongo(check_empty=False)
-            self.assertEqual(self.p_health_task.call_count, 1)
 
     def test_live_demo_org_constraint_create(self):
         with patch('rest_api_server.controllers.live_demo.LiveDemoController'
@@ -591,9 +590,24 @@ class TestLiveDemosApi(TestApiBase):
             self.assertEqual(optimization['data'][0]['saving'],
                              preset_optimization_saving)
 
-    def test_duplication_resources(self):
+    def test_resources_from_top_10_not_duplicated(self):
         with patch('rest_api_server.controllers.live_demo.LiveDemoController'
                    '.load_preset', return_value=deepcopy(self.preset)):
+            code, response = self.client.live_demo_create()
+            self.assertEqual(code, 201)
+            raw_expenses = list(self.raw_expenses.find())
+            optimizations = list(self.checklists_collection.find())
+            resources = list(self.resources_collection.find())
+            self.assertEqual(len(raw_expenses), 1)
+            self.assertEqual(len(resources), 1)
+            self.assertEqual(len(optimizations[0]['data']), 1)
+
+    def test_resources_not_from_top_10_duplicated(self):
+        with patch(
+                'rest_api_server.controllers.live_demo.LiveDemoController'
+                '.load_preset', return_value=deepcopy(self.preset)):
+            patch('rest_api_server.controllers.live_demo.LiveDemoController.'
+                  'get_top_resources_by_total_cost', return_value=[]).start()
             code, response = self.client.live_demo_create()
             self.assertEqual(code, 201)
             raw_expenses = list(self.raw_expenses.find())

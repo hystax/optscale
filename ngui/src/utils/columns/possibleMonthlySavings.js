@@ -4,15 +4,15 @@ import FormattedMoney from "components/FormattedMoney";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 
-const possibleMonthlySavings = ({ headerDataTestId, accessor = "saving", defaultSort }) => ({
-  Header: (
+const possibleMonthlySavings = ({ headerDataTestId, accessorKey = "saving", defaultSort }) => ({
+  header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
       <FormattedMessage id="possibleMonthlySavings" />
     </TextWithDataTestId>
   ),
-  accessor,
+  accessorKey,
   defaultSort,
-  Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+  cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
 });
 
 export default possibleMonthlySavings;

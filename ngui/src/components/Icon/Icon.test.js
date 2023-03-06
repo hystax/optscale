@@ -1,16 +1,16 @@
 import React from "react";
 import ErrorIcon from "@mui/icons-material/Error";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import Icon from "./Icon";
 
 it("renders without crashing without children", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
       <Icon icon={ErrorIcon} />
-    </TestProvider>,
-    div
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

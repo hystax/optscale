@@ -6,13 +6,14 @@ import PropTypes from "prop-types";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Circle from "components/Circle";
 import CloudLabel from "components/CloudLabel";
+import CloudType from "components/CloudType";
 import FormattedMoney from "components/FormattedMoney";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import { intl } from "translations/react-intl-config";
 import { CLOUD_ACCOUNT_CONNECT } from "urls";
 import { getColorScale } from "utils/charts";
-import { CLOUD_ACCOUNT_TYPE, FORMATTED_MONEY_TYPES } from "utils/constants";
+import { FORMATTED_MONEY_TYPES } from "utils/constants";
 
 const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
   const navigate = useNavigate();
@@ -23,9 +24,9 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
     const colorScale = getColorScale(theme.palette.chart);
     return [
       {
-        Header: intl.formatMessage({ id: "name" }),
-        accessor: "name",
-        Cell: ({
+        header: intl.formatMessage({ id: "name" }),
+        accessorKey: "name",
+        cell: ({
           row: {
             original: { id, name, type, details: { cost } = {} },
             index
@@ -41,25 +42,28 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
         )
       },
       {
-        Header: intl.formatMessage({ id: "type" }),
-        accessor: "type",
-        Cell: ({ cell: { value } }) => intl.formatMessage({ id: CLOUD_ACCOUNT_TYPE[value] })
+        header: intl.formatMessage({ id: "type" }),
+        accessorKey: "type",
+        cell: ({ cell }) => <CloudType type={cell.getValue()} />
       },
       {
-        Header: intl.formatMessage({ id: "resourcesChargedThisMonth" }),
-        accessor: "details.tracked",
+        header: intl.formatMessage({ id: "resourcesChargedThisMonth" }),
+        id: "details.tracked",
+        accessorFn: (originalRow) => originalRow.details?.tracked,
         emptyValue: "0"
       },
       {
-        Header: intl.formatMessage({ id: "expensesUpToDateThisMonth" }),
-        accessor: "details.cost",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />,
+        header: intl.formatMessage({ id: "expensesUpToDateThisMonth" }),
+        id: "details.cost",
+        accessorFn: (originalRow) => originalRow.details?.cost,
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
         defaultSort: "desc"
       },
       {
-        Header: intl.formatMessage({ id: "expensesForecastThisMonth" }),
-        accessor: "details.forecast",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        header: intl.formatMessage({ id: "expensesForecastThisMonth" }),
+        id: "details.forecast",
+        accessorFn: (originalRow) => originalRow.details?.forecast,
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
       }
     ];
   }, [theme.palette.chart]);

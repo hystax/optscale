@@ -1,5 +1,6 @@
 import React from "react";
 import ResourceRecommendations from "components/ResourceRecommendations";
+import { KINDS } from "stories";
 import {
   INSTANCE_MIGRATION_TYPE,
   INSTANCES_IN_STOPPED_STATE_FOR_A_LONG_TIME_TYPE,
@@ -11,7 +12,6 @@ import {
   VOLUMES_NOT_ATTACHED_FOR_A_LONG_TIME_TYPE,
   OBSOLETE_IPS_TYPE
 } from "utils/constants";
-import { KINDS } from "stories";
 
 export default {
   title: `${KINDS.COMPONENTS}/ResourceRecommendations`

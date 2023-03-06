@@ -1,0 +1,3 @@
+import UpdateDataSourceCredentialsContainer from "./UpdateDataSourceCredentialsContainer";
+
+export default UpdateDataSourceCredentialsContainer;

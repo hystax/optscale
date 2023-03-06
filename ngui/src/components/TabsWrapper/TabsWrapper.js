@@ -6,7 +6,6 @@ import { FormattedMessage } from "react-intl";
 import TabContent from "components/TabContent";
 import TabsComponent from "components/Tabs";
 import TabsLoader from "components/TabsLoader";
-import WrapperCard from "components/WrapperCard";
 import { TAB_QUERY_PARAM_NAME } from "utils/constants";
 import { getQueryParams, removeQueryParam, updateQueryParams } from "utils/network";
 
@@ -111,7 +110,7 @@ const Tabs = ({ tabsProps, headerAdornment, headerSx }) => {
 
   return (
     <>
-      <Box sx={headerSx}>
+      <Box sx={{ ...headerSx, borderBottom: 1, borderColor: "divider" }}>
         <TabsComponent area-label={`${name}-tabs`} value={activeTab} onChange={externalHandleChange || handleChange}>
           {tabHeaders}
         </TabsComponent>
@@ -122,25 +121,14 @@ const Tabs = ({ tabsProps, headerAdornment, headerSx }) => {
   );
 };
 
-const TabsWrapper = ({
-  tabsProps,
-  wrapperCardDataTestIds,
-  isLoading,
-  withWrapperCard = true,
-  headerAdornment = null,
-  headerSx = {}
-}) => {
+const TabsWrapper = ({ tabsProps, isLoading, headerAdornment = null, headerSx = {} }) => {
   const { tabs } = tabsProps;
 
-  const renderTabs = () => {
-    if (isLoading) {
-      return <TabsLoader tabsCount={tabs.length} />;
-    }
+  if (isLoading) {
+    return <TabsLoader tabsCount={tabs.length} />;
+  }
 
-    return <Tabs tabsProps={tabsProps} headerAdornment={headerAdornment} headerSx={headerSx} />;
-  };
-
-  return withWrapperCard ? <WrapperCard dataTestIds={wrapperCardDataTestIds}>{renderTabs()}</WrapperCard> : renderTabs();
+  return <Tabs tabsProps={tabsProps} headerAdornment={headerAdornment} headerSx={headerSx} />;
 };
 
 TabsWrapper.propTypes = {
@@ -155,8 +143,6 @@ TabsWrapper.propTypes = {
     keepTabContentMounted: PropTypes.bool
   }).isRequired,
   isLoading: PropTypes.bool,
-  wrapperCardDataTestIds: PropTypes.object,
-  withWrapperCard: PropTypes.bool,
   headerAdornment: PropTypes.node,
   headerSx: PropTypes.object
 };

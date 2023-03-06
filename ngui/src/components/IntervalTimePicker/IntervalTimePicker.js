@@ -53,7 +53,7 @@ const quickValuesItemsDefinition = [
   {
     key: "noLimit",
     label: "noLimit",
-    getValue: () => undefined
+    getValue: () => null
   }
 ];
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { Box } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useTheme } from "@mui/material/styles";
 import PropTypes from "prop-types";
@@ -8,7 +9,6 @@ import BarChartLoader from "components/BarChartLoader";
 import { getBasicRangesSet } from "components/DateRangePicker/defaults";
 import PageContentWrapper from "components/PageContentWrapper";
 import PieChartLoader from "components/PieChartLoader";
-import WrapperCard from "components/WrapperCard";
 import RangePickerFormContainer from "containers/RangePickerFormContainer";
 import { useBreakdownData } from "hooks/useBreakdownData";
 import { getResourcesExpensesUrl, getOwnerExpensesUrl, getCloudExpensesUrl, getPoolExpensesUrl } from "urls";
@@ -182,19 +182,27 @@ const ExpensesBreakdown = ({
     );
   };
 
+  const PieChartHeader = () => (
+    <Box justifyContent="center" display="flex">
+      <FormattedMessage id="expenses" />
+    </Box>
+  );
+
   const renderPieChartWidget = () => {
     if (isLoading) {
       return (
-        <WrapperCard needAlign title={<FormattedMessage id="expenses" />}>
+        <>
+          <PieChartHeader />
           <PieChartLoader height={40} />
-        </WrapperCard>
+        </>
       );
     }
     if (filteredBreakdown.length <= 1) {
       return null;
     }
     return (
-      <WrapperCard needAlign title={<FormattedMessage id="expenses" />}>
+      <>
+        <PieChartHeader />
         <ExpensesBreakdownPieChart
           filteredBreakdown={filteredBreakdown}
           filterBy={filterBy}
@@ -217,7 +225,7 @@ const ExpensesBreakdown = ({
             return !!link;
           }}
         />
-      </WrapperCard>
+      </>
     );
   };
 

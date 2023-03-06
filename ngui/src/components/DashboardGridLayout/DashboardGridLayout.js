@@ -1,14 +1,8 @@
 import React from "react";
 import Grid from "@mui/material/Grid";
-import { SPACING_2 } from "utils/layouts";
+import { useInnerBorders } from "hooks/useInnerBorders";
 
-const DashboardGridLayout = ({
-  topResourcesExpensesCard,
-  environmentsCard,
-  organizationExpenses,
-  recommendationsCard,
-  myTasksCard
-}) => {
+const DashboardGridLayout = ({ topResourcesExpensesCard, environmentsCard, organizationExpenses, recommendationsCard }) => {
   const squareNodes = [
     { key: "organizationExpenses", node: organizationExpenses },
     {
@@ -22,16 +16,29 @@ const DashboardGridLayout = ({
     }
   ].filter(({ node }) => Boolean(node));
 
+  const makeBorders = useInnerBorders({
+    tileCount: squareNodes.length,
+    columns: 2,
+    borderStyle: "1px solid",
+    lastChildBorderOnMobile: true
+  });
+
   return (
-    <Grid container spacing={SPACING_2}>
-      {squareNodes.map(({ key, node }) => (
-        <Grid key={key} item xs={12} sm={6}>
+    <Grid container>
+      {squareNodes.map(({ key, node }, i) => (
+        <Grid
+          key={key}
+          item
+          xs={12}
+          sm={6}
+          sx={{
+            ...makeBorders(i),
+            borderColor: "divider"
+          }}
+        >
           {node}
         </Grid>
       ))}
-      <Grid item xs={12}>
-        {myTasksCard}
-      </Grid>
     </Grid>
   );
 };

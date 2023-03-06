@@ -5,14 +5,14 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import { POLICY_TYPE_COLUMN_NAMES } from "utils/constants";
 
 const constraintHitValue = ({ type }) => ({
-  Header: (
+  header: (
     <TextWithDataTestId dataTestId="lbl_value">
       <FormattedMessage id={POLICY_TYPE_COLUMN_NAMES[type] ?? "value"} />
     </TextWithDataTestId>
   ),
-  accessor: "value",
-  Cell: ({ row: { original: { constraint_limit: constraintLimit } = {} }, cell: { value } }) => (
-    <ConstraintValue hitValue={value} constraintLimit={constraintLimit} type={type} />
+  accessorKey: "value",
+  cell: ({ cell, row: { original: { constraint_limit: constraintLimit } = {} } }) => (
+    <ConstraintValue hitValue={cell.getValue()} constraintLimit={constraintLimit} type={type} />
   )
 });
 

@@ -86,7 +86,8 @@ const Cell = ({
   limitExceededMessageId,
   limitNotSetMessageId,
   mismatchedLimitMessageId,
-  valueFormatterFn
+  valueFormatterFn,
+  dataTestId
 }) => {
   const theme = useTheme();
 
@@ -152,6 +153,7 @@ const Cell = ({
   };
   return (
     <BufferedProgressBar
+      dataTestId={dataTestId}
       tooltip={tooltip}
       valueColor={valueColor}
       valueBufferColor={theme.palette.success.light}
@@ -165,6 +167,7 @@ const Cell = ({
 const resourcesMeter = ({
   id = "cpu_utilization",
   headerDataTestId = "lbl_cpu_utilization",
+  dataTestId = "cpu_utilization",
   messageId = "cpuUtilization",
   questionMarkMessageId = "cpuUtilizationTooltip",
   questionMarkUsedMessageId = "cpuUtilizationTooltip.used",
@@ -180,7 +183,7 @@ const resourcesMeter = ({
   valueFormatterFn = (value) => <FormattedNumber value={value} maximumFractionDigits={MAXIMUM_FRACTION_DIGITS} />
 }) => ({
   id,
-  Header: (
+  header: (
     <Header
       headerDataTestId={headerDataTestId}
       messageId={messageId}
@@ -191,9 +194,9 @@ const resourcesMeter = ({
       questionMarkDataTestId={questionMarkDataTestId}
     />
   ),
-  disableGlobalFilter: true,
-  disableSortBy: true,
-  Cell: ({ row: { original } }) => (
+  enableGlobalFilter: false,
+  enableSorting: false,
+  cell: ({ row: { original } }) => (
     <Cell
       used={original[averageUsedAccessor] || 0}
       requests={original[requestsAccessor] || 0}
@@ -202,6 +205,7 @@ const resourcesMeter = ({
       limitNotSetMessageId={limitNotSetMessageId}
       mismatchedLimitMessageId={mismatchedLimitMessageId}
       valueFormatterFn={valueFormatterFn}
+      dataTestId={dataTestId}
     />
   )
 });

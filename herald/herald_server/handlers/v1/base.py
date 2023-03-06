@@ -139,7 +139,6 @@ class BaseAuthHandler(BaseHandler):
     def initialize(self, engine, config, rabbit_client):
         super().initialize(engine, config, rabbit_client)
         self.cluster_secret = config.cluster_secret()
-        self.agent_secret = config.agent_secret()
 
     @property
     def token(self):
@@ -176,9 +175,6 @@ class BaseAuthHandler(BaseHandler):
             if exc.response.status_code == 404:
                 raise OptHTTPError(404, Err.G0002, [resource_id])
             raise
-
-    def check_agent_secret(self, **kwargs):
-        return self._check_secret(self.agent_secret, **kwargs)
 
     def check_cluster_secret(self, **kwargs):
         return self._check_secret(self.cluster_secret, **kwargs)

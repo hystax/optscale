@@ -4,7 +4,6 @@ import PageContentWrapper from "components/PageContentWrapper";
 import CreatePoolPolicyFormContainer from "containers/CreatePoolPolicyFormContainer";
 
 const actionBarDefinition = {
-  goBack: true,
   title: {
     messageId: "createPoolPolicyTitle",
     dataTestId: "lbl_create_pool_policy"

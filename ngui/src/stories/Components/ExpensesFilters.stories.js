@@ -1,6 +1,7 @@
 import React from "react";
 import ExpensesFilters from "components/ExpensesFilters";
 import { KINDS } from "stories";
+import { getPoolIdWithSubPools } from "urls";
 import {
   RESOURCE_TYPE_FILTER,
   POOL_ID_FILTER,
@@ -12,7 +13,6 @@ import {
   SERVICE_NAME_FILTER,
   CLOUD_ACCOUNT_ID_FILTER
 } from "utils/constants";
-import { getPoolIdWithSubPools } from "urls";
 
 export default {
   title: `${KINDS.COMPONENTS}/ExpensesFilters`
@@ -77,15 +77,13 @@ const expenses = [
   }
 ];
 
-export const basic = () => {
-  return (
-    <ExpensesFilters
-      appliedFilters={appliedFilters}
-      filterValues={filtersFromBE}
-      expenses={expenses}
-      onFilterAdd={() => console.log("onFilterAdd")}
-      onFilterDelete={() => console.log("onFilterDelete")}
-      onFiltersDelete={() => console.log("onFiltersDelete")}
-    />
-  );
-};
+export const basic = () => (
+  <ExpensesFilters
+    appliedFilters={appliedFilters}
+    filterValues={filtersFromBE}
+    expenses={expenses}
+    onFilterAdd={() => console.log("onFilterAdd")}
+    onFilterDelete={() => console.log("onFilterDelete")}
+    onFiltersDelete={() => console.log("onFiltersDelete")}
+  />
+);

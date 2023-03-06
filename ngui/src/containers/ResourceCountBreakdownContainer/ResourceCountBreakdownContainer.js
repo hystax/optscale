@@ -3,8 +3,7 @@ import PropTypes from "prop-types";
 import ResourceCountBreakdown from "components/ResourceCountBreakdown";
 import { useBreakdownBy } from "hooks/useBreakdownBy";
 import ResourcesCountBreakdownService from "services/ResourcesCountBreakdownService";
-
-const RESOURCE_COUNT_BREAKDOWN_QUERY_PARAM_NAME = "resourceCountBreakdownBy";
+import { DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME } from "urls";
 
 const getCountKeysSortedByAverageInDescendingOrder = (counts) =>
   Object.entries(counts)
@@ -14,19 +13,21 @@ const getCountKeysSortedByAverageInDescendingOrder = (counts) =>
 const ResourceCountBreakdownContainer = ({ requestParams }) => {
   const { useGet } = ResourcesCountBreakdownService();
 
-  const [breakdownBy, onBreakdownByChange] = useBreakdownBy({ queryParamName: RESOURCE_COUNT_BREAKDOWN_QUERY_PARAM_NAME });
+  const [{ value: breakdownByValue }, onBreakdownByChange] = useBreakdownBy({
+    queryParamName: DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME
+  });
 
   const {
     isGetResourceCountBreakdownLoading,
     data: { breakdown = {}, counts = {} }
-  } = useGet(breakdownBy, requestParams);
+  } = useGet(breakdownByValue, requestParams);
 
   const countKeysSortedByTotalInDescendingOrder = getCountKeysSortedByAverageInDescendingOrder(counts);
 
   return (
     <ResourceCountBreakdown
       breakdown={breakdown}
-      breakdownBy={breakdownBy}
+      breakdownByValue={breakdownByValue}
       onBreakdownByChange={onBreakdownByChange}
       counts={counts}
       countKeys={countKeysSortedByTotalInDescendingOrder}

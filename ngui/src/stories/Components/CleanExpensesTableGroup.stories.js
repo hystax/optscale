@@ -1,7 +1,6 @@
 import React from "react";
 import CleanExpensesTableGroup from "components/CleanExpensesTableGroup";
-import { MOCKED_ORGANIZATION_POOL_ID } from "mocks/idsMock";
-import { KINDS } from "stories";
+import { KINDS, MOCKED_ORGANIZATION_POOL_ID } from "stories";
 
 export default {
   title: `${KINDS.COMPONENTS}/CleanExpensesTableGroup`

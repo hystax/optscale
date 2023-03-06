@@ -4,7 +4,7 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { REST_API_URL } from "api";
 import CaptionedCell from "components/CaptionedCell";
 import Icon from "components/Icon";
@@ -65,7 +65,7 @@ const EmployeeCell = ({ rowId, rowOriginal }) => {
   );
 };
 
-const renderRoles = (assignments = [], organizationName, rowId) =>
+const renderRoles = ({ assignments = [], organizationName, rowId }, toStringsArray, intl) =>
   [
     {
       purpose: MEMBER,
@@ -86,6 +86,16 @@ const renderRoles = (assignments = [], organizationName, rowId) =>
 
     const isOrganizationScope = assignmentResourceType === SCOPE_TYPES.ORGANIZATION;
     const assignmentPurposeMessageId = isOrganizationScope ? ORGANIZATION_ROLE_PURPOSES[purpose] : ROLE_PURPOSES[purpose];
+
+    if (toStringsArray) {
+      if (isOrganizationScope) {
+        return intl.formatMessage({ id: assignmentPurposeMessageId });
+      }
+      const role = intl.formatMessage({ id: assignmentPurposeMessageId });
+      const roleAt = intl.formatMessage({ id: "roleAt" }, { role });
+
+      return `${roleAt} ${assignmentResourceName}`;
+    }
 
     return (
       <Box key={assignmentId}>
@@ -113,51 +123,59 @@ const renderRoles = (assignments = [], organizationName, rowId) =>
 
 const EmployeesTable = ({ isLoading = false, employees }) => {
   const openSideModal = useOpenSideModal();
+  const intl = useIntl();
 
   const { name: organizationName, organizationId } = useOrganizationInfo();
 
-  const data = useMemo(() => employees, [employees]);
+  const data = useMemo(
+    () =>
+      employees.map((el) => ({
+        ...el,
+        assignmentsStringified: renderRoles({ assignments: el.assignments, organizationName, id: el.id }, true, intl).join(" ")
+      })),
+    [employees, organizationName, intl]
+  );
 
   const columns = useMemo(
     () => [
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_user">
             <FormattedMessage id="user" />
           </TextWithDataTestId>
         ),
-        accessor: "name",
+        accessorKey: "name",
         defaultSort: "asc",
-        Cell: ({ row: { id, original } }) => <EmployeeCell rowId={id} rowOriginal={original} />
+        cell: ({ row: { id, original } }) => <EmployeeCell rowId={id} rowOriginal={original} />
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_email">
             <FormattedMessage id="email" />
           </TextWithDataTestId>
         ),
-        accessor: "user_email"
+        accessorKey: "user_email"
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_roles">
             <FormattedMessage id="roles" />
           </TextWithDataTestId>
         ),
-        disableSortBy: true,
-        accessor: "assignments",
-        Cell: ({ row: { id, original: { assignments } = {} } }) => renderRoles(assignments, organizationName, id)
+        enableSorting: false,
+        accessorKey: "assignmentsStringified",
+        cell: ({ row: { id, original: { assignments } = {} } }) => renderRoles({ assignments, organizationName, id })
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_actions">
             <FormattedMessage id="actions" />
           </TextWithDataTestId>
         ),
         id: "actions",
-        disableSortBy: true,
-        isStatic: true,
-        Cell: ({ row: { original: { name: employeeName, id: employeeId } = {}, index } }) => (
+        enableSorting: false,
+        enableHiding: false,
+        cell: ({ row: { original: { name: employeeName, id: employeeId } = {}, index } }) => (
           <TableCellActions
             items={[
               {
@@ -200,14 +218,42 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
           showCounters: true,
           hideDisplayed: true
         }}
+        withSearch
         columns={columns}
         actionBar={{
           show: true,
           definition: {
             items: [
               {
+                key: "invite",
+                icon: <PersonAddOutlinedIcon fontSize="small" />,
+                messageId: "invite",
+                link: EMPLOYEES_INVITE,
+                type: "button",
+                color: "success",
+                variant: "contained",
+                dataTestId: "btn_invite",
+                requiredActions: ["MANAGE_INVITES"]
+              },
+              {
+                key: "slack",
+                icon: <SlackIcon />,
+                messageId: "slack",
+                action: () => openSideModal(SlackIntegrationModal),
+                type: "button",
+                dataTestId: "btn_slack"
+              },
+              {
+                key: "jira",
+                icon: <JiraIcon />,
+                messageId: "jira",
+                link: getIntegrationsUrl(JIRA),
+                type: "button",
+                dataTestId: "btn_jira"
+              },
+              {
                 key: "download",
-                icon: <CloudDownloadOutlinedIcon fontSize="small" />,
+                startIcon: <CloudDownloadOutlinedIcon />,
                 messageId: "download",
                 type: "dropdown",
                 isLoading: isFileDownloading,
@@ -228,33 +274,6 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
                   ]
                 },
                 dataTestId: "btn_download"
-              },
-              {
-                key: "slack",
-                icon: <SlackIcon />,
-                messageId: "slack",
-                action: () => openSideModal(SlackIntegrationModal),
-                type: "button",
-                dataTestId: "btn_slack"
-              },
-              {
-                key: "jira",
-                icon: <JiraIcon />,
-                messageId: "jira",
-                link: getIntegrationsUrl(JIRA),
-                type: "button",
-                dataTestId: "btn_jira"
-              },
-              {
-                key: "invite",
-                icon: <PersonAddOutlinedIcon fontSize="small" />,
-                messageId: "invite",
-                link: EMPLOYEES_INVITE,
-                type: "button",
-                color: "success",
-                variant: "contained",
-                dataTestId: "btn_invite",
-                requiredActions: ["MANAGE_INVITES"]
               }
             ]
           }

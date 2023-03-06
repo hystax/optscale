@@ -234,15 +234,7 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
         match_filters = [{'start_date': {'$lt': end_date}}]
         if start_date:
             match_filters.append({'start_date': {'$gte': start_date}})
-        nil_uuid = get_nil_uuid()
-        for filter_key, filter_values in filters.items():
-            for n, filter_value in enumerate(filter_values):
-                if filter_value == nil_uuid:
-                    filter_values[n] = None
-            match_filter = {
-                filter_key: {'$in': filter_values}
-            }
-            match_filters.append(match_filter)
+        match_filters.extend(filters)
         pipeline = [
             {'$match': {'$and': match_filters}}
         ]
@@ -871,16 +863,6 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
             'constraint_violated', False)
         expense['tags'] = expense.get('tags', {})
 
-    @staticmethod
-    def _get_total_saving(resources_map):
-        total_saving = 0
-        for resource_id, resource in resources_map.items():
-            if resource.get('cluster_id'):
-                # will be processed as a part of cluster record
-                continue
-            total_saving += resource['saving']
-        return {'total_saving': total_saving}
-
     def _fill_expenses_data(self, expenses, entities):
         result_expenses = {}
         expenses_map = {e['resource_id']: e for e in expenses}
@@ -1404,10 +1386,6 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
             total_cost += cost
         expenses = sorted(not_clustered_expenses + clustered_expenses,
                           key=lambda x: x['cost'], reverse=True)
-        all_resources_map = self.get_resources(
-            organization_id, cloud_account_ids, list(joined_ids),
-            clustered_resources_map)
-        total_saving = self._get_total_saving(all_resources_map)
         resource_ids = set()
         if limit:
             expenses = expenses[:limit]
@@ -1420,8 +1398,9 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
                 resource_ids.add(r_id)
         else:
             resource_ids.update(joined_ids)
-        resources_map = {k: v for k, v in all_resources_map.items()
-                         if k in resource_ids}
+        resources_map = self.get_resources(
+            organization_id, cloud_account_ids, list(resource_ids),
+            clustered_resources_map)
         expenses_data = self.join_db_info(
             resources_map, expenses, organization_id,
             organization_cloud_accs)
@@ -1432,21 +1411,23 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
             'end_date': self.end_date,
             'total_count': total_count,
             'total_cost': total_cost,
-            **expenses_data,
-            **total_saving
+            **expenses_data
         }
         if limit:
             res['limit'] = limit
         return res
 
-    def get(self, organization_id, **params):
-        filters = params.copy()
+    def handle_filters(self, params, filters, organization_id):
         for k, v in params.items():
             if v is None:
                 filters.pop(k)
         self.check_filters(filters, organization_id)
         self.start_date = params.pop('start_date')
         self.end_date = params.pop('end_date')
+
+    def get(self, organization_id, **params):
+        filters = params.copy()
+        self.handle_filters(params, filters, organization_id)
         query_filters, data_filters, extra_params = self.split_params(
             organization_id, params.copy())
         traffic_expenses_map = self._process_traffic_filters(
@@ -1584,9 +1565,6 @@ class RawExpenseController(CleanExpenseController):
                 Err.OE0002, ['Resource', resource['id']])
         return cloud_account.organization_id
 
-    def _get_total_saving(self, resources_map):
-        return {}
-
     def expand_resources_by_id(self, resource_ids):
         children_ids = list(self.resources_collection.distinct(
             '_id', {'cluster_id': {'$in': resource_ids}}))
@@ -1614,14 +1592,30 @@ class RawExpenseController(CleanExpenseController):
                      end_date, limit=None) -> tuple:
         start = datetime.fromtimestamp(start_date)
         end = datetime.fromtimestamp(end_date)
-        cloud_resource_ids, cloud_account_ids = self._get_cloud_resource_ids(
-            resource_ids)
-        filters = {
-            'cloud_account_id': cloud_account_ids,
-            'resource_id': cloud_resource_ids
-        }
-        expenses = list(self.expense_ctrl.get_raw_expenses(
-            start, end, filters))
+        (
+            cloud_resource_ids,
+            cloud_resource_hashes,
+            cloud_account_ids,
+        ) = self._get_cloud_resource_ids(resource_ids)
+        nil_uuid = get_nil_uuid()
+        for filter_values in (
+            cloud_resource_ids,
+            cloud_resource_hashes,
+            cloud_account_ids,
+        ):
+            for n, filter_value in enumerate(filter_values):
+                if filter_value == nil_uuid:
+                    filter_values[n] = None
+        filters = [
+            {"cloud_account_id": {"$in": cloud_account_ids}},
+            {
+                "$or": [
+                    {"resource_id": {"$in": cloud_resource_ids}},
+                    {"resource_hash": {"$in": cloud_resource_hashes}},
+                ]
+            },
+        ]
+        expenses = list(self.expense_ctrl.get_raw_expenses(start, end, filters))
         return expenses, self.get_expenses_total_cost(expenses)
 
     def _get_cloud_resource_ids(self, resource_ids):
@@ -1630,14 +1624,18 @@ class RawExpenseController(CleanExpenseController):
             {'$group': {
                 '_id': 0,
                 'cloud_resource_ids': {'$addToSet': '$cloud_resource_id'},
+                'cloud_resource_hashes': {'$addToSet': '$cloud_resource_hash'},
                 'cloud_account_ids': {'$addToSet': '$cloud_account_id'}
             }}
         ])
-        cloud_resource_ids, cloud_account_ids = set(), set()
+        cloud_resource_ids = set()
+        cloud_resource_hashes = set()
+        cloud_account_ids = set()
         for r in result:
             cloud_resource_ids.update(r['cloud_resource_ids'])
+            cloud_resource_hashes.update(r['cloud_resource_hashes'])
             cloud_account_ids.update(r['cloud_account_ids'])
-        return list(cloud_resource_ids), list(cloud_account_ids)
+        return list(cloud_resource_ids), list(cloud_resource_hashes), list(cloud_account_ids)
 
     def _process_clustered_expenses(self, expenses, clustered_resources_map):
         return expenses
@@ -1691,29 +1689,164 @@ class RawExpenseAsyncController(BaseAsyncControllerWrapper):
 class SummaryExpenseController(CleanExpenseController):
     JOIN_TRAFFIC_EXPENSES = False
 
-    def _get_resources_base(self, resource_ids, cloud_account_ids,
-                            organization_id):
-        resources = self.resources_collection.find({
-            '_id': {'$in': resource_ids},
-            '$or': [
-                {'cloud_account_id': {'$in': cloud_account_ids}},
-                {'organization_id': organization_id}
-            ]
-        }, ['_id', 'recommendations', 'cluster_id'])
-        return resources
+    def _get_clickhouse_total_cost(self, resource_ids):
+        result = self.execute_clickhouse(
+            query="""
+                SELECT
+                    SUM(cost * sign) AS total_cost
+                FROM expenses
+                WHERE resource_id IN resource_ids
+                    AND date >= %(start_date)s
+                    AND date <= %(end_date)s
+            """,
+            params={
+                'start_date': self.start_date,
+                'end_date': self.end_date,
+            },
+            external_tables=[{
+                'name': 'resource_ids',
+                'structure': [
+                    ('_id', 'String'),
+                ],
+                'data': [{'_id': r_id} for r_id in resource_ids]
+            }],
+        )
+        return result[0][0]
 
-    def join_db_info(self, resources_map, expenses, organization_id,
-                     organization_cloud_acc):
-        total_saving = 0
-        resources_map = resources_map or {}
-        for resource in resources_map.values():
-            if resource.get('cluster_id'):
-                # will be processed as a part of cluster record
-                continue
-            total_saving += resource.get('saving')
+    def _get_result_base(self):
         return {
-            'total_saving': total_saving,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'total_count': 0,
+            'total_cost': 0,
+            'total_saving': 0
         }
+
+    @staticmethod
+    def _pipeline_unwind_steps():
+        return [
+            {'$project': {
+                '_id': 1, 'recommendations': 1, 'cluster_id': 1,
+                'cluster_type_id': 1, 'cloud_account_id': 1, 'first_seen': 1}},
+            {'$unwind': {
+                'path': '$recommendations',
+                'preserveNullAndEmptyArrays': True}},
+            {'$unwind': {
+                'path': '$recommendations.modules',
+                'preserveNullAndEmptyArrays': True
+            }},
+            {'$project': {
+                '_id': 1, 'cluster_id': 1, 'cluster_type_id': 1,
+                'run_timestamp': '$recommendations.run_timestamp',
+                'saving': '$recommendations.modules.saving',
+                'cloud_account_id': 1, 'first_seen': 1
+            }},
+        ]
+
+    def _get_sub_resources_data(self, cluster_ids, last_run_ts):
+        match_stage = {'$match': {'$and': [
+                {'cluster_id': {'$in': cluster_ids}}, {'deleted_at': 0}]}}
+        group_stage = {
+            '$group': {
+                '_id': '$cluster_id',
+                'resource_ids': {'$addToSet': '$_id'},
+                'total_saving': {
+                    '$sum': {
+                        '$cond': {
+                            'if': {
+                                '$gte': ['$run_timestamp', last_run_ts]
+                            },
+                            'then': '$saving',
+                            'else': 0
+                        }
+                    }
+                }
+            }
+        }
+        pipeline = [match_stage] + self._pipeline_unwind_steps() + [group_stage]
+
+        data = self.resources_collection.aggregate(pipeline)
+        cluster_resource_ids = []
+        cluster_savings_map = {}
+        for x in data:
+            cluster_resource_ids.extend(x['resource_ids'])
+            cluster_savings_map[x['_id']] = x['total_saving']
+        return cluster_resource_ids, cluster_savings_map
+
+    def get(self, organization_id, **params):
+        filters = params.copy()
+        self.handle_filters(params, filters, organization_id)
+        result = self._get_result_base()
+
+        query_filters, data_filters, _ = self.split_params(
+            organization_id, params.copy())
+        self._process_traffic_filters(
+            query_filters['cloud_account_id'], data_filters)
+        last_run_ts = self.get_last_run_ts_by_org_id(organization_id)
+
+        filter_cond = self.generate_filters_pipeline(
+                organization_id, self.start_date, self.end_date,
+                query_filters, data_filters)
+        match_stage = {'$match': filter_cond}
+        # split resources to clustered, not clustered and clusters
+        group_stage = {
+            '$group': {
+                '_id': {
+                    'cluster_id': {'$ifNull': ['$cluster_id', None]},
+                    'cluster_type_id': {'$ifNull': ['$cluster_type_id', None]},
+                    # fields to reduce number of resource_ids in group
+                    'cloud_account_id': {'$ifNull': ['$cloud_account_id', None]},
+                    'first_seen': '$first_seen'
+                },
+                'resource_ids': {'$addToSet': '$_id'},
+                'total_saving': {
+                    '$sum': {
+                        '$cond': {
+                            'if': {
+                                '$gte': ['$run_timestamp', last_run_ts]
+                            },
+                            'then': '$saving',
+                            'else': 0
+                        }
+                    }
+                }
+            }
+        }
+        pipeline = [match_stage] + self._pipeline_unwind_steps() + [group_stage]
+        data = self.resources_collection.aggregate(pipeline, allowDiskUse=True)
+
+        all_resource_ids = []
+        counted_resource_ids = []
+        cluster_savings_map = {}
+        for res_group in data:
+            cluster_id = res_group['_id']['cluster_id']
+            cluster_type_id = res_group['_id']['cluster_type_id']
+            if cluster_type_id:
+                # clusters
+                cluster_ids = res_group['resource_ids']
+                sub_resources_ids, cluster_savings = self._get_sub_resources_data(
+                    cluster_ids, last_run_ts)
+                cluster_savings_map.update(cluster_savings)
+                all_resource_ids.extend(cluster_ids)
+                all_resource_ids.extend(sub_resources_ids)
+                counted_resource_ids.extend(cluster_ids)
+            elif cluster_id:
+                # clustered resources
+                if 'cloud_account_id' not in filters:
+                    if cluster_id not in cluster_savings_map:
+                        cluster_savings_map[cluster_id] = res_group['total_saving']
+                    all_resource_ids.extend(res_group['resource_ids'])
+                    counted_resource_ids.append(cluster_id)
+            else:
+                # not clustered resources
+                result['total_saving'] += res_group['total_saving']
+                all_resource_ids.extend(res_group['resource_ids'])
+                counted_resource_ids.extend(res_group['resource_ids'])
+        result['total_count'] += len(set(counted_resource_ids))
+        result['total_cost'] = self._get_clickhouse_total_cost(
+            set(all_resource_ids))
+        result['total_saving'] += sum(x for x in cluster_savings_map.values())
+        return result
 
 
 class SummaryExpenseAsyncController(BaseAsyncControllerWrapper):
@@ -1755,8 +1888,12 @@ class RegionExpenseController(FilteredFormattedExpenseController,
         if region is not None:
             # For Azure and Alibaba we use region display names in
             # expenses, so let's use names as keys if names exist in
-            # coords map
-            region_name = info.get('name', region)
+            # coords map.
+            # For Gcp we have region names, but expenses are stored with region IDs.
+            if cloud_type == "gcp_cnr":
+                region_name = region
+            else:
+                region_name = info.get('name', region)
         return {
             region_name: {
                 'name': region_name,

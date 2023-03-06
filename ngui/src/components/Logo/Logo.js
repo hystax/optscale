@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import { useIntl } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import logo from "assets/logo/logo.svg";
+import logoFullDemo from "assets/logo/logo_demo.svg";
+import logoShortDemo from "assets/logo/logo_short_demo.svg";
 import logoShortWhite from "assets/logo/logo_short_white.svg";
 import logoShortWhiteDemo from "assets/logo/logo_short_white_demo.svg";
 import logoFullWhite from "assets/logo/logo_white.svg";
@@ -15,6 +17,8 @@ import { capitalize } from "utils/strings";
 const logosMap = {
   logoFullWhite,
   logoShortWhite,
+  logoFullDemo,
+  logoShortDemo,
   logoFullWhiteDemo,
   logoShortWhiteDemo,
   logo
@@ -22,7 +26,7 @@ const logosMap = {
 
 const getLogo = (demo, white, size) => {
   if (demo) {
-    return logosMap[`logo${capitalize(size)}WhiteDemo`];
+    return logosMap[`logo${capitalize(size)}Demo`];
   }
   if (white) {
     return logosMap[`logo${capitalize(size)}White`];

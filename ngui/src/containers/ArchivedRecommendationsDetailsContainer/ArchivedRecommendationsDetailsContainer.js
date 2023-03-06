@@ -17,8 +17,9 @@ const ArchivedRecommendationsDetailsContainer = ({ archivedRecommendationsBreakd
     toggleAccordionState(accordionName);
   };
 
-  return accordionBreakdown.map(({ archived_at: archivedAt, reason, module, accordionName, count }) => (
+  return accordionBreakdown.map(({ archived_at: archivedAt, reason, module, accordionName, count }, index) => (
     <ArchivedRecommendationAccordion
+      dataTestId={`sp_archived_recommendation_${index}`}
       key={accordionName}
       recommendationType={module}
       reason={reason}

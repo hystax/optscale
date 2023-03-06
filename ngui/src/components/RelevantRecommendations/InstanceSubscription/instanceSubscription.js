@@ -4,7 +4,7 @@ import FormattedMoney from "components/FormattedMoney";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { detectedAt, resource, resourceLocation, size } from "utils/columns";
 import { RECOMMENDATION_INSTANCE_SUBSCRIPTION, INSTANCE_SUBSCRIPTION_TYPE, FORMATTED_MONEY_TYPES } from "utils/constants";
-import RecommendationFactory from "../RecommendationFactory";
+import RecommendationFactory from "utils/recommendations";
 
 class InstanceSubscriptionRecommendation extends RecommendationFactory {
   type = RECOMMENDATION_INSTANCE_SUBSCRIPTION;
@@ -33,8 +33,7 @@ class InstanceSubscriptionRecommendation extends RecommendationFactory {
   static configureColumns() {
     return [
       resource({
-        headerDataTestId: "lbl_is_resource",
-        accessor: "cloud_resource_id"
+        headerDataTestId: "lbl_is_resource"
       }),
       resourceLocation({
         headerDataTestId: "lbl_is_location"
@@ -44,23 +43,23 @@ class InstanceSubscriptionRecommendation extends RecommendationFactory {
       }),
       detectedAt({ headerDataTestId: "lbl_is_detected_at" }),
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_is_monthly_saving">
             <FormattedMessage id="monthlySavingsWithOneMonthSubscription" />
           </TextWithDataTestId>
         ),
-        accessor: "monthly_saving",
+        accessorKey: "monthly_saving",
         defaultSort: "desc",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
       },
       {
-        Header: (
+        header: (
           <TextWithDataTestId dataTestId="lbl_is_annually_monthly_saving">
             <FormattedMessage id="monthlySavingsWithAnnualSubscription" />
           </TextWithDataTestId>
         ),
-        accessor: "annually_monthly_saving",
-        Cell: ({ cell: { value } }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />
+        accessorKey: "annually_monthly_saving",
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
       }
     ];
   }

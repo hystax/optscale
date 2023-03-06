@@ -47,14 +47,14 @@ const PossibleShutdownPeriods = ({ value, limit }) => {
   );
 };
 
-const possibleShutdownPeriods = ({ headerDataTestId, accessor = "inactivity_periods" }) => ({
-  Header: (
+const possibleShutdownPeriods = ({ headerDataTestId, accessorKey = "inactivity_periods" }) => ({
+  header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
       <FormattedMessage id="possibleShutdownPeriods" />
     </TextWithDataTestId>
   ),
-  accessor,
-  Cell: ({ cell: { value } }) => <PossibleShutdownPeriods value={value} limit={10} />
+  accessorKey,
+  cell: ({ cell }) => <PossibleShutdownPeriods value={cell.getValue()} limit={10} />
 });
 
 export default possibleShutdownPeriods;

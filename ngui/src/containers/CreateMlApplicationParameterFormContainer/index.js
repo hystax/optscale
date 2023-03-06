@@ -1,0 +1,3 @@
+import CreateMlApplicationParameterFormContainer from "./CreateMlApplicationParameterFormContainer";
+
+export default CreateMlApplicationParameterFormContainer;
