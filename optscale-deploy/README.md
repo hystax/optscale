@@ -3,30 +3,35 @@
  Minimum hardware requirements for OptScale cluster: CPU: 8+ cores, RAM: 16Gb, SSD: 150+ Gb. 
  
 NVMe SSD is recommended.  
-OS: [Ubuntu 20.04](https://releases.ubuntu.com/focal/).
+**OS Required**: [Ubuntu 20.04](https://releases.ubuntu.com/focal/).  
+*The current installation process do not work on Ubuntu 22.04*
 
 #### Installing required packages
-run following commands:
+Run following commands:
 ```
 sudo apt update ; sudo apt install git python3-venv python3-dev sshpass
 ```
 #### Pulling optscale-deploy scripts
-change current directory:
+Clone the repository
+```markdown
+git clone https://github.com/hystax/optscale.git
 ```
-cd optscale-deploy
+
+Change current directory:
+```
+cd optscale/optscale-deploy
 ```
 
 #### Preparing virtual environment
-run following commands:
+Run following commands:
 ```
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 #### Kubernetes installation
-run following command:
-
-(comma after ip address is required)
+Run following command:  
+**comma after ip address is required**
 ```
 ansible-playbook -e "ansible_ssh_user=<user>" -k -K -i "<ip address>," ansible/k8s-master.yaml
 ```
@@ -35,6 +40,7 @@ ip address should be private address of the machine, you can check it with
 ```
 ip a
 ```
+If your deployment server is the service-host server, add `"ansible_connection=local"` to the ansible command.
 
 #### Creating user overlay
 Edit file with overlay - [overlay/user_template.yml](overlay/user_template.yml), see comments in overlay file for guidance.
@@ -51,6 +57,8 @@ or if you want to use socket:
 
 ```
 
+**deployment name** must follow the RFC 1123 : https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
+
 **please note**: if you use key authentication, you should have required key (id_rsa) on the machine
 
 
@@ -60,6 +68,10 @@ Run following command:
 ./runkube.py --with-elk  --update-only -- <deployment name>  component_versions.yaml
 ```
 
+#### Get IP access http(s):
+```markdown
+kubectl get services --field-selector metadata.name=ngingress-nginx-ingress-controller
+```
 
 #### Troubleshooting
 
