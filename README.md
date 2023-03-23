@@ -1,4 +1,4 @@
-# OptScale - the first open source FinOps and multi-cloud management platform
+# OptScale - FinOps and MLOps open source platform to run ML/AI or any type of workloads with optimal performance and infrastructure cost
 
 <p align="center">
 <a href="documentation/images/cover_github.png"><img src="documentation/images/cover_github.png" width="60%" align="middle"></a>
