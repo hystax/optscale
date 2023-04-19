@@ -163,7 +163,7 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 schema:
                     type: object
                     properties:
-                        cloud_account:
+                        cloud_accounts:
                             type: array
                             items:
                                 type: object
