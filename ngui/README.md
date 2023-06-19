@@ -26,6 +26,15 @@ draft when you start development or building Docker image.
 | REACT_APP_GANALYTICS_ID             | Google Analytics tracking code (ID)   |
 | REACT_APP_HOTJAR_ID                 | Hotjar ID                             |
 
+If you need to change these variables in already running OptScale without rebuilding NGUI image:
+
+1. Use [edit_service.sh](../optscale-deploy/edit_service.sh) script to get into running NGUI pod:
+
+   `edit_service.sh ngui`
+
+2. Locate `.env` file and add/edit needed values.
+3. Confirm local commit of the changed image and service restart.
+
 ### Deployment
 
 - Staging - `integration` branch
