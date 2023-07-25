@@ -30,7 +30,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 #### Kubernetes installation
-Run the following command:  
+Run the following command:
 **comma after ip address is required**
 ```
 ansible-playbook -e "ansible_ssh_user=<user>" -k -K -i "<ip address>," ansible/k8s-master.yaml
