@@ -1,23 +1,40 @@
-ARG IMAGE=node:18.12.1-alpine3.15
+# -------- Setup --------
+ARG IMAGE=node:18.14.2-alpine3.16
 
+FROM $IMAGE as builder
+
+WORKDIR /usr/src/app
+
+ENV NODE_ENV production
+
+# -------- UI --------
+WORKDIR /usr/src/app/ui
+COPY ui/package*.json ./
+RUN npm ci --ignore-scripts
+COPY ui/ ./
+RUN npm run build && rm -rf node_modules
+
+# -------- Server --------
+WORKDIR /usr/src/app/server
+COPY server/package*.json ./
+RUN npm ci --ignore-scripts
+COPY server/ ./
+RUN ./scripts/prune_node_modules.sh
+RUN npm run compile
+
+# -------- Final stage --------
 FROM $IMAGE
 
-WORKDIR /src
+WORKDIR /usr/src/app
 
-COPY .env server.js jsconfig.json package.json package-lock.json scripts/prune_node_modules.sh ./
-COPY public public/
-COPY src src/
+RUN chown node:node ./
+USER node
 
-RUN npm ci --production --ignore-scripts --legacy-peer-deps
-RUN ./prune_node_modules.sh
-RUN npm run build
+COPY --from=builder /usr/src/app/ui/ ./ui
+COPY --from=builder /usr/src/app/server ./server
 
-FROM $IMAGE
+EXPOSE 4000
 
-WORKDIR /src
+WORKDIR /usr/src/app/server
 
-COPY --from=0 /src/build ./build
-COPY --from=0 /src/node_modules ./node_modules
-COPY --from=0 /src/package.json /src/server.js ./
-
-CMD ["npm", "run", "server"]
+CMD ["node", "./dist/server.js"]

@@ -191,7 +191,7 @@ class SshKeysAsyncCollectionHandler(SshKeysBaseHandler,
         self.write(res.to_json())
 
 
-class SshKeysAsyncItemHandler(SshKeysBaseHandler, BaseAsyncItemHandler):
+class SshKeysAsyncItemHandler(BaseAsyncItemHandler, SshKeysBaseHandler):
 
     async def delete(self, id, **kwargs):
         """

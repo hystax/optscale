@@ -1,28 +1,21 @@
 import math
-from datetime import datetime, timedelta
-from optscale_exceptions.common_exc import NotFoundException, ForbiddenException
-from rest_api_server.controllers.profiling.base import BaseProfilingController
-from rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
-from rest_api_server.controllers.base import MongoMixin
-from rest_api_server.models.models import CloudAccount
-from rest_api_server.exceptions import Err
-from requests.exceptions import HTTPError
 from collections import defaultdict
+from datetime import datetime
+from requests.exceptions import HTTPError
 
-HOUR_IN_SEC = 3600
+from rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
+from rest_api_server.controllers.profiling.base import (
+    BaseProfilingController, RunCostsMixin)
+from rest_api_server.exceptions import Err
+from rest_api_server.models.enums import RunStates
+
+from optscale_exceptions.common_exc import NotFoundException
+
 DAY_IN_HOURS = 24
-RUN_STATUS_RUNNING = 1
-RUN_STATUS_COMPLETED = 2
-RUN_STATUS_FAILED = 3
-RUN_STATUSES_MAP = {
-    RUN_STATUS_RUNNING: 'running',
-    RUN_STATUS_COMPLETED: 'completed',
-    RUN_STATUS_FAILED: 'failed'
-}
 BYTES_IN_MB = 1024 * 1024
 
 
-class RunController(BaseProfilingController, MongoMixin):
+class RunController(BaseProfilingController, RunCostsMixin):
 
     def get(self, organization_id, run_id, profiling_token):
         try:
@@ -30,29 +23,39 @@ class RunController(BaseProfilingController, MongoMixin):
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, ['Run', run_id])
-            elif ex.response.status_code == 403:
-                raise ForbiddenException(Err.OE0234, [])
             raise
-        run_costs = self.get_run_costs(organization_id, [run])
-        goals = self.get_application_goals(
+        cloud_accounts_ids = self.get_cloud_account_ids(organization_id)
+        run_costs = self._get_run_costs(cloud_accounts_ids, [run])
+        goals = self.__get_application_goals(
             run['application_id'], profiling_token)
         return self.formatted_run(run, goals, run_costs)
 
     def formatted_run(self, run, application_goals, run_costs):
         state = run['state']
-        run['status'] = RUN_STATUSES_MAP.get(state)
+        run['status'] = RunStates(state).name
         finish = run.get('finish')
-        if not finish and state == RUN_STATUS_RUNNING:
+        if not finish and state == RunStates.running:
             finish = datetime.utcnow().timestamp()
         run['duration'] = finish - run.get('start') if finish else None
         run['cost'] = run_costs.get(run['id'], 0)
         run['goals'] = application_goals
+        if run.get('runset_id'):
+            run['runset'] = {
+                'id': run.pop('runset_id'),
+                'name': run.pop('runset_name', None)
+            }
         return run
 
     def list(self, organization_id, application_id, profiling_token, **kwargs):
         start_date = kwargs.get('start_date')
         end_date = kwargs.get('end_date')
-        data = self.list_runs(profiling_token, application_id)
+        try:
+            data = self.list_application_runs(profiling_token, application_id)
+        except HTTPError as ex:
+            if ex.response.status_code == 404:
+                raise NotFoundException(
+                    Err.OE0002, ['Application', application_id])
+            raise
         runs = []
         for run in data:
             run_start = run['start']
@@ -61,117 +64,34 @@ class RunController(BaseProfilingController, MongoMixin):
             if end_date and end_date < run_start:
                 continue
             runs.append(run)
-        run_costs = self.get_run_costs(organization_id, runs)
-        goals = self.get_application_goals(application_id, profiling_token)
-        return [self.formatted_run(run, goals, run_costs) for run in runs]
+        cloud_accounts_ids = self.get_cloud_account_ids(organization_id)
+        run_costs = self._get_run_costs(cloud_accounts_ids, runs)
+        goals = self.__get_application_goals(application_id, profiling_token)
+        return sorted([
+            self.formatted_run(run, goals, run_costs) for run in runs
+        ], key=lambda d: d['start'])
 
-    def get_application_goals(self, app_id, profiling_token):
-        application = self.get_application(profiling_token, app_id)
+    def __get_application_goals(self, app_id, profiling_token):
+        try:
+            application = self.get_application(profiling_token, app_id)
+        except HTTPError as ex:
+            if ex.response.status_code == 404:
+                raise NotFoundException(Err.OE0002, ['Application', app_id])
+            raise
         return application['goals']
 
-    def get_run_costs(self, organization_id, runs):
-        if not runs:
-            return {}
-        cloud_account_ids = self.get_cloud_account_ids(organization_id)
-        executor_run_duration_map = defaultdict(dict)
-        filters = []
-        min_dt, max_dt = None, None
-        for r in runs:
-            r_start = r.get('start') or 0
-            r_finish = r.get('finish') or 0
-            if not r_finish and r['state'] == RUN_STATUS_RUNNING:
-                r_finish = datetime.utcnow().timestamp()
-            duration = r_finish - r_start
-            for executor in r['executors']:
-                if isinstance(executor, dict):
-                    executor = executor['id']
-                executor_run_duration_map[r['id']][executor] = duration
-            r_start = datetime.utcfromtimestamp(r_start).replace(
-                hour=0, minute=0, second=0, microsecond=0)
-            r_finish = datetime.utcfromtimestamp(r_finish).replace(
-                hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
-            if not min_dt or min_dt > r_start:
-                min_dt = r_start
-            if not max_dt or max_dt < r_finish:
-                max_dt = r_finish
-            filters.append({
-                'resource_id': {'$in': r['executors']},
-                'start_date': {'$gte': r_start, '$lt': r_finish},
-                'end_date': {'$lte': r_finish}
-            })
-        raw_expenses = self.raw_expenses_collection.find({
-            'cloud_account_id': {'$in': cloud_account_ids},
-            'start_date': {'$gte': min_dt, '$lt': max_dt},
-            'end_date': {'$lte': max_dt},
-            '$or': filters
-        })
-        raw_expenses = list(raw_expenses)
-        exp_map = defaultdict(list)
-        for exp in raw_expenses:
-            exp_map[exp['resource_id']].append(exp)
-        result = {}
-        executor_work_map = {}
-        for r_id, expenses in exp_map.items():
-            executor_work_map[r_id] = self.calculate_work(expenses)
-        for run in runs:
-            run_id = run['id']
-            executors_durations = executor_run_duration_map.get(run_id, {})
-            cost = 0
-            for r_id, duration in executors_durations.items():
-                working_hours, day_cost = executor_work_map.get(
-                    r_id, (DAY_IN_HOURS, 0))
-                w_time = working_hours * HOUR_IN_SEC
-                cost += day_cost * duration / w_time
-            result[run_id] = cost
-        return result
-
-    def calculate_work(self, expenses):
-        working_hours_set = set()
-        total_cost = 0
-        working_hours = 0
-        for e in expenses:
-            total_cost += e['cost']
-            if self._is_flavor_cost(e):
-                time_interval = e.get('identity/TimeInterval')
-                if time_interval:
-                    working_hours_set.add(time_interval.split('/')[0])
-                elif e.get('usage_quantity'):
-                    working_hours += float(e['usage_quantity'])
-                elif e.get('Usage'):
-                    working_hours += float(e['Usage'])
-        if working_hours_set:
-            working_hours = len(working_hours_set)
-        return working_hours or DAY_IN_HOURS, total_cost
-
-    @staticmethod
-    def _is_flavor_cost(exp):
-        if (exp.get('lineItem/UsageType') and
-                'BoxUsage' in exp['lineItem/UsageType']):
-            return True
-        elif (exp.get('meter_details', {}).get(
-                'meter_category') == 'Virtual Machines'):
-            return True
-        elif (exp.get('BillingItem') == 'Cloud server configuration' and
-              'key:acs:ecs:payType value:spot' not in exp.get('Tags', [])):
-            return True
-        return False
-
     def get_cloud_account_ids(self, organization_id):
-        cloud_accounts = self.session.query(CloudAccount.id).filter(
-            CloudAccount.deleted.is_(False),
-            CloudAccount.organization_id == organization_id
-        ).all()
-        return [ca_id for ca_id, in cloud_accounts]
+        return list(self._get_cloud_accounts(organization_id).keys())
 
     def breakdown_get(self, organization_id, run_id, profiling_token):
-        def _aggregate(values, func):
+        def _aggregate(values, func_name):
             functions = {
                 'avg': lambda x: sum(x) / len(x),
                 'max': lambda x: max(x),
                 'sum': lambda x: sum(x),
                 'last': lambda x: x[-1]
             }
-            return functions.get(func)(values)
+            return functions.get(func_name)(values)
 
         try:
             run = self.get_run(profiling_token, run_id)
@@ -182,16 +102,14 @@ class RunController(BaseProfilingController, MongoMixin):
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, ['Run', run_id])
-            elif ex.response.status_code == 403:
-                raise ForbiddenException(Err.OE0234, [])
             raise
-        goals = self.get_application_goals(
+        goals = self.__get_application_goals(
             run['application_id'], profiling_token)
         executors = run.get('executors', [])
         log_times = list(map(lambda x: x['time'], logs)) or [run['start']]
         min_time = math.ceil(min([min(log_times), run['start']]))
         max_time = math.ceil(max([max(log_times), run.get('finish') or 0]))
-        goal_function_map = {g['key']: g.get('function') for g in goals}
+        goal_function_map = {g['key']: g.get('func') for g in goals}
         result = {}
         for p in proc_data:
             t = math.ceil(p['timestamp'])
@@ -201,15 +119,23 @@ class RunController(BaseProfilingController, MongoMixin):
             if instance_id:
                 result[t]['metrics']['executors_count'].append(instance_id)
             proc_stats = p.get('proc_stats', {})
-            ps_stats = proc_stats.get('ps_stats', {})
-            fields_map = {
-                'ram': 'used_ram_mb',
-                'cpu': 'cpu_percent'
-            }
-            for k, v in fields_map.items():
-                value = ps_stats.get(v)
-                if value:
-                    result[t]['metrics'][k].append(value)
+            for stats_key, fields_map in {
+                'ps_stats': {
+                    'ram': 'used_ram_mb',
+                    'cpu': 'cpu_percent'
+                },
+                'gpu_stats': {
+                    'gpu_load': 'avg_gpu_load',
+                    'gpu_memory_free': 'avg_gpu_memory_free',
+                    'gpu_memory_total': 'avg_gpu_memory_total',
+                    'gpu_memory_used': 'avg_gpu_memory_used'
+                }
+            }.items():
+                stats = proc_stats.get(stats_key, {})
+                for k, v in fields_map.items():
+                    value = stats.get(v)
+                    if value is not None:
+                        result[t]['metrics'][k].append(value)
             proc = proc_stats.get('proc', {})
             process_cpu = proc.get('cpu')
             if process_cpu is not None:

@@ -7,6 +7,7 @@ SUPPORTED_CLOUD_TYPES = [
     'aws_cnr',
     'azure_cnr',
     'alibaba_cnr',
+    'nebius'
 ]
 
 
@@ -46,8 +47,10 @@ class ObsoleteIps(ModuleBase):
                 'cost_not_active_ip': ip_address['cost_in_resource_state'],
                 'saving': ip_address['savings'],
                 'last_seen_active': ip_address['meta'][date_field_name],
-                'region': ip_address['region'],
+                'region': ip_address.get('region'),
                 'is_excluded': ip_address.get('pool_id') in excluded_pools,
+                'folder_id': ip_address['meta'].get('folder_id'),
+                'zone_id': ip_address['meta'].get('zone_id'),
             } for ip_address in available_ip_addresses.values()
             if ip_address.get('savings', 0) > 0
         ]

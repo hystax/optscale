@@ -8,7 +8,8 @@ from bumi_worker.modules.abandoned_base import AbandonedBase
 SUPPORTED_CLOUD_TYPES = [
     'aws_cnr',
     'azure_cnr',
-    'alibaba_cnr'
+    'alibaba_cnr',
+    'nebius',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -110,11 +111,13 @@ class AbandonedInstances(AbandonedBase):
                     network_bps_threshold=network_bps_threshold)
                 for instance in account_instances:
                     if instance['_id'] in resources_below_metric:
+                        region = instance.get('region') or instance.get(
+                            'meta', {}).get('zone_id')
                         result_map[instance['_id']] = {
                             'resource_id': instance['_id'],
                             'resource_name': instance.get('name'),
                             'cloud_resource_id': instance['cloud_resource_id'],
-                            'region': instance['region'],
+                            'region': region,
                             'cloud_account_id': account['id'],
                             'cloud_type': account['type'],
                             'owner': self._extract_owner(

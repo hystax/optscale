@@ -21,14 +21,14 @@ class FlavorsHandler(SecretHandler):
     def validate_parameters(params):
         required_params = [('cloud_type', str),
                            ('resource_type', str),
-                           ('region', str),
                            ('family_specs', dict),
                            ('mode', str)]
 
         optional_params = [('os_type', str),
                            ('preinstalled', str),
                            ('meter_id', str),
-                           ('currency', str)]
+                           ('currency', str),
+                           ('cloud_account_id', str)]
 
         mode_params = {
             'current': [],
@@ -53,13 +53,30 @@ class FlavorsHandler(SecretHandler):
             'gcp_cnr': {
                 'instance': [('source_flavor_id', str)],
             },
+            'nebius': {
+                'instance': [('source_flavor_id', str),
+                             ('cpu_fraction', int),
+                             ('ram', int)],
+                'rds_instance': [('source_flavor_id', str),
+                                 ('category', int),
+                                 ('platform_name', int)],
+            },
+        }
+
+        cloud_required_params = {
+            'aws_cnr': [('region', str)],
+            'azure_cnr': [('region', str)],
+            'alibaba_cnr': [('region', str)],
+            'gcp_cnr': [('region', str)]
         }
 
         if not isinstance(params, dict):
             raise OptHTTPError(400, Err.OI0004, [])
 
+        cloud_type = params.get('cloud_type')
         mode = params.get('mode')
         required_params.extend(mode_params.get(mode, []))
+        required_params.extend(cloud_required_params.get(cloud_type, []))
         missing_required = [
             p for p, _ in required_params if params.get(p) is None
         ]
@@ -76,7 +93,6 @@ class FlavorsHandler(SecretHandler):
         if mode not in mode_params:
             raise OptHTTPError(400, Err.OI0008, ['mode'])
 
-        cloud_type = params.get('cloud_type')
         if cloud_type not in family_specs_params:
             raise OptHTTPError(400, Err.OI0010, [cloud_type])
 
@@ -124,15 +140,18 @@ class FlavorsHandler(SecretHandler):
             required: true
             schema:
                 type: object
-                required: [cloud_type, resource_type, region, cpu, family_specs]
+                required: [cloud_type, resource_type, cpu, family_specs]
                 properties:
                     cloud_type: {type: string,
                         description: "cloud type (aws_cnr, azure_cnr,
-                        alibaba_cnr)"}
+                        alibaba_cnr, gcp_cnr, nebius)"}
+                    cloud_account_id: {type: string,
+                        description: "id of cloud account to use credentials from,
+                        if not set service credentials are used"}
                     resource_type: {type: string,
                         description: "resource type (instance, rds_instance)"}
                     region: {type: string,
-                        description: "region name"}
+                        description: "region name (not required for 'nebius')"}
                     family_specs: {type: object,
                         description: "flavor family specifications, contents
                         may be different for different clouds and resource

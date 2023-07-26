@@ -1,12 +1,9 @@
-from functools import cached_property
 import re
 import requests
 from datetime import datetime
 from pymongo import MongoClient
 from kombu.log import get_logger
 from clickhouse_driver import Client as ClickHouseClient
-from cloud_adapter.cloud import Cloud as CloudAdapter
-from rest_api_client.client_v2 import Client as RestClient
 
 from cloud_adapter.cloud import Cloud as CloudAdapter
 from rest_api_client.client_v2 import Client as RestClient
@@ -95,15 +92,8 @@ class BaseTrafficExpenseProcessor:
         }
         return CloudAdapter.get_adapter(config)
 
-    def process(self, cloud_account_id, tasks):
-        try:
-            cloud_adapter = self.get_cloud_adapter(cloud_account_id)
-        except requests.exceptions.HTTPError as exc:
-            if exc.response.status_code == 404:
-                return
-            raise
-        region_names_map = self.get_region_names_map(cloud_adapter)
-        res = self.mongo_cl.restapi.raw_expenses.find({
+    def get_expenses_filters(self, cloud_account_id, tasks):
+        return {
             'cloud_account_id': cloud_account_id,
             '$or': [
                 {
@@ -116,7 +106,20 @@ class BaseTrafficExpenseProcessor:
             ],
             **self.TRAFFIC_IDENTIFIER,
             'cost': {'$ne': 0},
-        }, self.TRAFFIC_FIELDS + ['resource_id', 'start_date', 'cost'])
+        }
+
+    def process(self, cloud_account_id, tasks):
+        try:
+            cloud_adapter = self.get_cloud_adapter(cloud_account_id)
+        except requests.exceptions.HTTPError as exc:
+            if exc.response.status_code == 404:
+                return
+            raise
+        region_names_map = self.get_region_names_map(cloud_adapter)
+        exp_filters = self.get_expenses_filters(cloud_account_id, tasks)
+        res = self.mongo_cl.restapi.raw_expenses.find(
+            exp_filters,
+            self.TRAFFIC_FIELDS + ['resource_id', 'start_date', 'cost'])
         expenses_map = {}
         for r in res:
             resource_id = self.extract_resource_id(r)
@@ -316,12 +319,58 @@ class GcpTrafficExpenseProcessor(BaseTrafficExpenseProcessor):
         return resource_id or 'Unknown'
 
 
+class NebiusTrafficExpenseProcessor(BaseTrafficExpenseProcessor):
+    TRAFFIC_SKU_PATTERN = "^(.*)traffic(.*)"
+    TRAFFIC_PATTERN_REGEX = re.compile(TRAFFIC_SKU_PATTERN)
+
+    TRAFFIC_IDENTIFIER = {
+        "service_name": "VPC",
+        "sku_name": {'$regex': TRAFFIC_SKU_PATTERN},
+    }
+    TRAFFIC_FIELDS = ['cloud_account_id', 'sku_name', 'pricing_quantity']
+
+    def get_expenses_filters(self, cloud_account_id, tasks):
+        return {
+            'cloud_account_id': cloud_account_id,
+            '$or': [
+                {
+                    'start_date': {
+                        '$gte': datetime.utcfromtimestamp(t['start_date']),
+                        '$lte': datetime.utcfromtimestamp(t['end_date'])
+                    }
+                }
+                for t in tasks
+            ],
+            **self.TRAFFIC_IDENTIFIER,
+        }
+
+    def extract_locations_and_usage(self, e):
+        resource = list(self.mongo_cl.restapi.resources.find({
+            'cloud_account_id': e['cloud_account_id'],
+            'cloud_resource_id': e['resource_id']}))
+        if resource:
+            resource_region = resource[0].get('region') or resource[0].get(
+                'meta', {}).get('zone_id')
+            if 'ingress' in e['sku_name'].lower():
+                _from = 'Unknown'
+                _to = resource_region or 'Unknown'
+            if 'egress' in e['sku_name'].lower():
+                _to = 'Unknown'
+                _from = resource_region or 'Unknown'
+        else:
+            _from = 'Unknown'
+            _to = 'Unknown'
+        _usage = float(e.get('pricing_quantity') or 0)
+        return _from, _to, _usage
+
+
 class ProcessorFactory:
     __modules__ = {
         'aws_cnr': AwsTrafficExpenseProcessor,
         'azure_cnr': AzureTrafficExpenseProcessor,
         'alibaba_cnr': AlibabaTrafficExpenseProcessor,
         'gcp_cnr': GcpTrafficExpenseProcessor,
+        'nebius': NebiusTrafficExpenseProcessor,
     }
 
     @staticmethod

@@ -41,7 +41,7 @@ def publish_tasks(org_ids, config_cl):
 def get_org_ids(config_cl):
     rest_cl = RestClient(url=config_cl.restapi_url(),
                          secret=config_cl.cluster_secret(), verify=False)
-    _, response = rest_cl.organization_list()
+    _, response = rest_cl.organization_list({'with_connected_accounts': True})
     return [org['id'] for org in response['organizations']]
 
 

@@ -5,9 +5,11 @@ class CloudTypes(enum.Enum):
     AWS_CNR = 'aws_cnr'
     ALIBABA_CNR = 'alibaba_cnr'
     AZURE_CNR = 'azure_cnr'
+    AZURE_TENANT = 'azure_tenant'
     KUBERNETES_CNR = 'kubernetes_cnr'
     ENVIRONMENT = 'environment'
     GCP_CNR = 'gcp_cnr'
+    NEBIUS = 'nebius'
 
 
 class ImportStates(enum.Enum):
@@ -127,3 +129,23 @@ class WebhookActionTypes(enum.Enum):
 class AuthenticationType(enum.Enum):
     GOOGLE = 'google'
     PASSWORD = 'password'
+
+
+class RunStates(enum.IntEnum):
+    running = 1
+    completed = 2
+    failed = 3
+    aborted = 4
+
+
+class BITypes(str, enum.Enum):
+    AWS_RAW_EXPORT = 'AWS_RAW_EXPORT'
+    AZURE_RAW_EXPORT = 'AZURE_RAW_EXPORT'
+
+
+class BIOrganizationStatuses(str, enum.Enum):
+    ACTIVE = 'ACTIVE'
+    QUEUED = 'QUEUED'
+    RUNNING = 'RUNNING'
+    FAILED = 'FAILED'
+    SUCCESS = 'SUCCESS'

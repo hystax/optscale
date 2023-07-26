@@ -13,7 +13,7 @@ LOG = logging.getLogger()
 
 
 @stream_request_body
-class ReportImportAsyncHandler(BaseAuthHandler, BaseAsyncItemHandler):
+class ReportImportAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler):
     def _get_controller_class(self):
         return ReportImportAsyncController
 

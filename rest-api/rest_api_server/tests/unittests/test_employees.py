@@ -7,6 +7,7 @@ from rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api_server.models.db_base import BaseDB
 from rest_api_server.models.models import Employee, OrganizationLimitHit
 from sqlalchemy import and_
+from optscale_exceptions.http_exc import OptHTTPError
 
 
 class TestEmployeeApi(TestApiBase):
@@ -905,3 +906,58 @@ class TestEmployeeApi(TestApiBase):
             OrganizationLimitHit.deleted.is_(False)
             )).one_or_none()
         self.assertEqual(hits, None)
+
+    def test_employees_last_login(self):
+        code, employee = self.client.employee_create(self.org_id,
+                                                     self.valid_employee)
+        self.assertEqual(code, 201)
+
+        self.valid_employee.update({'auth_user_id': self.gen_id()})
+        code, employee2 = self.client.employee_create(self.org_id,
+                                                      self.valid_employee)
+        self.assertEqual(code, 201)
+
+        self.p_auth_users.stop()
+        patch_auth_users = patch(
+            'rest_api_server.controllers.employee.EmployeeController._get_auth_users',
+            return_value=[
+                {
+                    'id': employee['auth_user_id'],
+                    'slack_connected': True,
+                    'jira_connected': False,
+                    'last_login': int(datetime(2022, 1, 1).timestamp())
+                },
+                {
+                    'id': employee2['auth_user_id'],
+                    'slack_connected': True,
+                    'jira_connected': False,
+                    'last_login': int(datetime(2022, 1, 2).timestamp())
+                }
+            ]
+        ).start()
+        code, employee_list = self.client.employee_list(self.org_id)
+        patch_auth_users.stop()
+
+        self.assertEqual(code, 200)
+        self.assertEqual(len(employee_list['employees']), 3)
+        for e in employee_list['employees']:
+            self.assertIsNotNone(e['last_login'])
+
+        patch('rest_api_server.handlers.v1.base.BaseAuthHandler.'
+              'check_cluster_secret', return_value=False).start()
+        _, employee_list = self.client.employee_list(self.org_id)
+        for e in employee_list['employees']:
+            self.assertIsNotNone(e['last_login'])
+
+        def side_eff(action, *args, **kwargs):
+            if action == 'EDIT_PARTNER':
+                raise OptHTTPError(403, Err.OE0234, [])
+            else:
+                return {}
+        patch(
+            'rest_api_server.handlers.v1.base.'
+            'BaseAuthHandler.check_permissions',
+            side_effect=side_eff).start()
+        _, employee_list = self.client.employee_list(self.org_id)
+        for e in employee_list['employees']:
+            self.assertIsNone(e.get('last_login'))

@@ -124,7 +124,8 @@ class Consumer:
             self.acknowledge_message(basic_deliver.delivery_tag)
 
         self.consume_callback(body, ack_this_message)
-        callback(None)
+        if callback:
+            callback(None)
 
     def acknowledge_message(self, delivery_tag):
         self._channel.basic_ack(delivery_tag)

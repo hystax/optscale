@@ -77,6 +77,7 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         self.mongo_client = mongomock.MongoClient()
         self.expenses = []
         self.traffic_expenses = []
+        self.ri_sp_usage = []
         self.raw_expenses = self.mongo_client.restapi.raw_expenses
         self.resources_collection = self.mongo_client.restapi.resources
         self.resources_collection.create_index(
@@ -260,6 +261,7 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
             'aws_cnr': 'aws.Aws',
             'azure_cnr': 'azure.Azure',
             'gcp_cnr': 'gcp.Gcp',
+            'nebius': 'nebius.Nebius',
         }
         if not account_id:
             account_id = self.gen_id()
@@ -597,10 +599,27 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
                     ('cost', 'Float64', 0),
                     ('sign', 'Int8', 1)
                 ], self.traffic_expenses
+            ),
+            'ri_sp_usage': (
+                [
+                    ('cloud_account_id', 'String', 'default'),
+                    ('resource_id', 'String', 'default'),
+                    ('date', 'DateTime', datetime.utcnow()),
+                    ('offer_id', 'String', 'default'),
+                    ('offer_type', "Enum8('ri' = 1, 'sp' = 2)", 1),
+                    ('offer_cost', 'Float64', 0),
+                    ('on_demand_cost', 'Float64', 0),
+                    ('usage', 'Float64', 0),
+                    ('sign', 'Int8', 1)
+                ], self.ri_sp_usage
             )
         }
-        table_name = 'traffic_expenses' if (
-                'from traffic_expenses' in query.lower()) else 'expenses'
+        if 'from traffic_expenses' in query.lower():
+            table_name = 'traffic_expenses'
+        elif 'from ri_sp_usage' in query.lower():
+            table_name = 'ri_sp_usage'
+        else:
+            table_name = 'expenses'
         expense_field_types, data_source = ch_expenses_map[table_name]
         with tempfile.TemporaryDirectory() as tmp_dir:
             for external_table in external_tables:

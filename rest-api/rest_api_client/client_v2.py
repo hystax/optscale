@@ -1,6 +1,7 @@
 import json
 from urllib.parse import urlencode
 from rest_api_client.client import Client as Client_v1
+from typing import Optional
 
 
 class Client(Client_v1):
@@ -719,7 +720,7 @@ class Client(Client_v1):
         return '%s/optimizations' % Client.organization_url(organization_id)
 
     def optimizations_get(self, organization_id, types=None, limit=None,
-                          status=None, cloud_account_ids=None):
+                          status=None, cloud_account_ids=None, overview=None):
         url = self.optimizations_url(organization_id)
         query_params = {}
         if types is not None:
@@ -730,6 +731,8 @@ class Client(Client_v1):
             query_params['limit'] = limit
         if status is not None:
             query_params['status'] = status
+        if overview is not None:
+            query_params['overview'] = overview
         if query_params:
             url += self.query_url(**query_params)
         return self.get(url)
@@ -759,9 +762,9 @@ class Client(Client_v1):
     def live_demo_url():
         return 'live_demo'
 
-    def live_demo_create(self):
+    def live_demo_create(self, params=None):
         url = self.live_demo_url()
-        return self.post(url, {})
+        return self.post(url, params or {})
 
     def live_demo_get(self):
         url = self.live_demo_url()
@@ -888,8 +891,9 @@ class Client(Client_v1):
             url = '%s/%s' % (url, option_name)
         return url
 
-    def organization_options_list(self, org_id):
-        url = self.organization_options_url(org_id)
+    def organization_options_list(self, org_id, with_values=False):
+        url = self.organization_options_url(org_id) + self.query_url(
+            with_values=with_values)
         return self.get(url)
 
     def organization_option_get(self, org_id, option_name):
@@ -1591,6 +1595,10 @@ class Client(Client_v1):
         return '%s/profiling_token' % Client.organization_url(organization_id)
 
     @staticmethod
+    def infra_profiling_token_url(infrastructure_token):
+        return 'infrastructure/%s/profiling_token' % infrastructure_token
+
+    @staticmethod
     def goals_url(organization_id, id=None):
         url = '%s/goals' % Client.organization_url(organization_id)
         if id is not None:
@@ -1619,6 +1627,11 @@ class Client(Client_v1):
     @staticmethod
     def runs_breakdown_url(organization_id, id):
         return '%s/breakdown' % Client.runs_url(organization_id, id)
+
+    @staticmethod
+    def application_optimizations_url(organization_id, application_id):
+        return '%s/optimizations' % Client.applications_url(
+            organization_id, application_id)
 
     def application_create(self, organization_id, params):
         return self.post(self.applications_url(organization_id), params)
@@ -1678,3 +1691,161 @@ class Client(Client_v1):
         url = self.runs_url(organization_id, application_id=application_id
                             ) + self.query_url(**kwargs)
         return self.get(url)
+
+    def application_optimizations_get(self, organization_id, application_id,
+                                      types=None, status=None):
+        url = self.application_optimizations_url(
+            organization_id, application_id)
+        query_params = {}
+        if types is not None:
+            query_params['type'] = types
+        if status is not None:
+            query_params['status'] = status
+        if query_params:
+            url += self.query_url(**query_params)
+        return self.get(url)
+
+    @staticmethod
+    def risp_processing_task_url(id=None, cloud_account_id=None):
+        url = 'risp_processing_tasks'
+        if id is not None:
+            url = '%s/%s' % (url, id)
+        if cloud_account_id is not None:
+            url = '%s/%s' % (Client.cloud_account_url(cloud_account_id), url)
+        return url
+
+    def risp_processing_task_create(self, cloud_account_id, params):
+        return self.post(self.risp_processing_task_url(
+            cloud_account_id=cloud_account_id), params)
+
+    def risp_processing_task_list(self, cloud_account_id):
+        url = self.risp_processing_task_url(cloud_account_id=cloud_account_id)
+        return self.get(url)
+
+    def risp_processing_task_delete(self, task_id):
+        return self.delete(self.risp_processing_task_url(task_id))
+
+    def ri_sp_usage_breakdown_url(self, organization_id):
+        return '%s/ri_sp_usage_breakdown' % self.organization_url(
+            organization_id)
+
+    def ri_sp_usage_breakdown_get(self, organization_id, **kwargs):
+        url = self.ri_sp_usage_breakdown_url(organization_id) + self.query_url(
+            **kwargs)
+        return self.get(url)
+
+    def ri_sp_expenses_breakdown_url(self, organization_id):
+        return '%s/ri_sp_expenses_breakdown' % self.organization_url(
+            organization_id)
+
+    def ri_sp_expenses_breakdown_get(self, organization_id, **kwargs):
+        url = self.ri_sp_expenses_breakdown_url(organization_id) + self.query_url(
+            **kwargs)
+        return self.get(url)
+
+    def profiling_token_by_infrastructure_token_get(self, infrastructure_token):
+        return self.get(self.infra_profiling_token_url(infrastructure_token))
+
+    @staticmethod
+    def templates_url(organization_id, id=None):
+        url = '%s/templates' % Client.organization_url(organization_id)
+        if id is not None:
+            url += '/%s' % id
+        return url
+
+    @staticmethod
+    def templates_overview_url(organization_id):
+        return '%s/templates_overview' % Client.organization_url(
+            organization_id)
+
+    def template_create(self, organization_id, params):
+        return self.post(self.templates_url(organization_id), params)
+
+    def templates_overview(self, organization_id):
+        return self.get(self.templates_overview_url(organization_id))
+
+    def template_get(self, organization_id, template_id):
+        return self.get(self.templates_url(organization_id, template_id))
+
+    def template_update(self, organization_id, template_id, params):
+        return self.patch(self.templates_url(
+            organization_id, template_id), params)
+
+    def template_delete(self, organization_id, template_id):
+        return self.delete(self.templates_url(organization_id, template_id))
+
+    @staticmethod
+    def template_runsets_url(organization_id, template_id):
+        return '%s/runsets' % Client.templates_url(organization_id, template_id)
+
+    @staticmethod
+    def runsets_url(organization_id, id=None):
+        url = '%s/runsets' % Client.organization_url(organization_id)
+        if id is not None:
+            url += '/%s' % id
+        return url
+
+    def runset_create(self, organization_id, template_id, params):
+        return self.post(self.template_runsets_url(
+            organization_id, template_id), params)
+
+    def runset_update(self, organization_id, runset_id, params):
+        return self.patch(self.runsets_url(
+            organization_id, runset_id), params)
+
+    def runset_get(self, organization_id, runset_id):
+        return self.get(self.runsets_url(organization_id, runset_id))
+
+    def runset_list(self, organization_id, template_id):
+        return self.get(self.template_runsets_url(
+            organization_id, template_id))
+
+    @staticmethod
+    def runners_url(organization_id, runset_id):
+        return '%s/runners' % Client.runsets_url(organization_id, runset_id)
+
+    def runners_list(self, organization_id, runset_id):
+        return self.get(self.runners_url(organization_id, runset_id))
+
+    @staticmethod
+    def runset_runs_url(organization_id, runset_id):
+        return '%s/runsets/%s/runs' % (
+            Client.organization_url(organization_id), runset_id)
+
+    def runset_run_list(self, organization_id, runset_id):
+        return self.get(self.runset_runs_url(organization_id, runset_id))
+
+    @staticmethod
+    def bi_url(*, id_=None, org_id=None):
+        url = 'bi'
+        if id_ is not None:
+            url = '%s/%s' % (url, id_)
+        if org_id is not None:
+            url = '%s/%s' % (Client.organization_url(org_id), url)
+        return url
+
+    def bi_list(self, org_id=None, params=None):
+        url = self.bi_url(org_id=org_id)
+        return self.get(url, body=params)
+
+    def bi_create(self, org_id, type_: str, name: str = None,
+                  days: int = 180, **meta):
+        body = {
+            "type": type_,
+            "days": days
+        }
+        if name:
+            body['name'] = name
+        if meta:
+            body['meta'] = meta
+
+        return self.post(self.bi_url(org_id=org_id), body)
+
+    def bi_get(self, id_):
+        return self.get(self.bi_url(id_=id_))
+
+    def bi_update(self, id_, params):
+        return self.patch(self.bi_url(id_=id_), params)
+
+    def bi_delete(self, id_):
+        return self.delete(self.bi_url(id_=id_))

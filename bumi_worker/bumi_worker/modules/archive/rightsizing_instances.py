@@ -11,6 +11,7 @@ from bumi_worker.modules.rightsizing_base import (
     HOURS_IN_DAY, DAYS_IN_MONTH)
 
 LOG = logging.getLogger(__name__)
+NEBIUS_CLOUD_TYPE = 'nebius'
 
 
 class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
@@ -66,12 +67,15 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
             cloud_resource_id_instance_map = {}
             for instance_key, optimization in optimizations_dict.items():
                 instance = instances_map.get(instance_key)
+                meta = instance['meta']
+                inst_flavor = meta.get('flavor') or meta.get('platform_name')
                 if not instance:
                     self._set_reason_properties(
                         optimization, ArchiveReason.RESOURCE_DELETED)
                     result.append(optimization)
                     continue
-                elif instance['meta']['flavor'] == optimization['recommended_flavor']:
+                elif (inst_flavor == optimization['recommended_flavor'] and
+                        meta.get('cpu_count') == optimization['recommended_flavor_cpu']):
                     self._set_reason_properties(
                         optimization, ArchiveReason.RECOMMENDATION_APPLIED)
                     result.append(optimization)
@@ -98,6 +102,8 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
                 region = params['region']
                 family_specs = params['family_specs']
                 flavor_params = params['flavor_params']
+                if cloud_account['type'] == NEBIUS_CLOUD_TYPE:
+                    flavor_params['cloud_account_id'] = cloud_account_id
                 current_flavor = self._find_flavor(
                     cloud_account['type'], region, family_specs, 'current',
                     **flavor_params)

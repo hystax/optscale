@@ -14,6 +14,9 @@ class ResourceTypes(Enum):
     snapshot_chain = 'Snapshot Chain'
     rds_instance = 'RDS Instance'
     ip_address = 'IP Address'
+    savings_plan = 'Savings Plan'
+    reserved_instances = 'Reserved Instances'
+    image = 'Image'
 
     @classmethod
     def has_value(cls, value):
@@ -85,13 +88,16 @@ class InstanceResource(CloudResource):
     __slots__ = ('name', 'flavor', 'security_groups', 'spotted',
                  'stopped_allocated', 'last_seen_not_stopped', 'image_id',
                  'cloud_created_at', 'cpu_count', 'os', 'preinstalled',
-                 'vpc_id', 'vpc_name')
+                 'vpc_id', 'vpc_name', 'folder_id', 'zone_id', 'cpu_fraction',
+                 'ram', 'platform_id', 'platform_name')
 
     def __init__(self, name=None, flavor=None, security_groups=None,
                  spotted=False, stopped_allocated=False,
                  last_seen_not_stopped=0, image_id=None,
                  cloud_created_at=0, cpu_count=None, os=None,
-                 preinstalled=None, vpc_id=None, vpc_name=None, **kwargs):
+                 preinstalled=None, vpc_id=None, vpc_name=None, folder_id=None,
+                 zone_id=None, cpu_fraction=None, ram=None, platform_id=None,
+                 platform_name=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.flavor = flavor
@@ -106,6 +112,12 @@ class InstanceResource(CloudResource):
         self.preinstalled = preinstalled
         self.vpc_id = vpc_id
         self.vpc_name = vpc_name
+        self.folder_id = folder_id
+        self.zone_id = zone_id
+        self.cpu_fraction = cpu_fraction
+        self.ram = ram
+        self.platform_id = platform_id
+        self.platform_name = platform_name
 
     def __repr__(self):
         return 'Instance {0} name={1} flavor={2} stopped_allocated={3}'.format(
@@ -126,16 +138,23 @@ class InstanceResource(CloudResource):
             'preinstalled': self.preinstalled,
             'vpc_id': self.vpc_id,
             'vpc_name': self.vpc_name,
+            'folder_id': self.folder_id,
+            'zone_id': self.zone_id,
+            'cpu_fraction': self.cpu_fraction,
+            'ram': self.ram,
+            'platform_id': self.platform_id,
+            'platform_name': self.platform_name
         })
         return meta
 
 
 class VolumeResource(CloudResource):
     __slots__ = ('name', 'size', 'volume_type', 'attached', 'last_attached',
-                 'snapshot_id')
+                 'snapshot_id', 'folder_id', 'zone_id', 'image_id')
 
     def __init__(self, name=None, size=None, volume_type=None, attached=False,
-                 last_attached=0, snapshot_id=None, **kwargs):
+                 last_attached=0, snapshot_id=None, folder_id=None,
+                 zone_id=None, image_id=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.size = size
@@ -143,6 +162,9 @@ class VolumeResource(CloudResource):
         self.attached = attached
         self.last_attached = last_attached
         self.snapshot_id = snapshot_id if snapshot_id != '' else None
+        self.folder_id = folder_id
+        self.zone_id = zone_id
+        self.image_id = image_id if image_id != '' else None
 
     def __repr__(self):
         return 'Volume {0} size={1} type={2} attached={3} snapshot_id={4}'.format(
@@ -157,16 +179,20 @@ class VolumeResource(CloudResource):
             'last_attached': self.last_attached,
             'size': self.size,
             'volume_type': self.volume_type,
-            'snapshot_id': self.snapshot_id})
+            'snapshot_id': self.snapshot_id,
+            'folder_id': self.folder_id,
+            'zone_id': self.zone_id,
+            'image_id': self.image_id
+        })
         return meta
 
 
 class SnapshotResource(CloudResource):
     __slots__ = ('name', 'size', 'description', 'state', 'volume_id',
-                 'last_used')
+                 'last_used', 'folder_id')
 
     def __init__(self, name=None, size=None, description=None, state=None,
-                 volume_id=None, last_used=0, **kwargs):
+                 volume_id=None, last_used=0, folder_id=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.size = size
@@ -174,6 +200,7 @@ class SnapshotResource(CloudResource):
         self.state = state
         self.volume_id = volume_id if volume_id != NONEXISTENT_VOLUME_ID else None
         self.last_used = last_used
+        self.folder_id = folder_id
 
     @property
     def meta(self):
@@ -183,7 +210,8 @@ class SnapshotResource(CloudResource):
             'description': self.description,
             'state': self.state,
             'volume_id': self.volume_id,
-            'last_used': self.last_used
+            'last_used': self.last_used,
+            'folder_id': self.folder_id
         })
         return meta
 
@@ -194,14 +222,15 @@ class SnapshotResource(CloudResource):
 
 
 class BucketResource(CloudResource):
-    __slots__ = ('name', 'is_public_policy', 'is_public_acls')
+    __slots__ = ('name', 'is_public_policy', 'is_public_acls', 'folder_id')
 
     def __init__(self, name=None, is_public_policy=False, is_public_acls=False,
-                 **kwargs):
+                 folder_id=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.is_public_policy = is_public_policy
         self.is_public_acls = is_public_acls
+        self.folder_id = folder_id
 
     def __repr__(self):
         return 'Bucket {0} name={1} is_public_policy={2} is_public_acls={3}'.format(
@@ -213,7 +242,8 @@ class BucketResource(CloudResource):
         meta = super().meta
         meta.update({
             'is_public_policy': self.is_public_policy,
-            'is_public_acls': self.is_public_acls
+            'is_public_acls': self.is_public_acls,
+            'folder_id': self.folder_id
         })
         return meta
 
@@ -287,12 +317,14 @@ class SnapshotChainResource(CloudResource):
 class RdsInstanceResource(CloudResource):
     __slots__ = ('name', 'flavor', 'zone_id', 'category', 'engine',
                  'engine_version', 'storage_type', 'cloud_created_at',
-                 'cpu_count', 'vpc_id', 'vpc_name')
+                 'cpu_count', 'vpc_id', 'vpc_name', 'folder_id',
+                 'source_cluster_id', 'ram', 'platform_name')
 
     def __init__(self, name=None, flavor=None, zone_id=None, category=None,
                  engine=None, engine_version=None, storage_type=None,
                  cloud_created_at=0, cpu_count=None, vpc_id=None,
-                 vpc_name=None, **kwargs):
+                 vpc_name=None, folder_id=None, source_cluster_id=None,
+                 ram=None, platform_name=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.flavor = flavor
@@ -305,6 +337,10 @@ class RdsInstanceResource(CloudResource):
         self.cpu_count = cpu_count
         self.vpc_id = vpc_id
         self.vpc_name = vpc_name
+        self.folder_id = folder_id
+        self.source_cluster_id = source_cluster_id
+        self.ram = ram
+        self.platform_name = platform_name
 
     def __repr__(self):
         return 'RDS Instance {0} name={1} flavor={2}'.format(
@@ -323,19 +359,27 @@ class RdsInstanceResource(CloudResource):
             'flavor': self.flavor,
             'vpc_id': self.vpc_id,
             'vpc_name': self.vpc_name,
+            'folder_id': self.folder_id,
+            'source_cluster_id': self.source_cluster_id,
+            'ram': self.ram,
+            'platform_name': self.platform_name
         })
         return meta
 
 
 class IpAddressResource(CloudResource):
-    __slots__ = ('name', 'instance_id', 'available', 'last_used')
+    __slots__ = ('name', 'instance_id', 'available', 'last_used', 'folder_id',
+                 'zone_id')
 
-    def __init__(self, name=None, instance_id=None, available=False, last_used=0, **kwargs):
+    def __init__(self, name=None, instance_id=None, available=False,
+                 last_used=0, folder_id=None, zone_id=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.instance_id = instance_id
         self.available = available
         self.last_used = last_used
+        self.folder_id = folder_id
+        self.zone_id = zone_id
 
     def __repr__(self):
         return 'IP Address {0} name={1} instance_id={2} available={3} last_used={4}'.format(
@@ -347,20 +391,24 @@ class IpAddressResource(CloudResource):
         meta.update({
             'available': self.available,
             'last_used': self.last_used,
-            'instance_id': self.instance_id
+            'instance_id': self.instance_id,
+            'folder_id': self.folder_id,
+            'zone_id': self.zone_id
         })
         return meta
 
 
 class ImageResource(CloudResource):
-    __slots__ = ('name', 'block_device_mappings', 'cloud_created_at')
+    __slots__ = ('name', 'block_device_mappings', 'cloud_created_at',
+                 'folder_id')
 
     def __init__(self, name=None, block_device_mappings=None,
-                 cloud_created_at=None, **kwargs):
+                 cloud_created_at=None, folder_id=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.block_device_mappings = block_device_mappings or []
         self.cloud_created_at = cloud_created_at
+        self.folder_id = folder_id
 
     def __repr__(self):
         return (
@@ -373,7 +421,67 @@ class ImageResource(CloudResource):
     def meta(self):
         meta = super().meta
         meta.update({
-            'block_device_mappings': self.block_device_mappings
+            'block_device_mappings': self.block_device_mappings,
+            'folder_id': self.folder_id
+        })
+        return meta
+
+
+class SavingsPlanResource(CloudResource):
+    __slots__ = ('payment_option', 'offering_type', 'purchase_term',
+                 'applied_region')
+
+    def __init__(self, payment_option=None, offering_type=None,
+                 purchase_term=None, applied_region=None, **kwargs):
+        super().__init__(**kwargs)
+        self.payment_option = payment_option
+        self.offering_type = offering_type
+        self.purchase_term = purchase_term
+        self.applied_region = applied_region
+
+    def __repr__(self):
+        return (
+            'Savings Plan {0} payment_option={1} offering_type={2} '
+            'purchase_term={3} applied_region={3}'.format(
+                self.cloud_resource_id, self.payment_option, self.offering_type,
+                self.purchase_term, self.applied_region))
+
+    @property
+    def meta(self):
+        meta = super().meta
+        meta.update({
+            'payment_option': self.payment_option,
+            'offering_type': self.offering_type,
+            'purchase_term': self.purchase_term,
+            'applied_region': self.applied_region
+        })
+        return meta
+
+
+class ReservedInstancesResource(CloudResource):
+    __slots__ = ('payment_option', 'offering_type', 'purchase_term')
+
+    def __init__(self, payment_option=None, offering_type=None,
+                 purchase_term=None,  **kwargs):
+        super().__init__(**kwargs)
+        self.payment_option = payment_option
+        self.offering_type = offering_type
+        self.purchase_term = purchase_term
+
+    def __repr__(self):
+        return (
+            'Reserved Instances {0} payment_option={1} offering_type={2} '
+            'purchase_term={3}'.format(
+                self.cloud_resource_id, self.payment_option, self.offering_type,
+                self.purchase_term))
+
+    @property
+    def meta(self):
+        meta = super().meta
+        meta.update({
+            'payment_option': self.payment_option,
+            'offering_type': self.offering_type,
+            'purchase_term': self.purchase_term
         })
         return meta
 
@@ -388,4 +496,7 @@ RES_MODEL_MAP = {
     ResourceTypes.snapshot_chain.name: SnapshotChainResource,
     ResourceTypes.rds_instance.name: RdsInstanceResource,
     ResourceTypes.ip_address.name: IpAddressResource,
+    ResourceTypes.savings_plan.name: SavingsPlanResource,
+    ResourceTypes.reserved_instances.name: ReservedInstancesResource,
+    ResourceTypes.image.name: ImageResource,
 }

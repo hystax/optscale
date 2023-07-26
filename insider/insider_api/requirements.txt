@@ -1,7 +1,8 @@
 tornado==6.2
 optscale-exceptions==0.0.23
 config-client==1.0.145
-pymongo==3.5.1
+pymongo==4.3.3
 apispec==0.39.0
-cloud_adapter==0.1.1485
-pyyaml==5.3.1
+cloud_adapter==0.1.1532
+restapi-client==1.0.748
+pyyaml==5.4.1

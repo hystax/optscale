@@ -7,7 +7,8 @@ SUPPORTED_CLOUD_TYPES = {
     'alibaba_cnr',
     'aws_cnr',
     'azure_cnr',
-    'gcp_cnr'
+    'gcp_cnr',
+    'nebius'
 }
 
 
@@ -48,7 +49,7 @@ class VolumesNotAttachedForALongTime(ModuleBase):
                 'cost_in_detached_state': volume['cost_in_resource_state'],
                 'saving': volume['savings'],
                 'last_seen_in_attached_state': volume['meta'][date_field_name],
-                'region': volume['region'],
+                'region': volume.get('region') or volume['meta'].get('zone_id'),
                 'is_excluded': volume.get('pool_id') in excluded_pools,
             } for volume in detached_volumes.values()
             if volume.get('savings', 0) > 0

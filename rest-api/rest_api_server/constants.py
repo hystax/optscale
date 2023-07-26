@@ -143,6 +143,8 @@ class UrlsV2(Urls):
         'k8s_rightsizing': r"%s/organizations/(?P<organization_id>[^/]+)/k8s_rightsizing",
         'applications_collection': r"%s/organizations/(?P<organization_id>[^/]+)/applications",
         'applications': r"%s/organizations/(?P<organization_id>[^/]+)/applications/(?P<application_id>[^/]+)",
+        'application_optimizations':
+            r"%s/organizations/(?P<organization_id>[^/]+)/applications/(?P<application_id>[^/]+)/optimizations",
         'profiling_token_collection': r"%s/organizations/(?P<organization_id>[^/]+)/profiling_token",
         'profiling_token': r"%s/organizations/(?P<organization_id>[^/]+)/profiling_token/(?P<id>[^/]+)",
         'goals_collection': r"%s/organizations/(?P<organization_id>[^/]+)/goals",
@@ -155,6 +157,25 @@ class UrlsV2(Urls):
             r"%s/organizations/(?P<organization_id>[^/]+)/applications/(?P<application_id>[^/]+)/runs",
         'runs': r"%s/organizations/(?P<organization_id>[^/]+)/runs/(?P<id>[^/]+)",
         'runs_breakdown': r"%s/organizations/(?P<organization_id>[^/]+)/runs/(?P<id>[^/]+)/breakdown",
+        'risp_processing_tasks_collection':
+            r"%s/cloud_accounts/(?P<cloud_account_id>[^/]+)/risp_processing_tasks",
+        'risp_processing_tasks': r"%s/risp_processing_tasks/(?P<id>[^/]+)",
+        'ri_sp_usage_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/ri_sp_usage_breakdown",
+        'ri_sp_expenses_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/ri_sp_expenses_breakdown",
+        'infra_profiling_token': r"%s/infrastructure/(?P<infrastructure_token>[^/]+)/profiling_token",
+        'templates_collection': r"%s/organizations/(?P<organization_id>[^/]+)/templates",
+        'templates': r"%s/organizations/(?P<organization_id>[^/]+)/templates/(?P<template_id>[^/]+)",
+        'templates_overview': r"%s/organizations/(?P<organization_id>[^/]+)/templates_overview",
+        'runsets_collection':
+            r"%s/organizations/(?P<organization_id>[^/]+)/templates/(?P<template_id>[^/]+)/runsets",
+        'runsets': r"%s/organizations/(?P<organization_id>[^/]+)/runsets/(?P<runset_id>[^/]+)",
+        'runners_collection':
+            r"%s/organizations/(?P<organization_id>[^/]+)/runsets/(?P<runset_id>[^/]+)/runners",
+        'runset_runs_collection':
+            r"%s/organizations/(?P<organization_id>[^/]+)/runsets/(?P<runset_id>[^/]+)/runs",
+        'org_bi_collection': r"%s/organizations/(?P<organization_id>["r"^/]+)/bi",
+        'bi_collection': r"%s/bi",
+        'bi': r"%s/bi/(?P<organization_bi_id>["r"^/]+)",
     })
 
 

@@ -21,7 +21,10 @@ class ContextAsyncHandler(ContextAsyncHandler_v1, BaseHandler):
         parameters:
         -   in: query
             name: type
-            description: type of the object (organization|pool|employee|etc)
+            type: string
+            enum: [organization, cloud_account, pool, employee, organization_bi,
+                   webhook, rule, organization_constraint, report_import,
+                   pool_alert, shareable_booking]
             required: true
         -   in: query
             name: uuid

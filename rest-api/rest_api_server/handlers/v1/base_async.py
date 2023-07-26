@@ -28,6 +28,9 @@ class BaseAsyncItemHandler(BaseHandler):
     def _validate_params(self, item, **kwargs):
         pass
 
+    async def prepare(self):
+        await self.run_on_executor(super().prepare)
+
     async def _get_item(self, item_id, **kwargs):
         res = await run_task(self.controller.get, item_id, **kwargs)
         type_name = self.controller.model_type.__name__

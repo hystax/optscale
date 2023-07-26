@@ -147,6 +147,21 @@ PARAMETER_DUMPS = {
             }
         }
     },
+    'new_subscriber': {
+        "email": ["optscale-staging-notifications@hystax.com"],
+        "subject": "[172.22.20.8] New subscriber",
+        "template_type": "new_subscriber",
+        "reply_to_email": "me2@1.ru",
+        "template_params": {
+            "texts": {
+                "user": {
+                    "email": "me2@1.ru",
+                    "subscribe": True
+                },
+                "title": "New live demo subscriber"
+            }
+        }
+    },
     'pool_exceed_report': {
         'email': ['james31_pza@hystax.com'],
         'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',

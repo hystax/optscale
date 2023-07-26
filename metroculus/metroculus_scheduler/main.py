@@ -12,7 +12,7 @@ DEFAULT_ETCD_PORT = 80
 RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
 SUPPORTED_CLOUD_TYPES = {'aws_cnr', 'azure_cnr', 'alibaba_cnr',
-                         'kubernetes_cnr', 'gcp_cnr'}
+                         'kubernetes_cnr', 'gcp_cnr', 'nebius'}
 
 
 def publish_tasks(config_cl):

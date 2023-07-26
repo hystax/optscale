@@ -58,6 +58,10 @@ class ConnectionTimeout(CloudAdapterBaseException):
     pass
 
 
+class S3ConnectionError(CloudAdapterBaseException):
+    pass
+
+
 class InvalidResourceTypeException(CloudAdapterBaseException):
     pass
 

@@ -71,6 +71,7 @@ class InsecureSecurityGroups(ModuleBase):
             cloud_func_map = {
                 'aws_cnr': self._get_aws_insecure,
                 'azure_cnr': self._get_azure_insecure,
+                'nebius': self._get_nebius_insecure
             }
             security_group_call = cloud_func_map.get(config['type'])
             if not security_group_call:
@@ -247,9 +248,12 @@ class InsecureSecurityGroups(ModuleBase):
                             continue
                         insecure_port_value = insecure_port.get('port')
                         if from_port <= insecure_port_value <= to_port:
-                            found_insecure_ports.add((insecure_port_value, insecure_port_protocol))
+                            found_insecure_ports.add((insecure_port_value,
+                                                      insecure_port_protocol))
             if found_insecure_ports:
-                insecure_ports_js = [{'port': port, 'protocol': protocol} for port, protocol in found_insecure_ports]
+                insecure_ports_js = [
+                    {'port': port, 'protocol': protocol}
+                    for port, protocol in found_insecure_ports]
                 result.append({
                     'cloud_resource_id': cloud_resource.get(
                         'cloud_resource_id'),
@@ -264,6 +268,94 @@ class InsecureSecurityGroups(ModuleBase):
                         'pool_id') in excluded_pools,
                     'insecure_ports': insecure_ports_js,
                 })
+        return result
+
+    def _get_nebius_insecure(self, config, resources, excluded_pools,
+                             insecure_ports):
+        supported_protocols = ['TCP', 'UDP', 'ANY']
+        # according to https://nebius.com/il/docs/vpc/concepts/security-groups#rules-default
+        default_instance_sg = {
+            'id': 'default',
+            'name': 'default',
+            'rules': [
+                {
+                    'direction': 'INGRESS',
+                    'protocolName': 'TCP',
+                    'cidrBlocks': {'v4CidrBlocks': ['0.0.0.0/0']},
+                    'ports': {'toPort': '22'}
+                },
+                {
+                    'direction': 'INGRESS',
+                    'protocolName': 'TCP',
+                    'cidrBlocks': {'v4CidrBlocks': ['0.0.0.0/0']},
+                    'ports': {'toPort': '3889'}
+                }]}
+
+        result = []
+        nebius = CloudAdapter.get_adapter(config)
+        folders = set(x.get('meta', {}).get('folder_id')
+                      for x in resources if x.get('meta', {}).get('folder_id'))
+        security_groups_map = {}
+        for folder in folders:
+            folder_sgs = nebius.security_groups_list(folder)
+            for folder_sg in folder_sgs:
+                security_groups_map[folder_sg['id']] = folder_sg
+        security_groups_map[default_instance_sg['id']] = default_instance_sg
+
+        for instance in resources:
+            found_insecure_ports = set()
+            inst_sgs = instance.get('meta', {}).get('security_groups')
+            if not inst_sgs:
+                # instances without sg have default sg
+                inst_sgs = [default_instance_sg['id']]
+            for sg_id in inst_sgs:
+                sg = security_groups_map.get(sg_id)
+                if not sg or 'rules' not in sg:
+                    continue
+                for rule in sg['rules']:
+                    if rule['direction'] == 'EGRESS':
+                        continue
+                    protocol = rule['protocolName']
+                    if protocol not in supported_protocols:
+                        continue
+                    if 'cidrBlocks' not in rule:
+                        continue
+                    cidr_blocks = rule['cidrBlocks'].get('v4CidrBlocks', [])
+                    cidr_blocks += rule['cidrBlocks'].get('v6CidrBlocks', [])
+                    if not any(filter(lambda x: x in INSECURE_CIDRS, cidr_blocks)):
+                        continue
+                    from_port = int(rule['ports'].get('fromPort', 0))
+                    to_port = int(rule['ports'].get('toPort', 0))
+                    for port_info in insecure_ports:
+                        insecure_port = port_info['port']
+                        insecure_protocol = port_info['protocol'].upper()
+                        if ((from_port <= insecure_port <= to_port or
+                                insecure_port == from_port or
+                                insecure_port == to_port) and
+                                protocol in [insecure_protocol, 'ANY']):
+                            found_insecure_ports.add(
+                                (insecure_port, protocol.lower()))
+
+                if found_insecure_ports:
+                    insecure_ports_js = [
+                        {'port': port, 'protocol': protocol}
+                        for port, protocol in found_insecure_ports]
+                    region = instance.get('region') or instance.get(
+                        'meta', {}).get('zone_id')
+                    result.append({
+                        'cloud_resource_id': instance.get(
+                            'cloud_resource_id'),
+                        'resource_name': instance.get('name'),
+                        'cloud_account_id': config.get('id'),
+                        'resource_id': instance.get('resource_id'),
+                        'cloud_type': config.get('type'),
+                        'security_group_name': sg['name'],
+                        'security_group_id': sg.get('id'),
+                        'region': region,
+                        'is_excluded': instance.get(
+                            'pool_id') in excluded_pools,
+                        'insecure_ports': insecure_ports_js,
+                    })
         return result
 
 

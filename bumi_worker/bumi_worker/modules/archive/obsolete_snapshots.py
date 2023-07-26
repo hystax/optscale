@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 from bumi_worker.consts import ArchiveReason
 from bumi_worker.modules.base import ArchiveBase
 from bumi_worker.modules.recommendations.obsolete_snapshots import (
-    ObsoleteSnapshots as ObsoleteSnapshotsRecommendation, SUPPORTED_CLOUDS)
+    ObsoleteSnapshots as ObsoleteSnapshotsRecommendation, SUPPORTED_CLOUDS,
+    AWS_CLOUD)
 
 LOG = logging.getLogger(__name__)
 
@@ -53,8 +54,10 @@ class ObsoleteSnapshots(ArchiveBase, ObsoleteSnapshotsRecommendation):
             cloud_config = cloud_accounts_map[cloud_account_id]['config']
             cloud_config['type'] = cloud_accounts_map[cloud_account_id]['type']
 
-            snapshots_used_by_images = self.get_snapshots_used_by_images(
-                now, cloud_config)
+            snapshots_used_by_images = {}
+            if cloud_config.get('type') == AWS_CLOUD:
+                snapshots_used_by_images = self.get_snapshots_used_by_images(
+                    now, cloud_config)
             snapshots_using_volumes = self._get_snapshots_using_volumes(
                 now, cloud_account_id)
             snapshots_used_by_volumes = self.get_snapshots_used_by_volumes(

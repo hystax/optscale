@@ -5,6 +5,8 @@ import string
 import requests
 import jwt
 import base64
+import json
+from urllib.parse import urlencode
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -35,16 +37,51 @@ class InvalidAuthorizationToken(Exception):
 
 
 class GoogleOauth2Provider:
+    DEFAULT_TOKEN_URI = 'https://oauth2.googleapis.com/token'
+
     def __init__(self):
         self._client_id = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
+        self._client_secret = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
 
     def client_id(self):
         if not self._client_id:
             raise ForbiddenException(Err.OA0012, [])
         return self._client_id
 
-    def verify(self, token, **kwargs):
+    def client_secret(self):
+        if not self._client_secret:
+            raise ForbiddenException(Err.OA0012, [])
+        return self._client_secret
+
+    def exchange_token(self, code, redirect_uri):
+        request_body = {
+            "grant_type": 'authorization_code',
+            "client_secret": self.client_secret(),
+            "client_id": self.client_id(),
+            "code": code,
+            'redirect_uri': redirect_uri,
+        }
+        request = google_requests.Request()
+        response = request(
+            url=self.DEFAULT_TOKEN_URI,
+            method="POST",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            body=urlencode(request_body).encode("utf-8"),
+        )
+        response_body = (
+            response.data.decode("utf-8")
+            if hasattr(response.data, "decode")
+            else response.data
+        )
+        if response.status != 200:
+            raise ValueError(response_body)
+        response_data = json.loads(response_body)
+        return response_data['id_token']
+
+    def verify(self, code, **kwargs):
         try:
+            redirect_uri = kwargs.pop('redirect_uri', None)
+            token = self.exchange_token(code, redirect_uri)
             token_info = id_token.verify_oauth2_token(
                 token, google_requests.Request(), self.client_id())
             if not token_info.get('email_verified', False):
@@ -187,8 +224,9 @@ class SignInController(BaseController):
         check_string_attribute('token', token, max_length=65536)
         ip = input.pop('ip', None)
         tenant_id = input.pop('tenant_id', None)
+        redirect_uri = input.pop('redirect_uri', None)
         check_kwargs_is_empty(**input)
-        return provider, token, ip, tenant_id
+        return provider, token, ip, tenant_id, redirect_uri
 
     @staticmethod
     def _get_verifier_class(provider):
@@ -204,13 +242,12 @@ class SignInController(BaseController):
         ) for _ in range(33))
 
     def signin(self, **kwargs):
-        provider, token, ip, tenant_id = self._get_input(**kwargs)
+        provider, token, ip, tenant_id, redirect_uri = self._get_input(**kwargs)
         verifier_class = self._get_verifier_class(provider)
         if not verifier_class:
             raise WrongArgumentsException(Err.OA0067, [provider])
         email, display_name = verifier_class().verify(
-            token, tenant_id=tenant_id)
-
+            token, tenant_id=tenant_id, redirect_uri=redirect_uri)
         user = self.user_ctl.get_user_by_email(email)
         register = user is None
         if not user:

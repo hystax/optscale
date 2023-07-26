@@ -7,6 +7,7 @@ from insider_api.exceptions import Err
 from cloud_adapter.clouds.alibaba import Alibaba
 from cloud_adapter.clouds.aws import Aws
 from cloud_adapter.clouds.azure import Azure
+from cloud_adapter.clouds.nebius import Nebius
 from cloud_adapter.clouds.gcp import Gcp
 from cloud_adapter.exceptions import RegionNotFoundException
 from insider_api.controllers.base import (BaseController,
@@ -29,35 +30,58 @@ class FlavorController(BaseController):
         self._aws = None
         self._azure = None
         self._alibaba = None
+        self.cloud_account_id = None
 
     @property
     def aws(self):
         if self._aws is None:
-            config = self._config.read_branch('/service_credentials/aws')
+            config = self.get_service_credentials('aws')
+            if self.cloud_account_id:
+                cloud_acc = self.get_cloud_account(self.cloud_account_id)
+                config = cloud_acc['config']
             self._aws = Aws(config)
         return self._aws
 
     @property
     def azure(self):
         if self._azure is None:
-            config = self._config.read_branch('/service_credentials/azure')
+            config = self.get_service_credentials('azure')
+            if self.cloud_account_id:
+                cloud_acc = self.get_cloud_account(self.cloud_account_id)
+                config = cloud_acc['config']
             self._azure = Azure(config)
         return self._azure
 
     @property
     def alibaba(self):
         if self._alibaba is None:
-            config = self._config.read_branch('/service_credentials/alibaba')
+            config = self.get_service_credentials('alibaba')
+            if self.cloud_account_id:
+                cloud_acc = self.get_cloud_account(self.cloud_account_id)
+                config = cloud_acc['config']
             self._alibaba = Alibaba(config)
         return self._alibaba
 
     @cached_property
     def gcp(self):
-        config = self._config.read_branch('/service_credentials/gcp')
+        config = self.get_service_credentials('gcp')
+        if self.cloud_account_id:
+            cloud_acc = self.get_cloud_account(self.cloud_account_id)
+            config = cloud_acc['config']
         return Gcp(config)
 
+    @cached_property
+    def nebius(self):
+        cloud_acc = self.get_cloud_account(self.cloud_account_id)
+        config = cloud_acc.get('config')
+        if not config:
+            raise ValueError('Cloud account %s is not found' % self.cloud_account_id)
+        return Nebius(config)
+
     def find_flavor(self, cloud_type, resource_type, region,
-                    family_specs, mode, **kwargs):
+                    family_specs, mode, cloud_account_id=None, **kwargs):
+        if cloud_account_id:
+            self.cloud_account_id = cloud_account_id
         find_flavor_function_map = {
             'aws_cnr': {
                 'instance': self.find_aws_flavor,
@@ -71,6 +95,10 @@ class FlavorController(BaseController):
             'alibaba_cnr': {
                 'instance': self.find_alibaba_flavor,
                 'rds_instance': self.find_alibaba_rds_flavor
+            },
+            'nebius': {
+                'instance': self.find_nebius_flavor,
+                'rds_instance': self.find_nebius_rds_flavor,
             },
         }
         try:
@@ -103,8 +131,8 @@ class FlavorController(BaseController):
             pricing_query['last_seen'] = {'$gte': discovery_started_at,
                                           '$lt': next_start}
             next_start = discovery_started_at
-            pricing_count = self.azure_prices_collection.find(
-                pricing_query).count()
+            pricing_count = self.azure_prices_collection.count_documents(
+                pricing_query)
             if pricing_count:
                 pricings = list(self.azure_prices_collection.find(
                     pricing_query))
@@ -380,6 +408,133 @@ class FlavorController(BaseController):
                     relevant_flavor = flavor_result
         if not flavors and mode == 'search_relevant' and relevant_flavor:
             flavors = [relevant_flavor]
+        if not flavors:
+            raise TypeNotMatchedException()
+        return min(flavors, key=lambda x: x['price'])
+
+    def find_nebius_flavor(self, region, family_specs, mode,
+                           additional_params=None):
+
+        def round_to_half_int(num):
+            return round(num * 2) / 2
+
+        additional_params = additional_params or {}
+        vcpu = additional_params.get('cpu', 1)
+        ram = family_specs.get('ram', 0)
+        platform_name = family_specs['source_flavor_id']
+        cpu_fraction = family_specs['cpu_fraction']
+        currency = additional_params.get('currency', 'USD')
+        with CachedThreadPoolExecutor(self.mongo_client) as executor:
+            # add cloud_account_id to not use cached prices for
+            # other nebius cloud accounts
+            skus = executor.submit(
+                self.nebius.get_prices, currency=currency,
+                cloud_account_id=self.cloud_account_id).result()
+
+        cloud_acc = self.get_cloud_account(self.cloud_account_id)
+        platform = [
+            x for x in cloud_acc['config']['platforms'].values()
+            if x['name'] == platform_name]
+        sku_pattern = '^{0}. {1}% vCPU$'.format(
+            platform_name, cpu_fraction)
+        sku_regex = re.compile(sku_pattern)
+        family_skus = [
+            sku for sku in skus if re.search(sku_regex, sku['name'])]
+        flavors = []
+        for sku in family_skus:
+            price_per_core = sku['pricingVersions'][-1][
+                'pricingExpressions'][0]['rates'][0]['unitPrice']
+            if platform:
+                ram_cpu_list = platform[0]['core_fraction'].get(
+                    str(cpu_fraction), [])
+                for el in ram_cpu_list:
+                    if vcpu in el['cpu']:
+                        ram_per_core = round_to_half_int(ram / vcpu)
+                        available_ram = el['ram_per_core']
+                        if ram_per_core in available_ram:
+                            expected_ram = ram
+                        else:
+                            # find nearest available down ram value which
+                            # is not the maximum ram value for this sku
+                            nearest = min(available_ram,
+                                          key=lambda x: x - ram)
+                            if nearest == max(available_ram):
+                                LOG.warning(
+                                    'Expected nearest RAM value {0} is'
+                                    ' maxumim for platform {1}'.format(
+                                        nearest, platform_name))
+                                continue
+                            else:
+                                expected_ram = nearest * vcpu
+                        flavor_result = {
+                            'cpu': vcpu,
+                            'ram': expected_ram,
+                            'flavor': platform_name,
+                            'price': float(price_per_core) * vcpu,
+                        }
+                        flavors.append(flavor_result)
+                        if mode == 'current':
+                            break
+                else:
+                    LOG.warning('Expected vCPU value {0} is not '
+                                'available for platform {1}'.format(
+                                    vcpu, platform_name))
+        if not flavors:
+            raise TypeNotMatchedException()
+        return min(flavors, key=lambda x: x['price'])
+
+    def find_nebius_rds_flavor(self, region, family_specs, mode,
+                               additional_params=None):
+
+        def bytes_to_gb(ram):
+            return ram / 2 ** 30
+
+        additional_params = additional_params or {}
+        vcpu = additional_params.get('cpu', 1)
+        currency = additional_params.get('currency', 'USD')
+        category = family_specs.get('category')
+        platform_name = family_specs.get('platform_name')
+        source_flavor_id = family_specs['source_flavor_id']
+        if '.' in source_flavor_id:
+            flavor_family = source_flavor_id.split('.')[0]
+        else:
+            flavor_family = source_flavor_id.split('-')[0]
+
+        all_flavors = self.nebius.get_rds_flavors(service_name=category.lower())
+        source_flavor_info = [x for x in all_flavors if x.id == source_flavor_id]
+        family_flavors = [x for x in all_flavors
+                          if x.id.startswith(flavor_family) and x.cores == vcpu]
+
+        with CachedThreadPoolExecutor(self.mongo_client) as executor:
+            skus = executor.submit(
+                self.nebius.get_prices, currency=currency,
+                cloud_account_id=self.cloud_account_id).result()
+        sku_pattern = '^{0}. {1}. 100% vCPU$'.format(category, platform_name)
+        sku_regex = re.compile(sku_pattern, flags=re.IGNORECASE)
+        family_skus = [
+            sku for sku in skus if re.search(sku_regex, sku['name'])]
+        flavors = []
+        if family_skus:
+            price_per_core = family_skus[0]['pricingVersions'][-1][
+                'pricingExpressions'][0]['rates'][0]['unitPrice']
+            if mode == 'current':
+                if source_flavor_info:
+                    flavor_result = {
+                        'cpu': source_flavor_info[0].cores,
+                        'ram': bytes_to_gb(source_flavor_info[0].memory),
+                        'flavor': source_flavor_id,
+                        'price': float(price_per_core) * source_flavor_info[0].cores,
+                    }
+                    flavors.append(flavor_result)
+            else:
+                for fl in family_flavors:
+                    flavor_result = {
+                        'cpu': fl.cores,
+                        'ram': bytes_to_gb(fl.memory),
+                        'flavor': fl.id,
+                        'price': float(price_per_core) * fl.cores,
+                    }
+                    flavors.append(flavor_result)
         if not flavors:
             raise TypeNotMatchedException()
         return min(flavors, key=lambda x: x['price'])

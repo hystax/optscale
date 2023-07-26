@@ -1,5 +1,5 @@
 import logging
-
+import re
 from datetime import datetime, timedelta
 from pymongo import MongoClient, UpdateOne
 
@@ -38,18 +38,32 @@ class BaseProvider:
     def cloud_adapter(self):
         raise NotImplementedError()
 
-    def _load(self, region, flavor, os_type, preinstalled, quantity,
-              billing_method):
+    def _load_flavor_prices(self, region, flavor, os_type, preinstalled,
+                            quantity, billing_method):
         raise NotImplementedError()
 
-    def _format(self, price_infos, region, os_type):
+    def _load_family_prices(self, instance_family, region, os_type, currency):
         raise NotImplementedError()
 
-    def get(self, region, flavor, os_type, preinstalled=None,
-            billing_method=None, quantity=None, currency='USD'):
-        price_infos = self._load(region, flavor, os_type, preinstalled,
-                                 billing_method, quantity, currency)
-        return self._format(price_infos, region, os_type)
+    def _flavor_format(self, price_infos, region, os_type):
+        raise NotImplementedError()
+
+    def _flavor_family_format(self, price_infos, instance_family, region,
+                              os_type):
+        raise NotImplementedError()
+
+    def get_flavor_prices(self, region, flavor, os_type, preinstalled=None,
+                          billing_method=None, quantity=None, currency='USD'):
+        price_infos = self._load_flavor_prices(region, flavor, os_type,
+                                               preinstalled, billing_method,
+                                               quantity, currency)
+        return self._flavor_format(price_infos, region, os_type)
+
+    def get_family_prices(self, instance_family, region, os_type, currency):
+        price_infos = self._load_family_prices(
+            instance_family, region, os_type, currency)
+        return self._flavor_family_format(
+            price_infos, instance_family, region, os_type)
 
 
 class AwsProvider(BaseProvider):
@@ -101,8 +115,8 @@ class AwsProvider(BaseProvider):
     def prices_collection(self):
         return self.mongo_client.restapi.aws_prices
 
-    def _load(self, region, flavor, os_type, preinstalled=None,
-              billing_method=None, quantity=None, currency='USD'):
+    def _load_flavor_prices(self, region, flavor, os_type, preinstalled=None,
+                            billing_method=None, quantity=None, currency='USD'):
         location = self.region_map.get(region)
         if not location:
             raise WrongArgumentsException(Err.OI0012, [region])
@@ -139,12 +153,57 @@ class AwsProvider(BaseProvider):
                 self.prices_collection.bulk_write(updates)
         return price_infos
 
-    def _format(self, price_infos, region, os_type):
+    def _load_family_prices(self, instance_family, region, os_type, currency):
+        location = self.region_map.get(region)
+        if not location:
+            raise WrongArgumentsException(Err.OI0012, [region])
+        operating_system = self.os_map.get(os_type.lower())
+        if not operating_system:
+            raise WrongArgumentsException(Err.OI0015, [os_type])
+
+        # TODO: Add currency support
+        now = datetime.utcnow()
+        regex = re.compile(f"{instance_family}\.", re.IGNORECASE)
+        query = {
+            'instanceType': regex,
+            'location': location,
+            'operatingSystem': operating_system,
+            'tenancy': 'Shared',
+            'preInstalledSw': 'NA',
+            'capacitystatus': 'Used',
+            'licenseModel': 'No License required',
+            'updated_at': {'$gte': now - timedelta(days=60)}
+        }
+        price_infos = list(self.prices_collection.find(query))
+        if not price_infos:
+            query.pop('updated_at', None)
+            query.pop('instanceType', None)
+            res = self.cloud_adapter.get_prices(query)
+            updates = []
+            for price_info in res:
+                price_info['updated_at'] = now
+                if regex.match(price_info.get('instanceType')):
+                    price_infos.append(price_info)
+                updates.append(UpdateOne(
+                    filter={'sku': price_info['sku']},
+                    update={'$set': price_info},
+                    upsert=True,
+                ))
+            if updates:
+                self.prices_collection.bulk_write(updates)
+        return price_infos
+
+    def _validate_price_info(self, price_info):
+        if price_info['price_unit'].lower() not in {'hours', 'hrs'}:
+            LOG.warning('Unusual price unit found. Price - %s', price_info)
+            return False
+        return True
+
+    def _flavor_format(self, price_infos, region, os_type):
         res = []
         price_unit = '1 hour'
         for price_info in price_infos:
-            if price_info['price_unit'].lower() not in {'hours', 'hrs'}:
-                LOG.warning('Unusual price unit found. Price - %s', price_info)
+            if not self._validate_price_info(price_info):
                 continue
             currency, price = next(iter(price_info['price'].items()))
             res.append({
@@ -154,6 +213,37 @@ class AwsProvider(BaseProvider):
                 'operating_system': os_type.lower(),
                 'price_unit': price_unit,
                 'currency': currency
+            })
+        return res
+
+    def _flavor_family_format(self, price_infos, instance_family, region,
+                              os_type):
+        res = []
+        price_unit = '1 hour'
+        for price_info in price_infos:
+            if not self._validate_price_info(price_info):
+                continue
+            currency, price = next(iter(price_info['price'].items()))
+            cpu = price_info.get('vcpu')
+            if cpu is not None:
+                cpu = int(cpu)
+            ram = price_info.get('memory')
+            if ram is not None:
+                ram = int(float(ram.split(' ')[0]) * 1024)
+            gpu = price_info.get('gpu')
+            if gpu is not None:
+                gpu = int(gpu)
+            res.append({
+                'price': float(price),
+                'region': region,
+                'instance_family': instance_family,
+                'instance_type': price_info['instanceType'],
+                'operating_system': os_type.lower(),
+                'price_unit': price_unit,
+                'currency': currency,
+                'cpu': cpu,
+                'ram': ram,
+                'gpu': gpu
             })
         return res
 
@@ -174,8 +264,8 @@ class AzureProvider(BaseProvider):
     def discoveries_collection(self):
         return self.mongo_client.insider.discoveries
 
-    def _load(self, region, flavor, os_type, preinstalled=None,
-              billing_method=None, quantity=None, currency='USD'):
+    def _load_flavor_prices(self, region, flavor, os_type, preinstalled=None,
+                            billing_method=None, quantity=None, currency='USD'):
         regions = set(self.cloud_adapter.get_regions_coordinates())
         if region not in regions:
             raise WrongArgumentsException(Err.OI0012, [region])
@@ -188,7 +278,7 @@ class AzureProvider(BaseProvider):
         query = {
             'type': 'Consumption',
             'serviceName': 'Virtual Machines',
-            'armSkuName': flavor,
+            'armSkuName': re.compile(flavor, re.IGNORECASE),
             'armRegionName': region,
             '$or': [
                 {'effectiveEndDate': {'$gte': now}},
@@ -201,7 +291,7 @@ class AzureProvider(BaseProvider):
         return list(self.prices_collection.find(query).sort(
             [('last_seen', -1)]).limit(1))
 
-    def _format(self, price_infos, region, os_type):
+    def _flavor_format(self, price_infos, region, os_type):
         res = []
         for price_info in price_infos:
             res.append({
@@ -226,8 +316,9 @@ class AlibabaProvider(BaseProvider):
         self._cloud_adapter = Alibaba(config)
         return self._cloud_adapter
 
-    def _load(self, region, flavor, os_type='linux', preinstalled=None,
-              billing_method='pay_as_you_go', quantity=1, currency='USD'):
+    def _load_flavor_prices(self, region, flavor, os_type='linux',
+                            preinstalled=None, billing_method='pay_as_you_go',
+                            quantity=1, currency='USD'):
         now = datetime.utcnow()
         query = {
             'region': region,
@@ -260,7 +351,7 @@ class AlibabaProvider(BaseProvider):
                 self.prices_collection.bulk_write(updates)
         return price_infos
 
-    def _format(self, price_infos, region, os_type):
+    def _flavor_format(self, price_infos, region, os_type):
         result = []
         currency = 'USD'
         price_unit = '1 hour'
@@ -295,24 +386,29 @@ class FlavorPriceController(BaseController):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @staticmethod
-    def validate_parameters(**params):
-        required_params = [('cloud_type', str), ('region', str), ('flavor', str),
-                           ('os_type', str)]
+    @property
+    def supported_cloud_types(self):
+        return ['alibaba', 'azure', 'aws']
 
+    @property
+    def required_params(self):
+        return [('cloud_type', str), ('region', str), ('flavor', str),
+                ('os_type', str)]
+
+    def validate_parameters(self, **params):
         missing_required = [
-            p for p, _ in required_params if params.get(p) is None
+            p for p, _ in self.required_params if params.get(p) is None
         ]
         if missing_required:
             message = ', '.join(missing_required)
             raise WrongArgumentsException(Err.OI0011, [message])
 
-        for param, param_type in required_params:
+        for param, param_type in self.required_params:
             value = params.get(param)
             if value is not None and not isinstance(value, param_type):
                 raise WrongArgumentsException(Err.OI0008, [param])
         cloud_type = params.get('cloud_type')
-        if cloud_type not in ['alibaba', 'azure', 'aws']:
+        if cloud_type not in self.supported_cloud_types:
             raise WrongArgumentsException(Err.OI0010, [cloud_type])
 
     def get(self, **kwargs):
@@ -326,10 +422,39 @@ class FlavorPriceController(BaseController):
         billing_method = kwargs.get('billing_method')
         currency = kwargs.get('currency')
         provider = PricesProvider.get_provider(cloud_type)
-        return provider(self._config).get(region, flavor, os_type, preinstalled,
-                                          billing_method, quantity, currency)
+        return provider(self._config).get_flavor_prices(
+            region, flavor, os_type, preinstalled, billing_method, quantity,
+            currency)
 
 
 class FlavorPriceAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):
         return FlavorPriceController
+
+
+class FamilyPriceController(FlavorPriceController):
+    @property
+    def supported_cloud_types(self):
+        return ['aws']
+
+    @property
+    def required_params(self):
+        return [('cloud_type', str), ('region', str), ('instance_family', str)]
+
+    def get(self, **kwargs):
+        self.validate_parameters(**kwargs)
+        cloud_type = kwargs['cloud_type']
+        instance_family = kwargs['instance_family']
+        region = kwargs['region']
+        os_type = kwargs.get('os_type') or 'Linux'
+        currency = kwargs.get('currency') or 'USD'
+        provider = PricesProvider.get_provider(cloud_type)
+        return provider(self._config).get_family_prices(
+            instance_family=instance_family, region=region, os_type=os_type,
+            currency=currency
+        )
+
+
+class FamilyPriceAsyncController(BaseAsyncControllerWrapper):
+    def _get_controller_class(self):
+        return FamilyPriceController

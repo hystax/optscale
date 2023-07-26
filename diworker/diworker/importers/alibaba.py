@@ -398,7 +398,10 @@ class AlibabaReportImporter(BaseReportImporter):
         bill = self.cloud_adapter.get_bill_overview(billing_date)
         total_cloud_bill = 0
         for data in bill.get('Data', {}).get('Items', {}).get('Item', []):
-            total_cloud_bill += data['AfterTaxAmount']
+            if 'AfterTaxAmount' in data:
+                total_cloud_bill += data['AfterTaxAmount']
+            else:
+                total_cloud_bill += data['OutstandingAmount']
 
         params = {'cloud_account_id': self.cloud_acc_id}
         _, last_day = monthrange(billing_date.year, billing_date.month)

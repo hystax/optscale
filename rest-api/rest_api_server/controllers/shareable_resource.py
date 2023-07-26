@@ -163,7 +163,8 @@ class ShareableBookingController(BaseController, MongoMixin,
             'shareable': True,
             'deleted_at': 0
         }
-        return bool(self.resources_collection.count(shareable_resource_filter))
+        return bool(self.resources_collection.count_documents(
+            shareable_resource_filter))
 
     def send_first_shareable_email(self, organization_id, count=1):
         organization = self.session.query(Organization).filter(and_(

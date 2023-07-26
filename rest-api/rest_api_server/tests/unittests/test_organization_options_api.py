@@ -112,6 +112,18 @@ class TestCloudAccountApi(TestApiBase):
         code, resp = self.client.organization_options_list(self.org_id1)
         self.assertEqual(code, 200)
         self.assertEqual(len(resp.get('options')), 2)
+        self.assertEqual(resp['options'], ['default_option', 'new_option'])
+        code, resp = self.client.organization_options_list(
+            self.org_id1, with_values=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp.get('options')), 2)
+        self.assertEqual(resp['options'], [{
+            'name': 'default_option',
+            'value': '{"key1": "value1"}'
+        }, {
+            'name': 'new_option',
+            'value': '{"key2": "value2"}'
+        }])
         _, _ = self.client.organization_option_delete(self.org_id2, self.name2)
         code, resp = self.client.organization_options_list(self.org_id2)
         self.assertEqual(code, 200)

@@ -14,6 +14,10 @@ class TrafficProcessingTaskController(BaseController):
     def _get_model_type(self):
         return TrafficProcessingTask
 
+    @staticmethod
+    def task_type():
+        return 'Traffic'
+
     def check_existence(self, **kwargs):
         cloud_account_id = kwargs.get('cloud_account_id')
         query_set = self.session.query(
@@ -37,8 +41,8 @@ class TrafficProcessingTaskController(BaseController):
                 Err.OE0002, [CloudAccount.__name__, cloud_account_id])
         if task_id:
             raise ConflictException(
-                Err.OE0519, [kwargs.get('start_date'), kwargs.get('end_date'),
-                             cloud_account_id])
+                Err.OE0519, [self.task_type(), kwargs.get('start_date'),
+                             kwargs.get('end_date'), cloud_account_id])
 
     def _validate(self, item, is_new=True, **kwargs):
         if not is_new:

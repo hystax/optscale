@@ -1,11 +1,11 @@
 import time
 import uuid
-
+from cryptography.fernet import Fernet
 from unittest.mock import patch, ANY, call, PropertyMock
 from rest_api_server.models.db_base import BaseDB
 from rest_api_server.models.db_factory import DBType, DBFactory
 from rest_api_server.models.models import (OrganizationConstraint,
-                                           OrganizationLimitHit)
+                                           OrganizationLimitHit, OrganizationBI)
 from rest_api_server.tests.unittests.test_api_base import TestApiBase
 from sqlalchemy import and_
 
@@ -548,3 +548,66 @@ class TestOrganizationApi(TestApiBase):
             org['id'], {'currency': 'inv'})
         self.assertEqual(code, 400)
         self.verify_error_code(resp, 'OE0536')
+
+    def test_org_list_with_connected_cloud_accounts(self):
+        code, resp = self.client.organization_list()
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['organizations']), 2)
+        for o in resp['organizations']:
+            self.assertTrue(
+                o['id'] in [self.root['id'], self.organization['id']])
+        code, resp = self.client.organization_list(
+            {'with_connected_accounts': True})
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['organizations']), 0)
+
+        cloud_acc_dict = {
+            'name': 'my cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'access_key_id': 'key',
+                'secret_access_key': 'secret',
+                'bucket_name': 'name',
+                'config_scheme': 'create_report'
+            }
+        }
+        auth_user = self.gen_id()
+        code, employee = self.client.employee_create(
+            self.organization['id'], {'name': 'employee',
+                                      'auth_user_id': auth_user})
+        self.assertEqual(code, 201)
+        patch('rest_api_server.controllers.cloud_account.'
+              'CloudAccountController._configure_report').start()
+        _, ca = self.create_cloud_account(
+            self.organization['id'], cloud_acc_dict, auth_user_id=auth_user)
+
+        code, resp = self.client.organization_list(
+            {'with_connected_accounts': True})
+        self.assertEqual(code, 200)
+        organizations = resp['organizations']
+        self.assertEqual(len(organizations), 1)
+        self.assertEqual(organizations[0]['id'], self.organization['id'])
+
+    def test_delete_org_bi_on_org_delete(self):
+        code, org = self.client.organization_create({'name': 'org_name'})
+        self.assertEqual(code, 201)
+        encr_key = Fernet.generate_key()
+        patch('rest_api_server.utils.get_bi_encryption_key',
+              return_value=encr_key).start()
+        meta = {
+            'access_key_id': 'access_key_id',
+            'secret_access_key': 'secret_access_key',
+            'bucket': 'bucket'
+        }
+        code, bi = self.client.bi_create(
+            org['id'], 'AWS_RAW_EXPORT', 'aws', **meta)
+        self.assertEqual(code, 201)
+        self.delete_organization(org['id'])
+        db = DBFactory(DBType.Test, None).db
+        engine = db.engine
+        session = BaseDB.session(engine)()
+        bi = session.query(OrganizationBI).filter(and_(
+            OrganizationBI.organization_id == org['id'],
+            OrganizationBI.deleted.is_(False)
+            )).one_or_none()
+        self.assertEqual(bi, None)

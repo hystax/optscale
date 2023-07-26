@@ -4,8 +4,10 @@ from collections import OrderedDict
 
 from bumi_worker.modules.obsolete_snapshots_base import ObsoleteSnapshotsBase
 
+AWS_CLOUD = 'aws_cnr'
 SUPPORTED_CLOUDS = [
     'aws_cnr',
+    'nebius',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -30,8 +32,10 @@ class ObsoleteSnapshots(ObsoleteSnapshotsBase):
 
     def get_obsolete_resources(self, now, cloud_account_id, config,
                                obsolete_threshold):
-        snapshots_used_by_images = self.get_snapshots_used_by_images(
-            now, config)
+        snapshots_used_by_images = {}
+        if config.get('type') == AWS_CLOUD:
+            snapshots_used_by_images = self.get_snapshots_used_by_images(
+                now, config)
 
         snapshots_used_by_volumes = self.get_snapshots_used_by_volumes(
             now, cloud_account_id, obsolete_threshold)

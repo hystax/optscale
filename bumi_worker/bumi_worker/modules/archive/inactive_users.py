@@ -10,6 +10,11 @@ LOG = logging.getLogger(__name__)
 
 
 class InactiveUsers(ArchiveInactiveUsersBase, InactiveUsersRecommendation):
+    SUPPORTED_CLOUD_TYPES = [
+        'aws_cnr',
+        'nebius'
+    ]
+
     def __init__(self, organization_id, config_client, created_at):
         super().__init__(organization_id, config_client, created_at)
         self.reason_description_map[ArchiveReason.RECOMMENDATION_APPLIED] = (
@@ -27,6 +32,10 @@ class InactiveUsers(ArchiveInactiveUsersBase, InactiveUsersRecommendation):
             self._set_reason_properties(
                 optimization, ArchiveReason.RECOMMENDATION_IRRELEVANT,
                 description=self.ACCESS_KEY_USED_DESCRIPTION)
+        elif user_info.get('is_service_account_used'):
+            self._set_reason_properties(
+                optimization, ArchiveReason.RECOMMENDATION_IRRELEVANT,
+                description=self.SERVICE_ACCOUNT_USED_DESCRIPTION)
         else:
             self._set_reason_properties(
                 optimization, ArchiveReason.OPTIONS_CHANGED)

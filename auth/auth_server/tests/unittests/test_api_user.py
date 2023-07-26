@@ -2,6 +2,8 @@ import os
 import uuid
 import random
 import string
+from freezegun import freeze_time
+from datetime import datetime
 from unittest.mock import patch, PropertyMock
 
 from freezegun import freeze_time
@@ -865,9 +867,13 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['user_info']['email'], 'test@email.com')
 
     def test_list_bulk_ids(self):
-        _, user_1 = self._create_user(email='user_1@email.com')
-        _, user_2 = self._create_user(email='user_2@email.com')
-        _, user_3 = self._create_user(email='user_3@email.com')
+        dt = datetime(2022, 5, 1)
+        with freeze_time(dt):
+            _, user_1 = self._create_user(email='user_1@email.com')
+            u2_pass = 'password1'
+            _, user_2 = self._create_user(email='user_2@email.com',
+                                          password=u2_pass)
+            _, user_3 = self._create_user(email='user_3@email.com')
         user_ids = [
             user_1['id'],
             user_2['id'],
@@ -883,6 +889,21 @@ class TestUser(TestAuthBase):
         for user in users:
             self.assertTrue(
                 user['id'] in [user_1['id'], user_2['id'], user_3['id']])
+            self.assertEqual(user['last_login'], int(dt.timestamp()))
+        dt_2 = datetime(2022, 5, 2)
+        with freeze_time(dt_2):
+            self.get_token(user_2['email'], u2_pass)
+        code, users = self.client.user_list(user_ids)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(users), 3)
+        expected_last_login_map = {
+            user_1['id']: int(dt.timestamp()),
+            user_3['id']: int(dt.timestamp()),
+            user_2['id']: int(dt_2.timestamp()),
+        }
+        for user in users:
+            self.assertEqual(user['last_login'],
+                             expected_last_login_map[user['id']])
 
     def test_list_bulk_ids_no_secret(self):
         _, user = self._create_user(email='user_1@email.com')

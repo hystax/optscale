@@ -117,6 +117,12 @@ class OrganizationAsyncCollectionHandler(OrganizationAsyncCollectionHandler_v1, 
                 List of organizations with existing shareable bookings
             required: false
             type: boolean
+        -   name: with_connected_accounts
+            in: query
+            description: |
+                List of organizations with connected cloud accounts
+            required: false
+            type: boolean
         responses:
             200:
                 description: Organization list
@@ -135,7 +141,7 @@ class OrganizationAsyncCollectionHandler(OrganizationAsyncCollectionHandler_v1, 
                                     deleted_at: {type: string,
                                         description: "Deleted timestamp
                                         (service field)"}
-                                    created_at: {type: string,
+                                    created_at: {type: integer,
                                         description: "Creation timestamp
                                         (service field)"}
                                     pool_id: {type: string,
@@ -179,10 +185,9 @@ class OrganizationAsyncCollectionHandler(OrganizationAsyncCollectionHandler_v1, 
     def get_org_arguments(self, is_by_user):
         args = {}
         if not is_by_user:
-            args.update({'is_demo': self.get_arg('is_demo', bool, False)})
-            args.update(
-                {'with_shareable_bookings': self.get_arg(
-                    'with_shareable_bookings', bool, False)})
+            args.update({k: self.get_arg(k, bool, False) for k in [
+                'is_demo', 'with_shareable_bookings', 'with_connected_accounts'
+            ]})
         unexpected_args = list(filter(
             lambda x: x not in args.keys(), self.request.arguments.keys()))
         if unexpected_args:

@@ -90,7 +90,6 @@ def make_app(db_type, etcd_host, etcd_port, wait=False):
     config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
-        config_cl.install_certificates()
 
     db = DBFactory(db_type, config_cl).db
     if wait:

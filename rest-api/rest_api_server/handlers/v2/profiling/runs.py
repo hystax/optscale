@@ -113,6 +113,7 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:
@@ -120,7 +121,7 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
             404:
                 description: |
                     Not found:
-                    - OE0002: Organization not found
+                    - OE0002: Object not found
         security:
         - token: []
         """
@@ -211,6 +212,7 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:
@@ -291,13 +293,12 @@ class RunBreakdownItemHandler(RunAsyncItemHandler, ProfilingHandler):
                                 start: 1664954002
                                 end: 1664958763
                                 name: Calculating
-            'timestamp': time,
-            'milestone': milestone
             401:
                 description: |
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:

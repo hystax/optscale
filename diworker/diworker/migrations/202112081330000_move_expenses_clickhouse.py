@@ -51,7 +51,7 @@ class Migration(BaseMigration):
             expenses = expenses_collection.find(
                 {'cloud_account_id': {'$in': cloud_account_ids}}
             )
-            total_expenses = expenses.count()
+            total_expenses = expenses.count_documents()
             bulk = []
             total_migrated = 0
             LOG.info('Migrating expenses for org %s (%s/%s)...' % (

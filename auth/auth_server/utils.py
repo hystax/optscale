@@ -78,7 +78,7 @@ def pop_or_raise(object, key):
 
 
 def get_encryption_salt():
-    return Config().client.encryption_salt()
+    return Config().client.encryption_salt_auth()
 
 
 def hash_password(password, salt):

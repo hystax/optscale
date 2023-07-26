@@ -64,6 +64,7 @@ class SignInAsyncHandler(BaseAsyncCollectionHandler):
         data = self._request_body()
         data.update(url_params)
         data.update({'ip': self.get_ip_addr()})
+        data.update({'redirect_uri': self.request.headers.get('Origin')})
         await self._validate_params(**data)
         res = await run_task(self.controller.signin, **data)
         self.set_status(201)

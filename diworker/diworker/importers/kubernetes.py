@@ -105,12 +105,17 @@ class NodesProvider:
             dt.timestamp())
         for node_label in node_labels:
             metric = node_label.get('metric', {})
-            node_metrics[metric['node']] = {
-                'name': metric['node'],
-                'region': metric.get('label_topology_kubernetes_io_region'),
-                'flavor': metric.get('label_node_kubernetes_io_instance_type'),
-                'os_type': metric.get('label_kubernetes_io_os'),
-            }
+            node_name = metric['node']
+            node_metric = node_metrics.get(node_name, {})
+            for k, v in {
+                'name': 'node',
+                'region': 'label_topology_kubernetes_io_region',
+                'flavor': 'label_node_kubernetes_io_instance_type',
+                'os_type': 'label_kubernetes_io_os',
+            }.items():
+                if not node_metric.get(k):
+                    node_metric[k] = metric.get(v)
+            node_metrics[node_name] = node_metric
 
         node_capacities = self._cloud_adapter.get_metric(
             'last_over_time(kube_node_status_capacity{'
@@ -135,15 +140,25 @@ class NodesProvider:
             provider_id = metric.get('provider_id')
             node_metrics[metric['node']].update({'provider_id': provider_id})
 
+        prices_cache = {}
         for name, metric in node_metrics.items():
             node = Node(**metric, cost_model=self.default_cost_model,
                         hourly_price=self.default_hourly_price)
             if node.is_cloud_deployed:
-                _, res = self._insider_client.get_flavor_prices(
-                    cloud_type=node.provider, flavor=node.flavor,
-                    region=node.region, os_type=node.os_type
-                )
-                prices = res.get('prices', [])
+                key = (node.provider, node.flavor, node.region, node.os_type)
+                prices = prices_cache.get(key)
+                if list(filter(lambda x: not x, key)):
+                    node.flavor = None
+                    self._nodes[name] = node
+                    LOG.info('Changed cloud node %s to local' % node)
+                    continue
+                if not prices:
+                    _, res = self._insider_client.get_flavor_prices(
+                        cloud_type=node.provider, flavor=node.flavor,
+                        region=node.region, os_type=node.os_type
+                    )
+                    prices = res.get('prices', [])
+                    prices_cache[key] = prices
                 if not prices:
                     raise PriceCollectionException('Failed to find node %s price' % node)
                 node.cost_model = self._price_to_cost_model(prices[0])
@@ -151,6 +166,7 @@ class NodesProvider:
                 LOG.info('Detected cloud node %s. '
                          'Flavor based cost model will be used', node)
             else:
+                node.flavor = None
                 LOG.info('Detected local node %s. '
                          'Default cost model will be used', node)
             self._nodes[name] = node
@@ -350,8 +366,14 @@ class KubernetesReportImporter(BaseReportImporter):
             total_metrics = self.calculate_total_pods_metrics(resp)
             for r in resp:
                 node_name = r['metric']['instance']
-                node = self.nodes_provider.get(node_name)
-                for value_set in r['values']:
+                try:
+                    node = self.nodes_provider.get(node_name)
+                except NodeCollectionException:
+                    LOG.warning(
+                        'Skipping node %s for cloud_account %s. Not found' % (
+                            node_name, self.cloud_acc_id))
+                    continue
+                for value_set in r.get('values', []):
                     if len(chunk) == CHUNK_SIZE:
                         self.update_raw_records(chunk)
                         chunk = []

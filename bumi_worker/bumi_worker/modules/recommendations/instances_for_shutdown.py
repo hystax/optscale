@@ -12,7 +12,8 @@ HOURS_IN_DAY = 24
 SUPPORTED_CLOUD_TYPES = [
     'aws_cnr',
     'azure_cnr',
-    'alibaba_cnr'
+    'alibaba_cnr',
+    'nebius',
 ]
 
 LOG = logging.getLogger(__name__)
@@ -169,11 +170,13 @@ class InstancesForShutdown(AbandonedBase):
                     instance_id)
                 if not resource_inactivity_intervals:
                     continue
+                region = instance.get('region') or instance.get('meta', {}).get(
+                    'zone_id')
                 result_map[instance_id] = {
                     'resource_id': instance_id,
                     'resource_name': instance.get('name'),
                     'cloud_resource_id': instance['cloud_resource_id'],
-                    'region': instance['region'],
+                    'region': region,
                     'cloud_account_id': account['id'],
                     'cloud_type': account['type'],
                     'owner': self._extract_owner(

@@ -87,7 +87,7 @@ def _update_discovery_info(rest_cl, cloud_account_type, cloud_account_id,
 def process(config_cl):
     rest_cl = RestClient(url=config_cl.restapi_url(), verify=False,
                          secret=config_cl.cluster_secret())
-    _, response = rest_cl.organization_list()
+    _, response = rest_cl.organization_list({'with_connected_accounts': True})
     tasks_map = defaultdict(list)
     now = int(datetime.utcnow().timestamp())
     _, _, _, observe_timeout = config_cl.resource_discovery_params()

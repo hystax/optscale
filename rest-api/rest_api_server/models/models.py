@@ -12,13 +12,16 @@ from sqlalchemy.orm import validates
 
 from cloud_adapter.cloud import SUPPORTED_BILLING_TYPES
 from cloud_adapter.model import ResourceTypes
+from optscale_exceptions.common_exc import WrongArgumentsException
+from rest_api_server.exceptions import Err
 from rest_api_server.utils import (ModelEncoder, gen_id, now_timestamp,
-                                   encode_string, decode_config)
+                                   encode_string, decode_config,
+                                   decrypt_bi_meta)
 from rest_api_server.models.enums import (
     CloudTypes, ImportStates, RolePurposes,
     AssignmentRequestStatuses, ThresholdBasedTypes, ThresholdTypes,
     ConstraintTypes, PoolPurposes, ConstraintLimitStates,
-    OrganizationConstraintTypes)
+    OrganizationConstraintTypes, BIOrganizationStatuses, BITypes)
 from rest_api_server.models.types import (
     Email, Name, Uuid, NullableUuid, NullableMetadata, Int,
     NullableString, AutogenUuid, NullableBool, NullableText, NullableInt,
@@ -30,7 +33,7 @@ from rest_api_server.models.types import (
     CostModelType, WebhookObjectType, WebhookActionType,
     MediumNullableString, MediumString, MediumLargeNullableString,
     ConstraintLimitState, OrganizationConstraintType, ConstraintDefinition,
-    RunResult, Float)
+    RunResult, BIOrganizationStatus, BIType, Float)
 
 
 class PermissionKeys(Enum):
@@ -280,6 +283,10 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         nullable=True, info=ColumnPermissions.update_only)
     cleaned_at = Column(NullableInt('cleaned_at'), default=0, nullable=False,
                         info=ColumnPermissions.update_only)
+    parent_id = Column(
+        NullableUuid('parent_id'), ForeignKey('cloudaccount.id'),
+        nullable=True, info=ColumnPermissions.create_only)
+    parent = relationship("CloudAccount", remote_side='CloudAccount.id')
 
     __table_args__ = (
         UniqueConstraint("organization_id", "name", "deleted_at",
@@ -288,7 +295,7 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
                          'deleted_at', name="uc_account_type_org_id_del_at"),)
 
     @validates('name', 'type', 'organization_id', 'config', 'auto_import',
-               'import_period', 'last_import_at', 'account_id',
+               'import_period', 'last_import_at', 'account_id', 'parent_id',
                'last_import_modified_at', 'process_recommendations')
     def _validate_params(self, key, param):
         return self.get_validator(key, param)
@@ -309,7 +316,11 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     def to_dict(self, secure=False):
         cloud_acc_dict = super().to_dict()
         cloud_acc_dict['type'] = cloud_acc_dict['type'].value
-        config = self.decoded_config
+        if self.parent_id and self.parent and self.parent.deleted_at == 0:
+            config = self.parent.decoded_config
+            config.update(self.decoded_config)
+        else:
+            config = self.decoded_config
         if cloud_acc_dict.pop('cost_model_id', None):
             config['cost_model'] = self.cost_model.loaded_value
         if secure:
@@ -1431,6 +1442,34 @@ class TrafficProcessingTask(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         return self.get_validator(key, end_date)
 
 
+class RispProcessingTask(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
+    __tablename__ = 'risp_processing_task'
+
+    cloud_account_id = Column(
+        Uuid('cloud_account_id'), ForeignKey('cloudaccount.id'),
+        nullable=False, info=ColumnPermissions.create_only)
+    start_date = Column(Int('start_date'), nullable=False,
+                        info=ColumnPermissions.create_only)
+    end_date = Column(Int('end_date'), nullable=False,
+                      info=ColumnPermissions.create_only)
+
+    __table_args__ = (UniqueConstraint(
+        "cloud_account_id", "start_date", "end_date", "deleted_at",
+        name="uc_acc_id_start_end_deleted_at"),)
+
+    @validates('cloud_account_id')
+    def _validate_cloud_account_id(self, key, cloud_account_id):
+        return self.get_validator(key, cloud_account_id)
+
+    @validates('start_date')
+    def _validate_start_date(self, key, start_date):
+        return self.get_validator(key, start_date)
+
+    @validates('end_date')
+    def _validate_end_date(self, key, end_date):
+        return self.get_validator(key, end_date)
+
+
 class ProfilingToken(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     __tablename__ = 'profiling_token'
 
@@ -1438,6 +1477,8 @@ class ProfilingToken(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         Uuid('organization_id'), ForeignKey('organization.id'), nullable=False,
         info=ColumnPermissions.create_only)
     token = Column(NullableUuid('token'), nullable=False, default=gen_id)
+    infrastructure_token = Column(NullableUuid('infrastructure_token'),
+                                  nullable=False, default=gen_id)
     __table_args__ = (UniqueConstraint(
         "organization_id", "deleted_at", name="organization_deleted_at"),)
 
@@ -1448,3 +1489,86 @@ class ProfilingToken(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     @validates('organization_id')
     def _validate_organization_id(self, key, organization_id):
         return self.get_validator(key, organization_id)
+
+    def to_dict(self):
+        res = super().to_dict()
+        res.pop('infrastructure_token', None)
+        return res
+
+
+class OrganizationBI(CreatedMixin, ImmutableMixin, ValidatorMixin, Base):
+    __tablename__ = 'organization_bi'
+
+    organization_id = Column(Uuid('organization_id'),
+                             ForeignKey('organization.id'),
+                             nullable=False,
+                             info=ColumnPermissions.create_only)
+    type = Column(BIType('type'),
+                  nullable=False, info=ColumnPermissions.create_only)
+    name = Column(BaseString('name'), nullable=False,
+                  info=ColumnPermissions.full)
+    days = Column(Int('days'), nullable=False, info=ColumnPermissions.full)
+    last_run = Column(Int('last_run'), default=0,
+                      nullable=False, info=ColumnPermissions.update_only)
+    next_run = Column(Int('next_run'), default=now_timestamp,
+                      nullable=False, info=ColumnPermissions.update_only)
+    last_completed = Column(Int('last_completed'), default=0,
+                            nullable=False, info=ColumnPermissions.update_only)
+    status = Column(BIOrganizationStatus,
+                    default=BIOrganizationStatuses.ACTIVE,
+                    nullable=False, info=ColumnPermissions.update_only)
+    last_status_error = Column(NullableText('last_status_error'), nullable=True,
+                               info=ColumnPermissions.update_only)
+    meta = Column(NullableText('meta'), nullable=False,
+                  info=ColumnPermissions.full)
+
+    __table_args__ = (UniqueConstraint(
+        "organization_id", "name", "deleted_at",
+        name="uc_organization_id_name_deleted_at"),)
+
+    @hybrid_property
+    def unique_fields(self):
+        return ['organization_id', 'name']
+
+    @validates('organization_id', 'type', 'name', 'days', 'last_run',
+               'next_run', 'last_completed', 'status', 'meta',
+               'last_status_error')
+    def _validate(self, key, value):
+        return self.get_validator(key, value)
+
+    @staticmethod
+    def _get_files_paths(bi_id, bi_type, bi_meta):
+        files = []
+        for file_type in ['expenses', 'recommendations', 'resources']:
+            filename = '_'.join([bi_id, file_type]) + '.csv'
+            if bi_type == BITypes.AZURE_RAW_EXPORT.value:
+                path = '/'.join([bi_meta['storage_account'],
+                                 bi_meta['container'],
+                                 filename])
+            elif bi_type == BITypes.AWS_RAW_EXPORT.value:
+                if bi_meta.get('s3_path'):
+                    params = [bi_meta['bucket'], bi_meta['s3_path'], file_type,
+                              filename]
+                else:
+                    params = [bi_meta['bucket'], file_type, filename]
+                path = '/'.join(params)
+            else:
+                raise WrongArgumentsException(Err.OE0217, ['type'])
+            files.append(path)
+        return files
+
+    def to_dict(self, secure=False, with_files=False):
+        bi_dict = super().to_dict()
+        bi_dict['type'] = bi_dict['type'].value
+        bi_dict['meta'] = json.loads(decrypt_bi_meta(bi_dict['meta']))
+        if secure:
+            for k in ['connection_string', 'secret_access_key']:
+                bi_dict['meta'].pop(k, None)
+        if with_files:
+            bi_dict['files'] = self._get_files_paths(
+                bi_dict['id'], bi_dict['type'], bi_dict['meta'])
+        return bi_dict
+
+    def to_json(self, secure=True, with_files=False):
+        return json.dumps(self.to_dict(secure=secure, with_files=with_files),
+                          cls=ModelEncoder)

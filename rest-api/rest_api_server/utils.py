@@ -10,6 +10,7 @@ import hashlib
 import cryptocode
 from urllib.parse import urlencode
 from concurrent.futures import ThreadPoolExecutor
+from cryptography.fernet import Fernet
 from datetime import datetime
 from decimal import Decimal
 from string import ascii_letters, digits
@@ -21,6 +22,7 @@ from config_client.client import Client as ConfigClient
 from json_excel_converter import Converter as ExcelConverter
 from json_excel_converter.xlsx import (Writer as ExcelWriter,
                                        DEFAULT_COLUMN_WIDTH)
+from requests import HTTPError
 from sqlalchemy.exc import InternalError, DatabaseError
 
 from optscale_exceptions.common_exc import (WrongArgumentsException,
@@ -28,7 +30,7 @@ from optscale_exceptions.common_exc import (WrongArgumentsException,
                                             ConflictException,
                                             FailedDependency,
                                             ForbiddenException,
-                                            TimeoutException)
+                                            TimeoutException, UnauthorizedException)
 from optscale_exceptions.http_exc import OptHTTPError
 from pymongo.errors import BulkWriteError
 from cloud_adapter.exceptions import CloudAdapterBaseException
@@ -268,6 +270,14 @@ class Config(object):
     def arcee_url(self):
         return self.client.arcee_url()
 
+    @property
+    def bulldozer_url(self):
+        return self.client.bulldozer_url()
+
+    @property
+    def insider_url(self):
+        return self.client.insider_url()
+
 
 def humanize_storage_size(size, precision=2):
     suffixes = ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'ZB', 'YB')
@@ -320,9 +330,10 @@ def check_string(name, value):
         raise WrongArgumentsException(Err.OE0416, [name])
 
 
-def check_string_attribute(name, value, min_length=1, max_length=255):
+def check_string_attribute(name, value, min_length=1, max_length=255,
+                           check_length=True):
     check_string(name, value)
-    if not min_length <= len(value) <= max_length:
+    if check_length and not min_length <= len(value) <= max_length:
         count = ('max %s' % max_length if min_length == 0
                  else '%s-%s' % (min_length, max_length))
         raise WrongArgumentsException(Err.OE0215, [name, count])
@@ -702,6 +713,22 @@ def decode_config(encoded_str):
     return json.loads(cryptocode.decrypt(encoded_str, s))
 
 
+def get_bi_encryption_key():
+    return Config().client.read('/bi_settings/encryption_key').value.encode()
+
+
+def encrypt_bi_meta(value):
+    encryption_key = get_bi_encryption_key()
+    fernet = Fernet(encryption_key)
+    return fernet.encrypt(value.encode()).decode()
+
+
+def decrypt_bi_meta(value):
+    encryption_key = get_bi_encryption_key()
+    fernet = Fernet(encryption_key)
+    return fernet.decrypt(value.encode()).decode()
+
+
 class SupportedFiltersMixin(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -718,3 +745,23 @@ class SupportedFiltersMixin(object):
             'name_like', 'cloud_resource_id_like'
         ]
         self.int_filters = []
+
+
+def handle_http_exc(func):
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except HTTPError as ex:
+            # must not be raised in real world
+            if ex.response.status_code == 400:
+                # track possible difference in validation
+                raise WrongArgumentsException(
+                    Err.OE0287, [str(ex)])
+            elif ex.response.status_code == 401:
+                # track possible token related problems
+                raise UnauthorizedException(
+                    Err.OE0543, [str(ex)])
+            elif ex.response.status_code == 403:
+                raise ForbiddenException(Err.OE0234, [])
+            raise
+    return inner

@@ -34,10 +34,14 @@ class OrganizationOptionsController(BaseController):
         else:
             return options[0].value
 
-    def list(self, org_id):
+    def list(self, org_id, with_values=False):
         self.check_org(org_id)
         base_list = super().list(organization_id=org_id)
-        result = [obj.name for obj in base_list]
+        result = [
+            {
+                'name': obj.name, 'value': obj.value
+            } if with_values else obj.name for obj in base_list
+        ]
         return result
 
     def patch(self, org_id, option_name, data, is_secret=False):

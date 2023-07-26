@@ -785,6 +785,115 @@ class TestOptimizationsApi(TestApiBase):
         self.assertEqual(res['total_saving'], 0)
         self.assertEqual(res['id'], checklist_id)
 
+    @patch(GET_OPTIMIZATIONS_DATA)
+    def test_optimization_overview(self, p_get_optimizations_data):
+        _, res = self.client.optimizations_get(self.org_id)
+        checklist_id = res['id']
+
+        completed_at = int(datetime.utcnow().timestamp())
+        module1 = 'module1'
+        module2 = 'module2'
+        options1 = {'key1': 'value1'}
+        options2 = {'key2': 'value2'}
+        opt_data = [self.instance, self.instance2]
+        module_saving = self.instance['saving'] + self.instance2['saving']
+        p_get_optimizations_data.return_value = [
+            {
+                'created_at': completed_at,
+                'module': module1,
+                'organization_id': self.org_id,
+                'data': opt_data,
+                'options': options1
+            },
+            {
+                'created_at': completed_at,
+                'module': module2,
+                'organization_id': self.org_id,
+                'data': opt_data,
+                'options': options2
+            }
+        ]
+        self.client.checklist_update(
+            checklist_id, {'last_completed': completed_at,
+                           'last_run': completed_at})
+        code, res = self.client.optimizations_get(
+            self.org_id, overview=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(res['dismissed_optimizations'], {})
+        self.assertEqual(len(res['optimizations']), 2)
+        self.assertEqual(res['id'], checklist_id)
+        self.assertEqual(res['optimizations'][module1]['count'], len(opt_data))
+        self.assertEqual(res['optimizations'][module1]['saving'], module_saving)
+        self.assertEqual(res['optimizations'][module1]['items'],
+                         [self.instance, self.instance2])
+        self.assertEqual(res['optimizations'][module1]['options'], options1)
+        self.assertEqual(res['optimizations'][module2]['count'], len(opt_data))
+        self.assertEqual(res['optimizations'][module2]['saving'], module_saving)
+        self.assertEqual(res['optimizations'][module2]['items'],
+                         [self.instance, self.instance2])
+        self.assertEqual(res['optimizations'][module2]['options'], options2)
+        self.assertEqual(res['total_saving'], module_saving * 2)
+
+    @patch(GET_OPTIMIZATIONS_DATA)
+    def test_optimization_overview_limit(self, p_get_optimizations_data):
+        _, res = self.client.optimizations_get(self.org_id)
+        checklist_id = res['id']
+
+        completed_at = int(datetime.utcnow().timestamp())
+        module1 = 'module1'
+        module2 = 'module2'
+        options1 = {'key1': 'value1'}
+        options2 = {'key2': 'value2'}
+        opt_data = [self.instance, self.instance2]
+        module_saving = self.instance['saving'] + self.instance2['saving']
+        p_get_optimizations_data.return_value = [
+            {
+                'created_at': completed_at,
+                'module': module1,
+                'organization_id': self.org_id,
+                'data': opt_data,
+                'options': options1
+            },
+            {
+                'created_at': completed_at,
+                'module': module2,
+                'organization_id': self.org_id,
+                'data': opt_data,
+                'options': options2
+            }
+        ]
+        self.client.checklist_update(
+            checklist_id, {'last_completed': completed_at,
+                           'last_run': completed_at})
+        code, res = self.client.optimizations_get(
+            self.org_id, overview=True, limit=1)
+        self.assertEqual(code, 200)
+        self.assertEqual(res['dismissed_optimizations'], {})
+        self.assertEqual(len(res['optimizations']), 2)
+        self.assertEqual(res['id'], checklist_id)
+        self.assertEqual(res['optimizations'][module1]['count'], len(opt_data))
+        self.assertEqual(res['optimizations'][module1]['saving'], module_saving)
+        self.assertEqual(res['optimizations'][module1]['limit'], 1)
+        self.assertEqual(res['optimizations'][module1]['items'],
+                         [self.instance])
+        self.assertEqual(res['optimizations'][module1]['options'], options1)
+        self.assertEqual(res['optimizations'][module2]['count'], len(opt_data))
+        self.assertEqual(res['optimizations'][module2]['saving'], module_saving)
+        self.assertEqual(res['optimizations'][module2]['limit'], 1)
+        self.assertEqual(res['optimizations'][module2]['items'],
+                         [self.instance])
+        self.assertEqual(res['optimizations'][module2]['options'], options2)
+        self.assertEqual(res['total_saving'], module_saving * 2)
+
+    @patch(GET_OPTIMIZATIONS_DATA)
+    def test_optimization_overview_unexpected(self, p_get_optimizations_data):
+        p_get_optimizations_data.return_value = []
+        for extras in [{'types': ['module']}, {'status': 'smth'}]:
+            code, res = self.client.optimizations_get(
+                self.org_id, overview=True, **extras)
+            self.assertEqual(code, 400)
+            self.assertEqual(res['error']['error_code'], 'OE0212')
+
 
 class TestOptimizationDataApi(TestApiBase):
     def setUp(self, version='v2'):

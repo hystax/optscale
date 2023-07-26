@@ -53,8 +53,7 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
     def limit_optimization_data(optimization_data, limit):
         return sorted(
             optimization_data,
-            key=lambda x: x.get('saving', 0),
-            reverse=True
+            key=lambda x: (-x.get('saving', 0), -x.get('detected_at', 0)),
         )[:limit]
 
     @staticmethod
@@ -70,6 +69,16 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
             return DISMISSED_STATUS
         else:
             return ACTIVE_STATUS
+
+    @staticmethod
+    def _process_optimization_statuses(res, res_map, module):
+        if res_map.get(DISMISSED_STATUS):
+            res['dismissed_optimizations'][module] = res_map[DISMISSED_STATUS]
+        if res_map.get(EXCLUDED_STATUS):
+            res['excluded_optimizations'][module] = res_map[EXCLUDED_STATUS]
+        if res_map.get(ACTIVE_STATUS):
+            res['optimizations'][module] = res_map[ACTIVE_STATUS]
+            res['total_saving'] += res_map[ACTIVE_STATUS].get('saving', 0)
 
     def fill_optimization_group(self, group, cloud_account_ids, detailed,
                                 limit, status):
@@ -136,7 +145,7 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
                 Err.OE0002, [CloudAccount.__name__, diff.pop()])
 
     def get_optimizations(self, organization, types, cloud_account_ids,
-                          limit, status):
+                          limit, status, overview=False):
         if cloud_account_ids:
             self.check_cloud_accounts(organization.id, cloud_account_ids)
         types = {t: True for t in types}
@@ -147,15 +156,9 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
         for group in optimization_groups:
             module = group.get('module')
             res_map = self.fill_optimization_group(
-                group, cloud_account_ids, types.get(module, False), limit,
+                group, cloud_account_ids, types.get(module, False or overview), limit,
                 status)
-            if res_map.get(DISMISSED_STATUS):
-                res['dismissed_optimizations'][module] = res_map[DISMISSED_STATUS]
-            if res_map.get(EXCLUDED_STATUS):
-                res['excluded_optimizations'][module] = res_map[EXCLUDED_STATUS]
-            if res_map.get(ACTIVE_STATUS):
-                res['optimizations'][module] = res_map[ACTIVE_STATUS]
-                res['total_saving'] += res_map[ACTIVE_STATUS].get('saving', 0)
+            self._process_optimization_statuses(res, res_map, module)
         return res
 
     def get_optimization_data(self, organization, opt_type,

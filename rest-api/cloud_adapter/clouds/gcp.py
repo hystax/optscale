@@ -1,5 +1,6 @@
 from collections import defaultdict
 from functools import cached_property
+from concurrent.futures import ThreadPoolExecutor
 import datetime
 import hashlib
 import logging
@@ -740,12 +741,19 @@ class Gcp(CloudBase):
             )
         ]
 
-    def list_zones(self, region):
-        request = compute.ListZonesRequest(
-            project=self.project_id,
-            # search for zones whose names start with the desired region name
-            filter=f"name:{region}*",
-        )
+    @cached_property
+    def zones(self):
+        return self.list_zones()
+
+    def list_zones(self, region=None):
+        if region:
+            request = compute.ListZonesRequest(
+                project=self.project_id,
+                # search for zones whose names start with the desired region name
+                filter=f"name:{region}*",
+            )
+        else:
+            request = compute.ListZonesRequest(project=self.project_id)
         return [
             zone.name
             for zone in self.compute_zones_client.list(
@@ -755,10 +763,11 @@ class Gcp(CloudBase):
 
     @cached_property
     def region_to_zones_map(self):
-        result = {}
+        result = defaultdict(list)
         for region in self.regions:
-            zones = self.list_zones(region)
-            result[region] = zones
+            for zone in self.zones:
+                if zone.startswith(region):
+                    result[region].append(zone)
         return result
 
     @cached_property
@@ -890,17 +899,31 @@ class Gcp(CloudBase):
     # ADDRESS DISCOVERY
     ######################################################################################
 
+    def _discover_instances_ips(self, zone):
+        inst_gen = self.discover_zone_instances(zone)
+        return list(inst_gen)
+
     @cached_property
     def _public_ip_to_instance_id_map(self):
         result = {}
-        for region in self.regions:
-            for zone in self.region_zones(region):
-                for instance in self.discover_zone_instances(zone):
-                    for interface in instance.network_interfaces:
-                        for access_config in interface.access_configs:
-                            if access_config.type == "ONE_TO_ONE_NAT":
-                                address = access_config.nat_i_p
-                                result[address] = instance.id
+        futures = []
+        discovery_calls = [(self._discover_instances_ips, (z,)) for z in self.zones]
+        instances = []
+        with ThreadPoolExecutor(max_workers=self.MAX_PARALLEL_REQUESTS) as executor:
+            for call in discovery_calls:
+                futures.append(executor.submit(call[0], *call[1]))
+        for f in futures:
+            res = f.result()
+            if isinstance(res, Exception):
+                continue
+            elif res:
+                instances.extend(res)
+        for instance in instances:
+            for interface in instance.network_interfaces:
+                for access_config in interface.access_configs:
+                    if access_config.type == "ONE_TO_ONE_NAT":
+                        address = access_config.nat_i_p
+                        result[address] = instance.id
         return result
 
     def get_instance_id_for_address(self, address: compute.Address):

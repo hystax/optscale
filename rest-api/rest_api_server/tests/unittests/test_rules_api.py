@@ -1,4 +1,5 @@
 import copy
+import uuid
 from unittest.mock import patch, ANY, call
 
 from rest_api_server.tests.unittests.test_api_base import TestApiBase
@@ -2276,6 +2277,29 @@ class TestApplyRuleApi(TestRulesApiBase):
             call(rule['organization_id'], rule['id'], 'rule',
                  'rule_deactivated', ANY, 'rule.rule_deactivated',
                  add_token=True)])
+
+    @patch(AUTHORIZE_ACTION_METHOD)
+    def test_name_conditions_case_insensitive(self, p_authorize):
+        p_authorize.return_value = True
+        code, pool = self.client.pool_create(self.org_id, {'name': 'test_pool'})
+        for condition_name in ['name_is', 'name_contains', 'name_starts_with',
+                               'name_ends_with']:
+            expected_map = {
+                condition_name: {'pool_id': pool['id'],
+                                 'employee_id': self.employee['id']}}
+            conditions = [{"type": condition_name,
+                           "meta_info": condition_name.upper()}]
+            self._create_rule(name=condition_name, conditions=conditions,
+                              pool_id=pool['id'])
+            resources = {'resources': [{
+                'name': condition_name,
+                'cloud_resource_id': str(uuid.uuid4()),
+                'resource_type': 'test'
+            }]}
+            code, result = self.cloud_resource_create_bulk(
+                self.cloud_acc_id, resources, return_resources=True)
+            self.assertEqual(code, 200)
+            self._verify_assignments(result['resources'], expected_map)
 
 
 class TestRulesApplyApi(TestRulesApiBase):

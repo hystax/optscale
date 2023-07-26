@@ -16,7 +16,8 @@ class TestReportBase(tornado.testing.AsyncHTTPTestCase):
         self._db_session = None
 
     def get_app(self):
-        return make_app('127.0.0.1', 80, mockdb=True)
+        return make_app('127.0.0.1', 80,
+                        mongo_client_class=mongomock.MongoClient)
 
     @patch('report_server.server.MongoClient')
     @patch('config_client.client.Client')

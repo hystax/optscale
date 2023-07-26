@@ -153,7 +153,7 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
             409:
                 description: |
                     Conflict:
-                    - OE0002: Application is already exist
+                    - OE0534: Application is already exist
         security:
         - token: []
         """
@@ -297,7 +297,7 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
             404:
                 description: |
                     Not found:
-                    - OE0002: Organization not found
+                    - OE0002: Object not found
         security:
         - token: []
         """
@@ -460,6 +460,7 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:
@@ -467,7 +468,7 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             404:
                 description: |
                     Not found:
-                    - OE0002: Application not found
+                    - OE0002: Object not found
         security:
         - token: []
         """
@@ -582,18 +583,19 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     - OE0215: Wrong argument's length
                     - OE0217: Invalid query parameter
                     - OE0233: Incorrect body received
-            404:
-                description: |
-                    Not found:
-                    - OE0002: Object not found
-            403:
-                description: |
-                    Forbidden:
-                    - OE0003: Forbidden
             401:
                 description: |
                     Unauthorized:
                     - OE0235: Unauthorized
+                    - OE0543: External unauthorized
+            403:
+                description: |
+                    Forbidden:
+                    - OE0003: Forbidden
+            404:
+                description: |
+                    Not found:
+                    - OE0002: Object not found
         security:
         - token: []
         """
@@ -633,6 +635,7 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:

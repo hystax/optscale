@@ -1,0 +1,3 @@
+import MlRunsetTagForCreatedResourcesChip from "./MlRunsetTagForCreatedResourcesChip";
+
+export default MlRunsetTagForCreatedResourcesChip;

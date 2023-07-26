@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from rest_api_server.tests.unittests.test_api_base import TestApiBase
 from unittest.mock import patch, PropertyMock
@@ -9,12 +10,15 @@ from collections import defaultdict
 class TestProfilingBase(TestApiBase):
     def setUp(self, version='v2'):
         super().setUp(version)
-        patch('rest_api_server.controllers.profiling.'
-              'base.BaseProfilingController.arcee_client',
+        patch('rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.arcee_client',
               new_callable=PropertyMock,
               return_value=ArceeMock(self.mongo_client)).start()
-        patch('rest_api_server.controllers.profiling.'
-              'base.BaseProfilingController.get_secret').start()
+        patch('rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.bulldozer_client',
+              new_callable=PropertyMock).start()
+        patch('rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.get_secret').start()
 
     def _gen_executor(self, token, **kwargs):
         executor_id = kwargs.pop('_id', None)
@@ -94,9 +98,11 @@ class TestProfilingBase(TestApiBase):
         self.mongo_client.arcee.logs.insert_one(r)
         return r
 
-    def _create_proc_stats(self, run_id, time, instance_id, cpu_percent,
-                           used_ram_mb, proc_cpu_percent=None,
-                           proc_ram_in_bytes=None, **kwargs):
+    def _create_proc_stats(
+            self, run_id, time, instance_id, cpu_percent, used_ram_mb,
+            proc_cpu_percent=None, proc_ram_in_bytes=None, gpu_load=None,
+            gpu_memory_free=None, gpu_memory_total=None, gpu_memory_used=None,
+            **kwargs):
         proc_data = {
             '_id': str(uuid.uuid4()),
             'run_id': run_id,
@@ -109,10 +115,22 @@ class TestProfilingBase(TestApiBase):
                 }
             }
         }
+        gpu_stats = {}
+        for k, v in {
+            'avg_gpu_load': gpu_load,
+            'avg_gpu_memory_free': gpu_memory_free,
+            'avg_gpu_memory_total': gpu_memory_total,
+            'avg_gpu_memory_used': gpu_memory_used
+        }.items():
+            if v is not None:
+                gpu_stats[k] = v
+        proc_data['proc_stats'].update({
+            'gpu_stats': gpu_stats
+        })
         proc = {}
-        if proc_cpu_percent:
+        if proc_cpu_percent is not None:
             proc['cpu'] = proc_cpu_percent
-        if proc_ram_in_bytes:
+        if proc_ram_in_bytes is not None:
             proc['mem'] = {'vms': {'t': proc_ram_in_bytes}}
         proc_data['proc_stats'].update({
             'proc': proc
@@ -192,10 +210,11 @@ class ArceeMock:
             'name': name,
             'goals': goals,
             'token': self.token,
-            '_id': str(uuid.uuid4())
+            '_id': str(uuid.uuid4()),
+            'deleted_at': 0,
         }
         existing = list(self.profiling_application.find(
-            {'token': self.token, 'key': application_key}))
+            {'token': self.token, 'key': application_key, 'deleted_at': 0}))
         if existing:
             self._raise_http_error(409)
         inserted = self.profiling_application.insert_one(b)
@@ -206,14 +225,27 @@ class ArceeMock:
 
     def applications_get(self):
         applications = list(self.profiling_application.find(
-            {'token': self.token}))
+            {'token': self.token, 'deleted_at': 0}))
+        for a in applications:
+            self._join_application_goals(a)
+        return 200, applications
+
+    def applications_bulk_get(self, application_ids, include_deleted=False):
+        q = {
+            'token': self.token,
+            '_id': {'$in': application_ids},
+            'deleted_at': 0
+        }
+        if include_deleted:
+            q.pop('deleted_at')
+        applications = list(self.profiling_application.find(q))
         for a in applications:
             self._join_application_goals(a)
         return 200, applications
 
     def application_get(self, id: str):
         applications = list(self.profiling_application.find(
-            {'token': self.token, '_id': id}))
+            {'token': self.token, '_id': id, 'deleted_at': 0}))
         if not applications:
             self._raise_http_error(404)
         self._join_application_goals(applications[0])
@@ -237,16 +269,21 @@ class ArceeMock:
         self.profiling_application.update_one(
             filter={
                 '_id': application_id,
-                'token': self.token
+                'token': self.token,
+                'deleted_at': 0
             },
             update={'$set': b}
         )
         return 200, {'updated': True}
 
     def application_delete(self, id):
-        res = self.profiling_application.delete_one(
-            {'token': self.token, '_id': id})
-        if res.deleted_count == 0:
+        res = self.profiling_application.update_one(
+            {'token': self.token, '_id': id, 'deleted_at': 0},
+            {'$set': {
+                'deleted_at': int(datetime.datetime.utcnow().timestamp())
+            }}
+        )
+        if res.modified_count == 0:
             self._raise_http_error(404)
         return 204, None
 
@@ -316,14 +353,17 @@ class ArceeMock:
         return 204, None
 
     def executors_get(self, applications_ids=None, run_ids=None):
+        if not applications_ids and not run_ids:
+            self._raise_http_error(400)
         match = {
-            '$or': [
-                {'application_id': {'$in': applications_ids}}
-            ],
+            '$or': [],
             'token': self.token
         }
         if run_ids:
             match['$or'].append({'_id': {'$in': run_ids}})
+        if applications_ids:
+            match['$or'].append(
+                {'application_id': {'$in': applications_ids}})
         runs = self.profiling_runs.find(match)
         app_runs_map = defaultdict(list)
         for r in runs:
@@ -351,10 +391,18 @@ class ArceeMock:
                 self._raise_http_error(403)
         run = runs[0]
         self._join_run_executors(run)
-        application = list(self.profiling_application.find(
-            {'token': self.token, '_id': run['application_id']}))[0]
+        application = list(self.profiling_application.find({
+            'token': self.token, '_id': run['application_id'], 'deleted_at': 0
+        }))[0]
         run['application'] = application
         return 200, run
+
+    def runs_bulk_get(self, runset_ids=None):
+        runs_q = {'token': self.token}
+        if runset_ids:
+            runs_q['runset_id'] = {'$in': runset_ids}
+        runs = list(self.profiling_runs.find(runs_q))
+        return 200, runs
 
     def applications_runs_get(self, application_id):
         _, app = self.application_get(application_id)

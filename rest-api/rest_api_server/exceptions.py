@@ -815,9 +815,9 @@ class Err(enum.Enum):
          "cloud account 4dd93c56-0fa9-43ff-965c-0b83806b9dc2"]
     ]
     OE0519 = [
-        "Traffic processing task with time range %s - %s already exists for "
+        "%s processing task with time range %s - %s already exists for "
         "cloud account \"%s\"",
-        ["start_date", "end_date", "cloud_account_id"],
+        ["task_type", "start_date", "end_date", "cloud_account_id"],
         ['Traffic processing task with time range '
          '1609448400 - 1609534800 already exists for '
          'cloud account "e7471a7e-1cb7-4525-bf90-52e767e6acd4"']
@@ -827,10 +827,40 @@ class Err(enum.Enum):
         ["comma separated precisions"],
         ["Precision should be one of 1, 2, 3"]
     ]
+    OE0521 = [
+        "Invalid state transition from %s to %s",
+        ['state', 'state'],
+        ['ACTIVE', 'FAILED']
+    ]
     OE0522 = [
         "%s should be empty dict",
         ['last_run_result'],
         ['last_run_result should be empty dict']
+    ]
+    OE0523 = [
+        "%s must be empty for %s status",
+        ["propery", "status"],
+        ["last_error_code must be empty for SUCCESS status"]
+    ]
+    OE0524 = [
+        "Max number of users (%s) has been already reached ",
+        ["max_user_count"],
+        ["Max number of users (5) has been already reached "]
+    ]
+    OE0525 = [
+        "%s must be not empty for %s status",
+        ["propery", "status"],
+        ["last_error_code must be not empty for FAILED status"]
+    ]
+    OE0526 = [
+        "Profiling token already exists in organization %s",
+        ["Organization uuid"],
+        ["5c9c947b-8833-474d-a2f1-c99758196c76"]
+    ]
+    OE0527 = [
+        "Profiling token not found for %s %s",
+        ["Object type", "object uuid"],
+        ["organization", "5c9c947b-8833-474d-a2f1-c99758196c76"]
     ]
     OE0528 = [
         "Cannot use organization_id with cloud_account_id",
@@ -863,16 +893,6 @@ class Err(enum.Enum):
         ["cloud_account_type"],
         ["invalid"]
     ]
-    OE0526 = [
-        "Profiling token already exists in organization %s",
-        ["Organization uuid"],
-        ["5c9c947b-8833-474d-a2f1-c99758196c76"]
-    ]
-    OE0527 = [
-        "Profiling token not found for organization %s",
-        ["Organization uuid"],
-        ["5c9c947b-8833-474d-a2f1-c99758196c76"]
-    ]
     OE0534 = [
         "Application with key \"%s\" is already exist",
         ['Application key'],
@@ -887,4 +907,54 @@ class Err(enum.Enum):
         "Currency %s is not supported",
         ["currency"],
         ["BRL"]
+    ]
+    OE0537 = [
+        "Template %s can't be deleted because of existing runsets",
+        ['template_id'],
+        ["a3706242-47a9-4e55-b7ab-b9f58fa9ec31"]
+    ]
+    OE0538 = [
+        "Runset %s should be one of %s",
+        ['param', "comma separated value"],
+        ['Runset instance_type should be one of m5, m1']
+    ]
+    OE0539 = [
+        "Runset %s should be %s",
+        ["param", "value"],
+        ['Runset name_prefix should be "test_"']
+    ]
+    OE0540 = [
+        "Unfilled or undefined hyperparameters %s",
+        ["param"],
+        ['Unfilled or undefined hyperparameters MODEL_URL, LEARNING_RATE']
+    ]
+    OE0541 = [
+        '%s should be less than %s',
+        ['param', 'value'],
+        ['budget should be less than 1234']
+    ]
+    OE0542 = [
+        'Instance types %s are unsupported on regions %s',
+        ['comma separaated instance types', 'comma separated regions'],
+        ['m2, t5', 'us-east-1, eu-central-1']
+    ]
+    OE0543 = [
+        "Unauthorized: %s",
+        ['reason'],
+        ['Token not found']
+    ]
+    OE0544 = [
+        "Runset %s state transition %s is not allowed",
+        ['runset_id', 'state'],
+        ["a3706242-47a9-4e55-b7ab-b9f58fa9ec31", '3']
+    ]
+    OE0545 = [
+        "Action %s is not supported",
+        ['state'],
+        ['power off']
+    ]
+    OE0546 = [
+        "Parameter %s is not supported for type %s",
+        ['param', 'bi_type'],
+        ['key', 'AWS_RAW_EXPORT']
     ]

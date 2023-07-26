@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  web:
+    build:
+      args:
+        - NODE_ENV=development
+      context: .
+    env_file:
+      - ui/.env
+      - server/.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      redis:
+        condition: service_started
+  redis:
+    image: "redis:7.0.9"

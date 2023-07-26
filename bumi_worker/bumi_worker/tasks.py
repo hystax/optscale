@@ -250,9 +250,10 @@ class SetSucceededNotifiable(SetSucceeded):
 
     def _execute(self):
         failed_modules = self.get_failed_modules()
-        if failed_modules:
-            self.send_modules_fail_service_email(self.body['organization_id'],
-                                                 failed_modules)
+        # TODO: OS-6259: temporary mute service email
+        # if failed_modules:
+        #     self.send_modules_fail_service_email(self.body['organization_id'],
+        #                                          failed_modules)
         super()._execute()
 
 
@@ -580,7 +581,8 @@ class SetFailedNotifiable(SetFailed):
         if failed_modules:
             msg += 'Failed modules: %s' % self.get_failed_modules()
         LOG.error(msg)
-        self.send_failure_service_email(
-            self.body['organization_id'], self.body.get('reason'),
-            failed_modules)
+        # TODO: OS-6259: temporary mute service email
+        # self.send_failure_service_email(
+        #     self.body['organization_id'], self.body.get('reason'),
+        #     failed_modules)
         super()._execute()

@@ -3,6 +3,7 @@ from diworker.importers.azure import AzureReportImporter
 from diworker.importers.kubernetes import KubernetesReportImporter
 from diworker.importers.alibaba import AlibabaReportImporter
 from diworker.importers.gcp import GcpReportImporter
+from diworker.importers.nebius import NebiusReportImporter
 from diworker.importers.environment import EnvironmentReportImporter
 
 REPORT_IMPORTER_TYPES = {
@@ -11,6 +12,7 @@ REPORT_IMPORTER_TYPES = {
     'kubernetes_cnr': KubernetesReportImporter,
     'alibaba_cnr': AlibabaReportImporter,
     'gcp_cnr': GcpReportImporter,
+    'nebius': NebiusReportImporter,
     'environment': EnvironmentReportImporter
 }
 
