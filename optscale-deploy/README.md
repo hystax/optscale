@@ -24,6 +24,7 @@ cd optscale/optscale-deploy
 
 #### Preparing virtual environment
 Run the following commands:
+
 ```
 python3 -m venv .venv
 source .venv/bin/activate
@@ -89,6 +90,7 @@ In case of the following error during cluster initialization:
 ```
 requests.exceptions.ConnectionError: HTTPConnectionPool(host='172.22.24.157', port=2376): Max retries exceeded with url: /v1.35/auth (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f73ca7c3340>: Failed to establish a new connection: [Errno 111] Connection refused'))
 ```
+
 check the docker port is opened:
 ```
 sudo netstat -plnt | grep 2376
