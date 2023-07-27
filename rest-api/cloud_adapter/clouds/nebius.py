@@ -691,6 +691,14 @@ class Nebius(S3CloudMixin):
                                 platform_name = name
                     network_id = subnet_network_id_map.get(item.subnet_id)
                     network_name = network_id_name_map.get(network_id)
+
+                    # services property may be empty if cluster is stopped, set
+                    # rds service name as category
+                    category = rds_service.service_type.upper()
+                    if item.services:
+                        category = item.services[0].Type.Name(
+                            item.services[0].type)
+
                     resource = RdsInstanceResource(
                         cloud_resource_id=item.name,
                         cloud_account_id=self.cloud_account_id,
@@ -699,7 +707,7 @@ class Nebius(S3CloudMixin):
                         flavor=flavor_id,
                         zone_id=item.zone_id,
                         storage_type=item.resources.disk_type_id,
-                        category=item.services[0].Type.Name(item.services[0].type),
+                        category=category,
                         source_cluster_id=item.cluster_id,
                         platform_name=platform_name,
                         vpc_id=network_id,

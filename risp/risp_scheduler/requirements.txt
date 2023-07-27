@@ -1,0 +1,4 @@
+config-client==1.0.145
+kombu==4.6.8
+pyyaml==5.3.1
+restapi-client==1.0.729

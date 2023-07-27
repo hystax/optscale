@@ -1,0 +1,8 @@
+aiohttp==3.8.1
+sanic==22.6.2
+motor==3.0.0
+websockets==10.4
+aconfig-cl==0.0.4
+config_client==1.0.122
+kombu==4.6.8
+insider_client==0.0.24
