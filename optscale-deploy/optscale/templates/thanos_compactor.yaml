@@ -1,0 +1,136 @@
+{{- $config := .Values.thanos_compactor -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.httpExternalPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ $config.name }}
+  labels:
+    type: local
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: {{ $config.name }}
+spec:
+  storageClassName: {{ $config.name }}
+  capacity:
+    storage: {{ $config.dataSize }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: "/acura/{{ $config.name }}"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ $config.name }}-claim
+spec:
+  storageClassName: {{ $config.name }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $config.dataSize }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    release: {{ $.Release.Name }}
+spec:
+  concurrencyPolicy: {{ $config.cronJob.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ $config.cronJob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $config.cronJob.failedJobsHistoryLimit }}
+  schedule: "{{ $config.cronJob.schedule }}"
+  startingDeadlineSeconds: {{ $config.cronJob.startingDeadlineSeconds }}
+  suspend: {{ $config.cronJob.suspend }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ $.Release.Name }}
+    spec:
+      backoffLimit: {{ $config.cronJob.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            app: {{ $config.name }}
+            release: {{ $.Release.Name }}
+        spec:
+          initContainers:
+{{ include "wait_for_service" .Values.minio | indent 10 }}
+          containers:
+          - name: compact
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            imagePullPolicy: {{ $config.image.pullPolicy }}
+            command:
+              - thanos
+            args:
+              - compact
+              - --log.level=info
+              - --http-address=0.0.0.0:10902
+              - --consistency-delay={{ $config.consistencyDelay }}
+              - --objstore.config-file=/var/thanos/config/thanos_conf.yaml
+              - --data-dir=/var/thanos/data
+              - --delete-delay={{ $config.deleteDelay }}
+              - --retention.resolution-raw={{ $config.retentionResolutionRaw }}
+              - --retention.resolution-5m={{ $config.retentionResolution5m }}
+              - --retention.resolution-1h={{ $config.retentionResolution1h }}
+              - --compact.enable-vertical-compaction
+            ports:
+              - containerPort: 10902
+                name: http
+                protocol: TCP
+            livenessProbe:
+              httpGet:
+                path: /-/healthy
+                port: http
+              initialDelaySeconds: 30
+              timeoutSeconds: 30
+              periodSeconds: 10
+              successThreshold: 1
+              failureThreshold: 6
+            readinessProbe:
+              httpGet:
+                path: /-/ready
+                port: http
+              initialDelaySeconds: 30
+              timeoutSeconds: 30
+              periodSeconds: 10
+              successThreshold: 1
+              failureThreshold: 6
+            volumeMounts:
+              - name: data
+                mountPath: /var/thanos/data
+              - name: config
+                mountPath: /var/thanos/config
+                readOnly: true
+          volumes:
+            - name: config
+              secret:
+                secretName: thanos-secret
+                items:
+                  - key: thanos_conf.yaml
+                    path: thanos_conf.yaml
+            - name: data
+              persistentVolumeClaim:
+                claimName: {{ $config.name }}-claim
+          restartPolicy: Never

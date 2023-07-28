@@ -1,10 +1,11 @@
 FROM acura-dr.dts.loc/optscale_python:94098b67b949e2fabcc2404becf90a25f77496e6
+MAINTAINER Hystax
 
 WORKDIR /src
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY scheduler.py worker.py ./
+COPY failed_imports_dataset_generator.py .
 
-CMD ["python3", "/src/worker.py"]
+CMD ["python", "/src/failed_imports_dataset_generator.py"]

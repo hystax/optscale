@@ -1,4 +1,4 @@
-{{- $config := .Values.thanos_storegateway -}}
+{{- $config := .Values.thanos_web -}}
 ---
 apiVersion: v1
 kind: Service
@@ -14,43 +14,9 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-    - port: {{ $config.service.grpcExternalPort }}
-      targetPort: grpc
-      protocol: TCP
-      name: grpc
   selector:
     app: {{ $config.name }}
     release: {{ .Release.Name }}
----
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: {{ $config.name }}
-  labels:
-    type: local
-  annotations:
-    volume.alpha.kubernetes.io/storage-class: {{ $config.name }}
-spec:
-  storageClassName: {{ $config.name }}
-  capacity:
-    storage: {{ $config.dataSize }}
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Recycle
-  hostPath:
-    path: "/acura/{{ $config.name }}"
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: {{ $config.name }}-claim
-spec:
-  storageClassName: {{ $config.name }}
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ $config.dataSize }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -60,7 +26,7 @@ metadata:
     app: {{ $config.name }}
     release: {{ .Release.Name }}
 spec:
-  replicas: {{ $config.replicaCount }}
+  replicas: 1
   podManagementPolicy: OrderedReady
   serviceName: {{ $config.service.name }}
   selector:
@@ -79,23 +45,20 @@ spec:
 {{- end }}
 {{ include "wait_for_service" .Values.minio | indent 6 }}
       containers:
-        - name: storegateway
+        - name: web
           image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
           imagePullPolicy: "{{ $config.image.pullPolicy }}"
           command:
             - thanos
           args:
-            - store
-            - --grpc-address=0.0.0.0:10901
-            - --http-address=0.0.0.0:10902
-            - --ignore-deletion-marks-delay={{ $config.ignoreDeletionMarksDelay }}
+            - tools
+            - bucket
+            - web
+            - --http-address=0.0.0.0:{{ $config.httpPort }}
             - --objstore.config-file=/var/thanos/config/thanos_conf.yaml
-            - --data-dir=/var/thanos/data
+            - --refresh={{ $config.refreshInterval }}
           ports:
-            - containerPort: 10901
-              name: grpc
-              protocol: TCP
-            - containerPort: 10902
+            - containerPort: {{ $config.httpPort }}
               name: http
               protocol: TCP
           livenessProbe:
@@ -117,8 +80,6 @@ spec:
             successThreshold: 1
             failureThreshold: 6
           volumeMounts:
-            - name: data
-              mountPath: /var/thanos/data
             - name: config
               mountPath: /var/thanos/config
               readOnly: true
@@ -129,6 +90,3 @@ spec:
             items:
               - key: thanos_conf.yaml
                 path: thanos_conf.yaml
-        - name: data
-          persistentVolumeClaim:
-            claimName: {{ $config.name }}-claim
