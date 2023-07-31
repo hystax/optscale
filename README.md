@@ -1,10 +1,10 @@
-# OptScale - FinOps and MLOps open source platform to run ML/AI or any type of workloads with optimal performance and infrastructure cost
+# OptScale - MLOps & FinOps open source platform to run ML/AI or any workloads with optimal performance and infrastructure cost
 
 <p align="center">
 <a href="documentation/images/cover_github.png"><img src="documentation/images/cover_github.png" width="60%" align="middle"></a>
 </p>
 
-FinOps & cloud cost optimization combined with MLOps and performance optimization. Built for ML/AI, Big Data, CI/CD and regular workloads.
+MLOps and FinOps combined with cloud cost and performance optimization. Built for ML/AI, Big Data, CI/CD and regular workloads.
 OptScale ensures complete cloud cost transparency, improves resource utilization, identifies wastage, and provides countless real-time cost optimization recommendations. 
 
 You can check out OptScale [live demo](https://my.optscale.com/live-demo) to explore product features on a pre-generated demo organization.
