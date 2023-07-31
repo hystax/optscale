@@ -799,3 +799,58 @@ class TestObserver(TestApiBase):
             call(self.org_id, resource2['id'], 'resource',
                  'env_active_state_changed', meta,
                  'alert.violation.env_change')])
+
+    def test_policy_constraint_limit_hit(self):
+        patch('rest_api_server.controllers.limit_hit.LimitHitsController.'
+              'send_alerts').start()
+        code, pool = self.client.pool_create(
+            self.org_id, {'name': 'pool1'})
+        self.assertEqual(code, 201)
+        resource = InstanceResource(
+            cloud_resource_id='i-aaa',
+            cloud_account_id=self.cloud_acc_id,
+        )
+        res = self.resource_discovery_call([resource])[0]
+        self.resources_collection.update_one(
+            filter={'_id': res['id']},
+            update={'$set': {'employee_id': self.employee['id'],
+                             'pool_id': pool['id'],
+                             'first_seen': 1}})
+        today = datetime.utcnow().replace(hour=0, minute=0, second=0,
+                                          microsecond=0)
+        self.expenses.append({
+            'cost': 99.1234,
+            'cloud_account_id': self.cloud_acc_id,
+            'resource_id': res['id'],
+            'date': today,
+            'sign': 1,
+        })
+        self.update_resource_info_by_expenses([res['id']])
+        code, constraint = self.client.pool_policy_create(
+            pool['id'], {'limit': 1, 'type': 'daily_expense_limit'})
+        self.assertEqual(code, 201)
+        code, _ = self.client.process_resource_violations(self.org_id)
+        self.assertEqual(code, 204)
+        code, hits = self.client.resource_limit_hits_list(res['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(len(hits['limit_hits']), 1)
+        self.assertEqual(hits['limit_hits'][0]['state'], 'red')
+        self.assertEqual(hits['limit_hits'][0]['pool_id'], pool['id'])
+        self.assertEqual(hits['limit_hits'][0]['type'], 'daily_expense_limit')
+
+        with freeze_time(today):
+            code, constraint = self.client.resource_constraint_create(
+                res['id'], {'limit': int(today.timestamp()) + 10,
+                            'type': 'ttl'})
+        self.assertEqual(code, 201)
+        code, _ = self.client.process_resource_violations(self.org_id)
+        self.assertEqual(code, 204)
+        code, hits = self.client.resource_limit_hits_list(res['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(len(hits['limit_hits']), 2)
+        self.assertEqual(hits['limit_hits'][0]['state'], 'red')
+        self.assertEqual(hits['limit_hits'][0]['pool_id'], pool['id'])
+        self.assertEqual(hits['limit_hits'][0]['type'], 'daily_expense_limit')
+        self.assertEqual(hits['limit_hits'][1]['state'], 'red')
+        self.assertIsNone(hits['limit_hits'][1]['pool_id'])
+        self.assertEqual(hits['limit_hits'][1]['type'], 'ttl')

@@ -1,6 +1,7 @@
 import datetime
 import logging
 import re
+from sqlalchemy.sql import func
 
 from config_client.client import etcd
 from optscale_exceptions.common_exc import (WrongArgumentsException,
@@ -16,7 +17,7 @@ from zoho_integrator.registered_app import RegisteredApp
 from auth_server.controllers.base import BaseController
 from auth_server.controllers.base_async import BaseAsyncControllerWrapper
 from auth_server.exceptions import Err
-from auth_server.models.models import User, gen_salt, Type
+from auth_server.models.models import User, gen_salt, Type, Token
 from auth_server.utils import (check_action, hash_password, is_email_format,
                                get_input, check_string_attribute,
                                check_bool_attribute, is_hystax_email, is_demo_email)
@@ -265,13 +266,26 @@ class UserController(BaseController):
         return queryset, resources_info
 
     def get_bulk_users(self, user_ids, **kwargs):
-        query = self.session.query(self.model_type).filter(and_(
+        query = self.session.query(
+            self.model_type, func.max(Token.created_at)
+        ).outerjoin(
+            Token, Token.user_id == self.model_type.id
+        ).filter(and_(
             self.model_type.deleted.is_(False),
             self.model_type.id.in_(user_ids)
-        ))
+        )).group_by(
+            self.model_type.id
+        )
         if len(kwargs) > 0:
             query = query.filter_by(**kwargs)
-        return query.all()
+        result = []
+        for user_obj, last_dt in query.all():
+            if not user_obj:
+                continue
+            user = user_obj.to_dict()
+            user['last_login'] = int(last_dt.timestamp()) if last_dt else 0
+            result.append(user)
+        return result
 
 
 class UserAsyncController(BaseAsyncControllerWrapper):

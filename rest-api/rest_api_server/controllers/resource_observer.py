@@ -10,10 +10,11 @@ from rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api_server.controllers.cloud_resource_discover import CloudResourceDiscover
 from rest_api_server.controllers.limit_hit import LimitHitsController
 from rest_api_server.controllers.pool import PoolController
+from rest_api_server.controllers.cloud_account import CloudAccountController
 from rest_api_server.controllers.pool_alert import PoolAlertController
 from rest_api_server.controllers.shareable_resource import ShareableBookingController
 from rest_api_server.exceptions import Err
-from rest_api_server.models.enums import ThresholdBasedTypes
+from rest_api_server.models.enums import ThresholdBasedTypes, CloudTypes
 from rest_api_server.models.models import (Organization, CloudAccount,
                                            ShareableBooking)
 from rest_api_server.utils import (raise_does_not_exist_exception,
@@ -79,6 +80,11 @@ class ResourceObserverController(BaseController, MongoMixin):
                 Err.OE0002, [Organization.__name__, organization_id])
         cloud_accounts_map = {}
         for cloud_account in self._get_cloud_accounts(organization_id):
+            if cloud_account.type == CloudTypes.AZURE_TENANT:
+                CloudAccountController(
+                    self.session, self._config, self.token
+                ).create_children_accounts(cloud_account)
+                continue
             cloud_accounts_map[cloud_account.id] = cloud_account
         cloud_account_ids = list(cloud_accounts_map.keys())
         if not cloud_account_ids:

@@ -156,6 +156,11 @@ class ModuleBase(ServiceBase):
     def unique_record_keys(self):
         return 'cloud_account_id', 'cloud_resource_id',
 
+    def get_organization_currency(self):
+        _, organization = self.rest_client.organization_get(
+            self.organization_id)
+        return organization.get('currency', 'USD')
+
     def get_employees(self):
         _, response = self.rest_client.employee_list(self.organization_id)
         return {x['id']: x for x in response['employees']}

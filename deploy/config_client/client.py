@@ -249,6 +249,13 @@ class Client(etcd.Client):
         """
         return self._get_url_from_branch('/arcee')
 
+    def bulldozer_url(self):
+        """
+        Url for bulldozer client
+        :return: 'http://<cluster_ip>:80'
+        """
+        return self._get_url_from_branch('/bulldozer_api')
+
     def katara_url(self):
         """
         Url for katara client
@@ -508,7 +515,6 @@ class Client(etcd.Client):
         blacklist_branch = 'domains_blacklists'
         return self.read_list("/{0}/{1}".format(blacklist_branch,
                                                 blacklist_key))
-
     def thanos_remote_write_url(self):
         """
         Url to send prometheus metrics
@@ -523,3 +529,21 @@ class Client(etcd.Client):
         :return: 'http://<cluster_ip>:<port>'
         """
         return self._get_url_from_branch('/thanos_query')
+
+    def encryption_salt(self):
+        """
+        Salt for encode user information
+        """
+        return self.get("/encryption_salt").value
+
+    def encryption_salt_auth(self):
+        """
+        Salt for encode auth information
+        """
+        return self.get("/encryption_salt_auth").value
+
+    def bi_settings(self):
+        """
+        Get settings for bi scheduler and exporter
+        """
+        return self.read_branch('/bi_settings')

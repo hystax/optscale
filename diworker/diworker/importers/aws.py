@@ -9,19 +9,20 @@ import uuid
 import zipfile
 from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
-from diworker.importers.base import BaseReportImporter
+
 from diworker.constants import AWS_PARQUET_CSV_MAP
+from diworker.importers.base import CSVBaseReportImporter
 
 import pyarrow.parquet as pq
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 500
 GZIP_ENDING = '.gz'
-IGNORE_EXPENSE_TYPES = ['Credit', 'SavingsPlanNegation']
+IGNORE_EXPENSE_TYPES = ['Credit']
 tag_prefixes = ['resource_tags_aws_', 'resource_tags_user_']
 
 
-class AWSReportImporter(BaseReportImporter):
+class AWSReportImporter(CSVBaseReportImporter):
     ITEM_TYPE_ID_FIELDS = {
         'Tax': ['lineItem/TaxType', 'product/ProductName'],
         'Usage': ['lineItem/ProductCode', 'lineItem/Operation',
@@ -31,38 +32,16 @@ class AWSReportImporter(BaseReportImporter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.billing_periods = set()
-        self.detected_cloud_accounts = set()
-        self.detected_cloud_accounts.add(self.cloud_acc_id)
-        self.reports_dir = str(uuid.uuid4())
-        os.makedirs(self.reports_dir)
-        self.report_files = defaultdict(list)
-        self.last_import_modified_at = self.cloud_acc.get(
-            'last_import_modified_at', 0)
         self.main_resources_product_family_map = {
             'Bucket': ['Storage', 'Data Transfer', 'Fee'],
             'Instance': ['Compute Instance', 'Stopped Instance'],
             'Snapshot': ['Storage Snapshot'],
-            'Volume': ['Storage']
+            'Volume': ['Storage'],
+            'Savings Plan': [],
+            'Reserved Instances': []
         }
         self.import_start_ts = int(datetime.utcnow().timestamp())
         self.current_billing_period = None
-
-    def prepare(self):
-        if self.import_file is not None:
-            self.download_from_object_store()
-        else:
-            self.download_from_cloud()
-        self.unpack_report_files()
-
-    def get_new_report_path(self, date=''):
-        return os.path.join(self.reports_dir, date, str(uuid.uuid4()))
-
-    def download_from_object_store(self):
-        bucket, filename = self.import_file.split('/')
-        self.report_files['reports'] = [self.get_new_report_path()]
-        with open(self.report_files['reports'][0], 'wb') as f_report:
-            self.s3_client.download_fileobj(bucket, filename, f_report)
 
     @staticmethod
     def unzip_report(report_path, dest_dir):
@@ -117,57 +96,6 @@ class AWSReportImporter(BaseReportImporter):
             self.report_files[date] = [
                 self.unpack_report(r, date) for r in self.report_files[date]]
 
-    def cleanup(self):
-        shutil.rmtree(self.reports_dir, ignore_errors=True)
-        if self.import_file:
-            bucket, filename = self.import_file.split('/')
-            self.s3_client.delete_object(Bucket=bucket, Key=filename)
-
-    def download_from_cloud(self):
-        current_reports = defaultdict(list)
-        reports_groups = self.cloud_adapter.get_report_files()
-        if self.last_import_modified_at <= 0:
-            last_import_modified_at = datetime.min.replace(
-                tzinfo=timezone.utc)
-            LOG.info('Decided to download latest reports set')
-            current_reports = defaultdict(list)
-            report_groups_keys = list(reports_groups.keys())
-            report_groups_keys.sort()
-            # to get reports for the current and three previous months
-            num_last_reports = 4 if self.need_extend_report_interval else 1
-            report_groups_keys = report_groups_keys[-num_last_reports:]
-            for key in report_groups_keys:
-                current_reports[key].extend(reports_groups[key])
-        else:
-            last_import_modified_at = datetime.fromtimestamp(
-                self.last_import_modified_at, tz=timezone.utc)
-            for date, reports in reports_groups.items():
-                for report in reports:
-                    if report.get('LastModified') > last_import_modified_at:
-                        current_reports[date].extend(reports)
-                        break
-            LOG.info('Selected %s reports', len(current_reports))
-
-        for date, reports in current_reports.items():
-            for report in reports:
-                if last_import_modified_at < report['LastModified']:
-                    last_import_modified_at = report['LastModified']
-                target_path = self.get_new_report_path(date)
-                os.makedirs(os.path.join(self.reports_dir, date),
-                            exist_ok=True)
-                try:
-                    # python2 way
-                    with open(target_path, 'wb') as f_report:
-                        self.cloud_adapter.download_report_file(report['Key'],
-                                                                f_report)
-                except TypeError:
-                    # python3 way
-                    with open(target_path, 'w') as f_report:
-                        self.cloud_adapter.download_report_file(report['Key'],
-                                                                f_report)
-                self.report_files[date].append(target_path)
-        self.last_import_modified_at = int(last_import_modified_at.timestamp())
-
     @staticmethod
     def get_unique_field_list(include_date=True):
         # todo: if this is not enough, we may lose data on raw import
@@ -200,11 +128,28 @@ class AWSReportImporter(BaseReportImporter):
             'lineItem/UnblendedRate',
             'lineItem/UnblendedCost',
             'lineItem/UsageEndDate',
+            'lineItem/UsageAmount',
+            'savingsPlan/SavingsPlanEffectiveCost',
+            'reservation/EffectiveCost',
+            'pricing/publicOnDemandCost',
             'end_date',
             'cost',
             'report_identity',
             '_rec_n'
         ]
+
+    def get_current_reports(self, reports_groups, last_import_modified_at):
+        current_reports = defaultdict(list)
+        reports_count = 0
+        for date, reports in reports_groups.items():
+            for report in reports:
+                if report.get('LastModified', -1) > last_import_modified_at:
+                    # use all reports for month
+                    current_reports[date].extend(reports)
+                    reports_count += len(reports)
+                    break
+        LOG.info('Selected %s reports', reports_count)
+        return current_reports
 
     def get_raw_upsert_filters(self, expense):
         filters = super().get_raw_upsert_filters(expense)
@@ -280,6 +225,27 @@ class AWSReportImporter(BaseReportImporter):
             row['report_identity'] = self.report_identity
         super().update_raw_records(chunk)
 
+    @staticmethod
+    def _is_flavor_usage(expense):
+        usage_type = expense.get('lineItem/UsageType', '')
+        service_code = expense.get('product/servicecode', '')
+        description = expense.get('lineItem/LineItemDescription', '')
+        return ((service_code == 'AmazonECS' and 'Fargate' in usage_type) or
+                (service_code == 'AmazonSageMaker' and 'ml.' in description) or
+                (service_code == 'AWSLambda' and'Lambda-GB-Second' in usage_type) or
+                ('BoxUsage' in usage_type))
+
+    def _set_resource_id(self, expense):
+        if (expense.get('resource_id') is None or (
+                # move SavingsPlanCoveredUsage expenses from applied
+                # resource to 'Savings Plan' resource
+                expense.get(
+                    'lineItem/LineItemType') == 'SavingsPlanCoveredUsage' and
+                expense.get('savingsPlan/SavingsPlanARN'))):
+            res_id = self.compose_resource_id(expense)
+            if res_id:
+                expense['resource_id'] = res_id
+
     def load_csv_report(self, report_path, account_id_ca_id_map,
                         billing_period, skipped_accounts):
         with open(report_path, newline='') as csvfile:
@@ -317,15 +283,12 @@ class AWSReportImporter(BaseReportImporter):
                     row, 'lineItem/UsageEndDate')
                 row['cost'] = float(row['lineItem/BlendedCost']) if row[
                     'lineItem/BlendedCost'] else 0
-                if 'BoxUsage' in row.get('lineItem/UsageType', ''):
+                if self._is_flavor_usage(row):
                     row['box_usage'] = True
                 for k, v in row.copy().items():
                     if v == '':
                         del row[k]
-                if row.get('resource_id') is None:
-                    res_id = self.compose_resource_id(row)
-                    if res_id:
-                        row['resource_id'] = res_id
+                self._set_resource_id(row)
                 row['created_at'] = self.import_start_ts
                 chunk.append(row)
 
@@ -383,34 +346,12 @@ class AWSReportImporter(BaseReportImporter):
                         chunk.index(x) not in skipped_rows]
             for expense in expenses:
                 expense['created_at'] = self.import_start_ts
-                if expense.get('lineItem/ResourceId') is None:
-                    expense['resource_id'] = self.compose_resource_id(expense)
+                if self._is_flavor_usage(expense):
+                    expense['box_usage'] = True
+                self._set_resource_id(expense)
             if expenses:
                 self.update_raw_records(expenses)
         return billing_period, skipped_accounts
-
-    def generate_clean_records(self, regeneration=False):
-        # useless if there is nothing to import
-        if not self.report_files and not regeneration:
-            return
-        billing_periods = {
-            None} if not self.billing_periods else self.billing_periods
-        for cc_id in self.detected_cloud_accounts:
-            for billing_period in billing_periods:
-                self.process_items_with_ids(cc_id, billing_period)
-
-    def get_resource_ids(self, cloud_account_id, billing_period=None):
-        filters = {
-            'cloud_account_id': cloud_account_id,
-            'resource_id': {'$exists': True, '$ne': None},
-        }
-        if billing_period:
-            filters['bill/BillingPeriodStartDate'] = billing_period
-        resource_ids = self.mongo_raw.aggregate([
-            {'$match': filters},
-            {'$group': {'_id': '$resource_id'}},
-        ], allowDiskUse=True)
-        return [x['_id'] for x in resource_ids]
 
     def collect_tags(self, expense):
         raw_tags = {}
@@ -464,9 +405,14 @@ class AWSReportImporter(BaseReportImporter):
         tags = {}
         family_region_map = {}
         fake_cad_extras = {}
+        meta_dict = {}
         last_seen = datetime.fromtimestamp(0).replace(tzinfo=timezone.utc)
         os_type = None
         preinstalled = None
+        payment_option = None
+        offering_type = None
+        purchase_term = None
+        applied_region = None
 
         for e in expenses:
             start_date = self._datetime_from_expense(
@@ -495,19 +441,47 @@ class AWSReportImporter(BaseReportImporter):
             last_region = e.get('product/region')
             fake_cad_extras.update(self._get_fake_cad_extras(e))
 
-            family_value_list = self.main_resources_product_family_map.get(resource_type, [])
+            family_value_list = self.main_resources_product_family_map.get(
+                resource_type, [])
             if family_value_list and last_region and product_family:
                 for family in family_value_list:
                     if family in product_family:
                         family_region_map[family] = last_region
                         break
 
-            if resource_type == 'Instance' and not os_type and e.get('product/operatingSystem'):
-                os_type = e.get('product/operatingSystem')
-            if resource_type == 'Instance' and not preinstalled and e.get('product/preInstalledSw'):
-                preinstalled = e.get('product/preInstalledSw')
+            if resource_type == 'Instance':
+                if not os_type and 'product/operatingSystem' in e:
+                    os_type = e['product/operatingSystem']
+                    meta_dict['os'] = os_type
+                if not preinstalled and 'product/preInstalledSw' in e:
+                    preinstalled = e['product/preInstalledSw']
+                    meta_dict['preinstalled'] = preinstalled
+            elif resource_type == 'Savings Plan':
+                if not payment_option and 'savingsPlan/PaymentOption' in e:
+                    payment_option = e['savingsPlan/PaymentOption']
+                    meta_dict['payment_option'] = payment_option
+                if not offering_type and 'savingsPlan/OfferingType' in e:
+                    offering_type = e['savingsPlan/OfferingType']
+                    meta_dict['offering_type'] = offering_type
+                if not purchase_term and 'savingsPlan/PurchaseTerm' in e:
+                    purchase_term = e['savingsPlan/PurchaseTerm']
+                    meta_dict['purchase_term'] = purchase_term
+                if not applied_region and 'savingsPlan/Region' in e:
+                    applied_region = e['savingsPlan/Region']
+                    meta_dict['applied_region'] = applied_region
+            elif resource_type == 'Reserved Instances':
+                if not payment_option and 'pricing/PurchaseOption' in e:
+                    payment_option = e['pricing/PurchaseOption']
+                    meta_dict['payment_option'] = payment_option
+                if not offering_type and 'pricing/OfferingClass' in e:
+                    offering_type = e['pricing/OfferingClass']
+                    meta_dict['offering_type'] = offering_type
+                if not purchase_term and 'pricing/LeaseContractLength' in e:
+                    purchase_term = e['pricing/LeaseContractLength']
+                    meta_dict['purchase_term'] = purchase_term
 
-        for product_family_value in self.main_resources_product_family_map.get(resource_type, []):
+        for product_family_value in self.main_resources_product_family_map.get(
+                resource_type, []):
             family_region = family_region_map.get(product_family_value, None)
             if family_region:
                 region = family_region
@@ -516,6 +490,11 @@ class AWSReportImporter(BaseReportImporter):
             region = last_region
         if last_seen < first_seen:
             last_seen = first_seen
+
+        if resource_type in ['Reserved Instances', 'Savings Plan']:
+            name = None
+            tags = {}
+
         info = {
             'name': name,
             'type': resource_type,
@@ -524,12 +503,9 @@ class AWSReportImporter(BaseReportImporter):
             'tags': tags,
             'first_seen': int(first_seen.timestamp()),
             'last_seen': int(last_seen.timestamp()),
-            **fake_cad_extras
+            **fake_cad_extras,
+            **meta_dict
         }
-        if os_type:
-            info['os'] = os_type
-        if preinstalled:
-            info['preinstalled'] = preinstalled
         LOG.debug('Detected resource info: %s', info)
         return info
 
@@ -542,12 +518,16 @@ class AWSReportImporter(BaseReportImporter):
         product = raw_expense.get('lineItem/ProductCode')
         product_family = raw_expense.get('product/productFamily')
         resource_id = raw_expense.get('lineItem/ResourceId')
+        ri_id = raw_expense.get('reservation/ReservationARN')
+        sp_id = raw_expense.get('savingsPlan/SavingsPlanARN')
         ip_address_type = 'IP Address'
         nat_gateway_type = 'NAT Gateway'
         instance_type = 'Instance'
         snapshot_type = 'Snapshot'
         volume_type = 'Volume'
         bucket_type = 'Bucket'
+        sp_type = 'Savings Plan'
+        ri_type = 'Reserved Instances'
 
         def extract_type_by_product_type(res_type):
             return product_family and res_type in product_family
@@ -558,6 +538,7 @@ class AWSReportImporter(BaseReportImporter):
         resource_type_map.update({
             nat_gateway_type: extract_type_by_product_type(nat_gateway_type),
             instance_type: (usage_type and operation and
+                            'SavingsPlan' not in item_type and
                             extract_type_by_product_type(instance_type) and (
                                     'BoxUsage' in usage_type or instance_type in
                                     operation)),
@@ -567,6 +548,8 @@ class AWSReportImporter(BaseReportImporter):
             'Bucket': product and 'AmazonS3' in product and (
                     bool(resource_id) and bucket_type in operation),
             ip_address_type: extract_type_by_product_type(ip_address_type),
+            sp_type: bool(sp_id) and 'SavingsPlan' in item_type,
+            ri_type: bool(ri_id),
             'Other': (tax_type or resource_type or product_family or
                       usage_type or item_type)
         })
@@ -601,7 +584,8 @@ class AWSReportImporter(BaseReportImporter):
                     }
         return clean_expenses
 
-    def _get_group_by_day_pipeline(self):
+    @staticmethod
+    def _get_group_by_day_pipeline():
         unique_keys = AWSReportImporter.get_unique_field_list(
             include_date=False)
         day_group_id_pipeline = {k: '$%s' % k for k in unique_keys}
@@ -621,7 +605,6 @@ class AWSReportImporter(BaseReportImporter):
         day_group_pipeline = {
             '_id': day_group_id_pipeline,
             "root": {"$first": "$$ROOT"},
-            'raw_data_links': {'$push': '$_id'},
             'resource_id': {'$first': "$resource_id"},
             'lineItem/UsageStartDate': {"$min": "$start_date"},
             'lineItem/UsageEndDate': {"$max": "$end_date"},
@@ -629,29 +612,21 @@ class AWSReportImporter(BaseReportImporter):
         }
         return day_group_pipeline
 
-    def process_items_with_ids(self, cloud_account_id, billing_period):
-        resource_ids = self.get_resource_ids(cloud_account_id, billing_period)
-        total_count = len(resource_ids)
-        LOG.info(
-            'Generating clean expenses for %s resources in account %s for %s',
-            total_count, cloud_account_id, billing_period)
-        progress = 0
-        for i in range(0, total_count, CHUNK_SIZE):
-            new_progress = round(i / total_count * 100)
-            if new_progress != progress:
-                progress = new_progress
-                LOG.info('Progress: %s', progress)
+    def get_resource_ids(self, cloud_account_id, billing_period):
+        filters = {
+            'cloud_account_id': cloud_account_id,
+            'resource_id': {'$exists': True, '$ne': None},
+        }
+        if billing_period:
+            filters['bill/BillingPeriodStartDate'] = billing_period
+        resource_ids = self.mongo_raw.aggregate([
+            {'$match': filters},
+            {'$group': {'_id': '$resource_id'}},
+        ], allowDiskUse=True)
+        return [x['_id'] for x in resource_ids]
 
-            filters = [
-                {'cloud_account_id': cloud_account_id},
-                {'resource_id': {
-                    '$in': resource_ids[i:i + CHUNK_SIZE]
-                }},
-            ]
-            if billing_period:
-                filters.append(
-                    {'bill/BillingPeriodStartDate': billing_period})
-            expenses = list(self.mongo_raw.aggregate([
+    def get_raw_expenses_by_filters(self, filters):
+        return self.mongo_raw.aggregate([
                 {'$match': {
                     '$and': filters,
                 }},
@@ -660,27 +635,30 @@ class AWSReportImporter(BaseReportImporter):
                     '$mergeObjects': ["$root", "$$ROOT"]}
                 }},
                 {'$project': {"root": 0}}
-            ], allowDiskUse=True))
-            chunk = self.set_raw_chunk(expenses)
-            self.save_clean_expenses(cloud_account_id, chunk)
+            ], allowDiskUse=True)
 
-        LOG.info('Finished generating clean expenses for %s resources',
-                 total_count)
+    @staticmethod
+    def _get_billing_period_filters(billing_period):
+        return {'bill/BillingPeriodStartDate': billing_period}
 
     @staticmethod
     def set_raw_chunk(expenses):
-        chunk = {}
+        chunk = defaultdict(list)
         for ex in expenses:
             resource_id = ex['resource_id']
-            if not chunk.get(resource_id):
-                chunk[resource_id] = list()
             chunk[resource_id].append(ex)
         return chunk
 
     def compose_resource_id(self, expense):
         item_type = expense['lineItem/LineItemType']
+        sp_id = expense.get('savingsPlan/SavingsPlanARN')
+        ri_id = expense.get('reservation/ReservationARN')
         if item_type in IGNORE_EXPENSE_TYPES:
             return
+        elif 'SavingsPlan' in item_type and sp_id:
+            return sp_id[sp_id.find('/') + 1:]
+        elif ri_id:
+            return ri_id[ri_id.find('/') + 1:]
         parts = self.ITEM_TYPE_ID_FIELDS.get(item_type)
         if parts:
             resource_id = ' '.join([expense.get(k)
@@ -689,44 +667,10 @@ class AWSReportImporter(BaseReportImporter):
         else:
             return expense.get('lineItem/LineItemDescription')
 
-    def data_import(self):
-        if self.cloud_acc['last_import_at'] == 0 and self.import_file is None:
-            # on first auto report import we will load raw data from reports and
-            # generate expenses month by month from newest to oldest
-            account_id_ca_id_map = self.get_linked_account_map()
-            dates = [x for x in self.report_files]
-            dates.sort(reverse=True)
-            for date in dates:
-                reports = self.report_files[date]
-                for report in reports:
-                    self.load_report(report, account_id_ca_id_map)
-                LOG.info('Generating clean records')
-                self.generate_clean_records()
-                self.billing_periods = set()
-        else:
-            super().data_import()
-
-    def update_cloud_import_time(self, ts):
-        for cloud_acc_id in self.detected_cloud_accounts:
-            self.rest_cl.cloud_account_update(
-                cloud_acc_id,
-                {'last_import_at': ts,
-                 'last_import_modified_at': self.last_import_modified_at,
-                 'last_import_attempt_at': ts})
-
-    def detect_period_start(self):
-        pass
-
-    def update_cloud_import_attempt(self, ts, error=None):
-        for cloud_acc_id in self.detected_cloud_accounts:
-            self.rest_cl.cloud_account_update(
-                cloud_acc_id,
-                {'last_import_attempt_at': ts,
-                 'last_import_attempt_error': error})
-
     def _get_cloud_extras(self, info):
         res = defaultdict(dict)
-        for k in ['os', 'preinstalled']:
+        for k in ['os', 'preinstalled', 'payment_option', 'offering_type',
+                  'purchase_term', 'applied_region']:
             val = info.get(k)
             if val:
                 res['meta'][k] = val
@@ -734,3 +678,6 @@ class AWSReportImporter(BaseReportImporter):
 
     def create_traffic_processing_tasks(self):
         self._create_traffic_processing_tasks()
+
+    def create_risp_processing_tasks(self):
+        self._create_risp_processing_tasks()

@@ -189,6 +189,14 @@ class Client:
         return url
 
     @staticmethod
+    def executor_url(id_):
+        return "%s/%s" % ("executors", id_)
+
+    @staticmethod
+    def runs_url():
+        return 'runs'
+
+    @staticmethod
     def tokens_url(id=None):
         url = 'tokens'
         if id is not None:
@@ -258,6 +266,14 @@ class Client:
     def applications_get(self):
         return self.get(self.applications_url())
 
+    def applications_bulk_get(self, application_ids, include_deleted=False):
+        url = f'{self.applications_url()}/bulk'
+        url += self.query_url(
+            application_id=application_ids,
+            include_deleted=include_deleted
+        )
+        return self.get(url)
+
     def application_get(self, id: str):
         return self.get(self.applications_url(id))
 
@@ -277,6 +293,47 @@ class Client:
             'goals': goals
         }
         return self.post(self.applications_url(), b)
+
+    def run_update(
+            self,
+            id_,
+            runset_id=None,
+            hyperparameters=None,
+            state=None,
+            reason=None,
+            runset_name=None,
+            finish=False,
+    ):
+        """
+        Updates run. This method used with bulldozer worker
+        """
+        b = dict()
+        if runset_id is not None:
+            b.update({
+                "runset_id": runset_id,
+            })
+        if hyperparameters is not None:
+            b.update({
+                "hyperparameters": hyperparameters,
+            })
+        if state is not None:
+            b.update({
+                "state": state,
+            })
+        if reason is not None:
+            b.update({
+                "reason": reason,
+            })
+
+        if runset_name is not None:
+            b.update({
+                "runset_name": runset_name,
+            })
+        if finish:
+            b.update({
+                "finish": finish,
+            })
+        return self.patch(self.run_url(id_), b)
 
     def application_update(self, application_id, owner_id=None, name=None, goals=None):
         """
@@ -317,6 +374,17 @@ class Client:
         :return:
         """
         return self.get("%s/run" % self.applications_url(application_id))
+
+    def runs_bulk_get(self, runset_ids=None):
+        """
+        Gets runs by runset ids
+        :param runset_ids: list (runset_id: str)
+        :return:
+        """
+        url = self.runs_url()
+        if runset_ids:
+            url += self.query_url(runset_id=runset_ids)
+        return self.get(url)
 
     def run_milestones_get(self, run_id):
         """
@@ -407,3 +475,10 @@ class Client:
         :return:
         """
         return self.get("%s/proc" % self.run_url(run_id))
+
+    def runs_by_executor(self, executor_id):
+        """
+        Gets runs by executor id
+        """
+        url = "%s/%s" % (self.executor_url(executor_id), "runs")
+        return self.get(url)

@@ -10,7 +10,6 @@ from rest_api_server.handlers.v2.base import BaseHandler
 from rest_api_server.utils import run_task, ModelEncoder
 
 from optscale_exceptions.http_exc import OptHTTPError
-from optscale_exceptions.common_exc import WrongArgumentsException
 
 
 class ClusterTypeAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler,
@@ -113,7 +112,7 @@ class ClusterTypeAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHand
         ---
         description: |
             Get list of organization cluster types
-            Required permission: INFO_ORGANIZATION
+            Required permission: INFO_ORGANIZATION or CLUSTER_SECRET
         tags: [cluster_types]
         summary: List cluster types
         parameters:
@@ -161,9 +160,11 @@ class ClusterTypeAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHand
                     - OE0002: Organization not found
         security:
         - token: []
+        - secret: []
         """
-        await self.check_permissions('INFO_ORGANIZATION', 'organization',
-                                     organization_id)
+        if not self.check_cluster_secret(raises=False):
+            await self.check_permissions('INFO_ORGANIZATION', 'organization',
+                                         organization_id)
         res = await run_task(self.controller.list, organization_id)
         self.write(json.dumps(res, cls=ModelEncoder))
 

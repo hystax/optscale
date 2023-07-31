@@ -1,4 +1,4 @@
-FROM hystax/optscale_python:94098b67b949e2fabcc2404becf90a25f77496e6
+FROM acura-dr.dts.loc/optscale_python:94098b67b949e2fabcc2404becf90a25f77496e6
 
 WORKDIR /src
 

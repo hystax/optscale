@@ -1,3 +1,0 @@
-import MlApplicationsGlobalParametersContainer from "./MlApplicationsGlobalParametersContainer";
-
-export default MlApplicationsGlobalParametersContainer;

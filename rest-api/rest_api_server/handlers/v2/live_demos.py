@@ -6,7 +6,10 @@ from rest_api_server.controllers.live_demo import LiveDemoAsyncController
 from rest_api_server.exceptions import Err
 from rest_api_server.handlers.v1.base_async import BaseAsyncCollectionHandler
 from rest_api_server.handlers.v1.base import BaseAuthHandler
-from rest_api_server.utils import run_task, ModelEncoder
+from optscale_exceptions.common_exc import WrongArgumentsException
+from rest_api_server.utils import (
+    run_task, ModelEncoder, check_string_attribute, is_email_format,
+    check_bool_attribute)
 
 
 class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
@@ -18,12 +21,51 @@ class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
     def prepare(self):
         self.set_content_type()
 
+    def _validate_params(self, **kwargs):
+        expected_params = ['email', 'subscribe']
+        unexpected = list(
+            filter(lambda x: x not in expected_params, kwargs.keys()))
+        if unexpected:
+            message = ', '.join(unexpected)
+            raise OptHTTPError(400, Err.OE0212, [message])
+        try:
+            email = kwargs.get('email')
+            subscribe = kwargs.get('subscribe')
+            if email is not None:
+                check_string_attribute('email', email)
+                if not is_email_format(email):
+                    raise WrongArgumentsException(Err.OE0218, ['Email', email])
+            if subscribe is not None:
+                check_bool_attribute('subscribe', subscribe)
+        except WrongArgumentsException as ex:
+            raise OptHTTPError.from_opt_exception(400, ex)
+        super()._validate_params(**kwargs)
+
     async def post(self):
         """
         ---
         description: Create live demo environment
         tags: [live_demos]
         summary: Create live demo environment
+        parameters:
+        -   in: body
+            name: body
+            description: live demo parameters
+            required: false
+            schema:
+                type: object
+                properties:
+                    email:
+                        type: string
+                        description: Contact email
+                        required: false
+                        example: example@mail.com
+                    subscribe:
+                        type: boolean
+                        example: true
+                        description: subscribe newsletter
+                        required: false
+                        default: false
         responses:
             201:
                 description: Created (returns demo environment information)
@@ -44,8 +86,10 @@ class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         - OE0450: Failed to load Live Demo template
                         - OE0451: Failed to generate Live Demo organization
         """
+        data = self._request_body()
+        self._validate_params(**data)
         try:
-            res = await run_task(self.controller.create)
+            res = await run_task(self.controller.create, **data)
         except InternalServerError as ex:
             raise OptHTTPError.from_opt_exception(500, ex)
         self.set_status(201)

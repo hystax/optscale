@@ -6,7 +6,8 @@ from datetime import datetime, timezone, timedelta
 from diworker.utils import retry_backoff
 from cloud_adapter.clouds.azure import (
     AzureConsumptionException, ExpenseImportScheme,
-    AzureErrorResponseException, AzureAuthenticationError)
+    AzureErrorResponseException, AzureAuthenticationError,
+    AzureResourceNotFoundError)
 
 from diworker.importers.base import BaseReportImporter
 
@@ -135,7 +136,9 @@ class AzureReportImporter(BaseReportImporter):
             super().detect_period_start()
 
     @retry_backoff(AzureConsumptionException,
-                   raise_errors=[AzureAuthenticationError])
+                   raise_errors=[
+                       AzureAuthenticationError, AzureResourceNotFoundError
+                   ], raise_codes=[403])
     def load_raw_data(self):
         import_scheme = self.cloud_adapter.expense_import_scheme
         if import_scheme == ExpenseImportScheme.usage.value:
@@ -158,7 +161,9 @@ class AzureReportImporter(BaseReportImporter):
         self.clear_rudiments()
 
     @retry_backoff(AzureConsumptionException,
-                   raise_errors=[AzureAuthenticationError])
+                   raise_errors=[
+                       AzureAuthenticationError,  AzureResourceNotFoundError
+                   ], raise_codes=[403])
     def _load_usage_data(self):
         chunk = []
         usages = self.cloud_adapter.get_usage(self.period_start) or []
@@ -172,12 +177,16 @@ class AzureReportImporter(BaseReportImporter):
             usage_dict['_rec_n'] = record_number
             self._fill_custom_fields(usage_dict)
             self._clean_tree(usage_dict)
-            chunk.append(usage_dict)
+            if usage_dict['start_date'] >= self.period_start.replace(
+                    tzinfo=timezone.utc):
+                chunk.append(usage_dict)
         if chunk:
             self.update_raw_records(chunk)
 
     @retry_backoff(AzureConsumptionException,
-                   raise_errors=[AzureAuthenticationError])
+                   raise_errors=[
+                       AzureAuthenticationError, AzureResourceNotFoundError
+                   ], raise_codes=[403])
     def _get_day_raw_usage(self, current_day):
         return self.cloud_adapter.get_raw_usage(
             current_day, current_day + timedelta(days=1), 'Daily')
@@ -223,7 +232,9 @@ class AzureReportImporter(BaseReportImporter):
                     usage_dict['_rec_n'] = record_number
                     self._fill_custom_fields(usage_dict)
                     self._clean_tree(usage_dict)
-                    chunk.append(usage_dict)
+                    if usage_dict['start_date'] >= self.period_start.replace(
+                            tzinfo=timezone.utc):
+                        chunk.append(usage_dict)
                     if len(chunk) == CHUNK_SIZE:
                         self.update_raw_records(chunk)
                         chunk = []

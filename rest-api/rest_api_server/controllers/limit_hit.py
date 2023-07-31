@@ -260,9 +260,9 @@ class LimitHitsController(BaseController):
         for r in resources:
             r_id = r['_id']
             cluster_id = r.get('cluster_id')
-            mindate = datetime.utcfromtimestamp(r.get('first_seen', 0))
+            mindate = datetime.fromtimestamp(r.get('first_seen', 0))
             last_expense_cost = r.get('last_expense', {}).get('cost', 0)
-            last_expense_date = datetime.utcfromtimestamp(
+            last_expense_date = datetime.fromtimestamp(
                 r.get('last_expense', {}).get('date', 0)
             )
             resource_cost = r.get('total_cost', 0)

@@ -87,6 +87,26 @@ BASIC_PRESET = {
                     }
                 ]
             }
+        },
+        {
+            "pool_id": "6731a6ef-7b52-44ed-bc69-a137c36f8840",
+            "resource_type": "Savings Plan",
+            "cloud_account_name": "AWS HQ",
+            "created_at_offset": 11786789,
+            "active": False,
+            "pool_purpose": "business_unit",
+            "last_seen_offset": 62416,
+            "pool_name": "Engineering",
+            "cloud_resource_id": "savings_plan_arn",
+            "employee_id": "083298ff-6575-4adb-a82a-92cea7bc8ff0",
+            "meta": {},
+            "name": None,
+            "tags": {},
+            "deleted_at_offset": 0,
+            "_id": "3addfeea-e4f7-48f1-846a-68827ae9a92b",
+            "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
+            "region": "eu-central-1",
+            "recommendations": {}
         }
     ],
     "resource_constraints": [
@@ -113,7 +133,8 @@ BASIC_PRESET = {
             "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
             "end_date_offset": 5062534,
             "cost": 0.88250706,
-            "resource_id": PRESET_CLOUD_RESOURCE_ID
+            "resource_id": PRESET_CLOUD_RESOURCE_ID,
+            "pricing/publicOnDemandCost": 0.12345,
         }
     ],
     "rules": [],
@@ -299,6 +320,31 @@ BASIC_PRESET = {
             "created_at_offset": 229009
         }
     ],
+    "traffic_expenses": [
+        {
+            "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
+            "resource_id": "14d75330-c111-482a-97d0-0fe4b3b7125c",
+            "type": "inbound",
+            "from": "us-east-1",
+            "to": "us-west-1",
+            "usage": 11,
+            "cost": 121,
+            "date_offset": 229009
+        }
+    ],
+    "ri_sp_usage": [
+        {
+            "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
+            "resource_id": "14d75330-c111-482a-97d0-0fe4b3b7125c",
+            "offer_id": "3addfeea-e4f7-48f1-846a-68827ae9a92b",
+            "offer_type": "ri",
+            "offer_cost": 99,
+            "on_demand_cost": 111,
+            "usage": 12,
+            "sign": 1,
+            "date_offset": 229009
+        }
+    ]
 }
 
 
@@ -349,19 +395,61 @@ class TestLiveDemosApi(TestApiBase):
             else:
                 self.assertNotEqual(cnt, 0)
 
+    def check_clean_expenses(self, ch_mock_obj):
+        preset_expenses = BASIC_PRESET['clean_expenses'].copy()
+        table, values = ch_mock_obj.call_args_list[0][0]
+        self.assertEqual(table, 'expenses')
+        self.assertEqual(len(values), len(preset_expenses))
+        for i, exp in enumerate(values):
+            self.assertEqual(
+                exp['cost'], preset_expenses[i]['cost'] * self.multiplier)
+
+    def check_traffic_expenses(self, ch_mock_obj):
+        preset_expenses = BASIC_PRESET['traffic_expenses'].copy()
+        table, values = ch_mock_obj.call_args_list[1][0]
+        self.assertEqual(table, 'traffic_expenses')
+        self.assertEqual(len(values), len(preset_expenses))
+        for i, exp in enumerate(values):
+            self.assertEqual(exp['from'], preset_expenses[i]['from'])
+            self.assertEqual(exp['to'], preset_expenses[i]['to'])
+            self.assertEqual(
+                exp['cost'], preset_expenses[i]['cost'] * self.multiplier)
+
+    def check_ri_sp_usage(self, ch_mock_obj):
+        preset_expenses = BASIC_PRESET['ri_sp_usage'].copy()
+        table, values = ch_mock_obj.call_args_list[2][0]
+        self.assertEqual(table, 'ri_sp_usage')
+        self.assertEqual(len(values), len(preset_expenses))
+        for i, exp in enumerate(values):
+            self.assertEqual(exp['offer_type'], preset_expenses[i]['offer_type'])
+            self.assertEqual(exp['offer_cost'],
+                             preset_expenses[i]['offer_cost'] * self.multiplier)
+            self.assertEqual(exp['on_demand_cost'],
+                             preset_expenses[i]['on_demand_cost'] * self.multiplier)
+            self.assertEqual(exp['usage'], preset_expenses[i]['usage'])
+
+    def check_clickhouse(self, ch_mock_obj):
+        self.assertEqual(ch_mock_obj.call_count, 3)
+        self.check_clean_expenses(ch_mock_obj)
+        self.check_traffic_expenses(ch_mock_obj)
+        self.check_ri_sp_usage(ch_mock_obj)
+
     def test_live_demo_create(self):
         with patch('rest_api_server.controllers.live_demo.LiveDemoController'
                    '.load_preset', return_value=deepcopy(self.preset)):
-            code, response = self.client.live_demo_create()
-            self.assertEqual(code, 201)
-            for val in ['organization_id', 'password', 'email']:
-                self.assertIsNotNone(response[val])
-            code, response = self.client.organization_get(
-                response['organization_id'])
-            self.assertEqual(code, 200)
-            self.assertEqual(response['is_demo'], True)
-            self.check_db(check_empty=False)
-            self.check_mongo(check_empty=False)
+            with patch('rest_api_server.controllers.live_demo.LiveDemoController.'
+                       '_insert_clickhouse') as clickhouse_mock:
+                code, response = self.client.live_demo_create()
+                self.assertEqual(code, 201)
+                for val in ['organization_id', 'password', 'email']:
+                    self.assertIsNotNone(response[val])
+                code, response = self.client.organization_get(
+                    response['organization_id'])
+                self.assertEqual(code, 200)
+                self.assertEqual(response['is_demo'], True)
+                self.check_db(check_empty=False)
+                self.check_mongo(check_empty=False)
+                self.check_clickhouse(clickhouse_mock)
 
     def test_live_demo_org_constraint_create(self):
         with patch('rest_api_server.controllers.live_demo.LiveDemoController'
@@ -528,6 +616,8 @@ class TestLiveDemosApi(TestApiBase):
               '_get_demo_multiplier',
               return_value=etcd_multipliers_default).start()
         preset_raw_cost = self.preset.get('raw_expenses')[0].get('cost')
+        preset_raw_public_cost = self.preset.get('raw_expenses')[0].get(
+            'pricing/publicOnDemandCost')
         preset_optimizations = self.preset.get('optimizations')
         abandoned_saving = preset_optimizations[0].get('data')[0].get('saving')
         instance_subscription_saving = preset_optimizations[1].get(
@@ -552,6 +642,8 @@ class TestLiveDemosApi(TestApiBase):
             optimization = list(self.checklists_collection.find())
             resource = list(self.resources_collection.find())
             self.assertEqual(raw_expense['cost'], preset_raw_cost * 10)
+            self.assertEqual(raw_expense['pricing/publicOnDemandCost'],
+                             preset_raw_public_cost * 10)
             self.assertEqual(optimization[0]['data'][0]['saving'],
                              abandoned_saving * 10)
             self.assertEqual(optimization[1]['data'][0]['saving'],
@@ -599,7 +691,7 @@ class TestLiveDemosApi(TestApiBase):
             optimizations = list(self.checklists_collection.find())
             resources = list(self.resources_collection.find())
             self.assertEqual(len(raw_expenses), 1)
-            self.assertEqual(len(resources), 1)
+            self.assertEqual(len(resources), 2)
             self.assertEqual(len(optimizations[0]['data']), 1)
 
     def test_resources_not_from_top_10_duplicated(self):
@@ -614,7 +706,7 @@ class TestLiveDemosApi(TestApiBase):
             optimizations = list(self.checklists_collection.find())
             resources = list(self.resources_collection.find())
             self.assertEqual(len(raw_expenses), 4)
-            self.assertEqual(len(resources), 4)
+            self.assertEqual(len(resources), 5)
             self.assertEqual(len(optimizations[0]['data']), 4)
             for i in range(0, DUPLICATION_COUNT + 1):
                 resource = resources[i]
@@ -658,3 +750,35 @@ class TestLiveDemosApi(TestApiBase):
                              preset_exp_anomaly_limit * etcd_multiplier_value)
             self.assertEqual(org_limit_hits[1].value,
                              preset_exp_anomaly_value * etcd_multiplier_value)
+
+    def test_live_demo_invalid_params(self):
+        code, response = self.client.live_demo_create({'unexpected': 'value'})
+        self.assertEqual(code, 400)
+        self.verify_error_code(response, 'OE0212')
+
+        code, response = self.client.live_demo_create({'subscribe': 'value'})
+        self.assertEqual(code, 400)
+        self.verify_error_code(response, 'OE0226')
+
+        code, response = self.client.live_demo_create({'email': 'value'})
+        self.assertEqual(code, 400)
+        self.verify_error_code(response, 'OE0218')
+
+    def test_live_demo_subscriber_email(self):
+        patch('rest_api_server.controllers.live_demo.LiveDemoController.'
+              'get_top_resources_by_total_cost', return_value=[]).start()
+        p_send = patch('rest_api_server.controllers.live_demo.'
+                       'LiveDemoController._send_subscribe_email').start()
+        with patch('rest_api_server.controllers.live_demo.LiveDemoController.'
+                   'load_preset', return_value=deepcopy(self.preset)).start():
+            code, response = self.client.live_demo_create()
+            self.assertEqual(code, 201)
+            p_send.assert_not_called()
+        with patch('rest_api_server.controllers.live_demo.LiveDemoController.'
+                   'load_preset', return_value=deepcopy(self.preset)).start():
+            code, response = self.client.live_demo_create({
+                'email': 'some@email.com',
+                'subscribe': False
+            })
+            self.assertEqual(code, 201)
+            p_send.assert_called_once()

@@ -104,10 +104,26 @@ class Configurator(object):
         self.etcd_cl.write_branch('/', config, overwrite_lists=True)
         LOG.info("Configuring database server")
         self.configure_databases()
+        self.configure_auth_salt()
         self.configure_mongo()
         self.configure_rabbit()
-
         self.commit_config()
+
+    def _create_auth_salt_key(self):
+        salt = ""
+        try:
+            salt = self.etcd_cl.encryption_salt()
+        except etcd.EtcdKeyNotFound:
+            pass
+        self.etcd_cl.write("/encryption_salt_auth", salt)
+
+    def configure_auth_salt(self):
+        try:
+            auth_salt = self.etcd_cl.encryption_salt_auth()
+            if not auth_salt:
+                self._create_auth_salt_key()
+        except etcd.EtcdKeyNotFound:
+            self._create_auth_salt_key()
 
     def _declare_events_queue(self, channel):
         LOG.info('declaring queue')

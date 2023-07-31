@@ -348,6 +348,9 @@ class UserAsyncCollectionHandler(UserAsyncCollectionHandler_v1,
                                     deleted_at: {type: integer,
                                         description: Deleted timestamp (service
                                         field)}
+                                    last_login: {type: integer,
+                                        description: Last token created
+                                        timestamp}
             400:
                 description: |
                     Wrong arguments:
@@ -380,7 +383,7 @@ class UserAsyncCollectionHandler(UserAsyncCollectionHandler_v1,
                 raise OptHTTPError(401, Err.OA0007, [])
             self.check_cluster_secret()
             res = await self.controller.get_bulk_users(users_ids, **kwargs)
-            users = [user.to_dict() for user in res]
+            users = [user for user in res]
             result = {
                 'users': users
             }

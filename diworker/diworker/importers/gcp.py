@@ -47,7 +47,7 @@ class GcpReportImporter(BaseReportImporter):
         # see https://datatrendstech.atlassian.net/browse/OS-5071 on why we
         # prefer location over country
         region = region_data['location'] or region_data['country']
-        return region.lower()
+        return region.lower() if region else None
 
     @staticmethod
     def _generate_tags_hash(tags: dict[str: str]) -> str:

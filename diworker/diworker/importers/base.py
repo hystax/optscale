@@ -1,9 +1,13 @@
 import logging
 import time
+import os
 import requests
+import shutil
+import uuid
+
 from collections import defaultdict
 from pymongo import UpdateOne
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 import boto3
 from boto3.session import Config as BotoConfig
@@ -310,32 +314,26 @@ class BaseReportImporter:
         ])
         return {r[0]: (r[1], r[2]) for r in info}
 
-    def generate_clean_records(self, regeneration=False):
-        base_filters = [{'cloud_account_id': self.cloud_acc_id}]
-        if self.period_start:
-            base_filters.append({'start_date': {'$gte': self.period_start}})
-
-        distinct_filters = {}
-        for f in base_filters:
-            distinct_filters.update(f)
+    def get_resource_ids(self, cloud_account_id, period_start):
+        base_filters = {'cloud_account_id': cloud_account_id}
+        if period_start:
+            base_filters['start_date'] = {'$gte': period_start}
         resource_ids = self.mongo_raw.aggregate([
-            {'$match': distinct_filters},
+            {'$match': base_filters},
             {'$group': {'_id': '$resource_id'}}
         ], allowDiskUse=True)
-        resource_ids = [x['_id'] for x in resource_ids]
-        resource_count = len(resource_ids)
-        LOG.info('resource_count: %s', resource_count)
-        progress = 0
-        for i in range(0, resource_count, CHUNK_SIZE):
-            new_progress = round(i / resource_count * 100)
-            if new_progress != progress:
-                progress = new_progress
-                LOG.info('Progress: %s', progress)
+        return [x['_id'] for x in resource_ids]
 
-            filters = base_filters + [{'resource_id': {
-                '$in': resource_ids[i:i + CHUNK_SIZE]
-            }}]
-            expenses = self.mongo_raw.aggregate([
+    @staticmethod
+    def set_raw_chunk(expenses):
+        chunk = defaultdict(list)
+        for ex in expenses:
+            resource_id = ex['_id']['resource_id']
+            chunk[resource_id].extend(ex['expenses'])
+        return chunk
+
+    def get_raw_expenses_by_filters(self, filters):
+        return self.mongo_raw.aggregate([
                 {'$match': {
                     '$and': filters,
                 }},
@@ -347,10 +345,40 @@ class BaseReportImporter:
                     'expenses': {'$push': '$$ROOT'}
                 }},
             ], allowDiskUse=True)
-            chunk = defaultdict(list)
-            for e in expenses:
-                chunk[e['_id']['resource_id']].extend(e['expenses'])
-            self.save_clean_expenses(self.cloud_acc_id, chunk)
+
+    @staticmethod
+    def _get_billing_period_filters(period_start):
+        return {'start_date': {'$gte': period_start}}
+
+    def _generate_clean_records(self, resource_ids, cloud_account_id,
+                                period_start):
+        resource_count = len(resource_ids)
+        LOG.info(
+            'Generating clean expenses for %s resources in account %s for %s',
+            resource_count, cloud_account_id, period_start)
+        progress = 0
+        for i in range(0, resource_count, CHUNK_SIZE):
+            new_progress = round(i / resource_count * 100)
+            if new_progress != progress:
+                progress = new_progress
+                LOG.info('Progress: %s', progress)
+
+            filters = [
+                {'cloud_account_id': cloud_account_id},
+                self._get_billing_period_filters(period_start),
+                {'resource_id': {
+                    '$in': resource_ids[i:i + CHUNK_SIZE]}}]
+            expenses = self.get_raw_expenses_by_filters(filters)
+            chunk = self.set_raw_chunk(expenses)
+            self.save_clean_expenses(cloud_account_id, chunk)
+
+        LOG.info('Finished generating clean expenses for %s resources',
+                 resource_count)
+
+    def generate_clean_records(self, regeneration=False):
+        resource_ids = self.get_resource_ids(self.cloud_acc_id, self.period_start)
+        self._generate_clean_records(resource_ids, self.cloud_acc_id,
+                                     self.period_start)
 
     def cleanup(self):
         pass
@@ -394,6 +422,9 @@ class BaseReportImporter:
 
         LOG.info('Creating traffic processing tasks')
         self.create_traffic_processing_tasks()
+
+        LOG.info('Creating risp processing tasks')
+        self.create_risp_processing_tasks()
 
         LOG.info('Processing completed')
 
@@ -500,6 +531,24 @@ class BaseReportImporter:
                 LOG.info('Traffic processing task %s already exists '
                          'for cloud account %s' % (body, cloud_account_id))
 
+    def create_risp_processing_tasks(self):
+        return
+
+    def _create_risp_processing_tasks(self):
+        for cloud_account_id, dates in self.imported_raw_dates_map.items():
+            body = {
+                'start_date': int(dates.get('start_date').timestamp()),
+                'end_date': int(dates.get('end_date').timestamp())
+            }
+            try:
+                self.rest_cl.risp_processing_task_create(cloud_account_id,
+                                                         body)
+            except requests.exceptions.HTTPError as exc:
+                if exc.response.status_code != 409:
+                    raise
+                LOG.info('Risp processing task %s already exists '
+                         'for cloud account %s' % (body, cloud_account_id))
+
     def _update_imported_raw_interval(self, expense):
         cloud_account_id = expense['cloud_account_id']
         start_date = expense['start_date']
@@ -526,3 +575,148 @@ class BaseReportImporter:
             })
             LOG.info('Cleared %s rudiments for cloud_account %s' %
                      (result.deleted_count, cloud_account_id))
+
+
+class CSVBaseReportImporter(BaseReportImporter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.billing_periods = set()
+        self.detected_cloud_accounts = set()
+        self.detected_cloud_accounts.add(self.cloud_acc_id)
+        self.reports_dir = str(uuid.uuid4())
+        os.makedirs(self.reports_dir)
+        self.report_files = defaultdict(list)
+        self.last_import_modified_at = self.cloud_acc.get(
+            'last_import_modified_at', 0)
+
+    def detect_period_start(self):
+        pass
+
+    def get_new_report_path(self, date=''):
+        return os.path.join(self.reports_dir, date, str(uuid.uuid4()))
+
+    def download_from_object_store(self):
+        bucket, filename = self.import_file.split('/')
+        self.report_files['reports'] = [self.get_new_report_path()]
+        with open(self.report_files['reports'][0], 'wb') as f_report:
+            self.s3_client.download_fileobj(bucket, filename, f_report)
+
+    def get_current_reports(self, reports_groups, last_import_modified_at):
+        raise NotImplementedError
+
+    def download_from_cloud(self):
+        reports_groups = self.cloud_adapter.get_report_files()
+        if self.last_import_modified_at <= 0:
+            last_import_modified_at = datetime.min.replace(
+                tzinfo=timezone.utc)
+            LOG.info('Decided to download latest reports set')
+            current_reports = defaultdict(list)
+            report_groups_keys = list(reports_groups.keys())
+            report_groups_keys.sort()
+            # to get reports for the current and three previous months
+            num_last_reports = 4 if self.need_extend_report_interval else 1
+            report_groups_keys = report_groups_keys[-num_last_reports:]
+            for key in report_groups_keys:
+                current_reports[key].extend(reports_groups[key])
+        else:
+            last_import_modified_at = datetime.fromtimestamp(
+                self.last_import_modified_at, tz=timezone.utc)
+            current_reports = self.get_current_reports(
+                reports_groups, last_import_modified_at)
+
+        for date, reports in current_reports.items():
+            for report in reports:
+                if last_import_modified_at < report['LastModified']:
+                    last_import_modified_at = report['LastModified']
+                target_path = self.get_new_report_path(date)
+                os.makedirs(os.path.join(self.reports_dir, date),
+                            exist_ok=True)
+                try:
+                    # python2 way
+                    with open(target_path, 'wb') as f_report:
+                        self.cloud_adapter.download_report_file(report['Key'],
+                                                                f_report)
+                except TypeError:
+                    # python3 way
+                    with open(target_path, 'w') as f_report:
+                        self.cloud_adapter.download_report_file(report['Key'],
+                                                                f_report)
+                self.report_files[date].append(target_path)
+        self.last_import_modified_at = int(last_import_modified_at.timestamp())
+
+    def unpack_report_files(self):
+        pass
+
+    def load_report(self, report_path, account_id_ca_id_ma):
+        raise NotImplementedError
+
+    def prepare(self):
+        if self.import_file is not None:
+            self.download_from_object_store()
+        else:
+            self.download_from_cloud()
+        self.unpack_report_files()
+
+    def get_linked_account_map(self):
+        return {self.cloud_acc['account_id']: self.cloud_acc_id}
+
+    def data_import(self):
+        if self.cloud_acc['last_import_at'] == 0 and self.import_file is None:
+            # on first auto report import we will load raw data from reports and
+            # generate expenses month by month from newest to oldest
+            account_id_ca_id_map = self.get_linked_account_map()
+            dates = [x for x in self.report_files]
+            dates.sort(reverse=True)
+            for date in dates:
+                reports = self.report_files[date]
+                for report in reports:
+                    self.load_report(report, account_id_ca_id_map)
+                LOG.info('Generating clean records')
+                self.generate_clean_records()
+                self.billing_periods = set()
+        else:
+            super().data_import()
+
+    def load_raw_data(self):
+        account_id_ca_id_map = {self.cloud_acc['account_id']: self.cloud_acc_id}
+        report_files = []
+        for r in self.report_files.values():
+            report_files.extend(r)
+        for report_path in report_files:
+            self.load_report(report_path, account_id_ca_id_map)
+        self.clear_rudiments()
+
+    def get_resource_ids(self, cloud_account_id, billing_period):
+        raise NotImplementedError
+
+    def generate_clean_records(self, regeneration=False):
+        # useless if there is nothing to import
+        if not self.report_files and not regeneration:
+            return
+        billing_periods = {
+            None} if not self.billing_periods else self.billing_periods
+        for cc_id in self.detected_cloud_accounts:
+            for billing_period in sorted(billing_periods, reverse=True):
+                resource_ids = self.get_resource_ids(cc_id, billing_period)
+                self._generate_clean_records(resource_ids, cc_id, billing_period)
+
+    def cleanup(self):
+        shutil.rmtree(self.reports_dir, ignore_errors=True)
+        if self.import_file:
+            bucket, filename = self.import_file.split('/')
+            self.s3_client.delete_object(Bucket=bucket, Key=filename)
+
+    def update_cloud_import_attempt(self, ts, error=None):
+        for cloud_acc_id in self.detected_cloud_accounts:
+            self.rest_cl.cloud_account_update(
+                cloud_acc_id,
+                {'last_import_attempt_at': ts,
+                 'last_import_attempt_error': error})
+
+    def update_cloud_import_time(self, ts):
+        for cloud_acc_id in self.detected_cloud_accounts:
+            self.rest_cl.cloud_account_update(
+                cloud_acc_id,
+                {'last_import_at': ts,
+                 'last_import_modified_at': self.last_import_modified_at,
+                 'last_import_attempt_at': ts})

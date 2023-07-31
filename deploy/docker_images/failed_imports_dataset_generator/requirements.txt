@@ -1,0 +1,4 @@
+boto3==1.18.9
+config-client==1.0.123
+mysql-connector-python==2.1.7
+SQLAlchemy==1.2.14

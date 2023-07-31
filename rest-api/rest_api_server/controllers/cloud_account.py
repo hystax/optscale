@@ -15,7 +15,8 @@ from cloud_adapter.exceptions import (InvalidParameterException,
                                       BucketNameValidationError,
                                       BucketPrefixValidationError,
                                       ReportNameValidationError,
-                                      CloudConnectionError)
+                                      CloudConnectionError,
+                                      S3ConnectionError)
 from cloud_adapter.cloud import Cloud as CloudAdapter
 
 from optscale_exceptions.common_exc import (WrongArgumentsException,
@@ -164,7 +165,11 @@ class CloudAccountController(BaseController):
                     param_value = config_part.get(param_name)
                     if param_value is not None and not param_value and param.default:
                         config_part[param_name] = param.default
-                    func(param_name, config_part.get(param_name))
+                    if param.type == str:
+                        func(param_name, config_part.get(param_name),
+                             check_length=param.check_len)
+                    else:
+                        func(param_name, config_part.get(param_name))
                     if param.dependencies is not None:
                         validate_part(param.dependencies, config_part[param_name])
 
@@ -285,13 +290,18 @@ class CloudAccountController(BaseController):
         LOG.info('Creating cloud account. Input data: %s', kwargs)
         org_id = kwargs.get('organization_id')
         self._check_organization(org_id)
+        root_config = kwargs.pop('root_config', None)
 
         cloud_acc_type = kwargs.get('type')
         if cloud_acc_type is None:
             raise_not_provided_exception('type')
         adapter_cls = self.get_adapter(cloud_acc_type)
         self.check_create_restrictions(**kwargs)
-        config = kwargs.pop('config', {})
+        raw_config = kwargs.pop('config', {})
+        config = raw_config
+        if root_config:
+            config = root_config
+            config.update(raw_config)
         cost_model = config.pop('cost_model', {}) if config else {}
         organization = OrganizationController(
             self.session, self._config, self.token).get(org_id)
@@ -305,12 +315,15 @@ class CloudAccountController(BaseController):
             kwargs['last_import_modified_at'] = last_import_modified_at
         ca_obj = CloudAccount(**kwargs)
         self._validate(ca_obj, True, **kwargs)
+        if ca_obj.type == CloudTypes.AZURE_TENANT:
+            ca_obj.auto_import = False
         configuration_res = self._configure_report(
             adapter_cls, config, organization)
         if isinstance(configuration_res, dict):
-            config.update(configuration_res['config_updates'])
+            for c in [config, raw_config]:
+                c.update(configuration_res['config_updates'])
             warnings.extend(configuration_res['warnings'])
-        ca_obj.config = encode_config(config)
+        ca_obj.config = encode_config(raw_config if root_config else config)
         self.session.add(ca_obj)
         if ca_obj.type == CloudTypes.KUBERNETES_CNR:
             CloudBasedCostModelController(
@@ -329,12 +342,18 @@ class CloudAccountController(BaseController):
                 self.session.commit()
         except IntegrityError as ex:
             raise WrongArgumentsException(Err.OE0003, [str(ex)])
-        auth_user_id = self.get_user_id()
         cloud_account_org_id = ca_obj.organization_id
-        default_employee = self.get_employee(auth_user_id, cloud_account_org_id)
+        parent_pool = ca_obj.organization.pool
+        if ca_obj.parent_id:
+            default_employee = parent_pool.default_owner
+            auth_user_id = default_employee.auth_user_id
+        else:
+            auth_user_id = self.get_user_id()
+            default_employee = self.get_employee(auth_user_id,
+                                                 cloud_account_org_id)
         pool_name = self._generate_pool_name(ca_obj)
         cloud_pool = PoolController(self.session, self._config, self.token).create(
-            organization_id=cloud_account_org_id, parent_id=ca_obj.organization.pool_id,
+            organization_id=cloud_account_org_id, parent_id=parent_pool.id,
             name=pool_name, default_owner_id=default_employee.id)
         rule_name = 'Rule for %s_%s' % (ca_obj.name, int(datetime.utcnow().timestamp()))
         RuleController(self.session, self._config, self.token).create_rule(
@@ -426,7 +445,7 @@ class CloudAccountController(BaseController):
             raise WrongArgumentsException(Err.OE0371, [str(exc)])
         except InvalidParameterException as ex:
             raise ForbiddenException(Err.OE0433, [str(ex)])
-        except CloudSettingNotSupported as ex:
+        except (CloudSettingNotSupported, S3ConnectionError) as ex:
             raise WrongArgumentsException(Err.OE0437, [
                 adapter_cls.__name__, str(ex)])
         except CloudConnectionError as ex:
@@ -454,6 +473,8 @@ class CloudAccountController(BaseController):
             self.session, self._config)
         old_config = cloud_acc_obj.decoded_config
         config = kwargs.pop('config', {})
+        if cloud_acc_obj.parent_id and config:
+            raise WrongArgumentsException(Err.OE0211, ['config'])
         organization = OrganizationController(
             self.session, self._config, self.token).get(
             cloud_acc_obj.organization_id)
@@ -505,6 +526,7 @@ class CloudAccountController(BaseController):
 
     def delete(self, item_id):
         cloud_account = self.get(item_id)
+        self.delete_children_accounts(cloud_account)
         if cloud_account.type == CloudTypes.KUBERNETES_CNR:
             CloudBasedCostModelController(
                 self.session, self._config).delete(item_id)
@@ -679,6 +701,33 @@ class CloudAccountController(BaseController):
         if cloud_account:
             self._check_organization(cloud_account.organization_id)
         return cloud_account
+
+    def create_children_accounts(self, root_account):
+        cloud_acc_type = root_account.type.value
+        root_config = root_account.decoded_config
+        adapter_cls = self.get_adapter(cloud_acc_type)
+        adapter = adapter_cls(root_config)
+        configs = adapter.get_children_configs()
+        if not configs:
+            return
+        for c_config in configs:
+            try:
+                self.create(
+                    organization_id=root_account.organization_id,
+                    parent_id=root_account.id, root_config=root_config,
+                    **c_config)
+            except Exception as ex:
+                LOG.info('Unable to create child account %s: %s' % (
+                    c_config, str(ex)))
+
+    def delete_children_accounts(self, root_account):
+        children = self.session.query(CloudAccount).filter(
+            CloudAccount.organization_id == root_account.organization_id,
+            CloudAccount.deleted.is_(False),
+            CloudAccount.parent_id == root_account.id
+        ).all()
+        for c in children:
+            self.delete(c.id)
 
 
 class CloudAccountAsyncController(BaseAsyncControllerWrapper):

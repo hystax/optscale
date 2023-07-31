@@ -38,6 +38,11 @@ etcd:
   optscale_error_emails:
     recipient: {{ .Values.optscale_error_emails.recipient }}
     enabled: {{ .Values.optscale_error_emails.enabled }}
+  bulldozer_worker:
+    max_retries: {{ .Values.bulldozer_worker.config.max_retries }}
+    wait_timeout: {{ .Values.bulldozer_worker.config.wait_timeout }}
+    task_timeout: {{ .Values.bulldozer_worker.config.task_timeout }}
+    run_period: {{ .Values.bulldozer_worker.config.run_period }}
   google_calendar_service:
     enabled: {{ .Values.google_calendar_service.enabled }}
     access_key:
@@ -47,6 +52,7 @@ etcd:
   domains_blacklists:
     new_employee_email: {{ .Values.domains_blacklists.new_employee_email }}
     registration: {{ .Values.domains_blacklists.registration }}
+    failed_import_email: {{ .Values.domains_blacklists.failed_import_email }}
   secret:
     cluster: {{ .Values.secrets.cluster }}
     agent: {{ .Values.secrets.agent }}
@@ -83,6 +89,9 @@ etcd:
   arcee:
     host: {{ .Values.arcee.service.name }}
     port: {{ .Values.arcee.service.externalPort }}
+  bulldozer_api:
+    host: {{ .Values.bulldozer_api.service.name }}
+    port: {{ .Values.bulldozer_api.service.externalPort }}
   metroculus:
     host: {{ .Values.metroculus_api.service.name }}
     port: {{ .Values.metroculus_api.service.externalPort }}
@@ -207,4 +216,15 @@ etcd:
     timeout: {{ .Values.resource_discovery_settings.timeout }}
     writing_timeout: {{ .Values.resource_discovery_settings.writing_timeout }}
     observe_timeout: {{ .Values.resource_discovery_settings.observe_timeout }}
+  bi_settings:
+    exporter_run_period: {{ .Values.bi_settings.exporter_run_period }}
+    encryption_key: {{ .Values.bi_settings.encryption_key }}
+    task_wait_timeout: {{ .Values.bi_settings.task_wait_timeout }}
+  failed_imports_dataset_generator:
+    enable: {{ .Values.failed_imports_dataset_generator.enable }}
+    bucket: {{ .Values.failed_imports_dataset_generator.bucket }}
+    s3_path: {{ .Values.failed_imports_dataset_generator.s3_path }}
+    filename: {{ .Values.failed_imports_dataset_generator.filename }}
+    aws_access_key_id: {{ .Values.failed_imports_dataset_generator.aws_access_key_id }}
+    aws_secret_access_key: {{ .Values.failed_imports_dataset_generator.aws_secret_access_key }}
 {{- end }}

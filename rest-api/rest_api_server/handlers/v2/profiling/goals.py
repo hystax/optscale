@@ -116,6 +116,7 @@ class GoalAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler,
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:

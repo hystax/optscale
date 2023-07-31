@@ -88,6 +88,7 @@ spec:
             - store
             - --grpc-address=0.0.0.0:10901
             - --http-address=0.0.0.0:10902
+            - --ignore-deletion-marks-delay={{ $config.ignoreDeletionMarksDelay }}
             - --objstore.config-file=/var/thanos/config/thanos_conf.yaml
             - --data-dir=/var/thanos/data
           ports:

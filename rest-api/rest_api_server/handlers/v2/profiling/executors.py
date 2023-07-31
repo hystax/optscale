@@ -118,6 +118,7 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:
@@ -163,7 +164,9 @@ class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
             description: Breakdown by
             required: true
             type: string
-            enum: ['executors_count', 'cpu', 'ram', 'process_cpu', 'process_ram']
+            enum: ['executors_count', 'cpu', 'ram', 'process_cpu', 'process_ram',
+                'gpu_load', 'gpu_memory_free', 'gpu_memory_total',
+                'gpu_memory_used']
         responses:
             200:
                 description: Executors breakdown
@@ -185,6 +188,7 @@ class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
                     Unauthorized:
                     - OE0235: Unauthorized
                     - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
             403:
                 description: |
                     Forbidden:
@@ -201,8 +205,11 @@ class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
         breakdown_by = self.get_arg('breakdown_by', str)
         if breakdown_by is None:
             raise OptHTTPError(400, Err.OE0216, ['breakdown_by'])
-        allowed_breakdowns = ['executors_count', 'cpu', 'ram', 'process_cpu',
-                              'process_ram']
+        allowed_breakdowns = [
+            'executors_count', 'cpu', 'ram', 'process_cpu', 'process_ram',
+            'gpu_load', 'gpu_memory_free', 'gpu_memory_total',
+            'gpu_memory_used'
+        ]
         if breakdown_by not in allowed_breakdowns:
             raise OptHTTPError(400, Err.OE0217, ['breakdown_by'])
         token = await self._get_profiling_token(organization_id)

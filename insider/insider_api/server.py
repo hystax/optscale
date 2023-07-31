@@ -35,6 +35,8 @@ def get_handlers(handler_kwargs):
          handlers.flavors_generation.FlavorsGenerationHandler, handler_kwargs),
         (urls_v2.flavor_prices,
          handlers.flavor_prices.FlavorPricesCollectionHandler, handler_kwargs),
+        (urls_v2.family_prices,
+         handlers.flavor_prices.FamilyPricesCollectionHandler, handler_kwargs),
         (urls_v2.reserved_instances_offerings,
          handlers.instances.ReservedInstancesOfferingsHandler, handler_kwargs),
     ]

@@ -18,18 +18,16 @@ from botocore.exceptions import (ClientError,
                                  ReadTimeoutError,
                                  SSLError)
 from botocore.parsers import ResponseParserError
-from botocore.session import Session as CoreSession
 from retrying import retry
 
 from cloud_adapter.exceptions import *
-from cloud_adapter.clouds.base import CloudBase
+from cloud_adapter.clouds.base import S3CloudMixin
 from cloud_adapter.model import *
 from cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
 LOG = logging.getLogger(__name__)
 DEFAULT_REPORT_NAME = 'optscale-report'
 DEFAULT_BUCKET_PREFIX = 'reports'
-DEFAULT_REGION_NAME = 'eu-central-1'
 DEFAULT_CLIENT_CONFIG = CoreConfig(
     connect_timeout=20, retries={'max_attempts': 3}
 )
@@ -86,7 +84,7 @@ class ConfigScheme(enum.Enum):
     bucket_only = 'bucket_only'
 
 
-class Aws(CloudBase):
+class Aws(S3CloudMixin):
     BILLING_CREDS = [
         CloudParameter(name='access_key_id', type=str, required=True),
         CloudParameter(name='secret_access_key', type=str, required=True,
@@ -97,11 +95,8 @@ class Aws(CloudBase):
         CloudParameter(name='report_name', type=str, required=False),
         CloudParameter(name='linked', type=bool, required=False),
     ]
+    DEFAULT_S3_REGION_NAME = 'eu-central-1'
     SUPPORTS_REPORT_UPLOAD = True
-
-    def __init__(self, cloud_config, *args, **kwargs):
-        self.config = cloud_config
-        self._session = None
 
     def discovery_calls_map(self):
         return {
@@ -109,25 +104,8 @@ class Aws(CloudBase):
             InstanceResource: self.instance_discovery_calls,
             SnapshotResource: self.snapshot_discovery_calls,
             IpAddressResource: self.ip_address_discovery_calls,
-            ImageResource: self.image_discovery_calls,
             BucketResource: self.bucket_discovery_calls
         }
-
-    def get_session(self):
-        core_session = CoreSession()
-        core_session.set_default_client_config(DEFAULT_CLIENT_CONFIG)
-        return boto3.Session(
-            region_name=self.config.get('region_name', DEFAULT_REGION_NAME),
-            aws_access_key_id=self.config.get('access_key_id'),
-            aws_secret_access_key=self.config.get('secret_access_key'),
-            botocore_session=core_session,
-        )
-
-    @property
-    def session(self):
-        if self._session is None:
-            self._session = self.get_session()
-        return self._session
 
     @property
     def sts(self):
@@ -144,10 +122,6 @@ class Aws(CloudBase):
     @property
     def s3_resource(self):
         return self.session.resource('s3')
-
-    @property
-    def s3(self):
-        return self.session.client('s3', self.config.get('region_name'))
 
     @property
     def cf(self):
@@ -529,17 +503,38 @@ class Aws(CloudBase):
         return [(self.discover_region_ip_addresses, (r,))
                 for r in self.list_regions()]
 
-    @staticmethod
-    def is_valid_s3_object_key(object_key):
-        # Added pattern according to s3 object name
-        regex_pattern = '^[a-zA-Z0-9!_.*\'()-\\\\/|]+$'
-        return re.match(regex_pattern, object_key) is not None
-
     def check_prefix_report_name(self, prefix, report_name):
         if prefix and not self.is_valid_s3_object_key(prefix):
-            raise BucketPrefixValidationError('Bucket prefix "{}" has incorrect format'.format(prefix))
+            raise BucketPrefixValidationError(
+                'Bucket prefix "{}" has incorrect format'.format(prefix))
         if not self.is_valid_s3_object_key(report_name):
-            raise ReportNameValidationError('Report name "{}" has incorrect format'.format(report_name))
+            raise ReportNameValidationError(
+                'Report name "{}" has incorrect format'.format(report_name))
+
+    def _collect_s3_objects(self, bucket_name, prefix, report_name):
+        resp = self.s3.list_objects_v2(
+            Bucket=bucket_name,
+            Prefix='{0}/{1}/'.format(prefix, report_name),
+            Delimiter='/'
+        )
+        result = {'Contents': []}
+        for common_prefix in resp.get('CommonPrefixes', []):
+            common_prefix = common_prefix['Prefix']
+            last_objects_map = {}
+            resp = self.s3.list_objects_v2(
+                Bucket=bucket_name,
+                Prefix=common_prefix,
+            )
+            for r in resp.get('Contents', []):
+                path = r['Key']
+                day = path.split(common_prefix)[1].split(report_name)[0]
+                key = common_prefix + path.split(
+                    common_prefix + day)[1] if day else path
+                last_obj = last_objects_map.get(key)
+                if not last_obj or last_obj['LastModified'] < r['LastModified']:
+                    last_objects_map[key] = r
+            result['Contents'].extend(last_objects_map.values())
+        return result
 
     def get_report_files(self):
         bucket_name = self.config['bucket_name']
@@ -549,9 +544,7 @@ class Aws(CloudBase):
         report_name = self.config.get('report_name', DEFAULT_REPORT_NAME)
         region = self.get_bucket_region(bucket_name)
         self.config['region_name'] = region
-        resp = self.s3.list_objects_v2(
-            Bucket=bucket_name,
-            Prefix='{0}/{1}'.format(prefix, report_name))
+        resp = self._collect_s3_objects(bucket_name, prefix, report_name)
 
         reports = self.find_csv_reports(resp, prefix, report_name)
         if not reports:
@@ -601,8 +594,8 @@ class Aws(CloudBase):
     def find_csv_reports(self, s3_objects, prefix, report_name):
         reports = {}
         try:
-            report_regex_fmt = '^{0}/{1}/[0-9]{{8}}-[0-9]{{8}}/{1}-[0-9]{{5}}.' \
-                               'csv.(gz|zip)$'
+            report_regex_fmt = '^{0}/{1}/[0-9]{{8}}-[0-9]{{8}}(/[0-9]{{8}}' \
+                               'T[0-9]{{6}}Z)?/{1}-[0-9]{{5}}.csv.(gz|zip)$'
             report_regex = re.compile(
                 report_regex_fmt.format(re.escape(prefix),
                                         re.escape(report_name)))
@@ -693,7 +686,7 @@ class Aws(CloudBase):
             report_name=self.config.get('report_name', DEFAULT_REPORT_NAME),
             bucket_name=self.config.get('bucket_name'),
             prefix=self.config.get('bucket_prefix', DEFAULT_BUCKET_PREFIX),
-            region=self.config.get('region_name', DEFAULT_REGION_NAME)
+            region=self.config.get('region_name', self.DEFAULT_S3_REGION_NAME)
         )
 
         incorrect_params = []
@@ -751,7 +744,7 @@ class Aws(CloudBase):
                 ACL='private',
                 CreateBucketConfiguration={
                     'LocationConstraint': self.config.get('region_name',
-                                                          DEFAULT_REGION_NAME)
+                                                          self.DEFAULT_S3_REGION_NAME)
                 })
 
         actions = [
@@ -826,7 +819,7 @@ class Aws(CloudBase):
             report_definition = self.get_report_definition(
                 report_name=report_name, bucket_name=bucket_name,
                 prefix=prefix,
-                region=self.config.get('region_name', DEFAULT_REGION_NAME))
+                region=self.config.get('region_name', self.DEFAULT_S3_REGION_NAME))
             self._wrap(
                 'create report {}'.format(report_name),
                 create_report, report_definition)

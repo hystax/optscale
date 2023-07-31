@@ -4,7 +4,7 @@ from requests.exceptions import SSLError
 from kombu import Connection as QConnection
 from kombu import Exchange, Queue
 from kombu.pools import producers
-
+from rest_api_client.client_v2 import Client as RestClient
 from insider_worker.processors.base import BasePriceProcessor
 from insider_worker.http_client.client import Client
 
@@ -70,6 +70,15 @@ class AzurePriceProcessor(BasePriceProcessor):
         }
         self.publish_activities_tasks(task)
 
+    def _get_currencies_list(self):
+        rest_cl = RestClient(
+            url=self.config_client.restapi_url(),
+            secret=self.config_client.cluster_secret(),
+            verify=False)
+        _, orgs = rest_cl.organization_list()
+        currencies = set(map(lambda x: x['currency'], orgs['organizations']))
+        return list(currencies)
+
     def process_prices(self):
         last_discovery = self.get_last_discovery()
         old_prices = self.prices.find(
@@ -81,7 +90,7 @@ class AzurePriceProcessor(BasePriceProcessor):
         http_client = Client()
         processed_keys = {}
         prices_counter = 0
-        for currency in ['USD', 'EUR', 'CAD', 'TRY', 'BRL']:
+        for currency in self._get_currencies_list():
             next_page = 'https://prices.azure.com/api/retail/prices'
             next_page += '?currencyCode=%s' % currency
             while True:

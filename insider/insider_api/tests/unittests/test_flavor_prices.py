@@ -29,6 +29,11 @@ class TestFlavorPricesApi(TestBase):
             'flavor': 'cs.t5-lc1m2.large',
             'os_type': 'linux'
         }
+        self.valid_aws_family_params = {
+            'cloud_type': 'aws',
+            'region': 'us-west-2',
+            'instance_family': 't3'
+        }
         self.azure_cad = patch(
             'insider_api.controllers.flavor_price.'
             'AzureProvider.cloud_adapter').start()
@@ -335,6 +340,41 @@ class TestFlavorPricesApi(TestBase):
                 "updated_at": datetime.utcfromtimestamp(ts),
                 "usagetype": "APE1-BoxUsage:t3.nano", "vcpu": "2"
             },
+            {
+                "sku": "2Y2V5UBKTCGHE5AP",
+                "capacitystatus": "Used",
+                "clockSpeed": "3.1 GHz",
+                "currentGeneration": "Yes",
+                "dedicatedEbsThroughput": "Up to 2085 Mbps",
+                "ecu": "Variable",
+                "enhancedNetworkingSupported": "No",
+                "instanceFamily": "General purpose",
+                "instanceType": "t4.large",
+                "intelAvx2Available": "Yes",
+                "intelAvxAvailable": "Yes",
+                "intelTurboAvailable": "Yes",
+                "licenseModel": "No License required",
+                "location": "US West (Oregon)",
+                "locationType": "AWS Region",
+                "memory": "0.5 GiB",
+                "networkPerformance": "Up to 5 Gigabit",
+                "normalizationSizeFactor": "0.25",
+                "operatingSystem": "Windows",
+                "operation": "RunInstances",
+                "physicalProcessor": "Intel Skylake E5 2686 v5",
+                "preInstalledSw": "NA",
+                "price": {"USD": "0.0083000000"},
+                "price_unit": "Hrs",
+                "processorArchitecture": "64-bit",
+                "processorFeatures": "AVX; AVX2; Intel AVX; Intel AVX2; "
+                                     "Intel AVX512; Intel Turbo",
+                "servicecode": "AmazonEC2",
+                "servicename": "Amazon Elastic Compute Cloud",
+                "storage": "EBS only",
+                "tenancy": "Shared",
+                "updated_at": datetime.utcfromtimestamp(ts),
+                "usagetype": "APE1-BoxUsage:t3.nano", "vcpu": "2"
+            },
         ]
         for pricing in pricings:
             self.mongo_client.restapi.aws_prices.insert_one(pricing)
@@ -393,6 +433,15 @@ class TestFlavorPricesApi(TestBase):
                 self.assertEqual(code, 400)
                 self.verify_error_code(resp, 'OI0011')
 
+        for k, v in self.valid_aws_family_params.items():
+            if k == 'cloud_type':
+                continue
+            body = self.valid_aws_family_params.copy()
+            body[k] = None
+            code, resp = self.client.get_family_prices(**body)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OI0011')
+
     def test_flavors_bad_secret(self):
         http_provider = insider_client.FetchMethodHttpProvider(
             self.fetch, rethrow=False, secret='123')
@@ -416,6 +465,12 @@ class TestFlavorPricesApi(TestBase):
         self.assertEqual(code, 400)
         self.verify_error_code(resp, 'OI0010')
 
+        valid_params = self.valid_aws_family_params.copy()
+        valid_params['cloud_type'] = 'test'
+        code, resp = self.client.get_family_prices(**valid_params)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OI0010')
+
     def test_not_supported_os_type(self):
         self.azure_cad.get_regions_coordinates.return_value = {
             self.azure_valid_params['region']: 2
@@ -427,6 +482,12 @@ class TestFlavorPricesApi(TestBase):
             self.assertEqual(code, 400)
             self.verify_error_code(resp, 'OI0015')
 
+        params = self.valid_aws_family_params.copy()
+        params['os_type'] = 'test'
+        code, resp = self.client.get_family_prices(**params)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OI0015')
+
     def test_not_supported_region(self):
         for params in [self.aws_valid_params, self.azure_valid_params]:
             valid_params = params.copy()
@@ -434,6 +495,12 @@ class TestFlavorPricesApi(TestBase):
             code, resp = self.client.get_flavor_prices(**valid_params)
             self.assertEqual(code, 400)
             self.verify_error_code(resp, 'OI0012')
+
+        params = self.valid_aws_family_params.copy()
+        params['region'] = 'test'
+        code, resp = self.client.get_family_prices(**params)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OI0012')
 
     def test_azure_valid_params(self):
         now = int(datetime.utcnow().timestamp())
@@ -532,6 +599,11 @@ class TestFlavorPricesApi(TestBase):
             self.assertEqual(code, 200)
             self.assertListEqual(res.get('prices'), [])
 
+            code, res = self.client.get_family_prices(
+                **self.valid_aws_family_params)
+            self.assertEqual(code, 200)
+            self.assertListEqual(res.get('prices'), [])
+
     def test_azure_valid_params_empty(self):
         self.azure_cad.get_regions_coordinates.return_value = {
             self.azure_valid_params['region']: 2
@@ -544,3 +616,38 @@ class TestFlavorPricesApi(TestBase):
         code, res = self.client.get_flavor_prices(**self.alibaba_valid_params)
         self.assertEqual(code, 200)
         self.assertListEqual(res.get('prices'), [])
+
+    def test_aws_family_valid_params(self):
+        now = int(datetime.utcnow().timestamp())
+        self.insert_aws_pricing(now)
+        code, res = self.client.get_family_prices(
+            **self.valid_aws_family_params)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res.get('prices', [])), 1)
+        price = res['prices'][0]
+        self.assertEqual(price['instance_family'],
+                         self.valid_aws_family_params['instance_family'])
+        self.assertEqual(price['region'],
+                         self.valid_aws_family_params['region'])
+        self.assertEqual(price['operating_system'], 'linux')
+        self.assertEqual(price['instance_type'], 't3.medium')
+        self.assertEqual(price['price'], 0.0073)
+        self.assertEqual(price['cpu'], 2)
+        self.assertEqual(price['ram'], 512)
+        self.assertIsNone(price['gpu'])
+        for k in ['price_unit', 'currency']:
+            self.assertIsNotNone(price.get(k))
+
+        params = self.valid_aws_family_params.copy()
+        params['os_type'] = 'Windows'
+        code, res = self.client.get_family_prices(**params)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res.get('prices', [])), 1)
+        for p in res.get('prices'):
+            self.assertTrue(p['instance_type'] in ['t3.medium'])
+        params['instance_family'] = 't4'
+        code, res = self.client.get_family_prices(**params)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res.get('prices', [])), 2)
+        for p in res.get('prices'):
+            self.assertTrue(p['instance_type'] in ['t4.medium', 't4.large'])

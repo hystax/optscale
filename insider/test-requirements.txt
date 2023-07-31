@@ -5,4 +5,4 @@ pylint==2.6.0
 freezegun==0.3.8
 concurrencytest==0.1.2
 mongomock==3.22.1
-insider-client==0.0.24
+insider-client==0.0.28

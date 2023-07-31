@@ -1,0 +1,3 @@
+import UpdateServiceAccountCredentialsDescription from "./UpdateServiceAccountCredentialsDescription";
+
+export default UpdateServiceAccountCredentialsDescription;

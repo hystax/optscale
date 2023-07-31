@@ -191,6 +191,7 @@ class ObsoleteSnapshotsBase(ModuleBase):
                         'last_seen': int(end_date.timestamp()),
                         'saving': saving,
                         'region': resource.get('region'),
+                        'folder_id': resource['meta'].get('folder_id'),
                         'last_used': resource['meta'].get('last_used') or 0,
                         'is_excluded': resource.get(
                             'pool_id') in excluded_pools,

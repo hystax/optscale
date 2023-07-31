@@ -20,6 +20,7 @@ HOURS_IN_DAY = 24
 SECONDS_IN_HOUR = 3600
 SECONDS_IN_DAY = HOURS_IN_DAY * SECONDS_IN_HOUR
 DAYS_IN_MONTH = 30
+BYTES_IN_GB = 2 ** 30
 
 
 class LimitType(Enum):
@@ -35,6 +36,7 @@ class RightsizingBase(ModuleBase):
         self._insider_cl = None
         self._metroculus_cl = None
         self.excluded_flavor_regex_key = 'excluded_flavor_regex'
+        self.cloud_account_map = {}
 
     @property
     def insider_cl(self):
@@ -79,16 +81,17 @@ class RightsizingBase(ModuleBase):
         recommended = ceil(flavor_cpu / optimization_metric_limit * relevant_instance_metric)
         return recommended
 
-    def get_recommended_cpu(self, flavor_cpu, instance_metrics, optimization_metric,
-                            recommended_flavor_cpu_min):
-        recommended = self._get_base_recommended_cpu(
+    def get_recommended_cpu(self, flavor_cpu, instance_metrics,
+                            optimization_metric, recommended_flavor_cpu_min):
+        recommended_cpu_list = []
+        min_recommended = self._get_base_recommended_cpu(
             flavor_cpu, instance_metrics, optimization_metric)
-        if recommended:
-            if recommended < recommended_flavor_cpu_min:
-                return recommended_flavor_cpu_min
-            if recommended > 1 and recommended % 2 != 0:
-                recommended += 1
-        return recommended
+        if min_recommended:
+            recommended_cpu_list = [
+                x for x in range(int(min_recommended), flavor_cpu)
+                if x >= recommended_flavor_cpu_min and bool(
+                    x == 1 or x > 1 and x % 2 == 0)]
+        return recommended_cpu_list
 
     @staticmethod
     def get_common_match_pipeline(resource_ids, cloud_account_ids):
@@ -156,15 +159,18 @@ class RightsizingBase(ModuleBase):
             instance = cloud_resource_id_instance_map[cloud_resource_id]
             region = instance.get('region')
             family_specs = specs_func(instance)
+            meta = instance['meta']
             flavor_params = {
-                'os_type': instance['meta'].get('os'),
+                'os_type': meta.get('os'),
             }
-            preinstalled = instance['meta'].get('preinstalled')
+            preinstalled = meta.get('preinstalled')
             if preinstalled and cloud_type == 'aws_cnr':
                 flavor_params['preinstalled'] = preinstalled
             meter_id = info.get('meter_id')
             if meter_id and cloud_type == 'azure_cnr':
                 flavor_params['meter_id'] = meter_id
+            if cloud_type == 'nebius' and 'cpu_count' in meta:
+                flavor_params['cpu'] = meta['cpu_count']
 
             exists = [i for i, x in enumerate(result)
                       if (x.get('family_specs') == family_specs and
@@ -186,7 +192,8 @@ class RightsizingBase(ModuleBase):
             currency = self.get_organization_currency()
             _, flavor = self.insider_cl.find_flavor(
                 cloud_type, self.get_insider_resource_type(),
-                region, family_specs, mode, currency=currency, **params)
+                region, family_specs, mode, currency=currency,
+                **params)
             return flavor
         except HTTPError as ex:
             LOG.warning('Unable to get %s flavor: %s' % (mode, str(ex)))
@@ -201,6 +208,8 @@ class RightsizingBase(ModuleBase):
             region = params['region']
             family_specs = params['family_specs']
             flavor_params = params['flavor_params']
+            if cloud_account['type'] == 'nebius':
+                flavor_params['cloud_account_id'] = cloud_account['id']
             current_flavor = self._find_flavor(
                 cloud_account['type'], region, family_specs, 'current',
                 **flavor_params)
@@ -216,82 +225,91 @@ class RightsizingBase(ModuleBase):
             cpu_flavor_map = {}
             for res_id in res_ids:
                 instance = resource_info_map[res_id]
+                meta = instance['meta']
                 instance_metrics = metrics_map.get(instance['_id'])
                 if instance_metrics is None:
                     write_stat_func('no_metric')
                     continue
-                recommended_cpu = self.get_recommended_cpu(
+                recommended_cpu_list = self.get_recommended_cpu(
                     current_cpu, instance_metrics, optimization_metric,
                     recommended_flavor_cpu_min)
-                flavor = instance['meta']['flavor']
-                if not recommended_cpu:
+                flavor = meta.get('flavor')
+                platform_name = meta.get('platform_name')
+                if not recommended_cpu_list:
                     write_stat_func('no_recommended_cpu')
                     continue
-                if not cpu_flavor_map.get(recommended_cpu):
-                    flavor_params['cpu'] = recommended_cpu
-                    recommended_flavor = self._find_flavor(
-                        cloud_account['type'], region, family_specs,
-                        'search_relevant', **flavor_params)
+                for i, recommended_cpu in enumerate(recommended_cpu_list):
+                    if not cpu_flavor_map.get(recommended_cpu):
+                        flavor_params['cpu'] = recommended_cpu
+                        recommended_flavor = self._find_flavor(
+                            cloud_account['type'], region, family_specs,
+                            'search_relevant', **flavor_params)
+                        if (not recommended_flavor and
+                                i == len(recommended_cpu_list) - 1):
+                            write_stat_func('unable_to_get_flavor')
+                            break
+                        cpu_flavor_map[recommended_cpu] = recommended_flavor
+                    else:
+                        recommended_flavor = cpu_flavor_map[recommended_cpu]
                     if not recommended_flavor:
-                        write_stat_func('unable_to_get_flavor')
                         continue
-                    cpu_flavor_map[recommended_cpu] = recommended_flavor
-                else:
-                    recommended_flavor = cpu_flavor_map[recommended_cpu]
-                if recommended_flavor['flavor'] == flavor:
-                    write_stat_func('no_recommended_flavor')
-                    continue
-                current_cost = r_info[res_id].get('day_cost', 0) * DAYS_IN_MONTH
-                discount_multiplier = r_info[res_id].get(
-                    'discount_multiplier', 1)
-                multiplier = HOURS_IN_DAY * DAYS_IN_MONTH * discount_multiplier
-                recommended_cost = recommended_flavor.get('price') * multiplier
-                current_flavor_cost = current_flavor.get('price') * multiplier
-                if recommended_cost >= current_flavor_cost:
-                    write_stat_func('current_cost_less_recommended')
-                    continue
-                saving = current_flavor_cost - recommended_cost
-                is_pool_excluded = instance.get('pool_id') in excluded_pools
-                is_flavor_excluded = bool(excluded_flavor_prog.pattern and
-                                          excluded_flavor_prog.match(
-                                              instance['meta']['flavor']))
-                write_stat_func('success')
-                cpu_peak = instance_metrics['max']
-                cpu_qtl_50 = instance_metrics['qtl50']
-                cpu_qtl_99 = instance_metrics['qtl99']
-                target_cpu = recommended_flavor['cpu']
-                project_cpu_avg = min([instance_metrics['avg'] * current_cpu / target_cpu, 100])  # max 100
-                project_cpu_peak = min([cpu_peak * current_cpu / target_cpu, 100])  # max 100
-                projected_cpu_qtl_50 = min([cpu_qtl_50 * current_cpu / target_cpu, 100])  # max 100
-                projected_cpu_qtl_99 = min([cpu_qtl_99 * current_cpu / target_cpu, 100])  # max 100
+                    if (recommended_flavor['flavor'] == flavor or
+                            platform_name and not flavor and recommended_flavor[
+                                'flavor'] != platform_name):
+                        write_stat_func('no_recommended_flavor')
+                        break
+                    current_cost = r_info[res_id].get('day_cost', 0) * DAYS_IN_MONTH
+                    discount_multiplier = r_info[res_id].get(
+                        'discount_multiplier', 1)
+                    multiplier = HOURS_IN_DAY * DAYS_IN_MONTH * discount_multiplier
+                    recommended_cost = recommended_flavor.get('price') * multiplier
+                    current_flavor_cost = current_flavor.get('price') * multiplier
+                    if recommended_cost >= current_flavor_cost:
+                        write_stat_func('current_cost_less_recommended')
+                        break
+                    saving = current_flavor_cost - recommended_cost
+                    is_pool_excluded = instance.get('pool_id') in excluded_pools
+                    is_flavor_excluded = bool(excluded_flavor_prog.pattern and
+                                              excluded_flavor_prog.match(
+                                                  flavor or platform_name))
+                    write_stat_func('success')
+                    cpu_peak = instance_metrics['max']
+                    cpu_qtl_50 = instance_metrics['qtl50']
+                    cpu_qtl_99 = instance_metrics['qtl99']
+                    target_cpu = recommended_flavor['cpu']
+                    project_cpu_avg = min([instance_metrics['avg'] * current_cpu / target_cpu, 100])  # max 100
+                    project_cpu_peak = min([cpu_peak * current_cpu / target_cpu, 100])  # max 100
+                    projected_cpu_qtl_50 = min([cpu_qtl_50 * current_cpu / target_cpu, 100])  # max 100
+                    projected_cpu_qtl_99 = min([cpu_qtl_99 * current_cpu / target_cpu, 100])  # max 100
 
-                result.append({
-                    'cloud_resource_id': instance['cloud_resource_id'],
-                    'resource_name': instance.get('name'),
-                    'resource_id': instance['_id'],
-                    'cloud_account_id': instance['cloud_account_id'],
-                    'cloud_type': cloud_account['type'],
-                    'region': region,
-                    'flavor': instance['meta']['flavor'],
-                    'recommended_flavor': recommended_flavor['flavor'],
-                    'saving': round(saving, 2),
-                    'saving_percent': round(
-                        saving / current_cost * 100, 2) if current_cost else 0,
-                    'current_cost': round(current_cost, 2),
-                    'recommended_flavor_cost': round(recommended_cost, 2),
-                    'cpu': current_cpu,
-                    'recommended_flavor_cpu': target_cpu,
-                    'recommended_flavor_ram': recommended_flavor['ram'],
-                    'cpu_usage': round(instance_metrics['avg'], 2),
-                    'is_excluded': is_pool_excluded or is_flavor_excluded,
-                    'cpu_peak': round(cpu_peak, 2),
-                    'cpu_quantile_50': round(cpu_qtl_50, 2),
-                    'cpu_quantile_99': round(cpu_qtl_99, 2),
-                    'project_cpu_avg': round(project_cpu_avg, 2),
-                    'project_cpu_peak': round(project_cpu_peak, 2),
-                    'projected_cpu_qtl_50': round(projected_cpu_qtl_50, 2),
-                    'projected_cpu_qtl_99': round(projected_cpu_qtl_99, 2),
-                })
+                    result.append({
+                        'cloud_resource_id': instance['cloud_resource_id'],
+                        'resource_name': instance.get('name'),
+                        'resource_id': instance['_id'],
+                        'cloud_account_id': instance['cloud_account_id'],
+                        'cloud_type': cloud_account['type'],
+                        'region': region,
+                        'flavor': flavor or platform_name,
+                        'recommended_flavor': recommended_flavor['flavor'],
+                        'saving': round(saving, 2),
+                        'saving_percent': round(
+                            saving / current_cost * 100, 2) if current_cost else 0,
+                        'current_cost': round(current_cost, 2),
+                        'recommended_flavor_cost': round(recommended_cost, 2),
+                        'cpu': current_cpu,
+                        'recommended_flavor_cpu': target_cpu,
+                        'recommended_flavor_ram': recommended_flavor['ram'],
+                        'cpu_usage': round(instance_metrics['avg'], 2),
+                        'is_excluded': is_pool_excluded or is_flavor_excluded,
+                        'cpu_peak': round(cpu_peak, 2),
+                        'cpu_quantile_50': round(cpu_qtl_50, 2),
+                        'cpu_quantile_99': round(cpu_qtl_99, 2),
+                        'project_cpu_avg': round(project_cpu_avg, 2),
+                        'project_cpu_peak': round(project_cpu_peak, 2),
+                        'projected_cpu_qtl_50': round(projected_cpu_qtl_50, 2),
+                        'projected_cpu_qtl_99': round(projected_cpu_qtl_99, 2),
+                    })
+                    break
         return result
 
     def _get_instances(self, cloud_account_ids, start_date):
@@ -315,11 +333,11 @@ class RightsizingBase(ModuleBase):
 
         supported_func_map = self._get_supported_func_map()
         supported_types = list(supported_func_map.keys())
-        cloud_account_map = self.get_cloud_accounts(
+        self.cloud_account_map = self.get_cloud_accounts(
             supported_types, skip_cloud_accounts)
 
         min_dt = datetime.utcnow() - timedelta(days=days_threshold)
-        instances = self._get_instances(list(cloud_account_map.keys()),
+        instances = self._get_instances(list(self.cloud_account_map.keys()),
                                         int(min_dt.timestamp()))
 
         resource_info_map = {}
@@ -332,7 +350,7 @@ class RightsizingBase(ModuleBase):
                 instance)
             cloud_resource_resource_map[cloud_resource_id] = instance['_id']
         result = []
-        for ca_id, ca in cloud_account_map.items():
+        for ca_id, ca in self.cloud_account_map.items():
             stats_map = {}
             cloud_resources = ca_id_resource_map[ca_id]
             if not cloud_resources:
@@ -482,7 +500,8 @@ class RightsizingBase(ModuleBase):
         for cloud_resource in cloud_resources:
             resource_id = cloud_resource["cloud_resource_id"]
             current_flavor = self._find_flavor(
-                "gcp_cnr", cloud_resource["region"], {"source_flavor_id": cloud_resource["meta"]["flavor"]}, 'current')
+                "gcp_cnr", cloud_resource["region"],
+                {"source_flavor_id": cloud_resource["meta"]["flavor"]}, 'current')
             if not current_flavor:
                 # we do not currently support custom flavors,
                 # so insider might return empty response
@@ -496,9 +515,45 @@ class RightsizingBase(ModuleBase):
                 }
         return result
 
+    def get_base_nebius_instances_info(self, cloud_resources, cloud_account_ids):
+        result = {}
+        for cloud_resource in cloud_resources:
+            resource_id = cloud_resource["cloud_resource_id"]
+            cloud_account_id = cloud_resource['cloud_account_id']
+            family_specs = self.get_base_nebius_family_specs(
+                cloud_resource)
+            if not family_specs:
+                continue
+            current_flavor = self._find_flavor(
+                'nebius', cloud_resource.get("region"), family_specs,
+                'current', cpu=cloud_resource['meta'].get('cpu_count'),
+                cloud_account_id=cloud_account_id)
+            LOG.info('current_flavor %s' % current_flavor)
+            hourly_cost = current_flavor["price"]
+            daily_cost = hourly_cost * HOURS_IN_DAY
+            result[resource_id] = {
+                    'day_cost': daily_cost,
+                    'cloud_account_id': cloud_account_id,
+                    'resource_id': resource_id,
+                }
+        return result
+
     @staticmethod
     def get_base_family_specs(resource_info):
         return {'source_flavor_id': resource_info['meta']['flavor']}
+
+    @staticmethod
+    def get_base_nebius_family_specs(resource_info):
+        result = {}
+        meta = resource_info['meta']
+        platform_name = meta.get('platform_name')
+        if platform_name:
+            result = {
+                'source_flavor_id': platform_name,
+                'cpu_fraction': meta.get('cpu_fraction', 100),
+                'ram': meta.get('ram', 0) / BYTES_IN_GB,
+            }
+        return result
 
     def clean_excluded_flavor_regex(self, option_value, default_value):
         flavor_regex = option_value

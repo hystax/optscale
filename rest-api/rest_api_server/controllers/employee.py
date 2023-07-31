@@ -167,7 +167,7 @@ class EmployeeController(BaseController, MongoMixin):
                 Err.OE0002, [Organization.__name__, organization_id])
         return super().list(organization_id=org.id, **kwargs)
 
-    def list(self, organization_id, **kwargs):
+    def list(self, organization_id, last_login=False, **kwargs):
         roles = kwargs.pop('roles', None)
         exclude_myself = kwargs.pop('exclude_myself', False)
         current_only = kwargs.pop('current_only', False)
@@ -185,6 +185,9 @@ class EmployeeController(BaseController, MongoMixin):
         auth_users = self._get_auth_users(user_ids) if user_ids else []
         slack_connected = {e['id']: e['slack_connected'] for e in auth_users}
         jira_connected = {e['id']: e['jira_connected'] for e in auth_users}
+        last_login_map = {
+            e['id']: e.get('last_login') for e in auth_users
+        } if last_login else {}
         result = list()
         roles_info = dict()
         if roles:
@@ -196,6 +199,9 @@ class EmployeeController(BaseController, MongoMixin):
                 item['auth_user_id'], False)})
             item.update({'jira_connected': jira_connected.get(
                 item['auth_user_id'], False)})
+            if last_login:
+                item.update({'last_login': last_login_map.get(
+                    item['auth_user_id'], 0)})
             if roles:
                 employee_role_info = roles_info.get(employee.auth_user_id)
                 if not employee_role_info:

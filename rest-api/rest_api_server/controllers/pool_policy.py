@@ -116,14 +116,15 @@ class PoolPolicyController(ConstraintBaseController):
         if now > ts_limit:
             return ts_limit, now
 
-    def get_exclusions(self, organization_id):
+    def get_exclusions_by_type(self, organization_id, constr_type):
         if not organization_id:
             return set()
         q = self.session.query(
             ResourceConstraint.resource_id
         ).filter(and_(
             ResourceConstraint.deleted.is_(False),
-            ResourceConstraint.organization_id == organization_id
+            ResourceConstraint.organization_id == organization_id,
+            ResourceConstraint.type == constr_type
         ))
         return {x[0] for x in q.all()}
 
@@ -140,12 +141,18 @@ class PoolPolicyController(ConstraintBaseController):
             pool_id_policies_map[policy.pool_id].append(policy)
 
         res = {}
-        excluded_resource_ids = self.get_exclusions(org_id)
+        excluded_resource_ids_by_type = defaultdict(list)
+        for constr_type in [ConstraintTypes.TTL,
+                            ConstraintTypes.DAILY_EXPENSE_LIMIT]:
+            excluded_resource_ids_by_type[constr_type] = self.get_exclusions_by_type(
+                org_id, constr_type)
         for pool_id, policies in pool_id_policies_map.items():
             resources_data = pool_id_resources_map.get(pool_id)
             if not resources_data:
                 continue
             for policy in policies:
+                excluded_resource_ids = excluded_resource_ids_by_type.get(
+                    policy.type, [])
                 for resource_data in resources_data:
                     if resource_data['resource_id'] in excluded_resource_ids:
                         continue

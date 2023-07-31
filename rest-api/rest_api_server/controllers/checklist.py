@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from rest_api_server.controllers.base import BaseController
 from rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
-from rest_api_server.models.models import Checklist, Organization
+from rest_api_server.models.models import Checklist, Organization, CloudAccount
 
 LOG = logging.getLogger(__name__)
 
@@ -51,18 +51,27 @@ class ChecklistController(BaseController):
                 Organization.is_demo.is_(false())
             )
         ).all()
+        org_with_cloud_accs = [x[0] for x in self.session.query(
+            CloudAccount.organization_id).filter(
+            CloudAccount.deleted.is_(False)).distinct(
+            CloudAccount.organization_id).all()]
         checklists = []
+        checklists_to_delete = []
         missing_org_ids = set()
         for organization_id, checklist in org_checklist_set:
-            if not checklist:
-                missing_org_ids.add(organization_id)
-            else:
+            if checklist and organization_id in org_with_cloud_accs:
                 checklists.append(checklist)
+            elif not checklist and organization_id in org_with_cloud_accs:
+                missing_org_ids.add(organization_id)
+            elif checklist and organization_id not in org_with_cloud_accs:
+                checklists_to_delete.append(checklist)
         new_checklists = []
         for org_id in missing_org_ids:
             checklist = Checklist(organization_id=org_id)
             self.session.add(checklist)
             new_checklists.append(checklist)
+        for checklist in checklists_to_delete:
+            self.session.delete(checklist)
         try:
             self.session.commit()
             checklists.extend(new_checklists)

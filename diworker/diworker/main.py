@@ -159,8 +159,9 @@ class DIWorker(ConsumerMixin):
             if not importer:
                 importer = BaseReportImporter(**importer_params)
             importer.update_cloud_import_attempt(now, str(exc))
-            if ca:
-                self.send_service_email(ca, now, str(exc))
+            # TODO: OS-6259: temporary mute service email
+            # if ca:
+            #     self.send_service_email(ca, now, str(exc))
             raise
 
     def send_service_email(self, cloud_account, now, reason):

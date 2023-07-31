@@ -14,6 +14,7 @@ class TestBase(tornado.testing.AsyncHTTPTestCase):
         super().setUp()
         patch('config_client.client.Client.cluster_secret',
               return_value='secret').start()
+        patch('config_client.client.Client.restapi_url').start()
         self.mongo_client = mongomock.MongoClient()
         patch('insider_api.controllers.base.BaseController.mongo_client',
               new_callable=PropertyMock, return_value=self.mongo_client

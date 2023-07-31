@@ -56,6 +56,7 @@ class TestExecutorsApi(TestProfilingBase):
         self._create_run(self.org['id'], app['id'],
                          [valid_resource['cloud_resource_id']])
         code, resp = self.client.executor_list(self.org['id'], app['id'])
+        self.assertEqual(code, 200)
         self.assertEqual(len(resp['executors']), 1)
         executor = resp['executors'][0]
         self.assertEqual(executor['instance_id'],
@@ -104,15 +105,23 @@ class TestExecutorsApi(TestProfilingBase):
         dt1 = int(dt1.timestamp())
         dt2 = int(dt2.timestamp())
         self._create_proc_stats(
-            run_1_1['_id'], dt1, 'i-1', 10, 100, 5, 25 * BYTES_IN_MB)
+            run_1_1['_id'], dt1, 'i-1', 10, 100, 5, 25 * BYTES_IN_MB,
+            gpu_load=10, gpu_memory_free=20, gpu_memory_used=10,
+            gpu_memory_total=100)
         self._create_proc_stats(
-            run_1_1['_id'], dt1, 'i-2', 20, 200, 10, 50 * BYTES_IN_MB)
+            run_1_1['_id'], dt1, 'i-2', 20, 200, 10, 50 * BYTES_IN_MB,
+            gpu_load=20, gpu_memory_free=60, gpu_memory_used=40,
+            gpu_memory_total=120)
         self._create_proc_stats(
-            run_1_2['_id'], dt2, 'i-3', 30, 300, 15, 75 * BYTES_IN_MB)
+            run_1_2['_id'], dt2, 'i-3', 30, 300, 15, 75 * BYTES_IN_MB,
+            gpu_load=30, gpu_memory_free=40, gpu_memory_used=50,
+            gpu_memory_total=80)
 
         run_2_1 = self._create_run(self.org['id'], app2['id'], [])
         self._create_proc_stats(
-            run_2_1['_id'], dt2, 'i-1', 40, 400, 20, 100 * BYTES_IN_MB)
+            run_2_1['_id'], dt2, 'i-1', 40, 400, 20, 100 * BYTES_IN_MB,
+            gpu_load=40, gpu_memory_free=50, gpu_memory_used=30,
+            gpu_memory_total=90)
 
         for br, expected in [
             ('executors_count', {str(dt1): 2, str(dt2): 2}),
@@ -120,6 +129,10 @@ class TestExecutorsApi(TestProfilingBase):
             ('ram', {str(dt1): 150.0, str(dt2): 350.0}),
             ('process_cpu', {str(dt1): 7.5, str(dt2): 17.5}),
             ('process_ram', {str(dt1): 37.5, str(dt2): 87.5}),
+            ('gpu_load', {str(dt1): 15.0, str(dt2): 35.0}),
+            ('gpu_memory_free', {str(dt1): 40.0, str(dt2): 45.0}),
+            ('gpu_memory_used', {str(dt1): 25.0, str(dt2): 40.0}),
+            ('gpu_memory_total', {str(dt1): 110.0, str(dt2): 85.0})
         ]:
             code, resp = self.client.executors_breakdown_get(
                 self.org['id'], breakdown_by=br)
@@ -217,10 +230,16 @@ class TestExecutorsApi(TestProfilingBase):
             return_resources=True)
         self.assertEqual(code, 200)
         r1 = self._create_run(self.org['id'], app['id'],
-                              [valid_resource['cloud_resource_id']])
-        r2 = self._create_run(self.org['id'], app['id'], ['i-2', 'i-3'])
+                              [valid_resource['cloud_resource_id']],
+                              start=1000, finish=1001)
+        r2 = self._create_run(self.org['id'], app['id'], ['i-2', 'i-3'],
+                              start=1002, finish=1005)
         code, resp = self.client.executor_list(self.org['id'], app['id'])
         self.assertEqual(len(resp['executors']), 3)
+        expected_last_seen_map = {'res_id_1': 1001, 'i-2': 1005, 'i-3': 1005}
+        for e in resp['executors']:
+            self.assertEqual(
+                e['last_used'], expected_last_seen_map[e['instance_id']])
 
         code, resp = self.client.executor_list(
             self.org['id'], run_ids=r1['_id'])

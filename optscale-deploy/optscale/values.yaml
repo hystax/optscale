@@ -609,6 +609,77 @@ arcee:
     externalPort: 80
     internalPort: 8891
 
+risp_worker:
+  name: risp-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: risp_worker
+    tag: *tag
+    pullPolicy: Never
+
+bi_scheduler:
+  name: bi-scheduler
+  image:
+    id:
+    repository: bi_scheduler
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+bi_exporter:
+  name: bi-exporter
+  replicaCount: 1
+  image:
+    id:
+    repository: bi_exporter
+    tag: *tag
+    pullPolicy: Never
+
+failed_imports_dataset_generator:
+  name: failed-imports-dataset-generator
+  image:
+    repository: failed_imports_dataset_generator
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+  enable: false
+  bucket:
+  s3_path:
+  filename:
+  aws_access_key_id:
+  aws_secret_access_key:
+
+bulldozer_api:
+  name: &bulldozer_api_name bulldozer-api
+  replicaCount: 1
+  image:
+    id:
+    repository: bulldozer_api
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *bulldozer_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8896
+
+bulldozer_worker:
+  name: bulldozerworker
+  replicaCount: 1
+  config:
+    max_retries: 5
+    wait_timeout: 7200
+    task_timeout: 3600
+    run_period: 10800
+  image:
+    id:
+    repository: bulldozer_worker
+    tag: *tag
+    pullPolicy: Never
+
 jira_bus:
   name: &jira_bus_name jira-bus
   replicaCount: 1
@@ -682,14 +753,15 @@ thanos_receive:
   name: &thanos_receive_name thanos-receive
   dataSize: 10Gi
   replicaCount: 1
-  tsdbRetention: 15d
-  memory_limit: 6144
+  tsdbRetention: 4h
+  memory_limit: 8192
+  maxConcurrency: 30
   image:
     id:
     repository: thanos
     tag: *tag
     pullPolicy: Never
-  remoteWritePath: 'api/v1/receive'
+  remoteWritePath: "api/v1/receive"
   service:
     name: *thanos_receive_name
     type: ClusterIP
@@ -700,6 +772,8 @@ thanos_receive:
 thanos_storegateway:
   name: &thanos_storegateway_name thanos-storegateway
   dataSize: 10Gi
+  # should be half of compactor deleteDelay
+  ignoreDeletionMarksDelay: "3h"
   replicaCount: 1
   image:
     id:
@@ -711,6 +785,46 @@ thanos_storegateway:
     type: ClusterIP
     httpExternalPort: 10902
     grpcExternalPort: 10901
+
+thanos_compactor:
+  name: &thanos_compactor_name thanos-compactor
+  dataSize: 10Gi
+  consistencyDelay: "4h"
+  deleteDelay: "6h"
+  retentionResolutionRaw: "30d"
+  retentionResolution5m: "90d"
+  retentionResolution1h: "120d"
+  cronJob:
+    schedule: "0 */12 * * *"
+    startingDeadlineSeconds: 100
+    concurrencyPolicy: Forbid
+    suspend: false
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+    backoffLimit: 0
+  image:
+    id:
+    repository: thanos
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *thanos_compactor_name
+    type: ClusterIP
+    httpExternalPort: 10902
+
+thanos_web:
+  name: &thanos_web_name thanos-web
+  refreshInterval: 10m
+  httpPort: &thanos_web_http_port 10902
+  image:
+    id:
+    repository: thanos
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *thanos_web_name
+    type: ClusterIP
+    httpExternalPort: *thanos_web_http_port
 
 thanos_query:
   name: &thanos_query_name thanos-query
@@ -795,6 +909,7 @@ users_dataset_generator:
   filename:
   aws_access_key_id:
   aws_secret_access_key:
+
 
 # list of databases to create (if not exist) during DC initialization
 databases:
@@ -894,6 +1009,7 @@ optscale_error_emails:
 domains_blacklists:
   registration:
   new_employee_email:
+  failed_import_email:
 
 # filled from optscale overlay
 # Service account to work with Google calendars
@@ -938,3 +1054,10 @@ resource_discovery_settings:
   observe_timeout: 7200
 
 encryption_salt:
+encryption_salt_auth:
+
+# settings for bi_scheduler
+bi_settings:
+  exporter_run_period: 86400  #in sec 24h
+  encryption_key: 5t3X3PkQqF5edqW9_c8znow7k7GraZOpBLHhF1kFFvE=
+  task_wait_timeout: 259200  #in sec 3d

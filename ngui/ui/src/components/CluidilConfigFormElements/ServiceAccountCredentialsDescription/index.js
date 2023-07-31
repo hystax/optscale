@@ -1,0 +1,3 @@
+import ServiceAccountCredentialsDescription from "./ServiceAccountCredentialsDescription";
+
+export default ServiceAccountCredentialsDescription;

@@ -27,7 +27,7 @@ class MetroculusWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def _process_task(self, task):
         start_process_time = datetime.utcnow()

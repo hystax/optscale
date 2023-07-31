@@ -1,12 +1,8 @@
-import json
 from rest_api_server.controllers.profiling.profiling_token import (
     ProfilingTokenAsyncController)
-from rest_api_server.handlers.v1.base_async import (BaseAsyncCollectionHandler,
-                                                    BaseAsyncItemHandler)
+from rest_api_server.handlers.v1.base_async import BaseAsyncCollectionHandler
 from rest_api_server.handlers.v1.base import BaseAuthHandler
-from rest_api_server.utils import run_task, ModelEncoder
-from optscale_exceptions.http_exc import OptHTTPError
-from rest_api_server.exceptions import Err
+from rest_api_server.utils import run_task
 
 
 class ProfilingTokenAsyncCollectionHandler(BaseAsyncCollectionHandler,

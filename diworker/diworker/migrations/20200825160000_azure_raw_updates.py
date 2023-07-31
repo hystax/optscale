@@ -81,7 +81,7 @@ class Migration(BaseMigration):
 
     def remove_azure_data_from_current_month(self):
         month_regex = datetime.utcnow().strftime('%Y-%m')
-        self.db.raw_expenses.remove({'usage_start': {'$regex': month_regex}})
+        self.db.raw_expenses.delete_many({'usage_start': {'$regex': month_regex}})
 
     def update_resource_id_in_clean_expenses(self):
         update_requests = []

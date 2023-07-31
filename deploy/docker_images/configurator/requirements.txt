@@ -1,10 +1,10 @@
 mysql-connector==2.1.4
-PyYAML==5.3.1
+PyYAML==5.4.1
 SQLAlchemy==1.1.4
-pymongo==3.5.1
+pymongo==4.3.3
 pika==1.1.0
 influxdb==4.1.1
 boto3==1.12.25
 
 # our dependencies
-config-client==1.0.77
+config-client==1.0.146

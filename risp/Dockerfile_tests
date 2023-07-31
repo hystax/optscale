@@ -1,0 +1,7 @@
+ARG BUILDTAG=build
+FROM risp_worker:${BUILDTAG}
+MAINTAINER Hystax
+
+ADD risp_worker/tests ./tests
+COPY test-requirements.txt .pylintrc run_tests.py  ./
+RUN pip install --no-cache-dir -r test-requirements.txt

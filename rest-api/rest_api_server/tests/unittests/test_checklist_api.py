@@ -110,3 +110,29 @@ class TestLimitHitsApi(TestApiBase):
         code, res = self.client.checklist_list()
         self.assertEqual(code, 200)
         self.assertEqual(len(res['checklists']), 0)
+
+    def test_create_delete_checklist_on_list(self):
+        _, org = self.client.organization_create({'name': "org1"})
+        code, res = self.client.checklist_list()
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res['checklists']), 1)
+        self.assertEqual(res['checklists'][0]['organization_id'], self.org_id)
+
+        auth_user = self.gen_id()
+        _, self.employee = self.client.employee_create(
+            org['id'], {'name': 'employee', 'auth_user_id': auth_user})
+        code, cloud_acc = self.create_cloud_account(
+            org['id'], self.valid_aws_creds, auth_user_id=auth_user)
+        self.assertEqual(code, 201)
+
+        code, res = self.client.checklist_list()
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res['checklists']), 2)
+
+        code, _ = self.client.cloud_account_delete(cloud_acc['id'])
+        self.assertEqual(code, 204)
+
+        code, res = self.client.checklist_list()
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res['checklists']), 1)
+        self.assertEqual(res['checklists'][0]['organization_id'], self.org_id)

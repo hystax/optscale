@@ -13,7 +13,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  name: optscale
+  name: acura
   namespace: default
 spec:
   rules:
@@ -79,5 +79,9 @@ spec:
           serviceName: {{ .Values.arcee.service.name }}
           servicePort: {{ .Values.arcee.service.externalPort }}
         path: /arcee
+      - backend:
+          serviceName: {{ .Values.bulldozer_api.service.name }}
+          servicePort: {{ .Values.bulldozer_api.service.externalPort }}
+        path: /bulldozer
   tls:
   - secretName: defaultcert

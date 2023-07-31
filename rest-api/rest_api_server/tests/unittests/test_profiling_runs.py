@@ -45,6 +45,28 @@ class TestRunsApi(TestProfilingBase):
         # for goal in resp['goals']:
         #     self.assertEqual(goal['value'], goal_values.get(goal['name']))
 
+    def test_get_runset_run(self):
+        goal_1 = self._create_goal(self.org['id'], 'loss')
+        goal_2 = self._create_goal(self.org['id'], 'goal_2')
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'goals': [goal_1['id'], goal_2['id']]
+            })
+        self.assertEqual(code, 201)
+        run = self._create_run(self.org['id'],
+                               app['id'],
+                               ['i-1', 'i-2'],
+                               data={'step': 2000, 'loss': 55},
+                               runset_id=str(uuid.uuid4()),
+                               runset_name='test')
+        code, resp = self.client.run_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertTrue(resp.get('runset'))
+        self.assertEqual(run['runset_id'], resp['runset'].get('id'))
+        self.assertEqual(run['runset_name'], resp['runset'].get('name'))
+
     def test_runs_breakdown_params(self):
         code, resp = self.client.run_breakdown_get(self.org['id'], '123')
         self.assertEqual(code, 404)
@@ -73,26 +95,33 @@ class TestRunsApi(TestProfilingBase):
 
         self._create_log(run['_id'], 2, data={'loss': 10}, instance_id='i-1')
         self._create_proc_stats(
-            run['_id'], 2, 'i-1', 4, 100, 2, 50 * BYTES_IN_MB)
+            run['_id'], 2, 'i-1', 4, 100, 2, 50 * BYTES_IN_MB, gpu_load=5,
+            gpu_memory_free=10, gpu_memory_used=15, gpu_memory_total=20)
         self._create_log(run['_id'], 2.2, data={'loss': 20}, instance_id='i-1')
         self._create_proc_stats(
-            run['_id'], 2.6, 'i-1', 6, 200, 3, 70 * BYTES_IN_MB)
+            run['_id'], 2.6, 'i-1', 6, 200, 3, 70 * BYTES_IN_MB, gpu_load=10,
+            gpu_memory_free=20, gpu_memory_used=30, gpu_memory_total=40)
         self._create_log(run['_id'], 3, data={'loss': 50}, instance_id='i-2')
         self._create_proc_stats(
-            run['_id'], 2.9, 'i-2', 10, 300, 4, 120 * BYTES_IN_MB)
+            run['_id'], 2.9, 'i-2', 10, 300, 4, 120 * BYTES_IN_MB, gpu_load=20,
+            gpu_memory_free=40, gpu_memory_used=60, gpu_memory_total=80)
 
         code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
         breakdowns = resp['breakdown']
         br_2 = breakdowns.pop('2')
-        self.assertEqual(br_2['metrics'],
-                         {'ram': 100.0, 'cpu': 4.0, 'executors_count': 1,
-                          'process_cpu': 2.0, 'process_ram': 50.0})
+        self.assertEqual(br_2['metrics'], {
+            'ram': 100.0, 'cpu': 4.0, 'executors_count': 1, 'process_cpu': 2.0,
+            'process_ram': 50.0, 'gpu_load': 5.0, 'gpu_memory_free': 10.0,
+            'gpu_memory_total': 20.0, 'gpu_memory_used': 15.0
+        })
         self.assertEqual(br_2['data'], {})
         br_3 = breakdowns.pop('3')
-        self.assertEqual(br_3['metrics'],
-                         {'ram': 250.0, 'cpu': 8.0, 'executors_count': 2,
-                          'process_cpu': 3.5, 'process_ram': 95.0})
+        self.assertEqual(br_3['metrics'], {
+            'ram': 250.0, 'cpu': 8.0, 'executors_count': 2, 'process_cpu': 3.5,
+            'process_ram': 95.0, 'gpu_load': 15.0, 'gpu_memory_free': 30.0,
+            'gpu_memory_total': 60.0, 'gpu_memory_used': 45.0
+        })
         self.assertEqual(br_3['data'], {})
         for br in breakdowns.values():
             self.assertEqual(br['metrics'], {})
@@ -106,15 +135,19 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(code, 200)
         breakdowns = resp['breakdown']
         br_2 = breakdowns.pop('2')
-        self.assertEqual(
-            br_2['metrics'], {'ram': 100, 'cpu': 4, 'executors_count': 1,
-                              'process_cpu': 2.0, 'process_ram': 50.0})
+        self.assertEqual(br_2['metrics'], {
+            'ram': 100, 'cpu': 4, 'executors_count': 1, 'process_cpu': 2.0,
+            'process_ram': 50.0, 'gpu_load': 5.0, 'gpu_memory_free': 10.0,
+            'gpu_memory_total': 20.0, 'gpu_memory_used': 15.0
+            })
         self.assertEqual(
             br_2['data'], {'loss': 10})
         br_3 = breakdowns.pop('3')
-        self.assertEqual(
-            br_3['metrics'], {'ram': 250, 'cpu': 8, 'executors_count': 2,
-                              'process_cpu': 3.5, 'process_ram': 95.0})
+        self.assertEqual(br_3['metrics'], {
+            'ram': 250, 'cpu': 8, 'executors_count': 2, 'process_cpu': 3.5,
+            'process_ram': 95.0, 'gpu_load': 15.0, 'gpu_memory_free': 30.0,
+            'gpu_memory_total': 60.0, 'gpu_memory_used': 45.0
+        })
         self.assertEqual(
             br_3['data'], {'loss': 35})
         for br in breakdowns.values():
@@ -178,7 +211,7 @@ class TestRunsApi(TestProfilingBase):
             {
                 'start_date': datetime(2022, 5, 15, 15),
                 'end_date': datetime(2022, 5, 15, 16),
-                'identity/TimeInterval': '2017-11-01T00:00/2017-11-01T01:00',
+                'lineItem/UsageAmount': '1',
                 'cost': 1,
                 'lineItem/UsageType': 'BoxUsage',
                 'cloud_account_id': cloud_acc['id'],
@@ -202,7 +235,6 @@ class TestRunsApi(TestProfilingBase):
         code, resp = self.client.application_get(self.org['id'], app['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['last_run_cost'], 185)
-        self.assertEqual(resp['last_30_days_cost'], 0)
         self.assertEqual(resp['total_cost'], 185)
 
         dt_start = datetime.utcnow() - timedelta(days=15)
@@ -214,7 +246,6 @@ class TestRunsApi(TestProfilingBase):
         code, resp = self.client.application_get(self.org['id'], app['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['last_run_cost'], 5)
-        self.assertEqual(resp['last_30_days_cost'], 5)
         self.assertEqual(resp['total_cost'], 190)
 
     def test_list_run(self):
@@ -274,7 +305,6 @@ class TestRunsApi(TestProfilingBase):
         code, resp = self.client.application_get(self.org['id'], app['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['runs_count'], 1)
-        self.assertEqual(resp['executors_count'], 0)
 
     def test_not_completed_run_breakdown(self):
         code, app = self.client.application_create(
@@ -302,11 +332,13 @@ class TestRunsApi(TestProfilingBase):
                                app['id'], ['i-1', 'i-2'],
                                start=1001, finish=1005)
         self._create_log(run['_id'], 1001.77, data={'loss': 10})
-        self._create_proc_stats(run['_id'], 1002, 'i-1', 2, 50, 1,
-                                1 * BYTES_IN_MB)
+        self._create_proc_stats(
+            run['_id'], 1002, 'i-1', 2, 50, 1, 1 * BYTES_IN_MB, gpu_load=20,
+            gpu_memory_free=40, gpu_memory_used=60, gpu_memory_total=80)
         self._create_log(run['_id'], 1003, data={'loss': 20})
-        self._create_proc_stats(run['_id'], 1002.8, 'i-1', 4, 100, 2,
-                                2 * BYTES_IN_MB)
+        self._create_proc_stats(
+            run['_id'], 1002.8, 'i-1', 4, 100, 2, 2 * BYTES_IN_MB, gpu_load=30,
+            gpu_memory_free=50, gpu_memory_used=70, gpu_memory_total=90)
         code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
         breakdown = resp['breakdown']
@@ -314,10 +346,12 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(breakdown['1001'], {'metrics': {}, 'data': {}})
         self.assertEqual(breakdown['1002'], {'metrics': {
             'ram': 50.0, 'cpu': 2.0, 'executors_count': 1, 'process_cpu': 1.0,
-            'process_ram': 1.0}, 'data': {}})
+            'process_ram': 1.0, 'gpu_load': 20.0, 'gpu_memory_free': 40.0,
+            'gpu_memory_total': 80.0, 'gpu_memory_used': 60.0}, 'data': {}})
         self.assertEqual(breakdown['1003'], {'metrics': {
             'ram': 100.0, 'cpu': 4.0, 'executors_count': 1, 'process_cpu': 2.0,
-            'process_ram': 2.0}, 'data': {}})
+            'process_ram': 2.0, 'gpu_load': 30.0, 'gpu_memory_free': 50.0,
+            'gpu_memory_total': 90.0, 'gpu_memory_used': 70.0}, 'data': {}})
         self.assertEqual(breakdown['1004'], {'metrics': {}, 'data': {}})
         self.assertEqual(breakdown['1005'], {'metrics': {}, 'data': {}})
 
@@ -440,7 +474,7 @@ class TestRunsApi(TestProfilingBase):
             {
                 'start_date': datetime(2022, 5, 15, 15),
                 'end_date': datetime(2022, 5, 15, 16),
-                'identity/TimeInterval': '2017-11-01T00:00/2017-11-01T01:00',
+                'identity/TimeInterval': '2017-11-01T00:00:00Z/2017-11-01T01:00:00Z',
                 'cost': 200,
                 'lineItem/UsageType': 'BoxUsage',
                 'cloud_account_id': cloud_acc['id'],
@@ -512,3 +546,73 @@ class TestRunsApi(TestProfilingBase):
                                                    other_run['_id'])
         self.assertEqual(code, 403)
         self.verify_error_code(resp, 'OE0234')
+
+    def test_breakdown_zero_proc(self):
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+            })
+        run = self._create_run(self.org['id'], app['id'], ['i-1'],
+                               start=1, finish=3)
+        code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['breakdown']), 3)
+        for v in resp['breakdown'].values():
+            self.assertEqual(v, {'metrics': {}, 'data': {}})
+
+        self._create_proc_stats(
+            run['_id'], 2, 'i-1', 0, 0, 0, 0, gpu_load=0,
+            gpu_memory_free=0, gpu_memory_used=0, gpu_memory_total=0)
+        code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['breakdown']), 3)
+        br_2 = resp['breakdown'].pop('2')
+        for v in resp['breakdown'].values():
+            self.assertEqual(v, {'metrics': {}, 'data': {}})
+        self.assertEqual(br_2, {
+            'data': {},
+            'metrics': {
+                'executors_count': 1,
+                'cpu': 0.0,
+                'gpu_load': 0.0,
+                'gpu_memory_free': 0.0,
+                'gpu_memory_total': 0.0,
+                'gpu_memory_used': 0.0,
+                'process_cpu': 0.0,
+                'process_ram': 0.0,
+                'ram': 0.0}
+        })
+
+    def test_breakdown_goals_aggregate_func(self):
+        goal_1 = self._create_goal(self.org['id'], 'avg', func='avg')
+        goal_2 = self._create_goal(self.org['id'], 'sum', func='sum')
+        goal_3 = self._create_goal(self.org['id'], 'max', func='max')
+        goal_4 = self._create_goal(self.org['id'], 'last', func='last')
+        valid_application = {
+            'name': 'My test project',
+            'key': 'test_project',
+            'goals': [goal_1['id'], goal_2['id'], goal_3['id'], goal_4['id']]
+        }
+        code, app = self.client.application_create(
+            self.org['id'], valid_application)
+        self.assertEqual(code, 201)
+        self.assertEqual(len(app['goals']), 4)
+        now = int(datetime.utcnow().timestamp())
+        run = self._create_run(self.org['id'], app['id'], ['i-1'],
+                               start=now - 2, finish=now)
+        for dt, val in [
+            (now - 2, 10), (now - 1, 20), (now - 1, 30), (now, 50), (now, 40)
+        ]:
+            self._create_log(
+                run['_id'], dt, data={
+                    k: val for k in ['avg', 'sum', 'max', 'last']
+                }, instance_id='i-1')
+        code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['breakdown'][str(now - 2)]['data'],
+                         {'avg': 10.0, 'sum': 10, 'max': 10, 'last': 10})
+        self.assertEqual(resp['breakdown'][str(now - 1)]['data'],
+                         {'avg': 25.0, 'sum': 50, 'max': 30, 'last': 30})
+        self.assertEqual(resp['breakdown'][str(now)]['data'],
+                         {'avg': 45.0, 'sum': 90, 'max': 50, 'last': 40})

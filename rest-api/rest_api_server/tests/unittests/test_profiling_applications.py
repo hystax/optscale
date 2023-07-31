@@ -299,3 +299,24 @@ class TestApplicationApi(TestProfilingBase):
         code, app = self.client.application_create(
             self.org['id'], self.valid_application)
         self.assertEqual(code, 409)
+
+    def test_application_last_run_and_history(self):
+        goal_1 = self._create_goal(self.org['id'], 'loss')
+        self.valid_application['goals'] = [goal_1['id']]
+        code, app = self.client.application_create(
+            self.org['id'], self.valid_application)
+        self.assertEqual(code, 201)
+        self.assertEqual(len(app['goals']), 1)
+        now = datetime.utcnow().timestamp()
+        self._create_run(self.org['id'], app['id'], ['i-1'],
+                         start=now - 2, finish=now, data={'loss': 10})
+        # second created run should be first
+        self._create_run(self.org['id'], app['id'], ['i-2'], start=now - 5,
+                         finish=now - 3, data={'loss': 55})
+        code, resp = self.client.application_get(self.org['id'], app['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['last_run'], now - 2)
+        self.assertEqual(resp['last_run_executor']['instance_id'], 'i-1')
+        run_goal = resp['run_goals'][0]
+        self.assertEqual(run_goal['last_run_value'], 10)
+        self.assertEqual(run_goal['history'], [55, 10])

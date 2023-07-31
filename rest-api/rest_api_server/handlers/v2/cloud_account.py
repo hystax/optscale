@@ -18,6 +18,15 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
     def _get_controller_class(self):
         return CloudAccountAsyncController
 
+    def _validate_params(self, **kwargs):
+        super()._validate_params(**kwargs)
+        for unexpected in ['parent_id', 'root_config']:
+            if unexpected in kwargs:
+                raise OptHTTPError(400, Err.OE0212, [unexpected])
+        cloud_type = kwargs.get('type')
+        if cloud_type == CloudTypes.ENVIRONMENT.value:
+            raise OptHTTPError(400, Err.OE0436, [cloud_type])
+
     async def post(self, **url_params):
         """
         ---
@@ -45,7 +54,8 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         example: AWS HQ
                     type:
                         type: string
-                        enum: [aws_cnr, azure_cnr, kubernetes_cnr, alibaba_cnr]
+                        enum: [aws_cnr, azure_cnr, kubernetes_cnr, alibaba_cnr,
+                               azure_tenant, gcp_cnr, nebius]
                         description: Cloud account type
                         example: aws_cnr
                     config:
@@ -163,7 +173,7 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 schema:
                     type: object
                     properties:
-                        cloud_accounts:
+                        cloud_account:
                             type: array
                             items:
                                 type: object
@@ -183,7 +193,8 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                         "Created timestamp (service field)"}
                                     type: {type: string,
                                         description: "cloud account type:
-                                        ('aws_cnr','azure_cnr')"}
+                                        ('aws_cnr','azure_cnr', 'kubernetes_cnr',
+                                         'azure_tenant', 'alibaba_cnr', 'gcp_cnr', 'nebius')"}
                                     config:
                                         type: object
                                         description: |
@@ -333,7 +344,8 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             description: "Created timestamp (service field)"}
                         type: {type: string,
                             description: "cloud account type:
-                            ('aws_cnr','azure_cnr')"}
+                            ('aws_cnr','azure_cnr', 'alibaba_cnr',
+                             'azure_tenant', 'kubernetes_cnr', 'gcp_cnr', 'nebius')"}
                         config: {type: object,
                             description:
                             "Object with credentials to access cloud"}

@@ -21,7 +21,8 @@ from azure.mgmt.subscription import SubscriptionClient
 from msrestazure.azure_exceptions import CloudError
 from msrest.exceptions import AuthenticationError, ClientRequestError
 from azure.mgmt.monitor import MonitorManagementClient
-from azure.core.exceptions import HttpResponseError, ClientAuthenticationError
+from azure.core.exceptions import (HttpResponseError, ClientAuthenticationError,
+                                   ResourceNotFoundError)
 from azure.identity import ClientSecretCredential
 from msrest import Deserializer
 
@@ -70,6 +71,7 @@ DESERIALIZER = Deserializer(classes={
 AzureConsumptionException = HttpResponseError
 AzureErrorResponseException = ErrorResponseException
 AzureAuthenticationError = ClientAuthenticationError
+AzureResourceNotFoundError = ResourceNotFoundError
 
 
 def _retry_on_error(exc):
@@ -478,6 +480,10 @@ class Azure(CloudBase):
                     'connection time out.' % self._subscription_id)
             else:
                 raise
+
+        if subscription_type == 'EnterpriseAgreement':
+            consumption_api_supported = False
+
         return {
             'consumption_api_supported': consumption_api_supported,
             'currency': currency,
@@ -789,8 +795,8 @@ class Azure(CloudBase):
     def get_usage(self, start_date, range_end=None, limit=None):
         """
         Get priced usage for current subscription. This API does not work for
-        all subscription types. Some of them (for example, CSP and Azure
-        Sponsorship) are not supported.
+        all subscription types. Some of them (for example, CSP, Azure
+        Sponsorship, Enterprise Agreement) are not supported.
         :param start_date: start datetime
         :param range_end: end datetime
         :param limit: result limit
@@ -911,6 +917,7 @@ class Azure(CloudBase):
             * MS-AZR-0003P (Pay-As-You-Go) - works fine.
             * MS-AZR-0036P (Microsoft Azure Sponsored Offer) - works fine.
             * MS-AZR-0017G (Azure Plan) - works fine.
+            * MS-AZR-0017P (Enterprise Agreement) - works fine.
             * MS-AZR-0145P (Azure in CSP) - doesn't work, invalid request.
         :param locale: result locale
         :return: dict, with meter IDs as keys and following stuff as values:

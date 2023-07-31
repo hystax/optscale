@@ -43,13 +43,13 @@ class Migrator:
         return list(self._mongo_migrations.find().sort('migration_datetime'))
 
     def _put_remote_migration(self, migration_datetime):
-        self._mongo_migrations.save({
+        self._mongo_migrations.insert_one({
             'migration_datetime': migration_datetime,
             'created_at': datetime.now()
         })
 
     def _delete_remote_migration(self, migration_datetime):
-        self._mongo_migrations.remove({
+        self._mongo_migrations.delete_one({
             'migration_datetime': migration_datetime
         })
 

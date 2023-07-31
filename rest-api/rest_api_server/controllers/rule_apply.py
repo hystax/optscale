@@ -18,6 +18,7 @@ from rest_api_server.models.models import Pool, CloudAccount, Rule, Employee
 from rest_api_server.utils import encoded_tags
 
 
+CHUNK_SIZE = 500
 LOG = logging.getLogger(__name__)
 
 
@@ -65,12 +66,12 @@ class NameBasedCondition(BaseCondition):
     def __init__(self, condition):
         super().__init__(condition)
         self.target_attribute_names = ['name', 'cloud_resource_id']
-        self.formatted_meta = self.meta
+        self.formatted_meta = self.meta.lower()
 
     def match(self, res_info):
         for n in self.target_attribute_names:
             name = res_info.get(n)
-            if name and self.check_condition(name):
+            if name and self.check_condition(name.lower()):
                 return True
         return False
 
@@ -234,87 +235,86 @@ class RuleApplyController(BaseController, MongoMixin):
         cloud_account_map, employee_allowed_pools = self.collect_relations(
             organization_id=organization_id)
 
-        resource_filter = [
-            {'$or': [
+        resource_filter = {
+            '$or': [
                 {'cloud_account_id': {'$in': list(cloud_account_map.keys())}},
-                {'organization_id': organization_id}
-            ]},
-            {'cluster_id': {'$exists': False}}
-        ]
+                {'organization_id': organization_id}],
+            'cluster_id': {'$exists': False}}
         if include_children:
             pool_objects = BaseHierarchicalController(
                 self.session, self._config, self.token
             ).get_item_hierarchy('id', pool_id, 'parent_id', Pool,
                                  include_item=True)
             pool_ids = [b.id for b in pool_objects]
-            resource_filter.append({'pool_id': {'$in': pool_ids}})
+            resource_filter['pool_id'] = {'$in': pool_ids}
         else:
-            resource_filter.append({'pool_id': pool_id})
-
-        pipeline = [
-            {
-                '$match': {'$and': resource_filter}
-            },
-            {
-                '$lookup': {
-                    'from': "resources",
-                    'localField': "_id",
-                    'foreignField': "cluster_id",
-                    'as': "sub_resources"
-                }
-            }
-        ]
-        resources = self.resources_collection.aggregate(pipeline)
+            resource_filter['pool_id'] = pool_id
 
         rules = self.get_valid_rules(organization_id, employee_allowed_pools)
+
+        resources_ids = list(self.resources_collection.find(
+            resource_filter, {'_id': 1}))
 
         total_count = 0
         update_count = 0
         resource_update_chunk = []
         events = []
         applied_rules_map = {}
-        for resource in resources:
-            total_count += 1
-            cloud_account = cloud_account_map.get(resource.get('cloud_account_id'))
-            tags = encoded_tags(resource.get('tags', {}), decode=True)
-            resource['tags'] = tags
-            origin_pool_id = copy(resource.get('pool_id'))
-            origin_employee_id = copy(resource.get('employee_id'))
+        for i in range(0, len(resources_ids), CHUNK_SIZE):
+            resource_id_chunk = [x['_id'] for x in resources_ids[i:i+CHUNK_SIZE]]
+            resources = self.resources_collection.find(
+                {'_id': {'$in': resource_id_chunk}})
+            for resource in resources:
+                resource_id = resource['_id']
+                sub_resources = []
+                if resource.get('cluster_type_id'):
+                    sub_resources = [
+                        x['_id'] for x in self.resources_collection.find(
+                            {'cluster_id': resource_id}, {'_id': 1})]
+                total_count += 1
+                cloud_account = cloud_account_map.get(
+                    resource.get('cloud_account_id'))
+                tags = encoded_tags(resource.get('tags', {}), decode=True)
+                resource['tags'] = tags
+                origin_pool_id = copy(resource.get('pool_id'))
+                origin_employee_id = copy(resource.get('employee_id'))
 
-            resource['pool_id'] = None
-            resource['employee_id'] = None
+                resource['pool_id'] = None
+                resource['employee_id'] = None
 
-            r_data, r_events = self.handle_assignment_data(
-                organization_id, resource, cloud_account,
-                employee_allowed_pools, rules)
-            for applied_rule in r_data.get('applied_rules', []):
-                if not applied_rules_map.get(applied_rule['id']):
-                    pool_id = applied_rule['pool_id']
-                    applied_rules_map[applied_rule['id']] = {
-                        'id': applied_rule['id'],
-                        'name': applied_rule['name'],
-                        'count': 0,
-                        'pool_id': pool_id
-                    }
-                applied_rules_map[applied_rule['id']]['count'] += 1
-            same_pool = r_data.get('pool_id', False) == origin_pool_id
-            same_employee = r_data.get('employee_id', False) == origin_employee_id
-            if same_pool and same_employee:
-                continue
-            else:
-                update_count += 1
-                for r in [resource] + resource.get('sub_resources', []):
-                    resource_update_chunk.append(UpdateOne(
-                        filter={'_id': r['_id']},
-                        update={
-                            '$set': {
-                                k: resource[k]
-                                for k in ['pool_id', 'employee_id', 'applied_rules']
-                                if k in resource
+                r_data, r_events = self.handle_assignment_data(
+                    organization_id, resource, cloud_account,
+                    employee_allowed_pools, rules)
+                for applied_rule in r_data.get('applied_rules', []):
+                    if not applied_rules_map.get(applied_rule['id']):
+                        pool_id = applied_rule['pool_id']
+                        applied_rules_map[applied_rule['id']] = {
+                            'id': applied_rule['id'],
+                            'name': applied_rule['name'],
+                            'count': 0,
+                            'pool_id': pool_id
+                        }
+                    applied_rules_map[applied_rule['id']]['count'] += 1
+                same_pool = r_data.get('pool_id', False) == origin_pool_id
+                same_employee = r_data.get('employee_id',
+                                           False) == origin_employee_id
+                if same_pool and same_employee:
+                    continue
+                else:
+                    update_count += 1
+                    for r in [resource_id] + sub_resources:
+                        resource_update_chunk.append(UpdateOne(
+                            filter={'_id': r},
+                            update={
+                                '$set': {
+                                    k: resource[k]
+                                    for k in ['pool_id', 'employee_id',
+                                              'applied_rules']
+                                    if k in resource
+                                },
                             },
-                        },
-                    ))
-                events.extend(r_events)
+                        ))
+                    events.extend(r_events)
         if applied_rules_map:
             pools_for_org = PoolController(
                 self.session, self._config, self.token

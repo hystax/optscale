@@ -3,12 +3,10 @@ import logging
 import requests
 from sqlalchemy import and_, true, false
 from sqlalchemy.exc import IntegrityError
-from kombu import Connection as QConnection, Exchange, Queue
-from kombu.pools import producers
-
 from rest_api_server.controllers.base import BaseController
 from rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api_server.controllers.employee import EmployeeController
+from rest_api_server.controllers.organization_bi import OrganizationBIController
 from rest_api_server.controllers.organization_constraint import OrganizationConstraintController
 from rest_api_server.controllers.pool import PoolController
 from rest_api_server.exceptions import Err
@@ -214,7 +212,8 @@ class OrganizationController(BaseController):
         ).all()
         return result
 
-    def get_org_list(self, is_demo=False, with_shareable_bookings=False):
+    def get_org_list(self, is_demo=False, with_shareable_bookings=False,
+                     with_connected_accounts=False):
         organizations_query = self.session.query(self.model_type).filter(
             and_(
                 self.model_type.deleted.is_(False),
@@ -222,12 +221,18 @@ class OrganizationController(BaseController):
             )
         )
         if with_shareable_bookings:
-            org_with_shareable_bookings_query = organizations_query.join(
+            organizations_query = organizations_query.join(
                 ShareableBooking, and_(
                     ShareableBooking.organization_id == self.model_type.id,
                     ShareableBooking.deleted.is_(False))
             )
-            return org_with_shareable_bookings_query.all()
+        if with_connected_accounts:
+            organizations_query = organizations_query.join(
+                CloudAccount, and_(
+                    CloudAccount.organization_id == self.model_type.id,
+                    CloudAccount.deleted.is_(False)
+                )
+            )
         return organizations_query.all()
 
     @staticmethod
@@ -261,6 +266,8 @@ class OrganizationController(BaseController):
                     auth_user_ids.add(user_id)
         OrganizationConstraintController(self.session, self._config, self.token
                                          ).delete_constraints_with_hits(item_id)
+        OrganizationBIController(
+            self.session, self._config).delete_bis_for_org(item_id)
         super().delete(item_id)
         if organization.pool_id:
             self._publish_organization_activity(

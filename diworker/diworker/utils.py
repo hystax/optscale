@@ -28,7 +28,8 @@ def bytes_to_gb(value):
     return value / 2**30
 
 
-def retry_backoff(exc_class, tries=8, delay=2, backoff=2, raise_errors=None):
+def retry_backoff(exc_class, tries=8, delay=2, backoff=2, raise_errors=None,
+                  raise_codes=None):
     def deco_retry(f):
         @wraps(f)
         def f_retry(*args, **kwargs):
@@ -38,6 +39,9 @@ def retry_backoff(exc_class, tries=8, delay=2, backoff=2, raise_errors=None):
                     return f(*args, **kwargs)
                 except exc_class as e:
                     if raise_errors and type(e) in raise_errors:
+                        raise
+                    if raise_codes and getattr(
+                            e, 'status_code', None) in raise_codes:
                         raise
                     time.sleep(m_delay)
                     m_tries -= 1

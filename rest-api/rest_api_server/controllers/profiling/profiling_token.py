@@ -1,8 +1,4 @@
-import uuid
-from sqlalchemy import exists, and_
-from rest_api_server.exceptions import Err
-from rest_api_server.models.models import ProfilingToken, Organization
-from optscale_exceptions.common_exc import NotFoundException, ConflictException
+from rest_api_server.models.models import ProfilingToken
 from rest_api_server.controllers.profiling.base import BaseProfilingController
 from rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 

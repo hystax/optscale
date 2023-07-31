@@ -61,6 +61,8 @@ class TestCloudAccountApi(TestApiBase):
             'cloud_adapter.clouds.aws.Aws.configure_report').start()
         self.p_configure_azure = patch(
             'cloud_adapter.clouds.azure.Azure.configure_report').start()
+        self.p_configure_nebius = patch(
+            'cloud_adapter.clouds.nebius.Nebius.configure_report').start()
 
         self.valid_azure_cloud_acc = {
             'name': 'azure cloud_acc',
@@ -107,6 +109,20 @@ class TestCloudAccountApi(TestApiBase):
                     'dataset_name': 'billing_data',
                     'table_name': 'gcp_billing_export_v1',
                 },
+            }
+        }
+        self.valid_nebius_cloud_acc = {
+            'name': 'nebius_cloud_acc',
+            'type': 'nebius',
+            'config': {
+                "bucket_name": "bucket",
+                "bucket_prefix": "prefix",
+                "access_key_id": "access_key_id",
+                "secret_access_key": "secret_access_key",
+                "key_id": "key_id",
+                "service_account_id": "service_account_id",
+                "private_key": "private_key",
+                "cloud_name": "cloud",
             }
         }
 
@@ -1665,3 +1681,157 @@ class TestCloudAccountApi(TestApiBase):
             code, resp = self.client.cloud_account_update(
                 cloud_acc['id'], {'auto_import': k})
             self.assertEqual(code, 400)
+
+    def test_create_with_parent_id_param(self):
+        self.valid_azure_cloud_acc['parent_id'] = str(uuid.uuid4())
+        code, resp = self.create_cloud_account(
+            self.org_id, self.valid_azure_cloud_acc)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+    def test_create_azure_tenant_with_subscription(self):
+        body = self.valid_azure_cloud_acc.copy()
+        body['type'] = 'azure_tenant'
+        code, resp = self.create_cloud_account(
+            self.org_id, body)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0212')
+
+    def test_azure_tenant_workflow(self):
+        body = {
+            'name': 'azure cloud_acc',
+            'type': 'azure_tenant',
+            'config': {
+                'secret': 'secret',
+                'client_id': 'id',
+                'tenant': 't'
+            }
+        }
+        patch('cloud_adapter.clouds.azure_tenant.AzureTenant.validate_credentials',
+              return_value={'account_id': 't', 'warnings': []}
+              ).start()
+        code, parent_ca = self.create_cloud_account(self.org_id, body)
+        self.assertEqual(code, 201)
+        self.assertEqual(parent_ca['type'], body['type'])
+        self.assertEqual(parent_ca['config'],
+                         {'client_id': 'id', 'tenant': 't'})
+        self.p_configure_azure.return_value = {
+            'config_updates': {'expense_import_scheme': 'raw_usage'},
+            'warnings': []
+        }
+        patch('cloud_adapter.clouds.azure_tenant.AzureTenant.get_children_configs',
+              return_value=[
+                  {
+                      'name': 'child 1',
+                      'config': {'subscription_id': 'subscription_1'},
+                      'type': 'azure_cnr'
+                  }
+              ]).start()
+        patch('cloud_adapter.clouds.azure.Azure.validate_credentials',
+              return_value={'account_id': 'subscription_1', 'warnings': []}
+              ).start()
+        code, _ = self.client.observe_resources(self.org_id)
+        self.assertEqual(code, 204)
+        code, resp = self.client.cloud_account_list(self.org_id)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['cloud_accounts']), 2)
+        child_ca_id = None
+        for c in resp['cloud_accounts']:
+            if c['id'] != parent_ca['id']:
+                child_ca_id = c['id']
+                self.assertEqual(c['config'], {
+                    'secret': 'secret',
+                    'client_id': 'id',
+                    'tenant': 't',
+                    'subscription_id': 'subscription_1',
+                    'expense_import_scheme': 'raw_usage'
+                })
+                self.assertEqual(c['type'], 'azure_cnr')
+                ca_obj = self.get_cloud_account_object(child_ca_id)
+                conf = decode_config(ca_obj.config)
+                self.assertEqual(conf, {
+                    'subscription_id': 'subscription_1',
+                    'expense_import_scheme': 'raw_usage'
+                })
+
+        for params in [
+            {'config': {'subscription_id': 'new_key'}},
+            {'parent_id': str(uuid.uuid4())}
+        ]:
+            code, ret = self.client.cloud_account_update(child_ca_id, params)
+            self.assertEqual(code, 400)
+            self.verify_error_code(ret, 'OE0211')
+
+        self.client.cloud_account_delete(child_ca_id)
+        code, resp = self.client.cloud_account_list(self.org_id)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['cloud_accounts']), 1)
+
+        code, _ = self.client.observe_resources(self.org_id)
+        code, resp = self.client.cloud_account_list(self.org_id)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['cloud_accounts']), 2)
+        with freeze_time(datetime.datetime(2023, 5, 1)):
+            code, _ = self.client.cloud_account_delete(parent_ca['id'])
+            self.assertEqual(code, 204)
+        code, resp = self.client.cloud_account_list(self.org_id)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['cloud_accounts']), 0)
+
+    def test_create_nebius_cloud_acc(self):
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_nebius_cloud_acc)
+        self.assertEqual(code, 201)
+        config = self.valid_nebius_cloud_acc['config'].copy()
+        # protected keys are removed
+        config.pop('private_key', None)
+        config.pop('secret_access_key', None)
+        self.assertDictEqual(config, cloud_acc['config'])
+
+    def test_create_nebius_optional_params(self):
+        for param in ['endpoint', 'region_name', 's3_endpoint',
+                      'console_endpoint']:
+            params = deepcopy(self.valid_nebius_cloud_acc)
+            params['name'] = str(uuid.uuid4())
+            params['config'][param] = param
+            code, resp = self.create_cloud_account(
+                self.org_id, params)
+            self.assertEqual(code, 201)
+            self.assertEqual(resp['config'][param], param)
+
+        for param in ['regions_coordinates', 'platforms', 'rds_platforms']:
+            params = deepcopy(self.valid_nebius_cloud_acc)
+            params['name'] = str(uuid.uuid4())
+            params['config'][param] = {'test': 'test'}
+            code, resp = self.create_cloud_account(
+                self.org_id, params)
+            self.assertEqual(code, 201)
+            self.assertEqual(resp['config'][param], {'test': 'test'})
+
+    def test_create_nebius_cloud_acc_missing_params(self):
+        for param in self.valid_nebius_cloud_acc['config']:
+            params = deepcopy(self.valid_nebius_cloud_acc)
+            params['config'].pop(param, None)
+            code, resp = self.create_cloud_account(
+                self.org_id, params)
+            self.assertEqual(code, 400)
+            self.assertEqual(resp['error']['error_code'], 'OE0216')
+
+    def test_create_nebius_cloud_acc_invalid_params(self):
+        for param in self.valid_nebius_cloud_acc['config'].copy():
+            for value in [123, {}, []]:
+                params = deepcopy(self.valid_nebius_cloud_acc)
+                params['config'][param] = value
+                code, resp = self.create_cloud_account(
+                    self.org_id, params)
+                self.assertEqual(code, 400)
+                self.assertEqual(resp['error']['error_code'], 'OE0214')
+
+        for param in ['regions_coordinates', 'platforms', 'rds_platforms']:
+            for value in [123, 'test']:
+                params = deepcopy(self.valid_nebius_cloud_acc)
+                params['config'][param] = value
+                code, resp = self.create_cloud_account(
+                    self.org_id, params)
+                self.assertEqual(code, 400)
+                self.assertEqual(resp['error']['error_code'], 'OE0344')

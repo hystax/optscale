@@ -50,6 +50,7 @@ from aliyunsdksts.request.v20150401 import (
 from retrying import retry
 
 from cloud_adapter.exceptions import (
+    CloudSettingNotSupported,
     InvalidParameterException,
     RegionNotFoundException,
     PricingNotFoundException,
@@ -96,7 +97,7 @@ class Alibaba(CloudBase):
                        protected=True),
         CloudParameter(name='skip_refunds', type=bool, required=False)
     ]
-
+    DEFAULT_CURRENCY = 'USD'
     SUPPORTS_REPORT_UPLOAD = False
 
     _CLOUD_CONSOLE_LINKS = {
@@ -131,6 +132,7 @@ class Alibaba(CloudBase):
         self.config = cloud_config
         self._regional_clients = {}
         self._regions_map = {}
+        self._currency = self.DEFAULT_CURRENCY
 
     def discovery_calls_map(self):
         return {
@@ -139,7 +141,6 @@ class Alibaba(CloudBase):
             SnapshotChainResource: self.snapshot_chain_discovery_calls,
             RdsInstanceResource: self.rds_instance_discovery_calls,
             IpAddressResource: self.ip_address_discovery_calls,
-            ImageResource: self.image_discovery_calls,
         }
 
     @property
@@ -154,24 +155,29 @@ class Alibaba(CloudBase):
     def cloud_account_name(self):
         return self.config.get('cloud_account_name')
 
+    @property
+    def region_id(self):
+        return self.config.get('region_id') or BILLING_REGION_ID
+
     @retry(retry_on_exception=_retry_on_error, wait_fixed=2000,
            stop_max_attempt_number=10)
-    def _send_request(self, request, region_id=BILLING_REGION_ID):
-        client = self._regional_clients.get(region_id)
+    def _send_request(self, request, region_id=None):
+        region = region_id or self.region_id
+        client = self._regional_clients.get(region)
         if not client:
             client = AcsClient(
                 ak=self.config['access_key_id'],
                 secret=self.config['secret_access_key'],
-                region_id=region_id,
+                region_id=region,
                 connect_timeout=DEFAULT_CONNECT_TIMEOUT,
                 timeout=DEFAULT_READ_TIMEOUT,
             )
-            self._regional_clients[region_id] = client
+            self._regional_clients[region] = client
         response = client.do_action_with_exception(request)
         return json.loads(response.decode('utf-8'))
 
     def _send_paged_request(self, request, paged_item, nested_item=None,
-                            region_id=BILLING_REGION_ID):
+                            region_id=None):
         current_page = 1
         while True:
             if hasattr(request, 'set_PageNumber'):
@@ -221,7 +227,7 @@ class Alibaba(CloudBase):
                     response))
 
     def _send_marker_paged_request(self, request, paged_item, nested_item=None,
-                                   region_id=BILLING_REGION_ID):
+                                   region_id=None):
         marker = None
         while True:
             if marker:
@@ -649,7 +655,32 @@ class Alibaba(CloudBase):
         return []
 
     def configure_report(self):
-        pass
+        now = datetime.utcnow()
+        config_update = {}
+        currency = self.DEFAULT_CURRENCY
+        try:
+            response = self.get_bill_overview(
+                now, region_id=BILLING_REGION_ID)
+            config_update['region_id'] = BILLING_REGION_ID
+        except ServerException as exc:
+            if exc.http_status == 400 and 'the API domain regionId' in exc.message:
+                cn_region = 'cn-hangzhou'
+                response = self.get_bill_overview(
+                    now, region_id=cn_region)
+                config_update['region_id'] = cn_region
+            else:
+                raise exc
+        items = response.get('Data', {}).get('Items', {}).get('Item', [])
+        if items:
+            currency = items[0]['Currency']
+        if currency != self._currency:
+            raise CloudSettingNotSupported(
+                "Account currency '%s' doesn’t match organization"
+                " currency '%s'" % (currency, self._currency))
+        return {
+            'config_updates': config_update,
+            'warnings': []
+        }
 
     def _get_coordinates_map(self):
         # region Hard-coded coordinates map
@@ -746,7 +777,8 @@ class Alibaba(CloudBase):
                 self.cloud_account_id)
         return coordinates_map
 
-    def get_billing_items(self, billing_date, granularity='DAILY'):
+    def get_billing_items(self, billing_date, granularity='DAILY',
+                          region_id=None):
         request = DescribeInstanceBillRequest.DescribeInstanceBillRequest()
         request.set_BillingCycle(billing_date.strftime('%Y-%m'))
         request.set_BillingDate(billing_date.strftime('%Y-%m-%d'))
@@ -754,9 +786,11 @@ class Alibaba(CloudBase):
         request.set_IsBillingItem(True)
         request.set_MaxResults(300)
         return self._send_marker_paged_request(
-            request, paged_item='Items', nested_item='Data')
+            request, paged_item='Items', nested_item='Data',
+            region_id=region_id)
 
-    def get_raw_usage(self, usage_table, data_type, start_time, end_time):
+    def get_raw_usage(self, usage_table, data_type, start_time, end_time,
+                      region_id=None):
         """
         Get raw usage data
 
@@ -775,7 +809,8 @@ class Alibaba(CloudBase):
         request.set_EndTime(end_time.strftime(date_format))
         request.set_PageSize(200)
         return self._send_marker_paged_request(
-            request, paged_item='OmsData', nested_item='Data')
+            request, paged_item='OmsData', nested_item='Data',
+            region_id=region_id)
 
     def get_metric(self, namespace, metric_name, instance_ids, region,
                    interval, start_date, end_date):
@@ -1101,14 +1136,14 @@ class Alibaba(CloudBase):
             else:
                 raise
 
-    def get_bill_overview(self, billing_date):
+    def get_bill_overview(self, billing_date, region_id=None):
         request = QueryBillOverviewRequest.QueryBillOverviewRequest()
         request.set_BillingCycle(billing_date.strftime('%Y-%m'))
-        return self._send_request(request)
+        return self._send_request(request, region_id=region_id)
 
-    def get_round_down_discount(self, billing_date):
+    def get_round_down_discount(self, billing_date, region_id=None):
         service_rdd_map = {}
-        response = self.get_bill_overview(billing_date)
+        response = self.get_bill_overview(billing_date, region_id=region_id)
         try:
             for i in response['Data']['Items']['Item']:
                 item_resource_id = '%s RDD' % i['ProductName']
@@ -1125,4 +1160,4 @@ class Alibaba(CloudBase):
         pass
 
     def set_currency(self, currency):
-        pass
+        self._currency = currency

@@ -20,15 +20,22 @@ class ReservedInstancesOfferingsHandler(SecretHandler):
     @staticmethod
     def validate_parameters(params):
         required_params = [('cloud_type', str),
-                           ('product_description', str),
-                           ('tenancy', str),
                            ('flavor', str),
                            ('min_duration', int),
-                           ('max_duration', int),
-                           ('include_marketplace', bool)]
-
+                           ('max_duration', int)]
+        optional_params = [('currency', str),
+                           ('tenancy', str),
+                           ('include_marketplace', bool),
+                           ('product_description', str),
+                           ('cloud_account_id', str)]
+        cloud_required_params = {
+            'nebius': [('cloud_account_id', str)]
+        }
         if not isinstance(params, dict):
             raise OptHTTPError(400, Err.OI0004, [])
+
+        cloud_type = params.get('cloud_type')
+        required_params.extend(cloud_required_params.get(cloud_type, []))
         missing_required = [
             p for p, _ in required_params if params.get(p) is None
         ]
@@ -36,10 +43,11 @@ class ReservedInstancesOfferingsHandler(SecretHandler):
             message = ', '.join(missing_required)
             raise OptHTTPError(400, Err.OI0011, [message])
 
+        all_params = required_params + optional_params
         unexpected_params = params.copy()
-        for param, param_type in required_params:
+        for param, param_type in all_params:
             value = params.get(param)
-            unexpected_params.pop(param)
+            unexpected_params.pop(param, None)
             if value is not None and not isinstance(value, param_type):
                 raise OptHTTPError(400, Err.OI0008, [param])
 
@@ -62,10 +70,10 @@ class ReservedInstancesOfferingsHandler(SecretHandler):
             required: true
             schema:
                 type: object
-                required: [product_description, tenancy, flavor, min_duration, max_duration, include_marketplace]
+                required: [product_description, flavor, min_duration, max_duration]
                 properties:
                     cloud_type: {type: string,
-                        description: "cloud type (aws_cnr)"}
+                        description: "cloud type (aws_cnr, nebius)"}
                     product_description: {type: string,
                         description: "product description"}
                     tenancy: {type: string,
@@ -79,6 +87,11 @@ class ReservedInstancesOfferingsHandler(SecretHandler):
                     include_marketplace: {type: boolean,
                        description: "should reserved instance be included in
                        marketplace"}
+                    currency: {type: string,
+                       description: "price currency"}
+                    cloud_account_id: {type: string,
+                       description: "id of cloud account to use credentials from,
+                        if not set service credentials are used"}
         responses:
             200:
                 description: suitable reserved instance offering info

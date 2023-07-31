@@ -202,9 +202,17 @@ class EmployeeAsyncCollectionHandler(BaseAsyncCollectionHandler,
         - token: []
         - secret: []
         """
+        last_login = True
         if not self.check_cluster_secret(raises=False):
+            last_login = False
             await self.check_permissions(
                 'INFO_ORGANIZATION', 'organization', organization_id)
+            try:
+                await self.check_permissions(
+                    'EDIT_PARTNER', 'organization', organization_id)
+                last_login = True
+            except Exception:
+                pass
 
         roles = self.get_arg('roles', bool, False)
         exclude_myself = self.get_arg('exclude_myself', bool, False)
@@ -219,7 +227,7 @@ class EmployeeAsyncCollectionHandler(BaseAsyncCollectionHandler,
             user_id = await self.check_self_auth()
             list_kwargs.update({'auth_user_id': user_id})
         res = await run_task(self.controller.list, organization_id,
-                             **list_kwargs)
+                             last_login=last_login, **list_kwargs)
         exp_format = self.get_arg('format', str, default='advanced_json')
         filename = 'organization %s employees' % organization_id
         if exp_format == 'json':

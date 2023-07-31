@@ -10,10 +10,13 @@ class TestProfilingTokensApi(TestApiBase):
 
     def setUp(self, version='v2'):
         super().setUp(version)
-        patch('rest_api_server.controllers.profiling.'
-              'base.BaseProfilingController.arcee_client',
+        patch('rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.arcee_client',
               new_callable=PropertyMock,
               return_value=ArceeMock(self.mongo_client)).start()
+        patch('rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.bulldozer_client',
+              new_callable=PropertyMock).start()
         _, self.org = self.client.organization_create({'name': "organization"})
 
     @staticmethod
@@ -50,8 +53,9 @@ class TestProfilingTokensApi(TestApiBase):
     def test_error_on_create(self):
         tokens = self._get_db_profiling_tokens(self.org['id'])
         self.assertEqual(len(tokens), 0)
-        err = patch('rest_api_server.controllers.profiling.'
-                    'base.BaseProfilingController.create_token',
+        err = patch('rest_api_server.controllers.base.'
+                    'BaseProfilingTokenController.'
+                    '_create_arcee_token',
                     side_effect=Exception('Arcee error'))
         err.start()
         code, resp = self.client.profiling_token_get(self.org['id'])

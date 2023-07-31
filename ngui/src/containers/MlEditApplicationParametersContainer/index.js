@@ -1,3 +1,0 @@
-import MlEditApplicationParametersContainer from "./MlEditApplicationParametersContainer";
-
-export default MlEditApplicationParametersContainer;

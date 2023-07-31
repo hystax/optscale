@@ -11,7 +11,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024
 
 
 @stream_request_body
-class CodeReportAsyncHandler(BaseAuthHandler, BaseAsyncItemHandler):
+class CodeReportAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler):
     def _get_controller_class(self):
         return CodeReportAsyncController
 
@@ -26,7 +26,7 @@ class CodeReportAsyncHandler(BaseAuthHandler, BaseAsyncItemHandler):
             raise OptHTTPError(400, Err.OE0512, [])
 
     async def prepare(self):
-        super().prepare()
+        await super().prepare()
         # this setting is necessary to avoid getting "Content-Length too long"
         # error from tornado, tornado will not load the whole file into memory
         # due to stream_request_body decorator

@@ -1,0 +1,48 @@
+{{- $config := .Values.bulldozer_worker -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
+{{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{ include "wait_for_service" .Values.bulldozer_api | indent 6 }}
+{{ include "wait_for_service" .Values.arcee | indent 6 }}
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: HX_ETCD_HOST
+          value: {{ .Values.etcd.service.name }}
+        - name: HX_ETCD_PORT
+          value: {{ .Values.etcd.service.externalPort | quote }}
+        - name: FAKE_CAD_ENABLED
+          value: {{ .Values.fake_cad_enabled | quote }}
+        volumeMounts:
+          - name: bulldozer-data-volume
+            mountPath: /var/lib/bulldozer/
+      volumes:
+        - name: bulldozer-data-volume
+          hostPath:
+            path: /acura/bulldozer
+            type: DirectoryOrCreate

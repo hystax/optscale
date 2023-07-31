@@ -17,7 +17,6 @@ from cloud_adapter.model import ResourceTypes
 from optscale_exceptions.common_exc import InternalServerError
 from rest_api_server.controllers.base import BaseController, MongoMixin
 from rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
-from rest_api_server.controllers.organization import OrganizationController
 from rest_api_server.controllers.register import RegisterController
 from rest_api_server.exceptions import Err
 from rest_api_server.models.enums import (InviteAssignmentScopeTypes,
@@ -28,7 +27,8 @@ from rest_api_server.models.models import (
     ResourceConstraint, ConstraintLimitHit, Rule, Condition, DiscoveryInfo,
     ClusterType, K8sNode, CostModel, ShareableBooking, OrganizationOption,
     OrganizationConstraint, OrganizationLimitHit)
-from rest_api_server.utils import gen_id
+from rest_api_server.utils import gen_id, encode_config
+from herald_client.client_v2 import Client as HeraldClient
 
 
 LOG = logging.getLogger(__name__)
@@ -46,6 +46,13 @@ DUPLICATION_FORMAT = '-x{ending}'
 WITH_SUBPOOLS_SIGN = '+'
 RECOMMENDATION_MULTIPLIED_FIELDS = ['saving', 'annually_monthly_saving',
                                     'monthly_saving']
+CLICKHOUSE_TABLE_DB_MAP = {
+    'average_metrics': 'default',
+    'k8s_metrics': 'default',
+    'expenses': 'default',
+    'traffic_expenses': 'default',
+    'ri_sp_usage': 'risp'
+}
 
 
 class ObjectGroups(enum.Enum):
@@ -76,6 +83,7 @@ class ObjectGroups(enum.Enum):
     OrganizationOptions = 'organization_options'
     OrganizationConstraint = 'organization_constraint'
     OrganizationLimitHit = 'organization_limit_hit'
+    RiSpUsages = 'ri_sp_usage'
 
     @classmethod
     def rest_objects(cls):
@@ -117,6 +125,7 @@ class LiveDemoController(BaseController, MongoMixin):
                 self.build_organization_limit_hit,
             ObjectGroups.ArchivedRecommendations:
                 self.build_archived_recommendations,
+            ObjectGroups.RiSpUsages: self.build_ri_sp_usage,
         }
         self._dest_map = {
             ObjectGroups.Resources: self.resources_collection,
@@ -129,7 +138,8 @@ class LiveDemoController(BaseController, MongoMixin):
             ObjectGroups.Metrics,
             ObjectGroups.K8sMetrics,
             ObjectGroups.CleanExpenses,
-            ObjectGroups.TrafficExpenses
+            ObjectGroups.TrafficExpenses,
+            ObjectGroups.RiSpUsages
         ]
         self._key_object_group_map = {
             'pool_id': ObjectGroups.Pools.value,
@@ -143,7 +153,8 @@ class LiveDemoController(BaseController, MongoMixin):
             'cluster_type_id': ObjectGroups.ClusterTypes.value,
             'cost_model_id': ObjectGroups.CostModels.value,
             'acquired_by_id': ObjectGroups.Employees.value,
-            'constraint_id': ObjectGroups.OrganizationConstraint.value
+            'constraint_id': ObjectGroups.OrganizationConstraint.value,
+            'offer_id': ObjectGroups.Resources.value,
         }
         self._multiplier = None
         self._duplication_module_res_info_map = defaultdict(dict)
@@ -203,11 +214,11 @@ class LiveDemoController(BaseController, MongoMixin):
         return org, name, email, passwd
 
     @staticmethod
-    def load_preset():
-        if not os.path.exists(PRESET_FILENAME):
+    def load_preset(path=None):
+        if not os.path.exists(path):
             raise InternalServerError(Err.OE0452, [])
         try:
-            with open(PRESET_FILENAME, 'r') as f:
+            with open(path, 'r') as f:
                 return json.load(f)
         except JSONDecodeError:
             raise InternalServerError(Err.OE0450, [])
@@ -414,7 +425,7 @@ class LiveDemoController(BaseController, MongoMixin):
                 'port': 4433,
                 'user': 'optscale'
             })
-        obj['config'] = json.dumps(config)
+        obj['config'] = encode_config(config)
         obj['organization_id'] = organization_id
         obj['account_id'] = gen_id()
         obj = self.offsets_to_timestamps(
@@ -521,6 +532,11 @@ class LiveDemoController(BaseController, MongoMixin):
         obj['cost'] = obj['cost'] * self.multiplier
         obj = self.offsets_to_datetimes(['end_date', 'start_date'], now, obj)
         obj = self.refresh_relations(['cloud_account_id'], obj)
+        for field in ['pricing/publicOnDemandCost', 'lineItem/UnblendedCost',
+                      'reservation/EffectiveCost',
+                      'savingsPlan/SavingsPlanEffectiveCost']:
+            if field in obj:
+                obj[field] = float(obj[field]) * self.multiplier
         return obj
 
     def build_clean_expense(self, obj, now, **kwargs):
@@ -730,10 +746,20 @@ class LiveDemoController(BaseController, MongoMixin):
             obj['value'] *= self.multiplier
         return OrganizationLimitHit(**obj)
 
+    def build_ri_sp_usage(self, obj, now, **kwargs):
+        obj = self.offsets_to_datetimes(['date'], now, obj, clear_time=True)
+        obj = self.refresh_relations(
+            ['cloud_account_id', 'resource_id', 'offer_id'], obj)
+        multipliered_on_demand_cost = obj['on_demand_cost'] * self.multiplier
+        multipliered_offer_cost = obj['offer_cost'] * self.multiplier
+        obj['on_demand_cost'] = multipliered_on_demand_cost
+        obj['offer_cost'] = multipliered_offer_cost
+        return obj
+
     def rollback(self, insertions_map):
         for group, ids in insertions_map.items():
             dest = self._dest_map.get(group)
-            if dest:
+            if dest is not None:
                 dest.delete_many({'_id': {'$in': ids}})
         self.session.rollback()
 
@@ -834,25 +860,26 @@ class LiveDemoController(BaseController, MongoMixin):
                 if group == ObjectGroups.CloudAccounts:
                     cloud_accounts.extend(res)
                 dest = self._dest_map.get(group)
-                if res and dest:
+                if res and dest is not None:
                     insertions_map[group] = []
                     for i in range(0, len(res), BULK_SIZE):
                         bulk = res[i:i + BULK_SIZE]
                         obj_ids = dest.insert_many(bulk).inserted_ids
                         insertions_map[group].extend(obj_ids)
                 elif res and group in self._third_party_objects:
-                    clickhouse_db_map = {
+                    obj_clickhouse_table_map = {
                         ObjectGroups.Metrics: 'average_metrics',
                         ObjectGroups.K8sMetrics: 'k8s_metrics',
                         ObjectGroups.CleanExpenses: 'expenses',
-                        ObjectGroups.TrafficExpenses: 'traffic_expenses'
+                        ObjectGroups.TrafficExpenses: 'traffic_expenses',
+                        ObjectGroups.RiSpUsages: 'ri_sp_usage'
                     }
-                    db = clickhouse_db_map.get(group)
-                    if not db:
+                    table = obj_clickhouse_table_map.get(group)
+                    if not table:
                         continue
                     for i in range(0, len(res), CLICKHOUSE_BULK_SIZE):
                         bulk = res[i:i + CLICKHOUSE_BULK_SIZE]
-                        cnt = self._insert_clickhouse(db, bulk)
+                        cnt = self._insert_clickhouse(table, bulk)
                         clickhouse_inserted += cnt
                 else:
                     self.session.add_all(res)
@@ -877,17 +904,18 @@ class LiveDemoController(BaseController, MongoMixin):
                               organization.id, str(exc))
             raise orig_exc
 
-    def _insert_clickhouse(self, db, bulk):
+    def _insert_clickhouse(self, table, bulk):
+        db = CLICKHOUSE_TABLE_DB_MAP[table]
         return self.clickhouse_cl.execute(
-            f'INSERT INTO {db} VALUES', bulk)
+            f'INSERT INTO {db}.{table} VALUES', bulk)
 
     def delete_clickhouse_info(self, cloud_accounts):
         cloud_account_ids = list(map(lambda x: x.id, cloud_accounts))
-        for db in ['average_metrics', 'k8s_metrics', 'expenses',
-                   'traffic_expenses']:
+        for table in CLICKHOUSE_TABLE_DB_MAP:
+            db = CLICKHOUSE_TABLE_DB_MAP[table]
             self.clickhouse_cl.execute(
-                'ALTER TABLE %s DELETE WHERE cloud_account_id in %s'
-                % (db, cloud_account_ids))
+                f'ALTER TABLE {db}.{table} DELETE '
+                f'WHERE cloud_account_id in {cloud_account_ids}')
 
     @staticmethod
     def get_replacement_employee(preset):
@@ -936,7 +964,7 @@ class LiveDemoController(BaseController, MongoMixin):
                         self._duplication_module_res_info_map[
                             module_name][resource_id] = cloud_resource_id
 
-    def create(self):
+    def create(self, **kwargs):
         org_name, name, email, password = self._get_basic_params()
         LOG.info('%s %s %s %s' % (org_name, name, email, password))
         auth_user = self.create_auth_user(email, password, name)
@@ -944,7 +972,7 @@ class LiveDemoController(BaseController, MongoMixin):
             self.session, self._config, self.token).add_organization(
             org_name, auth_user, is_demo=True)
 
-        preset = self.load_preset()
+        preset = self.load_preset(PRESET_FILENAME)
         employee_id_to_replace = self.get_replacement_employee(preset)
         self.init_duplication_resources(preset)
         try:
@@ -952,12 +980,36 @@ class LiveDemoController(BaseController, MongoMixin):
                 organization, employee_id_to_replace, employee.id, preset)
         except Exception as exc:
             raise InternalServerError(Err.OE0451, [str(exc)])
-
+        subscribe_email = kwargs.get('email')
+        subscribe = kwargs.get('subscribe', False)
+        if subscribe_email:
+            self._send_subscribe_email(subscribe_email, subscribe)
         return {
             'organization_id': organization.id,
             'email': email,
             'password': password
         }
+
+    def _send_subscribe_email(self, email, subscribe):
+        recipient = self._config.optscale_email_recipient()
+        if not recipient:
+            return
+        subject = f'[{self._config.public_ip()}] New live demo subscriber'
+        template_params = {
+            'texts': {
+                'user': {
+                    'email': email,
+                    'subscribe': subscribe
+                },
+                'title': "New live demo subscriber"
+            }
+        }
+        HeraldClient(
+            url=self._config.herald_url(),
+            secret=self._config.cluster_secret()
+        ).email_send(
+            [recipient], subject, template_type="new_subscriber",
+            template_params=template_params, reply_to_email=email)
 
     def find_demo_organization(self, auth_user_id):
         demo_organization_q = self.session.query(Organization).join(

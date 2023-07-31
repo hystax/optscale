@@ -1,70 +1,22 @@
 import logging
-from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from cloud_adapter.cloud import Cloud
-from insider_client.client import Client as InsiderClient
+from bumi_worker.modules.reserved_instances_base import ReservedInstancesBase
 
-from bumi_worker.modules.base import ModuleBase
-
-DEFAULT_DAYS_THRESHOLD = 90
-SUPPORTED_CLOUD_TYPES = [
-    'aws_cnr'
-]
 LOG = logging.getLogger(__name__)
 BULK_SIZE = 500
+SECS_IN_YEAR = 365 * 24 * 60 * 60
+HRS_IN_MONTH = 24 * 30
 
 
-class ReservedInstances(ModuleBase):
-    def __init__(self, organization_id, config_client, created_at):
-        super().__init__(organization_id, config_client, created_at)
-        self.option_ordered_map = OrderedDict({
-            'days_threshold': {'default': DEFAULT_DAYS_THRESHOLD},
-            'excluded_pools': {
-                'default': {},
-                'clean_func': self.clean_excluded_pools,
-            },
-            'skip_cloud_accounts': {'default': []}
-        })
-        self._insider_cl = None
+class ReservedInstances(ReservedInstancesBase):
+    SUPPORTED_CLOUD_TYPES = ['aws_cnr']
 
     @property
-    def aws(self):
-        config = self.config_cl.read_branch('/service_credentials/aws')
-        config['type'] = SUPPORTED_CLOUD_TYPES[0]
-        return Cloud.get_adapter(config)
+    def cloud_type(self):
+        return 'aws_cnr'
 
-    @property
-    def insider_cl(self):
-        if self._insider_cl is None:
-            self._insider_cl = InsiderClient(
-                url=self.config_cl.insider_url(),
-                secret=self.config_cl.cluster_secret(),
-                verify=False)
-        return self._insider_cl
-
-    def _get(self):
-        (days_threshold, excluded_pools,
-         skip_cloud_accounts) = self.get_options_values()
-        cloud_account_map = self.get_cloud_accounts(
-            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
-        cloud_account_ids = list(cloud_account_map.keys())
-        now = datetime.utcnow()
-        range_start_ts = int((now - timedelta(days=days_threshold)).timestamp())
-
-        instances = list(self.mongo_client.restapi.resources.find({
-            '$and': [
-                {'resource_type': 'Instance'},
-                {'active': True},
-                {'cloud_account_id': {'$in': cloud_account_ids}},
-                {'$or': [
-                    {'first_seen': {'$lte': range_start_ts}},
-                    {'cloud_created_at': {'$lte': range_start_ts}},
-                ]}
-            ]}, ['cloud_resource_id', 'region', 'cloud_account_id', 'name',
-                 'pool_id']))
-        instance_map = {i['cloud_resource_id']: i for i in instances}
-        cloud_resource_ids = list(instance_map.keys())
+    def get_raw_expenses(self, cloud_account_ids, cloud_resource_ids, now):
         raw_expenses = []
         for i in range(0, len(cloud_resource_ids), BULK_SIZE):
             bulk_ids = cloud_resource_ids[i:i + BULK_SIZE]
@@ -88,79 +40,16 @@ class ReservedInstances(ModuleBase):
                 }},
             ])
             raw_expenses.extend(list(resp))
-        results = []
-        insider_offerings, insider_flavor_prices = {}, {}
-        for raw_info in raw_expenses:
-            line_types = raw_info['line_types']
-            if 'DiscountedUsage' in line_types or 'SavingsPlanCoveredUsage' in line_types:
-                LOG.info('Instance %s skipped due to discounts', raw_info['_id'])
-                continue
-            try:
-                pd = self.get_product_description(raw_info)
-            except KeyError as ex:
-                LOG.warning('Instance %s skipped due to inability to find '
-                            'product description - %s',
-                            raw_info['_id'], str(ex))
-                continue
-            tenancy = 'dedicated' if raw_info['tenancy'] == 'dedicated' else 'default'
-            offer_key = ('aws_cnr', pd, tenancy, raw_info['flavor'],
-                         365*24*3600, 365*24*3600, False)
-            if offer_key not in insider_offerings:
-                _, offerings = self.insider_cl.find_reserved_instances_offerings(
-                    *offer_key)
-                insider_offerings[offer_key] = offerings
-            s_all_up_cost = None
-            c_no_up_cost = None
-            for offer in insider_offerings[offer_key]:
-                if offer['scope'] != 'Region':
-                    continue
-                if (offer['offering_class'] == 'standard' and
-                        offer['offering_type'] == 'All Upfront'):
-                    s_all_up_cost = offer['fixed_price'] / 12
-                elif (offer['offering_class'] == 'convertible' and
-                      offer['offering_type'] == 'No Upfront'):
-                    c_no_up_cost = (
-                            offer['recurring_charges'][0]['Amount'] * 24 * 30)
-            if s_all_up_cost is None or c_no_up_cost is None:
-                LOG.warning('Instance %s skipped due to inability to find '
-                            'RI offers', raw_info['_id'])
-                continue
+        return raw_expenses
 
-            instance = instance_map.get(raw_info['_id'])
-            flavor_key = ('aws', raw_info['flavor'], instance['region'],
-                          raw_info['os'], raw_info['software'])
-            if flavor_key not in insider_flavor_prices:
-                _, resp = self.insider_cl.get_flavor_prices(*flavor_key)
-                insider_flavor_prices[flavor_key] = resp
-            prices = insider_flavor_prices[flavor_key].get('prices', [])
-            # only the hourly price is supported now for AWS
-            if prices and prices[0]['price_unit'] == '1 hour':
-                monthly_cost = prices[0]['price'] * 24 * 30
-            else:
-                monthly_cost = raw_info['daily_cost'] * 30
-            saving = monthly_cost - c_no_up_cost
-            avg_saving = monthly_cost - s_all_up_cost
-            if saving <= 0 or avg_saving <= 0:
-                LOG.warning('Instance %s skipped due non-positive savings',
-                            raw_info['_id'])
-                continue
+    def _is_instance_reserved(self, raw_info):
+        line_types = raw_info['line_types']
+        if any(True for x in line_types if x in ['SavingsPlanCoveredUsage',
+                                                 'DiscountedUsage']):
+            return True
 
-            ca = cloud_account_map[instance['cloud_account_id']]
-            results.append({
-                'saving': saving,
-                'average_saving': avg_saving,
-                'flavor': raw_info['flavor'],
-                'region': instance['region'],
-                'cloud_resource_id': instance['cloud_resource_id'],
-                'resource_name': instance.get('name'),
-                'resource_id': instance['_id'],
-                'cloud_account_id': instance['cloud_account_id'],
-                "cloud_type": ca['type'],
-                'is_excluded': instance.get('pool_id') in excluded_pools,
-            })
-        return results
-
-    def get_product_description(self, raw_info):
+    @staticmethod
+    def _get_product_description(raw_info):
         linux_pd_map = {
             'Linux': 'Linux/UNIX',
             'RHEL': 'Red Hat Enterprise Linux',
@@ -181,6 +70,84 @@ class ReservedInstances(ModuleBase):
                 'Operating system {} with software {} not found'.format(
                     raw_info['os'], raw_info['software']))
         return result
+
+    def get_offer_key(self, raw_info, resource):
+        try:
+            pd = self._get_product_description(raw_info)
+        except KeyError as ex:
+            LOG.warning('Instance %s skipped due to inability to find '
+                        'product description - %s',
+                        raw_info['_id'], str(ex))
+            return None
+        tenancy = 'dedicated' if raw_info['tenancy'] == 'dedicated' else 'default'
+        return (self.cloud_type, pd, tenancy, raw_info['flavor'],
+                SECS_IN_YEAR, SECS_IN_YEAR, False)
+
+    def _offer_key_to_insider_params(self, offer_key):
+        (cloud_type, pd, tenancy, flavor,
+         min_duration, max_duration, include_marketplace) = offer_key
+        return {
+            'cloud_type': cloud_type,
+            'product_description': pd,
+            'tenancy': tenancy,
+            'flavor': flavor,
+            'min_duration': min_duration,
+            'max_duration': max_duration,
+            'include_marketplace': include_marketplace
+        }
+
+    def get_flavor_key(self, raw_info, resource):
+        return ('aws', raw_info['flavor'], resource['region'],
+                raw_info['os'], raw_info['software'])
+
+    def _flavor_key_to_insider_params(self, flavor_key):
+        (cloud_type, flavor, region, os, preinstalled) = flavor_key
+        return {
+            'cloud_type': cloud_type,
+            'flavor': flavor,
+            'region': region,
+            'os_type': os,
+            'preinstalled': preinstalled
+        }
+
+    def get_offers_monthly_costs(self, insider_offerings, resource):
+        s_all_up_cost = None
+        c_no_up_cost = None
+        for offer in insider_offerings:
+            if offer['scope'] != 'Region':
+                continue
+            if (offer['offering_class'] == 'standard' and
+                    offer['offering_type'] == 'All Upfront'):
+                s_all_up_cost = offer['fixed_price'] / 12
+            elif (offer['offering_class'] == 'convertible' and
+                  offer['offering_type'] == 'No Upfront'):
+                c_no_up_cost = (
+                        offer['recurring_charges'][0]['Amount'] * HRS_IN_MONTH)
+        return s_all_up_cost, c_no_up_cost
+
+    def get_current_flavor_hourly_price(self, flavor_key):
+        price = 0
+        params = self._flavor_key_to_insider_params(flavor_key)
+        _, resp = self.insider_cl.get_flavor_prices(**params)
+        prices = resp.get('prices', [])
+        # only the hourly price is supported now for AWS
+        if prices and prices[0]['price_unit'] == '1 hour':
+            price = prices[0]['price']
+        return price
+
+    def format_result(self, saving1, saving2, raw_info, instance, excluded_pools):
+        return {
+            'saving': saving1,
+            'average_saving': saving2,
+            'flavor': raw_info['flavor'],
+            'region': instance['region'],
+            'cloud_resource_id': instance['cloud_resource_id'],
+            'resource_name': instance.get('name'),
+            'resource_id': instance['_id'],
+            'cloud_account_id': instance['cloud_account_id'],
+            "cloud_type": self.cloud_type,
+            'is_excluded': instance.get('pool_id') in excluded_pools,
+        }
 
 
 def main(organization_id, config_client, created_at, **kwargs):

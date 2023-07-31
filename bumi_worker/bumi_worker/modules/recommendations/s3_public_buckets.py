@@ -4,7 +4,8 @@ import logging
 from bumi_worker.modules.base import ModuleBase
 
 SUPPORTED_CLOUD_TYPES = [
-    'aws_cnr'
+    'aws_cnr',
+    'nebius'
 ]
 
 LOG = logging.getLogger(__name__)

@@ -15,8 +15,10 @@ METRIC_INTERVAL = 900
 METRIC_BULK_SIZE = 25
 POD_LIMIT_KEY = 'pod_limits'
 NAMESPACE_RESOURCE_QUOTAS_KEY = 'namespace_resource_quotas'
+NEBIUS_CLOUD_TYPE = 'nebius'
 KUBERNETES_CLOUD_TYPE = 'kubernetes_cnr'
 POD_CPU_AVERAGE_USAGE_KEY = 'pod_cpu_average_usage'
+MSEC_IN_SEC = 1000
 K8S_METRIC_QUERY_MAP = {
     POD_LIMIT_KEY: {
         POD_CPU_AVERAGE_USAGE_KEY:
@@ -168,6 +170,8 @@ class MetricsProcessor(object):
              'last_getting_metric_attempt_error': error})
 
     def start(self):
+        LOG.info('Starting getting metrics '
+                 'for cloud account %s' % self.cloud_account_id)
         now = datetime.utcnow()
         _, cloud_account = self.rest_client.cloud_account_get(
             self.cloud_account_id)
@@ -179,6 +183,7 @@ class MetricsProcessor(object):
             'alibaba_cnr': ('average_metrics', self.get_alibaba_metrics),
             KUBERNETES_CLOUD_TYPE: ('k8s_metrics', self.get_k8s_metrics),
             'gcp_cnr': ('average_metrics', self.get_gcp_metrics),
+            NEBIUS_CLOUD_TYPE: ('average_metrics', self.get_nebius_metrics),
         }
         cloud_type = cloud_account['type']
         metric_table_name, cloud_func = cloud_func_map.get(cloud_type,
@@ -194,7 +199,8 @@ class MetricsProcessor(object):
                 'active': True,
                 'resource_type': {'$in': SUPPORTED_RESOURCE_TYPES}
             }, ['_id', 'last_seen', 'cloud_resource_id',
-                'region', 'resource_type', 'name', 'k8s_namespace']
+                'region', 'resource_type', 'name', 'k8s_namespace',
+                'meta.source_cluster_id']
             ))
         if not cloud_account_resources:
             return []
@@ -205,7 +211,9 @@ class MetricsProcessor(object):
                 'region': x.get('region'),
                 'resource_type': x['resource_type'],
                 'pod_name': x.get('name'),
-                'pod_namespace': x.get('k8s_namespace')
+                'pod_namespace': x.get('k8s_namespace'),
+                'name': x.get('name'),
+                'source_cluster_id': x.get('meta', {}).get('source_cluster_id')
             } for x in cloud_account_resources
         }
         resource_metric_dates_map = self.get_metrics_dates(
@@ -245,12 +253,19 @@ class MetricsProcessor(object):
                 if start_date + timedelta(hours=2) > last_seen:
                     continue
                 resource_ids_map[resource['cloud_resource_id']] = r_id
+                cloud_resource_id = resource['cloud_resource_id']
+                if cloud_type == NEBIUS_CLOUD_TYPE:
+                    # resource_id from metric API contains name of
+                    # resource instead of id if exists
+                    resource_ids_map[resource['name']] = r_id
+                    if resource.get('source_cluster_id'):
+                        cloud_resource_id = resource['source_cluster_id']
                 grouped_resources_map.setdefault((
                     resource['region'],
                     resource['resource_type'],
                     start_date,
                     end_date,
-                ), []).append(resource['cloud_resource_id'])
+                ), []).append(cloud_resource_id)
         for (region, r_type, start_date, end_date
              ), cloud_resource_ids in grouped_resources_map.items():
             if start_date >= end_date:
@@ -580,6 +595,75 @@ class MetricsProcessor(object):
                     result.append({
                         'cloud_account_id': cloud_account_id,
                         'resource_id': resource_id,
+                        'date': date,
+                        'metric': metric_name,
+                        'value': value
+                    })
+        return result
+
+    def get_nebius_metrics(self, cloud_account_id, cloud_resource_ids,
+                           resource_ids_map, r_type, adapter, region,
+                           start_date, end_date):
+        result = []
+        metrics = defaultdict(lambda: defaultdict(dict))
+        resource_metrics_map = {
+            'Instance': {
+                'cpu': 'cpu_usage',
+                'disk_read_io': 'disk_read_ops',
+                'disk_write_io': 'disk_write_ops',
+                'network_in_io': 'network_received_bytes',
+                'network_out_io': 'network_sent_bytes'},
+            'RDS Instance': {
+                'cpu': 'load.avg_15min',
+                'disk_read_io': 'io.read_count',
+                'disk_write_io': 'io.write_count',
+                'network_in_io': 'net.bytes_recv',
+                'network_out_io': 'net.bytes_sent',
+                'ram': 'mem.used_bytes',
+                'ram_size': 'mem.total_bytes'
+            }
+        }
+        metric_names_map = resource_metrics_map.get(r_type)
+        folders = adapter.folders
+        for metric_name, cloud_metric_name in metric_names_map.items():
+            for folder in folders:
+                try:
+                    response = adapter.get_metric(
+                        cloud_metric_name, cloud_resource_ids, start_date,
+                        end_date, METRIC_INTERVAL, folder)
+                    for resp_metrics in response['metrics']:
+                        timestamps = resp_metrics['timeseries']['timestamps']
+                        values = resp_metrics['timeseries']['doubleValues']
+                        cloud_resource_id = resp_metrics['labels']['resource_id']
+                        if r_type == 'RDS Instance':
+                            cloud_resource_id = resp_metrics['labels']['host']
+                        if cloud_resource_id not in resource_ids_map:
+                            continue
+                        for i, point in enumerate(values):
+                            timestamp = timestamps[i] / MSEC_IN_SEC
+                            value = float(values[i]) if values[i] != 'NaN' else 0
+                            date = datetime.fromtimestamp(timestamp)
+                            metrics[metric_name][
+                                resource_ids_map[cloud_resource_id]][date] = value
+                except Exception as exc:
+                    LOG.error(f'Failed getting metric {metric_name} for '
+                              f'folder: {folder}, exc: {str(exc)}')
+                    continue
+        if r_type == 'RDS Instance':
+            ram_metrics = metrics.pop('ram')
+            ram_size_metrics = metrics.pop('ram_size')
+            for res_id, date_values in ram_metrics.items():
+                for date, ram in date_values.items():
+                    ram_size = ram_size_metrics.get(res_id, {}).get(date)
+                    if ram_size:
+                        ram_percent = ram * 100 / ram_size
+                        metrics['ram'][res_id][date] = ram_percent
+        for metric_name, values in metrics.items():
+            for res_id, date_values in values.items():
+                for date, value in date_values.items():
+                    result.append({
+                        'cloud_account_id': cloud_account_id,
+                        'resource_id': res_id,
                         'date': date,
                         'metric': metric_name,
                         'value': value

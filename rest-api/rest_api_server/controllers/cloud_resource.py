@@ -64,7 +64,7 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             'shareable', 'env_properties', 'service_name', 'active',
             CLOUD_RESOURCE_ID_FIELD, CLOUD_RESOURCE_HASH_FIELD,
             # TODO: OS-4730: leave one allowed field for resource owner id
-            'owner_id', 'employee_id'
+            'owner_id', 'employee_id',
         }
         model_specific_params = set()
         model = RESOURCE_MODEL_MAP.get(resource_type)
@@ -652,7 +652,9 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                 if v is not None}
 
         db_meta = db_resource.pop('meta', {})
-        updatable_meta_keys = ('os', 'preinstalled', 'cpu_count', 'flavor')
+        updatable_meta_keys = ('os', 'preinstalled', 'cpu_count', 'flavor',
+                               'payment_option', 'offering_type',
+                               'purchase_term', 'applied_region')
         for key in updatable_meta_keys:
             value = meta.pop(key, None)
             if value:

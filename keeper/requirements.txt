@@ -1,10 +1,10 @@
 tornado==6.2
-pymongo==3.5.1
-mongoengine==0.19.1
+pymongo==4.3.3
+mongoengine==0.27.0
 config-client==1.0.38
 auth-client==0.0.82
 optscale-exceptions==0.0.23
 requests==2.25.0
 pika==1.1.0
 apispec==0.39.0
-pyyaml==5.3.1
+pyyaml==5.4.1

@@ -5,6 +5,7 @@ from bumi_worker.modules.base import ModuleBase
 
 DAYS_RANGE = 3
 LIVE_HRS_THRESHOLD = 6
+NEBIUS_MIN_CPU = 2
 HOUR_IN_SECONDS = 3600
 SPOT_SAVING_COEFFICIENT = 0.72
 BULK_SIZE = 1000
@@ -36,15 +37,25 @@ class ShortLivingInstances(ModuleBase):
         elif (exp.get('BillingItem') == 'Cloud server configuration' and
               'key:acs:ecs:payType value:spot' not in exp.get('Tags', [])):
             return True
+        # Nebius
+        elif (exp.get('service_name') == 'Compute Cloud' and
+              ('RAM' not in exp.get('sku_name')) and
+              ('Intel' in exp.get('sku_name') or 'AMD' in exp.get('sku_name'))):
+            return True
 
     @staticmethod
-    def _get_work_hrs(exp):
+    def _get_work_hrs(exp, cpu_count=None):
         # Azure
         if exp.get('usage_quantity'):
             return float(exp['usage_quantity'])
         # Alibaba
         elif exp.get('Usage'):
             return float(exp['Usage'])
+        # Nebius
+        elif exp.get('pricing_quantity'):
+            # pricing_quantity measurement unit is core*hour
+            cpu_count = cpu_count or NEBIUS_MIN_CPU
+            return float(exp['pricing_quantity']) / cpu_count
         return 0
 
     def _get(self):
@@ -64,8 +75,11 @@ class ShortLivingInstances(ModuleBase):
                 {'resource_type': 'Instance'},
                 {'first_seen': {'$gte': first_seen}}
             ]
-        }, ['cloud_resource_id'])
-        resource_ids = list(map(lambda x: x['cloud_resource_id'], resources))
+        }, ['cloud_resource_id', 'meta.cpu_count'])
+        cloud_res_id_cpu_map = {
+            x['cloud_resource_id']: x.get('meta', {}).get('cpu_count')
+            for x in resources}
+        resource_ids = cloud_res_id_cpu_map.keys()
         code, response = self.rest_client.cloud_resources_discover(
             self.organization_id, 'instance')
         existing_instance_ids = list(set(
@@ -83,7 +97,8 @@ class ShortLivingInstances(ModuleBase):
                 ['_id', 'resource_id', 'cloud_account_id', 'cost', 'start_date',
                  'end_date', 'lineItem/UsageType', 'meter_details.meter_category',
                  'BillingItem', 'usage_quantity', 'Usage', 'Tags',
-                 'lineItem/UsageStartDate'])
+                 'lineItem/UsageStartDate', 'service_name', 'sku_name',
+                 'pricing_quantity'])
 
             inst_map = {}
             inst_to_remove = set()
@@ -109,8 +124,10 @@ class ShortLivingInstances(ModuleBase):
                         'cloud_account_id': exp['cloud_account_id']
                     }
                 if self._is_flavor_cost(exp):
+                    cpu_count = cloud_res_id_cpu_map.get(r_id)
                     inst_map[r_id]['flavor_cost'] += exp['cost']
-                    inst_map[r_id]['work_hrs'] += self._get_work_hrs(exp)
+                    inst_map[r_id]['work_hrs'] += self._get_work_hrs(
+                        exp, cpu_count)
                 else:
                     inst_map[r_id]['other_cost'] += exp['cost']
                 if (inst_map[r_id]['start_date'] == start_datetime or

@@ -1,0 +1,92 @@
+{{- $config := .Values.thanos_web -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.httpExternalPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $config.service.name }}
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  serviceName: {{ $config.service.name }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{- if .Values.elk.enabled }}
+{{ include "wait_for_elk" . | indent 6 }}
+{{- end }}
+{{ include "wait_for_service" .Values.minio | indent 6 }}
+      containers:
+        - name: web
+          image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+          imagePullPolicy: "{{ $config.image.pullPolicy }}"
+          command:
+            - thanos
+          args:
+            - tools
+            - bucket
+            - web
+            - --http-address=0.0.0.0:{{ $config.httpPort }}
+            - --objstore.config-file=/var/thanos/config/thanos_conf.yaml
+            - --refresh={{ $config.refreshInterval }}
+          ports:
+            - containerPort: {{ $config.httpPort }}
+              name: http
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 6
+          volumeMounts:
+            - name: config
+              mountPath: /var/thanos/config
+              readOnly: true
+      volumes:
+        - name: config
+          secret:
+            secretName: thanos-secret
+            items:
+              - key: thanos_conf.yaml
+                path: thanos_conf.yaml

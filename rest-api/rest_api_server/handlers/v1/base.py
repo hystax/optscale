@@ -17,7 +17,8 @@ from rest_api_server.exceptions import Err
 from rest_api_server.models.db_base import BaseDB
 from rest_api_server.models.models import (
     Organization, CloudAccount, Employee, Pool, ReportImport,
-    PoolAlert, PoolPolicy, ResourceConstraint)
+    PoolAlert, PoolPolicy, ResourceConstraint, OrganizationBI, ShareableBooking,
+    Rule, Webhook, OrganizationConstraint)
 from rest_api_server.utils import (ModelEncoder, Config,
                                    tp_executor, run_task, get_http_error_info)
 
@@ -164,6 +165,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def get_request_arguments(self):
         return self._request_arguments()
 
+    def run_on_executor(self, func, *args, **kwargs):
+        return self.io_loop.run_in_executor(
+            self.executor, functools.partial(func, *args, **kwargs))
+
 
 class BaseAuthHandler(BaseHandler):
 
@@ -174,10 +179,6 @@ class BaseAuthHandler(BaseHandler):
     @property
     def secret(self):
         return self.request.headers.get('Secret')
-
-    def run_on_executor(self, func, *args, **kwargs):
-        return self.io_loop.run_in_executor(
-            self.executor, functools.partial(func, *args, **kwargs))
 
     @staticmethod
     def _get_type_name(type_):
@@ -190,7 +191,12 @@ class BaseAuthHandler(BaseHandler):
             'cloud_resource': 'Resource',
             'pool_policy': PoolPolicy.__name__,
             'resource_constraint': ResourceConstraint.__name__,
-            'pool_alert': PoolAlert.__name__
+            'pool_alert': PoolAlert.__name__,
+            'rule': Rule.__name__,
+            'shareable_booking': ShareableBooking.__name__,
+            'webhook': Webhook.__name__,
+            'organization_constraint': OrganizationConstraint.__name__,
+            'organization_bi': OrganizationBI.__name__,
         }
         return type_name_map.get(type_)
 
@@ -257,12 +263,8 @@ class BaseAuthHandler(BaseHandler):
             return self.secret == secret
 
     def prepare(self):
-        try:
-            if not self.token and not self.secret:
-                raise UnauthorizedException(Err.OE0237, [])
-        except UnauthorizedException as exc:
-            self.set_status(401)
-            self.finish({'error': str(exc)})
+        if not self.token and not self.secret:
+            raise OptHTTPError(401, Err.OE0237, [])
         super().prepare()
 
     def get_token_meta(self, digests):

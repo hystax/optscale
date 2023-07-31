@@ -118,7 +118,8 @@ class InstanceGenerationUpgrade(ModuleBase):
                     stats_map[cloud_account_id][
                         'not_found_recommended_flavors'] += 1
                     continue
-                if gen_resp.get('proposed_daily_price') > current_daily_cost:
+                if round(gen_resp.get('proposed_daily_price'), 8) > round(
+                        current_daily_cost, 8):
                     stats_map[cloud_account_id]['cheap_old_flavor'] += 1
                     continue
                 result.append({

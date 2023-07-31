@@ -143,7 +143,7 @@ class TestFlavorsApi(TestBase):
         self.assertEqual(code, 200)
 
     def test_gcp(self):
-        gcp = patch("insider_api.controllers.flavor." "FlavorController.gcp").start()
+        gcp = patch("insider_api.controllers.flavor.FlavorController.gcp").start()
         gcp.get_instance_types_priced.return_value = {
             "e2-micro": {
                 "cpu_cores": 2,
@@ -206,4 +206,137 @@ class TestFlavorsApi(TestBase):
 
         code, resp = self.client.find_flavor(
             currency='BRL', **self.valid_params)
+
+    def test_cloud_account_id(self):
+        params = self.valid_params.copy()
+        params['cloud_account_id'] = '123'
+        code, _ = self.client.find_flavor(**params)
+        self.assertEqual(code, 200)
+
+    def patch_nebius(self):
+        platforms = {'s1': {'name': 'Intel Cascade Lake',
+                            'core_fraction': {
+                                '20': [{
+                                    'cpu': [2, 4],
+                                    'ram_per_core': [1, 2]
+                                }],
+                                '100': [{
+                                    'cpu': [2, 4],
+                                    'ram_per_core': [1, 2]
+                                }]}},
+                     's2': {'name': 'Intel Ice Lake',
+                            'core_fraction': {
+                                '20': [{
+                                    'cpu': [2, 4],
+                                    'ram_per_core': [1, 2]
+                                }],
+                                '100': [{
+                                    'cpu': [2, 4],
+                                    'ram_per_core': [1, 2]
+                                }]}}
+                     }
+        patch(
+            "insider_api.controllers.flavor.FlavorController.get_cloud_account",
+            return_value={
+                'type': 'nebius',
+                'config': {'platforms': platforms}
+            }).start()
+        nebius = patch(
+            "insider_api.controllers.flavor.FlavorController.nebius").start()
+        nebius.get_prices.return_value = [
+            {
+                'id': '1',
+                'name': 'Intel Cascade Lake. 100% vCPU',
+                'pricingVersions': [{
+                    'pricingExpressions': [{'rates': [{'unitPrice': 0.5}]}]
+                }]
+            },
+            {
+                'id': '2',
+                'name': 'Intel Cascade Lake. 20% vCPU',
+                'pricingVersions': [{
+                    'pricingExpressions': [{'rates': [{'unitPrice': 1.1}]}]
+                }]
+            },
+            {
+                'id': '3',
+                'name': 'Intel Cascade Lake. 20% vCPU - preemptible instances',
+                'pricingVersions': [{
+                    'pricingExpressions': [{'rates': [{'unitPrice': 0.001}]}]
+                }]
+            },
+            {
+                'id': '4',
+                'name': 'Intel Ice Lake. 20% vCPU',
+                'pricingVersions': [{
+                    'pricingExpressions': [{'rates': [{'unitPrice': 11}]}]
+                }]
+            },
+        ]
+        nebius.get_prices.__name__ = "get_prices"
+
+    def test_nebius(self):
+        self.patch_nebius()
+        nebius_params = {
+            "cloud_type": "nebius",
+            "resource_type": "instance",
+            "cpu": 2,
+            "region": "test_region",
+            "mode": "current",
+            "family_specs": {"source_flavor_id": "Intel Cascade Lake",
+                             "ram": 4,
+                             "cpu_fraction": 20},
+        }
+        code, resp = self.client.find_flavor(**nebius_params)
+        self.assertEqual(code, 200)
+        self.assertDictEqual(resp, {
+                "cpu": 2,
+                "flavor": "Intel Cascade Lake",
+                "price": 2.2,  # 2 cores * price
+                "ram": 4,
+            })
+
+        # not supported cpu
+        nebius_params = {
+            "cloud_type": "nebius",
+            "resource_type": "instance",
+            "cpu": 1,
+            "region": "test",
+            "mode": "current",
+            "family_specs": {"source_flavor_id": "Intel Cascade Lake",
+                             "ram": 4,
+                             "cpu_fraction": 20},
+        }
+        code, resp = self.client.find_flavor(**nebius_params)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp, {})
+
+        # not supported source_flavor_id
+        nebius_params = {
+            "cloud_type": "nebius",
+            "resource_type": "instance",
+            "cpu": 2,
+            "region": "test",
+            "mode": "current",
+            "family_specs": {"source_flavor_id": "Intel",
+                             "ram": 4,
+                             "cpu_fraction": 20},
+        }
+        code, resp = self.client.find_flavor(**nebius_params)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp, {})
+
+    def test_nebius_optional_region(self):
+        self.patch_nebius()
+        nebius_params = {
+            "cloud_type": "nebius",
+            "resource_type": "instance",
+            "cpu": 2,
+            "region": None,
+            "mode": "current",
+            "family_specs": {"source_flavor_id": "Intel Cascade Lake",
+                             "ram": 4,
+                             "cpu_fraction": 20},
+        }
+        code, _ = self.client.find_flavor(**nebius_params)
         self.assertEqual(code, 200)

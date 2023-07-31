@@ -182,6 +182,8 @@ class TestSignIn(TestAuthBase):
         name = 'John Doe'
         patch('auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
+        patch('auth_server.controllers.signin.GoogleOauth2Provider.'
+              'exchange_token').start()
         token_info = {'email': email, 'name': name, 'email_verified': True}
         with patch('google.oauth2.id_token.verify_oauth2_token',
                    return_value=token_info):

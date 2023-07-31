@@ -199,10 +199,10 @@ class Client:
     def reserved_instances_offerings_url():
         return 'reserved_instances_offerings'
 
-    def find_reserved_instances_offerings(self, cloud_type, product_description,
-                                          tenancy, flavor, min_duration,
-                                          max_duration, include_marketplace,
-                                          **kwargs):
+    def find_reserved_instances_offerings(
+            self, cloud_type, flavor, min_duration, max_duration, tenancy=None,
+            include_marketplace=None, currency=None, product_description=None,
+            cloud_account_id=None, **kwargs):
         body = {
             'cloud_type': cloud_type,
             'product_description': product_description,
@@ -210,7 +210,9 @@ class Client:
             'flavor': flavor,
             'min_duration': min_duration,
             'max_duration': max_duration,
-            'include_marketplace': include_marketplace
+            'include_marketplace': include_marketplace,
+            'currency': currency,
+            'cloud_account_id': cloud_account_id
         }
         body.update(kwargs)
         return self.post(self.reserved_instances_offerings_url(), body)
@@ -232,3 +234,20 @@ class Client:
         }
         body.update(kwargs)
         return self.post(self.flavors_generation_url(), body)
+
+    @staticmethod
+    def family_prices_url(cloud_type):
+        return '%s/family_prices' % Client.cloud_type_url(cloud_type)
+
+    def get_family_prices(self, cloud_type, instance_family, region,
+                          os_type=None, currency=None):
+        params = {
+            'instance_family': instance_family,
+            'region': region,
+        }
+        if os_type:
+            params['os_type'] = os_type
+        if currency:
+            params['currency'] = currency
+        url = self.family_prices_url(cloud_type) + self.query_url(**params)
+        return self.get(url)

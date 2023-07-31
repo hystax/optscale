@@ -1,0 +1,136 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.16"
+    }
+  }
+
+  required_version = ">= 1.2.0"
+}
+
+provider "aws" {
+  access_key = "${var.access_key}"
+  secret_key = "${var.secret_key}"
+  region  = "{{region}}"
+}
+
+resource "aws_security_group" "optscale_sg_{{seed}}" {
+  name        = "optscale_sg_{{seed}}"
+  description = "Optscale security group"
+
+  {{#open_ingress}}
+  ingress {
+    description      = "optscale_sg_{{seed}}"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  {{/open_ingress}}
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "optscale_sg_{{seed}}"
+  }
+}
+
+{{#use_spot}}
+resource "aws_spot_instance_request" "optscale_instance_{{seed}}" {
+  ami           = "{{image}}"
+  spot_type              = "one-time"
+  wait_for_fulfillment   = "true"
+  {{#key}}
+  key_name = "{{key_name}}"
+  {{/key}}
+  instance_type = "{{instance_type}}"
+  vpc_security_group_ids = ["${aws_security_group.optscale_sg_{{seed}}.id}"]
+  root_block_device {
+    volume_size           = "{{volume_size_gb}}"
+    volume_type           = "gp2"
+    encrypted             = false
+    delete_on_termination = true
+  }
+  user_data     = <<-EOF
+#!/bin/bash
+sudo apt-get update
+sudo apt-get install -y wget python3-dev python3-pip python3-venv
+sudo pip install optscale-arcee
+{{user_data}}
+EOF
+
+  depends_on = [
+    aws_security_group.optscale_sg_{{seed}}
+  ]
+}
+{{/use_spot}}
+
+{{^use_spot}}
+resource "aws_instance" "optscale_instance_{{seed}}" {
+  ami           = "{{image}}"
+  {{#key}}
+  key_name = "{{key_name}}"
+  {{/key}}
+  instance_type = "{{instance_type}}"
+  vpc_security_group_ids = ["${aws_security_group.optscale_sg_{{seed}}.id}"]
+  root_block_device {
+    volume_size           = "{{volume_size_gb}}"
+    volume_type           = "gp2"
+    encrypted             = false
+    delete_on_termination = true
+  }
+  user_data     = <<-EOF
+#!/bin/bash
+sudo apt-get update
+sudo apt-get install -y wget python3-dev python3-pip python3-venv
+sudo pip install optscale-arcee
+{{user_data}}
+EOF
+  tags = {
+    {{#tags}}
+        {{name}} = "{{val}}"
+    {{/tags}}
+    }
+  depends_on = [
+    aws_security_group.optscale_sg_{{seed}}
+  ]
+}
+{{/use_spot}}
+
+{{#use_spot}}
+{{#tags}}
+resource "aws_ec2_tag" "optscale_instance_{{seed}}_{{name}}" {
+    resource_id = aws_spot_instance_request.optscale_instance_{{seed}}.spot_instance_id
+    key         = "{{name}}"
+    value       = "{{val}}"
+}
+{{/tags}}
+{{/use_spot}}
+
+output "instance_ip" {
+  {{#use_spot}}
+  value       = aws_spot_instance_request.optscale_instance_{{seed}}.public_ip
+  {{/use_spot}}
+  {{^use_spot}}
+  value       = aws_instance.optscale_instance_{{seed}}.public_ip
+  {{/use_spot}}
+  description = "The private IP address of the app server instance."
+}
+
+output "instance_id" {
+  {{#use_spot}}
+  value       = aws_spot_instance_request.optscale_instance_{{seed}}.spot_instance_id
+  {{/use_spot}}
+  {{^use_spot}}
+  value       = aws_instance.optscale_instance_{{seed}}.id
+  {{/use_spot}}
+  description = "The Id app server instance."
+}

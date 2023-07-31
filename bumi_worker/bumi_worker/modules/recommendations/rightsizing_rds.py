@@ -53,6 +53,20 @@ class RightsizingRds(RightsizingBase):
             resource_ids, cloud_account_ids,
             pay_as_you_go_item='Class Code')
 
+    @staticmethod
+    def get_base_nebius_family_specs(resource_info):
+        result = {}
+        meta = resource_info['meta']
+        category = meta.get('category')
+        # clickhouse zookeeper hosts are not supported
+        if category != 'ZOOKEEPER':
+            result = {
+                'category': category,
+                'platform_name': meta.get('platform_name'),
+                'source_flavor_id': meta.get('flavor')
+            }
+        return result
+
     def _get_supported_func_map(self):
         return {
             'alibaba_cnr': {
@@ -60,6 +74,11 @@ class RightsizingRds(RightsizingBase):
                 'family_specs': self._get_alibaba_family_specs,
                 'metric': self.get_base_agr_cpu_metric,
             },
+            'nebius': {
+                'instances_info': self.get_base_nebius_instances_info,
+                'family_specs': self.get_base_nebius_family_specs,
+                'metric': self.get_base_agr_cpu_metric,
+            }
         }
 
     def get_insider_resource_type(self):

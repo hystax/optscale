@@ -20,6 +20,19 @@ stringData:
     prefix: "data"
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $config.name }}-limits-config
+  labels:
+    app: {{ $config.name }}
+    release: {{ .Release.Name }}
+data:
+  thanos_limits.yaml: |
+    write:
+      global:
+        max_concurrency: {{ $config.maxConcurrency }}
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: {{ $config.service.name }}
@@ -133,9 +146,16 @@ spec:
             - --objstore.config-file=/var/thanos/config/thanos_conf.yaml
             - --tsdb.path=/var/thanos/receive
             - --tsdb.retention={{ $config.tsdbRetention }}
+            - --tsdb.wal-compression
+            - --tsdb.no-lockfile
+            # - --tsdb.too-far-in-future.time-window=1h  # TODO: uncomment me later
+            - --tsdb.out-of-order.time-window=1h
             - --label=receive="$(NAME)"
             - --receive.tenant-header=Cloud-Account-Id
+            - --receive-forward-timeout=2m
             - --log.level=info
+            - --receive.limits-config-file=/var/thanos/limits_config/thanos_limits.yaml
+            - --tsdb.memory-snapshot-on-shutdown
           livenessProbe:
             httpGet:
               path: /-/healthy
@@ -160,6 +180,8 @@ spec:
             - name: config
               mountPath: /var/thanos/config
               readOnly: true
+            - name: limits-config
+              mountPath: /var/thanos/limits_config
       volumes:
         - name: config
           secret:
@@ -167,6 +189,9 @@ spec:
             items:
             - key: thanos_conf.yaml
               path: thanos_conf.yaml
+        - name: limits-config
+          configMap:
+            name: {{ $config.name }}-limits-config
         - name: data
           persistentVolumeClaim:
             claimName: {{ $config.name }}-claim

@@ -9,7 +9,8 @@ from rest_api_server.models.models import (Organization, CloudAccount, Employee,
                                            PoolAlert, PoolPolicy,
                                            ResourceConstraint, Rule,
                                            ShareableBooking, Webhook,
-                                           OrganizationConstraint)
+                                           OrganizationConstraint,
+                                           OrganizationBI)
 from optscale_exceptions.common_exc import (WrongArgumentsException,
                                             NotFoundException)
 from rest_api_server.utils import tp_executor_context
@@ -46,7 +47,7 @@ class ContextController(MongoMixin):
                              'pool_alert', 'pool_policy',
                              'resource_constraint', 'rule',
                              'shareable_booking', 'webhook',
-                             'organization_constraint']:
+                             'organization_constraint', 'organization_bi']:
             raise WrongArgumentsException(Err.OE0174, [type_name])
         return type_name, uuid
 
@@ -61,7 +62,8 @@ class ContextController(MongoMixin):
             'rule': Rule.__name__,
             'shareable_booking': ShareableBooking.__name__,
             'webhook': Webhook.__name__,
-            'organization_constraint': OrganizationConstraint.__name__
+            'organization_constraint': OrganizationConstraint.__name__,
+            'organization_bi': OrganizationBI.__name__,
         }
 
         def call_query(base):
@@ -85,6 +87,7 @@ class ContextController(MongoMixin):
             'webhook': (self.session.query(Webhook), call_query),
             'organization_constraint': (self.session.query(OrganizationConstraint),
                                         call_query),
+            'organization_bi': (self.session.query(OrganizationBI), call_query),
         }
 
         query_base, func = query_map.get(type_name)
@@ -139,6 +142,9 @@ class ContextController(MongoMixin):
                 'organization', x.organization
             ),
             'organization_constraint': lambda x: (
+                'organization', self._get_item('organization', x.organization_id)
+            ),
+            'organization_bi': lambda x: (
                 'organization', self._get_item('organization', x.organization_id)
             )
         }

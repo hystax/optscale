@@ -75,17 +75,19 @@ def get_swagger_urls():
     ]
 
 
-def make_app(etcd_host, etcd_port, wait=False, mockdb=False):
+def make_app(etcd_host, etcd_port, wait=False, mongo_client_class=None):
     config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
     mongo_params = config_cl.mongo_params()
-    protocol = 'mongodb' if not mockdb else 'mongomock'
-    params = (protocol,) + mongo_params[:-1]
-    mongo_conn_string = "%s://%s:%s@%s:%s" % params
+    mongo_conn_string = "mongodb://%s:%s@%s:%s" % mongo_params[:-1]
     mongo_client = MongoClient(mongo_conn_string)
+    connection_params = {}
+    if mongo_client_class:
+        connection_params['mongo_client_class'] = mongo_client_class
     connect(
         host='%s/%s?authSource=admin' % (mongo_conn_string, mongo_params[-1]),
+        **connection_params
     )
 
     rabbit_user, rabbit_pass, rabbit_host, rabbit_port = \

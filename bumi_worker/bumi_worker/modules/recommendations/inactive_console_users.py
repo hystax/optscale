@@ -8,6 +8,10 @@ DEFAULT_DAYS_THRESHOLD = 90
 
 
 class InactiveConsoleUsers(InactiveUsersBase):
+    SUPPORTED_CLOUD_TYPES = [
+        'aws_cnr'
+    ]
+
     def __init__(self, organization_id, config_client, created_at):
         super().__init__(organization_id, config_client, created_at)
         self.option_ordered_map = OrderedDict({
@@ -17,6 +21,9 @@ class InactiveConsoleUsers(InactiveUsersBase):
 
     def _get_inactive_keys_threshold(self, days_threshold):
         return timedelta(days=(days_threshold / 2))
+
+    def list_users(self, cloud_adapter):
+        return cloud_adapter.list_users()
 
     def handle_aws_user(self, user, now, cloud_adapter, days_threshold):
         days_threshold_delta = self._get_inactive_threshold(days_threshold)
@@ -49,6 +56,9 @@ class InactiveConsoleUsers(InactiveUsersBase):
                 'user_id': user['UserId'],
                 'last_used': int(password_last_used.timestamp())
             }
+
+    def handle_user(self, user, now, cloud_adapter, days_threshold):
+        return self.handle_aws_user(user, now, cloud_adapter, days_threshold)
 
 
 def main(organization_id, config_client, created_at, **kwargs):

@@ -1,0 +1,22 @@
+curl -d '{"target_value": 0.9, "tendency": "less", "name": "loss", "display_name": "model loss"}' -H "x-api-key: test" -H "Content-Type: application/json" -X POST http://localhost:8891/arcee/v2/goals
+curl -d '{"target_value": 1.0, "tendency": "more", "display_name": "model loss"}' -H "x-api-key: test" -H "Content-Type: application/json" -X PATCH http://localhost:8891/arcee/v2/goals/5bebe16c-6140-4ef8-b727-919c59dbb816
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X GET http://localhost:8891/arcee/v2/goals
+
+curl -d '{"key":"test", "goals": ["5bebe16c-6140-4ef8-b727-919c59dbb816"]}' -H "x-api-key: test" -H "Content-Type: application/json" -X POST http://localhost:8891/arcee/v2/applications
+curl -d '{"display_name":"Test123", "goals": ["5bebe16c-6140-4ef8-b727-919c59dbb816"]}' -H "x-api-key: test" -H "Content-Type: application/json" -X PATCH http://localhost:8891/arcee/v2/applications/test
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X GET http://localhost:8891/arcee/v2/applications
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X GET http://localhost:8891/arcee/v2/applications/test
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X DELETE http://localhost:8891/arcee/v2/applications/test
+
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X GET http://localhost:8891/arcee/v2/run/a06ffa9b-f678-4b27-b49e-f7033e918d59
+curl -d '{}' -H "x-api-key: test" -H "Content-Type: application/json" -X POST http://localhost:8891/arcee/v2/applications/test/run
+curl -d '{"state": 2, "tags": {"a": 1}}' -H "x-api-key: test" -H "Content-Type: application/json" -X PATCH http://localhost:8891/arcee/v2/run/f325ee7b-f812-4bfd-b414-c82795050b23
+
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X GET http://localhost:8891/arcee/v2/applications/test/run
+
+
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X GET http://localhost:8891/arcee/v2/run/f325ee7b-f812-4bfd-b414-c82795050b23/milestones
+curl -d '{"milestone": "start"}' -H "x-api-key: test" -H "Content-Type: application/json" -X POST http://localhost:8891/arcee/v2/run/f325ee7b-f812-4bfd-b414-c82795050b23/milestones
+
+curl -H "x-api-key: test" -H "Content-Type: application/json" -X GET "http://localhost:8891/arcee/v2/run/executors?application_id=c28aa394-3ef5-4c41-8b8d-18f8fe7280b2"
+curl -k -L -H "x-api-key: test" -H "Content-Type: application/json" -X GET http://localhost:8891/arcee/v2/applications/test/imports

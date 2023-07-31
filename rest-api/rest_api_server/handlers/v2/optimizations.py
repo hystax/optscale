@@ -65,6 +65,12 @@ class OptimizationAsyncCollectionHandler(BaseAsyncItemHandler,
             type: string
             default: active
             enum: [active, dismissed, excluded]
+        -   name: overview
+            in: query
+            description: Return optimizations in overview format
+            required: false
+            type: boolean
+            default: false
         responses:
             200:
                 description: Optimizations
@@ -298,7 +304,18 @@ class OptimizationAsyncCollectionHandler(BaseAsyncItemHandler,
             raise OptHTTPError.from_opt_exception(400, ex)
         limit = self.get_arg('limit', int, None)
         status = self.get_arg('status', str)
-        if types:
+        overview = self.get_arg('overview', bool, False)
+        if overview:
+            if limit is not None:
+                try:
+                    check_int_attribute('limit', limit, min_length=1)
+                except WrongArgumentsException as ex:
+                    raise OptHTTPError.from_opt_exception(400, ex)
+            for k, v in [('types', types), ('status', status)]:
+                if v:
+                    raise OptHTTPError(400, Err.OE0212, [k])
+            status = 'active'
+        elif types:
             if limit is not None:
                 try:
                     check_int_attribute('limit', limit, min_length=1)
@@ -314,7 +331,7 @@ class OptimizationAsyncCollectionHandler(BaseAsyncItemHandler,
             raise OptHTTPError(400, Err.OE0212, ['status'])
         res = await run_task(
             self.controller.get_optimizations,
-            item, types, cloud_account_ids, limit, status)
+            item, types, cloud_account_ids, limit, status, overview)
         self.write(json.dumps(res, cls=ModelEncoder))
 
 

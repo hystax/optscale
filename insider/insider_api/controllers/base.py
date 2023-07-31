@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 import functools
 from pymongo import MongoClient
+from rest_api_client.client_v2 import Client as RestClient
 from tornado.ioloop import IOLoop
 
 
@@ -58,6 +59,7 @@ class BaseController(object):
         super().__init__()
         self._config = config
         self._mongo_client = None
+        self._rest_client = None
 
     @property
     def mongo_client(self):
@@ -74,6 +76,22 @@ class BaseController(object):
     @property
     def azure_prices_collection(self):
         return self.mongo_client.insider.azure_prices
+
+    @property
+    def rest_client(self):
+        if not self._rest_client:
+            self._rest_client = RestClient(
+                url=self._config.restapi_url(), verify=False,
+                secret=self._config.cluster_secret())
+        return self._rest_client
+
+    def get_cloud_account(self, cloud_account_id):
+        _, resp = self.rest_client.cloud_account_get(
+                cloud_account_id)
+        return resp
+
+    def get_service_credentials(self, cloud_type):
+        return self._config.read_branch(f'/service_credentials/{cloud_type}')
 
 
 class BaseAsyncControllerWrapper(object):
