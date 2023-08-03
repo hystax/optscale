@@ -9,4 +9,8 @@ __pycache__/
 venv/
 .vscode/
 .DS_Store
-ngui/.env
+ngui/server/.env
+ngui/ui/.env
+optscale-deploy/overlay/*.yml
+!optscale-deploy/overlay/user_template.yml
+
