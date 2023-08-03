@@ -301,6 +301,10 @@ export const getRecommendationsUrl = ({ category } = {}) => {
 const ARCHIVED_RECOMMENDATIONS_BASE = "archived-recommendations";
 export const ARCHIVED_RECOMMENDATIONS = concatenateUrl([ARCHIVED_RECOMMENDATIONS_BASE]);
 
+// Cloud Cost Comparison
+const CLOUD_COST_COMPARISON_BASE = "cloud-cost-comparison";
+export const CLOUD_COST_COMPARISON = concatenateUrl([CLOUD_COST_COMPARISON_BASE]);
+
 // RI/SP coverage
 const RI_SP_COVERAGE_BASE = "ri-sp-coverage";
 export const RI_SP_COVERAGE = concatenateUrl([RECOMMENDATIONS_BASE, RI_SP_COVERAGE_BASE]);

@@ -388,7 +388,8 @@ export const RESOURCE_PAGE_TAB_QUERY_PARAM_NAME = "tab";
 export const LINEAR_SELECTOR_ITEMS_TYPES = Object.freeze({
   TEXT: "text",
   POPOVER: "popover",
-  MULTISELECT_POPOVER: "multiSelectPopover"
+  MULTISELECT_POPOVER: "multiSelectPopover",
+  RANGE: "range"
 });
 
 export const RESOURCE_VISIBILITY_ACTIONS = {

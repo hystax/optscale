@@ -181,7 +181,8 @@ import {
   createOrganizationBIExports,
   getBIExport,
   updateBIExport,
-  deleteBIExport
+  deleteBIExport,
+  getRelevantFlavors
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
@@ -372,7 +373,8 @@ export {
   createOrganizationBIExports,
   getBIExport,
   updateBIExport,
-  deleteBIExport
+  deleteBIExport,
+  getRelevantFlavors
 };
 
 export { RESTAPI, AUTH, KEEPER, SLACKER, JIRA_BUS };

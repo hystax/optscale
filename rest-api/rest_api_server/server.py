@@ -440,6 +440,8 @@ def get_handlers(handler_kwargs, version=None):
             (urls_v2.bi,
              h_v2.organization_bis.BIAsyncItemHandler,
              handler_kwargs),
+            (urls_v2.relevant_flavors, h_v2.relevant_flavors.RelevantFlaforsAsyncCollectionHandler,
+             handler_kwargs),
             *profiling_urls,
         ])
     return result

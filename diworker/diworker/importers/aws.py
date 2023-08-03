@@ -230,10 +230,14 @@ class AWSReportImporter(CSVBaseReportImporter):
         usage_type = expense.get('lineItem/UsageType', '')
         service_code = expense.get('product/servicecode', '')
         description = expense.get('lineItem/LineItemDescription', '')
-        return ((service_code == 'AmazonECS' and 'Fargate' in usage_type) or
-                (service_code == 'AmazonSageMaker' and 'ml.' in description) or
-                (service_code == 'AWSLambda' and'Lambda-GB-Second' in usage_type) or
-                ('BoxUsage' in usage_type))
+        item_type = expense.get('lineItem/LineItemType', '')
+        return (
+            (service_code == 'AmazonECS' and 'Fargate' in usage_type) or
+            (service_code == 'AmazonSageMaker' and (
+                'ml.' in description or item_type == 'SavingsPlanNegation')) or
+            (service_code == 'AWSLambda' and'Lambda-GB-Second' in usage_type) or
+            ('BoxUsage' in usage_type)
+        )
 
     def _set_resource_id(self, expense):
         if (expense.get('resource_id') is None or (

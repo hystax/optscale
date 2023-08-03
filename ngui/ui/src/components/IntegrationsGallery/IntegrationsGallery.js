@@ -1,10 +1,15 @@
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
+import dataBricks from "assets/integrations/databricks.svg";
 import github from "assets/integrations/github.svg";
 import gitlab from "assets/integrations/gitlab.svg";
 import jenkins from "assets/integrations/jenkins.svg";
 import jira from "assets/integrations/jira.svg";
+import kubeflow from "assets/integrations/kubeflow.svg";
+import pytorch from "assets/integrations/pytorch.svg";
 import slack from "assets/integrations/slack.svg";
+import spark from "assets/integrations/spark.svg";
+import tensorflow from "assets/integrations/tensorflow.svg";
 import terraform from "assets/integrations/terraform.svg";
 import SubTitle from "components/SubTitle";
 import useStyles from "./IntegrationsGallery.styles";
@@ -33,6 +38,26 @@ const integrationsLogos = [
   {
     src: terraform,
     altMessageId: "terraform"
+  },
+  {
+    src: dataBricks,
+    altMessageId: "databricks"
+  },
+  {
+    src: pytorch,
+    altMessageId: "pytorch"
+  },
+  {
+    src: kubeflow,
+    altMessageId: "kubeflow"
+  },
+  {
+    src: spark,
+    altMessageId: "spark"
+  },
+  {
+    src: tensorflow,
+    altMessageId: "tensorflow"
   }
 ];
 

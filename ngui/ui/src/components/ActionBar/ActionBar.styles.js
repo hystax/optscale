@@ -18,7 +18,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   margin: {
     "& > *": {
-      marginRight: theme.spacing(1),
+      marginRight: theme.spacing(2),
       "&:last-child": {
         marginRight: 0
       }
