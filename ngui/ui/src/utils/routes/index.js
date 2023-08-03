@@ -7,6 +7,7 @@ import assignmentRulesRoute from "./assignmentRulesRoute";
 import BaseRoute from "./baseRoute";
 import biExportRoute from "./biExportRoute";
 import biExportsRoute from "./biExportsRoute";
+import cloudCostComparisonRoute from "./cloudCostComparisonRoute";
 import cloudExpensesRoute from "./cloudExpensesRoute";
 import cloudMigrationRoute from "./cloudMigrationRoute";
 import clusterTypesRoute from "./clusterTypesRoute";
@@ -166,7 +167,8 @@ export const routes = [
   biExportsRoute,
   biExportRoute,
   createBIExportRoute,
-  editBIExportRoute
+  editBIExportRoute,
+  cloudCostComparisonRoute
 ];
 
 export default BaseRoute;

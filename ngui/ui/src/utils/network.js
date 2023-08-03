@@ -19,18 +19,22 @@ export const setQueryParams = (stringURL) => {
   window.history.replaceState(null, null, stringURL);
 };
 
-export const getStringUrl = (objectUrl, ifEmpty = null) => {
-  const cleanObject = filterEmpty(objectUrl);
+export const getStringUrl = (objectUrl, ifEmpty = null, options = {}) => {
+  const { allowEmptyString = false } = options;
+
+  const cleanObject = filterEmpty(objectUrl, { allowEmptyString });
   if (Object.keys(cleanObject).length === 0) {
     return ifEmpty ?? getPathname();
   }
   return `?${queryString.stringify(cleanObject)}`;
 };
 
-export const updateQueryParams = (paramsObject) => {
+export const updateQueryParams = (paramsObject, options = {}) => {
+  const { allowEmptyString } = options;
+
   const queryParams = getQueryParams();
   const newQueryParams = { ...queryParams, ...paramsObject };
-  setQueryParams(getStringUrl(newQueryParams));
+  setQueryParams(getStringUrl(newQueryParams, null, { allowEmptyString }));
 };
 
 export const removeQueryParam = (key) => {

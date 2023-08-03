@@ -7,16 +7,12 @@ import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useNavigate } from "react-router-dom";
-import certifiedFinopsSolution from "assets/welcome/certified-finops-solution.svg";
-import costAnomalyDetection from "assets/welcome/cost-anomaly-detection.svg";
-import finopsReadinessMaturityAssessment from "assets/welcome/finops-readiness-maturity-assessment.svg";
-import costOptimization from "assets/welcome/free-cloud-K8s-cost-optimization.svg";
-import geoNetworkTrafficCostMap from "assets/welcome/geo-network-traffic-cost-map.svg";
-import itEnvironmentManagement from "assets/welcome/it-environment-management.svg";
-import mlAiOptimizationProfiling from "assets/welcome/ml-ai-optimization-profiling.svg";
-import mlMetricsAndKpiTracking from "assets/welcome/ml-metrics-and-kpi-tracking.svg";
-import mlRunsets from "assets/welcome/ml-runsets.svg";
-import sparkIntgration from "assets/welcome/spark-intgration.svg";
+import anomalyDetectionToAvoidBudgetOverruns from "assets/welcome/anomaly-detection-to-avoid-budget-overruns.svg";
+import cloudResourceUsageCostTransparency from "assets/welcome/cloud-resource-usage-cost-transparency.svg";
+import finopsCloudCostOptimization from "assets/welcome/finops-cloud-cost-optimization.svg";
+import mlAiProfilingOptimization from "assets/welcome/ml-ai-profiling-optimization.svg";
+import optimalPerformanceInfrastructureCostForMlAiTasks from "assets/welcome/optimal-performance-infrastructure-cost-for-ml-ai-tasks.svg";
+import runsetsToRunExperimentsInParallel from "assets/welcome/runsets-to-run-experiments-in-parallel.svg";
 import Button from "components/Button";
 import CustomersGallery from "components/CustomersGallery";
 import IconLabel from "components/IconLabel";
@@ -27,7 +23,6 @@ import { useIsDownMediaQuery, useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { HYSTAX, LIVE_DEMO } from "urls";
 import { tag as tagHotjar } from "utils/hotjar";
 import { SPACING_4, SPACING_2, SPACING_6 } from "utils/layouts";
-import { getQueryParams } from "utils/network";
 import useStyles from "./Greeter.styles";
 
 const OptScaleLink = () => {
@@ -57,46 +52,22 @@ const OptScaleLink = () => {
   );
 };
 
-const GREETER_IMAGES_MODE = Object.freeze({
-  OPTSCALE: "optscale",
-  ML_AI: "ml-ai"
-});
-
-const getImagesWithCaption = () => {
-  const { mode = GREETER_IMAGES_MODE.OPTSCALE } = getQueryParams();
-
-  if (mode === GREETER_IMAGES_MODE.ML_AI) {
-    return [
-      { caption: "ml.welcome.caption1", src: mlMetricsAndKpiTracking },
-      { caption: "ml.welcome.caption2", src: mlAiOptimizationProfiling },
-      { caption: "ml.welcome.caption3", src: costOptimization },
-      { caption: "ml.welcome.caption4", src: mlRunsets },
-      { caption: "ml.welcome.caption5", src: sparkIntgration },
-      { caption: "ml.welcome.caption6", src: certifiedFinopsSolution }
-    ];
-  }
-
-  return [
-    { caption: "optscale.welcome.caption1", src: certifiedFinopsSolution },
-    { caption: "optscale.welcome.caption2", src: finopsReadinessMaturityAssessment },
-    { caption: "optscale.welcome.caption3", src: costOptimization },
-    { caption: "optscale.welcome.caption4", src: costAnomalyDetection },
-    { caption: "optscale.welcome.caption5", src: itEnvironmentManagement },
-    { caption: "optscale.welcome.caption6", src: geoNetworkTrafficCostMap }
-  ];
-};
-
 const ImagesWithCaptions = () => {
   const intl = useIntl();
   const { classes, cx } = useStyles();
-
-  const imagesWithCaption = getImagesWithCaption();
 
   const isUpLg = useIsUpMediaQuery("lg");
 
   return (
     <Grid container spacing={isUpLg ? SPACING_6 : SPACING_2} className={classes.imagesWithCaptions}>
-      {imagesWithCaption.map(({ caption, src }, index) => (
+      {[
+        { caption: "optscale.welcome.caption1", src: finopsCloudCostOptimization },
+        { caption: "optscale.welcome.caption2", src: cloudResourceUsageCostTransparency },
+        { caption: "optscale.welcome.caption3", src: anomalyDetectionToAvoidBudgetOverruns },
+        { caption: "optscale.welcome.caption4", src: mlAiProfilingOptimization },
+        { caption: "optscale.welcome.caption5", src: optimalPerformanceInfrastructureCostForMlAiTasks },
+        { caption: "optscale.welcome.caption6", src: runsetsToRunExperimentsInParallel }
+      ].map(({ caption, src }, index) => (
         <Grid item lg={4} md={4} sm={6} key={caption} className={classes.imageWithCaptionWrapper}>
           <img
             src={src}

@@ -28,10 +28,12 @@ import RecommendationsControlsStateReducer, {
 import PinnedRecommendationsReducer, {
   PINNED_RECOMMENDATIONS
 } from "containers/RecommendationsOverviewContainer/redux/pinnedRecommendations/reducer";
-
 import { SHOW_LESS_THAN_VALUE, reducer as ShowLessThanValueReducer } from "hooks/useShowLessThanValue";
 import { SHOW_WEEKENDS, reducer as ShowWeekendsReducer } from "hooks/useShowWeekends";
 import migrations, { CURRENT_VERSION } from "migrations";
+import CloudCostComparisonSelectedSizes, {
+  CLOUD_COST_COMPARISON_SELECTED_SIZES
+} from "reducers/cloudCostComparisonSelectedSizes/reducer";
 import ColumnsReducer, { COLUMNS } from "reducers/columns/reducer";
 import ModelBreakdown, { MODEL_BREAKDOWN } from "reducers/modelBreakdown/reducer";
 import { RESET } from "reducers/route/actionTypes";
@@ -50,7 +52,7 @@ const persistConfig = {
   key: ROOT,
   storage: localForage,
   keyPrefix: "",
-  blacklist: [AUTH, API, KEEPER, RESTAPI, JIRA_BUS],
+  blacklist: [AUTH, API, KEEPER, RESTAPI, JIRA_BUS, CLOUD_COST_COMPARISON_SELECTED_SIZES],
   version: CURRENT_VERSION,
   migrate: createMigrate(migrations, { debug: true })
 };
@@ -85,6 +87,7 @@ const appReducer = combineReducers({
   [PINNED_RECOMMENDATIONS]: PinnedRecommendationsReducer,
   [MAIN_MENU_EXPANDED]: MainMenuExpandedReducer,
   [MODEL_BREAKDOWN]: ModelBreakdown,
+  [CLOUD_COST_COMPARISON_SELECTED_SIZES]: CloudCostComparisonSelectedSizes,
   [RECOMMENDATIONS_CONTROLS_STATE]: RecommendationsControlsStateReducer
 });
 
@@ -109,6 +112,7 @@ const rootReducer = (incomingState, action) => {
       [EXPANDED_POOL_ROWS]: expandedPoolRows,
       [RECOMMENDATIONS_CONTROLS_STATE]: recommendationsControlsState,
       [COLUMNS]: columns,
+      [CLOUD_COST_COMPARISON_SELECTED_SIZES]: cloudCostComparisonSelectedFlavors,
       ...rest
     } = state;
 

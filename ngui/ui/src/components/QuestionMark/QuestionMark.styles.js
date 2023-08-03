@@ -4,7 +4,6 @@ import { SPACING_1 } from "utils/layouts";
 const useStyles = makeStyles()((theme) => ({
   questionMark: {
     cursor: "default",
-    color: theme.palette.secondary.main,
     "&:hover": {
       backgroundColor: "inherit"
     }

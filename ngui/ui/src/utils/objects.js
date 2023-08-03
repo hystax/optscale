@@ -5,9 +5,17 @@ export const idx = (keys, object, defaultValue = undefined) =>
 
 export const isEmpty = (object) => Object.keys(object).length === 0 && object.constructor === Object;
 
-export const filterEmpty = (sourceObject) =>
-  Object.keys(sourceObject)
-    .filter((key) => sourceObject[key] || typeof sourceObject[key] === "boolean")
+export const filterEmpty = (sourceObject, options = {}) => {
+  const { allowEmptyString = false } = options;
+
+  return Object.keys(sourceObject)
+    .filter((key) => {
+      if (sourceObject[key] === "" && allowEmptyString) {
+        return true;
+      }
+
+      return sourceObject[key] || typeof sourceObject[key] === "boolean";
+    })
     .reduce(
       (targetObject, key) => ({
         ...targetObject,
@@ -15,6 +23,7 @@ export const filterEmpty = (sourceObject) =>
       }),
       {}
     );
+};
 
 export const removeKey = (object, key) => {
   const { [key]: removedKey, ...obj } = object;

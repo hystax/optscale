@@ -3,6 +3,6 @@ optscale-exceptions==0.0.23
 config-client==1.0.145
 pymongo==4.3.3
 apispec==0.39.0
-cloud_adapter==0.1.1532
+cloud_adapter==0.1.1542
 restapi-client==1.0.748
 pyyaml==5.4.1

@@ -1,6 +1,7 @@
 import ApplyResourcePerspectiveModal from "./ApplyResourcePerspectiveModal";
 import BookEnvironmentModal from "./BookEnvironmentModal";
 import CiCdIntegrationModal from "./CiCdIntegrationModal";
+import CloudCostComparisonModal from "./CloudCostComparisonModal";
 import ConnectGoogleCalendarModal from "./ConnectGoogleCalendarModal";
 import CreateOrganizationModal from "./CreateOrganizationModal";
 import CreateOrganizationOptionModal from "./CreateOrganizationOptionModal";
@@ -77,5 +78,6 @@ export {
   RecommendationModal,
   ExcludePoolsFromRecommendationModal,
   DeleteMlRunsetTemplateModal,
-  DeleteBIExportModal
+  DeleteBIExportModal,
+  CloudCostComparisonModal
 };

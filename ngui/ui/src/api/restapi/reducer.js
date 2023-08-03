@@ -104,7 +104,8 @@ import {
   SET_ML_RUNSETS_RUNS,
   SET_ML_RUNSET_EXECUTORS,
   SET_ORGANIZATION_BI_EXPORTS,
-  SET_BI_EXPORT
+  SET_BI_EXPORT,
+  SET_RELEVANT_FLAVORS
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -815,6 +816,12 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_BI_EXPORT: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_RELEVANT_FLAVORS: {
       return {
         ...state,
         [action.label]: action.payload

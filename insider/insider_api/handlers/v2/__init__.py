@@ -6,3 +6,4 @@ import insider_api.handlers.v2.flavors
 import insider_api.handlers.v2.flavor_prices
 import insider_api.handlers.v2.instances
 import insider_api.handlers.v2.flavors_generation
+import insider_api.handlers.v2.relevant_flavors

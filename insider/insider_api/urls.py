@@ -9,6 +9,7 @@ class Urls:
         'flavor_prices': r"%s/cloud_types/(?P<cloud_type>[^/]+)/flavor_prices",
         'family_prices': r"%s/cloud_types/(?P<cloud_type>[^/]+)/family_prices",
         'reserved_instances_offerings': r"%s/reserved_instances_offerings",
+        'relevant_flavors': r"%s/cloud_types/(?P<cloud_type>[^/]+)/relevant_flavors",
         'swagger': r'%s/swagger/(.*)',
     }
 

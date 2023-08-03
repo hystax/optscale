@@ -21,7 +21,8 @@ const QuestionMark = ({
   /**
    * TODO: Consider replacing it with a "margin" (or just "m") setting that utilizes theme.spacing(1) as the default left margin.
    */
-  withLeftMargin = true
+  withLeftMargin = true,
+  color = "secondary"
 }) => {
   const { classes, cx } = useStyles();
 
@@ -39,6 +40,7 @@ const QuestionMark = ({
       <Icon
         data-test-id={dataTestId}
         fontSize={fontSize}
+        color={color}
         className={cx(classes.questionMark, rightSide && classes.rightSide, withLeftMargin && classes.leftMargin, className)}
       />
     </Tooltip>
@@ -55,7 +57,8 @@ QuestionMark.propTypes = {
   className: PropTypes.string,
   Icon: PropTypes.elementType,
   onTooltipTitleClick: PropTypes.func,
-  withLeftMargin: PropTypes.bool
+  withLeftMargin: PropTypes.bool,
+  color: PropTypes.string
 };
 
 export default QuestionMark;

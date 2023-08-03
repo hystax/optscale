@@ -632,8 +632,7 @@ class FlavorController(BaseController):
 
         skus = []
         for f in pricing_futures:
-            skus.extend(
-                [json.loads(r) for r in f.result()['PriceList']])
+            skus.extend(f.result())
         return skus
 
     def find_instance_types(self, vcpu, types, instance_family):
