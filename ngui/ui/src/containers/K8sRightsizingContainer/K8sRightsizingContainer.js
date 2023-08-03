@@ -58,6 +58,10 @@ const K8sRightsizingContainer = () => {
   const tableActionBarDefinition = {
     show: true,
     definition: {
+      /*
+        Action bar doesn't support mobile view for "custom" items
+        See OS-5925
+      */
       hideItemsOnSmallScreens: false,
       items: [
         (tableContext) => ({

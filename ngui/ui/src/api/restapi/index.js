@@ -166,7 +166,8 @@ import {
   createOrganizationBIExports,
   getBIExport,
   updateBIExport,
-  deleteBIExport
+  deleteBIExport,
+  getRelevantFlavors
 } from "./actionCreators";
 
 export {
@@ -337,5 +338,6 @@ export {
   createOrganizationBIExports,
   getBIExport,
   updateBIExport,
-  deleteBIExport
+  deleteBIExport,
+  getRelevantFlavors
 };

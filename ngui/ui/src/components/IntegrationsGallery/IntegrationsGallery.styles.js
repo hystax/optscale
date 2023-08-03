@@ -7,9 +7,7 @@ const useStyles = makeStyles()((theme) => ({
   logosWrapper: {
     width: "100%",
     display: "flex",
-    [theme.breakpoints.down("md")]: {
-      flexWrap: "wrap"
-    },
+    flexWrap: "wrap",
     justifyContent: "center"
   },
   logoWrapper: {

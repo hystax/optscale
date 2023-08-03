@@ -1040,8 +1040,14 @@ class Aws(S3CloudMixin):
                 'Field': field,
                 'Value': value,
             })
-        return pricing.get_products(ServiceCode='AmazonEC2',
-                                    Filters=api_filters)
+        body = {'ServiceCode': 'AmazonEC2', 'Filters': api_filters}
+        result = []
+        resp = pricing.get_products(**body)
+        result.extend([json.loads(r) for r in resp['PriceList']])
+        while resp.get('NextToken'):
+            resp = pricing.get_products(**body, NextToken=resp['NextToken'])
+            result.extend([json.loads(r) for r in resp['PriceList']])
+        return result
 
     @staticmethod
     def _format_prices(prices):
@@ -1065,17 +1071,15 @@ class Aws(S3CloudMixin):
             'regionCode'
         ]
         sku_resp = self.get_pricing({'sku': sku})
-        sku_attrs = json.loads(sku_resp['PriceList'][0])['product']['attributes']
-        similar_resp = self.get_pricing({k: v for k, v in sku_attrs.items()
+        sku_attrs = sku_resp[0]['product']['attributes']
+        similar_infos = self.get_pricing({k: v for k, v in sku_attrs.items()
                                          if k not in location_related_fields})
-        similar_infos = [json.loads(r) for r in similar_resp['PriceList']]
         return self._format_prices(similar_infos)
 
     def get_prices(self, filters):
         if not filters:
             return []
-        prices_resp = self.get_pricing(filters)
-        prices_infos = [json.loads(r) for r in prices_resp['PriceList']]
+        prices_infos = self.get_pricing(filters)
         return self._format_prices(prices_infos)
 
     @property
@@ -1241,8 +1245,7 @@ class Aws(S3CloudMixin):
                 'locationType': 'AWS Region',
                 'capacitystatus': 'Used',
             })
-            for sku in skus['PriceList']:
-                sku_info = json.loads(sku)
+            for sku_info in skus:
                 if sku_info['product']['attributes']['location'] == 'US West (Oregon)':
                     result.append(sku_info['product']['sku'])
                     break

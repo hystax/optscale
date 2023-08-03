@@ -72,3 +72,4 @@ import rest_api_server.handlers.v2.ri_sp_usage_breakdowns
 import rest_api_server.handlers.v2.ri_sp_expenses_breakdowns
 import rest_api_server.handlers.v2.infrastructure
 import rest_api_server.handlers.v2.organization_bis
+import rest_api_server.handlers.v2.relevant_flavors

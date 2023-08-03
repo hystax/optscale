@@ -2,6 +2,7 @@ import React from "react";
 import MainMenuSectionTitle from "components/MainMenuSectionTitle";
 import MenuSectionBadge from "components/MenuSectionBadge";
 import anomalies from "./anomaliesMenuItem";
+import cloudCostComparisonMenuItem from "./cloudCostComparisonMenuItem";
 import dataSources from "./dataSourcesMenuItem";
 import environments from "./environmentsMenuItem";
 import events from "./eventsMenuItem";
@@ -38,7 +39,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.FINOPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="finops" />,
-    items: [expenses, expensesMap, finOpsPortal, k8sRightsizing]
+    items: [expenses, expensesMap, finOpsPortal, k8sRightsizing, cloudCostComparisonMenuItem]
   },
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,

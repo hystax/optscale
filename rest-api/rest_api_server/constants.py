@@ -176,6 +176,7 @@ class UrlsV2(Urls):
         'org_bi_collection': r"%s/organizations/(?P<organization_id>["r"^/]+)/bi",
         'bi_collection': r"%s/bi",
         'bi': r"%s/bi/(?P<organization_bi_id>["r"^/]+)",
+        'relevant_flavors': r"%s/organizations/(?P<organization_id>[^/]+)/relevant_flavors",
     })
 
 

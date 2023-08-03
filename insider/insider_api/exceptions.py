@@ -75,3 +75,6 @@ class Err(enum.Enum):
     OI0018 = [
         "Invalid parameters error: %s"
     ]
+    OI0019 = [
+        "Invalid credentials: %s"
+    ]

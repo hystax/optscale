@@ -251,3 +251,16 @@ class Client:
             params['currency'] = currency
         url = self.family_prices_url(cloud_type) + self.query_url(**params)
         return self.get(url)
+
+    @staticmethod
+    def relevant_flavors_url(cloud_type):
+        return '%s/relevant_flavors' % Client.cloud_type_url(cloud_type)
+
+    def get_relevant_flavors(self, cloud_type, region, **kwargs):
+        params = {
+            'region': region
+        }
+        if kwargs:
+            params.update(kwargs)
+        url = self.relevant_flavors_url(cloud_type) + self.query_url(**params)
+        return self.get(url)

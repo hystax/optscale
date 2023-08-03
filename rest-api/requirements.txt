@@ -1,7 +1,7 @@
 SQLAlchemy==1.2.14
 mysql-connector-python==2.1.7
 tornado==6.2
-cloud-adapter==0.1.1543
+cloud-adapter==0.1.1544
 alembic==0.8.9
 cryptography==3.3.1
 config-client==1.0.147
@@ -25,4 +25,4 @@ cryptocode==0.1
 arcee_client==0.0.33
 bulldozer_client==0.0.23
 pyyaml==5.4.1
-insider_client==0.0.28
+insider_client==0.0.29

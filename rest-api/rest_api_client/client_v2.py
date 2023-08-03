@@ -1849,3 +1849,16 @@ class Client(Client_v1):
 
     def bi_delete(self, id_):
         return self.delete(self.bi_url(id_=id_))
+
+    @staticmethod
+    def relevant_flavors_url(org_id):
+        return '%s/relevant_flavors' % Client.organization_url(org_id)
+
+    def get_relevant_flavors(self, org_id, region, **kwargs):
+        params = {
+            'region': region
+        }
+        if kwargs:
+            params.update(kwargs)
+        url = self.relevant_flavors_url(org_id) + self.query_url(**params)
+        return self.get(url)

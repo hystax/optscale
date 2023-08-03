@@ -256,7 +256,9 @@ import {
   GET_BI_EXPORT,
   SET_BI_EXPORT,
   DELETE_BI_EXPORT,
-  UPDATE_BI_EXPORT
+  UPDATE_BI_EXPORT,
+  GET_RELEVANT_FLAVORS,
+  SET_RELEVANT_FLAVORS
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -2294,4 +2296,15 @@ export const deleteBIExport = (biExportId) =>
     method: "DELETE",
     label: DELETE_BI_EXPORT,
     affectedRequests: [GET_ORGANIZATION_BI_EXPORT]
+  });
+
+export const getRelevantFlavors = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/relevant_flavors`,
+    method: "GET",
+    label: GET_RELEVANT_FLAVORS,
+    onSuccess: handleSuccess(SET_RELEVANT_FLAVORS),
+    hash: hashParams({ organizationId, params }),
+    ttl: 5 * MINUTE,
+    params
   });
