@@ -980,7 +980,14 @@ cleanelkdb:
 # Used when --update-only runkube flag is set
 skip_config_update: false
 
-# list of overlays used by runkube to start OptScale (necessary to use proper defaults when adding new keys on update)
+# set to true to deploy HA Optscale on multi-master k8s cluster (tested with 3 nodes)
+ha: false
+
+ssl:
+  # set to false to not force ssl redirect on k8s ingress
+  force_redirect: true
+
+# list of overlays used by runkube to start Optscale (necessary to use proper defaults when adding new keys on update)
 overlay_list: ""
 
 # k8s cluster domain
