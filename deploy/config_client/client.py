@@ -38,7 +38,7 @@ def _retry_not_exist(exception):
     return isinstance(exception, etcd.EtcdKeyNotFound)
 
 
-class Client(etcd.Client):
+class Client():
     """ Acura config client """
 
     @retry(**DEFAULT_RETRY_ARGS, retry_on_exception=_should_retry)
@@ -68,21 +68,23 @@ class Client(etcd.Client):
         :param branch:
         :return:
         """
-        keys = self.read(branch, recursive=True)
-        res_dict = {}
-        for node in keys.children:
-            parts = node.key.replace(branch, '', 1).lstrip('/').split('/')
-            dict_node = res_dict
-            for part in parts[:-1]:
-                if part not in dict_node:
-                    dict_node[part] = {}
-                dict_node = dict_node[part]
-            if node.dir:
-                dict_node[parts[-1]] = {}
-            else:
-                dict_node[parts[-1]] = node.value
-        LOG.debug("read %s from branch %s", res_dict, branch)
-        return res_dict
+        # print("Before2")
+        # keys = {"children":[]}
+        # print("After2")
+        # res_dict = {}
+        # for node in keys.children:
+        #     parts = node.key.replace(branch, '', 1).lstrip('/').split('/')
+        #     dict_node = res_dict
+        #     for part in parts[:-1]:
+        #         if part not in dict_node:
+        #             dict_node[part] = {}
+        #         dict_node = dict_node[part]
+        #     if node.dir:
+        #         dict_node[parts[-1]] = {}
+        #     else:
+        #         dict_node[parts[-1]] = node.value
+        # LOG.debug("read %s from branch %s", res_dict, branch)
+        return branch
 
     def read_list(self, branch):
         """
@@ -212,6 +214,9 @@ class Client(etcd.Client):
         :param branch: service name
         :return: 'http://{host}:{port}'
         """
+        print("Before1")
+        print("http://{host}:{port}".format(**self.read_branch(branch)))
+        print("After1")
         return "http://{host}:{port}".format(**self.read_branch(branch))
 
     def restapi_url(self):
@@ -226,6 +231,10 @@ class Client(etcd.Client):
         Url for auth client
         :return: 'http://<cluster_ip>:80'
         """
+        print("Before")
+        print(self._get_url_from_branch('/auth'))
+        print("After")
+
         return self._get_url_from_branch('/auth')
 
     def herald_url(self):
@@ -303,9 +312,9 @@ class Client(etcd.Client):
         """
         Wait until cluster configured
         """
-        LOG.info('Waiting until cluster initialization completed')
-        self.wait_until_exist('/configured')
-
+        # LOG.info('Waiting until cluster initialization completed')
+        # self.wait_until_exist('/configured')
+        return True
     def install_certificates(self):
         """
         takes all certificates from /certificates branch
@@ -323,10 +332,10 @@ class Client(etcd.Client):
         subprocess.run(['update-ca-certificates'], check=True)
 
     def cluster_secret(self):
-        return self.get("/secret/cluster").value
+        return "s1elf.get(/secret/cluster).value"
 
     def agent_secret(self):
-        return self.get("/secret/agent").value
+        return "se1lf.get(/secret/agent).value"
 
     @retry(**DEFAULT_RETRY_ARGS, retry_on_exception=_should_retry)
     def increase_and_return(self, key, max_value=50000):
@@ -338,7 +347,7 @@ class Client(etcd.Client):
         :return: new counter
         """
         try:
-            counter = self.read(key)
+            counter = 1
             counter.value = int(counter.value) + 1
             if (max_value is not None) and (counter.value > max_value):
                 LOG.error("Counter %s overflow! value: %s", key, counter.value)
@@ -387,7 +396,7 @@ class Client(etcd.Client):
         return params['user'], params['pass'], params['host'], params['port']
 
     def events_queue(self):
-        return self.get("/events_queue").value
+        return "se1lf.get(/events_queue).value"
 
     def tell_everybody_that_i_am_ready(self):
         open('/tmp/i_am_ready', 'w').close()
@@ -397,7 +406,7 @@ class Client(etcd.Client):
         Returns binary etcd key as boolean value
         """
         try:
-            return bool(int(self.read(flag_path).value))
+            return default_value
         except etcd.EtcdKeyNotFound:
             return default_value
 
@@ -406,13 +415,13 @@ class Client(etcd.Client):
         Gets public ip of the cluster
         :return:
         """
-        return self.get("/public_ip").value
+        return "se1lf.get(/public_ip).value"
 
     def katara_scheduler_timeout(self):
         """
         Gets katara periodic timeout in seconds
         """
-        return int(self.get("/katara_scheduler_timeout").value)
+        return int(123)
 
     def optscale_email_recipient(self):
         """
@@ -443,7 +452,7 @@ class Client(etcd.Client):
         Gets Google calendar service support status
         :return:
         """
-        return self.get("/google_calendar_service/enabled").value
+        return "se1lf.get(/google_calendar_service/enabled).value"
 
     def metrics_influx_params(self):
         """
@@ -534,13 +543,13 @@ class Client(etcd.Client):
         """
         Salt for encode user information
         """
-        return self.get("/encryption_salt").value
+        return "se1lf.get(/encryption_salt).value"
 
     def encryption_salt_auth(self):
         """
         Salt for encode auth information
         """
-        return self.get("/encryption_salt_auth").value
+        return "se1lf.get(/encryption_salt_auth).value"
 
     def bi_settings(self):
         """

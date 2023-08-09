@@ -9,7 +9,6 @@ import os
 import base64
 import binascii
 from pymongo import MongoClient, UpdateOne
-from config_client.client import Client as EtcdClient
 
 # revision identifiers, used by Alembic.
 revision = '8992bafc1505'
@@ -18,8 +17,6 @@ branch_labels = None
 depends_on = None
 
 
-DEFAULT_ETCD_HOST = 'etcd'
-DEFAULT_ETCD_PORT = 80
 CHUNK_SIZE = 200
 
 
@@ -40,17 +37,9 @@ def encoded_map(map_, decode):
     return new_map
 
 
-def get_etcd_config_client():
-    etcd_host = os.environ.get('HX_ETCD_HOST', DEFAULT_ETCD_HOST)
-    etcd_port = os.environ.get('HX_ETCD_PORT', DEFAULT_ETCD_PORT)
-    config_cl = EtcdClient(host=etcd_host, port=int(etcd_port))
-    return config_cl
-
 
 def get_mongo_client():
-    config_cl = get_etcd_config_client()
-    mongo_params = config_cl.mongo_params()
-    mongo_conn_string = "mongodb://%s:%s@%s:%s" % mongo_params[:-1]
+    mongo_conn_string = "mongodb://localhost:27017/humalect-local-main"
     mongo_client = MongoClient(mongo_conn_string)
     return mongo_client
 

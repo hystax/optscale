@@ -10,10 +10,8 @@ import json
 import logging
 import sqlalchemy as sa
 import cryptocode
-import etcd
 import uuid
 from alembic import op
-from config_client.client import Client as EtcdClient
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import table, column
@@ -25,33 +23,15 @@ branch_labels = None
 depends_on = None
 
 
-DEFAULT_ETCD_HOST = 'etcd-client'
-DEFAULT_ETCD_PORT = 80
 LOG = logging.getLogger(__name__)
 KEY = "/encryption_salt"
 
 
-def _create_enc_salt(config_cl):
-    # crete enc salt if not exist
-    salt = str(uuid.uuid4())
-    config_cl.write(KEY, salt)
-    return config_cl.get(KEY).value
-
-
-def _get_etcd_config_client():
-    etcd_host = os.environ.get('HX_ETCD_HOST', DEFAULT_ETCD_HOST)
-    etcd_port = os.environ.get('HX_ETCD_PORT', DEFAULT_ETCD_PORT)
-    config_cl = EtcdClient(host=etcd_host, port=int(etcd_port))
-    return config_cl
 
 
 def _get_encryption_salt():
-    config_cl = _get_etcd_config_client()
-    try:
-        salt = config_cl.encryption_salt()
-    except etcd.EtcdKeyNotFound:
-        salt = _create_enc_salt(config_cl)
-    return salt
+
+    return str(uuid.uuid4())
 
 
 def _encrypt_config(session, cloud_acc_table, ca):

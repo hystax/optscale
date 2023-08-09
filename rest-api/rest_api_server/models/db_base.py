@@ -1,8 +1,9 @@
 from sqlalchemy.orm import sessionmaker, scoped_session
 from retrying import retry
 
-from snapman_common.constants import DEFAULT_RETRY_ARGS
+# from snapman_common.constants import DEFAULT_RETRY_ARGS
 import rest_api_server.models.models as model_base
+DEFAULT_RETRY_ARGS = dict(stop_max_attempt_number=300, wait_fixed=1000)
 
 
 def should_retry(exception):

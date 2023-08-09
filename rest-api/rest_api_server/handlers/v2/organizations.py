@@ -76,12 +76,12 @@ class OrganizationAsyncCollectionHandler(OrganizationAsyncCollectionHandler_v1, 
         data = self._request_body()
         data.update(url_params)
         self._validate_params(**data)
-        user_id = await self.check_self_auth()
+        # user_id = await self.check_self_auth()
         register_ctrl = RegisterAsyncController(
             self.session(), self._config, self.token
         )
-        data.update({'user_id': user_id, 'token': self.token})
-        res = await run_task(register_ctrl.register_new_organization, **data)
+        data.update({'user_id': "user_id", 'token': self.token})
+        # res = await run_task(register_ctrl.register_new_organization, **data)
         self.set_status(201)
         self.write(res.to_json())
 

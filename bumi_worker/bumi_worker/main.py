@@ -108,8 +108,7 @@ if __name__ == '__main__':
         port=int(os.environ.get('HX_ETCD_PORT', DEFAULT_ETCD_PORT)),
     )
     config_cl.wait_configured()
-    conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit'))
+    conn_str = 'amqp://localhost'
     with Connection(conn_str) as conn:
         try:
             worker = Worker(conn, config_cl)

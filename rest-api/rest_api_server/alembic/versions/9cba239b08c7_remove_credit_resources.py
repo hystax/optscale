@@ -10,7 +10,6 @@ import logging
 from alembic import op
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import table, column
-from config_client.client import Client as EtcdClient
 from pymongo import MongoClient
 from sqlalchemy import Integer, select, String, and_
 
@@ -21,22 +20,11 @@ branch_labels = None
 depends_on = None
 
 
-DEFAULT_ETCD_HOST = 'etcd-client'
-DEFAULT_ETCD_PORT = 80
 LOG = logging.getLogger(__name__)
 
 
-def _get_etcd_config_client():
-    etcd_host = os.environ.get('HX_ETCD_HOST', DEFAULT_ETCD_HOST)
-    etcd_port = os.environ.get('HX_ETCD_PORT', DEFAULT_ETCD_PORT)
-    config_cl = EtcdClient(host=etcd_host, port=int(etcd_port))
-    return config_cl
-
-
 def get_mongo_client():
-    config_cl = _get_etcd_config_client()
-    mongo_params = config_cl.mongo_params()
-    mongo_conn_string = "mongodb://%s:%s@%s:%s" % mongo_params[:-1]
+    mongo_conn_string = "mongodb://localhost:27017/humalect-local-main"
     return MongoClient(mongo_conn_string)
 
 

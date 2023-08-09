@@ -238,9 +238,9 @@ def singleton(class_):
 class Config(object):
 
     def __init__(self):
-        etcd_host = os.environ.get('HX_ETCD_HOST')
-        etcd_port = int(os.environ.get('HX_ETCD_PORT'))
-        self.client = ConfigClient(host=etcd_host, port=etcd_port)
+        # etcd_host = os.environ.get('HX_ETCD_HOST')
+        # etcd_port = int(os.environ.get('HX_ETCD_PORT'))
+        self.client = ConfigClient()
 
     @property
     def auth_url(self):

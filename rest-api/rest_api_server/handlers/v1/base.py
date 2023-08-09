@@ -42,7 +42,7 @@ class DefaultHandler(tornado.web.RequestHandler):
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, engine, config):
         self._engine = engine
-        self._config = config
+        self._config = "config"
         self._controller = None
         self._session = None
         self.executor = tp_executor
@@ -174,7 +174,7 @@ class BaseAuthHandler(BaseHandler):
 
     def initialize(self, engine, config):
         super().initialize(engine, config)
-        self.cluster_secret = config.cluster_secret()
+        self.cluster_secret = "s1elf.get(/secret/cluster).value"
 
     @property
     def secret(self):

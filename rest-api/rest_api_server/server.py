@@ -462,25 +462,24 @@ def get_handler_version(h_v, handler, default_version=h_v1):
 
 
 def make_app(db_type, etcd_host, etcd_port, wait=False):
-    config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
-    if wait:
-        config_cl.wait_configured()
+    # config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
+    # if wait:
+    #     config_cl.wait_configured()
 
-    db = DBFactory(db_type, config_cl).db
+    db = DBFactory(db_type, "None").db
     if wait:
         # Use lock to avoid migration problems with several restapis
         # starting at the same time on cluster
         LOG.info('Waiting for migration lock')
-        with EtcdLock(config_cl, 'restapi_migrations'):
-            db.create_schema()
+        db.create_schema()
     else:
         db.create_schema()
 
     handler_kwargs = {
         "engine": db.engine,
-        "config": config_cl,
+        "config": "config_cl",
     }
-    config_cl.tell_everybody_that_i_am_ready()
+    # config_cl.tell_everybody_that_i_am_ready()
     return tornado.web.Application(
         get_handlers(handler_kwargs) + get_swagger_urls(),
         default_handler_class=DefaultHandler

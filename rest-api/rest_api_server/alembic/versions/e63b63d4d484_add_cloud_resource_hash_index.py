@@ -30,9 +30,9 @@ def _get_etcd_config_client():
 
 
 def _get_restapi_resources_mongo():
-    config_cl = _get_etcd_config_client()
-    mongo_params = config_cl.mongo_params()
-    mongo_conn_string = "mongodb://%s:%s@%s:%s" % mongo_params[:-1]
+    # config_cl = _get_etcd_config_client()
+    # mongo_params = config_cl.mongo_params()
+    mongo_conn_string = "mongodb://localhost:27017/humalect-local-main"
     mongo_client = MongoClient(mongo_conn_string)
     return mongo_client.restapi.resources
 

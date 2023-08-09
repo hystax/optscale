@@ -85,6 +85,8 @@ class Client(Client_v1):
         """
         url = self.digests_url() + self.query_url(digest=digests)
         code, response = self.get(url)
+        print("Here goes  ")
+        print(code, response)
         return code, response
 
     def user_create(self, email, password, display_name, is_active=True,
