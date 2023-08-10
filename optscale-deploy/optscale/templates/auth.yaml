@@ -61,6 +61,8 @@ spec:
           value: {{ .Values.etcd.service.externalPort | quote }}
         - name: GOOGLE_OAUTH_CLIENT_ID
           value: {{ $config.google_oauth_client_id | quote }}
+        - name: GOOGLE_OAUTH_CLIENT_SECRET
+          value: {{ $config.google_oauth_client_secret | quote }}
         - name: MICROSOFT_OAUTH_CLIENT_ID
           value: {{ $config.microsoft_oauth_client_id | quote }}
 {{ include "ready_probe" $config | indent 8 }}
