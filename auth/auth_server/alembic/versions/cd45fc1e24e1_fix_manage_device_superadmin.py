@@ -18,8 +18,8 @@ from sqlalchemy.orm import relationship, backref, Session
 
 from alembic import op
 
-from auth_server.utils import as_dict, ModelEncoder
-from auth_server.models.exceptions import InvalidTreeException
+from auth.auth_server.utils import as_dict, ModelEncoder
+from auth.auth_server.models.exceptions import InvalidTreeException
 
 
 # revision identifiers, used by Alembic.

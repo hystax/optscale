@@ -1,8 +1,8 @@
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.models.models import *
-from auth_server.controllers.token import xstr
-from auth_server.utils import hash_password
-from auth_server.tests.unittests.utils import extract_caveats
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.models.models import *
+from auth.auth_server.controllers.token import xstr
+from auth.auth_server.utils import hash_password
+from auth.auth_server.tests.unittests.utils import extract_caveats
 
 
 class TestTokenApi(TestAuthBase):

@@ -1,9 +1,9 @@
 import json
 
-from optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
-from auth_server.exceptions import Err
-from auth_server.handlers.v1.base import BaseHandler as BaseHandler_v1
+from auth.auth_server.exceptions import Err
+from auth.auth_server.handlers.v1.base import BaseHandler as BaseHandler_v1
 
 
 class BaseHandler(BaseHandler_v1):

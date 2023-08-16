@@ -1,11 +1,11 @@
 import json
 
-from auth_server.controllers.action import ActionAsyncController
-from auth_server.handlers.v1.base import BaseAuthHandler
-from auth_server.utils import ModelEncoder
-from optscale_exceptions.common_exc import (
+from auth.auth_server.controllers.action import ActionAsyncController
+from auth.auth_server.handlers.v1.base import BaseAuthHandler
+from auth.auth_server.utils import ModelEncoder
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException)
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 class ActionAsyncHandler(BaseAuthHandler):

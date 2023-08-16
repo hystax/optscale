@@ -1,13 +1,13 @@
 import logging
 import datetime
 from sqlalchemy import and_, or_
-from auth_server.auth_token.macaroon import MacaroonToken
-from auth_server.exceptions import Err
-from auth_server.models.models import (Token, User, Assignment, Role, Action,
-                                       RoleAction, Type)
-from optscale_exceptions.common_exc import (UnauthorizedException,
-                                            ForbiddenException)
-from auth_server.utils import get_context_values, get_digest
+from auth.auth_server.auth_token.macaroon import MacaroonToken
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import (Token, User, Assignment, Role,
+                                            Action, RoleAction, Type)
+from tools.optscale_exceptions.common_exc import (UnauthorizedException,
+                                                  ForbiddenException)
+from auth.auth_server.utils import get_context_values, get_digest
 
 LOG = logging.getLogger(__name__)
 
@@ -190,12 +190,12 @@ class TokenStore(object):
         :return:
         """
         auth_list_query = self.session.query(
-            Assignment.user_id,  Action.name
+            Assignment.user_id, Action.name
         ).join(
             User, and_(
 
-                 Assignment.user_id == User.id,
-                 and_(
+                Assignment.user_id == User.id,
+                and_(
                     User.deleted.is_(False),
                     User.is_active.is_(True))
             )

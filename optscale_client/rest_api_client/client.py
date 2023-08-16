@@ -239,7 +239,7 @@ class Client:
     def query_url(**query):
         query = {
             key: value for key, value in query.items() if value is not None
-            }
+        }
         encoded_query = urlencode(query)
         return "?" + encoded_query
 

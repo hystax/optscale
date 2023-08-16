@@ -1,13 +1,13 @@
 import json
 import logging
 
-from optscale_exceptions.common_exc import (NotFoundException,
-                                            UnauthorizedException)
-from optscale_exceptions.http_exc import OptHTTPError
-from auth_server.controllers.type import TypeAsyncController
-from auth_server.handlers.v1.base import (BaseAsyncAuthCollectionHandler,
-                                          BaseAsyncAuthItemHandler)
-from auth_server.utils import as_dict, ModelEncoder
+from tools.optscale_exceptions.common_exc import (NotFoundException,
+                                                  UnauthorizedException)
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from auth.auth_server.controllers.type import TypeAsyncController
+from auth.auth_server.handlers.v1.base import (BaseAsyncAuthCollectionHandler,
+                                               BaseAsyncAuthItemHandler)
+from auth.auth_server.utils import as_dict, ModelEncoder
 
 LOG = logging.getLogger(__name__)
 

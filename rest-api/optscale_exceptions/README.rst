@@ -1,2 +1,0 @@
-Hystax OptScale Exceptions package
-==================================

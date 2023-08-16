@@ -3,12 +3,12 @@ import logging
 import traceback
 import tornado.web
 
-from auth_server.exceptions import Err
-from auth_server.models.db_base import BaseDB
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            UnauthorizedException)
-from optscale_exceptions.http_exc import OptHTTPError
-from auth_server.utils import ModelEncoder, run_task
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.db_base import BaseDB
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  UnauthorizedException)
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from auth.auth_server.utils import ModelEncoder, run_task
 
 LOG = logging.getLogger(__name__)
 

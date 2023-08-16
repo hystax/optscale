@@ -1,6 +1,6 @@
 import unittest
-from auth_server.models.db_factory import DBType, DBFactory
-from auth_server.models.db_base import BaseDB
+from auth.auth_server.models.db_factory import DBType, DBFactory
+from auth.auth_server.models.db_base import BaseDB
 
 
 class TestModelBase(unittest.TestCase):

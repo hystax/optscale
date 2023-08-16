@@ -6,7 +6,7 @@ from typing import Optional
 
 
 from zcrmsdk.src.com.zoho.crm.api.dc import USDataCenter, DataCenter
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 from etcd import EtcdKeyError
 
 

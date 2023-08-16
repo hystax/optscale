@@ -19,7 +19,7 @@ from sqlalchemy import (Column, String, Integer, ForeignKey, TEXT, Boolean,
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref, Session
 
-from auth_server.utils import as_dict, ModelEncoder
+from auth.auth_server.utils import as_dict, ModelEncoder
 
 
 # revision identifiers, used by Alembic.

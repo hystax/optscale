@@ -15,8 +15,8 @@ from sqlalchemy import (Column, String, Integer, ForeignKey, TEXT, Boolean)
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref
 
-from auth_server.utils import as_dict, ModelEncoder
-from auth_server.models.exceptions import InvalidTreeException
+from auth.auth_server.utils import as_dict, ModelEncoder
+from auth.auth_server.models.exceptions import InvalidTreeException
 
 # revision identifiers, used by Alembic.
 

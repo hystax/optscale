@@ -4,11 +4,11 @@ import datetime
 import random
 import string
 from unittest.mock import patch
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.utils import hash_password
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.models.models import (Type, User, Action, Role,
+                                            Assignment, ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.utils import hash_password
 
 
 class TestRole(TestAuthBase):
@@ -84,7 +84,7 @@ class TestRole(TestAuthBase):
         self.cs_admin_role.assign_action(edit_cs_action)
         session.commit()
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def _create_role(self, p_get_context, name="testRole",
                      lvl_id=20, is_active=True, type_id=None, scope_id=None,
                      shared=False, description=None):
@@ -156,7 +156,7 @@ class TestRole(TestAuthBase):
         self.client.token = self.get_token(user.email, password)
         return user
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     def test_get_self_role(self, p_res_info):
         p_res_info.return_value = {}
         _, role = self._create_test_user_with_role(self.type_customer,
@@ -169,9 +169,9 @@ class TestRole(TestAuthBase):
         self.assertTrue('ag_super_admin' not in actions)
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_another_role(self, p_get_hierarchy, p_get_context):
         p_get_context.return_value = self.context
         p_get_hierarchy.return_value = self.hierarchy
@@ -180,10 +180,10 @@ class TestRole(TestAuthBase):
         code, response = self.client.role_get(self.cs_admin_role.id)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_roles_with_list_action(self, p_get_hierarchy, p_get_context,
                                         p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -211,10 +211,10 @@ class TestRole(TestAuthBase):
         code, response = self.client.role_get(test_role2.id)
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_roles_deleted_agrp(self, p_get_hierarchy, p_get_context,
                                     p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -239,10 +239,10 @@ class TestRole(TestAuthBase):
         self.assertIsNone(response['actions'].get(
             self.roles_action_group.name))
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_roles_deleted_action(self, p_get_hierarchy, p_get_context,
                                       p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -269,10 +269,10 @@ class TestRole(TestAuthBase):
             self.cloud_sites_action_group.name].get(
             self.list_css_action.name))
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_shared_role(self, p_get_hierarchy, p_get_context,
                              p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -322,9 +322,9 @@ class TestRole(TestAuthBase):
         code, response = self.client.role_get(shared_role2.id)
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_shared_role_from_another_partner(self, p_get_hierarchy,
                                                   p_get_context):
         p_get_hierarchy.return_value = self.hierarchy
@@ -368,9 +368,9 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'description should not contain only whitespaces')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_with_whitespace(self, p_get_hierarchy, p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -385,9 +385,9 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'name should not contain only whitespaces')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_own_role_with_edit_own_action(self, p_get_hierarchy,
                                                   p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -411,9 +411,9 @@ class TestRole(TestAuthBase):
                          False)
         self.assertEqual(response['name'], "New role name")
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_own_role_without_edit_own_action(self, p_get_hierarchy,
                                                      p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -426,9 +426,9 @@ class TestRole(TestAuthBase):
                                                  actions=actions)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_with_edit_own_action(self, p_get_hierarchy,
                                               p_res_info):
         p_res_info.return_value = {}
@@ -443,9 +443,9 @@ class TestRole(TestAuthBase):
                                                  actions=actions)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_with_edit_role_action(self, p_get_hierarchy,
                                                p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -461,9 +461,9 @@ class TestRole(TestAuthBase):
         self.assertEqual(code, 200)
         self.assertEqual(response['description'], 'Test Desc')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_with_edit_sublevel_role_action(
             self, p_get_hierarchy, p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -479,9 +479,9 @@ class TestRole(TestAuthBase):
                                                  actions=actions)
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_own_role_with_edit_sublevel_role_action(
             self, p_get_hierarchy, p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -497,9 +497,9 @@ class TestRole(TestAuthBase):
                                                  actions=actions)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_invalid_action(self, p_get_hierarchy, p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -513,8 +513,8 @@ class TestRole(TestAuthBase):
                                                  actions=actions)
         self.assertEqual(code, 400)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_delete_role(self, p_get_context, p_res_info):
         p_get_context.return_value = self.context
         p_res_info.return_value = {}
@@ -530,10 +530,10 @@ class TestRole(TestAuthBase):
         code, _ = self.client.role_get(role['id'])
         self.assertEqual(code, 404)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_roles_customer_lvl(self, p_get_hierarchy, p_get_context,
                                      p_res_info):
         p_res_info.return_value = {}
@@ -552,10 +552,10 @@ class TestRole(TestAuthBase):
                                     roles)))
         self.assertTrue(len(roles) == 3)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_roles_roles_with_shared_role(self, p_get_hierarchy,
                                                p_get_context, p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -606,10 +606,10 @@ class TestRole(TestAuthBase):
         self.assertFalse(shared_role.id in [x["id"] for x in roles])
         self.assertTrue(len(roles) == 1)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_roles_group_lvl(self, p_get_hierarchy, p_get_context,
                                   p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -637,10 +637,10 @@ class TestRole(TestAuthBase):
             lambda x: x.get('scope_name') in [resource_name], roles))), 2)
         self.assertTrue(len(roles) == 2)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_roles_assignable_to_user(self, p_get_hierarchy,
                                            p_get_context, p_res_info):
         p_res_info.return_value = {}
@@ -717,8 +717,8 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'Role %s already exists' % role_name)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_recreate_deleted_role(self, p_context, p_res_info):
         p_context.return_value = {'partner': self.partner_1_scope_id}
         p_res_info.return_value = {}
@@ -737,8 +737,8 @@ class TestRole(TestAuthBase):
                                            scope_id=self.partner_1_scope_id)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def delete_role_forbidden(self, p_context, p_res_info):
         p_context.return_value = {}
         p_res_info.return_value = {}
@@ -752,9 +752,9 @@ class TestRole(TestAuthBase):
         code, _ = self.client.role_delete(response['id'])
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_same_name(self, p_get_hierarchy, p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -771,8 +771,8 @@ class TestRole(TestAuthBase):
                                                  actions={})
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_invalid_lvl_id(self, p_context, p_res_info):
         p_context.return_value = {'partner': self.partner_1_scope_id}
         p_res_info.return_value = {}
@@ -791,10 +791,10 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'Cannot create role with given lvl for customer')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_with_immutables(self, p_get_context, p_get_hierarchy,
                                          p_res_info):
         p_get_context.return_value = self.context
@@ -817,10 +817,10 @@ class TestRole(TestAuthBase):
             self.assertEqual(response['error']['reason'],
                              'Parameter "%s" is immutable' % immutable_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_with_unexpected_params(self, p_get_context,
                                                 p_get_hierarchy, p_res_info):
         p_get_context.return_value = self.context
@@ -843,10 +843,10 @@ class TestRole(TestAuthBase):
             self.assertEqual(response['error']['reason'],
                              'Unexpected parameters: %s' % unexpected_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_update_role_with_immutables(self, p_get_context, p_get_hierarchy,
                                          p_res_info):
         p_get_context.return_value = self.context
@@ -865,10 +865,10 @@ class TestRole(TestAuthBase):
             self.assertEqual(response['error']['reason'],
                              'Parameter "%s" is immutable' % immutable_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_update_role_with_unexpected_params(self, p_get_context,
                                                 p_get_hierarchy, p_res_info):
         p_get_context.return_value = self.context
@@ -886,9 +886,9 @@ class TestRole(TestAuthBase):
             self.assertEqual(response['error']['reason'],
                              'Unexpected parameters: %s' % unexpected_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_own_role_with_invalid_action_group(self, p_get_hierarchy,
                                                        p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -909,9 +909,9 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'Action group "invalid" cannot be assigned')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_invalid_name(self, p_get_hierarchy, p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -989,9 +989,9 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'description should be a string')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_invalid_description(self, p_get_hierarchy,
                                              p_res_info):
         p_get_hierarchy.return_value = self.hierarchy
@@ -1031,7 +1031,7 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['error_code'], 'OA0033')
         self.assertEqual(response['error']['params'], ['scope_id'])
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_without_is_active(self, p_get_context):
         p_get_context.return_value = self.context
 
@@ -1048,7 +1048,7 @@ class TestRole(TestAuthBase):
         self.assertEqual(code, 201)
         self.assertTrue(response['is_active'])
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_without_required_params(self, p_get_context):
         p_get_context.return_value = self.context
 
@@ -1083,7 +1083,7 @@ class TestRole(TestAuthBase):
         self.assertEqual(code, 400)
         self.assertEqual(response['error']['reason'], 'Invalid scope_id')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_root_with_null_scope_id(self, p_get_context):
         p_get_context.return_value = self.context
         _, role = self._create_test_user_with_role(self.type_customer,
@@ -1098,7 +1098,7 @@ class TestRole(TestAuthBase):
         code, response = self.client.post('roles', body)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_with_not_existing_type_id(self, p_get_context):
         p_get_context.return_value = self.context
 
@@ -1116,7 +1116,7 @@ class TestRole(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'Invalid type with id %s' % 123)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_create_role_with_invalid_scope_id(self, p_get_context):
         p_get_context.return_value = self.context
 
@@ -1133,9 +1133,9 @@ class TestRole(TestAuthBase):
         self.assertEqual(code, 400)
         self.assertEqual(response['error']['reason'], 'Invalid scope_id')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_role_without_actions(self, p_get_hierarchy,
                                          p_res_info):
         p_get_hierarchy.return_value = self.hierarchy

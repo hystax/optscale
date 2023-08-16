@@ -24,7 +24,7 @@ from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Session, relationship, backref
 
-from auth_server.utils import as_dict, ModelEncoder
+from auth.auth_server.utils import as_dict, ModelEncoder
 
 revision = 'faa30df5ef48'
 down_revision = 'ae1c41b777a9'

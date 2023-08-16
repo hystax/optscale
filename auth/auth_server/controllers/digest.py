@@ -1,8 +1,8 @@
 import logging
 
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.models.models import Token
-from auth_server.utils import load_payload, check_kwargs_is_empty
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.models.models import Token
+from auth.auth_server.utils import load_payload, check_kwargs_is_empty
 
 LOG = logging.getLogger(__name__)
 

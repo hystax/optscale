@@ -1,9 +1,9 @@
 import json
 
-import auth_server.handlers.v1.types as types_v1
-from auth_server.controllers.type import TypeAsyncController
-from auth_server.handlers.v1.base import BaseSecretHandler
-from auth_server.utils import as_dict, ModelEncoder
+import auth.auth_server.handlers.v1.types as types_v1
+from auth.auth_server.controllers.type import TypeAsyncController
+from auth.auth_server.handlers.v1.base import BaseSecretHandler
+from auth.auth_server.utils import as_dict, ModelEncoder
 
 
 class TypeAsyncItemHandler(types_v1.TypeAsyncItemHandler):

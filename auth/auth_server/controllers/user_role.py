@@ -1,10 +1,11 @@
 import logging
 from sqlalchemy import and_
 
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.models.models import Assignment, Role, User
-from auth_server.utils import (load_payload, check_kwargs_is_empty, check_list_attribute)
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.models.models import Assignment, Role, User
+from auth.auth_server.utils import (load_payload, check_kwargs_is_empty,
+                                    check_list_attribute)
 
 LOG = logging.getLogger(__name__)
 
@@ -44,9 +45,7 @@ class UserRoleController(BaseController):
             Role, and_(
                 Role.deleted.is_(False),
                 Role.id == Assignment.role_id)
-        ).filter(
-                Assignment.deleted.is_(False),
-        )
+        ).filter(Assignment.deleted.is_(False))
         if user_ids:
             query = query.filter(
                 User.id.in_(user_ids)

@@ -1,7 +1,7 @@
-from auth_server.models.models import Type, User, Role, Assignment
-from auth_server.models.models import gen_salt
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.utils import hash_password
+from auth.auth_server.models.models import Type, User, Role, Assignment
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.utils import hash_password
 
 
 class TestUSerRolesApi(TestAuthBase):

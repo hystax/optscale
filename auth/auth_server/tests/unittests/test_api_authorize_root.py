@@ -1,10 +1,10 @@
 import uuid
 from unittest.mock import patch
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.models.models import (Type, User, Role, Assignment, Action,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.utils import hash_password
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.models.models import (Type, User, Role, Assignment,
+                                            Action, ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.utils import hash_password
 
 
 class TestAuthorize(TestAuthBase):
@@ -110,14 +110,14 @@ class TestAuthorize(TestAuthBase):
         self.assignment_p2_id = assigment_p2.id
         self.assignment_root_id = assigment_root.id
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_admin_notoken(self, p_get_context):
         p_get_context.return_value = self.context1
         code, auth = self.client.authorize('CREATE_CUSTOMER', 'partner',
                                            self.partner1_scope_id)
         self.assertEqual(code, 401)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_admin_partner1(self, p_get_context):
         p_get_context.return_value = self.context1
         self.client.token = self.get_token(self.partner1_user_email,
@@ -128,7 +128,7 @@ class TestAuthorize(TestAuthBase):
         self.assertTrue(any(map(lambda x: x['id'] in self.assignment_p1_id,
                                 auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_create_cs_partner2(self, p_get_context):
         p_get_context.return_value = self.context2
         self.client.token = self.get_token(self.partner2_user_email,
@@ -139,7 +139,7 @@ class TestAuthorize(TestAuthBase):
         self.assertTrue(any(map(lambda x: x['id'] in self.assignment_p2_id,
                                 auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_admin_partner2(self, p_get_context):
         p_get_context.return_value = self.context2
         self.client.token = self.get_token(self.partner2_user_email,
@@ -148,7 +148,7 @@ class TestAuthorize(TestAuthBase):
                                            self.partner2_scope_id)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_admin_invalid_scope_partner1(self, p_get_context):
         p_get_context.return_value = self.context1
         self.client.token = self.get_token(self.partner1_user_email,
@@ -157,7 +157,7 @@ class TestAuthorize(TestAuthBase):
                                            self.partner2_scope_id)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_root_resources_partner1(self, p_get_context):
         p_get_context.return_value = self.context1
         self.client.token = self.get_token(self.root_user_email,
@@ -168,7 +168,7 @@ class TestAuthorize(TestAuthBase):
         self.assertTrue(any(map(lambda x: x['id'] in self.assignment_root_id,
                                 auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_root_resources_partner2(self, p_get_context):
         p_get_context.return_value = self.context2
         self.client.token = self.get_token(self.root_user_email,
@@ -179,7 +179,7 @@ class TestAuthorize(TestAuthBase):
         self.assertTrue(any(map(lambda x: x['id'] in self.assignment_root_id,
                                 auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_root_create_cs_resources_partner(self, p_get_context):
         p_get_context.return_value = self.context2
         self.client.token = self.get_token(self.root_user_email,
@@ -190,7 +190,7 @@ class TestAuthorize(TestAuthBase):
         self.assertTrue(any(map(lambda x: x['id'] in self.assignment_root_id,
                                 auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_root_as_backup_agent(self, p_get_context):
         p_get_context.return_value = {}
         self.client.token = self.get_token(self.root_user_email,

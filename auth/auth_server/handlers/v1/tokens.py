@@ -1,11 +1,11 @@
 import json
 
-from auth_server.controllers.token import TokenAsyncController
-from auth_server.handlers.v1.base import BaseAsyncCollectionHandler
-from auth_server.utils import run_task, ModelEncoder
+from auth.auth_server.controllers.token import TokenAsyncController
+from auth.auth_server.handlers.v1.base import BaseAsyncCollectionHandler
+from auth.auth_server.utils import run_task, ModelEncoder
 
-from optscale_exceptions.common_exc import WrongArgumentsException
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 class TokenAsyncCollectionHandler(BaseAsyncCollectionHandler):

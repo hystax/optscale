@@ -1,10 +1,10 @@
 from unittest.mock import patch
 
-from auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.utils import hash_password
+from auth.auth_server.models.models import (Type, User, Action, Role,
+                                            Assignment, ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.utils import hash_password
 
 
 class TestActionResourcesApi(TestAuthBase):
@@ -108,7 +108,7 @@ class TestActionResourcesApi(TestAuthBase):
         session.commit()
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_action_partner_resources(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.user_partner.email,
@@ -121,7 +121,7 @@ class TestActionResourcesApi(TestAuthBase):
             self.customer2_scope_id], response['CREATE_USER']))), 3)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_action_customer_resources1(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.user_customer.email,
@@ -135,7 +135,7 @@ class TestActionResourcesApi(TestAuthBase):
             self.customer3_scope_id], response['CREATE_ROLE']))), 1)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_action_customer_non_assignable(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.user_customer.email,
@@ -143,12 +143,12 @@ class TestActionResourcesApi(TestAuthBase):
         code, response = self.client.action_resources_get(
             ['CREATE_USER'], assignable_only=False)
         self.assertEqual(code, 200)
-        self.assertEqual(len(list(filter(lambda x: x[1] in [
-            self.customer3_scope_id, self.group3_scope_id],
-                                         response['CREATE_USER']))), 2)
+        self.assertEqual(len(list(filter(
+            lambda x: x[1] in [self.customer3_scope_id, self.group3_scope_id],
+            response['CREATE_USER']))), 2)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_action_root(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.admin_user.email,
@@ -162,7 +162,7 @@ class TestActionResourcesApi(TestAuthBase):
             self.customer3_scope_id], response['CREATE_USER']))), 5)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_action_user_id(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         code, response = self.client.action_resources_get(
@@ -174,7 +174,7 @@ class TestActionResourcesApi(TestAuthBase):
             self.customer3_scope_id], response['CREATE_USER']))), 5)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_bulk_action_resources(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         user_ids = [self.admin_user.id, self.user_partner.id,

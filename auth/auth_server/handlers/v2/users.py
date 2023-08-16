@@ -1,16 +1,16 @@
 import json
 import logging
 
-from optscale_exceptions.common_exc import NotFoundException, ForbiddenException
-from auth_server.controllers.token import TokenAsyncController
-from auth_server.exceptions import Err
-from auth_server.handlers.v1.base import BaseSecretHandler
-from auth_server.handlers.v1.users import (
+from tools.optscale_exceptions.common_exc import NotFoundException, ForbiddenException
+from auth.auth_server.controllers.token import TokenAsyncController
+from auth.auth_server.exceptions import Err
+from auth.auth_server.handlers.v1.base import BaseSecretHandler
+from auth.auth_server.handlers.v1.users import (
     UserAsyncItemHandler as UserAsyncItemHandler_v1,
     UserAsyncCollectionHandler as UserAsyncCollectionHandler_v1)
-from auth_server.handlers.v2.base import BaseHandler as BaseHandler_v2
-from auth_server.utils import ModelEncoder, run_task
-from optscale_exceptions.http_exc import OptHTTPError
+from auth.auth_server.handlers.v2.base import BaseHandler as BaseHandler_v2
+from auth.auth_server.utils import ModelEncoder, run_task
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 LOG = logging.getLogger(__name__)

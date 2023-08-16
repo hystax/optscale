@@ -2,13 +2,13 @@ from unittest.mock import patch
 from requests import HTTPError
 from unittest import mock
 
-from auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                       ActionGroup, gen_id)
-from auth_server.models.models import gen_salt
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.utils import hash_password
+from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
+                                            ActionGroup, gen_id)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.utils import hash_password
 
-GET_CONTEXT = "auth_server.controllers.base.BaseController.get_context"
+GET_CONTEXT = "auth.auth_server.controllers.base.BaseController.get_context"
 
 
 class TestAllowedActionsApi(TestAuthBase):

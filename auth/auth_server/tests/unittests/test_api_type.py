@@ -1,5 +1,5 @@
-from auth_server.models.models import Type
-from auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.models.models import Type
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 
 
 class TestTypeApi(TestAuthBase):

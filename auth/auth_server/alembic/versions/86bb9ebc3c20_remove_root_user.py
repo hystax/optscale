@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 from datetime import datetime
 from sqlalchemy.orm import Session
-from auth_server.utils import hash_password
-from auth_server.models.models import gen_salt
+from auth.auth_server.utils import hash_password
+from auth.auth_server.models.models import gen_salt
 
 
 # revision identifiers, used by Alembic.

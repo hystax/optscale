@@ -2,14 +2,14 @@ import logging
 
 import requests
 
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.exceptions import Err
-from auth_server.models.models import Assignment
-from optscale_exceptions.common_exc import (
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import Assignment
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException)
-from auth_server.utils import check_kwargs_is_empty, pop_or_raise
-from auth_server.utils import get_context_values
+from auth.auth_server.utils import check_kwargs_is_empty, pop_or_raise
+from auth.auth_server.utils import get_context_values
 
 LOG = logging.getLogger(__name__)
 

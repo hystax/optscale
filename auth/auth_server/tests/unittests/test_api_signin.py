@@ -5,11 +5,11 @@ from unittest.mock import patch
 
 from freezegun import freeze_time
 
-from auth_server.models.models import (Type, User, Role, Assignment, Action,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.utils import hash_password
+from auth.auth_server.models.models import (Type, User, Role, Assignment,
+                                            Action, ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.utils import hash_password
 
 
 class TestSignIn(TestAuthBase):
@@ -180,9 +180,9 @@ class TestSignIn(TestAuthBase):
     def test_signin_google_new_user(self):
         email = 'test@domain.com'
         name = 'John Doe'
-        patch('auth_server.controllers.user.UserController.'
+        patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
-        patch('auth_server.controllers.signin.GoogleOauth2Provider.'
+        patch('auth.auth_server.controllers.signin.GoogleOauth2Provider.'
               'exchange_token').start()
         token_info = {'email': email, 'name': name, 'email_verified': True}
         with patch('google.oauth2.id_token.verify_oauth2_token',
@@ -201,10 +201,11 @@ class TestSignIn(TestAuthBase):
     def test_signin_azure_new_user(self):
         email = 'test@domain.com'
         name = 'John Doe'
-        patch('auth_server.controllers.user.UserController.'
+        patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
         token_info = (email, name)
-        with patch('auth_server.controllers.signin.MicrosoftOauth2Provider.verify',
+        with patch('auth.auth_server.controllers.signin.'
+                   'MicrosoftOauth2Provider.verify',
                    return_value=token_info):
             code, resp = self.client.signin(provider='microsoft', token='token')
         self.assertEqual(code, 201)
@@ -218,7 +219,7 @@ class TestSignIn(TestAuthBase):
 
     @patch.dict(os.environ, {'GOOGLE_OAUTH_CLIENT_ID': '223322'}, clear=True)
     def test_signin_existing_user(self):
-        patch('auth_server.controllers.user.UserController.'
+        patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
         token_info = {
             'email': self.user_customer_email,
@@ -233,10 +234,11 @@ class TestSignIn(TestAuthBase):
 
     @patch.dict(os.environ, {'MICROSOFT_OAUTH_CLIENT_ID': '123'}, clear=True)
     def test_signin_existing_user(self):
-        patch('auth_server.controllers.user.UserController.'
+        patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
         token_info = (self.user_customer_email, self.user_customer_name)
-        with patch('auth_server.controllers.signin.MicrosoftOauth2Provider.verify',
+        with patch('auth.auth_server.controllers.signin.'
+                   'MicrosoftOauth2Provider.verify',
                    return_value=token_info):
             code, resp = self.client.signin(provider='microsoft', token='token')
         self.assertEqual(code, 201)

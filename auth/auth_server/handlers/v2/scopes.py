@@ -1,6 +1,6 @@
 from tornado import gen
 
-import auth_server.handlers.v1.scopes as scopes_v1
+import auth.auth_server.handlers.v1.scopes as scopes_v1
 
 
 class ScopeAsyncHandler(scopes_v1.ScopeAsyncHandler):

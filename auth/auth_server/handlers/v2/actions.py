@@ -1,7 +1,7 @@
 import json
 
-from auth_server.handlers.v2.base import BaseHandler
-from auth_server.handlers.v1.actions import (
+from auth.auth_server.handlers.v2.base import BaseHandler
+from auth.auth_server.handlers.v1.actions import (
     ActionAsyncHandler as ActionAsyncHandler_v1)
 
 

@@ -23,7 +23,7 @@ from zcrmsdk.src.com.zoho.crm.api.record import (
 from zcrmsdk.src.com.zoho.crm.api.tags import TagsOperations, AddTagsToRecordParam
 from zcrmsdk.src.com.zoho.crm.api.util import APIResponse
 
-from zoho_integrator.registered_app import RegisteredApp
+from auth.zoho_integrator.registered_app import RegisteredApp
 
 LOG = logging.getLogger(__file__)
 

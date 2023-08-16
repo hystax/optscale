@@ -2,15 +2,15 @@ import os
 
 import tornado.testing
 from unittest.mock import patch, PropertyMock
-from auth_server.models.models import *
-from auth_server.server import make_app
-from auth_server.models.db_factory import DBType, DBFactory
-from auth_server.models.db_base import BaseDB
-from auth_server.models.models import gen_salt
-from auth_server.utils import hash_password
-import auth_client.client
-import auth_client.client_v2
-from auth_server.controllers.token import DEFAULT_TOKEN_EXPIRATION
+from auth.auth_server.models.models import *
+from auth.auth_server.server import make_app
+from auth.auth_server.models.db_factory import DBType, DBFactory
+from auth.auth_server.models.db_base import BaseDB
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.utils import hash_password
+import optscale_client.auth_client.client
+import optscale_client.auth_client.client_v2
+from auth.auth_server.controllers.token import DEFAULT_TOKEN_EXPIRATION
 
 
 class TestAuthBase(tornado.testing.AsyncHTTPTestCase):
@@ -33,26 +33,26 @@ class TestAuthBase(tornado.testing.AsyncHTTPTestCase):
     @staticmethod
     def get_auth_client(version="v1"):
         return {
-            "v1": auth_client.client,
-            "v2": auth_client.client_v2
+            "v1": optscale_client.auth_client.client,
+            "v2": optscale_client.auth_client.client_v2
         }.get(version)
 
     def setUp(self, version='v1'):
         super().setUp()
         secret = gen_id()
-        patch('config_client.client.Client.cluster_secret',
+        patch('optscale_client.config_client.client.Client.cluster_secret',
               return_value=secret).start()
-        patch('config_client.client.Client.zoho_params',
+        patch('optscale_client.config_client.client.Client.zoho_params',
               return_value={}).start()
-        patch('auth_server.utils.get_encryption_salt',
+        patch('auth.auth_server.utils.get_encryption_salt',
               return_value=gen_salt()).start()
-        patch('auth_server.controllers.token.TokenController.expiration',
+        patch('auth.auth_server.controllers.token.TokenController.expiration',
               new_callable=PropertyMock,
               return_value=DEFAULT_TOKEN_EXPIRATION).start()
 
-        patch("auth_server.controllers.base.BaseController.get_resources_info",
+        patch("auth.auth_server.controllers.base.BaseController.get_resources_info",
               return_value={}).start()
-        http_provider = auth_client.client.FetchMethodHttpProvider(
+        http_provider = optscale_client.auth_client.client.FetchMethodHttpProvider(
             self.fetch, rethrow=False)
         self.client = TestAuthBase.get_auth_client(version).Client(
             http_provider=http_provider)

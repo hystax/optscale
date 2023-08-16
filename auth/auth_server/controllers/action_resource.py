@@ -1,14 +1,14 @@
 import logging
 import copy
 
-from auth_server.exceptions import Err
-from auth_server.models.models import Type
-from auth_server.auth_token.token_store import TokenStore
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            ForbiddenException)
-from auth_server.utils import load_payload
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import Type
+from auth.auth_server.auth_token.token_store import TokenStore
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  ForbiddenException)
+from auth.auth_server.utils import load_payload
 
 LOG = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker, scoped_session
 from retrying import retry
-import auth_server.models.models as model_base
+import auth.auth_server.models.models as model_base
 
 
 def should_retry(exception):

@@ -1,7 +1,7 @@
-from auth_server.tests.unittests.test_model_base import TestModelBase
-from auth_server.auth_token.macaroon import MacaroonToken
-from auth_server.models.models import *
-from auth_server.tests.unittests.utils import extract_caveats
+from auth.auth_server.tests.unittests.test_model_base import TestModelBase
+from auth.auth_server.auth_token.macaroon import MacaroonToken
+from auth.auth_server.models.models import *
+from auth.auth_server.tests.unittests.utils import extract_caveats
 
 
 # Keeping this to track approximate token length

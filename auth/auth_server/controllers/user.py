@@ -3,24 +3,24 @@ import logging
 import re
 from sqlalchemy.sql import func
 
-from config_client.client import etcd
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            ForbiddenException,
-                                            NotFoundException,
-                                            ConflictException)
+from optscale_client.config_client.client import etcd
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException, ForbiddenException, NotFoundException,
+    ConflictException)
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
-from zoho_integrator.zoho_integrator import ZohoIntegrator
-from zoho_integrator.zoho_client import ZohoClient
-from zoho_integrator.registered_app import RegisteredApp
+from auth.zoho_integrator.zoho_integrator import ZohoIntegrator
+from auth.zoho_integrator.zoho_client import ZohoClient
+from auth.zoho_integrator.registered_app import RegisteredApp
 
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.exceptions import Err
-from auth_server.models.models import User, gen_salt, Type, Token
-from auth_server.utils import (check_action, hash_password, is_email_format,
-                               get_input, check_string_attribute,
-                               check_bool_attribute, is_hystax_email, is_demo_email)
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import User, gen_salt, Type, Token
+from auth.auth_server.utils import (check_action, hash_password, is_email_format,
+                                    get_input, check_string_attribute,
+                                    check_bool_attribute, is_hystax_email,
+                                    is_demo_email)
 
 LOG = logging.getLogger(__name__)
 

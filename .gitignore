@@ -14,3 +14,7 @@ ngui/ui/.env
 optscale-deploy/overlay/*.yml
 !optscale-deploy/overlay/user_template.yml
 
+# Build files
+**/dist
+**/*egg-info/
+**/*.tar.gz

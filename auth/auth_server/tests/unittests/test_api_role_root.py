@@ -3,11 +3,11 @@ import random
 import string
 from unittest.mock import patch
 
-from auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.utils import hash_password
+from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
+                                            ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.utils import hash_password
 
 
 class TestApiRoleRoot(TestAuthBase):
@@ -75,10 +75,10 @@ class TestApiRoleRoot(TestAuthBase):
         self.assertEqual(response['type_id'], self.admin_user.type.id)
         self.assertIsNone(response['scope_id'])
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_roles_assignable(self, p_get_hierarchy, p_get_context,
                                    p_res_info):
         p_get_hierarchy.return_value = self.hierarchy

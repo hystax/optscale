@@ -1,11 +1,11 @@
 from enum import Enum
 import logging
 
-from optscale_exceptions.common_exc import InvalidModelTypeException
+from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 
-from auth_server.exceptions import Err
-from auth_server.models.db_test import TestDB
-from auth_server.models.db_mysql import MySQLDB
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.db_test import TestDB
+from auth.auth_server.models.db_mysql import MySQLDB
 
 
 class DBType(Enum):
