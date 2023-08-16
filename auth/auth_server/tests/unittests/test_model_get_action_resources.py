@@ -1,7 +1,7 @@
-from auth_server.tests.unittests.test_model_base import TestModelBase
-from auth_server.models.models import *
+from auth.auth_server.tests.unittests.test_model_base import TestModelBase
+from auth.auth_server.models.models import *
 
-from auth_server.auth_token.token_store import TokenStore
+from auth.auth_server.auth_token.token_store import TokenStore
 
 
 class TestActionResources(TestModelBase):

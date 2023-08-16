@@ -8,11 +8,11 @@ from unittest.mock import patch, PropertyMock
 
 from freezegun import freeze_time
 
-from auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.utils import hash_password
+from auth.auth_server.models.models import (Type, User, Action, Role,
+                                            Assignment, ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.utils import hash_password
 
 
 class TestUser(TestAuthBase):
@@ -131,7 +131,7 @@ class TestUser(TestAuthBase):
         session.commit()
         self.client.token = self.get_token(user_customer.email,
                                            self.user_customer_password)
-        patch('auth_server.controllers.user.'
+        patch('auth.auth_server.controllers.user.'
               'UserController.domain_blacklist').start()
 
     def test_create_user(self):
@@ -144,8 +144,7 @@ class TestUser(TestAuthBase):
     def test_create_max_password_length(self,):
         password = ''.join(random.choice(
             string.ascii_lowercase + string.ascii_uppercase + string.digits +
-            string.punctuation)
-                   for _ in range(20))
+            string.punctuation) for _ in range(20))
         email = 'test@email.com'
         code, response = self._create_user(email=email,
                                            type_id=30, password=password)
@@ -154,9 +153,9 @@ class TestUser(TestAuthBase):
         code, _ = self.client.token_get(email, password)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_delete_user(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -166,9 +165,9 @@ class TestUser(TestAuthBase):
         code, _ = self.client.user_get(user['id'])
         self.assertEqual(code, 404)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_edit_user_info(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -178,9 +177,9 @@ class TestUser(TestAuthBase):
                                              display_name='Mr. Anonymous')
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_user_info_whitespaced_display_name(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -190,9 +189,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'display_name should not contain only whitespaces')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_edit_user_info_whitespaced_display_name(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -204,9 +203,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'display_name should not contain only whitespaces')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_edit_user_info_invalid(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -218,9 +217,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'display_name should contain 1-64 characters')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_deactivate_user(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -234,9 +233,9 @@ class TestUser(TestAuthBase):
         self.assertIsNone(user.get('password'))
         self.assertIsNone(user.get('salt'))
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_change_user_password(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -256,9 +255,9 @@ class TestUser(TestAuthBase):
         code, token = self.client.token_get(user_email, new_password)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_change_user_password_invalid(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -274,9 +273,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'Password should be at least 4 characters')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_user(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         resource_name = 'Group1'
@@ -293,9 +292,9 @@ class TestUser(TestAuthBase):
         self.assertIsNone(user.get('salt'))
         self.assertEqual(user1.get('scope_name'), resource_name)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_user_assigned_resource_deleted(self, p_hierarchy, p_res_info):
         del self.hierarchy['root']['null']['partner'][
             self.partner_scope_id]['customer'][self.customer1_scope_id]
@@ -304,9 +303,9 @@ class TestUser(TestAuthBase):
         code, user = self.client.user_list()
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_p_c2(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -318,9 +317,9 @@ class TestUser(TestAuthBase):
             len(list(filter(lambda x: x['id'] in
                             self.user_customer2.id, users))), 0)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_list_p_c1(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -330,9 +329,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(code, 200)
         self.assertTrue(users)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_get_p_c1(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -350,7 +349,7 @@ class TestUser(TestAuthBase):
         self.assertEqual(code, 200)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_p_c2(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.user_partner_email,
@@ -359,9 +358,9 @@ class TestUser(TestAuthBase):
         code, users = self.client.user_get(self.user_customer2.id)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_c2_edit_self(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -371,9 +370,9 @@ class TestUser(TestAuthBase):
                                           display_name='Mr. User')
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_c2_reset_password_self(self, p_hierarchy, p_res_info):
         p_res_info.return_value = {}
         p_hierarchy.return_value = self.hierarchy
@@ -391,9 +390,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'User %s already exists' % user_email)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_recreate_deleted_user(self, p_hierarchy, p_res_info):
         p_res_info.return_value = {}
         p_hierarchy.return_value = self.hierarchy
@@ -403,9 +402,9 @@ class TestUser(TestAuthBase):
         code, response = self._create_user(email=user_email, type_id=30)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_edit_change_email(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -417,9 +416,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'Parameter "email" is immutable')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_login_inactive_user(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -435,9 +434,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'User is inactive')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_login_user_invalid_password(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -473,9 +472,9 @@ class TestUser(TestAuthBase):
         code, user2 = self._create_user(email="user2@mail.com", type_id=30)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_user_duplicated_name_scope(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -487,9 +486,9 @@ class TestUser(TestAuthBase):
             user2['id'], display_name='User1')
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_user_with_same_parameters(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -498,9 +497,9 @@ class TestUser(TestAuthBase):
             user1['id'], display_name=user1['display_name'])
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_user_duplicated_name_with_deleted_user(
             self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -509,9 +508,9 @@ class TestUser(TestAuthBase):
         code, _ = self._create_user(email="user2@mail.com", type_id=30)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_user_with_unexpected_param(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -530,9 +529,9 @@ class TestUser(TestAuthBase):
             self.assertEqual(user['error']['reason'],
                              'Unexpected parameters: %s' % unexpected_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_user_with_immutable(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -548,9 +547,9 @@ class TestUser(TestAuthBase):
             self.assertEqual(upd_user['error']['reason'],
                              'Parameter "%s" is immutable' % immutable_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_user_with_unexpected_params(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -579,7 +578,7 @@ class TestUser(TestAuthBase):
                          'email should contain 1-255 characters')
 
     def test_create_email_domain_blacklist(self):
-        patch('auth_server.controllers.user.UserController.domain_blacklist',
+        patch('auth.auth_server.controllers.user.UserController.domain_blacklist',
               new_callable=PropertyMock, return_value=['@example.my']).start()
         wl_email = 'user@user.user'
         code, response = self._create_user(email=wl_email, type_id=30)
@@ -590,7 +589,7 @@ class TestUser(TestAuthBase):
         self.assertEqual(code, 400)
         self.assertEqual(response['error']['error_code'], 'OA0070')
 
-        patch('auth_server.controllers.user.UserController.domain_blacklist',
+        patch('auth.auth_server.controllers.user.UserController.domain_blacklist',
               new_callable=PropertyMock, return_value=['example.my']).start()
         code, response = self._create_user(email=bl_email, type_id=30)
         self.assertEqual(code, 400)
@@ -619,9 +618,9 @@ class TestUser(TestAuthBase):
             self.assertEqual(response['error']['reason'],
                              'display_name should contain 1-255 characters')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_user_short_password(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -631,9 +630,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(user['error']['reason'],
                          'Password should be at least 4 characters')
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_update_user_name_length(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -687,9 +686,9 @@ class TestUser(TestAuthBase):
             self.assertLess(first_user_created_at,
                             second_user_created_at)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_user_with_self_registration(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -720,9 +719,9 @@ class TestUser(TestAuthBase):
             self.assertEqual(user['error']['reason'],
                              'Parameter "%s" is immutable' % immutable_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_delete_self(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -743,7 +742,7 @@ class TestUser(TestAuthBase):
         self.assertEqual(code, 204)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def _create_user(self, p_hierarchy, email="test@email.com",
                      password="1Passw0rd1", display_name='Test user',
                      is_active=True, type_id=None,
@@ -756,9 +755,9 @@ class TestUser(TestAuthBase):
             self.client.token = self.get_token(email, password)
         return code, user
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_get_p_c1(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -775,9 +774,9 @@ class TestUser(TestAuthBase):
         code, user1 = self.client.user_get(user['id'])
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_create_user_with_unexpected_param(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -794,9 +793,9 @@ class TestUser(TestAuthBase):
             self.assertEqual(user['error']['reason'],
                              'Unexpected parameters: %s' % unexpected_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_get_user(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         resource_name = 'Group1'
@@ -813,9 +812,9 @@ class TestUser(TestAuthBase):
         self.assertIsNone(user.get('salt'))
         self.assertIsNone(user1.get('scope_name'))
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_login_inactive_user(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -918,9 +917,9 @@ class TestUser(TestAuthBase):
         code, _ = self.client.get(self.client.user_url())
         self.assertEqual(code, 401)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_patch_slack_connected(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -938,9 +937,9 @@ class TestUser(TestAuthBase):
         self.assertEqual(code, 200)
         self.assertEqual(user['slack_connected'], True)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_patch_jira_connected(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}

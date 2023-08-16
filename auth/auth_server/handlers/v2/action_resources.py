@@ -1,14 +1,14 @@
 import json
-from auth_server.utils import ModelEncoder
-from auth_server.handlers.v2.base import BaseHandler
-from auth_server.handlers.v1.base import BaseSecretHandler
-from auth_server.handlers.v1.action_resources import (
+from auth.auth_server.utils import ModelEncoder
+from auth.auth_server.handlers.v2.base import BaseHandler
+from auth.auth_server.handlers.v1.base import BaseSecretHandler
+from auth.auth_server.handlers.v1.action_resources import (
     ActionResourcesAsyncHandler as ActionResourcesAsyncHandler_v1)
-from auth_server.controllers.action_resource import (
+from auth.auth_server.controllers.action_resource import (
     ActionResourceAsyncController)
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            NotFoundException)
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  NotFoundException)
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 # url_key: (<api parameter>, <type>, <repeated: bool>)
 PAYLOAD_MAP_PARAMS = {

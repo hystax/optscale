@@ -2,7 +2,7 @@ import requests
 import tornado.web
 
 
-from optscale_exceptions.common_exc import OptException
+from tools.optscale_exceptions.common_exc import OptException
 
 
 class OptHTTPError(tornado.web.HTTPError):

@@ -14,7 +14,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from alembic import op
 import sqlalchemy as sa
 
-from auth_server.utils import as_dict, ModelEncoder
+from auth.auth_server.utils import as_dict, ModelEncoder
 
 # revision identifiers, used by Alembic.
 revision = '481dbdfd5d18'

@@ -1,6 +1,6 @@
-from auth_server.handlers.v1.digests import (
+from auth.auth_server.handlers.v1.digests import (
     DigestAsyncHandler as DigestAsyncHandler_v1)
-from auth_server.handlers.v2.base import BaseHandler
+from auth.auth_server.handlers.v2.base import BaseHandler
 
 # url_key: (<api parameter>, <type>, <repeated: bool>)
 PAYLOAD_MAP_PARAMS = {

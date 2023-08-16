@@ -1,6 +1,6 @@
 import json
 from urllib.parse import urlencode
-from rest_api_client.client import Client as Client_v1
+from optscale_client.rest_api_client.client import Client as Client_v1
 from typing import Optional
 
 
@@ -178,7 +178,7 @@ class Client(Client_v1):
     @staticmethod
     def cloud_resource_bulk_url(cloud_account_id):
         return '%s/cloud_resources/bulk' % Client.cloud_account_url(
-                cloud_account_id)
+            cloud_account_id)
 
     def cloud_resource_create(self, cloud_account_id, params):
         return self.post(self.cloud_resource_url(
@@ -528,7 +528,7 @@ class Client(Client_v1):
         return '%s/clean_expenses' % Client.organization_url(organization_id)
 
     def clean_expenses_get(self, organization_id, start_date, end_date,
-                         params=None):
+                           params=None):
         query_params = {
             'start_date': start_date,
             'end_date': end_date

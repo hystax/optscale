@@ -1,8 +1,8 @@
 import json
 
-from auth_server.controllers.signin import SignInAsyncController
-from auth_server.handlers.v1.base import BaseAsyncCollectionHandler
-from auth_server.utils import ModelEncoder, run_task
+from auth.auth_server.controllers.signin import SignInAsyncController
+from auth.auth_server.handlers.v1.base import BaseAsyncCollectionHandler
+from auth.auth_server.utils import ModelEncoder, run_task
 
 
 class SignInAsyncHandler(BaseAsyncCollectionHandler):

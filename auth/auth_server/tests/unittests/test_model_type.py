@@ -1,7 +1,7 @@
-from auth_server.tests.unittests.test_model_base import TestModelBase
-from auth_server.models.models import *
+from auth.auth_server.tests.unittests.test_model_base import TestModelBase
+from auth.auth_server.models.models import *
 
-from auth_server.models.exceptions import InvalidTreeException
+from auth.auth_server.models.exceptions import InvalidTreeException
 
 
 class TestType(TestModelBase):

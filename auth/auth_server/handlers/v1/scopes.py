@@ -1,11 +1,11 @@
 import json
 
-from auth_server.controllers.scope import ScopeAsyncController
-from auth_server.exceptions import Err
-from auth_server.handlers.v1.base import BaseAuthHandler
-from auth_server.utils import ModelEncoder
-from optscale_exceptions.common_exc import NotFoundException
-from optscale_exceptions.http_exc import OptHTTPError
+from auth.auth_server.controllers.scope import ScopeAsyncController
+from auth.auth_server.exceptions import Err
+from auth.auth_server.handlers.v1.base import BaseAuthHandler
+from auth.auth_server.utils import ModelEncoder
+from tools.optscale_exceptions.common_exc import NotFoundException
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 class ScopeAsyncHandler(BaseAuthHandler):

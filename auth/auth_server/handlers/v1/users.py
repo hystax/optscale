@@ -1,14 +1,14 @@
 import json
 import logging
-from auth_server.controllers.user import UserAsyncController
-from auth_server.exceptions import Err
-from auth_server.handlers.v1.base import (BaseAsyncAuthItemHandler,
-                                          BaseAsyncAuthCollectionHandler)
-from optscale_exceptions.common_exc import (ForbiddenException,
-                                            WrongArgumentsException,
-                                            NotFoundException)
-from optscale_exceptions.http_exc import OptHTTPError
-from auth_server.utils import ModelEncoder
+from auth.auth_server.controllers.user import UserAsyncController
+from auth.auth_server.exceptions import Err
+from auth.auth_server.handlers.v1.base import (
+    BaseAsyncAuthItemHandler, BaseAsyncAuthCollectionHandler)
+from tools.optscale_exceptions.common_exc import (ForbiddenException,
+                                                  WrongArgumentsException,
+                                                  NotFoundException)
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from auth.auth_server.utils import ModelEncoder
 
 
 LOG = logging.getLogger(__name__)

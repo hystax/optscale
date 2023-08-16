@@ -1,4 +1,4 @@
-from auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 
 
 class TestCommonApi(TestAuthBase):

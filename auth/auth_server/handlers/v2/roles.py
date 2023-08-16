@@ -3,15 +3,15 @@ import logging
 
 from tornado import gen
 
-from auth_server.controllers.role import RoleAsyncController
-from auth_server.handlers.v1.base import BaseSecretHandler
-from auth_server.handlers.v1.roles import (
+from auth.auth_server.controllers.role import RoleAsyncController
+from auth.auth_server.handlers.v1.base import BaseSecretHandler
+from auth.auth_server.handlers.v1.roles import (
     RoleAsyncItemHandler as RoleAsyncItemHandler_v1,
     RoleAsyncCollectionHandler as RoleAsyncCollectionHandler_v1)
-from optscale_exceptions.common_exc import (
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException)
-from optscale_exceptions.http_exc import OptHTTPError
-from auth_server.utils import ModelEncoder, as_dict
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from auth.auth_server.utils import ModelEncoder, as_dict
 
 LOG = logging.getLogger(__name__)
 

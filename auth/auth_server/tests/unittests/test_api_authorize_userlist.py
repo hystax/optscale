@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 from requests import HTTPError
 
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.utils import hash_password
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
+                                            ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.utils import hash_password
 
 
 class TestAuthorizeUserlistApi(TestAuthBase):
@@ -137,7 +137,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
         session.add(assignment_custom_role_customer3)
         session.commit()
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_case1(self, p_context):
         p_context.return_value = {
             "partner": self.partner_scope_id,
@@ -154,7 +154,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
             response.get(self.user_partner.id).sort(),
             list(map(lambda x: x.name, self.admin_role.actions)).sort())
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_case1_root_lvl(self, p_context):
         p_context.return_value = {}
         code, response = self.client.authorize_user_list(
@@ -166,7 +166,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
             response.get(self.admin_user.id).sort(),
             list(map(lambda x: x.name, self.admin_role.actions)).sort())
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_case2_custom_actions(self, p_context):
         p_context.return_value = {
             "partner": self.partner2_scope_id,
@@ -182,7 +182,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
             response.get(self.user_customer.id).sort(),
             list(map(lambda x: x.name, self.role_custom.actions)).sort())
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_case2_admin_actions(self, p_context):
         p_context.return_value = {
             "partner": self.partner2_scope_id,
@@ -198,7 +198,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
             response.get(self.user_customer.id).sort(),
             list(map(lambda x: x.name, self.admin_role.actions)).sort())
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_invalid_scope_name(self, p_context):
         err_400 = HTTPError(mock.Mock(), 'bad request')
         err_400.response = mock.Mock(status_code=400, localized='OA0000')
@@ -212,7 +212,7 @@ class TestAuthorizeUserlistApi(TestAuthBase):
         self.assertEqual(response['error']['reason'], 'Invalid type %s' %
                          invalid_scope_name)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_invalid_scope_id(self, p_context):
         err_404 = HTTPError(mock.Mock(), 'bad request')
         err_404.response = mock.Mock(status_code=404, localized='OA0000')

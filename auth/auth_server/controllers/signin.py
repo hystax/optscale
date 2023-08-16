@@ -14,14 +14,14 @@ from cryptography.hazmat.primitives import serialization
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.controllers.token import TokenController
-from auth_server.controllers.user import UserController
-from auth_server.exceptions import Err
-from auth_server.utils import (
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.controllers.token import TokenController
+from auth.auth_server.controllers.user import UserController
+from auth.auth_server.exceptions import Err
+from auth.auth_server.utils import (
     check_kwargs_is_empty, pop_or_raise, check_string_attribute)
-from optscale_exceptions.common_exc import (
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, ForbiddenException)
 
 LOG = logging.getLogger(__name__)

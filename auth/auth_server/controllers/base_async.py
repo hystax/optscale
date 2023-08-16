@@ -1,7 +1,7 @@
 import logging
 import functools
 from tornado.ioloop import IOLoop
-from auth_server.utils import tp_executor
+from auth.auth_server.utils import tp_executor
 
 LOG = logging.getLogger(__name__)
 

@@ -1,12 +1,12 @@
 import logging
 
-from optscale_exceptions.common_exc import NotFoundException
+from tools.optscale_exceptions.common_exc import NotFoundException
 from sqlalchemy import and_
 
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.exceptions import Err
-from auth_server.models.models import Type
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import Type
 
 LOG = logging.getLogger(__name__)
 

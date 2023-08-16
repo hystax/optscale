@@ -4,12 +4,12 @@ import json
 import os
 import re
 
-from auth_server.exceptions import Err
+from auth.auth_server.exceptions import Err
 from concurrent.futures import ThreadPoolExecutor
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 from datetime import datetime
-from optscale_exceptions.http_exc import OptHTTPError
-from optscale_exceptions.common_exc import (
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, UnauthorizedException, ForbiddenException,
     NotFoundException, ConflictException, FailedDependency)
 from sqlalchemy import inspect

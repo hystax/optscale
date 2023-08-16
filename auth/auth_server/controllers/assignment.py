@@ -3,16 +3,16 @@ import logging
 import datetime
 from sqlalchemy import and_, or_
 
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.role import RoleController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.exceptions import Err
-from auth_server.models.models import (
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.role import RoleController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import (
     Assignment, Role, Type, User)
-from optscale_exceptions.common_exc import (ForbiddenException,
-                                            NotFoundException,
-                                            WrongArgumentsException)
-from auth_server.utils import check_action
+from tools.optscale_exceptions.common_exc import (ForbiddenException,
+                                                  NotFoundException,
+                                                  WrongArgumentsException)
+from auth.auth_server.utils import check_action
 
 
 LOG = logging.getLogger(__name__)
@@ -72,10 +72,10 @@ class AssignmentController(BaseController):
         assignable_roles, _ = RoleController(self.session, self._config).list(
             user_id, **{'token': token})
         # filter assignable roles by assignment level
-        assignable_roles = list(
-            filter(lambda x: type_id in list(
+        assignable_roles = list(filter(
+            lambda x: type_id in list(
                 map(lambda y: y.id, x.lvl.parent_tree)) + [x.lvl_id],
-                   assignable_roles))
+            assignable_roles))
         if role_id not in list(map(lambda x: x.id, assignable_roles)):
             raise ForbiddenException(Err.OA0017, [role_id, user_id])
         if type_id not in [user_to_assign.type_id] + list(

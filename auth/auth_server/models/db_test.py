@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 
-from auth_server.models.db_base import BaseDB
+from auth.auth_server.models.db_base import BaseDB
 from sqlalchemy.pool import StaticPool
 
 

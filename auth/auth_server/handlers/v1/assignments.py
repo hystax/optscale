@@ -1,14 +1,14 @@
 import json
 
-from auth_server.controllers.user import UserAsyncController
-from auth_server.controllers.assignment import AssignmentAsyncController
-from auth_server.exceptions import Err
-from auth_server.handlers.v1.base import (BaseAsyncAuthItemHandler,
-                                          BaseAsyncAuthCollectionHandler,
-                                          WrongArgumentsException)
-from optscale_exceptions.http_exc import OptHTTPError
-from optscale_exceptions.common_exc import NotFoundException, ForbiddenException
-from auth_server.utils import as_dict, ModelEncoder
+from auth.auth_server.controllers.user import UserAsyncController
+from auth.auth_server.controllers.assignment import AssignmentAsyncController
+from auth.auth_server.exceptions import Err
+from auth.auth_server.handlers.v1.base import (BaseAsyncAuthItemHandler,
+                                               BaseAsyncAuthCollectionHandler,
+                                               WrongArgumentsException)
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import NotFoundException, ForbiddenException
+from auth.auth_server.utils import as_dict, ModelEncoder
 
 
 class AssignmentAsyncItemHandler(BaseAsyncAuthItemHandler):

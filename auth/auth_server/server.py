@@ -2,18 +2,18 @@ import argparse
 import logging
 import os
 
-import config_client.client
+import optscale_client.config_client.client
 import tornado.ioloop
 import tornado.web
 from tornado.web import RedirectHandler
 
-import auth_server.handlers.v1 as h_v1
-import auth_server.handlers.v2 as h_v2
-from auth_server.constants import urls_v2
+import auth.auth_server.handlers.v1 as h_v1
+import auth.auth_server.handlers.v2 as h_v2
+from auth.auth_server.constants import urls_v2
 
-from auth_server.handlers.v1.base import DefaultHandler
-from auth_server.handlers.v1.swagger import SwaggerStaticFileHandler
-from auth_server.models.db_factory import DBType, DBFactory
+from auth.auth_server.handlers.v1.base import DefaultHandler
+from auth.auth_server.handlers.v1.swagger import SwaggerStaticFileHandler
+from auth.auth_server.models.db_factory import DBType, DBFactory
 
 DEFAULT_PORT = 8905
 DEFAULT_ETCD_HOST = '127.0.0.1'
@@ -34,7 +34,7 @@ def get_handlers(handler_kwargs):
         (urls_v2.tokens, get_handler_version(
             h_v2, "tokens").TokenAsyncCollectionHandler, handler_kwargs),
         (urls_v2.users_collection, get_handler_version(
-            h_v2, "users").UserAsyncCollectionHandler,  handler_kwargs),
+            h_v2, "users").UserAsyncCollectionHandler, handler_kwargs),
         (urls_v2.users, get_handler_version(
             h_v2, "users").UserAsyncItemHandler, handler_kwargs),
         (urls_v2.roles_collection, get_handler_version(
@@ -92,7 +92,8 @@ def get_handler_version(h_v, handler, default_version=h_v1):
 
 
 def make_app(db_type, etcd_host, etcd_port, wait=False):
-    config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
+    config_cl = optscale_client.config_client.client.Client(
+        host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
     db = DBFactory(db_type, config_cl).db

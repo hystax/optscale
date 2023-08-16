@@ -1,2 +1,0 @@
-Hystax zoho integrator package
-=====================================

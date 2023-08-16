@@ -1,11 +1,11 @@
 import uuid
 from requests import HTTPError
 from unittest.mock import patch
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.models.models import (Type, User, Role, Assignment, Action,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.utils import hash_password
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.models.models import (Type, User, Role, Assignment,
+                                            Action, ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.utils import hash_password
 from unittest import mock
 
 
@@ -107,7 +107,7 @@ class TestAuthorize(TestAuthBase):
         self.client.token = self.get_token(
             user_customer.email, self.user_customer_password)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_admin(self, p_get_context):
         p_get_context.return_value = self.context
         code, auth = self.client.authorize('CREATE_GROUP', 'customer',
@@ -116,7 +116,7 @@ class TestAuthorize(TestAuthBase):
         self.assertTrue(any(map(lambda x: x['id'] in self.assignment_admin_id,
                                 auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_operator_create_cs(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
@@ -129,7 +129,7 @@ class TestAuthorize(TestAuthBase):
             lambda x: x['id'] in self.assignment_operator_id,
             auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_operator_create_cs_role_inactive(self, p_get_context):
 
         session = self.db_session
@@ -146,7 +146,7 @@ class TestAuthorize(TestAuthBase):
         self.assertEqual(code, 403)
         self.assertEqual(auth['error']['reason'], 'Forbidden!')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_operator_create_cs_user_inactive(self, p_get_context):
         session = self.db_session
         p_get_context.return_value = self.context
@@ -162,7 +162,7 @@ class TestAuthorize(TestAuthBase):
         self.assertEqual(code, 403)
         self.assertEqual(auth['error']['reason'], 'Forbidden!')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_operator_delete_cs(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
@@ -175,7 +175,7 @@ class TestAuthorize(TestAuthBase):
             lambda x: x['id'] in self.assignment_operator_id,
             auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_operator_forbidden(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
@@ -186,7 +186,7 @@ class TestAuthorize(TestAuthBase):
         self.assertEqual(code, 403)
         self.assertEqual(auth['error']['reason'], 'Forbidden!')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_admin_rootscope_forbidden(self, p_get_context):
         p_get_context.return_value = {
             "partner": self.partner_scope_id
@@ -196,7 +196,7 @@ class TestAuthorize(TestAuthBase):
         self.assertEqual(code, 403)
         self.assertEqual(auth['error']['reason'], 'Forbidden!')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_partner_admin(self, p_get_context):
         p_get_context.return_value = {
             "partner": self.partner_scope_id
@@ -211,7 +211,7 @@ class TestAuthorize(TestAuthBase):
             lambda x: x['id'] in self.assignment_partner_id,
             auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_partner_admin_delete_cs(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.admin_user_email,
@@ -224,7 +224,7 @@ class TestAuthorize(TestAuthBase):
             lambda x: x['id'] in self.assignment_partner_id,
             auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_scope_below_context(self, p_get_context):
         p_get_context.return_value = self.context
         code, auth = self.client.authorize('CREATE_GROUP', 'dr_plan',
@@ -233,7 +233,7 @@ class TestAuthorize(TestAuthBase):
         self.assertTrue(any(map(lambda x: x['id'] in self.assignment_admin_id,
                                 auth['assignments'])))
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_unexpected(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.admin_user_email,
@@ -242,7 +242,7 @@ class TestAuthorize(TestAuthBase):
             body = {
                 "action": 'DELETE_CS',
                 "resource_type": 'customer',
-                "uuid":  self.customer_scope_id,
+                "uuid": self.customer_scope_id,
                 unexpected_parameter: 'value'
             }
             code, auth = self.client.post('authorize', body)
@@ -254,7 +254,7 @@ class TestAuthorize(TestAuthBase):
             self.assertEqual(
                 auth['error']['params'], [str(unexpected_parameter)])
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_invalid_resource_type(self, p_get_context):
 
         err_400 = HTTPError(mock.Mock(), 'bad request')
@@ -268,7 +268,7 @@ class TestAuthorize(TestAuthBase):
             self.assertEqual(code, 403)
             self.assertEqual(auth['error']['reason'], 'Forbidden!')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_without_resource_type(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
@@ -281,7 +281,7 @@ class TestAuthorize(TestAuthBase):
         self.assertEqual(code, 400)
         self.assertEqual(auth['error']['reason'], 'resource_type is required')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_without_action(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
@@ -302,7 +302,7 @@ class TestAuthorize(TestAuthBase):
         self.assertEqual(code, 400)
         self.assertEqual(auth['error']['reason'], 'Invalid scope_id')
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_root_without_scope(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
@@ -311,7 +311,7 @@ class TestAuthorize(TestAuthBase):
             'DELETE_CS', 'root')
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_without_uuid(self, p_get_context):
         p_get_context.return_value = {}
         self.client.token = self.get_token(self.user_operator_email,
@@ -323,7 +323,7 @@ class TestAuthorize(TestAuthBase):
         code, auth = self.client.post('authorize', body)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_root_without_uuid(self, p_get_context):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
@@ -335,7 +335,7 @@ class TestAuthorize(TestAuthBase):
         code, auth = self.client.post('authorize', body)
         self.assertEqual(code, 200)
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_partner_with_children(self, p_get_context):
         child_partner_scope_id = '471f24ea-288a-4457-b567-67bddbc49591'
         p_get_context.return_value = {

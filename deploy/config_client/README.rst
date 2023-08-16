@@ -1,2 +1,0 @@
-Hystax Acura Config client
-====================================

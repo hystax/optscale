@@ -1,5 +1,5 @@
-from auth_server.tests.unittests.test_model_base import TestModelBase
-from auth_server.models.models import *
+from auth.auth_server.tests.unittests.test_model_base import TestModelBase
+from auth.auth_server.models.models import *
 
 
 class TestType(TestModelBase):
@@ -33,9 +33,9 @@ class TestType(TestModelBase):
         role_admin.assign_action(action_create_customer)
         role_admin.assign_action(action_run_cs)
         session.commit()
-        self.assertTrue(all(map(lambda x: x.name in [
-            action_name_create_customer, action_name_run_cs],
-                                role_admin.actions)))
+        self.assertTrue(all(map(
+            lambda x: x.name in [action_name_create_customer, action_name_run_cs],
+            role_admin.actions)))
         role_admin.remove_action(action_create_customer)
         session.add(role_admin)
         session.commit()

@@ -5,12 +5,12 @@ from alembic import autogenerate
 from alembic.script import ScriptDirectory
 from alembic.runtime.environment import EnvironmentContext
 
-import auth_server.models.models
+import auth.auth_server.models.models
 
 LOG = logging.getLogger(__name__)
 
 # declarative base metadata
-target_metadata = auth_server.models.models.Base.metadata
+target_metadata = auth.auth_server.models.models.Base.metadata
 
 
 class Migrator(object):

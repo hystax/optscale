@@ -3,7 +3,7 @@ from typing import List
 from zcrmsdk.src.com.zoho.crm.api.record import Record, Field
 from zcrmsdk.src.com.zoho.crm.api.util import Choice
 
-from zoho_integrator.zoho_client import ZohoClient, RecordNotFoundException
+from auth.zoho_integrator.zoho_client import ZohoClient, RecordNotFoundException
 
 
 FULL_NAME_SEP = " "
@@ -72,8 +72,8 @@ class ZohoIntegrator:
                 f"Found user with email {email} in module {target_module}. Updating..."
             )
             if (
-                user.get_key_value(Field.Leads.last_name().get_api_name())
-                == LAST_NAME_PLACE_HOLDER
+                user.get_key_value(
+                    Field.Leads.last_name().get_api_name()) == LAST_NAME_PLACE_HOLDER
             ):
                 LOG.debug("Found place holder in last name for existing user.")
                 _, new_last_name = self._get_first_last_names(full_name)

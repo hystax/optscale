@@ -2,7 +2,9 @@ ARG BUILDTAG=build
 FROM auth:${BUILDTAG}
 MAINTAINER Hystax
 
-COPY test-requirements.txt .pylintrc .noserc .coveragerc ./
-RUN pip install --no-cache-dir -r test-requirements.txt
+COPY optscale_client/auth_client /usr/src/app/optscale_client/auth_client
+COPY auth/test-requirements.txt auth/test-requirements.txt
+COPY auth/.pylintrc auth/.noserc auth/.coveragerc ./auth/auth_server/
+RUN pip install --no-cache-dir -r auth/test-requirements.txt
 
-COPY auth_server/tests ./tests
+COPY auth/auth_server/tests auth/auth_server/tests

@@ -515,6 +515,7 @@ class Client(etcd.Client):
         blacklist_branch = 'domains_blacklists'
         return self.read_list("/{0}/{1}".format(blacklist_branch,
                                                 blacklist_key))
+
     def thanos_remote_write_url(self):
         """
         Url to send prometheus metrics

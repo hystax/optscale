@@ -1,10 +1,10 @@
 from unittest.mock import patch
 
-from auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                       ActionGroup)
-from auth_server.models.models import gen_salt
-from auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth_server.utils import hash_password
+from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
+                                            ActionGroup)
+from auth.auth_server.models.models import gen_salt
+from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
+from auth.auth_server.utils import hash_password
 
 
 class TestAssignment(TestAuthBase):
@@ -43,8 +43,8 @@ class TestAssignment(TestAuthBase):
         # first partner user
         self.user_partner1 = User(email='partner@company.com',
                                   password=hash_password(
-                                    self.user_partner_password,
-                                    user_partner_salt),
+                                      self.user_partner_password,
+                                      user_partner_salt),
                                   display_name='Partner user',
                                   scope_id=self.partner1_scope_id,
                                   salt=user_partner_salt,
@@ -108,10 +108,10 @@ class TestAssignment(TestAuthBase):
         session.commit()
         self.client.token = self.get_token(self.user_partner1.email,
                                            self.user_partner_password)
-        patch('auth_server.controllers.user.UserController.'
+        patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
 
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def _create_role(self, p_get_context, name, lvl_id, type_id, context,
                      scope_id=None, is_active=True, shared=False,
                      description=None):
@@ -134,7 +134,7 @@ class TestAssignment(TestAuthBase):
                                        scope_id=scope_id, shared=shared,
                                        description=description)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     def test_basic_assignment_list(self, p_res_info):
         p_res_info.return_value = {
             self.partner1_scope_id: {
@@ -148,9 +148,9 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x['role_id'] in [
             self.admin_role.id], response))), 1)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_baisc_assignment_get(self, p_hierarchy, p_res_info):
         resource_partner_name = 'Partner1'
         p_hierarchy.return_value = self.hierarchy
@@ -163,9 +163,9 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(code, 200)
         self.assertEqual(response['scope_name'], resource_partner_name)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_basic_assignment_delete_by_token(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -177,9 +177,9 @@ class TestAssignment(TestAuthBase):
                                                     self.user_partner1.id)
         self.assertEqual(code, 404)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_basic_assignment_delete_by_secret(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
@@ -191,10 +191,10 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(code, 404)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+        "auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_partner_assign_self(self, p_hierarchy, p_context, p_res_info):
         """
         try to create partner assignment for self
@@ -227,10 +227,10 @@ class TestAssignment(TestAuthBase):
             self.partner1_scope_id)
         self.assertEqual(code, 201)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_api_assign_role_another_resource(self, p_hierarchy, p_context,
                                               p_res_info):
         """
@@ -263,10 +263,10 @@ class TestAssignment(TestAuthBase):
             self.customer2_1_scope_id)
         self.assertEqual(code, 403)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_api_assignment_create_with_immutable(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -296,10 +296,10 @@ class TestAssignment(TestAuthBase):
             self.assertEqual(response['error']['reason'],
                              'Parameter "%s" is immutable' % immutable_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_api_assignment_create_with_unexpected_param(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -329,10 +329,10 @@ class TestAssignment(TestAuthBase):
             self.assertEqual(response['error']['reason'],
                              'Unexpected parameters: %s' % unexpected_param)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_api_assignment_create_with_invalid_parameters(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -378,10 +378,10 @@ class TestAssignment(TestAuthBase):
                          'type_id should be integer')
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+        "auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_api_assign_role_higher_lvl(self, p_hierarchy, p_context,
                                         p_res_info):
         """
@@ -411,7 +411,7 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(code, 403)
 
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def _create_user(self, p_hierarchy, email, password, display_name,
                      type_id=None, scope_id=None, is_active=True):
         p_hierarchy.return_value = self.hierarchy
@@ -419,9 +419,9 @@ class TestAssignment(TestAuthBase):
                                        display_name=display_name,
                                        is_active=is_active)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_self_assignment_list(self, p_hierarchy, p_res_info):
         partner_resource_name = 'Partner'
         p_hierarchy.return_value = self.hierarchy
@@ -437,10 +437,10 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x['role_id'] in [
             self.admin_role.id], response))), 1)
 
-    @patch("auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth_server.controllers.base.BaseController.get_context")
+    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base.BaseController.get_context")
     @patch(
-        "auth_server.controllers.base.BaseController.get_downward_hierarchy")
+        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
     def test_api_assignment_create_registration(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy

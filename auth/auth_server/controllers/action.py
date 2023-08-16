@@ -1,13 +1,13 @@
 import json
 import logging
-from auth_server.auth_token.token_store import TokenStore
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from optscale_exceptions.common_exc import (
+from auth.auth_server.auth_token.token_store import TokenStore
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException)
 from requests import HTTPError
-from auth_server.exceptions import Err
-from auth_server.utils import check_kwargs_is_empty, get_context_values
+from auth.auth_server.exceptions import Err
+from auth.auth_server.utils import check_kwargs_is_empty, get_context_values
 
 LOG = logging.getLogger(__name__)
 

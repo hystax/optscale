@@ -4,16 +4,17 @@ import hashlib
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
-from config_client.client import etcd
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.exceptions import Err
-from auth_server.models.models import Token, User
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            ForbiddenException,
-                                            NotFoundException)
-from auth_server.auth_token.macaroon import MacaroonToken
-from auth_server.utils import hash_password, popkey, raise_not_provided_error
+from optscale_client.config_client.client import etcd
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import Token, User
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  ForbiddenException,
+                                                  NotFoundException)
+from auth.auth_server.auth_token.macaroon import MacaroonToken
+from auth.auth_server.utils import (hash_password, popkey,
+                                    raise_not_provided_error)
 
 LOG = logging.getLogger(__name__)
 DEFAULT_TOKEN_EXPIRATION = 168
@@ -86,9 +87,7 @@ class TokenController(BaseController):
         model_type = self._get_model_type()
         LOG.info("Creating %s with parameters %s", model_type.__name__, kwargs)
         now = datetime.datetime.utcnow()
-        macaroon_token = MacaroonToken(
-                user.salt, user.id
-        ).create(
+        macaroon_token = MacaroonToken(user.salt, user.id).create(
             xstr(kwargs.get('register', False)),
             xstr(kwargs.get('provider', 'optscale'))
         )

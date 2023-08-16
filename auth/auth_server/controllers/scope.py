@@ -1,10 +1,10 @@
 import logging
 
 from ordered_set import OrderedSet
-from auth_server.auth_token.token_store import TokenStore
-from auth_server.controllers.base import BaseController
-from auth_server.controllers.base_async import BaseAsyncControllerWrapper
-from auth_server.models.models import Type
+from auth.auth_server.auth_token.token_store import TokenStore
+from auth.auth_server.controllers.base import BaseController
+from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.models.models import Type
 
 LOG = logging.getLogger(__name__)
 
@@ -55,13 +55,13 @@ class ScopeController(object):
         res_type_dict = self._list_types()
         resources = list(
             map(lambda x: {'scope_id': x[0], 'scope_type': x[1]}, aset))
-        response = [dict(list(res.items()) + [
-            ('scope_name', resources_info.get(res['scope_id'], {}).get(
+        response = [dict(list(res.items()) + [(
+            'scope_name', resources_info.get(res['scope_id'], {}).get(
                 'name', 'Root' if res['scope_type'] == 'root' else None))] +
             list(res_type_dict.get(res['scope_type'],
                                    {'scope_type_id': None,
                                     'assignable': None}).items())
-                         ) for res in resources]
+        ) for res in resources]
         if filter_assignable:
             response = list(filter(lambda x: x['assignable'], response))
         return response

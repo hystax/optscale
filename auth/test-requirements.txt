@@ -2,6 +2,5 @@ pep8==1.7.1
 pylint==2.6.0
 coverage==4.2
 nose==1.3.7
-
-auth-client==0.0.82
 freezegun==0.3.8
+-e optscale_client/auth_client

@@ -7,17 +7,17 @@ import requests
 from ordered_set import OrderedSet
 from sqlalchemy.orm.exc import MultipleResultsFound
 
-from auth_server.exceptions import Err
-from auth_server.models.models import Token, Type, User, Role, PermissionKeys
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            UnauthorizedException,
-                                            NotFoundException,
-                                            ForbiddenException)
-from optscale_exceptions.http_exc import handle503
-from auth_server.auth_token.token_store import TokenStore
+from auth.auth_server.exceptions import Err
+from auth.auth_server.models.models import Token, Type, User, Role, PermissionKeys
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  UnauthorizedException,
+                                                  NotFoundException,
+                                                  ForbiddenException)
+from tools.optscale_exceptions.http_exc import handle503
+from auth.auth_server.auth_token.token_store import TokenStore
 
-from auth_server.utils import Config, popkey, get_digest
-from rest_api_client.client_v2 import Client as RestApiClient
+from auth.auth_server.utils import Config, popkey, get_digest
+from optscale_client.rest_api_client.client_v2 import Client as RestApiClient
 
 LOG = logging.getLogger(__name__)
 

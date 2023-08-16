@@ -15,7 +15,7 @@ from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import Session
 from sqlalchemy import (Column, String, TIMESTAMP)
-from auth_server.utils import as_dict, ModelEncoder
+from auth.auth_server.utils import as_dict, ModelEncoder
 
 
 # revision identifiers, used by Alembic.

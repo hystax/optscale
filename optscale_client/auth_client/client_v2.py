@@ -1,6 +1,6 @@
 import json
 from urllib.parse import urlencode
-from auth_client.client import Client as Client_v1
+from optscale_client.auth_client.client import Client as Client_v1
 
 
 class Client(Client_v1):

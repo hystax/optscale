@@ -2,7 +2,7 @@ import yaml
 import os.path
 import re
 import json
-import auth_server.server as server
+import auth.auth_server.server as server
 from apispec import APISpec, utils
 from tornado.template import Template
 
