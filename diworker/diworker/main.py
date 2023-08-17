@@ -3,6 +3,7 @@ import os
 import time
 
 import urllib3
+from threading import Thread
 from config_client.client import Client as ConfigClient
 from datetime import datetime
 from etcd import Lock as EtcdLock
@@ -37,6 +38,7 @@ task_queue = Queue(
 
 LOG = get_logger(__name__)
 ENVIRONMENT_CLOUD_TYPE = 'environment'
+HEARTBEAT_INTERVAL = 300
 
 
 class DIWorker(ConsumerMixin):
@@ -46,6 +48,15 @@ class DIWorker(ConsumerMixin):
         self._rest_cl = None
         self._mongo_cl = None
         self._clickhouse_cl = None
+        self.report_import_id = None
+        self.thread = Thread(target=self.heartbeat)
+        self.thread.start()
+
+    def heartbeat(self):
+        while True:
+            if self.report_import_id:
+                self.rest_cl.report_import_update(self.report_import_id, {})
+            time.sleep(HEARTBEAT_INTERVAL)
 
     @property
     def rest_cl(self):
@@ -101,16 +112,25 @@ class DIWorker(ConsumerMixin):
         )]
 
     def report_import(self, task):
-        report_import_id = task.get('report_import_id')
-        if not report_import_id:
+        self.report_import_id = task.get('report_import_id')
+        if not self.report_import_id:
             raise Exception('invalid task received: {}'.format(task))
 
-        _, import_dict = self.rest_cl.report_import_get(report_import_id)
+        _, import_dict = self.rest_cl.report_import_get(self.report_import_id)
         cloud_acc_id = import_dict.get('cloud_account_id')
+        _, resp = self.rest_cl.report_import_list(cloud_acc_id, show_active=True)
+        imports = list(filter(
+            lambda x: x['id'] != self.report_import_id, resp['report_imports']))
+        if imports:
+            reason = 'Import cancelled due another import: %s' % imports[0]['id']
+            self.rest_cl.report_import_update(
+                self.report_import_id, {'state': 'failed',
+                                        'state_reason': reason})
+            return
         is_recalculation = import_dict.get('is_recalculation', False)
         LOG.info('Starting processing for task: %s, purpose %s',
                  task, 'recalculation ' if is_recalculation else 'import')
-        self.rest_cl.report_import_update(report_import_id,
+        self.rest_cl.report_import_update(self.report_import_id,
                                           {'state': 'in_progress'})
 
         importer_params = {
@@ -133,7 +153,7 @@ class DIWorker(ConsumerMixin):
             importer = get_importer_class(cc_type)(**importer_params)
             importer.import_report()
             self.rest_cl.report_import_update(
-                report_import_id, {'state': 'completed'})
+                self.report_import_id, {'state': 'completed'})
             if start_last_import_ts == 0 and cc_type != ENVIRONMENT_CLOUD_TYPE:
                 all_reports_finished = True
                 _, resp = self.rest_cl.cloud_account_list(organization_id)
@@ -152,7 +172,7 @@ class DIWorker(ConsumerMixin):
                 # pylint: disable=E1101
                 LOG.error('Mongo exception details: %s', exc.details)
             self.rest_cl.report_import_update(
-                report_import_id,
+                self.report_import_id,
                 {'state': 'failed', 'state_reason': str(exc)}
             )
             now = int(time.time())
@@ -203,6 +223,7 @@ class DIWorker(ConsumerMixin):
             self.report_import(body)
         except Exception as exc:
             LOG.exception('Data import failed: %s', str(exc))
+        self.report_import_id = None
         message.ack()
 
 

@@ -50,6 +50,14 @@ class BaseRecommendation {
     return this.apiResponse[this.statusCategory]?.[this.type] || {};
   }
 
+  get error() {
+    return this.apiResponse[this.statusCategory]?.[this.type]?.error;
+  }
+
+  get hasError() {
+    return !!this.error;
+  }
+
   get items() {
     return this.recommendation.items || [];
   }

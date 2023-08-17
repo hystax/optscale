@@ -1,7 +1,10 @@
 import React from "react";
+import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
+import { Box } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
+import QuestionMark from "components/QuestionMark";
 import { isEmpty } from "utils/arrays";
 import Actions from "../Actions";
 import RecommendationCard, { ServicesChipsGrid, TableContent, Header } from "../RecommendationCard";
@@ -65,10 +68,22 @@ const Cards = ({
         />
       }
       description={
-        <FormattedMessage
-          id={r.descriptionMessageId}
-          values={{ strong: (chunks) => <strong>{chunks}</strong>, ...r.descriptionMessageValues }}
-        />
+        <>
+          <Typography gutterBottom>
+            <FormattedMessage
+              id={r.descriptionMessageId}
+              values={{ strong: (chunks) => <strong>{chunks}</strong>, ...r.descriptionMessageValues }}
+            />
+          </Typography>
+          {r.hasError && (
+            <Box display="flex" alignItems="center">
+              <Typography color="error">
+                <FormattedMessage id="recommendationError" />
+              </Typography>
+              <QuestionMark tooltipText={r.error} color="error" Icon={ErrorOutlineOutlinedIcon} />
+            </Box>
+          )}
+        </>
       }
       cta={r.count > 0 && <FormattedMessage id="seeAllItems" values={{ value: r.count }} />}
       onCtaClick={() => onRecommendationClick(r)}

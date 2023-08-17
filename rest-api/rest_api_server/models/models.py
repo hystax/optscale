@@ -554,6 +554,8 @@ class ReportImport(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
                           nullable=True, info=ColumnPermissions.full)
     is_recalculation = Column(NullableBool('is_recalculation'), nullable=False,
                               default=False, info=ColumnPermissions.create_only)
+    updated_at = Column(NullableInt('updated_at'), default=0, nullable=False,
+                        info=ColumnPermissions.update_only)
 
     @validates('cloud_account_id')
     def _validate_cloud_account_id(self, key, cloud_account_id):

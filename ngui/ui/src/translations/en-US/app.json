@@ -1379,7 +1379,7 @@
   "reason": "Reason",
   "recommendationDetectedAtDescription": "The time when the recommendation was detected",
   "recommendationDownloadFeatureIsUnavailable": "The download feature is unavailable for free accounts. Please contact {email} in order to enable this feature.",
-  "recommendationError": "The last check failed with the «{errorText}» error. The data might be outdated.",
+  "recommendationError": "The last check failed. The data might be outdated.",
   "recommendationProceeding": "The data has not been processed yet. Please wait until the recommendations check is fully completed.",
   "recommendationSettings": "{recommendationName} recommendation settings",
   "recommendationSettingsDescription": "Here you can define the recommendation settings. They will be applied during the next recommendations check run. If you want to apply them immediately, use the <strong>Force check</strong> button on the <strong>Recommendations</strong> page.",

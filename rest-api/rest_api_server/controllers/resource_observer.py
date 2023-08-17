@@ -43,18 +43,21 @@ class ResourceObserverController(BaseController, MongoMixin):
             CloudAccount.deleted.is_(False)
         ).all()
 
-    def _clear_active_flags(self, discovered_ids, resource_type,
-                            cloud_acc_ids):
-        res = self.resources_collection.find({
-            '_id': {'$nin': discovered_ids},
-            'cloud_account_id': {'$in': cloud_acc_ids},
-            'resource_type': resource_type.value,
-            'active': True})
-        resources_ = {r['_id']: r for r in res}
-        self.resources_collection.update_many(
-            filter={'_id': {'$in': list(resources_.keys())}},
-            update={'$unset': {'active': 1}}
-        )
+    def _clear_active_flags(self, cloud_acc_id_discovered_res_ids, resource_type):
+        resources_ = {}
+        for cloud_acc_id, active_res_ids in cloud_acc_id_discovered_res_ids.items():
+            res = self.resources_collection.find({
+                '_id': {'$nin': active_res_ids},
+                'cloud_account_id': cloud_acc_id,
+                'resource_type': resource_type.value,
+                'active': True})
+            resources_.update({r['_id']: r for r in res})
+        inactive_res_ids = list(resources_.keys())
+        if inactive_res_ids:
+            self.resources_collection.update_many(
+                filter={'_id': {'$in': inactive_res_ids}},
+                update={'$unset': {'active': 1}}
+            )
         return list(resources_.values())
 
     def _clear_clusters_active_flags(self, cluster_ids, organization_id):
@@ -95,6 +98,7 @@ class ResourceObserverController(BaseController, MongoMixin):
         all_resources = []
         inactive_res = []
         for rss_type in ResourceTypes.objects():
+            cloud_acc_id_res_ids = {x: [] for x in cloud_account_ids}
             resources = discover_controller.try_load_from_cache(
                 organization_id, rss_type, {}, {}, None)
             resources_ids = []
@@ -103,8 +107,9 @@ class ResourceObserverController(BaseController, MongoMixin):
                 all_resources.append(r)
                 if r.cluster_id is not None:
                     cluster_ids.add(r.cluster_id)
+                cloud_acc_id_res_ids[r.cloud_account_id].append(r.resource_id)
             inactive_res.extend(self._clear_active_flags(
-                resources_ids, rss_type, cloud_account_ids))
+                cloud_acc_id_res_ids, rss_type))
         inactive_clusters = self._clear_clusters_active_flags(
             list(cluster_ids), organization_id)
         inactive_res_list = []

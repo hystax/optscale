@@ -18,11 +18,11 @@ const QuestionMark = ({
   className,
   Icon = HelpOutlineIcon,
   onTooltipTitleClick,
+  color = "secondary",
   /**
    * TODO: Consider replacing it with a "margin" (or just "m") setting that utilizes theme.spacing(1) as the default left margin.
    */
-  withLeftMargin = true,
-  color = "secondary"
+  withLeftMargin = true
 }) => {
   const { classes, cx } = useStyles();
 

@@ -20,7 +20,7 @@ class ReportImportAsyncCollectionHandler(BaseAsyncCollectionHandler,
         ---
         description: |
             Get list of report imports for cloud account
-            Required permission: MANAGE_CLOUD_CREDENTIALS
+            Required permission: MANAGE_CLOUD_CREDENTIALS or CLUSTER_SECRET
         tags: [report_imports]
         summary: List of report imports
         parameters:
@@ -32,6 +32,11 @@ class ReportImportAsyncCollectionHandler(BaseAsyncCollectionHandler,
         -   name: show_completed
             in: query
             description: Add completed imports into response
+            required: false
+            type: boolean
+        -   name: show_active
+            in: query
+            description: Only active imports into response
             required: false
             type: boolean
         responses:
@@ -52,6 +57,10 @@ class ReportImportAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                         type: integer
                                         description: >
                                             Deleted timestamp (service field)
+                                    updated_at:
+                                        type: integer
+                                        description: >
+                                            Last update timestamp (service field)
                                     created_at:
                                         type: integer
                                         description: >
@@ -88,14 +97,18 @@ class ReportImportAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     Not found:
                     - OE0002: Cloud account not found
         security:
+        - secret: []
         - token: []
         """
-        await self.check_permissions('MANAGE_CLOUD_CREDENTIALS',
-                                     'cloud_account', cloud_account_id)
+        if not self.check_cluster_secret(raises=False):
+            await self.check_permissions('MANAGE_CLOUD_CREDENTIALS',
+                                         'cloud_account', cloud_account_id)
         show_completed = self.get_arg('show_completed', bool, False)
+        show_active = self.get_arg('show_active', bool, False)
         res = await run_task(self.controller.list,
                              cloud_account_id=cloud_account_id,
-                             show_completed=show_completed)
+                             show_completed=show_completed,
+                             show_active=show_active)
         report_imports_dict = {
             'report_imports': [r.to_dict() for r in res]}
         self.write(json.dumps(report_imports_dict, cls=ModelEncoder))
@@ -132,6 +145,9 @@ class ReportImportAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         deleted_at:
                             type: integer
                             description: "Deleted timestamp (service field)"
+                        updated_at:
+                            type: integer
+                            description: "Last update timestamp (service field)"
                         created_at:
                             type: integer
                             description: "Created timestamp (service field)"

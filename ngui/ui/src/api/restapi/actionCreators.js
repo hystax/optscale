@@ -346,7 +346,7 @@ export const getOrganizationOptions = (organizationId, withValues = false) =>
     method: "GET",
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ORGANIZATION_OPTIONS),
-    hash: hashParams(organizationId),
+    hash: hashParams({ organizationId, withValues }),
     label: GET_ORGANIZATION_OPTIONS,
     params: {
       with_values: withValues
@@ -1335,7 +1335,7 @@ export const updateOptimizationOptions = (settingType, pathParams, params) => {
   return apiAction({
     url: `${API_URL}/organizations/${organizationId}/options/recommendation_${recommendationType}`,
     method: "PATCH",
-    affectedRequests: [GET_OPTIMIZATIONS, GET_OPTIMIZATIONS_OVERVIEW],
+    affectedRequests: [GET_OPTIMIZATIONS, GET_OPTIMIZATIONS_OVERVIEW, GET_ORGANIZATION_OPTIONS],
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
     successHandlerPayload: {
       settingType

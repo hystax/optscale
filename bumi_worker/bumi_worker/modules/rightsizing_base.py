@@ -113,7 +113,7 @@ class RightsizingBase(ModuleBase):
     def get_common_group_pipeline():
         return {
             '$group': {
-                '_id': '$resource_id',
+                '_id': {'resource_id': '$resource_id'},
                 'cloud_account_id': {'$first': "$cloud_account_id"},
                 "cost": {'$sum': '$cost'}
             }
@@ -155,36 +155,43 @@ class RightsizingBase(ModuleBase):
                            cloud_resource_id_instance_map, cloud_type):
         result = []
         specs_func = self._get_family_specs_func(cloud_type)
-        for cloud_resource_id, info in cloud_resource_id_info_map.items():
+        for cloud_resource_id, info_list in cloud_resource_id_info_map.items():
             instance = cloud_resource_id_instance_map[cloud_resource_id]
             region = instance.get('region')
             family_specs = specs_func(instance)
             meta = instance['meta']
-            flavor_params = {
-                'os_type': meta.get('os'),
-            }
-            preinstalled = meta.get('preinstalled')
-            if preinstalled and cloud_type == 'aws_cnr':
-                flavor_params['preinstalled'] = preinstalled
-            meter_id = info.get('meter_id')
-            if meter_id and cloud_type == 'azure_cnr':
-                flavor_params['meter_id'] = meter_id
-            if cloud_type == 'nebius' and 'cpu_count' in meta:
-                flavor_params['cpu'] = meta['cpu_count']
+            for info in info_list:
+                flavor_params = {
+                    'os_type': info.get('os') or meta.get('os'),
+                }
+                preinstalled = meta.get('preinstalled')
+                if preinstalled and cloud_type == 'aws_cnr':
+                    flavor_params['preinstalled'] = preinstalled
+                meter_id = info.get('meter_id')
+                if cloud_type == 'azure_cnr':
+                    flavor = meta.get('flavor')
+                    if flavor and flavor not in info['additional_properties']:
+                        continue
+                    if meter_id:
+                        flavor_params['meter_id'] = meter_id
+                if meter_id and cloud_type == 'azure_cnr':
+                    flavor_params['meter_id'] = meter_id
+                if cloud_type == 'nebius' and 'cpu_count' in meta:
+                    flavor_params['cpu'] = meta['cpu_count']
 
-            exists = [i for i, x in enumerate(result)
-                      if (x.get('family_specs') == family_specs and
-                          x.get('flavor_params') == flavor_params and
-                          x.get('region') == region)]
-            if exists:
-                result[exists[0]]['resource_ids'].append(cloud_resource_id)
-            else:
-                result.append({
-                    'resource_ids': [cloud_resource_id],
-                    'family_specs': family_specs,
-                    'flavor_params': flavor_params,
-                    'region': region
-                })
+                exists = [i for i, x in enumerate(result)
+                          if (x.get('family_specs') == family_specs and
+                              x.get('flavor_params') == flavor_params and
+                              x.get('region') == region)]
+                if exists:
+                    result[exists[0]]['resource_ids'].append(cloud_resource_id)
+                else:
+                    result.append({
+                        'resource_ids': [cloud_resource_id],
+                        'family_specs': family_specs,
+                        'flavor_params': flavor_params,
+                        'region': region
+                    })
         return result
 
     def _find_flavor(self, cloud_type, region, family_specs, mode, **params):
@@ -203,6 +210,8 @@ class RightsizingBase(ModuleBase):
                           resource_info_map, r_info, recommended_flavor_cpu_min,
                           excluded_pools, excluded_flavor_prog):
         result = []
+        unable_to_get_current_flavor = set(x for params in current_flavor_params
+                                           for x in params['resource_ids'])
         for params in current_flavor_params:
             res_ids = params['resource_ids']
             region = params['region']
@@ -214,16 +223,24 @@ class RightsizingBase(ModuleBase):
                 cloud_account['type'], region, family_specs, 'current',
                 **flavor_params)
             if not current_flavor:
-                for _ in res_ids:
-                    write_stat_func('unable_to_get_flavor')
                 continue
             current_cpu = current_flavor.get('cpu', 0)
             if current_cpu <= recommended_flavor_cpu_min:
-                for _ in res_ids:
+                for res_id in res_ids:
+                    unable_to_get_current_flavor.remove(res_id)
                     write_stat_func('current_cpu_too_low')
                 continue
             cpu_flavor_map = {}
             for res_id in res_ids:
+                unable_to_get_current_flavor.remove(res_id)
+
+                current_r_info = r_info[res_id][0]
+                if (cloud_account['type'] == 'azure_cnr' and
+                        len(r_info[res_id]) != 1):
+                    meter_id = flavor_params['meter_id']
+                    current_r_info = [x for x in r_info[res_id]
+                                      if x['meter_id'] == meter_id][0]
+
                 instance = resource_info_map[res_id]
                 meta = instance['meta']
                 instance_metrics = metrics_map.get(instance['_id'])
@@ -258,8 +275,8 @@ class RightsizingBase(ModuleBase):
                                 'flavor'] != platform_name):
                         write_stat_func('no_recommended_flavor')
                         break
-                    current_cost = r_info[res_id].get('day_cost', 0) * DAYS_IN_MONTH
-                    discount_multiplier = r_info[res_id].get(
+                    current_cost = current_r_info.get('day_cost', 0) * DAYS_IN_MONTH
+                    discount_multiplier = current_r_info.get(
                         'discount_multiplier', 1)
                     multiplier = HOURS_IN_DAY * DAYS_IN_MONTH * discount_multiplier
                     recommended_cost = recommended_flavor.get('price') * multiplier
@@ -310,6 +327,8 @@ class RightsizingBase(ModuleBase):
                         'projected_cpu_qtl_99': round(projected_cpu_qtl_99, 2),
                     })
                     break
+        for _ in unable_to_get_current_flavor:
+            write_stat_func('unable_to_get_current_flavor')
         return result
 
     def _get_instances(self, cloud_account_ids, start_date):
@@ -407,16 +426,17 @@ class RightsizingBase(ModuleBase):
                 usages = sum([float(x) for x in r['usages']])
                 costs = sum([float(x) for x in r['costs']])
                 day_cost = costs / usages * HOURS_IN_DAY
-                result[r['_id']] = {
+                res_id = r['_id']['resource_id']
+                result[res_id] = [{
                     'day_cost': day_cost,
                     'total_cost': r['cost'],
                     'cloud_account_id': r['cloud_account_id'],
-                    'resource_id': r['_id']
-                }
+                    'resource_id': res_id
+                }]
         return result
 
     def get_base_azure_instances_info(self, cloud_resources, cloud_account_ids):
-        result = {}
+        result = defaultdict(list)
         for i in range(0, len(cloud_resources), BULK_SIZE):
             bulk_resources = cloud_resources[i:i + BULK_SIZE]
             bulk_ids = [r["cloud_resource_id"] for r in bulk_resources]
@@ -425,20 +445,30 @@ class RightsizingBase(ModuleBase):
             sort_pipeline = {'$sort': {'end_date': 1}}
             group_pipeline = self.get_common_group_pipeline()
             group_pipeline['$group'].update({
-                "usage_quantity": {'$sum': '$usage_quantity'},
-                "meter_id": {'$last': '$meter_id'}
+                "_id": {"resource_id": "$resource_id", "meter_id": "$meter_id"},
+                "usage_quantity": {"$sum": "$usage_quantity"},
+                "additional_properties": {"$last": "$additional_properties"},
             })
             pipeline = [match_pipeline, sort_pipeline, group_pipeline]
             res = self.mongo_client.restapi.raw_expenses.aggregate(pipeline)
             for r in res:
+                if 'Reservation' in r['additional_properties']:
+                    continue
+                res_id = r['_id']['resource_id']
+                meter_id = r['_id']['meter_id']
                 day_cost = r['cost'] * HOURS_IN_DAY / r['usage_quantity']
-                result[r['_id']] = {
+                data = {
                     'day_cost': day_cost,
                     'total_cost': r['cost'],
                     'cloud_account_id': r['cloud_account_id'],
                     'resource_id': r['_id'],
-                    'meter_id': r['meter_id']
+                    'meter_id': meter_id,
+                    'additional_properties': r['additional_properties']
                 }
+                if 'Windows Client BYOL' in r['additional_properties']:
+                    # Windows VM is charged using sku for Linux
+                    data['os'] = 'Linux'
+                result[res_id].append(data)
         return result
 
     def get_base_alibaba_instances_info(self, cloud_resources, cloud_account_ids,
@@ -484,7 +514,7 @@ class RightsizingBase(ModuleBase):
                 else:
                     day_cost = r['cost'] / DAYS_IN_MONTH
 
-                result[resource_id] = {
+                result[resource_id] = [{
                     'day_cost': day_cost,
                     'total_cost': r['cost'],
                     'cloud_account_id': r['cloud_account_id'],
@@ -492,7 +522,7 @@ class RightsizingBase(ModuleBase):
                     'discount_multiplier': r['cost'] / r[
                         'cost_without_discount'] if r[
                         'cost_without_discount'] else 1
-                }
+                }]
         return result
 
     def get_base_gcp_instances_info(self, cloud_resources, cloud_account_ids):
@@ -508,11 +538,11 @@ class RightsizingBase(ModuleBase):
                 continue
             hourly_cost = current_flavor["price"]
             daily_cost = hourly_cost * HOURS_IN_DAY
-            result[resource_id] = {
+            result[resource_id] = [{
                     'day_cost': daily_cost,
                     'cloud_account_id': cloud_resource['cloud_account_id'],
                     'resource_id': resource_id,
-                }
+                }]
         return result
 
     def get_base_nebius_instances_info(self, cloud_resources, cloud_account_ids):
@@ -531,11 +561,11 @@ class RightsizingBase(ModuleBase):
             LOG.info('current_flavor %s' % current_flavor)
             hourly_cost = current_flavor["price"]
             daily_cost = hourly_cost * HOURS_IN_DAY
-            result[resource_id] = {
+            result[resource_id] = [{
                     'day_cost': daily_cost,
                     'cloud_account_id': cloud_account_id,
                     'resource_id': resource_id,
-                }
+                }]
         return result
 
     @staticmethod

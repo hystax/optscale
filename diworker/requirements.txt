@@ -1,6 +1,6 @@
 pymongo==4.3.3
 cloud_adapter==0.1.1540
-restapi_client==1.0.748
+restapi_client==1.0.758
 config_client==1.0.145
 kombu==4.6.8
 boto3==1.12.25
