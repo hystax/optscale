@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 setup(name='aconfig-cl',
-      description='OptScale Aysnc Config Client Prototype',
+      description='OptScale Async Config Client Prototype',
       author='Hystax',
       url='http://hystax.com',
       author_email='info@hystax.com',
