@@ -14,7 +14,7 @@ from sanic.response import json
 from sanic.exceptions import SanicException
 import motor.motor_asyncio
 
-from aconfig_cl.aconfig_cl import AConfigCl
+from optscale_client.aconfig_cl.aconfig_cl import AConfigCl
 
 app = Sanic("arcee")
 
