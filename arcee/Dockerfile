@@ -1,4 +1,4 @@
-FROM optscale_python:local
+FROM python:3.9.16-slim
 MAINTAINER Hystax
 
 WORKDIR /usr/src/app/arcee_receiver
