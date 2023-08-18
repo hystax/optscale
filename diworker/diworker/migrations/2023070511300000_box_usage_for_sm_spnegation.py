@@ -1,6 +1,6 @@
 import logging
-from diworker.migrations.base import BaseMigration
-from rest_api_client.client_v2 import Client as RestClient
+from diworker.diworker.migrations.base import BaseMigration
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 """
 Set box_usage=True for SavingsPlanNegation expenses of AmazonSageMaker service
 """

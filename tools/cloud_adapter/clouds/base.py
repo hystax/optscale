@@ -2,9 +2,9 @@ import boto3
 import re
 from botocore.config import Config as CoreConfig
 from botocore.session import Session as CoreSession
-from cloud_adapter.exceptions import (InvalidResourceTypeException,
-                                      BucketPrefixValidationError)
-from cloud_adapter.model import RES_MODEL_MAP
+from tools.cloud_adapter.exceptions import (InvalidResourceTypeException,
+                                            BucketPrefixValidationError)
+from tools.cloud_adapter.model import RES_MODEL_MAP
 
 DEFAULT_CLIENT_CONFIG = CoreConfig(
     connect_timeout=20, retries={'max_attempts': 3}

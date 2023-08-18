@@ -20,10 +20,10 @@ from botocore.exceptions import (ClientError,
 from botocore.parsers import ResponseParserError
 from retrying import retry
 
-from cloud_adapter.exceptions import *
-from cloud_adapter.clouds.base import S3CloudMixin
-from cloud_adapter.model import *
-from cloud_adapter.utils import CloudParameter, gbs_to_bytes
+from tools.cloud_adapter.exceptions import *
+from tools.cloud_adapter.clouds.base import S3CloudMixin
+from tools.cloud_adapter.model import *
+from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
 LOG = logging.getLogger(__name__)
 DEFAULT_REPORT_NAME = 'optscale-report'

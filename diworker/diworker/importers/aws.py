@@ -10,8 +10,8 @@ import zipfile
 from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 
-from diworker.constants import AWS_PARQUET_CSV_MAP
-from diworker.importers.base import CSVBaseReportImporter
+from diworker.diworker.constants import AWS_PARQUET_CSV_MAP
+from diworker.diworker.importers.base import CSVBaseReportImporter
 
 import pyarrow.parquet as pq
 

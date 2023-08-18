@@ -1,7 +1,6 @@
 import logging
 from pymongo import UpdateOne
-from datetime import datetime, timezone
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Adds a 'cost' fields to all Azure raw expenses'.

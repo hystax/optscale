@@ -1,5 +1,5 @@
 import logging
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Updates AWSRawUnique with new unique fields

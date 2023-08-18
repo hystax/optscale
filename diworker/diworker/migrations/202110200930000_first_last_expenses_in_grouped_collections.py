@@ -2,11 +2,10 @@
 First/last expenses in grouped collections
 """
 import logging
-import os
 from calendar import monthrange
 from datetime import datetime, timedelta
 
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 from pymongo import UpdateOne
 
 LOG = logging.getLogger(__name__)

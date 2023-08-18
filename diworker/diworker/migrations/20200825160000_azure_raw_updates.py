@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from pymongo import UpdateOne
 
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Migration removes raw records from current month. it is necessary because

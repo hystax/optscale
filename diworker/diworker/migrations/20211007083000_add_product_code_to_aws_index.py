@@ -1,6 +1,6 @@
 import logging
 from pymongo.errors import OperationFailure
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Migration recreates AWSRawUnique index with adding 'lineItem/ProductCode' field

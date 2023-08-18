@@ -1,6 +1,6 @@
-from cloud_adapter.clouds.azure import Azure
-from cloud_adapter.enums import CloudTypes
-from cloud_adapter.utils import CloudParameter
+from tools.cloud_adapter.clouds.azure import Azure
+from tools.cloud_adapter.enums import CloudTypes
+from tools.cloud_adapter.utils import CloudParameter
 
 
 class AzureTenant(Azure):

@@ -16,12 +16,12 @@ import yandex.cloud.mdb.mongodb.v1.resource_preset_service_pb2 as mongodb_resour
 import yandex.cloud.mdb.clickhouse.v1.resource_preset_service_pb2 as clickhouse_resource_preset_pb2
 import yandex.cloud.mdb.postgresql.v1.resource_preset_service_pb2 as postgresql_resource_preset_pb2
 from botocore.exceptions import ClientError, ParamValidationError, EndpointConnectionError
-from cloud_adapter.clouds.base import S3CloudMixin
-from cloud_adapter.exceptions import (
+from tools.cloud_adapter.clouds.base import S3CloudMixin
+from tools.cloud_adapter.exceptions import (
     ReportFilesNotFoundException, CloudConnectionError,
     ReportConfigurationException, BucketNotFoundException,
     BucketNameValidationError, BucketPrefixValidationError, S3ConnectionError)
-from cloud_adapter.model import (
+from tools.cloud_adapter.model import (
     BucketResource,
     VolumeResource,
     ImageResource,
@@ -30,7 +30,7 @@ from cloud_adapter.model import (
     IpAddressResource,
     RdsInstanceResource
 )
-from cloud_adapter.utils import CloudParameter
+from tools.cloud_adapter.utils import CloudParameter
 from google.protobuf.json_format import MessageToDict
 from yandex.cloud.billing.v1.sku_service_pb2 import ListSkusRequest
 from yandex.cloud.billing.v1.sku_service_pb2_grpc import SkuServiceStub

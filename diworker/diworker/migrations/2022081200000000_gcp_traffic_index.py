@@ -1,4 +1,4 @@
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Adds an index for searching for GCP traffic expenses.

@@ -1,14 +1,15 @@
 pymongo==4.3.3
-cloud_adapter==0.1.1540
-restapi_client==1.0.758
-config_client==1.0.145
 kombu==4.6.8
 boto3==1.12.25
 mongodb-migrations==0.7.0
 retrying==1.3.3
-insider-client==0.0.5
-herald-client==0.0.10
 pandas == 1.3.3
 pyarrow==5.0.0
 clickhouse-driver==0.2.2
 pyrabbit==1.1.0
+# OptScale packages
+-e tools/cloud_adapter
+-e optscale_client/config_client
+-e optscale_client/herald_client
+-e optscale_client/insider_client
+-e optscale_client/rest_api_client

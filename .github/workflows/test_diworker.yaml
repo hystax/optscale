@@ -1,10 +1,10 @@
-name: Build auth test image and run tests on it
-run-name: Build auth test image and run tests on it - started by ${{ github.actor }}
+name: Build diworker test image and run tests on it
+run-name: Build diworker test image and run tests on it - started by ${{ github.actor }}
 on:
   pull_request:
     types: [opened, synchronize]
     paths:
-    - 'auth/**'
+    - 'diworker/**'
   workflow_dispatch:
 
 
@@ -15,6 +15,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Build image
-        run: bash -x build.sh auth build
+        run: bash -x build.sh diworker build
       - name: Build test image and run tests
-        run: bash -x auth/run_test.sh
+        run: bash -x diworker/run_test.sh

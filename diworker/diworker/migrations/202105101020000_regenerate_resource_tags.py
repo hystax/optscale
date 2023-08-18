@@ -1,7 +1,7 @@
 import logging
-from diworker.migrations.base import BaseMigration
-from rest_api_client.client_v2 import Client as RestClient
-from diworker.importers.aws import AWSReportImporter
+from diworker.diworker.migrations.base import BaseMigration
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
+from diworker.diworker.importers.aws import AWSReportImporter
 from itertools import islice
 
 CHUNK_SIZE = 100

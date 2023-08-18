@@ -11,8 +11,8 @@ from datetime import datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 import boto3
 from boto3.session import Config as BotoConfig
-from cloud_adapter.cloud import Cloud as CloudAdapter
-from diworker.utils import retry_mongo_upsert, get_month_start
+from tools.cloud_adapter.cloud import Cloud as CloudAdapter
+from diworker.diworker.utils import retry_mongo_upsert, get_month_start
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200

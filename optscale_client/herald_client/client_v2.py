@@ -1,5 +1,5 @@
 import logging
-from herald_client.client import Client as ClientV1
+from optscale_client.herald_client.client import Client as ClientV1
 
 LOG = logging.getLogger(__name__)
 

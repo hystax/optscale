@@ -1,4 +1,4 @@
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 from clickhouse_driver import Client as ClickHouseClient
 
 

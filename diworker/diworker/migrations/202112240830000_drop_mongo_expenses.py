@@ -1,4 +1,4 @@
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Drop mongo expenses collection

@@ -4,7 +4,7 @@ import time
 
 import urllib3
 from threading import Thread
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 from datetime import datetime
 from etcd import Lock as EtcdLock
 from kombu import Exchange, Queue, Connection as QConnection
@@ -14,14 +14,14 @@ from kombu.mixins import ConsumerMixin
 from kombu.utils.debug import setup_logging
 from pymongo import MongoClient
 from urllib3.exceptions import InsecureRequestWarning
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 from clickhouse_driver import Client as ClickHouseClient
 
-from diworker.importers.base import BaseReportImporter
-from diworker.importers.factory import get_importer_class
-from diworker.migrator import Migrator
+from diworker.diworker.importers.base import BaseReportImporter
+from diworker.diworker.importers.factory import get_importer_class
+from diworker.diworker.migrator import Migrator
 
-from herald_client.client_v2 import Client as HeraldClient
+from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
 ACTIVITIES_EXCHANGE_NAME = 'activities-tasks'
 ALERT_THRESHOLD = 60 * 60 * 24
@@ -236,7 +236,7 @@ if __name__ == '__main__':
         port=int(os.environ.get('HX_ETCD_PORT')),
     )
     config_cl.wait_configured()
-    migrator = Migrator(config_cl, 'restapi', 'diworker/migrations')
+    migrator = Migrator(config_cl, 'restapi', 'diworker/diworker/migrations')
     # Use lock to avoid migration problems with several diworkers
     # starting at the same time on cluster
     with EtcdLock(config_cl, 'diworker_migrations'):

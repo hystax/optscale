@@ -1,10 +1,10 @@
-from diworker.importers.aws import AWSReportImporter
-from diworker.importers.azure import AzureReportImporter
-from diworker.importers.kubernetes import KubernetesReportImporter
-from diworker.importers.alibaba import AlibabaReportImporter
-from diworker.importers.gcp import GcpReportImporter
-from diworker.importers.nebius import NebiusReportImporter
-from diworker.importers.environment import EnvironmentReportImporter
+from diworker.diworker.importers.aws import AWSReportImporter
+from diworker.diworker.importers.azure import AzureReportImporter
+from diworker.diworker.importers.kubernetes import KubernetesReportImporter
+from diworker.diworker.importers.alibaba import AlibabaReportImporter
+from diworker.diworker.importers.gcp import GcpReportImporter
+from diworker.diworker.importers.nebius import NebiusReportImporter
+from diworker.diworker.importers.environment import EnvironmentReportImporter
 
 REPORT_IMPORTER_TYPES = {
     'aws_cnr': AWSReportImporter,
