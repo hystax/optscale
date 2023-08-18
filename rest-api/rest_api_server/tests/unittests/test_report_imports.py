@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch, ANY
 
 from rest_api_server.models.enums import ImportStates
@@ -7,6 +7,7 @@ from rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api_server.models.db_base import BaseDB
 from rest_api_server.models.models import ReportImport
 from rest_api_server.tests.unittests.test_api_base import TestApiBase
+from freezegun import freeze_time
 
 
 class TestReportImportsApi(TestApiBase):
@@ -75,15 +76,19 @@ class TestReportImportsApi(TestApiBase):
         self.assertEqual(code, 200)
         self.assertEqual(_import['state'], ImportStates.SCHEDULED.value)
         self.assertEqual(_import['state_reason'], None)
+        self.assertEqual(_import['updated_at'], 0)
 
         update = {
             'state': ImportStates.FAILED.value,
             'state_reason': 'test' * 200,
         }
-        code, _import = self.client.report_import_update(import_id, update)
+        now = datetime.utcnow()
+        with freeze_time(now):
+            code, _import = self.client.report_import_update(import_id, update)
         self.assertEqual(code, 200)
         self.assertEqual(_import['state'], ImportStates.FAILED.value)
         self.assertEqual(_import['state_reason'], 'test' * 200)
+        self.assertEqual(_import['updated_at'], int(now.timestamp()))
 
     def test_report_send_event(self):
         import_id_initial_failed = self._create_import_object()
@@ -323,3 +328,27 @@ class TestReportImportsApi(TestApiBase):
         code, _ = self.client.report_import_update(import_id, success_update)
         self.assertEqual(code, 200)
         p_schedule_checklist.assert_not_called()
+
+    def test_show_active(self):
+        import_id = self._create_import_object(state=ImportStates.IN_PROGRESS)
+        code, _import = self.client.report_import_get(import_id)
+        self.assertEqual(code, 200)
+        self.assertEqual(_import['state'], ImportStates.IN_PROGRESS.value)
+        code, resp = self.client.report_import_list(
+            self.cloud_acc_id, show_active=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['report_imports'], [])
+
+        self.client.report_import_update(import_id, {})
+        code, resp = self.client.report_import_list(
+            self.cloud_acc_id, show_active=True)
+        self.assertEqual(code, 200)
+        imports = resp['report_imports']
+        self.assertEqual(len(imports), 1)
+        self.assertEqual(imports[0]['id'], import_id)
+
+        with freeze_time(datetime.utcnow() + timedelta(minutes=31)):
+            code, resp = self.client.report_import_list(
+                self.cloud_acc_id, show_active=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['report_imports'], [])

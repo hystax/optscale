@@ -1,7 +1,8 @@
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
+from freezegun import freeze_time
 
 from rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api_server.models.db_base import BaseDB
@@ -160,6 +161,8 @@ class TestScheduleImportsApi(TestApiBase):
         code, ret = self.client.schedule_import(0)
         self.assertEqual(code, 201)
         self.assertEqual(len(ret['report_imports']), 2)
+        for i in ret['report_imports']:
+            self.client.report_import_update(i['id'], {'state': 'failed'})
         self.delete_organization(org2['id'])
 
         code, ret = self.client.schedule_import(0)
@@ -185,3 +188,39 @@ class TestScheduleImportsApi(TestApiBase):
                          'Cannot use cloud_account_type without organization_id')
         self.assertEqual(ret['error']['error_code'],
                          'OE0529')
+
+    def test_create_scheduled_duplicate(self):
+        code, org2 = self.client.organization_create({'name': 'org2'})
+        self.assertEqual(code, 201)
+        self._create_cloud_acc_object(import_period=0, org_id=org2['id'])
+        code, ret = self.client.schedule_import(0)
+
+        self.assertEqual(len(ret['report_imports']), 1)
+        code, ret = self.client.schedule_import(0)
+        self.assertEqual(len(ret['report_imports']), 0)
+        with freeze_time(datetime.utcnow() + timedelta(hours=3)):
+            code, resp = self.client.schedule_import(0)
+            self.assertEqual(len(resp['report_imports']), 1)
+            code, ret = self.client.schedule_import(0)
+            self.assertEqual(len(ret['report_imports']), 0)
+            for r in resp['report_imports']:
+                self.client.report_import_update(r['id'], {'state': 'completed'})
+            code, ret = self.client.schedule_import(0)
+            self.assertEqual(len(ret['report_imports']), 1)
+
+    def test_create_active_duplicate(self):
+        code, org2 = self.client.organization_create({'name': 'org2'})
+        self._create_cloud_acc_object(import_period=0, org_id=org2['id'])
+        self.assertEqual(code, 201)
+        code, ret = self.client.schedule_import(0)
+        imp = ret['report_imports'][0]
+        self.client.report_import_update(imp['id'], {'state': 'in_progress'})
+        code, ret = self.client.schedule_import(0)
+        self.assertEqual(len(ret['report_imports']), 0)
+        with freeze_time(datetime.utcnow() + timedelta(hours=10)):
+            self.client.report_import_update(imp['id'], {})
+            code, ret = self.client.schedule_import(0)
+            self.assertEqual(len(ret['report_imports']), 0)
+        with freeze_time(datetime.utcnow() + timedelta(hours=10, minutes=31)):
+            code, ret = self.client.schedule_import(0)
+            self.assertEqual(len(ret['report_imports']), 1)

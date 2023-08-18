@@ -15,8 +15,6 @@ jobs:
       - name: Check out actions code
         uses: actions/checkout@v3
       - name: build image
-        working-directory: ${{ github.event.repository.name }}
         run: bash -x build.sh auth build
       - name: build test image and run tests
-        working-directory: ${{ github.event.repository.name }}
         run: bash -x auth/run_test.sh

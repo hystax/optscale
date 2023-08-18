@@ -256,10 +256,11 @@ class Client(Client_v1):
     def report_import_update(self, report_import_id, params):
         return self.patch(self.report_import_url(report_import_id), params)
 
-    def report_import_list(self, cloud_account_id, show_completed=False):
+    def report_import_list(self, cloud_account_id, show_completed=False,
+                           show_active=False):
         return self.get(self.report_import_url(
             cloud_account_id=cloud_account_id) + self.query_url(
-            show_completed=show_completed))
+            show_completed=show_completed, show_active=show_active))
 
     @staticmethod
     def invite_url(id=None):

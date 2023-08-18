@@ -650,8 +650,8 @@ class MetricsProcessor(object):
                               f'folder: {folder}, exc: {str(exc)}')
                     continue
         if r_type == 'RDS Instance':
-            ram_metrics = metrics.pop('ram')
-            ram_size_metrics = metrics.pop('ram_size')
+            ram_metrics = metrics.pop('ram', {})
+            ram_size_metrics = metrics.pop('ram_size', {})
             for res_id, date_values in ram_metrics.items():
                 for date, ram in date_values.items():
                     ram_size = ram_size_metrics.get(res_id, {}).get(date)

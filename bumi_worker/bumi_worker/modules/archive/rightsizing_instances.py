@@ -120,6 +120,15 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
 
                 cpu_flavor_map = {}
                 for cloud_resource_id in cloud_resource_ids:
+                    current_r_info = cloud_resource_id_info_map[
+                        cloud_resource_id][0]
+                    if (cloud_account['type'] == 'azure_cnr' and len(
+                            cloud_resource_id_info_map[cloud_resource_id]) != 1):
+                        meter_id = flavor_params['meter_id']
+                        current_r_info = [
+                            x for x in cloud_resource_id_info_map[
+                                cloud_resource_id] if x['meter_id'] == meter_id][0]
+
                     instance = cloud_resource_id_instance_map[cloud_resource_id]
                     metric = metrics_map.get(instance['_id'])
                     instance_key = self.get_record_key(instance)
@@ -145,12 +154,11 @@ class RightsizingInstances(ArchiveBase, RightsizingInstancesRecommendation):
                         cpu_flavor_map[recommended_cpu] = recommended_flavor
                     else:
                         recommended_flavor = cpu_flavor_map[recommended_cpu]
-                    current_cost = cloud_resource_id_info_map.get(
-                        cloud_resource_id, {}).get('day_cost', 0) * DAYS_IN_MONTH
+                    current_cost = current_r_info.get('day_cost', 0) * DAYS_IN_MONTH
                     if not current_cost:
                         continue
-                    discount_multiplier = cloud_resource_id_info_map.get(
-                        cloud_resource_id).get('discount_multiplier', 1)
+                    discount_multiplier = current_r_info.get(
+                        'discount_multiplier', 1)
                     recommended_cost = (
                             recommended_flavor.get('price') * HOURS_IN_DAY *
                             DAYS_IN_MONTH * discount_multiplier)

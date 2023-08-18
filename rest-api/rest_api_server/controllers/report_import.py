@@ -1,8 +1,8 @@
 import json
 import logging
 import uuid
-from sqlalchemy import and_, true, or_
-
+from sqlalchemy import and_, true, or_, exists
+from datetime import datetime
 import boto3
 from optscale_exceptions.common_exc import (
     NotFoundException, FailedDependency, WrongArgumentsException
@@ -22,7 +22,8 @@ from rest_api_server.controllers.checklist import ChecklistController
 from rest_api_server.utils import (raise_unexpected_exception,
                                    check_int_attribute)
 
-
+ACTIVE_IMPORT_THRESHOLD = 1800  # 30 min
+NOT_PROCESSED_REPORT_THRESHOLD = 10800  # 3 hrs
 LOG = logging.getLogger(__name__)
 
 
@@ -45,6 +46,27 @@ class ReportImportBaseController(BaseController):
             self._publish_report_import_activity(
                 report_import, 'recalculation_started')
         return report_import
+
+    def check_unprocessed_imports(self, cloud_account_id):
+        dt = datetime.utcnow().timestamp()
+        scheduled_threshold = dt - NOT_PROCESSED_REPORT_THRESHOLD
+        active_threshold = dt - ACTIVE_IMPORT_THRESHOLD
+        return self.session.query(
+            exists().where(and_(
+                ReportImport.cloud_account_id == cloud_account_id,
+                ReportImport.deleted_at.is_(False),
+                or_(
+                    and_(
+                        ReportImport.state == ImportStates.SCHEDULED,
+                        ReportImport.created_at >= scheduled_threshold
+                    ),
+                    and_(
+                        ReportImport.state == ImportStates.IN_PROGRESS,
+                        ReportImport.updated_at >= active_threshold
+                    )
+                )
+            ))
+        ).scalar()
 
     def _publish_report_import_activity(self, report_import, action,
                                         level='INFO', error_reason=None):
@@ -72,6 +94,7 @@ class ReportImportBaseController(BaseController):
         return completed_import and completed_import.id == updated_report.id
 
     def edit(self, item_id, **kwargs):
+        kwargs['updated_at'] = int(datetime.utcnow().timestamp())
         updated_report = super().edit(item_id, **kwargs)
         state = kwargs.get('state')
         if updated_report.is_recalculation:
@@ -204,7 +227,8 @@ class ReportImportScheduleController(ReportImportBaseController):
                 decoded_cfg = ca.decoded_config
                 if decoded_cfg.get('linked', False):
                     continue
-            result.append(self.create(ca.id, priority=priority))
+            if not self.check_unprocessed_imports(ca.id):
+                result.append(self.create(ca.id, priority=priority))
         return result
 
 
@@ -317,7 +341,7 @@ class ReportImportFileController(ReportImportBaseController):
         )
         return report_import
 
-    def list(self, cloud_account_id, show_completed=False):
+    def list(self, cloud_account_id, show_completed=False, show_active=False):
         self.check_cloud_account(cloud_account_id)
         query = self.session.query(self.model_type).filter(
             self.model_type.deleted_at.is_(False),
@@ -326,6 +350,12 @@ class ReportImportFileController(ReportImportBaseController):
         if not show_completed:
             query = query.filter(
                 self.model_type.state != ImportStates.COMPLETED
+            )
+        if show_active:
+            ts = datetime.utcnow().timestamp() - ACTIVE_IMPORT_THRESHOLD
+            query = query.filter(
+                self.model_type.state == ImportStates.IN_PROGRESS,
+                self.model_type.updated_at >= ts
             )
         return query.all()
 
