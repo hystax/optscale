@@ -1,0 +1,7 @@
+ARG BUILDTAG=build
+FROM bumischeduler:${BUILDTAG}
+
+COPY bumischeduler/test-requirements.txt bumischeduler/.pylintrc ./bumischeduler/
+RUN pip install --no-cache-dir -r bumischeduler/test-requirements.txt
+
+COPY bumischeduler/bumischeduler/tests bumischeduler/bumischeduler/tests

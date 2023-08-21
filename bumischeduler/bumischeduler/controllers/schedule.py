@@ -1,11 +1,12 @@
-import etcd
-import logging
-
 from datetime import datetime, timedelta
+
+import logging
+import etcd
+
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
 
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 
 LOG = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ class ScheduleController(object):
                 'run_period': 10800
             }
             LOG.warning('Parameters for bumi_worker are not found in etcd. '
-                        'Will use default values: %s' % default_values)
+                        'Will use default values: %s', default_values)
             return default_values
 
     def create_tasks(self, tasks):

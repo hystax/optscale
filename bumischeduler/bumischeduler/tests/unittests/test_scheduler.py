@@ -3,12 +3,12 @@ import unittest
 from datetime import datetime
 from unittest.mock import patch, call, MagicMock
 
-from bumi_scheduler.controllers.schedule import (
+from bumischeduler.bumischeduler.controllers.schedule import (
     ScheduleController, RESCHEDULE_TIMEOUT)
 
-GET_CHECKLISTS = ("bumi_scheduler.controllers.schedule."
+GET_CHECKLISTS = ("bumischeduler.bumischeduler.controllers.schedule."
                   "ScheduleController.get_checklists")
-CREATE_TASKS = ("bumi_scheduler.controllers.schedule."
+CREATE_TASKS = ("bumischeduler.bumischeduler.controllers.schedule."
                 "ScheduleController.create_tasks")
 
 
@@ -20,10 +20,10 @@ class TestScheduler(unittest.TestCase):
         self.task_timeout = 3600
         self.wait_timeout = 7200
         self.run_period = 10800
-        patch(
-            'bumi_scheduler.controllers.schedule.RestClient.checklist_update',
-            lambda *args: (200, {'OK'})).start()
-        patch('bumi_scheduler.controllers.schedule.'
+        patch('bumischeduler.bumischeduler.controllers.schedule.'
+              'RestClient.checklist_update',
+              lambda *args: (200, {'OK'})).start()
+        patch('bumischeduler.bumischeduler.controllers.schedule.'
               'ScheduleController.get_bumi_worker_params',
               return_value={
                   'max_retries': str(self.max_retries),
