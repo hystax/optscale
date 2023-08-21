@@ -13,17 +13,17 @@ from boto3 import Session
 from botocore.client import BaseClient as BotoClient
 
 from clickhouse_driver import Client as ClickHouseClient
-from config_client.client import Client as ConfigClient
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 from pymongo import MongoClient
 from kombu.log import get_logger
 
-from bumblebi.common.consts import HEADERS, CLOUD_NAME_MAP
-from bumblebi.common.enums import DataSetEnum
+from bi_exporter.bumblebi.common.consts import HEADERS, CLOUD_NAME_MAP
+from bi_exporter.bumblebi.common.enums import DataSetEnum
 
 LOG = get_logger(__name__)
 DEFAULT_REGION = 'us-east-1'
-BI_FOLDER = 'bi'
+BI_FOLDER = 'bi_exporter/bi'
 
 
 class BaseExporter:

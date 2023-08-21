@@ -1,5 +1,6 @@
-from bumblebi.exporter.exporter import BaseExporter, AwsExporter, AzureExporter
-from config_client.client import Client as ConfigClient
+from bi_exporter.bumblebi.exporter.exporter import (
+    BaseExporter, AwsExporter, AzureExporter)
+from optscale_client.config_client.client import Client as ConfigClient
 
 
 class ExporterFactory:

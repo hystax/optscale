@@ -8,10 +8,10 @@ from kombu.log import get_logger
 from kombu.utils.debug import setup_logging
 from kombu.mixins import ConsumerMixin
 
-from rest_api_client.client_v2 import Client as RestClient
-from config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
+from optscale_client.config_client.client import Client as ConfigClient
 
-from bumblebi.exporter.exporter_factory import ExporterFactory
+from bi_exporter.bumblebi.exporter.exporter_factory import ExporterFactory
 
 EXCHANGE_NAME = 'bi-exporter'
 QUEUE_NAME = 'bi-exporter'

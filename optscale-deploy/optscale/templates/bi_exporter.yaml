@@ -40,7 +40,7 @@ spec:
           value: {{ .Values.etcd.service.externalPort | quote }}
         volumeMounts:
           - name: bi-exporter-data-volume
-            mountPath: /usr/src/app/bumblebi/bi
+            mountPath: /usr/src/app/bi_exporter/bi
       volumes:
         - name: bi-exporter-data-volume
           hostPath:

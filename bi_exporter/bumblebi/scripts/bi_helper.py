@@ -4,10 +4,10 @@ import argparse
 import json
 import os
 
-from rest_api_client.client_v2 import Client as RestClient
-from config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
+from optscale_client.config_client.client import Client as ConfigClient
 
-from bumblebi.common.enums import BITypes
+from bi_exporter.bumblebi.common.enums import BITypes
 
 DEFAULT_ETCD_HOST = 'etcd'
 DEFAULT_ETCD_PORT = 80

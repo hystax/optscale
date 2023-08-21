@@ -1,5 +1,6 @@
-from bumblebi.common.dataclasses import CsvColumn
-from bumblebi.common.enums import CloudTypes, DataSetEnum, ColumnTypes
+from bi_exporter.bumblebi.common.dataclasses import CsvColumn
+from bi_exporter.bumblebi.common.enums import (CloudTypes, DataSetEnum,
+                                               ColumnTypes)
 
 # mapping of our internal names to human readable
 CLOUD_NAME_MAP = {

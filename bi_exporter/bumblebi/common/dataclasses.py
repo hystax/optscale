@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from bumblebi.common.enums import ColumnTypes
+from bi_exporter.bumblebi.common.enums import ColumnTypes
 
 
 @dataclass(eq=False, order=False, frozen=True)

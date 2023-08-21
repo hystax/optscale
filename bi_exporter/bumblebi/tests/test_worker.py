@@ -1,11 +1,11 @@
 import base64
 import uuid
 import unittest
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, PropertyMock, patch, mock_open, call
 
-from bumblebi.exporter.main import Worker
+from bi_exporter.bumblebi.exporter.main import Worker
 
 RESTAPI_URL = "restapi"
 CLUSTER_SECRET = "secret"
@@ -72,31 +72,40 @@ class TestWorker(unittest.TestCase):
         self.worker.rest_cl.bi_get = MagicMock(return_value=(200, self.bi))
         self.worker.rest_cl.bi_get = MagicMock(return_value=(200, self.bi))
         self.worker.rest_cl.bi_update = MagicMock(return_value=(200, self.bi))
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl',
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.rest_cl',
               new_callable=PropertyMock).start()
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl.bi_get',
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.rest_cl.bi_get',
               return_value=(200, self.bi)).start()
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl.organization_get',
-              return_value=(200, self.organization)).start()
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl.cloud_account_list',
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.'
+              'rest_cl.organization_get', return_value=(200, self.organization)
+              ).start()
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.'
+              'rest_cl.cloud_account_list',
               return_value=(200, {'cloud_accounts': [self.cloud_acc]})).start()
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl.employee_list',
-              return_value=(200, {'employees': [self.employee]})).start()
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl.pool_get',
-              return_value=(200, self.pool)).start()
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl.cluster_type_list',
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.'
+              'rest_cl.employee_list',
+              return_value=(200, {'employees': [self.employee]})
+              ).start()
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.'
+              'rest_cl.pool_get', return_value=(200, self.pool)).start()
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.'
+              'rest_cl.cluster_type_list',
               return_value=(200, {'cluster_types': []})).start()
-        patch('bumblebi.exporter.exporter.BaseExporter.rest_cl.optimizations_get',
+        patch('bi_exporter.bumblebi.exporter.exporter.BaseExporter.'
+              'rest_cl.optimizations_get',
               return_value=(200, {'last_completed': 1})).start()
-        patch('bumblebi.exporter.exporter.BaseExporter._get_resources',
+        patch('bi_exporter.bumblebi.exporter.exporter.'
+              'BaseExporter._get_resources',
               return_value=[self.mongo_resource]).start()
-        patch('bumblebi.exporter.exporter.AwsExporter._upload').start()
+        patch('bi_exporter.bumblebi.exporter.exporter.AwsExporter._upload').start()
         yesterday = datetime.utcnow() - timedelta(days=1)
         self.clichouse_expenses = [
             (yesterday, self.cloud_acc['id'], self.mongo_resource['_id'], 348.75)]
-        patch('bumblebi.exporter.exporter.BaseExporter._get_expenses_clickhouse',
+        patch('bi_exporter.bumblebi.exporter.exporter.'
+              'BaseExporter._get_expenses_clickhouse',
               return_value=self.clichouse_expenses).start()
-        patch('bumblebi.exporter.exporter.BaseExporter._cleanup').start()
+        patch('bi_exporter.bumblebi.exporter.exporter.'
+              'BaseExporter._cleanup').start()
 
     def test_worker_process_task(self):
         message = MagicMock()
@@ -181,7 +190,7 @@ class TestWorker(unittest.TestCase):
         message = MagicMock()
         message.reject = MagicMock()
         self.worker._fail = MagicMock()
-        patch('bumblebi.exporter.exporter.AwsExporter._upload',
+        patch('bi_exporter.bumblebi.exporter.exporter.AwsExporter._upload',
               side_effect=side_eff).start()
         self.worker.process_task(body={'organization_bi_id': self.bi_id},
                                  message=message)
