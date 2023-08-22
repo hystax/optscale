@@ -1,8 +1,11 @@
-config-client==1.0.147
-restapi_client==1.0.706
+
 kombu==4.6.8
 boto3==1.12.25
 retrying==1.3.3
 pymustache==0.3
-arcee_client==0.0.35
-bulldozer_client==0.0.22
+# OptScale packages
+-e optscale_client/arcee_client
+-e optscale_client/config_client
+-e optscale_client/restapi_client
+-e optscale_client/bulldozer_client
+
