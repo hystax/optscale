@@ -1,5 +1,5 @@
 from pymongo import UpdateOne, UpdateMany
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 CHUNK_SIZE = 200
 

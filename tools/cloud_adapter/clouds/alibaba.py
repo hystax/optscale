@@ -49,14 +49,14 @@ from aliyunsdksts.request.v20150401 import (
 )
 from retrying import retry
 
-from cloud_adapter.exceptions import (
+from tools.cloud_adapter.exceptions import (
     CloudSettingNotSupported,
     InvalidParameterException,
     RegionNotFoundException,
     PricingNotFoundException,
 )
-from cloud_adapter.clouds.base import CloudBase
-from cloud_adapter.model import (
+from tools.cloud_adapter.clouds.base import CloudBase
+from tools.cloud_adapter.model import (
     VolumeResource,
     ImageResource,
     InstanceResource,
@@ -65,7 +65,7 @@ from cloud_adapter.model import (
     RdsInstanceResource,
     IpAddressResource,
 )
-from cloud_adapter.utils import CloudParameter, gbs_to_bytes
+from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
 BILLING_REGION_ID = 'ap-southeast-1'
 DEFAULT_CONNECT_TIMEOUT = 20

@@ -1,4 +1,4 @@
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 from kombu import Exchange, Queue, Connection as QConnection
 import logging
 from retrying import retry

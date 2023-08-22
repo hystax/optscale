@@ -1,5 +1,5 @@
 import logging
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Add new index AwsServiceName to filter resources efficiently based on which

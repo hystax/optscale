@@ -1,9 +1,8 @@
 import logging
-from datetime import datetime, timezone
 
 from pymongo import UpdateOne, UpdateMany
 
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Migration adds cloud_account_id field for all expenses in both clean and raw

@@ -14,13 +14,13 @@ from google.cloud import compute
 from google.cloud import storage
 from google.cloud import monitoring_v3
 
-import cloud_adapter.exceptions
-import cloud_adapter.model
-from cloud_adapter.clouds.base import CloudBase
-from cloud_adapter.exceptions import (
+import tools.cloud_adapter.exceptions
+import tools.cloud_adapter.model
+from tools.cloud_adapter.clouds.base import CloudBase
+from tools.cloud_adapter.exceptions import (
     RegionNotFoundException,
 )
-from cloud_adapter.utils import CloudParameter, gbs_to_bytes
+from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
 
 # can be from 0 to 500 for gcp API
@@ -250,7 +250,7 @@ class GcpResource:
         return self._cloud_adapter.project_id
 
 
-class GcpInstance(cloud_adapter.model.InstanceResource, GcpResource):
+class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
     def _get_console_link(self):
         zone = self._last_path_element(self._cloud_object.zone)
         name = self._cloud_object.name
@@ -334,7 +334,7 @@ class GcpInstance(cloud_adapter.model.InstanceResource, GcpResource):
         return GcpResource.post_discover(self)
 
 
-class GcpVolume(cloud_adapter.model.VolumeResource, GcpResource):
+class GcpVolume(tools.cloud_adapter.model.VolumeResource, GcpResource):
     def _get_console_link(self):
         zone = self._last_path_element(self._cloud_object.zone)
         name = self._cloud_object.name
@@ -391,7 +391,7 @@ class GcpVolume(cloud_adapter.model.VolumeResource, GcpResource):
         return GcpResource.post_discover(self)
 
 
-class GcpSnapshot(cloud_adapter.model.SnapshotResource, GcpResource):
+class GcpSnapshot(tools.cloud_adapter.model.SnapshotResource, GcpResource):
     def _get_console_link(self):
         name = self._cloud_object.name
         project_id = self._get_project_id()
@@ -438,7 +438,7 @@ class GcpSnapshot(cloud_adapter.model.SnapshotResource, GcpResource):
         return GcpResource.post_discover(self)
 
 
-class GcpBucket(cloud_adapter.model.BucketResource, GcpResource):
+class GcpBucket(tools.cloud_adapter.model.BucketResource, GcpResource):
     def __init__(self, cloud_bucket: storage.Bucket, cloud_adapter):
         GcpResource.__init__(self, cloud_bucket, cloud_adapter)
         super().__init__(
@@ -476,7 +476,7 @@ class GcpBucket(cloud_adapter.model.BucketResource, GcpResource):
         return GcpResource.post_discover(self)
 
 
-class GcpAddress(cloud_adapter.model.IpAddressResource, GcpResource):
+class GcpAddress(tools.cloud_adapter.model.IpAddressResource, GcpResource):
     def __init__(self, cloud_address: compute.Address, cloud_adapter):
         GcpResource.__init__(self, cloud_address, cloud_adapter)
         available = cloud_address.status == "RESERVED"
@@ -533,11 +533,11 @@ class Gcp(CloudBase):
 
     def discovery_calls_map(self):
         return {
-            cloud_adapter.model.VolumeResource: self.volume_discovery_calls,
-            cloud_adapter.model.InstanceResource: self.instance_discovery_calls,
-            cloud_adapter.model.SnapshotResource: self.snapshot_discovery_calls,
-            cloud_adapter.model.IpAddressResource: self.ip_address_discovery_calls,
-            cloud_adapter.model.BucketResource: self.bucket_discovery_calls,
+            tools.cloud_adapter.model.VolumeResource: self.volume_discovery_calls,
+            tools.cloud_adapter.model.InstanceResource: self.instance_discovery_calls,
+            tools.cloud_adapter.model.SnapshotResource: self.snapshot_discovery_calls,
+            tools.cloud_adapter.model.IpAddressResource: self.ip_address_discovery_calls,
+            tools.cloud_adapter.model.BucketResource: self.bucket_discovery_calls,
         }
 
     @property
@@ -653,29 +653,29 @@ class Gcp(CloudBase):
         query_job = self.bigquery_client.query(query, **DEFAULT_KWARGS)
         result = list(query_job.result())[0]
         if not result or dict(result).get("currency") != self._currency:
-            raise cloud_adapter.exceptions.CloudSettingNotSupported(
+            raise tools.cloud_adapter.exceptions.CloudSettingNotSupported(
                 'Currency "%s" is not supported' % dict(result).get("currency")
             )
 
     def _validate_billing_type(self):
         if not self.billing_table.startswith(STANDARD_BILLING_PREFIX):
-            raise cloud_adapter.exceptions.InvalidParameterException(
+            raise tools.cloud_adapter.exceptions.InvalidParameterException(
                 "Invalid billing type. Expected billing type to be Standard."
             )
 
     def _validate_billing_config(self):
         if "." in self.billing_dataset:
-            raise cloud_adapter.exceptions.InvalidParameterException(
+            raise tools.cloud_adapter.exceptions.InvalidParameterException(
                 "Invalid billing dataset_name. Should specify dataset_name and table_name separately."
             )
         if "." in self.billing_table:
-            raise cloud_adapter.exceptions.InvalidParameterException(
+            raise tools.cloud_adapter.exceptions.InvalidParameterException(
                 "Invalid billing table_name. Should specify dataset_name and table_name separately."
             )
 
     def _validate_project_id(self):
         if not self.project_id:
-            raise cloud_adapter.exceptions.InvalidParameterException(
+            raise tools.cloud_adapter.exceptions.InvalidParameterException(
                 "project_id should be set either in data source config or in cloud credentials."
             )
 
@@ -683,7 +683,7 @@ class Gcp(CloudBase):
         try:
             list(self.regions)
         except Exception as ex:
-            raise cloud_adapter.exceptions.CloudConnectionError(
+            raise tools.cloud_adapter.exceptions.CloudConnectionError(
                 "Failed to connect to the cloud with provided credentials - %s" % ex
             )
 
@@ -696,11 +696,11 @@ class Gcp(CloudBase):
             self._test_bigquery_connection()
         except api_exceptions.Forbidden as ex:
             # remove new-lines, otherwise tornado will fail to write response
-            raise cloud_adapter.exceptions.InvalidParameterException(
+            raise tools.cloud_adapter.exceptions.InvalidParameterException(
                 str(ex).replace("\n", " ")
             )
         except Exception as ex:
-            raise cloud_adapter.exceptions.CloudConnectionError(str(ex))
+            raise tools.cloud_adapter.exceptions.CloudConnectionError(str(ex))
         return {"account_id": self.project_id, "warnings": []}
 
     def get_usage(self, start_date, end_date):

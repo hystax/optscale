@@ -1,6 +1,6 @@
 import logging
 from pymongo import IndexModel
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 """
 Indexes for archived_recommendations, checklists, property_history, resources,
 webhook_observer, webhook_logs collections

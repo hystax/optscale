@@ -4,9 +4,9 @@ import re
 from calendar import monthrange
 from datetime import datetime, timedelta
 
-from diworker.importers.base import BaseReportImporter
-from diworker.utils import bytes_to_gb
-from herald_client.client_v2 import Client as HeraldClient
+from diworker.diworker.importers.base import BaseReportImporter
+from diworker.diworker.utils import bytes_to_gb
+from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200

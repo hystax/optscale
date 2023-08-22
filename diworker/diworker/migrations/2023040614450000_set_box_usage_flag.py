@@ -1,7 +1,7 @@
 import logging
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 from pymongo import UpdateOne
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 """
 Set 'box_usage' flag to Fargate, Lambda and SageMaker raw expenses

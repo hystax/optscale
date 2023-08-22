@@ -1,0 +1,9 @@
+[REPORTS]
+reports=no
+
+[MESSAGES CONTROL]
+disable=R,C0111
+
+[BASIC]
+good-names=i, db, id, bi
+generated-members=deleted, id, state, metadata

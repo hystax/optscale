@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timezone
-from diworker.migrations.base import BaseMigration
-from rest_api_client.client_v2 import Client as RestClient
+from diworker.diworker.migrations.base import BaseMigration
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 """
 Remove Add usage_start field for AWS expenses

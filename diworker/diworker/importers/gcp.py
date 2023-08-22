@@ -2,7 +2,7 @@ from collections import defaultdict
 import hashlib
 import logging
 from datetime import datetime, timedelta
-from diworker.importers.base import BaseReportImporter
+from diworker.diworker.importers.base import BaseReportImporter
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200

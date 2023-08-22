@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 import json
-import time
 import logging
 from datetime import datetime, timezone, timedelta
-from diworker.utils import retry_backoff
-from cloud_adapter.clouds.azure import (
+from diworker.diworker.utils import retry_backoff
+from tools.cloud_adapter.clouds.azure import (
     AzureConsumptionException, ExpenseImportScheme,
     AzureErrorResponseException, AzureAuthenticationError,
     AzureResourceNotFoundError)
 
-from diworker.importers.base import BaseReportImporter
+from diworker.diworker.importers.base import BaseReportImporter
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200

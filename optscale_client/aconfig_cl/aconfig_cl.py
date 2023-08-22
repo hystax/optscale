@@ -1,4 +1,4 @@
-from aconfig_cl.aetcd2 import ClientV2
+from optscale_client.aconfig_cl.aetcd2 import ClientV2
 
 
 class AConfigCl(ClientV2):

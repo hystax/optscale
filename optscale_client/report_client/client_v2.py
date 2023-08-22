@@ -1,6 +1,6 @@
 import logging
 from urllib.parse import urlencode
-from report_client.client import Client as ClientV1
+from optscale_client.report_client.client import Client as ClientV1
 
 LOG = logging.getLogger(__name__)
 

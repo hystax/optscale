@@ -1,6 +1,6 @@
 from pymongo import UpdateOne
 
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Adds a 'resource_id' field to all raw expenses that have 'lineItem/ResourceId'.

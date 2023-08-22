@@ -1,6 +1,6 @@
 import logging
 
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 1. Removed AWSBillingPeriodStartDate index.

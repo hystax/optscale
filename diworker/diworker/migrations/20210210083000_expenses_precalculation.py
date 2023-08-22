@@ -1,9 +1,9 @@
 import logging
 from pymongo import UpdateOne
-from datetime import datetime, timezone, timedelta
-from calendar import monthrange, month_name
-from diworker.migrations.base import BaseMigration
-from diworker.utils import get_month_start, retry_mongo_upsert
+from datetime import timezone
+from calendar import month_name
+from diworker.diworker.migrations.base import BaseMigration
+from diworker.diworker.utils import get_month_start, retry_mongo_upsert
 
 """
 Creates 'expenses_group_month_resource' and 'expenses_group_month_ca'

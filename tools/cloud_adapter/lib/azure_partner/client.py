@@ -1,8 +1,8 @@
 import requests
 
-from cloud_adapter.lib.azure_partner.decorators import (
+from tools.cloud_adapter.lib.azure_partner.decorators import (
     _wrap_http_errors, _wrap_connection_errors)
-from cloud_adapter.lib.azure_partner.exceptions import (
+from tools.cloud_adapter.lib.azure_partner.exceptions import (
     AzurePartnerAuthException, AzurePartnerApiException,
     AzurePartnerConnectionException)
 

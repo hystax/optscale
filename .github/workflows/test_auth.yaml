@@ -1,5 +1,5 @@
 name: Build auth test image and run tests on it
-run-name: Build test image and run tests on it - started by ${{ github.actor }}
+run-name: Build auth test image and run tests on it - started by ${{ github.actor }}
 on:
   pull_request:
     types: [opened, synchronize]
@@ -12,9 +12,9 @@ jobs:
   build_image:
     runs-on: self-hosted
     steps:
-      - name: Check out actions code
+      - name: Check out code
         uses: actions/checkout@v3
-      - name: build image
+      - name: Build image
         run: bash -x build.sh auth build
-      - name: build test image and run tests
+      - name: Build test image and run tests
         run: bash -x auth/run_test.sh

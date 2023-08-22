@@ -1,9 +1,0 @@
-# hystax packages
-config-client==1.0.149
-restapi-client==1.0.752
-
-# external packages
-kombu==4.6.8
-boto3==1.18.9
-clickhouse-driver==0.2.2
-pymongo==4.3.3

@@ -9,13 +9,13 @@ from datetime import datetime
 from urllib.parse import quote
 
 
-from cloud_adapter.exceptions import (
+from tools.cloud_adapter.exceptions import (
     InvalidParameterException,
     CloudConnectionError
 )
-from cloud_adapter.clouds.base import CloudBase
-from cloud_adapter.model import PodResource
-from cloud_adapter.utils import CloudParameter
+from tools.cloud_adapter.clouds.base import CloudBase
+from tools.cloud_adapter.model import PodResource
+from tools.cloud_adapter.utils import CloudParameter
 
 LOG = logging.getLogger(__name__)
 

@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timezone
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 from pymongo import UpdateOne
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 """
 Add usage_start field with datetime value of 'lineItem/UsageStartDate'

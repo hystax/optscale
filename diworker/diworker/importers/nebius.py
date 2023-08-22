@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timezone
 
-from diworker.importers.base import CSVBaseReportImporter
+from diworker.diworker.importers.base import CSVBaseReportImporter
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 500

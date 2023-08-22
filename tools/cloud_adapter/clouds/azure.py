@@ -26,18 +26,18 @@ from azure.core.exceptions import (HttpResponseError, ClientAuthenticationError,
 from azure.identity import ClientSecretCredential
 from msrest import Deserializer
 
-from cloud_adapter.lib.azure_partner.client import AzurePartnerClient
-from cloud_adapter.lib.azure_partner.exceptions import (
+from tools.cloud_adapter.lib.azure_partner.client import AzurePartnerClient
+from tools.cloud_adapter.lib.azure_partner.exceptions import (
     AzurePartnerConnectionException, AzurePartnerHttpException)
-from cloud_adapter.clouds.base import CloudBase
-from cloud_adapter.model import (
+from tools.cloud_adapter.clouds.base import CloudBase
+from tools.cloud_adapter.model import (
     InstanceResource,
     SnapshotResource,
     VolumeResource,
     BucketResource,
     IpAddressResource,
 )
-from cloud_adapter.exceptions import (
+from tools.cloud_adapter.exceptions import (
     ResourceNotFound,
     AuthorizationException,
     InvalidParameterException,
@@ -46,7 +46,7 @@ from cloud_adapter.exceptions import (
     MetricsNotFoundException,
     MetricsServerTimeoutException
 )
-from cloud_adapter.utils import CloudParameter, gbs_to_bytes
+from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
 # Silence annoying logs from Azure SDK
 logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(

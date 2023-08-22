@@ -2,7 +2,7 @@
 from setuptools import setup
 
 
-requirements = ["requests==2.9.1", "retrying==1.3.3"]
+requirements = ["requests==2.25.0", "retrying==1.3.3"]
 
 setup(name='insider-client',
       description='Hystax Insider Client',

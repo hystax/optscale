@@ -1,7 +1,7 @@
 import logging
 from pymongo import UpdateOne
 from datetime import datetime, timezone
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Adds a 'start_date', 'start_date', 'cost' fields to all raw expenses'.

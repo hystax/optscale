@@ -1,6 +1,6 @@
 import logging
 
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Creates an initial database structure with 'raw_expenses' and 'expenses'

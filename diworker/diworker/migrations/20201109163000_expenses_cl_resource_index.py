@@ -1,4 +1,4 @@
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Adds a 'cloud_resource_id' field to clean expenses.

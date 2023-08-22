@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 from clickhouse_driver import Client as ClickHouseClient
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 """
 Traffic expenses fix for aws accounts without regions

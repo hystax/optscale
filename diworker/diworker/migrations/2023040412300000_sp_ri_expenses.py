@@ -3,10 +3,10 @@ from clickhouse_driver import Client as ClickHouseClient
 from collections import defaultdict
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from diworker.importers.aws import AWSReportImporter
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.importers.aws import AWSReportImporter
+from diworker.diworker.migrations.base import BaseMigration
 from pymongo import UpdateOne
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 """
 Regenerate expenses for Reserved Instances and Savings Plan resources:

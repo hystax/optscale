@@ -1,6 +1,6 @@
 import logging
 
-from diworker.migrations.base import BaseMigration
+from diworker.diworker.migrations.base import BaseMigration
 
 """
 Adds an index for 'instance_id' field to increase search speed on Azure raw data
