@@ -1,5 +1,5 @@
-name: Build diworker test image and run tests on it
-run-name: Build diworker test image and run tests on it - started by ${{ github.actor }}
+name: Build bulldozer test image and run tests on it
+run-name: Build bulldozer test image and run tests on it - started by ${{ github.actor }}
 on:
   pull_request:
     types: [opened, synchronize]
