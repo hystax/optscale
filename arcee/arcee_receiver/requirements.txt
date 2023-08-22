@@ -2,6 +2,7 @@ aiohttp==3.8.1
 sanic==22.6.2
 motor==3.0.0
 websockets==10.4
-aconfig-cl==0.0.4
 python-etcd==0.4.5
 mongodb-migrations==1.2.1
+# OptScale packages
+-e optscale_client/aconfig_cl
