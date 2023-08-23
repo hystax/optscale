@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from typing import Optional
 
-from kombu import Exchange, Queue, Connection, Message
+from kombu import Exchange, Queue, Connection
 from kombu.log import get_logger
 from kombu.utils.debug import setup_logging
 from kombu.mixins import ConsumerMixin
@@ -26,9 +26,9 @@ class Worker(ConsumerMixin):
     config_cl: ConfigClient
     _rest_cl: Optional[RestClient]
 
-    def __init__(self, connection, config_cl) -> None:
+    def __init__(self, connection, config_client) -> None:
         self.connection = connection
-        self.config_cl = config_cl
+        self.config_cl = config_client
         self._rest_cl = None
 
     @property
@@ -57,8 +57,8 @@ class Worker(ConsumerMixin):
             "last_run": self._now_ts(),
         }
 
-        _, res = self.rest_cl.bi_update(bi_id, body)
-        LOG.info(f"Status updated to RUNNING for BI {bi_id}")
+        self.rest_cl.bi_update(bi_id, body)
+        LOG.info("Status updated to RUNNING for BI %s", bi_id)
 
     def _success(self, bi_id: str) -> None:
         body = {
@@ -66,8 +66,8 @@ class Worker(ConsumerMixin):
             "last_completed": self._now_ts(),
         }
 
-        _, res = self.rest_cl.bi_update(bi_id, body)
-        LOG.info(f"Status updated to SUCCESS for BI {bi_id}")
+        self.rest_cl.bi_update(bi_id, body)
+        LOG.info("Status updated to SUCCESS for BI %s", bi_id)
 
     def _fail(self, bi_id: str, error_msg: str) -> None:
         body = {
@@ -75,17 +75,17 @@ class Worker(ConsumerMixin):
             "last_status_error": error_msg,
         }
         try:
-            _, res = self.rest_cl.bi_update(bi_id, body)
-            LOG.info(f"Status updated to FAILED for BI {bi_id}")
+            self.rest_cl.bi_update(bi_id, body)
+            LOG.info("Status updated to FAILED for BI %s", bi_id)
         except Exception as ex:
             LOG.warning(
-                f"Not able to update status to FAILED for BI {bi_id}: {ex}")
+                "Not able to update status to FAILED for BI %s: %s", bi_id, ex)
 
     def process_task(self, body, message):
         bi_id = body.get('organization_bi_id')
         if not bi_id:
             LOG.warning(
-                f'Invalid task body. organization_bi_id is missing: {body}')
+                'Invalid task body. organization_bi_id is missing: %s', body)
             message.reject()
             return
 
@@ -93,7 +93,8 @@ class Worker(ConsumerMixin):
             _, bi = self.rest_cl.bi_get(bi_id)
             if bi['status'] not in self.valid_states_for_export:
                 raise Exception(
-                    f'BI {bi["id"]} in wrong status for export: {bi["status"]}')
+                    'BI %s in wrong status for export: %s',
+                    bi["id"], bi["status"])
             bi_credentials = bi['meta']
 
             exporter = ExporterFactory.get(
@@ -101,22 +102,22 @@ class Worker(ConsumerMixin):
             self._running(bi_id)
             exporter.export(bi_id)
 
-            LOG.info(f"Successful export for BI {bi_id}")
+            LOG.info("Successful export for BI %s", bi_id)
             self._success(bi_id)
 
         except Exception as ex:
-            LOG.warning(f"Failed export for {bi_id}: {str(ex)}")
+            LOG.warning("Failed export for %s: %s", bi_id, str(ex))
             self._fail(bi_id, str(ex))
         finally:
             message.ack()
 
 
-def main(config_cl: ConfigClient) -> None:
+def main(config_client: ConfigClient) -> None:
     conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit'))
+        **config_client.read_branch('/rabbit'))
     with Connection(conn_str) as conn:
         try:
-            worker = Worker(conn, config_cl)
+            worker = Worker(conn, config_client)
             LOG.info('Starting to consume...')
             worker.run()
         except KeyboardInterrupt:

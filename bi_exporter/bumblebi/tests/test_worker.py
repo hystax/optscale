@@ -1,9 +1,9 @@
 import base64
 import uuid
 import unittest
-from optscale_client.config_client.client import Client as ConfigClient
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, PropertyMock, patch, mock_open, call
+from optscale_client.config_client.client import Client as ConfigClient
 
 from bi_exporter.bumblebi.exporter.main import Worker
 
@@ -119,7 +119,7 @@ class TestWorker(unittest.TestCase):
         self.assertEqual(mock_files.call_count, 3)
 
         def _quote(val):
-            if type(val) != str:
+            if not isinstance(val, str):
                 return str(val)
             else:
                 return '"' + val + '"'
