@@ -1,0 +1,1 @@
+window.optscale = window.optscale || {};

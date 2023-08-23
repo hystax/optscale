@@ -9,8 +9,6 @@ __pycache__/
 venv/
 .vscode/
 .DS_Store
-ngui/server/.env
-ngui/ui/.env
 optscale-deploy/overlay/*.yml
 !optscale-deploy/overlay/user_template.yml
 
@@ -18,3 +16,14 @@ optscale-deploy/overlay/*.yml
 **/dist
 **/*egg-info/
 **/*.tar.gz
+
+# ngui
+ngui/server/.env
+ngui/ui/.env
+ngui/*/node_modules
+ngui/*/build/
+ngui/*/dist/
+ngui/*/storybook
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*

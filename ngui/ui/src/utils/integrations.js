@@ -1,5 +1,7 @@
+import { getEnvironmentVariable } from "./env";
+
 export const microsoftOAuthConfiguration = {
   auth: {
-    clientId: process.env.REACT_APP_MICROSOFT_OAUTH_CLIENT_ID
+    clientId: getEnvironmentVariable("REACT_APP_MICROSOFT_OAUTH_CLIENT_ID")
   }
 };

@@ -6,6 +6,7 @@ import { API } from "api/actionTypes";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import { signOut } from "utils/api";
 import { ALERT_SEVERITY } from "utils/constants";
+import { getEnvironmentVariable } from "utils/env";
 import requestManager from "utils/requestManager";
 import { getSuccessAlertSettingsByLabel } from "utils/successCodes";
 
@@ -54,7 +55,7 @@ const apiMiddleware =
 
     const dataOrParams = ["GET", "DELETE"].includes(method) ? "params" : "data";
 
-    axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "";
+    axios.defaults.baseURL = getEnvironmentVariable("REACT_APP_BASE_URL") || "";
     axios.defaults.headers.common["Content-Type"] = "application/json";
     axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 

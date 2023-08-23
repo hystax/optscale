@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import ButtonLoader from "components/ButtonLoader";
 import { PROVIDERS } from "hooks/useNewAuthorization";
 import GoogleIcon from "icons/GoogleIcon";
+import { getEnvironmentVariable } from "utils/env";
 import { useGoogleLogin } from "./hooks";
 
 const GoogleAuthButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthInProgress, isRegistrationInProgress }) => {
@@ -13,7 +14,7 @@ const GoogleAuthButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthInProgr
       const { message = "", type = "", ...rest } = response;
       console.warn(`Google response failure ${message}: ${type}`, ...rest);
     },
-    clientId: process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID
+    clientId: getEnvironmentVariable("REACT_APP_GOOGLE_OAUTH_CLIENT_ID")
   });
 
   const isLoading = isAuthInProgress || isRegistrationInProgress || !scriptLoadedSuccessfully;
