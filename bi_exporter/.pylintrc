@@ -5,5 +5,5 @@ reports=no
 disable=R,C0111
 
 [BASIC]
-good-names=i, db, id, bi
+good-names=i, db, id, bi, ex
 generated-members=deleted, id, state, metadata

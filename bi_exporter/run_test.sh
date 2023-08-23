@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 BUILD_TAG='build'
 TEST_IMAGE=bi_exporter_tests:${BUILD_TAG}
 
@@ -10,7 +12,8 @@ docker run -i --rm ${TEST_IMAGE} bash -c "pep8 --ignore=E701 --max-line-length=1
 echo "<<<PEP8 tests"
 
 echo "Pylint tests>>>"
-docker run -i --rm ${TEST_IMAGE} bash -c "pylint --rcfile=bi_exporter/.pylintrc ./bi_exporter"
+docker run -i --rm ${TEST_IMAGE} \
+    bash -c "pylint --rcfile=bi_exporter/.pylintrc ./bi_exporter; exit \$(( \$? & 3 ))"
 echo "<<Pylint tests"
 
 echo "Worker tests>>>"

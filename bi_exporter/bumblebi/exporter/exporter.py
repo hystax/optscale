@@ -13,10 +13,11 @@ from boto3 import Session
 from botocore.client import BaseClient as BotoClient
 
 from clickhouse_driver import Client as ClickHouseClient
-from optscale_client.config_client.client import Client as ConfigClient
-from optscale_client.rest_api_client.client_v2 import Client as RestClient
 from pymongo import MongoClient
 from kombu.log import get_logger
+
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 from bi_exporter.bumblebi.common.consts import HEADERS, CLOUD_NAME_MAP
 from bi_exporter.bumblebi.common.enums import DataSetEnum
@@ -55,7 +56,8 @@ class BaseExporter:
         )
 
     def _upload(
-        self, org_bi: Dict, data_set: DataSetEnum, filename: str, dry: bool = False
+        self, org_bi: Dict, data_set: DataSetEnum, filename: str,
+            dry: bool = False
     ) -> None:
         raise NotImplementedError
 
@@ -64,7 +66,8 @@ class BaseExporter:
         try:
             os.remove(file_path)
         except OSError as exc:
-            LOG.warning(f'Can\'t remove file {file_path}, exception: {str(exc)}')
+            LOG.warning('Can\'t remove file %s, exception: %s',
+                        file_path, str(exc))
 
     def _get_expenses_clickhouse(
         self,
@@ -173,7 +176,7 @@ class BaseExporter:
         )
 
         existing_expenses_res_ids = set()
-        for dt, c_acc, resource_id, cost in expenses:
+        for dt, _, resource_id, cost in expenses:
             csv_writer.writerow([dt, resource_id, round(cost, 5)])
             existing_expenses_res_ids.add(resource_id)
 
@@ -226,8 +229,8 @@ class BaseExporter:
         bi_id = org_bi['id']
         days = org_bi["days"]
         LOG.info(
-            f"start export for organization BI {organization_bi_id} for the last {days} days"
-        )
+            "start export for organization BI %s for the last %s days",
+            organization_bi_id, days)
 
         organization_id = org_bi["organization_id"]
 
@@ -255,7 +258,9 @@ class BaseExporter:
 
         cnt = 0
         expenses_cnt, zero_expenses_cnt = 0, 0
-        bulk_size = 3000  # I've tested on different sizes on buffer and the time of execution mostly the same
+        # I've tested on different sizes on buffer and the time of execution
+        # mostly the same
+        bulk_size = 3000
         buf = [None] * bulk_size
         timer_start = datetime.now()
         resources_f_name = os.path.join(
@@ -281,9 +286,8 @@ class BaseExporter:
                     for resource in resources:
                         ca = cloud_accs_map.get(resource.get("cloud_account_id"))
                         if not ca:
-                            LOG.info(
-                                f"oops, no CAcc for {resource.get('cloud_account_id')}"
-                            )
+                            LOG.info("oops, no CAcc for %s",
+                                     resource.get('cloud_account_id'))
                             continue
 
                         empl_id = resource.get("employee_id")
@@ -360,15 +364,19 @@ class BaseExporter:
                         # when the buffer is full - collect expenses for
                         # processed resources
                         if cnt % bulk_size == 0:
-                            LOG.info(f"Processing expenses for bulk: {cnt-bulk_size}..{cnt}")
-                            e, zero_e = self._process_expenses(expenses_csv, start, end, buf)
+                            LOG.info("Processing expenses for bulk: %s..%s",
+                                     bulk_size, cnt)
+                            e, zero_e = self._process_expenses(
+                                expenses_csv, start, end, buf)
                             expenses_cnt += e
                             zero_expenses_cnt += zero_e
 
-                    # if the last chunk was not full we need to write the rest expenses
+                    # if the last chunk was not full we need to write
+                    # the rest expenses
                     if cnt % bulk_size != 0:
                         LOG.info(
-                            f"Processing expenses for the last bulk: {int(cnt/bulk_size)*bulk_size}..{cnt}")
+                            "Processing expenses for the last bulk: %s..%s",
+                            int(cnt / bulk_size) * bulk_size, cnt)
                         e, zero_e = self._process_expenses(
                             expenses_csv, start, end, buf[:cnt % bulk_size])
                         expenses_cnt += e
@@ -410,7 +418,7 @@ class AwsExporter(BaseExporter):
                 dry: bool = False) -> None:
         if dry:
             return
-        LOG.info(f"Uploading to S3: {filename}")
+        LOG.info("Uploading to S3: %s", filename)
         bucket = org_bi["meta"]["bucket"]
         s3_prefix = org_bi["meta"].get("s3_prefix", '')
         path = os.path.join(s3_prefix, data_set)
@@ -418,11 +426,12 @@ class AwsExporter(BaseExporter):
         fname = os.path.basename(filename)
         dest = os.path.join(path, fname)
         self._s3_client.upload_file(filename, bucket, dest)
-        LOG.info(f"Uploaded to S3: {dest}")
+        LOG.info("Uploaded to S3: %s", dest)
 
-        manifest_file_name = f"manifest.json"
+        manifest_file_name = "manifest.json"
         manifest = {
-            "fileLocations": [{"URIPrefixes": [os.path.join("s3://", bucket, path)]}],
+            "fileLocations": [{"URIPrefixes": [os.path.join(
+                "s3://", bucket, path)]}],
             "globalUploadSettings": {
                 "format": "CSV",
                 "delimiter": ",",
@@ -436,7 +445,8 @@ class AwsExporter(BaseExporter):
             Bucket=bucket,
             Key=os.path.join(path, manifest_file_name),
         )
-        LOG.info(f"Uploaded manifest: {os.path.join(path, manifest_file_name)}")
+        LOG.info("Uploaded manifest: %s",
+                 os.path.join(path, manifest_file_name))
 
 
 class AzureExporter(BaseExporter):
@@ -452,7 +462,7 @@ class AzureExporter(BaseExporter):
                 dry: bool = False) -> None:
         if dry:
             return
-        LOG.info(f"Uploading to Azure Storage: {filename}")
+        LOG.info("Uploading to Azure Storage: %s", filename)
         blob_name = os.path.basename(filename)
         blob_client = self._blob_service.get_blob_client(
             container=self.credentials.get('container'), blob=blob_name)
