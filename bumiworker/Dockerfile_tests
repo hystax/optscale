@@ -1,0 +1,5 @@
+ARG BUILDTAG=build
+FROM bumiworker:${BUILDTAG}
+
+COPY bumiworker/test-requirements.txt bumiworker/.pylintrc ./bumiworker/
+RUN pip install --no-cache-dir -r bumiworker/test-requirements.txt
