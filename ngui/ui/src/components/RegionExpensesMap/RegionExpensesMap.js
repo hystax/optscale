@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import MapMarker from "components/MapMarker";
 import useGeoClusterer from "hooks/useGeoClusterer";
 import { isEmpty } from "utils/arrays";
+import { getEnvironmentVariable } from "utils/env";
 import { apiIsLoaded, REGION_EXPENSES_HEIGHT } from "utils/maps";
 
 const RegionExpensesMap = ({ markers, defaultZoom, defaultCenter, startDateTimestamp, endDateTimestamp }) => {
@@ -19,7 +20,7 @@ const RegionExpensesMap = ({ markers, defaultZoom, defaultCenter, startDateTimes
   return !isEmpty(markersWithClusters) ? (
     <div style={{ height: `${REGION_EXPENSES_HEIGHT}px`, width: "100%" }}>
       <GoogleMapReact
-        bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAP_API_KEY }}
+        bootstrapURLKeys={{ key: getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY") }}
         defaultCenter={defaultCenter}
         defaultZoom={defaultZoom}
         yesIWantToUseGoogleMapApiInternals

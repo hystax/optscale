@@ -1,0 +1,7 @@
+kombu==4.6.8
+
+# OptScale packages
+-e optscale_client/config_client
+-e optscale_client/rest_api_client
+-e optscale_client/herald_client
+-e optscale_client/auth_client

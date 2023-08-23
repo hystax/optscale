@@ -1,10 +1,16 @@
-from auth_client.client_v2 import Client as AuthClient
+
 from requests import HTTPError
 from mongoengine.errors import ValidationError
-from optscale_exceptions.common_exc import (UnauthorizedException,
-                                            WrongArgumentsException)
 
-from report_server.exceptions import Err
+
+from keeper.report_server.exceptions import Err
+
+
+from tools.optscale_exceptions.common_exc import (
+    UnauthorizedException,
+    WrongArgumentsException
+)
+from optscale_client.auth_client.client_v2 import Client as AuthClient
 
 
 class BaseController(object):

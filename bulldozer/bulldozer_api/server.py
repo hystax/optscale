@@ -15,7 +15,7 @@ from producer import TaskProducer
 from name_generator import NameGenerator
 from utils import permutation
 
-from aconfig_cl.aconfig_cl import AConfigCl
+from optscale_client.aconfig_cl.aconfig_cl import AConfigCl
 
 
 app = Sanic("bulldozer")

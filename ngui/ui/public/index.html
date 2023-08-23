@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="description" content="The first open source FinOps and multi-cloud cost management solution" />
-  <!--
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="The first open source FinOps and multi-cloud cost management solution" />
+    <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <!--
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -21,66 +20,71 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-  <title>Hystax OptScale</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu&family=Ubuntu+Mono&display=swap" rel="stylesheet" />
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-</head>
+    <title>Hystax OptScale</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&family=Ubuntu+Mono&display=swap" rel="stylesheet" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="text/javascript" src="./config.js?version=${buildVersion}"></script>
+  </head>
 
-<body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <style>
-    .preloader svg:first-child {
-      animation: spin 3s ease-out infinite;
-    }
-
-    .preloader svg:last-child {
-      animation: spin 3s ease-in infinite reverse;
-      margin-left: -30px;
-    }
-
-    .preloader {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    div#root:not(:empty)+.preloader {
-      display: none;
-    }
-
-    @keyframes spin {
-
-      0%,
-      10% {
-        transform: rotate(-45deg);
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <style>
+      .preloader svg:first-child {
+        animation: spin 3s ease-out infinite;
       }
 
-      90%,
-      100% {
-        transform: rotate(1035deg);
+      .preloader svg:last-child {
+        animation: spin 3s ease-in infinite reverse;
+        margin-left: -30px;
       }
-    }
-  </style>
-  <div id="root"></div>
-  <div class="preloader">
-    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd"
-        d="M24.1066 16.8865C24.2102 16.3864 24.6331 16 25.1437 16H28.8976C29.4761 16 29.937 16.4902 29.8574 17.0633C29.3952 20.392 27.8256 23.4832 25.3821 25.8264C22.6284 28.4671 18.972 29.9592 15.157 29.9992C11.342 30.0391 7.65517 28.6239 4.84681 26.0415C2.28459 23.6854 0.629307 20.5193 0.146636 17.0928C0.0695999 16.5459 0.486746 16.0658 1.03755 16.0253L1.38253 16H4.85616C5.36684 16 5.78969 16.3864 5.89327 16.8865C6.28615 18.7832 7.26435 20.521 8.705 21.8457C10.4462 23.4468 12.732 24.3243 15.0973 24.2995C17.4626 24.2747 19.7296 23.3496 21.4369 21.7124C22.8021 20.4032 23.7274 18.7173 24.1066 16.8865Z"
-        fill="#4AB4EE" />
-    </svg>
-    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill-rule="evenodd" clip-rule="evenodd"
-        d="M24.1066 13.1135C24.2102 13.6136 24.6331 14 25.1437 14H28.8976C29.4761 14 29.937 13.5098 29.8574 12.9367C29.3952 9.60804 27.8256 6.51679 25.3821 4.1736C22.6284 1.53293 18.972 0.0407753 15.157 0.000823391C11.342 -0.0391285 7.65517 1.37612 4.84681 3.95854C2.28459 6.31463 0.629307 9.48071 0.146636 12.9072C0.0695999 13.4541 0.486746 13.9342 1.03755 13.9747L1.38253 14H4.85616C5.36684 14 5.78969 13.6136 5.89327 13.1135C6.28615 11.2168 7.26435 9.47905 8.705 8.1543C10.4462 6.5532 12.732 5.67574 15.0973 5.70051C17.4626 5.72528 19.7296 6.65042 21.4369 8.28763C22.8021 9.59683 23.7274 11.2827 24.1066 13.1135Z"
-        fill="#004C74" />
-    </svg>
-  </div>
-</body>
 
+      .preloader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      div#root:not(:empty) + .preloader {
+        display: none;
+      }
+
+      @keyframes spin {
+        0%,
+        10% {
+          transform: rotate(-45deg);
+        }
+
+        90%,
+        100% {
+          transform: rotate(1035deg);
+        }
+      }
+    </style>
+    <div id="root"></div>
+    <div class="preloader">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M24.1066 16.8865C24.2102 16.3864 24.6331 16 25.1437 16H28.8976C29.4761 16 29.937 16.4902 29.8574 17.0633C29.3952 20.392 27.8256 23.4832 25.3821 25.8264C22.6284 28.4671 18.972 29.9592 15.157 29.9992C11.342 30.0391 7.65517 28.6239 4.84681 26.0415C2.28459 23.6854 0.629307 20.5193 0.146636 17.0928C0.0695999 16.5459 0.486746 16.0658 1.03755 16.0253L1.38253 16H4.85616C5.36684 16 5.78969 16.3864 5.89327 16.8865C6.28615 18.7832 7.26435 20.521 8.705 21.8457C10.4462 23.4468 12.732 24.3243 15.0973 24.2995C17.4626 24.2747 19.7296 23.3496 21.4369 21.7124C22.8021 20.4032 23.7274 18.7173 24.1066 16.8865Z"
+          fill="#4AB4EE"
+        />
+      </svg>
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M24.1066 13.1135C24.2102 13.6136 24.6331 14 25.1437 14H28.8976C29.4761 14 29.937 13.5098 29.8574 12.9367C29.3952 9.60804 27.8256 6.51679 25.3821 4.1736C22.6284 1.53293 18.972 0.0407753 15.157 0.000823391C11.342 -0.0391285 7.65517 1.37612 4.84681 3.95854C2.28459 6.31463 0.629307 9.48071 0.146636 12.9072C0.0695999 13.4541 0.486746 13.9342 1.03755 13.9747L1.38253 14H4.85616C5.36684 14 5.78969 13.6136 5.89327 13.1135C6.28615 11.2168 7.26435 9.47905 8.705 8.1543C10.4462 6.5532 12.732 5.67574 15.0973 5.70051C17.4626 5.72528 19.7296 6.65042 21.4369 8.28763C22.8021 9.59683 23.7274 11.2827 24.1066 13.1135Z"
+          fill="#004C74"
+        />
+      </svg>
+    </div>
+  </body>
 </html>

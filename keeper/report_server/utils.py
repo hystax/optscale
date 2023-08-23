@@ -3,13 +3,14 @@ import json
 import re
 from datetime import datetime
 import enum
-
 from concurrent.futures import ThreadPoolExecutor
-from optscale_exceptions.common_exc import WrongArgumentsException
 
-from config_client.client import Client as ConfigClient
+from keeper.report_server.exceptions import Err
 
-from report_server.exceptions import Err
+
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from optscale_client.config_client.client import Client as ConfigClient
+
 
 MAX_32_INT = 2 ** 31 - 1
 MAX_64_INT = 2 ** 63 - 1

@@ -1,0 +1,20 @@
+name: Build bi_scheduler test image and run tests on it
+run-name: Build bi_scheduler test image and run tests on it - started by ${{ github.actor }}
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+    - 'docker_images/bi_scheduler/**'
+  workflow_dispatch:
+
+
+jobs:
+  build_image:
+    runs-on: self-hosted
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Build image
+        run: bash -x build.sh bi_scheduler build
+      - name: Build test image and run tests
+        run: bash -x docker_images/bi_scheduler/run_test.sh

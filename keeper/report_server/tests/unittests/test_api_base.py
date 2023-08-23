@@ -4,9 +4,10 @@ import mongomock
 import tornado.testing
 from unittest.mock import patch
 
-from report_server.server import make_app
-import report_client.client
-import report_client.client_v2
+from keeper.report_server.server import make_app
+
+import optscale_client.report_client.client
+import optscale_client.report_client.client_v2
 
 
 class TestReportBase(tornado.testing.AsyncHTTPTestCase):
@@ -19,9 +20,9 @@ class TestReportBase(tornado.testing.AsyncHTTPTestCase):
         return make_app('127.0.0.1', 80,
                         mongo_client_class=mongomock.MongoClient)
 
-    @patch('report_server.server.MongoClient')
-    @patch('config_client.client.Client')
-    @patch('report_server.controllers.message_publisher.Publisher')
+    @patch('keeper.report_server.server.MongoClient')
+    @patch('optscale_client.config_client.client.Client')
+    @patch('keeper.report_server.controllers.message_publisher.Publisher')
     def setUp(self, p_rabbit, p_config, p_mongo):
         secret = str(uuid.uuid4())
         p_config.return_value.mongo_params.return_value = (
@@ -32,13 +33,13 @@ class TestReportBase(tornado.testing.AsyncHTTPTestCase):
         p_config.return_value.agent_secret.return_value = secret
         super().setUp()
         patch(
-            'report_server.handlers.v1.base.Config').start()
+            'keeper.report_server.handlers.v1.base.Config').start()
         patch(
-            'report_server.handlers.v1.base.AuthClient.authorize',
+            'keeper.report_server.handlers.v1.base.AuthClient.authorize',
             lambda *args: (200, {'accepted'})).start()
-        http_provider = report_client.client.FetchMethodHttpProvider(
+        http_provider = optscale_client.report_client.client.FetchMethodHttpProvider(
             self.fetch, rethrow=False)
-        self.client = report_client.client_v2.Client(
+        self.client = optscale_client.report_client.client_v2.Client(
             http_provider=http_provider)
         self.client.token = 'token'
         self.client.secret = secret

@@ -14,6 +14,7 @@ import KeyValueLabel from "components/KeyValueLabel";
 import TrafficMapMarker from "components/TrafficMapMarker";
 import { isEmpty } from "utils/arrays";
 import { EXPENSES_MAP_OBJECT_TYPES, FORMATTED_MONEY_TYPES } from "utils/constants";
+import { getEnvironmentVariable } from "utils/env";
 import { TRAFFIC_EXPENSES_HEIGHT } from "utils/maps";
 import FlowMapDataProvider from "./FlowMapDataProvider";
 import useStyles from "./TrafficExpensesMap.styles";
@@ -237,7 +238,7 @@ const TrafficExpensesMap = ({ markers, defaultZoom, defaultCenter, onMapClick = 
       style={{ height: `${TRAFFIC_EXPENSES_HEIGHT}px`, width: "100%", position: "relative" }}
     >
       <GoogleMapReact
-        bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAP_API_KEY }}
+        bootstrapURLKeys={{ key: getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY") }}
         defaultCenter={viewParams.defaultCenter}
         center={{ lat: viewParams.latitude, lng: viewParams.longitude }}
         defaultZoom={viewParams.defaultZoom}

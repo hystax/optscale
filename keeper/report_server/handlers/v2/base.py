@@ -1,17 +1,16 @@
 import json
 import logging
 import requests
-from optscale_exceptions.common_exc import WrongArgumentsException
 
-from auth_client.client_v2 import Client as AuthClient
+from keeper.report_server.exceptions import Err
+from keeper.report_server.utils import Config
+from keeper.report_server.handlers.v1.base import BaseAuthHandler as BaseAuthHandlerV1
+from keeper.report_server.handlers.v1.base import BaseReportHandler as BaseReportHandlerV1
+from keeper.report_server.handlers.v1.base import BaseReceiveHandler as BaseReceiveHandlerV1
 
-from report_server.exceptions import Err
-from report_server.utils import Config
-from optscale_exceptions.http_exc import OptHTTPError
-
-from report_server.handlers.v1.base import BaseAuthHandler as BaseAuthHandlerV1
-from report_server.handlers.v1.base import BaseReportHandler as BaseReportHandlerV1
-from report_server.handlers.v1.base import BaseReceiveHandler as BaseReceiveHandlerV1
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from optscale_client.auth_client.client_v2 import Client as AuthClient
 
 LOG = logging.getLogger(__name__)
 

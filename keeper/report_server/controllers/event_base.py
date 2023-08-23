@@ -3,10 +3,11 @@ import hashlib
 from requests import HTTPError
 from mongoengine.queryset.visitor import Q
 
-from report_server.exceptions import Err
-from report_server.model import ReadEvent, Event
-from report_server.controllers.base import BaseController
-from optscale_exceptions.common_exc import UnauthorizedException
+from keeper.report_server.exceptions import Err
+from keeper.report_server.model import ReadEvent, Event
+from keeper.report_server.controllers.base import BaseController
+
+from tools.optscale_exceptions.common_exc import UnauthorizedException
 
 LOG = logging.getLogger(__name__)
 

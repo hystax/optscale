@@ -2,7 +2,7 @@ import time
 import uuid
 from unittest.mock import patch
 
-from report_server.tests.unittests.test_api_base import TestReportBase
+from keeper.report_server.tests.unittests.test_api_base import TestReportBase
 
 
 class TesApiEvent(TestReportBase):
@@ -12,7 +12,7 @@ class TesApiEvent(TestReportBase):
         self.org_id = str(uuid.uuid4())
         self.user_id = str(uuid.uuid4())
         patch(
-            'report_server.controllers.event_base.EventBaseController.'
+            'keeper.report_server.controllers.event_base.EventBaseController.'
             'get_meta_by_token',
             return_value={'user_id': str(uuid.uuid4()),
                           'valid_until': time.time() * 2}
@@ -22,13 +22,13 @@ class TesApiEvent(TestReportBase):
         code, response = self.client.event_list(self.org_id)
         self.assertEqual(code, 200)
 
-    @patch("report_server.controllers.base.AuthClient.action_resources_get")
+    @patch("keeper.report_server.controllers.base.AuthClient.action_resources_get")
     def test_event_count_v2(self, p_ares):
         p_ares.return_value = (200, {'POLL_EVENT': []})
         code, response = self.client.event_count(self.org_id)
         self.assertEqual(code, 200)
 
-    @patch("report_server.controllers.event.Event")
+    @patch("keeper.report_server.controllers.event.Event")
     def test_submit_event(self, p_event):
         p_event.return_value.to_dict.return_value = {
             "id": "59b141a8f3820c2e18491a89"}
@@ -46,22 +46,22 @@ class TesApiEvent(TestReportBase):
         code, response = self.client.event_submit(**event)
         self.assertEqual(code, 201)
 
-    @patch("report_server.controllers.base.AuthClient.action_resources_get")
+    @patch("keeper.report_server.controllers.base.AuthClient.action_resources_get")
     def test_example_event_count_filtering_v2(self, p_ares):
         p_ares.return_value = (200, {'POLL_EVENT': []})
         code, response = self.client.event_count(self.org_id,
                                                  levels=['WARNING', 'ERROR'])
         self.assertEqual(code, 200)
 
-    @patch("report_server.controllers.base.AuthClient.action_resources_get")
+    @patch("keeper.report_server.controllers.base.AuthClient.action_resources_get")
     def test_example_poll_event_filtering_v2(self, p_ares):
         p_ares.return_value = (200, {'POLL_EVENT': []})
         code, response = self.client.event_list(
             self.org_id, levels=['INFO'], object_types=['customer'])
         self.assertEqual(code, 200)
 
-    @patch("report_server.controllers.event.EventController._get_event")
-    @patch("report_server.controllers.base.AuthClient.action_resources_get")
+    @patch("keeper.report_server.controllers.event.EventController._get_event")
+    @patch("keeper.report_server.controllers.base.AuthClient.action_resources_get")
     def test_example_event_get_v2(self, p_ares, p_event):
         p_ares.return_value = (200, {'POLL_EVENT': [
             ['root', None],
@@ -89,7 +89,7 @@ class TesApiEvent(TestReportBase):
         code, response = self.client.event_list(self.org_id, include_read='ss')
         self.assertEqual(code, 400)
 
-    @patch("report_server.controllers.base.AuthClient.action_resources_get")
+    @patch("keeper.report_server.controllers.base.AuthClient.action_resources_get")
     def test_example_event_list_v2_with_token(self, p_ares):
         self.client.secret = None
         # evts.return_value = []
@@ -97,7 +97,7 @@ class TesApiEvent(TestReportBase):
         code, response = self.client.event_list(self.org_id)
         self.assertEqual(code, 200)
 
-    @patch("report_server.controllers.event.Event")
+    @patch("keeper.report_server.controllers.event.Event")
     def test_submit_event_v2_with_initiator(self, p_event):
         p_event.return_value.to_dict.return_value = {
             "id": "59b141a8f3820c2e18491a89"}

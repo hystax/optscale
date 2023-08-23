@@ -4,14 +4,18 @@ from datetime import datetime
 from mongoengine.errors import ValidationError, DoesNotExist
 from mongoengine.queryset.visitor import Q
 
-from report_server.exceptions import Err
-from report_server.model import Event, ReadEvent
-from report_server.controllers.event_base import EventBaseController
-from report_server.controllers.base_async import BaseAsyncControllerWrapper
-from report_server.utils import _check_filter_list
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            NotFoundException,
-                                            ForbiddenException)
+from keeper.report_server.exceptions import Err
+from keeper.report_server.model import Event, ReadEvent
+from keeper.report_server.controllers.event_base import EventBaseController
+from keeper.report_server.controllers.base_async import BaseAsyncControllerWrapper
+from keeper.report_server.utils import _check_filter_list
+
+
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException,
+    NotFoundException,
+    ForbiddenException
+)
 
 
 LOG = logging.getLogger(__name__)
@@ -128,7 +132,7 @@ class EventController(EventBaseController):
         else:
             events_result = list(map(lambda x: x.to_dict(), events))
         result = {
-          "events": events_result,
+            "events": events_result,
         }
         return result
 
@@ -173,8 +177,7 @@ class EventController(EventBaseController):
         events = Event.objects(
             (Q(organization_id=org_id)) & Q(
                 time__lte=timestamp) & Q(
-                ack=True) & Q(acknowledged_by=None)
-            )
+                ack=True) & Q(acknowledged_by=None))
         event_ids = list(map(lambda x: str(x.id), events))
         if events:
             digest = hashlib.md5(token.encode('utf-8')).hexdigest()

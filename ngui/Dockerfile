@@ -9,32 +9,37 @@ ENV NODE_ENV production
 
 # -------- UI --------
 WORKDIR /usr/src/app/ui
-COPY ui/package*.json ./
+COPY ngui/ui/package*.json ./
 RUN npm ci --ignore-scripts
-COPY ui/ ./
+COPY ngui/ui/ ./
+# .eslintrc.json on build step will produce an error, but it is still needed on testing
+RUN mv .eslintrc.json .disabled.eslintrc.json
 RUN npm run build && rm -rf node_modules
 
 # -------- Server --------
 WORKDIR /usr/src/app/server
-COPY server/package*.json ./
+COPY ngui/server/package*.json ./
 RUN npm ci --ignore-scripts
-COPY server/ ./
+COPY ngui/server/ ./
 RUN ./scripts/prune_node_modules.sh
 RUN npm run compile
+RUN chown -R node:node /usr/src/app/
 
 # -------- Final stage --------
 FROM $IMAGE
 
 WORKDIR /usr/src/app
 
-RUN chown node:node ./
-USER node
 
 COPY --from=builder /usr/src/app/ui/ ./ui
 COPY --from=builder /usr/src/app/server ./server
 
 EXPOSE 4000
 
+# generate environment variables and run the server
+USER node
 WORKDIR /usr/src/app/server
+COPY --from=builder /usr/src/app/ui/prepare-and-run.sh /
+RUN chmod +x /prepare-and-run.sh
 
-CMD ["node", "./dist/server.js"]
+CMD [ "/prepare-and-run.sh" ]

@@ -1,0 +1,8 @@
+boto3==1.18.9
+clickhouse-driver==0.2.2
+mysql-connector-python==8.1.0
+pymongo==4.3.3
+SQLAlchemy==1.2.14
+
+# OptScale packages
+-e optscale_client/config_client

@@ -1,15 +1,17 @@
 import json
 
-from optscale_exceptions.common_exc import (
+
+from keeper.report_server.controllers.event import (EventAsyncController,
+                                                    EventCountAsyncController)
+from keeper.report_server.handlers.v2.base import (BaseReportHandler,
+                                                   BaseAuthHandler, BaseReceiveHandler)
+from keeper.report_server.utils import ModelEncoder
+
+
+from tools.optscale_exceptions.common_exc import (
     UnauthorizedException, NotFoundException, WrongArgumentsException,
     ForbiddenException)
-from optscale_exceptions.http_exc import OptHTTPError
-
-from report_server.controllers.event import (EventAsyncController,
-                                             EventCountAsyncController)
-from report_server.handlers.v2.base import (BaseReportHandler,
-                                            BaseAuthHandler, BaseReceiveHandler)
-from report_server.utils import ModelEncoder
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 class EventAsyncHandler(BaseReceiveHandler):
