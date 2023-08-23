@@ -1,4 +1,0 @@
-config-client==1.0.131
-restapi-client==1.0.674
-kombu==4.6.8
-cloud-adapter==0.1.1425

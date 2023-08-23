@@ -1,4 +1,4 @@
-FROM acura-dr.dts.loc/optscale_python:94098b67b949e2fabcc2404becf90a25f77496e6
+FROM python:3.9.1-slim
 MAINTAINER Hystax
 
 WORKDIR /usr/src/app/pharos_receiver

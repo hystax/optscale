@@ -1,0 +1,8 @@
+boto
+# TODO: update version
+tornado==6.2
+
+# OptScale packages
+-e tools/optscale_exceptions
+-e optscale_client/config_client
+-e optscale_client/rest_api_client

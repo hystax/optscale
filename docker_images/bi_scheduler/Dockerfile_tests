@@ -1,0 +1,8 @@
+ARG BUILDTAG=build
+FROM bi_scheduler:${BUILDTAG}
+
+WORKDIR /usr/src/app/docker_images/bi_scheduler/
+COPY docker_images/bi_scheduler/__init__.py .
+COPY docker_images/bi_scheduler/test_bi_scheduler.py .
+
+CMD ["python","-m","unittest","test_bi_scheduler.py"]
