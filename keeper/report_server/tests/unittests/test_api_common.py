@@ -1,4 +1,4 @@
-from report_server.tests.unittests.test_api_base import TestReportBase
+from keeper.report_server.tests.unittests.test_api_base import TestReportBase
 
 
 class TestCommonApi(TestReportBase):

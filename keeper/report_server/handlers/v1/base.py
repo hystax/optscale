@@ -5,19 +5,20 @@ import traceback
 import tornado.web
 import requests
 from json.decoder import JSONDecodeError
-
 from tornado.ioloop import IOLoop
 
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            ForbiddenException,
-                                            UnauthorizedException)
-from optscale_exceptions.http_exc import OptHTTPError
+from keeper.report_server.exceptions import Err
+from keeper.report_server.utils import ModelEncoder
+from keeper.report_server.utils import tp_executor, Config
 
-from report_server.exceptions import Err
-from report_server.utils import ModelEncoder
-from report_server.utils import tp_executor, Config
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException,
+    ForbiddenException,
+    UnauthorizedException
+)
 
-from auth_client.client_v2 import Client as AuthClient
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from optscale_client.auth_client.client_v2 import Client as AuthClient
 
 
 LOG = logging.getLogger(__name__)

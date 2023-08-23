@@ -9,7 +9,7 @@ case $# in
     0)
     ;;
     1|2)
-    FIND_CMD="${FIND_CMD} | grep $1"
+    FIND_CMD="${FIND_CMD} | grep $1/"
     ;;
     *)
     echo "invalid arguments number, use ./build.sh [component] [build tag]"

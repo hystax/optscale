@@ -1,8 +1,10 @@
 import yaml
 import os.path
 import re
-import report_server.server as server
+
 from apispec import APISpec, utils
+
+import keeper.report_server.server as server
 
 # Spec reference:
 # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md

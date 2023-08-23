@@ -2,7 +2,12 @@ ARG BUILDTAG=build
 FROM keeper:${BUILDTAG}
 MAINTAINER Hystax
 
-COPY test-requirements.txt .pylintrc .noserc .coveragerc ./
-RUN pip install --no-cache-dir -r test-requirements.txt
+COPY keeper/test-requirements.txt keeper/test-requirements.txt
+COPY keeper/.pylintrc keeper/.noserc keeper/.coveragerc ./keeper/report_server/
 
-COPY report_server/tests ./tests
+COPY optscale_client/report_client optscale_client/report_client
+
+RUN pip install --no-cache-dir -r keeper/test-requirements.txt
+
+
+COPY keeper/report_server/tests keeper/report_server/tests

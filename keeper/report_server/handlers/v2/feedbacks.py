@@ -1,13 +1,16 @@
 import json
 
-from report_server.exceptions import Err
-from report_server.handlers.v2.base import BaseReceiveHandler
-from report_server.controllers.feedback import FeedbackAsyncController
-from optscale_exceptions.http_exc import OptHTTPError
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            UnauthorizedException)
+from keeper.report_server.exceptions import Err
+from keeper.report_server.handlers.v2.base import BaseReceiveHandler
+from keeper.report_server.controllers.feedback import FeedbackAsyncController
+from keeper.report_server.utils import ModelEncoder
 
-from report_server.utils import ModelEncoder
+
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException,
+    UnauthorizedException
+)
 
 
 class FeedbacksAsyncHandler(BaseReceiveHandler):
