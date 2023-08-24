@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys
 from setuptools import setup
-from version import __VERSION__
 
 
 requirements = ["requests==2.25.0", "retrying==1.3.3"]
