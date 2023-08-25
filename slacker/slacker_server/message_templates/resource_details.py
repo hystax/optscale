@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from datetime import datetime
-from slacker_server.constants import CURRENCY_MAP
+from slacker.slacker_server.constants import CURRENCY_MAP
 
 __all__ = ['get_resource_details_block', 'get_resource_details_message']
 

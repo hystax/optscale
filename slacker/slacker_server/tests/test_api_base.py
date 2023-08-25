@@ -1,17 +1,16 @@
 import os
-import time
+import tornado.testing
 from unittest.mock import patch
-from slacker_client.client import (
+
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.slacker_client.client import (
     Client as SlackerClient, FetchMethodHttpProvider)
 
-import tornado.testing
-
-from slacker_server.models.models import User
-from config_client.client import Client as ConfigClient
-from slacker_server.models.db_base import BaseDB
-from slacker_server.models.db_factory import DBFactory, DBType
-from slacker_server.server import make_slack_app, make_tornado_app
-from slacker_server.utils import gen_id
+from slacker.slacker_server.models.db_base import BaseDB
+from slacker.slacker_server.models.db_factory import DBFactory, DBType
+from slacker.slacker_server.models.models import User
+from slacker.slacker_server.server import make_slack_app, make_tornado_app
+from slacker.slacker_server.utils import gen_id
 
 
 class TestApiBase(tornado.testing.AsyncHTTPTestCase):
@@ -26,11 +25,12 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         self.app = make_slack_app(self.db.engine, self.config_cl)
 
         self.cluster_secret = gen_id()
-        patch('slacker_server.tests.test_api_base.ConfigClient.cluster_secret',
+        patch('slacker.slacker_server.tests.test_api_base.'
+              'ConfigClient.cluster_secret',
               return_value=self.cluster_secret).start()
-        patch('slacker_server.tests.test_api_base.ConfigClient.public_ip',
-              ).start()
-        patch('slacker_server.slack_client.SlackClient.chat_post').start()
+        patch('slacker.slacker_server.tests.test_api_base.'
+              'ConfigClient.public_ip').start()
+        patch('slacker.slacker_server.slack_client.SlackClient.chat_post').start()
         http_provider = FetchMethodHttpProvider(self.fetch, rethrow=False)
         self.client = SlackerClient(http_provider=http_provider)
         self.client.token = 'token'

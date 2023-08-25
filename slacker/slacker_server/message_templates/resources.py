@@ -1,5 +1,5 @@
-from slacker_server.message_templates.common import get_resource_type_location
-from slacker_server.constants import CURRENCY_MAP
+from slacker.slacker_server.message_templates.common import get_resource_type_location
+from slacker.slacker_server.constants import CURRENCY_MAP
 
 __all__ = ['get_resource_blocks', 'get_resources_message']
 

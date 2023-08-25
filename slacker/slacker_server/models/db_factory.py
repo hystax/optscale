@@ -1,10 +1,10 @@
 import logging
 from enum import Enum
 
-from optscale_exceptions.common_exc import InvalidModelTypeException
-from slacker_server.exceptions import Err
-from slacker_server.models.db_mysql import MySQLDB
-from slacker_server.models.db_test import TestDB
+from tools.optscale_exceptions.common_exc import InvalidModelTypeException
+from slacker.slacker_server.exceptions import Err
+from slacker.slacker_server.models.db_mysql import MySQLDB
+from slacker.slacker_server.models.db_test import TestDB
 
 
 class DBType(Enum):

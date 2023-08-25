@@ -1,12 +1,18 @@
-FROM optscale_python:local
+FROM python:3.9.16-slim
 MAINTAINER Hystax
 
-WORKDIR /usr/src/app/risp_worker
+WORKDIR /usr/src/app/
 ENV PYTHONPATH=/usr/src/app/
 
-ADD risp_worker/migrations ./migrations
-COPY risp_worker/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-COPY risp_worker/*.py ./
+COPY tools/optscale_exceptions tools/optscale_exceptions
+COPY optscale_client/config_client optscale_client/config_client
+COPY optscale_client/rest_api_client optscale_client/rest_api_client
+COPY tools/cloud_adapter tools/cloud_adapter
 
-CMD ["python", "-u", "/usr/src/app/risp_worker/worker.py"]
+ADD risp/risp_worker/migrations risp/risp_worker/migrations
+COPY risp/risp_worker/requirements.txt risp/risp_worker/requirements.txt
+RUN pip install --no-cache-dir -r risp/risp_worker/requirements.txt
+COPY risp/__init__.py ./risp/
+COPY risp/risp_worker/*.py ./risp/risp_worker/
+
+CMD ["python", "-u", "/usr/src/app/risp/risp_worker/worker.py"]

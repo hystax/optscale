@@ -1,4 +1,4 @@
-from slacker_server.message_templates.alerts import get_alert_section
+from slacker.slacker_server.message_templates.alerts import get_alert_section
 
 __all__ = ['get_archived_message_block']
 

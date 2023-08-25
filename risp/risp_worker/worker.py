@@ -1,20 +1,22 @@
+from collections import defaultdict
+from datetime import datetime, timezone
+from threading import Thread
+
 import os
 import time
 import logging
-import requests
-from collections import defaultdict
-from config_client.client import Client as ConfigClient
-from clickhouse_driver import Client as ClickHouseClient
-from datetime import datetime, timezone
+import urllib3
+
 from etcd import Lock as EtcdLock
+from clickhouse_driver import Client as ClickHouseClient
 from pymongo import MongoClient
 from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
 from kombu.utils.debug import setup_logging
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from rest_api_client.client_v2 import Client as RestClient
-from risp_worker.migrator import Migrator
-from threading import Thread
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
+from risp.risp_worker.migrator import Migrator
+
 
 LOG = logging.getLogger(__name__)
 CH_DB_NAME = 'risp'
@@ -203,8 +205,7 @@ class RISPWorker(ConsumerMixin):
                           end_date):
         LOG.info('Generating expenses for offer type: %s', offer_type)
         ch_expenses_list = []
-        (new_expenses_map, cloud_resource_ids,
-         cloud_offer_ids) = self.process_raw_expenses(
+        (new_expenses_map, cloud_resource_ids, _) = self.process_raw_expenses(
             offer_type, cloud_account_id, start_date, end_date)
         cloud_resource_ids = list(cloud_resource_ids)
         for i in range(0, len(cloud_resource_ids), CHUNK_SIZE):
@@ -265,7 +266,8 @@ class RISPWorker(ConsumerMixin):
             self._process_task(body)
         except Exception as exc:
             LOG.exception('Task processing failed for cloud account %s '
-                          'with exception: %s' % ('', str(exc)))
+                          'with exception: %s',
+                          body.get('cloud_account_id'), str(exc))
         LOG.info('Task is finished')
         message.ack()
 
@@ -276,7 +278,7 @@ class RISPWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'DEBUG' if debug else 'INFO'
     setup_logging(loglevel=log_level, loggers=[''])

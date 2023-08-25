@@ -1,6 +1,6 @@
 import logging
-from risp_worker.migrations.base import MigrationBase
 from pymongo import UpdateOne
+from risp.risp_worker.migrations.base import MigrationBase
 
 RES_CHUNK_SIZE = 500
 CH_CHUNK_SIZE = 1000
@@ -66,7 +66,7 @@ class Migration(MigrationBase):
             change_to='cloud_resource_id', change_from='_id')
         queries_list.append("OPTIMIZE TABLE ri_sp_usage FINAL")
         for query in queries_list:
-            LOG.info('Executing query: %s' % query)
+            LOG.info('Executing query: %s', query)
             self.clickhouse_client.execute(query)
 
     def copy_data_in_bulks(self):
@@ -87,8 +87,8 @@ class Migration(MigrationBase):
             x[0] for x in self.clickhouse_client.execute(
                 """SELECT DISTINCT offer_id from ri_sp_usage""")]
         for i, offer_id in enumerate(offer_ids):
-            LOG.info("Copying data for offer %s (%s/%s)" % (
-                offer_id, i + 1, len(offer_ids)))
+            LOG.info("Copying data for offer %s (%s/%s)",
+                     offer_id, i + 1, len(offer_ids))
             count = self.clickhouse_client.execute(
                 """SELECT COUNT(*) from ri_sp_usage WHERE offer_id=%(offer_id)s""",
                 params={"offer_id": offer_id})[0][0]

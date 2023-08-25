@@ -271,8 +271,7 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
         # TODO: need to investigate better when source_machine_image is empty.
         # fallback to reading image info from instance boot disk.
         return (
-            self._cloud_object.source_machine_image
-            or self._extract_instance_disk_image()
+            self._cloud_object.source_machine_image or self._extract_instance_disk_image()
         )
 
     def _extract_flavor(self):
@@ -345,10 +344,9 @@ class GcpVolume(tools.cloud_adapter.model.VolumeResource, GcpResource):
         )
 
     def _extract_disk_attached(self):
-        return (
-            self._cloud_object.last_attach_timestamp
-            > self._cloud_object.last_detach_timestamp
-        )
+        last_attach = self._cloud_object.last_attach_timestamp
+        last_detach = self._cloud_object.last_detach_timestamp
+        return last_attach > last_detach
 
     def _extract_disk_type(self):
         # turn 'projects/project/zones/zone/diskTypes/pd-ssd'
@@ -721,8 +719,8 @@ class Gcp(CloudBase):
             usage.pricing_unit as usage_pricing_unit,
             system_labels as system_tags,
             credits, adjustment_info
-        FROM `{table_name}` 
-        WHERE 
+        FROM `{table_name}`
+        WHERE
             usage_start_time >= TIMESTAMP("{start_date}") AND
             usage_end_time <= TIMESTAMP("{end_date}") AND
             project.id = "{self.project_id}"

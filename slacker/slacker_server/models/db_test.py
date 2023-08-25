@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
-from slacker_server.models.db_base import BaseDB
+from slacker.slacker_server.models.db_base import BaseDB
 
 
 class TestDB(BaseDB):

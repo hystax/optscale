@@ -1,7 +1,7 @@
 import yaml
 import os.path
 import re
-import insider_api.server as server
+import insider.insider_api.server as server
 from apispec import APISpec, utils
 
 # Spec reference:

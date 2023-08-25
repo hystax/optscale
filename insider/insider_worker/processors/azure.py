@@ -2,11 +2,11 @@ from datetime import datetime
 from kombu.log import get_logger
 from requests.exceptions import SSLError
 from kombu import Connection as QConnection
-from kombu import Exchange, Queue
+from kombu import Exchange
 from kombu.pools import producers
-from rest_api_client.client_v2 import Client as RestClient
-from insider_worker.processors.base import BasePriceProcessor
-from insider_worker.http_client.client import Client
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
+from insider.insider_worker.processors.base import BasePriceProcessor
+from insider.insider_worker.http_client.client import Client
 
 
 ACTIVITIES_EXCHANGE_NAME = 'activities-tasks'
@@ -96,7 +96,7 @@ class AzurePriceProcessor(BasePriceProcessor):
             while True:
                 if prices_counter % PRICES_COUNT_TO_LOG == 0:
                     LOG.info('Total number of prices got from '
-                             'cloud: %s' % prices_counter)
+                             'cloud: %s', prices_counter)
                 try:
                     code, response = http_client.get(next_page)
                 except SSLError:
@@ -113,7 +113,7 @@ class AzurePriceProcessor(BasePriceProcessor):
                 new_url = response.get('NextPageLink')
                 if not new_url or new_url == next_page:
                     LOG.info('Total number of prices got from '
-                             'cloud: %s' % prices_counter)
+                             'cloud: %s', prices_counter)
                     break
                 next_page = new_url
                 prices_counter += PRICES_PER_REQUEST

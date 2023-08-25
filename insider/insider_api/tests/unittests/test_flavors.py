@@ -2,8 +2,8 @@ import uuid
 from unittest.mock import patch
 from datetime import datetime
 import mongomock
-import insider_client.client as insider_client
-from insider_api.tests.unittests.test_api_base import TestBase
+import optscale_client.insider_client.client as insider_client
+from insider.insider_api.tests.unittests.test_api_base import TestBase
 
 
 class TestFlavorsApi(TestBase):
@@ -17,12 +17,12 @@ class TestFlavorsApi(TestBase):
             'family_specs': {'source_flavor_id': 't4.small'},
         }
         self.find_aws_flavor = patch(
-            'insider_api.controllers.flavor.'
+            'insider.insider_api.controllers.flavor.'
             'FlavorController.find_aws_flavor',
             return_value=('eu-central-1', 't2.small', 'eu-central-1a', [])
         ).start()
         self.find_azure_flavor = patch(
-            'insider_api.controllers.flavor.'
+            'insider.insider_api.controllers.flavor.'
             'FlavorController.find_azure_flavor',
             return_value=('eu-central-1', 't2.small', 'eu-central-1a', [])
         )
@@ -43,12 +43,12 @@ class TestFlavorsApi(TestBase):
               "mode": "search_no_relevant",
         }
         self.find_alibaba_flavor = patch(
-            'insider_api.controllers.flavor.'
+            'insider.insider_api.controllers.flavor.'
             'FlavorController.find_alibaba_flavor',
             return_value=('eu-central-1', 't2.small', 'eu-central-1a', [])
         ).start()
         self.find_alibaba_rds_flavor = patch(
-            'insider_api.controllers.flavor.'
+            'insider.insider_api.controllers.flavor.'
             'FlavorController.find_alibaba_rds_flavor',
             return_value=('eu-central-1', 't2.small', 'eu-central-1a', [])
         ).start()
@@ -143,7 +143,8 @@ class TestFlavorsApi(TestBase):
         self.assertEqual(code, 200)
 
     def test_gcp(self):
-        gcp = patch("insider_api.controllers.flavor.FlavorController.gcp").start()
+        gcp = patch("insider.insider_api.controllers."
+                    "flavor.FlavorController.gcp").start()
         gcp.get_instance_types_priced.return_value = {
             "e2-micro": {
                 "cpu_cores": 2,
@@ -236,13 +237,15 @@ class TestFlavorsApi(TestBase):
                                 }]}}
                      }
         patch(
-            "insider_api.controllers.flavor.FlavorController.get_cloud_account",
+            "insider.insider_api.controllers.flavor."
+            "FlavorController.get_cloud_account",
             return_value={
                 'type': 'nebius',
                 'config': {'platforms': platforms}
             }).start()
         nebius = patch(
-            "insider_api.controllers.flavor.FlavorController.nebius").start()
+            "insider.insider_api.controllers.flavor."
+            "FlavorController.nebius").start()
         nebius.get_prices.return_value = [
             {
                 'id': '1',

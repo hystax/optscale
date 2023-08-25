@@ -5,9 +5,9 @@ import json
 from decimal import Decimal
 
 from bson import ObjectId
-from optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
-from insider_api.exceptions import Err
+from insider.insider_api.exceptions import Err
 
 
 class ModelEncoder(json.JSONEncoder):

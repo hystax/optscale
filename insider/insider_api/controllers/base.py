@@ -3,8 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 import functools
 from pymongo import MongoClient
-from rest_api_client.client_v2 import Client as RestClient
 from tornado.ioloop import IOLoop
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 
 tp_executor = ThreadPoolExecutor(30)

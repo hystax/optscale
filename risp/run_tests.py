@@ -2,7 +2,7 @@ import unittest
 import multiprocessing
 from concurrencytest import ConcurrentTestSuite, fork_for_tests
 
-TESTS_PATH = '/usr/src/app/risp_worker/tests'
+TESTS_PATH = '/usr/src/app/risp/risp_worker/tests'
 
 
 def get_concurrency_num():

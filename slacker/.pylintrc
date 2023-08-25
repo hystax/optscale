@@ -7,4 +7,3 @@ disable=R,C0111,E1101
 [BASIC]
 good-names=i, db, id
 generated-members=deleted, id, state, metadata
-

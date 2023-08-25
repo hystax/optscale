@@ -3,14 +3,14 @@ import re
 from datetime import datetime, timedelta
 from pymongo import MongoClient, UpdateOne
 
-from insider_api.controllers.base import (
+from insider.insider_api.controllers.base import (
     BaseController, BaseAsyncControllerWrapper)
-from insider_api.exceptions import Err
+from insider.insider_api.exceptions import Err
 
-from cloud_adapter.clouds.alibaba import Alibaba
-from cloud_adapter.clouds.aws import Aws
-from cloud_adapter.clouds.azure import Azure
-from optscale_exceptions.common_exc import WrongArgumentsException
+from tools.cloud_adapter.clouds.alibaba import Alibaba
+from tools.cloud_adapter.clouds.aws import Aws
+from tools.cloud_adapter.clouds.azure import Azure
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 
 LOG = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class BaseProvider:
         raise NotImplementedError()
 
     def _load_flavor_prices(self, region, flavor, os_type, preinstalled,
-                            quantity, billing_method):
+                            quantity, billing_method, currency='USD'):
         raise NotImplementedError()
 
     def _load_family_prices(self, instance_family, region, os_type, currency):

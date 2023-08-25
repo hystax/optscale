@@ -1,23 +1,24 @@
 import time
 from unittest.mock import patch, Mock
 
-from slacker_server.tests.test_api_base import TestApiBase
-from slacker_server.utils import gen_id
+from slacker.slacker_server.tests.test_api_base import TestApiBase
+from slacker.slacker_server.utils import gen_id
 
 
 class TestConnectAPI(TestApiBase):
     def setUp(self):
         super().setUp()
         self.user_id = gen_id()
-        patch('slacker_server.controllers.base.BaseHandlerController.'
+        patch('slacker.slacker_server.controllers.base.BaseHandlerController.'
               'get_user_id', return_value=self.user_id).start()
         self.auth_cl_mock = Mock()
         self.rest_cl_mock = Mock()
-        patch('slacker_server.controllers.base.BaseController.'
+        patch('slacker.slacker_server.controllers.base.BaseController.'
               'get_user_api_clients',
               return_value=(self.auth_cl_mock, self.rest_cl_mock)).start()
         valid_until = int(time.time()) + 24 * 3600
-        patch('slacker_server.handlers.v2.base.BaseHandler.get_meta_by_token',
+        patch('slacker.slacker_server.handlers.v2.base.'
+              'BaseHandler.get_meta_by_token',
               return_value={'user_id': self.user_id,
                             'valid_until': valid_until}).start()
 
@@ -62,7 +63,8 @@ class TestConnectAPI(TestApiBase):
     def test_unathorized(self):
         secret = gen_id()
         valid_until = int(time.time()) - 1
-        patch('slacker_server.handlers.v2.base.BaseHandler.get_meta_by_token',
+        patch('slacker.slacker_server.handlers.v2.base.'
+              'BaseHandler.get_meta_by_token',
               return_value={'user_id': self.user_id,
                             'valid_until': valid_until}).start()
         code, resp = self.client.post(self.client.connect_url(),

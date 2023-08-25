@@ -1,26 +1,28 @@
 from unittest.mock import patch, Mock, ANY
 from datetime import datetime
 from slack_sdk.errors import SlackApiError
-from slacker_server.tests.test_api_base import TestApiBase
-from slacker_server.utils import gen_id
+from slacker.slacker_server.tests.test_api_base import TestApiBase
+from slacker.slacker_server.utils import gen_id
 
 
 class TestSendMessageAPI(TestApiBase):
     def setUp(self):
         super().setUp()
         self.user_id = gen_id()
-        patch('slacker_server.controllers.base.BaseHandlerController.'
-              'get_user_id', return_value=self.user_id).start()
+        patch('slacker.slacker_server.controllers.base.'
+              'BaseHandlerController.get_user_id',
+              return_value=self.user_id).start()
         self.client.secret = self.cluster_secret
         self.client.token = None
 
     def connect_user(self):
         secret = gen_id()
         auth_cl_mock, rest_cl_mock = Mock(), Mock()
-        patch('slacker_server.controllers.base.BaseController.'
+        patch('slacker.slacker_server.controllers.base.BaseController.'
               'get_user_api_clients',
               return_value=(auth_cl_mock, rest_cl_mock)).start()
-        patch('slacker_server.handlers.v2.base.BaseHandler.get_meta_by_token',
+        patch('slacker.slacker_server.handlers.v2.base.'
+              'BaseHandler.get_meta_by_token',
               return_value={'user_id': self.user_id,
                             'valid_until': datetime.utcnow().timestamp()*2}
               ).start()
@@ -94,7 +96,7 @@ class TestSendMessageAPI(TestApiBase):
 
         user = self.connect_user()
         p_post_mess = patch(
-            'slacker_server.slack_client.SlackClient.chat_post').start()
+            'slacker.slacker_server.slack_client.SlackClient.chat_post').start()
         code, resp = self.client.send_message(
             'alert', parameters=body, auth_user_id=user['auth_user_id'])
         self.assertEqual(code, 201)
@@ -104,7 +106,7 @@ class TestSendMessageAPI(TestApiBase):
             text=ANY, blocks=ANY, unfurl_links=False)
 
         p_post_mess = patch(
-            'slacker_server.slack_client.SlackClient.chat_post').start()
+            'slacker.slacker_server.slack_client.SlackClient.chat_post').start()
         code, resp = self.client.send_message(
             'alert', parameters=body, channel_id=user['slack_channel_id'],
             team_id=user['slack_team_id'])
@@ -169,7 +171,7 @@ class TestSendMessageAPI(TestApiBase):
             "threshold": 50,
             "threshold_type": "percentage",
         }
-        p_post = patch('slacker_server.slack_client.'
+        p_post = patch('slacker.slacker_server.slack_client.'
                        'SlackClient.chat_post').start()
         response = {'ok': False, 'error': 'is_archived'}
         p_post.side_effect = SlackApiError(message='is_archived',

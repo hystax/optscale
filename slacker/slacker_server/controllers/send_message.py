@@ -1,19 +1,19 @@
 import logging
 from slack_sdk.errors import SlackApiError
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            NotFoundException)
-from slacker_server.models.models import User
-from slacker_server.controllers.base import (BaseHandlerController,
-                                             BaseAsyncControllerWrapper)
-from slacker_server.exceptions import Err
-from slacker_server.message_templates.constraint_violations import (
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  NotFoundException)
+from slacker.slacker_server.models.models import User
+from slacker.slacker_server.controllers.base import (
+    BaseHandlerController, BaseAsyncControllerWrapper)
+from slacker.slacker_server.exceptions import Err
+from slacker.slacker_server.message_templates.constraint_violations import (
     get_constraint_violation_alert)
-from slacker_server.message_templates.alerts import (
+from slacker.slacker_server.message_templates.alerts import (
     get_alert_message, get_alert_added_message, get_alert_removed_message)
-from slacker_server.message_templates.env_alerts import (
+from slacker.slacker_server.message_templates.env_alerts import (
     get_property_updated_message, get_message_changed_active_state,
     get_message_acquired, get_message_released)
-from slacker_server.message_templates.warnings import get_archived_message_block
+from slacker.slacker_server.message_templates.warnings import get_archived_message_block
 
 
 LOG = logging.getLogger(__name__)

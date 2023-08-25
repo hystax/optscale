@@ -1,26 +1,26 @@
 import os
+from botocore.exceptions import ClientError
 from datetime import datetime
 from unittest.mock import patch, PropertyMock
-from insider_api.tests.unittests.test_api_base import TestBase
-from botocore.exceptions import ClientError
+from insider.insider_api.tests.unittests.test_api_base import TestBase
 
 
 class TestRelevantFlavorsApi(TestBase):
     def setUp(self):
         os.environ['ASYNC_TEST_TIMEOUT'] = '30'
         self.azure_cad = patch(
-            'insider_api.controllers.relevant_flavor.'
+            'insider.insider_api.controllers.relevant_flavor.'
             'AzureProvider.cloud_adapter').start()
         self.aws_cad = patch(
-            'insider_api.controllers.relevant_flavor.'
+            'insider.insider_api.controllers.relevant_flavor.'
             'AwsProvider.cloud_adapter').start()
         self.nebius_cad = patch(
-            'insider_api.controllers.relevant_flavor.'
+            'insider.insider_api.controllers.relevant_flavor.'
             'NebiusProvider.cloud_adapter').start()
         super().setUp()
-        patch('insider_api.controllers.relevant_flavor.BaseProvider.mongo_client',
-              new_callable=PropertyMock, return_value=self.mongo_client
-              ).start()
+        patch('insider.insider_api.controllers.relevant_flavor.'
+              'BaseProvider.mongo_client',
+              new_callable=PropertyMock, return_value=self.mongo_client).start()
 
     def insert_azure_pricing(self, ts):
         discovery = {
@@ -324,7 +324,7 @@ class TestRelevantFlavorsApi(TestBase):
 
     def test_credentials_exception(self):
         error_message = 'test message'
-        patch('insider_api.controllers.relevant_flavor.'
+        patch('insider.insider_api.controllers.relevant_flavor.'
               'AwsProvider.cloud_adapter.list_regions',
               side_effect=ClientError(
                   {'Error': {'Message': error_message}}, '')).start()

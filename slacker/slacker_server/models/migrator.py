@@ -6,7 +6,7 @@ from alembic.config import Config
 from alembic.runtime.environment import EnvironmentContext
 from alembic.script import ScriptDirectory
 
-from slacker_server.models.db_base import get_db_metadata
+from slacker.slacker_server.models.db_base import get_db_metadata
 
 target_metadata = get_db_metadata()
 LOG = logging.getLogger(__name__)

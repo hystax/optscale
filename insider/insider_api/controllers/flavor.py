@@ -1,20 +1,19 @@
 from functools import cached_property
-import json
 import logging
 import re
 from datetime import datetime
-from insider_api.exceptions import Err
-from cloud_adapter.clouds.alibaba import Alibaba
-from cloud_adapter.clouds.aws import Aws
-from cloud_adapter.clouds.azure import Azure
-from cloud_adapter.clouds.nebius import Nebius
-from cloud_adapter.clouds.gcp import Gcp
-from cloud_adapter.exceptions import RegionNotFoundException
-from insider_api.controllers.base import (BaseController,
-                                          BaseAsyncControllerWrapper,
-                                          CachedThreadPoolExecutor,
-                                          CachedCloudCaller)
-from optscale_exceptions.common_exc import WrongArgumentsException
+from insider.insider_api.exceptions import Err
+from tools.cloud_adapter.clouds.alibaba import Alibaba
+from tools.cloud_adapter.clouds.aws import Aws
+from tools.cloud_adapter.clouds.azure import Azure
+from tools.cloud_adapter.clouds.nebius import Nebius
+from tools.cloud_adapter.clouds.gcp import Gcp
+from tools.cloud_adapter.exceptions import RegionNotFoundException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from insider.insider_api.controllers.base import (BaseController,
+                                                  BaseAsyncControllerWrapper,
+                                                  CachedThreadPoolExecutor,
+                                                  CachedCloudCaller)
 
 LOG = logging.getLogger(__name__)   # 12 hours by default
 
@@ -460,9 +459,9 @@ class FlavorController(BaseController):
                                           key=lambda x: x - ram)
                             if nearest == max(available_ram):
                                 LOG.warning(
-                                    'Expected nearest RAM value {0} is'
-                                    ' maxumim for platform {1}'.format(
-                                        nearest, platform_name))
+                                    'Expected nearest RAM value %s is'
+                                    ' maximum for platform %s',
+                                    nearest, platform_name)
                                 continue
                             else:
                                 expected_ram = nearest * vcpu
@@ -476,9 +475,8 @@ class FlavorController(BaseController):
                         if mode == 'current':
                             break
                 else:
-                    LOG.warning('Expected vCPU value {0} is not '
-                                'available for platform {1}'.format(
-                                    vcpu, platform_name))
+                    LOG.warning('Expected vCPU value %s is not '
+                                'available for platform %s', vcpu, platform_name)
         if not flavors:
             raise TypeNotMatchedException()
         return min(flavors, key=lambda x: x['price'])

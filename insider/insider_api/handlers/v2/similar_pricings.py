@@ -1,16 +1,15 @@
 import json
 import logging
 
-from insider_api.controllers.similar_pricings import (
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  UnauthorizedException,
+                                                  NotFoundException)
+from tools.optscale_exceptions.http_exc import OptHTTPError
+
+from insider.insider_api.controllers.similar_pricings import (
     SimilarPricingsAsyncController)
-from insider_api.handlers.v2.base import SecretHandler
-from insider_api.utils import ModelEncoder
-
-
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            UnauthorizedException,
-                                            NotFoundException)
-from optscale_exceptions.http_exc import OptHTTPError
+from insider.insider_api.handlers.v2.base import SecretHandler
+from insider.insider_api.utils import ModelEncoder
 
 
 LOG = logging.getLogger(__name__)

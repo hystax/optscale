@@ -131,7 +131,7 @@ class Kubernetes(CloudBase):
                        selector.keys())):
                 return service
 
-    def get_pod_services(self, now: Union[int, None] = None):
+    def get_pod_services(self, now: Union[int, None]=None):
         res = {}
         pod_name_labels_map = self._get_pod_labels(now)
         service_selectors_map = self._get_service_selectors(now)

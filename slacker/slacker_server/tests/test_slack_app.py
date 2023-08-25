@@ -1,4 +1,4 @@
-from slacker_server.tests.test_api_base import TestApiBase
+from slacker.slacker_server.tests.test_api_base import TestApiBase
 
 
 class TestSlackApp(TestApiBase):

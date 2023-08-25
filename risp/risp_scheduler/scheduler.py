@@ -3,8 +3,8 @@ import requests
 import os
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
-from config_client.client import Client as ConfigClient
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 
 LOG = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from slacker_server.constants import CURRENCY_MAP
+from slacker.slacker_server.constants import CURRENCY_MAP
 
 __all__ = ['get_alert_message', 'get_alert_added_message',
            'get_alert_removed_message', 'get_join_channel_message',

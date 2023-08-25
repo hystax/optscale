@@ -3,17 +3,17 @@ import hashlib
 import json
 import logging
 from copy import deepcopy
-
-from auth_client.client_v2 import Client as AuthClient
-from rest_api_client.client_v2 import Client as RestClient
-from optscale_exceptions.http_exc import OptHTTPError
-from optscale_exceptions.common_exc import (
-    WrongArgumentsException, ForbiddenException, NotFoundException,
-    ConflictException, FailedDependency, TimeoutException)
 from tornado.ioloop import IOLoop
 
-from slacker_server.models.db_base import BaseDB
-from slacker_server.utils import tp_executor
+from optscale_client.auth_client.client_v2 import Client as AuthClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException, ForbiddenException, NotFoundException,
+    ConflictException, FailedDependency, TimeoutException)
+
+from slacker.slacker_server.models.db_base import BaseDB
+from slacker.slacker_server.utils import tp_executor
 
 LOG = logging.getLogger(__name__)
 

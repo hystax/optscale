@@ -2,7 +2,7 @@
 reports=no
 
 [MESSAGES CONTROL]
-disable=R,C0111
+disable=R,C0111,C0103
 
 [BASIC]
 good-names=i, db, id

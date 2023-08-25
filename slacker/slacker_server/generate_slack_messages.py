@@ -6,28 +6,28 @@ import sys
 import uuid
 from datetime import datetime
 from inspect import getmembers, getmodule, isfunction
-from config_client.client import Client as ConfigClient
 from slack_bolt import App
 from slack_bolt.oauth.oauth_settings import OAuthSettings
 from slack_sdk.oauth.installation_store.sqlalchemy import (
     SQLAlchemyInstallationStore)
 from slack_sdk.oauth.state_store.sqlalchemy import SQLAlchemyOAuthStateStore
-from slacker_server.constants import urls
-from slacker_server.slack_client import SlackClient
-from slacker_server.message_templates.alerts import *
-from slacker_server.message_templates.bookings import *
-from slacker_server.message_templates.connect import *
-from slacker_server.message_templates.constraints import *
-from slacker_server.message_templates.constraint_violations import *
-from slacker_server.message_templates.disconnect import *
-from slacker_server.message_templates.envs import *
-from slacker_server.message_templates.env_alerts import *
-from slacker_server.message_templates.errors import *
-from slacker_server.message_templates.org import *
-from slacker_server.message_templates.resources import *
-from slacker_server.message_templates.resource_details import *
-from slacker_server.message_templates.warnings import *
-from slacker_server.models.db_factory import DBType, DBFactory
+from optscale_client.config_client.client import Client as ConfigClient
+from slacker.slacker_server.constants import urls
+from slacker.slacker_server.slack_client import SlackClient
+from slacker.slacker_server.message_templates.alerts import *
+from slacker.slacker_server.message_templates.bookings import *
+from slacker.slacker_server.message_templates.connect import *
+from slacker.slacker_server.message_templates.constraints import *
+from slacker.slacker_server.message_templates.constraint_violations import *
+from slacker.slacker_server.message_templates.disconnect import *
+from slacker.slacker_server.message_templates.envs import *
+from slacker.slacker_server.message_templates.env_alerts import *
+from slacker.slacker_server.message_templates.errors import *
+from slacker.slacker_server.message_templates.org import *
+from slacker.slacker_server.message_templates.resources import *
+from slacker.slacker_server.message_templates.resource_details import *
+from slacker.slacker_server.message_templates.warnings import *
+from slacker.slacker_server.models.db_factory import DBType, DBFactory
 
 NOW_TS = int(datetime.utcnow().timestamp())
 ACQUIRED_SINCE = datetime.strftime(datetime.utcfromtimestamp(
@@ -231,8 +231,7 @@ def check_templates(templates, excluded_functions):
         if ('message_templates' in func_module.__name__ and
                 func[0] not in excluded_functions and
                 func[0] not in list(templates.keys())):
-            LOG.warning('{} is missing in messages templates to send'.format(
-                func[0]))
+            LOG.warning('%s is missing in messages templates to send',  func[0])
 
 
 def get_messages_texts(templates):
@@ -281,7 +280,7 @@ def save_to_json(templates):
     for name, message in messages.items():
         with open(name, 'w') as f:
             f.write(json.dumps({'blocks': message['blocks']}))
-        LOG.info('Message was saved to {} file'.format(name))
+        LOG.info('Message was saved to %s file', name)
 
 
 def prepare_slack_app(employee):
@@ -328,7 +327,7 @@ def prepare_slack_app(employee):
     with db.engine.connect() as connection:
         result = connection.execute(sql_cmd)
         assert result.rowcount == 1, ('Can\'t get channel for '
-                                      'employee {}'.format(employee))
+                                      'employee %s', employee)
         for row in result:
             channel_id = row[0]
             team_id = row[1]
@@ -342,8 +341,7 @@ def send_messages_to_slack_channel(templates, employee):
         app.client.chat_post(
             channel_id=channel_id, team_id=team_id,
             blocks=message['blocks'], text=message['text'])
-        LOG.info(
-            'Message {0} was sent to {1} channel'.format(name, channel_id))
+        LOG.info('Message %s was sent to %s channel', name, channel_id)
 
 
 if __name__ == '__main__':

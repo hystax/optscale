@@ -212,29 +212,37 @@ class Aws(S3CloudMixin):
     @staticmethod
     def _generate_cloud_link(resource_type, region, resource_value):
         cloud_link_map = {
-            InstanceResource: CLOUD_LINK_PATTERN % (DEFAULT_BASE_URL, 'ec2', region,
-                                                    'InstanceDetails:instanceId', resource_value),
-            VolumeResource: CLOUD_LINK_PATTERN % (DEFAULT_BASE_URL, 'ec2', region,
-                                                  'Volumes:volumeId', resource_value),
-            SnapshotResource: CLOUD_LINK_PATTERN % (DEFAULT_BASE_URL, 'ec2', region,
-                                                    'Snapshots:snapshotId', resource_value),
-            BucketResource: BUCKET_CLOUD_LINK_PATTERN % (DEFAULT_BASE_URL, 's3', resource_value, region),
-            IpAddressResource: CLOUD_LINK_PATTERN % (DEFAULT_BASE_URL, 'ec2', region,
-                                                    'ElasticIpDetails:AllocationId', resource_value),
+            InstanceResource: CLOUD_LINK_PATTERN % (
+                DEFAULT_BASE_URL, 'ec2', region,
+                'InstanceDetails:instanceId', resource_value),
+            VolumeResource: CLOUD_LINK_PATTERN % (
+                DEFAULT_BASE_URL, 'ec2', region,
+                'Volumes:volumeId', resource_value),
+            SnapshotResource: CLOUD_LINK_PATTERN % (
+                DEFAULT_BASE_URL, 'ec2', region,
+                'Snapshots:snapshotId', resource_value),
+            BucketResource: BUCKET_CLOUD_LINK_PATTERN % (
+                DEFAULT_BASE_URL, 's3', resource_value, region),
+            IpAddressResource: CLOUD_LINK_PATTERN % (
+                DEFAULT_BASE_URL, 'ec2', region,
+                'ElasticIpDetails:AllocationId', resource_value),
         }
         return cloud_link_map.get(resource_type)
 
     def _set_cloud_link(self, resource_obj, region):
         resource_type = type(resource_obj)
-        resource_obj.cloud_console_link = self._generate_cloud_link(resource_type, region,
-                                                                    resource_obj.cloud_resource_id)
+        resource_obj.cloud_console_link = self._generate_cloud_link(
+            resource_type, region, resource_obj.cloud_resource_id)
 
     def _discover_region_vpcs(self, region):
         ec2 = self.session.client('ec2', region)
         vpcs = ec2.describe_vpcs().get('Vpcs', [])
-        # if there is no VpcId in vpc then it means that something is wrong with that vpc
-        # so we can ignore it
-        return {vpc['VpcId']: self._extract_tag(vpc, 'Name') for vpc in vpcs if vpc.get('VpcId')}
+        # if there is no VpcId in vpc then it means that something is wrong
+        # with that vpc so we can ignore it
+        return {
+            vpc['VpcId']: self._extract_tag(vpc, 'Name')
+            for vpc in vpcs if vpc.get('VpcId')
+        }
 
     def discover_region_instances(self, region):
         """
