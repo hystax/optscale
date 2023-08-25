@@ -1,4 +1,4 @@
-from insider_worker.processors.azure import AzurePriceProcessor
+from insider.insider_worker.processors.azure import AzurePriceProcessor
 
 PROCESSOR_TYPES = {
     'azure_cnr': AzurePriceProcessor,

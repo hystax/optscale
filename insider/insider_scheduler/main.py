@@ -2,7 +2,7 @@ import logging
 import os
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 
 LOG = logging.getLogger(__name__)
 DEFAULT_ETCD_HOST = 'etcd'

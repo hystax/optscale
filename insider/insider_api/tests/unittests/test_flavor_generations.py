@@ -1,6 +1,6 @@
 from unittest.mock import patch
-import insider_client.client as insider_client
-from insider_api.tests.unittests.test_api_base import TestBase
+import optscale_client.insider_client.client as insider_client
+from insider.insider_api.tests.unittests.test_api_base import TestBase
 
 
 class TestFlavorGenerationsApi(TestBase):
@@ -12,17 +12,17 @@ class TestFlavorGenerationsApi(TestBase):
             "os_type": "Linux"
         }
         self.find_aws_flavor_generation = patch(
-            'insider_api.controllers.flavor_generation.'
+            'insider.insider_api.controllers.flavor_generation.'
             'FlavorGenerationController.find_aws_flavor_generation',
             return_value=('t3.small', 't2.small', '2.5')
         ).start()
         self.find_azure_flavor_generation = patch(
-            'insider_api.controllers.flavor_generation.'
+            'insider.insider_api.controllers.flavor_generation.'
             'FlavorGenerationController.find_azure_flavor_generation',
             return_value=('Standard_A2_v2', 'Standard_A2', '3.6')
         ).start()
         self.find_alibaba_flavor_generation = patch(
-            'insider_api.controllers.flavor_generation.'
+            'insider.insider_api.controllers.flavor_generation.'
             'FlavorGenerationController.find_alibaba_flavor_generation',
             return_value=('ecs.n4.large', 'ecs.n1.medium', '4.7')
         ).start()

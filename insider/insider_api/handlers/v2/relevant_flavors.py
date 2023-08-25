@@ -1,14 +1,15 @@
 import json
 import logging
 
-from insider_api.controllers.relevant_flavor import RelevantFlavorAsyncController
-from insider_api.handlers.v2.base import SecretHandler
-from insider_api.utils import ModelEncoder
-from insider_api.exceptions import Err
-
-from optscale_exceptions.common_exc import (
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, UnauthorizedException, NotFoundException)
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.http_exc import OptHTTPError
+
+from insider.insider_api.controllers.relevant_flavor import (
+    RelevantFlavorAsyncController)
+from insider.insider_api.handlers.v2.base import SecretHandler
+from insider.insider_api.utils import ModelEncoder
+from insider.insider_api.exceptions import Err
 
 LOG = logging.getLogger(__name__)
 GLOBAL_REGIONS = ['ap', 'eu', 'ca', 'sa', 'us', 'af', 'me']

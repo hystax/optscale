@@ -1,12 +1,12 @@
 import logging
 
-from insider_worker.migrations.base import BaseMigration
+from insider.insider_worker.migrations.base import BaseMigration
 
 """
 Because of necessity to keep azure prices historical changes unique index
 need to keep last_seen. In addition it must include extra fields because of
 Azure reservation prices uniqueness. Current index will stay non-unique in
-search purposes.  
+search purposes.
 """
 
 AZURE_PRICES_INDEX_NAME = 'ap_unique_index'

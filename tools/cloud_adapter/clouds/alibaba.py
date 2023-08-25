@@ -539,7 +539,7 @@ class Alibaba(CloudBase):
             yield resource
 
     def _discover_region_images(self, region_details, by_owner=True,
-                               filter_by=None):
+                                filter_by=None):
         request = (DescribeImagesRequest.DescribeImagesRequest())
         request.set_PageSize(100)
         if filter_by:
@@ -1052,7 +1052,7 @@ class Alibaba(CloudBase):
             request_family, region_id=region_id)
         family_map = {}
         for instance_type_family in response_family['InstanceTypeFamilies'][
-            'InstanceTypeFamily']:
+                'InstanceTypeFamily']:
             family_id = instance_type_family['InstanceTypeFamilyId']
             generation = instance_type_family['Generation']
             family_map[family_id] = generation

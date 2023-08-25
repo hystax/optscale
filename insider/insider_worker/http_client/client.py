@@ -30,6 +30,7 @@ class Client:
         response = self.session.request(method, url)
         response.raise_for_status()
         response_body = None
+        # pylint: disable=E1101
         if response.status_code != requests.codes.no_content:
             if 'application/json' in response.headers['Content-Type']:
                 response_body = json.loads(

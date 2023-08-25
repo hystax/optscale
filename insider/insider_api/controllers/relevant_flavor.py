@@ -1,19 +1,18 @@
 import re
-from functools import wraps
-from insider_api.controllers.flavor import FlavorController
-from insider_api.controllers.base import (BaseAsyncControllerWrapper,
-                                          CachedThreadPoolExecutor)
-from optscale_exceptions.common_exc import (NotFoundException,
-                                            UnauthorizedException)
-from cloud_adapter.clouds.azure import Azure
-from cloud_adapter.exceptions import AuthorizationException
-from cloud_adapter.clouds.aws import Aws
-from cloud_adapter.clouds.nebius import Nebius, PLATFORMS
-from pymongo import MongoClient
-from insider_api.exceptions import Err
-from optscale_exceptions.common_exc import WrongArgumentsException
-from grpc._channel import _InactiveRpcError
 from botocore.exceptions import ClientError as AwsClientError
+from functools import wraps
+from grpc._channel import _InactiveRpcError
+from pymongo import MongoClient
+from tools.optscale_exceptions.common_exc import (
+    NotFoundException, UnauthorizedException, WrongArgumentsException)
+from tools.cloud_adapter.clouds.azure import Azure
+from tools.cloud_adapter.exceptions import AuthorizationException
+from tools.cloud_adapter.clouds.aws import Aws
+from tools.cloud_adapter.clouds.nebius import Nebius, PLATFORMS
+from insider.insider_api.exceptions import Err
+from insider.insider_api.controllers.flavor import FlavorController
+from insider.insider_api.controllers.base import (BaseAsyncControllerWrapper,
+                                                  CachedThreadPoolExecutor)
 
 
 def handle_credentials_error(exc_class):

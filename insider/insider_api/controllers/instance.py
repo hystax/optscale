@@ -1,14 +1,14 @@
 import logging
 import re
-from insider_api.exceptions import Err
-from cloud_adapter.clouds.aws import Aws
-from cloud_adapter.clouds.nebius import Nebius
-from insider_api.controllers.base import (BaseController,
-                                          BaseAsyncControllerWrapper,
-                                          CachedThreadPoolExecutor,
-                                          CachedCloudCaller)
-from optscale_exceptions.common_exc import WrongArgumentsException
-from cloud_adapter.exceptions import InvalidParameterException
+from tools.cloud_adapter.clouds.aws import Aws
+from tools.cloud_adapter.clouds.nebius import Nebius
+from tools.cloud_adapter.exceptions import InvalidParameterException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from insider.insider_api.exceptions import Err
+from insider.insider_api.controllers.base import (BaseController,
+                                                  BaseAsyncControllerWrapper,
+                                                  CachedThreadPoolExecutor,
+                                                  CachedCloudCaller)
 
 LOG = logging.getLogger(__name__)
 YEAR_IN_SEC = 365 * 24 * 60 * 60

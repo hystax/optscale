@@ -1,6 +1,6 @@
 from unittest.mock import patch
-import insider_client.client as insider_client
-from insider_api.tests.unittests.test_api_base import TestBase
+import optscale_client.insider_client.client as insider_client
+from insider.insider_api.tests.unittests.test_api_base import TestBase
 
 
 class TestInstancesApi(TestBase):
@@ -16,7 +16,7 @@ class TestInstancesApi(TestBase):
             'offering_type': 'All Upfront', 'fixed_price': 1199.0,
             'recurring_charges': [{'Amount': 0.0, 'Frequency': 'Hourly'}]}]
         self.find_reserved_instances = patch(
-            'insider_api.controllers.instance.'
+            'insider.insider_api.controllers.instance.'
             'InstanceController.find_reserved_instances',
             return_value=return_value
         ).start()

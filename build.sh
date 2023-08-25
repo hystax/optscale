@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 INPUT_TAG=$2
 BUILD_TAG=${INPUT_TAG:-'build'}
 

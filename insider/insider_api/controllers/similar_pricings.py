@@ -1,8 +1,9 @@
-from optscale_exceptions.common_exc import NotFoundException, WrongArgumentsException
-from insider_api.exceptions import Err
-from insider_api.utils import check_string, is_public_region
-from insider_api.controllers.base import (BaseController,
-                                          BaseAsyncControllerWrapper)
+from tools.optscale_exceptions.common_exc import (
+    NotFoundException, WrongArgumentsException)
+from insider.insider_api.exceptions import Err
+from insider.insider_api.utils import check_string, is_public_region
+from insider.insider_api.controllers.base import (
+    BaseController, BaseAsyncControllerWrapper)
 
 
 class SimilarPricingsController(BaseController):

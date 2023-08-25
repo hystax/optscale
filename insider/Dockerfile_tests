@@ -1,7 +1,9 @@
 ARG BUILDTAG=build
-FROM insider_api:${BUILDTAG}
+ARG IMAGE=insider_api
+FROM ${IMAGE}:${BUILDTAG}
 MAINTAINER Hystax
 
-COPY test-requirements.txt .pylintrc .noserc .coveragerc ./
-RUN pip install --no-cache-dir -r test-requirements.txt
-COPY insider_api/tests ./tests
+COPY optscale_client/insider_client optscale_client/insider_client
+COPY insider/test-requirements.txt insider/.pylintrc insider/.noserc insider/.coveragerc ./insider/
+RUN pip install --no-cache-dir -r insider/test-requirements.txt
+COPY insider/insider_api/tests insider/insider_api/tests

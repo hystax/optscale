@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import os
-import requests
 from datetime import datetime
+
+import urllib3
 from etcd import Lock as EtcdLock
 from pymongo import MongoClient
 from kombu.mixins import ConsumerMixin
@@ -9,12 +10,10 @@ from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-from insider_worker.migrator import Migrator
-from insider_worker.processors.factory import get_processor_class
-
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
+from insider.insider_worker.migrator import Migrator
+from insider.insider_worker.processors.factory import get_processor_class
 
 
 EXCHANGE_NAME = 'insider-tasks'
@@ -67,11 +66,12 @@ class InsiderWorker(ConsumerMixin):
         )
         LOG.info('Prices received for cloud_type %s with discovery_id %s. '
                  'Completed at %s, price processing was provided during %s seconds.',
-                 cloud_type, discovery_id, end_process_time, end_process_time - start_process_time)
+                 cloud_type, discovery_id, end_process_time,
+                 end_process_time - start_process_time)
 
     def process_task(self, body, message):
         try:
-            LOG.info('Started processing for task: %s' % body)
+            LOG.info('Started processing for task: %s', body)
             self._process_task(body)
         except Exception as exc:
             LOG.exception('Prices discovery failed: %s', str(exc))
@@ -79,7 +79,7 @@ class InsiderWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'INFO' if not debug else 'DEBUG'
     setup_logging(loglevel=log_level, loggers=[''])
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     with Connection(conn_str) as conn:
         try:
             migrator = Migrator(
-                config_cl, 'insider', 'migrations')
+                config_cl, 'insider', 'insider/insider_worker/migrations')
             with EtcdLock(config_cl, 'insider_migrations'):
                 migrator.migrate()
             worker = InsiderWorker(conn, config_cl)

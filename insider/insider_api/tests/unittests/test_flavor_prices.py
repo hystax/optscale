@@ -3,9 +3,9 @@ import os
 from datetime import datetime
 from unittest.mock import patch, PropertyMock
 
-from insider_api.tests.unittests.test_api_base import TestBase
+import optscale_client.insider_client.client as insider_client
 
-import insider_client.client as insider_client
+from insider.insider_api.tests.unittests.test_api_base import TestBase
 
 
 class TestFlavorPricesApi(TestBase):
@@ -35,18 +35,18 @@ class TestFlavorPricesApi(TestBase):
             'instance_family': 't3'
         }
         self.azure_cad = patch(
-            'insider_api.controllers.flavor_price.'
+            'insider.insider_api.controllers.flavor_price.'
             'AzureProvider.cloud_adapter').start()
         self.aws_cad = patch(
-            'insider_api.controllers.flavor_price.'
+            'insider.insider_api.controllers.flavor_price.'
             'AwsProvider.cloud_adapter').start()
         self.alibaba_cad = patch(
-            'insider_api.controllers.flavor_price.'
+            'insider.insider_api.controllers.flavor_price.'
             'AlibabaProvider.cloud_adapter').start()
         super().setUp()
-        patch('insider_api.controllers.flavor_price.BaseProvider.mongo_client',
-              new_callable=PropertyMock, return_value=self.mongo_client
-              ).start()
+        patch('insider.insider_api.controllers.flavor_price.'
+              'BaseProvider.mongo_client',
+              new_callable=PropertyMock, return_value=self.mongo_client).start()
 
     def insert_azure_pricing(self, ts):
         discovery = {
@@ -593,7 +593,7 @@ class TestFlavorPricesApi(TestBase):
         self.assertEqual(price['price'], 19.53)
 
     def test_aws_valid_params_empty(self):
-        with patch('insider_api.controllers.flavor_price.AwsProvider.'
+        with patch('insider.insider_api.controllers.flavor_price.AwsProvider.'
                    'cloud_adapter.get_prices', return_value=[]):
             code, res = self.client.get_flavor_prices(**self.aws_valid_params)
             self.assertEqual(code, 200)

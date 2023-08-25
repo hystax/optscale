@@ -1,10 +1,10 @@
 import re
-from cloud_adapter.exceptions import RegionNotFoundException
-from insider_api.exceptions import Err
-from insider_api.controllers.base import (BaseAsyncControllerWrapper,
-                                          CachedThreadPoolExecutor)
-from insider_api.controllers.flavor import FlavorController
-from optscale_exceptions.common_exc import WrongArgumentsException
+from tools.cloud_adapter.exceptions import RegionNotFoundException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from insider.insider_api.exceptions import Err
+from insider.insider_api.controllers.base import (BaseAsyncControllerWrapper,
+                                                  CachedThreadPoolExecutor)
+from insider.insider_api.controllers.flavor import FlavorController
 
 AZURE_FAMILY_GENERATION_MAP = {
     'standardDASFamily': 'standardDASv5Family',

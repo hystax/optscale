@@ -1,6 +1,6 @@
 import logging
 
-from insider_worker.migrations.base import BaseMigration
+from insider.insider_worker.migrations.base import BaseMigration
 
 """
 Creates an initial database structure with 'discoveries' and 'azure_prices'
@@ -44,8 +44,8 @@ class Migration(BaseMigration):
             x['name'] for x in collection.list_indexes()
         ]
         if index_name not in existing_indexes:
-            LOG.info('Creating search index %s in %s collection' % (
-                collection.name, index_name))
+            LOG.info('Creating search index %s in %s collection',
+                     collection.name, index_name)
             collection.create_index([(field_key, 1)], name=index_name)
 
     def upgrade(self):

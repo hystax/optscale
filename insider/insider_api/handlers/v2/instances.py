@@ -1,13 +1,13 @@
 import json
 import logging
 
-from insider_api.controllers.instance import InstanceAsyncController
-from insider_api.exceptions import Err
-from insider_api.handlers.v2.base import SecretHandler
-from insider_api.utils import ModelEncoder
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
-from optscale_exceptions.common_exc import WrongArgumentsException
-from optscale_exceptions.http_exc import OptHTTPError
+from insider.insider_api.controllers.instance import InstanceAsyncController
+from insider.insider_api.exceptions import Err
+from insider.insider_api.handlers.v2.base import SecretHandler
+from insider.insider_api.utils import ModelEncoder
 
 
 LOG = logging.getLogger(__name__)

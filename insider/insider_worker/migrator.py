@@ -75,13 +75,13 @@ class Migrator:
                 db=self._mongo_cl[self.database_name]
             )
             if downgrade:
-                LOG.info('Downgrading version {}'.format(migration.datetime))
+                LOG.info('Downgrading version %s', migration.datetime)
                 migration_object.downgrade()
             else:
-                LOG.info('Upgrading version {}'.format(migration.datetime))
+                LOG.info('Upgrading version %s', migration.datetime)
                 migration_object.upgrade()
         except Exception:
-            LOG.error('Failed to apply version {}'.format(migration.datetime))
+            LOG.error('Failed to apply version %s', migration.datetime)
             raise
 
     def _upgrade(self, local_migrations, remote_migrations, to_datetime=None):
@@ -116,8 +116,8 @@ class Migrator:
             )
 
         if remote_migrations:
-            LOG.info('Found remote migrations. Last version is {}'.format(
-                remote_migrations[-1]['migration_datetime']))
+            LOG.info('Found remote migrations. Last version is %s',
+                     remote_migrations[-1]['migration_datetime'])
         else:
             LOG.info('Found no remote migrations')
 
