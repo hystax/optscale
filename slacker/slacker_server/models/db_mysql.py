@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
-from slacker_server.models.db_base import BaseDB
-from slacker_server.models.migrator import Migrator
+from slacker.slacker_server.models.db_base import BaseDB
+from slacker.slacker_server.models.migrator import Migrator
 
 
 class MySQLDB(BaseDB):

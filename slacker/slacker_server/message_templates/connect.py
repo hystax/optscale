@@ -1,4 +1,4 @@
-from slacker_server.message_templates.org import get_org_switch_blocks
+from slacker.slacker_server.message_templates.org import get_org_switch_blocks
 
 __all__ = ['get_welcome_message', 'get_connection_done_message']
 

@@ -1,8 +1,8 @@
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
-from slacker_server.controllers.connect import ConnectAsyncController
-from slacker_server.exceptions import Err
-from slacker_server.handlers.v2.base import BaseHandler
+from slacker.slacker_server.controllers.connect import ConnectAsyncController
+from slacker.slacker_server.exceptions import Err
+from slacker.slacker_server.handlers.v2.base import BaseHandler
 
 
 class ConnectHandler(BaseHandler):

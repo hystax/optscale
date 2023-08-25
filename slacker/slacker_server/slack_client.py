@@ -1,5 +1,5 @@
-from slack_sdk.web.client import WebClient
 import logging
+from slack_sdk.web.client import WebClient
 
 LOG = logging.getLogger(__name__)
 

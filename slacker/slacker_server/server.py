@@ -11,19 +11,19 @@ from slack_bolt.oauth.oauth_settings import OAuthSettings
 from slack_sdk.oauth.installation_store.sqlalchemy import (
     SQLAlchemyInstallationStore)
 from slack_sdk.oauth.state_store.sqlalchemy import SQLAlchemyOAuthStateStore
-from slacker_server.slack_client import SlackClient
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 
-from slacker_server.constants import urls
-from slacker_server.controllers.slack import MetaSlackController
-from slacker_server.handlers.v2.base import DefaultHandler
-from slacker_server.handlers.v2.connect import ConnectHandler
-from slacker_server.handlers.v2.send_message import SendMessageHandler
-from slacker_server.handlers.v2.slack import (SlackEventsHandler,
-                                              SlackOAuthHandler,
-                                              SlackInstallPathHandler)
-from slacker_server.handlers.v2.swagger import SwaggerStaticFileHandler
-from slacker_server.models.db_factory import DBType, DBFactory
+from slacker.slacker_server.constants import urls
+from slacker.slacker_server.controllers.slack import MetaSlackController
+from slacker.slacker_server.handlers.v2.base import DefaultHandler
+from slacker.slacker_server.handlers.v2.connect import ConnectHandler
+from slacker.slacker_server.handlers.v2.send_message import SendMessageHandler
+from slacker.slacker_server.handlers.v2.slack import (SlackEventsHandler,
+                                                      SlackOAuthHandler,
+                                                      SlackInstallPathHandler)
+from slacker.slacker_server.handlers.v2.swagger import SwaggerStaticFileHandler
+from slacker.slacker_server.slack_client import SlackClient
+from slacker.slacker_server.models.db_factory import DBType, DBFactory
 
 LOG = logging.getLogger(__name__)
 BASEDIR_NAME = os.path.dirname(__file__)

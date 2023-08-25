@@ -4,7 +4,7 @@ from slack_sdk.oauth.installation_store.sqlalchemy import (
 from slack_sdk.oauth.state_store.sqlalchemy import SQLAlchemyOAuthStateStore
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-import slacker_server.models.models as model_base
+import slacker.slacker_server.models.models as model_base
 
 
 def get_db_metadata():

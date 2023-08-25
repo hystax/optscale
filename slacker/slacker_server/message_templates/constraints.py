@@ -1,5 +1,5 @@
 from datetime import datetime
-from slacker_server.message_templates.resource_details import get_resource_details_block
+from slacker.slacker_server.message_templates.resource_details import get_resource_details_block
 
 __all__ = ['get_ttl_constraint_message', 'get_constraint_block',
            'get_update_ttl_form', 'get_constraint_updated']

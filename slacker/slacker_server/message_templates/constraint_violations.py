@@ -1,4 +1,4 @@
-from slacker_server.message_templates.common import get_resource_type_location
+from slacker.slacker_server.message_templates.common import get_resource_type_location
 
 __all__ = ['get_constraint_violation_alert']
 

@@ -7,7 +7,7 @@ from tornado.web import RequestHandler
 from slack_bolt.app import App
 from slack_bolt.request import BoltRequest
 
-from slacker_server.utils import tp_executor
+from slacker.slacker_server.utils import tp_executor
 
 
 class SlackBaseHandler(RequestHandler):

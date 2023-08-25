@@ -1,13 +1,13 @@
 import logging
-
-from optscale_exceptions.common_exc import WrongArgumentsException
 from sqlalchemy.exc import IntegrityError
 
-from slacker_server.controllers.base import (BaseHandlerController,
-                                             BaseAsyncControllerWrapper)
-from slacker_server.exceptions import Err
-from slacker_server.message_templates.connect import get_connection_done_message
-from slacker_server.models.models import User
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+
+from slacker.slacker_server.controllers.base import (
+    BaseHandlerController, BaseAsyncControllerWrapper)
+from slacker.slacker_server.exceptions import Err
+from slacker.slacker_server.message_templates.connect import get_connection_done_message
+from slacker.slacker_server.models.models import User
 
 
 LOG = logging.getLogger(__name__)

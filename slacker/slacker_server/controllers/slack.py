@@ -9,28 +9,28 @@ from retrying import Retrying
 from slack_sdk.errors import SlackApiError
 from sqlalchemy.exc import IntegrityError
 
-from slacker_server.controllers.base import BaseController
-from slacker_server.message_templates.alerts import (
+from slacker.slacker_server.controllers.base import BaseController
+from slacker.slacker_server.message_templates.alerts import (
     get_join_channel_message, get_alert_list, get_add_expense_alert_modal,
     get_add_alert_modal_empty_template, get_select_alert_type_modal,
     get_add_constraint_envs_alert_modal)
-from slacker_server.message_templates.bookings import (
+from slacker.slacker_server.message_templates.bookings import (
     get_add_bookings_form, get_booking_details_message)
-from slacker_server.message_templates.connect import get_welcome_message
-from slacker_server.message_templates.constraints import (
+from slacker.slacker_server.message_templates.connect import get_welcome_message
+from slacker.slacker_server.message_templates.constraints import (
     get_update_ttl_form, get_constraint_updated)
-from slacker_server.message_templates.disconnect import (
+from slacker.slacker_server.message_templates.disconnect import (
     get_disconnect_confirmation_message, get_disconnected_message)
-from slacker_server.message_templates.envs import get_envs_message
-from slacker_server.message_templates.org import (
+from slacker.slacker_server.message_templates.envs import get_envs_message
+from slacker.slacker_server.message_templates.org import (
     get_org_switch_message, get_org_switch_completed_message)
-from slacker_server.message_templates.resources import get_resources_message
-from slacker_server.message_templates.resource_details import (
+from slacker.slacker_server.message_templates.resources import get_resources_message
+from slacker.slacker_server.message_templates.resource_details import (
     get_resource_details_message)
-from slacker_server.message_templates.errors import (
+from slacker.slacker_server.message_templates.errors import (
     get_ca_not_connected_message, get_not_have_slack_permissions_message)
-from slacker_server.models.models import User
-from slacker_server.utils import gen_id
+from slacker.slacker_server.models.models import User
+from slacker.slacker_server.utils import gen_id
 
 LOG = logging.getLogger(__name__)
 TTL_LIMIT_TO_SHOW = 72
@@ -89,7 +89,7 @@ class MetaSlackController:
             try:
                 return method(*method_args)
             except SlackApiError as exc:
-                LOG.error('Slack API error: %s' % str(exc))
+                LOG.error('Slack API error: %s', str(exc))
                 if exc.response.get('error') == 'missing_scope':
                     say_method = locals().get('say')
                     slack_ctrl.message_slack_permissions(say_method)

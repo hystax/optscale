@@ -6,7 +6,7 @@ from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from slacker_server.utils import ModelEncoder, gen_id
+from slacker.slacker_server.utils import ModelEncoder, gen_id
 
 
 def get_current_timestamp():

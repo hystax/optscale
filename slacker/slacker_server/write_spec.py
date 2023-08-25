@@ -2,7 +2,7 @@ import os.path
 import re
 import yaml
 from apispec import APISpec, utils
-import slacker_server.server as server
+import slacker.slacker_server.server as server
 
 # Spec reference:
 # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md

@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from slacker_server.models.db_base import get_db_metadata
+from slacker.slacker_server.models.db_base import get_db_metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
