@@ -1,10 +1,11 @@
-cloud-adapter==0.1.1540
 cryptography==3.3.1
-config-client==1.0.145
-optscale-exceptions==0.0.20
 pymongo==4.3.3
 boto3==1.12.25
 kombu==4.6.8
 clickhouse-driver==0.2.2
 pyyaml==5.4.1
-restapi-client==1.0.729
+# OptScale packages
+-e optscale_client/config_client
+-e optscale_client/rest_api_client
+-e tools/optscale_exceptions
+-e tools/cloud_adapter

@@ -2,11 +2,12 @@ import os
 import hashlib
 import importlib
 import logging
-from clickhouse_driver import Client as ClickHouseClient
 from datetime import datetime
+from clickhouse_driver import Client as ClickHouseClient
 
 LOG = logging.getLogger(__name__)
-MIGRATIONS_PATH = 'migrations'
+MIGRATIONS_PATH = 'risp/risp_worker'
+MIGRATIONS_FOLDER = 'migrations'
 VERSIONS_TABLE = 'schema_versions'
 
 
@@ -61,13 +62,15 @@ class Migrator:
                 self.clickhouse_client.execute(
                     f"""OPTIMIZE TABLE {VERSIONS_TABLE} FINAL""")
             script_base_name = script_name.replace('.py', '').replace(
-                f'{MIGRATIONS_PATH}/', '')
+                f'{MIGRATIONS_FOLDER}/', '')
             versions_list.append(script_base_name)
         return sorted(versions_list)
 
     @staticmethod
     def get_local_versions():
-        migrations_folder = os.path.join(os.getcwd(), MIGRATIONS_PATH)
+        migrations_folder = os.path.join(
+            os.getcwd(), MIGRATIONS_PATH, MIGRATIONS_FOLDER)
+        LOG.info('migrations_folder %s', migrations_folder)
         migrations = []
         for filename in os.listdir(migrations_folder):
             if filename.startswith('V') and filename.endswith('.py'):
@@ -94,12 +97,12 @@ class Migrator:
 
     @staticmethod
     def _get_script_from_name(filename):
-        return f'{MIGRATIONS_PATH}/{filename}.py'
+        return f'{MIGRATIONS_FOLDER}/{filename}.py'
 
     @staticmethod
     def _get_md5(filename):
         return hashlib.md5(open(
-            f"{MIGRATIONS_PATH}/{filename}.py", 'rb').read()).hexdigest()
+            f"{MIGRATIONS_FOLDER}/{filename}.py", 'rb').read()).hexdigest()
 
     def update_versions_table(self, filename):
         version = [{
@@ -117,7 +120,7 @@ class Migrator:
         ch_versions = self.get_clickhouse_versions()
         if ch_versions:
             LOG.info(
-                f'Found remote migrations. Last version is {ch_versions[-1]}')
+                'Found remote migrations. Last version is %s', ch_versions[-1])
         else:
             LOG.info('Found no remote migrations')
         self.check_versions(local_versions, ch_versions)
@@ -127,11 +130,13 @@ class Migrator:
 
         new_migrations = local_versions[len(ch_versions):]
         for filename in new_migrations:
-            LOG.info('Upgrading version %s' % filename)
-            module = importlib.import_module('%s.%s.%s' % (
-                import_base, MIGRATIONS_PATH, filename))
+            LOG.info('Upgrading version %s', filename)
+            import_path = '%s.%s.%s.%s' % (
+                import_base, MIGRATIONS_PATH.replace('/', '.'),
+                MIGRATIONS_FOLDER, filename)
+            module = importlib.import_module(import_path)
             migration = module.Migration(self.config_cl)
             migration.upgrade()
             self.update_versions_table(filename)
-            LOG.info('Finished migration %s' % filename)
+            LOG.info('Finished migration %s', filename)
         LOG.info('Upgrade is finished')

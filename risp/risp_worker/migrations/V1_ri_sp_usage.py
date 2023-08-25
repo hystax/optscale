@@ -1,4 +1,4 @@
-from risp_worker.migrations.base import MigrationBase
+from risp.risp_worker.migrations.base import MigrationBase
 
 
 class Migration(MigrationBase):

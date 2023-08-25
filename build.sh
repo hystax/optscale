@@ -22,6 +22,6 @@ DOCKERFILES=( $(eval ${FIND_CMD}) )
 for DOCKERFILE in "${DOCKERFILES[@]}"
 do
     COMPONENT=$(echo "${DOCKERFILE}" | awk -F '/' '{print $(NF-1)}')
-    echo "Building image for ${COMPONENT}, build tag ${BUILD_TAG}"
+    echo "Building image for ${COMPONENT}, build tag: ${BUILD_TAG}"
     docker build -t ${COMPONENT}:${BUILD_TAG} -f ${DOCKERFILE} .
 done

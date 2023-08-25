@@ -2,7 +2,7 @@ import uuid
 import unittest
 from unittest.mock import patch, MagicMock, PropertyMock
 from datetime import datetime, timezone
-from risp_worker.worker import RISPWorker
+from risp.risp_worker.worker import RISPWorker
 
 
 class TestRISPWorker(unittest.TestCase):
@@ -24,17 +24,17 @@ class TestRISPWorker(unittest.TestCase):
         super().tearDown()
 
     def mock_common(self):
-        patch('risp_worker.worker.RISPWorker.clickhouse_client',
+        patch('risp.risp_worker.worker.RISPWorker.clickhouse_client',
               new_callable=PropertyMock).start()
         self.worker.get_clickhouse_expenses = MagicMock()
         self.worker.insert_clickhouse_expenses = MagicMock()
 
-        patch('risp_worker.worker.RISPWorker.mongo_client',
+        patch('risp.risp_worker.worker.RISPWorker.mongo_client',
               new_callable=PropertyMock).start()
         self.worker.get_offers_expenses_by_type = MagicMock()
         self.worker.get_resources_ids_map = MagicMock()
 
-        patch('risp_worker.worker.RISPWorker.rest_cl',
+        patch('risp.risp_worker.worker.RISPWorker.rest_cl',
               new_callable=PropertyMock).start()
         self.worker.rest_cl.risp_processing_task_list = MagicMock()
 
@@ -59,7 +59,7 @@ class TestRISPWorker(unittest.TestCase):
     def sp_raw_expenses(self, value):
         self._sp_raw_expenses = value
 
-    def ri_sp_side_eff(self, *args, **kwargs):
+    def ri_sp_side_eff(self, *args):
         if args[0] == 'sp':
             return self.sp_raw_expenses
         elif args[0] == 'ri':
