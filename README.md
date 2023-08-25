@@ -80,6 +80,14 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
   <img src="documentation/images/Cost-explorer-by-owner.png" width="350" />
 </div>
 
+## OptScale components and architecture
+
+<div align="center">
+  <img src="documentation/images/optscale-architecture-services.drawio.png" height="400" />
+<br>
+  <br>
+</div>
+
 ## Getting started
 
  Minimum hardware requirements for OptScale cluster: CPU: 8+ cores, RAM: 16Gb, SSD: 150+ Gb. 
