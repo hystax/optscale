@@ -199,6 +199,12 @@ sudo systemctl daemon-reload
 sudo service docker restart
 ```
 
+## Roadmap (end of Y2023)
+
+- PaaS instrumentation - usage, cost, API call, and output details to any PaaS service, simple integration with any application. Python first, then Scala and Java
+- MLFlow integration - simple integrated UI for MLFlow, MLFlow plugin to propagate run cost
+- Integration with Optuna to leverage Spot and Reserved Instances for hyperparameter tuning
+- RAM and GPU parameter support for VM rightsizing
 
 ## Documentation
 
