@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from tornado.httputil import HTTPHeaders
 
-from diproxy.main import make_app, Urls
+from diproxy.diproxy.main import make_app, Urls
 
 
 # noinspection PyMethodMayBeStatic
@@ -39,7 +39,7 @@ class TestDiproxy(tornado.testing.AsyncHTTPTestCase):
         return self.io_loop.run_sync(lambda: make_app())
 
     def setUp(self):
-        patch('diproxy.main.ConfigClient', ConfigClientMock).start()
+        patch('diproxy.diproxy.main.ConfigClient', ConfigClientMock).start()
         super().setUp()
 
     def _send_request(self, request: HTTPRequest):
@@ -60,7 +60,7 @@ class TestDiproxy(tornado.testing.AsyncHTTPTestCase):
         response = self._send_write_request(headers={})
         self.assertEqual(response.code, 400)
 
-    @patch('diproxy.main.RestApiClient.cloud_account_get')
+    @patch('diproxy.diproxy.main.RestApiClient.cloud_account_get')
     def test_non_existing_ca(self, p_get_ca):
         headers = {
             'Cloud-Account-Id': str(uuid.uuid4())
@@ -69,7 +69,7 @@ class TestDiproxy(tornado.testing.AsyncHTTPTestCase):
         response = self._send_write_request(headers=headers)
         self.assertEqual(response.code, 422)
 
-    @patch('diproxy.main.RestApiClient.cloud_account_get')
+    @patch('diproxy.diproxy.main.RestApiClient.cloud_account_get')
     def test_unsupported_ca(self,  p_get_ca):
         ca_id = str(uuid.uuid4())
         headers = {'Cloud-Account-Id': ca_id}
@@ -80,7 +80,7 @@ class TestDiproxy(tornado.testing.AsyncHTTPTestCase):
         response = self._send_write_request(headers=headers)
         self.assertEqual(response.code, 422)
 
-    @patch('diproxy.main.RestApiClient.cloud_account_get')
+    @patch('diproxy.diproxy.main.RestApiClient.cloud_account_get')
     def test_unauthorized(self, p_get_ca):
         ca_id = str(uuid.uuid4())
         headers = {
@@ -95,8 +95,8 @@ class TestDiproxy(tornado.testing.AsyncHTTPTestCase):
         response = self._send_write_request(headers=headers)
         self.assertEqual(response.code, 401)
 
-    @patch('diproxy.main.RemoteWriteStorageClient.write')
-    @patch('diproxy.main.RestApiClient.cloud_account_get')
+    @patch('diproxy.diproxy.main.RemoteWriteStorageClient.write')
+    @patch('diproxy.diproxy.main.RestApiClient.cloud_account_get')
     def test_write_exception(self, p_get_ca, p_write_storage):
         ca_id = str(uuid.uuid4())
         creds = get_basic_credentials('user', 'pass')
@@ -112,8 +112,8 @@ class TestDiproxy(tornado.testing.AsyncHTTPTestCase):
         response = self._send_write_request(headers=headers)
         self.assertEqual(response.code, 503)
 
-    @patch('diproxy.main.RemoteWriteStorageClient.write')
-    @patch('diproxy.main.RestApiClient.cloud_account_get')
+    @patch('diproxy.diproxy.main.RemoteWriteStorageClient.write')
+    @patch('diproxy.diproxy.main.RestApiClient.cloud_account_get')
     def test_write(self, p_get_ca, p_write_storage):
         ca_id = str(uuid.uuid4())
         creds = get_basic_credentials('user', 'pass')
