@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
-
-from herald_server.models.db_base import BaseDB
 from sqlalchemy.pool import StaticPool
+
+from herald.herald_server.models.db_base import BaseDB
 
 
 class TestDB(BaseDB):

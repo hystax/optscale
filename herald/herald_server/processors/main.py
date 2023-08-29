@@ -3,10 +3,10 @@ import json
 import logging
 import os
 
-from herald_server.controllers.notification import NotificationController
-from herald_server.models.db_base import BaseDB
-from herald_server.models.enums import ReactionTypes
-from herald_server.processors.factory import ProcessorFactory
+from herald.herald_server.controllers.notification import NotificationController
+from herald.herald_server.models.db_base import BaseDB
+from herald.herald_server.models.enums import ReactionTypes
+from herald.herald_server.processors.factory import ProcessorFactory
 
 import boto3
 from boto3.session import Config as BotoConfig

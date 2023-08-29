@@ -4,7 +4,7 @@ import pika
 from pika.adapters.tornado_connection import TornadoConnection
 from tornado.concurrent import run_on_executor
 
-from herald_server.utils import tp_executor
+from herald.herald_server.utils import tp_executor
 
 LOG = logging.getLogger(__name__)
 

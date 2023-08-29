@@ -1,12 +1,14 @@
 import logging
 
-from herald_server.exceptions import Err
-from herald_server.handlers.v1.base import BaseHandler
+from herald.herald_server.exceptions import Err
+from herald.herald_server.handlers.v1.base import BaseHandler
 
-from optscale_exceptions.http_exc import OptHTTPError
-from optscale_exceptions.common_exc import (WrongArgumentsException,
-                                            NotFoundException,
-                                            ConflictException)
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException,
+    NotFoundException,
+    ConflictException
+)
 
 
 LOG = logging.getLogger(__name__)

@@ -44,7 +44,7 @@ def upgrade():
                     sa.Column('name', sa.String(length=256), nullable=True),
                     sa.Column('type', sa.Enum(
                         'EMAIL', 'SMS', 'HTTP_CALLBACK', name='reactiontype'),
-                              nullable=False),
+                        nullable=False),
                     sa.Column('payload', sa.TEXT(), nullable=True),
                     sa.ForeignKeyConstraint(['notification_id'],
                                             ['notification.id'], ),

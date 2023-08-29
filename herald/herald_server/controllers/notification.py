@@ -2,15 +2,19 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import and_, or_
 
 
-from herald_server.controllers.base import BaseController
-from herald_server.controllers.reaction import ReactionController
-from herald_server.controllers.base_async import BaseAsyncControllerWrapper
-from herald_server.models.models import (
-    Notification, Reaction, FilterCriteria, Field)
-from herald_server.exceptions import Err
+from herald.herald_server.controllers.base import BaseController
+from herald.herald_server.controllers.reaction import ReactionController
+from herald.herald_server.controllers.base_async import BaseAsyncControllerWrapper
+from herald.herald_server.models.models import (
+    Notification,
+    Reaction,
+    FilterCriteria,
+    Field
+)
+from herald.herald_server.exceptions import Err
+from herald.herald_server.utils import check_string_attribute
 
-from optscale_types.utils import check_string_attribute
-from optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 
 class NotificationController(BaseController):

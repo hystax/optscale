@@ -1,4 +1,4 @@
-from herald_server.tests.unittests.test_herald_base import TestHeraldBase
+from herald.herald_server.tests.unittests.test_herald_base import TestHeraldBase
 from unittest.mock import patch
 
 
@@ -34,7 +34,7 @@ class TestEmailApi(TestHeraldBase):
                            'object_name': "Object_name", 'object_type': "INFO",
                            'level': "INFO", 'texts': {'user_email': 'test+1@gmail.com'}}
         publish_message_p_configured = patch(
-            'herald_server.controllers.email.EmailController.publish_message'
+            'herald.herald_server.controllers.email.EmailController.publish_message'
         ).start()
         code, response = self.client_v2.email_send(
             email, "Email_subject", template_type, template_params)
@@ -57,7 +57,7 @@ class TestEmailApi(TestHeraldBase):
                            'object_name': "Object_name", 'object_type': "INFO",
                            'level': "INFO", 'texts': {'user_email': 'test+1@hystax.com'}}
         publish_message_p_configured = patch(
-            'herald_server.controllers.email.EmailController.publish_message'
+            'herald.herald_server.controllers.email.EmailController.publish_message'
         ).start()
         code, response = self.client_v2.email_send(
             email, "Email_subject", template_type, template_params)

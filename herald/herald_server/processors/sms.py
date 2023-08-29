@@ -1,8 +1,6 @@
-import json
+from herald.herald_server.processors.base import BaseProcessor
 
-from optscale_exceptions.common_exc import WrongArgumentsException
-
-from herald_server.processors.base import BaseProcessor
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 
 class SmsProcessor(BaseProcessor):

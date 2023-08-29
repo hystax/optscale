@@ -1,13 +1,18 @@
 import json
 import logging
 
-from optscale_exceptions.common_exc import WrongArgumentsException
-from herald_server.processors.base import BaseProcessor
-from modules.email_generator.generator import generate_email
-from modules.template_generator.template_generator import (
-    generate_event_template_params)
 
-from modules.email_sender.sender import send_email
+from herald.herald_server.processors.base import BaseProcessor
+
+
+from herald.modules.email_generator.generator import generate_email
+from herald.modules.template_generator.template_generator import (
+    generate_event_template_params
+)
+
+from herald.modules.email_sender.sender import send_email
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+
 
 LOG = logging.getLogger(__name__)
 

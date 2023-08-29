@@ -5,14 +5,19 @@ import time
 import tornado.ioloop
 import tornado.web
 
-import config_client.client
-from herald_server.constants import urls_v1, urls_v2
-from herald_server.handlers.v1.base import DefaultHandler
-from herald_server.handlers.v1.notifications import (UserNotificationAsyncCollectionHandler,
-                                                     NotificationAsyncItemHandler)
-from herald_server.handlers.v2.emails import EmailAsyncHandler
-from herald_server.models.db_factory import DBType, DBFactory
-from herald_server.controllers.message_publisher import Publisher
+
+from herald.herald_server.constants import urls_v1, urls_v2
+from herald.herald_server.handlers.v1.base import DefaultHandler
+from herald.herald_server.handlers.v1.notifications import (
+    UserNotificationAsyncCollectionHandler,
+    NotificationAsyncItemHandler
+)
+from herald.herald_server.handlers.v2.emails import EmailAsyncHandler
+from herald.herald_server.models.db_factory import DBType, DBFactory
+from herald.herald_server.controllers.message_publisher import Publisher
+
+import optscale_client.config_client.client
+
 
 DEFAULT_PORT = 8906
 DEFAULT_ETCD_HOST = '127.0.0.1'
@@ -22,7 +27,7 @@ LOG = logging.getLogger(__name__)
 
 
 def make_app(db_type, etcd_host, etcd_port, wait=False):
-    config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
+    config_cl = optscale_client.config_client.client.Client(host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
 

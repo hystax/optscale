@@ -1,11 +1,11 @@
-from herald_server.controllers.base import BaseController
-from herald_server.models.models import Reaction
-from herald_server.models.types import ReactionTypes
-from herald_server.processors.factory import ProcessorFactory
-from herald_server.exceptions import Err
+from herald.herald_server.controllers.base import BaseController
+from herald.herald_server.models.models import Reaction
+from herald.herald_server.models.types import ReactionTypes
+from herald.herald_server.processors.factory import ProcessorFactory
+from herald.herald_server.exceptions import Err
+from herald.herald_server.utils import check_string_attribute, is_valid_meta
 
-from optscale_exceptions.common_exc import WrongArgumentsException
-from optscale_types.utils import check_string_attribute, is_valid_meta
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 
 class ReactionController(BaseController):

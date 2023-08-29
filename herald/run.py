@@ -1,7 +1,9 @@
 import os
-from herald_server import server
-from herald_server.worker import worker
 import subprocess
+
+
+from herald.herald_server import server
+from herald.herald_server.worker import worker
 
 
 def main():

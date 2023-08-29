@@ -1,6 +1,6 @@
-from herald_server.models.enums import ReactionTypes
-from herald_server.processors.email import EmailProcessor
-from herald_server.processors.sms import SmsProcessor
+from herald.herald_server.models.enums import ReactionTypes
+from herald.herald_server.processors.email import EmailProcessor
+from herald.herald_server.processors.sms import SmsProcessor
 
 
 class ProcessorFactory:

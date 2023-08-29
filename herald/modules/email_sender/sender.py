@@ -3,7 +3,7 @@ import logging
 import smtplib
 import ssl
 
-from herald_server.utils import (
+from herald.herald_server.utils import (
     is_valid_port,
     is_email_format
 )

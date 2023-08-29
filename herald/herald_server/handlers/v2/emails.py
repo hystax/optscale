@@ -1,11 +1,13 @@
 import os.path
-from modules.email_generator.generator import get_templates_path
-from herald_server.handlers.v1.base_async import BaseAsyncCollectionHandler
-from herald_server.handlers.v1.base import BaseAuthHandler
-from herald_server.controllers.email import EmailAsyncController
-from herald_server.utils import (raise_not_provided_error,
-                                 raise_invalid_argument_exception,
-                                 is_email_format)
+from herald.modules.email_generator.generator import get_templates_path
+from herald.herald_server.handlers.v1.base_async import BaseAsyncCollectionHandler
+from herald.herald_server.handlers.v1.base import BaseAuthHandler
+from herald.herald_server.controllers.email import EmailAsyncController
+from herald.herald_server.utils import (
+    raise_not_provided_error,
+    raise_invalid_argument_exception,
+    is_email_format
+)
 
 
 class EmailAsyncHandler(BaseAsyncCollectionHandler,
