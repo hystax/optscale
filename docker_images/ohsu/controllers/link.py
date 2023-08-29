@@ -4,9 +4,9 @@ import socket
 import subprocess
 import time
 from datetime import datetime
-from ohsu.controllers.base import BaseController
-from ohsu.controllers.base_async import BaseAsyncControllerWrapper
-from ohsu.exceptions import Err
+from docker_images.ohsu.controllers.base import BaseController
+from docker_images.ohsu.controllers.base_async import BaseAsyncControllerWrapper
+from docker_images.ohsu.exceptions import Err
 from tools.optscale_exceptions.common_exc import (
     NotFoundException, WrongArgumentsException)
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
