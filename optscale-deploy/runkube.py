@@ -69,7 +69,7 @@ class Runkube:
         if self._master_ip is None:
             LOG.debug("Taking master ip from kube context %s", self.config)
             with open(self.config, 'r') as f_cxt:
-                context = yaml.load(f_cxt)
+                context = yaml.safe_load(f_cxt)
                 self._master_ip = urlsplit(
                     context['clusters'][0]['cluster']['server']).hostname
         return self._master_ip
@@ -104,7 +104,7 @@ class Runkube:
     def versions_info(self):
         if self._versions_info is None:
             with open(self.component_versions) as f_ver:
-                self._versions_info = yaml.load(f_ver)
+                self._versions_info = yaml.safe_load(f_ver)
         return self._versions_info
 
     def _pull_image(self, docker_cl, image_name, tag, same_tag=False):
@@ -148,8 +148,8 @@ class Runkube:
         cert = base64.b64decode(secret.data['tls.crt'])
         key = base64.b64decode(secret.data['tls.key'])
         base_overlay = {'optscale_key': key, 'certificates': {'optscale': cert}}
-        for name, id in self.get_image_id_map().items():
-            base_overlay[name] = {'image': {'id': id}}
+        for name, image_id in self.get_image_id_map().items():
+            base_overlay[name] = {'image': {'id': image_id}}
 
         base_overlay['public_ip'] = self.master_ip
         base_overlay['docker_registry'] = self.dregistry
@@ -225,7 +225,7 @@ class Runkube:
         out_lines = subprocess.check_output(
             HELM_LIST_CMD.split()).decode().split('\n')
         optscale_releases = [r.split()[0] for r in filter(lambda x: 'optscale' in x,
-                                                       out_lines)]
+                                                          out_lines)]
         if len(optscale_releases) > 1:
             raise Exception(
                 "More than 1 optscale release found: {0}".format(optscale_releases))
@@ -258,7 +258,7 @@ class Runkube:
                                 tty=False, _preload_content=False)
             client.run_forever(timeout=60)
             err = client.read_channel(ERROR_CHANNEL)
-            if yaml.load(err)['status'].lower() == 'Failure':
+            if yaml.safe_load(err)['status'].lower() == 'Failure':
                 return []
             overlay_str = client.read_all().rstrip()
             overlay_list = [] if not overlay_str else overlay_str.split(',')
