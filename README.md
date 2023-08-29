@@ -212,7 +212,7 @@ Read the [full OptScale documentation](https://hystax.com/documentation/optscale
 
 ## Contributing
 
-Please read and accept our [Contribution Agreement](CLA.md) before submitting pull requests.
+Please read and accept our [Contribution Agreement](CONTRIBUTING.md) before submitting pull requests.
 
 ## Community
 
