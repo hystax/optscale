@@ -1,9 +1,11 @@
 from enum import Enum
 import logging
 
-from optscale_exceptions.common_exc import InvalidModelTypeException
-from herald_server.models.db_test import TestDB
-from herald_server.models.db_mysql import MySQLDB
+from herald.herald_server.models.db_test import TestDB
+from herald.herald_server.models.db_mysql import MySQLDB
+
+
+from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 
 
 class DBType(Enum):

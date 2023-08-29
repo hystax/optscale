@@ -2,7 +2,7 @@ import functools
 import logging
 from tornado.ioloop import IOLoop
 
-from herald_server.utils import tp_executor
+from herald.herald_server.utils import tp_executor
 
 
 LOG = logging.getLogger(__name__)

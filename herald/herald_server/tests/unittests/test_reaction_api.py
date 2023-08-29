@@ -1,11 +1,10 @@
+import time
 import uuid
 import string
 import random
 from unittest.mock import patch
 
-import time
-
-from herald_server.tests.unittests.test_herald_base import TestHeraldBase
+from herald.herald_server.tests.unittests.test_herald_base import TestHeraldBase
 
 
 class TestReactionApi(TestHeraldBase):
@@ -13,7 +12,7 @@ class TestReactionApi(TestHeraldBase):
         super().setUp()
         self.user_id = str(uuid.uuid4())
 
-        patch('herald_server.handlers.v1.base.BaseAuthHandler.get_meta_by_token',
+        patch('herald.herald_server.handlers.v1.base.BaseAuthHandler.get_meta_by_token',
               return_value={
                   'user_id': self.user_id,
                   'valid_until': time.time() * 2

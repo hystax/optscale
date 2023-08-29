@@ -1,8 +1,10 @@
-import yaml
 import os.path
 import re
-import diproxy.main as server
+import yaml
 from apispec import APISpec, utils
+
+import diproxy.diproxy.main as server
+
 try:
     from yaml import CLoader as Loader
 except ImportError:

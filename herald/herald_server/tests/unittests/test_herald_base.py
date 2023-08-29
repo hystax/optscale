@@ -2,12 +2,14 @@ import uuid
 from unittest.mock import patch
 
 import tornado.testing
-import herald_client.client
-import herald_client.client_v2
-from herald_server.models.db_base import BaseDB
-from herald_server.models.models import Field
-from herald_server.server import make_app
-from herald_server.models.db_factory import DBType, DBFactory
+
+from herald.herald_server.models.db_base import BaseDB
+from herald.herald_server.models.models import Field
+from herald.herald_server.server import make_app
+from herald.herald_server.models.db_factory import DBType, DBFactory
+
+import optscale_client.herald_client.client
+import optscale_client.herald_client.client_v2
 
 
 class TestHeraldBase(tornado.testing.AsyncHTTPTestCase):
@@ -17,14 +19,14 @@ class TestHeraldBase(tornado.testing.AsyncHTTPTestCase):
     def get_app(self):
         return make_app(DBType.Test, '127.0.0.1', 80)
 
-    @patch('config_client.client.Client')
-    @patch('herald_server.controllers.message_consumer.Consumer')
+    @patch('optscale_client.config_client.client.Client')
+    @patch('herald.herald_server.controllers.message_consumer.Consumer')
     def setUp(self, p_consumer, p_config):
         secret = str(uuid.uuid4())
         patch(
-            'herald_server.controllers.base.Config').start()
+            'herald.herald_server.controllers.base.Config').start()
         patch(
-            'herald_server.controllers.message_consumer.Consumer').start()
+            'herald.herald_server.controllers.message_consumer.Consumer').start()
         p_config.return_value.cluster_secret.return_value = secret
         p_config.return_value.rabbit_params.return_value = self.get_rabbit_params()
         p_config.return_value.events_queue.return_value = (
@@ -32,14 +34,14 @@ class TestHeraldBase(tornado.testing.AsyncHTTPTestCase):
         p_consumer.return_value.publish_message.return_value = {}
         super().setUp()
 
-        http_provider = herald_client.client.FetchMethodHttpProvider(
-                self.fetch, rethrow=False)
+        http_provider = optscale_client.herald_client.client.FetchMethodHttpProvider(
+            self.fetch, rethrow=False)
         http_provider.token = 'token'
         http_provider.secret = secret
 
-        self.client = herald_client.client.Client(
-                http_provider=http_provider)
-        self.client_v2 = herald_client.client_v2.Client(
+        self.client = optscale_client.herald_client.client.Client(
+            http_provider=http_provider)
+        self.client_v2 = optscale_client.herald_client.client_v2.Client(
             http_provider=http_provider)
         self._init_base_db_data()
 

@@ -2,7 +2,6 @@ ARG BUILDTAG=build
 FROM diproxy:${BUILDTAG}
 MAINTAINER Hystax
 
-COPY test-requirements.txt .pylintrc .noserc .coveragerc ./
-RUN pip install --no-cache-dir -r test-requirements.txt
-
-COPY diproxy/tests ./tests
+COPY diproxy/test-requirements.txt diproxy/.pylintrc diproxy/.noserc diproxy/.coveragerc diproxy/
+RUN pip install --no-cache-dir -r diproxy/test-requirements.txt
+COPY diproxy/diproxy/tests diproxy/diproxy/tests

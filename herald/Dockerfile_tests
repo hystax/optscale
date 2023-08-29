@@ -2,7 +2,15 @@ ARG BUILDTAG=build
 FROM herald:${BUILDTAG}
 MAINTAINER Hystax
 
-COPY test-requirements.txt .pylintrc .noserc .coveragerc ./
-RUN pip install --no-cache-dir -r test-requirements.txt
+WORKDIR /usr/src/app/
 
-COPY herald_server/tests/ ./tests
+
+COPY herald/test-requirements.txt herald/test-requirements.txt
+COPY herald/.pylintrc herald/.noserc herald/.coveragerc ./herald/herald_server/
+
+COPY optscale_client/herald_client optscale_client/herald_client
+
+
+RUN pip install --no-cache-dir -r herald/test-requirements.txt
+
+COPY herald/herald_server/tests herald/herald_server/tests

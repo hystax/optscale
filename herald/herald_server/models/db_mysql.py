@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
-from herald_server.models.db_base import BaseDB
-from herald_server.models.migrator import Migrator
+from herald.herald_server.models.db_base import BaseDB
+from herald.herald_server.models.migrator import Migrator
 
 
 class MySQLDB(BaseDB):

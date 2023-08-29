@@ -5,12 +5,12 @@ from alembic import autogenerate
 from alembic.script import ScriptDirectory
 from alembic.runtime.environment import EnvironmentContext
 
-import herald_server.models.models
+import herald.herald_server.models.models
 
 LOG = logging.getLogger(__name__)
 
 # declarative base metadata
-target_metadata = herald_server.models.models.Base.metadata
+target_metadata = herald.herald_server.models.models.Base.metadata
 
 
 class Migrator(object):

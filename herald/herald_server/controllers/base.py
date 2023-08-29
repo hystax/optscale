@@ -1,13 +1,13 @@
-from sqlalchemy.exc import IntegrityError
 import time
 import logging
+from sqlalchemy.exc import IntegrityError
 
-from herald_server.exceptions import Err
-from herald_server.models.models import PermissionKeys
-from herald_server.utils import Config
+from herald.herald_server.exceptions import Err
+from herald.herald_server.models.models import PermissionKeys
+from herald.herald_server.utils import Config
 
-from auth_client.client_v2 import Client as AuthClient
-from optscale_exceptions.common_exc import WrongArgumentsException
+from optscale_client.auth_client.client_v2 import Client as AuthClient
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 LOG = logging.getLogger(__name__)
 

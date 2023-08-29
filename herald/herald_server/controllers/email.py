@@ -1,8 +1,8 @@
 import json
 
-from herald_server.controllers.base import BaseController
-from herald_server.controllers.base_async import BaseAsyncControllerWrapper
-from herald_server.utils import is_hystax_email
+from herald.herald_server.controllers.base import BaseController
+from herald.herald_server.controllers.base_async import BaseAsyncControllerWrapper
+from herald.herald_server.utils import is_hystax_email
 
 
 class EmailAsyncController(BaseAsyncControllerWrapper):

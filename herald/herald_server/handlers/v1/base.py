@@ -10,13 +10,13 @@ import requests
 import tornado.web
 from tornado.ioloop import IOLoop
 
-from herald_server.exceptions import Err
-from herald_server.models.db_base import BaseDB
-from herald_server.utils import ModelEncoder, Config, tp_executor
+from herald.herald_server.exceptions import Err
+from herald.herald_server.models.db_base import BaseDB
+from herald.herald_server.utils import ModelEncoder, Config, tp_executor
 
-from auth_client.client_v2 import Client as AuthClient
-from optscale_exceptions.http_exc import OptHTTPError
-from optscale_exceptions.common_exc import UnauthorizedException
+from optscale_client.auth_client.client_v2 import Client as AuthClient
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import UnauthorizedException
 
 
 LOG = logging.getLogger(__name__)

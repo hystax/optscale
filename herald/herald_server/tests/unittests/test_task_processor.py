@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 import time
 
-from herald_server.controllers.notification import NotificationController
-from herald_server.models.db_base import BaseDB
-from herald_server.models.db_factory import DBFactory, DBType
-from herald_server.processors.main import MainProcessor
-from herald_server.tests.unittests.test_herald_base import TestHeraldBase
+from herald.herald_server.controllers.notification import NotificationController
+from herald.herald_server.models.db_base import BaseDB
+from herald.herald_server.models.db_factory import DBFactory, DBType
+from herald.herald_server.processors.main import MainProcessor
+from herald.herald_server.tests.unittests.test_herald_base import TestHeraldBase
 
 
 class TestTaskProcessor(TestHeraldBase):
@@ -36,7 +36,7 @@ class TestTaskProcessor(TestHeraldBase):
     def _create_notification(self, filter, user_id=None):
         user_id = user_id or self.user_id
 
-        patch('herald_server.handlers.v1.base.BaseAuthHandler.get_meta_by_token',
+        patch('herald.herald_server.handlers.v1.base.BaseAuthHandler.get_meta_by_token',
               return_value={
                   'user_id': user_id,
                   'valid_until': time.time() * 2
@@ -46,7 +46,7 @@ class TestTaskProcessor(TestHeraldBase):
             user_id, 'First notification', filter,
             reactions=[self.mail_reaction])
 
-    @patch("auth_client.client_v2.Client.authorize_user_list")
+    @patch("optscale_client.auth_client.client_v2.Client.authorize_user_list")
     def test_event_reactions(self, p_authorize_users):
 
         p_authorize_users.return_value = 200, {
@@ -106,7 +106,7 @@ class TestTaskProcessor(TestHeraldBase):
             test_event)
         self.assertEqual(0, len(reactions))
 
-    @patch("auth_client.client_v2.Client.authorize_user_list")
+    @patch("optscale_client.auth_client.client_v2.Client.authorize_user_list")
     def test_ack_events(self, p_authorize_users):
         p_authorize_users.return_value = 200, {
             self.user_id: {'POLL_EVENT'}

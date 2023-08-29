@@ -1,18 +1,73 @@
 import json
 import re
 import os
-from sqlalchemy import inspect
 import enum
+import uuid
+import netaddr
+from sqlalchemy import inspect
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
-from herald_server.exceptions import Err
+from herald.herald_server.exceptions import Err
 
-from optscale_exceptions.http_exc import OptHTTPError
-from config_client.client import Client as ConfigClient
+from tools.optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+
+from optscale_client.config_client.client import Client as ConfigClient
 
 
 tp_executor = ThreadPoolExecutor(15)
+
+MAX_32_INT = 2 ** 31 - 1
+MAX_64_INT = 2 ** 63 - 1
+
+
+def gen_id():
+    return str(uuid.uuid4())
+
+
+def is_valid_hostname(hostname):
+    """http://stackoverflow.com/a/20204811"""
+    regex = '(?=^.{1,253}$)(^(((?!-)[a-zA-Z0-9-]{1,63}(?<!-))|((?!-)' \
+            '[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$)'
+    match = re.match(regex, str(hostname).lower())
+    return bool(match)
+
+
+def check_ipv4_addr(address):
+    if not address or not netaddr.valid_ipv4(str(address),
+                                             netaddr.core.INET_PTON):
+        raise ValueError("%s is not an IPv4 address" % address)
+
+
+def is_uuid(check_str):
+    pattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z'
+    return bool(re.match(pattern, str(check_str).lower()))
+
+
+def raise_not_provided_exception(argument):
+    raise WrongArgumentsException(Err.OE0216, [argument])
+
+
+def is_valid_meta(metadata):
+    try:
+        meta = json.loads(metadata)
+        if not isinstance(meta, dict):
+            return False
+    except:
+        return False
+    return True
+
+
+def check_string_attribute(name, value, min_length=1, max_length=255):
+    if value is None:
+        raise_not_provided_exception(name)
+    if not isinstance(value, str):
+        raise WrongArgumentsException(Err.OE0214, [name])
+    if not min_length <= len(value) <= max_length:
+        count = ('max %s' % max_length if min_length == 0
+                 else '%s-%s' % (min_length, max_length))
+        raise WrongArgumentsException(Err.OE0215, [name, count])
 
 
 def singleton(class_):

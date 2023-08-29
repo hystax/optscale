@@ -2,11 +2,11 @@ import os
 import logging
 import argparse
 
-import config_client.client
+from herald.herald_server.controllers.message_consumer import Consumer
+from herald.herald_server.models.db_factory import DBFactory, DBType
+from herald.herald_server.processors.main import MainProcessor
 
-from herald_server.controllers.message_consumer import Consumer
-from herald_server.models.db_factory import DBFactory, DBType
-from herald_server.processors.main import MainProcessor
+import optscale_client.config_client.client
 
 LOG = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ DEFAULT_ETCD_PORT = 2379
 
 
 def make_app(etcd_host, etcd_port, wait=False):
-    config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
+    config_cl = optscale_client.config_client.client.Client(host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
 

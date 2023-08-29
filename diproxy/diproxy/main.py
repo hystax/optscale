@@ -3,19 +3,19 @@ import logging
 import os
 import time
 
-from async_lru import alru_cache
-from config_client.client import Client as ConfigClient
-from requests.exceptions import HTTPError
-from rest_api_client.client_v2 import Client as RestApiClient
-from typing import Any, Dict
-
 from tornado.gen import multi
 from tornado.ioloop import IOLoop
 from tornado.options import define, options, parse_command_line
 from tornado.web import (Application, HTTPError as ResponseHttpError,
                          RequestHandler, StaticFileHandler)
 
-from diproxy.storage_client import RemoteWriteStorageClient
+from async_lru import alru_cache
+from requests.exceptions import HTTPError
+from typing import Any, Dict
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestApiClient
+
+from diproxy.diproxy.storage_client import RemoteWriteStorageClient
 
 BASEDIR_NAME = os.path.dirname(__file__)
 BASEDIR_PATH = os.path.abspath(BASEDIR_NAME)

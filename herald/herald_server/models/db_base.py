@@ -1,6 +1,7 @@
 from sqlalchemy.orm import sessionmaker, scoped_session
 from retrying import retry
-import herald_server.models.models as model_base
+
+import herald.herald_server.models.models as model_base
 
 
 def should_retry(exception):

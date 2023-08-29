@@ -2,10 +2,12 @@ import numbers
 import pystache
 import collections.abc
 import os
-from modules.template_generator.template_generator import get_default_template
 import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from herald.modules.template_generator.template_generator import get_default_template
+
 
 LOG = logging.getLogger(__name__)
 

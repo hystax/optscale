@@ -1,0 +1,20 @@
+name: Build herald test image and run tests on it
+run-name: Build herald test image and run tests on it - started by ${{ github.actor }}
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+    - 'herald/**'
+  workflow_dispatch:
+
+
+jobs:
+  build_image:
+    runs-on: self-hosted
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Build image
+        run: bash -x build.sh herald build
+      - name: Build test image and run tests
+        run: bash -x herald/run_test.sh

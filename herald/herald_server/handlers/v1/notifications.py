@@ -1,10 +1,12 @@
 import json
 
-from herald_server.controllers.notification import NotificationAsyncController
-from herald_server.handlers.v1.base_async import (BaseAsyncCollectionHandler,
-                                                  BaseAsyncItemHandler)
-from herald_server.handlers.v1.base import BaseAuthHandler
-from herald_server.utils import ModelEncoder
+from herald.herald_server.controllers.notification import NotificationAsyncController
+from herald.herald_server.handlers.v1.base_async import (
+    BaseAsyncCollectionHandler,
+    BaseAsyncItemHandler
+)
+from herald.herald_server.handlers.v1.base import BaseAuthHandler
+from herald.herald_server.utils import ModelEncoder
 
 
 class UserNotificationAsyncCollectionHandler(BaseAsyncCollectionHandler,
