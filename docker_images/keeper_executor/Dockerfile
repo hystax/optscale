@@ -5,6 +5,7 @@ ENV PYTHONPATH /usr/src/app/
 
 COPY optscale_client/auth_client optscale_client/auth_client
 COPY optscale_client/herald_client optscale_client/herald_client
+COPY optscale_client/report_client optscale_client/report_client
 COPY optscale_client/config_client optscale_client/config_client
 COPY optscale_client/rest_api_client optscale_client/rest_api_client
 
