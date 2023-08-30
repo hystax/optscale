@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
-from katara_service.models.db_base import BaseDB
-from katara_service.models.migrator import Migrator
+from katara.katara_service.models.db_base import BaseDB
+from katara.katara_service.models.migrator import Migrator
 
 
 class MySQLDB(BaseDB):

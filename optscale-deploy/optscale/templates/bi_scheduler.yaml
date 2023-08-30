@@ -36,7 +36,7 @@ spec:
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
             - "python3"
-            - "/src/scheduler.py"
+            - "docker_images/bi_scheduler/scheduler.py"
             env:
             - name: IMAGE_ID
               value: {{ $config.image.id }}

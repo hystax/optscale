@@ -1,0 +1,14 @@
+SQLAlchemy==1.2.14
+mysql-connector-python==8.1.0
+tornado==6.2
+alembic==0.9.5
+croniter==0.3.15
+kombu==4.6.8
+apispec==0.39.0
+pyyaml==5.4.1
+
+# OptScale packages
+-e optscale_client/config_client
+-e optscale_client/rest_api_client
+-e optscale_client/auth_client
+-e tools/optscale_exceptions

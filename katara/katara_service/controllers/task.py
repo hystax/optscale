@@ -5,14 +5,20 @@ import logging
 from sqlalchemy import exists
 from sqlalchemy.exc import IntegrityError
 
-from katara_service.controllers.base import BaseController
-from katara_service.controllers.base_async import BaseAsyncControllerWrapper
-from katara_service.controllers.schedule import ScheduleController
-from katara_service.exceptions import Err
-from katara_service.models.models import Task, Schedule, TaskState
+from katara.katara_service.controllers.base import BaseController
+from katara.katara_service.controllers.base_async import BaseAsyncControllerWrapper
+from katara.katara_service.controllers.schedule import ScheduleController
+from katara.katara_service.exceptions import Err
+from katara.katara_service.models.models import (
+    Task,
+    Schedule,
+    TaskState
+)
 
-from optscale_exceptions.common_exc import (
-    WrongArgumentsException, NotFoundException)
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException,
+    NotFoundException
+)
 
 
 LOG = logging.getLogger(__name__)

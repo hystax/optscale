@@ -1,4 +1,3 @@
-import tornado.web
 import tornado.httpserver
 
 

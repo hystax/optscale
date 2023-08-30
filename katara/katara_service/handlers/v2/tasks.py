@@ -1,15 +1,21 @@
 import json
 
-from katara_service.controllers.task import TaskAsyncController
-from katara_service.exceptions import Err
-from katara_service.handlers.v2.base import (
-    BaseAsyncItemHandler, BaseAsyncCollectionHandler)
-from katara_service.utils import strtobool, check_list_attribute, ModelEncoder
+from katara.katara_service.controllers.task import TaskAsyncController
+from katara.katara_service.exceptions import Err
+from katara.katara_service.handlers.v2.base import (
+    BaseAsyncItemHandler,
+    BaseAsyncCollectionHandler
+)
+from katara.katara_service.utils import strtobool, check_list_attribute, ModelEncoder
 
-from optscale_exceptions.common_exc import (
-    WrongArgumentsException, NotFoundException, ConflictException,
-    ForbiddenException, UnauthorizedException)
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException,
+    NotFoundException,
+    ConflictException,
+    ForbiddenException,
+    UnauthorizedException
+)
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 class TaskAsyncItemHandler(BaseAsyncItemHandler):

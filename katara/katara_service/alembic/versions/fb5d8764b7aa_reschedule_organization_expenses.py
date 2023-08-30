@@ -12,17 +12,14 @@ from sqlalchemy import update, String
 
 
 # revision identifiers, used by Alembic.
-revision = 'fb5d8764b7aa'
-down_revision = '0f20c5e50c7e'
+revision = "fb5d8764b7aa"
+down_revision = "0f20c5e50c7e"
 branch_labels = None
 depends_on = None
 
-SCHEDULE_TABLE = table(
-    'schedule',
-    column('crontab', String(length=128))
-)
-OLD_CRONTAB = '0 0 * * MON'
-NEW_CRONTAB = '0 13 * * FRI'
+SCHEDULE_TABLE = table("schedule", column("crontab", String(length=128)))
+OLD_CRONTAB = "0 0 * * MON"
+NEW_CRONTAB = "0 13 * * FRI"
 
 
 def update_crontab(curr_crontab, new_crontab):
@@ -30,10 +27,11 @@ def update_crontab(curr_crontab, new_crontab):
     session = Session(bind=bind)
 
     try:
-        update_schedule_stmt = update(SCHEDULE_TABLE).values(
-            crontab=new_crontab
-        ).where(
-            SCHEDULE_TABLE.c.crontab == curr_crontab)
+        update_schedule_stmt = (
+            update(SCHEDULE_TABLE)
+            .values(crontab=new_crontab)
+            .where(SCHEDULE_TABLE.c.crontab == curr_crontab)
+        )
         session.execute(update_schedule_stmt)
         session.commit()
     except Exception:

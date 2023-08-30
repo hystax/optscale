@@ -15,20 +15,20 @@ from sqlalchemy import Integer, insert, delete, String, TEXT, Enum
 
 
 # revision identifiers, used by Alembic.
-revision = '7cdb069460b5'
-down_revision = 'd777a3b2707c'
+revision = "7cdb069460b5"
+down_revision = "d777a3b2707c"
 branch_labels = None
 depends_on = None
 
 report_table = table(
-    'report',
-    column('id', String(length=36)),
-    column('created_at', Integer()),
-    column('name', String(50)),
-    column('module_name', String(128)),
-    column('report_format', Enum('html')),
-    column('template', String(128)),
-    column('description', TEXT())
+    "report",
+    column("id", String(length=36)),
+    column("created_at", Integer()),
+    column("name", String(50)),
+    column("module_name", String(128)),
+    column("report_format", Enum("html")),
+    column("template", String(128)),
+    column("description", TEXT()),
 )
 
 
@@ -40,11 +40,12 @@ def upgrade():
         ins_stmt = insert(report_table).values(
             id=str(uuid.uuid4()),
             created_at=int(datetime.datetime.utcnow().timestamp()),
-            name='budget_exceed',
-            module_name='budget_exceed',
-            report_format='html',
-            template='budget_exceed',
-            description='Budget exceed report')
+            name="budget_exceed",
+            module_name="budget_exceed",
+            report_format="html",
+            template="budget_exceed",
+            description="Budget exceed report",
+        )
         session.execute(ins_stmt)
         session.commit()
     finally:

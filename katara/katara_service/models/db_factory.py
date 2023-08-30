@@ -1,11 +1,11 @@
 import logging
 from enum import Enum
 
-from katara_service.exceptions import Err
-from katara_service.models.db_mysql import MySQLDB
-from katara_service.models.db_test import TestDB
+from katara.katara_service.exceptions import Err
+from katara.katara_service.models.db_mysql import MySQLDB
+from katara.katara_service.models.db_test import TestDB
 
-from optscale_exceptions.common_exc import InvalidModelTypeException
+from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 
 
 class DBType(Enum):

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import requests
-
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from kombu import Connection, Exchange, Queue
 from kombu.log import get_logger
@@ -9,10 +8,10 @@ from kombu.mixins import ConsumerProducerMixin
 from kombu.pools import producers
 from kombu.utils.debug import setup_logging
 
-from katara_worker.transitions import TASKS_TRANSITIONS
+from katara.katara_worker.transitions import TASKS_TRANSITIONS
 
-from config_client.client import Client as ConfigClient
-from katara_client.client import Client as KataraClient
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.katara_client.client import Client as KataraClient
 
 
 EXCHANGE_NAME = 'katara-tasks'

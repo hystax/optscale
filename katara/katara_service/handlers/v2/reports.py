@@ -1,9 +1,11 @@
 import json
 
-from katara_service.controllers.report import ReportAsyncController
-from katara_service.handlers.v2.base import (
-    BaseAsyncCollectionHandler, BaseAsyncItemHandler)
-from katara_service.utils import ModelEncoder
+from katara.katara_service.controllers.report import ReportAsyncController
+from katara.katara_service.handlers.v2.base import (
+    BaseAsyncCollectionHandler,
+    BaseAsyncItemHandler
+)
+from katara.katara_service.utils import ModelEncoder
 
 
 class ReportAsyncCollectionHandler(BaseAsyncCollectionHandler):

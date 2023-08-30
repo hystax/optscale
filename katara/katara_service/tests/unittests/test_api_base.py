@@ -2,12 +2,12 @@ import tornado.testing
 from unittest.mock import patch
 import uuid
 
-from katara_service.models.models import *
-from katara_service.main import make_app, Roles
-from katara_service.models.db_factory import DBType, DBFactory
-from katara_service.models.db_base import BaseDB
+from katara.katara_service.models.models import *
+from katara.katara_service.main import make_app, Roles
+from katara.katara_service.models.db_factory import DBType, DBFactory
+from katara.katara_service.models.db_base import BaseDB
 
-import katara_client.client
+import optscale_client.katara_client.client
 
 
 class TestBase(tornado.testing.AsyncHTTPTestCase):
@@ -30,11 +30,11 @@ class TestBase(tornado.testing.AsyncHTTPTestCase):
     def setUp(self):
         super().setUp()
         secret = gen_id()
-        patch('config_client.client.Client.cluster_secret',
+        patch('optscale_client.config_client.client.Client.cluster_secret',
               return_value=secret).start()
-        http_provider = katara_client.client.FetchMethodHttpProvider(
+        http_provider = optscale_client.katara_client.client.FetchMethodHttpProvider(
             self.fetch, rethrow=False)
-        self.client = katara_client.client.Client(
+        self.client = optscale_client.katara_client.client.Client(
             http_provider=http_provider)
         self.client.secret = secret
 

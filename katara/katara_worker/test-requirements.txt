@@ -4,4 +4,4 @@ pep8==1.7.1
 pylint==2.6.0
 freezegun==0.3.8
 concurrencytest==0.1.2
-katara-client==0.0.15
+

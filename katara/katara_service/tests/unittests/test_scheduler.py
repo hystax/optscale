@@ -1,11 +1,10 @@
 from freezegun import freeze_time
-
 from unittest.mock import patch
 
-from katara_service.controllers.schedule import ScheduleController
-from katara_service.tests.unittests.test_controller_base import TestControllerBase
 
-from katara_service.models.models import *
+from katara.katara_service.models.models import *
+from katara.katara_service.controllers.schedule import ScheduleController
+from katara.katara_service.tests.unittests.test_controller_base import TestControllerBase
 
 
 class TestScheduler(TestControllerBase):
@@ -41,30 +40,30 @@ class TestScheduler(TestControllerBase):
                 self.db_session.commit()
         return schedules
 
-    @patch("katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
     def test_no_schedules(self, p_put_tasks):
         self.generate_schedules(0)
         controller = ScheduleController(db_session=self.db_session)
         controller.generate_tasks()
         self.assertEqual(0, p_put_tasks.call_count)
 
-    @patch("katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
     def test_below_bulk_schedules(self, p_put_tasks):
         self.generate_schedules(2)
         controller = ScheduleController(db_session=self.db_session)
         controller.generate_tasks()
         self.assertEqual(1, p_put_tasks.call_count)
 
-    @patch("katara_service.controllers.schedule.ScheduleController.put_tasks")
-    @patch("katara_service.controllers.schedule.BULK_SIZE", 4)
+    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch("katara.katara_service.controllers.schedule.BULK_SIZE", 4)
     def test_upper_bulk_schedules_1(self, p_put_tasks):
         self.generate_schedules(5)
         controller = ScheduleController(db_session=self.db_session)
         controller.generate_tasks()
         self.assertEqual(2, p_put_tasks.call_count)
 
-    @patch("katara_service.controllers.schedule.ScheduleController.put_tasks")
-    @patch("katara_service.controllers.schedule.BULK_SIZE", 2)
+    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch("katara.katara_service.controllers.schedule.BULK_SIZE", 2)
     def test_upper_bulk_schedules_2(self, p_put_tasks):
         self.generate_schedules(51)
         controller = ScheduleController(db_session=self.db_session)

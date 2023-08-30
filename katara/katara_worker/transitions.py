@@ -1,5 +1,15 @@
-from katara_worker.consts import TaskState
-from katara_worker.tasks import *
+from katara.katara_worker.consts import TaskState
+from katara.katara_worker.tasks import (
+    SetStarted,
+    SetGettingScopes,
+    GetScopes,
+    SetGettingRecipients,
+    GetRecipients,
+    SetGeneratingReportData,
+    GenerateReportData,
+    SetPuttingToHerald,
+    PutToHerald
+)
 
 
 TASKS_TRANSITIONS = {

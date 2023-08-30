@@ -1,7 +1,8 @@
 import uuid
 from calendar import monthrange
 from datetime import datetime
-from katara_worker.reports_generators.base import Base
+
+from katara.katara_worker.reports_generators.base import Base
 
 
 class OrganizationExpenses(Base):

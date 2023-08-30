@@ -1,11 +1,11 @@
 import logging
 from sqlalchemy.exc import IntegrityError
 
-from katara_service.exceptions import Err
-from katara_service.models.models import PermissionKeys
-from katara_service.models.db_base import BaseDB
+from katara.katara_service.exceptions import Err
+from katara.katara_service.models.models import PermissionKeys
+from katara.katara_service.models.db_base import BaseDB
 
-from optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 
 LOG = logging.getLogger(__name__)

@@ -1,12 +1,16 @@
 import json
 
-from optscale_exceptions.common_exc import WrongArgumentsException
-from optscale_exceptions.http_exc import OptHTTPError
-from katara_service.controllers.recipient import RecipientAsyncController
-from katara_service.exceptions import Err
-from katara_service.handlers.v2.base import (
-    BaseAsyncItemHandler, BaseAsyncCollectionHandler)
-from katara_service.utils import ModelEncoder
+
+from katara.katara_service.controllers.recipient import RecipientAsyncController
+from katara.katara_service.exceptions import Err
+from katara.katara_service.handlers.v2.base import (
+    BaseAsyncItemHandler,
+    BaseAsyncCollectionHandler
+)
+from katara.katara_service.utils import ModelEncoder
+
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 PAYLOAD_MAP_PARAMS = {

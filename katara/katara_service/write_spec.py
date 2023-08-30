@@ -2,9 +2,12 @@ import yaml
 import os.path
 import re
 import json
-import katara_service.main as server
 from apispec import APISpec, utils
 from tornado.template import Template
+
+
+import katara.katara_service.main as server
+
 
 # Spec reference:
 # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md

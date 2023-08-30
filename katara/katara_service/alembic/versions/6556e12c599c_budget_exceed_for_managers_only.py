@@ -15,36 +15,36 @@ from sqlalchemy import Integer, delete, String, select, and_, update
 
 
 # revision identifiers, used by Alembic.
-revision = '6556e12c599c'
-down_revision = 'caecb94fc78a'
+revision = "6556e12c599c"
+down_revision = "caecb94fc78a"
 branch_labels = None
 depends_on = None
 
-old_crontab = '0 */3 * * *'
-new_crontab = '0 0 * * *'
-module_name = 'budget_exceed'
+old_crontab = "0 */3 * * *"
+new_crontab = "0 0 * * *"
+module_name = "budget_exceed"
 
 report_table = table(
-    'report',
-    column('id', String(length=36)),
-    column('module_name', String(128)),
+    "report",
+    column("id", String(length=36)),
+    column("module_name", String(128)),
 )
 
 schedule_table = table(
-    'schedule',
-    column('id', String(length=36)),
-    column('report_id', String(length=36)),
-    column('recipient_id', String(length=36)),
-    column('crontab', String(length=128)),
-    column('last_run', Integer),
-    column('next_run', Integer),
-    column('created_at', Integer)
+    "schedule",
+    column("id", String(length=36)),
+    column("report_id", String(length=36)),
+    column("recipient_id", String(length=36)),
+    column("crontab", String(length=128)),
+    column("last_run", Integer),
+    column("next_run", Integer),
+    column("created_at", Integer),
 )
 
 recipient_table = table(
-    'recipient',
-    column('id', String(length=36)),
-    column('role_purpose', String(128)),
+    "recipient",
+    column("id", String(length=36)),
+    column("role_purpose", String(128)),
 )
 
 
@@ -62,20 +62,25 @@ def upgrade():
 
     try:
         recipients_stmt = select([recipient_table]).where(
-            recipient_table.c.role_purpose == 'optscale_engineer')
+            recipient_table.c.role_purpose == "optscale_engineer"
+        )
         engineers = session.execute(recipients_stmt)
-        engineers_ids = list(map(lambda x: x['id'], engineers))
+        engineers_ids = list(map(lambda x: x["id"], engineers))
         budget_exceed_stmt = select([report_table]).where(
-            report_table.c.module_name == module_name)
+            report_table.c.module_name == module_name
+        )
         for budget_exceed_report in session.execute(budget_exceed_stmt):
-            update_schedule_stmt = update(schedule_table).values(
-                crontab=new_crontab
-            ).where(
-                schedule_table.c.report_id == budget_exceed_report['id'])
-            delete_schedule_stmt = delete(schedule_table).where(and_(
-                schedule_table.c.report_id == budget_exceed_report['id'],
-                schedule_table.c.recipient_id.in_(engineers_ids)
-            ))
+            update_schedule_stmt = (
+                update(schedule_table)
+                .values(crontab=new_crontab)
+                .where(schedule_table.c.report_id == budget_exceed_report["id"])
+            )
+            delete_schedule_stmt = delete(schedule_table).where(
+                and_(
+                    schedule_table.c.report_id == budget_exceed_report["id"],
+                    schedule_table.c.recipient_id.in_(engineers_ids),
+                )
+            )
             session.execute(delete_schedule_stmt)
             session.execute(update_schedule_stmt)
             session.commit()
@@ -89,27 +94,32 @@ def downgrade():
 
     try:
         recipients_stmt = select([recipient_table]).where(
-            recipient_table.c.role_purpose == 'optscale_engineer')
+            recipient_table.c.role_purpose == "optscale_engineer"
+        )
         budget_exceed_stmt = select([report_table]).where(
-            report_table.c.module_name == module_name)
+            report_table.c.module_name == module_name
+        )
 
         schedules = []
         now = get_current_timestamp()
         for budget_exceed_report in session.execute(budget_exceed_stmt):
             for engineer in session.execute(recipients_stmt):
-                schedules.append({
-                    'id': gen_id(),
-                    'report_id': budget_exceed_report['id'],
-                    'recipient_id': engineer['id'],
-                    'crontab': old_crontab,
-                    'last_run': 0,
-                    'next_run': now,
-                    'created_at': now
-                })
-            update_schedule_stmt = update(schedule_table).values(
-                crontab=old_crontab
-            ).where(
-                schedule_table.c.report_id == budget_exceed_report['id'])
+                schedules.append(
+                    {
+                        "id": gen_id(),
+                        "report_id": budget_exceed_report["id"],
+                        "recipient_id": engineer["id"],
+                        "crontab": old_crontab,
+                        "last_run": 0,
+                        "next_run": now,
+                        "created_at": now,
+                    }
+                )
+            update_schedule_stmt = (
+                update(schedule_table)
+                .values(crontab=old_crontab)
+                .where(schedule_table.c.report_id == budget_exceed_report["id"])
+            )
             session.execute(update_schedule_stmt)
             op.bulk_insert(schedule_table, schedules)
         session.commit()

@@ -6,12 +6,12 @@ from alembic.config import Config
 from alembic.runtime.environment import EnvironmentContext
 from alembic.script import ScriptDirectory
 
-import katara_service.models.models
+import katara.katara_service.models.models
 
 LOG = logging.getLogger(__name__)
 
 # declarative base metadata
-target_metadata = katara_service.models.models.Base.metadata
+target_metadata = katara.katara_service.models.models.Base.metadata
 
 
 class Migrator:

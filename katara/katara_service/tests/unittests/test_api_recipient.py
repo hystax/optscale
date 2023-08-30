@@ -1,7 +1,7 @@
 import json
 import uuid
 
-from katara_service.tests.unittests.test_api_base import TestBase
+from katara.katara_service.tests.unittests.test_api_base import TestBase
 
 
 class TestRecipientApi(TestBase):
