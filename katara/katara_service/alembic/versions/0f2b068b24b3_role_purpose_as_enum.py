@@ -10,19 +10,19 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0f2b068b24b3'
-down_revision = '7cdb069460b5'
+revision = "0f2b068b24b3"
+down_revision = "7cdb069460b5"
 branch_labels = None
 depends_on = None
 
 
-role_purposes = sa.Enum(
-    'optscale_member', 'optscale_engineer', 'optscale_manager')
+role_purposes = sa.Enum("optscale_member", "optscale_engineer", "optscale_manager")
 
 
 def upgrade():
-    op.alter_column('recipient', 'role_purpose',
-                    existing_type=role_purposes, nullable=False)
+    op.alter_column(
+        "recipient", "role_purpose", existing_type=role_purposes, nullable=False
+    )
 
 
 def downgrade():

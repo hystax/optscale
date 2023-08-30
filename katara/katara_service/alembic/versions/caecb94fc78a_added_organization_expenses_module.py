@@ -15,23 +15,23 @@ from sqlalchemy import Integer, insert, String, TEXT, Enum
 
 
 # revision identifiers, used by Alembic.
-revision = 'caecb94fc78a'
-down_revision = '0f2b068b24b3'
+revision = "caecb94fc78a"
+down_revision = "0f2b068b24b3"
 branch_labels = None
 depends_on = None
 
 
 report_table = table(
-    'report',
-    column('id', String(length=36)),
-    column('created_at', Integer()),
-    column('name', String(50)),
-    column('module_name', String(128)),
-    column('report_format', Enum('html')),
-    column('template', String(128)),
-    column('description', TEXT())
+    "report",
+    column("id", String(length=36)),
+    column("created_at", Integer()),
+    column("name", String(50)),
+    column("module_name", String(128)),
+    column("report_format", Enum("html")),
+    column("template", String(128)),
+    column("description", TEXT()),
 )
-report_module = 'organization_expenses'
+report_module = "organization_expenses"
 
 
 def upgrade():
@@ -44,9 +44,10 @@ def upgrade():
             created_at=int(datetime.datetime.utcnow().timestamp()),
             name=report_module,
             module_name=report_module,
-            report_format='html',
+            report_format="html",
             template=report_module,
-            description='Organization expenses report')
+            description="Organization expenses report",
+        )
         session.execute(ins_stmt)
         session.commit()
     finally:
@@ -58,8 +59,9 @@ def downgrade():
     session = Session(bind=bind)
 
     try:
-        session.execute(report_table.delete().where(
-            report_table.c.module_name == report_module))
+        session.execute(
+            report_table.delete().where(report_table.c.module_name == report_module)
+        )
         session.commit()
     finally:
         session.close()

@@ -3,17 +3,19 @@ import datetime
 import logging
 from sqlalchemy import and_, exists
 from sqlalchemy.exc import IntegrityError
-
-from katara_service.controllers.base import BaseController
-from katara_service.controllers.base_async import BaseAsyncControllerWrapper
-from katara_service.exceptions import Err
-from katara_service.models.models import Schedule, Task, Recipient, Report
-
-from optscale_exceptions.common_exc import (
-    NotFoundException, WrongArgumentsException, ConflictException)
-
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
+
+from katara.katara_service.controllers.base import BaseController
+from katara.katara_service.controllers.base_async import BaseAsyncControllerWrapper
+from katara.katara_service.exceptions import Err
+from katara.katara_service.models.models import Schedule, Task, Recipient, Report
+
+from tools.optscale_exceptions.common_exc import (
+    NotFoundException,
+    WrongArgumentsException,
+    ConflictException
+)
 
 
 LOG = logging.getLogger(__name__)

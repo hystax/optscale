@@ -3,14 +3,19 @@ import logging
 import traceback
 import tornado.web
 
-from katara_service.exceptions import Err
-from katara_service.models.db_base import BaseDB
-from katara_service.utils import ModelEncoder
+from katara.katara_service.exceptions import Err
+from katara.katara_service.models.db_base import BaseDB
+from katara.katara_service.utils import ModelEncoder
 
-from optscale_exceptions.common_exc import (
-    ForbiddenException, WrongArgumentsException, NotFoundException,
-    ConflictException, UnauthorizedException)
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import (
+    ForbiddenException,
+    WrongArgumentsException,
+    NotFoundException,
+    ConflictException,
+    UnauthorizedException
+)
+
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 LOG = logging.getLogger(__name__)

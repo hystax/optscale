@@ -1,11 +1,16 @@
 import json
 
-from optscale_exceptions.http_exc import OptHTTPError
-from katara_service.controllers.schedule import ScheduleAsyncController
-from katara_service.exceptions import Err
-from katara_service.handlers.v2.base import (
-    BaseAsyncItemHandler, BaseAsyncCollectionHandler)
-from katara_service.utils import ModelEncoder
+
+from katara.katara_service.controllers.schedule import ScheduleAsyncController
+from katara.katara_service.exceptions import Err
+from katara.katara_service.handlers.v2.base import (
+    BaseAsyncItemHandler,
+    BaseAsyncCollectionHandler
+)
+from katara.katara_service.utils import ModelEncoder
+
+
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 class ScheduleAsyncItemHandler(BaseAsyncItemHandler):

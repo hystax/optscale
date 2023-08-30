@@ -1,8 +1,0 @@
-ARG BUILDTAG=build
-FROM katara_worker:${BUILDTAG}
-MAINTAINER Hystax
-
-COPY requirements_test.txt .pylintrc .noserc .coveragerc ./
-RUN pip install --no-cache-dir -r requirements_test.txt
-
-COPY katara_worker/tests ./tests

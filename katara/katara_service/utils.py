@@ -5,9 +5,12 @@ import json
 import logging
 import uuid
 
-from optscale_exceptions.common_exc import WrongArgumentsException
 
-from katara_service.exceptions import Err
+from katara.katara_service.exceptions import Err
+
+
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+
 
 LOG = logging.getLogger(__name__)
 

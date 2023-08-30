@@ -10,21 +10,29 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a3f9fa01a7f6'
-down_revision = '003afab1a585'
+revision = "a3f9fa01a7f6"
+down_revision = "003afab1a585"
 branch_labels = None
 depends_on = None
 
 
 new_states = sa.Enum(
-    'created', 'started', 'getting_recipients', 'got_recipients',
-    'generating_data', 'generated_data', 'putting_to_object_storage',
-    'put_to_object_storage', 'putting_to_herald', 'completed', 'error')
+    "created",
+    "started",
+    "getting_recipients",
+    "got_recipients",
+    "generating_data",
+    "generated_data",
+    "putting_to_object_storage",
+    "put_to_object_storage",
+    "putting_to_herald",
+    "completed",
+    "error",
+)
 
 
 def upgrade():
-    op.alter_column('task', 'state',
-                    existing_type=new_states, nullable=False)
+    op.alter_column("task", "state", existing_type=new_states, nullable=False)
 
 
 def downgrade():

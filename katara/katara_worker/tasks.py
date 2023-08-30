@@ -1,18 +1,18 @@
 import datetime
 import json
 import os
-
-from kombu.log import get_logger
-
 import boto3
 from boto3.session import Config as BotoConfig
+from kombu.log import get_logger
 
-from katara_worker.consts import TaskState
-from katara_worker.reports_generators.report import create_report
 
-from auth_client.client_v2 import Client as AuthClient
-from katara_client.client import Client as KataraClient
-from rest_api_client.client_v2 import Client as RestClient
+from katara.katara_worker.consts import TaskState
+from katara.katara_worker.reports_generators.report import create_report
+
+
+from optscale_client.auth_client.client_v2 import Client as AuthClient
+from optscale_client.katara_client.client import Client as KataraClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 
 LOG = get_logger(__name__)

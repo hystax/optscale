@@ -10,7 +10,7 @@ from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import relationship
 
-from katara_service.utils import ModelEncoder, gen_id
+from katara.katara_service.utils import ModelEncoder, gen_id
 
 
 def get_current_timestamp():

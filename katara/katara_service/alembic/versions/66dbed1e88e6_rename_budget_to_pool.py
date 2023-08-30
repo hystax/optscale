@@ -10,25 +10,31 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Session
 
 # revision identifiers, used by Alembic.
-revision = '66dbed1e88e6'
-down_revision = '36a230e78da1'
+revision = "66dbed1e88e6"
+down_revision = "36a230e78da1"
 branch_labels = None
 depends_on = None
 
-REPORT_NAMES = [('pool_limit_exceed_resources', 'budget_exceed_resources'),
-                ('pool_limit_exceed', 'budget_exceed')]
-MODULE_NAMES = [('pool_limit_exceed_resources', 'budget_exceed_resources'),
-                ('pool_limit_exceed', 'budget_exceed')]
-DESCRIPTIONS = [('Pool limit exceed resources report', 'Budget exceed resources report'),
-                ('Pool owner constraints report', 'Budget owner constraints report'),
-                ('Pool limit exceed report', 'Budget exceed report')]
+REPORT_NAMES = [
+    ("pool_limit_exceed_resources", "budget_exceed_resources"),
+    ("pool_limit_exceed", "budget_exceed"),
+]
+MODULE_NAMES = [
+    ("pool_limit_exceed_resources", "budget_exceed_resources"),
+    ("pool_limit_exceed", "budget_exceed"),
+]
+DESCRIPTIONS = [
+    ("Pool limit exceed resources report", "Budget exceed resources report"),
+    ("Pool owner constraints report", "Budget owner constraints report"),
+    ("Pool limit exceed report", "Budget exceed report"),
+]
 
 report_table = sa.table(
-    'report',
-    sa.column('id', sa.String(length=36)),
-    sa.column('name', sa.String(50)),
-    sa.column('module_name', sa.String(128)),
-    sa.column('description', sa.TEXT())
+    "report",
+    sa.column("id", sa.String(length=36)),
+    sa.column("name", sa.String(50)),
+    sa.column("module_name", sa.String(128)),
+    sa.column("description", sa.TEXT()),
 )
 
 
@@ -38,14 +44,23 @@ def upgrade():
     session = Session(bind=bind)
     try:
         for new_name, old_name in REPORT_NAMES:
-            session.execute(sa.update(report_table).values(name=new_name).where(
-                report_table.c.name == old_name))
+            session.execute(
+                sa.update(report_table)
+                .values(name=new_name)
+                .where(report_table.c.name == old_name)
+            )
         for new_name, old_name in MODULE_NAMES:
-            session.execute(sa.update(report_table).values(module_name=new_name).where(
-                report_table.c.module_name == old_name))
+            session.execute(
+                sa.update(report_table)
+                .values(module_name=new_name)
+                .where(report_table.c.module_name == old_name)
+            )
         for new_name, old_name in DESCRIPTIONS:
-            session.execute(sa.update(report_table).values(description=new_name).where(
-                report_table.c.description == old_name))
+            session.execute(
+                sa.update(report_table)
+                .values(description=new_name)
+                .where(report_table.c.description == old_name)
+            )
         session.commit()
     except Exception:
         session.rollback()
@@ -61,14 +76,23 @@ def downgrade():
     session = Session(bind=bind)
     try:
         for old_name, new_name in REPORT_NAMES:
-            session.execute(sa.update(report_table).values(name=new_name).where(
-                report_table.c.name == old_name))
+            session.execute(
+                sa.update(report_table)
+                .values(name=new_name)
+                .where(report_table.c.name == old_name)
+            )
         for old_name, new_name in MODULE_NAMES:
-            session.execute(sa.update(report_table).values(module_name=new_name).where(
-                report_table.c.module_name == old_name))
+            session.execute(
+                sa.update(report_table)
+                .values(module_name=new_name)
+                .where(report_table.c.module_name == old_name)
+            )
         for old_name, new_name in DESCRIPTIONS:
-            session.execute(sa.update(report_table).values(description=new_name).where(
-                report_table.c.description == old_name))
+            session.execute(
+                sa.update(report_table)
+                .values(description=new_name)
+                .where(report_table.c.description == old_name)
+            )
         session.commit()
     except Exception:
         session.rollback()

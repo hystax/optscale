@@ -1,7 +1,7 @@
 from retrying import retry
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-import katara_service.models.models as model_base
+import katara.katara_service.models.models as model_base
 
 
 def should_retry(exception):

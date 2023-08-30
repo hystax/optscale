@@ -1,4 +1,4 @@
-from katara_worker.reports_generators.base import Base
+from katara.katara_worker.reports_generators.base import Base
 
 
 RESOURCE_TYPE_MAP = {

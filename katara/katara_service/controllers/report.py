@@ -1,11 +1,11 @@
 from sqlalchemy import and_, exists
 
-from katara_service.controllers.base import BaseController
-from katara_service.controllers.base_async import BaseAsyncControllerWrapper
-from katara_service.exceptions import Err
-from katara_service.models.models import Report
+from katara.katara_service.controllers.base import BaseController
+from katara.katara_service.controllers.base_async import BaseAsyncControllerWrapper
+from katara.katara_service.exceptions import Err
+from katara.katara_service.models.models import Report
 
-from optscale_exceptions.common_exc import ConflictException
+from tools.optscale_exceptions.common_exc import ConflictException
 
 
 class ReportController(BaseController):

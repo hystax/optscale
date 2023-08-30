@@ -1,4 +1,4 @@
-from katara_worker.reports_generators.violated_constraints import (
+from katara.katara_worker.reports_generators.violated_constraints import (
     ViolatedConstraints)
 
 

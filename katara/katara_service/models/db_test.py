@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
-from katara_service.models.db_base import BaseDB
+from katara.katara_service.models.db_base import BaseDB
 
 
 class TestDB(BaseDB):

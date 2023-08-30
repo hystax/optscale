@@ -2,16 +2,17 @@ import argparse
 import enum
 import logging
 import os
-
 import tornado.ioloop
 import tornado.web
 
-import config_client.client
 
-import katara_service.handlers.v2 as h_v2
-from katara_service.controllers.schedule import ScheduleController
-from katara_service.models.db_factory import DBFactory, DBType
-from katara_service.urls import urls_v2
+import katara.katara_service.handlers.v2 as h_v2
+from katara.katara_service.controllers.schedule import ScheduleController
+from katara.katara_service.models.db_factory import DBFactory, DBType
+from katara.katara_service.urls import urls_v2
+
+
+import optscale_client.config_client.client
 
 
 DEFAULT_PORT = 8935
@@ -90,7 +91,7 @@ def make_app(db_type, role, etcd_host, etcd_port, wait=False):
         Roles.scheduler: setup_scheduler,
     }
     setup_func = applications_map.get(role)
-    config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
+    config_cl = optscale_client.config_client.client.Client(host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
 

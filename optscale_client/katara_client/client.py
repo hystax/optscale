@@ -8,7 +8,7 @@ import requests
 from retrying import retry
 
 LOG = logging.getLogger(__name__)
-ACURA_CERT_PATH = '/acura.crt'
+ACURA_CERT_PATH = "/acura.crt"
 
 
 def retry_if_connection_error(exception):
@@ -21,16 +21,15 @@ def retry_if_connection_error(exception):
 
 
 class AbstractHttpProvider(metaclass=ABCMeta):
-    def __init__(self, secret='', ip=None):
+    def __init__(self, secret="", ip=None):
         self._secret = secret
         self._ip = ip
 
     @property
     def headers(self):
-        headers = {'Secret': str(self._secret),
-                   'Content-type': 'application/json'}
+        headers = {"Secret": str(self._secret), "Content-type": "application/json"}
         if self._ip:
-            headers.update({'X-Forwarded-For': self._ip})
+            headers.update({"X-Forwarded-For": self._ip})
         return headers
 
     @property
@@ -47,29 +46,32 @@ class AbstractHttpProvider(metaclass=ABCMeta):
 
 
 class RequestsHttpProvider(AbstractHttpProvider):
-    def __init__(self, url, secret='', verify=True, ip=None):
+    def __init__(self, url, secret="", verify=True, ip=None):
         self.url = url
         self.verify = verify
         self.session = requests.session()
-        acura_cert = os.environ.get('ACURA_CERT')
+        acura_cert = os.environ.get("ACURA_CERT")
         if acura_cert is not None:
             if not os.path.exists(ACURA_CERT_PATH):
-                with open(ACURA_CERT_PATH, 'w') as f_crt:
+                with open(ACURA_CERT_PATH, "w") as f_crt:
                     f_crt.write(acura_cert)
             self.session.verify = ACURA_CERT_PATH
         super().__init__(secret, ip)
 
-    @retry(stop_max_delay=10000, wait_fixed=1000,
-           retry_on_exception=retry_if_connection_error)
+    @retry(
+        stop_max_delay=10000,
+        wait_fixed=1000,
+        retry_on_exception=retry_if_connection_error,
+    )
     def request(self, path, method, data=None):
         full_url = self.url + path
         response = self.session.request(
-            method, full_url, data=data,
-            headers=self.headers, verify=self.verify)
+            method, full_url, data=data, headers=self.headers, verify=self.verify
+        )
         response.raise_for_status()
         response_body = None
         if response.status_code != requests.codes.no_content:
-            response_body = json.loads(response.content.decode('utf-8'))
+            response_body = json.loads(response.content.decode("utf-8"))
         return response.status_code, response_body
 
     def close(self):
@@ -77,20 +79,23 @@ class RequestsHttpProvider(AbstractHttpProvider):
 
 
 class FetchMethodHttpProvider(AbstractHttpProvider):
-    def __init__(self, fetch_method, rethrow=True, secret='', ip=None):
+    def __init__(self, fetch_method, rethrow=True, secret="", ip=None):
         self.fetch = fetch_method
         self._rethrow = rethrow
         super().__init__(secret, ip)
 
     def request(self, url, method, body=None):
         response = self.fetch(
-            url, method=method, body=body, allow_nonstandard_methods=True,
-            headers=self.headers
+            url,
+            method=method,
+            body=body,
+            allow_nonstandard_methods=True,
+            headers=self.headers,
         )
         if self._rethrow:
             response.rethrow()
         try:
-            decoded_response = json.loads(response.body.decode('utf-8'))
+            decoded_response = json.loads(response.body.decode("utf-8"))
         except Exception as e:
             LOG.error("Failed to decode response body %s", e)
             decoded_response = None
@@ -101,9 +106,17 @@ class FetchMethodHttpProvider(AbstractHttpProvider):
 
 
 class Client:
-    def __init__(self, address="127.0.0.1", port="80", api_version="v2",
-                 url=None, http_provider=None, secret='',
-                 verify=True, ip=None):
+    def __init__(
+        self,
+        address="127.0.0.1",
+        port="80",
+        api_version="v2",
+        url=None,
+        http_provider=None,
+        secret="",
+        verify=True,
+        ip=None,
+    ):
         if http_provider is None:
             if url is None:
                 url = "http://%s:%s" % (address, port)
@@ -145,38 +158,36 @@ class Client:
 
     @staticmethod
     def query_url(**query):
-        query = {
-            key: value for key, value in query.items() if value is not None
-        }
+        query = {key: value for key, value in query.items() if value is not None}
         encoded_query = urlencode(query, doseq=True)
         return "?" + encoded_query
 
     @staticmethod
     def reports_url(id=None):
-        url = 'reports'
+        url = "reports"
         if id is not None:
-            url = '%s/%s' % (url, id)
+            url = "%s/%s" % (url, id)
         return url
 
     @staticmethod
     def schedules_url(id=None):
-        url = 'schedules'
+        url = "schedules"
         if id is not None:
-            url = '%s/%s' % (url, id)
+            url = "%s/%s" % (url, id)
         return url
 
     @staticmethod
     def recipients_url(id=None):
-        url = 'recipients'
+        url = "recipients"
         if id is not None:
-            url = '%s/%s' % (url, id)
+            url = "%s/%s" % (url, id)
         return url
 
     @staticmethod
     def tasks_url(id=None):
-        url = 'tasks'
+        url = "tasks"
         if id is not None:
-            url = '%s/%s' % (url, id)
+            url = "%s/%s" % (url, id)
         return url
 
     def schedule_get(self, id):
@@ -192,29 +203,26 @@ class Client:
         body = {
             "crontab": crontab,
             "report_id": report_id,
-            "recipient_id": recipient_id
+            "recipient_id": recipient_id,
         }
         return self.post(self.schedules_url(), body)
 
     def schedule_list(self, recipient_id, report_id=None):
         url = self.schedules_url() + self.query_url(
-            recipient_id=recipient_id, report_id=report_id)
+            recipient_id=recipient_id, report_id=report_id
+        )
         return self.get(url)
 
     def task_get(self, id, expanded=False):
         url = self.tasks_url(id)
-        url += self.query_url(
-            expanded=expanded
-        )
+        url += self.query_url(expanded=expanded)
         return self.get(url)
 
     def task_update(self, id, **params):
         return self.patch(self.tasks_url(id), params)
 
     def tasks_create(self, tasks: list):
-        body = {
-            "tasks": tasks
-        }
+        body = {"tasks": tasks}
         return self.post(self.tasks_url(), body)
 
     def report_get(self, id):
@@ -229,11 +237,12 @@ class Client:
     def recipient_update(self, id, **params):
         return self.patch(self.recipients_url(id), params)
 
-    def recipients_delete(self, recipient_ids: list = None, scope_ids: list = None,
-            user_ids: list = None):
+    def recipients_delete(
+        self, recipient_ids: list = None, scope_ids: list = None, user_ids: list = None
+    ):
         url = self.recipients_url() + self.query_url(
-            recipient_ids=recipient_ids, scope_ids=scope_ids,
-            user_ids=user_ids)
+            recipient_ids=recipient_ids, scope_ids=scope_ids, user_ids=user_ids
+        )
         return self.delete(url)
 
     def recipient_create(self, scope_id, role_purpose=None, user_id=None, meta=None):
@@ -242,9 +251,9 @@ class Client:
             "scope_id": scope_id,
         }
         if user_id:
-            body['user_id'] = user_id
+            body["user_id"] = user_id
         if meta:
-            body['meta'] = meta
+            body["meta"] = meta
         return self.post(self.recipients_url(), body)
 
     def recipient_list(self, scope_id):

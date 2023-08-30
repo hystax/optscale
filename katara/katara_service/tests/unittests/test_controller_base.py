@@ -1,7 +1,7 @@
 import unittest
 
-from katara_service.models.db_factory import DBType, DBFactory
-from katara_service.models.db_base import BaseDB
+from katara.katara_service.models.db_factory import DBType, DBFactory
+from katara.katara_service.models.db_base import BaseDB
 
 
 class TestControllerBase(unittest.TestCase):
