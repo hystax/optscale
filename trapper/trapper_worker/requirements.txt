@@ -1,6 +1,8 @@
-cloud-adapter==0.1.1540
-config-client==1.0.145
-restapi-client==1.0.655
 kombu==4.6.8
 clickhouse-driver==0.2.2
 pymongo==4.3.3
+urllib3==1.25.3
+# OptScale packages
+-e optscale_client/rest_api_client
+-e tools/cloud_adapter
+-e optscale_client/config_client

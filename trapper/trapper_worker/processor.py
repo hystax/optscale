@@ -5,8 +5,8 @@ from pymongo import MongoClient
 from kombu.log import get_logger
 from clickhouse_driver import Client as ClickHouseClient
 
-from cloud_adapter.cloud import Cloud as CloudAdapter
-from rest_api_client.client_v2 import Client as RestClient
+from tools.cloud_adapter.cloud import Cloud as CloudAdapter
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 LOG = get_logger(__name__)
 CHUNK_SIZE = 10000
@@ -289,7 +289,8 @@ class GcpTrafficExpenseProcessor(BaseTrafficExpenseProcessor):
         sku = e.get("sku", "")
         match = GcpTrafficExpenseProcessor.TRAFFIC_PATTERN_REGEX.match(sku)
         traffic_type = match.group(1)
-        if traffic_type in ("Inter Region", "Internet", "Google", "Vpn Inter Region", "Vpn Internet"):
+        if traffic_type in ("Inter Region", "Internet", "Google",
+                            "Vpn Inter Region", "Vpn Internet"):
             # Network Inter Region Egress from Netherlands to Hong Kong
             location = match.group(2)
             _from, _to = self._parse_location_from_sku(location)
