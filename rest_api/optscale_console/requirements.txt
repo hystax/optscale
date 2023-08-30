@@ -1,0 +1,5 @@
+PyYAML
+restapi-client==1.0.373
+auth-client==0.0.65
+herald-client==0.0.7
+report-client==0.0.57

@@ -1,2 +1,0 @@
-Hystax OptScale Types package
-=============================

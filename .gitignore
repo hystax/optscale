@@ -11,7 +11,7 @@ venv/
 .DS_Store
 optscale-deploy/overlay/*.yml
 !optscale-deploy/overlay/user_template.yml
-
+rest_api/.clickhouse
 # Build files
 **/dist
 **/*egg-info/
