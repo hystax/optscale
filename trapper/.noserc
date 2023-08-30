@@ -1,6 +1,6 @@
 [nosetests]
 with-coverage=1
-cover-package=trapper_worker
+cover-package=trapper
 cover-inclusive=1
 cover-erase=1
 verbosity=2

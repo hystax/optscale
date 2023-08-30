@@ -1,0 +1,6 @@
+ARG BUILDTAG=build
+FROM trapper_worker:${BUILDTAG}
+MAINTAINER Hystax
+
+COPY trapper/test-requirements.txt trapper/.pylintrc trapper/.noserc trapper/.coveragerc ./trapper/
+RUN pip install --no-cache-dir -r trapper/test-requirements.txt
