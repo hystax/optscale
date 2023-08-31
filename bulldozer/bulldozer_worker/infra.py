@@ -7,8 +7,8 @@ import re
 import tarfile
 import logging
 
-from exceptions import NotSupportedException
-from generator.aws import TFGeneratorFactory
+from bulldozer.bulldozer_worker.exceptions import NotSupportedException
+from bulldozer.bulldozer_worker.generator.aws import TFGeneratorFactory
 
 LOG = logging.getLogger(__name__)
 

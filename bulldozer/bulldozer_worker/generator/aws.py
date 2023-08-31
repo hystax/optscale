@@ -2,7 +2,7 @@ import os
 import logging
 import pymustache
 
-from bulldozer_worker.exceptions import NotSupportedException
+from bulldozer.bulldozer_worker.exceptions import NotSupportedException
 
 LOG = logging.getLogger(__name__)
 

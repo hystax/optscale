@@ -6,6 +6,6 @@ pymustache==0.3
 # OptScale packages
 -e optscale_client/arcee_client
 -e optscale_client/config_client
--e optscale_client/restapi_client
+-e optscale_client/rest_api_client
 -e optscale_client/bulldozer_client
 

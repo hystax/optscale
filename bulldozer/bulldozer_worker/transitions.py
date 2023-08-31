@@ -1,4 +1,4 @@
-from tasks import (
+from bulldozer.bulldozer_worker.tasks import (
     TaskState,
     StartInfra,
     WaitArcee,
