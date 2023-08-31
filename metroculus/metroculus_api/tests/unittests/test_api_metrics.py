@@ -1,6 +1,6 @@
 from unittest.mock import patch
 from datetime import datetime, timedelta
-from metroculus_api.tests.unittests.test_api_base import TestBase
+from metroculus.metroculus_api.tests.unittests.test_api_base import TestBase
 
 
 class TestMetricsAPI(TestBase):
@@ -13,10 +13,16 @@ class TestMetricsAPI(TestBase):
     def mock_metroculus(return_value=None):
         if not return_value:
             return_value = []
-        patch('metroculus_api.controllers.metrics.MetricsController.'
-              '_get_metrics', return_value=return_value).start()
+        patch(
+            'metroculus.metroculus_api.controllers.metrics.MetricsController.'
+            '_get_metrics',
+            return_value=return_value).start()
 
-    def generate_metroculus_data(self, metrics, start_date=None, end_date=None):
+    def generate_metroculus_data(
+            self,
+            metrics,
+            start_date=None,
+            end_date=None):
         if not start_date:
             start_date = self.start_date
         if not end_date:

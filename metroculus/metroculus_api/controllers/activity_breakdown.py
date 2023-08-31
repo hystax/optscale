@@ -1,14 +1,14 @@
 import logging
 from datetime import datetime
 from collections import defaultdict
-from optscale_exceptions.common_exc import WrongArgumentsException
-from metroculus_api.exceptions import Err
-from metroculus_api.utils import (
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from metroculus.metroculus_api.exceptions import Err
+from metroculus.metroculus_api.utils import (
     check_string, check_list,
     check_positive_integer, check_non_negative_integer,
     SUPPORTED_METRICS)
-from metroculus_api.controllers.base import (BaseController,
-                                             BaseAsyncControllerWrapper)
+from metroculus.metroculus_api.controllers.base import (
+    BaseController, BaseAsyncControllerWrapper)
 
 LOG = logging.getLogger(__name__)
 DAYS_IN_WEEK = 7
@@ -48,12 +48,17 @@ class ActivityBreakdownController(BaseController):
         empty_matrix = [None] * DAYS_IN_WEEK * HOURS_IN_DAY
         result = defaultdict(lambda: defaultdict(lambda: empty_matrix.copy()))
         for resource_id, metric, value, day, hour in activity_breakdown:
-            interval_number = (day-1) * 24 + hour
+            interval_number = (day - 1) * 24 + hour
             result[resource_id][metric][interval_number] = value
         return result
 
     def _get_activity_breakdown(
-            self, cloud_account_id, resource_ids, start_date, end_date, meter_names):
+            self,
+            cloud_account_id,
+            resource_ids,
+            start_date,
+            end_date,
+            meter_names):
         """
         return resource_id, metric, average value, day of week, hour
         """

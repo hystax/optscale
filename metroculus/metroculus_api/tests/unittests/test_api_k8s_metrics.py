@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from datetime import datetime, timedelta
-from metroculus_api.tests.unittests.test_api_base import TestBase
-from metroculus_api.utils import seconds_to_hour
+from metroculus.metroculus_api.tests.unittests.test_api_base import TestBase
+from metroculus.metroculus_api.utils import seconds_to_hour
 
 
 class TestK8sMetricsAPI(TestBase):
@@ -14,8 +14,10 @@ class TestK8sMetricsAPI(TestBase):
     def mock_metroculus(return_value=None):
         if not return_value:
             return_value = []
-        patch('metroculus_api.controllers.k8s_metric.K8sMetricsController.'
-              '_get_metrics', return_value=return_value).start()
+        patch(
+            'metroculus.metroculus_api.controllers.k8s_metric.K8sMetricsController.'
+            '_get_metrics',
+            return_value=return_value).start()
 
     def test_invalid_cloud_account_id(self):
         for cl_acc_id in [None, '']:
@@ -135,5 +137,5 @@ class TestK8sMetricsAPI(TestBase):
             'namespace_quota_memory_requests_medium': item[22],
             'namespace_quota_cpu_requests_low': item[23],
             'namespace_quota_memory_requests_low': item[24]
-            } for item in data]
+        } for item in data]
         self.assertListEqual(result_ca_resp, ca_resp)

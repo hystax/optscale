@@ -1,13 +1,16 @@
 import logging
 from datetime import datetime
 from collections import defaultdict
-from optscale_exceptions.common_exc import WrongArgumentsException
-from metroculus_api.exceptions import Err
-from metroculus_api.utils import (
-    check_string, check_list, check_positive_integer, check_non_negative_integer,
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from metroculus.metroculus_api.exceptions import Err
+from metroculus.metroculus_api.utils import (
+    check_string,
+    check_list,
+    check_positive_integer,
+    check_non_negative_integer,
     SUPPORTED_METRICS)
-from metroculus_api.controllers.base import (BaseController,
-                                             BaseAsyncControllerWrapper)
+from metroculus.metroculus_api.controllers.base import (
+    BaseController, BaseAsyncControllerWrapper)
 
 LOG = logging.getLogger(__name__)
 

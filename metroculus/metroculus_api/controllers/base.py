@@ -25,6 +25,7 @@ class BaseAsyncControllerWrapper(object):
     """
     Used to wrap sync controller methods to return futures
     """
+
     def __init__(self, config_cl=None):
         self.config_cl = config_cl
         self.executor = tp_executor
@@ -42,7 +43,9 @@ class BaseAsyncControllerWrapper(object):
 
     def get_awaitable(self, meth_name, *args, **kwargs):
         method = getattr(self.controller, meth_name)
-        return self.io_loop.run_in_executor(self.executor, functools.partial(method, *args, **kwargs))
+        return self.io_loop.run_in_executor(
+            self.executor, functools.partial(
+                method, *args, **kwargs))
 
     def __getattr__(self, name):
         def _missing(*args, **kwargs):

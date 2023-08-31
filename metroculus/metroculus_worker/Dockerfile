@@ -1,12 +1,16 @@
-FROM optscale_python:local
+FROM python:3.9.16-slim
 MAINTAINER Hystax
 
-WORKDIR /usr/src/app/metroculus_worker
+WORKDIR /usr/src/app/
 ENV PYTHONPATH=/usr/src/app/
 
-COPY metroculus_worker/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-COPY metroculus_worker/*.py ./
-COPY metroculus_worker/migrations migrations
+COPY optscale_client/config_client optscale_client/config_client
+COPY optscale_client/rest_api_client optscale_client/rest_api_client
+COPY tools/cloud_adapter tools/cloud_adapter
 
-CMD ["python", "-u","/usr/src/app/metroculus_worker/main.py"]
+COPY metroculus/metroculus_worker/requirements.txt metroculus/metroculus_worker/requirements.txt
+RUN pip install --no-cache-dir -r metroculus/metroculus_worker/requirements.txt
+COPY metroculus/metroculus_worker/*.py ./metroculus/metroculus_worker/
+COPY metroculus/metroculus_worker/migrations metroculus/metroculus_worker/migrations
+
+CMD ["python", "-u","/usr/src/app/metroculus/metroculus_worker/main.py"]

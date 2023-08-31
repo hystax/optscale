@@ -1,6 +1,6 @@
 from unittest.mock import patch
 from datetime import datetime
-from metroculus_api.tests.unittests.test_api_base import TestBase
+from metroculus.metroculus_api.tests.unittests.test_api_base import TestBase
 
 
 class TestActivityBreakdownAPI(TestBase):
@@ -13,7 +13,7 @@ class TestActivityBreakdownAPI(TestBase):
     def mock_metroculus(return_value=None):
         if not return_value:
             return_value = []
-        patch('metroculus_api.controllers.activity_breakdown.'
+        patch('metroculus.metroculus_api.controllers.activity_breakdown.'
               'ActivityBreakdownController._get_activity_breakdown',
               return_value=return_value).start()
 
@@ -105,7 +105,7 @@ class TestActivityBreakdownAPI(TestBase):
             ['cpu'],
         )
         self.assertEqual(200, code)
-        nulls_matrix = [None] * 7*24
+        nulls_matrix = [None] * 7 * 24
         res1_cpu = nulls_matrix.copy()
         res1_cpu[1] = 34
         res1_cpu[2] = 35

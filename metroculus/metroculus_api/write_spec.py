@@ -1,7 +1,7 @@
 import yaml
 import os.path
 import re
-import metroculus_api.server as server
+import metroculus.metroculus_api.server as server
 from apispec import APISpec, utils
 
 # Spec reference:

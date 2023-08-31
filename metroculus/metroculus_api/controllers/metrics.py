@@ -2,12 +2,12 @@ import logging
 import math
 from datetime import datetime, timedelta
 from collections import defaultdict
-from metroculus_api.exceptions import Err
-from optscale_exceptions.common_exc import WrongArgumentsException
-from metroculus_api.utils import (
+from metroculus.metroculus_api.exceptions import Err
+from metroculus.metroculus_api.utils import (
     check_string, check_positive_integer, check_non_negative_integer)
-from metroculus_api.controllers.base import (BaseController,
-                                             BaseAsyncControllerWrapper)
+from metroculus.metroculus_api.controllers.base import (
+    BaseController, BaseAsyncControllerWrapper)
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 METRIC_INTERVAL = 900
 INTERVALS = [
