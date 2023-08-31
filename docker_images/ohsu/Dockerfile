@@ -14,8 +14,8 @@ ADD https://repo1.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.15/htt
 RUN rm /opt/spark/jars/guava-*
 ADD https://repo1.maven.org/maven2/com/google/guava/guava/21.0/guava-21.0.jar $SPARK_HOME/jars
 
-WORKDIR $SPARK_HOME/work-dir/
-ENV PYTHONPATH $SPARK_HOME/work-dir/
+WORKDIR $SPARK_HOME/work-dir/ohsu
+ENV PYTHONPATH $SPARK_HOME/work-dir/ohsu
 
 COPY tools/optscale_exceptions tools/optscale_exceptions
 COPY optscale_client/config_client optscale_client/config_client
