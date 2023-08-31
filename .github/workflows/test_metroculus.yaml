@@ -1,10 +1,10 @@
-name: Build keeper test image and run tests on it
-run-name: Build keeper test image and run tests on it - started by ${{ github.actor }}
+name: Build metroculus test image and run tests on it
+run-name: Build metroculus test image and run tests on it - started by ${{ github.actor }}
 on:
   pull_request:
     types: [opened, synchronize]
     paths:
-      - "keeper/**"
+      - "metroculus/**"
   workflow_dispatch:
 
 jobs:
@@ -14,6 +14,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Build image
-        run: bash -x build.sh keeper build
+        run: bash -x build.sh metroculus build
       - name: Build test image and run tests
-        run: bash -x keeper/run_test.sh
+        run: bash -x metroculus/run_test.sh

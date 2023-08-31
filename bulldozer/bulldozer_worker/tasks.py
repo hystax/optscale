@@ -1,8 +1,8 @@
 import datetime
 import logging
 
-from infra import Infra, InfraException
-from name_generator import NameGenerator
+from bulldozer.bulldozer_worker.infra import Infra, InfraException
+from bulldozer.bulldozer_worker.name_generator import NameGenerator
 
 LOG = logging.getLogger(__name__)
 

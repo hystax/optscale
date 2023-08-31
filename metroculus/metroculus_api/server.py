@@ -5,10 +5,10 @@ import argparse
 import tornado.ioloop
 import tornado.web
 
-import config_client.client
+from optscale_client.config_client.client import Client as ConfigClient
 
-import metroculus_api.handlers.v2 as handlers
-from metroculus_api.urls import urls_v2
+import metroculus.metroculus_api.handlers.v2 as handlers
+from metroculus.metroculus_api.urls import urls_v2
 
 
 DEFAULT_PORT = 8969
@@ -46,7 +46,7 @@ def get_swagger_urls():
 
 
 def make_app(etcd_host, etcd_port, wait=False):
-    config_cl = config_client.client.Client(host=etcd_host, port=etcd_port)
+    config_cl = ConfigClient(host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
     config_cl.tell_everybody_that_i_am_ready()

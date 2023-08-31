@@ -1,7 +1,9 @@
 ARG BUILDTAG=build
-FROM metroculus_api:${BUILDTAG}
+ARG IMAGE=metroculus_api
+FROM ${IMAGE}:${BUILDTAG}
 MAINTAINER Hystax
 
-COPY test-requirements.txt .pylintrc .noserc .coveragerc ./
-RUN pip install --no-cache-dir -r test-requirements.txt
-COPY metroculus_api/tests ./tests
+COPY optscale_client/metroculus_client optscale_client/metroculus_client
+COPY metroculus/test-requirements.txt metroculus/.pylintrc metroculus/.noserc metroculus/.coveragerc ./metroculus/
+RUN pip install --no-cache-dir -r metroculus/test-requirements.txt
+COPY metroculus/metroculus_api/tests metroculus/metroculus_api/tests

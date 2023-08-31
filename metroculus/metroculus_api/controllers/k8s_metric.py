@@ -1,11 +1,11 @@
 import logging
 import math
 from datetime import datetime
-from metroculus_api.utils import (
+from metroculus.metroculus_api.utils import (
     check_string, check_positive_integer, check_non_negative_integer,
     seconds_to_hour)
-from metroculus_api.controllers.base import (BaseController,
-                                             BaseAsyncControllerWrapper)
+from metroculus.metroculus_api.controllers.base import (
+    BaseController, BaseAsyncControllerWrapper)
 
 LOG = logging.getLogger(__name__)
 METRIC_INTERVAL = 900

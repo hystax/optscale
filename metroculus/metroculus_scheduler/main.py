@@ -3,8 +3,8 @@ import requests
 import os
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
-from config_client.client import Client as ConfigClient
-from rest_api_client.client_v2 import Client as RestClient
+from optscale_client.config_client.client import Client as ConfigClient
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
 LOG = logging.getLogger(__name__)
 DEFAULT_ETCD_HOST = 'etcd'
@@ -48,7 +48,10 @@ def get_cloud_account_ids(config_cl):
         try:
             _, cloud_accounts = rest_cl.cloud_account_list(org_id)
         except requests.exceptions.HTTPError as ex:
-            LOG.error('Failed to publish tasks for org %s: %s', org_id, str(ex))
+            LOG.error(
+                'Failed to publish tasks for org %s: %s',
+                org_id,
+                str(ex))
             continue
         cloud_account_ids.extend([
             ca['id'] for ca in cloud_accounts['cloud_accounts']

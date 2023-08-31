@@ -1,8 +1,9 @@
 tornado==6.2
-optscale-exceptions==0.0.23
-config-client==1.0.145
 apispec==0.39.0
-cloud-adapter==0.1.1540
 pymongo==4.3.3
 clickhouse-driver==0.2.1
 pyyaml==5.4.1
+# OptScale packages
+-e optscale_client/config_client
+-e tools/cloud_adapter
+-e tools/optscale_exceptions

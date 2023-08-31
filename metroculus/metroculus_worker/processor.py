@@ -5,8 +5,8 @@ from kombu.log import get_logger
 from datetime import datetime, timedelta, timezone
 from pymongo import MongoClient, UpdateOne
 from clickhouse_driver import Client as ClickHouseClient
-from rest_api_client.client_v2 import Client as RestClient
-from cloud_adapter.cloud import Cloud as CloudAdapter
+from optscale_client.rest_api_client.client_v2 import Client as RestClient
+from tools.cloud_adapter.cloud import Cloud as CloudAdapter
 
 LOG = get_logger(__name__)
 K8S_RESOURCE_TYPE = 'K8s Pod'
@@ -278,14 +278,14 @@ class MetricsProcessor(object):
             else:
                 for i in range(0, len(cloud_resource_ids), METRIC_BULK_SIZE):
                     all_bulk_ids.append(
-                        cloud_resource_ids[i:i+METRIC_BULK_SIZE])
+                        cloud_resource_ids[i:i + METRIC_BULK_SIZE])
             for bulk_ids in all_bulk_ids:
                 metrics = cloud_func(
                     cloud_account['id'], bulk_ids, resource_ids_map,
                     r_type, adapter, region, start_date, end_date)
                 metric_chunk.extend(metrics)
             for i in range(0, len(metric_chunk), METRIC_BULK_SIZE):
-                chunk = metric_chunk[i:i+METRIC_BULK_SIZE]
+                chunk = metric_chunk[i:i + METRIC_BULK_SIZE]
                 self.clickhouse_client.execute(
                     'INSERT INTO %s VALUES' % metric_table_name, chunk)
                 resource_ids.update(r['resource_id'] for r in chunk)
@@ -499,7 +499,8 @@ class MetricsProcessor(object):
             if not pod_limits_map:
                 continue
             for pod_name, pod_info in pod_limits_map.items():
-                resource_id = namespace_pod_map.get(namespace, {}).get(pod_name)
+                resource_id = namespace_pod_map.get(
+                    namespace, {}).get(pod_name)
                 if not resource_id:
                     continue
                 for pod_date, pod_metrics in pod_info.items():
@@ -529,7 +530,8 @@ class MetricsProcessor(object):
         start_date -= timedelta(seconds=METRIC_INTERVAL)
 
         # Note that we NEED ram_size be queried before ram_used to calculate % usage.
-        # We rely on the fact that from python3.6 dictionaries remember the order of items inserted.
+        # We rely on the fact that from python3.6 dictionaries remember the
+        # order of items inserted.
         metric_cloud_names_map = {
             "cpu": "compute.googleapis.com/instance/cpu/utilization",
             "network_in_io": "compute.googleapis.com/instance/network/received_bytes_count",
@@ -549,7 +551,9 @@ class MetricsProcessor(object):
                 cloud_resource_id = str(record.resource.labels["instance_id"])
                 resource_id = resource_ids_map.get(cloud_resource_id)
                 if resource_id is None:
-                    LOG.warn("Unknown cloud resource id returned - %s", cloud_resource_id)
+                    LOG.warn(
+                        "Unknown cloud resource id returned - %s",
+                        cloud_resource_id)
                     continue
                 # some metrics can contain records that belong not to the instance itself and to
                 # its devices, e.g. disk_read_io for instance and for each of its disks.
@@ -565,8 +569,13 @@ class MetricsProcessor(object):
                 # it again later.
                 for point in list(record.points)[1:]:
                     value = point.value.double_value
-                    date = datetime.fromtimestamp(point.interval.start_time.timestamp())
-                    if metric_name in ['network_in_io', 'network_out_io', 'disk_read_io', 'disk_write_io']:
+                    date = datetime.fromtimestamp(
+                        point.interval.start_time.timestamp())
+                    if metric_name in [
+                        'network_in_io',
+                        'network_out_io',
+                        'disk_read_io',
+                            'disk_write_io']:
                         # change values per min to values per second
                         value = value / 60
                     # to determine RAM value in % instead of absolute values,
@@ -582,11 +591,14 @@ class MetricsProcessor(object):
                         key = (resource_id, date)
                         ram_size = ram_sizes.pop(key, None)
                         if ram_size is None:
-                            LOG.warn("Unexpected ram_used without ram_size for GCP")
-                            # should never happen as we query ram_size before ram_used
+                            LOG.warn(
+                                "Unexpected ram_used without ram_size for GCP")
+                            # should never happen as we query ram_size before
+                            # ram_used
                             continue
                         # Gcp can sometimes report ram_size as 0 (saw this for windows server instance).
-                        # Set ram usage to 0 in this case to avoid division by zero.
+                        # Set ram usage to 0 in this case to avoid division by
+                        # zero.
                         value = value / ram_size * 100 if ram_size else 0.0
                     elif metric_name == "cpu":
                         # metrics API returns CPU usage in range [0;1].
@@ -641,7 +653,8 @@ class MetricsProcessor(object):
                             continue
                         for i, point in enumerate(values):
                             timestamp = timestamps[i] / MSEC_IN_SEC
-                            value = float(values[i]) if values[i] != 'NaN' else 0
+                            value = float(
+                                values[i]) if values[i] != 'NaN' else 0
                             date = datetime.fromtimestamp(timestamp)
                             metrics[metric_name][
                                 resource_ids_map[cloud_resource_id]][date] = value

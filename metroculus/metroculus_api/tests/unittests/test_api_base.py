@@ -1,7 +1,7 @@
 import tornado.testing
 from unittest.mock import patch
-from metroculus_api.server import make_app
-import metroculus_client.client as MetroculusClient
+from metroculus.metroculus_api.server import make_app
+import optscale_client.metroculus_client.client as MetroculusClient
 
 
 class TestBase(tornado.testing.AsyncHTTPTestCase):
@@ -11,7 +11,7 @@ class TestBase(tornado.testing.AsyncHTTPTestCase):
 
     def setUp(self):
         super().setUp()
-        patch('config_client.client.Client.cluster_secret',
+        patch('optscale_client.config_client.client.Client.cluster_secret',
               return_value='secret').start()
         http_provider = MetroculusClient.FetchMethodHttpProvider(
             self.fetch, rethrow=False, secret='secret')

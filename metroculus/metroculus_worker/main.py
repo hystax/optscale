@@ -7,10 +7,10 @@ from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue
-from metroculus_worker.migrator import Migrator
-from metroculus_worker.processor import MetricsProcessor
+from metroculus.metroculus_worker.migrator import Migrator
+from metroculus.metroculus_worker.processor import MetricsProcessor
 
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 
 
 EXCHANGE_NAME = 'metroculus-tasks'

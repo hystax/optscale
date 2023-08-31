@@ -1,13 +1,13 @@
 import json
 import logging
 
-from metroculus_api.controllers.k8s_metric import K8sMetricsAsyncController
-from metroculus_api.handlers.v2.base import SecretHandler
-from metroculus_api.utils import ModelEncoder
+from metroculus.metroculus_api.controllers.k8s_metric import K8sMetricsAsyncController
+from metroculus.metroculus_api.handlers.v2.base import SecretHandler
+from metroculus.metroculus_api.utils import ModelEncoder
 
-from optscale_exceptions.common_exc import (
+from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, UnauthorizedException, NotFoundException)
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 LOG = logging.getLogger(__name__)
 

@@ -1,13 +1,12 @@
-import re
 from datetime import datetime
 import enum
 import json
 from decimal import Decimal
 
 from bson import ObjectId
-from optscale_exceptions.common_exc import WrongArgumentsException
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
-from metroculus_api.exceptions import Err
+from metroculus.metroculus_api.exceptions import Err
 
 SUPPORTED_METRICS = ['cpu', 'ram', 'disk_read_io', 'disk_write_io',
                      'network_in_io', 'network_out_io']

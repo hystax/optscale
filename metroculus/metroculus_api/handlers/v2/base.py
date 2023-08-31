@@ -4,11 +4,11 @@ import traceback
 from json.decoder import JSONDecodeError
 import tornado.web
 
-from metroculus_api.exceptions import Err
-from metroculus_api.utils import ModelEncoder
+from metroculus.metroculus_api.exceptions import Err
+from metroculus.metroculus_api.utils import ModelEncoder
 
-from optscale_exceptions.common_exc import UnauthorizedException
-from optscale_exceptions.http_exc import OptHTTPError
+from tools.optscale_exceptions.common_exc import UnauthorizedException
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 LOG = logging.getLogger(__name__)
@@ -134,7 +134,8 @@ class BaseHandler(tornado.web.RequestHandler):
                     if type == bool and isinstance(arg, str):
                         lowered = arg.lower()
                         if lowered not in ['true', 'false']:
-                            raise ValueError('%s should be true or false' % arg)
+                            raise ValueError(
+                                '%s should be true or false' % arg)
                         return lowered == 'true'
                     return type(arg)
                 else:

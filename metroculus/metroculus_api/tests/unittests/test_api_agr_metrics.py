@@ -1,6 +1,6 @@
 from unittest.mock import patch
 from datetime import datetime
-from metroculus_api.tests.unittests.test_api_base import TestBase
+from metroculus.metroculus_api.tests.unittests.test_api_base import TestBase
 
 
 class TestAvgMetricsAPI(TestBase):
@@ -13,8 +13,10 @@ class TestAvgMetricsAPI(TestBase):
     def mock_metroculus(return_value=None):
         if not return_value:
             return_value = []
-        patch('metroculus_api.controllers.agr_metrics.AgrMetricsController.'
-              '_get_agr_metrics', return_value=return_value).start()
+        patch(
+            'metroculus.metroculus_api.controllers.agr_metrics.AgrMetricsController.'
+            '_get_agr_metrics',
+            return_value=return_value).start()
 
     def test_invalid_cloud_account_id(self):
         for cl_acc_id in [None, '']:
@@ -126,8 +128,12 @@ class TestAvgMetricsAPI(TestBase):
             'ca_id', 'r_id', int(self.start_date.timestamp()),
             int(self.end_date.timestamp()), ['ram', 'network_in_io'])
         self.assertEqual(code, 200)
-        self.assertEqual(resp, {
-            'res_1': {'ram': {'avg': 2000, 'max': 3000, 'qtl50': 1800, 'qtl99': 2600}},
-            'res_2': {'ram': {'avg': 3000, 'max': 4500, 'qtl50': 1800, 'qtl99': 4300}},
-            'res_3': {'network_in_io': {'avg': 128, 'max': 250, 'qtl50': 120, 'qtl99': 200}}
-        })
+        self.assertEqual(
+            resp, {
+                'res_1': {
+                    'ram': {
+                        'avg': 2000, 'max': 3000, 'qtl50': 1800, 'qtl99': 2600}}, 'res_2': {
+                    'ram': {
+                        'avg': 3000, 'max': 4500, 'qtl50': 1800, 'qtl99': 4300}}, 'res_3': {
+                            'network_in_io': {
+                                'avg': 128, 'max': 250, 'qtl50': 120, 'qtl99': 200}}})

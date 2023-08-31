@@ -476,9 +476,13 @@ class Client:
         """
         return self.get("%s/proc" % self.run_url(run_id))
 
-    def runs_by_executor(self, executor_id):
+    def runs_by_executor(self, executor_id, applications_ids=None):
         """
         Gets runs by executor id
         """
-        url = "%s/%s" % (self.executor_url(executor_id), "runs")
+        if applications_ids is None:
+            applications_ids = []
+        url = "%s/%s" % (self.executor_url(executor_id), "runs") + self.query_url(
+            application_id=applications_ids,
+        )
         return self.get(url)
