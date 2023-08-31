@@ -8,6 +8,7 @@ COPY optscale_client/rest_api_client optscale_client/rest_api_client
 COPY docker_images/bi_scheduler/requirements.txt docker_images/bi_scheduler/
 RUN pip install --no-cache-dir -r docker_images/bi_scheduler/requirements.txt
 
-COPY docker_images/bi_scheduler/scheduler.py docker_images/bi_scheduler/scheduler.py
+WORKDIR /usr/src/app/docker_images/bi_scheduler/
+COPY docker_images/bi_scheduler/scheduler.py .
 
-CMD ["python3", "docker_images/bi_scheduler/scheduler.py"]
+CMD ["python3", "scheduler.py"]

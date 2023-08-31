@@ -3,7 +3,7 @@ import logging
 import traceback
 from json.decoder import JSONDecodeError
 import tornado.web
-from docker_images.ohsu.exceptions import Err
+from ohsu.exceptions import Err
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
 

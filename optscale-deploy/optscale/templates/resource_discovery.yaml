@@ -76,7 +76,7 @@ spec:
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
             - "python3"
-            - "docker_images/resource_discovery/scheduler.py"
+            - "/src/scheduler.py"
             env:
             - name: HX_ETCD_HOST
               value: {{ $.Values.etcd.service.name }}
