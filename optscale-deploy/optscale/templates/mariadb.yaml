@@ -91,8 +91,8 @@ spec:
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
       - name: copy-mariadb-config
-        image: "busybox:local"
-        imagePullPolicy: Never
+        image: "busybox:1.30.0"
+        imagePullPolicy: IfNotPresent
         command: ['sh', '-c', 'cp /configmap/* /etc/mysql/conf.d']
         volumeMounts:
         - name: configmap

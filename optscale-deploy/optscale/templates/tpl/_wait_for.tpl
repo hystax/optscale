@@ -13,22 +13,22 @@
 
 {{- define "wait_for_service" -}}
 - name: "wait-{{ .service.name }}"
-  image: "busybox:local"
-  imagePullPolicy: Never
+  image: "busybox:1.30.0"
+  imagePullPolicy: IfNotPresent
   command: ['sh', '-c', 'until nc -z {{ .service.name }}.default.svc.cluster.local {{ .service.externalPort }} -w 2; do sleep 2; done']
 {{- end -}}
 
 {{- define "wait_for_thanos_service" -}}
 - name: "wait-{{ .service.name }}"
-  image: "busybox:local"
-  imagePullPolicy: Never
+  image: "busybox:1.30.0"
+  imagePullPolicy: IfNotPresent
   command: ['sh', '-c', 'until nc -z {{ .service.name }}.default.svc.cluster.local {{ .service.httpExternalPort }} -w 2; do sleep 2; done']
 {{- end -}}
 
 {{- define "wait_for_elk" -}}
 - name: "wait-elk"
-  image: "busybox:local"
-  imagePullPolicy: Never
+  image: "busybox:1.30.0"
+  imagePullPolicy: IfNotPresent
 {{- if .Values.ha }}
   command: ['sh', '-c', 'until nc -z elasticsearch.default.svc.cluster.local {{ .Values.elastic_cluster.service.port }} -w 2; do sleep 2; done && until nc -z logstash.default.svc.cluster.local {{ .Values.logstash.service.tcp_port }} -w 2; do sleep 2; done']
 {{- else }}

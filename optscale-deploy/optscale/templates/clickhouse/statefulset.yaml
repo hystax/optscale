@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.clickhouse.name }}
-          image: {{ .Values.clickhouse.image.repository }}:{{ .Values.clickhouse.image.tag }}
+          image: "yandex/clickhouse-server:21.10"
           imagePullPolicy: {{ .Values.clickhouse.image.pullPolicy }}
           ports:
             - name: http

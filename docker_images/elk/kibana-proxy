@@ -1,0 +1,14 @@
+server {
+    listen 0.0.0.0;
+
+    location / {
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass http://127.0.0.1:5601;
+    auth_basic "Restricted";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    proxy_set_header Authorization $http_authorization;
+    proxy_pass_header  Authorization;
+ }
+}
