@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import Link from "@mui/material/Link";
+import { Box } from "@mui/material";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import GitHubButton from "react-github-btn";
+import { FormattedMessage, useIntl } from "react-intl";
 import { useDispatch } from "react-redux";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
@@ -9,8 +10,9 @@ import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { useRootData } from "hooks/useRootData";
-import { GITHUB_HYSTAX_OPTSCALE_REPO } from "urls";
+import { GITHUB_HYSTAX_OPTSCALE_REPO, GITHUB_HYSTAX_ORGANIZATION } from "urls";
 import { AZURE_TENANT, ENVIRONMENT } from "utils/constants";
+import { SPACING_1 } from "utils/layouts";
 import { updateOrganizationTopAlert as updateOrganizationTopAlertActionCreator } from "./actionCreators";
 import { useAllAlertsSelector } from "./selectors";
 import TopAlert from "./TopAlert";
@@ -24,6 +26,22 @@ export const ALERT_TYPES = Object.freeze({
 export const IS_EXISTING_USER = "isExistingUser";
 
 const getEligibleDataSources = (dataSources) => dataSources.filter(({ type }) => ![ENVIRONMENT, AZURE_TENANT].includes(type));
+
+const GitHubInlineButton = ({ children, ariaLabelMessageId, href, dataIcon }) => {
+  const intl = useIntl();
+  return (
+    <Box display="inline-block" mx={SPACING_1}>
+      <GitHubButton
+        href={href}
+        data-icon={dataIcon}
+        data-show-count="true"
+        aria-label={intl.formatMessage({ id: ariaLabelMessageId })}
+      >
+        {children}
+      </GitHubButton>
+    </Box>
+  );
+};
 
 const TopAlertWrapper = ({ blacklistIds = [] }) => {
   const dispatch = useDispatch();
@@ -114,24 +132,32 @@ const TopAlertWrapper = ({ blacklistIds = [] }) => {
         // this check means "condition: not logged in new user (!isExistingUser && !userId) OR new user and we know organization id (!isExistingUser && organizationId)"
         condition: !isExistingUser && (!userId || organizationId),
         getContent: () => (
-          <FormattedMessage
-            id="openSourceAnnouncement"
-            values={{
-              link: (chunks) => (
-                <Link
-                  href={GITHUB_HYSTAX_OPTSCALE_REPO}
-                  style={{
-                    textDecoration: "underline",
-                    color: "white"
-                  }}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  {chunks}
-                </Link>
-              )
-            }}
-          />
+          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+            <FormattedMessage
+              id="openSourceAnnouncement"
+              values={{
+                star: (chunks) => (
+                  <GitHubInlineButton
+                    ariaLabelMessageId="starHystaxOnGithub"
+                    dataIcon="octicon-star"
+                    href={GITHUB_HYSTAX_OPTSCALE_REPO}
+                  >
+                    {chunks}
+                  </GitHubInlineButton>
+                ),
+                follow: (chunks) => (
+                  <GitHubInlineButton ariaLabelMessageId="followHystaxOnGithub" href={GITHUB_HYSTAX_ORGANIZATION}>
+                    {chunks}
+                  </GitHubInlineButton>
+                ),
+                wrapper: (chunks) => (
+                  <Box component="span" sx={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", mr: SPACING_1 }}>
+                    {chunks}
+                  </Box>
+                )
+              }}
+            />
+          </Box>
         ),
         type: "info",
         triggered: isTriggered(ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT),

@@ -507,6 +507,7 @@ export const GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR =
   "https://github.com/hystax/helm-charts/tree/main/charts/kube-cost-metrics-collector";
 export const GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS = "https://github.com/hystax/optscale_tools/tree/main/extract_linked_reports";
 export const GITHUB_HYSTAX_OPTSCALE_REPO = "https://github.com/hystax/optscale";
+export const GITHUB_HYSTAX_ORGANIZATION = "https://github.com/hystax";
 export const PYPI_OPTSCALE_ARCEE = "https://pypi.org/project/optscale-arcee";
 
 // Nebius documentation
