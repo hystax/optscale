@@ -1,7 +1,7 @@
 import logging
 
-from jira_bus_server.controllers.app_hook import AppHookAsyncController
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.app_hook import AppHookAsyncController
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 

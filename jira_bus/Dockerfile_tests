@@ -1,6 +1,13 @@
 ARG BUILDTAG=build
 FROM jira_bus:${BUILDTAG}
 
-COPY test-requirements.txt .pylintrc .noserc .coveragerc ./
-COPY jira_bus_server/tests jira_bus_server/tests
+WORKDIR /usr/src/app/
+
+
+COPY jira_bus/test-requirements.txt .
+COPY jira_bus/.pylintrc jira_bus/.noserc jira_bus/.coveragerc ./jira_bus/jira_bus_server/
+
+COPY optscale_client/jira_bus_client optscale_client/jira_bus_client
 RUN pip install --no-cache-dir -r test-requirements.txt
+
+COPY jira_bus/jira_bus_server/tests jira_bus/jira_bus_server/tests

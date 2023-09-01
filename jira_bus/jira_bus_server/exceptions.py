@@ -38,42 +38,26 @@ class Err(enum.Enum):
     OJ0012 = [
         "Unauthorized",
     ]
-    OJ0013 = [
-        "Invalid payload"
-    ]
-    OJ0014 = [
-        "App is not installed for tenant %s"
-    ]
-    OJ0015 = [
-        "Failed to contact Atlassian public key server: %s"
-    ]
-    OJ0016 = [
-        "This API must be called in user context"
-    ]
-    OJ0017 = [
-        "%s not found",
-    ],
+    OJ0013 = ["Invalid payload"]
+    OJ0014 = ["App is not installed for tenant %s"]
+    OJ0015 = ["Failed to contact Atlassian public key server: %s"]
+    OJ0016 = ["This API must be called in user context"]
+    OJ0017 = (
+        [
+            "%s not found",
+        ],
+    )
     OJ0018 = [
         "Forbidden",
     ]
     OJ0019 = [
         "Organization is not assigned for tenant %s",
     ]
-    OJ0020 = [
-        "Service call error: %s"
-    ]
+    OJ0020 = ["Service call error: %s"]
     OJ0021 = [
         "OptScale user is not assigned for account ID %s",
     ]
-    OJ0022 = [
-        "This API must be called in Jira issue context"
-    ]
-    OJ0023 = [
-        "Atlassian API server query failure: %s"
-    ]
-    OJ0024 = [
-        "Invalid hook payload: %s"
-    ]
-    OJ0025 = [
-        "Suitable existing booking was not found"
-    ]
+    OJ0022 = ["This API must be called in Jira issue context"]
+    OJ0023 = ["Atlassian API server query failure: %s"]
+    OJ0024 = ["Invalid hook payload: %s"]
+    OJ0025 = ["Suitable existing booking was not found"]

@@ -1,8 +1,9 @@
 import logging
 
-from jira_bus_server.controllers.app_descriptor import (
-    AppDescriptorAsyncController)
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.app_descriptor import (
+    AppDescriptorAsyncController,
+)
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -33,6 +34,6 @@ class AppDescriptorHandler(BaseHandler):
                 schema:
                     type: object
         """
-        base_host = self.get_arg('base_host', str)
+        base_host = self.get_arg("base_host", str)
         result = await self.controller.app_descriptor(base_host=base_host)
         self.write(result)

@@ -5,35 +5,39 @@ import os
 import traceback
 from json import JSONDecodeError
 import requests
-
 import time
 import jwt
-from atlassian_jwt.url_utils import hash_url
-from auth_client.client_v2 import Client as AuthClient
-from jwt.exceptions import PyJWTError
-from optscale_exceptions.http_exc import OptHTTPError
-from tornado.web import RequestHandler, HTTPError
-
 from tornado.ioloop import IOLoop
-from jira_bus_server.exceptions import Err
-from jira_bus_server.models.db_base import BaseDB
-from jira_bus_server.utils import ModelEncoder, tp_executor
+from tornado.web import RequestHandler, HTTPError
+from atlassian_jwt.url_utils import hash_url
+from jwt.exceptions import PyJWTError
+
+from jira_bus.jira_bus_server.exceptions import Err
+from jira_bus.jira_bus_server.models.db_base import BaseDB
+from jira_bus.jira_bus_server.utils import ModelEncoder, tp_executor
+
+from optscale_client.auth_client.client_v2 import Client as AuthClient
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 LOG = logging.getLogger(__name__)
 
 
 class DefaultHandler(RequestHandler):
     def write_error(self, status_code, **kwargs):
-        self.set_header('Content-Type', 'application/json')
+        self.set_header("Content-Type", "application/json")
         self.set_status(404)
-        self.finish(json.dumps({
-            'error': {
-                'status_code': 404,
-                'error_code': Err.OJ0002.name,
-                'reason': self._reason,
-                'params': [],
-            }
-        }))
+        self.finish(
+            json.dumps(
+                {
+                    "error": {
+                        "status_code": 404,
+                        "error_code": Err.OJ0002.name,
+                        "reason": self._reason,
+                        "params": [],
+                    }
+                }
+            )
+        )
 
 
 class BaseHandler(RequestHandler):
@@ -46,7 +50,7 @@ class BaseHandler(RequestHandler):
 
     @property
     def token(self):
-        auth_header = self.request.headers.get('Authorization')
+        auth_header = self.request.headers.get("Authorization")
         if not auth_header:
             return None
         return auth_header.split(maxsplit=1)[-1]
@@ -86,9 +90,8 @@ class BaseHandler(RequestHandler):
     def prepare(self):
         self.set_content_type()
 
-    def set_content_type(self,
-                         content_type='application/json; charset="utf-8"'):
-        self.set_header('Content-Type', content_type)
+    def set_content_type(self, content_type='application/json; charset="utf-8"'):
+        self.set_header("Content-Type", content_type)
 
     def on_finish(self):
         self.session().close()
@@ -97,20 +100,21 @@ class BaseHandler(RequestHandler):
     def controller(self):
         if not self._controller:
             self._controller = self._get_controller_class()(
-                self.session(), self._config, self._engine)
+                self.session(), self._config, self._engine
+            )
         return self._controller
 
     def _get_controller_class(self):
         raise NotImplementedError
 
     def write_error(self, status_code, **kwargs):
-        exc = kwargs.get('exc_info')[1]
+        exc = kwargs.get("exc_info")[1]
         res = {
-            'error': {
-                'status_code': status_code,
-                'error_code': getattr(exc, 'error_code', 'U0%s' % status_code),
-                'reason': self._reason,
-                'params': getattr(exc, 'params', []),
+            "error": {
+                "status_code": status_code,
+                "error_code": getattr(exc, "error_code", "U0%s" % status_code),
+                "reason": self._reason,
+                "params": getattr(exc, "params", []),
             }
         }
         self.set_content_type('application/json; charset="utf-8"')
@@ -118,7 +122,7 @@ class BaseHandler(RequestHandler):
 
     def _request_body(self):
         try:
-            return json.loads(self.request.body.decode('utf-8'))
+            return json.loads(self.request.body.decode("utf-8"))
         except JSONDecodeError:
             raise OptHTTPError(400, Err.OJ0004, [])
 
@@ -130,20 +134,24 @@ class BaseHandler(RequestHandler):
         if isinstance(value, HTTPError):
             if value.log_message:
                 format = "%d %s: " + value.log_message + "\\n%s"
-                args = ([value.status_code, self._request_summary()] +
-                        list(value.args) + [repr(''.join(out_list))])
+                args = (
+                    [value.status_code, self._request_summary()] +
+                    list(value.args) +
+                    [repr("".join(out_list))]
+                )
             else:
                 format = "%d %s:\\n%s"
-                args = ([value.status_code, self._request_summary()] +
-                        [repr(''.join(out_list))])
+                args = [value.status_code, self._request_summary()] + [
+                    repr("".join(out_list))
+                ]
         else:
             format = "Uncaught exception %s\\n%r\\n %s"
-            args = (self._request_summary(), self.request,
-                    repr(''.join(out_list)))
-        if os.environ.get('PYCHARM_DEBUG_HOST') or os.environ.get(
-                'BASE_HANDLER_LOG_ERRORS_WITH_NEWLINES'):
+            args = (self._request_summary(), self.request, repr("".join(out_list)))
+        if os.environ.get("PYCHARM_DEBUG_HOST") or os.environ.get(
+                "BASE_HANDLER_LOG_ERRORS_WITH_NEWLINES"
+        ):
             # Log with real line breaks to simplify reading exceptions in debug
-            LOG.warning((format % tuple(args)).replace('\\n', '\n'))
+            LOG.warning((format % tuple(args)).replace("\\n", "\n"))
         else:
             LOG.warning(format, *args)
 
@@ -155,7 +163,7 @@ class BaseHandler(RequestHandler):
 
     @property
     def secret(self):
-        return self.request.headers.get('Secret')
+        return self.request.headers.get("Secret")
 
     def check_cluster_secret(self, **kwargs):
         cluster_secret = self._config.cluster_secret()
@@ -170,18 +178,17 @@ class BaseHandler(RequestHandler):
     def _check_permissions(self, action, type, resource_id, auth_token=None):
         client = AuthClient(url=self._config.auth_url())
         client.token = auth_token or self.token
-        LOG.info('Given Auth token is %s:' % self.token)
+        LOG.info("Given Auth token is %s:" % self.token)
         try:
             code, response = client.authorize(action, type, resource_id)
-            LOG.info('Auth code %s, response: %s', code, response)
+            LOG.info("Auth code %s, response: %s", code, response)
         except requests.exceptions.HTTPError as exc:
             if exc.response.status_code == 401:
                 raise OptHTTPError(401, Err.OJ0012, [])
             if exc.response.status_code == 403:
                 raise OptHTTPError(403, Err.OJ0018, [])
             if exc.response.status_code == 404:
-                raise OptHTTPError(404, Err.OJ0008,
-                                   [type, resource_id])
+                raise OptHTTPError(404, Err.OJ0008, [type, resource_id])
             raise
 
     def _get_token_meta(self, digests):
@@ -201,51 +208,60 @@ class BaseHandler(RequestHandler):
         return token_meta_dict
 
     def _get_meta_by_token(self, token):
-        user_digest = list(map(
-            lambda x: hashlib.md5(x.encode('utf-8')).hexdigest(), [token]))[0]
+        user_digest = list(
+            map(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest(), [token])
+        )[0]
         token_meta = self._get_token_meta([user_digest]).get(user_digest, {})
         return token_meta
 
     async def check_optscale_auth(self):
         try:
             token_meta = await IOLoop.current().run_in_executor(
-                self.executor, self._get_meta_by_token, self.token)
+                self.executor, self._get_meta_by_token, self.token
+            )
         except AttributeError:
             raise OptHTTPError(401, Err.OJ0012, [])
-        token_valid_until = token_meta.get('valid_until', 0)
-        token_user_id = token_meta.get('user_id', '')
+        token_valid_until = token_meta.get("valid_until", 0)
+        token_user_id = token_meta.get("user_id", "")
 
         if token_valid_until < time.time():
             raise OptHTTPError(401, Err.OJ0012, [])
         return token_user_id
 
-    async def check_optscale_permission(self, action, type, resource_id,
-                                        auth_token=None):
+    async def check_optscale_permission(
+            self, action, type, resource_id, auth_token=None
+    ):
         try:
             await IOLoop.current().run_in_executor(
-                self.executor, self._check_permissions,
-                action, type, resource_id, auth_token)
+                self.executor,
+                self._check_permissions,
+                action,
+                type,
+                resource_id,
+                auth_token,
+            )
         except AttributeError:
             raise OptHTTPError(401, Err.OJ0012, [])
 
     def _check_atlassian_qsh(self, qsh, context_qsh):
         if context_qsh:
-            computed_qsh = 'context-qsh'
+            computed_qsh = "context-qsh"
         else:
             computed_qsh = hash_url(
-                http_method=self.request.method,
-                url=self.request.uri
+                http_method=self.request.method, url=self.request.uri
             )
         if qsh != computed_qsh:
-            LOG.error('received qsh %s did not match computed qsh %s',
-                      qsh, computed_qsh)
+            LOG.error(
+                "received qsh %s did not match computed qsh %s", qsh, computed_qsh
+            )
             raise OptHTTPError(401, Err.OJ0012, [])
 
     def _get_token_data(self, jwt_token, require_account, require_issue):
-        client_key = jwt_token['iss']
-        account_id = jwt_token.get('sub')
-        issue_key = jwt_token.get('context', {}).get('jira', {}).get(
-            'issue', {}).get('key')
+        client_key = jwt_token["iss"]
+        account_id = jwt_token.get("sub")
+        issue_key = (
+            jwt_token.get("context", {}).get("jira", {}).get("issue", {}).get("key")
+        )
         if not account_id and require_account:
             raise OptHTTPError(401, Err.OJ0016, [])
         if not issue_key and require_issue:
@@ -253,9 +269,9 @@ class BaseHandler(RequestHandler):
         return client_key, account_id, issue_key
 
     def _get_fake_token_data(self, require_account, require_issue):
-        client_key = self.request.headers.get('Hx-Test-Client-Key')
-        account_id = self.request.headers.get('Hx-Test-Account-Id')
-        issue_key = self.request.headers.get('Hx-Test-Issue-Key')
+        client_key = self.request.headers.get("Hx-Test-Client-Key")
+        account_id = self.request.headers.get("Hx-Test-Account-Id")
+        issue_key = self.request.headers.get("Hx-Test-Issue-Key")
         if client_key:
             self.check_cluster_secret()
             if not account_id and require_account:
@@ -264,9 +280,9 @@ class BaseHandler(RequestHandler):
                 raise OptHTTPError(401, Err.OJ0022, [])
             return client_key, account_id, issue_key
 
-    async def check_atlassian_auth_asymmetric(self, context_qsh=False,
-                                              require_account=False,
-                                              require_issue=False):
+    async def check_atlassian_auth_asymmetric(
+            self, context_qsh=False, require_account=False, require_issue=False
+    ):
         """
         Check asymmetric atlassian auth token. Asymmetric tokens are used in
         app lifecycle callbacks. They are verified by atlassian public key that
@@ -293,34 +309,32 @@ class BaseHandler(RequestHandler):
         """
 
         # Support fake credentials for our testing needs
-        if fake_results := self._get_fake_token_data(
-                require_account, require_issue):
+        if fake_results := self._get_fake_token_data(require_account, require_issue):
             return fake_results
 
         try:
-            key_id = jwt.get_unverified_header(self.token)['kid']
+            key_id = jwt.get_unverified_header(self.token)["kid"]
             public_key = await self.controller.get_atlassian_public_key(key_id)
             jwt_token = jwt.decode(
                 self.token,
                 public_key,
-                algorithms=['RS256'],
+                algorithms=["RS256"],
                 # The `aud` claim matches URL of our app. But the app may be
                 # accessible and installed through different URLs, so let's
                 # make our life easier (though slightly less secure) and not
                 # verify `aud` at all.
-                options={'verify_aud': False}
+                options={"verify_aud": False},
             )
-            self._check_atlassian_qsh(jwt_token['qsh'], context_qsh)
+            self._check_atlassian_qsh(jwt_token["qsh"], context_qsh)
         except PyJWTError as exc:
-            LOG.error('Asymmetric token verify error: %s', exc)
+            LOG.error("Asymmetric token verify error: %s", exc)
             raise OptHTTPError(401, Err.OJ0012, [])
 
-        return self._get_token_data(
-            jwt_token, require_account, require_issue)
+        return self._get_token_data(jwt_token, require_account, require_issue)
 
-    async def check_atlassian_auth(self, context_qsh=False,
-                                   require_account=False,
-                                   require_issue=False):
+    async def check_atlassian_auth(
+            self, context_qsh=False, require_account=False, require_issue=False
+    ):
         """
         Check ordinary atlassian auth token. These tokens are verified by a
         shared secret that is saved during our app installation.
@@ -346,24 +360,23 @@ class BaseHandler(RequestHandler):
         """
 
         # Support fake credentials for our testing needs
-        if fake_results := self._get_fake_token_data(
-                require_account, require_issue):
+        if fake_results := self._get_fake_token_data(require_account, require_issue):
             return fake_results
 
         try:
-            client_key = jwt.decode(
-                self.token, options={'verify_signature': False})['iss']
+            client_key = jwt.decode(self.token, options={"verify_signature": False})[
+                "iss"
+            ]
             shared_secret = await self.controller.get_atlassian_shared_secret(
-                client_key)
-            jwt_token = jwt.decode(
-                self.token, shared_secret, algorithms=['HS256'])
-            self._check_atlassian_qsh(jwt_token['qsh'], context_qsh)
+                client_key
+            )
+            jwt_token = jwt.decode(self.token, shared_secret, algorithms=["HS256"])
+            self._check_atlassian_qsh(jwt_token["qsh"], context_qsh)
         except PyJWTError as exc:
-            LOG.error('Token verify error: %s', exc)
+            LOG.error("Token verify error: %s", exc)
             raise OptHTTPError(401, Err.OJ0012, [])
 
-        return self._get_token_data(
-            jwt_token, require_account, require_issue)
+        return self._get_token_data(jwt_token, require_account, require_issue)
 
     def get_arg(self, name, type, default=None, repeated=False):
         try:
@@ -377,9 +390,9 @@ class BaseHandler(RequestHandler):
                 if arg:
                     if type == bool and isinstance(arg, str):
                         lowered = arg.lower()
-                        if lowered not in ['true', 'false']:
-                            raise ValueError('%s should be true or false' % arg)
-                        return lowered == 'true'
+                        if lowered not in ["true", "false"]:
+                            raise ValueError("%s should be true or false" % arg)
+                        return lowered == "true"
                     return type(arg)
                 else:
                     return arg

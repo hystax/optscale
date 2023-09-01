@@ -1,8 +1,9 @@
 import logging
 
-from jira_bus_server.controllers.issue_attachment import (
-    IssueAttachmentAsyncController)
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.issue_attachment import (
+    IssueAttachmentAsyncController,
+)
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -58,13 +59,19 @@ class IssueAttachmentCollectionHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         client_key, account_id, issue_key = await self.check_atlassian_auth(
-            context_qsh=True, require_account=True, require_issue=True)
+            context_qsh=True, require_account=True, require_issue=True
+        )
         request_body = self._request_body()
-        auto_detach_status = request_body.get('auto_detach_status')
-        booking_id = request_body.get('booking_id')
+        auto_detach_status = request_body.get("auto_detach_status")
+        booking_id = request_body.get("booking_id")
         result = await self.controller.create_attachment(
-            client_key, account_id, issue_key, resource_id, auto_detach_status,
-            booking_id)
+            client_key,
+            account_id,
+            issue_key,
+            resource_id,
+            auto_detach_status,
+            booking_id,
+        )
         self.write(result)
 
 
@@ -114,10 +121,10 @@ class IssueAttachmentItemHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         _, account_id, _ = await self.check_atlassian_auth(
-            context_qsh=True, require_account=True)
+            context_qsh=True, require_account=True
+        )
         params = self._request_body()
-        await self.controller.update_attachment(
-            account_id, attachment_id, params)
+        await self.controller.update_attachment(account_id, attachment_id, params)
         self.set_status(204)
 
     async def delete(self, attachment_id):
@@ -149,6 +156,7 @@ class IssueAttachmentItemHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         _, account_id, _ = await self.check_atlassian_auth(
-            context_qsh=True, require_account=True)
+            context_qsh=True, require_account=True
+        )
         await self.controller.delete_attachment(account_id, attachment_id)
         self.set_status(204)

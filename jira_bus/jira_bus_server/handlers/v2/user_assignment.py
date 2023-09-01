@@ -1,8 +1,9 @@
 import logging
 
-from jira_bus_server.controllers.user_assignment import (
-    UserAssignmentAsyncController)
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.user_assignment import (
+    UserAssignmentAsyncController,
+)
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -46,7 +47,8 @@ class UserAssignmentHandler(BaseHandler):
                     - OJ0008: user not found
         """
         _, account_id, _ = await self.check_atlassian_auth(
-            require_account=True, context_qsh=True)
+            require_account=True, context_qsh=True
+        )
         user_assignment = await self.controller.get_assignment(account_id)
         self.write(user_assignment)
 
@@ -73,9 +75,10 @@ class UserAssignmentHandler(BaseHandler):
                                 with OptScale auth user
         """
         _, account_id, _ = await self.check_atlassian_auth(
-            require_account=True, context_qsh=True)
+            require_account=True, context_qsh=True
+        )
         secret = await self.controller.create_assignment(account_id)
-        self.write({'secret': secret})
+        self.write({"secret": secret})
 
     async def patch(self):
         """
@@ -107,7 +110,7 @@ class UserAssignmentHandler(BaseHandler):
                     - OJ0008: user not found
         """
         auth_user_id = await self.check_optscale_auth()
-        secret = self._request_body().get('secret')
+        secret = self._request_body().get("secret")
         await self.controller.assign_auth_user(auth_user_id, secret)
         self.set_status(204)
 
@@ -128,6 +131,7 @@ class UserAssignmentHandler(BaseHandler):
                     - OJ0008: user not found
         """
         _, account_id, _ = await self.check_atlassian_auth(
-            require_account=True, context_qsh=True)
+            require_account=True, context_qsh=True
+        )
         await self.controller.delete_assignment(account_id)
         self.set_status(204)
