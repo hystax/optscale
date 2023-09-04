@@ -1,0 +1,12 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_set_header X-WEBAUTH-USER $remote_user;
+        proxy_set_header Authorization "";
+        proxy_pass http://localhost:3000;
+        auth_basic "GrafanaAuthProxy";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+    }
+}

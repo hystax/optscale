@@ -1,8 +1,4 @@
-restapi-client==1.0.581
-auth-client==0.0.86
 tornado==6.2
-config_client==1.0.145
-optscale_exceptions==0.0.21
 sqlalchemy==1.4.23
 alembic==1.7.1
 mysql-connector==2.2.9
@@ -11,3 +7,9 @@ PyJWT[crypto]==1.7.1
 atlassian_jwt==1.9.0
 requests==2.25.0
 pydevd-pycharm==201.5616.27
+
+# OptScale packages
+-e optscale_client/config_client
+-e optscale_client/rest_api_client
+-e optscale_client/auth_client
+-e tools/optscale_exceptions

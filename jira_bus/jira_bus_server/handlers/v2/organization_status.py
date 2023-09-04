@@ -1,8 +1,9 @@
 import logging
 
-from jira_bus_server.controllers.organization_status import (
-    OrganizationStatusAsyncController)
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.organization_status import (
+    OrganizationStatusAsyncController,
+)
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -54,10 +55,12 @@ class OrganizationStatusHandler(BaseHandler):
         """
         if not self.check_cluster_secret(raises=False):
             await self.check_optscale_permission(
-                'INFO_ORGANIZATION', 'organization', organization_id)
-        connected_tenants = await self.controller.get_connected_tenants(
-            organization_id)
-        self.write({
-            'connected': bool(connected_tenants),
-            'connected_tenants': connected_tenants,
-        })
+                "INFO_ORGANIZATION", "organization", organization_id
+            )
+        connected_tenants = await self.controller.get_connected_tenants(organization_id)
+        self.write(
+            {
+                "connected": bool(connected_tenants),
+                "connected_tenants": connected_tenants,
+            }
+        )

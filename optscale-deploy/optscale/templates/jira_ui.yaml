@@ -54,6 +54,8 @@ spec:
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}
+        - name: UI_BUILD_PATH
+          value: /usr/src/app/ui
         - name: HX_ETCD_HOST
           value: {{ .Values.etcd.service.name }}
         - name: HX_ETCD_PORT

@@ -47,7 +47,7 @@ spec:
   repository: "etcd"
   version: "local"
   pod:
-    busyboxImage: "busybox:local"
+    busyboxImage: "busybox:1.30.0"
     etcdEnv:
       - name: ETCD_HEARTBEAT_INTERVAL
         value: {{ $config.hb_interval | quote }}

@@ -1,8 +1,9 @@
 import logging
 
-from jira_bus_server.controllers.shareable_resource import (
-    ShareableResourceAsyncController)
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.shareable_resource import (
+    ShareableResourceAsyncController,
+)
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -109,11 +110,9 @@ class ShareableResourceHandler(BaseHandler):
                     Not found:
                     - OJ0019: Organization is not assigned for tenant
         """
-        current_issue = self.get_arg('current_issue', bool, False)
+        current_issue = self.get_arg("current_issue", bool, False)
         client_key, account_id, issue_key = await self.check_atlassian_auth(
-            context_qsh=True,
-            require_account=True,
-            require_issue=current_issue
+            context_qsh=True, require_account=True, require_issue=current_issue
         )
         result = await self.controller.list_shareable_resources(
             client_key=client_key,
@@ -121,6 +120,4 @@ class ShareableResourceHandler(BaseHandler):
             current_issue=current_issue,
             issue_key=issue_key,
         )
-        self.write({
-            'shareable_resources': result
-        })
+        self.write({"shareable_resources": result})

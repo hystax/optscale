@@ -1,0 +1,19 @@
+name: Build jira_ui test image and run tests on it
+run-name: Build jira_ui test image and run tests on it - started by ${{ github.actor }}
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "jira_ui/**"
+  workflow_dispatch:
+
+jobs:
+  build_image:
+    runs-on: self-hosted
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Build image
+        run: bash -x build.sh jira_ui build
+      - name: Build test image and run tests
+        run: bash -x jira_ui/run_test.sh

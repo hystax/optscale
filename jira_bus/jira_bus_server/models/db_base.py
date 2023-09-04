@@ -1,7 +1,7 @@
 from retrying import retry
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-import jira_bus_server.models.models as model_base
+import jira_bus.jira_bus_server.models.models as model_base
 
 
 def should_retry(exception):
@@ -23,8 +23,7 @@ class BaseDB:
         """
         return scoped_session(sessionmaker(bind=engine))
 
-    @retry(stop_max_attempt_number=20, wait_fixed=1000,
-           retry_on_exception=should_retry)
+    @retry(stop_max_attempt_number=20, wait_fixed=1000, retry_on_exception=should_retry)
     def create_all(self):
         model_base.Base.metadata.create_all(self.engine)
 

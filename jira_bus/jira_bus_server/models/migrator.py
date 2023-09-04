@@ -6,9 +6,10 @@ from alembic.config import Config
 from alembic.runtime.environment import EnvironmentContext
 from alembic.script import ScriptDirectory
 
-import jira_bus_server.models.models
+import jira_bus.jira_bus_server.models.models
 
-target_metadata = jira_bus_server.models.models.Base.metadata
+target_metadata = jira_bus.jira_bus_server.models.models.Base.metadata
+
 LOG = logging.getLogger(__name__)
 
 
@@ -23,12 +24,11 @@ class Migrator:
         self.alembic_cfg = Config()
         self.alembic_cfg.set_main_option(
             "script_location",
-            os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                         '..', 'alembic'))
+            os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "alembic"),
+        )
         self.alembic_cfg.set_main_option("url", self.engine_url)
         self.alembic_script = ScriptDirectory.from_config(self.alembic_cfg)
-        self.alembic_env = EnvironmentContext(self.alembic_cfg,
-                                              self.alembic_script)
+        self.alembic_env = EnvironmentContext(self.alembic_cfg, self.alembic_script)
 
     def do_upgrade(self, revision, context):
         """
@@ -38,27 +38,29 @@ class Migrator:
         :return:
         """
         return self.alembic_script._upgrade_revs(
-            self.alembic_script.get_heads(), revision)
+            self.alembic_script.get_heads(), revision
+        )
 
     def migrate(self):
         """
         Do migrations
         :return:
         """
-        LOG.debug('Migrating database for %s', self.engine_url)
+        LOG.debug("Migrating database for %s", self.engine_url)
         conn = self._engine.connect()
-        self.alembic_env.configure(connection=conn,
-                                   target_metadata=target_metadata)
+        self.alembic_env.configure(connection=conn, target_metadata=target_metadata)
 
         alembic_context = self.alembic_env.get_context()
         LOG.debug(
-            "Pending migrations for %s: %s", self.engine_url,
-            autogenerate.compare_metadata(alembic_context, target_metadata))
+            "Pending migrations for %s: %s",
+            self.engine_url,
+            autogenerate.compare_metadata(alembic_context, target_metadata),
+        )
         # TODO: do we really need to produce migrations here
         # autogenerate.produce_migrations(alembic_context, target_metadata)
-        self.alembic_env.configure(connection=conn,
-                                   target_metadata=target_metadata,
-                                   fn=self.do_upgrade)
+        self.alembic_env.configure(
+            connection=conn, target_metadata=target_metadata, fn=self.do_upgrade
+        )
         with self.alembic_env.begin_transaction():
             self.alembic_env.run_migrations()
 

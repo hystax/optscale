@@ -190,7 +190,7 @@ spec:
       serviceAccountName: {{ $config.name }}
       initContainers:
       - name: bootstrap
-        image: "busybox:local"
+        image: "busybox:1.30.0"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         command: ['sh']
         args:
@@ -231,7 +231,7 @@ spec:
 {{- end }}
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "rabbitmq:3.8.2-management-alpine"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         env:
         - name: IMAGE_ID

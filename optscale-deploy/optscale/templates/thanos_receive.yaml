@@ -117,7 +117,7 @@ spec:
       containers:
         - name: receive
           imagePullPolicy: "{{ $config.image.pullPolicy }}"
-          image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+          image: "thanosio/thanos:v0.31.0"
           env:
             - name: NAME
               valueFrom:

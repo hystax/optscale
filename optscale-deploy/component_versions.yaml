@@ -9,12 +9,10 @@ images:
   bulldozer_worker: b1204f53f917c37ea88c3e9e39ae812244abfc7a
   bumischeduler: 3e468227f9f1e27af4b539d1d7d4b6742dc132fb
   bumiworker: 450aa51b5f7f42094ebc3d272d136143444d2ea2
-  busybox: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   calendar_observer: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   cleanelkdb: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   cleaninfluxdb: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   cleanmongodb: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
-  clickhouse: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   configurator: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   demo_org_cleanup: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   diproxy: 221b1e17836351624ba67b30fda4ca669c010e0d
@@ -44,7 +42,6 @@ images:
   metroculus_api: 6fd93511aa0a314a1aa45f4aa637f5ff4b457cb8
   metroculus_scheduler: 6fd93511aa0a314a1aa45f4aa637f5ff4b457cb8
   metroculus_worker: 6fd93511aa0a314a1aa45f4aa637f5ff4b457cb8
-  minio: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   mongo: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   ngui: 7c5c018fdafd8ffbe45f9f10d7996da5e2158679
   ohsu: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
@@ -52,8 +49,6 @@ images:
   organization_violations: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   pharos_receiver: 07e00b59f463ea5e01704a9c3fae63b2e851ef8b
   pharos_worker: 07e00b59f463ea5e01704a9c3fae63b2e851ef8b
-  phpmyadmin: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
-  rabbitmq: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   redis: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   resource_discovery: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   resource_observer: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
@@ -63,7 +58,6 @@ images:
   risp_worker: 2cbd48ad4a34618c28280e744885c248978d5ccc
   slacker: a368f4ca82831a39f40ba8a2a07fe2cfc34f72f6
   slacker_executor: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
-  thanos: 0d4965a100b5c8f9afa58c00b11eb09e87f8e3a4
   trapper_scheduler: bdea035958396fec41ab18bbd4f43a5ff2124380
   trapper_worker: bdea035958396fec41ab18bbd4f43a5ff2124380
   users_dataset_generator: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed

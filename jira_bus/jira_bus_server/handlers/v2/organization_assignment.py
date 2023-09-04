@@ -1,8 +1,9 @@
 import logging
 
-from jira_bus_server.controllers.organization_assignment import (
-    OrganizationAssignmentAsyncController)
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.organization_assignment import (
+    OrganizationAssignmentAsyncController,
+)
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -13,7 +14,8 @@ class OrganizationAssignmentHandler(BaseHandler):
 
     async def _check_organization_admin(self, auth_token, organization_id):
         await self.check_optscale_permission(
-            'EDIT_PARTNER', 'organization', organization_id, auth_token)
+            "EDIT_PARTNER", "organization", organization_id, auth_token
+        )
 
     async def get(self):
         """
@@ -69,13 +71,14 @@ class OrganizationAssignmentHandler(BaseHandler):
                     - OJ0019: Organization is not assigned for tenant
         """
         client_key, _, _ = await self.check_atlassian_auth(context_qsh=True)
-        details = self.get_arg('details', bool, False)
-        org_assignment = await self.controller.get_organization_assignment(
-            client_key)
+        details = self.get_arg("details", bool, False)
+        org_assignment = await self.controller.get_organization_assignment(client_key)
         if details:
-            org_assignment['details'] = await (
+            org_assignment["details"] = await (
                 self.controller.get_organization_details(
-                    org_assignment['organization_id']))
+                    org_assignment["organization_id"]
+                )
+            )
         self.write(org_assignment)
 
     async def post(self):
@@ -113,18 +116,22 @@ class OrganizationAssignmentHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         params = self._request_body()
-        organization_id = params.get('organization_id')
+        organization_id = params.get("organization_id")
         client_key, account_id, _ = await self.check_atlassian_auth(
-            require_account=True, context_qsh=True)
+            require_account=True, context_qsh=True
+        )
         auth_token = await self.controller.get_auth_token(account_id)
         found_assignment = await self.controller.get_organization_assignment(
-            client_key, raise_not_found=False)
+            client_key, raise_not_found=False
+        )
         if found_assignment:
             await self._check_organization_admin(
-                auth_token, found_assignment['organization_id'])
+                auth_token, found_assignment["organization_id"]
+            )
         await self._check_organization_admin(auth_token, organization_id)
         await self.controller.create_organization_assignment(
-            client_key, organization_id)
+            client_key, organization_id
+        )
         self.set_status(204)
 
     async def delete(self):
@@ -150,12 +157,15 @@ class OrganizationAssignmentHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         client_key, account_id, _ = await self.check_atlassian_auth(
-            require_account=True, context_qsh=True)
+            require_account=True, context_qsh=True
+        )
         found_assignment = await self.controller.get_organization_assignment(
-            client_key, raise_not_found=False)
+            client_key, raise_not_found=False
+        )
         if found_assignment:
             auth_token = await self.controller.get_auth_token(account_id)
             await self._check_organization_admin(
-                auth_token, found_assignment['organization_id'])
+                auth_token, found_assignment["organization_id"]
+            )
             await self.controller.delete_organization_assignment(client_key)
         self.set_status(204)

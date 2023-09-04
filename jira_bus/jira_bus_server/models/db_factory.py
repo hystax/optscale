@@ -1,10 +1,11 @@
 import logging
 from enum import Enum
 
-from optscale_exceptions.common_exc import InvalidModelTypeException
-from jira_bus_server.exceptions import Err
-from jira_bus_server.models.db_mysql import MySQLDB
-from jira_bus_server.models.db_test import TestDB
+from jira_bus.jira_bus_server.exceptions import Err
+from jira_bus.jira_bus_server.models.db_mysql import MySQLDB
+from jira_bus.jira_bus_server.models.db_test import TestDB
+
+from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 
 
 class DBType(Enum):
@@ -16,17 +17,14 @@ LOG = logging.getLogger(__name__)
 
 
 class DBFactory:
-    DBS = {
-        DBType.Test: TestDB,
-        DBType.MySQL: MySQLDB
-    }
+    DBS = {DBType.Test: TestDB, DBType.MySQL: MySQLDB}
     _instances = {}
 
     @staticmethod
     def _get_db(db_type, config):
         db_class = DBFactory.DBS.get(db_type)
         if not db_class:
-            LOG.error('Nonexistent model type specified: %s', db_type)
+            LOG.error("Nonexistent model type specified: %s", db_type)
             raise InvalidModelTypeException(Err.OJ0001, [db_type])
         else:
             return db_class(config)

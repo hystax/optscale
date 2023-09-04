@@ -1,11 +1,16 @@
-FROM optscale_python:local
+FROM python:3.9.16-slim
 MAINTAINER Hystax
 
-WORKDIR /usr/src/app/pharos_worker
+WORKDIR /usr/src/app/
 ENV PYTHONPATH=/usr/src/app/
 
-COPY pharos_worker/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-COPY pharos_worker/*.py ./
+COPY pharos_backend/pharos_worker/requirements.txt ./requirements.txt
+COPY optscale_client/config_client optscale_client/config_client
 
-CMD ["python", "-u","/usr/src/app/pharos_worker/worker.py"]
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+WORKDIR /usr/src/app/pharos_backend/pharos_worker
+COPY pharos_backend/pharos_worker/*.py ./
+
+CMD ["python", "-u","/usr/src/app/pharos_backend/pharos_worker/worker.py"]

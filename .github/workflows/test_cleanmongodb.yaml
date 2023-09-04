@@ -1,0 +1,18 @@
+name: Build cleanmongodb test image and run tests on it
+run-name: Build cleanmongodb test image and run tests on it - started by ${{ github.actor }}
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+    - 'docker_images/cleanmongodb/**'
+  workflow_dispatch:
+
+
+jobs:
+  build_image:
+    runs-on: self-hosted
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Build image
+        run: bash -x build.sh cleanmongodb build

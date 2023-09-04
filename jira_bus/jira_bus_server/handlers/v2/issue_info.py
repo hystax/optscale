@@ -1,7 +1,7 @@
 import logging
 
-from jira_bus_server.controllers.issue_info import IssueInfoAsyncController
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.issue_info import IssueInfoAsyncController
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -46,6 +46,7 @@ class IssueInfoHandler(BaseHandler):
                             description: Current issue status
         """
         client_key, _, issue_key = await self.check_atlassian_auth(
-            context_qsh=True, require_issue=True)
+            context_qsh=True, require_issue=True
+        )
         result = await self.controller.get_issue_info(client_key, issue_key)
         self.write(result)

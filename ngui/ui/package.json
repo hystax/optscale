@@ -54,6 +54,7 @@
     "react-big-calendar": "^1.5.2",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
+    "react-github-btn": "^1.4.0",
     "react-hook-form": "^7.42.1",
     "react-intl": "^6.2.5",
     "react-json-editor-ajrm": "^2.5.13",

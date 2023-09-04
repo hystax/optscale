@@ -1,6 +1,7 @@
 import json
 import logging
-from pharos_receiver.handlers.v2.base import BaseHandler
+
+from pharos_backend.pharos_receiver.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 

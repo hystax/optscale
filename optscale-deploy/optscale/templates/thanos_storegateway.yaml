@@ -80,7 +80,7 @@ spec:
 {{ include "wait_for_service" .Values.minio | indent 6 }}
       containers:
         - name: storegateway
-          image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+          image: "thanosio/thanos:v0.31.0"
           imagePullPolicy: "{{ $config.image.pullPolicy }}"
           command:
             - thanos

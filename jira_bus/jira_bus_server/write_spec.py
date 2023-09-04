@@ -4,7 +4,7 @@ import re
 import yaml
 from apispec import APISpec, yaml_utils
 
-import jira_bus_server.server as server
+import jira_bus.jira_bus_server.server as server
 
 # Spec reference:
 # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md
@@ -37,9 +37,9 @@ securityDefinitions:
 
 def main():
     settings = yaml.safe_load(OPENAPI_SPEC)
-    title = settings['info'].pop('title')
-    spec_version = settings['info'].pop('version')
-    openapi_version = settings.pop('swagger')
+    title = settings["info"].pop("title")
+    spec_version = settings["info"].pop("version")
+    openapi_version = settings.pop("swagger")
     spec = APISpec(
         title=title,
         version=spec_version,
@@ -48,8 +48,7 @@ def main():
         **settings
     )
 
-    for urlspec in sorted(server.get_handlers({}),
-                          key=lambda urlspec: urlspec[0]):
+    for urlspec in sorted(server.get_handlers({}), key=lambda urlspec: urlspec[0]):
         path = re.sub(r"\(.*?<(.*?)>.*?\)", r"{\1}", urlspec[0])
         operations = {}
         for method_name in yaml_utils.PATH_KEYS:

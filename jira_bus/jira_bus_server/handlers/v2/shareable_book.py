@@ -1,8 +1,9 @@
 import logging
 
-from jira_bus_server.controllers.shareable_book import (
-    ShareableBookAsyncController)
-from jira_bus_server.handlers.v2.base import BaseHandler
+from jira_bus.jira_bus_server.controllers.shareable_book import (
+    ShareableBookAsyncController,
+)
+from jira_bus.jira_bus_server.handlers.v2.base import BaseHandler
 
 LOG = logging.getLogger(__name__)
 
@@ -52,11 +53,12 @@ class ShareableBookCollectionHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         client_key, account_id, _ = await self.check_atlassian_auth(
-            context_qsh=True, require_account=True)
-        jira_auto_release = bool(self._request_body().get(
-            'jira_auto_release', True))
+            context_qsh=True, require_account=True
+        )
+        jira_auto_release = bool(self._request_body().get("jira_auto_release", True))
         result = await self.controller.create_booking(
-            client_key, account_id, resource_id, jira_auto_release)
+            client_key, account_id, resource_id, jira_auto_release
+        )
         self.write(result)
 
 
@@ -93,7 +95,8 @@ class ShareableBookItemHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         _, account_id, _ = await self.check_atlassian_auth(
-            context_qsh=True, require_account=True)
+            context_qsh=True, require_account=True
+        )
         await self.controller.release_booking(account_id, booking_id)
         self.set_status(204)
 
@@ -126,6 +129,7 @@ class ShareableBookItemHandler(BaseHandler):
                     - OJ0021: OptScale user is not assigned for account
         """
         _, account_id, _ = await self.check_atlassian_auth(
-            context_qsh=True, require_account=True)
+            context_qsh=True, require_account=True
+        )
         await self.controller.delete_booking(account_id, booking_id)
         self.set_status(204)

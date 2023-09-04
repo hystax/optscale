@@ -6,8 +6,11 @@ import os
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
 from boto3.session import Config as BotoConfig
-from pharos_receiver.controllers.base import (BaseController,
-                                              BaseAsyncControllerWrapper)
+
+from pharos_backend.pharos_receiver.controllers.base import (
+    BaseController,
+    BaseAsyncControllerWrapper
+)
 
 LOG = logging.getLogger(__name__)
 SPARK_LOGS_BUCKET_NAME = 'spark-logs'

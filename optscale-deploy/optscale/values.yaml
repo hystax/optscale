@@ -63,9 +63,7 @@ rabbitmq:
   memory_limit: 512
   image:
     id:
-    repository: *rabbit_name
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *rabbit_name
     type: ClusterIP
@@ -128,9 +126,7 @@ phpmyadmin:
   replicaCount: 1
   image:
     id:
-    repository: phpmyadmin
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *php_name
     type: NodePort
@@ -176,55 +172,6 @@ elk:
     internal_kibana_port: 80
     external_kibana_port: 30081
 
-elastic_cluster:
-  name: &es_name elasticsearch
-  master:
-    role: master
-    replicaCount: 3
-    host_data_dir: /optscale/esdb_master
-    port: 9300
-    java_opts: -Xms256m -Xmx256m
-  data:
-    role: data
-    replicaCount: 3
-    host_data_dir: /optscale/esdb_data
-    port: 9200
-    java_opts: -Xms256m -Xmx256m
-  image:
-    id:
-    repository: *es_name
-    tag: *tag
-    pullPolicy: Never
-  service:
-    name: *es_name
-    port: 9200
-    discovery_name: es-discovery
-
-logstash:
-  name: &logstash logstash
-  image:
-    id:
-    repository: *logstash
-    tag: *tag
-    pullPolicy: Never
-  service:
-    name: *logstash
-    tcp_port: 12201
-    udp_port: 12201
-
-kibana:
-  name: &kibana kibana
-  replicaCount: 1
-  image:
-    id:
-    repository: *kibana
-    tag: *tag
-    pullPolicy: Never
-  service:
-    name: *kibana
-    internalPort: 80
-    externalPort: 30081
-
 ngui:
   name: &ngui_name ngui
   replicaCount: 1
@@ -244,9 +191,7 @@ minio:
   replicaCount: 1
   image:
     id:
-    repository: *minio_name
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *minio_name
     type: ClusterIP
@@ -503,9 +448,7 @@ clickhouse:
     password: secure-password-1-clk
   image:
     id:
-    repository: *clickhouse_name
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *clickhouse_name
     type: ClusterIP
@@ -718,7 +661,7 @@ jira_ui:
     name: *jira_ui_name
     type: ClusterIP
     externalPort: 80
-    internalPort: 80
+    internalPort: 4000
 
 organization_violations:
   name: organization-violations
@@ -758,9 +701,7 @@ thanos_receive:
   maxConcurrency: 30
   image:
     id:
-    repository: thanos
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   remoteWritePath: "api/v1/receive"
   service:
     name: *thanos_receive_name
@@ -777,9 +718,7 @@ thanos_storegateway:
   replicaCount: 1
   image:
     id:
-    repository: thanos
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *thanos_storegateway_name
     type: ClusterIP
@@ -804,9 +743,7 @@ thanos_compactor:
     backoffLimit: 0
   image:
     id:
-    repository: thanos
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *thanos_compactor_name
     type: ClusterIP
@@ -818,9 +755,7 @@ thanos_web:
   httpPort: &thanos_web_http_port 10902
   image:
     id:
-    repository: thanos
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *thanos_web_name
     type: ClusterIP
@@ -831,9 +766,7 @@ thanos_query:
   replicaCount: 1
   image:
     id:
-    repository: thanos
-    tag: *tag
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
   service:
     name: *thanos_query_name
     httpType: ClusterIP
@@ -967,10 +900,7 @@ cleanelkdb:
 # Used when --update-only runkube flag is set
 skip_config_update: false
 
-# set to true to deploy HA Optscale on multi-master k8s cluster (tested with 3 nodes)
-ha: false
-
-# list of overlays used by runkube to start Optscale (necessary to use proper defaults when adding new keys on update)
+# list of overlays used by runkube to start OptScale (necessary to use proper defaults when adding new keys on update)
 overlay_list: ''
 
 # k8s cluster domain
