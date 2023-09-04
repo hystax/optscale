@@ -1,34 +1,38 @@
+# -------- Setup --------
 ARG IMAGE=node:14.16.0-alpine3.13
 
-# -------------------------
+FROM $IMAGE as builder
 
+WORKDIR /usr/src/app
+
+ENV NODE_ENV production
+
+# -------- UI --------
+WORKDIR /usr/src/app/ui
+COPY jira_ui/ui/package*.json ./
+RUN npm ci --ignore-scripts
+COPY jira_ui/ui/ ./
+# .eslintrc.json on build step will produce an error, but it is still needed on testing
+RUN mv .eslintrc.json .disabled.eslintrc.json
+RUN npm run build && rm -rf node_modules
+
+# -------- Server --------
+WORKDIR /usr/src/app/server
+COPY jira_ui/server/package*.json ./
+RUN npm ci --ignore-scripts
+COPY jira_ui/server/ ./
+RUN ./scripts/prune_node_modules.sh
+
+# -------- Final stage --------
 FROM $IMAGE
 
-WORKDIR /src
+WORKDIR /usr/src/app
 
-RUN apk update && \
-  apk upgrade && \
-  apk --no-cache add curl
+COPY --from=builder /usr/src/app/ui/ ./ui
+COPY --from=builder /usr/src/app/server ./server
 
-COPY config.js server.js package.json package-lock.json jsconfig.json ./
-COPY public public/
-COPY src src/
+EXPOSE 4000
 
-RUN npm ci --only=production --ignore-scripts && npm run build
+WORKDIR /usr/src/app/server
 
-RUN curl -sfL https://gobinaries.com/tj/node-prune | sh && \
-  /usr/local/bin/node-prune
-
-# -------------------------
-
-FROM $IMAGE
-
-WORKDIR /src
-
-COPY --from=0 /src/build ./build
-COPY --from=0 /src/node_modules ./node_modules
-COPY --from=0 /src/package.json /src/server.js /src/config.js ./
-
-ENV REACT_APP_ENV=docker
-
-CMD ["npm", "run", "server"]
+CMD ["npm", "start"]

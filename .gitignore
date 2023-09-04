@@ -27,3 +27,8 @@ ngui/*/storybook
 **/npm-debug.log*
 **/yarn-debug.log*
 **/yarn-error.log*
+
+# jira_ui
+jira_ui/*/.env
+jira_ui/*/node_modules
+jira_ui/*/build/

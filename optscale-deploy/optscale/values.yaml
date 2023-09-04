@@ -661,7 +661,7 @@ jira_ui:
     name: *jira_ui_name
     type: ClusterIP
     externalPort: 80
-    internalPort: 80
+    internalPort: 4000
 
 organization_violations:
   name: organization-violations
