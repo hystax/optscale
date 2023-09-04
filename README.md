@@ -7,7 +7,7 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
 <br>
 <br>
 <p align="center">
-<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="35%" align="middle"></a>
+<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="30%" align="middle"></a>
 </p>
 <br>
 <div align="center">
