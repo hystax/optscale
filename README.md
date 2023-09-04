@@ -7,18 +7,21 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
 <br>
 <br>
 <p align="center">
-<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="20%" align="middle"></a>
+<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="35%" align="middle"></a>
 </p>
 <br>
 <div align="center">
 
-[![PyPI - Python Version](https://img.shields.io/badge/python-%3E%3D%203.9-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://opensource.org/licenses/Apache-2.0)
-<img src="documentation/images/clouds.svg" height="20" /> <img src="documentation/images/cloud icons/aws-cloud.svg" height="20" />
+[![PyPI - Python Version](https://img.shields.io/badge/Python-%3E%3D%203.9-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-orange.svg)](https://opensource.org/licenses/Apache-2.0)
+![Clouds](https://img.shields.io/badge/Clouds-gray)
+ <img src="documentation/images/cloud icons/aws-cloud.svg" height="20" />
 <img src="documentation/images/cloud icons/azure.svg" height="20" /> <img src="documentation/images/cloud icons/google.svg" height="20" /> <img src="documentation/images/cloud icons/alibaba.svg" height="20" /> <img src="documentation/images/cloud icons/k8s.svg" height="20" />
-![Budget](https://img.shields.io/badge/Budget%20controlled-%24346M-green)
-![Customers](https://img.shields.io/badge/Customers-183-orange)
+![Budget](https://img.shields.io/badge/Overall_cloud_budget-$346M-green)
+![Customers](https://img.shields.io/badge/Organizations-183-orange)
 ![ML Teams](https://img.shields.io/badge/ML_teams-516-blue)
+![ML/AI models](https://img.shields.io/badge/ML/AI_models-5K-purple)
+![Average cloud cost savings](https://img.shields.io/badge/Average_cloud_cost_savings-38%25-yellow)
 
 </div>
 <br>
