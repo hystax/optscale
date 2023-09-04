@@ -72,9 +72,9 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 ## Demos
 
-|                    [Cloud cost optimization](link1)                        |                   [Cloud cost optimization](link2)               |
+| [Cloud cost optimization](https://hystax.com/optscale/aws-cost-management/)|                   [Cloud cost optimization](link2)               |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-| <a href="link1"> <img src="documentation/images/Recommendations.png"> </a> | <a href="link2"> <img src="documentation/images/Pools.png"> </a> |
+| <a href="[link1]"> <img src="documentation/images/Recommendations.png"> </a>| <a href="link2"> <img src="documentation/images/Pools.png"> </a> |
 |                               Recommendations                              |                             Pools                                |
 
 |                    [Cloud cost optimization](link1)                        |                   [Cloud cost optimization](link2)               |
