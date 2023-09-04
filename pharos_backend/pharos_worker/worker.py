@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 import os
-import config_client.client
+
 from kombu import Connection, Exchange, Queue
 from kombu.log import get_logger
 from kombu.mixins import ConsumerProducerMixin
 from kombu.utils.debug import setup_logging
 
+
+import optscale_client.config_client.client
 
 EXCHANGE_NAME = 'pharos-tasks'
 QUEUE_NAME = 'process-logs'
@@ -39,7 +41,7 @@ class Worker(ConsumerProducerMixin):
 
 if __name__ == '__main__':
     setup_logging(loglevel='INFO', loggers=[''])
-    config_cl = config_client.client.Client(
+    config_cl = optscale_client.config_client.client.Client(
         host=os.environ.get('HX_ETCD_HOST', DEFAULT_ETCD_HOST),
         port=int(os.environ.get('HX_ETCD_PORT', DEFAULT_ETCD_PORT))
     )

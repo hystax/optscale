@@ -1,6 +1,7 @@
 boto3==1.18.9
-config-client==1.0.101
-optscale-exceptions==0.0.21
-# TODO: update version
 tornado==6.2
 kombu==4.6.8
+
+# OptScale packages
+-e optscale_client/config_client
+-e tools/optscale_exceptions

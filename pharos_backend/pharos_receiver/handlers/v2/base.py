@@ -3,8 +3,11 @@ import logging
 import traceback
 from json.decoder import JSONDecodeError
 import tornado.web
-from pharos_receiver.exceptions import Err
-from optscale_exceptions.http_exc import OptHTTPError
+
+
+from pharos_backend.pharos_receiver.exceptions import Err
+
+from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 LOG = logging.getLogger(__name__)
