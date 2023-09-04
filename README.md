@@ -21,7 +21,7 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
 ![Customers](https://img.shields.io/badge/Organizations-183-orange)
 ![ML Teams](https://img.shields.io/badge/ML_teams-516-blue)
 ![ML/AI models](https://img.shields.io/badge/ML/AI_models-5K-purple)
-![Average cloud cost savings](https://img.shields.io/badge/Average_cloud_cost_savings-38%-yellow)
+![Average cloud cost savings](https://img.shields.io/badge/Average_cloud_cost_savings-38%25-yellow)
 
 </div>
 <br>
