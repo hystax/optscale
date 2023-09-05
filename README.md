@@ -7,7 +7,7 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
 <br>
 <br>
 <p align="center">
-<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="35%" align="middle"></a>
+<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
 </p>
 <br>
 <div align="center">
@@ -72,16 +72,24 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 ## Demos
 
-<div align="center">
-  <img src="documentation/images/Recommendations.png" width="350" />
-  <img src="documentation/images/Pools.png" width="350" />
-  <img src="documentation/images/Reserved-Instances.png" width="350" />
-  <img src="documentation/images/Resources.png" width="350" />
-  <img src="documentation/images/Models.png" width="350" />
-  <img src="documentation/images/Cost-map.png" width="350" />
-  <img src="documentation/images/Models-extended.png" width="350" />
-  <img src="documentation/images/Cost-explorer-by-owner.png" width="350" />
-</div>
+|              Cost and performance optimization recommendations             |                       Budgets and Pools                          |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
+|     <img src="documentation/images/Recommendations.png" width="500">       |     <img src="documentation/images/Pools.png" width="500">       |
+                                                                                                                      
+
+|                             Reserved Instances                             |                          Cost explorer                           |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
+|<img src="documentation/images/Reserved-Instances.png" width="500">         | <img src="documentation/images/Resources.png" width="500">       |  
+
+
+|                             ML model dashboard                             |                           Cost geo map                           |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
+|          <img src="documentation/images/Models.png" width="500">           |     <img src="documentation/images/Cost-map.png" width="500">    |
+
+
+|        ML model overview with optimization and experiment tracking         |                     Cost breakdown by owner                      |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
+|  <img src="documentation/images/Models-extended.png" width="500">  |  <img src="documentation/images/Cost-explorer-by-owner.png" width="500"> |
 
 ## OptScale components and architecture
 
