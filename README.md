@@ -74,22 +74,22 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 |              Cost and performance optimization recommendations             |                       Budgets and Pools                          |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|           <img src="documentation/images/Recommendations.png">             |             <img src="documentation/images/Pools.png">           |
+|     <img src="documentation/images/Recommendations.png" width="500">       |     <img src="documentation/images/Pools.png" width="500">       |
                                                                                                                       
 
 |                             Reserved Instances                             |                          Cost explorer                           |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|  <img src="documentation/images/Reserved-Instances-Savings-Plans.png">     |           <img src="documentation/images/Resources.png">         |
+|<img src="documentation/images/Reserved-Instances.png" width="500">         | <img src="documentation/images/Resources.png" width="500">       |  
 
 
 |                             ML model dashboard                             |                           Cost geo map                           |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|                <img src="documentation/images/Models.png">                 |           <img src="documentation/images/Cost-map.png">          |
+|          <img src="documentation/images/Models.png" width="500">           |     <img src="documentation/images/Cost-map.png" width="500">    |
 
 
 |        ML model overview with optimization and experiment tracking         |                     Cost breakdown by owner                      |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|            <img src="documentation/images/Models-extended.png">            |    <img src="documentation/images/Cost-explorer-by-owner.png">   |
+|  <img src="documentation/images/Models-extended.png" width="500">  |  <img src="documentation/images/Cost-explorer-by-owner.png" width="500"> |
 
 ## OptScale components and architecture
 
