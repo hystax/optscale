@@ -79,7 +79,7 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 |                             Reserved Instances                             |                          Cost explorer                           |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|          <img src="documentation/images/Reserved-Instances.png">           |           <img src="documentation/images/Resources.png">         |
+|  <img src="documentation/images/Reserved-Instances-Savings-Plans.png">     |           <img src="documentation/images/Resources.png">         |
 
 
 |                             ML model dashboard                             |                           Cost geo map                           |
