@@ -72,25 +72,24 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 ## Demos
 
-| [Cloud cost optimization](https://hystax.com/optscale/aws-cost-management/)|                   [Cloud cost optimization](link2)               |
+|              Cost and performance optimization recommendations             |                       Budgets and Pools                          |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-| <a href="[link1]"> <img src="documentation/images/Recommendations.png"> </a>| <a href="link2"> <img src="documentation/images/Pools.png"> </a> |
-|                               Recommendations                              |                             Pools                                |
+|           <img src="documentation/images/Recommendations.png">             |             <img src="documentation/images/Pools.png">           |
+                                                                                                                      
 
-|                    [Cloud cost optimization](link1)                        |                   [Cloud cost optimization](link2)               |
+|                             Reserved Instances                             |                          Cost explorer                           |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-| <a href="link1"> <img src="documentation/images/Reserved-Instances.png"> </a> | <a href="link2"> <img src="documentation/images/Resources.png"> </a> |
-|                               Reserved Instances                           |                      Resources                                |
+|          <img src="documentation/images/Reserved-Instances.png">           |           <img src="documentation/images/Resources.png">         |
 
-|                    [Machine Learning](link1)                        |                   [Cloud cost optimization](link2)                             |
-| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-| <a href="link1"> <img src="documentation/images/Models.png"> </a> | <a href="link2"> <img src="documentation/images/Cost-map.png"> </a> |
-|                               Models                                       |                      Cost map                                    |
 
-|                    [Machine Learning](link1)                        |                   [Cloud cost optimization](link2)                             |
+|                             ML model dashboard                             |                           Cost geo map                           |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-| <a href="link1"> <img src="documentation/images/Models-extended.png"> </a> | <a href="link2"> <img src="documentation/images/Cost-explorer-by-owner.png"> </a> |
-|                               Models                                       |                      Cost explorer                                |
+|                <img src="documentation/images/Models.png">                 |           <img src="documentation/images/Cost-map.png">          |
+
+
+|        ML model overview with optimization and experiment tracking         |                     Cost breakdown by owner                      |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
+|            <img src="documentation/images/Models-extended.png">            |    <img src="documentation/images/Cost-explorer-by-owner.png">   |
 
 ## OptScale components and architecture
 
