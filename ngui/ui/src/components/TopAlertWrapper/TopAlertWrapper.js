@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { Box } from "@mui/material";
+import { render as renderGithubButton } from "github-buttons";
 import PropTypes from "prop-types";
-import GitHubButton from "react-github-btn";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useDispatch } from "react-redux";
 import { GET_TOKEN } from "api/auth/actionTypes";
@@ -29,16 +29,24 @@ const getEligibleDataSources = (dataSources) => dataSources.filter(({ type }) =>
 
 const GitHubInlineButton = ({ children, ariaLabelMessageId, href, dataIcon }) => {
   const intl = useIntl();
+  const anchorRef = useCallback((anchor) => {
+    if (anchor && anchor.parentNode) {
+      renderGithubButton(anchor, (el) => {
+        anchor.parentNode.replaceChild(el, anchor);
+      });
+    }
+  }, []);
   return (
     <Box display="inline-block" mx={SPACING_1}>
-      <GitHubButton
+      <a
         href={href}
         data-icon={dataIcon}
-        data-show-count="true"
         aria-label={intl.formatMessage({ id: ariaLabelMessageId })}
+        data-show-count
+        ref={anchorRef}
       >
         {children}
-      </GitHubButton>
+      </a>
     </Box>
   );
 };
