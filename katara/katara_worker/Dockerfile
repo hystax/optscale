@@ -18,4 +18,4 @@ WORKDIR /usr/src/app/katara/katara_worker
 COPY katara/katara_worker/reports_generators ./reports_generators
 COPY katara/katara_worker/*.py ./
 
-CMD ["python", "-u","/usr/src/app/katara_worker/main.py"]
+CMD ["python", "-u","/usr/src/app/katara/katara_worker/main.py"]

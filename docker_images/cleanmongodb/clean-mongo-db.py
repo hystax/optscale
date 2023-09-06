@@ -1,6 +1,6 @@
 import os
 import logging
-from config_client.client import Client as ConfigClient
+from optscale_client.config_client.client import Client as ConfigClient
 from datetime import datetime
 from pymongo import MongoClient
 from sqlalchemy import create_engine

@@ -4,7 +4,7 @@ MAINTAINER Hystax
 WORKDIR /src
 
 RUN apt-get update \
-    && apt-get install -y jq \
+    && apt-get install -y jq curl \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

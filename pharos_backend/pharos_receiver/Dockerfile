@@ -9,7 +9,7 @@ COPY pharos_backend/pharos_receiver/requirements.txt ./requirements.txt
 COPY tools/optscale_exceptions tools/optscale_exceptions
 COPY optscale_client/config_client optscale_client/config_client
 
-RUN pip install --use-deprecated=legacy-resolver --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 
 WORKDIR /usr/src/app/pharos_backend/pharos_receiver

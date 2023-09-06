@@ -5,7 +5,7 @@ set -e
 INPUT_TAG=$2
 BUILD_TAG=${INPUT_TAG:-'build'}
 
-FIND_CMD="find . -print | grep Dockerfile | grep -v test"
+FIND_CMD="find . -print | grep Dockerfile | grep -v test | grep -v Dockerfile.j2"
 
 case $# in
     0)

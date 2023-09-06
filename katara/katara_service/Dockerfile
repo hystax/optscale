@@ -26,5 +26,5 @@ WORKDIR /usr/src/app/
 RUN python -u katara/katara_service/write_spec.py
 
 
-CMD ["python", "-u","/usr/src/app/katara_service/main.py"]
+CMD ["python", "-u","/usr/src/app/katara/katara_service/main.py"]
 EXPOSE 8935
