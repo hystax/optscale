@@ -7,7 +7,7 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
 <br>
 <br>
 <p align="center">
-<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
+<a href="https://my.optscale.com/live-demo?utm_source=github&utm_medium=readme"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
 </p>
 <br>
 <div align="center">
@@ -66,7 +66,7 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
   </table>
 </div>
   
-You can check OptScale [live demo](https://my.optscale.com/live-demo) to explore product features on a pre-generated demo organization.
+You can check OptScale [live demo](https://my.optscale.com/live-demo?utm_source=github&utm_medium=readme) to explore product features on a pre-generated demo organization.
 
 Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com).
 
@@ -219,7 +219,7 @@ sudo service docker restart
 
 ## Documentation
 
-Read the [full OptScale documentation](https://hystax.com/documentation/optscale/) 📖
+Read the [full OptScale documentation](https://hystax.com/documentation/optscale/?utm_source=github&utm_medium=readme) 📖
 
 ## Contributing
 
@@ -229,7 +229,7 @@ Please read and accept our [Contribution Agreement](CONTRIBUTING.md) before subm
 
 Hystax drives FinOps & MLOps methodology and has crafted a community of FinOps-related people. The community discusses FinOps & MLOps best practices, our experts offer users how-tos and technical recommendations, and provide ongoing details and updates regarding the open-source OptScale solution.
 
-You can check it out on [FinOps and MLOps in practice website](https://finopsinpractice.org/)
+You can check it out on [FinOps and MLOps in practice website](https://finopsinpractice.org/?utm_source=github&utm_medium=readme)
 
 ## Contacts
 
