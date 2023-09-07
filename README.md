@@ -7,7 +7,7 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
 <br>
 <br>
 <p align="center">
-<a href="https://my.optscale.com/live-demo?utm_source=github&utm_medium=readme"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
+<a href="https://my.optscale.com/live-demo?emailbypass=true&utm_source=github&utm_medium=readme"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
 </p>
 <br>
 <div align="center">
@@ -66,9 +66,9 @@ MLOps & FinOps open source platform to optimize any cloud workload performance a
   </table>
 </div>
   
-You can check OptScale [live demo](https://my.optscale.com/live-demo?utm_source=github&utm_medium=readme) to explore product features on a pre-generated demo organization.
+You can check OptScale [live demo](https://my.optscale.com/live-demo?emailbypass=true&utm_source=github&utm_medium=readme) to explore product features on a pre-generated demo organization.
 
-Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com).
+Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com?utm_source=github&utm_medium=readme).
 
 ## Demos
 
