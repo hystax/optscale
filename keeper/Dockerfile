@@ -20,5 +20,5 @@ COPY keeper/report_server/*.py ./
 WORKDIR /usr/src/app/
 RUN python -u keeper/report_server/write_spec.py
 
-CMD ["python", "-u","/usr/src/app/report_server/server.py"]
+CMD ["python", "-u","/usr/src/app/keeper/report_server/server.py"]
 EXPOSE 8973
