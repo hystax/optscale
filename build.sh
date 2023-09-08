@@ -5,7 +5,7 @@ set -e
 INPUT_TAG=$2
 BUILD_TAG=${INPUT_TAG:-'build'}
 
-FIND_CMD="find . -print | grep Dockerfile | grep -v test | grep -v Dockerfile.j2"
+FIND_CMD="find . -mindepth 2 -maxdepth 3 -print | grep Dockerfile | grep -vE '(test|.j2)'"
 
 case $# in
     0)
@@ -18,8 +18,7 @@ case $# in
     exit 1
 esac
 
-DOCKERFILES=( $(eval ${FIND_CMD}) )
-for DOCKERFILE in "${DOCKERFILES[@]}"
+for DOCKERFILE in $(eval ${FIND_CMD} | xargs)
 do
     COMPONENT=$(echo "${DOCKERFILE}" | awk -F '/' '{print $(NF-1)}')
     echo "Building image for ${COMPONENT}, build tag: ${BUILD_TAG}"
