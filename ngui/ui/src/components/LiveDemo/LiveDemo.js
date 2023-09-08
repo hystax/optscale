@@ -11,6 +11,7 @@ import GenerateLiveDemoContainer from "containers/GenerateLiveDemoContainer";
 import { FINOPS, HYSTAX_PRIVACY_POLICY } from "urls";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
 import { SPACING_4 } from "utils/layouts";
+import { getQueryParams } from "utils/network";
 import { emailRegex } from "utils/strings";
 
 const EMAIL = "email";
@@ -18,6 +19,8 @@ const SUBSCRIBE_TO_NEWSLETTER = "subscribeToNewsletter";
 
 const LiveDemo = () => {
   const intl = useIntl();
+
+  const { emailbypass } = getQueryParams(true);
 
   const {
     control,
@@ -32,6 +35,11 @@ const LiveDemo = () => {
   });
 
   const [demoParameters, setDemoParameters] = useState(null);
+
+  // The search parameter can be of any valid type (e.g., string), so we need to explicitly check if it is equal to true.
+  if (emailbypass === true) {
+    return <GenerateLiveDemoContainer />;
+  }
 
   return demoParameters ? (
     <GenerateLiveDemoContainer email={demoParameters.email} subscribeToNewsletter={demoParameters.subscribeToNewsletter} />
