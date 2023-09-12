@@ -36,8 +36,8 @@ LOG = logging.getLogger(__name__)
 
 class Runkube:
     def __init__(self, name, config, overlays, dport, dregistry, no_pull,
-                 pull_by_master_ip, with_elk, use_socket,
-                 component_versions, wait_timeout=0):
+                 pull_by_master_ip, with_elk, external_clickhouse,
+                 external_mongo, use_socket, component_versions, wait_timeout=0):
         self.name = name
         if config is None:
             self.config = os.path.join(os.environ.get('HOME'), '.kube/config')
@@ -52,6 +52,8 @@ class Runkube:
         self._kube_cl = None
         self.pull_by_master_ip = pull_by_master_ip
         self.with_elk = with_elk
+        self.external_clickhouse = external_clickhouse
+        self.external_mongo = external_mongo
         k8s_config.load_kube_config(self.config)
         self.use_socket = use_socket
         self.component_versions = component_versions
@@ -163,6 +165,10 @@ class Runkube:
             base_overlay['skip_config_update'] = True
         if self.with_elk:
             base_overlay['elk'] = {'enabled': True}
+        if self.external_clickhouse:
+            base_overlay['clickhouse'] = {'external': True}
+        if self.external_mongo:
+            base_overlay['mongo'] = {'external': True}
 
         base_overlay['nodes'] = self.get_node_names()
 
@@ -354,6 +360,12 @@ if __name__ == '__main__':
                         default=False)
     parser.add_argument('--with-elk', action='store_true', default=False,
                         help="Start ELK as part of OptScale (e.g. in OGI)")
+    parser.add_argument('--external-clickhouse', action='store_true',
+                        default=False,
+                        help='Connect to external clickhouse as part of OptScale')
+    parser.add_argument('--external-mongo', action='store_true',
+                        default=False,
+                        help='Connect to external mongodb as part of OptScale')
     parser.add_argument('--skip-login', action='store_true', default=False,
                         help="Don't login into docker registry "
                              "(updating from patch)")
@@ -378,6 +390,8 @@ if __name__ == '__main__':
         no_pull=args.no_pull,
         pull_by_master_ip=args.pull_by_master_ip,
         with_elk=args.with_elk,
+        external_clickhouse=args.external_clickhouse,
+        external_mongo=args.external_mongo,
         use_socket=args.use_socket,
         component_versions=args.component_versions,
         wait_timeout=args.wait,

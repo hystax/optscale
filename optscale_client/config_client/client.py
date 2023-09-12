@@ -204,6 +204,18 @@ class Client(etcd.Client):
         return (params['user'], params['password'], params['host'],
                 params['db'])
 
+    def smtp_params(self):
+        """
+        Get tuple with access args for smtp
+        :return: ('server', 'port', 'email', 'password')
+        """
+        try:
+            params = self.read_branch('/smtp')
+            return (params['server'], params['port'], params['email'],
+                    params['password'])
+        except etcd.EtcdKeyNotFound:
+            return None
+
     def _get_url_from_branch(self, branch):
         """
         Generate service url from branch
