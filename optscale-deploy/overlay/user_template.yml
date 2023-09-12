@@ -86,3 +86,11 @@ encryption_key: fffffxdddeadb33f
 auth:
   google_oauth_client_id: ""
   microsoft_oauth_client_id: ""
+
+ngui:
+  env:
+    react_app_google_oauth_client_id: ""
+    react_app_microsoft_oauth_client_id: ""
+    react_app_google_map_api_key: ""
+    react_app_ganalytics_id: ""
+    react_app_hotjar_id: ""

@@ -58,6 +58,20 @@ spec:
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}
+        - name: UI_BUILD_PATH
+          value: /usr/src/app/ui
+        - name: PROXY_URL
+          value: https://ngingress-nginx-ingress-controller:443
+        - name: REACT_APP_GOOGLE_OAUTH_CLIENT_ID
+          value: {{ $config.env.react_app_google_oauth_client_id }}
+        - name: REACT_APP_MICROSOFT_OAUTH_CLIENT_ID
+          value: {{ $config.env.react_app_microsoft_oauth_client_id }}
+        - name: REACT_APP_GOOGLE_MAP_API_KEY
+          value: {{ $config.env.react_app_google_map_api_key }}
+        - name: REACT_APP_GANALYTICS_ID
+          value: {{ $config.env.react_app_ganalytics_id }}
+        - name: REACT_APP_HOTJAR_ID
+          value: {{ $config.env.react_app_hotjar_id | quote }}
 {{ include "ready_probe" $config | indent 8 }}
       volumes:
       - name: shared
