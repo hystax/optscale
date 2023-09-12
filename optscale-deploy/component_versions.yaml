@@ -54,8 +54,8 @@ images:
   resource_observer: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   resource_violations: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   restapi: 91e412a8917529ae1b893b2a9843cc8d65414db9
-  risp_scheduler: 2cbd48ad4a34618c28280e744885c248978d5ccc
-  risp_worker: 2cbd48ad4a34618c28280e744885c248978d5ccc
+  risp_scheduler: 59e1e7f593672171fbe95d795a892eb2cee8b7e0
+  risp_worker: 59e1e7f593672171fbe95d795a892eb2cee8b7e0
   slacker: a368f4ca82831a39f40ba8a2a07fe2cfc34f72f6
   slacker_executor: f088d2c16aa4dfa2e5a9b5228dfd33ba8ef171ed
   trapper_scheduler: bdea035958396fec41ab18bbd4f43a5ff2124380
