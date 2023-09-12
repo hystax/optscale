@@ -184,7 +184,7 @@ ngui:
     name: *ngui_name
     type: ClusterIP
     externalPort: 80
-    internalPort: 9999
+    internalPort: 4000
 
 minio:
   name: &minio_name minio
