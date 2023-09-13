@@ -44,5 +44,5 @@ spec:
       volumes:
         - name: bulldozer-data-volume
           hostPath:
-            path: /acura/bulldozer
+            path: /optscale/bulldozer
             type: DirectoryOrCreate

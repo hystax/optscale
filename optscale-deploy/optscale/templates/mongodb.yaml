@@ -1,3 +1,4 @@
+{{- if not .Values.mongo.external }}
 {{- $config := .Values.mongo -}}
 ---
 apiVersion: v1
@@ -224,3 +225,4 @@ spec:
           path: /optscale/mongo
           type: DirectoryOrCreate
 {{ include "anti-affinity" $config | indent 6 }}
+{{- end }}

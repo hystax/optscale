@@ -23,7 +23,9 @@ spec:
       initContainers:
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
 {{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{- if not .Values.mongo.external }}
 {{ include "wait_for_service" .Values.mongo | indent 6 }}
+{{- end }}
 
       containers:
       - name: {{ $config.name }}-worker
@@ -73,7 +75,7 @@ spec:
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
             - "python3"
-            - "/src/scheduler.py"
+            - "docker_images/booking_observer/scheduler.py"
             env:
             - name: HX_ETCD_HOST
               value: {{ $.Values.etcd.service.name }}

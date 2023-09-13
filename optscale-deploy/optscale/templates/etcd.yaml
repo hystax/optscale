@@ -207,7 +207,9 @@ spec:
 {{- end }}
 {{ include "wait_for_service" .Values.etcd | indent 6 }}
 {{ include "wait_mariadb" . | indent 6 }}
+{{- if not .Values.mongo.external }}
 {{ include "wait_for_service" .Values.mongo | indent 6 }}
+{{- end }}
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
 {{ include "wait_for_service" .Values.influxdb | indent 6 }}
       restartPolicy: Never

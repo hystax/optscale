@@ -6,7 +6,6 @@ import json
 import logging
 
 import os
-import shutil
 import time
 
 import yaml
@@ -19,7 +18,8 @@ from kubernetes.stream import stream as k8s_stream
 from docker import DockerClient
 from kubernetes.stream.ws_client import ERROR_CHANNEL
 
-DESCRIPTION = "Some funny text about how cool it is to deploy OptScale on k8s"
+DESCRIPTION = "Script to deploy OptScale on k8s. " \
+              "See deployment instructions at https://github.com/hystax/optscale"
 HELM_DELETE_CMD = 'helm delete --purge {release}'
 HELM_UPDATE_CMD = 'helm upgrade --install {overlays} {release} {chart}'
 GET_FAKE_CERT_CMD = 'cat /ingress-controller/ssl/default-defaultcert.pem'
@@ -31,13 +31,16 @@ ORIGINAL_OVERLAY = os.path.join(TEMP_DIR, 'original_overlay')
 CHART_NAME = 'optscale'
 JOB_NAME = 'configurator'
 OPTSCALE_K8S_NAMESPACE = 'default'
+COMPONENTS_FILE = 'components.yaml'
+
 LOG = logging.getLogger(__name__)
 
 
 class Runkube:
-    def __init__(self, name, config, overlays, dport, dregistry, no_pull,
-                 pull_by_master_ip, with_elk, external_clickhouse,
-                 external_mongo, use_socket, component_versions, wait_timeout=0):
+    def __init__(self, name, config, overlays, dport, dregistry, dregistry_user,
+                 dregistry_password, no_pull, pull_by_master_ip, with_elk,
+                 external_clickhouse, external_mongo, use_socket, version,
+                 wait_timeout=0):
         self.name = name
         if config is None:
             self.config = os.path.join(os.environ.get('HOME'), '.kube/config')
@@ -47,6 +50,8 @@ class Runkube:
         self.overlays = overlays
         self.dport = dport
         self.dregistry = dregistry
+        self.dregistry_user = dregistry_user
+        self.dregistry_password = dregistry_password
         self.no_pull = no_pull
         self._master_ip = None
         self._kube_cl = None
@@ -56,7 +61,7 @@ class Runkube:
         self.external_mongo = external_mongo
         k8s_config.load_kube_config(self.config)
         self.use_socket = use_socket
-        self.component_versions = component_versions
+        self.version = version
         self._versions_info = None
         self.wait_timeout = wait_timeout
 
@@ -105,15 +110,24 @@ class Runkube:
     @property
     def versions_info(self):
         if self._versions_info is None:
-            with open(self.component_versions) as f_ver:
-                self._versions_info = yaml.safe_load(f_ver)
+            self._versions_info = {'optscale': self.version}
+            with open(COMPONENTS_FILE) as f_comp:
+                components_dict = yaml.safe_load(f_comp)
+            self._versions_info['images'] = {
+                    component: self.version for component in components_dict
+            }
         return self._versions_info
 
-    def _pull_image(self, docker_cl, image_name, tag, same_tag=False):
+    def _pull_image(self, docker_cl, image_name, tag, auth_config,
+                    same_tag=False):
         full_image_name = os.path.join(self.dregistry, image_name)
         LOG.info("Pulling image %s with tag %s", full_image_name, tag)
-        image = docker_cl.images.pull(repository=full_image_name, tag=tag)
+        params = {'repository': full_image_name, 'tag': tag}
+        if auth_config:
+            params['auth_config'] = auth_config
+        image = docker_cl.images.pull(**params)
         LOG.debug("Pulled image with id %s", image.id)
+
         if same_tag:
             result_tag = tag
         else:
@@ -129,15 +143,22 @@ class Runkube:
         LOG.info("Pulling images for %s", node)
         docker_cl = self.get_docker_cl(node)
         LOG.debug("Logging into docker registry %s", self.dregistry)
-        for image, tag in self.versions_info['images'].items():
-            self._pull_image(docker_cl, image, tag, same_tag=False)
+        auth_config = {}
+        if self.dregistry_user or self.dregistry_password:
+            auth_config = {
+                'username': self.dregistry_user,
+                'password': self.dregistry_password
+            }
+        for image in self.versions_info['images']:
+            self._pull_image(
+                docker_cl, image, self.version, auth_config, same_tag=False)
 
     def get_image_id_map(self):
         LOG.debug("Getting map of image ids...")
         docker_cl = self.get_docker_cl(self.master_ip)
         images = {}
-        for service in self.versions_info['images'].keys():
-            image = docker_cl.images.get('{0}:local'.format(service))
+        for service in self.versions_info['images']:
+            image = docker_cl.images.get('{}:local'.format(service))
             images[service] = image.id
         LOG.debug("Image ids map: %s", images)
         return images
@@ -157,7 +178,9 @@ class Runkube:
         base_overlay['docker_registry'] = self.dregistry
         base_overlay['storage_ip'] = self.master_ip
         base_overlay['release'] = self.name
-        base_overlay['cluster_capabilities'] = {'common': {'optscale_version': self.versions_info['optscale']}}
+        base_overlay['cluster_capabilities'] = {
+            'common': {'optscale_version': self.version}
+        }
         if self.overlays:
             base_overlay['overlay_list'] = ','.join(self.overlays)
 
@@ -230,8 +253,8 @@ class Runkube:
         LOG.debug("Checking deployed releases")
         out_lines = subprocess.check_output(
             HELM_LIST_CMD.split()).decode().split('\n')
-        optscale_releases = [r.split()[0] for r in filter(lambda x: 'optscale' in x,
-                                                          out_lines)]
+        optscale_releases = [r.split()[0] for r in filter(
+            lambda x: 'optscale' in x, out_lines)]
         if len(optscale_releases) > 1:
             raise Exception(
                 "More than 1 optscale release found: {0}".format(optscale_releases))
@@ -304,12 +327,10 @@ class Runkube:
         if self.wait_timeout:
             update_cmd += ' --wait --timeout {}'.format(self.wait_timeout)
 
-        LOG.info(
-            'Making a copy of %s to helm files to insert it into configmap',
-            self.component_versions
-        )
-        shutil.copy(self.component_versions,
-                    '{}/component_versions.yaml'.format(CHART_NAME))
+        LOG.info('Creating component_versions.yaml file to insert it '
+                 'into configmap')
+        with open('{}/component_versions.yaml'.format(CHART_NAME), 'w') as file:
+            file.write(yaml.dump(self.versions_info, sort_keys=False))
 
         LOG.debug("Generated update cmd: %s", update_cmd)
         if check:
@@ -334,8 +355,7 @@ if __name__ == '__main__':
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('name', help='Release name for helm and log separation')
-    parser.add_argument('component_versions',
-                        help='Path to component_versions.yaml')
+    parser.add_argument('version', help='OptScale version')
     parser.add_argument('-c', '--config', help='Path to kube config file')
     action_group = parser.add_mutually_exclusive_group(required=False)
     action_group.add_argument('-r', '--restart', action='store_true',
@@ -348,8 +368,14 @@ if __name__ == '__main__':
                         help='Overlay config files')
     parser.add_argument('--dport', help='Docker port for image pulling',
                         default=2376, type=int)
-    parser.add_argument('--dregistry', help='Docker registry for image pulling',
-                        default='index.docker.io/hystax')
+    parser.add_argument('--dregistry',
+                        help='Docker registry server for image pulling',
+                        type=str, default='index.docker.io/hystax')
+    parser.add_argument('--dregistry_user',
+                        help='Docker registry user for image pulling', type=str)
+    parser.add_argument('--dregistry_password',
+                        help='Docker registry password for image pulling',
+                        type=str)
     parser.add_argument('--no-pull', help="Don't pull images before deploy",
                         action='store_true')
     parser.add_argument('-v', '--verbose', help="Enable debug logging",
@@ -387,13 +413,15 @@ if __name__ == '__main__':
         overlays=args.overlays,
         dport=args.dport,
         dregistry=args.dregistry,
+        dregistry_user=args.dregistry_user,
+        dregistry_password=args.dregistry_password,
         no_pull=args.no_pull,
         pull_by_master_ip=args.pull_by_master_ip,
         with_elk=args.with_elk,
         external_clickhouse=args.external_clickhouse,
         external_mongo=args.external_mongo,
         use_socket=args.use_socket,
-        component_versions=args.component_versions,
+        version=args.version,
         wait_timeout=args.wait,
     )
     if args.delete or args.restart:

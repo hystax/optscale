@@ -1,3 +1,4 @@
+{{- if not .Values.clickhouse.external }}
 ---
 apiVersion: v1
 kind: Service
@@ -44,3 +45,4 @@ spec:
   selector:
     app: {{ .Values.clickhouse.name }}
     release: {{ .Release.Name }}
+{{- end -}}

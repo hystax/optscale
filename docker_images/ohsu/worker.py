@@ -2,8 +2,8 @@ import logging
 import os
 import tornado
 from optscale_client.config_client.client import Client as ConfigClient
-import ohsu.handlers.v2 as handlers
-from ohsu.urls import urls_v2
+import docker_images.ohsu.handlers.v2 as handlers
+from docker_images.ohsu.urls import urls_v2
 
 
 DEFAULT_PORT = 9377

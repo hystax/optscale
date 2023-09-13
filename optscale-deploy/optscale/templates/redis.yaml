@@ -1,4 +1,4 @@
-{{- $config := .Values.bulldozer_api -}}
+{{- $config := .Values.redis -}}
 ---
 apiVersion: v1
 kind: Service
@@ -20,7 +20,7 @@ spec:
     release: {{ .Release.Name }}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ $config.name }}
   labels:
@@ -44,20 +44,20 @@ spec:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
-{{- if not .Values.mongo.external }}
-{{ include "wait_for_service" .Values.mongo | indent 6 }}
-{{- end }}
       containers:
       - name: {{ $config.name }}
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "redis-cli -h $(hostname) ping"
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}
-        - name: HX_ETCD_HOST
-          value: {{ .Values.etcd.service.name }}
-        - name: HX_ETCD_PORT
-          value: {{ .Values.etcd.service.externalPort | quote }}
-{{ include "ready_probe" $config | indent 8 }}

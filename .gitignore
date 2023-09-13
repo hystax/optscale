@@ -11,6 +11,7 @@ venv/
 .DS_Store
 optscale-deploy/overlay/*.yml
 !optscale-deploy/overlay/user_template.yml
+optscale-deploy/optscale/component_versions.yaml
 rest_api/.clickhouse
 # Build files
 **/dist

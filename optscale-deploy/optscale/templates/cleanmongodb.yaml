@@ -1,4 +1,4 @@
-{{- $config := .Values.insider_scheduler }}
+{{- $config := .Values.cleanmongodb }}
 ---
 apiVersion: batch/v1beta1
 kind: CronJob
@@ -28,8 +28,7 @@ spec:
             release: {{ .Release.Name }}
         spec:
           initContainers:
-{{ include "wait_for_service" .Values.rabbitmq | indent 10 }}
-{{ include "wait_for_service" .Values.etcd | indent 10 }}
+{{ include "wait_for_service" .Values.mariadb | indent 10 }}
 {{- if not .Values.mongo.external }}
 {{ include "wait_for_service" .Values.mongo | indent 10 }}
 {{- end }}

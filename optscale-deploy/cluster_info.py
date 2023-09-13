@@ -44,16 +44,14 @@ class ClusterInfo(object):
 
         for image in version_map['images'].copy():
             try:
-                d_image = self.docker_cl.images.get('{0}:local'.format(image))
+                self.docker_cl.images.get('{0}:local'.format(image))
             except docker.errors.ImageNotFound:
                 LOG.warning('image %s not found', image)
                 del version_map['images'][image]
                 continue
 
-            labels = d_image.labels or {}
             version_map['images'][image] = {
-                'commit_tag': version_map['images'][image],
-                'build_url': labels.get('build_url'),
+                'version': version_map['images'][image]
             }
         return version_map
 
@@ -81,4 +79,4 @@ if __name__ == "__main__":
 
     info = ClusterInfo(arguments.config, arguments.host, arguments.no_urls)
     result = info.get_cluster_info()
-    print(yaml.dump(result, default_flow_style=False))
+    print(yaml.dump(result, default_flow_style=False, sort_keys=False))

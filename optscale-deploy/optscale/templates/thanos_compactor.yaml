@@ -34,7 +34,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Recycle
   hostPath:
-    path: "/acura/{{ $config.name }}"
+    path: "/optscale/{{ $config.name }}"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
