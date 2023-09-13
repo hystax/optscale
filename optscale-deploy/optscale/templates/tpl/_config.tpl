@@ -26,7 +26,6 @@ etcd:
   release: {{ .Values.release }}
   katara_scheduler_timeout: {{ .Values.katara_scheduler_timeout }}
   bumi_scheduler_timeout: {{ .Values.bumi_scheduler_timeout }}
-  encryption_salt: {{ .Values.encryption_salt }}
   bumi_worker:
     max_retries: {{ .Values.bumi_worker.max_retries }}
     wait_timeout: {{ .Values.bumi_worker.wait_timeout }}
@@ -136,7 +135,7 @@ etcd:
     db: jira-bus
     port: {{ .Values.mariadb.service.externalPort }}
   mongo:
-    host: {{ .Values.mongo.service.name }}
+    host: {{ .Values.mongo.service.host }}
     port: {{ .Values.mongo.service.externalPort }}
     user: {{ .Values.mongo.credentials.username }}
     pass: {{ .Values.mongo.credentials.password }}
@@ -158,15 +157,16 @@ etcd:
     access: {{ .Values.minio.credentials.access }}
     secret: {{ .Values.minio.credentials.secret }}
   clickhouse:
-    host: {{ .Values.clickhouse.service.name }}
+    host: {{ .Values.clickhouse.service.host }}
     port: {{ .Values.clickhouse.service.externalPort }}
     user: {{ .Values.clickhouse.db.user }}
     password: {{ .Values.clickhouse.db.password }}
-    host: {{ .Values.clickhouse.service.name }}
     db: {{ .Values.clickhouse.db.name }}
   cleanmongodb:
     chunk_size: {{ .Values.cleanmongodb.chunk_size }}
     rows_limit: {{ .Values.cleanmongodb.rows_limit }}
+  encryption_salt: {{ .Values.encryption_salt }}
+  encryption_salt_auth: {{ .Values.encryption_salt_auth }}
 {{ if .Values.zohocrm.regapp }}
   zohocrm:
     regapp_email: {{ .Values.zohocrm.regapp.email }}

@@ -25,8 +25,12 @@ spec:
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
+{{- if not .Values.mongo.external }}
 {{ include "wait_for_service" .Values.mongo | indent 6 }}
+{{- end }}
+{{- if not .Values.clickhouse.external }}
 {{ include "wait_for_service" .Values.clickhouse | indent 6 }}
+{{- end }}
 {{ include "wait_for_service" .Values.restapi | indent 6 }}
       containers:
       - name: {{ $config.name }}

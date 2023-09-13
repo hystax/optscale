@@ -13,7 +13,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  name: acura
+  name: optscale
   namespace: default
 spec:
   rules:

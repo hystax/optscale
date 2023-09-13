@@ -29,8 +29,12 @@ spec:
         spec:
           initContainers:
 {{ include "wait_for_service" .Values.mariadb | indent 10 }}
+{{- if not .Values.clickhouse.external }}
 {{ include "wait_for_service" .Values.clickhouse | indent 10 }}
+{{- end }}
+{{- if not .Values.mongo.external }}
 {{ include "wait_for_service" .Values.mongo | indent 10 }}
+{{- end }}
           containers:
           - name: {{ $config.name }}
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

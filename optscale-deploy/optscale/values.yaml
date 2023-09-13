@@ -38,6 +38,7 @@ mariadb:
     internalPort: 3306
 
 mongo:
+  external: false
   name: &mongo_name mongo
   replicaCount: 1
   cache_size: 1.0
@@ -47,6 +48,7 @@ mongo:
     tag: *tag
     pullPolicy: Never
   service:
+    host: *mongo_name
     name: *mongo_name
     type: ClusterIP
     externalPort: 80
@@ -76,12 +78,26 @@ rabbitmq:
     password: secure-password-here
     cookie: dWkhXehOApH1OHshvByfpfTf3Cd8wwkADei7mWd5JF
 
+redis:
+  name: &redis_name redis
+  replicaCount: 1
+  image:
+    id:
+    repository: *redis_name
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *redis_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 6379
+
 restapi:
   name: &restapi_name restapi
   replicaCount: 1
   image:
     id:
-    repository: *restapi_name
+    repository: rest_api
     tag: *tag
     pullPolicy: Never
   service:
@@ -105,6 +121,7 @@ auth:
     internalPort: 8905
   # filled from overlay
   google_oauth_client_id:
+  google_oauth_client_secret:
   microsoft_oauth_client_id:
 
 keeper:
@@ -185,6 +202,12 @@ ngui:
     type: ClusterIP
     externalPort: 80
     internalPort: 4000
+  env:
+    react_app_google_oauth_client_id:
+    react_app_microsoft_oauth_client_id:
+    react_app_google_map_api_key:
+    react_app_ganalytics_id:
+    react_app_hotjar_id:
 
 minio:
   name: &minio_name minio
@@ -396,16 +419,6 @@ insider_api:
     externalPort: 80
     internalPort: 8945
 
-cloud_nurse:
-  name: cloudnurse
-  replicaCount: 0
-  image:
-    repository: cloud_nurse
-    tag: *tag
-    pullPolicy: Never
-  startingDeadlineSeconds: 100
-  schedule: "0 */6 * * *"
-
 slacker:
   name: &slacker_name slacker
   replicaCount: 1
@@ -439,6 +452,7 @@ error_pages:
     internalPort: 8080
 
 clickhouse:
+  external: false
   name: &clickhouse_name clickhouse
   replicaCount: 1
   shardsCount: 1
@@ -451,6 +465,7 @@ clickhouse:
     pullPolicy: IfNotPresent
   service:
     name: *clickhouse_name
+    host: *clickhouse_name
     type: ClusterIP
     httpPort: 8123
     externalPort: 9000
@@ -552,6 +567,103 @@ arcee:
     externalPort: 80
     internalPort: 8891
 
+bulldozer_api:
+  name: &bulldozer_api_name bulldozer-api
+  replicaCount: 1
+  image:
+    id:
+    repository: bulldozer_api
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *bulldozer_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8896
+
+bulldozer_worker:
+  name: bulldozerworker
+  replicaCount: 1
+  config:
+    max_retries: 5
+    wait_timeout: 7200
+    task_timeout: 3600
+    run_period: 10800
+  image:
+    id:
+    repository: bulldozer_worker
+    tag: *tag
+    pullPolicy: Never
+
+jira_bus:
+  name: &jira_bus_name jira-bus
+  replicaCount: 1
+  image:
+    id:
+    repository: jira_bus
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *jira_bus_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8977
+
+jira_ui:
+  name: &jira_ui_name jira-ui
+  replicaCount: 1
+  image:
+    id:
+    repository: jira_ui
+    tag: *tag
+    pullPolicy: Never
+  service:
+    name: *jira_ui_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 4000
+
+organization_violations:
+  name: organization-violations
+  replicaCount: 1   # amount of workers
+  image:
+    repository: organization_violations
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+cleanmongodb:
+  name: cleanmongodb
+  image:
+    id:
+    repository: cleanmongodb
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/3 * * * *"
+  chunk_size: 500
+  rows_limit: 10000
+
+trapper_scheduler:
+  name: trapper-scheduler
+  replicaCount: 1
+  image:
+    repository: trapper_scheduler
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "45 */1 * * *"
+
+trapper_worker:
+  name: trapper-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: trapper_worker
+    tag: *tag
+    pullPolicy: Never
+
 risp_scheduler:
   name: risp-scheduler
   replicaCount: 1
@@ -605,103 +717,6 @@ failed_imports_dataset_generator:
   aws_access_key_id:
   aws_secret_access_key:
 
-bulldozer_api:
-  name: &bulldozer_api_name bulldozer-api
-  replicaCount: 1
-  image:
-    id:
-    repository: bulldozer_api
-    tag: *tag
-    pullPolicy: Never
-  service:
-    name: *bulldozer_api_name
-    type: ClusterIP
-    externalPort: 80
-    internalPort: 8896
-
-bulldozer_worker:
-  name: bulldozerworker
-  replicaCount: 1
-  config:
-    max_retries: 5
-    wait_timeout: 7200
-    task_timeout: 3600
-    run_period: 10800
-  image:
-    id:
-    repository: bulldozer_worker
-    tag: *tag
-    pullPolicy: Never
-
-jira_bus:
-  name: &jira_bus_name jira-bus
-  replicaCount: 1
-  image:
-    id:
-    repository: jira_bus
-    tag: *tag
-    pullPolicy: Never
-  service:
-    name: *jira_bus_name
-    type: ClusterIP
-    externalPort: 80
-    internalPort: 8977
-
-cleanmongodb:
-  name: cleanmongodb
-  image:
-    id:
-    repository: cleanmongodb
-    tag: *tag
-    pullPolicy: Never
-  startingDeadlineSeconds: 100
-  schedule: "*/3 * * * *"
-  chunk_size: 500
-  rows_limit: 10000
-
-jira_ui:
-  name: &jira_ui_name jira-ui
-  replicaCount: 1
-  image:
-    id:
-    repository: jira_ui
-    tag: *tag
-    pullPolicy: Never
-  service:
-    name: *jira_ui_name
-    type: ClusterIP
-    externalPort: 80
-    internalPort: 4000
-
-organization_violations:
-  name: organization-violations
-  replicaCount: 1   # amount of workers
-  image:
-    repository: organization_violations
-    tag: *tag
-    pullPolicy: Never
-  startingDeadlineSeconds: 100
-  schedule: "*/5 * * * *"
-
-trapper_scheduler:
-  name: trapper-scheduler
-  replicaCount: 1
-  image:
-    repository: trapper_scheduler
-    tag: *tag
-    pullPolicy: Never
-  startingDeadlineSeconds: 100
-  schedule: "45 */1 * * *"
-
-trapper_worker:
-  name: trapper-worker
-  replicaCount: 1
-  image:
-    id:
-    repository: trapper_worker
-    tag: *tag
-    pullPolicy: Never
-
 thanos_receive:
   name: &thanos_receive_name thanos-receive
   dataSize: 10Gi
@@ -723,9 +738,9 @@ thanos_receive:
 thanos_storegateway:
   name: &thanos_storegateway_name thanos-storegateway
   dataSize: 10Gi
+  replicaCount: 1
   # should be half of compactor deleteDelay
   ignoreDeletionMarksDelay: "3h"
-  replicaCount: 1
   image:
     id:
     pullPolicy: IfNotPresent
@@ -733,6 +748,20 @@ thanos_storegateway:
     name: *thanos_storegateway_name
     type: ClusterIP
     httpExternalPort: 10902
+    grpcExternalPort: 10901
+
+thanos_query:
+  name: &thanos_query_name thanos-query
+  replicaCount: 1
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *thanos_query_name
+    httpType: ClusterIP
+    httpExternalPort: 10902
+    httpNodePort: 0
+    grpcType: ClusterIP
     grpcExternalPort: 10901
 
 thanos_compactor:
@@ -770,20 +799,6 @@ thanos_web:
     name: *thanos_web_name
     type: ClusterIP
     httpExternalPort: *thanos_web_http_port
-
-thanos_query:
-  name: &thanos_query_name thanos-query
-  replicaCount: 1
-  image:
-    id:
-    pullPolicy: IfNotPresent
-  service:
-    name: *thanos_query_name
-    httpType: ClusterIP
-    httpExternalPort: 10902
-    httpNodePort: 0
-    grpcType: ClusterIP
-    grpcExternalPort: 10901
 
 diproxy:
   name: &diproxy_name diproxy
