@@ -1,0 +1,43 @@
+{{- $config := .Values.risp_worker -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}
+  labels:
+    app: {{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $config.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+{{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
+{{ include "wait_for_service" .Values.etcd | indent 6 }}
+{{- if not .Values.mongo.external }}
+{{ include "wait_for_service" .Values.mongo | indent 6 }}
+{{- end }}
+{{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{- if not .Values.clickhouse.external }}
+{{ include "wait_for_service" .Values.clickhouse | indent 6 }}
+{{- end }}
+      containers:
+      - name: {{ $config.name }}
+        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        imagePullPolicy: {{ $config.image.pullPolicy }}
+        env:
+        - name: IMAGE_ID
+          value: {{ $config.image.id }}
+        - name: HX_ETCD_HOST
+          value: {{ .Values.etcd.service.name }}
+        - name: HX_ETCD_PORT
+          value: {{ .Values.etcd.service.externalPort | quote }}

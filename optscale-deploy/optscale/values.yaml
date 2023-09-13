@@ -552,6 +552,16 @@ arcee:
     externalPort: 80
     internalPort: 8891
 
+risp_scheduler:
+  name: risp-scheduler
+  replicaCount: 1
+  image:
+    repository: risp_scheduler
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "45 */1 * * *"
+
 risp_worker:
   name: risp-worker
   replicaCount: 1
