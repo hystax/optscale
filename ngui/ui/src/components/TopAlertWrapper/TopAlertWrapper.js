@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { Box } from "@mui/material";
+import { Box, Link } from "@mui/material";
 import { render as renderGithubButton } from "github-buttons";
 import PropTypes from "prop-types";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -10,7 +10,7 @@ import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { useRootData } from "hooks/useRootData";
-import { GITHUB_HYSTAX_OPTSCALE_REPO, GITHUB_HYSTAX_ORGANIZATION } from "urls";
+import { GITHUB_HYSTAX_OPTSCALE_REPO } from "urls";
 import { AZURE_TENANT, ENVIRONMENT } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { updateOrganizationTopAlert as updateOrganizationTopAlertActionCreator } from "./actionCreators";
@@ -153,10 +153,16 @@ const TopAlertWrapper = ({ blacklistIds = [] }) => {
                     {chunks}
                   </GitHubInlineButton>
                 ),
-                follow: (chunks) => (
-                  <GitHubInlineButton ariaLabelMessageId="followHystaxOnGithub" href={GITHUB_HYSTAX_ORGANIZATION}>
+
+                link: (chunks) => (
+                  <Link
+                    sx={{ color: "white", textDecoration: "underline", ml: SPACING_1 }}
+                    target="_blank"
+                    rel="noopener"
+                    href={GITHUB_HYSTAX_OPTSCALE_REPO}
+                  >
                     {chunks}
-                  </GitHubInlineButton>
+                  </Link>
                 ),
                 wrapper: (chunks) => (
                   <Box component="span" sx={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", mr: SPACING_1 }}>
