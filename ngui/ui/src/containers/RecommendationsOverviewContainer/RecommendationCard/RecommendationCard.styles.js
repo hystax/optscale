@@ -8,7 +8,6 @@ const useStyles = makeStyles()((theme, color) => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    maxHeight: "450px",
     border: !color ? `1px solid ${lighten(theme.palette.info.main, 0.8)}` : "",
     backgroundColor: color ? lighten(theme.palette[color].main, ALPHA) : ""
   },

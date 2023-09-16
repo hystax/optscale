@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { Box, Link } from "@mui/material";
+import { Box } from "@mui/material";
 import { render as renderGithubButton } from "github-buttons";
 import PropTypes from "prop-types";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -152,22 +152,6 @@ const TopAlertWrapper = ({ blacklistIds = [] }) => {
                   >
                     {chunks}
                   </GitHubInlineButton>
-                ),
-
-                link: (chunks) => (
-                  <Link
-                    sx={{ color: "white", textDecoration: "underline", ml: SPACING_1 }}
-                    target="_blank"
-                    rel="noopener"
-                    href={GITHUB_HYSTAX_OPTSCALE_REPO}
-                  >
-                    {chunks}
-                  </Link>
-                ),
-                wrapper: (chunks) => (
-                  <Box component="span" sx={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", mr: SPACING_1 }}>
-                    {chunks}
-                  </Box>
                 )
               }}
             />
