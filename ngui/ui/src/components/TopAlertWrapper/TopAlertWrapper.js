@@ -37,7 +37,7 @@ const GitHubInlineButton = ({ children, ariaLabelMessageId, href, dataIcon }) =>
     }
   }, []);
   return (
-    <Box display="inline-block" mx={SPACING_1}>
+    <Box display="inline-block" sx={{ verticalAlign: "middle" }} mx={SPACING_1}>
       <a
         href={href}
         data-icon={dataIcon}
@@ -140,7 +140,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }) => {
         // this check means "condition: not logged in new user (!isExistingUser && !userId) OR new user and we know organization id (!isExistingUser && organizationId)"
         condition: !isExistingUser && (!userId || organizationId),
         getContent: () => (
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+          <Box sx={{ textAlign: "center" }}>
             <FormattedMessage
               id="openSourceAnnouncement"
               values={{
