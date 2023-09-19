@@ -6,10 +6,12 @@ import { getEnvironmentVariable } from "./env";
 import { isEmpty } from "./objects";
 
 // Hotjar analytics
-const isEligibleEnvironment = () => isProduction() || isDemo();
+const HOT_JAR_ID = getEnvironmentVariable("REACT_APP_HOTJAR_ID");
+const isEligibleEnvironment = () => !!HOT_JAR_ID && (isProduction() || isDemo());
 export const initializeHotjar = () => isEligibleEnvironment() && initialize(getEnvironmentVariable("REACT_APP_HOTJAR_ID"));
 
 // Google analytics
+const GA_KEY = getEnvironmentVariable("REACT_APP_GANALYTICS_ID");
 let identificationLoading = false;
 let resetLoading = false;
 
@@ -37,13 +39,13 @@ export const GA_EVENT_CATEGORIES = Object.freeze({
   ENVIRONMENT: "Environment"
 });
 
-log(`%cGA inited with ${getEnvironmentVariable("REACT_APP_GANALYTICS_ID")}`);
+log(`%cGA inited with ${GA_KEY}`);
 
 const analytics = Analytics({
   app: "Optscale",
   plugins: [
     googleAnalytics({
-      measurementIds: [getEnvironmentVariable("REACT_APP_GANALYTICS_ID")],
+      measurementIds: [GA_KEY],
       debug: true
     })
   ]

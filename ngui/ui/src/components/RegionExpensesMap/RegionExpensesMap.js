@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import GoogleMapReact from "google-map-react";
 import PropTypes from "prop-types";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import MapMarker from "components/MapMarker";
 import useGeoClusterer from "hooks/useGeoClusterer";
 import { isEmpty } from "utils/arrays";
@@ -17,10 +18,13 @@ const RegionExpensesMap = ({ markers, defaultZoom, defaultCenter, startDateTimes
     zoom
   );
 
+  const key = getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY");
+
   return !isEmpty(markersWithClusters) ? (
     <div style={{ height: `${REGION_EXPENSES_HEIGHT}px`, width: "100%" }}>
+      {!key && <InlineSeverityAlert messageId="googleMapsIsNotConfigured" />}
       <GoogleMapReact
-        bootstrapURLKeys={{ key: getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY") }}
+        bootstrapURLKeys={{ key }}
         defaultCenter={defaultCenter}
         defaultZoom={defaultZoom}
         yesIWantToUseGoogleMapApiInternals

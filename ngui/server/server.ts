@@ -8,9 +8,11 @@ import path from "path";
 import bodyParser from "body-parser";
 import dotevn from "dotenv";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import checkEnvironment from "./checkEnvironment.js";
 
 // Load environemtn variables from .env file
 dotevn.config();
+checkEnvironment(["UI_BUILD_PATH", "PROXY_URL"]);
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -82,12 +84,9 @@ app.use(
   })
 );
 
-const TARGET =
-  process.env.PROXY_URL || "https://ngingress-nginx-ingress-controller:443";
-
 // Temporary proxy until we migrate the APIs.
 const proxyMiddleware = createProxyMiddleware({
-  target: TARGET,
+  target: process.env.PROXY_URL,
   changeOrigin: true,
   secure: false,
 });
@@ -98,11 +97,13 @@ app.use("/keeper", proxyMiddleware);
 app.use("/restapi", proxyMiddleware);
 app.use("/slacker", proxyMiddleware);
 
+const UI_BUILD_PATH = process.env.UI_BUILD_PATH;
+
 // Serve static build
-app.use(express.static(path.join(process.env.UI_BUILD_PATH, "build")));
+app.use(express.static(path.join(UI_BUILD_PATH, "build")));
 
 app.get("/*", function (req, res) {
-  res.sendFile(path.join(process.env.UI_BUILD_PATH, "build", "index.html"));
+  res.sendFile(path.join(UI_BUILD_PATH, "build", "index.html"));
 });
 
 // Modified server startup

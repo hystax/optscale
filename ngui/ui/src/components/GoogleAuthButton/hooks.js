@@ -30,22 +30,25 @@ const useGoogleLogin = ({ onSuccess, onError, clientId }) => {
 
   useEffect(() => {
     if (!scriptLoadedSuccessfully) return;
+    try {
+      const client = window?.google?.accounts.oauth2.initCodeClient({
+        client_id: clientId,
+        scope: "openid profile email",
+        callback: (response) => {
+          if (response.error) return onErrorRef.current?.(response);
 
-    const client = window?.google?.accounts.oauth2.initCodeClient({
-      client_id: clientId,
-      scope: "openid profile email",
-      callback: (response) => {
-        if (response.error) return onErrorRef.current?.(response);
+          onSuccessRef.current?.(response);
+          return true;
+        },
+        error_callback: (nonOAuthError) => {
+          onErrorRef.current?.(nonOAuthError);
+        }
+      });
 
-        onSuccessRef.current?.(response);
-        return true;
-      },
-      error_callback: (nonOAuthError) => {
-        onErrorRef.current?.(nonOAuthError);
-      }
-    });
-
-    clientRef.current = client;
+      clientRef.current = client;
+    } catch (e) {
+      console.error("An error occured during Google Auth initialization:", e);
+    }
   }, [clientId, scriptLoadedSuccessfully]);
 
   const login = useCallback(() => clientRef.current?.requestCode(), []);
