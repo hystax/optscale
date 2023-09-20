@@ -296,13 +296,6 @@ class Client(etcd.Client):
         """
         return self._get_url_from_branch('/jira_bus')
 
-    def storages(self):
-        """
-        Get list of mountpoint templates
-        :return:
-        """
-        return self.read_list('/storages')
-
     @retry(**DEFAULT_RETRY_ARGS, retry_on_exception=_retry_not_exist)
     def wait_until_exist(self, key):
         """
