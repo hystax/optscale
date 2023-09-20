@@ -175,10 +175,6 @@ etcd:
     regapp_refresh_token: {{ .Values.zohocrm.regapp.refresh_token }}
     regapp_redirect_uri: {{ .Values.zohocrm.regapp.redirect_uri }}
 {{ end }}
-  storages:
-    {{- range .Values.storages }}
-    - {{ . | quote }}
-    {{- end}}
   certificates:
     {{- range $key, $val := .Values.certificates }}
     {{ $key }}: {{ $val | quote }}
