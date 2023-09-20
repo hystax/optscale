@@ -7,6 +7,7 @@ import { getEnvironmentVariable } from "utils/env";
 import { useGoogleLogin } from "./hooks";
 
 const GoogleAuthButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthInProgress, isRegistrationInProgress }) => {
+  const clientId = getEnvironmentVariable("REACT_APP_GOOGLE_OAUTH_CLIENT_ID");
   const { login, scriptLoadedSuccessfully } = useGoogleLogin({
     onSuccess: ({ code: token }) => thirdPartySignIn(PROVIDERS.GOOGLE, { token }),
     onError: (response = {}) => {
@@ -14,10 +15,11 @@ const GoogleAuthButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthInProgr
       const { message = "", type = "", ...rest } = response;
       console.warn(`Google response failure ${message}: ${type}`, ...rest);
     },
-    clientId: getEnvironmentVariable("REACT_APP_GOOGLE_OAUTH_CLIENT_ID")
+    clientId
   });
 
   const isLoading = isAuthInProgress || isRegistrationInProgress || !scriptLoadedSuccessfully;
+  const environmentNotSet = !clientId;
 
   return (
     <ButtonLoader
@@ -31,6 +33,11 @@ const GoogleAuthButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthInProgr
       startIcon={<GoogleIcon />}
       isLoading={isLoading}
       fullWidth
+      tooltip={{
+        show: environmentNotSet,
+        messageId: "signInWithGoogleIsNotConfigured"
+      }}
+      disabled={environmentNotSet}
     />
   );
 };

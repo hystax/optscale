@@ -10,6 +10,7 @@ import { FormattedMessage } from "react-intl";
 import FormattedDigitalUnit, { SI_UNITS } from "components/FormattedDigitalUnit";
 import FormattedMoney from "components/FormattedMoney";
 import FromToArrowLabel from "components/FromToArrowLabel";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import KeyValueLabel from "components/KeyValueLabel";
 import TrafficMapMarker from "components/TrafficMapMarker";
 import { isEmpty } from "utils/arrays";
@@ -231,14 +232,15 @@ const TrafficExpensesMap = ({ markers, defaultZoom, defaultCenter, onMapClick = 
 
   const externalMarker = data?.externalLocations.length ? data?.externalLocations[0] : null;
   const interRegionMarker = data?.interRegion;
-
+  const key = getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY");
   return (
     <div
       className={`flowmap-container ${UI_INITIAL.darkMode ? "dark" : "light"}`}
       style={{ height: `${TRAFFIC_EXPENSES_HEIGHT}px`, width: "100%", position: "relative" }}
     >
+      {!key && <InlineSeverityAlert messageId="googleMapsIsNotConfigured" />}
       <GoogleMapReact
-        bootstrapURLKeys={{ key: getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY") }}
+        bootstrapURLKeys={{ key }}
         defaultCenter={viewParams.defaultCenter}
         center={{ lat: viewParams.latitude, lng: viewParams.longitude }}
         defaultZoom={viewParams.defaultZoom}

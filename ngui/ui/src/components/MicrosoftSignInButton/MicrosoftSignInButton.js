@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import ButtonLoader from "components/ButtonLoader";
 import { PROVIDERS } from "hooks/useNewAuthorization";
 import MicrosoftIcon from "icons/MicrosoftIcon";
+import { microsoftOAuthConfiguration } from "utils/integrations";
 
 const handleClick = async (instance, callback, setIsAuthInProgress) => {
   try {
@@ -21,6 +22,8 @@ const MicrosoftSignInButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthIn
 
   const isLoading = isAuthInProgress || isRegistrationInProgress;
 
+  const environmentNotSet = !microsoftOAuthConfiguration.auth.clientId;
+
   const renderMicrosoftLogin = () => (
     <ButtonLoader
       variant="outlined"
@@ -31,9 +34,13 @@ const MicrosoftSignInButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthIn
         handleClick(instance, thirdPartySignIn, setIsAuthInProgress);
       }}
       startIcon={<MicrosoftIcon />}
-      disabled={inProgress === InteractionStatus.Startup}
+      disabled={inProgress === InteractionStatus.Startup || environmentNotSet}
       fullWidth
       isLoading={isLoading}
+      tooltip={{
+        show: environmentNotSet,
+        messageId: "signInWithMicrosoftIsNotConfigured"
+      }}
     />
   );
 

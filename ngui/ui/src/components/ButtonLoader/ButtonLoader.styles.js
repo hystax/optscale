@@ -33,7 +33,7 @@ const useStyles = makeStyles()((theme) => ({
     width: "100%"
   },
   buttonFullWidth: {
-    width: "inherit"
+    width: "100%"
   },
   assignButton: {
     height: theme.spacing(5)
