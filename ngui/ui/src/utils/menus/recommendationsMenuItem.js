@@ -1,6 +1,5 @@
 import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
 import { PRODUCT_TOUR_IDS } from "components/Tour";
-import archivedRecommendationsRoute from "utils/routes/archivedRecommendationsRoute";
 import recommendations from "utils/routes/recommendationsRoute";
 import BaseMenuItem from "./baseMenuItem";
 
@@ -15,8 +14,7 @@ class RecommendationsMenuItem extends BaseMenuItem {
 
   icon = ThumbUpAltOutlinedIcon;
 
-  isActive = (currentPath) =>
-    currentPath.startsWith(this.route.link) || currentPath.startsWith(archivedRecommendationsRoute.link);
+  isActive = (currentPath) => currentPath.startsWith(this.route.link);
 }
 
 export default new RecommendationsMenuItem();
