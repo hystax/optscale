@@ -151,7 +151,7 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
     def get_monthly_forecast(self, cost, month_cost, first_expense=None):
         today = datetime.today()
         month_start = today.replace(
-                day=1, hour=0, minute=0, second=0, microsecond=0)
+            day=1, hour=0, minute=0, second=0, microsecond=0)
         last_month_start = (month_start - timedelta(days=1)).replace(day=1)
         start_date = max(last_month_start, first_expense) if (
             first_expense) else last_month_start
@@ -576,10 +576,9 @@ class PoolExpensesExportFilteredExpenseController(PoolFilteredExpenseController)
         return all_day_starts
 
     def show_expenses_for_all_days(self, result):
-        not_existing_dates = list(
+        not_existing_dates = sorted(
             set(self.all_day_starts) - set(int(key) for key in result['expenses']['breakdown'].keys())
         )
-        not_existing_dates.sort()
         for not_existing_date in not_existing_dates:
             result['expenses']['breakdown'][not_existing_date] = [self.get_breakdown_group_day(
                 {'id': get_nil_uuid(), 'name': '(not set)'}, float(0))]
@@ -1744,7 +1743,7 @@ class SummaryExpenseController(CleanExpenseController):
 
     def _get_sub_resources_data(self, cluster_ids, last_run_ts):
         match_stage = {'$match': {'$and': [
-                {'cluster_id': {'$in': cluster_ids}}, {'deleted_at': 0}]}}
+            {'cluster_id': {'$in': cluster_ids}}, {'deleted_at': 0}]}}
         group_stage = {
             '$group': {
                 '_id': '$cluster_id',
@@ -1784,8 +1783,8 @@ class SummaryExpenseController(CleanExpenseController):
         last_run_ts = self.get_last_run_ts_by_org_id(organization_id)
 
         filter_cond = self.generate_filters_pipeline(
-                organization_id, self.start_date, self.end_date,
-                query_filters, data_filters)
+            organization_id, self.start_date, self.end_date,
+            query_filters, data_filters)
         match_stage = {'$match': filter_cond}
         # split resources to clustered, not clustered and clusters
         group_stage = {

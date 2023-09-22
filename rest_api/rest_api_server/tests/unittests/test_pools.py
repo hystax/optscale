@@ -1309,7 +1309,7 @@ class TestPoolApi(TestApiBase):
         hits = session.query(OrganizationLimitHit).filter(and_(
             OrganizationLimitHit.organization_id == self.org_id,
             OrganizationLimitHit.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(hits, None)
 
     def test_delete_org_limit_hit_on_pool_deleting_with_subpools(self):
@@ -1328,7 +1328,7 @@ class TestPoolApi(TestApiBase):
         hits = session.query(OrganizationLimitHit).filter(and_(
             OrganizationLimitHit.organization_id == self.org_id,
             OrganizationLimitHit.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(hits, None)
 
     def test_get_pool_children_only(self):

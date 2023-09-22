@@ -229,11 +229,11 @@ class TestRiSpUsageBreakdownApi(TestApiBase):
         _, cloud_acc = self.create_cloud_account(
             self.org_id, cloud_acc_az, auth_user_id=self.auth_user_id_1)
         self.raw_expenses.insert_one({
-                'box_usage': True,
-                'cloud_account_id': cloud_acc['id'],
-                'resource_id': self.gen_id(),
-                'start_date': self.start
-            })
+            'box_usage': True,
+            'cloud_account_id': cloud_acc['id'],
+            'resource_id': self.gen_id(),
+            'start_date': self.start
+        })
 
         # not aws account is not returned
         params = {
@@ -273,13 +273,13 @@ class TestRiSpUsageBreakdownApi(TestApiBase):
         _, cloud_acc = self.create_cloud_account(
             self.org_id, cloud_acc_new, auth_user_id=self.auth_user_id_1)
         self.raw_expenses.insert_one({
-                'box_usage': False,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'resource_id': self.gen_id(),
-                'lineItem/UsageAmount': 9.5,
-                'pricing/unit': 'hour',
-                'start_date': self.start
-            })
+            'box_usage': False,
+            'cloud_account_id': self.cloud_acc1['id'],
+            'resource_id': self.gen_id(),
+            'lineItem/UsageAmount': 9.5,
+            'pricing/unit': 'hour',
+            'start_date': self.start
+        })
 
         params = {
             'start_date': self.start_ts,
@@ -596,29 +596,29 @@ class TestRiSpUsageBreakdownApi(TestApiBase):
         self.assertEqual(code, 200)
         result = {
             str(self.start_ts): [{
-                    'cloud_account_id': self.cloud_acc1['id'],
-                    'cloud_account_type': self.cloud_acc1['type'],
-                    'cloud_account_name': self.cloud_acc1['name'],
-                    'total_usage_hrs': 10,
-                    'ri_usage_hrs': 1,
-                    'sp_usage_hrs': 0,
-                }],
+                'cloud_account_id': self.cloud_acc1['id'],
+                'cloud_account_type': self.cloud_acc1['type'],
+                'cloud_account_name': self.cloud_acc1['name'],
+                'total_usage_hrs': 10,
+                'ri_usage_hrs': 1,
+                'sp_usage_hrs': 0,
+            }],
             str(day1_ts): [{
-                    'cloud_account_id': self.cloud_acc1['id'],
-                    'cloud_account_type': self.cloud_acc1['type'],
-                    'cloud_account_name': self.cloud_acc1['name'],
-                    'total_usage_hrs': 10,
-                    'ri_usage_hrs': 5,
-                    'sp_usage_hrs': 1.5,
-                }],
+                'cloud_account_id': self.cloud_acc1['id'],
+                'cloud_account_type': self.cloud_acc1['type'],
+                'cloud_account_name': self.cloud_acc1['name'],
+                'total_usage_hrs': 10,
+                'ri_usage_hrs': 5,
+                'sp_usage_hrs': 1.5,
+            }],
             str(day2_ts): [{
-                    'cloud_account_id': self.cloud_acc1['id'],
-                    'cloud_account_type': self.cloud_acc1['type'],
-                    'cloud_account_name': self.cloud_acc1['name'],
-                    'total_usage_hrs': 10,
-                    'ri_usage_hrs': 0,
-                    'sp_usage_hrs': 0.5,
-                }],
+                'cloud_account_id': self.cloud_acc1['id'],
+                'cloud_account_type': self.cloud_acc1['type'],
+                'cloud_account_name': self.cloud_acc1['name'],
+                'total_usage_hrs': 10,
+                'ri_usage_hrs': 0,
+                'sp_usage_hrs': 0.5,
+            }],
         }
         self.assertDictEqual(response['breakdown'], result)
 

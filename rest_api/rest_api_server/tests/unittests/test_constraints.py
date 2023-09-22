@@ -268,7 +268,7 @@ class TestConstraints(TestApiBase):
             self.m_activities.assert_has_calls([
                 call(self.org_id, self.m_recipients.return_value[0]['user_id'],
                      'user', 'constraint_violated', {'violations': [
-                        ANY for _ in range(0, len(constraints))]},
+                         ANY for _ in range(0, len(constraints))]},
                      'alert.violation.constraint_violated')])
 
         with freeze_time(datetime.fromtimestamp(now + REDISCOVER_TIME * 3 - 1)):
@@ -278,7 +278,7 @@ class TestConstraints(TestApiBase):
             self.m_activities.assert_has_calls([
                 call(self.org_id, self.m_recipients.return_value[0]['user_id'],
                      'user', 'constraint_violated', {'violations': [
-                        ANY for _ in range(0, len(constraints))]},
+                         ANY for _ in range(0, len(constraints))]},
                      'alert.violation.constraint_violated')])
 
             # update constraints limits. constraint hits
@@ -305,7 +305,7 @@ class TestConstraints(TestApiBase):
         self.m_activities.assert_has_calls([
             call(self.org_id, self.m_recipients.return_value[0]['user_id'],
                  'user', 'constraint_violated', {'violations': [
-                    ANY for _ in range(0, len(constraints))]},
+                     ANY for _ in range(0, len(constraints))]},
                  'alert.violation.constraint_violated')])
 
         # re-discover. no hits
@@ -339,7 +339,7 @@ class TestConstraints(TestApiBase):
                  'rule.rule_deactivated', add_token=True),
             call(self.org_id, self.m_recipients.return_value[0]['user_id'],
                  'user', 'constraint_violated', {'violations': [
-                    ANY for _ in range(0, len(constraints))]},
+                     ANY for _ in range(0, len(constraints))]},
                  'alert.violation.constraint_violated')])
         self.assertEqual(self.m_activities.call_count, 2)
         for constraint in self.m_activities.call_args[0][4]['violations']:
@@ -459,8 +459,8 @@ class TestConstraints(TestApiBase):
         self.m_activities.assert_has_calls([
             call(self.org_id, auth_responses[0]['user_id'], 'user',
                  'constraint_violated', {'violations': [
-                    ANY for _ in range(
-                        0, len(constraints) * len(self.instances))]},
+                     ANY for _ in range(
+                         0, len(constraints) * len(self.instances))]},
                  'alert.violation.constraint_violated')])
 
     def test_constraint_overlap(self):

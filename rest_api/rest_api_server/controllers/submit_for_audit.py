@@ -55,8 +55,8 @@ class AuditSubmitController(BaseController):
         user_id = self.get_user_id()
         employee = EmployeeController(
             self.session, self._config, self.token
-                ).get_employee_by_user_and_organization(
-                    user_id, organization_id=organization_id)
+        ).get_employee_by_user_and_organization(
+            user_id, organization_id=organization_id)
         meta = {
             'object_name': organization.name,
             'employee_name': employee.name,

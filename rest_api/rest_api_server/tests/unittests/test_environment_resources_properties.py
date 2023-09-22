@@ -144,8 +144,8 @@ class TestEnvironmentResourceApi(TestApiBase):
             self.env_resource_id, props)
         self.assertEqual(code, 204)
         meta = {
-                'alert_id': pool_alert['id'],
-                'env_properties': ANY
+            'alert_id': pool_alert['id'],
+            'env_properties': ANY
         }
         p_send_msg.assert_called_once_with(
             self.org_id, self.env_resource_id, 'resource',
@@ -325,7 +325,7 @@ class TestEnvironmentResourceApi(TestApiBase):
                              {'field': {'old': 'value_1', 'new': 'value_2'}})
         code, resp = self.client.patch(
             self.client.env_properties_history_url(
-                resource['id']),  {'field': 'value_3'})
+                resource['id']), {'field': 'value_3'})
         self.assertEqual(code, 405)
         code, resp = self.client.delete(
             self.client.env_properties_history_url(

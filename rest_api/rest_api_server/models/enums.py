@@ -149,3 +149,11 @@ class BIOrganizationStatuses(str, enum.Enum):
     RUNNING = 'RUNNING'
     FAILED = 'FAILED'
     SUCCESS = 'SUCCESS'
+
+
+class GeminiStatuses(enum.Enum):
+    CREATED = 'CREATED'
+    QUEUED = 'QUEUED'
+    RUNNING = 'RUNNING'
+    FAILED = 'FAILED'
+    SUCCESS = 'SUCCESS'

@@ -139,7 +139,7 @@ class TestRunsApi(TestProfilingBase):
             'ram': 100, 'cpu': 4, 'executors_count': 1, 'process_cpu': 2.0,
             'process_ram': 50.0, 'gpu_load': 5.0, 'gpu_memory_free': 10.0,
             'gpu_memory_total': 20.0, 'gpu_memory_used': 15.0
-            })
+        })
         self.assertEqual(
             br_2['data'], {'loss': 10})
         br_3 = breakdowns.pop('3')
@@ -394,7 +394,7 @@ class TestRunsApi(TestProfilingBase):
                 'key': 'test_project',
             })
         run1 = self._create_run(self.org['id'], app['id'], ['res_id_1'],
-                                start=now-5, finish=now-1)
+                                start=now - 5, finish=now - 1)
         run2 = self._create_run(self.org['id'], app['id'], ['res_id_1'],
                                 start=now, finish=None, state=1)
         with freeze_time(now_dt + timedelta(hours=1)):
@@ -409,7 +409,7 @@ class TestRunsApi(TestProfilingBase):
             self.assertEqual(resp_get['runs_count'], 2)
             self.assertEqual(resp_get['last_run_duration'], 3600)
             self.assertEqual(resp_get['last_run'], now)
-            self.assertEqual(resp_get['last_successful_run'], now-5)
+            self.assertEqual(resp_get['last_successful_run'], now - 5)
 
             code, resp_list = self.client.application_list(self.org['id'])
             self.assertEqual(code, 200)

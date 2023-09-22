@@ -270,10 +270,10 @@ class TestApplicationApi(TestProfilingBase):
         now = datetime.utcnow().timestamp()
         # create 2nd run earlier then 1st one
         self._create_run(self.org['id'], app['id'], ['i-1'],
-                         start=now-2, finish=now)
+                         start=now - 2, finish=now)
         self._create_run(self.org['id'], app['id'],
                          [valid_resource['cloud_resource_id']],
-                         start=now-5, finish=now-3)
+                         start=now - 5, finish=now - 3)
         code, resp = self.client.application_get(self.org['id'], app['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['runs_count'], 2)
@@ -282,7 +282,7 @@ class TestApplicationApi(TestProfilingBase):
 
         self._create_run(self.org['id'], app['id'],
                          [valid_resource['cloud_resource_id']],
-                         start=now-1, finish=now)
+                         start=now - 1, finish=now)
         code, resp = self.client.application_get(self.org['id'], app['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['runs_count'], 3)

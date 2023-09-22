@@ -80,7 +80,7 @@ class RiSpExpensesController(RiSpUsageController):
             sp_eff_cost = sum(
                 float(x) for x in mongo_usage['sp_effective_cost'])
             total_cost_with_offer = (
-                    unblended_cost + reservation_eff_cost + sp_eff_cost)
+                unblended_cost + reservation_eff_cost + sp_eff_cost)
             total_cost_without_offer = sum(
                 float(x) for x in mongo_usage['total_cost_without_offer'])
             cloud_account_total_usage[cloud_account_id][date][

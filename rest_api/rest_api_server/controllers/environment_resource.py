@@ -126,8 +126,8 @@ class EnvironmentResourceController(CloudResourceController,
                     })
                 for alert_id in pool_alerts_map[pool_id]:
                     meta = {
-                            'alert_id': alert_id,
-                            'env_properties': changed_properties_list
+                        'alert_id': alert_id,
+                        'env_properties': changed_properties_list
                     }
                     self.publish_activities_task(
                         organization_id, resource['id'], 'resource',

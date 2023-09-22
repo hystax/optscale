@@ -177,6 +177,10 @@ class UrlsV2(Urls):
         'bi_collection': r"%s/bi",
         'bi': r"%s/bi/(?P<organization_bi_id>["r"^/]+)",
         'relevant_flavors': r"%s/organizations/(?P<organization_id>[^/]+)/relevant_flavors",
+        'organization_geminis_collection': r"%s/organizations/(?P<organization_id>["r"^/]+)/geminis",
+        'geminis_collection': r"%s/geminis",
+        'geminis': r"%s/geminis/(?P<gemini_id>["r"^/]+)",
+        'geminis_data': r"%s/geminis/(?P<gemini_id>["r"^/]+)/data"
     })
 
 

@@ -82,9 +82,9 @@ def process_resources(decode: bool):
         env_properties = res.get('env_properties')
         env_properties = encoded_map(env_properties, decode)
         update_reqest = UpdateOne(
-                filter={'_id': res['_id']},
-                update={'$set': {'env_properties': env_properties}},
-            )
+            filter={'_id': res['_id']},
+            update={'$set': {'env_properties': env_properties}},
+        )
         update_requests.append(update_reqest)
         if len(update_requests) == CHUNK_SIZE:
             resources_collection.bulk_write(update_requests)
@@ -100,9 +100,9 @@ def process_properties_history(decode: bool):
         changes = property.get('changes')
         changes = encoded_map(changes, decode)
         update_reqest = UpdateOne(
-                filter={'_id': property['_id']},
-                update={'$set': {'changes': changes}},
-            )
+            filter={'_id': property['_id']},
+            update={'$set': {'changes': changes}},
+        )
         update_requests.append(update_reqest)
         if len(update_requests) == CHUNK_SIZE:
             collection.bulk_write(update_requests)

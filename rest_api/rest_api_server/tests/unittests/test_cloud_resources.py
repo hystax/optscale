@@ -180,8 +180,8 @@ class TestCloudResourceApi(TestApiBase):
         code, ret = self.client.cloud_resource_update(resource['id'], params)
         self.assertEqual(code, 200)
         meta = {
-                'alert_id': pool_alert['id'],
-                'env_properties': ANY
+            'alert_id': pool_alert['id'],
+            'env_properties': ANY
         }
         p_disp_task.assert_called_once_with(
             self.org_id, resource['id'], 'resource', 'env_property_updated',
@@ -213,8 +213,8 @@ class TestCloudResourceApi(TestApiBase):
         code, ret = self.client.cloud_resource_update(resource['id'], params)
         self.assertEqual(code, 200)
         meta = {
-                'alert_id': pool_alert['id'],
-                'env_properties': ANY
+            'alert_id': pool_alert['id'],
+            'env_properties': ANY
         }
         p_disp_task.assert_called_once_with(
             self.org_id, resource['id'], 'resource', 'env_property_updated',
@@ -847,7 +847,7 @@ class TestCloudResourceApi(TestApiBase):
         self.assertEqual(code, 200)
         self.assertEqual(len(data['details']['shareable_bookings']), 1)
         self.assertEqual(data['details']['shareable_bookings'][0][
-                             'acquired_by']['id'],  employee['id'])
+            'acquired_by']['id'], employee['id'])
 
     def test_get_cloud_resource_details_without_expenses(self):
         user_id = self.gen_id()

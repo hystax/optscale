@@ -169,7 +169,7 @@ class TestRunsetsApi(TestInfrastructureBase):
 
     def test_create_nonexisting_entities(self):
         nonexisting_updates = [
-            'application_id',  'cloud_account_id', 'instance_type', 'region_id'
+            'application_id', 'cloud_account_id', 'instance_type', 'region_id'
         ]
         for k in nonexisting_updates:
             valid_runset = self.valid_runset.copy()

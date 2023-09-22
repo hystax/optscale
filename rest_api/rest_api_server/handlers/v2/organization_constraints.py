@@ -316,7 +316,7 @@ class OrganizationConstraintsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         - token: []
         """
         await self.check_permissions(
-                'EDIT_PARTNER', 'organization', organization_id)
+            'EDIT_PARTNER', 'organization', organization_id)
         await super().post(organization_id=organization_id, **params)
 
     async def get(self, organization_id):
@@ -607,7 +607,7 @@ class OrganizationConstraintsAsyncItemHandler(BaseAsyncItemHandler,
         data.update(kwargs)
         if not self.check_cluster_secret(raises=False):
             await self.check_permissions(
-                    'EDIT_PARTNER', 'organization_constraint', id)
+                'EDIT_PARTNER', 'organization_constraint', id)
         await super().patch(id, **data)
 
     async def delete(self, id, **kwargs):

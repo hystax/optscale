@@ -329,8 +329,8 @@ class OrganizationConstraintController(ConstraintBaseController,
     @staticmethod
     def _check_definition(definition, constraint_type):
         if constraint_type in [
-          OrgCTypes.EXPENSE_ANOMALY.value,
-          OrgCTypes.RESOURCE_COUNT_ANOMALY.value]:
+                OrgCTypes.EXPENSE_ANOMALY.value,
+                OrgCTypes.RESOURCE_COUNT_ANOMALY.value]:
             threshold = definition.get('threshold')
             threshold_days = definition.get('threshold_days')
             # anomalies with negative threshold are not expected

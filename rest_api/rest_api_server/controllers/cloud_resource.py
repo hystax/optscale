@@ -681,7 +681,7 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                 elif field != 'meta':
                     changed[field] = value
             if not db_res_id and not db_hash or (
-              res_id == db_res_id and hash_ == db_hash):
+                    res_id == db_res_id and hash_ == db_hash):
                 if res_id:
                     unchanged[CLOUD_RESOURCE_ID_FIELD] = res_id
                 if hash_:
@@ -911,9 +911,9 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                 Err.OE0517, [CLOUD_RESOURCE_ID_FIELD,
                              CLOUD_RESOURCE_HASH_FIELD])
         results = self._save_bulk(
-                cloud_account_id, resources, behavior, include_deleted,
-                is_report_import, new_environment, cloud_account_map,
-                employee_allowed_pools)
+            cloud_account_id, resources, behavior, include_deleted,
+            is_report_import, new_environment, cloud_account_map,
+            employee_allowed_pools)
 
         inserted_ids, new_resources, r_events, resource_cluster_map = results
 

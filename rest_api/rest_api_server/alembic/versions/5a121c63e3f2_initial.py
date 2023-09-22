@@ -393,7 +393,7 @@ def upgrade():
         sa.Column('type', sa.Enum(
             'EXPENSE_ANOMALY', 'EXPIRING_BUDGET', 'RECURRING_BUDGET',
             'RESOURCE_COUNT_ANOMALY', 'RESOURCE_QUOTA', 'TAGGING_POLICY'),
-                  nullable=False),
+            nullable=False),
         sa.Column('definition', ConstraintDefinition(), nullable=False),
         sa.Column('filters', ConstraintDefinition(), nullable=False),
         sa.Column('last_run', NullableInt(), nullable=False),

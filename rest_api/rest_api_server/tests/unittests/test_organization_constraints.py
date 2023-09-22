@@ -834,7 +834,7 @@ class TestOrganizationConstraints(TestApiBase):
         hits = session.query(OrganizationLimitHit).filter(and_(
             OrganizationLimitHit.organization_id == self.org_id,
             OrganizationLimitHit.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(hits, None)
 
     def test_delete_invalid(self):

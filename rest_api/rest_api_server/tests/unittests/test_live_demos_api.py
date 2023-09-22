@@ -360,7 +360,7 @@ class TestLiveDemosApi(TestApiBase):
                      'email': user_data['user_email']}
         patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
               '_get_auth_user_params', return_value=(
-                self.user['email'], self.user['display_name'], 'password')).start()
+                  self.user['email'], self.user['display_name'], 'password')).start()
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
               'create_auth_user', return_value=self.user).start()
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
@@ -471,7 +471,7 @@ class TestLiveDemosApi(TestApiBase):
             hour=0, minute=0, second=0).timestamp()) - self.preset[
             'organization_constraint'][2]['definition.start_date_offset']
         total_budget = self.preset['organization_constraint'][2][
-                                'definition']['total_budget'] * self.multiplier
+            'definition']['total_budget'] * self.multiplier
         definition = {'total_budget': total_budget, 'start_date': start_date}
         self.assertDictEqual(json.loads(constraint[2].definition), definition)
 
@@ -651,8 +651,8 @@ class TestLiveDemosApi(TestApiBase):
             self.assertEqual(optimization[1]['data'][0]['monthly_saving'],
                              instance_subscription_monthly * 10)
             self.assertEqual(optimization[1]['data'][0][
-                                 'annually_monthly_saving'],
-                             instance_subscription_annually * 10)
+                'annually_monthly_saving'],
+                instance_subscription_annually * 10)
             self.assertEqual(resource[0]['recommendations']['modules'][0]
                              ['saving'], resource_abandoned_saving * 10)
             self.assertEqual(resource[0]['recommendations']['modules'][1]
@@ -721,7 +721,7 @@ class TestLiveDemosApi(TestApiBase):
                 self.assertEqual(resource['cloud_resource_id'], cloud_res_id)
                 self.assertEqual(len(recommendations['modules']), module_count)
                 self.assertEqual(optimizations[0]['data'][i][
-                                     'cloud_resource_id'], cloud_res_id)
+                    'cloud_resource_id'], cloud_res_id)
 
     def test_organization_limit_hit_multiplier(self):
         etcd_multiplier_value = 2

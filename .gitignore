@@ -9,6 +9,7 @@ __pycache__/
 venv/
 .vscode/
 .DS_Store
+.python-version
 optscale-deploy/overlay/*.yml
 !optscale-deploy/overlay/user_template.yml
 optscale-deploy/optscale/component_versions.yaml

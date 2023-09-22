@@ -32,7 +32,7 @@ def upgrade():
         sa.UniqueConstraint('cloud_account_id', 'start_date',
                             'end_date', 'deleted_at',
                             name='uc_acc_id_start_end_deleted_at')
-        )
+    )
 
 
 def downgrade():

@@ -398,9 +398,9 @@ class TestMyTasksApi(TestApiBase):
 
         # verify request with employee source pool
         self.assertEqual(tasks['incoming_assignment_requests']['tasks'][0][
-                             'source_pool_purpose'], 'budget')
+            'source_pool_purpose'], 'budget')
         self.assertEqual(tasks['incoming_assignment_requests']['tasks'][0][
-                             'source_pool_name'], self.sub_pool['name'])
+            'source_pool_name'], self.sub_pool['name'])
 
     @freeze_time("2020-04-15 17:34:00")
     def test_pool_types(self):

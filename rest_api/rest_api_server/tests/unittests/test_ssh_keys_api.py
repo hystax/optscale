@@ -183,7 +183,7 @@ class TestSshKeysApi(TestApiBase):
         for immutable in ['created_at', 'deleted_at', 'key',
                           'fingerprint', 'employee_id']:
             code, resp = self.client.ssh_key_update(
-                ssh_key['id'],  {immutable: 'value'})
+                ssh_key['id'], {immutable: 'value'})
             self.assertEqual(code, 400)
             self.verify_error_code(resp, 'OE0211')
         code, resp = self.client.ssh_key_update(ssh_key['id'],

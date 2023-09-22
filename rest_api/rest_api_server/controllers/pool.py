@@ -472,7 +472,7 @@ class PoolController(BaseController, MongoMixin):
             self_cost = month_expenses.get(pool_id, {}).get('cost', 0)
             self_forecast = month_expenses.get(pool_id, {}).get('forecast', 0)
             children_costs = list(calculate_costs(b_id) for b_id in pool_map[
-                    pool_id]['children'])
+                pool_id]['children'])
             children_cost = sum(x[0] for x in children_costs)
             children_forecast = sum(x[1] for x in children_costs)
             pool_map[pool_id]['cost'] = self_cost + children_cost

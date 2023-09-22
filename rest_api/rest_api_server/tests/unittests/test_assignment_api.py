@@ -358,7 +358,7 @@ class TestAssignmentApi(TestAssignmentApiBase):
         resource = self._create_resource()
         assignments = self._get_assignments()
         self.assertEqual(len(assignments),
-                         self.initial_count_assignments_empl+1)
+                         self.initial_count_assignments_empl + 1)
         new_request = self._prepare_assign_body(
             resource_id=resource['id'],
             pool_id=self.org_pool_id)
@@ -387,7 +387,7 @@ class TestAssignmentApi(TestAssignmentApiBase):
         clustered_resource = self._create_resource(tags={'tn': 'tv'})
         assignments = self._get_assignments()
         self.assertEqual(len(assignments),
-                         self.initial_count_assignments_empl+1)
+                         self.initial_count_assignments_empl + 1)
         new_request = self._prepare_assign_body(
             resource_id=clustered_resource['cluster_id'],
             pool_id=self.sub_pools[0]['id'], owner_id=self.employee2['id'])
@@ -484,7 +484,7 @@ class TestAssignmentApi(TestAssignmentApiBase):
         resource = self._create_resource()
         assignments = self._get_assignments()
         self.assertEqual(len(assignments),
-                         self.initial_count_assignments_empl+1)
+                         self.initial_count_assignments_empl + 1)
         new_request = self._prepare_assign_body(
             resource_id=resource['id'],
             pool_id=self.org_pool_id,
@@ -1651,7 +1651,7 @@ class TestAssignmentApi(TestAssignmentApiBase):
         resource = self._create_resource()
         assignments = self._get_assignments()
         self.assertEqual(len(assignments),
-                         self.initial_count_assignments_empl+1)
+                         self.initial_count_assignments_empl + 1)
         new_request = self._prepare_assign_body(
             resource_id=resource['id'],
             pool_id=self.org_pool_id)

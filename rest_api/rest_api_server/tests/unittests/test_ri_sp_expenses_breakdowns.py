@@ -192,9 +192,9 @@ class TestRiSpExpensesBreakdownApi(TestApiBase):
                 'cloud_account_type': self.cloud_acc1['type'],
                 'cloud_account_name': self.cloud_acc1['name'],
                 'total': {
-                        'cost_without_offer': 25,
-                        'cost_with_offer': 25,
-                    },
+                    'cost_without_offer': 25,
+                    'cost_with_offer': 25,
+                },
                 'ri': {
                     'cost_without_offer': 11,
                     'cost_with_offer': 10
@@ -235,9 +235,9 @@ class TestRiSpExpensesBreakdownApi(TestApiBase):
                 'cloud_account_type': self.cloud_acc1['type'],
                 'cloud_account_name': self.cloud_acc1['name'],
                 'total': {
-                        'cost_without_offer': 25,
-                        'cost_with_offer': 25,
-                    },
+                    'cost_without_offer': 25,
+                    'cost_with_offer': 25,
+                },
                 'ri': {
                     'cost_without_offer': 11,
                     'cost_with_offer': 10
@@ -280,11 +280,11 @@ class TestRiSpExpensesBreakdownApi(TestApiBase):
         _, cloud_acc = self.create_cloud_account(
             self.org_id, cloud_acc_az, auth_user_id=self.auth_user_id_1)
         self.raw_expenses.insert_one({
-                'box_usage': True,
-                'cloud_account_id': cloud_acc['id'],
-                'resource_id': self.gen_id(),
-                'start_date': self.start
-            })
+            'box_usage': True,
+            'cloud_account_id': cloud_acc['id'],
+            'resource_id': self.gen_id(),
+            'start_date': self.start
+        })
 
         # not aws account is not returned
         params = {
@@ -324,12 +324,12 @@ class TestRiSpExpensesBreakdownApi(TestApiBase):
         _, cloud_acc = self.create_cloud_account(
             self.org_id, cloud_acc_new, auth_user_id=self.auth_user_id_1)
         self.raw_expenses.insert_one({
-                'box_usage': False,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'resource_id': self.gen_id(),
-                'start_date': self.start,
-                'lineItem/UnblendedCost': 9.5
-            })
+            'box_usage': False,
+            'cloud_account_id': self.cloud_acc1['id'],
+            'resource_id': self.gen_id(),
+            'start_date': self.start,
+            'lineItem/UnblendedCost': 9.5
+        })
 
         params = {
             'start_date': self.start_ts,
@@ -487,9 +487,9 @@ class TestRiSpExpensesBreakdownApi(TestApiBase):
                 'cloud_account_type': self.cloud_acc1['type'],
                 'cloud_account_name': self.cloud_acc1['name'],
                 'total': {
-                        'cost_without_offer': 25,
-                        'cost_with_offer': 25,
-                    },
+                    'cost_without_offer': 25,
+                    'cost_with_offer': 25,
+                },
                 'ri': {
                     'cost_without_offer': 0,
                     'cost_with_offer': 0
@@ -816,14 +816,14 @@ class TestRiSpExpensesBreakdownApi(TestApiBase):
             'savingsPlan/SavingsPlanEffectiveCost': 2,
             'pricing/publicOnDemandCost': 5
         }, {
-                'box_usage': True,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'resource_id': self.gen_id(),
-                'start_date': self.start,
-                'lineItem/LineItemType': 'SavingsPlanNegation',
-                'lineItem/UnblendedCost': -111,
-                'savingsPlan/SavingsPlanEffectiveCost': 0,
-                'pricing/publicOnDemandCost': 0
+            'box_usage': True,
+            'cloud_account_id': self.cloud_acc1['id'],
+            'resource_id': self.gen_id(),
+            'start_date': self.start,
+            'lineItem/LineItemType': 'SavingsPlanNegation',
+            'lineItem/UnblendedCost': -111,
+            'savingsPlan/SavingsPlanEffectiveCost': 0,
+            'pricing/publicOnDemandCost': 0
         }, {
             'box_usage': True,
             'cloud_account_id': self.cloud_acc1['id'],

@@ -287,9 +287,9 @@ class OrganizationValidatorMixin:
 
     def get_organization(self, organization_id) -> Organization:
         organization = self.session.query(Organization).filter(
-                Organization.id == organization_id,
-                Organization.deleted.is_(False)
-            ).one_or_none()
+            Organization.id == organization_id,
+            Organization.deleted.is_(False)
+        ).one_or_none()
         return organization
 
 
@@ -614,7 +614,7 @@ class BaseController(object):
     def _check_cloud_account_exists(self, cloud_account_id):
         if not self._is_cloud_account_exists(cloud_account_id):
             raise NotFoundException(
-                    Err.OE0002, [CloudAccount.__name__, cloud_account_id])
+                Err.OE0002, [CloudAccount.__name__, cloud_account_id])
 
 
 class BaseHierarchicalController(BaseController):

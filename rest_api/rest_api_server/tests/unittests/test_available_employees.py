@@ -19,7 +19,7 @@ class TestAvailablePoolsApi(TestApiBase):
                                          'name': 'pool1',
                                          'children': []
                                      }
-                                 ]}
+        ]}
         self.organization_name_id_map = {}
         self.total = 1
         self._create_children(self.organization_map)

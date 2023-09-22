@@ -248,8 +248,8 @@ class LimitHitsController(BaseController):
             if pool_alerts_map.get(pool_id):
                 for alert_id in pool_alerts_map[pool_id]:
                     meta = {
-                            'alert_id': alert_id,
-                            'violations': res_data
+                        'alert_id': alert_id,
+                        'violations': res_data
                     }
                     self.publish_activities_task(
                         organization_id, pool_id, 'pool', 'constraint_violated',
@@ -301,9 +301,9 @@ class LimitHitsController(BaseController):
                     ResourceConstraintController.get_resource_hit_value(
                         resource_data_map.get(resource_id), limit_type, now))
                 ttl_value = int(limit_val) if (
-                        limit_type == ConstraintTypes.TTL) else None
+                    limit_type == ConstraintTypes.TTL) else None
                 expense_value = limit_val if (
-                        limit_type != ConstraintTypes.TTL) else None
+                    limit_type != ConstraintTypes.TTL) else None
                 new_green_limit_hits.append(
                     ConstraintLimitHit(
                         resource_id=resource_id,

@@ -105,16 +105,16 @@ class TestResourceMetrics(TestApiBase):
             200, {
                 'cpu': [
                     {
-                      'date': 1625097600,
-                      'value': 24
+                        'date': 1625097600,
+                        'value': 24
                     },
                     {
-                      'date': 1625098500,
-                      'value': 22
+                        'date': 1625098500,
+                        'value': 22
                     },
                     {
-                      'date': 1625099400,
-                      'value': 12
+                        'date': 1625099400,
+                        'value': 12
                     }
                 ]
             }

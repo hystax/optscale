@@ -392,7 +392,7 @@ class TestCloudResourcesDiscoveryApi(TestApiBase):
         self.assertEqual(response['from_cache'], True)
         self.resource_discovery_call(self.get_instances())
         code, response = self.client.cloud_resources_discover(
-          self.org_id, 'instance')
+            self.org_id, 'instance')
         self.assertEqual(code, 200)
         self.assertEqual(response['from_cache'], True)
         self.assertEqual(len(response['data']), 5)

@@ -10,15 +10,14 @@ import tornado.web
 from optscale_client.auth_client.client_v2 import Client as AuthClient
 from tornado.ioloop import IOLoop
 
-from tools.optscale_exceptions.common_exc import (
-    WrongArgumentsException, UnauthorizedException)
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from tools.optscale_exceptions.http_exc import OptHTTPError
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.db_base import BaseDB
 from rest_api.rest_api_server.models.models import (
     Organization, CloudAccount, Employee, Pool, ReportImport,
     PoolAlert, PoolPolicy, ResourceConstraint, OrganizationBI, ShareableBooking,
-    Rule, Webhook, OrganizationConstraint)
+    Rule, Webhook, OrganizationConstraint, OrganizationGemini)
 from rest_api.rest_api_server.utils import (ModelEncoder, Config, tp_executor,
                                             run_task, get_http_error_info)
 
@@ -197,6 +196,7 @@ class BaseAuthHandler(BaseHandler):
             'webhook': Webhook.__name__,
             'organization_constraint': OrganizationConstraint.__name__,
             'organization_bi': OrganizationBI.__name__,
+            'organization_gemini': OrganizationGemini.__name__,
         }
         return type_name_map.get(type_)
 

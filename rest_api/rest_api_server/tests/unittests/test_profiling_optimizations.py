@@ -264,7 +264,7 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         ]
         self.add_recommendations(checklist, 'first', data)
         self._create_run(self.org['id'], app['id'], ['1'],
-                         start=dt-1, finish=dt)
+                         start=dt - 1, finish=dt)
         code, resp = self.client.application_optimizations_get(
             self.org['id'], app['id'])
         self.assertEqual(code, 200)

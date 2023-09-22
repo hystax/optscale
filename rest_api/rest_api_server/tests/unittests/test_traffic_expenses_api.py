@@ -211,7 +211,7 @@ class TestTrafficExpensesApi(TestApiBase):
         expected_expense_1 = {
             'cloud_type': self.cloud_acc1['type'],
             'from': {
-                'name': 'eu-central-1', 'latitude': ANY,  'longitude': ANY
+                'name': 'eu-central-1', 'latitude': ANY, 'longitude': ANY
             },
             'to': {
                 'name': 'External'

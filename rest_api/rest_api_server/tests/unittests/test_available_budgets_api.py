@@ -61,7 +61,7 @@ class TestAvailablePoolsApi(TestApiBase):
                                              },
                                          ]
                                      },
-                                 ]}
+        ]}
         self._create_children_pools(self.organization_map)
         self._mock_auth_user(self.user_id)
 

@@ -271,7 +271,7 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
                     update={'$set': {k: cluster[k]
                                      for k in self._cluster_inherited_fields
                                      if cluster.get(k) is not None}}
-                    ))
+                ))
         if updates:
             self.resources_collection.bulk_write(updates)
         return self.resources_collection.find({

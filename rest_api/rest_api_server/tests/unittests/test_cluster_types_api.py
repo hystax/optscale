@@ -548,10 +548,10 @@ class TestClusterTypesApi(TestApiBase):
             for b in range(clusters_per_cluster_type):
                 tag_value = tag_value_template % b
                 for c in range(resources_per_cluster):
-                        code, _ = self.create_cloud_resource(
-                            self.cloud_acc['id'], tags={tag_key: tag_value},
-                            region='us-east')
-                        self.assertEqual(code, 201)
+                    code, _ = self.create_cloud_resource(
+                        self.cloud_acc['id'], tags={tag_key: tag_value},
+                        region='us-east')
+                    self.assertEqual(code, 201)
 
         code, extra_resource = self.create_cloud_resource(
             self.cloud_acc['id'], tags={'yet': 'another'}, region='us-east')

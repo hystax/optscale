@@ -1863,3 +1863,39 @@ class Client(Client_v1):
             params.update(kwargs)
         url = self.relevant_flavors_url(org_id) + self.query_url(**params)
         return self.get(url)
+
+    @staticmethod
+    def geminis_url(id_=None, organization_id=None):
+        url = 'geminis'
+        if id_ is not None:
+            url = '%s/%s' % (url, id_)
+        if organization_id is not None:
+            url = '%s/%s' % (Client.organization_url(organization_id), url)
+        return url
+
+    @staticmethod
+    def geminis_data_url(id_):
+        return 'geminis/%s/data' % id_
+
+    def gemini_list(self, organization_id=None, params=None):
+        url = self.geminis_url(organization_id=organization_id)
+        return self.get(url, body=params)
+    
+    def gemini_create(self, organization_id, params):
+        return self.post(self.geminis_url(organization_id=organization_id), 
+                         params)
+
+    def gemini_get(self, id_):
+        return self.get(self.geminis_url(id_=id_))
+
+    def gemini_data_get(self, id_, params=None):
+        url = self.geminis_data_url(id_=id_)
+        if params:
+            url += self.query_url(**params)
+        return self.get(url)
+
+    def gemini_update(self, id_, params):
+        return self.patch(self.geminis_url(id_=id_), params)
+    
+    def gemini_delete(self, id_):
+        return self.delete(self.geminis_url(id_=id_))

@@ -21,7 +21,7 @@ from rest_api.rest_api_server.models.enums import (
     CloudTypes, ImportStates, RolePurposes,
     AssignmentRequestStatuses, ThresholdBasedTypes, ThresholdTypes,
     ConstraintTypes, PoolPurposes, ConstraintLimitStates,
-    OrganizationConstraintTypes, BIOrganizationStatuses, BITypes)
+    OrganizationConstraintTypes, BIOrganizationStatuses, BITypes, GeminiStatuses)
 from rest_api.rest_api_server.models.types import (
     Email, Name, Uuid, NullableUuid, NullableMetadata, Int,
     NullableString, AutogenUuid, NullableBool, NullableText, NullableInt,
@@ -33,7 +33,7 @@ from rest_api.rest_api_server.models.types import (
     CostModelType, WebhookObjectType, WebhookActionType,
     MediumNullableString, MediumString, MediumLargeNullableString,
     ConstraintLimitState, OrganizationConstraintType, ConstraintDefinition,
-    RunResult, BIOrganizationStatus, BIType, Float)
+    RunResult, BIOrganizationStatus, BIType, Float, GeminiStatus)
 
 
 class PermissionKeys(Enum):
@@ -1090,7 +1090,7 @@ class ShareableBooking(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     @hybrid_method
     def is_active(self, compared_ts):
         return self.acquired_since <= compared_ts and (
-                self.released_at == 0 or compared_ts < self.released_at)
+            self.released_at == 0 or compared_ts < self.released_at)
 
     @validates('resource_id')
     def _validate_resource_id(self, key, resource_id):
@@ -1574,3 +1574,38 @@ class OrganizationBI(CreatedMixin, ImmutableMixin, ValidatorMixin, Base):
     def to_json(self, secure=True, with_files=False):
         return json.dumps(self.to_dict(secure=secure, with_files=with_files),
                           cls=ModelEncoder)
+
+
+class OrganizationGemini(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
+    __tablename__ = "organization_gemini"
+
+    organization_id = Column(Uuid("organization_id"),
+                             ForeignKey("organization.id"),
+                             nullable=False,
+                             info=ColumnPermissions.create_only)
+    last_run = Column(Int("last_run"), default=0,
+                      nullable=False, info=ColumnPermissions.update_only)
+    last_completed = Column(Int("last_completed"), default=0,
+                            nullable=False, info=ColumnPermissions.update_only)
+    last_error = Column(NullableText("last_error"), nullable=True,
+                        info=ColumnPermissions.update_only)
+    status = Column(GeminiStatus,
+                    default=GeminiStatuses.CREATED,
+                    nullable=False, info=ColumnPermissions.update_only)
+    filters = Column(NullableText("filters"), nullable=True, info=ColumnPermissions.full, default="{}")
+    stats = Column(NullableText("stats"), nullable=True, info=ColumnPermissions.full, default="{}")
+
+    @hybrid_property
+    def unique_fields(self):
+        return ["organization_id"]
+
+    @validates("organization_id", "last_run", "last_completed",
+               "last_error", "status", "filters", "stats")
+    def _validate(self, key, value):
+        return self.get_validator(key, value)
+
+    def to_dict(self):
+        res = super().to_dict()
+        res["filters"] = json.loads(res.pop("filters"))
+        res["stats"] = json.loads(res.pop("stats"))
+        return res
