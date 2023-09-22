@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
+import ErrorBoundary from "components/ErrorBoundary";
 import SideModal from "components/SideModal";
 import { SideModalManagerContextProvider } from "contexts/SideModalManagerContext";
 
@@ -46,7 +47,7 @@ const SideModalManager = ({ children }) => {
       {currentSideModalInstance && (
         <SideModal isOpen={isOpen} headerProps={headerProps} onClose={close} dataTestId={dataTestId}>
           <Box pl={contentPadding} pr={contentPadding}>
-            {content}
+            <ErrorBoundary>{content}</ErrorBoundary>
           </Box>
         </SideModal>
       )}
