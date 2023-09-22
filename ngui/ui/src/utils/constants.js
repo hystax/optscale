@@ -1,5 +1,7 @@
 import { NIL as NIL_UUID } from "uuid";
 
+export const BASE_LAYOUT_CONTAINER_ID = "mainLayoutWrapper";
+
 // Roles
 export const ORGANIZATION_MANAGER = "organization_optscale_manager"; // Not a real role, just to distinguish from a Pool manager
 export const MANAGER = "optscale_manager";
@@ -279,6 +281,7 @@ export const SUMMARY_VALUE_COMPONENT_TYPES = Object.freeze({
   FormattedNumber: "FormattedNumber",
   FormattedMoney: "FormattedMoney",
   FormattedMessage: "FormattedMessage",
+  FormattedDigitalUnit: "FormattedDigitalUnit",
   Custom: "Custom"
 });
 

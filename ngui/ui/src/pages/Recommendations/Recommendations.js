@@ -69,13 +69,14 @@ const RecommendationsPage = ({ isMock }) => {
               allDataSources={cloudAccounts.filter((cloudAccount) => RECOMMENDABLE_DATA_SOURCES.includes(cloudAccount.type))}
               dataSourceIds={selectedDataSources}
               onChange={setSelectedDataSources}
+              displayEmpty
             />
           </div>
           <div style={{ minHeight: "100%" }}>
             {isMock ? (
               <RecommendationsOverviewContainerMocked />
             ) : (
-              <RecommendationsOverviewContainer isMock={isMock} selectedDataSources={selectedDataSources} />
+              <RecommendationsOverviewContainer selectedDataSources={selectedDataSources} />
             )}
           </div>
         </Stack>

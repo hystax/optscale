@@ -70,7 +70,6 @@ class Migrator:
     def get_local_versions():
         migrations_folder = os.path.join(
             os.getcwd(), MIGRATIONS_PATH, MIGRATIONS_FOLDER)
-        LOG.info('migrations_folder %s', migrations_folder)
         migrations = []
         for filename in os.listdir(migrations_folder):
             if filename.startswith('V') and filename.endswith('.py'):

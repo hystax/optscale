@@ -2,14 +2,14 @@ import React from "react";
 import { TableCell, TableSortLabel } from "@mui/material";
 import { SORTING_ORDER } from "utils/constants";
 
-const Cell = ({ children, colSpan, rowSpan, style, onClick }) => (
-  <TableCell colSpan={colSpan} rowSpan={rowSpan} style={style} onClick={onClick}>
+const Cell = ({ children, colSpan, rowSpan, style, onClick, className }) => (
+  <TableCell colSpan={colSpan} rowSpan={rowSpan} style={style} onClick={onClick} className={className}>
     {children ? <strong>{children}</strong> : null}
   </TableCell>
 );
 
-const TableHeaderCell = ({ headerContext }) => {
-  const { style: cellStyle = {} } = headerContext.column.columnDef;
+const TableHeaderCell = ({ headerContext, stickyStyles = {} }) => {
+  const { style: cellStyle = {}, headerStyle: headerCellStyle = {}, getHeaderCellClassName } = headerContext.column.columnDef;
 
   const getCellContent = () => {
     if (headerContext.isPlaceholder) {
@@ -47,7 +47,16 @@ const TableHeaderCell = ({ headerContext }) => {
   };
 
   return (
-    <Cell style={cellStyle} colSpan={headerContext.colSpan} rowSpan={headerContext.rowSpan}>
+    <Cell
+      style={{
+        ...stickyStyles,
+        ...cellStyle,
+        ...headerCellStyle
+      }}
+      colSpan={headerContext.colSpan}
+      rowSpan={headerContext.rowSpan}
+      className={typeof getHeaderCellClassName === "function" ? getHeaderCellClassName(headerContext.getContext()) : undefined}
+    >
       {getCellContent()}
     </Cell>
   );

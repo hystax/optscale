@@ -282,14 +282,14 @@ bumiworker:
 report_import_scheduler:
   name: report-import-scheduler
   image:
-    repository: cleanelkdb  # using cleanelkdb, because it has curl inside
+    repository: cleanelkdb # using cleanelkdb, because it has curl inside
     tag: *tag
     pullPolicy: Never
   startingDeadlineSeconds: 100
 
 resource_discovery:
   name: resource-discovery
-  replicaCount: 2   # amount of workers
+  replicaCount: 2 # amount of workers
   image:
     repository: resource_discovery
     tag: *tag
@@ -309,7 +309,7 @@ demo_org_cleanup:
 
 resource_observer:
   name: resource-observer
-  replicaCount: 1   # amount of workers
+  replicaCount: 1 # amount of workers
   image:
     repository: resource_observer
     tag: *tag
@@ -319,7 +319,7 @@ resource_observer:
 
 resource_violations:
   name: resource-violations
-  replicaCount: 1   # amount of workers
+  replicaCount: 1 # amount of workers
   image:
     repository: resource_violations
     tag: *tag
@@ -329,7 +329,7 @@ resource_violations:
 
 calendar_observer:
   name: calendar-observer
-  replicaCount: 1   # amount of workers
+  replicaCount: 1 # amount of workers
   image:
     repository: calendar_observer
     tag: *tag
@@ -545,7 +545,7 @@ keeper_executor:
 
 booking_observer:
   name: booking-observer
-  replicaCount: 2   # amount of workers
+  replicaCount: 2 # amount of workers
   image:
     repository: booking_observer
     tag: *tag
@@ -625,7 +625,7 @@ jira_ui:
 
 organization_violations:
   name: organization-violations
-  replicaCount: 1   # amount of workers
+  replicaCount: 1 # amount of workers
   image:
     repository: organization_violations
     tag: *tag
@@ -680,6 +680,25 @@ risp_worker:
   image:
     id:
     repository: risp_worker
+    tag: *tag
+    pullPolicy: Never
+
+gemini_scheduler:
+  name: gemini-scheduler
+  image:
+    id:
+    repository: gemini_scheduler
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+gemini_worker:
+  name: gemini-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: gemini_worker
     tag: *tag
     pullPolicy: Never
 
@@ -868,7 +887,6 @@ users_dataset_generator:
   aws_access_key_id:
   aws_secret_access_key:
 
-
 # list of databases to create (if not exist) during DC initialization
 databases:
   - auth-db
@@ -926,7 +944,7 @@ cleanelkdb:
 skip_config_update: false
 
 # list of overlays used by runkube to start OptScale (necessary to use proper defaults when adding new keys on update)
-overlay_list: ''
+overlay_list: ""
 
 # k8s cluster domain
 clusterDomain: cluster.local
@@ -1013,6 +1031,6 @@ encryption_salt_auth:
 
 # settings for bi_scheduler
 bi_settings:
-  exporter_run_period: 86400  #in sec 24h
+  exporter_run_period: 86400 #in sec 24h
   encryption_key: 5t3X3PkQqF5edqW9_c8znow7k7GraZOpBLHhF1kFFvE=
-  task_wait_timeout: 259200  #in sec 3d
+  task_wait_timeout: 259200 #in sec 3d

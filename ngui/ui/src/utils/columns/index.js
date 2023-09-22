@@ -3,6 +3,7 @@ import biExportLastSuccessfulExport from "./biExportLastSuccessfulExport";
 import biExportName from "./biExportName";
 import biExportNextExport from "./biExportNextExport";
 import biExportTargetStorage from "./biExportTargetStorage";
+import dataSource from "./dataSource";
 import detectedAt from "./detectedAt";
 import discoveryStatus from "./discoveryStatus";
 import duration from "./duration";
@@ -93,5 +94,6 @@ export {
   biExportExportedDays,
   biExportNextExport,
   biExportLastSuccessfulExport,
-  biExportTargetStorage
+  biExportTargetStorage,
+  dataSource
 };

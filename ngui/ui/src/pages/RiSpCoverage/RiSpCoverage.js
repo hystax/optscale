@@ -69,6 +69,7 @@ const RiSpCoverage = () => {
                 allDataSources={cloudAccounts.filter((cloudAccount) => TARGET_DATA_SOURCES_TYPES.includes(cloudAccount.type))}
                 dataSourceIds={selectedDataSourceIds}
                 onChange={setSelectedDataSources}
+                displayEmpty
               />
             </div>
             <div>

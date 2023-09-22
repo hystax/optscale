@@ -2,9 +2,14 @@ import React from "react";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { SI_UNITS } from "components/FormattedDigitalUnit";
+import { STATUS } from "components/S3DuplicateFinderCheck/utils";
 import SummaryGrid from "components/SummaryGrid";
+import { useAwsDataSources } from "hooks/useAwsDataSources";
 import { useIsRiSpEnabled } from "hooks/useIsRiSpEnabled";
-import { getRiSpCoverageUrl } from "urls";
+import S3DuplicatesService from "services/S3DuplicatesService";
+import { S3_DUPLICATE_FINDER, getRiSpCoverageUrl } from "urls";
+import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SUMMARY_CARD_TYPES, SUMMARY_VALUE_COMPONENT_TYPES } from "utils/constants";
 import { getCurrentUTCTimeInSec, getLast30DaysRange, getTimeDistance } from "utils/datetime";
 import { getQueryParams } from "utils/network";
@@ -93,12 +98,95 @@ const getRiSpExpensesCardDefinition = ({ riSpExpensesSummary, isLoading, navigat
   };
 };
 
+const useS3DuplicateFinderCheckCardDefinition = () => {
+  const { useGetAll: useGetAllGeminis } = S3DuplicatesService();
+
+  const { isLoading, geminis } = useGetAllGeminis();
+
+  const awsDataSources = useAwsDataSources();
+
+  const navigate = useNavigate();
+
+  const button = {
+    show: true,
+    icon: <ExitToAppOutlinedIcon />,
+    onClick: () => {
+      navigate(S3_DUPLICATE_FINDER);
+    },
+    tooltip: {
+      show: true,
+      messageId: "goToS3DuplicateFinder",
+      placement: "top"
+    }
+  };
+
+  const defaultCardDefinition = {
+    key: "duplicationChecks",
+    button,
+    isLoading,
+    dataTestIds: {
+      cardTestId: "card_s3_duplicates",
+      titleTestId: "p_s3_duplicates",
+      valueTestId: "p_s3_duplicates_value"
+    }
+  };
+
+  if (isEmptyArray(awsDataSources)) {
+    return {
+      ...defaultCardDefinition,
+      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
+      valueComponentProps: {
+        id: "s3DuplicatesUnknown"
+      },
+      captionMessageId: "noConnectedAWSDataSources"
+    };
+  }
+
+  const successfulGeminis = geminis.filter(({ status }) => status === STATUS.SUCCESS);
+
+  if (isEmptyArray(successfulGeminis)) {
+    return {
+      ...defaultCardDefinition,
+      button,
+      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage,
+      valueComponentProps: {
+        id: "s3DuplicatesUnknown"
+      },
+      captionMessageId: "noSuccessfullyCompletedChecks"
+    };
+  }
+
+  const lastSuccessfulGemini = [...successfulGeminis].sort(
+    ({ last_completed: lastCompletedA }, { last_completed: lastCompleteB }) => lastCompleteB - lastCompletedA
+  )[0];
+
+  const { stats: { monthly_savings: monthlySavings = 0, duplicates_size: duplicatesSize = 0 } = {} } = lastSuccessfulGemini;
+
+  return {
+    ...defaultCardDefinition,
+    type: SUMMARY_CARD_TYPES.EXTENDED,
+    valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedDigitalUnit,
+    valueComponentProps: {
+      value: duplicatesSize,
+      baseUnit: SI_UNITS.BYTE
+    },
+    captionMessageId: "s3DuplicatesRecommendationsCardCaption",
+    relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
+    relativeValueComponentProps: {
+      value: monthlySavings
+    },
+    relativeValueCaptionMessageId: "possibleMonthlySavings"
+  };
+};
+
 const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, riSpExpensesSummary, isLoadingProps }) => {
   const navigate = useNavigate();
 
   const isRiSpEnabled = useIsRiSpEnabled();
 
   const { isRecommendationsLoading, isRiSpExpensesSummaryLoading } = isLoadingProps;
+
+  const s3DuplicateFinderCheckCardDefinition = useS3DuplicateFinderCheckCardDefinition();
 
   const summaryData = [
     {
@@ -138,7 +226,8 @@ const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, riSpExpensesSum
     },
     ...(isRiSpEnabled
       ? [getRiSpExpensesCardDefinition({ riSpExpensesSummary, isLoading: isRiSpExpensesSummaryLoading, navigate })]
-      : [])
+      : []),
+    s3DuplicateFinderCheckCardDefinition
   ];
 
   return <SummaryGrid summaryData={summaryData} />;

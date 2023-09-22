@@ -55,7 +55,9 @@ import {
   GET_ML_RUNSET_TEMPLATE,
   SET_ML_RUNSET_TEMPLATE,
   SET_BI_EXPORT,
-  GET_BI_EXPORT
+  GET_BI_EXPORT,
+  UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+  GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -263,4 +265,10 @@ export const onUpdateBIExport = (data) => ({
   type: SET_BI_EXPORT,
   payload: data,
   label: GET_BI_EXPORT
+});
+
+export const onUpdateS3DuplicatesOrganizationSettings = (data) => ({
+  type: UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+  payload: data,
+  label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
 });

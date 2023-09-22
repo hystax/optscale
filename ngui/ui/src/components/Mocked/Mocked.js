@@ -9,6 +9,7 @@ import BannerContent, { getBannerIcon } from "./BannerContent";
 const MESSAGE_TYPES = Object.freeze({
   ASSIGNMENT_RULES: "assignmentRules",
   CLOUD_ACCOUNTS: "cloudAccounts",
+  AWS_CLOUD_ACCOUNTS: "awsCloudAccounts",
   K8S_RIGHTSIZING: "k8sRightsizing",
   RECOMMENDATIONS: "recommendations",
   POOLS: "pools",

@@ -105,7 +105,11 @@ import {
   SET_ML_RUNSET_EXECUTORS,
   SET_ORGANIZATION_BI_EXPORTS,
   SET_BI_EXPORT,
-  SET_RELEVANT_FLAVORS
+  SET_RELEVANT_FLAVORS,
+  SET_ORGANIZATION_CLOUD_RESOURCES,
+  SET_ORGANIZATION_GEMINIS,
+  SET_GEMINI,
+  SET_S3_DUPLICATES_ORGANIZATION_SETTINGS
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -822,6 +826,30 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_RELEVANT_FLAVORS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ORGANIZATION_CLOUD_RESOURCES: {
+      return {
+        ...state,
+        [action.label]: action.payload.data ?? []
+      };
+    }
+    case SET_ORGANIZATION_GEMINIS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_GEMINI: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_S3_DUPLICATES_ORGANIZATION_SETTINGS: {
       return {
         ...state,
         [action.label]: action.payload

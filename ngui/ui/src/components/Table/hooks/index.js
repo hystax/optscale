@@ -7,6 +7,7 @@ import { useInitialSortingState } from "./useInitialSortingState";
 import { usePaginationTableSettings } from "./usePaginationTableSettings";
 import { useRowSelectionTableSettings } from "./useRowSelectionTableSettings";
 import { useSortingTableSettings } from "./useSortingTableSettings";
+import { useSticky } from "./useSticky";
 
 export {
   useExpandedTableSettings,
@@ -17,5 +18,6 @@ export {
   useRowSelectionTableSettings,
   usePaginationTableSettings,
   useGlobalFilterTableSettings,
-  useSortingTableSettings
+  useSortingTableSettings,
+  useSticky
 };

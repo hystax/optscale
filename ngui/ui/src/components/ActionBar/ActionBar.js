@@ -187,18 +187,24 @@ const renderItems = (barItems) => {
   return barItems.map((item) => <Fragment key={item.key}>{getItem(item.type)(item)}</Fragment>);
 };
 
-const renderTitle = (title, ref) =>
-  title.custom ?? (
-    <ActionBarHeader
-      dataTestId={title.dataTestId || null}
-      dataProductTourId={title.dataProductTourId || null}
-      text={title.text || null}
-      messageId={title.messageId || null}
-      isLoading={title.isLoading}
-      logo={title.logo || null}
-      ref={ref}
-    />
+const renderTitle = (title, ref) => {
+  const CustomTitleComponent = title.custom;
+  return CustomTitleComponent ? (
+    <CustomTitleComponent reference={ref} />
+  ) : (
+    title.custom ?? (
+      <ActionBarHeader
+        dataTestId={title.dataTestId || null}
+        dataProductTourId={title.dataProductTourId || null}
+        text={title.text || null}
+        messageId={title.messageId || null}
+        isLoading={title.isLoading}
+        logo={title.logo || null}
+        ref={ref}
+      />
+    )
   );
+};
 
 const getUseIsAllowedParameters = (poolId) => (poolId ? { entityType: SCOPE_TYPES.POOL, entityId: poolId } : {});
 

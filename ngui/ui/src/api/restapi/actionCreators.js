@@ -258,7 +258,17 @@ import {
   DELETE_BI_EXPORT,
   UPDATE_BI_EXPORT,
   GET_RELEVANT_FLAVORS,
-  SET_RELEVANT_FLAVORS
+  SET_RELEVANT_FLAVORS,
+  SET_ORGANIZATION_CLOUD_RESOURCES,
+  SET_ORGANIZATION_GEMINIS,
+  CREATE_ORGANIZATION_GEMINI,
+  GET_GEMINI,
+  SET_GEMINI,
+  SET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+  GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+  UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+  GET_ORGANIZATION_GEMINIS,
+  GET_ORGANIZATION_CLOUD_RESOURCES
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -294,7 +304,8 @@ import {
   onSuccessGetOptimizationDetails,
   onSuccessGetMLOptimizationDetails,
   onUpdateMlRunsetTemplate,
-  onUpdateBIExport
+  onUpdateBIExport,
+  onUpdateS3DuplicatesOrganizationSettings
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -2306,5 +2317,68 @@ export const getRelevantFlavors = (organizationId, params) =>
     onSuccess: handleSuccess(SET_RELEVANT_FLAVORS),
     hash: hashParams({ organizationId, params }),
     ttl: 5 * MINUTE,
+    params
+  });
+
+export const getS3DuplicatesOrganizationSettings = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/options/s3_duplicates_settings`,
+    method: "GET",
+    ttl: HOUR,
+    onSuccess: handleSuccess(SET_S3_DUPLICATES_ORGANIZATION_SETTINGS),
+    hash: hashParams(organizationId),
+    label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
+  });
+
+export const updateS3DuplicatesOrganizationSettings = (organizationId, value) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/options/s3_duplicates_settings`,
+    method: "PATCH",
+    onSuccess: onUpdateS3DuplicatesOrganizationSettings,
+    successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
+    label: UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+    affectedRequests: [GET_S3_DUPLICATES_ORGANIZATION_SETTINGS],
+    params: {
+      value: JSON.stringify(value)
+    }
+  });
+
+export const getOrganizationCloudResources = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/cloud_resources`,
+    method: "GET",
+    hash: hashParams({ organizationId, params }),
+    onSuccess: handleSuccess(SET_ORGANIZATION_CLOUD_RESOURCES),
+    label: GET_ORGANIZATION_CLOUD_RESOURCES,
+    ttl: 5 * MINUTE,
+    params
+  });
+
+export const getOrganizationGeminis = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/geminis`,
+    method: "GET",
+    hash: hashParams({ organizationId }),
+    onSuccess: handleSuccess(SET_ORGANIZATION_GEMINIS),
+    label: GET_ORGANIZATION_GEMINIS,
+    ttl: 5 * MINUTE
+  });
+
+export const getGemini = (checkId) =>
+  apiAction({
+    url: `${API_URL}/geminis/${checkId}`,
+    method: "GET",
+    hash: hashParams({ checkId }),
+    onSuccess: handleSuccess(SET_GEMINI),
+    label: GET_GEMINI,
+    ttl: 5 * MINUTE
+  });
+
+export const createOrganizationGemini = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/geminis`,
+    method: "POST",
+    label: CREATE_ORGANIZATION_GEMINI,
+    affectedRequests: [GET_ORGANIZATION_GEMINIS],
     params
   });

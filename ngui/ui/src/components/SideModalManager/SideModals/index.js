@@ -1,11 +1,13 @@
 import ApplyResourcePerspectiveModal from "./ApplyResourcePerspectiveModal";
 import BookEnvironmentModal from "./BookEnvironmentModal";
+import BucketDuplicatesModal from "./BucketDuplicatesModal";
 import CiCdIntegrationModal from "./CiCdIntegrationModal";
 import CloudCostComparisonModal from "./CloudCostComparisonModal";
 import ConnectGoogleCalendarModal from "./ConnectGoogleCalendarModal";
 import CreateOrganizationModal from "./CreateOrganizationModal";
 import CreateOrganizationOptionModal from "./CreateOrganizationOptionModal";
 import CreateResourcePerspectiveModal from "./CreateResourcePerspectiveModal";
+import CreateS3DuplicateFinderCheckModal from "./CreateS3DuplicateFinderCheckModal";
 import DeleteAssignmentRuleModal from "./DeleteAssignmentRuleModal";
 import DeleteBIExportModal from "./DeleteBIExportModal";
 import DeleteClusterTypeModal from "./DeleteClusterTypeModal";
@@ -33,6 +35,8 @@ import ReapplyRulesetModal from "./ReapplyRulesetModal";
 import RecommendationModal from "./RecommendationModal";
 import ReleaseEnvironmentModal from "./ReleaseEnvironmentModal";
 import RenameDataSourceModal from "./RenameDataSourceModal";
+import S3DuplicateFinderSettingsModal from "./S3DuplicateFinderSettingsModal";
+import SelectedBucketsInfoModal from "./SelectedBucketsInfoModal";
 import ShareSettingsModal from "./ShareSettingsModal";
 import SlackIntegrationModal from "./SlackIntegrationModal";
 import UnmarkEnvironmentModal from "./UnmarkEnvironmentModal";
@@ -79,5 +83,9 @@ export {
   ExcludePoolsFromRecommendationModal,
   DeleteMlRunsetTemplateModal,
   DeleteBIExportModal,
-  CloudCostComparisonModal
+  CloudCostComparisonModal,
+  CreateS3DuplicateFinderCheckModal,
+  SelectedBucketsInfoModal,
+  S3DuplicateFinderSettingsModal,
+  BucketDuplicatesModal
 };

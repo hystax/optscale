@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Box, TableBody, TableCell, TableFooter, TableHead, TableRow } from "@mui/material";
 import MuiTable from "@mui/material/Table";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
@@ -22,7 +22,8 @@ import {
   useInitialSortingState,
   usePaginationTableSettings,
   useRowSelectionTableSettings,
-  useSortingTableSettings
+  useSortingTableSettings,
+  useSticky
 } from "./hooks";
 import useStyles from "./Table.styles";
 import { getRowsCount } from "./utils";
@@ -73,11 +74,19 @@ const Table = ({
   actionBar,
   columnsSelectorUID,
   columnOrder,
-  onColumnOrderChange
+  onColumnOrderChange,
+  stickySettings = {}
 }) => {
   const { showCounters = false, hideTotal = false, hideDisplayed = false } = counters;
 
+  const headerRef = useRef();
+
   const { classes } = useStyles();
+
+  const { stickyHeaderStyles, stickyTableStyles } = useSticky({
+    headerRef,
+    stickySettings
+  });
 
   const { tableOptions: sortingTableOptions } = useSortingTableSettings();
 
@@ -187,17 +196,22 @@ const Table = ({
         dataTestIds={dataTestIds}
       />
       {/* Wrap with box in order to make table fit 100% width with small amount of columns */}
+      {/* TODO: Consider using MUI TableContainer */}
       <Box className={classes.horizontalScroll}>
         {isLoading ? (
           <TableLoader columnsCounter={columns.length ?? 5} showHeader />
         ) : (
-          <MuiTable>
+          <MuiTable
+            style={{
+              ...stickyTableStyles
+            }}
+          >
             {withHeader && (
-              <TableHead>
+              <TableHead ref={headerRef}>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHeaderCell key={header.id} headerContext={header} />
+                      <TableHeaderCell key={header.id} headerContext={header} stickyStyles={stickyHeaderStyles} />
                     ))}
                   </TableRow>
                 ))}
@@ -217,7 +231,14 @@ const Table = ({
                   return (
                     <TableRow data-test-id={`row_${index}`} key={row.id} style={rowStyle}>
                       {row.getVisibleCells().map((cell) => {
-                        const { style: cellStyle = {}, dataProductTourId, accessorKey, accessorFn } = cell.column.columnDef;
+                        const {
+                          style: cellStyle = {},
+                          getRowCellClassName,
+                          onRowCellClick,
+                          dataProductTourId,
+                          accessorKey,
+                          accessorFn
+                        } = cell.column.columnDef;
 
                         const hasAccessor = accessorKey !== undefined || accessorFn !== undefined;
 
@@ -225,7 +246,17 @@ const Table = ({
                         const hasCellValue = cellValue !== undefined;
 
                         return (
-                          <TableCell key={cell.id} data-product-tour-id={dataProductTourId} style={cellStyle}>
+                          <TableCell
+                            key={cell.id}
+                            data-product-tour-id={dataProductTourId}
+                            onClick={
+                              typeof onRowCellClick === "function" ? (e) => onRowCellClick(e, cell.getContext()) : undefined
+                            }
+                            className={
+                              typeof getRowCellClassName === "function" ? getRowCellClassName(cell.getContext()) : undefined
+                            }
+                            style={cellStyle}
+                          >
                             {!hasAccessor || hasCellValue
                               ? flexRender(cell.column.columnDef.cell, cell.getContext())
                               : cell.column.columnDef.emptyValue || CELL_EMPTY_VALUE}
@@ -256,6 +287,7 @@ const Table = ({
           display: "flex",
           alignItems: "center",
           paddingTop: SPACING_1,
+          flexWrap: "wrap",
           flexDirection: { xs: "column-reverse", md: "row" },
           ":empty": { display: "none" }
         }}
@@ -314,7 +346,11 @@ Table.propTypes = {
   columnOrder: PropTypes.array,
   onColumnOrderChange: PropTypes.func,
   rowSelection: PropTypes.object,
-  onRowSelectionChange: PropTypes.func
+  onRowSelectionChange: PropTypes.func,
+  stickySettings: PropTypes.shape({
+    stickyHeader: PropTypes.bool,
+    scrollWrapperDOMId: PropTypes.string
+  })
 };
 
 export default Table;

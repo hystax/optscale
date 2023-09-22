@@ -131,7 +131,7 @@ Button.propTypes = {
   tooltip: PropTypes.shape({
     show: PropTypes.bool,
     messageId: PropTypes.string,
-    value: PropTypes.string,
+    value: PropTypes.node,
     placement: PropTypes.string,
     body: PropTypes.node
   }),

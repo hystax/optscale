@@ -77,6 +77,8 @@ import resourceRoute from "./resourceRoute";
 import resourcesPerspectives from "./resourcesPerspectives";
 import resourcesRoute from "./resourcesRoute";
 import riSpRoute from "./riSpRoute";
+import s3DuplicateFinderRoute from "./s3DuplicateFinderRoute";
+import s3DuplicatesCheckRoute from "./s3DuplicatesCheckRoute";
 import settingsRoute from "./settingsRoute";
 import taggingPoliciesRoute from "./taggingPoliciesRoute";
 import taggingPolicyRoute from "./taggingPolicyRoute";
@@ -168,7 +170,9 @@ export const routes = [
   biExportRoute,
   createBIExportRoute,
   editBIExportRoute,
-  cloudCostComparisonRoute
+  cloudCostComparisonRoute,
+  s3DuplicateFinderRoute,
+  s3DuplicatesCheckRoute
 ];
 
 export default BaseRoute;

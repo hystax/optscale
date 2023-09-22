@@ -454,6 +454,18 @@ export const RESOURCE_LIFECYCLE_CREATE_POOL_POLICY = concatenateUrl([RESOURCE_LI
 const THEME_SETTINGS_BASE = "theme-settings";
 export const THEME_SETTINGS = concatenateUrl([THEME_SETTINGS_BASE]);
 
+// S3 duplicates finder
+const S3_DUPLICATE_FINDER_BASE = "s3-duplicate-finder";
+const S3_DUPLICATE_FINDER_CHECK_IDENTIFIER = ":checkId";
+
+export const S3_DUPLICATE_FINDER = concatenateUrl([RECOMMENDATIONS_BASE, S3_DUPLICATE_FINDER_BASE]);
+export const S3_DUPLICATE_FINDER_CHECK = concatenateUrl([
+  RECOMMENDATIONS_BASE,
+  S3_DUPLICATE_FINDER_BASE,
+  S3_DUPLICATE_FINDER_CHECK_IDENTIFIER
+]);
+export const getS3DuplicateFinderCheck = (id) => S3_DUPLICATE_FINDER_CHECK.replace(S3_DUPLICATE_FINDER_CHECK_IDENTIFIER, id);
+
 // External urls
 export const PRODUCTION = "https://my.optscale.com";
 export const DEMO = "https://demo.optscale.com";

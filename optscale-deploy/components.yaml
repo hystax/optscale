@@ -56,3 +56,5 @@ trapper_scheduler:
 trapper_worker:
 users_dataset_generator:
 webhook_executor:
+gemini_scheduler:
+gemini_worker:
