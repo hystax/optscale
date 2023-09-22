@@ -85,7 +85,9 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
         type: recommendation.type,
         titleMessageId: recommendation.title,
         limit: downloadLimit,
-        dataSourceIds: selectedDataSources
+        dataSourceIds: selectedDataSources,
+        dismissable: recommendation.dismissable,
+        withExclusions: recommendation.withExclusions
       });
     },
     [downloadLimit, openSideModal, selectedDataSources]

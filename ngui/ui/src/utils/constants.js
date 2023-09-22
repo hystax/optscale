@@ -400,12 +400,6 @@ export const RESOURCE_VISIBILITY_ACTIONS = {
   ACTIVATE: "activate"
 };
 
-export const RESOURCE_VISIBILITY_STATUSES = {
-  ACTIVE: "active",
-  DISMISSED: "dismissed",
-  EXCLUDED: "excluded"
-};
-
 export const FORMATTED_MONEY_TYPES = Object.freeze({
   COMMON: "common",
   COMPACT: "compact",

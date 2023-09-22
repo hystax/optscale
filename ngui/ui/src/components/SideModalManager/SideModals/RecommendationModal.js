@@ -17,9 +17,18 @@ class RecommendationModal extends BaseSideModal {
   dataTestId = "smodal_recommendation";
 
   get content() {
-    const { type, limit, dataSourceIds, mlModelId } = this.payload;
+    const { type, limit, dataSourceIds, mlModelId, dismissable, withExclusions } = this.payload;
 
-    return <RecommendationDetails mlModelId={mlModelId} type={type} dataSourceIds={dataSourceIds} limit={limit} />;
+    return (
+      <RecommendationDetails
+        mlModelId={mlModelId}
+        type={type}
+        dataSourceIds={dataSourceIds}
+        limit={limit}
+        dismissable={dismissable}
+        withExclusions={withExclusions}
+      />
+    );
   }
 }
 

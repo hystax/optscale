@@ -50,10 +50,17 @@ const MlRecommendationsContainer = ({ modelId, type, limit, status }) => {
   return <Recommendations type={type} limit={limit} data={data} status={status} isLoading={isLoading} />;
 };
 
-const RecommendationDetails = ({ type, dataSourceIds = [], limit = 100, mlModelId }) => {
+const RecommendationDetails = ({
+  type,
+  dataSourceIds = [],
+  limit = 100,
+  mlModelId,
+  dismissable = false,
+  withExclusions = false
+}) => {
   const { isDemo } = useOrganizationInfo();
 
-  const tabs = [ACTIVE, DISMISSED, EXCLUDED].map((name) => ({
+  const tabs = [ACTIVE, dismissable ? DISMISSED : false, withExclusions ? EXCLUDED : false].filter(Boolean).map((name) => ({
     title: name,
     node: mlModelId ? (
       <Mocked
@@ -98,7 +105,9 @@ RecommendationDetails.propTypes = {
   type: PropTypes.string.isRequired,
   dataSourceIds: PropTypes.array,
   limit: PropTypes.number,
-  mlModelId: PropTypes.string
+  mlModelId: PropTypes.string,
+  dismissable: PropTypes.bool,
+  withExclusions: PropTypes.bool
 };
 
 export default RecommendationDetails;
