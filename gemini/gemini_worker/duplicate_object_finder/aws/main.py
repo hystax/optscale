@@ -19,6 +19,8 @@ from gemini.gemini_worker.utils import random_string
 
 LOG = logging.getLogger(__name__)
 
+CACHE_PATH = "gemini_worker/cache"
+
 
 def find_duplicates(
     data: list[tuple], filters: dict, preserve_temp_db: bool = False
@@ -39,7 +41,7 @@ def find_duplicates(
             },
         )
 
-    cache_filename = os.path.join("cache", f"{random_string()}.sqlite")
+    cache_filename = os.path.join(CACHE_PATH, f"{random_string()}.sqlite")
     LOG.info(f"Cache filename is {cache_filename}")
     cache = SqliteCache(cache_filename, stats)
 

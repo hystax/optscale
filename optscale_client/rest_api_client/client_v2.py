@@ -1880,9 +1880,9 @@ class Client(Client_v1):
     def gemini_list(self, organization_id=None, params=None):
         url = self.geminis_url(organization_id=organization_id)
         return self.get(url, body=params)
-    
+
     def gemini_create(self, organization_id, params):
-        return self.post(self.geminis_url(organization_id=organization_id), 
+        return self.post(self.geminis_url(organization_id=organization_id),
                          params)
 
     def gemini_get(self, id_):
@@ -1896,6 +1896,6 @@ class Client(Client_v1):
 
     def gemini_update(self, id_, params):
         return self.patch(self.geminis_url(id_=id_), params)
-    
+
     def gemini_delete(self, id_):
         return self.delete(self.geminis_url(id_=id_))

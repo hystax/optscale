@@ -681,8 +681,8 @@ class Worker(ConsumerMixin):
             LOG.info(f"Successful gemini run for {gemini_id}")
 
         except Exception as exc:
-            LOG.exception(f"Failed gemini run for {gemini_id}: {ex}")
-            self._set_status(gemini_id, {"last_error": str(ex)}, "FAILED")
+            LOG.exception(f"Failed gemini run for {gemini_id}: {exc}")
+            self._set_status(gemini_id, {"last_error": str(exc)}, "FAILED")
         finally:
             message.ack()
 
