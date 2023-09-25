@@ -111,7 +111,8 @@ class FlavorController(BaseController):
         except TypeNotMatchedException:
             return {}
 
-    def get_azure_prices(self, region, instance_family, currency='USD'):
+    def get_azure_prices(self, region, instance_family, currency='USD',
+                         meter_id=None):
         discoveries = self.discoveries_collection.find(
             {'cloud_type': 'azure_cnr'}
         ).sort(
@@ -123,6 +124,8 @@ class FlavorController(BaseController):
             'armRegionName': region,
             'currencyCode': currency
         }
+        if meter_id:
+            pricing_query['meterId'] = meter_id
         pricings = list()
         next_start = int(datetime.now().timestamp())
         for discovery in discoveries:
@@ -191,8 +194,9 @@ class FlavorController(BaseController):
             if not location:
                 raise WrongArgumentsException(Err.OI0012, [region])
             flavors_future = executor.submit(self.get_azure_flavors)
+            m_id = meter_id if mode == 'current' else None
             prices_future = executor.submit(
-                self.get_azure_prices, location, instance_family, currency)
+                self.get_azure_prices, location, instance_family, currency, m_id)
         flavors_info = flavors_future.result()
         prices = prices_future.result()
 

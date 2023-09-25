@@ -170,7 +170,8 @@ class RightsizingBase(ModuleBase):
                 meter_id = info.get('meter_id')
                 if cloud_type == 'azure_cnr':
                     flavor = meta.get('flavor')
-                    if flavor and flavor not in info['additional_properties']:
+                    properties = info.get('additional_properties')
+                    if flavor and properties and flavor not in properties:
                         continue
                     if meter_id:
                         flavor_params['meter_id'] = meter_id
@@ -383,6 +384,8 @@ class RightsizingBase(ModuleBase):
             info = self._get_instances_info(cloud_resources, ca_id, cloud_type)
             resource_ids = list(map(lambda x: cloud_resource_resource_map[x],
                                     info.keys()))
+            if not resource_ids:
+                continue
             metrics_map = self._get_metrics(
                 resource_ids, ca_id, days_threshold, cloud_type)
             current_flavor_params = self._get_flavor_params(
@@ -448,11 +451,13 @@ class RightsizingBase(ModuleBase):
                 "_id": {"resource_id": "$resource_id", "meter_id": "$meter_id"},
                 "usage_quantity": {"$sum": "$usage_quantity"},
                 "additional_properties": {"$last": "$additional_properties"},
+                "service_info": {"$last": "$service_info2"}
             })
             pipeline = [match_pipeline, sort_pipeline, group_pipeline]
             res = self.mongo_client.restapi.raw_expenses.aggregate(pipeline)
             for r in res:
-                if 'Reservation' in r['additional_properties']:
+                properties = r.get('additional_properties')
+                if properties and 'Reservation' in properties:
                     continue
                 res_id = r['_id']['resource_id']
                 meter_id = r['_id']['meter_id']
@@ -463,9 +468,10 @@ class RightsizingBase(ModuleBase):
                     'cloud_account_id': r['cloud_account_id'],
                     'resource_id': r['_id'],
                     'meter_id': meter_id,
-                    'additional_properties': r['additional_properties']
+                    'additional_properties': properties
                 }
-                if 'Windows Client BYOL' in r['additional_properties']:
+                byol_str = properties or r.get('service_info') or ''
+                if byol_str and 'Windows Client BYOL' in byol_str:
                     # Windows VM is charged using sku for Linux
                     data['os'] = 'Linux'
                 result[res_id].append(data)
