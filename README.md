@@ -1,3 +1,7 @@
+<p align="center">
+⭐ Drop a star to support OptScale ⭐
+</p>
+
 # FinOps platform for any cloud workloads + MLOps functionality for ML/AI teams
 
 <p align="center">
