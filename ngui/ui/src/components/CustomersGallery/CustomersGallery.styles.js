@@ -14,6 +14,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   logoWrapper: {
     maxWidth: "120px",
+    height: 54,
     width: "100%"
   },
   logoImage: {
