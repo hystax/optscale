@@ -32,12 +32,9 @@ const CurrencyCodeAutocomplete = forwardRef(({ name, onBlur, value, onChange, er
           {...params}
           ref={ref}
           inputProps={{
-            ...params.inputProps,
-            style: {
-              width: "100%"
-            }
+            ...params.inputProps
           }}
-          InputProps={InputProps}
+          InputProps={{ ...params.InputProps, ...InputProps }}
           margin="none"
           error={error}
           helperText={helperText}
