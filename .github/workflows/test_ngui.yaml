@@ -14,6 +14,8 @@ concurrency:
 jobs:
   build_image:
     runs-on: self-hosted
+    concurrency:
+      group: build-ngui
     steps:
       - name: Check out code
         uses: actions/checkout@v3
