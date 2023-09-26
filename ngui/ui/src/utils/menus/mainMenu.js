@@ -1,7 +1,6 @@
 import React from "react";
 import MainMenuSectionTitle from "components/MainMenuSectionTitle";
 import { MAIN_MENU_SECTION_IDS } from "components/MenuGroupWrapper/reducer";
-import MenuSectionBadge from "components/MenuSectionBadge";
 import anomalies from "./anomaliesMenuItem";
 import cloudCostComparisonMenuItem from "./cloudCostComparisonMenuItem";
 import dataSources from "./dataSourcesMenuItem";
@@ -37,7 +36,6 @@ export default [
   },
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
-    menuSectionBadge: <MenuSectionBadge messageId="beta" />,
     menuSectionTitle: <MainMenuSectionTitle messageId="mlOps" />,
     items: [mlModels, mlRunsets]
   },

@@ -42,14 +42,8 @@ const MainMenu = ({ menu }) => {
   return (
     <>
       <List component="nav" sx={{ padding: 0 }}>
-        {menu.map(({ items, menuSectionTitle, menuSectionBadge, id }) => (
-          <MenuGroupWrapper
-            id={id}
-            key={id}
-            menuSectionTitle={menuSectionTitle}
-            menuSectionBadge={menuSectionBadge}
-            keepExpanded={isProductTourOpen}
-          >
+        {menu.map(({ items, menuSectionTitle, id }) => (
+          <MenuGroupWrapper id={id} key={id} menuSectionTitle={menuSectionTitle} keepExpanded={isProductTourOpen}>
             {items.map((item) => simpleItem(item))}
           </MenuGroupWrapper>
         ))}
