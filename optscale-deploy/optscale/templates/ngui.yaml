@@ -54,9 +54,6 @@ spec:
       - name: {{ $config.name }}
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
-        volumeMounts:
-        - name: shared
-          mountPath: /shared
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}
@@ -75,6 +72,3 @@ spec:
         - name: REACT_APP_HOTJAR_ID
           value: {{ $config.env.react_app_hotjar_id | quote }}
 {{ include "ready_probe" $config | indent 8 }}
-      volumes:
-      - name: shared
-        emptyDir: {}
