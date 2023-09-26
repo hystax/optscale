@@ -33,7 +33,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.FINOPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="finops" />,
-    items: [expenses, expensesMap, finOpsPortal, cloudCostComparisonMenuItem]
+    items: [expenses, expensesMap, finOpsPortal]
   },
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
@@ -49,7 +49,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.SANDBOX,
     menuSectionTitle: <MainMenuSectionTitle messageId="sandbox" />,
-    items: [environments, k8sRightsizing, recommendationsArchive]
+    items: [environments, k8sRightsizing, recommendationsArchive, cloudCostComparisonMenuItem]
   },
   {
     id: MAIN_MENU_SECTION_IDS.SYSTEM,
