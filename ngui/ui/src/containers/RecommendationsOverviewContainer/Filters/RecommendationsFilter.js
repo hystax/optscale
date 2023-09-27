@@ -2,11 +2,14 @@ import React from "react";
 import { FormControl, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormattedMessage, useIntl } from "react-intl";
-import { CATEGORY_COST, CATEGORY_SECURITY } from "../recommendations/BaseRecommendation";
-
-const CATEGORY_ALL = "all";
-const CATEGORY_CRITICAL = "critical";
-const CATEGORY_NON_EMPTY = "nonEmpty";
+import {
+  CATEGORY_ALL,
+  CATEGORY_COST,
+  CATEGORY_SECURITY,
+  CATEGORY_CRITICAL,
+  CATEGORY_NON_EMPTY,
+  RECOMMENDATION_COLOR
+} from "../recommendations/BaseRecommendation";
 
 export const RECOMMENDATIONS_FILTERS = Object.freeze([
   { messageId: "all", id: CATEGORY_ALL },
@@ -31,7 +34,7 @@ export const categoryFilter = (category) => (recommendation) => {
   }
 
   if (category === CATEGORY_CRITICAL) {
-    return recommendation.color === "error";
+    return recommendation.color === RECOMMENDATION_COLOR.ERROR;
   }
 
   if (category === CATEGORY_NON_EMPTY) {

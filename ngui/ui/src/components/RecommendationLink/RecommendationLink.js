@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { Link as RouterLink } from "react-router-dom";
 import {
   CATEGORY_COST,
+  CATEGORY_CRITICAL,
   CATEGORY_SECURITY
 } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
 import { getRecommendationsUrl } from "urls";
@@ -16,7 +17,7 @@ const RecommendationLink = ({ category, children, dataTestId }) => (
 
 RecommendationLink.propTypes = {
   children: PropTypes.node.isRequired,
-  category: PropTypes.oneOf([CATEGORY_COST, CATEGORY_SECURITY]),
+  category: PropTypes.oneOf([CATEGORY_COST, CATEGORY_SECURITY, CATEGORY_CRITICAL]),
   dataTestId: PropTypes.string
 };
 
