@@ -22,7 +22,7 @@ export const PROVIDERS = Object.freeze({
 // - remove useAuthorization and rename this one
 // - refactor/generalize
 
-export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams().next || HOME } = {}) => {
+export const useNewAuthorization = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -62,7 +62,7 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
   );
 
   const activateScope = useCallback(
-    (email) =>
+    (email, { getOnSuccessRedirectionPath } = {}) =>
       dispatch((_, getState) =>
         dispatch(getOrganizations())
           .then(() => checkError(GET_ORGANIZATIONS, getState()))
@@ -78,7 +78,14 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
             return undefined;
           })
           .then(() => updateScopeId(getState()))
-          .then(() => redirectOnSuccess(onSuccessRedirectionPath))
+          .then(() => {
+            const redirectPath =
+              typeof getOnSuccessRedirectionPath === "function"
+                ? getOnSuccessRedirectionPath({ userEmail: email })
+                : getQueryParams().next || HOME;
+
+            return redirectOnSuccess(redirectPath);
+          })
           .then(() => {
             const { register, provider } = getState()?.[AUTH]?.[GET_TOKEN] ?? {};
             if (register) {
@@ -91,11 +98,11 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
             setIsRegistrationInProgress(false);
           })
       ),
-    [dispatch, redirectOnSuccess, updateScopeId, onSuccessRedirectionPath]
+    [dispatch, redirectOnSuccess, updateScopeId]
   );
 
   const authorize = useCallback(
-    (email, password) => {
+    ({ email, password }, { getOnSuccessRedirectionPath }) => {
       setIsAuthInProgress(true);
       dispatch((_, getState) =>
         dispatch(getToken(email, password))
@@ -105,7 +112,8 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
           .then(() => getState()?.[RESTAPI]?.[GET_INVITATIONS])
           .then((pendingInvitations) => {
             if (isEmpty(pendingInvitations)) {
-              Promise.resolve(activateScope(email));
+              const { userEmail } = getState()?.[AUTH]?.[GET_TOKEN] ?? {};
+              Promise.resolve(activateScope(userEmail, { getOnSuccessRedirectionPath }));
             } else {
               navigate(ACCEPT_INVITATIONS);
             }
@@ -119,7 +127,7 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
   );
 
   const register = useCallback(
-    (name, email, password) => {
+    ({ name, email, password }, { getOnSuccessRedirectionPath }) => {
       setIsRegistrationInProgress(true);
       dispatch((_, getState) =>
         dispatch(createUser(name, email, password))
@@ -129,7 +137,8 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
           .then(() => getState()?.[RESTAPI]?.[GET_INVITATIONS])
           .then((pendingInvitations) => {
             if (isEmpty(pendingInvitations)) {
-              Promise.resolve(activateScope(email));
+              const { userEmail } = getState()?.[AUTH]?.[GET_TOKEN] ?? {};
+              Promise.resolve(activateScope(userEmail, { getOnSuccessRedirectionPath }));
             } else {
               navigate(ACCEPT_INVITATIONS);
             }
@@ -143,7 +152,7 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
   );
 
   const thirdPartySignIn = useCallback(
-    (provider, params) => {
+    ({ provider, params }, { getOnSuccessRedirectionPath }) => {
       setIsAuthInProgress(true);
       dispatch((_, getState) =>
         dispatch(signIn(provider, params))
@@ -153,8 +162,8 @@ export const useNewAuthorization = ({ onSuccessRedirectionPath = getQueryParams(
           .then(() => getState()?.[RESTAPI]?.[GET_INVITATIONS])
           .then((pendingInvitations) => {
             if (isEmpty(pendingInvitations)) {
-              const email = getState()?.[AUTH]?.[GET_TOKEN]?.userEmail;
-              Promise.resolve(activateScope(email));
+              const useEmail = getState()?.[AUTH]?.[GET_TOKEN]?.userEmail;
+              Promise.resolve(activateScope(useEmail, { getOnSuccessRedirectionPath }));
             } else {
               navigate(ACCEPT_INVITATIONS);
             }

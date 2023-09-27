@@ -1,6 +1,8 @@
 import { API } from "api/reducer";
 import { reset } from "reducers/route";
+import { setSignOutOptions } from "reducers/signoutOptions";
 import requestManager from "utils/requestManager";
+import { getFullPath } from "./network";
 
 /**
  *
@@ -58,7 +60,14 @@ export const reformatBreakdown = (breakdown) =>
     })
   );
 
-export const signOut = (dispatch) => {
+export const signOut = (dispatch, payload) => {
+  const { userEmail } = payload;
+  dispatch(
+    setSignOutOptions({
+      next: `${getFullPath().replace(/&/g, "%26")}`,
+      userEmail
+    })
+  );
   dispatch(reset());
   requestManager.cancelAllPendingRequests();
 };

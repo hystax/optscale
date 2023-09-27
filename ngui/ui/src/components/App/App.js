@@ -6,14 +6,25 @@ import ErrorBoundary from "components/ErrorBoundary";
 import LayoutWrapper from "components/LayoutWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useOrganizationIdQueryParameterListener } from "hooks/useOrganizationIdQueryParameterListener";
-import { getUrlWithNextQueryParam, LOGIN } from "urls";
+import { useRootData } from "hooks/useRootData";
+import { SIGNOUT_OPTIONS } from "reducers/signoutOptions/reducer";
+import { LOGIN } from "urls";
 import mainMenu from "utils/menus";
-import { getFullPath } from "utils/network";
 import { routes } from "utils/routes";
 
 const RouteContent = ({ component, layout, context }) => (
   <LayoutWrapper component={component} layout={layout} context={context} mainMenu={mainMenu} />
 );
+
+const LoginNavigation = () => {
+  const {
+    rootData: { next, userEmail }
+  } = useRootData(SIGNOUT_OPTIONS);
+
+  const to = `${LOGIN}?next=${next}&userEmail=${userEmail}`;
+
+  return <Navigate to={to} />;
+};
 
 const RouteRender = ({ isTokenRequired, component, layout, context }) => {
   const {
@@ -24,8 +35,7 @@ const RouteRender = ({ isTokenRequired, component, layout, context }) => {
 
   // TODO: create a Page component and wrap each page explicitly with Redirector
   if (!token && isTokenRequired) {
-    const to = getUrlWithNextQueryParam(LOGIN, getFullPath(), true);
-    return <Navigate to={to} />;
+    return <LoginNavigation />;
   }
 
   return (
