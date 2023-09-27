@@ -887,6 +887,16 @@ users_dataset_generator:
   aws_access_key_id:
   aws_secret_access_key:
 
+live_demo_generator:
+  name: live-demo-generator
+  replicaCount: 1   # amount of workers
+  image:
+    repository: live_demo_generator
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 * * * *"
+
 # list of databases to create (if not exist) during DC initialization
 databases:
   - auth-db

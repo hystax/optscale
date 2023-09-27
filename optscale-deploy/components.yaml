@@ -33,6 +33,7 @@ katara_service:
 katara_worker:
 keeper:
 keeper_executor:
+live_demo_generator:
 mariadb:
 metroculus_api:
 metroculus_scheduler:
