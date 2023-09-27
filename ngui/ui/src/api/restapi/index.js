@@ -167,7 +167,13 @@ import {
   getBIExport,
   updateBIExport,
   deleteBIExport,
-  getRelevantFlavors
+  getRelevantFlavors,
+  getOrganizationCloudResources,
+  getOrganizationGeminis,
+  createOrganizationGemini,
+  getGemini,
+  getS3DuplicatesOrganizationSettings,
+  updateOrganizationThemeSettings
 } from "./actionCreators";
 
 export {
@@ -339,5 +345,11 @@ export {
   getBIExport,
   updateBIExport,
   deleteBIExport,
-  getRelevantFlavors
+  getRelevantFlavors,
+  getOrganizationCloudResources,
+  getOrganizationGeminis,
+  createOrganizationGemini,
+  getGemini,
+  getS3DuplicatesOrganizationSettings,
+  updateOrganizationThemeSettings
 };

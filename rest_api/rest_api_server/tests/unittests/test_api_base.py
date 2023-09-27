@@ -77,6 +77,7 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         self.expenses = []
         self.traffic_expenses = []
         self.ri_sp_usage = []
+        self.gemini = []
         self.raw_expenses = self.mongo_client.restapi.raw_expenses
         self.resources_collection = self.mongo_client.restapi.resources
         self.resources_collection.create_index(
@@ -611,12 +612,24 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
                     ('usage', 'Float64', 0),
                     ('sign', 'Int8', 1)
                 ], self.ri_sp_usage
+            ),
+            'gemini': (
+                [
+                    ('id', 'String', 'default'),
+                    ('tag', 'String', 'default'),
+                    ('bucket', 'String', 'default'),
+                    ('key', 'String', 'default'),
+                    ('size', 'Integer', 1),
+                    ('date', 'DateTime', datetime.utcnow()),
+                ], self.gemini
             )
         }
         if 'from traffic_expenses' in query.lower():
             table_name = 'traffic_expenses'
         elif 'from ri_sp_usage' in query.lower():
             table_name = 'ri_sp_usage'
+        elif 'from gemini' in query.lower():
+            table_name = 'gemini'
         else:
             table_name = 'expenses'
         expense_field_types, data_source = ch_expenses_map[table_name]
@@ -716,7 +729,7 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
                     'rest_api.rest_api_server.controllers.employee.'
                     'AuthClient.assignment_list',
                     return_value=(200, [])
-                ), \
+        ), \
                 patch(
                 'rest_api.rest_api_server.controllers.employee.'
                 'EmployeeController._reassign_resources_to_new_owner',

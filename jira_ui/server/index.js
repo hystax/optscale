@@ -1,19 +1,14 @@
-const http = require("http");
-const path = require("path");
-const express = require("express");
-const dotevn = require("dotenv");
-const { rateLimit } = require("express-rate-limit");
+import http from "http";
+import path from "path";
+import express from "express";
+import dotevn from "dotenv";
+import rateLimit from "./utils/rateLimit.js";
 
 dotevn.config();
 
 const app = express();
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Limit each IP to 500 requests per `window` (here, per 15 minutes)
-});
-
-app.use(limiter);
+app.use(rateLimit);
 
 app.use(
   "/jira_ui",

@@ -260,7 +260,7 @@ class RuleApplyController(BaseController, MongoMixin):
         events = []
         applied_rules_map = {}
         for i in range(0, len(resources_ids), CHUNK_SIZE):
-            resource_id_chunk = [x['_id'] for x in resources_ids[i:i+CHUNK_SIZE]]
+            resource_id_chunk = [x['_id'] for x in resources_ids[i:i + CHUNK_SIZE]]
             resources = self.resources_collection.find(
                 {'_id': {'$in': resource_id_chunk}})
             for resource in resources:

@@ -405,13 +405,13 @@ class TestResourceConstraints(TestApiBase):
     def test_create_constraint_dependent(self):
         cluster_id = str(uuid.uuid4())
         self.resources_collection.update_one(
-                filter={
-                    '_id': self.resource['id']
-                },
-                update={'$set': {
+            filter={
+                '_id': self.resource['id']
+            },
+            update={'$set': {
                     'cluster_id': cluster_id
-                }}
-            )
+                    }}
+        )
         code, res = self.client.resource_constraint_create(
             self.resource['id'], self.valid_constraint)
         self.assertEqual(code, 424)

@@ -4,16 +4,63 @@ import Stack from "@mui/material/Stack";
 import { Box } from "@mui/system";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import SearchInput from "components/SearchInput";
+import { intl } from "translations/react-intl-config";
 import { SPACING_2 } from "utils/layouts";
 import Cards from "./Cards";
-import { RecommendationsFilter, ServicesFilter, VIEW_CARDS, VIEW_TABLE, View } from "./Filters";
+import { RecommendationsFilter, ServicesFilter, VIEW_CARDS, VIEW_TABLE, View, categoryFilter, serviceFilter } from "./Filters";
+import { ACTIVE } from "./recommendations/BaseRecommendation";
 import useStyles from "./RecommendationsOverview.styles";
 import RecommendationsTable from "./RecommendationsTable";
 import Summary from "./Summary";
 
+const searchFilter = (search) => (recommendation) => {
+  if (!search) {
+    return true;
+  }
+
+  const commonMessageValues = {
+    strong: (chunks) => chunks,
+    link: (chunks) => chunks
+  };
+
+  const description = intl
+    .formatMessage(
+      { id: recommendation.descriptionMessageId },
+      { ...recommendation.descriptionMessageValues, ...commonMessageValues }
+    )
+    .toLocaleLowerCase();
+
+  const title = intl.formatMessage({ id: recommendation.title }).toLocaleLowerCase();
+
+  const searchLowerCase = search.toLocaleLowerCase();
+
+  return title.includes(searchLowerCase) || description.includes(searchLowerCase);
+};
+
+const sortRecommendation = (recommendationA, recommendationB) => {
+  const aHasSavings = recommendationA.hasSaving;
+  const bHasSavings = recommendationB.hasSaving;
+
+  // Case 1: Both recommendations have their own savings - sort by saving value
+  if (aHasSavings && bHasSavings) {
+    return recommendationB.saving - recommendationA.saving;
+  }
+  // Case 2: Only recommendationA has savings, and B doesn't have it - do not change the order (place A before B)
+  if (aHasSavings && !bHasSavings) {
+    return -1;
+  }
+  // Case 3: Only recommendationB has savings, and A doesn't have it - place B before A
+  if (!aHasSavings && bHasSavings) {
+    return 1;
+  }
+  // Case 4: Both recommendations have no savings - sort them by count
+  return recommendationB.count - recommendationA.count;
+};
+
 const RecommendationsOverview = ({
-  data,
   isDataReady,
+  recommendationClasses,
+  recommendationsData,
   onRecommendationClick,
   riSpExpensesSummary,
   isRiSpExpensesSummaryLoading,
@@ -25,24 +72,33 @@ const RecommendationsOverview = ({
   service,
   setView,
   view,
-  recommendations,
   downloadLimit,
   isDownloadAvailable,
   isGetIsDownloadAvailableLoading,
-  selectedDataSources
+  selectedDataSources,
+  lastCompleted,
+  totalSaving,
+  nextRun,
+  lastRun
 }) => {
   const { classes } = useStyles();
-  const { last_completed: lastCompleted } = data;
   const checkDone = lastCompleted !== 0;
+
+  const recommendations = Object.values(recommendationClasses)
+    .map((RecommendationClass) => new RecommendationClass(ACTIVE, recommendationsData))
+    .filter(categoryFilter(category))
+    .filter(serviceFilter(service))
+    .filter(searchFilter(search))
+    .sort(sortRecommendation);
 
   return (
     <Stack spacing={SPACING_2}>
       <div>
         <Summary
-          totalSaving={data.total_saving}
-          nextRun={data.next_run}
-          lastCompleted={data.last_completed}
-          lastRun={data.last_run}
+          totalSaving={totalSaving}
+          nextRun={nextRun}
+          lastCompleted={lastCompleted}
+          lastRun={lastRun}
           riSpExpensesSummary={riSpExpensesSummary}
           isLoadingProps={{
             isRecommendationsLoading: !isDataReady,

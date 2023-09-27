@@ -1,9 +1,10 @@
+import { COLLAPSED_MENU_ITEMS, MAIN_MENU_SECTION_IDS } from "components/MenuGroupWrapper/reducer";
 import { IS_EXISTING_USER } from "components/TopAlertWrapper/TopAlertWrapper";
 import { RANGE_DATES } from "containers/RangePickerFormContainer/reducer";
 import { millisecondsToSeconds } from "utils/datetime";
 import { objectMap } from "utils/objects";
 
-export const CURRENT_VERSION = 9;
+export const CURRENT_VERSION = 10;
 
 // When we modify storage structure, we will need to properly use migrations:
 // https://github.com/rt2zz/redux-persist/blob/master/docs/migrations.md
@@ -77,7 +78,11 @@ const migrations = {
       ...state,
       alerts: newAlerts
     };
-  }
+  },
+  10: (state) => ({
+    ...state,
+    [COLLAPSED_MENU_ITEMS]: [...new Set([...(state[COLLAPSED_MENU_ITEMS] || []), MAIN_MENU_SECTION_IDS.SANDBOX])]
+  })
 };
 
 export default migrations;

@@ -70,12 +70,12 @@ class TestInviteApi(TestApiBase):
                 'role_scope': None
             },
             {
-                 'assignment_id': self.gen_id(),
-                 'assignment_resource': root_organization2['id'],
-                 'assignment_resource_type': 2,
-                 'role_id': 3,
-                 'role_name': 'Manager',
-                 'role_scope': None
+                'assignment_id': self.gen_id(),
+                'assignment_resource': root_organization2['id'],
+                'assignment_resource_type': 2,
+                'role_id': 3,
+                'role_name': 'Manager',
+                'role_scope': None
             }]
 
         patch('rest_api.rest_api_server.controllers.invite.InviteController.'
@@ -165,10 +165,10 @@ class TestInviteApi(TestApiBase):
             'display_name': fmt_args['initiator_name'], 'id': self._user_id,
             'email': fmt_args['initiator_email']}
         code, _ = self.client.invite_create({'invites': {
-                self.email_2: [
-                    {'scope_id': self.root_pool_id, 'scope_type': 'pool',
-                     'purpose': 'optscale_engineer'}
-                ]}})
+            self.email_2: [
+                {'scope_id': self.root_pool_id, 'scope_type': 'pool',
+                 'purpose': 'optscale_engineer'}
+            ]}})
         activity_param_tuples = self.get_publish_activity_tuple(
             self.org_id, self.org_id, 'organization',
             'employee_invited', {
@@ -196,10 +196,10 @@ class TestInviteApi(TestApiBase):
             'display_name': fmt_args['initiator_name'], 'id': self._user_id,
             'email': fmt_args['initiator_email']}
         code, _ = self.client.invite_create({'invites': {
-                self.email_2: [
-                    {'scope_id': self.org_id, 'scope_type': 'organization',
-                     'purpose': None}
-                ]}})
+            self.email_2: [
+                {'scope_id': self.org_id, 'scope_type': 'organization',
+                 'purpose': None}
+            ]}})
         activity_param_tuples = self.get_publish_activity_tuple(
             self.org_id, self.org_id, 'organization',
             'employee_invited', {

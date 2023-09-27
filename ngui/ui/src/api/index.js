@@ -182,7 +182,13 @@ import {
   getBIExport,
   updateBIExport,
   deleteBIExport,
-  getRelevantFlavors
+  getRelevantFlavors,
+  getOrganizationCloudResources,
+  getOrganizationGeminis,
+  createOrganizationGemini,
+  getGemini,
+  getS3DuplicatesOrganizationSettings,
+  updateOrganizationThemeSettings
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
@@ -374,7 +380,13 @@ export {
   getBIExport,
   updateBIExport,
   deleteBIExport,
-  getRelevantFlavors
+  getRelevantFlavors,
+  getOrganizationCloudResources,
+  createOrganizationGemini,
+  getOrganizationGeminis,
+  getGemini,
+  getS3DuplicatesOrganizationSettings,
+  updateOrganizationThemeSettings
 };
 
 export { RESTAPI, AUTH, KEEPER, SLACKER, JIRA_BUS };

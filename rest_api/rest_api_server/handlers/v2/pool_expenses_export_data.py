@@ -28,7 +28,7 @@ class PoolExpensesExportDataAsyncItemHandler(BaseAsyncItemHandler,
                         dates[date_type] = int(self._str_to_date(v).replace(
                             hour=23, minute=59, second=59).timestamp())
                     elif date_type == 'start_date':
-                            dates[date_type] = int(self._str_to_date(v).timestamp())
+                        dates[date_type] = int(self._str_to_date(v).timestamp())
                 except ValueError:
                     raise WrongArgumentsException(Err.OE0468, [date_type])
         return dates

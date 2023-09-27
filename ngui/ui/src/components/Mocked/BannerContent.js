@@ -77,6 +77,10 @@ export const getBannerIcon = (messageType) =>
     taggingPolicy: {
       Component: DataSourceIcon,
       dataTestId: "img_add_tagging_policy"
+    },
+    awsCloudAccounts: {
+      Component: DataSourceIcon,
+      dataTestId: "img_connect_data_source"
     }
   }[messageType]);
 
@@ -97,6 +101,25 @@ const getConfiguration = (messageType) =>
         },
         renderIfNotAllowed: {
           mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "dataSourcesContactManagerBackdropMessage"]
+        },
+        Icon: DataSourceIcon
+      }
+    },
+    awsCloudAccounts: {
+      item: {
+        requiredActions: ["MANAGE_CLOUD_CREDENTIALS"],
+        mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "awsDataSourcesBackdropMessage"],
+        buttonMessageId: CONNECT_DATA_SOURCE,
+        subMessageIds: [CLOUD_CONNECTION_BACKDROP_MESSAGE],
+        onButtonClick: redirectToCreateCloudAccount,
+        dataTestIds: {
+          mainMessage: ["p_sample", "p_connect_ca"],
+          button: "btn_connect_ca",
+          wrapper: "banner_mockup",
+          subMessage: ["p_connection"]
+        },
+        renderIfNotAllowed: {
+          mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "awsDataSourcesContactManagerBackdropMessage"]
         },
         Icon: DataSourceIcon
       }

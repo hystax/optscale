@@ -240,8 +240,8 @@ class TestEnvironmentResourceApi(TestApiBase):
         code, res = self.environment_resource_create(self.org_id, resource)
         self.assertEqual(code, 201)
         meta = {
-                'alert_id': alert['id'],
-                'env_properties': ANY
+            'alert_id': alert['id'],
+            'env_properties': ANY
         }
         p_disp_task.assert_has_calls([
             call(self.org_id, res['id'], 'resource', 'env_property_updated',
@@ -267,8 +267,8 @@ class TestEnvironmentResourceApi(TestApiBase):
         code, res = self.environment_resource_create(self.org_id, resource)
         self.assertEqual(code, 201)
         meta = {
-                'alert_id': alert['id'],
-                'env_properties': ANY
+            'alert_id': alert['id'],
+            'env_properties': ANY
         }
         p_disp_task.assert_has_calls([
             call(self.org_id, res['id'], 'resource', 'env_property_updated',
@@ -331,10 +331,10 @@ class TestEnvironmentResourceApi(TestApiBase):
         res['active'] = True
         self.assertEqual(code, 200)
         meta = {
-                'alert_id': alert['id'],
-                'previous_state': 'Active',
-                'new_state': 'Not Active'
-            }
+            'alert_id': alert['id'],
+            'previous_state': 'Active',
+            'new_state': 'Not Active'
+        }
         p_disp_task.assert_called_once_with(
             self.org_id, res['id'], 'resource', 'env_active_state_changed',
             meta, 'alert.violation.env_change')
@@ -359,8 +359,8 @@ class TestEnvironmentResourceApi(TestApiBase):
         res.pop('env_properties', None)
         self.assertEqual(code, 200)
         meta = {
-                'alert_id': alert['id'],
-                'env_properties': ANY
+            'alert_id': alert['id'],
+            'env_properties': ANY
         }
         p_disp_task.assert_called_once_with(
             self.org_id, res['id'], 'resource', 'env_property_updated', meta,
@@ -380,9 +380,9 @@ class TestEnvironmentResourceApi(TestApiBase):
         res['active'] = True
         self.assertEqual(code, 200)
         meta = {
-                'previous_state': 'Active',
-                'new_state': 'Not Active'
-            }
+            'previous_state': 'Active',
+            'new_state': 'Not Active'
+        }
         p_disp_task.assert_called_once_with(
             self.org_id, res['id'], 'resource', 'env_active_state_changed',
             meta, 'alert.violation.env_change')
@@ -395,7 +395,7 @@ class TestEnvironmentResourceApi(TestApiBase):
         res.pop('env_properties', None)
         self.assertEqual(code, 200)
         meta = {
-                'env_properties': ANY
+            'env_properties': ANY
         }
         p_disp_task.assert_called_once_with(
             self.org_id, res['id'], 'resource', 'env_property_updated', meta,

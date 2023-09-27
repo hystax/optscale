@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { RecommendationModal } from "components/SideModalManager/SideModals";
 import { useGetIsRecommendationsDownloadAvailable } from "hooks/useGetIsRecommendationsDownloadAvailable";
@@ -7,23 +7,14 @@ import { ALL_SERVICES, useRecommendationServices } from "hooks/useRecommendation
 import { useRiSpExpensesSummary } from "hooks/useRiSpExpensesSummary";
 import { useSyncQueryParamWithState } from "hooks/useSyncQueryParamWithState";
 import OrganizationOptionsService from "services/OrganizationOptionsService";
-import { intl } from "translations/react-intl-config";
 import {
   RECOMMENDATION_CATEGORY_QUERY_PARAMETER,
   RECOMMENDATION_SERVICE_QUERY_PARAMETER,
   RECOMMENDATION_VIEW_QUERY_PARAMETER
 } from "urls";
 import { RECOMMENDATIONS_LIMIT_FILTER } from "utils/constants";
-import {
-  DEFAULT_RECOMMENDATIONS_FILTER,
-  DEFAULT_VIEW,
-  POSSIBLE_RECOMMENDATIONS_FILTERS,
-  POSSIBLE_VIEWS,
-  categoryFilter,
-  serviceFilter
-} from "./Filters";
+import { DEFAULT_RECOMMENDATIONS_FILTER, DEFAULT_VIEW, POSSIBLE_RECOMMENDATIONS_FILTERS, POSSIBLE_VIEWS } from "./Filters";
 import { OPTSCALE_RECOMMENDATIONS } from "./recommendations/allRecommendations";
-import { ACTIVE } from "./recommendations/BaseRecommendation";
 import RecommendationsOverview from "./RecommendationsOverview";
 import RecommendationsOverviewService from "./RecommendationsOverviewService";
 import {
@@ -35,30 +26,6 @@ import { useControlState } from "./redux/controlsState/hooks";
 import { VALUE_ACCESSORS } from "./redux/controlsState/reducer";
 
 const OPTION_PREFIX = "recommendation_";
-
-const searchFilter = (search) => (recommendation) => {
-  if (!search) {
-    return true;
-  }
-
-  const commonMessageValues = {
-    strong: (chunks) => chunks,
-    link: (chunks) => chunks
-  };
-
-  const description = intl
-    .formatMessage(
-      { id: recommendation.descriptionMessageId },
-      { ...recommendation.descriptionMessageValues, ...commonMessageValues }
-    )
-    .toLocaleLowerCase();
-
-  const title = intl.formatMessage({ id: recommendation.title }).toLocaleLowerCase();
-
-  const searchLowerCase = search.toLocaleLowerCase();
-
-  return title.includes(searchLowerCase) || description.includes(searchLowerCase);
-};
 
 const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
   const { useGet, useGetRecommendationsDownloadOptions } = OrganizationOptionsService();
@@ -110,19 +77,6 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
     )
     .reduce((result, { name, value }) => ({ ...result, [name.slice(OPTION_PREFIX.length)]: value }), {});
 
-  const recommendations = useMemo(
-    () =>
-      Object.values(OPTSCALE_RECOMMENDATIONS)
-        .map(
-          (RecommendationClass) =>
-            new RecommendationClass(ACTIVE, { ...data, organizationOptions: organizationRecommendationOptions })
-        )
-        .filter(categoryFilter(category))
-        .filter(serviceFilter(service))
-        .filter(searchFilter(search)),
-    [data, organizationRecommendationOptions, category, search, service]
-  );
-
   const openSideModal = useOpenSideModal();
 
   const onRecommendationClick = useCallback(
@@ -131,7 +85,9 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
         type: recommendation.type,
         titleMessageId: recommendation.title,
         limit: downloadLimit,
-        dataSourceIds: selectedDataSources
+        dataSourceIds: selectedDataSources,
+        dismissable: recommendation.dismissable,
+        withExclusions: recommendation.withExclusions
       });
     },
     [downloadLimit, openSideModal, selectedDataSources]
@@ -143,7 +99,10 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
 
   return (
     <RecommendationsOverview
-      data={data}
+      lastCompleted={data.last_completed}
+      totalSaving={data.total_saving}
+      nextRun={data.next_run}
+      lastRun={data.last_run}
       isDataReady={isDataReady}
       onRecommendationClick={onRecommendationClick}
       setCategory={setCategory}
@@ -154,7 +113,8 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
       view={view}
       setService={setService}
       service={service}
-      recommendations={recommendations}
+      recommendationsData={{ ...data, organizationOptions: organizationRecommendationOptions }}
+      recommendationClasses={OPTSCALE_RECOMMENDATIONS}
       downloadLimit={downloadLimit}
       riSpExpensesSummary={riSpExpensesSummary}
       isRiSpExpensesSummaryLoading={isRiSpExpensesSummaryLoading}

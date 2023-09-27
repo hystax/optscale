@@ -1049,7 +1049,7 @@ class TestCloudResourceApi(TestApiBase):
         conflict_tag_name = 'tn3'
         valid_resource1 = self.valid_resource1
         valid_resource1['tags'] = {
-            conflict_tag_name: 'tv1', 'tn4': 'tv',  **common_tags}
+            conflict_tag_name: 'tv1', 'tn4': 'tv', **common_tags}
         valid_resource2 = self.valid_resource2
         valid_resource2['tags'] = {
             conflict_tag_name: 'tv2', 'tn5': 'tv', **common_tags}

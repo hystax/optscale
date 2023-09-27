@@ -167,5 +167,5 @@ class RecourceLimitHitsAsyncItemHandler(LimitHitsAsyncCollectionHandler):
         - token: []
         """
         await self.check_permissions(
-                'INFO_ORGANIZATION', 'cloud_resource', resource_id)
+            'INFO_ORGANIZATION', 'cloud_resource', resource_id)
         await super().get(resource_id)

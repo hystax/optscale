@@ -50,9 +50,9 @@ def upgrade():
     config_client = _get_etcd_config_client()
     _get_health_collection(config_client).drop()
     queue_conn = QConnection(
-            'amqp://{user}:{pass}@{host}:{port}'.format(
-                **config_client.read_branch('/rabbit')),
-            transport_options=RETRY_POLICY)
+        'amqp://{user}:{pass}@{host}:{port}'.format(
+            **config_client.read_branch('/rabbit')),
+        transport_options=RETRY_POLICY)
     queue_conn.connect()
     task_exchange = Exchange('health', type='direct')
     bound_task_exchange = task_exchange(queue_conn.channel())

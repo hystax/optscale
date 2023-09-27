@@ -283,8 +283,8 @@ class TestObserver(TestApiBase):
         for r in [resources[0], resources[1], resources[2]]:
             res_ids.append(r['id'])
             self.resources_collection.update_one(filter={
-                    '_id': r['id']
-                },
+                '_id': r['id']
+            },
                 update={'$set': {
                     'employee_id': employee_id,
                     'pool_id': self.org['pool_id']
@@ -492,8 +492,8 @@ class TestObserver(TestApiBase):
         employee_id = self.gen_id()
         for r in [resources[0], resources[1], resources[2]]:
             self.resources_collection.update_one(filter={
-                    '_id': r['id']
-                },
+                '_id': r['id']
+            },
                 update={'$set': {
                     'employee_id': employee_id,
                     'pool_id': sub_pool['id']
@@ -600,7 +600,7 @@ class TestObserver(TestApiBase):
                 for limit_hit in resp['limit_hits']:
                     hit_value, hit_state = new_limit_hit_map[counter]
                     hit_key = 'ttl_value' if (
-                            limit_hit['type'] == 'TTL') else 'expense_value'
+                        limit_hit['type'] == 'TTL') else 'expense_value'
                     self.assertEqual(limit_hit[hit_key], hit_value)
                     self.assertEqual(limit_hit['constraint_limit'], 10)
                     self.assertEqual(
@@ -755,9 +755,9 @@ class TestObserver(TestApiBase):
         code, _ = self.client.observe_resources(self.org_id)
         self.assertEqual(code, 204)
         meta = {
-                'alert_id': alert['id'],
-                'previous_state': 'Active',
-                'new_state': 'Not Active'
+            'alert_id': alert['id'],
+            'previous_state': 'Active',
+            'new_state': 'Not Active'
         }
         p_send_msg.assert_has_calls([
             call(self.org_id, resource2['id'], 'resource',
@@ -792,8 +792,8 @@ class TestObserver(TestApiBase):
         code, _ = self.client.observe_resources(self.org_id)
         self.assertEqual(code, 204)
         meta = {
-                'previous_state': 'Active',
-                'new_state': 'Not Active'
+            'previous_state': 'Active',
+            'new_state': 'Not Active'
         }
         p_send_msg.assert_has_calls([
             call(self.org_id, resource2['id'], 'resource',

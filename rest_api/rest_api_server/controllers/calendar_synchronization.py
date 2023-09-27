@@ -66,7 +66,7 @@ class CalendarSynchronizationController(BaseController, MongoMixin):
     def _is_synchronization_supported(self):
         try:
             return bool(self._config.google_calendar_service_enabled())
-        except:
+        except BaseException:
             return False
 
     def get_resources(self, resource_ids):

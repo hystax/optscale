@@ -8,11 +8,14 @@ const useStyles = makeStyles()((theme) => ({
     width: "100%",
     display: "flex",
     flexWrap: "wrap",
+    rowGap: "10px",
+    columnGap: "45px",
     justifyContent: "center"
   },
   logoWrapper: {
-    width: 35,
-    margin: theme.spacing(2)
+    width: 25,
+    height: 54,
+    display: "flex"
   },
   logoImage: {
     width: "100%"

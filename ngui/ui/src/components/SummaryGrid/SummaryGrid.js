@@ -3,6 +3,7 @@ import Grid from "@mui/material/Grid";
 import PropTypes from "prop-types";
 import { FormattedNumber, FormattedMessage } from "react-intl";
 import { v4 as uuidv4 } from "uuid";
+import FormattedDigitalUnit from "components/FormattedDigitalUnit";
 import FormattedMoney from "components/FormattedMoney";
 import SummaryCard from "components/SummaryCard";
 import SummaryCardExtended from "components/SummaryCardExtended";
@@ -26,6 +27,7 @@ const getValueComponentSettings = (type, CustomComponent) => ({
       );
     },
     [SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage]: FormattedMessage,
+    [SUMMARY_VALUE_COMPONENT_TYPES.FormattedDigitalUnit]: FormattedDigitalUnit,
     [SUMMARY_VALUE_COMPONENT_TYPES.Custom]: CustomComponent
   }[type],
   computedProps: {

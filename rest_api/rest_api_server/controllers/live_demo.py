@@ -740,7 +740,7 @@ class LiveDemoController(BaseController, MongoMixin):
         obj = self.refresh_relations(['constraint_id'], obj)
         obj['organization_id'] = organization_id
         if self._org_constraint_type_map[
-          obj['constraint_id']] in self.permitted_org_constraints_multiplier:
+                obj['constraint_id']] in self.permitted_org_constraints_multiplier:
             obj['constraint_limit'] *= self.multiplier
             obj['value'] *= self.multiplier
         return OrganizationLimitHit(**obj)

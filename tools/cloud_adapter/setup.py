@@ -30,10 +30,10 @@ requirements = [
     "azure-identity==1.6.1",
 
     # Gcp
-    'google-cloud-bigquery==3.0.1',
-    'google-cloud-compute==1.3.0',
-    'google-cloud-storage==2.3.0',
-    'google-cloud-monitoring==2.9.1',
+    'google-cloud-bigquery==3.11.4',
+    'google-cloud-compute==1.14.1',
+    'google-cloud-storage==2.10.0',
+    'google-cloud-monitoring==2.15.1',
 
     # Nebius
     'yandexcloud==0.191.0',

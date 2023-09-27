@@ -55,9 +55,9 @@ def get_cloud_account_ids():
                         column('type', String(36)))
         cmd = select([c_acc_t.c.id]).where(
             and_(c_acc_t.c.organization_id.in_(
-                    select([org_t.c.id]).where(
-                        and_(org_t.c.deleted_at == 0,
-                             org_t.c.is_demo.is_(False)))),
+                select([org_t.c.id]).where(
+                    and_(org_t.c.deleted_at == 0,
+                         org_t.c.is_demo.is_(False)))),
                  c_acc_t.c.type == 'AWS_CNR',
                  c_acc_t.c.deleted_at == 0))
         cloud_accounts = session.execute(cmd)

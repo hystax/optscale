@@ -1,0 +1,9 @@
+ARG BUILDTAG=build
+FROM gemini_worker:${BUILDTAG}
+
+WORKDIR /usr/src/app/
+
+COPY gemini/gemini_worker/test-requirements.txt gemini/gemini_worker/test-requirements.txt
+COPY gemini/.pylintrc gemini/.coveragerc ./gemini/gemini_worker/
+
+RUN pip install --no-cache-dir -r gemini/gemini_worker/test-requirements.txt

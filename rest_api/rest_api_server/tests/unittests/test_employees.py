@@ -196,9 +196,9 @@ class TestEmployeeApi(TestApiBase):
                             [{'user_id': employee['auth_user_id']}])).start()
         patch('rest_api.rest_api_server.controllers.employee.EmployeeController.'
               'auth_client.assignment_list', return_value=(
-                     200, [{'assignment_id': str(uuid.uuid4()),
-                            'role_name': 'Manager',
-                            'assignment_resource': self.org_id}])).start()
+                  200, [{'assignment_id': str(uuid.uuid4()),
+                         'role_name': 'Manager',
+                         'assignment_resource': self.org_id}])).start()
         self.client.secret = ''
 
         self._mock_auth_user(employee['auth_user_id'])
@@ -219,7 +219,7 @@ class TestEmployeeApi(TestApiBase):
         session = BaseDB.session(engine)()
         session.query(Employee).filter(
             Employee.id == deleted_emp['id']).update({
-              'deleted_at': int(datetime.utcnow().timestamp())})
+                'deleted_at': int(datetime.utcnow().timestamp())})
         session.commit()
 
         invalid_owners = ['123', emp['id'], deleted_emp['id']]
@@ -249,9 +249,9 @@ class TestEmployeeApi(TestApiBase):
             'assignment_resource': self.org['pool_id']}])
         patch('rest_api.rest_api_server.controllers.employee.EmployeeController.'
               'auth_client.assignment_list', return_value=(
-                     200, [{'assignment_id': str(uuid.uuid4()),
-                            'role_name': 'Manager',
-                            'assignment_resource': self.org_id}])).start()
+                  200, [{'assignment_id': str(uuid.uuid4()),
+                         'role_name': 'Manager',
+                         'assignment_resource': self.org_id}])).start()
         code, resp = self.client.employee_delete(
             emp['id'], new_owner_id=root_emp['id'])
         self.assertEqual(code, 204)
@@ -577,9 +577,9 @@ class TestEmployeeApi(TestApiBase):
         self.assertEqual(code, 201)
         patch('rest_api.rest_api_server.controllers.employee.EmployeeController.'
               'auth_client.assignment_list', return_value=(
-                     200, [{'assignment_id': str(uuid.uuid4()),
-                            'role_name': 'Manager',
-                            'assignment_resource': self.org_id}])).start()
+                  200, [{'assignment_id': str(uuid.uuid4()),
+                         'role_name': 'Manager',
+                         'assignment_resource': self.org_id}])).start()
         code, resp = self.client.employee_delete(employee['id'],
                                                  new_owner_id=employee['id'])
         self.assertEqual(code, 400)
@@ -904,7 +904,7 @@ class TestEmployeeApi(TestApiBase):
         hits = session.query(OrganizationLimitHit).filter(and_(
             OrganizationLimitHit.organization_id == self.org_id,
             OrganizationLimitHit.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(hits, None)
 
     def test_employees_last_login(self):

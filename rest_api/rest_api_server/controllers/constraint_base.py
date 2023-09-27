@@ -77,10 +77,10 @@ class ConstraintBaseController(BaseController):
 
     def supported_constraint_types(self, org_id):
         option = self.session.query(OrganizationOption).filter(
-                OrganizationOption.name == 'features',
-                OrganizationOption.organization_id == org_id,
-                OrganizationOption.deleted_at == 0
-            ).one_or_none()
+            OrganizationOption.name == 'features',
+            OrganizationOption.organization_id == org_id,
+            OrganizationOption.deleted_at == 0
+        ).one_or_none()
         try:
             option_dict = json.loads(option.value)
             tel_enabled = bool(option_dict.get(
@@ -147,9 +147,9 @@ class ConstraintBaseController(BaseController):
             handle_res = func(resource_data, constraint, now)
         if handle_res:
             ttl_value = int(handle_res[1]) if (
-                    constraint.type == ConstraintTypes.TTL) else None
+                constraint.type == ConstraintTypes.TTL) else None
             expense_value = handle_res[1] if (
-                    constraint.type != ConstraintTypes.TTL) else None
+                constraint.type != ConstraintTypes.TTL) else None
             return {
                 'pool_id': resource_data.get('pool_id'),
                 'constraint_limit': handle_res[0],

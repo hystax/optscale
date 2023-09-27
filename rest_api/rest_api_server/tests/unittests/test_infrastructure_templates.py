@@ -66,7 +66,7 @@ class TestTemplateApi(TestInfrastructureBase):
             self.assertEqual(res.get('error', {}).get('error_code'), 'OE0216')
 
     def test_create_nonexisting_entities(self):
-        nonexisting_updates = ['application_ids',  'cloud_account_ids']
+        nonexisting_updates = ['application_ids', 'cloud_account_ids']
         for k in nonexisting_updates:
             valid_template = self.valid_template.copy()
             valid_template[k] = [str(uuid.uuid4())]
@@ -244,7 +244,7 @@ class TestTemplateApi(TestInfrastructureBase):
         code, template = self.client.template_create(
             self.organization_id, self.valid_template)
         self.assertEqual(code, 201)
-        nonexisting_updates = ['application_ids',  'cloud_account_ids']
+        nonexisting_updates = ['application_ids', 'cloud_account_ids']
         for k in nonexisting_updates:
             code, res = self.client.template_update(
                 self.organization_id, template['id'], {k: [str(uuid.uuid4())]})

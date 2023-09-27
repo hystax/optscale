@@ -167,7 +167,7 @@ class CloudResourceDiscover(BaseController, MongoMixin):
     def check_filters(filters):
         if not filters:
             return
-        if not(isinstance(filters, dict)):
+        if not (isinstance(filters, dict)):
             raise WrongArgumentsException(Err.OE0392, [])
         invalid_filters = list(filter(lambda x: x not in ALLOWED_FILTERS,
                                       filters.keys()))

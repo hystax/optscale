@@ -147,7 +147,7 @@ class CloudAccountController(BaseController):
                 params = [
                     p for p in expected_params
                     if p.type == type and (
-                            p.name in config_part or p.default is not None)]
+                        p.name in config_part or p.default is not None)]
                 for param in params:
                     param_name = param.name
                     if except_cloud_acc_name_func:

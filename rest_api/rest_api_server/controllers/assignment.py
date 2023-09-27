@@ -291,9 +291,9 @@ class AssignmentController(BaseController, MongoMixin):
                 result = cache[pool_id]
             else:
                 result = self._authorize_action_for_pool(
-                        "MANAGE_RESOURCES",
-                        pool_id,
-                        token=token)
+                    "MANAGE_RESOURCES",
+                    pool_id,
+                    token=token)
                 cache[pool_id] = result
             if result:
                 manageable_resources.append(resource)

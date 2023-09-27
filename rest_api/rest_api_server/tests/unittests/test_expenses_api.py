@@ -100,7 +100,7 @@ class TestExpensesApi(TestApiBase):
         self.assertEqual(code, 200)
         try:
             args[3].pop('limit')
-        except:
+        except BaseException:
             pass
         code, filters = self.client.available_filters_get(*args)
         self.assertEqual(code, 200)
@@ -2815,10 +2815,10 @@ class TestExpensesApi(TestApiBase):
 
         _, resource1 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res1', first_seen=time, last_seen=time+1)
+            name='res1', first_seen=time, last_seen=time + 1)
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res2', first_seen=time, last_seen=time+1)
+            name='res2', first_seen=time, last_seen=time + 1)
         expenses = [
             {
                 'cost': 150,
@@ -2940,13 +2940,13 @@ class TestExpensesApi(TestApiBase):
 
         _, resource1 = self.create_cloud_resource(
             self.cloud_acc1['id'], name='res1',
-            first_seen=time, last_seen=time+1, tags={'hello': 'world'})
+            first_seen=time, last_seen=time + 1, tags={'hello': 'world'})
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc1['id'], name='res2',
-            first_seen=time, last_seen=time+1, tags={'world': 'hello'})
+            first_seen=time, last_seen=time + 1, tags={'world': 'hello'})
         _, resource3 = self.create_cloud_resource(
             self.cloud_acc1['id'], name='res3',
-            first_seen=time, last_seen=time+1,
+            first_seen=time, last_seen=time + 1,
             tags={'hello': 'world', 'world': 'hello'})
         expenses = [
             {
@@ -3047,10 +3047,10 @@ class TestExpensesApi(TestApiBase):
 
         _, resource1 = self.create_cloud_resource(
             self.cloud_acc1['id'], name='res1',
-            first_seen=time, last_seen=time+1, tags={})
+            first_seen=time, last_seen=time + 1, tags={})
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc1['id'], name='res2',
-            first_seen=time, last_seen=time+1, tags={'world': 'hello'})
+            first_seen=time, last_seen=time + 1, tags={'world': 'hello'})
         expenses = [
             {
                 'cost': 200,
@@ -3173,10 +3173,10 @@ class TestExpensesApi(TestApiBase):
 
         _, resource1 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res_4.regex_search_1', first_seen=time, last_seen=time+1)
+            name='res_4.regex_search_1', first_seen=time, last_seen=time + 1)
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='another-rez_for.regex_search_!', first_seen=time, last_seen=time+1)
+            name='another-rez_for.regex_search_!', first_seen=time, last_seen=time + 1)
         expenses = [
             {
                 'cost': 150,
@@ -3508,10 +3508,10 @@ class TestExpensesApi(TestApiBase):
         time = int(day_in_month.timestamp())
         _, resource1 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res1', first_seen=time, last_seen=time+1)
+            name='res1', first_seen=time, last_seen=time + 1)
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.sub_pool1['id'],
-            name='res2', first_seen=time, last_seen=time+1)
+            name='res2', first_seen=time, last_seen=time + 1)
         expenses = [
             {
                 'cost': 150, 'date': day_in_month,
@@ -3885,7 +3885,7 @@ class TestExpensesApi(TestApiBase):
             k8s_namespace=k8s_namespaces[0]['name'],
             k8s_service=k8s_services[0]['name'], k8s_node=k8s_nodes[0]['name'],
             pod_ip='10.24.1.3', resource_type='K8s Pod', name='1',
-            first_seen=time, last_seen=time+1)
+            first_seen=time, last_seen=time + 1)
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc3['id'], self.employee2['id'], self.org['pool_id'],
             created_by_kind='ReplicaSet', created_by_name='core_dns',
@@ -3893,7 +3893,7 @@ class TestExpensesApi(TestApiBase):
             k8s_namespace=k8s_namespaces[1]['name'],
             k8s_service=k8s_services[1]['name'], k8s_node=k8s_nodes[1]['name'],
             pod_ip='10.24.1.3', resource_type='K8s Pod', name='2',
-            first_seen=time, last_seen=time+1)
+            first_seen=time, last_seen=time + 1)
         costs = [25, 40]
         self._make_resources_active([resource1['id']])
         for i, resource in enumerate([resource1, resource2]):
@@ -3928,10 +3928,10 @@ class TestExpensesApi(TestApiBase):
         time = int(day_in_month.timestamp())
         _, resource1 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res1', first_seen=time, last_seen=time+1)
+            name='res1', first_seen=time, last_seen=time + 1)
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res2', first_seen=time, last_seen=time+1)
+            name='res2', first_seen=time, last_seen=time + 1)
         expenses = [
             {
                 'cost': 300,
@@ -4560,7 +4560,7 @@ class TestExpensesApi(TestApiBase):
                         'cost': 150,
                         'cloud_account_id': self.cloud_acc1['id'],
                         'resource_id': resource1['cloud_resource_id']
-                     }
+                    }
                 ],
             },
             {
@@ -4576,7 +4576,7 @@ class TestExpensesApi(TestApiBase):
                         'cost': 100,
                         'cloud_account_id': self.cloud_acc2['id'],
                         'resource_id': resource2['cloud_resource_id']
-                     },
+                    },
                     {
                         'name': 'raw 3',
                         'start_date': dt,
@@ -4584,7 +4584,7 @@ class TestExpensesApi(TestApiBase):
                         'cost': 200,
                         'cloud_account_id': self.cloud_acc2['id'],
                         'resource_id': resource2['cloud_resource_id']
-                     }
+                    }
                 ],
             },
             {
@@ -4600,7 +4600,7 @@ class TestExpensesApi(TestApiBase):
                         'cost': 30,
                         'cloud_account_id': self.cloud_acc1['id'],
                         'resource_id': resource3['cloud_resource_id']
-                     },
+                    },
                     {
                         'name': 'raw 5',
                         'start_date': dt,
@@ -4608,7 +4608,7 @@ class TestExpensesApi(TestApiBase):
                         'cost': 70,
                         'cloud_account_id': self.cloud_acc1['id'],
                         'resource_id': resource3['cloud_resource_id']
-                     }
+                    }
                 ],
             },
             {
@@ -4875,7 +4875,7 @@ class TestExpensesApi(TestApiBase):
         now = datetime.utcnow()
         now_ts = int(now.timestamp())
         today = now.replace(hour=0, minute=0, second=0)
-        previuos_month_day = today.replace(month=today.month-1, day=1)
+        previuos_month_day = today.replace(month=today.month - 1, day=1)
         previuos_month_day_ts = int(previuos_month_day.timestamp())
         cloud_acc_id = self.cloud_acc1['id']
         employee_id = self.employee1['id']
@@ -5275,10 +5275,10 @@ class TestExpensesApi(TestApiBase):
         time = int(day_in_month.timestamp())
         _, resource1 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res1', first_seen=time, last_seen=time+1)
+            name='res1', first_seen=time, last_seen=time + 1)
         _, resource2 = self.create_cloud_resource(
             self.cloud_acc1['id'], self.employee1['id'], self.org['pool_id'],
-            name='res2', first_seen=time, last_seen=time+1)
+            name='res2', first_seen=time, last_seen=time + 1)
         expenses = [
             {
                 'cost': 150,

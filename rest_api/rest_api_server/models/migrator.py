@@ -61,7 +61,7 @@ class Migrator(object):
                                    target_metadata=target_metadata,
                                    fn=self.do_upgrade)
         with self.alembic_env.begin_transaction():
-                self.alembic_env.run_migrations()
+            self.alembic_env.run_migrations()
 
     def migrate_all(self):
         try:

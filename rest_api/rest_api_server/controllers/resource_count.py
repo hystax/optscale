@@ -39,9 +39,9 @@ class ResourceCountController(BreakdownBaseController):
         breakdowns = self._get_breakdown_dates(start_date, end_date)
         if breakdown_by == 'resource_type':
             group_value = {
-                    'resource_type': '$resource_type',
-                    'is_cluster': '$cluster_type_id',
-                    'is_environment': '$is_environment'
+                'resource_type': '$resource_type',
+                'is_cluster': '$cluster_type_id',
+                'is_environment': '$is_environment'
             }
         else:
             group_value = '$%s' % breakdown_by

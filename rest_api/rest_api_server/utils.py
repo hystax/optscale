@@ -290,7 +290,7 @@ def timestamp_to_date(timestamp):
 
 
 def is_uuid(check_str):
-    pattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z'
+    pattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\Z'
     return bool(re.match(pattern, str(check_str).lower()))
 
 
@@ -398,14 +398,14 @@ def is_valid_meta(metadata):
         meta = json.loads(metadata)
         if not isinstance(meta, dict):
             return False
-    except:
+    except BaseException:
         return False
     return True
 
 
 def is_email_format(check_str):
-    regex = '^[a-z0-9!#$%&\'*+/=?`{|}~\^\-\+_()]+(\.[a-z0-9!#$%&\'*+/=?`{|}~\^\-\+_()]+)*' \
-            '@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,18})$'
+    regex = '^[a-z0-9!#$%&\'*+/=?`{|}~\\^\\-\\+_()]+(\\.[a-z0-9!#$%&\'*+/=?`{|}~\\^\\-\\+_()]+)*' \
+            '@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,18})$'
     match = re.match(regex, str(check_str).lower())
     return bool(match)
 
@@ -417,7 +417,7 @@ def get_encryption_key():
 def is_valid_hostname(hostname):
     """http://stackoverflow.com/a/20204811"""
     regex = '(?=^.{1,253}$)(^(((?!-)[a-zA-Z0-9-]{1,63}(?<!-))|((?!-)' \
-            '[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$)'
+            '[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63})$)'
     match = re.match(regex, str(hostname).lower())
     return bool(match)
 
@@ -609,7 +609,7 @@ def update_tags(db_value, value, is_report_import=False, decode=True):
         db_update = {db_key: db_value
                      for db_key, db_value in db_resource_tags.items()
                      if db_key not in set(resource_tags.keys()) and (
-                             db_key.startswith('aws:') or is_report_import)}
+                         db_key.startswith('aws:') or is_report_import)}
         if db_update:
             resource_tags.update(db_update)
     if decode:

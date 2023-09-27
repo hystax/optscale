@@ -507,7 +507,7 @@ class TestOrganizationApi(TestApiBase):
         constraint = session.query(OrganizationConstraint).filter(and_(
             OrganizationConstraint.organization_id == self.organization['id'],
             OrganizationConstraint.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(constraint, None)
 
     def test_delete_organization_constraint_with_none_in_pool_filter(self):
@@ -521,7 +521,7 @@ class TestOrganizationApi(TestApiBase):
         constraint = session.query(OrganizationConstraint).filter(and_(
             OrganizationConstraint.organization_id == self.organization['id'],
             OrganizationConstraint.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(constraint, None)
 
     def test_delete_organization_limit_hit(self):
@@ -534,7 +534,7 @@ class TestOrganizationApi(TestApiBase):
         hits = session.query(OrganizationLimitHit).filter(and_(
             OrganizationLimitHit.organization_id == self.organization['id'],
             OrganizationLimitHit.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(hits, None)
 
     def test_invalid_currency(self):
@@ -609,5 +609,5 @@ class TestOrganizationApi(TestApiBase):
         bi = session.query(OrganizationBI).filter(and_(
             OrganizationBI.organization_id == org['id'],
             OrganizationBI.deleted.is_(False)
-            )).one_or_none()
+        )).one_or_none()
         self.assertEqual(bi, None)

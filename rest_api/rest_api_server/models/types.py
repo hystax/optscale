@@ -13,7 +13,7 @@ from rest_api.rest_api_server.models.enums import (
     ThresholdBasedTypes, ConstraintTypes, PoolPurposes,
     InviteAssignmentScopeTypes, CostModelTypes, WebhookObjectTypes,
     WebhookActionTypes, ConstraintLimitStates, OrganizationConstraintTypes,
-    BIOrganizationStatuses, BITypes)
+    BIOrganizationStatuses, BITypes, GeminiStatuses)
 from rest_api.rest_api_server.utils import (
     is_email_format, is_uuid, is_valid_meta, MAX_32_INT,
     get_encryption_key, gen_id, MAX_64_INT,
@@ -148,7 +148,7 @@ class Email(NullableEmail):
 
 
 class Name(BaseString):
-    def __init__(self, key='name',  **kwargs):
+    def __init__(self, key='name', **kwargs):
         super().__init__(key, **kwargs)
 
 
@@ -472,3 +472,7 @@ class BIType(BaseType):
 
 class BIOrganizationStatus(BaseType):
     impl = Enum(BIOrganizationStatuses)
+
+
+class GeminiStatus(BaseType):
+    impl = Enum(GeminiStatuses)

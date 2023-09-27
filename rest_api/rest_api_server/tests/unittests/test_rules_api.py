@@ -681,9 +681,9 @@ class TestRuleApi(TestRulesApiBase):
         self.assertEqual(len(rules), 0)
         conditions = [
             {
-             "type": "tag_is",
-             "meta_info": "{\"key\":\"key\",\"value\":\"value\"}"
-             }
+                "type": "tag_is",
+                "meta_info": "{\"key\":\"key\",\"value\":\"value\"}"
+            }
         ]
         rule1 = self._create_rule('rule1', conditions=conditions)
         rules = self._get_rules()
@@ -1171,7 +1171,7 @@ class TestApplyRuleApi(TestRulesApiBase):
             },
             'starts_contains_new_ends': {
                 'pool_id': self.org_pool_id,
-                'employee_id':  self.employee['id']
+                'employee_id': self.employee['id']
             }
         }
         self._verify_assignments(resources, expected_map)
@@ -1522,9 +1522,9 @@ class TestApplyRuleApi(TestRulesApiBase):
 
         resources = self._create_resources(
             [
-             'qa_resource_prod',
-             'qa_resource1_prod',
-             'special_name',
+                'qa_resource_prod',
+                'qa_resource1_prod',
+                'special_name',
             ]
         )
         expected_map = {
@@ -1556,9 +1556,9 @@ class TestApplyRuleApi(TestRulesApiBase):
         p_authorize.return_value = True
         conditions = [
             {
-             "type": "tag_is",
-             "meta_info": "{\"key\":\"key\",\"value\":\"value\"}"
-             }
+                "type": "tag_is",
+                "meta_info": "{\"key\":\"key\",\"value\":\"value\"}"
+            }
         ]
         self._create_rule('rule1', conditions=conditions)
         valid_body = {'resources': []}
@@ -2132,7 +2132,7 @@ class TestApplyRuleApi(TestRulesApiBase):
         )
         resources = self._create_resources(
             [
-             'prod_resource_prod',
+                'prod_resource_prod',
             ]
         )
         expected_map = {

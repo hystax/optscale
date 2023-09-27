@@ -62,7 +62,10 @@ def get_default_template():
         'images': {
             'logo': 'https://cdn.hystax.com/OptScale/email-images/logo-optscale-white.png',
             'optscale_banner': 'https://cdn.hystax.com/OptScale/email-images/optscale-welcome-banner.png',
-            'telegram': 'https://cdn.hystax.com/OptScale/email-images/telegram.png'
+            'telegram': 'https://cdn.hystax.com/OptScale/email-images/telegram.png',
+            'optscale_ml_banner': 'https://cdn.hystax.com/OptScale/email-images/optscale-ml-welcome-banner.png',
+            'optscale_mlops': 'https://cdn.hystax.com/OptScale/email-images/optscale-mlops-capabilities.png',
+            'optscale_finops': 'https://cdn.hystax.com/OptScale/email-images/optscale-finops-capabilities.png',
         },
         'texts': {
             'product': 'Hystax OptScale',

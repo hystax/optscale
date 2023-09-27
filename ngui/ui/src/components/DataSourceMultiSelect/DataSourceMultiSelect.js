@@ -1,12 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Box, Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
+import { Box, Checkbox, FormHelperText, FormControl, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Chip from "components/Chip";
 import CloudLabel from "components/CloudLabel";
 import useStyles from "./DataSourceMultiSelect.styles";
 
-const DataSourceMultiSelect = ({ dataSourceIds, allDataSources, onChange }) => {
+const DataSourceMultiSelect = ({
+  dataSourceIds,
+  allDataSources,
+  onChange,
+  displayEmpty = false,
+  fullWidth = false,
+  required = false,
+  error,
+  helperText,
+  name,
+  onBlur,
+  inputRef
+}) => {
   const handleChange = (event) => {
     const {
       target: { value }
@@ -27,7 +39,7 @@ const DataSourceMultiSelect = ({ dataSourceIds, allDataSources, onChange }) => {
 
   const dataSourcesMessage = <FormattedMessage id="dataSources" />;
 
-  const ref = useRef(null);
+  const selectRef = useRef(null);
 
   /**
    * The Mui selector currently calculates the popover width only when
@@ -44,20 +56,23 @@ const DataSourceMultiSelect = ({ dataSourceIds, allDataSources, onChange }) => {
   const [menuPaperMinWidth, setMenuPaperMinWidth] = useState(0);
 
   useEffect(() => {
-    setMenuPaperMinWidth(ref?.current?.clientWidth ?? 0);
+    setMenuPaperMinWidth(selectRef?.current?.clientWidth ?? 0);
   }, [dataSourceIds]);
 
   return (
-    <FormControl className={classes.formControl}>
-      <InputLabel shrink id="select-data-source-label">
+    <FormControl className={classes.formControl} fullWidth={fullWidth}>
+      <InputLabel shrink={displayEmpty ? true : undefined} required={required} id="select-data-source-label" error={error}>
         {dataSourcesMessage}
       </InputLabel>
       <Select
-        ref={ref}
+        ref={selectRef}
+        name={name}
         labelId="select-data-source-label"
         id="select-data-source"
         multiple
-        displayEmpty
+        displayEmpty={displayEmpty}
+        onBlur={onBlur}
+        inputRef={inputRef}
         value={dataSourceIds}
         onChange={handleChange}
         MenuProps={{
@@ -75,20 +90,21 @@ const DataSourceMultiSelect = ({ dataSourceIds, allDataSources, onChange }) => {
             horizontal: "left"
           }
         }}
-        input={<OutlinedInput notched label={dataSourcesMessage} />}
+        error={error}
+        input={<OutlinedInput notched={displayEmpty ? true : undefined} label={dataSourcesMessage} />}
         renderValue={(selected) => {
           if (selected.length === 0) {
             return <FormattedMessage id="all" />;
           }
 
           const selectedDataSourcesChips = allDataSources
-            .map(({ name, id, type }) => {
+            .map(({ name: dataSourceName, id, type }) => {
               if (selected.indexOf(id) > -1) {
                 return (
                   <Chip
                     key={id}
                     size="small"
-                    label={<CloudLabel name={name} type={type} disableLink />}
+                    label={<CloudLabel name={dataSourceName} type={type} disableLink />}
                     variant="outlined"
                     stopMouseDownPropagationOnDelete
                     onDelete={() => handleDeleteChip(id)}
@@ -102,13 +118,14 @@ const DataSourceMultiSelect = ({ dataSourceIds, allDataSources, onChange }) => {
           return <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>{selectedDataSourcesChips}</Box>;
         }}
       >
-        {allDataSources.map(({ name, id, type }) => (
-          <MenuItem key={name} value={id} className={classes.menuItem}>
+        {allDataSources.map(({ name: dataSourceName, id, type }) => (
+          <MenuItem key={dataSourceName} value={id} className={classes.menuItem}>
             <Checkbox checked={dataSourceIds.indexOf(id) > -1} className={classes.checkbox} />
-            <CloudLabel key={id} name={name} type={type} disableLink />
+            <CloudLabel key={id} name={dataSourceName} type={type} disableLink />
           </MenuItem>
         ))}
       </Select>
+      {error && <FormHelperText error>{helperText}</FormHelperText>}
     </FormControl>
   );
 };
@@ -122,7 +139,15 @@ DataSourceMultiSelect.propTypes = {
       name: PropTypes.string.isRequired,
       type: PropTypes.string.isRequired
     })
-  )
+  ),
+  displayEmpty: PropTypes.bool,
+  fullWidth: PropTypes.bool,
+  required: PropTypes.bool,
+  error: PropTypes.bool,
+  helperText: PropTypes.node,
+  name: PropTypes.string,
+  onBlur: PropTypes.func,
+  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.instanceOf(Element) })])
 };
 
 export default DataSourceMultiSelect;

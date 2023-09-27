@@ -207,7 +207,7 @@ class TestBreakdownTagsApi(TestApiBase):
         day_1_ts = int(datetime(2022, 2, 2, tzinfo=timezone.utc).timestamp())
         res = self._create_resource(
             self.cloud_acc1['id'], first_seen=day_1_ts, last_seen=day_1_ts,
-            r_type='Instance',  tags={'tag1': 'val1', 'tag2': 'val2'})
+            r_type='Instance', tags={'tag1': 'val1', 'tag2': 'val2'})
         self.expenses = [
             {
                 'cloud_account_id': self.cloud_acc1['id'],

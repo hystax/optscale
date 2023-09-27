@@ -129,7 +129,7 @@ const AssignmentRuleForm = ({
         return { ...item, meta_info: item.meta_info.trim() };
       })
     };
-    console.log(modifiedData);
+
     onSubmit(modifiedData);
   };
 

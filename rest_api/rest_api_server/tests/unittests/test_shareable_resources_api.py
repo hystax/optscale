@@ -858,7 +858,7 @@ class TestShareableResourcesApi(TestApiBase):
         dt = datetime(2021, 5, 1)
         with freeze_time(dt):
             code, booking = self.client.shareable_book_create(
-                self.organization_id,  schedule_book)
+                self.organization_id, schedule_book)
         self.assertEqual(code, 201)
         expected_call = {
             'calendar_id': c_sync['calendar_id'],
@@ -920,7 +920,7 @@ class TestShareableResourcesApi(TestApiBase):
         dt = datetime(2021, 5, 1)
         with freeze_time(dt):
             code, res = self.client.shareable_book_create(
-                self.organization_id,  schedule_book)
+                self.organization_id, schedule_book)
         self.assertEqual(code, 424)
         self.assertEqual(res['error']['error_code'], 'OE0489')
 
@@ -1002,8 +1002,8 @@ class TestShareableResourcesApi(TestApiBase):
         old_until = now - 1
         future_since = now_until + 1
         schedule_book = {
-                'resource_id': resource['id'],
-                'acquired_by_id': self.employee['id'],
+            'resource_id': resource['id'],
+            'acquired_by_id': self.employee['id'],
         }
         acquired_time = [(old_since, old_until), (now, now_until),
                          (future_since, 0)]
@@ -1197,14 +1197,14 @@ class TestShareableResourcesApi(TestApiBase):
     def test_book_for_another_employee(self):
         resource_id = self._create_resource()['id']
         code, ssh_key1 = self.client.ssh_key_create(
-            self.employee['id'],  {'name': 'k1', 'key': 'ssh AAAAC3Nz ubuntu'})
+            self.employee['id'], {'name': 'k1', 'key': 'ssh AAAAC3Nz ubuntu'})
         self.assertEqual(code, 201)
         self._mock_auth_user(self.auth_user_2)
         code, ssh_key2 = self.client.ssh_key_create(
             self.employee_2['id'], {'name': 'k1', 'key': 'ssh AAAAC3Nt ubuntu'})
         self.assertEqual(code, 201)
         code, ssh_key3 = self.client.ssh_key_create(
-            self.employee_2['id'],  {'name': 'k1', 'key': 'ssh AAAAC3Nk ubuntu'})
+            self.employee_2['id'], {'name': 'k1', 'key': 'ssh AAAAC3Nk ubuntu'})
         self.assertEqual(code, 201)
         self._mock_auth_user(self.auth_user)
 

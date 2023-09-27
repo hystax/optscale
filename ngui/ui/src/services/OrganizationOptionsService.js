@@ -14,7 +14,9 @@ import {
 import {
   getRecommendationsDownloadLimit,
   updateOrganizationThemeSettings,
-  updateOrganizationPerspectives
+  updateOrganizationPerspectives,
+  getS3DuplicatesOrganizationSettings,
+  updateS3DuplicatesOrganizationSettings
 } from "api/restapi/actionCreators";
 import {
   GET_ORGANIZATION_OPTIONS,
@@ -28,7 +30,9 @@ import {
   DELETE_ORGANIZATION_OPTION,
   GET_RECOMMENDATIONS_DOWNLOAD_OPTIONS,
   UPDATE_ORGANIZATION_THEME_SETTINGS,
-  UPDATE_ORGANIZATION_PERSPECTIVES
+  UPDATE_ORGANIZATION_PERSPECTIVES,
+  GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+  UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -313,6 +317,44 @@ export const useGetRecommendationsDownloadOptions = () => {
   };
 };
 
+export const useGetS3DuplicatesOrganizationSettings = () => {
+  const dispatch = useDispatch();
+  const { organizationId } = useOrganizationInfo();
+
+  const { apiData: options } = useApiData(GET_S3_DUPLICATES_ORGANIZATION_SETTINGS, {});
+
+  const { isLoading, shouldInvoke } = useApiState(GET_S3_DUPLICATES_ORGANIZATION_SETTINGS, organizationId);
+
+  useEffect(() => {
+    if (shouldInvoke) {
+      dispatch(getS3DuplicatesOrganizationSettings(organizationId));
+    }
+  }, [dispatch, organizationId, shouldInvoke]);
+
+  return { isLoading, options };
+};
+
+export const useUpdateS3DuplicatedOrganizationSettings = () => {
+  const dispatch = useDispatch();
+  const { organizationId } = useOrganizationInfo();
+
+  const { isLoading } = useApiState(UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS);
+
+  const onUpdate = (value) =>
+    new Promise((resolve, reject) => {
+      dispatch((_, getState) => {
+        dispatch(updateS3DuplicatesOrganizationSettings(organizationId, value)).then(() => {
+          if (!isError(UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS, getState())) {
+            return resolve();
+          }
+          return reject();
+        });
+      });
+    });
+
+  return { onUpdate, isLoading };
+};
+
 function OrganizationOptionsService() {
   return {
     useGet,
@@ -327,7 +369,8 @@ function OrganizationOptionsService() {
     useUpdateTechnicalAudit,
     useGetRecommendationsDownloadOptions,
     useUpdateThemeSettings,
-    useUpdateOrganizationPerspectives
+    useUpdateOrganizationPerspectives,
+    useGetS3DuplicatesOrganizationSettings
   };
 }
 

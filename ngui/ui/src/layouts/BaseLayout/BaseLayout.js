@@ -25,7 +25,7 @@ import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { REGISTER } from "urls";
 import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
-import { LOGO_SIZE } from "utils/constants";
+import { BASE_LAYOUT_CONTAINER_ID, LOGO_SIZE } from "utils/constants";
 import useStyles from "./BaseLayout.styles";
 
 const logoHeight = 45;
@@ -138,7 +138,7 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
             </Hidden>
           </>
         )}
-        <Container key={organizationId} component="main" className={classes.content}>
+        <Container key={organizationId} id={BASE_LAYOUT_CONTAINER_ID} component="main" className={classes.content}>
           <ErrorBoundary>
             <MainLayoutContainer>{Children.only(children)}</MainLayoutContainer>
           </ErrorBoundary>

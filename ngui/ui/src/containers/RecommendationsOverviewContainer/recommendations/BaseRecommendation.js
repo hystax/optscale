@@ -86,16 +86,16 @@ class BaseRecommendation {
     return this.recommendation.saving || 0;
   }
 
+  get hasSaving() {
+    return Object.hasOwn(this.recommendation, "saving");
+  }
+
   get value() {
-    return Object.hasOwn(this.recommendation, "saving") ? (
-      <FormattedMoney type={FORMATTED_MONEY_TYPES.COMPACT} value={this.saving} />
-    ) : (
-      this.count
-    );
+    return this.hasSaving ? <FormattedMoney type={FORMATTED_MONEY_TYPES.COMPACT} value={this.saving} /> : this.count;
   }
 
   get label() {
-    return Object.hasOwn(this.recommendation, "saving") ? "savings" : "count";
+    return this.hasSaving ? "savings" : "count";
   }
 
   get hasItems() {

@@ -153,7 +153,7 @@ class TestOrganizationsOverviewApi(TestApiBase):
         code, res = self.client.organizations_overview_list(details=True)
         self.assertEqual(code, 200)
         self.assertEqual(res['organizations'][0]['pools'][0][
-                             'unallocated_limit'], root_limit - sub_limit)
+            'unallocated_limit'], root_limit - sub_limit)
 
     def test_organizations_overview_org_costs(self):
         _, cloud_account = self.create_cloud_account(

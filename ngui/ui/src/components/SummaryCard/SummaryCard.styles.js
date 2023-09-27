@@ -8,7 +8,6 @@ const ALPHA_HOVER = 0.8;
 const useStyles = makeStyles()((theme, color) => ({
   root: {
     minWidth: 150,
-    maxWidth: 400,
     minHeight: 60,
     height: "100%",
     padding: 0,
