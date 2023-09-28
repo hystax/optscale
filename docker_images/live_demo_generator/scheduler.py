@@ -46,7 +46,7 @@ def main(config_cl):
         publish_tasks(count)
         LOG.info('Published %s tasks' % count )
     deleted = live_demos_collection.delete_many({
-        'created_at': {'lt': int(dt.timestamp())}
+        'created_at': {'$lt': int(dt.timestamp())}
     }).deleted_count
     if deleted:
         LOG.info('Deleted %s old live demos' % deleted)
