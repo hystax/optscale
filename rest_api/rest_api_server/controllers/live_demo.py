@@ -6,7 +6,8 @@ import os
 import uuid
 from collections import defaultdict
 from json.decoder import JSONDecodeError
-
+from kombu.pools import producers
+from kombu import Connection as QConnection, Exchange
 from bson.objectid import ObjectId
 from optscale_client.config_client.client import etcd
 from datetime import datetime, timedelta
@@ -45,6 +46,7 @@ DUPLICATION_FORMAT = '-x{ending}'
 WITH_SUBPOOLS_SIGN = '+'
 RECOMMENDATION_MULTIPLIED_FIELDS = ['saving', 'annually_monthly_saving',
                                     'monthly_saving']
+PREPARED_DEMO_LIFETIME_DAYS = 3
 CLICKHOUSE_TABLE_DB_MAP = {
     'average_metrics': 'default',
     'k8s_metrics': 'default',
@@ -52,6 +54,10 @@ CLICKHOUSE_TABLE_DB_MAP = {
     'traffic_expenses': 'default',
     'ri_sp_usage': 'risp'
 }
+ROUTING_KEY = 'live-demo-generation'
+EXCHANGE_NAME = 'live-demo-generations'
+RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
+                'interval_step': 1, 'interval_max': 3}
 
 
 class ObjectGroups(enum.Enum):
@@ -963,7 +969,12 @@ class LiveDemoController(BaseController, MongoMixin):
                         self._duplication_module_res_info_map[
                             module_name][resource_id] = cloud_resource_id
 
-    def create(self, **kwargs):
+    def create(self, pregenerate=False, **kwargs):
+        if not pregenerate:
+            live_demo = self._get_prepared_live_demo()
+            if live_demo:
+                self.publish_generation_task()
+                return live_demo
         org_name, name, email, password = self._get_basic_params()
         LOG.info('%s %s %s %s' % (org_name, name, email, password))
         auth_user = self.create_auth_user(email, password, name)
@@ -1023,6 +1034,32 @@ class LiveDemoController(BaseController, MongoMixin):
         ))
         orgs = demo_organization_q.all()
         return len(orgs) == 1
+
+    def _get_prepared_live_demo(self):
+        live_demo_threshhold = datetime.utcnow() - timedelta(
+            days=PREPARED_DEMO_LIFETIME_DAYS)
+        live_demo = self.mongo_client.restapi.live_demos.find_one_and_delete({
+            'created_at': {'$gte': int(live_demo_threshhold.timestamp())}
+        }, sort=[('created_at', 1)])
+        if live_demo:
+            live_demo.pop('_id', None)
+        return live_demo
+
+    def publish_generation_task(self):
+        queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
+            **self._config.read_branch('/rabbit')),
+            transport_options=RETRY_POLICY)
+        task_exchange = Exchange(EXCHANGE_NAME, type='direct')
+        with producers[queue_conn].acquire(block=True) as producer:
+            producer.publish(
+                {},
+                serializer='json',
+                exchange=task_exchange,
+                declare=[task_exchange],
+                routing_key=ROUTING_KEY,
+                retry=True,
+                retry_policy=RETRY_POLICY
+            )
 
 
 class LiveDemoAsyncController(BaseAsyncControllerWrapper):

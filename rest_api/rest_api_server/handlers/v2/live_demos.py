@@ -86,10 +86,12 @@ class LiveDemoAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         - OE0450: Failed to load Live Demo template
                         - OE0451: Failed to generate Live Demo organization
         """
+        secret = self.check_cluster_secret(raises=False)
         data = self._request_body()
         self._validate_params(**data)
         try:
-            res = await run_task(self.controller.create, **data)
+            res = await run_task(self.controller.create, pregenerate=secret,
+                                 **data)
         except InternalServerError as ex:
             raise OptHTTPError.from_opt_exception(500, ex)
         self.set_status(201)

@@ -19,11 +19,10 @@ import { getQueryParams } from "utils/network";
 const AuthorizationContainer = () => {
   const { pathname } = useLocation();
 
-  const { invited: queryInvited, next = HOME } = getQueryParams();
+  const { invited: queryInvited, next = HOME, userEmail: userEmailQueryParameter } = getQueryParams();
+
   const { authorize, register, isRegistrationInProgress, isAuthInProgress, thirdPartySignIn, setIsAuthInProgress } =
-    useNewAuthorization({
-      onSuccessRedirectionPath: pathname === REGISTER ? HOME_FIRST_TIME : next
-    });
+    useNewAuthorization();
 
   const { isDemo } = useOrganizationInfo();
   const {
@@ -32,12 +31,32 @@ const AuthorizationContainer = () => {
   const isTokenExists = Boolean(token);
 
   const onSubmitRegister = ({ name, email, password }) => {
-    register(name, email, password);
+    register(
+      { name, email, password },
+      {
+        getOnSuccessRedirectionPath: () => HOME_FIRST_TIME
+      }
+    );
   };
 
+  const getLoginSuccessRedirectionPath = ({ userEmail }) => (userEmailQueryParameter === userEmail ? next : HOME);
+
   const onSubmitLogin = ({ email, password }) => {
-    authorize(email, password);
+    authorize(
+      { email, password },
+      {
+        getOnSuccessRedirectionPath: getLoginSuccessRedirectionPath
+      }
+    );
   };
+
+  const onThirdPartySignIn = (provider, params) =>
+    thirdPartySignIn(
+      { provider, params },
+      {
+        getOnSuccessRedirectionPath: getLoginSuccessRedirectionPath
+      }
+    );
 
   // isGetTokenLoading used for LoginForm, isCreateUserLoading for RegistrationForm
   const isLoading = isRegistrationInProgress || isAuthInProgress;
@@ -62,7 +81,7 @@ const AuthorizationContainer = () => {
           <OAuthSignIn
             googleButton={
               <GoogleAuthButton
-                thirdPartySignIn={thirdPartySignIn}
+                thirdPartySignIn={onThirdPartySignIn}
                 setIsAuthInProgress={setIsAuthInProgress}
                 isAuthInProgress={isAuthInProgress}
                 isRegistrationInProgress={isRegistrationInProgress}
@@ -70,7 +89,7 @@ const AuthorizationContainer = () => {
             }
             microsoftButton={
               <MicrosoftSignInButton
-                thirdPartySignIn={thirdPartySignIn}
+                thirdPartySignIn={onThirdPartySignIn}
                 setIsAuthInProgress={setIsAuthInProgress}
                 isAuthInProgress={isAuthInProgress}
                 isRegistrationInProgress={isRegistrationInProgress}

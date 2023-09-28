@@ -434,6 +434,18 @@ class TestLiveDemosApi(TestApiBase):
         self.check_traffic_expenses(ch_mock_obj)
         self.check_ri_sp_usage(ch_mock_obj)
 
+    def pregenerate_live_demo(self):
+        with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
+                   'load_preset', return_value=deepcopy(self.preset)):
+            code, response = self.client.live_demo_create()
+        self.assertEqual(code, 201)
+        response['created_at'] = int(datetime.utcnow().timestamp())
+        self.mongo_client.restapi.live_demos.insert_one(response)
+        return response
+
+    def get_pregenerated_live_demos(self):
+        return list(self.mongo_client.restapi.live_demos.find({}))
+
     def test_live_demo_create(self):
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController'
                    '.load_preset', return_value=deepcopy(self.preset)):
@@ -782,3 +794,21 @@ class TestLiveDemosApi(TestApiBase):
             })
             self.assertEqual(code, 201)
             p_send.assert_called_once()
+
+    def test_pregenerated_live_demo(self):
+        p_gen_task = patch('rest_api.rest_api_server.controllers.live_demo.'
+                           'LiveDemoController.publish_generation_task').start()
+        demo = self.pregenerate_live_demo()
+        p_gen_task.assert_not_called()
+        pregenerated_demos = self.get_pregenerated_live_demos()
+        self.assertEqual(1, len(pregenerated_demos))
+        self.assertEqual(demo['organization_id'],
+                         pregenerated_demos[0]['organization_id'])
+        self.client.secret = None
+        with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
+                   'load_preset', return_value=deepcopy(self.preset)):
+            code, response = self.client.live_demo_create()
+        self.assertEqual(code, 201)
+        self.assertEqual(response['organization_id'], demo['organization_id'])
+        self.assertEqual(0, len(self.get_pregenerated_live_demos()))
+        p_gen_task.assert_called_once()

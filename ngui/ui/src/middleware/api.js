@@ -51,7 +51,7 @@ const apiMiddleware =
 
     const state = getState();
 
-    const accessToken = state?.auth?.[GET_TOKEN]?.token;
+    const { token: accessToken, userEmail } = state?.auth?.[GET_TOKEN] ?? {};
 
     const dataOrParams = ["GET", "DELETE"].includes(method) ? "params" : "data";
 
@@ -115,7 +115,9 @@ const apiMiddleware =
           // Specific error codes handling
           // TODO - investigate error codes handling instead of using Protector/Error page wrappers everywhere
           if (error.response.status === 401) {
-            signOut(dispatch);
+            signOut(dispatch, {
+              userEmail
+            });
           }
         } else if (error.request) {
           // The request was made but no response was received

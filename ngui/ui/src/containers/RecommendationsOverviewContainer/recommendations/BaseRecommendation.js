@@ -7,8 +7,17 @@ export const ACTIVE = "active";
 export const DISMISSED = "dismissed";
 export const EXCLUDED = "excluded";
 
+export const CATEGORY_ALL = "all";
 export const CATEGORY_COST = "cost";
 export const CATEGORY_SECURITY = "security";
+export const CATEGORY_CRITICAL = "critical";
+export const CATEGORY_NON_EMPTY = "nonEmpty";
+
+export const RECOMMENDATION_COLOR = Object.freeze({
+  SUCCESS: "success",
+  WARNING: "warning",
+  ERROR: "error"
+});
 
 class BaseRecommendation {
   // todo: make type/name/title static
@@ -109,15 +118,15 @@ class BaseRecommendation {
   // this will be overriden for each recommendation
   get color() {
     if (this.saving === 0 && this.count === 0) {
-      return "success";
+      return RECOMMENDATION_COLOR.SUCCESS;
     }
 
     if (this.saving === 0 && this.count !== 0) {
-      return "warning";
+      return RECOMMENDATION_COLOR.WARNING;
     }
 
     if (this.saving > 100) {
-      return "error";
+      return RECOMMENDATION_COLOR.ERROR;
     }
 
     return undefined;

@@ -534,9 +534,3 @@ export const EMAIL_INFO = "info@hystax.com";
 
 export const isProduction = () => window.location.origin === PRODUCTION;
 export const isDemo = () => window.location.origin === DEMO;
-
-export const getUrlWithNextQueryParam = (target, next, saveParameters = false) => {
-  // TODO: Use query string to build returned url
-  const savedParameters = saveParameters ? `&${window.location.search?.substr(1)}` : "";
-  return next && next !== HOME ? `${target}?next=${next.replace(/&/g, "%26")}${savedParameters}` : target;
-};

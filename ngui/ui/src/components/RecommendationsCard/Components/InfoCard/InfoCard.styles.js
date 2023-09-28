@@ -2,7 +2,7 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()((theme) => ({
   infoCard: {
-    height: "120px",
+    height: "90px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
