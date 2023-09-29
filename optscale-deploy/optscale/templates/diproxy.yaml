@@ -44,7 +44,7 @@ spec:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
-{{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{ include "wait_for_service" .Values.rest_api | indent 6 }}
 {{ include "wait_for_thanos_service" .Values.thanos_receive | indent 6 }}
       containers:
       - name: {{ $config.name }}

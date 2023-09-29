@@ -92,8 +92,8 @@ redis:
     externalPort: 80
     internalPort: 6379
 
-restapi:
-  name: &restapi_name restapi
+rest_api:
+  name: &rest_api_name restapi
   replicaCount: 1
   image:
     id:
@@ -101,7 +101,7 @@ restapi:
     tag: *tag
     pullPolicy: Never
   service:
-    name: *restapi_name
+    name: *rest_api_name
     type: ClusterIP
     externalPort: 80
     internalPort: 8999

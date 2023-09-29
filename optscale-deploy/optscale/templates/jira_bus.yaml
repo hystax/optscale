@@ -49,7 +49,7 @@ spec:
 {{- end }}
 {{ include "wait_for_service" .Values.mariadb | indent 6 }}
 {{ include "wait_for_service" .Values.auth | indent 6 }}
-{{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{ include "wait_for_service" .Values.rest_api | indent 6 }}
       containers:
       - name: {{ $config.name }}
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

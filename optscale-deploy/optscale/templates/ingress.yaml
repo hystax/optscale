@@ -24,8 +24,8 @@ spec:
           servicePort: {{ .Values.auth.service.externalPort }}
         path: /auth
       - backend:
-          serviceName: {{ .Values.restapi.service.name }}
-          servicePort: {{ .Values.restapi.service.externalPort }}
+          serviceName: {{ .Values.rest_api.service.name }}
+          servicePort: {{ .Values.rest_api.service.externalPort }}
         path: /restapi
       - backend:
           serviceName: {{ .Values.keeper.service.name }}
