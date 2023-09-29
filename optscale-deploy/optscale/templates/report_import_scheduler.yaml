@@ -40,7 +40,7 @@ spec:
             release: {{ $.Release.Name }}
         spec:
           initContainers:
-{{ include "wait_for_service" $.Values.restapi | indent 10 }}
+{{ include "wait_for_service" $.Values.rest_api | indent 10 }}
           containers:
           - name: {{ $config.name }}-{{ $period }}
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

@@ -82,7 +82,7 @@ spec:
 {{- end }}
 {{ include "wait_for_service" .Values.etcd | indent 6 }}
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
-{{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{ include "wait_for_service" .Values.rest_api | indent 6 }}
       containers:
       - name: {{ $config.name }}{{ $config.api.role }}
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

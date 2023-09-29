@@ -30,7 +30,7 @@ spec:
           initContainers:
 {{ include "wait_for_service" .Values.rabbitmq | indent 10 }}
 {{ include "wait_for_service" .Values.etcd | indent 10 }}
-{{ include "wait_for_service" .Values.restapi | indent 10 }}
+{{ include "wait_for_service" .Values.rest_api | indent 10 }}
           containers:
           - name: {{ $config.name }}
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

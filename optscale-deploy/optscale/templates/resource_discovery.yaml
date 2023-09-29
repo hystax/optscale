@@ -22,7 +22,7 @@ spec:
     spec:
       initContainers:
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
-{{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{ include "wait_for_service" .Values.rest_api | indent 6 }}
       containers:
       - name: {{ $config.name }}-worker
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
@@ -69,7 +69,7 @@ spec:
             release: {{ $.Release.Name }}
         spec:
           initContainers:
-{{ include "wait_for_service" $.Values.restapi | indent 10 }}
+{{ include "wait_for_service" $.Values.rest_api | indent 10 }}
           containers:
           - name: {{ $config.name }}-scheduler
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

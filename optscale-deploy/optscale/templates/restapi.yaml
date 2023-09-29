@@ -1,4 +1,4 @@
-{{- $config := .Values.restapi -}}
+{{- $config := .Values.rest_api -}}
 ---
 apiVersion: v1
 kind: Service

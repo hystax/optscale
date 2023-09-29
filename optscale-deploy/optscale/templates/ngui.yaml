@@ -46,7 +46,7 @@ spec:
 {{- end }}
 {{ include "wait_for_service" .Values.auth | indent 6 }}
 {{ include "wait_for_service" .Values.jira_bus | indent 6 }}
-{{ include "wait_for_service" .Values.restapi | indent 6 }}
+{{ include "wait_for_service" .Values.rest_api | indent 6 }}
 {{ include "wait_for_service" .Values.keeper | indent 6 }}
 {{ include "wait_for_service" .Values.slacker | indent 6 }}
 {{ include "wait_for_service" .Values.redis | indent 6 }}
