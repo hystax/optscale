@@ -85,6 +85,7 @@ encryption_key: fffffxdddeadb33f
 # - https://portal.azure.com/ to see registered origins for the Microsoft OAuth client"
 auth:
   google_oauth_client_id: ""
+  google_oauth_client_secret: ""
   microsoft_oauth_client_id: ""
 
 ngui:
