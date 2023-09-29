@@ -92,8 +92,8 @@ redis:
     externalPort: 80
     internalPort: 6379
 
-restapi:
-  name: &restapi_name restapi
+rest_api:
+  name: &restapi_name rest_api
   replicaCount: 1
   image:
     id:
