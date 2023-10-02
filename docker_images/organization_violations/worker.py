@@ -33,7 +33,8 @@ ENTITY_FIELD_MAP = {
     'cloud_account': 'cloud_account_id'
 }
 DAYS_IN_YEAR = 365
-SECONDS_IN_DAY = 24 * 60 * 60
+SECONDS_IN_HOUR = 60 * 60
+SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR
 REGULAR_IDENTITY = 'regular'
 
 ACTIVITIES_EXCHANGE_NAME = 'activities-tasks'
@@ -463,22 +464,26 @@ class OrganizationViolationsWorker(ConsumerMixin):
                 value=todays_value, run_result=run_result))
         return result
 
-    def process_organization_constraint(self, constraint, organization_id,
-                                        start_ts, date, notifications):
+    def process_organization_constraint(
+            self, constraint, organization_id, start_ts, date, notifications,
+            force=False):
         type_ = constraint['type']
         process_func_map = {
-            EXPENSE_ANOMALY: self.process_anomaly,
-            EXPIRING_BUDGET: self.process_expiring_budget,
-            RECURRING_BUDGET: self.process_recurring_budget,
-            RESOURCE_COUNT_ANOMALY: self.process_anomaly,
-            RESOURCE_QUOTA: self.process_resource_quota,
-            TAGGING_POLICY: self.process_tagging_policy
+            EXPENSE_ANOMALY: (self.process_anomaly, 6),
+            EXPIRING_BUDGET: (self.process_expiring_budget, 6),
+            RECURRING_BUDGET: (self.process_recurring_budget, 6),
+            RESOURCE_COUNT_ANOMALY: (self.process_anomaly, 4),
+            RESOURCE_QUOTA: (self.process_resource_quota, 2),
+            TAGGING_POLICY: (self.process_tagging_policy, 0.5)
         }
         try:
-            func = process_func_map[type_]
+            func, threshold_hrs = process_func_map[type_]
         except KeyError:
             raise Exception('Unsupported constraint type: %s' % type_)
-
+        if not force and (
+                threshold_hrs * SECONDS_IN_HOUR + constraint['last_run']
+        ) > int(date.timestamp()):
+            return
         # each func must return up to 2 objects in predicted order:
         # last run result & notification task
         result = func(constraint, organization_id, date,
@@ -501,6 +506,7 @@ class OrganizationViolationsWorker(ConsumerMixin):
         start_ts = int(start.timestamp())
         org_id = task.get('organization_id')
         date_ts = task.get('date')
+        force = task.get('force', False)
         if not org_id or not date_ts or not isinstance(date_ts, int):
             raise Exception('Invalid task received: {}'.format(task))
         date = datetime.fromtimestamp(date_ts)
@@ -522,7 +528,7 @@ class OrganizationViolationsWorker(ConsumerMixin):
         for constr in constraints:
             try:
                 notif_task = self.process_organization_constraint(
-                    constr, org_id, start_ts, date, notifications)
+                    constr, org_id, start_ts, date, notifications, force)
                 if notif_task:
                     notif_tasks.append(notif_task)
             except Exception as exc:
