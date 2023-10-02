@@ -6,15 +6,16 @@ import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlin
 import { Grid } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormattedMessage, FormattedNumber } from "react-intl";
-import { useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import RecommendationLink from "components/RecommendationLink";
 import WrapperCard from "components/WrapperCard";
 import {
+  CATEGORY_ALL,
   CATEGORY_COST,
   CATEGORY_CRITICAL,
   CATEGORY_SECURITY
 } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
-import { RECOMMENDATIONS } from "urls";
+import { RECOMMENDATIONS, RECOMMENDATION_CATEGORY_QUERY_PARAMETER, RECOMMENDATION_SERVICE_QUERY_PARAMETER } from "urls";
 import { SPACING_2 } from "utils/layouts";
 import { InfoCard, PossibleSavingsCard } from "./Components";
 
@@ -28,7 +29,14 @@ const RecommendationsCard = ({
 }) => {
   const navigate = useNavigate();
 
-  const goToRecommendations = () => navigate(RECOMMENDATIONS);
+  const seeAllRecommendations = () =>
+    navigate({
+      pathname: RECOMMENDATIONS,
+      search: `?${createSearchParams({
+        [RECOMMENDATION_CATEGORY_QUERY_PARAMETER]: CATEGORY_ALL,
+        [RECOMMENDATION_SERVICE_QUERY_PARAMETER]: CATEGORY_ALL
+      })}`
+    });
 
   return (
     <WrapperCard
@@ -37,13 +45,13 @@ const RecommendationsCard = ({
       titleButton={{
         type: "icon",
         tooltip: {
-          title: <FormattedMessage id="goToRecommendations" />
+          title: <FormattedMessage id="seeAllRecommendations" />
         },
         buttonProps: {
           icon: <ExitToAppOutlinedIcon />,
           isLoading,
-          onClick: goToRecommendations,
-          dataTestId: "btn_go_to_recommendations"
+          onClick: seeAllRecommendations,
+          dataTestId: "btn_see_all_recommendations"
         }
       }}
       dataTestIds={{
