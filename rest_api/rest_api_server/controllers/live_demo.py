@@ -970,6 +970,14 @@ class LiveDemoController(BaseController, MongoMixin):
                             module_name][resource_id] = cloud_resource_id
 
     def create(self, pregenerate=False, **kwargs):
+        result = self._create(pregenerate)
+        subscribe_email = kwargs.get('email')
+        subscribe = kwargs.get('subscribe', False)
+        if subscribe_email:
+            self._send_subscribe_email(subscribe_email, subscribe)
+        return result
+
+    def _create(self, pregenerate=False):
         if not pregenerate:
             live_demo = self._get_prepared_live_demo()
             if live_demo:
@@ -990,10 +998,6 @@ class LiveDemoController(BaseController, MongoMixin):
                 organization, employee_id_to_replace, employee.id, preset)
         except Exception as exc:
             raise InternalServerError(Err.OE0451, [str(exc)])
-        subscribe_email = kwargs.get('email')
-        subscribe = kwargs.get('subscribe', False)
-        if subscribe_email:
-            self._send_subscribe_email(subscribe_email, subscribe)
         return {
             'organization_id': organization.id,
             'email': email,
