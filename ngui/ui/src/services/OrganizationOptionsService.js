@@ -40,7 +40,7 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { isError, checkError } from "utils/api";
 import { parseJSON } from "utils/strings";
 
-export const useGet = (withValues) => {
+const useGet = (withValues) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -60,7 +60,7 @@ export const useGet = (withValues) => {
   };
 };
 
-export const useGetOption = () => {
+const useGetOption = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -75,7 +75,7 @@ export const useGetOption = () => {
   return { isGetOrganizationOptionLoading: isLoading, value: jsonValue, getOption };
 };
 
-export const useDeleteOption = () => {
+const useDeleteOption = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -96,7 +96,7 @@ export const useDeleteOption = () => {
   return { isDeleteOrganizationOptionLoading: isLoading, deleteOption };
 };
 
-export const useUpdateOption = () => {
+const useUpdateOption = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -117,7 +117,7 @@ export const useUpdateOption = () => {
   return { isUpdateOrganizationOptionLoading: isLoading, updateOption };
 };
 
-export const useUpdateThemeSettings = () => {
+const useUpdateThemeSettings = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -134,7 +134,7 @@ export const useUpdateThemeSettings = () => {
   return { isLoading, update };
 };
 
-export const useCreateOption = () => {
+const useCreateOption = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -155,7 +155,7 @@ export const useCreateOption = () => {
   return { isCreateOrganizationOptionLoading: isLoading, createOption };
 };
 
-export const useGetRecommendationOptions = (recommendationType) => {
+const useGetRecommendationOptions = (recommendationType) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -175,7 +175,7 @@ export const useGetRecommendationOptions = (recommendationType) => {
   return { isLoading, options };
 };
 
-export const useGetRecommendationOptionsOnce = (recommendationType) => {
+const useGetRecommendationOptionsOnce = (recommendationType) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -193,7 +193,7 @@ export const useGetRecommendationOptionsOnce = (recommendationType) => {
   return { isLoading, options };
 };
 
-export const useUpdateRecommendationOptions = () => {
+const useUpdateRecommendationOptions = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -246,7 +246,7 @@ const useUpdateOrganizationPerspectives = () => {
   return { isLoading, update };
 };
 
-export const useGetTechnicalAudit = () => {
+const useGetTechnicalAudit = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -265,7 +265,7 @@ export const useGetTechnicalAudit = () => {
   return { options: parseJSON(options), isGetTechnicalAuditLoading: isLoading, isGetTechnicalAuditDataReady: isDataReady };
 };
 
-export const useUpdateTechnicalAudit = () => {
+const useUpdateTechnicalAudit = () => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
@@ -294,7 +294,7 @@ export const useUpdateTechnicalAudit = () => {
   return { update, reset, isUpdateTechnicalAuditLoading: isLoading };
 };
 
-export const useGetRecommendationsDownloadOptions = () => {
+const useGetRecommendationsDownloadOptions = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -317,7 +317,7 @@ export const useGetRecommendationsDownloadOptions = () => {
   };
 };
 
-export const useGetS3DuplicatesOrganizationSettings = () => {
+const useGetS3DuplicatesOrganizationSettings = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -334,7 +334,7 @@ export const useGetS3DuplicatesOrganizationSettings = () => {
   return { isLoading, options };
 };
 
-export const useUpdateS3DuplicatedOrganizationSettings = () => {
+const useUpdateS3DuplicatedOrganizationSettings = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -370,7 +370,8 @@ function OrganizationOptionsService() {
     useGetRecommendationsDownloadOptions,
     useUpdateThemeSettings,
     useUpdateOrganizationPerspectives,
-    useGetS3DuplicatesOrganizationSettings
+    useGetS3DuplicatesOrganizationSettings,
+    useUpdateS3DuplicatedOrganizationSettings
   };
 }
 

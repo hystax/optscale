@@ -58,7 +58,7 @@ etcd:
   images_source:
     host: {{ .Values.docker_registry }}
     tag: {{ .Values.docker_tag }}
-  rest_api:
+  restapi:
     invite_expiration_days: {{ .Values.invite_expiration_days }}
     host: {{ .Values.rest_api.service.name }}
     port: {{ .Values.rest_api.service.externalPort }}
