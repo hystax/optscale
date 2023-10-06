@@ -1,16 +1,16 @@
 import React, { useRef } from "react";
 import { Box, TableBody, TableCell, TableFooter, TableHead, TableRow } from "@mui/material";
 import MuiTable from "@mui/material/Table";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import TableLoader from "components/TableLoader";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
-import { CELL_EMPTY_VALUE } from "utils/tables";
 import InfoArea from "./components/InfoArea";
 import Pagination from "./components/Pagination";
 import TableActions from "./components/TableActions";
+import { MemoTableBodyCell, TableBodyCell } from "./components/TableBodyCell";
 import TableFooterCell from "./components/TableFooterCell";
 import TableHeaderCell from "./components/TableHeaderCell";
 import {
@@ -27,6 +27,7 @@ import {
 } from "./hooks";
 import useStyles from "./Table.styles";
 import { getRowsCount } from "./utils";
+import { SELECTION_COLUMN_ID } from "./utils/constants";
 
 const DEFAULT_EMPTY_MESSAGE_ID = "noRecordsToDisplay";
 
@@ -75,7 +76,10 @@ const Table = ({
   columnsSelectorUID,
   columnOrder,
   onColumnOrderChange,
-  stickySettings = {}
+  stickySettings = {},
+  memoBodyCells = false,
+  getRowCellClassName,
+  getHeaderCellClassName
 }) => {
   const { showCounters = false, hideTotal = false, hideDisplayed = false } = counters;
 
@@ -83,7 +87,7 @@ const Table = ({
 
   const { classes } = useStyles();
 
-  const { stickyHeaderStyles, stickyTableStyles } = useSticky({
+  const { stickyHeaderCellStyles, stickyTableStyles } = useSticky({
     headerRef,
     stickySettings
   });
@@ -211,7 +215,12 @@ const Table = ({
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHeaderCell key={header.id} headerContext={header} stickyStyles={stickyHeaderStyles} />
+                      <TableHeaderCell
+                        key={header.id}
+                        headerContext={header}
+                        stickyStyles={stickyHeaderCellStyles}
+                        getHeaderCellClassName={getHeaderCellClassName}
+                      />
                     ))}
                   </TableRow>
                 ))}
@@ -231,36 +240,19 @@ const Table = ({
                   return (
                     <TableRow data-test-id={`row_${index}`} key={row.id} style={rowStyle}>
                       {row.getVisibleCells().map((cell) => {
-                        const {
-                          style: cellStyle = {},
-                          getRowCellClassName,
-                          onRowCellClick,
-                          dataProductTourId,
-                          accessorKey,
-                          accessorFn
-                        } = cell.column.columnDef;
-
-                        const hasAccessor = accessorKey !== undefined || accessorFn !== undefined;
-
-                        const cellValue = cell.getValue();
-                        const hasCellValue = cellValue !== undefined;
+                        if (cell.column.id === SELECTION_COLUMN_ID) {
+                          return <TableBodyCell key={cell.id} cell={cell} />;
+                        }
+                        const Cell = memoBodyCells ? MemoTableBodyCell : TableBodyCell;
 
                         return (
-                          <TableCell
+                          <Cell
                             key={cell.id}
-                            data-product-tour-id={dataProductTourId}
-                            onClick={
-                              typeof onRowCellClick === "function" ? (e) => onRowCellClick(e, cell.getContext()) : undefined
-                            }
+                            cell={cell}
                             className={
                               typeof getRowCellClassName === "function" ? getRowCellClassName(cell.getContext()) : undefined
                             }
-                            style={cellStyle}
-                          >
-                            {!hasAccessor || hasCellValue
-                              ? flexRender(cell.column.columnDef.cell, cell.getContext())
-                              : cell.column.columnDef.emptyValue || CELL_EMPTY_VALUE}
-                          </TableCell>
+                          />
                         );
                       })}
                     </TableRow>
@@ -350,7 +342,10 @@ Table.propTypes = {
   stickySettings: PropTypes.shape({
     stickyHeader: PropTypes.bool,
     scrollWrapperDOMId: PropTypes.string
-  })
+  }),
+  getRowCellClassName: PropTypes.func,
+  getHeaderCellClassName: PropTypes.func,
+  memoBodyCells: PropTypes.bool
 };
 
 export default Table;

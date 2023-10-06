@@ -43,7 +43,7 @@ export const useSticky = ({ headerRef, stickySettings }) => {
   }, [headerRef, scrollWrapperDOMId, stickyHeader]);
 
   return {
-    stickyHeaderStyles: stickyHeader
+    stickyHeaderCellStyles: stickyHeader
       ? {
           backgroundColor: "white"
         }

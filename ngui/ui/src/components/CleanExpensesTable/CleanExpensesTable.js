@@ -336,6 +336,7 @@ const CleanExpensesTable = ({
         columns={columns}
         pageSize={50}
         withSelection
+        memoBodyCells
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         actionBar={{
