@@ -59,6 +59,7 @@ const TableField = ({ buckets, value, dataSources, onChange, errors }) => {
         withSearch
         queryParamPrefix="bucketsSearch"
         data={tableData}
+        memoBodyCells
         withSelection
         rowSelection={value}
         getRowId={(row) => getCloudResourceIdentifier(row)}

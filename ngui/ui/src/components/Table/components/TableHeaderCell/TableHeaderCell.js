@@ -8,8 +8,8 @@ const Cell = ({ children, colSpan, rowSpan, style, onClick, className }) => (
   </TableCell>
 );
 
-const TableHeaderCell = ({ headerContext, stickyStyles = {} }) => {
-  const { style: cellStyle = {}, headerStyle: headerCellStyle = {}, getHeaderCellClassName } = headerContext.column.columnDef;
+const TableHeaderCell = ({ headerContext, stickyStyles = {}, getHeaderCellClassName }) => {
+  const { style: cellStyle = {}, headerStyle: headerCellStyle = {} } = headerContext.column.columnDef;
 
   const getCellContent = () => {
     if (headerContext.isPlaceholder) {

@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
 import IndeterminateCheckbox from "../components/IndeterminateCheckbox";
+import { SELECTION_COLUMN_ID } from "../utils/constants";
 
 const addSelectionColumn = (columns) => {
   let lastCheckedRowIndex = 0;
 
   return [
     {
-      id: "select",
+      id: SELECTION_COLUMN_ID,
       enableHiding: false,
       enableGlobalFilter: false,
       header: ({ table }) => (
