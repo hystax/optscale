@@ -1326,6 +1326,21 @@ PARAMETER_DUMPS = {
                     'id': 'c063973e-0bb2-4134-9ebe-2e68104d7aa8',
                     'name': 'Test cloud account',
                 }}}},
+    'disconnect_survey': {
+        'email': ['andersonmatthew_hwp@hystax.com'],
+        'subject': 'Disconnect Survey [d7092814-2b12-4e60-89c5-67919c9b17d6, Funny company]',
+        'template_type': 'disconnect_survey',
+        'template_params': {
+            'texts': {
+                'user': 'james7656@hystax.com',
+                'data': {
+                    'k1': 'v1',
+                    'k2': 'v2',
+                },
+                'organization': {
+                    'id': 'd7092814-2b12-4e60-89c5-67919c9b17d6',
+                    'name': 'Funny company',
+                }}}},
 }
 
 REGEX_EMAIL = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'

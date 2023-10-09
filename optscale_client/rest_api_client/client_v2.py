@@ -1874,6 +1874,12 @@ class Client(Client_v1):
         return url
 
     @staticmethod
+    def disconnect_survey_url(organization_id):
+        url = 'disconnect_survey'
+        url = '%s/%s' % (Client.organization_url(organization_id), url)
+        return url
+
+    @staticmethod
     def geminis_data_url(id_):
         return 'geminis/%s/data' % id_
 
@@ -1899,3 +1905,10 @@ class Client(Client_v1):
 
     def gemini_delete(self, id_):
         return self.delete(self.geminis_url(id_=id_))
+
+    def disconnect_survey_submit(self, organization_id, survey_type, payload):
+        body = {
+            "survey_type": survey_type,
+            "payload": payload
+        }
+        return self.post(self.disconnect_survey_url(organization_id=organization_id), body)

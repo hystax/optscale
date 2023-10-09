@@ -454,6 +454,8 @@ def get_handlers(handler_kwargs, version=None):
             (urls_v2.geminis_data,
              h_v2.organization_geminis.GeminisDataAsyncItemHandler,
              handler_kwargs),
+            (urls_v2.disconnect_survey, h_v2.disconnect_survey.DisconnectSurveyAsyncItemHandler,
+             handler_kwargs),
             *profiling_urls,
         ])
     return result

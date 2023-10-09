@@ -958,3 +958,13 @@ class Err(enum.Enum):
         ['param', 'bi_type'],
         ['key', 'AWS_RAW_EXPORT']
     ]
+    OE0547 = [
+        "Payload should be less than %d bytes",
+        [],
+        []
+    ]
+    OE0548 = [
+        "Argument %s is required",
+        [],
+        []
+    ]
