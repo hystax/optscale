@@ -288,10 +288,11 @@ export const RECOMMENDATION_CATEGORY_QUERY_PARAMETER = "category";
 export const RECOMMENDATION_SERVICE_QUERY_PARAMETER = "service";
 export const RECOMMENDATION_VIEW_QUERY_PARAMETER = "view";
 
-export const getRecommendationsUrl = ({ category } = {}) => {
+export const getRecommendationsUrl = ({ category, service } = {}) => {
   const categoryParameter = category ? `${RECOMMENDATION_CATEGORY_QUERY_PARAMETER}=${category}` : "";
+  const serviceParameter = service ? `${RECOMMENDATION_SERVICE_QUERY_PARAMETER}=${service}` : "";
 
-  return buildQueryParameters(RECOMMENDATIONS, [categoryParameter]);
+  return buildQueryParameters(RECOMMENDATIONS, [categoryParameter, serviceParameter]);
 };
 
 // Recommendation archive
