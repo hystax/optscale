@@ -19,7 +19,6 @@
     "@emotion/styled": "^11.10.5",
     "@flowmap.gl/data": "8.0.0-alpha.25",
     "@flowmap.gl/layers": "8.0.0-alpha.25",
-    "@formatjs/intl-numberformat": "^8.3.3",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.5",
     "@nivo/bar": "^0.81.0",
