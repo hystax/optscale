@@ -1,4 +1,4 @@
-import PoolForm, { FormPropTypes } from "./PoolForm";
+import CreatePoolForm from "./CreatePoolForm";
+import EditPoolForm from "./EditPoolForm";
 
-export { FormPropTypes };
-export default PoolForm;
+export { CreatePoolForm, EditPoolForm };

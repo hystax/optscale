@@ -16,12 +16,16 @@ const Expander = ({ row }) => {
     .fill()
     .map(() => <span className={classes.treePadding} key={uuidv4()} />);
 
-  const expandIcon = row.getCanExpand() && (
+  const expandIcon = (
     <IconButton
       className={cx(classes.expand, {
-        [classes.expandOpen]: isExpanded // todo: figure out how we can save previous state of expander to apply animations (each expander click changes rows completely)
+        [classes.expandOpen]: isExpanded, // todo: figure out how we can save previous state of expander to apply animations (each expander click changes rows completely)
+        [classes.visibilityHidden]: !row.getCanExpand()
       })}
-      onClick={row.getToggleExpandedHandler()}
+      onClick={(e) => {
+        row.getToggleExpandedHandler()();
+        e.stopPropagation();
+      }}
     >
       <ExpandMoreIcon />
     </IconButton>
@@ -36,8 +40,7 @@ const Expander = ({ row }) => {
 };
 
 Expander.propTypes = {
-  row: PropTypes.object.isRequired,
-  onExpand: PropTypes.func
+  row: PropTypes.object.isRequired
 };
 
 export default Expander;

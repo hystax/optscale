@@ -158,7 +158,7 @@ const ConstraintStatusCell = ({ lastRun, lastRunResult, type, definition }) => {
 
     const label = type === QUOTA_POLICY ? current : <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={current} />;
     return (
-      <ProgressBar color={getPoolColorStatus(percent)} value={percent} minWidth="160px">
+      <ProgressBar color={getPoolColorStatus(percent)} value={percent} wrapperSx={{ minWidth: "160px" }}>
         {label}
       </ProgressBar>
     );

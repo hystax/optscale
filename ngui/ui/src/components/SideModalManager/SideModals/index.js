@@ -1,3 +1,4 @@
+import AddPoolModal from "./AddPoolModal";
 import ApplyResourcePerspectiveModal from "./ApplyResourcePerspectiveModal";
 import BookEnvironmentModal from "./BookEnvironmentModal";
 import BucketDuplicatesModal from "./BucketDuplicatesModal";
@@ -26,6 +27,7 @@ import DeleteSshKeyModal from "./DeleteSshKeyModal";
 import DeleteWebhookModal from "./DeleteWebhookModal";
 import DisconnectCloudAccountModal from "./DisconnectCloudAccountModal";
 import DisconnectGoogleCalendarModal from "./DisconnectGoogleCalendarModal";
+import EditPoolModal from "./EditPoolModal";
 import EnvironmentCostModelModal from "./EnvironmentCostModelModal";
 import ExcludePoolsFromRecommendationModal from "./ExcludePoolsFromRecommendationModal";
 import MlDeleteModelModal from "./MlDeleteModelModal";
@@ -87,5 +89,7 @@ export {
   CreateS3DuplicateFinderCheckModal,
   SelectedBucketsInfoModal,
   S3DuplicateFinderSettingsModal,
-  BucketDuplicatesModal
+  BucketDuplicatesModal,
+  AddPoolModal,
+  EditPoolModal
 };

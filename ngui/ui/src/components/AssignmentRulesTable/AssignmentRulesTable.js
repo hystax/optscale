@@ -12,7 +12,8 @@ import CaptionedCell from "components/CaptionedCell";
 import CircleLabel from "components/CircleLabel";
 import KeyValueLabel from "components/KeyValueLabel";
 import PoolLabel from "components/PoolLabel";
-import { DeleteAssignmentRuleModal, ReapplyRulesetModal } from "components/SideModalManager/SideModals";
+import DeleteAssignmentRuleModal from "components/SideModalManager/SideModals/DeleteAssignmentRuleModal";
+import ReapplyRulesetModal from "components/SideModalManager/SideModals/ReapplyRulesetModal";
 import SlicedText from "components/SlicedText";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
@@ -25,6 +26,7 @@ import {
   getCreatePoolAssignmentRuleUrl,
   getEditPoolAssignmentRuleUrl
 } from "urls";
+import { isEmpty as isEmptyArray } from "utils/arrays";
 import { CONDITION_TYPES, TAG_IS, CLOUD_IS, TAG_VALUE_STARTS_WITH } from "utils/constants";
 
 const isPriorityActionDisabled = (priority, condition) => priority === condition;
@@ -54,8 +56,11 @@ const getColumns = (tableActions, poolId) => {
       ),
       accessorKey: "conditionsObject.conditionsString",
       cell: ({ row: { original } }) => original.conditionsObject.conditionsRender
-    },
-    {
+    }
+  ];
+
+  if (!isEmptyArray(tableActions)) {
+    columns.push({
       header: (
         <TextWithDataTestId dataTestId="lbl_actions">
           <FormattedMessage id="actions" />
@@ -76,8 +81,9 @@ const getColumns = (tableActions, poolId) => {
           }))}
         />
       )
-    }
-  ];
+    });
+  }
+
   if (poolId) {
     columns.splice(1, 0, {
       header: (
@@ -114,7 +120,7 @@ const getColumns = (tableActions, poolId) => {
   return columns;
 };
 
-const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority }) => {
+const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority, interactive = true }) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const openSideModal = useOpenSideModal();
@@ -189,6 +195,10 @@ const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority }) =>
   const addButtonAction = () => navigate(poolId ? getCreatePoolAssignmentRuleUrl(poolId) : getCreateAssignmentRuleUrl());
 
   const columns = useMemo(() => {
+    if (!interactive) {
+      return getColumns([], poolId);
+    }
+
     const editIconAction = (rowDataRuleId) =>
       navigate(poolId ? getEditPoolAssignmentRuleUrl(poolId, rowDataRuleId) : getEditAssignmentRuleUrl(rowDataRuleId));
 
@@ -248,33 +258,31 @@ const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority }) =>
     ];
     const tableActions = poolId ? basicActions : [...priorityActions, ...basicActions];
     return getColumns(tableActions, poolId);
-  }, [rulesCount, poolId, navigate, onUpdatePriority, openSideModal]);
+  }, [rulesCount, poolId, navigate, onUpdatePriority, openSideModal, interactive]);
 
   const actionBarDefinition = {
-    items: [
-      {
-        key: "bu-add",
-        icon: <AddOutlinedIcon fontSize="small" />,
-        messageId: "add",
-        color: "success",
-        variant: "contained",
-        type: "button",
-        dataTestId: "btn_add",
-        action: addButtonAction
-      },
-      ...(poolId
-        ? []
-        : [
-            {
-              key: "bu-reapply",
-              icon: <RepeatOutlinedIcon fontSize="small" />,
-              messageId: "reapplyRuleset",
-              type: "button",
-              action: () => openSideModal(ReapplyRulesetModal),
-              dataTestId: "btn_re_apply"
-            }
-          ])
-    ]
+    items: interactive
+      ? [
+          {
+            key: "bu-add",
+            icon: <AddOutlinedIcon fontSize="small" />,
+            messageId: "add",
+            color: "success",
+            variant: "contained",
+            type: "button",
+            dataTestId: "btn_add",
+            action: addButtonAction
+          },
+          {
+            key: "bu-reapply",
+            icon: <RepeatOutlinedIcon fontSize="small" />,
+            messageId: "reapplyRuleset",
+            type: "button",
+            action: () => openSideModal(ReapplyRulesetModal),
+            dataTestId: "btn_re_apply"
+          }
+        ]
+      : []
   };
 
   return isLoading ? (
@@ -282,7 +290,7 @@ const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority }) =>
   ) : (
     <>
       <Table
-        withSearch
+        withSearch={interactive}
         data={tableData}
         columns={columns}
         localization={{ emptyMessageId: "noAutomaticResourceAssignmentRules" }}
@@ -302,7 +310,8 @@ AssignmentRulesTable.propTypes = {
   rules: PropTypes.object.isRequired,
   poolId: PropTypes.string,
   isLoading: PropTypes.bool,
-  onUpdatePriority: PropTypes.func
+  onUpdatePriority: PropTypes.func,
+  interactive: PropTypes.bool
 };
 
 export default AssignmentRulesTable;

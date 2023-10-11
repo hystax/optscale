@@ -10,6 +10,9 @@ const useStyles = makeStyles()((theme) => ({
   },
   treePadding: {
     paddingLeft: theme.spacing(3.5)
+  },
+  visibilityHidden: {
+    visibility: "hidden"
   }
 }));
 

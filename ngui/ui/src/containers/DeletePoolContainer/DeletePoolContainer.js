@@ -4,24 +4,20 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
-import { useNavigate } from "react-router-dom";
 import DeleteEntity from "components/DeleteEntity";
 import PoolLabel from "components/PoolLabel";
 import PoolsService from "services/PoolsService";
-import { getPoolUrl } from "urls";
 
 const DeletePoolContainer = ({ id, onCancel }) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const navigate = useNavigate();
 
   const { useGetAvailablePools, useDelete } = PoolsService();
   const { deletePool, isDeletePoolLoading } = useDelete();
   const { data: pools } = useGetAvailablePools();
 
-  const { name, pool_purpose: type, parent_id: parentPoolId } = pools.find((pool) => pool.id === id) || {};
+  const { name, pool_purpose: type } = pools.find((pool) => pool.id === id) || {};
 
-  const onSuccess = () => navigate(getPoolUrl(parentPoolId));
-  const onSubmit = () => deletePool(id, onSuccess);
+  const onSubmit = () => deletePool(id, onCancel);
 
   return (
     <DeleteEntity

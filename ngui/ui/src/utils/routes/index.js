@@ -22,7 +22,6 @@ import createEnvironmentRoute from "./createEnvironmentRoute";
 import createMlModelParameterRoute from "./createMlModelParameterRoute";
 import createPoolAssignmentRuleRoute from "./createPoolAssignmentRuleRoute";
 import createPoolPolicyRoute from "./createPoolPolicyRoute";
-import createPoolRoute from "./createPoolRoute";
 import createQuotaAndBudgetPolicyRoute from "./createQuotaAndBudgetPolicyRoute";
 import createResourceAssignmentRuleRoute from "./createResourceAssignmentRuleRoute";
 import createTaggingPolicyRoute from "./createTaggingPolicyRoute";
@@ -33,7 +32,6 @@ import editAssignmentRuleRoute from "./editAssignmentRuleRoute";
 import editBIExportRoute from "./editBIExportRoute";
 import editMlModelParameterRoute from "./editMlModelParameterRoute";
 import editPoolAssignmentRuleRoute from "./editPoolAssignmentRuleRoute";
-import editPoolRoute from "./editPoolRoute";
 import environmentsRoute from "./environmentsRoute";
 import eventsRoute from "./eventsRoute";
 import expensesMapRoute from "./expensesMapRoute";
@@ -61,7 +59,6 @@ import mlRunsetTemplateEditRoute from "./mlRunsetTemplateEditRoute";
 import mlRunsetTemplateRoute from "./mlRunsetTemplateRoute";
 import notFoundRoute from "./notFoundRoute";
 import organizationOptionsRoute from "./organizationOptionsRoute";
-import organizationOverviewRoute from "./organizationOverviewRoute";
 import organizationsOverviewRoute from "./organizationsOverviewRoute";
 import ownerExpensesRoute from "./ownerExpensesRoute";
 import poolExpensesRoute from "./poolExpensesRoute";
@@ -93,13 +90,10 @@ export const routes = [
   anomalyRoute,
   assignmentRulesRoute,
   createAssignmentRuleRoute,
-  createPoolRoute,
-  editPoolRoute,
   editAssignmentRuleRoute,
   createPoolAssignmentRuleRoute,
   createResourceAssignmentRuleRoute,
   editPoolAssignmentRuleRoute,
-  organizationOverviewRoute,
   organizationsOverviewRoute,
   poolsRoute,
   taggingPoliciesRoute,

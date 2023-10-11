@@ -92,17 +92,9 @@ export const OWNER_EXPENSES = concatenateUrl([OWNER_EXPENSES_BASE, EMPLOYEE_IDEN
 export const getOwnerExpensesUrl = (employeeId) => OWNER_EXPENSES.replace(EMPLOYEE_IDENTIFIER, employeeId);
 
 // Pools
-export const POOL = concatenateUrl([POOLS_BASE, POOL_IDENTIFIER]);
 export const POOLS = concatenateUrl([POOLS_BASE]);
-export const getPoolUrl = (poolId) => POOL.replace(POOL_IDENTIFIER, poolId);
-
-export const POOL_CREATE = concatenateUrl([POOLS_BASE, POOL_IDENTIFIER, CREATE]);
-export const getCreatePoolUrl = (parentPoolId) => POOL_CREATE.replace(POOL_IDENTIFIER, parentPoolId);
-
-export const POOL_EDIT_BASE = concatenateUrl([POOL_BASE]);
-export const POOL_EDIT = concatenateUrl([POOL_BASE, POOL_IDENTIFIER, EDIT]);
-
-export const getEditPoolUrl = (poolId) => POOL_EDIT.replace(POOL_IDENTIFIER, poolId);
+export const POOL_QUERY_PARAM_NAME = "pool";
+export const getPoolUrl = (poolId) => concatenateUrl([POOLS, `${POOL_QUERY_PARAM_NAME}=${poolId}`], "", "?");
 
 export const WITH_SUBPOOLS_SIGN = "+";
 export const getPoolIdWithSubPools = (id) => `${id}${id !== EMPTY_UUID ? WITH_SUBPOOLS_SIGN : ""}`;
@@ -217,6 +209,11 @@ export const getLast30DaysResourcesUrl = () => {
 export const getThisMonthResourcesByPoolUrl = (poolId) => {
   const thisMonthResourcesUrl = getThisMonthResourcesUrl();
   return `${thisMonthResourcesUrl}&${POOL_ID_FILTER}=${getPoolIdWithSubPoolsEncoded(poolId)}`;
+};
+
+export const getThisMonthResourcesByPoolWithoutSubpoolsUrl = (poolId) => {
+  const thisMonthResourcesUrl = getThisMonthResourcesUrl();
+  return `${thisMonthResourcesUrl}&${POOL_ID_FILTER}=${poolId}`;
 };
 
 export const RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME = "breakdownBy";

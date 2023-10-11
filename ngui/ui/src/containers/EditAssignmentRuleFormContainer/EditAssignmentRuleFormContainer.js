@@ -18,18 +18,9 @@ import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { getPoolUrl, ASSIGNMENT_RULES, POOLS } from "urls";
+import { ASSIGNMENT_RULES, POOLS } from "urls";
 import { isError } from "utils/api";
-import {
-  TAG_IS,
-  CLOUD_IS,
-  TAG_CONDITION,
-  TAG_VALUE_STARTS_WITH,
-  CONDITION,
-  CLOUD_IS_CONDITION_VALUE,
-  TAB_QUERY_PARAM_NAME,
-  ORGANIZATION_OVERVIEW_TABS
-} from "utils/constants";
+import { TAG_IS, CLOUD_IS, TAG_CONDITION, TAG_VALUE_STARTS_WITH, CONDITION, CLOUD_IS_CONDITION_VALUE } from "utils/constants";
 
 const { KEY: TAG_KEY, VALUE: TAG_VALUE } = TAG_CONDITION;
 const { META_INFO, TYPE } = CONDITION;
@@ -75,7 +66,7 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId, poolId }) => {
     if (!poolId) {
       navigate(ASSIGNMENT_RULES);
     } else {
-      navigate(`${getPoolUrl(poolId)}?${TAB_QUERY_PARAM_NAME}=${ORGANIZATION_OVERVIEW_TABS.ASSIGNMENT_RULES}`);
+      navigate(`${POOLS}?pool=${poolId}`);
     }
   };
 
