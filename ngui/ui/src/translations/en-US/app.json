@@ -1623,7 +1623,7 @@
   "s3DuplicatesDescription.ui": "The table below allows you to monitor the progress of ongoing checks, review the results of completed checks, and directly see the potential savings from each check. The cost savings are estimated based on the standard S3 pricing in your region.",
   "s3DuplicatesRecommendationsCardCaption": "Duplicates found during last check",
   "s3DuplicatesThresholdsSettingsDescription": "Configure thresholds at which savings should be marked as requiring attention (yellow) or as critical (red).",
-  "s3DuplicatesUnknown": "S3 duplicates: unknown",
+  "s3DuplicatesUnknown": "S3 duplicates: -",
   "s3Prefix": "S3 prefix",
   "safe": "Safe",
   "sampleDataToGiveSenseOfTheProduct": "This is a data sample to give you a sense of the product.",
