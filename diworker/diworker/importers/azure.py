@@ -77,6 +77,10 @@ class AzureReportImporter(BaseReportImporter):
         }
         self.resource_type_map_lowered = {k.lower(): v for k, v in resource_type_map.items()}
 
+    @staticmethod
+    def _get_additional_expenses_groupings():
+        return {'meter_id': '$meter_id'}
+
     def get_unique_field_list(self):
         return [
             'start_date',

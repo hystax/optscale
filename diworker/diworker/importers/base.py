@@ -332,16 +332,24 @@ class BaseReportImporter:
             chunk[resource_id].extend(ex['expenses'])
         return chunk
 
+    @staticmethod
+    def _get_additional_expenses_groupings():
+        return
+
     def get_raw_expenses_by_filters(self, filters):
+        grp_stage = {
+            'resource_id': '$resource_id',
+            'dt': '$start_date',
+        }
+        additional = self._get_additional_expenses_groupings()
+        if additional:
+            grp_stage.update(additional)
         return self.mongo_raw.aggregate([
                 {'$match': {
                     '$and': filters,
                 }},
                 {'$group': {
-                    '_id': {
-                        'resource_id': '$resource_id',
-                        'dt': '$start_date',
-                    },
+                    '_id': grp_stage,
                     'expenses': {'$push': '$$ROOT'}
                 }},
             ], allowDiskUse=True)
