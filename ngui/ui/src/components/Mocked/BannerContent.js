@@ -3,7 +3,9 @@ import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
+import EditPoolModal from "components/SideModalManager/SideModals/EditPoolModal";
 import { useAllowedItems } from "hooks/useAllowedActions";
+import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import AssignmentRuleIcon from "icons/AssignmentRuleIcon";
 import DataSourceIcon from "icons/DataSourceIcon";
@@ -13,7 +15,6 @@ import {
   ASSIGNMENT_RULE_CREATE,
   ENVIRONMENT_CREATE,
   CLOUD_ACCOUNT_CONNECT,
-  getEditPoolUrl,
   CLOUD_ACCOUNT_CONNECT_K8S,
   ANOMALY_CREATE,
   QUOTA_AND_BUDGET_CREATE,
@@ -29,7 +30,9 @@ const CLOUD_CONNECTION_BACKDROP_MESSAGE = "cloudConnectionBackdropMessage";
 
 const redirectToCreateCloudAccount = (navigate) => navigate(CLOUD_ACCOUNT_CONNECT);
 const redirectToCreateK8sAccount = (navigate) => navigate(CLOUD_ACCOUNT_CONNECT_K8S);
-const redirectToEditPool = (navigate, poolId) => navigate(getEditPoolUrl(poolId));
+const openEditPoolModal = (_, poolId, { openSideModal, organizationInfo }) =>
+  openSideModal(EditPoolModal, { id: poolId, info: organizationInfo });
+
 const redirectToCreateRule = (navigate) => navigate(ASSIGNMENT_RULE_CREATE);
 const redirectToCreateEnvironment = (navigate) => navigate(ENVIRONMENT_CREATE);
 const redirectToCreateAnomalyDetectionPolicy = (navigate) => navigate(ANOMALY_CREATE);
@@ -177,7 +180,7 @@ const getConfiguration = (messageType) =>
         requiredActions: ["MANAGE_POOLS"],
         mainMessageIds: ["sampleDataToGiveSenseOfTheProduct", "poolsBackdropMessage"],
         buttonMessageId: SET_POOL,
-        onButtonClick: redirectToEditPool,
+        onButtonClick: openEditPoolModal,
         dataTestIds: {
           mainMessage: ["p_sample", "p_set_pool"],
           button: "btn_set_pool",
@@ -295,7 +298,7 @@ const getConfiguration = (messageType) =>
 const BannerContent = ({ messageType }) => {
   const { classes, cx } = useStyles();
 
-  const { organizationPoolId } = useOrganizationInfo();
+  const { organizationPoolId, ...organizationInfo } = useOrganizationInfo();
 
   const navigate = useNavigate();
 
@@ -324,6 +327,8 @@ const BannerContent = ({ messageType }) => {
       );
     });
 
+  const openSideModal = useOpenSideModal();
+
   return (
     <>
       {!isEmptyArray(mainMessageIds) ? renderTypography(mainMessageIds, dataTestIds.mainMessage) : null}
@@ -334,7 +339,7 @@ const BannerContent = ({ messageType }) => {
           size="medium"
           variant="contained"
           color="success"
-          onClick={() => onButtonClick(navigate, organizationPoolId)}
+          onClick={() => onButtonClick(navigate, organizationPoolId, { openSideModal, organizationInfo })}
           messageId={buttonMessageId}
         />
       )}
@@ -345,7 +350,7 @@ const BannerContent = ({ messageType }) => {
               key={messageId}
               messageId={messageId}
               customClass={classes.buttonWidth}
-              onClick={() => onClick(navigate, organizationPoolId)}
+              onClick={() => onClick(navigate, organizationPoolId, { openSideModal, organizationInfo })}
               dataTestId={dataTestId}
               size="medium"
               variant="contained"

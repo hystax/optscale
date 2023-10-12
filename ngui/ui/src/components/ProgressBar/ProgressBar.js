@@ -7,13 +7,13 @@ import Tooltip from "components/Tooltip";
 import { capitalize } from "utils/strings";
 import useStyles from "./ProgressBar.styles";
 
-const ProgressBar = ({ children, value, minWidth = "", color = "primary", tooltip = {} }) => {
+const ProgressBar = ({ children, value, color = "primary", tooltip = {}, wrapperSx }) => {
   const { classes, cx } = useStyles();
 
   const { show: showTooltip = false, value: tooltipValue = "", messageId = "", placement = "top" } = tooltip;
 
   const renderProgress = () => (
-    <Box className={classes.wrapper} minWidth={minWidth}>
+    <Box className={classes.wrapper} sx={wrapperSx}>
       <LinearProgress
         className={classes.progress}
         classes={{
@@ -38,7 +38,7 @@ const ProgressBar = ({ children, value, minWidth = "", color = "primary", toolti
 ProgressBar.propTypes = {
   children: PropTypes.node,
   value: PropTypes.number,
-  minWidth: PropTypes.string,
+  wrapperSx: PropTypes.object,
   color: PropTypes.string,
   tooltip: PropTypes.object
 };

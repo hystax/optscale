@@ -17,8 +17,6 @@ import { isError } from "utils/api";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import {
   DEFAULT_CONDITIONS,
-  TAB_QUERY_PARAM_NAME,
-  ORGANIZATION_OVERVIEW_TABS,
   CONDITION,
   TAG_CONDITION,
   CONDITION_TYPES,
@@ -133,7 +131,7 @@ const CreateAssignmentRuleFormContainer = ({ poolId }) => {
     if (!poolId) {
       navigate(ASSIGNMENT_RULES);
     } else {
-      navigate(`${getPoolUrl(poolId)}?${TAB_QUERY_PARAM_NAME}=${ORGANIZATION_OVERVIEW_TABS.ASSIGNMENT_RULES}`);
+      navigate(`${POOLS}?pool=${poolId}`);
     }
   };
 

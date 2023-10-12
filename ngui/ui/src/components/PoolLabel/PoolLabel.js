@@ -9,7 +9,7 @@ import SlicedText from "components/SlicedText";
 import { getPoolUrl, isPoolIdWithSubPools } from "urls";
 import { formQueryString } from "utils/network";
 
-const SLICED_POOL_NAME_LENGTH = 25;
+const SLICED_POOL_NAME_LENGTH = 35;
 
 const getUrl = (poolId, organizationId) => {
   // TODO: remove this after https://datatrendstech.atlassian.net/browse/OS-4157

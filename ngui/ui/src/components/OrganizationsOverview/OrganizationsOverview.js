@@ -16,7 +16,7 @@ const actionBarDefinition = {
   }
 };
 
-const OrganizationOverview = ({ data, isLoading = false }) => {
+const OrganizationsOverview = ({ data, isLoading = false }) => {
   const { filterBy } = getQueryParams();
 
   const [activeFilter, setActiveFilter] = useState(
@@ -118,9 +118,9 @@ const OrganizationOverview = ({ data, isLoading = false }) => {
   );
 };
 
-OrganizationOverview.propTypes = {
+OrganizationsOverview.propTypes = {
   data: PropTypes.array.isRequired,
   isLoading: PropTypes.bool
 };
 
-export default OrganizationOverview;
+export default OrganizationsOverview;

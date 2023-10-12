@@ -3,12 +3,14 @@ import InputAdornment from "@mui/material/InputAdornment";
 import PropTypes from "prop-types";
 import { useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useMoneyFormatter } from "components/FormattedMoney";
 import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { MAX_INT_32 } from "utils/constants";
+import { FORMATTED_MONEY_TYPES, MAX_INT_32 } from "utils/constants";
+import { AUTO_EXTENTION_FIELD_NAME } from "./PoolFormAutoExtendCheckbox";
 
-const PoolFormLimitInput = ({ isLoading }) => {
+const PoolFormLimitInput = ({ isLoading, unallocatedLimit, isRootPool = false }) => {
   const {
     register,
     formState: { errors }
@@ -16,6 +18,7 @@ const PoolFormLimitInput = ({ isLoading }) => {
   const { currencySymbol } = useOrganizationInfo();
 
   const intl = useIntl();
+  const moneyFormatter = useMoneyFormatter();
 
   return isLoading ? (
     <InputLoader margin="normal" fullWidth />
@@ -45,13 +48,23 @@ const PoolFormLimitInput = ({ isLoading }) => {
         max: {
           value: MAX_INT_32,
           message: intl.formatMessage({ id: "lessOrEqual" }, { max: MAX_INT_32 })
-        }
+        },
+        validate: (value, formValues) =>
+          isRootPool ||
+          formValues[AUTO_EXTENTION_FIELD_NAME] ||
+          value <= unallocatedLimit ||
+          intl.formatMessage(
+            { id: "maximumPossibleLimitWithoutExtendingParent" },
+            { unallocatedLimit: moneyFormatter(FORMATTED_MONEY_TYPES.COMMON, unallocatedLimit) }
+          )
       })}
     />
   );
 };
 PoolFormLimitInput.propTypes = {
-  isLoading: PropTypes.bool
+  isLoading: PropTypes.bool,
+  unallocatedLimit: PropTypes.number,
+  isRootPool: PropTypes.bool
 };
 
 export default PoolFormLimitInput;

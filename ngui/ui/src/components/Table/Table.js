@@ -79,7 +79,9 @@ const Table = ({
   stickySettings = {},
   memoBodyCells = false,
   getRowCellClassName,
-  getHeaderCellClassName
+  getHeaderCellClassName,
+  onRowClick,
+  isSelectedRow
 }) => {
   const { showCounters = false, hideTotal = false, hideDisplayed = false } = counters;
 
@@ -91,6 +93,18 @@ const Table = ({
     headerRef,
     stickySettings
   });
+
+  const getRowHoverProperties = (row) => {
+    if (typeof onRowClick !== "function" || typeof isSelectedRow !== "function") {
+      return {};
+    }
+    return {
+      onClick: () => onRowClick(row.original),
+      hover: true,
+      selected: isSelectedRow(row.original),
+      className: classes.hoverableRow
+    };
+  };
 
   const { tableOptions: sortingTableOptions } = useSortingTableSettings();
 
@@ -238,7 +252,7 @@ const Table = ({
                   const rowStyle = typeof getRowStyle === "function" ? getRowStyle(row.original) : {};
 
                   return (
-                    <TableRow data-test-id={`row_${index}`} key={row.id} style={rowStyle}>
+                    <TableRow {...getRowHoverProperties(row)} data-test-id={`row_${index}`} key={row.id} style={rowStyle}>
                       {row.getVisibleCells().map((cell) => {
                         if (cell.column.id === SELECTION_COLUMN_ID) {
                           return <TableBodyCell key={cell.id} cell={cell} />;
@@ -345,7 +359,9 @@ Table.propTypes = {
   }),
   getRowCellClassName: PropTypes.func,
   getHeaderCellClassName: PropTypes.func,
-  memoBodyCells: PropTypes.bool
+  memoBodyCells: PropTypes.bool,
+  onRowClick: PropTypes.func,
+  isSelectedRow: PropTypes.func
 };
 
 export default Table;

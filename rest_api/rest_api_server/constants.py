@@ -180,7 +180,8 @@ class UrlsV2(Urls):
         'organization_geminis_collection': r"%s/organizations/(?P<organization_id>["r"^/]+)/geminis",
         'geminis_collection': r"%s/geminis",
         'geminis': r"%s/geminis/(?P<gemini_id>["r"^/]+)",
-        'geminis_data': r"%s/geminis/(?P<gemini_id>["r"^/]+)/data"
+        'geminis_data': r"%s/geminis/(?P<gemini_id>["r"^/]+)/data",
+        'disconnect_survey': r"%s/organizations/(?P<organization_id>["r"^/]+)/disconnect_survey",
     })
 
 

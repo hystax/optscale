@@ -2,7 +2,9 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()((theme) => ({
   title: {
-    flexGrow: 1
+    flexGrow: 1,
+    display: "flex",
+    alignContent: "center"
   },
   headerPrimary: {
     color: theme.palette.primary.contrastText,

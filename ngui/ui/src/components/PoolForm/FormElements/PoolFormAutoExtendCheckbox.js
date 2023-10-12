@@ -7,6 +7,8 @@ import { FormattedMessage } from "react-intl";
 import CheckboxLoader from "components/CheckboxLoader";
 import QuestionMark from "components/QuestionMark";
 
+export const AUTO_EXTENTION_FIELD_NAME = "autoExtension";
+
 const PoolFormAutoExtendCheckbox = ({ isLoading }) => {
   const { control } = useFormContext();
 
@@ -16,15 +18,10 @@ const PoolFormAutoExtendCheckbox = ({ isLoading }) => {
     <FormControlLabel
       control={
         <Controller
-          name="autoExtension"
+          name={AUTO_EXTENTION_FIELD_NAME}
           control={control}
-          render={({ field: { value, onChange, ...rest } }) => (
-            <Checkbox
-              data-test-id="checkbox_auto_extension"
-              checked={value}
-              {...rest}
-              onChange={(event) => onChange(event.target.checked)}
-            />
+          render={({ field: { onChange, ...rest } }) => (
+            <Checkbox data-test-id="checkbox_auto_extension" {...rest} onChange={(event) => onChange(event.target.checked)} />
           )}
         />
       }

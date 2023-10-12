@@ -6,6 +6,9 @@ const useStyles = makeStyles()(() => ({
     overflowX: "auto",
     display: "block",
     wordBreak: "initial" // shown inside MUI Drawer table inherits word-break: "break-word" which leads to letter-by-letter break in side modals, for example
+  },
+  hoverableRow: {
+    cursor: "pointer"
   }
 }));
 
