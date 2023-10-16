@@ -3,7 +3,7 @@ import time
 import uuid
 from copy import deepcopy
 from datetime import datetime
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 import optscale_client.rest_api_client
 
@@ -344,6 +344,1335 @@ BASIC_PRESET = {
             "sign": 1,
             "date_offset": 229009
         }
+    ],
+    "applications": [
+        {
+            "_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "key": "k_near",
+            "owner_id": "083298ff-6575-4adb-a82a-92cea7bc8ff0",
+            "name": "K-Nearest Neighbors",
+            "goals": [
+                "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+                "ad50928e-1d4b-4575-8df6-6d27523b4f5e",
+                "804f6834-6c73-45d5-a34a-ea3b111855c3",
+                "41a13aa0-fcdf-4245-829b-b3ec64ba221a"
+            ]
+        }
+    ],
+    "runs": [
+        {
+            "_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "application_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "state": 2,
+            "name": "goofy_elbakyan",
+            "number": 1,
+            "imports": [
+                "tf",
+                "torch"
+            ],
+            "data": {
+                "loss": 0.6283599138259888,
+                "iter": 57600,
+                "epoch": 20,
+                "accuracy": 78.44
+            },
+            "executors": [
+                "i-0503b887d4b3dba17"
+            ],
+            "tags": {
+                "Algorithm": "K-Nearest Neighbors",
+                "Mode": "Development"
+            },
+            "start_offset": 494317,
+            "finish_offset": 493990
+        }
+    ],
+    "goals": [
+        {
+            "_id": "41a13aa0-fcdf-4245-829b-b3ec64ba221a",
+            "name": "Iter",
+            "tendency": "more",
+            "target_value": 3,
+            "key": "iter",
+            "func": "last"
+        },
+        {
+            "_id": "804f6834-6c73-45d5-a34a-ea3b111855c3",
+            "name": "Epochs",
+            "tendency": "less",
+            "target_value": 10,
+            "key": "epoch",
+            "func": "sum"
+        },
+        {
+            "_id": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+            "name": "Accuracy",
+            "tendency": "more",
+            "target_value": 62,
+            "key": "accuracy",
+            "func": "last"
+        },
+        {
+            "_id": "ad50928e-1d4b-4575-8df6-6d27523b4f5e",
+            "name": "Data Loss",
+            "tendency": "less",
+            "target_value": 1.1,
+            "key": "loss",
+            "func": "max"
+        }
+    ],
+    "platforms": [
+        {
+            "platform_type": "aws",
+            "instance_id": "i-0503b887d4b3dba17",
+            "local_ip": "172.31.64.72",
+            "public_ip": "52.90.22.115",
+            "instance_lc": "OnDemand",
+            "instance_type": "t2.2xlarge",
+            "instance_region": "us-east-1",
+            "availability_zone": "us-east-1e"
+        }
+    ],
+    "logs": [
+        {
+            "project": "k_near",
+            "run": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "data": {},
+            "instance_id": "i-0503b887d4b3dba17",
+            "time_offset": 494315.87966799736
+        },
+        {
+            "project": "k_near",
+            "run": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "data": {
+                "loss": 2.2943787574768066,
+                "iter": 0,
+                "epoch": 1
+            },
+            "instance_id": "i-0503b887d4b3dba17",
+            "time_offset": 494314.22013807297
+        },
+    ],
+    "milestones": [
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "milestone": "Download training data",
+            "timestamp_offset": 494316
+        },
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "milestone": "Download test data",
+            "timestamp_offset": 494315
+        },
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "milestone": "create data loaders",
+            "timestamp_offset": 494315
+        },
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "milestone": "define model",
+            "timestamp_offset": 494315
+        },
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "milestone": "Entering epoch 1",
+            "timestamp_offset": 494315
+        },
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "milestone": "Finish training",
+            "timestamp_offset": 493990
+        }
+    ],
+    "stages": [
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "name": "preparing",
+            "timestamp_offset": 494316
+        },
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "name": "calculation",
+            "timestamp_offset": 494315
+        },
+    ],
+    "proc_data": [
+        {
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "instance_id": "i-046e62d3274952e03",
+            "proc_stats": {
+                "ps_stats": {
+                    "cpu_count": 2,
+                    "cpu_percent": 5.45,
+                    "cpu_percent_percpu": [
+                        1.8,
+                        9.1
+                    ],
+                    "load_average": [
+                        0.08,
+                        0.02,
+                        0.01
+                    ],
+                    "cpu_usage": 0.5,
+                    "used_ram_percent": 17.5,
+                    "used_ram_mb": 402.09375
+                },
+                "gpu_stats": {},
+                "proc": {
+                    "cpu": 5.45,
+                    "mem": {
+                        "vms": {
+                            "p": "0.679",
+                            "t": 2782855168
+                        },
+                        "rss": {
+                            "p": "0.080",
+                            "t": 326574080
+                        }
+                    }
+                }
+            },
+            "timestamp_offset": 494315
+        }
+    ],
+    "templates": [
+        {
+            "_id": "9d117f06-45ab-4eac-8f6a-27e4e27d8c78",
+            "name": "AWS GPU Instances",
+            "application_ids": [
+                "c688402f-04a7-42ba-835d-5daf0d623a4b"
+            ],
+            "cloud_account_ids": [
+                "8c63e980-6572-4b36-be82-a2bc59705888"
+            ],
+            "region_ids": [
+                "us-east-1"
+            ],
+            "instance_types": [
+                "p3",
+                "m5",
+                "t3",
+                "t2"
+            ],
+            "budget": 10,
+            "name_prefix": "my-ml-run",
+            "tags": {
+                "ml_value": "ml_tag"
+            },
+            "hyperparameters": {
+                "Epochs": "EPOCHS"
+            },
+            "created_at_offset": 491857
+        }
+    ],
+    "runsets": [
+        {
+            "_id": "a79b8877-1384-4ce1-ab5f-53136010b3fd",
+            "name": "sleepy_gagarin",
+            "number": 1,
+            "template_id": "9d117f06-45ab-4eac-8f6a-27e4e27d8c78",
+            "application_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
+            "region_id": "us-east-1",
+            "instance_type": "t2.2xlarge",
+            "name_prefix": "my-ml-run",
+            "tags": {
+                "ml_value": "ml_tag"
+            },
+            "hyperparameters": {
+                "EPOCHS": [
+                    "2",
+                    "5",
+                    "10",
+                    "15"
+                ]
+            },
+            "destroy_conditions": {
+                "max_budget": 10,
+                "reached_goals": True,
+                "max_duration": 900
+            },
+            "owner_id": "083298ff-6575-4adb-a82a-92cea7bc8ff0",
+            "commands": "e6364db3e99f45298dd17305c4645b9a",
+            "state": 6,
+            "spot_settings": None,
+            "open_ingress": False,
+            "created_at_offset": 404666,
+            "started_at_offset": 404643,
+            "destroyed_at_offset": 404298
+        }
+    ],
+    "runners": [
+        {
+            "runset_id": "a79b8877-1384-4ce1-ab5f-53136010b3fd",
+            "state": 7,
+            "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
+            "hyperparameters": {
+                "EPOCHS": "2"
+            },
+            "region_id": "us-east-1",
+            "instance_type": "t2.2xlarge",
+            "name_prefix": "my-ml-run",
+            "application_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "tags": {
+                "ml_value": "ml_tag"
+            },
+            "destroy_conditions": {
+                "max_budget": 10,
+                "reached_goals": True,
+                "max_duration": 900
+            },
+            "commands": "900991f2200e403a81376f98e0f714da",
+            "name": "my-ml-run_nifty_leavitt",
+            "spot_settings": None,
+            "open_ingress": False,
+            "instance_id": "i-0503b887d4b3dba17",
+            "ip_addr": "52.90.22.115",
+            "return_code": 0,
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "reason": "task completed successfully",
+            "destroy": True,
+            "created_at_offset": 404666,
+            "started_at_offset": 404643,
+            "destroyed_at_offset": 404421
+        }
+    ],
+    "organization_geminis": [
+        {
+            "last_error": None,
+            "status": "SUCCESS",
+            "filters": {
+                "min_size": 0,
+                "buckets": [
+                    {
+                        "name": "sunflower-eu-west-1",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-eu-fra",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-ap-southeast-1-cf",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-ap-south-1",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-ap-southeast-3-cf",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-static-files",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-ap-northeast-2",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-ea-singapore",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower.example",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-us-east-1",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-us-east-2",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-infra-backup",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    },
+                    {
+                        "name": "sunflower-us-west-1",
+                        "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888"
+                    }
+                ]
+            },
+            "stats": {
+                "total_objects": 702420,
+                "filtered_objects": 702350,
+                "total_size": 5521508250140,
+                "duplicates_size": 237260049222,
+                "duplicated_objects": 49,
+                "monthly_savings": 5.094004687421256,
+                "buckets": {
+                    "hystax-ap-southeast-3-cf": {
+                        "total_objects": 2,
+                        "filtered_objects": 2,
+                        "size": 43214,
+                        "monthly_cost": 9.78e-07,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0,
+                        "monthly_savings": 0.0
+                    },
+                    "hystax-static-files": {
+                        "total_objects": 1,
+                        "filtered_objects": 1,
+                        "size": 758496,
+                        "monthly_cost": 1.5723e-05,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0,
+                        "monthly_savings": 0.0
+                    },
+                    "hystax-ap-south-1": {
+                        "total_objects": 4,
+                        "filtered_objects": 4,
+                        "size": 53687155681,
+                        "monthly_cost": 1.2096788790000002,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0,
+                        "monthly_savings": 0.0
+                    },
+                    "hystax-ea-singapore": {
+                        "total_objects": 2,
+                        "filtered_objects": 1,
+                        "size": 4511107,
+                        "monthly_cost": 0.00010164899999999999,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0,
+                        "monthly_savings": 0.0
+                    },
+                    "hystax.com": {
+                        "total_objects": 3,
+                        "filtered_objects": 3,
+                        "size": 233229,
+                        "monthly_cost": 5.151e-06,
+                        "objects_with_duplicates": 1,
+                        "objects_with_duplicates_size": 4144,
+                        "monthly_savings": 9.15226837142894e-08
+                    },
+                    "hystax-eu-fra": {
+                        "total_objects": 702311,
+                        "filtered_objects": 702246,
+                        "size": 4164042288477,
+                        "monthly_cost": 90.311224149,
+                        "objects_with_duplicates": 42,
+                        "objects_with_duplicates_size": 132402449222,
+                        "monthly_savings": 2.8715912186228216
+                    },
+                    "hystax-eu-west-1": {
+                        "total_objects": 1,
+                        "filtered_objects": 1,
+                        "size": 21597,
+                        "monthly_cost": 4.5e-07,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0,
+                        "monthly_savings": 0.0
+                    },
+                    "hystax-us-east-2": {
+                        "total_objects": 1,
+                        "filtered_objects": 1,
+                        "size": 21597,
+                        "monthly_cost": 4.5e-07,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0,
+                        "monthly_savings": 0.0
+                    },
+                    "hystax-infra-backup": {
+                        "total_objects": 59,
+                        "filtered_objects": 59,
+                        "size": 1258524508160,
+                        "monthly_cost": 26.088505775999998,
+                        "objects_with_duplicates": 4,
+                        "objects_with_duplicates_size": 104857600000,
+                        "monthly_savings": 2.1736391190800037
+                    },
+                    "hystax-ap-southeast-1-cf": {
+                        "total_objects": 1,
+                        "filtered_objects": 1,
+                        "size": 21291,
+                        "monthly_cost": 4.800000000000001e-07,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0,
+                        "monthly_savings": 0.0
+                    },
+                    "hystax-us-east-1": {
+                        "total_objects": 35,
+                        "filtered_objects": 31,
+                        "size": 45248687291,
+                        "monthly_cost": 0.9379798979999999,
+                        "objects_with_duplicates": 2,
+                        "objects_with_duplicates_size": 5858596833,
+                        "monthly_savings": 0.1214454250241525
+                    },
+                    "hystax-ap-northeast-2": {
+                        "total_objects": 0,
+                        "filtered_objects": 0,
+                        "size": 0,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0
+                    },
+                    "hystax-us-west-1": {
+                        "total_objects": 0,
+                        "filtered_objects": 0,
+                        "size": 0,
+                        "objects_with_duplicates": 0,
+                        "objects_with_duplicates_size": 0
+                    }
+                },
+                "matrix": {
+                    "hystax-ap-northeast-2": {
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        }
+                    },
+                    "hystax-ap-southeast-3-cf": {
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-static-files": {
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-ap-south-1": {
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-ea-singapore": {
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax.com": {
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 2,
+                            "duplicates_size": 4144,
+                            "monthly_savings": 9.15226837142894e-08
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-eu-fra": {
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 39,
+                            "duplicates_size": 126543848245.0,
+                            "monthly_savings": 2.74452780538671
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 2,
+                            "duplicates_size": 4144,
+                            "monthly_savings": 8.987653989708591e-08
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 4,
+                            "duplicates_size": 5858596833,
+                            "monthly_savings": 0.12706332335957182
+                        }
+                    },
+                    "hystax-eu-west-1": {
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-us-east-2": {
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-infra-backup": {
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 4,
+                            "duplicates_size": 104857600000.0,
+                            "monthly_savings": 2.1736391190800037
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-ap-southeast-1-cf": {
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    },
+                    "hystax-us-west-1": {
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        },
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0
+                        }
+                    },
+                    "hystax-us-east-1": {
+                        "hystax-us-east-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-northeast-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-3-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-static-files": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-south-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ea-singapore": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax.com": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-eu-fra": {
+                            "duplicated_objects": 4,
+                            "duplicates_size": 5858596833,
+                            "monthly_savings": 0.1214454250241525
+                        },
+                        "hystax-eu-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-east-2": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-infra-backup": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-ap-southeast-1-cf": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        },
+                        "hystax-us-west-1": {
+                            "duplicated_objects": 0,
+                            "duplicates_size": 0,
+                            "monthly_savings": 0.0
+                        }
+                    }
+                }
+            },
+            "created_at_offset": -36606,
+            "last_run_offset": -36612,
+            "last_completed_offset": -36908
+        }
     ]
 }
 
@@ -369,6 +1698,12 @@ class TestLiveDemosApi(TestApiBase):
               '_get_demo_multiplier', return_value=self.multiplier).start()
         patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
               '_insert_clickhouse').start()
+        patch('rest_api.rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.arcee_client',
+              new_callable=PropertyMock).start()
+        patch('rest_api.rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.bulldozer_client',
+              new_callable=PropertyMock).start()
 
     def check_db(self, check_empty=True):
         session = self.init_db_session()

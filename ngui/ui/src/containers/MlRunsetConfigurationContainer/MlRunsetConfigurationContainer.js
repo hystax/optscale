@@ -1,12 +1,10 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MlRunsetConfiguration from "components/MlRunsetConfiguration";
-import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import MlRunsetsService from "services/MlRunsetsService";
 import MlRunsetTemplatesService from "services/MlRunsetTemplatesService";
 import { getMlRunsetTemplateUrl } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
-import { getRunsetTemplate, getRunsets } from "utils/mlDemoData/utils";
 
 const useLatestRunset = () => {
   const { templateId } = useParams();
@@ -27,32 +25,7 @@ const useLatestRunset = () => {
   };
 };
 
-const DemoContainer = () => {
-  const { templateId } = useParams();
-  const navigate = useNavigate();
-
-  const runsetTemplate = getRunsetTemplate(templateId);
-  const { runsets } = getRunsets(templateId);
-
-  const getLatestRunset = () => {
-    const maxRunsetNumber = Math.max(...runsets.map(({ number }) => number));
-
-    return runsets.find(({ number }) => number === maxRunsetNumber);
-  };
-
-  const onCancel = () => navigate(getMlRunsetTemplateUrl(templateId));
-
-  return (
-    <MlRunsetConfiguration
-      runsetTemplate={runsetTemplate}
-      latestRunset={getLatestRunset()}
-      onSubmit={() => {}}
-      onCancel={onCancel}
-    />
-  );
-};
-
-const Container = () => {
+const MlRunsetConfigurationContainer = () => {
   const { templateId } = useParams();
   const navigate = useNavigate();
 
@@ -83,12 +56,6 @@ const Container = () => {
       }}
     />
   );
-};
-
-const MlRunsetConfigurationContainer = () => {
-  const { isDemo } = useOrganizationInfo();
-
-  return isDemo ? <DemoContainer /> : <Container />;
 };
 
 export default MlRunsetConfigurationContainer;

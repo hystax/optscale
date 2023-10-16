@@ -3,34 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import MlRunsetTemplateEdit from "components/MlRunsetTemplateEdit";
 import { useApiData } from "hooks/useApiData";
-import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import MlModelsService from "services/MlModelsService";
 import MlRunsetTemplatesService from "services/MlRunsetTemplatesService";
 import { getMlRunsetTemplateUrl } from "urls";
-import { getModels, getDataSources, getRunsetTemplate } from "utils/mlDemoData/utils";
 
-const DemoContainer = () => {
-  const { templateId } = useParams();
-
-  const navigate = useNavigate();
-  const redirect = () => navigate(getMlRunsetTemplateUrl(templateId));
-
-  const models = getModels();
-
-  const dataSources = getDataSources();
-
-  return (
-    <MlRunsetTemplateEdit
-      models={models}
-      dataSources={dataSources}
-      onSubmit={() => {}}
-      onCancel={redirect}
-      runsetTemplate={getRunsetTemplate(templateId)}
-    />
-  );
-};
-
-const Container = () => {
+const MlRunsetTemplateEditContainer = () => {
   const { templateId } = useParams();
 
   const navigate = useNavigate();
@@ -68,12 +45,6 @@ const Container = () => {
       }}
     />
   );
-};
-
-const MlRunsetTemplateEditContainer = () => {
-  const { isDemo } = useOrganizationInfo();
-
-  return isDemo ? <DemoContainer /> : <Container />;
 };
 
 export default MlRunsetTemplateEditContainer;
