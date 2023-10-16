@@ -1,9 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import ExecutionBreakdown, { ExecutionBreakdownLoader } from "components/ExecutionBreakdown";
-import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import MlModelsService from "services/MlModelsService";
-import { getRunBreakdown } from "utils/mlDemoData/utils";
 import { isEmpty as isEmptyObject } from "utils/objects";
 
 const getData = ({ breakdown = {}, milestones = [], stages = [] }) => {
@@ -47,13 +45,7 @@ const getData = ({ breakdown = {}, milestones = [], stages = [] }) => {
   };
 };
 
-const DemoContainer = ({ reachedGoals }) => {
-  const { runId } = useParams();
-
-  return <ExecutionBreakdown {...getData(getRunBreakdown(runId))} reachedGoals={reachedGoals} />;
-};
-
-const Container = ({ reachedGoals }) => {
+const ExecutionBreakdownContainer = ({ reachedGoals }) => {
   const { useGetRunBreakdown } = MlModelsService();
 
   const { runId } = useParams();
@@ -65,12 +57,6 @@ const Container = ({ reachedGoals }) => {
   ) : (
     <ExecutionBreakdown {...getData({ breakdown, milestones, stages })} reachedGoals={reachedGoals} />
   );
-};
-
-const ExecutionBreakdownContainer = ({ reachedGoals }) => {
-  const { isDemo } = useOrganizationInfo();
-
-  return isDemo ? <DemoContainer reachedGoals={reachedGoals} /> : <Container reachedGoals={reachedGoals} />;
 };
 
 export default ExecutionBreakdownContainer;

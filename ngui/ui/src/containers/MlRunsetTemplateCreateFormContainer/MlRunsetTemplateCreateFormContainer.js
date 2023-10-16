@@ -4,11 +4,9 @@ import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import MlRunsetTemplateForm from "components/MlRunsetTemplateForm";
 import { FIELD_NAMES } from "components/MlRunsetTemplateForm/FormElements";
 import { useApiData } from "hooks/useApiData";
-import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import MlModelsService from "services/MlModelsService";
 import MlRunsetTemplatesService from "services/MlRunsetTemplatesService";
 import { ML_RUNSET_TEMPLATES } from "urls";
-import { getModels, getDataSources } from "utils/mlDemoData/utils";
 
 const {
   MODELS_FIELD_NAME,
@@ -40,26 +38,7 @@ const defaultValues = {
   [INSTANCE_TYPES_FIELD_NAME]: []
 };
 
-const DemoContainer = () => {
-  const navigate = useNavigate();
-  const redirect = () => navigate(ML_RUNSET_TEMPLATES);
-
-  const models = getModels();
-
-  const dataSources = getDataSources();
-
-  return (
-    <MlRunsetTemplateForm
-      models={models}
-      dataSources={dataSources}
-      onSubmit={() => {}}
-      onCancel={redirect}
-      defaultValues={defaultValues}
-    />
-  );
-};
-
-const Container = () => {
+const MlRunsetTemplateCreateFormContainer = () => {
   const navigate = useNavigate();
 
   const redirect = () => navigate(ML_RUNSET_TEMPLATES);
@@ -93,12 +72,6 @@ const Container = () => {
       defaultValues={defaultValues}
     />
   );
-};
-
-const MlRunsetTemplateCreateFormContainer = () => {
-  const { isDemo } = useOrganizationInfo();
-
-  return isDemo ? <DemoContainer /> : <Container />;
 };
 
 export default MlRunsetTemplateCreateFormContainer;

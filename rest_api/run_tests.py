@@ -6,7 +6,7 @@ TESTS_PATH = '/usr/src/app/rest_api/rest_api_server/tests/unittests'
 
 
 def get_concurrency_num():
-    return int(multiprocessing.cpu_count() / 2) + 1
+    return multiprocessing.cpu_count() // 2 or 1
 
 
 runner = unittest.TextTestRunner()

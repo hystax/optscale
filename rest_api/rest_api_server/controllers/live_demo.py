@@ -16,8 +16,10 @@ from clickhouse_driver import Client as ClickHouseClient
 
 from tools.cloud_adapter.model import ResourceTypes
 from tools.optscale_exceptions.common_exc import InternalServerError
-from rest_api.rest_api_server.controllers.base import BaseController, MongoMixin
-from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
+from rest_api.rest_api_server.controllers.base import (
+    BaseController, MongoMixin, BaseProfilingTokenController)
+from rest_api.rest_api_server.controllers.base_async import (
+    BaseAsyncControllerWrapper)
 from rest_api.rest_api_server.controllers.register import RegisterController
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import (
@@ -26,7 +28,7 @@ from rest_api.rest_api_server.models.models import (
     CloudAccount, Checklist, Employee, Pool, Organization, PoolPolicy,
     ResourceConstraint, ConstraintLimitHit, Rule, Condition, DiscoveryInfo,
     ClusterType, K8sNode, CostModel, ShareableBooking, OrganizationOption,
-    OrganizationConstraint, OrganizationLimitHit)
+    OrganizationConstraint, OrganizationLimitHit, OrganizationGemini, ProfilingToken)
 from rest_api.rest_api_server.utils import gen_id, encode_config
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
@@ -89,6 +91,18 @@ class ObjectGroups(enum.Enum):
     OrganizationConstraint = 'organization_constraint'
     OrganizationLimitHit = 'organization_limit_hit'
     RiSpUsages = 'ri_sp_usage'
+    Goals = 'goals'
+    Applications = 'applications'
+    Templates = 'templates'
+    Runsets = 'runsets'
+    Runs = 'runs'
+    Runners = 'runners'
+    Platforms = 'platforms'
+    Logs = 'logs'
+    Milestones = 'milestones'
+    Stages = 'stages'
+    ProcData = 'proc_data'
+    OrganizationGeminis = 'organization_geminis'
 
     @classmethod
     def rest_objects(cls):
@@ -131,13 +145,37 @@ class LiveDemoController(BaseController, MongoMixin):
             ObjectGroups.ArchivedRecommendations:
                 self.build_archived_recommendations,
             ObjectGroups.RiSpUsages: self.build_ri_sp_usage,
+            ObjectGroups.Goals: self.build_goal,
+            ObjectGroups.Applications: self.build_application,
+            ObjectGroups.Runs: self.build_run,
+            ObjectGroups.Platforms: self.build_platform,
+            ObjectGroups.Logs: self.build_log,
+            ObjectGroups.Milestones: self.build_milestone,
+            ObjectGroups.Stages: self.build_stage,
+            ObjectGroups.ProcData: self.build_proc_data,
+            ObjectGroups.Templates: self.build_template,
+            ObjectGroups.Runsets: self.build_runset,
+            ObjectGroups.Runners: self.build_runner,
+            ObjectGroups.OrganizationGeminis: self.build_organization_gemini
         }
         self._dest_map = {
             ObjectGroups.Resources: self.resources_collection,
             ObjectGroups.RawExpenses: self.raw_expenses_collection,
             ObjectGroups.Optimizations: self.checklists_collection,
             ObjectGroups.ArchivedRecommendations:
-                self.archived_recommendations_collection
+                self.archived_recommendations_collection,
+            ObjectGroups.Applications: self.applications_collection,
+            ObjectGroups.Runs: self.runs_collection,
+            ObjectGroups.Goals: self.goals_collection,
+            ObjectGroups.Platforms: self.platforms_collection,
+            ObjectGroups.Logs: self.logs_collection,
+            ObjectGroups.Milestones: self.milestones_collection,
+            ObjectGroups.Stages: self.stages_collection,
+            ObjectGroups.ProcData: self.proc_data_collection,
+            ObjectGroups.Templates: self.templates_collection,
+            ObjectGroups.Runsets: self.runsets_collection,
+            ObjectGroups.Runners: self.runners_collection
+
         }
         self._third_party_objects = [
             ObjectGroups.Metrics,
@@ -150,6 +188,7 @@ class LiveDemoController(BaseController, MongoMixin):
             'pool_id': ObjectGroups.Pools.value,
             'employee_id': ObjectGroups.Employees.value,
             'cloud_account_id': ObjectGroups.CloudAccounts.value,
+            'cloud_account_ids': ObjectGroups.CloudAccounts.value,
             'owner_id': ObjectGroups.Employees.value,
             'resource_id': ObjectGroups.Resources.value,
             'creator_id': ObjectGroups.Employees.value,
@@ -160,6 +199,13 @@ class LiveDemoController(BaseController, MongoMixin):
             'acquired_by_id': ObjectGroups.Employees.value,
             'constraint_id': ObjectGroups.OrganizationConstraint.value,
             'offer_id': ObjectGroups.Resources.value,
+            'goals': ObjectGroups.Goals.value,
+            'application_id': ObjectGroups.Applications.value,
+            'application_ids': ObjectGroups.Applications.value,
+            'run': ObjectGroups.Runs.value,  # thanks to arcee.log
+            'run_id': ObjectGroups.Runs.value,
+            'template_id': ObjectGroups.Templates.value,
+            'runset_id': ObjectGroups.Runsets.value
         }
         self._multiplier = None
         self._duplication_module_res_info_map = defaultdict(dict)
@@ -176,6 +222,50 @@ class LiveDemoController(BaseController, MongoMixin):
             ObjectGroups.Metrics: self.duplicate_res_id_depended
         }
         self._org_constraint_type_map = {}
+
+    @property
+    def applications_collection(self):
+        return self.mongo_client.arcee.application
+
+    @property
+    def runs_collection(self):
+        return self.mongo_client.arcee.run
+
+    @property
+    def goals_collection(self):
+        return self.mongo_client.arcee.goal
+
+    @property
+    def platforms_collection(self):
+        return self.mongo_client.arcee.platform
+
+    @property
+    def logs_collection(self):
+        return self.mongo_client.arcee.log
+
+    @property
+    def milestones_collection(self):
+        return self.mongo_client.arcee.milestone
+
+    @property
+    def stages_collection(self):
+        return self.mongo_client.arcee.stage
+
+    @property
+    def proc_data_collection(self):
+        return self.mongo_client.arcee.proc_data
+
+    @property
+    def templates_collection(self):
+        return self.mongo_client.bulldozer.template
+
+    @property
+    def runsets_collection(self):
+        return self.mongo_client.bulldozer.runset
+
+    @property
+    def runners_collection(self):
+        return self.mongo_client.bulldozer.runner
 
     @property
     def clickhouse_cl(self):
@@ -397,15 +487,19 @@ class LiveDemoController(BaseController, MongoMixin):
                 obj[key] = datetime.fromtimestamp(res)
         return obj
 
-    def refresh_relations(self, keys, obj):
+    def refresh_relations(self, keys: list, obj: dict):
         def set_value(object_group_, obj_, key_chain_):
             key_ = key_chain_.pop(0)
             if obj_.get(key_):
                 if key_chain_:
                     set_value(object_group_, obj_[key_], key_chain_)
                 else:
-                    obj_[key_] = self._recovery_map[object_group_].get(
-                        obj_.get(key_))
+                    if isinstance(obj_[key_], list):
+                        for i, val_ in enumerate(obj_[key_]):
+                            obj_[key_][i] = self._recovery_map[object_group_].get(val_)
+                    else:
+                        obj_[key_] = self._recovery_map[object_group_].get(
+                            obj_.get(key_))
         for key in keys:
             group_key = '_'.join(key if isinstance(key, list) else [key])
             key_chain = key if isinstance(key, list) else [key]
@@ -761,6 +855,109 @@ class LiveDemoController(BaseController, MongoMixin):
         obj['offer_cost'] = multipliered_offer_cost
         return obj
 
+    def build_goal(self, obj, objects_group, profiling_token, **kwargs):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = profiling_token
+        return obj
+
+    def build_application(self, obj, objects_group, profiling_token, **kwargs):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = profiling_token
+        obj['deleted_at'] = 0
+        obj = self.refresh_relations(['owner_id', 'goals'], obj)
+        return obj
+
+    def build_run(self, obj, objects_group, now, **kwargs):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        if obj.get('runset_id'):
+            obj = self.refresh_relations(['runset_id'], obj)
+        obj = self.refresh_relations(['application_id'], obj)
+        obj = self.offsets_to_timestamps(['start', 'finish'], now, obj)
+        return obj
+
+    def build_platform(self, obj, **kwargs):
+        obj['_id'] = gen_id()
+        obj['account_id'] = gen_id()
+        return obj
+
+    def build_log(self, obj, now, **kwargs):
+        obj['_id'] = gen_id()
+        obj = self.refresh_relations(['run'], obj)
+        obj = self.offsets_to_timestamps(['time'], now, obj)
+        return obj
+
+    def build_milestone(self, obj, now, **kwargs):
+        obj['_id'] = gen_id()
+        obj = self.refresh_relations(['run_id'], obj)
+        obj = self.offsets_to_timestamps(['timestamp'], now, obj)
+        return obj
+
+    def build_stage(self, obj, now, **kwargs):
+        obj['_id'] = gen_id()
+        obj = self.refresh_relations(['run_id'], obj)
+        obj = self.offsets_to_timestamps(['timestamp'], now, obj)
+        return obj
+
+    def build_proc_data(self, obj, now, **kwargs):
+        obj['_id'] = gen_id()
+        obj = self.refresh_relations(['run_id'], obj)
+        obj = self.offsets_to_timestamps(['timestamp'], now, obj)
+        return obj
+
+    def build_template(
+            self, obj, objects_group, now, infrastructure_token, **kwargs
+    ):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = infrastructure_token
+        obj['deleted_at'] = 0
+        obj = self.refresh_relations(
+            ['application_ids', 'cloud_account_ids'], obj)
+        obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        return obj
+
+    def build_runset(
+            self, obj, objects_group, now, infrastructure_token, **kwargs
+    ):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = infrastructure_token
+        obj['deleted_at'] = 0
+        obj = self.refresh_relations(
+            ['template_id', 'application_id', 'cloud_account_id', 'owner_id'],
+            obj)
+        obj = self.offsets_to_timestamps(
+            ['created_at', 'started_at', 'destroyed_at'], now, obj)
+        return obj
+
+    def build_runner(self, obj, now, infrastructure_token, **kwargs):
+        obj['_id'] = gen_id()
+        obj['token'] = infrastructure_token
+        obj = self.refresh_relations(
+            ['runset_id', 'cloud_account_id', 'application_id', 'run_id'],
+            obj)
+        obj = self.offsets_to_timestamps(
+            ['created_at', 'started_at', 'destroyed_at'], now, obj)
+        return obj
+
+    def build_organization_gemini(self, obj, now, organization_id, **kwargs):
+        obj['organization_id'] = organization_id
+        for bucket in obj.get('filters', {}).get('buckets', []):
+            self.refresh_relations(['cloud_account_id'], bucket)
+        obj = self.offsets_to_timestamps(
+            ['created_at', 'last_run', 'last_completed'], now, obj)
+        obj["filters"] = json.dumps(obj.pop("filters"))
+        obj["stats"] = json.dumps(obj.pop("stats"))
+        return OrganizationGemini(**obj)
+
     def rollback(self, insertions_map):
         for group, ids in insertions_map.items():
             dest = self._dest_map.get(group)
@@ -845,8 +1042,10 @@ class LiveDemoController(BaseController, MongoMixin):
             self._recovery_map[ObjectGroups.AuthUsers.value][
                 employee_data.get('auth_user_id', None)] = employee_data['id']
 
-    def fill_organization(self, organization, src_replace_employee,
-                          dest_replace_employee, preset):
+    def fill_organization(
+            self, organization: Organization, token: ProfilingToken,
+            src_replace_employee, dest_replace_employee, preset
+    ):
         now = int(datetime.utcnow().replace(
             hour=0, minute=0, second=0).timestamp())
         insertions_map = {}
@@ -861,7 +1060,9 @@ class LiveDemoController(BaseController, MongoMixin):
             for group in ObjectGroups.rest_objects():
                 res = self.recover_objects(
                     group, preset, now=now, organization_id=organization.id,
-                    duplication_resource_info_map=duplication_resource_info_map)
+                    duplication_resource_info_map=duplication_resource_info_map,
+                    profiling_token=token.token,
+                    infrastructure_token=token.infrastructure_token)
                 if group == ObjectGroups.CloudAccounts:
                     cloud_accounts.extend(res)
                 dest = self._dest_map.get(group)
@@ -989,14 +1190,19 @@ class LiveDemoController(BaseController, MongoMixin):
         organization, employee = RegisterController(
             self.session, self._config, self.token).add_organization(
             org_name, auth_user, is_demo=True)
+        profiling_token = BaseProfilingTokenController(
+            self.session, self._config, self.token
+        ).get_or_create_profiling_token(organization.id)
 
         preset = self.load_preset(PRESET_FILENAME)
         employee_id_to_replace = self.get_replacement_employee(preset)
         self.init_duplication_resources(preset)
         try:
             self.fill_organization(
-                organization, employee_id_to_replace, employee.id, preset)
+                organization, profiling_token, employee_id_to_replace,
+                employee.id, preset)
         except Exception as exc:
+            LOG.exception(exc)
             raise InternalServerError(Err.OE0451, [str(exc)])
         return {
             'organization_id': organization.id,

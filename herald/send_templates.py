@@ -1332,7 +1332,8 @@ PARAMETER_DUMPS = {
         'template_type': 'disconnect_survey',
         'template_params': {
             'texts': {
-                'user': 'james7656@hystax.com',
+                'user': 'Eliot Alderson',
+                'email': 'ealderson@fsociety.com',
                 'data': {
                     'k1': 'v1',
                     'k2': 'v2',
