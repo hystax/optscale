@@ -62,7 +62,15 @@ class DisconnectSurveyController(BaseController):
                                                  organization_id])
         return org
 
-    def send_survey_service_email(self, org_id, org_name, user_id, survey_type, data):
+    def send_survey_service_email(
+            self,
+            org_id,
+            org_name,
+            user_name,
+            email,
+            survey_type,
+            data
+    ):
         recipient = self._config.optscale_email_recipient()
         if not recipient:
             return
@@ -74,7 +82,8 @@ class DisconnectSurveyController(BaseController):
                     'id': org_id,
                     'name': org_name,
                 },
-                'user': user_id,
+                'user': user_name,
+                'email': email,
                 'data': payload
             }
         }
@@ -89,17 +98,18 @@ class DisconnectSurveyController(BaseController):
         self._validate_parameters(**kwargs)
         survey_type, data = self._get_data(**kwargs)
         org = self.get_organization(organization_id)
-        user_id = self.get_user_id()
+        user_info = self.get_user_info()
 
         employee = EmployeeController(
             self.session, self._config, self.token
         ).get_employee_by_user_and_organization(
-            user_id, organization_id=organization_id)
+            user_info['id'], organization_id=organization_id)
 
         self.send_survey_service_email(
             organization_id,
             org.name,
             employee.name,
+            user_info['email'],
             survey_type,
             data
         )
