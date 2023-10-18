@@ -598,7 +598,6 @@
   "executorIsNotFoundInConnectedDataSources": "Executor is not found in connected data sources",
   "executors": "Executors",
   "executorsCount": "Executors count",
-  "executorsSummary": "Executors summary",
   "executorsUpgrade": "Executors upgrade",
   "executorsUpgradeDescription": "The following executors can be upgraded to the latest instance generation to gain more performance.",
   "expand": "Expand",
