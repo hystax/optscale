@@ -8,8 +8,9 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <JsonView value={{}} onChange={jest.fn} />
-    </TestProvider>
+      <JsonView value={{}} onChange={vi.fn} />
+    </TestProvider>,
+    div
   );
   root.unmount();
 });

@@ -9,7 +9,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <DeleteAssignmentRule isLoading={false} onSubmit={jest.fn} sendState={UNKNOWN} setModalOpen={jest.fn} />
+      <DeleteAssignmentRule isLoading={false} onSubmit={vi.fn} sendState={UNKNOWN} setModalOpen={vi.fn} />
     </TestProvider>
   );
   root.unmount();

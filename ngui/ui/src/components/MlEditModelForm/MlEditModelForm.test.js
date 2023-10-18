@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <MlEditModelForm model={{}} employees={[]} onSubmit={jest.fn} onCancel={jest.fn} />
+      <MlEditModelForm model={{}} employees={[]} onSubmit={vi.fn} onCancel={vi.fn} />
     </TestProvider>
   );
   root.unmount();

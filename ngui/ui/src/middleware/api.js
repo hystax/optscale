@@ -55,7 +55,7 @@ const apiMiddleware =
 
     const dataOrParams = ["GET", "DELETE"].includes(method) ? "params" : "data";
 
-    axios.defaults.baseURL = getEnvironmentVariable("REACT_APP_BASE_URL") || "";
+    axios.defaults.baseURL = getEnvironmentVariable("VITE_BASE_URL") || "";
     axios.defaults.headers.common["Content-Type"] = "application/json";
     axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 

@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <CreateOrganizationConstraintForm onSubmit={jest.fn} types={[]} navigateAway={jest.fn} />
+      <CreateOrganizationConstraintForm onSubmit={vi.fn} types={[]} navigateAway={vi.fn} />
     </TestProvider>
   );
   root.unmount();

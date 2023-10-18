@@ -25,7 +25,7 @@ it("renders without crashing", () => {
         breakdown={{}}
         organizationName="org"
         isLoading={false}
-        onApply={jest.fn}
+        onApply={vi.fn}
         startDateTimestamp={firstDateRangePoint}
         endDateTimestamp={lastDateRangePoint}
       />

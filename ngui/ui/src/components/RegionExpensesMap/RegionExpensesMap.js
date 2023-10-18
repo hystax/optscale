@@ -18,7 +18,7 @@ const RegionExpensesMap = ({ markers, defaultZoom, defaultCenter, startDateTimes
     zoom
   );
 
-  const key = getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY");
+  const key = getEnvironmentVariable("VITE_GOOGLE_MAP_API_KEY");
 
   return !isEmpty(markersWithClusters) ? (
     <div style={{ height: `${REGION_EXPENSES_HEIGHT}px`, width: "100%" }}>

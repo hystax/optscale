@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <MlBreakdownCheckboxes selectedBreakdowns={[]} colorsMap={{}} breakdownConfig={{}} onChange={jest.fn} />
+      <MlBreakdownCheckboxes selectedBreakdowns={[]} colorsMap={{}} breakdownConfig={{}} onChange={vi.fn} />
     </TestProvider>
   );
   root.unmount();

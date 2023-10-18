@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <DeleteResourcePerspective perspectiveName="name" onDelete={jest.fn} onCancel={jest.fn} />
+      <DeleteResourcePerspective perspectiveName="name" onDelete={vi.fn} onCancel={vi.fn} />
     </TestProvider>
   );
   root.unmount();

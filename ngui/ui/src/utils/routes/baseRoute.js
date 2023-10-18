@@ -11,7 +11,10 @@ class BaseRoute {
 
   layout = MainLayout;
 
-  component = lazy(() => import(`pages/${this.page}`));
+  component = lazy(() =>
+    // https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations
+    import(`../../pages/${this.page}/index.js`)
+  );
 }
 
 export default BaseRoute;

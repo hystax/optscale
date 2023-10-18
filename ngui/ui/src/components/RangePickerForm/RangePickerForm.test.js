@@ -12,7 +12,7 @@ it("renders without crashing", () => {
       <RangePickerForm
         initialStartDateValue={millisecondsToSeconds(+new Date())}
         initialEndDateValue={millisecondsToSeconds(+new Date())}
-        onApply={jest.fn}
+        onApply={vi.fn}
       />
     </TestProvider>
   );

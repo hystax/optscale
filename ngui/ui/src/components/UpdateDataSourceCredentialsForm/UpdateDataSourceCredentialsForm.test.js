@@ -9,7 +9,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <UpdateDataSourceCredentialsForm id="id" type={AWS_CNR} config={{}} onSubmit={jest.fn} />
+      <UpdateDataSourceCredentialsForm id="id" type={AWS_CNR} config={{}} onSubmit={vi.fn} />
     </TestProvider>
   );
   root.unmount();

@@ -14,7 +14,7 @@ it("renders without crashing", () => {
     >
       <TtlAnalysisForm
         pools={[]}
-        onSubmit={jest.fn}
+        onSubmit={vi.fn}
         fieldNames={{
           poolFieldName: "poolFieldName",
           ttlModeFieldName: "ttlModeFieldName",

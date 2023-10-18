@@ -18,7 +18,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <OrganizationSelector pools={pools} organizationId={pools[0].id} onChange={jest.fn} />
+      <OrganizationSelector pools={pools} organizationId={pools[0].id} onChange={vi.fn} />
     </TestProvider>
   );
   root.unmount();

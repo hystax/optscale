@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <MlEditModelParameters parameters={[]} onAttachChange={jest.fn} />
+      <MlEditModelParameters parameters={[]} onAttachChange={vi.fn} />
     </TestProvider>
   );
   root.unmount();

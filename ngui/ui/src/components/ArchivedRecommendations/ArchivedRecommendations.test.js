@@ -17,11 +17,11 @@ it("renders without crashing", () => {
         archivedRecommendations={{
           breakdown: []
         }}
-        onTimeRangeChange={jest.fn}
+        onTimeRangeChange={vi.fn}
         isChartLoading={false}
         isLoading={false}
-        archivedRecommendationsBreakdown={jest.fn}
-        onBarChartSelect={jest.fn}
+        archivedRecommendationsBreakdown={vi.fn}
+        onBarChartSelect={vi.fn}
       />
     </TestProvider>
   );

@@ -7,7 +7,7 @@ import { getEnvironmentVariable } from "utils/env";
 import { useGoogleLogin } from "./hooks";
 
 const GoogleAuthButton = ({ thirdPartySignIn, setIsAuthInProgress, isAuthInProgress, isRegistrationInProgress }) => {
-  const clientId = getEnvironmentVariable("REACT_APP_GOOGLE_OAUTH_CLIENT_ID");
+  const clientId = getEnvironmentVariable("VITE_GOOGLE_OAUTH_CLIENT_ID");
   const { login, scriptLoadedSuccessfully } = useGoogleLogin({
     onSuccess: ({ code: token }) => thirdPartySignIn(PROVIDERS.GOOGLE, { token }),
     onError: (response = {}) => {

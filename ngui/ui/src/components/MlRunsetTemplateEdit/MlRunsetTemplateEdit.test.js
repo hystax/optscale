@@ -12,8 +12,8 @@ it("renders without crashing", () => {
         models={[]}
         dataSources={[]}
         runsetTemplate={{}}
-        onSubmit={jest.fn}
-        onCancel={jest.fn}
+        onSubmit={vi.fn}
+        onCancel={vi.fn}
         defaultValues={{}}
       />
     </TestProvider>

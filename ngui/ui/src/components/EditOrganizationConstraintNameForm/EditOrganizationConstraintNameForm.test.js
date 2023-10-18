@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <EditOrganizationConstraintNameForm defaultName="" onCancel={jest.fn} onSubmit={jest.fn} />
+      <EditOrganizationConstraintNameForm defaultName="" onCancel={vi.fn} onSubmit={vi.fn} />
     </TestProvider>
   );
   root.unmount();

@@ -14,7 +14,7 @@ it("renders without crashing", () => {
         reason="options_changed"
         archivedAt={1652830013}
         isExpanded={false}
-        onChange={jest.fn}
+        onChange={vi.fn}
       />
     </TestProvider>
   );

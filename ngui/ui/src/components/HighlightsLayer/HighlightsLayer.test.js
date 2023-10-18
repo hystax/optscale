@@ -15,11 +15,11 @@ it("renders without crashing", () => {
               data: [{ x: 1 }]
             }
           ],
-          xScale: jest.fn,
+          xScale: vi.fn,
           innerHeight: 10,
           areaOpacity: 0.1
         }}
-        shouldHighlight={jest.fn}
+        shouldHighlight={vi.fn}
       />
     </TestProvider>
   );

@@ -5,16 +5,14 @@ import rootReducer from "./reducers";
 
 /* eslint-disable no-underscore-dangle */
 const composeEnhancers =
-  typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && process.env.NODE_ENV === "development"
+  typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && import.meta.env.DEV
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
     : compose;
 /* eslint-enable */
 
-const middleware =
-  process.env.NODE_ENV === "development"
-    ? // eslint-disable-next-line global-require
-      [require("redux-immutable-state-invariant").default(), apiMiddleware]
-    : [apiMiddleware];
+const middleware = import.meta.env.DEV
+  ? [(await import("redux-immutable-state-invariant")).default(), apiMiddleware]
+  : [apiMiddleware];
 
 const enhancer = composeEnhancers(applyMiddleware(...middleware));
 

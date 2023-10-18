@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <CreateClusterTypeForm onSubmit={jest.fn} onCancel={jest.fn} />
+      <CreateClusterTypeForm onSubmit={vi.fn} onCancel={vi.fn} />
     </TestProvider>
   );
   root.unmount();

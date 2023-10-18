@@ -10,7 +10,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider>
       <CreateResourcePerspectiveForm
-        onSubmit={jest.fn}
+        onSubmit={vi.fn}
         breakdownBy="tags"
         breakdownData={{}}
         filters={

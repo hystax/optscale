@@ -12,7 +12,7 @@ it("renders without crashing", () => {
       <ExpensesDailyBreakdownBy
         breakdown={{}}
         breakdownByValue={RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID}
-        onBreakdownByChange={jest.fn}
+        onBreakdownByChange={vi.fn}
       />
     </TestProvider>
   );
