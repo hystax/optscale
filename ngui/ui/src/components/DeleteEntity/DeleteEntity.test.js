@@ -11,9 +11,9 @@ it("renders without crashing", () => {
       <DeleteEntity
         message={{ messageId: "deleteResourcesQuestion", values: { count: 1 } }}
         deleteButtonProps={{
-          onDelete: () => jest.fn
+          onDelete: () => vi.fn
         }}
-        onCancel={() => jest.fn}
+        onCancel={() => vi.fn}
       />
     </TestProvider>
   );

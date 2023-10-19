@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <PaletteSettingsForm color="primary" options={{}} onUpdate={jest.fn} />
+      <PaletteSettingsForm color="primary" options={{}} onUpdate={vi.fn} />
     </TestProvider>
   );
   root.unmount();

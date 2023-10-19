@@ -3,10 +3,13 @@ import CloudDownloadOutlinedIcon from "@mui/icons-material/CloudDownloadOutlined
 import { REST_API_URL } from "api";
 import ButtonLoader from "components/ButtonLoader";
 import { useFetchAndDownload } from "hooks/useFetchAndDownload";
+import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { DOWNLOAD_FILE_FORMATS } from "utils/constants";
 import { formQueryString } from "utils/network";
 
 const DownloadObjectsListContainer = ({ fromBucketName, toBucketName, checkId }) => {
+  const { isDemo } = useOrganizationInfo();
+
   const { isFileDownloading, fetchAndDownload } = useFetchAndDownload();
 
   const downloadObjectsList = () => {
@@ -29,6 +32,8 @@ const DownloadObjectsListContainer = ({ fromBucketName, toBucketName, checkId })
       color="primary"
       variant="contained"
       isLoading={isFileDownloading}
+      disabled={isDemo}
+      tooltip={{ show: isDemo, messageId: "notAvailableInLiveDemo" }}
     />
   );
 };

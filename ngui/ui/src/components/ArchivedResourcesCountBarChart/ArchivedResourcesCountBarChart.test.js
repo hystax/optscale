@@ -8,8 +8,9 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <ArchivedResourcesCountBarChart onSelect={jest.fn} breakdown={{}} />
-    </TestProvider>
+      <ArchivedResourcesCountBarChart onSelect={vi.fn} breakdown={{}} />
+    </TestProvider>,
+    div
   );
   root.unmount();
 });

@@ -1,10 +1,5 @@
 {
   "name": "ngui",
-  "jest": {
-    "transformIgnorePatterns": [
-      "node_modules/(?!@react-markdown)/"
-    ]
-  },
   "version": "0.3.0",
   "private": true,
   "dependencies": {
@@ -30,6 +25,7 @@
     "@tanstack/react-table": "^8.7.6",
     "@uiw/react-textarea-code-editor": "^2.1.1",
     "@visx/brush": "^2.12.2",
+    "@vitejs/plugin-react": "^4.1.0",
     "ajv": "^8.12.0",
     "analytics": "^0.8.1",
     "axios": "^1.2.3",
@@ -60,7 +56,6 @@
     "react-plotly.js": "^2.6.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.6.2",
-    "react-scripts": "^5.0.1",
     "react-test-renderer": "^18.2.0",
     "redux": "^4.2.0",
     "redux-mock-store": "^1.5.4",
@@ -71,17 +66,19 @@
     "resize-observer-polyfill": "^1.5.1",
     "text-security": "^3.2.1",
     "tss-react": "^4.5.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "vite": "^4.4.9",
+    "vite-tsconfig-paths": "^4.2.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "vite",
     "start:ci": "npm ci --ignore-scripts && npm start",
-    "test": "react-scripts test",
-    "test:ci": "react-scripts --max_old_space_size=4096 test -u",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ci": "vitest -u --silent",
     "lint:check": "eslint . --ext=js --max-warnings=0",
     "lint:fix": "eslint . --ext=js --fix",
-    "eject": "react-scripts eject",
     "storybook": "start-storybook -p 9009 -s public",
     "storybook:build": "build-storybook -o ./storybook -s public",
     "storybook:clean": "rm -rf src/tests/__snapshots__",
@@ -121,8 +118,9 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.1",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "http-proxy-middleware": "^2.0.6",
+    "jsdom": "^22.1.0",
     "prettier": "^2.8.3",
-    "redux-immutable-state-invariant": "^2.1.0"
+    "redux-immutable-state-invariant": "^2.1.0",
+    "vitest": "^0.34.5"
   }
 }

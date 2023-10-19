@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <EnvironmentPropertyValueInput name="name" register={jest.fn} />
+      <EnvironmentPropertyValueInput name="name" register={() => {}} />
     </TestProvider>
   );
   root.unmount();

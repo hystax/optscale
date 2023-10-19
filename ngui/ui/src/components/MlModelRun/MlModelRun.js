@@ -29,21 +29,11 @@ const Tabs = ({ run, isLoading = false }) => {
       node: (
         <Overview
           status={run.status}
-          cost={run.cost}
-          endedAt={run.finish}
           duration={run.duration}
-          dataRead={run.data_read}
-          dataWritten={run.data_written}
-          tasksCPU={run.task_cpu}
-          cpuUptime={run.cpu_uptime}
-          hostCPU={run.host_cpu}
-          processCPU={run.process_cpu}
-          hostRAM={run.host_ram}
-          processRAM={run.process_ram}
+          cost={run.cost}
           reachedGoals={run.reached_goals}
           tags={run.tags}
           isLoading={isLoading}
-          onSeeExecutorsClick={() => setActiveTab(TABS.EXECUTORS)}
         />
       )
     },

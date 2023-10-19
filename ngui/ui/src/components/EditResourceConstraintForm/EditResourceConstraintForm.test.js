@@ -12,9 +12,9 @@ it("renders without crashing", () => {
         constraintType="ttl"
         constraintLimit={0}
         constraintId="id"
-        onSubmit={jest.fn}
-        onSuccess={jest.fn}
-        onCancel={jest.fn}
+        onSubmit={vi.fn}
+        onSuccess={vi.fn}
+        onCancel={vi.fn}
       />
     </TestProvider>
   );

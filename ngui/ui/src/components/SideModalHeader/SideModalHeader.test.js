@@ -8,8 +8,9 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <SideModalHeader messageId="deleteResources" onClose={jest.fn} />
-    </TestProvider>
+      <SideModalHeader messageId="deleteResources" onClose={vi.fn} />
+    </TestProvider>,
+    div
   );
   root.unmount();
 });

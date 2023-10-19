@@ -1,7 +1,6 @@
 import React from "react";
-import { useTheme } from "@emotion/react";
 import { FormControlLabel, Typography } from "@mui/material";
-import { alpha } from "@mui/material/styles";
+import { useTheme, alpha } from "@mui/material/styles";
 import Switch from "@mui/material/Switch";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";

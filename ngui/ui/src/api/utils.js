@@ -5,7 +5,7 @@ import { ERROR_HANDLER_TYPE_ALERT, SUCCESS_HANDLER_TYPE_LOCAL } from "./constant
 
 export const getApiUrl = (client, version = "v2") => {
   const baseUrl = `/${client}/${version}`;
-  return process.env.NODE_ENV === "development" ? `/api${baseUrl}` : baseUrl;
+  return import.meta.env.DEV ? `/api${baseUrl}` : baseUrl;
 };
 
 export const apiAction = ({

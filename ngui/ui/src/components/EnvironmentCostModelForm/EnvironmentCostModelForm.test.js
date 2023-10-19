@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <EnvironmentCostModelForm onSubmit={jest.fn} onCancel={jest.fn} defaultHourlyPrice={0} />
+      <EnvironmentCostModelForm onSubmit={vi.fn} onCancel={vi.fn} defaultHourlyPrice={0} />
     </TestProvider>
   );
   root.unmount();

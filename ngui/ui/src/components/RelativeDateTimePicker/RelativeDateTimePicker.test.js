@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <RelativeDateTimePicker onChange={jest.fn} definedRanges={k8sRightsizingRelativeDates} />
+      <RelativeDateTimePicker onChange={vi.fn} definedRanges={k8sRightsizingRelativeDates} />
     </TestProvider>
   );
   root.unmount();

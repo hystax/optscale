@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <ChartPaletteSettingsForm palette="chart" options={[]} onUpdate={jest.fn} />
+      <ChartPaletteSettingsForm palette="chart" options={[]} onUpdate={vi.fn} />
     </TestProvider>
   );
   root.unmount();

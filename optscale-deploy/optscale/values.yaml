@@ -203,11 +203,11 @@ ngui:
     externalPort: 80
     internalPort: 4000
   env:
-    react_app_google_oauth_client_id:
-    react_app_microsoft_oauth_client_id:
-    react_app_google_map_api_key:
-    react_app_ganalytics_id:
-    react_app_hotjar_id:
+    google_oauth_client_id:
+    microsoft_oauth_client_id:
+    google_map_api_key:
+    ganalytics_id:
+    hotjar_id:
 
 minio:
   name: &minio_name minio

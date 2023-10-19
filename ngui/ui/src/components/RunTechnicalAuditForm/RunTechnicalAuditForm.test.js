@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <RunTechnicalAuditForm onSubmit={jest.fn} />
+      <RunTechnicalAuditForm onSubmit={vi.fn} />
     </TestProvider>
   );
   root.unmount();

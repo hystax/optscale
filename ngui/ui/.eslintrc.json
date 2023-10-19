@@ -2,14 +2,15 @@
   "env": {
     "browser": true,
     "es6": true,
-    "node": true,
-    "jest": true
+    "node": true
   },
   "extends": ["react-app", "eslint:recommended", "plugin:react/recommended", "airbnb-base", "prettier"],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly",
-    "globalThis": "readonly"
+    "globalThis": "readonly",
+    // Allow using «vi» in tests without warnings
+    "vi": true
   },
   "parser": "@babel/eslint-parser",
   "parserOptions": {

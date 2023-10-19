@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <UpdateCostModelSideModal isOpen setIsOpen={jest.fn} cloudAccountId="cloudAccountId" costModel={{}} />
+      <UpdateCostModelSideModal isOpen setIsOpen={vi.fn} cloudAccountId="cloudAccountId" costModel={{}} />
     </TestProvider>
   );
   root.unmount();

@@ -9,7 +9,7 @@ it("renders with action", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <ProfilingIntegrationModalContextProvider onClose={jest.fn}>
+      <ProfilingIntegrationModalContextProvider onClose={vi.fn}>
         <ProfilingIntegration />
       </ProfilingIntegrationModalContextProvider>
     </TestProvider>

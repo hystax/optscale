@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <EnvironmentPropertyForm defaultPropertyName="" defaultPropertyValue="" onSubmit={jest.fn} onCancel={jest.fn} />
+      <EnvironmentPropertyForm defaultPropertyName="" defaultPropertyValue="" onSubmit={vi.fn} onCancel={vi.fn} />
     </TestProvider>
   );
   root.unmount();

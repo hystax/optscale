@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <ShareSettings canEdit currentLink={""} onChange={jest.fn} isLoading={false} />
+      <ShareSettings canEdit currentLink={""} onChange={vi.fn} isLoading={false} />
     </TestProvider>
   );
   root.unmount();

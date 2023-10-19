@@ -8,8 +8,9 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <InviteEmployees isLoadingProps={false} onSubmit={jest.fn} availablePools={[]} />
-    </TestProvider>
+      <InviteEmployees isLoadingProps={false} onSubmit={vi.fn} availablePools={[]} />
+    </TestProvider>,
+    div
   );
   root.unmount();
 });

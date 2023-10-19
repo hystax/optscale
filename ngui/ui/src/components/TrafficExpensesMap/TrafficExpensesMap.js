@@ -232,7 +232,7 @@ const TrafficExpensesMap = ({ markers, defaultZoom, defaultCenter, onMapClick = 
 
   const externalMarker = data?.externalLocations.length ? data?.externalLocations[0] : null;
   const interRegionMarker = data?.interRegion;
-  const key = getEnvironmentVariable("REACT_APP_GOOGLE_MAP_API_KEY");
+  const key = getEnvironmentVariable("VITE_GOOGLE_MAP_API_KEY");
   return (
     <div
       className={`flowmap-container ${UI_INITIAL.darkMode ? "dark" : "light"}`}

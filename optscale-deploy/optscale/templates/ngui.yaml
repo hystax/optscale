@@ -61,14 +61,14 @@ spec:
           value: /usr/src/app/ui
         - name: PROXY_URL
           value: https://ngingress-nginx-ingress-controller:443
-        - name: REACT_APP_GOOGLE_OAUTH_CLIENT_ID
-          value: {{ $config.env.react_app_google_oauth_client_id }}
-        - name: REACT_APP_MICROSOFT_OAUTH_CLIENT_ID
-          value: {{ $config.env.react_app_microsoft_oauth_client_id }}
-        - name: REACT_APP_GOOGLE_MAP_API_KEY
-          value: {{ $config.env.react_app_google_map_api_key }}
-        - name: REACT_APP_GANALYTICS_ID
-          value: {{ $config.env.react_app_ganalytics_id }}
-        - name: REACT_APP_HOTJAR_ID
-          value: {{ $config.env.react_app_hotjar_id | quote }}
+        - name: VITE_GOOGLE_OAUTH_CLIENT_ID
+          value: {{ $config.env.google_oauth_client_id }}
+        - name: VITE_MICROSOFT_OAUTH_CLIENT_ID
+          value: {{ $config.env.microsoft_oauth_client_id }}
+        - name: VITE_GOOGLE_MAP_API_KEY
+          value: {{ $config.env.google_map_api_key }}
+        - name: VITE_GANALYTICS_ID
+          value: {{ $config.env.ganalytics_id }}
+        - name: VITE_HOTJAR_ID
+          value: {{ $config.env.hotjar_id | quote }}
 {{ include "ready_probe" $config | indent 8 }}

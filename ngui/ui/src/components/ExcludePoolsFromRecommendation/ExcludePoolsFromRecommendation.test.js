@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <ExcludePoolsFromRecommendation name="obsoleteImages" onSuccess={jest.fn} />
+      <ExcludePoolsFromRecommendation name="obsoleteImages" onSuccess={vi.fn} />
     </TestProvider>
   );
   root.unmount();

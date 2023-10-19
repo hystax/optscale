@@ -1,15 +1,15 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import LinearDatePicker from "./LinearDatePicker";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
-      <LinearDatePicker selectedRange={{}} onSelectedRangeChange={jest.fn} ranges={[]} />
-    </TestProvider>,
-    div
+      <LinearDatePicker selectedRange={{}} onSelectedRangeChange={vi.fn} ranges={[]} />
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

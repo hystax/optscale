@@ -18,10 +18,10 @@ it("renders without crashing", () => {
         endDateTimestamp={lastDateRangePoint}
         filters={{}}
         filterValues={{}}
-        onApply={jest.fn}
-        onFilterAdd={jest.fn}
-        onFilterDelete={jest.fn}
-        onFiltersDelete={jest.fn}
+        onApply={vi.fn}
+        onFilterAdd={vi.fn}
+        onFilterDelete={vi.fn}
+        onFiltersDelete={vi.fn}
         requestParams={{}}
         activeBreakdown={{
           name: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
@@ -35,8 +35,8 @@ it("renders without crashing", () => {
           breakdownBy: [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.EMPLOYEE_ID, null]
         }}
         perspectives={{}}
-        onBreakdownChange={jest.fn}
-        onPerspectiveApply={jest.fn}
+        onBreakdownChange={vi.fn}
+        onPerspectiveApply={vi.fn}
       />
     </TestProvider>
   );

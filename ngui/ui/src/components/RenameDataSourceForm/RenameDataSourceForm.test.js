@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <RenameDataSourceForm name="name" onSubmit={jest.fn} onCancel={jest.fn} />
+      <RenameDataSourceForm name="name" onSubmit={vi.fn} onCancel={vi.fn} />
     </TestProvider>
   );
   root.unmount();

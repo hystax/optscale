@@ -28,8 +28,8 @@ it("renders without crashing", () => {
         startDateTimestamp={firstDateRangePoint}
         endDateTimestamp={lastDateRangePoint}
         isLoading={false}
-        onApply={jest.fn}
-        updateFilter={jest.fn}
+        onApply={vi.fn}
+        updateFilter={vi.fn}
         name="name"
       />
     </TestProvider>

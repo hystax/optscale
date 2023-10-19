@@ -2,7 +2,7 @@
 
 function initializeEnvironmentVariables(){
     echo "window.optscale = window.optscale || {};";
-    for i in `env | grep '^REACT'`
+    for i in `env | grep '^VITE'`
     do
         key=$(echo "$i" | cut -d"=" -f1);
         val=$(echo "$i" | cut -d"=" -f2);

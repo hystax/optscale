@@ -10,7 +10,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider>
       <K8sRightsizing
-        applyFilter={jest.fn}
+        applyFilter={vi.fn}
         actionBarDefinition={{}}
         definedRanges={k8sRightsizingRelativeDates}
         namespaces={[]}

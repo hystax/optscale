@@ -6,12 +6,12 @@ import { getEnvironmentVariable } from "./env";
 import { isEmpty } from "./objects";
 
 // Hotjar analytics
-const HOT_JAR_ID = getEnvironmentVariable("REACT_APP_HOTJAR_ID");
+const HOT_JAR_ID = getEnvironmentVariable("VITE_HOTJAR_ID");
 const isEligibleEnvironment = () => !!HOT_JAR_ID && (isProduction() || isDemo());
-export const initializeHotjar = () => isEligibleEnvironment() && initialize(getEnvironmentVariable("REACT_APP_HOTJAR_ID"));
+export const initializeHotjar = () => isEligibleEnvironment() && initialize(getEnvironmentVariable("VITE_HOTJAR_ID"));
 
 // Google analytics
-const GA_KEY = getEnvironmentVariable("REACT_APP_GANALYTICS_ID");
+const GA_KEY = getEnvironmentVariable("VITE_GANALYTICS_ID");
 let identificationLoading = false;
 let resetLoading = false;
 

@@ -1,15 +1,15 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
 import EditOrganizationCurrencyForm from "./EditOrganizationCurrencyForm";
 
 it("renders without crashing", () => {
   const div = document.createElement("div");
-  ReactDOM.render(
+  const root = createRoot(div);
+  root.render(
     <TestProvider>
-      <EditOrganizationCurrencyForm defaultCurrency="USD" onSubmit={jest.fn} onCancel={jest.fn} />
-    </TestProvider>,
-    div
+      <EditOrganizationCurrencyForm defaultCurrency="USD" onSubmit={vi.fn} onCancel={vi.fn} />
+    </TestProvider>
   );
-  ReactDOM.unmountComponentAtNode(div);
+  root.unmount();
 });

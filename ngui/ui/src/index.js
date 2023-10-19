@@ -23,7 +23,6 @@ import ThemeProviderWrapper from "components/ThemeProviderWrapper";
 import Tour from "components/Tour";
 import * as serviceWorker from "serviceWorker";
 import configureStore from "store";
-
 import { intl } from "translations/react-intl-config";
 import { microsoftOAuthConfiguration } from "utils/integrations";
 

@@ -11,9 +11,9 @@ it("renders without crashing", () => {
       <AssignmentRuleFormWrapper
         cloudAccounts={[]}
         pools={[]}
-        onSubmit={jest.fn}
-        onCancel={jest.fn}
-        onPoolChange={jest.fn}
+        onSubmit={vi.fn}
+        onCancel={vi.fn}
+        onPoolChange={vi.fn}
         poolOwners={[]}
         isFormDataLoading={false}
         isSubmitLoading={false}

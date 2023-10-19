@@ -12,7 +12,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <RangePicker initialDateRange={{ startDate: today, endDate: nextWeek }} onChange={jest.fn} />
+      <RangePicker initialDateRange={{ startDate: today, endDate: nextWeek }} onChange={vi.fn} />
     </TestProvider>
   );
   root.unmount();

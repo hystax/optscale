@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <TypographySettingsForm variant="body1" options={{}} onUpdate={jest.fn} />
+      <TypographySettingsForm variant="body1" options={{}} onUpdate={vi.fn} />
     </TestProvider>
   );
   root.unmount();
