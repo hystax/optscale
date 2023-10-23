@@ -268,7 +268,8 @@ import {
   GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   GET_ORGANIZATION_GEMINIS,
-  GET_ORGANIZATION_CLOUD_RESOURCES
+  GET_ORGANIZATION_CLOUD_RESOURCES,
+  CREATE_SURVEY
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -2381,4 +2382,15 @@ export const createOrganizationGemini = (organizationId, params) =>
     label: CREATE_ORGANIZATION_GEMINI,
     affectedRequests: [GET_ORGANIZATION_GEMINIS],
     params
+  });
+
+export const createSurvey = (organizationId, { type, survey }) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/survey`,
+    method: "POST",
+    label: CREATE_SURVEY,
+    params: {
+      type,
+      survey
+    }
   });

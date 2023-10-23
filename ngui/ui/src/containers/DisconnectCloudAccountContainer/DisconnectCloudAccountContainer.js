@@ -1,37 +1,48 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { disconnectDataSource } from "api";
-import { DELETE_DATA_SOURCE } from "api/restapi/actionTypes";
 import DisconnectCloudAccount from "components/DisconnectCloudAccount";
-import { useApiState } from "hooks/useApiState";
+import { FIELD_REASON, FIELD_CAPABILITIES, FIELD_OTHER } from "components/DisconnectCloudAccount/FormElements";
+import DataSourcesService from "services/DataSourcesService";
+import SurveyService, { SURVEY_TYPES } from "services/SurveyService";
 import { CLOUD_ACCOUNTS } from "urls";
-import { isError } from "utils/api";
 
 const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }) => {
-  const { isLoading } = useApiState(DELETE_DATA_SOURCE);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const onSubmit = (cloudAccountId) =>
-    dispatch((_, getState) => {
-      dispatch(disconnectDataSource(cloudAccountId)).then(() => {
-        if (!isError(DELETE_DATA_SOURCE, getState())) {
-          navigate(CLOUD_ACCOUNTS);
-        }
-      });
-    });
+  const { createSurvey, isLoading: isCreateSurveyLoading } = SurveyService().useCreateSurvey();
+  const { disconnectDataSource, isLoading } = DataSourcesService().useDisconnectDataSource();
+  const disconnectAndRedirect = () => disconnectDataSource(id).then(() => navigate(CLOUD_ACCOUNTS));
+
+  const isLastDataSource = DataSourcesService().useIsLastDataSource();
+
+  const methods = useForm({ defaultValues: { [FIELD_REASON]: "", [FIELD_CAPABILITIES]: "", [FIELD_OTHER]: "" } });
+  const { handleSubmit } = methods;
+
+  const onSubmitHandler = handleSubmit((formData) => {
+    const isReasonSelected = !!formData[FIELD_REASON];
+    const isCapabilitiesAdded = !!formData[FIELD_CAPABILITIES];
+
+    if (isLastDataSource && (isReasonSelected || isCapabilitiesAdded)) {
+      createSurvey(SURVEY_TYPES.DISCONNECT_LAST_DATA_SOURCE, formData).then(disconnectAndRedirect);
+    } else {
+      disconnectAndRedirect();
+    }
+  });
 
   return (
-    <DisconnectCloudAccount
-      id={id}
-      type={type}
-      parentId={parentId}
-      onCancel={onCancel}
-      isLoading={isLoading}
-      onSubmit={onSubmit}
-    />
+    <FormProvider {...methods}>
+      <form data-test-id="disconnect-datasource-form" onSubmit={onSubmitHandler} noValidate>
+        <DisconnectCloudAccount
+          isLastDataSource={isLastDataSource}
+          type={type}
+          parentId={parentId}
+          onCancel={onCancel}
+          isLoading={isLoading || isCreateSurveyLoading}
+        />
+      </form>
+    </FormProvider>
   );
 };
 

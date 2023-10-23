@@ -6,8 +6,9 @@ import InlineSeverityAlert from "components/InlineSeverityAlert";
 import { useDataSources } from "hooks/useDataSources";
 import { AZURE_TENANT } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
+import Survey from "./Survey";
 
-const DisconnectCloudAccount = ({ id, type, parentId, onCancel, isLoading, onSubmit }) => {
+const DisconnectCloudAccount = ({ type, parentId, onCancel, isLoading, isLastDataSource = false }) => {
   const { disconnectQuestionId } = useDataSources(type);
   const isAzureTenant = type === AZURE_TENANT;
 
@@ -21,7 +22,7 @@ const DisconnectCloudAccount = ({ id, type, parentId, onCancel, isLoading, onSub
       )}
       <DeleteEntity
         message={{
-          messageId: disconnectQuestionId
+          messageId: isLastDataSource ? undefined : disconnectQuestionId
         }}
         dataTestIds={{
           text: "p_disconnect",
@@ -30,22 +31,23 @@ const DisconnectCloudAccount = ({ id, type, parentId, onCancel, isLoading, onSub
         }}
         isLoading={isLoading}
         deleteButtonProps={{
-          messageId: "disconnect",
-          onDelete: () => onSubmit(id)
+          messageId: "disconnect"
         }}
         onCancel={onCancel}
-      />
+      >
+        {isLastDataSource && <Survey />}
+      </DeleteEntity>
     </>
   );
 };
 
 DisconnectCloudAccount.propTypes = {
   isLoading: PropTypes.bool.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  id: PropTypes.string.isRequired,
+  onSubmit: PropTypes.func,
   onCancel: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
-  parentId: PropTypes.string
+  parentId: PropTypes.string,
+  isLastDataSource: PropTypes.bool
 };
 
 export default DisconnectCloudAccount;

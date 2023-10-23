@@ -38,17 +38,13 @@ const DeleteEntity = ({ children, onCancel, message = {}, dataTestIds, isLoading
           messageId={deleteButtonMessageId}
           color={deleteButtonColor}
           variant={deleteButtonVariant}
-          onClick={(event) => onDelete(event)}
+          onClick={typeof onDelete === "function" ? onDelete : undefined}
           disabled={deleteButtonDisabled}
           isLoading={isLoading}
           tooltip={tooltip}
+          type="submit"
         />
-        <Button
-          dataTestId={cancelButtonDataTestId}
-          messageId="cancel"
-          variant="outlined"
-          onClick={(event) => onCancel(event)}
-        />
+        <Button dataTestId={cancelButtonDataTestId} messageId="cancel" variant="outlined" onClick={onCancel} />
       </Box>
     </>
   );
@@ -57,7 +53,7 @@ const DeleteEntity = ({ children, onCancel, message = {}, dataTestIds, isLoading
 DeleteEntity.propTypes = {
   onCancel: PropTypes.func.isRequired,
   message: PropTypes.exact({
-    messageId: PropTypes.string.isRequired,
+    messageId: PropTypes.string,
     values: PropTypes.object
   }),
   children: PropTypes.node,
@@ -66,7 +62,7 @@ DeleteEntity.propTypes = {
     color: PropTypes.string,
     variant: PropTypes.string,
     disabled: PropTypes.bool,
-    onDelete: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
     tooltip: PropTypes.object
   }).isRequired,
   dataTestIds: PropTypes.object,
