@@ -9,6 +9,8 @@ from json.decoder import JSONDecodeError
 from kombu.pools import producers
 from kombu import Connection as QConnection, Exchange
 from bson.objectid import ObjectId
+from pymongo import UpdateOne
+
 from optscale_client.config_client.client import etcd
 from datetime import datetime, timedelta
 from sqlalchemy import and_, true
@@ -948,6 +950,14 @@ class LiveDemoController(BaseController, MongoMixin):
             ['created_at', 'started_at', 'destroyed_at'], now, obj)
         return obj
 
+    def _multiply_organization_gemini_stats(self, stats: dict) -> dict:
+        for k, v in stats.items():
+            if isinstance(v, (int, float)):
+                stats[k] = v * self.multiplier
+            elif isinstance(v, dict):
+                stats[k] = self._multiply_organization_gemini_stats(v)
+        return stats
+
     def build_organization_gemini(self, obj, now, organization_id, **kwargs):
         obj['organization_id'] = organization_id
         for bucket in obj.get('filters', {}).get('buckets', []):
@@ -955,7 +965,8 @@ class LiveDemoController(BaseController, MongoMixin):
         obj = self.offsets_to_timestamps(
             ['created_at', 'last_run', 'last_completed'], now, obj)
         obj["filters"] = json.dumps(obj.pop("filters"))
-        obj["stats"] = json.dumps(obj.pop("stats"))
+        obj["stats"] = json.dumps(self._multiply_organization_gemini_stats(
+            obj.pop("stats")))
         return OrganizationGemini(**obj)
 
     def rollback(self, insertions_map):
@@ -1042,6 +1053,23 @@ class LiveDemoController(BaseController, MongoMixin):
             self._recovery_map[ObjectGroups.AuthUsers.value][
                 employee_data.get('auth_user_id', None)] = employee_data['id']
 
+    def _insert_platforms(self, data: list[dict]) -> list[str]:
+        # platforms are matched by instance_id over the code so related
+        # collection shouldn't have duplicate records. Insert only if missing
+        if not data:
+            return []
+        update_operations = []
+        for obj in data:
+            update_operations.append(UpdateOne(
+                filter={
+                    'instance_id': obj['instance_id']
+                },
+                update={'$setOnInsert': obj},
+                upsert=True,
+            ))
+        res = self.platforms_collection.bulk_write(update_operations)
+        return list(res.upserted_ids.values())
+
     def fill_organization(
             self, organization: Organization, token: ProfilingToken,
             src_replace_employee, dest_replace_employee, preset
@@ -1070,7 +1098,11 @@ class LiveDemoController(BaseController, MongoMixin):
                     insertions_map[group] = []
                     for i in range(0, len(res), BULK_SIZE):
                         bulk = res[i:i + BULK_SIZE]
-                        obj_ids = dest.insert_many(bulk).inserted_ids
+                        # generalize on new conditions
+                        if group == ObjectGroups.Platforms:
+                            obj_ids = self._insert_platforms(bulk)
+                        else:
+                            obj_ids = dest.insert_many(bulk).inserted_ids
                         insertions_map[group].extend(obj_ids)
                 elif res and group in self._third_party_objects:
                     obj_clickhouse_table_map = {
