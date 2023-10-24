@@ -9,10 +9,6 @@ const CurrencyCodeAutocomplete = forwardRef(({ name, onBlur, value, onChange, er
   const formatOrganizationCurrency = useFormatOrganizationCurrency();
   const stringifyCurrency = (currencyCode) => formatOrganizationCurrency(currencyCode);
 
-  // return (
-  //   <Input ref={ref} margin="none" error={error} helperText={helperText} label={<FormattedMessage id="currency" />} required />
-  // );
-
   return (
     <Autocomplete
       name={name}
@@ -31,32 +27,29 @@ const CurrencyCodeAutocomplete = forwardRef(({ name, onBlur, value, onChange, er
         stringify: (option) => stringifyCurrency(option)
       })}
       renderOption={(props, option) => <li {...props}>{stringifyCurrency(option)}</li>}
-      renderInput={(params) => {
-        console.log("params", params);
-        return (
-          <Input
-            {...params}
-            ref={ref}
-            inputProps={{
-              ...params.inputProps,
-              style: {
-                ...params.inputProps?.style,
-                /*
+      renderInput={(params) => (
+        <Input
+          {...params}
+          ref={ref}
+          inputProps={{
+            ...params.inputProps,
+            style: {
+              ...params.inputProps?.style,
+              /*
                   MuiAutocomplete-input class from params.inputProps.className overrides width property defined by MuiOutlinedInput-input
                   Set width to 100% to fix input width in flex layout
                 */
-                width: "100%"
-              }
-            }}
-            InputProps={{ ...params.InputProps, ...InputProps }}
-            margin="none"
-            error={error}
-            helperText={helperText}
-            label={<FormattedMessage id="currency" />}
-            required
-          />
-        );
-      }}
+              width: "100%"
+            }
+          }}
+          InputProps={{ ...params.InputProps, ...InputProps }}
+          margin="none"
+          error={error}
+          helperText={helperText}
+          label={<FormattedMessage id="currency" />}
+          required
+        />
+      )}
     />
   );
 });
