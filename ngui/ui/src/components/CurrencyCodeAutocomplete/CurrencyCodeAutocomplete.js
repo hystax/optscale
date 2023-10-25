@@ -32,7 +32,15 @@ const CurrencyCodeAutocomplete = forwardRef(({ name, onBlur, value, onChange, er
           {...params}
           ref={ref}
           inputProps={{
-            ...params.inputProps
+            ...params.inputProps,
+            style: {
+              ...params.inputProps?.style,
+              /*
+                  MuiAutocomplete-input class from params.inputProps.className overrides width property defined by MuiOutlinedInput-input
+                  Set width to 100% to fix input width in flex layout
+                */
+              width: "100%"
+            }
           }}
           InputProps={{ ...params.InputProps, ...InputProps }}
           margin="none"
