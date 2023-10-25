@@ -4,18 +4,19 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import DisconnectCloudAccount from "components/DisconnectCloudAccount";
 import { FIELD_REASON, FIELD_CAPABILITIES, FIELD_OTHER } from "components/DisconnectCloudAccount/FormElements";
-import DataSourcesService from "services/DataSourcesService";
-import SurveyService, { SURVEY_TYPES } from "services/SurveyService";
+import DataSourcesService, { DATASOURCE_SURVEY_TYPES } from "services/DataSourcesService";
 import { CLOUD_ACCOUNTS } from "urls";
 
 const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }) => {
   const navigate = useNavigate();
 
-  const { createSurvey, isLoading: isCreateSurveyLoading } = SurveyService().useCreateSurvey();
-  const { disconnectDataSource, isLoading } = DataSourcesService().useDisconnectDataSource();
+  const { useDisconnectDataSource, useCreateSurvey, useIsLastDataSource } = DataSourcesService();
+
+  const { isLoading: isDisconnectDataSourceLoading, disconnectDataSource } = useDisconnectDataSource();
   const disconnectAndRedirect = () => disconnectDataSource(id).then(() => navigate(CLOUD_ACCOUNTS));
 
-  const isLastDataSource = DataSourcesService().useIsLastDataSource();
+  const { isLoading: isCreateSurveyLoading, createSurvey } = useCreateSurvey();
+  const { isLastDataSource } = useIsLastDataSource();
 
   const methods = useForm({ defaultValues: { [FIELD_REASON]: "", [FIELD_CAPABILITIES]: "", [FIELD_OTHER]: "" } });
   const { handleSubmit } = methods;
@@ -25,7 +26,7 @@ const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }) => {
     const isCapabilitiesAdded = !!formData[FIELD_CAPABILITIES];
 
     if (isLastDataSource && (isReasonSelected || isCapabilitiesAdded)) {
-      createSurvey(SURVEY_TYPES.DISCONNECT_LAST_DATA_SOURCE, formData).then(disconnectAndRedirect);
+      createSurvey(DATASOURCE_SURVEY_TYPES.DISCONNECT_LAST_DATA_SOURCE, formData).then(disconnectAndRedirect);
     } else {
       disconnectAndRedirect();
     }
@@ -39,7 +40,7 @@ const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }) => {
           type={type}
           parentId={parentId}
           onCancel={onCancel}
-          isLoading={isLoading || isCreateSurveyLoading}
+          isLoading={isDisconnectDataSourceLoading || isCreateSurveyLoading}
         />
       </form>
     </FormProvider>

@@ -2386,7 +2386,7 @@ export const createOrganizationGemini = (organizationId, params) =>
 
 export const createSurvey = (organizationId, { type, survey }) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/survey`,
+    url: `${API_URL}/organizations/${organizationId}/disconnect_survey`,
     method: "POST",
     label: CREATE_SURVEY,
     params: {
