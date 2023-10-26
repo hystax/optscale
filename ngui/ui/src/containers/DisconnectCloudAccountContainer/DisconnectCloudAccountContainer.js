@@ -16,6 +16,7 @@ const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }) => {
   const disconnectAndRedirect = () => disconnectDataSource(id).then(() => navigate(CLOUD_ACCOUNTS));
 
   const { isLoading: isCreateSurveyLoading, createSurvey } = useCreateSurvey();
+
   const isLastDataSource = useIsLastDataSource();
 
   const methods = useForm({ defaultValues: { [FIELD_REASON]: "", [FIELD_CAPABILITIES]: "", [FIELD_OTHER]: "" } });

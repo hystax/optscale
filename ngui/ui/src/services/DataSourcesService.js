@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { getDataSources, updateDataSource, disconnectDataSource as disconnectDataSourceApi, createSurvey } from "api";
+import {
+  getDataSources,
+  updateDataSource,
+  disconnectDataSource as disconnectDataSourceApi,
+  createSurvey as createSurveyApi
+} from "api";
 import { DELETE_DATA_SOURCE, GET_DATA_SOURCES, UPDATE_DATA_SOURCE, CREATE_SURVEY } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -81,17 +86,17 @@ const useCreateSurvey = () => {
 
   const { isLoading } = useApiState(CREATE_SURVEY);
 
-  const onCreateServey = (type, survey) =>
+  const createSurvey = (type, survey) =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
-        dispatch(createSurvey(organizationId, { type, survey }))
+        dispatch(createSurveyApi(organizationId, { type, survey }))
           .then(() => checkError(CREATE_SURVEY, getState()))
           .then(() => resolve())
           .catch(() => reject());
       });
     });
 
-  return { isLoading, onCreateServey };
+  return { isLoading, createSurvey };
 };
 
 function DataSourcesService() {
