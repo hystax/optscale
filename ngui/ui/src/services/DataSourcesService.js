@@ -86,10 +86,10 @@ const useCreateSurvey = () => {
 
   const { isLoading } = useApiState(CREATE_SURVEY);
 
-  const createSurvey = (type, survey) =>
+  const createSurvey = (type, payload) =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
-        dispatch(createSurveyApi(organizationId, { type, survey }))
+        dispatch(createSurveyApi(organizationId, { type, payload }))
           .then(() => checkError(CREATE_SURVEY, getState()))
           .then(() => resolve())
           .catch(() => reject());
