@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
+import { FormattedMessage } from "react-intl";
 import CopyText from "components/CopyText";
 import IconButton from "components/IconButton";
 import KeyValueLabel from "components/KeyValueLabel";
 import EditOrganizationFormContainer from "containers/EditOrganizationFormContainer";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
+import { SPACING_1 } from "utils/layouts";
 import OrganizationCurrency from "./OrganizationCurrency";
 
 const OrganizationId = ({ id }) => (
@@ -54,26 +56,21 @@ const OrganizationInfoSetting = () => {
   const { name: organizationName, organizationId, currency } = useOrganizationInfo();
 
   return (
-    <Stack spacing={1}>
-      <div
-        style={{
-          height: "40px",
-          display: "flex"
-        }}
-      >
+    <Stack spacing={SPACING_1}>
+      <Box>
         <OrganizationId id={organizationId} />
-      </div>
-      <div
-        style={{
-          height: "40px",
-          display: "flex"
-        }}
-      >
+      </Box>
+      <Box display="flex">
         <OrganizationName name={organizationName} />
-      </div>
-      <div>
+      </Box>
+      <Box>
+        <Typography>
+          <FormattedMessage id="organizationCurrencyDescription" />
+        </Typography>
+      </Box>
+      <Box>
         <OrganizationCurrency currencyCode={currency} />
-      </div>
+      </Box>
     </Stack>
   );
 };

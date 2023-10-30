@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
-import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
-import { FormattedMessage } from "react-intl";
 import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import FormattedOrganizationCurrency from "components/FormattedOrganizationCurrency";
 import IconButton from "components/IconButton";
@@ -14,7 +12,7 @@ import { useApiData } from "hooks/useApiData";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ENVIRONMENT } from "utils/constants";
 
-const Currency = () => {
+const OrganizationCurrency = () => {
   const theme = useTheme();
 
   const { currency: currencyCode } = useOrganizationInfo();
@@ -51,14 +49,5 @@ const Currency = () => {
     </Box>
   );
 };
-
-const OrganizationCurrency = () => (
-  <>
-    <Typography gutterBottom>
-      <FormattedMessage id="organizationCurrencyDescription" />
-    </Typography>
-    <Currency />
-  </>
-);
 
 export default OrganizationCurrency;
