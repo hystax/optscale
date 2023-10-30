@@ -1,11 +1,11 @@
-tornado==6.2
+tornado==6.3.3
 sqlalchemy==1.4.23
 alembic==1.7.1
 mysql-connector==2.2.9
 apispec[yaml]==5.1.0
-PyJWT[crypto]==1.7.1
+PyJWT[crypto]==2.4.0
 atlassian_jwt==1.9.0
-requests==2.25.0
+requests==2.31.0
 pydevd-pycharm==201.5616.27
 
 # OptScale packages

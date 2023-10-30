@@ -1,4 +1,4 @@
-FROM python:3.9.1-slim
+FROM python:3.9.16-slim
 MAINTAINER Hystax
 
 WORKDIR /usr/src/app/

@@ -3,7 +3,7 @@ from setuptools import setup
 
 requirements = [
     # AWS
-    'boto3==1.12.25',
+    'boto3==1.18.9',
 
     # Alibaba Cloud
     'aliyun-python-sdk-ecs==4.24.1',
@@ -26,7 +26,7 @@ requirements = [
     "azure-mgmt-monitor==0.10.0",
     "azure-mgmt-commerce==1.0.1",
     "msrest==0.6.6",
-    "urllib3==1.25.3",
+    "urllib3==1.26.18",
     "azure-identity==1.6.1",
 
     # Gcp
@@ -38,7 +38,7 @@ requirements = [
     # Nebius
     'yandexcloud==0.191.0',
 
-    "requests==2.25.0",
+    "requests==2.31.0",
     "retrying==1.3.3",
 ]
 

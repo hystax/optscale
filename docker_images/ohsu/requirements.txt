@@ -1,6 +1,5 @@
 boto
-# TODO: update version
-tornado==6.2
+tornado==6.3.3
 
 # OptScale packages
 -e tools/optscale_exceptions
