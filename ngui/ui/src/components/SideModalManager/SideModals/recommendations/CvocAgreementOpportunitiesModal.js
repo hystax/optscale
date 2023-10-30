@@ -2,7 +2,7 @@ import React from "react";
 import BaseSideModal from "../BaseSideModal";
 import DaysThreshold from "./components/DaysThreshold";
 
-class СVOCAgreementOpportunitiesModal extends BaseSideModal {
+class CvocAgreementOpportunitiesModal extends BaseSideModal {
   headerProps = {
     messageId: "cvosAgreementOpportunities",
     dataTestIds: {
@@ -24,4 +24,4 @@ class СVOCAgreementOpportunitiesModal extends BaseSideModal {
   }
 }
 
-export default СVOCAgreementOpportunitiesModal;
+export default CvocAgreementOpportunitiesModal;

@@ -9,8 +9,8 @@ import IconButton from "components/IconButton";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import WidgetTitle from "components/WidgetTitle";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
 import { useIsAllowed } from "hooks/useAllowedActions";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { RESOURCE_VISIBILITY_ACTIONS, FORMATTED_MONEY_TYPES, SCOPE_TYPES } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
@@ -141,16 +141,12 @@ const ActiveResourceRecommendations = ({ patchResource, activeRecommendations = 
   );
 };
 
-const patchRecommendationWithDescriptions = (backendData) => {
-  const RecommendationClass = ALL_RECOMMENDATIONS[backendData.name];
-
-  return {
-    ...backendData,
-    descriptionMessageId: RecommendationClass.resourceDescriptionMessageId,
-    descriptionMessageValues: RecommendationClass.getResourceDescriptionMessageValues(backendData),
-    dismissable: new RecommendationClass("active", {}).dismissable
-  };
-};
+const patchRecommendationWithDescriptions = (backendData, RecommendationClass) => ({
+  ...backendData,
+  descriptionMessageId: RecommendationClass.resourceDescriptionMessageId,
+  descriptionMessageValues: RecommendationClass.getResourceDescriptionMessageValues(backendData),
+  dismissable: new RecommendationClass("active", {}).dismissable
+});
 
 const ResourceRecommendations = ({
   recommendations,
@@ -165,8 +161,14 @@ const ResourceRecommendations = ({
     requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"]
   });
 
-  const recommendationsWithInfo = recommendations.map(patchRecommendationWithDescriptions);
-  const dismissedRecommendationsWithInfo = dismissedRecommendations.map(patchRecommendationWithDescriptions);
+  const allRecommendations = useAllRecommendations();
+
+  const recommendationsWithInfo = recommendations.map((recommendationDatum) =>
+    patchRecommendationWithDescriptions(recommendationDatum, allRecommendations[recommendationDatum.name])
+  );
+  const dismissedRecommendationsWithInfo = dismissedRecommendations.map((recommendationDatum) =>
+    patchRecommendationWithDescriptions(recommendationDatum, allRecommendations[recommendationDatum.name])
+  );
 
   return (
     <Grid container direction="column" spacing={SPACING_2}>

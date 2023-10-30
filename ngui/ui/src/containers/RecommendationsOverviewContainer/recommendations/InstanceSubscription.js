@@ -66,7 +66,7 @@ class InstanceSubscription extends BaseRecommendation {
         value: <RecommendationListItemResourceLabel item={item} />
       },
       {
-        key: `${item.cloud_resource_id}-region`,
+        key: `${item.cloud_resource_id}-flavor`,
         value: item.flavor
       }
     ]);

@@ -26,6 +26,11 @@ const mock = {
       count: 1,
       saving: 0.5760000000000005
     },
+    // # TODO: update after live demo dataset is updated
+    nebius_migration: {
+      count: 2,
+      saving: 3.12355512
+    },
     instance_subscription: {
       count: 0,
       saving: 0

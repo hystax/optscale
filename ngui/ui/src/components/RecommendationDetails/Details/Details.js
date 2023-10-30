@@ -14,9 +14,9 @@ import InlineSeverityAlert from "components/InlineSeverityAlert";
 import ExcludePoolsFromRecommendationModal from "components/SideModalManager/SideModals/ExcludePoolsFromRecommendationModal";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
 import { ACTIVE, DISMISSED } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
 import { useIsAllowed } from "hooks/useAllowedActions";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiState } from "hooks/useApiState";
 import { useDownloadCleanupScript } from "hooks/useDownloadCleanupScript";
 import { useDownloadRecommendationItems } from "hooks/useDownloadRecommendationItems";
@@ -160,7 +160,10 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
 
   const { isLoading: isGetResourceAllowedActionsLoading } = useApiState(GET_RESOURCE_ALLOWED_ACTIONS);
 
-  const recommendation = new ALL_RECOMMENDATIONS[type](status, data);
+  const allRecommendations = useAllRecommendations();
+
+  const recommendation = new allRecommendations[type](status, data);
+
   let columns = [...recommendation.columns];
 
   const actionBarItems = useActionBarItems({
