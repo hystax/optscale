@@ -6,7 +6,7 @@ import PoolTypeSelector from "components/PoolTypeSelector";
 import SelectorLoader from "components/SelectorLoader";
 import { POOL_TYPE_BUDGET } from "utils/constants";
 
-const PoolFormTypeSelector = ({ isLoading, inputProps }) => {
+const PoolFormTypeSelector = ({ isLoading, InputProps }) => {
   const {
     control,
     formState: { errors }
@@ -31,7 +31,7 @@ const PoolFormTypeSelector = ({ isLoading, inputProps }) => {
         render={({ field }) => (
           <PoolTypeSelector
             dataTestId="selector_type"
-            {...inputProps}
+            {...InputProps}
             {...field}
             error={!!errors.type}
             helperText={errors.type && errors.type.message}
@@ -42,7 +42,7 @@ const PoolFormTypeSelector = ({ isLoading, inputProps }) => {
   );
 };
 PoolFormTypeSelector.propTypes = {
-  inputProps: PropTypes.object,
+  InputProps: PropTypes.object,
   isLoading: PropTypes.bool
 };
 

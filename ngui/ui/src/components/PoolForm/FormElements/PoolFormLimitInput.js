@@ -10,7 +10,7 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { FORMATTED_MONEY_TYPES, MAX_INT_32 } from "utils/constants";
 import { AUTO_EXTENTION_FIELD_NAME } from "./PoolFormAutoExtendCheckbox";
 
-const PoolFormLimitInput = ({ isLoading, unallocatedLimit, isRootPool = false }) => {
+const PoolFormLimitInput = ({ isLoading, unallocatedLimit, isRootPool = false, isReadOnly = false }) => {
   const {
     register,
     formState: { errors }
@@ -31,6 +31,7 @@ const PoolFormLimitInput = ({ isLoading, unallocatedLimit, isRootPool = false })
       label={<FormattedMessage id="limit" />}
       InputProps={{
         startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
+        readOnly: isReadOnly,
         inputProps: {
           min: 0,
           "data-test-id": "input_limit"
@@ -64,7 +65,8 @@ const PoolFormLimitInput = ({ isLoading, unallocatedLimit, isRootPool = false })
 PoolFormLimitInput.propTypes = {
   isLoading: PropTypes.bool,
   unallocatedLimit: PropTypes.number,
-  isRootPool: PropTypes.bool
+  isRootPool: PropTypes.bool,
+  isReadOnly: PropTypes.bool
 };
 
 export default PoolFormLimitInput;

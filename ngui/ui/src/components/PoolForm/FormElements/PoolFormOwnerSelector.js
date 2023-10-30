@@ -12,7 +12,7 @@ const buildSelectorData = (data) => ({
   }))
 });
 
-const PoolFormOwnerSelector = ({ isLoading, owners }) => {
+const PoolFormOwnerSelector = ({ isLoading, owners, isReadOnly = false }) => {
   const {
     control,
     formState: { errors }
@@ -45,6 +45,7 @@ const PoolFormOwnerSelector = ({ isLoading, owners }) => {
             onChange={(id) => {
               onChange(id);
             }}
+            readOnly={isReadOnly}
             {...rest}
           />
         );
@@ -54,7 +55,8 @@ const PoolFormOwnerSelector = ({ isLoading, owners }) => {
 };
 PoolFormOwnerSelector.propTypes = {
   owners: PropTypes.array.isRequired,
-  isLoading: PropTypes.bool
+  isLoading: PropTypes.bool,
+  isReadOnly: PropTypes.bool
 };
 
 export default PoolFormOwnerSelector;

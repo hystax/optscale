@@ -9,7 +9,7 @@ import QuestionMark from "components/QuestionMark";
 
 export const AUTO_EXTENTION_FIELD_NAME = "autoExtension";
 
-const PoolFormAutoExtendCheckbox = ({ isLoading }) => {
+const PoolFormAutoExtendCheckbox = ({ isLoading, isReadOnly = false }) => {
   const { control } = useFormContext();
 
   return isLoading ? (
@@ -21,7 +21,12 @@ const PoolFormAutoExtendCheckbox = ({ isLoading }) => {
           name={AUTO_EXTENTION_FIELD_NAME}
           control={control}
           render={({ field: { onChange, ...rest } }) => (
-            <Checkbox data-test-id="checkbox_auto_extension" {...rest} onChange={(event) => onChange(event.target.checked)} />
+            <Checkbox
+              disabled={isReadOnly}
+              data-test-id="checkbox_auto_extension"
+              {...rest}
+              onChange={(event) => onChange(event.target.checked)}
+            />
           )}
         />
       }
@@ -35,7 +40,8 @@ const PoolFormAutoExtendCheckbox = ({ isLoading }) => {
   );
 };
 PoolFormAutoExtendCheckbox.propTypes = {
-  isLoading: PropTypes.bool
+  isLoading: PropTypes.bool,
+  isReadOnly: PropTypes.bool
 };
 
 export default PoolFormAutoExtendCheckbox;
