@@ -36,7 +36,7 @@ import {
   GET_ML_OPTIMIZATION_DETAILS,
   GET_ML_MODEL_RECOMMENDATIONS
 } from "api/restapi/actionTypes";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -98,12 +98,15 @@ const useGetModelRecommendation = ({ modelId, type, status }) => {
     status
   });
 
+  const allRecommendations = useAllRecommendations();
+
   useEffect(() => {
     if (shouldInvoke) {
       dispatch((_, getState) => {
         dispatch(getMlModelRecommendationDetails(organizationId, modelId, { type, status })).then(() => {
           const newOptimizations = getState()?.[RESTAPI]?.[GET_ML_OPTIMIZATION_DETAILS] ?? {};
-          const recommendation = new ALL_RECOMMENDATIONS[type](status, newOptimizations);
+          const recommendation = new allRecommendations[type](status, newOptimizations);
+
           if (!recommendation.dismissable) {
             return;
           }
@@ -114,7 +117,7 @@ const useGetModelRecommendation = ({ modelId, type, status }) => {
         });
       });
     }
-  }, [shouldInvoke, dispatch, organizationId, status, type, modelId]);
+  }, [shouldInvoke, dispatch, organizationId, status, type, modelId, allRecommendations]);
 
   return { isLoading, data };
 };

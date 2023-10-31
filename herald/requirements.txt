@@ -1,12 +1,12 @@
-SQLAlchemy==1.1.4
-tornado==6.2
-requests==2.25.0
+SQLAlchemy==1.3.24
+tornado==6.3.3
+requests==2.31.0
 netaddr==0.8.0
 alembic==0.8.9
 pika==1.1.0
 mysql-connector-python==8.1.0
-pystache==0.5.4
-boto3==1.12.25
+pystache==0.6.0
+boto3==1.18.9
 
 # OptScale packages
 -e optscale_client/config_client

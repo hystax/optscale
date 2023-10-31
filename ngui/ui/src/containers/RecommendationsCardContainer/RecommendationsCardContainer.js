@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import RecommendationsCard from "components/RecommendationsCard";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
 import {
   ACTIVE,
   CATEGORY_COST,
@@ -8,6 +7,7 @@ import {
   RECOMMENDATION_COLOR
 } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
 import RecommendationsOverviewService from "containers/RecommendationsOverviewContainer/RecommendationsOverviewService";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import ExpensesService from "services/ExpensesService";
 
 const RecommendationsCardContainer = () => {
@@ -20,19 +20,21 @@ const RecommendationsCardContainer = () => {
 
   const { total_saving: possibleMonthlySavings = 0 } = data;
 
+  const allRecommendations = useAllRecommendations();
+
   const categoriesCounters = useMemo(() => {
-    const allRecommendations = Object.values(ALL_RECOMMENDATIONS).map(
+    const recommendations = Object.values(allRecommendations).map(
       (RecommendationClass) => new RecommendationClass(ACTIVE, data)
     );
 
     const { [CATEGORY_COST]: costRecommendationsCount, [CATEGORY_SECURITY]: securityRecommendationsCount } = Object.fromEntries(
       [CATEGORY_COST, CATEGORY_SECURITY].map((category) => [
         category,
-        allRecommendations.reduce((acc, r) => (r.hasCategory(category) ? acc + r.count : acc), 0)
+        recommendations.reduce((acc, r) => (r.hasCategory(category) ? acc + r.count : acc), 0)
       ])
     );
 
-    const criticalRecommendationsCount = allRecommendations
+    const criticalRecommendationsCount = Object.values(allRecommendations)
       .filter(({ color }) => color === RECOMMENDATION_COLOR.ERROR)
       .reduce((acc, r) => acc + r.count, 0);
 
@@ -41,7 +43,8 @@ const RecommendationsCardContainer = () => {
       securityRecommendationsCount,
       criticalRecommendationsCount
     };
-  }, [data]);
+  }, [allRecommendations, data]);
+
   const { costRecommendationsCount, securityRecommendationsCount, criticalRecommendationsCount } = categoriesCounters;
 
   return (

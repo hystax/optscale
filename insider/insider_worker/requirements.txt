@@ -1,5 +1,5 @@
 kombu==4.6.8
-requests==2.25.0
+requests==2.31.0
 pymongo==4.3.3
 # OptScale packages
 -e optscale_client/config_client

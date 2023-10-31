@@ -2,7 +2,7 @@ import React from "react";
 import FormattedMoney from "components/FormattedMoney";
 import HeaderHelperCell from "components/HeaderHelperCell";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
-import СVOCAgreementOpportunitiesModal from "components/SideModalManager/SideModals/recommendations/СVOCAgreementOpportunitiesModal";
+import CvocAgreementOpportunitiesModal from "components/SideModalManager/SideModals/recommendations/CvocAgreementOpportunitiesModal";
 import { NEBIUS_SERVICE } from "hooks/useRecommendationServices";
 import { detectedAt, resource, resourceLocation, size } from "utils/columns";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -52,7 +52,7 @@ const columns = [
   }
 ];
 
-class CVOCAgreementOpportunities extends BaseRecommendation {
+class CvocAgreementOpportunities extends BaseRecommendation {
   type = "cvos_opportunities";
 
   name = "cvosAgreementOpportunities";
@@ -75,7 +75,7 @@ class CVOCAgreementOpportunities extends BaseRecommendation {
 
   hasSettings = true;
 
-  settingsSidemodalClass = СVOCAgreementOpportunitiesModal;
+  settingsSidemodalClass = CvocAgreementOpportunitiesModal;
 
   withExclusions = true;
 
@@ -97,4 +97,4 @@ class CVOCAgreementOpportunities extends BaseRecommendation {
   columns = columns;
 }
 
-export default CVOCAgreementOpportunities;
+export default CvocAgreementOpportunities;

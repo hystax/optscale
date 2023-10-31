@@ -1,4 +1,4 @@
-tornado==6.2
+tornado==6.3.3
 kombu==4.6.8
 # OptScale packages
 -e optscale_client/config_client

@@ -5,7 +5,7 @@ pylint==2.6.0
 freezegun==0.3.8
 concurrencytest==0.1.2
 mongomock==3.22.1
-pyyaml==5.3.1
+pyyaml==5.4.1
 
 # OptScale packages
 -e tools/cloud_adapter

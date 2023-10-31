@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import CanvasBarChart from "components/CanvasBarChart";
 import KeyValueLabel from "components/KeyValueLabel";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { ARCHIVATION_REASON_MESSAGE_ID } from "utils/constants";
 import { EN_FORMAT_SHORT_YEAR, formatUTC, getEndOfDayInUTCinSeconds, secondsToMilliseconds } from "utils/datetime";
 import { isEmpty as isEmptyObject } from "utils/objects";
@@ -15,10 +15,12 @@ const NOT_SELECTED = undefined;
 const ChartTooltip = ({ sectionData }) => {
   const { classes } = useStyles();
 
+  const allRecommendations = useAllRecommendations();
+
   return (
     <div className={classes.tooltip}>
       {Object.entries(sectionData.data.breakdown).map(([recommendationType, counts]) => {
-        const recommendationMessageId = new ALL_RECOMMENDATIONS[recommendationType]({}, "active").title;
+        const recommendationMessageId = new allRecommendations[recommendationType]({}, "active").title;
 
         return (
           <div key={recommendationType}>

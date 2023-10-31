@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { RecommendationModal } from "components/SideModalManager/SideModals";
 import { useGetIsRecommendationsDownloadAvailable } from "hooks/useGetIsRecommendationsDownloadAvailable";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
+import { useOptscaleRecommendations } from "hooks/useOptscaleRecommendations";
 import { ALL_SERVICES, useRecommendationServices } from "hooks/useRecommendationServices";
 import { useRiSpExpensesSummary } from "hooks/useRiSpExpensesSummary";
 import { useSyncQueryParamWithState } from "hooks/useSyncQueryParamWithState";
@@ -14,7 +15,7 @@ import {
 } from "urls";
 import { RECOMMENDATIONS_LIMIT_FILTER } from "utils/constants";
 import { DEFAULT_RECOMMENDATIONS_FILTER, DEFAULT_VIEW, POSSIBLE_RECOMMENDATIONS_FILTERS, POSSIBLE_VIEWS } from "./Filters";
-import { OPTSCALE_RECOMMENDATIONS } from "./recommendations/allRecommendations";
+
 import RecommendationsOverview from "./RecommendationsOverview";
 import RecommendationsOverviewService from "./RecommendationsOverviewService";
 import {
@@ -65,6 +66,8 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
 
   const { data, isDataReady } = useGetOptimizationsOverview(selectedDataSources);
 
+  const optscaleRecommendations = useOptscaleRecommendations();
+
   const organizationRecommendationOptions = options
     .filter(({ name }) =>
       /**
@@ -114,7 +117,7 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
       setService={setService}
       service={service}
       recommendationsData={{ ...data, organizationOptions: organizationRecommendationOptions }}
-      recommendationClasses={OPTSCALE_RECOMMENDATIONS}
+      recommendationClasses={optscaleRecommendations}
       downloadLimit={downloadLimit}
       riSpExpensesSummary={riSpExpensesSummary}
       isRiSpExpensesSummaryLoading={isRiSpExpensesSummaryLoading}

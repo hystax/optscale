@@ -11,7 +11,7 @@ import RecommendationAccordionTitle from "components/RecommendationAccordionTitl
 import RecommendationDescription from "components/RecommendationDescription";
 import RecommendationLimitWarning from "components/RecommendationLimitWarning";
 import Table from "components/Table";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -47,6 +47,8 @@ const ArchivedRecommendationAccordion = ({
     reason
   });
 
+  const allRecommendations = useAllRecommendations();
+
   useEffect(() => {
     if (isExpanded && shouldInvoke) {
       dispatch(
@@ -60,7 +62,10 @@ const ArchivedRecommendationAccordion = ({
     }
   }, [archivedAt, dispatch, isExpanded, recommendationType, organizationId, reason, shouldInvoke]);
 
-  const { columns, title } = useMemo(() => new ALL_RECOMMENDATIONS[recommendationType](), [recommendationType]);
+  const { columns, title } = useMemo(
+    () => new allRecommendations[recommendationType](),
+    [allRecommendations, recommendationType]
+  );
 
   return (
     <Accordion expanded={isExpanded} onChange={onChange} disableExpandedSpacing>

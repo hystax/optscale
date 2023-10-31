@@ -4,9 +4,9 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { RecommendationModal } from "components/SideModalManager/SideModals";
 import RecommendationCard, { Header } from "containers/RecommendationsOverviewContainer/RecommendationCard";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
 import { ACTIVE } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
 import useStyles from "containers/RecommendationsOverviewContainer/RecommendationsOverview.styles";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import OrganizationOptionsService from "services/OrganizationOptionsService";
 import { RECOMMENDATIONS_LIMIT_FILTER } from "utils/constants";
@@ -19,6 +19,8 @@ const MlModelRecommendations = ({ modelId, recommendations, isLoading }) => {
   const { useGetRecommendationsDownloadOptions } = OrganizationOptionsService();
   const { options: downloadOptions } = useGetRecommendationsDownloadOptions();
   const downloadLimit = downloadOptions?.limit ?? RECOMMENDATIONS_LIMIT_FILTER;
+
+  const allRecommendations = useAllRecommendations();
 
   const onRecommendationClick = useCallback(
     (recommendation) => {
@@ -56,7 +58,7 @@ const MlModelRecommendations = ({ modelId, recommendations, isLoading }) => {
         </Typography>
       );
     }
-    return Object.values(ALL_RECOMMENDATIONS)
+    return Object.values(allRecommendations)
       .map((RecommendationClass) => new RecommendationClass(ACTIVE, recommendations))
       .filter(({ count }) => count !== 0)
       .sort(({ count: countA }, { count: countB }) => countB - countA)

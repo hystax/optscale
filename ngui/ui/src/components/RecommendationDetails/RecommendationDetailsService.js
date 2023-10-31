@@ -3,8 +3,8 @@ import { useDispatch } from "react-redux";
 import { RESTAPI, getResourceAllowedActions, updateResourceVisibility } from "api";
 import { getOptimizationDetails } from "api/restapi/actionCreators";
 import { GET_OPTIMIZATION_DETAILS } from "api/restapi/actionTypes";
-import { ALL_RECOMMENDATIONS } from "containers/RecommendationsOverviewContainer/recommendations/allRecommendations";
 import { ACTIVE } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
+import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -24,12 +24,15 @@ const useGetOptimizations = ({ type, limit, status, cloudAccountIds }) => {
     limit
   });
 
+  const allRecommendations = useAllRecommendations();
+
   useEffect(() => {
     if (shouldInvoke) {
       dispatch((_, getState) => {
         dispatch(getOptimizationDetails(organizationId, { type, status, limit, cloudAccountIds })).then(() => {
           const newOptimizations = getState()?.[RESTAPI]?.[GET_OPTIMIZATION_DETAILS] ?? {};
-          const recommendation = new ALL_RECOMMENDATIONS[type](status, newOptimizations);
+          const recommendation = new allRecommendations[type](status, newOptimizations);
+
           if (!recommendation.dismissable) {
             return;
           }
@@ -40,7 +43,7 @@ const useGetOptimizations = ({ type, limit, status, cloudAccountIds }) => {
         });
       });
     }
-  }, [shouldInvoke, dispatch, organizationId, cloudAccountIds, limit, status, type]);
+  }, [shouldInvoke, dispatch, organizationId, cloudAccountIds, limit, status, type, allRecommendations]);
 
   return { isLoading, isDataReady, data };
 };

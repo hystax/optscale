@@ -45,6 +45,7 @@ import size from "./size";
 import startedAt from "./startedAt";
 import tendency from "./tendency";
 import text from "./text";
+import usage from "./usage";
 import userLocation from "./userLocation";
 
 export {
@@ -95,5 +96,6 @@ export {
   biExportNextExport,
   biExportLastSuccessfulExport,
   biExportTargetStorage,
-  dataSource
+  dataSource,
+  usage
 };

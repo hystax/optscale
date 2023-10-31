@@ -1,5 +1,5 @@
 kombu==4.6.8
-requests==2.25.0
+requests==2.31.0
 clickhouse-driver==0.2.1
 clickhouse-migrator==1.0.2
 pymongo==4.3.3

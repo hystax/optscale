@@ -454,6 +454,7 @@ class BaseController(object):
                 self.session.add(item)
                 self.session.commit()
         except IntegrityError as ex:
+            self.session.rollback()
             raise WrongArgumentsException(Err.OE0003, [str(ex)])
         return item
 

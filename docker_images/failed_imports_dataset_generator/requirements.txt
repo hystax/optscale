@@ -1,6 +1,6 @@
 boto3==1.18.9
 mysql-connector-python==8.1.0
-SQLAlchemy==1.2.14
+SQLAlchemy==1.3.24
 
 # OptScale packages
 -e optscale_client/config_client

@@ -103,6 +103,8 @@ class BaseRecommendation {
     return this.hasSaving ? <FormattedMoney type={FORMATTED_MONEY_TYPES.COMPACT} value={this.saving} /> : this.count;
   }
 
+  // TODO: there is no connection between the category and the label.
+  // If it is "cost", we shoud display "savings", should not rely on the actual API response
   get label() {
     return this.hasSaving ? "savings" : "count";
   }

@@ -1,4 +1,4 @@
-tornado==6.2
+tornado==6.3.3
 apispec==0.39.0
 pymongo==4.3.3
 clickhouse-driver==0.2.1
