@@ -12,7 +12,6 @@ import QuestionMark from "components/QuestionMark";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import Tooltip from "components/Tooltip";
 import { useIsSizeSelected, useSelectionActions } from "reducers/cloudCostComparisonSelectedSizes/hooks";
-import { isLastItem } from "utils/arrays";
 import { AWS_CNR, AZURE_CNR, FORMATTED_MONEY_TYPES, NEBIUS } from "utils/constants";
 
 const Flavor = ({ flavor }) => {
@@ -82,11 +81,13 @@ const Flavor = ({ flavor }) => {
 
 const FlavorsCell = ({ flavors }) => (
   <ExpandableList
-    items={flavors.map((flavor, itemIndex) => (
+    items={flavors.map((flavor) => (
       <Box
         key={flavor.id}
         sx={{
-          marginBottom: isLastItem(itemIndex, flavors.length) ? 0 : 1
+          "&:not(:last-child)": {
+            marginBottom: 1
+          }
         }}
       >
         <Flavor flavor={flavor} />
