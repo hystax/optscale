@@ -53,13 +53,9 @@ export const useOptscaleRecommendations = () => {
       PublicS3Buckets,
       ObsoleteImages,
       AbandonedImages,
-      AbandonedNebiusS3Buckets,
-      CvocAgreementOpportunities
+      CvocAgreementOpportunities,
+      ...(isNebiusConnectionEnabled ? [AbandonedNebiusS3Buckets, NebiusMigration] : [])
     ];
-
-    if (isNebiusConnectionEnabled) {
-      recommendations.push(NebiusMigration);
-    }
 
     return Object.fromEntries(recommendations.map((Rec) => [new Rec().type, Rec]));
   }, [isNebiusConnectionEnabled]);
