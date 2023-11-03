@@ -9,7 +9,7 @@ import Button from "components/Button";
 import EnvironmentPropertyNameInput from "components/EnvironmentPropertyNameInput";
 import EnvironmentPropertyValueInput from "components/EnvironmentPropertyValueInput";
 import IconButton from "components/IconButton";
-import PropertyGridLayout from "components/PropertyGridLayout";
+import PropertyLayout from "components/PropertyLayout";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 
 const CreateEnvironmentFormPropertiesField = ({ fieldName, propertyFieldNames }) => {
@@ -46,7 +46,7 @@ const CreateEnvironmentFormPropertiesField = ({ fieldName, propertyFieldNames })
                 marginBottom: index === fields.length - 1 ? 0 : "0.5rem"
               }}
             >
-              <PropertyGridLayout
+              <PropertyLayout
                 propertyName={
                   <EnvironmentPropertyNameInput
                     name={`${fieldName}.${index}.${propertyNameFieldName}`}

@@ -6,7 +6,6 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
-import Grid from "@mui/material/Grid";
 import PropTypes from "prop-types";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -30,7 +29,8 @@ import {
   TAG_EXISTS,
   DEFAULT_CONDITION,
   TAG_CONDITION,
-  CLOUD_IS_CONDITION_VALUE
+  CLOUD_IS_CONDITION_VALUE,
+  ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH
 } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { notOnlyWhiteSpaces } from "utils/validation";
@@ -269,8 +269,8 @@ const AssignmentRuleForm = ({
     };
 
     return (
-      <Grid container spacing={SPACING_1}>
-        <Grid item xs={12} sm={4} md={5} lg={4}>
+      <Box display="flex" gap={SPACING_1} flexWrap="wrap">
+        <Box flexBasis={ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.MEDIUM} flexGrow={1}>
           <Controller
             name={`${CONDITIONS}.${count}.${TYPE}`}
             defaultValue={field[TYPE]}
@@ -288,25 +288,25 @@ const AssignmentRuleForm = ({
               />
             )}
           />
-        </Grid>
-        <Grid item xs={10} sm={7} md={6} lg={7}>
-          {renderField()}
-        </Grid>
-        <Grid item xs={2} sm={1}>
-          <FormControl className={cx(classes.item, classes.deleteButton)}>
-            <IconButton
-              color="error"
-              icon={<DeleteOutlinedIcon />}
-              onClick={() => (fields.length > 1 ? remove(count) : null)}
-              tooltip={{
-                show: true,
-                value: <FormattedMessage id="delete" />
-              }}
-              dataTestId={`btn_delete_${count}`}
-            />
-          </FormControl>
-        </Grid>
-      </Grid>
+        </Box>
+        <Box display="flex" flexBasis={ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.MEDIUM} flexGrow={2} gap={SPACING_1}>
+          <Box flexGrow={1}>{renderField()}</Box>
+          <Box>
+            <FormControl className={cx(classes.item, classes.deleteButton)}>
+              <IconButton
+                color="error"
+                icon={<DeleteOutlinedIcon />}
+                onClick={() => (fields.length > 1 ? remove(count) : null)}
+                tooltip={{
+                  show: true,
+                  value: <FormattedMessage id="delete" />
+                }}
+                dataTestId={`btn_delete_${count}`}
+              />
+            </FormControl>
+          </Box>
+        </Box>
+      </Box>
     );
   };
 

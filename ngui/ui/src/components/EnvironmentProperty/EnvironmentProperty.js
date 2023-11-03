@@ -5,7 +5,7 @@ import { Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import IconButton from "components/IconButton";
 import Markdown from "components/Markdown";
-import PropertyGridLayout from "components/PropertyGridLayout";
+import PropertyLayout from "components/PropertyLayout";
 import { DeleteEnvironmentPropertyModal } from "components/SideModalManager/SideModals";
 import UpdateEnvironmentPropertiesFormContainer from "containers/UpdateEnvironmentPropertiesFormContainer";
 import { useIsAllowedToCUDEnvironmentProperties } from "hooks/useIsAllowedToCUDEnvironmentProperties";
@@ -29,7 +29,7 @@ const EnvironmentProperty = ({ environmentId, propertyName, propertyValue, exist
       isEdit
     />
   ) : (
-    <PropertyGridLayout
+    <PropertyLayout
       propertyName={
         <Typography component="span" style={{ wordBreak: "break-all" }}>
           {propertyName}

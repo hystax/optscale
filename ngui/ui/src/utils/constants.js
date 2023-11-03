@@ -936,3 +936,8 @@ export const ML_RUNSET_ABORT_CONDITION_TYPES = Object.freeze({
   REACHED_GOALS: "reached_goals",
   MAX_DURATION: "max_duration"
 });
+
+export const ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH = Object.freeze({
+  MEDIUM: "150px",
+  LARGE: "300px"
+});
