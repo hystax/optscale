@@ -3,10 +3,10 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import { FormattedMessage } from "react-intl";
 import FormattedMoney from "components/FormattedMoney";
-import IconButton from "components/IconButton";
 import IconLabel from "components/IconLabel";
 import { UpdateDataSourceSkuModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
+import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import Tooltip from "components/Tooltip";
@@ -69,13 +69,16 @@ const DataSourceSkusTable = ({ dataSourceId, skus, usedSkus, costModel, isLoadin
         cell: ({ row: { original } }) => {
           const { sku, cost } = original;
           return (
-            <IconButton
-              icon={<EditOutlinedIcon />}
-              onClick={() => openSideModal(UpdateDataSourceSkuModal, { sku, cost, dataSourceId, costModel })}
-              tooltip={{
-                show: true,
-                value: <FormattedMessage id="edit" />
-              }}
+            <TableCellActions
+              items={[
+                {
+                  key: "edit",
+                  messageId: "edit",
+                  icon: <EditOutlinedIcon />,
+                  requiredActions: ["MANAGE_CLOUD_CREDENTIALS"],
+                  action: () => openSideModal(UpdateDataSourceSkuModal, { sku, cost, dataSourceId, costModel })
+                }
+              ]}
             />
           );
         }
