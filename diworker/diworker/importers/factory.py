@@ -5,6 +5,7 @@ from diworker.diworker.importers.alibaba import AlibabaReportImporter
 from diworker.diworker.importers.gcp import GcpReportImporter
 from diworker.diworker.importers.nebius import NebiusReportImporter
 from diworker.diworker.importers.environment import EnvironmentReportImporter
+from diworker.diworker.importers.databricks import DatabricksReportImporter
 
 REPORT_IMPORTER_TYPES = {
     'aws_cnr': AWSReportImporter,
@@ -13,7 +14,8 @@ REPORT_IMPORTER_TYPES = {
     'alibaba_cnr': AlibabaReportImporter,
     'gcp_cnr': GcpReportImporter,
     'nebius': NebiusReportImporter,
-    'environment': EnvironmentReportImporter
+    'environment': EnvironmentReportImporter,
+    'databricks': DatabricksReportImporter
 }
 
 

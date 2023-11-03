@@ -3,9 +3,9 @@ import PropTypes from "prop-types";
 
 const IconLabel = ({ icon: startIcon, endIcon, label }) => (
   <div style={{ display: "inline-flex", verticalAlign: "middle", alignItems: "center" }}>
-    {startIcon}
+    {startIcon && <>{startIcon}&nbsp;</>}
     {label}
-    {endIcon}
+    {endIcon && <>&nbsp;{endIcon}</>}
   </div>
 );
 

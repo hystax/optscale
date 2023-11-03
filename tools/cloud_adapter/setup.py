@@ -38,6 +38,9 @@ requirements = [
     # Nebius
     'yandexcloud==0.191.0',
 
+    # Databricks
+    'databricks-sdk==0.11.0',
+
     "requests==2.31.0",
     "retrying==1.3.3",
 ]

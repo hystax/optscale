@@ -27,6 +27,8 @@ import {
   NebiusCredentials,
   GcpCredentials,
   GCP_CREDENTIALS_FIELD_NAMES,
+  DATABRICKS_CREDENTIALS_FIELD_NAMES,
+  DatabricksCredentials,
   KubernetesCredentials,
   KUBERNETES_CREDENTIALS_FIELD_NAMES
 } from "components/DataSourceCredentialFields";
@@ -38,7 +40,8 @@ import {
   DOCS_HYSTAX_CONNECT_AZURE_ACCOUNT,
   DOCS_HYSTAX_CONNECT_GCP_CLOUD,
   DOCS_HYSTAX_DISCOVER_RESOURCES,
-  GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR
+  GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR,
+  DATABRICKS_CREATE_SERVICE_PRINCIPAL
 } from "urls";
 import {
   ALIBABA_CNR,
@@ -48,6 +51,7 @@ import {
   AZURE_CNR,
   NEBIUS,
   GCP_CNR,
+  DATABRICKS,
   KUBERNETES_CNR
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
@@ -132,6 +136,22 @@ const Description = ({ type, config }) => {
           />
         </Typography>
       );
+    case DATABRICKS:
+      return (
+        <Typography gutterBottom>
+          <FormattedMessage
+            id="createDatabricksDocumentationReference"
+            values={{
+              link: (chunks) => (
+                <Link data-test-id="link_guide" href={DATABRICKS_CREATE_SERVICE_PRINCIPAL} target="_blank" rel="noopener">
+                  {chunks}
+                </Link>
+              ),
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      );
     case KUBERNETES_CNR:
       return null;
     case GCP_CNR:
@@ -171,6 +191,8 @@ const CredentialInputs = ({ type }) => {
       );
     case ALIBABA_CNR:
       return <AlibabaCredentials />;
+    case DATABRICKS:
+      return <DatabricksCredentials readOnlyFields={[DATABRICKS_CREDENTIALS_FIELD_NAMES.ACCOUNT_ID]} />;
     case KUBERNETES_CNR:
       return <KubernetesCredentials />;
     case GCP_CNR:
@@ -306,6 +328,21 @@ const getConfig = (type, config) => {
           config: {
             access_key_id: formData[ALIBABA_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
             secret_access_key: formData[ALIBABA_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]
+          }
+        })
+      };
+    case DATABRICKS:
+      return {
+        getDefaultFormValues: () => ({
+          [DATABRICKS_CREDENTIALS_FIELD_NAMES.ACCOUNT_ID]: config.account_id,
+          [DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_ID]: config.client_id,
+          [DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET]: ""
+        }),
+        parseFormDataToApiParams: (formData) => ({
+          config: {
+            // account_id is readonly
+            client_id: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_ID],
+            client_secret: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET]
           }
         })
       };

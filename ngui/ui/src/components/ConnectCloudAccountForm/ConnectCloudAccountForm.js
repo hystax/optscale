@@ -32,7 +32,9 @@ import {
   GcpCredentials,
   GCP_CREDENTIALS_FIELD_NAMES,
   KubernetesCredentials,
-  KUBERNETES_CREDENTIALS_FIELD_NAMES
+  KUBERNETES_CREDENTIALS_FIELD_NAMES,
+  DATABRICKS_CREDENTIALS_FIELD_NAMES,
+  DatabricksCredentials
 } from "components/DataSourceCredentialFields";
 import { DataSourceNameField, DATA_SOURCE_NAME_FIELD_NAME } from "components/DataSourceNameField";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
@@ -46,6 +48,7 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import AlibabaLogoIcon from "icons/AlibabaLogoIcon";
 import AwsLogoIcon from "icons/AwsLogoIcon";
 import AzureLogoIcon from "icons/AzureLogoIcon";
+import DatabricksLogoIcon from "icons/DatabricksLogoIcon";
 import GcpLogoIcon from "icons/GcpLogoIcon";
 import K8sLogoIcon from "icons/K8sLogoIcon";
 import NebiusLogoIcon from "icons/NebiusLogoIcon";
@@ -57,7 +60,8 @@ import {
   GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR,
   GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS,
   DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD,
-  DOCS_HYSTAX_CONNECT_GCP_CLOUD
+  DOCS_HYSTAX_CONNECT_GCP_CLOUD,
+  DATABRICKS_CREATE_SERVICE_PRINCIPAL
 } from "urls";
 import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
 import {
@@ -77,7 +81,9 @@ import {
   GCP_ACCOUNT,
   DEFAULT_MAX_INPUT_LENGTH,
   NEBIUS_ACCOUNT,
-  NEBIUS
+  NEBIUS,
+  DATABRICKS,
+  DATABRICKS_ACCOUNT
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
 import { SPACING_2 } from "utils/layouts";
@@ -257,10 +263,11 @@ const getCloudType = (connectionType) =>
     [AWS_LINKED_ACCOUNT]: AWS_CNR,
     [AZURE_SUBSCRIPTION]: AZURE_CNR,
     [AZURE_TENANT_ACCOUNT]: AZURE_TENANT,
-    [KUBERNETES]: KUBERNETES_CNR,
     [ALIBABA_ACCOUNT]: ALIBABA_CNR,
     [GCP_ACCOUNT]: GCP_CNR,
-    [NEBIUS_ACCOUNT]: NEBIUS
+    [NEBIUS_ACCOUNT]: NEBIUS,
+    [DATABRICKS_ACCOUNT]: DATABRICKS,
+    [KUBERNETES]: KUBERNETES_CNR
   }[connectionType]);
 
 const isLinked = (connectionType) =>
@@ -279,14 +286,16 @@ const ConnectionInputs = ({ connectionType }) => {
       return <AzureTenantCredentials />;
     case AZURE_SUBSCRIPTION:
       return <AzureSubscriptionCredentials />;
-    case KUBERNETES:
-      return <KubernetesCredentials />;
     case ALIBABA_ACCOUNT:
       return <AlibabaCredentials />;
     case GCP_ACCOUNT:
       return <GcpCredentials />;
     case NEBIUS_ACCOUNT:
       return <NebiusInputs />;
+    case DATABRICKS_ACCOUNT:
+      return <DatabricksCredentials />;
+    case KUBERNETES:
+      return <KubernetesCredentials />;
     default:
       return null;
   }
@@ -399,6 +408,17 @@ const getNebiusParameters = (formData) => ({
     // bucket where report files are located
     bucket_name: formData[NEBIUS_FIELD_NAMES.BUCKET_NAME],
     bucket_prefix: formData[NEBIUS_FIELD_NAMES.BUCKET_PREFIX]
+  }
+});
+
+const getDatabricksParameters = (formData) => ({
+  name: formData[DATA_SOURCE_NAME_FIELD_NAME],
+  type: DATABRICKS,
+  config: {
+    account_id: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.ACCOUNT_ID],
+    client_id: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_ID],
+    client_secret: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET],
+    cost_model: {}
   }
 });
 
@@ -529,6 +549,20 @@ const renderConnectionTypeInfoMessage = ({ connectionType }) =>
         }
       }
     ]),
+    [DATABRICKS_ACCOUNT]: renderConnectionTypeDescription([
+      {
+        key: "createDatabricksDocumentationReference",
+        messageId: "createDatabricksDocumentationReference",
+        values: {
+          link: (chunks) => (
+            <Link data-test-id="link_guide" href={DATABRICKS_CREATE_SERVICE_PRINCIPAL} target="_blank" rel="noopener">
+              {chunks}
+            </Link>
+          ),
+          strong: (chunks) => <strong>{chunks}</strong>
+        }
+      }
+    ]),
     [GCP_ACCOUNT]: renderConnectionTypeDescription([
       {
         key: "createGCPDocumentationReference",
@@ -600,11 +634,11 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading, showCancel = t
       action: () => defaultTileAction(AZURE_SUBSCRIPTION, AZURE_CNR)
     },
     {
-      id: KUBERNETES,
-      icon: K8sLogoIcon,
-      messageId: KUBERNETES,
-      dataTestId: "btn_kubernetes",
-      action: () => defaultTileAction(KUBERNETES, KUBERNETES_CNR)
+      id: GCP_ACCOUNT,
+      icon: GcpLogoIcon,
+      messageId: GCP_ACCOUNT,
+      dataTestId: "btn_gcp_account",
+      action: () => defaultTileAction(GCP_ACCOUNT, GCP_CNR)
     },
     {
       id: ALIBABA_ACCOUNT,
@@ -614,18 +648,25 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading, showCancel = t
       action: () => defaultTileAction(ALIBABA_ACCOUNT, ALIBABA_CNR)
     },
     {
-      id: GCP_ACCOUNT,
-      icon: GcpLogoIcon,
-      messageId: GCP_ACCOUNT,
-      dataTestId: "btn_gcp_account",
-      action: () => defaultTileAction(GCP_ACCOUNT, GCP_CNR)
-    },
-    {
       id: NEBIUS_ACCOUNT,
       icon: NebiusLogoIcon,
       messageId: NEBIUS_ACCOUNT,
       dataTestId: "btn_nebius_account",
       action: () => defaultTileAction(NEBIUS_ACCOUNT, NEBIUS)
+    },
+    {
+      id: DATABRICKS_ACCOUNT,
+      icon: DatabricksLogoIcon,
+      messageId: DATABRICKS_ACCOUNT,
+      dataTestId: "btn_databricks_account",
+      action: () => defaultTileAction(DATABRICKS_ACCOUNT, DATABRICKS)
+    },
+    {
+      id: KUBERNETES,
+      icon: K8sLogoIcon,
+      messageId: KUBERNETES,
+      dataTestId: "btn_kubernetes",
+      action: () => defaultTileAction(KUBERNETES, KUBERNETES_CNR)
     }
   ].filter(({ id }) => isDataSourceTypeConnectionEnabled(id));
 
@@ -673,10 +714,11 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading, showCancel = t
                       [AWS_CNR]: isLinked(connectionType) ? getAwsLinkedParameters : getAwsParameters,
                       [AZURE_TENANT]: getAzureTenantParameters,
                       [AZURE_CNR]: getAzureSubscriptionParameters,
-                      [KUBERNETES_CNR]: getKubernetesParameters,
-                      [ALIBABA_CNR]: getAlibabaParameters,
                       [GCP_CNR]: getGoogleParameters,
-                      [NEBIUS]: getNebiusParameters
+                      [ALIBABA_CNR]: getAlibabaParameters,
+                      [NEBIUS]: getNebiusParameters,
+                      [KUBERNETES_CNR]: getKubernetesParameters,
+                      [DATABRICKS]: getDatabricksParameters
                     }[cloudType];
 
                     onSubmit(await getParameters(formData));

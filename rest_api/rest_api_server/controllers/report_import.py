@@ -237,7 +237,8 @@ class ExpensesRecalculationScheduleController(ReportImportBaseController):
         cloud_acc = self.session.query(CloudAccount).filter(
             CloudAccount.deleted.is_(False),
             CloudAccount.type.in_([
-                CloudTypes.KUBERNETES_CNR, CloudTypes.ENVIRONMENT]),
+                CloudTypes.KUBERNETES_CNR, CloudTypes.ENVIRONMENT,
+                CloudTypes.DATABRICKS]),
             CloudAccount.id == cloud_account_id
         ).one_or_none()
 

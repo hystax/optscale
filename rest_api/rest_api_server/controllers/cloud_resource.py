@@ -654,7 +654,9 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         db_meta = db_resource.pop('meta', {})
         updatable_meta_keys = ('os', 'preinstalled', 'cpu_count', 'flavor',
                                'payment_option', 'offering_type',
-                               'purchase_term', 'applied_region')
+                               'purchase_term', 'applied_region',
+                               'sku', 'clusterNodeType', 'clusterOwnerUserId',
+                               'clusterOwnerUserName', 'workspaceId')
         for key in updatable_meta_keys:
             value = meta.pop(key, None)
             if value:

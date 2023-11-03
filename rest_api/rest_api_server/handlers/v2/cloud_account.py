@@ -56,7 +56,7 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     type:
                         type: string
                         enum: [aws_cnr, azure_cnr, kubernetes_cnr, alibaba_cnr,
-                               azure_tenant, gcp_cnr, nebius]
+                               azure_tenant, gcp_cnr, nebius, databricks]
                         description: Cloud account type
                         example: aws_cnr
                     config:
@@ -195,7 +195,8 @@ class CloudAccountAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     type: {type: string,
                                         description: "cloud account type:
                                         ('aws_cnr','azure_cnr', 'kubernetes_cnr',
-                                         'azure_tenant', 'alibaba_cnr', 'gcp_cnr', 'nebius')"}
+                                         'azure_tenant', 'alibaba_cnr', 'gcp_cnr',
+                                         'nebius', 'databricks')"}
                                     config:
                                         type: object
                                         description: |
@@ -346,7 +347,8 @@ class CloudAccountAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         type: {type: string,
                             description: "cloud account type:
                             ('aws_cnr','azure_cnr', 'alibaba_cnr',
-                             'azure_tenant', 'kubernetes_cnr', 'gcp_cnr', 'nebius')"}
+                             'azure_tenant', 'kubernetes_cnr', 'gcp_cnr',
+                             'nebius', 'databricks')"}
                         config: {type: object,
                             description:
                             "Object with credentials to access cloud"}

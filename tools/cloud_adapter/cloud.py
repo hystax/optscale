@@ -8,6 +8,7 @@ from tools.cloud_adapter.clouds.kubernetes import Kubernetes
 from tools.cloud_adapter.clouds.environment import Environment
 from tools.cloud_adapter.clouds.gcp import Gcp
 from tools.cloud_adapter.clouds.nebius import Nebius
+from tools.cloud_adapter.clouds.databricks import Databricks
 
 
 SUPPORTED_BILLING_TYPES = {
@@ -19,6 +20,7 @@ SUPPORTED_BILLING_TYPES = {
     'environment': Environment,
     'gcp_cnr': Gcp,
     'nebius': Nebius,
+    'databricks': Databricks
 }
 
 

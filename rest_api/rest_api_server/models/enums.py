@@ -10,6 +10,7 @@ class CloudTypes(enum.Enum):
     ENVIRONMENT = 'environment'
     GCP_CNR = 'gcp_cnr'
     NEBIUS = 'nebius'
+    DATABRICKS = 'databricks'
 
 
 class ImportStates(enum.Enum):
@@ -75,6 +76,7 @@ class ConditionTypes(enum.Enum):
 class CostModelTypes(enum.Enum):
     CLOUD_ACCOUNT = 'cloud_account'
     RESOURCE = 'resource'
+    SKU = 'sku'
 
 
 class ConstraintTypes(enum.Enum):

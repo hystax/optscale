@@ -20,7 +20,8 @@ from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException, ForbiddenException,
     ConflictException, TimeoutException, FailedDependency)
 from rest_api.rest_api_server.controllers.cloud_resource import CloudResourceController
-from rest_api.rest_api_server.controllers.cost_model import CloudBasedCostModelController
+from rest_api.rest_api_server.controllers.cost_model import (
+    CloudBasedCostModelController, SkuBasedCostModelController)
 from rest_api.rest_api_server.controllers.discovery_info import DiscoveryInfoController
 from rest_api.rest_api_server.controllers.employee import EmployeeController
 from rest_api.rest_api_server.controllers.expense import (
@@ -318,9 +319,13 @@ class CloudAccountController(BaseController):
             warnings.extend(configuration_res['warnings'])
         ca_obj.config = encode_config(raw_config if root_config else config)
         self.session.add(ca_obj)
-        if ca_obj.type == CloudTypes.KUBERNETES_CNR:
-            CloudBasedCostModelController(
-                self.session, self._config).create(
+        c_type_ctrl_map = {
+            CloudTypes.KUBERNETES_CNR: CloudBasedCostModelController,
+            CloudTypes.DATABRICKS: SkuBasedCostModelController
+        }
+        ctrl = c_type_ctrl_map.get(ca_obj.type)
+        if ctrl:
+            ctrl(self.session, self._config).create(
                 organization_id=org_id, id=ca_obj.id, value=cost_model)
             ca_obj.cost_model_id = ca_obj.id
         rd_infos = []
@@ -462,7 +467,12 @@ class CloudAccountController(BaseController):
         warnings = []
 
         config_changed = False
-        cost_model_controller = CloudBasedCostModelController(
+        c_type_ctrl_map = {
+            CloudTypes.KUBERNETES_CNR: CloudBasedCostModelController,
+            CloudTypes.DATABRICKS: SkuBasedCostModelController
+        }
+        cost_model_controller = c_type_ctrl_map.get(
+            cloud_acc_obj.type, CloudBasedCostModelController)(
             self.session, self._config)
         old_config = cloud_acc_obj.decoded_config
         config = kwargs.pop('config', {})
@@ -520,8 +530,12 @@ class CloudAccountController(BaseController):
     def delete(self, item_id):
         cloud_account = self.get(item_id)
         self.delete_children_accounts(cloud_account)
-        if cloud_account.type == CloudTypes.KUBERNETES_CNR:
-            CloudBasedCostModelController(
+        c_type_ctrl_map = {
+            CloudTypes.KUBERNETES_CNR: CloudBasedCostModelController,
+            CloudTypes.DATABRICKS: SkuBasedCostModelController
+        }
+        if cloud_account.type in c_type_ctrl_map:
+            c_type_ctrl_map[cloud_account.type](
                 self.session, self._config).delete(item_id)
         elif cloud_account.type == CloudTypes.ENVIRONMENT:
             raise FailedDependency(Err.OE0477, [])

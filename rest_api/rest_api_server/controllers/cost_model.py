@@ -11,6 +11,7 @@ from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import CostModelTypes, CloudTypes
 from rest_api.rest_api_server.models.models import (
     CostModel, Organization, CloudAccount)
+from tools.cloud_adapter.clouds.databricks import DEFAULT_SKU_PRICES
 
 from tools.optscale_exceptions.common_exc import (
     NotFoundException, WrongArgumentsException)
@@ -101,7 +102,7 @@ class CostModelController(BaseController):
         value = kwargs.pop('value', None)
         self._validate_model(validation_params, value)
         value_changed = False
-        if value and c_model.loaded_value != value:
+        if value is not None and c_model.loaded_value != value:
             value_changed = True
         cost_model = super().edit(item_id, value=json.dumps(value), **kwargs)
         if value_changed:
@@ -220,6 +221,79 @@ class ResourceBasedCostModelController(CloudBasedCostModelController,
                               value=self._get_default_cost_model())
 
 
+class SkuBasedCostModelController(CostModelController, MongoMixin):
+    @property
+    def cost_model_type(self):
+        return CostModelTypes.SKU
+
+    @property
+    def related_cloud_type(self):
+        return CloudTypes.DATABRICKS
+
+    def _get_validation_map(self):
+        return {}
+
+    def get_cloud_account_id(self, item_id):
+        return item_id
+
+    def _get_default_cost_model(self):
+        return {}
+
+    def get_cloud_account(self, cloud_account_id):
+        cloud_acc = super().get_cloud_account(cloud_account_id)
+        if not cloud_acc:
+            raise NotFoundException(
+                Err.OE0002, [CloudAccount.__name__, cloud_account_id])
+        if cloud_acc.type != self.related_cloud_type:
+            raise WrongArgumentsException(Err.OE0436, [cloud_acc.type.value])
+        return cloud_acc
+
+    @staticmethod
+    def _validate_model(model_params, cost_model):
+        if cost_model is None:
+            raise WrongArgumentsException(Err.OE0216, ['value'])
+        if not isinstance(cost_model, dict):
+            raise WrongArgumentsException(Err.OE0344, ['value'])
+        for k, v in cost_model.items():
+            if v is None:
+                raise WrongArgumentsException(Err.OE0216, ['value.%s' % k])
+            if not isinstance(v, (int, float)):
+                raise WrongArgumentsException(Err.OE0466, ['value.%s' % k])
+        SkuBasedCostModelController._handle_cost_model(cost_model)
+
+    def _get_details(self, cloud_account_id):
+        resources_skus = self.resources_collection.distinct(
+            'meta.sku', {'cloud_account_id': cloud_account_id})
+        used_skus = [sku for sku in resources_skus if sku]
+        return {
+            'default_prices': self._get_default_prices(),
+            'used_skus': sorted(used_skus)
+        }
+
+    def get_cost_model_info(self, cloud_account_id, details=False):
+        cost_model = self.get(cloud_account_id).to_dict()
+        if details:
+            details_info = self._get_details(cloud_account_id)
+            sku_prices = {}
+            for prices in [details_info['default_prices'], cost_model['value']]:
+                sku_prices.update(prices)
+            cost_model['value'] = sku_prices
+            cost_model['used_skus'] = details_info['used_skus']
+        return cost_model
+
+    @staticmethod
+    def _get_default_prices():
+        return DEFAULT_SKU_PRICES
+
+    @staticmethod
+    def _handle_cost_model(cost_model):
+        default_prices = SkuBasedCostModelController._get_default_prices()
+        for k, v in cost_model.copy().items():
+            default_sku_price = default_prices.get(k)
+            if default_sku_price is not None and default_sku_price == v:
+                cost_model.pop(k)
+
+
 class CostModelAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):
         return CostModelController
@@ -233,3 +307,8 @@ class CloudBasedAsyncCostModelController(BaseAsyncControllerWrapper):
 class ResourceBasedAsyncCostModelController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):
         return ResourceBasedCostModelController
+
+
+class SkuBasedAsyncCostModelController(BaseAsyncControllerWrapper):
+    def _get_controller_class(self):
+        return SkuBasedCostModelController

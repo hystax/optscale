@@ -56,6 +56,15 @@ class TestCloudAccountApi(TestApiBase):
                 'config_scheme': 'create_report'
             }
         }
+        self.valid_databricks_cloud_acc = {
+            'name': 'my cloud_acc',
+            'type': 'databricks',
+            'config': {
+                'client_id': 'databricks_client_id',
+                'client_secret': 'databricks_client_secret',
+                'account_id': 'databricks_account_id'
+            }
+        }
         self.p_configure_aws = patch(
             'tools.cloud_adapter.clouds.aws.Aws.configure_report').start()
         self.p_configure_azure = patch(
@@ -1834,3 +1843,69 @@ class TestCloudAccountApi(TestApiBase):
                     self.org_id, params)
                 self.assertEqual(code, 400)
                 self.assertEqual(resp['error']['error_code'], 'OE0344')
+
+    def test_valid_databricks(self):
+        patch(
+            'tools.cloud_adapter.clouds.databricks.Databricks.validate_credentials',
+            return_value={
+                'account_id': 'databricks_account_id', 'warnings': []
+            }).start()
+        code, _ = self.client.cloud_account_verify(
+            self.valid_databricks_cloud_acc)
+        self.assertEqual(code, 200)
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_databricks_cloud_acc)
+        self.assertEqual(code, 201)
+        self.assertEqual(cloud_acc['account_id'], 'databricks_account_id')
+        self.assertEqual(cloud_acc['config'], {
+            'client_id': 'databricks_client_id',
+            'account_id': 'databricks_account_id',
+            'cost_model': {}
+        })
+
+    def test_databricks_another_currency(self):
+        patch(
+            'tools.cloud_adapter.clouds.databricks.Databricks.validate_credentials',
+            return_value={
+                'account_id': 'databricks_account_id', 'warnings': []
+            }).start()
+        _, org = self.client.organization_create(
+            {'name': "organization in BRL", 'currency': 'BRL'})
+        code, resp = self.create_cloud_account(
+            org['id'], self.valid_databricks_cloud_acc)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0437')
+
+    def test_databricks_verify_config(self):
+        credentials = self.valid_databricks_cloud_acc.copy()
+        credentials.pop('type')
+        code, response = self.client.cloud_account_verify(credentials)
+        self.assertEqual(code, 400)
+        self.assertEqual(response['error']['reason'],
+                         'type is not provided')
+
+        self.valid_databricks_cloud_acc['config'].pop('client_secret')
+        code, response = self.client.cloud_account_verify(
+            self.valid_databricks_cloud_acc)
+        self.assertEqual(code, 400)
+        self.assertEqual(response['error']['reason'],
+                         'client_secret is not provided')
+
+    def test_databricks_patch_config(self):
+        patch(
+            'tools.cloud_adapter.clouds.databricks.Databricks.validate_credentials',
+            return_value={
+                'account_id': 'databricks_account_id', 'warnings': []
+            }).start()
+        code, cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_databricks_cloud_acc)
+        self.assertEqual(code, 201)
+        config = self.valid_databricks_cloud_acc['config'].copy()
+        config['cost_model'] = {'new_sku': 2}
+        code, ret = self.client.cloud_account_update(cloud_acc['id'],
+                                                     {'config': config})
+        self.assertEqual(code, 200)
+        self.assertEqual(ret['config']['cost_model'], config['cost_model'])
+        code, cost_model = self.client.sku_cost_model_get(cloud_acc['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(cost_model['value'], config['cost_model'])
