@@ -1225,12 +1225,15 @@ class Azure(CloudBase):
             responses = self._batch_request(request_specs)['responses']
             for j, response in enumerate(responses):
                 instance_id = instance_ids[i + j]
-                if ('error' in response['content'] and
-                        response['content']['error']['code'] == 'ServerTimeout'):
-                    raise MetricsServerTimeoutException(
-                        response['content']['error'])
-                elif 'error' in response['content']:
-                    raise MetricsNotFoundException(response['content']['error'])
+                if 'error' in response['content']:
+                    error = response['content']['error']
+                    code = error.get('code', '')
+                    if code == 'ServerTimeout':
+                        raise MetricsServerTimeoutException(error)
+                    elif code == 'ResourceNotFound':
+                        continue
+                    else:
+                        raise MetricsNotFoundException(error)
                 elif ('value' not in response['content'] and
                       response['content']['code'] == 'BadRequest'):
                     raise MetricsNotFoundException(response['content']['message'])
