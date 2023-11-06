@@ -525,6 +525,9 @@ export const NEBIUS_CREATING_AUTHORIZED_KEYS = "https://nebius.com/il/docs/iam/o
 export const NEBIUS_CREATING_STATIC_ACCESS_KEYS = "https://nebius.com/il/docs/iam/operations/sa/create-access-key";
 export const NEBIUS_GET_FOLDER_REPORT = "https://nebius.com/il/docs/billing/operations/get-folder-report";
 
+// Databricks documentation
+export const DATABRICKS_CREATE_SERVICE_PRINCIPAL = "https://docs.databricks.com/en/dev-tools/authentication-oauth.html";
+
 // Emails
 export const EMAIL_SUPPORT = "support@hystax.com";
 export const EMAIL_SALES = "sales@hystax.com";

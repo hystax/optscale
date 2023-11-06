@@ -19,6 +19,7 @@ import {
 import SummaryGrid from "components/SummaryGrid";
 import TabsWrapper from "components/TabsWrapper";
 import DataSourceNodesContainer from "containers/DataSourceNodesContainer";
+import DataSourceSkusContainer from "containers/DataSourceSkusContainer";
 import UploadCloudReportDataContainer from "containers/UploadCloudReportDataContainer";
 import { useApiData } from "hooks/useApiData";
 import { useDataSources } from "hooks/useDataSources";
@@ -33,13 +34,20 @@ import {
   SUMMARY_CARD_TYPES,
   CLOUD_ACCOUNT_DETAILS_PAGE_TABS,
   ENVIRONMENT,
-  AZURE_TENANT
+  AZURE_TENANT,
+  DATABRICKS
 } from "utils/constants";
 import { summarizeChildrenDetails } from "utils/dataSources";
 import { SPACING_2 } from "utils/layouts";
 import { getPercentageChangeModule } from "utils/math";
 
-const { DETAILS: DETAILS_TAB, UPLOAD: UPLOAD_TAB, NODES: NODES_TAB, ADVANCED: ADVANCED_TAB } = CLOUD_ACCOUNT_DETAILS_PAGE_TABS;
+const {
+  DETAILS: DETAILS_TAB,
+  UPLOAD: UPLOAD_TAB,
+  NODES: NODES_TAB,
+  ADVANCED: ADVANCED_TAB,
+  PRICING: PRICING_TAB
+} = CLOUD_ACCOUNT_DETAILS_PAGE_TABS;
 
 const PageActionBar = ({ id, type, parentId, name, config, isLoading }) => {
   const { isDemo } = useOrganizationInfo();
@@ -121,7 +129,8 @@ const PageActionBar = ({ id, type, parentId, name, config, isLoading }) => {
             alt: type,
             dataTestId: `img_${type}`
           }
-        : { icon: Icon && <Icon /> }
+        : // TODO: icon is used fro Environment only, replace with custom svg and keep only `logo`
+          { icon: Icon && <Icon /> }
     },
     items: getActionBarItems()
   };
@@ -257,6 +266,12 @@ const Tabs = ({
       dataTestId: "tab_cost_model",
       node: !!id && <DataSourceNodesContainer cloudAccountId={id} costModel={config.cost_model} />,
       renderCondition: () => type === KUBERNETES_CNR
+    },
+    {
+      title: PRICING_TAB,
+      dataTestId: "tab_pricing",
+      node: !!id && <DataSourceSkusContainer dataSourceId={id} costModel={config.cost_model} />,
+      renderCondition: () => type === DATABRICKS
     }
   ];
 

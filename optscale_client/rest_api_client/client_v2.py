@@ -1061,6 +1061,21 @@ class Client(Client_v1):
         return self.get(self.resource_cost_model_url(cost_model_id))
 
     @staticmethod
+    def sku_cost_model_url(cost_model_id=None):
+        url = 'sku_cost_models'
+        if cost_model_id is not None:
+            url = '%s/%s' % (url, cost_model_id)
+        return url
+
+    def sku_cost_model_update(self, cost_model_id, params):
+        return self.patch(self.sku_cost_model_url(
+            cost_model_id), params)
+
+    def sku_cost_model_get(self, cost_model_id, details=False):
+        return self.get(self.sku_cost_model_url(
+            cost_model_id) + self.query_url(details=details))
+
+    @staticmethod
     def resource_violations_url(organization_id):
         return '%s/resource_violations' % Client.organization_url(organization_id)
 

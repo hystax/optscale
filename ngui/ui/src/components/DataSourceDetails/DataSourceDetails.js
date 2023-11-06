@@ -3,7 +3,7 @@ import { Stack } from "@mui/material";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import SummaryList from "components/SummaryList";
-import { ALIBABA_CNR, AWS_CNR, AZURE_CNR, AZURE_TENANT, GCP_CNR, KUBERNETES_CNR, NEBIUS } from "utils/constants";
+import { ALIBABA_CNR, AWS_CNR, AZURE_CNR, AZURE_TENANT, GCP_CNR, KUBERNETES_CNR, NEBIUS, DATABRICKS } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import { ChildrenList } from "./ChildrenList";
 import { K8sHelp } from "./Help";
@@ -13,7 +13,8 @@ import {
   AzureProperties,
   NebiusProperties,
   GcpProperties,
-  K8sProperties
+  K8sProperties,
+  DatabricksProperties
 } from "./Properties";
 
 const DataSourceDetails = ({ id, accountId, parentId, type, config = {} }) => {
@@ -24,7 +25,8 @@ const DataSourceDetails = ({ id, accountId, parentId, type, config = {} }) => {
     [GCP_CNR]: GcpProperties,
     [ALIBABA_CNR]: AlibabaProperties,
     [KUBERNETES_CNR]: K8sProperties,
-    [NEBIUS]: NebiusProperties
+    [NEBIUS]: NebiusProperties,
+    [DATABRICKS]: DatabricksProperties
   }[type];
 
   const Help = {

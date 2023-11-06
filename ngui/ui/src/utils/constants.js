@@ -46,18 +46,18 @@ export const POOL_TYPES_LIST = Object.freeze(Object.keys(POOL_TYPES));
 export const AWS_CNR = "aws_cnr";
 export const AZURE_CNR = "azure_cnr";
 export const AZURE_TENANT = "azure_tenant";
+export const DATABRICKS = "databricks";
 export const GCP_CNR = "gcp_cnr";
-export const KUBERNETES_CNR = "kubernetes_cnr";
 export const ALIBABA_CNR = "alibaba_cnr";
 export const NEBIUS = "nebius";
+export const KUBERNETES_CNR = "kubernetes_cnr";
 export const ENVIRONMENT = "environment";
-
-export const DATA_SOURCE_TYPES = [AWS_CNR, AZURE_CNR, GCP_CNR, KUBERNETES_CNR, ALIBABA_CNR, NEBIUS, ENVIRONMENT];
 
 export const AWS_ROOT_ACCOUNT = "awsRoot";
 export const AWS_LINKED_ACCOUNT = "awsLinked";
 export const AZURE_SUBSCRIPTION = "azureSubscription";
 export const AZURE_TENANT_ACCOUNT = "azureTenant";
+export const DATABRICKS_ACCOUNT = "databricks";
 export const KUBERNETES = "kubernetes";
 export const ALIBABA_ACCOUNT = "alibaba";
 export const GCP_ACCOUNT = "gcp";
@@ -71,11 +71,12 @@ export const CLOUD_ACCOUNT_TYPE = Object.freeze({
   [AWS_CNR]: "aws",
   [AZURE_CNR]: "azureSubscription",
   [AZURE_TENANT]: "azureTenant",
-  [KUBERNETES_CNR]: "kubernetes",
+  [DATABRICKS]: "databricks",
   [ALIBABA_CNR]: "alibaba",
   [GCP_CNR]: "gcp",
   [ENVIRONMENT]: "environment",
-  [NEBIUS]: "nebius"
+  [NEBIUS]: "nebius",
+  [KUBERNETES_CNR]: "kubernetes"
 });
 
 // Expenses
@@ -368,7 +369,8 @@ export const CLOUD_ACCOUNT_DETAILS_PAGE_TABS = Object.freeze({
   DETAILS: "details",
   ADVANCED: "advanced",
   UPLOAD: "upload",
-  NODES: "nodes"
+  NODES: "nodes",
+  PRICING: "pricing"
 });
 
 // Resource page expenses tab

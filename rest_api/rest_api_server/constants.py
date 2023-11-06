@@ -93,6 +93,7 @@ class UrlsV2(Urls):
         'cost_models_collection': r"%s/organizations/(?P<organization_id>[^/]+)/cost_models",
         'cloud_account_cost_models': r"%s/cloud_account_cost_models/(?P<id>[^/]+)",
         'resource_cost_models': r"%s/resource_cost_models/(?P<id>[^/]+)",
+        'sku_cost_models': r"%s/sku_cost_models/(?P<id>[^/]+)",
         'environment_resources_collection': r"%s/organizations/(?P<organization_id>[^/]+)/environment_resources",
         'environment_resources': r"%s/environment_resources/(?P<id>[^/]+)",
         'shareable_book_collection': r"%s/organizations/(?P<organization_id>[^/]+)/shareable_book",

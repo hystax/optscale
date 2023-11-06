@@ -135,6 +135,9 @@ import {
   SET_RESOURCE_METRICS,
   GET_RESOURCE_COST_MODEL,
   SET_RESOURCE_COST_MODEL,
+  GET_DATASOURCE_SKUS,
+  SET_DATASOURCE_SKUS,
+  UPDATE_DATASOURCE_SKU,
   UPDATE_RESOURCE_COST_MODEL,
   MARK_RESOURCES_AS_ENVIRONMENTS,
   UPDATE_BOOKING,
@@ -1655,6 +1658,31 @@ export const updateResourceCostModel = (resourceId, params) =>
     affectedRequests: [GET_RESOURCE_COST_MODEL],
     params: {
       value: { hourly_cost: params.hourlyPrice }
+    }
+  });
+
+export const getDataSourceSkus = (dataSourceId) =>
+  apiAction({
+    url: `${API_URL}/sku_cost_models/${dataSourceId}`,
+    method: "GET",
+    label: GET_DATASOURCE_SKUS,
+    ttl: 30 * MINUTE,
+    hash: hashParams(dataSourceId),
+    onSuccess: handleSuccess(SET_DATASOURCE_SKUS),
+    params: {
+      details: true
+    }
+  });
+
+export const updateDataSourceSku = (dataSourceId, value) =>
+  apiAction({
+    url: `${API_URL}/sku_cost_models/${dataSourceId}`,
+    method: "PATCH",
+    label: UPDATE_DATASOURCE_SKU,
+    // GET_DATA_SOURCE_DETAILS must be updated to get a cost model from a data source config
+    affectedRequests: [GET_DATASOURCE_SKUS, GET_DATA_SOURCE_DETAILS],
+    params: {
+      value
     }
   });
 

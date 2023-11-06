@@ -4,7 +4,6 @@ import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
 import { useApiData } from "hooks/useApiData";
-import { DATA_SOURCE_TYPES } from "utils/constants";
 
 const ResourceLocationCell = ({ dataSource, caption }) => {
   const {
@@ -27,7 +26,7 @@ ResourceLocationCell.propTypes = {
   dataSource: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    type: PropTypes.oneOf(DATA_SOURCE_TYPES)
+    type: PropTypes.string.isRequired
   }).isRequired,
   caption: PropTypes.any
 };

@@ -44,6 +44,7 @@ import SlackIntegrationModal from "./SlackIntegrationModal";
 import UnmarkEnvironmentModal from "./UnmarkEnvironmentModal";
 import UpdateCostModelModal from "./UpdateCostModelModal";
 import UpdateDataSourceCredentialsModal from "./UpdateDataSourceCredentialsModal";
+import UpdateDataSourceSkuModal from "./UpdateDataSourceSkuModal";
 
 export {
   EnvironmentCostModelModal,
@@ -91,5 +92,6 @@ export {
   S3DuplicateFinderSettingsModal,
   BucketDuplicatesModal,
   AddPoolModal,
-  EditPoolModal
+  EditPoolModal,
+  UpdateDataSourceSkuModal
 };

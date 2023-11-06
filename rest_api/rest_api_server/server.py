@@ -306,6 +306,8 @@ def get_handlers(handler_kwargs, version=None):
              handler_kwargs),
             (urls_v2.resource_cost_models, h_v2.cost_models.RecourceCostModelsAsyncHandler,
              handler_kwargs),
+            (urls_v2.sku_cost_models, h_v2.cost_models.SkuCostModelsAsyncHandler,
+             handler_kwargs),
             (urls_v2.environment_resources_collection,
              h_v2.environment_resources.EnvironmentResourceAsyncCollectionHandler,
              handler_kwargs),

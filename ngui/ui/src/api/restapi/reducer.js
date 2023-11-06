@@ -53,6 +53,7 @@ import {
   SET_DATA_SOURCE_NODES,
   SET_RESOURCE_METRICS,
   SET_RESOURCE_COST_MODEL,
+  SET_DATASOURCE_SKUS,
   SET_OPTIMIZATION_OPTIONS,
   SET_ORGANIZATION_CALENDAR,
   UPDATE_ENVIRONMENT_PROPERTY,
@@ -583,6 +584,12 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_RESOURCE_COST_MODEL: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_DATASOURCE_SKUS: {
       return {
         ...state,
         [action.label]: action.payload

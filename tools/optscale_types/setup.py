@@ -2,7 +2,7 @@
 import sys
 from setuptools import setup
 
-requirements = ['requests==2.31.0', 'SQLAlchemy==1.3.24',
+requirements = ['requests==2.31.0', 'SQLAlchemy==1.1.4',
                 'optscale-exceptions==0.0.23', 'netaddr==0.7.18']
 
 setup(name='optscale-types',

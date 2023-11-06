@@ -10,3 +10,4 @@ class CloudTypes(Enum):
     GCP_CNR = 'gcp_cnr'
     NEBIUS = 'nebius'
     ENVIRONMENT = 'environment'
+    DATABRICKS = 'databricks'

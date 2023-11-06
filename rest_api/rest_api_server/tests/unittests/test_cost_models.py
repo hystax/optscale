@@ -1,3 +1,4 @@
+import json
 import uuid
 
 from unittest.mock import patch, ANY, call
@@ -61,15 +62,34 @@ class TestCostModelsApi(TestApiBase):
             'name': 'resource_2',
             'resource_type': 'test',
         }
+        patch(
+            'tools.cloud_adapter.clouds.databricks.Databricks.validate_credentials',
+            return_value={'account_id': 'databricks_account_id', 'warnings': []}
+        ).start()
+        self.valid_databricks_cloud_acc = {
+            'name': 'databricks_acc',
+            'type': 'databricks',
+            'config': {
+                'client_id': 'databricks_client_id',
+                'client_secret': 'databricks_client_secret',
+                'account_id': 'databricks_account_id'
+            }
+        }
+        code, self.databricks_cloud_acc = self.create_cloud_account(
+            self.org_id, self.valid_databricks_cloud_acc)
+        self.assertEqual(code, 201)
 
     def test_list(self):
         code, res = self.client.cost_model_list(self.org_id)
         self.assertEqual(code, 200)
         self.assertTrue(isinstance(res, dict))
-        self.assertTrue(len(res.get('cost_models', [])), 1)
+        self.assertEqual(len(res.get('cost_models', [])), 2)
 
     def test_list_empty(self):
         code, _ = self.client.cloud_account_delete(self.k8s_cloud_acc['id'])
+        self.assertEqual(code, 204)
+        code, r = self.client.cloud_account_delete(
+            self.databricks_cloud_acc['id'])
         self.assertEqual(code, 204)
         code, res = self.client.cost_model_list(self.org_id)
         self.assertEqual(code, 200)
@@ -303,3 +323,70 @@ class TestCostModelsApi(TestApiBase):
         self.assertEqual(code, 200)
         self.assertIsNotNone(res)
         self.assertDictEqual(res.get('value'), model_value)
+
+    def test_sku_cost_model(self):
+        code, resp = self.client.sku_cost_model_get(
+            self.databricks_cloud_acc['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['value'], {})
+        new_model = {'sku_1': 1}
+        p_publish_activities = patch(
+            'rest_api.rest_api_server.controllers.base.BaseController.'
+            'publish_activities_task'
+        ).start()
+        code, resp = self.client.sku_cost_model_update(
+            self.databricks_cloud_acc['id'], {'value': new_model})
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['value'], new_model)
+        activity_param_tuples = self.get_publish_activity_tuple(
+            self.org_id, ANY, 'report_import',
+            'recalculation_started', {
+                'object_name': self.databricks_cloud_acc['name'],
+                'cloud_account_id': self.databricks_cloud_acc['id'],
+                'level': 'INFO'
+            })
+        p_publish_activities.assert_has_calls([
+            call(*activity_param_tuples, add_token=True)
+        ])
+        c, resp = self.client.cloud_account_get(self.databricks_cloud_acc['id'])
+        self.assertEqual(c, 200)
+        self.assertEqual(resp['config']['cost_model'], new_model)
+
+    def test_sku_cost_model_details(self):
+        default_model = {
+          'valid_sku_1': 1,
+          'valid_sku_2': 2,
+          'valid_sku_3': 3
+        }
+        patch('rest_api.rest_api_server.controllers.cost_model'
+              '.SkuBasedCostModelController._get_default_prices',
+              return_value=default_model).start()
+        code, resp = self.client.sku_cost_model_get(
+            self.databricks_cloud_acc['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['value'], {})
+        new_model = {
+            'new_sku_1': 4,  # added
+            'valid_sku_1': 1,  # skipped
+            'valid_sku_2': 3  # replaced
+        }
+        self.resources_collection.insert_many([
+            {'_id': '1', 'cloud_account_id': '1',
+             'meta': {'sku': 'valid_sku_1'}, 'cloud_resource_id': '1'},
+            {'_id': '2', 'cloud_account_id': self.databricks_cloud_acc['id'],
+             'meta': {'sku': 'new_sku_1'}, 'cloud_resource_id': '2'},
+            {'_id': '3', 'cloud_account_id': self.databricks_cloud_acc['id'],
+             'meta': {'sku': 'valid_sku_2'}, 'cloud_resource_id': '3'}
+        ])
+        code, resp = self.client.sku_cost_model_update(
+            self.databricks_cloud_acc['id'], {'value': new_model})
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['value'], {'new_sku_1': 4, 'valid_sku_2': 3})
+
+        code, resp = self.client.sku_cost_model_get(
+            self.databricks_cloud_acc['id'], details=True)
+        self.assertEqual(code, 200)
+        expected_model = default_model.copy()
+        expected_model.update(new_model)
+        self.assertEqual(resp['value'], expected_model)
+        self.assertEqual(resp['used_skus'], ['new_sku_1', 'valid_sku_2'])
