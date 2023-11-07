@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { Box } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
@@ -219,8 +220,8 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     const renderScopeField = getScopeFieldRenderer();
 
     return (
-      <Grid container spacing={SPACING_1}>
-        <Grid item xs={4}>
+      <Box display="flex" gap={SPACING_1}>
+        <Box flexGrow={1}>
           <Controller
             name={`${ADDITIONAL_ROLES}.${count}.${ROLE}`}
             control={control}
@@ -243,9 +244,9 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
               />
             )}
           />
-        </Grid>
-        {renderScopeField()}
-        <Grid item xs={1}>
+        </Box>
+        <Box flexGrow={2}>{renderScopeField()}</Box>
+        <Box>
           <FormControl className={cx(classes.item, classes.deleteButton)}>
             <IconButton
               color="error"
@@ -258,8 +259,8 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
               dataTestId={`btn_delete_${count}`}
             />
           </FormControl>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     );
   };
 

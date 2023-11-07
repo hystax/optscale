@@ -3,14 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { useFormContext } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import { SPACING_2 } from "utils/layouts";
-import {
-  REASON_VALUE_OTHER,
-  FIELD_REASON,
-  ReasonsRadioGroup,
-  AnswerInput,
-  FIELD_CAPABILITIES,
-  FIELD_OTHER
-} from "./FormElements";
+import { FIELD_REASON, ReasonsRadioGroup, AnswerInput, FIELD_CAPABILITIES, FIELD_OTHER, REASONS } from "./FormElements";
 
 const Survey = () => {
   const { watch } = useFormContext();
@@ -23,7 +16,7 @@ const Survey = () => {
       </Typography>
       <Box marginBottom={SPACING_2}>
         <ReasonsRadioGroup />
-        {reason === REASON_VALUE_OTHER && <AnswerInput labelMessageId={"reason"} name={FIELD_OTHER} />}
+        {reason === REASONS.OTHER && <AnswerInput labelMessageId={"reason"} name={FIELD_OTHER} />}
       </Box>
       <AnswerInput labelMessageId={"capabilitiesQuestion"} name={FIELD_CAPABILITIES} />
     </>

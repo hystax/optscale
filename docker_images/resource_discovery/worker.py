@@ -235,6 +235,14 @@ class DiscoveryWorker(ConsumerMixin):
         except Exception as exc:
             return exc, generator
 
+    @staticmethod
+    def is_404(exception):
+        try:
+            not_found = exception.response.status_code == 404
+        except Exception:
+            not_found = False
+        return not_found
+
     def _discover_resources(self, cloud_acc_id, resource_type):
         LOG.info('Starting %s discovery for cloud_account %s',
                  resource_type, cloud_acc_id)
@@ -262,6 +270,8 @@ class DiscoveryWorker(ConsumerMixin):
                 for f in futures:
                     res, gen = f.result()
                     if isinstance(res, Exception):
+                        if self.is_404(res):
+                            continue
                         LOG.error("Exception: % %", str(res), traceback.print_tb(res.__traceback__))
                         gen_list_chunk.remove(gen)
                         errors.add(str(res))

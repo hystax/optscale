@@ -7,7 +7,7 @@ import { useIntl } from "react-intl";
 import EnvironmentPropertyNameInput from "components/EnvironmentPropertyNameInput";
 import EnvironmentPropertyValueInput from "components/EnvironmentPropertyValueInput";
 import IconButton from "components/IconButton";
-import PropertyGridLayout from "components/PropertyGridLayout";
+import PropertyLayout from "components/PropertyLayout";
 
 const PROPERTY_NAME = "propertyName";
 const PROPERTY_VALUE = "propertyValue";
@@ -36,7 +36,7 @@ const EnvironmentPropertyForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <PropertyGridLayout
+      <PropertyLayout
         propertyName={
           <EnvironmentPropertyNameInput
             name={PROPERTY_NAME}

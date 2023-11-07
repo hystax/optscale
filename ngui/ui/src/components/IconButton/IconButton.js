@@ -31,7 +31,7 @@ const IconButton = forwardRef(
   ) => {
     const { classes } = useStyles();
 
-    const { show: showTooltip = false, value = "", messageId = "", placement = "bottom" } = tooltip;
+    const { show: showTooltip = false, value = "", messageId = "", placement = "top" } = tooltip;
 
     const renderMuiIconButton = (
       <MuiIconButton

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import DisconnectCloudAccount from "components/DisconnectCloudAccount";
-import { FIELD_REASON, FIELD_CAPABILITIES, FIELD_OTHER } from "components/DisconnectCloudAccount/FormElements";
+import { FIELD_REASON, FIELD_CAPABILITIES, FIELD_OTHER, getReasonValue } from "components/DisconnectCloudAccount/FormElements";
 import DataSourcesService, { DATASOURCE_SURVEY_TYPES } from "services/DataSourcesService";
 import { CLOUD_ACCOUNTS } from "urls";
 
@@ -23,11 +23,16 @@ const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }) => {
   const { handleSubmit } = methods;
 
   const onSubmitHandler = handleSubmit((formData) => {
-    const isReasonSelected = !!formData[FIELD_REASON];
+    const reasonKey = formData[FIELD_REASON];
+    const isReasonSelected = !!reasonKey;
     const isCapabilitiesAdded = !!formData[FIELD_CAPABILITIES];
 
     if (isLastDataSource && (isReasonSelected || isCapabilitiesAdded)) {
-      createSurvey(DATASOURCE_SURVEY_TYPES.DISCONNECT_LAST_DATA_SOURCE, formData).then(disconnectAndRedirect);
+      const data = {
+        ...formData,
+        [FIELD_REASON]: getReasonValue(reasonKey)
+      };
+      createSurvey(DATASOURCE_SURVEY_TYPES.DISCONNECT_LAST_DATA_SOURCE, data).then(disconnectAndRedirect);
     } else {
       disconnectAndRedirect();
     }
