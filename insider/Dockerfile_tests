@@ -1,7 +1,7 @@
 ARG BUILDTAG=build
 ARG IMAGE=insider_api
 FROM ${IMAGE}:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 COPY optscale_client/insider_client optscale_client/insider_client
 COPY insider/test-requirements.txt insider/.pylintrc insider/.noserc insider/.coveragerc ./insider/

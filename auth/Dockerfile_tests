@@ -1,6 +1,6 @@
 ARG BUILDTAG=build
 FROM auth:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 COPY optscale_client/auth_client /usr/src/app/optscale_client/auth_client
 COPY auth/test-requirements.txt auth/test-requirements.txt

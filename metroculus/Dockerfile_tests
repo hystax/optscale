@@ -1,7 +1,7 @@
 ARG BUILDTAG=build
 ARG IMAGE=metroculus_api
 FROM ${IMAGE}:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 COPY optscale_client/metroculus_client optscale_client/metroculus_client
 COPY metroculus/test-requirements.txt metroculus/.pylintrc metroculus/.noserc metroculus/.coveragerc ./metroculus/

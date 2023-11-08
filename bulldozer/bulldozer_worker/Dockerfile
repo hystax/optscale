@@ -1,5 +1,5 @@
 FROM python:3.9.16-slim
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 RUN mkdir -p /var/lib/bulldozer
 WORKDIR /usr/src/app/bulldozer/bulldozer_worker

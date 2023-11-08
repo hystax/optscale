@@ -1,6 +1,6 @@
 ARG BUILDTAG=build
 FROM rest_api:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 COPY rest_api/test-requirements.txt rest_api/.pylintrc rest_api/.noserc rest_api/.coveragerc ./rest_api/
 COPY tools/cloud_adapter tools/cloud_adapter
