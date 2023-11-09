@@ -216,3 +216,6 @@ class Databricks(CloudBase):
 
     def configure_last_import_modified_at(self):
         pass
+
+    def get_regions_coordinates(self):
+        return {}
