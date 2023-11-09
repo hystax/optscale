@@ -1,6 +1,6 @@
 ARG BUILDTAG=build
 FROM diproxy:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 COPY diproxy/test-requirements.txt diproxy/.pylintrc diproxy/.noserc diproxy/.coveragerc diproxy/
 RUN pip install --no-cache-dir -r diproxy/test-requirements.txt

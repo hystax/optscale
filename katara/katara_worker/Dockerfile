@@ -1,5 +1,5 @@
 FROM python:3.9.16-slim
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 ENV PYTHONPATH /usr/src/app/
 WORKDIR /usr/src/app/
