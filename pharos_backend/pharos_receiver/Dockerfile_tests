@@ -1,6 +1,6 @@
 ARG BUILDTAG=build
 FROM pharos_receiver:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 WORKDIR /usr/src/app/
 

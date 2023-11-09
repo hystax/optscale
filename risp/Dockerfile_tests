@@ -1,6 +1,6 @@
 ARG BUILDTAG=build
 FROM risp_worker:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 ADD risp/risp_worker/tests risp/risp_worker/tests
 COPY risp/test-requirements.txt risp/.pylintrc risp/run_tests.py risp/run_test.sh ./risp/

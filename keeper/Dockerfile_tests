@@ -1,6 +1,6 @@
 ARG BUILDTAG=build
 FROM keeper:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 COPY keeper/test-requirements.txt keeper/test-requirements.txt
 COPY keeper/.pylintrc keeper/.noserc keeper/.coveragerc ./keeper/report_server/

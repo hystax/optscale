@@ -28,7 +28,8 @@ import {
   EMPTY_UUID,
   KUBERNETES_CNR,
   K8S_NODE_FILTER,
-  K8S_NAMESPACE_FILTER
+  K8S_NAMESPACE_FILTER,
+  OPTSCALE_RESOURCE_TYPES
 } from "utils/constants";
 import ExpensesBreakdownActionBar from "./ActionBar";
 import ExpensesBreakdownBarChart from "./BarChart";
@@ -111,7 +112,9 @@ const ExpensesBreakdown = ({
           : `${OWNER_ID_FILTER}=${details.id}`,
       [EXPENSES_FILTERBY_TYPES.SERVICE]: `${SERVICE_NAME_FILTER}=${details.id}`,
       [EXPENSES_FILTERBY_TYPES.REGION]: `${REGION_FILTER}=${details.id}`,
-      [EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE]: `${RESOURCE_TYPE_FILTER}=${details.name}`,
+      // Expenses are tracked for regular resources only.
+      // When/if a different type is added to calculations (e.g. 'cluster'), the API will have to return it.
+      [EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE]: `${RESOURCE_TYPE_FILTER}=${details.name}:${OPTSCALE_RESOURCE_TYPES.REGULAR}`,
       [EXPENSES_FILTERBY_TYPES.NODE]: `${K8S_NODE_FILTER}=${details.id}`,
       [EXPENSES_FILTERBY_TYPES.NAMESPACE]: `${K8S_NAMESPACE_FILTER}=${details.id}`
     }[filterBy]);

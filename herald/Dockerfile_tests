@@ -1,6 +1,6 @@
 ARG BUILDTAG=build
 FROM herald:${BUILDTAG}
-MAINTAINER Hystax
+LABEL org.opencontainers.image.authors="Hystax"
 
 WORKDIR /usr/src/app/
 
