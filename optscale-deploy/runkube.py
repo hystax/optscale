@@ -158,7 +158,7 @@ class Runkube:
         docker_cl = self.get_docker_cl(self.master_ip)
         images = {}
         for service in self.versions_info['images']:
-            image = docker_cl.images.get('{}:local'.format(service))
+            image = docker_cl.images.get('{}:{}'.format(service, self.version))
             images[service] = image.id
         LOG.debug("Image ids map: %s", images)
         return images
