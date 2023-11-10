@@ -165,7 +165,9 @@ or if you want to use socket:
 
 **deployment name** must follow the RFC 1123 : https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
 
-**version**: OptScale version
+**version**: 
+- Use hystax/optscale git tag (eg: 2023110701-public) if you use optscale public version.
+- Use your own tag version if you build your optscale images (eg: latest).
 
 **please note**: if you use key authentication, you should have required key (id_rsa) on the machine
 
