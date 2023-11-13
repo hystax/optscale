@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { addDecorator, addParameters } from "@storybook/react";
 import intlConfig from "translations/react-intl-config";

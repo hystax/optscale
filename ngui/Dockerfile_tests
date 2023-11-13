@@ -4,5 +4,5 @@ FROM ngui:${BUILDTAG}
 # installing only dev dependencies for ui prettier and linter check
 WORKDIR "/usr/src/app/ui"
 USER root
-RUN mv .disabled.eslintrc.json .eslintrc.json 
+RUN mv .disabled.eslintrc.js .eslintrc.js 
 RUN npm ci --ignore-scripts -D

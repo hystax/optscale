@@ -12,8 +12,8 @@ WORKDIR /usr/src/app/ui
 COPY ngui/ui/package*.json ./
 RUN npm ci --ignore-scripts
 COPY ngui/ui/ ./
-# .eslintrc.json on build step will produce an error, but it is still needed on testing
-RUN mv .eslintrc.json .disabled.eslintrc.json
+# .eslintrc.js on build step will produce an error, but it is still needed on testing
+RUN mv .eslintrc.js .disabled.eslintrc.js
 RUN npm run build && rm -rf node_modules
 
 # -------- Server --------
