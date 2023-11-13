@@ -628,7 +628,7 @@ class Alibaba(CloudBase):
                 for r in self._list_region_details()]
 
     def rds_instance_discovery_calls(self):
-        excluded_regions = ['ap-northeast-2', 'ap-southeast-7']
+        excluded_regions = ['cn-wuhan-lr']
         # rds instances discover in this regions raises error for some reasons
         return [(self._discover_region_rds_instances, (r,))
                 for r in self._list_region_details()
