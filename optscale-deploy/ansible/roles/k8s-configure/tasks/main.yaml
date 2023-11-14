@@ -60,11 +60,6 @@
   ignore_errors: true
   run_once: true
 
-- name: Creating second tls secret for initial config ingress
-  shell: kubectl create secret tls initialconfig-cert --key /tmp/key.pem --cert /tmp/cert.pem
-  ignore_errors: true
-  run_once: true
-
 - name: Add Helm repos
   shell: helm repo add {{ item }}
   with_items:
@@ -84,10 +79,6 @@
     owner: "{{ ansible_ssh_user }}"
     group: "{{ ansible_ssh_user }}"
     mode: 0644
-  run_once: true
-
-- name: Install additional ingress controller
-  shell: helm upgrade --install initial-config stable/nginx-ingress --set rbac.create=true --set controller.hostNetwork=true --set controller.extraArgs.default-ssl-certificate=default/initialconfig-cert --set controller.ingressClass=initial-config --set controller.service.enableHttp=false --set controller.service.targetPorts.https=4443 --set controller.kind=DaemonSet
   run_once: true
 
 - name: Install etcd-operator
