@@ -14,6 +14,8 @@ from insider.insider_api.controllers.base import (BaseController,
                                                   BaseAsyncControllerWrapper,
                                                   CachedThreadPoolExecutor,
                                                   CachedCloudCaller)
+from botocore.exceptions import ClientError as AwsClientError
+from insider.insider_api.utils import handle_credentials_error
 
 LOG = logging.getLogger(__name__)   # 12 hours by default
 
@@ -254,6 +256,7 @@ class FlavorController(BaseController):
             raise TypeNotMatchedException()
         return min(flavors, key=lambda x: x['price'])
 
+    @handle_credentials_error(AwsClientError)
     def find_aws_flavor(self, region, family_specs, mode,
                         additional_params=None):
         source_flavor_id = family_specs['source_flavor_id']
@@ -376,6 +379,8 @@ class FlavorController(BaseController):
                     self.gcp.get_instance_types_priced, region).result()
             except RegionNotFoundException:
                 raise WrongArgumentsException(Err.OI0012, [region])
+            except ValueError as ex:
+                raise WrongArgumentsException(Err.OI0017, [str(ex)])
 
         source_flavor_family = source_flavor_id.split("-")[0]
         flavors = []

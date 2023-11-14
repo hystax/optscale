@@ -1,6 +1,5 @@
 import re
 from botocore.exceptions import ClientError as AwsClientError
-from functools import wraps
 from grpc._channel import _InactiveRpcError
 from pymongo import MongoClient
 from tools.optscale_exceptions.common_exc import (
@@ -13,19 +12,7 @@ from insider.insider_api.exceptions import Err
 from insider.insider_api.controllers.flavor import FlavorController
 from insider.insider_api.controllers.base import (BaseAsyncControllerWrapper,
                                                   CachedThreadPoolExecutor)
-
-
-def handle_credentials_error(exc_class):
-    def handle_decorator(f):
-        @wraps(f)
-        def f_handle(*args, **kwargs):
-            try:
-                return f(*args, **kwargs)
-            except exc_class as e:
-                raise UnauthorizedException(
-                    Err.OI0019, [args[0]._extract_credentials_error_message(e)])
-        return f_handle
-    return handle_decorator
+from insider.insider_api.utils import handle_credentials_error
 
 
 def extract_substring_between(string, sub_1, sub_2):
