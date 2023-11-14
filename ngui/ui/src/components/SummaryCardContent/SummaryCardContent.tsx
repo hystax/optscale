@@ -8,6 +8,8 @@ import { SPACING_1 } from "utils/layouts";
 import { isEllipsisActive } from "utils/strings";
 import useStyles from "./SummaryCardContent.styles";
 
+const EMPTY_VALUES = [null, undefined, NaN, Infinity, -Infinity, ""];
+
 const renderString = (value, ref, dataTestId) => (
   <Typography fontWeight="bold" component="div" variant="h5" data-test-id={dataTestId} ref={ref} noWrap>
     {value}
@@ -49,12 +51,6 @@ const SummaryCardContent = ({ value, caption, dataTestIds, icon = {}, help = {},
 
   return (
     <>
-      <Box display="flex" alignItems="center">
-        {showIcon
-          ? renderWithIcon({ value, icon: iconValue, isValueOverflow, valueRef, valueTestId })
-          : renderValue({ isValueOverflow, value, valueRef, dataTestId: valueTestId })}
-        {showButton && <span className={classes.icon}>{buttonIcon}</span>}
-      </Box>
       <Box display="flex" alignItems="center" maxWidth="100%">
         <Typography data-test-id={titleTestId} variant="caption">
           {caption}
@@ -63,6 +59,16 @@ const SummaryCardContent = ({ value, caption, dataTestIds, icon = {}, help = {},
           <QuestionMark messageId={helpMessageId} className={classes.questionMark} dataTestId={helpDataTestId} />
         ) : null}
       </Box>
+      {EMPTY_VALUES.includes(value) ? (
+        "-"
+      ) : (
+        <Box display="flex" alignItems="center">
+          {showIcon
+            ? renderWithIcon({ value, icon: iconValue, isValueOverflow, valueRef, valueTestId })
+            : renderValue({ isValueOverflow, value, valueRef, dataTestId: valueTestId })}
+          {showButton && <span className={classes.icon}>{buttonIcon}</span>}
+        </Box>
+      )}
     </>
   );
 };
