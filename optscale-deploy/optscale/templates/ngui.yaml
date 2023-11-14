@@ -57,6 +57,8 @@ spec:
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}
+        - name: BUILD_MODE
+          value: {{ $config.env.build_mode }}
         - name: UI_BUILD_PATH
           value: /usr/src/app/ui
         - name: PROXY_URL

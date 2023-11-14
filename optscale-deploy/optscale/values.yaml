@@ -203,6 +203,7 @@ ngui:
     externalPort: 80
     internalPort: 4000
   env:
+    build_mode:
     google_oauth_client_id:
     microsoft_oauth_client_id:
     google_map_api_key:
@@ -889,7 +890,7 @@ users_dataset_generator:
 
 live_demo_generator:
   name: live-demo-generator
-  replicaCount: 1   # amount of workers
+  replicaCount: 1 # amount of workers
   image:
     repository: live_demo_generator
     tag: *tag
