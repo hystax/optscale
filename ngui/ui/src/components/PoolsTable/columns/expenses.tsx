@@ -27,8 +27,13 @@ const expenses = () => ({
     }
 
     if (cost > limit) {
-      const timesMoreValue = round(percentXofY(cost, limit), 1);
-      const timesMore = timesMoreValue !== 1 ? ` (x${timesMoreValue})` : "";
+      const getTimesMore = () => {
+        const timesMoreValue = round(percentXofY(cost, limit), 1);
+        return timesMoreValue !== 1 ? ` (x${timesMoreValue})` : "";
+      };
+      // self assigned pool can have 0 limit
+      const timesMore = limit !== 0 ? getTimesMore() : "";
+
       return (
         <Tooltip
           title={

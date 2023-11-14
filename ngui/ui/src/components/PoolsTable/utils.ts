@@ -24,6 +24,7 @@ const getSelfAssignedItem = (item, allPools, selfAssignedName) => {
 
   return {
     ...itemInfo,
+    remain: unallocatedLimit - selfCost,
     parent_id: item.id,
     name: selfAssignedName,
     purpose: undefined,
@@ -40,20 +41,21 @@ export const patchPools = (rootPool, selfAssignedNameFn) => {
 
   const selfAssignedChildren = [];
 
-  const childrenUpdated = rootPool.children?.map((pool) => {
-    const patchedPool = {
-      ...pool,
-      hasChildren: rootPool.children.some(({ parent_id: parentId }) => parentId === pool.id),
-      hasLimit: getHasLimit(pool),
-      remain: getRemain(pool)
-    };
+  const childrenUpdated =
+    rootPool.children?.map((pool) => {
+      const patchedPool = {
+        ...pool,
+        hasChildren: rootPool.children.some(({ parent_id: parentId }) => parentId === pool.id),
+        hasLimit: getHasLimit(pool),
+        remain: getRemain(pool)
+      };
 
-    if (patchedPool.hasChildren) {
-      selfAssignedChildren.push(getSelfAssignedItem(patchedPool, rootPool.children, selfAssignedNameFn(patchedPool.name)));
-    }
+      if (patchedPool.hasChildren) {
+        selfAssignedChildren.push(getSelfAssignedItem(patchedPool, rootPool.children, selfAssignedNameFn(patchedPool.name)));
+      }
 
-    return patchedPool;
-  });
+      return patchedPool;
+    }) ?? [];
 
   const rootPoolPatched = {
     ...rootPool,
