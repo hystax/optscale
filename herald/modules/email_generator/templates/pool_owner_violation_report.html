@@ -220,72 +220,62 @@
                       </td>
                     </tr>
                     <tr style="display:{{style.element_visibility_total_violated}};">
-                      <div style="background:#FFFFFF;background-color:#FFFFFF;Margin:0px auto;max-width:700px;overflow-x: auto;">
-                        <table align="center" border="0" cellpadding="5" cellspacing="0" role="presentation" style="width:700px;border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background: #FFFFFF; background-color: #FFFFFF;" width="700" bgcolor="#FFFFFF">
-                          <tbody>
-                            <tr>
-                              <td style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; direction: ltr; font-size: 0px; padding: 0px 0px 10px 0px; text-align: center; vertical-align: top;" align="center" valign="top">
-                                <!--[if mso | IE]>
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                      <td>
+                        <div style="background:#FFFFFF;background-color:#FFFFFF;Margin:0px auto;max-width:700px;overflow-x: auto;">
+                          <table align="center" border="0" cellpadding="5" cellspacing="0" role="presentation" style="width:700px;border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background: #FFFFFF; background-color: #FFFFFF;" width="700" bgcolor="#FFFFFF">
+                            <tbody>
                               <tr>
-                                  <td
-                                    class="" style="vertical-align:top;width:700px;"
-                                  >
-                                <![endif]-->
-                                <div class="mj-column-per-100 outlook-group-fix" style="font-size:14px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                                  <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; vertical-align: top;" width="100%" valign="top">
-                                    <tbody>
-                                      <tr>
-                                        <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Resource</span></strong></p>
-                                          </div>
-                                        </th>
-                                        <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Pool/Owner</span></strong></p>
-                                          </div>
-                                        </th>
-                                        <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Type</span></strong></p>
-                                          </div>
-                                        </th>
-                                      </tr>
-                                      {{#texts.violated_resources}}
-                                      <tr>
-                                        <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 200px">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/resources/{{resource_id}}{{texts.control_panel_parameters}}&tab=constraints" target="_blank" rel="noopener">{{cloud_resource_id}}</a></strong></span><br>
-                                            <span style="font-size: 12px;">{{resource_name}}</span>
-                                          </div>
-                                        </td>
-                                        <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 100px">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/pools/{{pool_id}}{{texts.control_panel_parameters}}" target="_blank" rel="noopener">{{pool_name}}</a></strong></span><br>
-                                            <span style="font-size: 12px;">{{owner_name}}</span>
-                                          </div>
-                                        </td>
-                                        <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 50px">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <span style="font-size: 12px;"><strong>{{type}}</strong></span><br><br>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                      {{/texts.violated_resources}}
-                                    </tbody>
-                                  </table>
-                                </div>
-                                <!--[if mso | IE]>
-                                  </td>
+                                <td style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; direction: ltr; font-size: 0px; padding: 0px 0px 10px 0px; text-align: center; vertical-align: top;" align="center" valign="top">
+                                  <div class="mj-column-per-100 outlook-group-fix" style="font-size:14px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; vertical-align: top;" width="100%" valign="top">
+                                      <tbody>
+                                        <tr>
+                                          <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Resource</span></strong></p>
+                                            </div>
+                                          </th>
+                                          <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Pool/Owner</span></strong></p>
+                                            </div>
+                                          </th>
+                                          <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Type</span></strong></p>
+                                            </div>
+                                          </th>
+                                        </tr>
+                                        {{#texts.violated_resources}}
+                                        <tr>
+                                          <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 200px">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/resources/{{resource_id}}{{texts.control_panel_parameters}}&tab=constraints" target="_blank" rel="noopener">{{cloud_resource_id}}</a></strong></span><br>
+                                              <span style="font-size: 12px;">{{resource_name}}</span>
+                                            </div>
+                                          </td>
+                                          <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 100px">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/pools/{{pool_id}}{{texts.control_panel_parameters}}" target="_blank" rel="noopener">{{pool_name}}</a></strong></span><br>
+                                              <span style="font-size: 12px;">{{owner_name}}</span>
+                                            </div>
+                                          </td>
+                                          <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 50px">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <span style="font-size: 12px;"><strong>{{type}}</strong></span><br><br>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                        {{/texts.violated_resources}}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </td>
                               </tr>
-                                        </table>
-                                      <![endif]-->
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                            </tbody>
+                          </table>
+                        </div>
+                      </td>
                     </tr>
                     <tr style="display:{{style.element_visibility_total_violated}};">
                       <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 15px 15px 15px 15px; word-break: break-word;">
@@ -302,72 +292,62 @@
                       </td>
                     </tr>
                     <tr style="display:{{style.element_visibility_total_differ}};">
-                      <div style="background:#FFFFFF;background-color:#FFFFFF;Margin:0px auto;max-width:700px;overflow-x: auto;">
-                        <table align="center" border="0" cellpadding="5" cellspacing="0" role="presentation" style="width:700px;border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background: #FFFFFF; background-color: #FFFFFF;" width="700" bgcolor="#FFFFFF">
-                          <tbody>
-                            <tr>
-                              <td style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; direction: ltr; font-size: 0px; padding: 0px 0px 10px 0px; text-align: center; vertical-align: top;" align="center" valign="top">
-                                <!--[if mso | IE]>
-                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                      <td>
+                        <div style="background:#FFFFFF;background-color:#FFFFFF;Margin:0px auto;max-width:700px;overflow-x: auto;">
+                          <table align="center" border="0" cellpadding="5" cellspacing="0" role="presentation" style="width:700px;border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background: #FFFFFF; background-color: #FFFFFF;" width="700" bgcolor="#FFFFFF">
+                            <tbody>
                               <tr>
-                                  <td
-                                    class="" style="vertical-align:top;width:700px;"
-                                  >
-                                <![endif]-->
-                                <div class="mj-column-per-100 outlook-group-fix" style="font-size:14px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                                  <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; vertical-align: top;" width="100%" valign="top">
-                                    <tbody>
-                                      <tr>
-                                        <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Resource</span></strong></p>
-                                          </div>
-                                        </th>
-                                        <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Pool/Owner</span></strong></p>
-                                          </div>
-                                        </th>
-                                        <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Type</span></strong></p>
-                                          </div>
-                                        </th>
-                                      </tr>
-                                      {{#texts.differ_resources}}
-                                      <tr>
-                                        <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 200px">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/resources/{{resource_id}}{{texts.control_panel_parameters}}&tab=constraints" target="_blank" rel="noopener">{{cloud_resource_id}}</a></strong></span><br>
-                                            <span style="font-size: 12px;">{{resource_name}}</span>
-                                          </div>
-                                        </td>
-                                        <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 100px">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/pools/{{pool_id}}{{texts.control_panel_parameters}}" target="_blank" rel="noopener">{{pool_name}}</a></strong></span><br>
-                                            <span style="font-size: 12px;">{{owner_name}}</span>
-                                          </div>
-                                        </td>
-                                        <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 50px">
-                                          <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
-                                            <span style="font-size: 12px;"><strong>{{type}}</strong></span><br><br>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                      {{/texts.differ_resources}}
-                                    </tbody>
-                                  </table>
-                                </div>
-                                <!--[if mso | IE]>
-                                  </td>
+                                <td style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; direction: ltr; font-size: 0px; padding: 0px 0px 10px 0px; text-align: center; vertical-align: top;" align="center" valign="top">
+                                  <div class="mj-column-per-100 outlook-group-fix" style="font-size:14px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; vertical-align: top;" width="100%" valign="top">
+                                      <tbody>
+                                        <tr>
+                                          <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Resource</span></strong></p>
+                                            </div>
+                                          </th>
+                                          <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Pool/Owner</span></strong></p>
+                                            </div>
+                                          </th>
+                                          <th align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word;">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <p style="display: block; margin: 0px; font-size: 14px;"><strong><span style="font-size: 14px;">Type</span></strong></p>
+                                            </div>
+                                          </th>
+                                        </tr>
+                                        {{#texts.differ_resources}}
+                                        <tr>
+                                          <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 200px">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/resources/{{resource_id}}{{texts.control_panel_parameters}}&tab=constraints" target="_blank" rel="noopener">{{cloud_resource_id}}</a></strong></span><br>
+                                              <span style="font-size: 12px;">{{resource_name}}</span>
+                                            </div>
+                                          </td>
+                                          <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 100px">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <span style="font-size: 12px;"><strong><a href="https://{{etcd.control_panel_link}}/pools/{{pool_id}}{{texts.control_panel_parameters}}" target="_blank" rel="noopener">{{pool_name}}</a></strong></span><br>
+                                              <span style="font-size: 12px;">{{owner_name}}</span>
+                                            </div>
+                                          </td>
+                                          <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 5px 0px 5px 15px; word-break: break-word; min-width: 50px">
+                                            <div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;line-height:1.5;text-align:left;color:#000000;">
+                                              <span style="font-size: 12px;"><strong>{{type}}</strong></span><br><br>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                        {{/texts.differ_resources}}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </td>
                               </tr>
-                                        </table>
-                                      <![endif]-->
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                            </tbody>
+                          </table>
+                        </div>
+                      </td>>
                     </tr>
                     <tr style="display:{{style.element_visibility_total_differ}};">
                       <td align="left" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-size: 0px; padding: 15px 15px 15px 15px; word-break: break-word;">
