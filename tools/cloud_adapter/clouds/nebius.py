@@ -797,8 +797,7 @@ class Nebius(S3CloudMixin):
             LOG.warning('Report files not found')
 
     @staticmethod
-    def find_csv_reports(s3_objects, prefix):
-        reports = {}
+    def find_csv_reports(s3_objects, prefix, reports):
         report_regex_fmt = '^{0}/[0-9]{{8}}.csv$'
         try:
             report_regex = re.compile(
@@ -810,8 +809,7 @@ class Nebius(S3CloudMixin):
                     reports[group] = []
                 reports[group].append(report)
         except KeyError:
-            reports = {}
-        return reports
+            pass
 
     def download_report_file(self, report_name, file_obj):
         self.s3.download_fileobj(
@@ -822,9 +820,17 @@ class Nebius(S3CloudMixin):
         prefix = self.config.get('bucket_prefix', DEFAULT_BUCKET_PREFIX)
         if prefix.endswith('/'):
             prefix = prefix[:-1]
-        resp = self.s3.list_objects_v2(
-            Bucket=bucket_name, Prefix=prefix)
-        reports = self.find_csv_reports(resp, prefix)
+        reports = {}
+        params = {
+            'Bucket': bucket_name,
+            'Prefix': prefix
+        }
+        while True:
+            resp = self.s3.list_objects_v2(**params)
+            self.find_csv_reports(resp, prefix, reports)
+            if not resp['IsTruncated']:
+                break
+            params['ContinuationToken'] = resp['NextContinuationToken']
         if not reports:
             raise ReportFilesNotFoundException(
                 'Report files for report {} not found in bucket {}'.format(
