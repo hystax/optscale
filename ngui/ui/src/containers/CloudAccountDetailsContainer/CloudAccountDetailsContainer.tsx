@@ -13,7 +13,7 @@ const CloudAccountDetailsContainer = ({ cloudAccountId }) => {
     apiData: { cloudAccountDetails = {} }
   } = useApiData(GET_DATA_SOURCE_DETAILS);
 
-  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_DATA_SOURCE_DETAILS, cloudAccountId);
+  const { isLoading, shouldInvoke } = useApiState(GET_DATA_SOURCE_DETAILS, cloudAccountId);
 
   useEffect(() => {
     if (shouldInvoke) {
@@ -21,7 +21,7 @@ const CloudAccountDetailsContainer = ({ cloudAccountId }) => {
     }
   }, [shouldInvoke, dispatch, cloudAccountId]);
 
-  return <CloudAccountDetails data={cloudAccountDetails} isLoading={isLoading || !isDataReady} />;
+  return <CloudAccountDetails data={cloudAccountDetails} isLoading={isLoading} />;
 };
 
 export default CloudAccountDetailsContainer;

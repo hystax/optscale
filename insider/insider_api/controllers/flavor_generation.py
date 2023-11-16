@@ -5,6 +5,8 @@ from insider.insider_api.exceptions import Err
 from insider.insider_api.controllers.base import (BaseAsyncControllerWrapper,
                                                   CachedThreadPoolExecutor)
 from insider.insider_api.controllers.flavor import FlavorController
+from botocore.exceptions import ClientError as AwsClientError
+from insider.insider_api.utils import handle_credentials_error
 
 AZURE_FAMILY_GENERATION_MAP = {
     'standardDASFamily': 'standardDASv5Family',
@@ -92,6 +94,7 @@ class FlavorGenerationController(FlavorController):
         }
         return find_flavor_function_map[cloud_type](**params)
 
+    @handle_credentials_error(AwsClientError)
     def find_aws_flavor_generation(self, region, current_flavor, os_type=None,
                                    preinstalled=None, meter_id=None,
                                    currency='USD'):

@@ -11,6 +11,8 @@ from tools.cloud_adapter.clouds.alibaba import Alibaba
 from tools.cloud_adapter.clouds.aws import Aws
 from tools.cloud_adapter.clouds.azure import Azure
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from botocore.exceptions import ClientError as AwsClientError
+from insider.insider_api.utils import handle_credentials_error
 
 
 LOG = logging.getLogger(__name__)
@@ -115,6 +117,7 @@ class AwsProvider(BaseProvider):
     def prices_collection(self):
         return self.mongo_client.restapi.aws_prices
 
+    @handle_credentials_error(AwsClientError)
     def _load_flavor_prices(self, region, flavor, os_type, preinstalled=None,
                             billing_method=None, quantity=None, currency='USD'):
         location = self.region_map.get(region)

@@ -5,7 +5,9 @@ import json
 from decimal import Decimal
 
 from bson import ObjectId
-from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from functools import wraps
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  UnauthorizedException)
 
 from insider.insider_api.exceptions import Err
 
@@ -52,3 +54,20 @@ def _is_public_azure_region(region):
     if 'gov' in region:
         return False
     return True
+
+
+def handle_credentials_error(exc_class):
+    def handle_decorator(f):
+        @wraps(f)
+        def f_handle(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except exc_class as e:
+                try:
+                    error_msg = args[0]._extract_credentials_error_message(e)
+                except AttributeError:
+                    error_msg = str(e)
+                raise UnauthorizedException(
+                    Err.OI0019, [error_msg])
+        return f_handle
+    return handle_decorator

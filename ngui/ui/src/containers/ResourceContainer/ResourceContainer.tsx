@@ -14,7 +14,7 @@ const ResourceContainer = ({ resourceId }) => {
   } = useApiData(GET_RESOURCE);
 
   const { isLoading: isLoadingPatch } = useApiState(UPDATE_RESOURCE_VISIBILITY);
-  const { isDataReady: isGetResourceDataReady, shouldInvoke } = useApiState(GET_RESOURCE, { resourceId, details });
+  const { isLoading: isGetResourceLoading, shouldInvoke } = useApiState(GET_RESOURCE, { resourceId, details });
 
   const dispatch = useDispatch();
 
@@ -37,7 +37,7 @@ const ResourceContainer = ({ resourceId }) => {
       resource={resource}
       patchResource={patchResource}
       isLoadingPatch={isLoadingPatch}
-      isGetResourceLoading={!isGetResourceDataReady}
+      isGetResourceLoading={isGetResourceLoading}
     />
   );
 };

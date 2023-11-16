@@ -30,7 +30,6 @@ FROM $IMAGE
 
 WORKDIR /usr/src/app
 
-
 COPY --from=builder /usr/src/app/ui/ ./ui
 COPY --from=builder /usr/src/app/server ./server
 

@@ -90,6 +90,7 @@ auth:
 
 ngui:
   env:
+    build_mode: ""
     google_oauth_client_id: ""
     microsoft_oauth_client_id: ""
     google_map_api_key: ""
