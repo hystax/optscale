@@ -1,4 +1,4 @@
-aiohttp==3.8.5
+aiohttp==3.8.6
 sanic==22.6.2
 motor==3.0.0
 websockets==10.4
