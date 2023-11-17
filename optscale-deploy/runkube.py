@@ -17,6 +17,7 @@ from kubernetes.client.rest import ApiException as K8SApiException
 from kubernetes.stream import stream as k8s_stream
 from docker import DockerClient
 from kubernetes.stream.ws_client import ERROR_CHANNEL
+from docker.errors import ImageNotFound
 
 DESCRIPTION = "Script to deploy OptScale on k8s. " \
               "See deployment instructions at https://github.com/hystax/optscale"
@@ -32,6 +33,7 @@ CHART_NAME = 'optscale'
 JOB_NAME = 'configurator'
 OPTSCALE_K8S_NAMESPACE = 'default'
 COMPONENTS_FILE = 'components.yaml'
+LOCAL_TAG = 'local'
 
 LOG = logging.getLogger(__name__)
 
@@ -81,6 +83,10 @@ class Runkube:
                     context['clusters'][0]['cluster']['server']).hostname
         return self._master_ip
 
+    @staticmethod
+    def _get_image(docker_cl, image_name, tag):
+        return docker_cl.images.get('{}:{}'.format(image_name, tag))
+
     def get_node_ips(self):
         LOG.debug("Getting node ips...")
         ips = []
@@ -118,8 +124,7 @@ class Runkube:
             }
         return self._versions_info
 
-    def _pull_image(self, docker_cl, image_name, tag, auth_config,
-                    same_tag=False):
+    def _pull_image(self, docker_cl, image_name, tag, auth_config):
         full_image_name = os.path.join(self.dregistry, image_name)
         LOG.info("Pulling image %s with tag %s", full_image_name, tag)
         params = {'repository': full_image_name, 'tag': tag}
@@ -127,21 +132,9 @@ class Runkube:
             params['auth_config'] = auth_config
         image = docker_cl.images.pull(**params)
         LOG.debug("Pulled image with id %s", image.id)
+        return image
 
-        if same_tag:
-            result_tag = tag
-        else:
-            # this dirty hack required to make etcd operator work with our etcd image
-            if image_name == 'etcd':
-                image.tag(repository=image_name, tag='vlocal')
-            result_tag = 'local'
-        LOG.info("Tagging %s:%s as %s:%s", full_image_name, tag, image_name,
-                 result_tag)
-        image.tag(repository=image_name, tag=result_tag)
-
-    def pull_images(self, node):
-        LOG.info("Pulling images for %s", node)
-        docker_cl = self.get_docker_cl(node)
+    def pull_images(self, docker_cl):
         LOG.debug("Logging into docker registry %s", self.dregistry)
         auth_config = {}
         if self.dregistry_user or self.dregistry_password:
@@ -149,16 +142,45 @@ class Runkube:
                 'username': self.dregistry_user,
                 'password': self.dregistry_password
             }
-        for image in self.versions_info['images']:
-            self._pull_image(
-                docker_cl, image, self.version, auth_config, same_tag=False)
+        images = {}
+        for image_name in self.versions_info['images']:
+            image = self._pull_image(docker_cl, image_name, self.version,
+                                     auth_config)
+            images[image_name] = image
+        return images
+
+    def get_local_images(self, docker_cl):
+        images_map = self.get_image_id_map()
+        images = {}
+        for name, image_id in images_map.items():
+            try:
+                image = self._get_image(docker_cl, name, self.version)
+            except ImageNotFound:
+                image = None
+            if not image:
+                try:
+                    image = self._get_image(docker_cl, os.path.join(
+                        self.dregistry, name), self.version)
+                except ImageNotFound:
+                    continue
+            if image.id != image_id:
+                images[name] = image
+        return images
+
+    def tag_images_local(self, images):
+        for image_name, image in images.items():
+            # this dirty hack required to make etcd operator work with our etcd image
+            if image_name == 'etcd':
+                image.tag(repository=image_name, tag='vlocal')
+            LOG.info("Tagging %s as %s:%s" % (image, image_name, LOCAL_TAG))
+            image.tag(repository=image_name, tag=LOCAL_TAG)
 
     def get_image_id_map(self):
         LOG.debug("Getting map of image ids...")
         docker_cl = self.get_docker_cl(self.master_ip)
         images = {}
         for service in self.versions_info['images']:
-            image = docker_cl.images.get('{}:local'.format(service))
+            image = self._get_image(docker_cl, service, LOCAL_TAG)
             images[service] = image.id
         LOG.debug("Image ids map: %s", images)
         return images
@@ -301,11 +323,16 @@ class Runkube:
 
     def start(self, check, update):
         self.check_releases(update)
-
-        if not self.no_pull:
-            for node in self.get_node_ips():
-                self.pull_images(node)
-
+        for node in self.get_node_ips():
+            docker_cl = self.get_docker_cl(node)
+            if not self.no_pull:
+                LOG.info("Pulling images for %s", node)
+                images = self.pull_images(docker_cl)
+            else:
+                LOG.info('Сomparing local images for %s' % node)
+                images = self.get_local_images(docker_cl)
+            LOG.info('images for tag: %s' % images)
+            self.tag_images_local(images)
         overlays = []
         LOG.debug("Creating temp dir %s", TEMP_DIR)
         os.makedirs(TEMP_DIR, mode=0o755, exist_ok=True)
