@@ -11,7 +11,7 @@ function initializeEnvironmentVariables(){
 }
 
 function allowAppIndexing(){
-    ROBOTS_TXT_PATH=/usr/src/app/ui/public/robots.txt
+    ROBOTS_TXT_PATH=/usr/src/app/ui/build/robots.txt
     > $ROBOTS_TXT_PATH
     {
         echo "User-agent: *"

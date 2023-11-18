@@ -922,17 +922,14 @@ PARAMETER_DUMPS = {
         'template_params': {
             'texts': {
                 'organization': {
-                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415'},
-                'reason': '<class \'bumi_worker.tasks.BumiTimeoutError\'> - '
-                          'Timeout error while process task 223322 '
-                          '(organization_id 6946211f-47ff-43a3-a9a3-3e5f57d52415 '
-                          'module None), step SetStarted',
+                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415'
+                },
                 'failed_modules': [{
-                    'instance_migration': 'Timeout error while process task '
-                                          '1639638582 (organization_id '
-                                          'b74f3ca6-c392-4bcb-96b3-2ffaa0281810,'
-                                          ' module instance_migration, try 0),'
-                                          ' step Process'}]
+                    'module': 'instance_migration',
+                    'error': 'Timeout error while process task 1639638582 '
+                             '(organization_id b74f3ca6-c392-4bcb-96b3-2ffaa0281810, '
+                             'module instance_migration, try 0) step Process'
+                }]
             }}},
     'bumi_module_execution_failed': {
         'email': 'test_user@service.com',

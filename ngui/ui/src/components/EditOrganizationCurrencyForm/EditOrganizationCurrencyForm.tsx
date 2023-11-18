@@ -15,22 +15,28 @@ const EditOrganizationCurrencyForm = ({ defaultCurrency, onSubmit, onCancel, isL
 
   return (
     <FormProvider {...methods}>
-      <form
-        onSubmit={handleSubmit((formData) => {
-          onSubmit(formData[CURRENCY_FIELD_NAME]);
-        })}
-        noValidate
+      <Box
+        sx={{
+          width: { md: "50%" }
+        }}
       >
-        <Box display="flex">
-          <Box>
-            <OrganizationCurrencyField />
+        <form
+          onSubmit={handleSubmit((formData) => {
+            onSubmit(formData[CURRENCY_FIELD_NAME]);
+          })}
+          noValidate
+        >
+          <Box display="flex">
+            <Box flexGrow={1}>
+              <OrganizationCurrencyField />
+            </Box>
+            <Box display="flex" height="max-content">
+              <IconButton isLoading={isLoading} icon={<CheckOutlinedIcon />} type="submit" />
+              <IconButton icon={<CloseIcon />} onClick={onCancel} />
+            </Box>
           </Box>
-          <Box display="flex" height="max-content">
-            <IconButton isLoading={isLoading} icon={<CheckOutlinedIcon />} type="submit" />
-            <IconButton icon={<CloseIcon />} onClick={onCancel} />
-          </Box>
-        </Box>
-      </form>
+        </form>
+      </Box>
     </FormProvider>
   );
 };

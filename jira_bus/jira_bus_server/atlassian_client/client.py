@@ -51,7 +51,7 @@ class AtlassianClient:
             },
             key=self.shared_secret,
             algorithm="HS256",
-        ).decode()
+        )
 
     @_wrap_request_errors(AtlassianClientException)
     def request(self, method, url, params=None, data=None, json=None, headers=None):
