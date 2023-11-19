@@ -46,7 +46,7 @@ const SummaryCards = ({ status, lastRunDuration, recommendationsCount, totalSavi
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.Custom,
       CustomValueComponent: FormattedDuration,
       valueComponentProps: {
-        durationInSeconds: lastRunDuration
+        durationInSeconds: lastRunDuration ?? 0
       },
       renderCondition: () => lastRunDuration && lastRunDuration !== 0,
       captionMessageId: "lastRunDuration",
@@ -217,7 +217,7 @@ const ModelDetailsSummary = ({
     last_run_reached_goals: lastRunReachedGoals = {}
   } = model;
 
-  const { total_count: recommendationsCount, total_saving: totalSaving } = recommendations;
+  const { total_count: recommendationsCount = 0, total_saving: totalSaving = 0 } = recommendations;
 
   return (
     <Stack spacing={SPACING_2}>

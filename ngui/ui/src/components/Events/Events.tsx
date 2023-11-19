@@ -83,12 +83,11 @@ const EVENT_LEVEL_ITEMS = [
   }
 ];
 
+const DEFAULT_EVENT_LEVEL = EVENT_LEVEL_ITEMS.find(({ value: itemValue }) => itemValue === EVENT_LEVEL.ALL);
+
 const EventLevelSelector = ({ eventLevel, onApply }) => {
   const getValue = () => {
-    const { name, value } =
-      eventLevel === undefined
-        ? EVENT_LEVEL_ITEMS.find(({ value: itemValue }) => itemValue === EVENT_LEVEL.ALL)
-        : EVENT_LEVEL_ITEMS.find(({ value: itemValue }) => eventLevel === itemValue);
+    const { name, value } = EVENT_LEVEL_ITEMS.find(({ value: itemValue }) => eventLevel === itemValue) ?? DEFAULT_EVENT_LEVEL;
 
     return {
       name,

@@ -192,7 +192,7 @@ const useGetOne = (modelId) => {
 
   const { apiData } = useApiData(GET_ML_MODEL);
 
-  const { isLoading, shouldInvoke } = useApiState(GET_ML_MODEL, { organizationId, modelId });
+  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_ML_MODEL, { organizationId, modelId });
 
   useEffect(() => {
     if (shouldInvoke) {
@@ -200,7 +200,7 @@ const useGetOne = (modelId) => {
     }
   }, [modelId, dispatch, organizationId, shouldInvoke]);
 
-  return { isLoading, model: apiData };
+  return { isLoading, isDataReady, model: apiData };
 };
 
 const useGetModelRunsList = (modelId) => {

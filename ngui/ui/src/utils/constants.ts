@@ -161,8 +161,7 @@ export const SUCCESS = "success";
 export const UNKNOWN = "unknown";
 
 export const EVENT_LEVEL = Object.freeze({
-  // The events API doesn't support the "ALL" level string, so we need to use the "undefined" in order to get a list of all events
-  ALL: undefined,
+  ALL: "ALL",
   INFO: "INFO",
   WARNING: "WARNING",
   ERROR: "ERROR"

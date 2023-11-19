@@ -4,7 +4,7 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 
 const mlIOPSCap = ({ headerDataTestId = "lbl_IOPS_cap", ioAccessor = "io", rwAccessor = "rw" } = {}) => ({
   header: (
-    <TextWithDataTestId headerDataTestId={headerDataTestId}>
+    <TextWithDataTestId dataTestId={headerDataTestId}>
       <FormattedMessage id="IOPSCap" />
     </TextWithDataTestId>
   ),

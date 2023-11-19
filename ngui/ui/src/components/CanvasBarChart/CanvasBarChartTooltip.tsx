@@ -41,6 +41,7 @@ const ChartTooltip = ({ bandData, renderTooltipBody, barsCount }) => {
           paddingLeft: theme.spacing(1),
           paddingRight: theme.spacing(1)
         })}
+        component="div"
       >
         {renderTooltipBody(bandData)}
       </Typography>

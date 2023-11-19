@@ -15,7 +15,7 @@ const status = ({ headerDataTestId, accessorKey }) => ({
     return (
       <TextBlock
         color={statusValue}
-        messageId={{ success: "allGood", ok: "ok", warning: "requiresAttention", error: "critical" }[statusValue] || "unknown"}
+        messageId={{ success: "allGood", ok: "ok", warning: "requiringAttention", error: "critical" }[statusValue] || "unknown"}
       />
     );
   }

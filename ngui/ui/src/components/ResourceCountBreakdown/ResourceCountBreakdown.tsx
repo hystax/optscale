@@ -173,7 +173,7 @@ const ResourceCountBreakdown = ({
   return (
     <WrapperCard>
       <Grid container spacing={SPACING_1}>
-        <Grid xs={12} sx={{ display: "flex" }}>
+        <Grid item xs={12} sx={{ display: "flex" }}>
           <BreakdownBy value={breakdownByValue} onChange={onBreakdownByChange} />
           <ResourceCountBreakdownShowWeekendSwitch />
         </Grid>

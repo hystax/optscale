@@ -267,10 +267,10 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
       resourceName,
       resourceDisplayedName,
       upcomingBookings,
-      activeBooking,
       allBookings,
       index,
-      isSshRequired
+      isSshRequired,
+      isEnvironmentAvailable
     }) => ({
       key: "book",
       messageId: "book",
@@ -281,9 +281,9 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
           resourceName,
           resourceDisplayedName,
           upcomingBookings,
-          activeBooking,
           allBookings,
-          isSshRequired
+          isSshRequired,
+          isEnvironmentAvailable
         });
       },
       dataTestId: `btn_book_${index}`,
@@ -379,10 +379,10 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
                   resourceName,
                   resourceDisplayedName: getResourceDisplayedName(original),
                   upcomingBookings: getUpcomingBookings(shareableBookings, id),
-                  activeBooking,
                   index: rowIndex,
                   allBookings: shareableBookings,
-                  isSshRequired
+                  isSshRequired,
+                  isEnvironmentAvailable: !activeBooking
                 })
               : null;
 

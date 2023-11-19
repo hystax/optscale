@@ -21,7 +21,8 @@ const columns = [
     accessorKey: "cloud_name"
   }),
   size({
-    accessorKey: "size"
+    accessorKey: "size",
+    headerDataTestId: "lbl_size"
   }),
   mlRunsCount(),
   mlAverageLifetime()

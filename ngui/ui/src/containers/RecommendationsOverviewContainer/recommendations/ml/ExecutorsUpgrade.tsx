@@ -16,10 +16,12 @@ const columns = [
     accessorKey: "cloud_name"
   }),
   size({
-    accessorKey: "size"
+    accessorKey: "size",
+    headerDataTestId: "lbl_size"
   }),
   recommendedSize({
-    accessorKey: "recommended_size"
+    accessorKey: "recommended_size",
+    headerDataTestId: "lbl_recommended_size"
   })
 ];
 

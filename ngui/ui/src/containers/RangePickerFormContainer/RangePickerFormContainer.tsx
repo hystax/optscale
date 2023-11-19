@@ -18,8 +18,8 @@ const RangePickerFormContainer = ({
   const dispatch = useDispatch();
   const { isInitialMount, setIsInitialMount } = useInitialMount();
 
-  const [selectedStartDate, setSelectedStartDate] = useState(() => initialStartDateValue);
-  const [selectedEndDate, setSelectedEndDate] = useState(() => initialEndDateValue);
+  const [selectedStartDate, setSelectedStartDate] = useState(() => Number(initialStartDateValue));
+  const [selectedEndDate, setSelectedEndDate] = useState(() => Number(initialEndDateValue));
 
   useEffect(() => {
     if (isInitialMount) {

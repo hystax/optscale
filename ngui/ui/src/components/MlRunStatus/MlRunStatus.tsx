@@ -30,8 +30,9 @@ export const MlRunStatusIcon = ({ status, iconSize = "small" }) => {
   return icon;
 };
 
-const MlRunStatus = ({ status, iconSize }) => (
-  <IconLabel icon={<MlRunStatusIcon status={status} iconSize={iconSize} />} label={<MlRunStatusLabel status={status} />} />
-);
+const MlRunStatus = ({ status, iconSize }) =>
+  status ? (
+    <IconLabel icon={<MlRunStatusIcon status={status} iconSize={iconSize} />} label={<MlRunStatusLabel status={status} />} />
+  ) : null;
 
 export default MlRunStatus;

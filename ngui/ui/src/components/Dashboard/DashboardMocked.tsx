@@ -10,9 +10,7 @@ import { getLastMonthRange, millisecondsToSeconds } from "utils/datetime";
 const cleanExpenses = [
   {
     resource_id: "672211a0-d08e-452d-880f-7d815b3c4d48",
-    _id: {
-      resource_id: "672211a0-d08e-452d-880f-7d815b3c4d48"
-    },
+    id: "672211a0-d08e-452d-880f-7d815b3c4d48",
     resource_type: "Instance",
     active: false,
     pool: {
@@ -35,9 +33,7 @@ const cleanExpenses = [
   },
   {
     resource_id: "3dd84f76-b16b-48e1-a22b-a6078a1c4ba4",
-    _id: {
-      resource_id: "3dd84f76-b16b-48e1-a22b-a6078a1c4ba4"
-    },
+    id: "3dd84f76-b16b-48e1-a22b-a6078a1c4ba4",
     resource_type: "Instance",
     active: true,
     pool: {
@@ -61,9 +57,7 @@ const cleanExpenses = [
   },
   {
     resource_id: "258804b8-e684-42b9-a148-21795e749168",
-    _id: {
-      resource_id: "258804b8-e684-42b9-a148-21795e749168"
-    },
+    id: "258804b8-e684-42b9-a148-21795e749168",
     resource_type: "Instance",
     active: true,
     pool: {
@@ -86,9 +80,7 @@ const cleanExpenses = [
   },
   {
     resource_id: "c955ea30-349e-4fd1-8764-c766e676fd7a",
-    _id: {
-      resource_id: "c955ea30-349e-4fd1-8764-c766e676fd7a"
-    },
+    id: "c955ea30-349e-4fd1-8764-c766e676fd7a",
     resource_type: "Instance",
     active: true,
     pool: {
@@ -111,9 +103,7 @@ const cleanExpenses = [
   },
   {
     resource_id: "eb9c3b77-d5e6-48f8-b1f5-0a9c7a92e44a",
-    _id: {
-      resource_id: "eb9c3b77-d5e6-48f8-b1f5-0a9c7a92e44a"
-    },
+    id: "eb9c3b77-d5e6-48f8-b1f5-0a9c7a92e44a",
     resource_type: "Instance",
     active: false,
     pool: {
@@ -134,7 +124,7 @@ const cleanExpenses = [
     resource_name: "jenkins-worker-1",
     cost: 24.6400322778
   }
-];
+].sort(({ cost: a }, { cost: b }) => b - a);
 
 const environments = [
   {

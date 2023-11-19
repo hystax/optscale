@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
-import { Grid, IconButton, Select, MenuItem } from "@mui/material";
+import { Grid, IconButton, Select, MenuItem, FormControl } from "@mui/material";
 import {
   SHORT_MONTHS,
   generateYears,
@@ -81,35 +81,39 @@ const Header = ({
       </Grid>
       <Grid item>
         {/* TODO: Replaces with Selector after https://gitlab.com/hystax/ngui/-/merge_requests/1823 */}
-        <Select
-          className={classes.root}
-          value={getMonth(date)}
-          onChange={handleMonthChange}
-          data-test-id={monthDataTestId}
-          variant="standard"
-        >
-          {SHORT_MONTHS.map((month, index) => (
-            <MenuItem key={month} value={index} disabled={isMonthOutOfBounds(getMonthValue(index))}>
-              {month}
-            </MenuItem>
-          ))}
-        </Select>
+        <FormControl>
+          <Select
+            className={classes.root}
+            value={getMonth(date)}
+            onChange={handleMonthChange}
+            data-test-id={monthDataTestId}
+            variant="standard"
+          >
+            {SHORT_MONTHS.map((month, index) => (
+              <MenuItem key={month} value={index} disabled={isMonthOutOfBounds(getMonthValue(index))}>
+                {month}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Grid>
       <Grid item>
         {/* TODO: Replaces with Selector after https://gitlab.com/hystax/ngui/-/merge_requests/1823 */}
-        <Select
-          className={classes.root}
-          value={getYear(date)}
-          onChange={handleYearChange}
-          data-test-id={yearDataTestId}
-          variant="standard"
-        >
-          {years.map((year) => (
-            <MenuItem key={year} value={year} disabled={isYearOutOfBounds(year)}>
-              {year}
-            </MenuItem>
-          ))}
-        </Select>
+        <FormControl>
+          <Select
+            className={classes.root}
+            value={getYear(date)}
+            onChange={handleYearChange}
+            data-test-id={yearDataTestId}
+            variant="standard"
+          >
+            {years.map((year) => (
+              <MenuItem key={year} value={year} disabled={isYearOutOfBounds(year)}>
+                {year}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Grid>
       <Grid item>
         <IconButton disabled={nextDisabled} onClick={onClickNext} data-test-id={btnNextDataTestId}>

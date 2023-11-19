@@ -184,7 +184,7 @@ const DateRangePicker = (props) => {
       ? { start: startDate, end: hoverDay }
       : { start: hoverDay, end: startDate };
 
-    return startDate && !endDate && hoverDay && isWithinInterval(day, intervalToCheck);
+    return !!startDate && !endDate && hoverDay && isWithinInterval(day, intervalToCheck);
   };
 
   // #4

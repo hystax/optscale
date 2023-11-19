@@ -17,10 +17,9 @@ const getMapBounds = (map, maps, markers) => {
 
 // Re-center map when resizing the window
 const bindResizeListener = (map, maps, bounds) => {
-  maps.event.addDomListenerOnce(map, "idle", () => {
-    maps.event.addDomListener(window, "resize", () => {
-      map.fitBounds(bounds);
-    });
+  map.addListener("idle", () => {
+    window.addEventListener("resize", () => map.fitBounds(bounds));
+    maps.event.clearListeners(map, "idle");
   });
 };
 
