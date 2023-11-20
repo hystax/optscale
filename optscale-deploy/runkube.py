@@ -149,21 +149,25 @@ class Runkube:
             images[image_name] = image
         return images
 
-    def get_local_images(self, docker_cl):
-        images_map = self.get_image_id_map()
-        images = {}
-        for name, image_id in images_map.items():
+    def _find_image(self, docker_cl, name, version):
+        for image_name in [name, os.path.join(self.dregistry, name)]:
             try:
-                image = self._get_image(docker_cl, name, self.version)
+                image = self._get_image(docker_cl, image_name, version)
+                break
             except ImageNotFound:
                 image = None
+        return image
+
+    def get_local_images(self, docker_cl):
+        images = {}
+        for name in self.versions_info['images']:
+            image = self._find_image(docker_cl, name, self.version)
+            local_image = self._find_image(docker_cl, name, LOCAL_TAG)
             if not image:
-                try:
-                    image = self._get_image(docker_cl, os.path.join(
-                        self.dregistry, name), self.version)
-                except ImageNotFound:
-                    continue
-            if image.id != image_id:
+                if not local_image:
+                    raise Exception('Image %s not found' % name)
+                continue
+            elif not local_image or image.id != local_image.id:
                 images[name] = image
         return images
 
