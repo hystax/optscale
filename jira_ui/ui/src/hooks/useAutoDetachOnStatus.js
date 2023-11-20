@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import {
-  DropdownItemGroupCheckbox,
+  DropdownItemCheckboxGroup,
   DropdownItemCheckbox,
-  DropdownItemGroupRadio,
-  DropdownItemRadio
+  DropdownItemRadioGroup,
+  DropdownItemRadio,
+  DropdownItemGroup
 } from "@atlaskit/dropdown-menu";
 
 export const useAutoDetachOnStatus = (availableIssueStatuses) => {
@@ -12,8 +13,8 @@ export const useAutoDetachOnStatus = (availableIssueStatuses) => {
 
   const content =
     availableIssueStatuses.length > 0 ? (
-      <>
-        <DropdownItemGroupCheckbox id="detachOnStatusGroupCheckbox">
+      <DropdownItemGroup hasSeparator>
+        <DropdownItemCheckboxGroup id="detachOnStatusGroupCheckbox">
           <DropdownItemCheckbox
             id="detachOnStatusCheckbox"
             isSelected={autoDetachOnStatus}
@@ -21,9 +22,9 @@ export const useAutoDetachOnStatus = (availableIssueStatuses) => {
           >
             Auto unlink on status
           </DropdownItemCheckbox>
-        </DropdownItemGroupCheckbox>
+        </DropdownItemCheckboxGroup>
         {autoDetachOnStatus && (
-          <DropdownItemGroupRadio id="issueStatusesRadioGroup">
+          <DropdownItemRadioGroup id="issueStatusesRadioGroup">
             {availableIssueStatuses.map((status) => (
               <DropdownItemRadio
                 isSelected={status === detachOnIssueStatus}
@@ -34,10 +35,9 @@ export const useAutoDetachOnStatus = (availableIssueStatuses) => {
                 {status}
               </DropdownItemRadio>
             ))}
-          </DropdownItemGroupRadio>
+          </DropdownItemRadioGroup>
         )}
-        <hr />
-      </>
+      </DropdownItemGroup>
     ) : null;
 
   return {

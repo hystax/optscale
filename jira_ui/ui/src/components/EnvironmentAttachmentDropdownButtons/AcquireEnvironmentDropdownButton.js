@@ -1,4 +1,5 @@
 import React from "react";
+import { DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import PropTypes from "prop-types";
 import { useAutoDetachOnStatus } from "hooks/useAutoDetachOnStatus";
 import { useReleaseEnvironmentIfNoIssueAttached } from "hooks/useReleaseEnvironmentIfNoIssueAttached";
@@ -18,19 +19,20 @@ export const AcquireEnvironmentDropdownButton = ({
     useReleaseEnvironmentIfNoIssueAttached();
 
   return (
-    <DropdownButton trigger="Acquire" isLoading={isLoading}>
+    <DropdownButton triggerLabel="Acquire" isLoading={isLoading}>
       {detachOnStatusContent}
       {releaseEnvironmentIfNoIssueAttachedContent}
-      <hr />
-      <DropdownApplyButton
-        text="Acquire and link this issue"
-        onClick={() =>
-          onAttach({
-            ...detachOnStatusValues,
-            ...releaseEnvironmentIfNoIssueAttachedValues
-          })
-        }
-      />
+      <DropdownItemGroup hasSeparator>
+        <DropdownApplyButton
+          text="Acquire and link this issue"
+          onClick={() =>
+            onAttach({
+              ...detachOnStatusValues,
+              ...releaseEnvironmentIfNoIssueAttachedValues
+            })
+          }
+        />
+      </DropdownItemGroup>
     </DropdownButton>
   );
 };

@@ -1,21 +1,19 @@
 import React from "react";
+import { LoadingButton } from "@atlaskit/button";
 import DropdownMenu from "@atlaskit/dropdown-menu";
 import LinkIcon from "@atlaskit/icon/glyph/link";
 import PropTypes from "prop-types";
 
-const DropdownButton = ({ children, trigger, isLoading = false }) => (
+const DropdownButton = ({ children, triggerLabel, isLoading = false }) => (
   <DropdownMenu
-    trigger={trigger}
-    triggerType="button"
-    isMenuFixed
     appearance="tall"
     shouldFlip
-    shouldFitContainer
-    boundariesElement="viewport"
-    triggerButtonProps={{
-      isLoading,
-      iconBefore: <LinkIcon label="Link icon" />
-    }}
+    shouldRenderToParent
+    trigger={({ triggerRef, ...props }) => (
+      <LoadingButton {...props} isLoading={isLoading} iconBefore={<LinkIcon label="Link icon" />} ref={triggerRef}>
+        {triggerLabel}
+      </LoadingButton>
+    )}
   >
     {children}
   </DropdownMenu>
@@ -23,7 +21,7 @@ const DropdownButton = ({ children, trigger, isLoading = false }) => (
 
 DropdownButton.propTypes = {
   children: PropTypes.node.isRequired,
-  trigger: PropTypes.string.isRequired,
+  triggerLabel: PropTypes.string.isRequired,
   isLoading: PropTypes.bool
 };
 

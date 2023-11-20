@@ -1,5 +1,5 @@
 # -------- Setup --------
-ARG IMAGE=node:14.16.0-alpine3.13
+ARG IMAGE=node:18.14.2-alpine3.16
 
 FROM $IMAGE as builder
 
@@ -10,7 +10,7 @@ ENV NODE_ENV production
 # -------- UI --------
 WORKDIR /usr/src/app/ui
 COPY jira_ui/ui/package*.json ./
-RUN npm ci --ignore-scripts
+RUN npm ci --ignore-scripts --legacy-peer-deps
 COPY jira_ui/ui/ ./
 # .eslintrc.json on build step will produce an error, but it is still needed on testing
 RUN mv .eslintrc.json .disabled.eslintrc.json
