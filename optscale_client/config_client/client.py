@@ -39,7 +39,7 @@ def _retry_not_exist(exception):
 
 
 class Client(etcd.Client):
-    """ Acura config client """
+    """ OptScale config client """
 
     @retry(**DEFAULT_RETRY_ARGS, retry_on_exception=_should_retry)
     def api_execute(self, *args, **kwargs):

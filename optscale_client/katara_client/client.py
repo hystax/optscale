@@ -8,7 +8,6 @@ import requests
 from retrying import retry
 
 LOG = logging.getLogger(__name__)
-ACURA_CERT_PATH = "/acura.crt"
 
 
 def retry_if_connection_error(exception):
@@ -50,12 +49,6 @@ class RequestsHttpProvider(AbstractHttpProvider):
         self.url = url
         self.verify = verify
         self.session = requests.session()
-        acura_cert = os.environ.get("ACURA_CERT")
-        if acura_cert is not None:
-            if not os.path.exists(ACURA_CERT_PATH):
-                with open(ACURA_CERT_PATH, "w") as f_crt:
-                    f_crt.write(acura_cert)
-            self.session.verify = ACURA_CERT_PATH
         super().__init__(secret, ip)
 
     @retry(
