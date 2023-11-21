@@ -1,4 +1,5 @@
 import React from "react";
+import { DropdownItemGroup } from "@atlaskit/dropdown-menu";
 import PropTypes from "prop-types";
 import { useAutoDetachOnStatus } from "hooks/useAutoDetachOnStatus";
 import DropdownApplyButton from "./DropdownApplyButton";
@@ -14,9 +15,11 @@ export const AttachEnvironmentDropdownButton = ({
   );
 
   return (
-    <DropdownButton trigger="Link" isLoading={isLoading}>
+    <DropdownButton triggerLabel="Link" isLoading={isLoading}>
       {detachOnStatusContent}
-      <DropdownApplyButton text="Link this issue" onClick={() => onAttach(detachOnStatusValues)} />
+      <DropdownItemGroup hasSeparator>
+        <DropdownApplyButton text="Link this issue" onClick={() => onAttach(detachOnStatusValues)} />
+      </DropdownItemGroup>
     </DropdownButton>
   );
 };

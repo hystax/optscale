@@ -2,9 +2,8 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()(() => ({
   masked: {
-    fontFamily: "text-security-disc",
-    /* Use -webkit-text-security if the browser supports it */
-    "-webkit-text-security": "disc"
+    // this depends on text-security npm package
+    fontFamily: "text-security-disc"
   }
 }));
 

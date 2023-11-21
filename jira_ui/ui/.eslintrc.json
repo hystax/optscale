@@ -5,20 +5,18 @@
     "node": true,
     "jest": true
   },
-  "extends": ["eslint:recommended", "plugin:react/recommended", "airbnb-base", "prettier"],
+  "extends": ["react-app", "eslint:recommended", "plugin:react/recommended", "airbnb-base", "prettier"],
   "globals": {
     "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
+    "SharedArrayBuffer": "readonly",
+    "globalThis": "readonly"
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
-    "babelOptions": {
-      "presets": ["@babel/preset-react"]
-    },
     "ecmaFeatures": {
       "jsx": true
     },
-    "ecmaVersion": 2020,
+    "ecmaVersion": 2022,
     "sourceType": "module"
   },
   "plugins": ["react", "react-hooks", "unused-imports"],
@@ -46,11 +44,19 @@
     "import/no-extraneous-dependencies": 0,
     "import/prefer-default-export": 0,
     "no-const-assign": "warn",
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allowAfterThis": true,
+        "allowAfterThisConstructor": true
+      }
+    ],
     "no-this-before-super": "warn",
     "no-undef": "warn",
     "no-unreachable": "warn",
     "no-unused-vars": "warn",
     "unused-imports/no-unused-imports": "warn",
+    "arrow-body-style": "warn",
     "import/order": [
       "warn",
       {
@@ -81,7 +87,7 @@
       }
     ],
     "max-params": ["warn", 3],
-    "arrow-body-style": ["warn", "as-needed"]
+    "default-param-last": 0
   },
   "settings": {
     "import/resolver": {

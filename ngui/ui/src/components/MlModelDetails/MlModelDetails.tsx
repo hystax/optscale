@@ -37,9 +37,9 @@ const Tabs = ({ model, isLoading = false }) => {
   );
 };
 
-const MlModelDetails = ({ model = {}, isLoading }) => (
+const MlModelDetails = ({ model = {}, isLoading, isDataReady = true }) => (
   <>
-    <ModelActionBar name={model.name} modelKey={model.key} modelId={model.id} isLoading={isLoading} />
+    <ModelActionBar name={model.name} isDataReady={isDataReady} modelKey={model.key} modelId={model.id} isLoading={isLoading} />
     <PageContentWrapper>
       <Tabs model={model} isLoading={isLoading} />
     </PageContentWrapper>

@@ -11,10 +11,10 @@ const Cell = ({ cell }) => {
     .sort()
     .map((service) => {
       const { name, type } = services[service];
-      return (
-        <>
-          {type ? <CloudLabel name={<FormattedMessage id={name} />} type={type} disableLink /> : <FormattedMessage id={name} />}
-        </>
+      return type ? (
+        <CloudLabel key={name} name={<FormattedMessage id={name} />} type={type} disableLink />
+      ) : (
+        <FormattedMessage key={name} id={name} />
       );
     });
 };

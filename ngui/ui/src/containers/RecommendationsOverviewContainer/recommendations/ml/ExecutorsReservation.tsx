@@ -10,7 +10,7 @@ const columns = [
   lastUsed({
     defaultSort: "desc"
   }),
-  firstSeen(),
+  firstSeen({ headerDataTestId: "lbl_first_seen" }),
   resourceLocation({
     headerDataTestId: "lbl_location",
     idAccessor: "cloud_id",
@@ -18,7 +18,8 @@ const columns = [
     accessorKey: "cloud_name"
   }),
   size({
-    accessorKey: "size"
+    accessorKey: "size",
+    headerDataTestId: "lbl_size"
   })
 ];
 

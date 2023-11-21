@@ -23,7 +23,7 @@ const getCaptionedCellProps = ({
   const captionSettings = [
     {
       key: resourceId,
-      caption: <ResourceName name={resourceNameString} />,
+      node: <ResourceName name={resourceNameString} />,
       show: resourceNameString !== cloudResourceIdentifier
     },
     {

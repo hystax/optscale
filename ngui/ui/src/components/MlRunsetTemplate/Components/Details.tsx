@@ -57,7 +57,7 @@ const Details = ({
                   isEmptyArray(models) ? null : (
                     <div className={classes.keyValueListItems}>
                       {models.map(({ id, name, deleted = false }, index, array) => (
-                        <>
+                        <Fragment key={id}>
                           {deleted ? (
                             name
                           ) : (
@@ -66,7 +66,7 @@ const Details = ({
                             </Link>
                           )}
                           {index < array.length - 1 ? <>&#44;&nbsp;</> : null}
-                        </>
+                        </Fragment>
                       ))}
                     </div>
                   )

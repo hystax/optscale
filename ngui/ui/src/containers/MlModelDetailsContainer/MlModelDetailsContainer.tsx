@@ -7,9 +7,9 @@ const MlModelDetailsContainer = () => {
 
   const { useGetOne } = MlModelsService();
 
-  const { model, isLoading } = useGetOne(modelId);
+  const { model, isLoading, isDataReady } = useGetOne(modelId);
 
-  return <MlModelDetails isLoading={isLoading} model={model} />;
+  return <MlModelDetails isDataReady={isDataReady} isLoading={isLoading} model={model} />;
 };
 
 export default MlModelDetailsContainer;

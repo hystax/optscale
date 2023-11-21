@@ -1,6 +1,7 @@
+import { forwardRef } from "react";
 import MuiCheckbox from "@mui/material/Checkbox";
 
-const Checkbox = ({ cssColor, ...rest }) => {
+const Checkbox = forwardRef(({ cssColor, ...rest }, ref) => {
   const sx = cssColor
     ? {
         color: cssColor,
@@ -10,7 +11,7 @@ const Checkbox = ({ cssColor, ...rest }) => {
       }
     : undefined;
 
-  return <MuiCheckbox sx={sx} {...rest} />;
-};
+  return <MuiCheckbox ref={ref} sx={sx} {...rest} />;
+});
 
 export default Checkbox;

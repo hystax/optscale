@@ -10,7 +10,7 @@ import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useRefetchApis } from "hooks/useRefetchApis";
 import { getEditMlModelUrl, ML_MODELS } from "urls";
 
-const ModelActionBar = ({ isLoading, name, modelKey, modelId }) => {
+const ModelActionBar = ({ isLoading, isDataReady, name, modelKey, modelId }) => {
   const openSideModal = useOpenSideModal();
 
   const refetch = useRefetchApis();
@@ -32,6 +32,7 @@ const ModelActionBar = ({ isLoading, name, modelKey, modelId }) => {
       messageId: "profilingIntegration",
       dataTestId: "btn_profiling_integration",
       type: "button",
+      isLoading: !isDataReady,
       action: () => openSideModal(ProfilingIntegrationModal, { modelKey })
     },
     {
@@ -40,7 +41,7 @@ const ModelActionBar = ({ isLoading, name, modelKey, modelId }) => {
       messageId: "configure",
       link: getEditMlModelUrl(modelId),
       type: "button",
-      isLoading,
+      isLoading: !isDataReady,
       requiredActions: ["EDIT_PARTNER"],
       dataTestId: "btn_edit"
     }
@@ -53,7 +54,7 @@ const ModelActionBar = ({ isLoading, name, modelKey, modelId }) => {
       </Link>
     ],
     title: {
-      text: name,
+      text: name || "",
       isLoading,
       dataTestId: "lbl_model_overview"
     },

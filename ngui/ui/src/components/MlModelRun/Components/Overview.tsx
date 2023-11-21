@@ -40,7 +40,7 @@ const Status = ({ cost, status, duration, isLoading }) => (
         valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.Custom,
         CustomValueComponent: FormattedDuration,
         valueComponentProps: {
-          durationInSeconds: duration
+          durationInSeconds: duration ?? 0
         },
         renderCondition: () => status !== ML_RUN_STATUS.FAILED,
         captionMessageId: "duration",
@@ -53,7 +53,7 @@ const Status = ({ cost, status, duration, isLoading }) => (
         key: "cost",
         valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
         valueComponentProps: {
-          value: cost
+          value: cost ?? 0
         },
         captionMessageId: "expenses",
         dataTestIds: {

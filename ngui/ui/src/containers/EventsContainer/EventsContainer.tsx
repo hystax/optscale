@@ -21,7 +21,7 @@ const EventsContainer = () => {
   const { level, timeStart, timeEnd, lastId } = getQueryParams();
 
   const [requestParams, setRequestParams] = useState({
-    level: Object.values(EVENT_LEVEL).includes(level) ? level : undefined,
+    level,
     timeStart,
     timeEnd,
     lastId
@@ -50,9 +50,13 @@ const EventsContainer = () => {
   }, [dispatch, shouldInvoke, requestParams, organizationId, isInitialMount, setIsInitialMount]);
 
   const applyFilter = (sourceParams) => {
+    const { level: newLevel } = sourceParams;
+
     const params = {
       ...requestParams,
       ...sourceParams,
+      // The events API doesn't support the "ALL" level string, so we need to use the "undefined" in order to get a list of all events
+      level: newLevel === EVENT_LEVEL.ALL ? undefined : newLevel,
       lastId: undefined
     };
     updateQueryParams(params);
