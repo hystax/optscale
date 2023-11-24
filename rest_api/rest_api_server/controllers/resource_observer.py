@@ -119,6 +119,7 @@ class ResourceObserverController(BaseController, MongoMixin):
 
         newly_discovered_resources = list(self.resources_collection.find({
             'cloud_account_id': {'$in': cloud_account_ids},
+            'active': True,
             'created_at': {'$gte': last_run},
             'cluster_type_id': {'$exists': False}
         }))

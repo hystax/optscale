@@ -147,7 +147,7 @@ class InstanceMigration(ModuleBase):
         res = self.mongo_client.restapi.raw_expenses.aggregate([
             {'$match': {
                 '$and': [
-                    {'product/servicecode': {'$ne': 'AWSDataTransfer'}},
+                    {'box_usage': True},
                     {'resource_id': {'$in': list(instance_map.keys())}},
                     {'cloud_account_id': {
                         '$in': list(cloud_account_map.keys())}},
