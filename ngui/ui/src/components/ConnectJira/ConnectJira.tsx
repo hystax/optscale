@@ -30,7 +30,7 @@ const ConnectJira = ({ isLoading = false, isError = false }) => (
         {isError ? (
           <>
             <Box pr={2} pl={2}>
-              <PageTitle align="center">
+              <PageTitle dataTestId="title_something-went-wrong" align="center">
                 <FormattedMessage id="somethingWentWrong" />
               </PageTitle>
             </Box>
@@ -48,7 +48,7 @@ const ConnectJira = ({ isLoading = false, isError = false }) => (
         ) : (
           <>
             <Box pr={2} pl={2}>
-              <PageTitle align="center">
+              <PageTitle dataTestId="title_jira-user-connected" align="center">
                 <FormattedMessage id="jiraUserConnected" />
               </PageTitle>
             </Box>

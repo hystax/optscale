@@ -7,7 +7,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <PageTitle />
+      <PageTitle dataTestId="testing" />
     </TestProvider>
   );
   root.unmount();

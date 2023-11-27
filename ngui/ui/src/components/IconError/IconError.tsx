@@ -13,7 +13,7 @@ const IconError = ({ messageId, children }) => {
         <ErrorOutlineOutlinedIcon className={classes.icon} />
       </Grid>
       <Grid item>
-        <PageTitle align="center">
+        <PageTitle dataTestId="title_icon-error" align="center">
           <FormattedMessage id={messageId} />
         </PageTitle>
       </Grid>
