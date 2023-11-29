@@ -53,7 +53,7 @@ const mock = {
       items: [
         {
           cloud_resource_id: "ami-06f4e737af7d45d1b",
-          resource_name: "Hystax_Acura_VA_DR_AWS_3_9_2066-release_3_9",
+          resource_name: "Hystax_VA_DR_AWS_3_9_2066-release_3_9",
           cloud_account_id: "5b6267b0-b174-4572-aa5e-6e540ed208c1",
           cloud_type: "aws_cnr",
           first_seen: 1662552374,
@@ -72,7 +72,7 @@ const mock = {
         },
         {
           cloud_resource_id: "ami-007af5b6be13d6765",
-          resource_name: "Hystax_Acura_VA_MGR_AWS_3_7_1701-release_3_7",
+          resource_name: "Hystax_VA_MGR_AWS_3_7_1701-release_3_7",
           cloud_account_id: "5b6267b0-b174-4572-aa5e-6e540ed208c1",
           cloud_type: "aws_cnr",
           first_seen: 1629966028,
