@@ -35,7 +35,7 @@ const GenerateLiveDemo = ({ isLoading, retry, showRetry = false }) => (
         {showRetry ? (
           <>
             <Box pl={2} pr={2}>
-              <PageTitle align="center">
+              <PageTitle dataTestId="title_failed-live-demo" align="center">
                 <FormattedMessage id="failedLiveDemoMessage" />
               </PageTitle>
             </Box>
