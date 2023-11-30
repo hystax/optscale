@@ -14,7 +14,6 @@ COPY metroculus/metroculus_api/controllers metroculus/metroculus_api/controllers
 COPY metroculus/metroculus_api/handlers metroculus/metroculus_api/handlers
 COPY metroculus/metroculus_api/swagger metroculus/metroculus_api/swagger
 COPY metroculus/metroculus_api/*.py metroculus/metroculus_api/
-COPY metroculus/*.py metroculus/
 RUN python -u metroculus/metroculus_api/write_spec.py
 
 CMD ["python", "-u","/usr/src/app/metroculus/metroculus_api/server.py"]
