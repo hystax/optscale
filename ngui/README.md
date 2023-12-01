@@ -4,8 +4,9 @@
 
 Actual versions:
 
-- nodejs: 18.14.0
-- npm: 9.3.1
+- nodejs: 20.10.0
+- npm: 10.2.3
+- pnpm: 8.11.0
 
 Source: https://nodejs.org/en/download/releases/
 

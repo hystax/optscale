@@ -5,7 +5,6 @@ import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import "intl-pluralrules";
 import "core-js/stable";
-import "regenerator-runtime/runtime";
 import "text-security/text-security-disc.css";
 import { createClient } from "graphql-ws";
 import { createRoot } from "react-dom/client";

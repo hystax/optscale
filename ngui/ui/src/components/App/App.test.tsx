@@ -1,6 +1,5 @@
 import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
-import "regenerator-runtime/runtime";
 import App from "./App";
 
 it("renders without crashing", () => {

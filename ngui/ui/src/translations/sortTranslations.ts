@@ -1,7 +1,7 @@
 /* eslint-disable */
-var fs = require("fs-extra");
-var glob = require("glob");
-var TRANSLATION_PATH = "src/translations/**/*.json";
+const fs = require("fs-extra");
+const { glob } = require("glob");
+const TRANSLATION_PATH = "src/translations/**/*.json";
 (function TranslationSorting() {
   glob(TRANSLATION_PATH, function (readFolderError, files) {
     if (readFolderError) {
