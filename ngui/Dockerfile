@@ -1,5 +1,5 @@
 # -------- Setup --------
-ARG IMAGE=node:18.14.2-alpine3.16
+ARG IMAGE=node:20.10.0-alpine3.18
 
 FROM $IMAGE as builder
 
@@ -7,22 +7,26 @@ WORKDIR /usr/src/app
 
 ENV NODE_ENV production
 
+RUN npm install -g pnpm@8.11.0
+
 # -------- UI --------
 WORKDIR /usr/src/app/ui
-COPY ngui/ui/package*.json ./
-RUN npm ci --ignore-scripts
+COPY ngui/ui/package.json ./package.json
+COPY ngui/ui/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY ngui/ui/ ./
 # .eslintrc.js on build step will produce an error, but it is still needed on testing
 RUN mv .eslintrc.js .disabled.eslintrc.js
-RUN npm run build && rm -rf node_modules
+RUN pnpm build && rm -rf node_modules
 
 # -------- Server --------
 WORKDIR /usr/src/app/server
-COPY ngui/server/package*.json ./
-RUN npm ci --ignore-scripts
+COPY ngui/server/package.json ./package.json
+COPY ngui/server/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY ngui/server/ ./
 RUN ./scripts/prune_node_modules.sh
-RUN npm run compile
+RUN pnpm compile
 RUN chown -R node:node /usr/src/app/
 
 # -------- Final stage --------

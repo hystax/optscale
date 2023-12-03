@@ -1,8 +1,8 @@
 ARG BUILDTAG=build
 FROM ngui:${BUILDTAG}
 
-# installing only dev dependencies for ui prettier and linter check
 WORKDIR "/usr/src/app/ui"
 USER root
+RUN npm install -g pnpm@8.11.0
 RUN mv .disabled.eslintrc.js .eslintrc.js 
-RUN npm ci --ignore-scripts -D
+RUN pnpm install --frozen-lockfile --ignore-scripts

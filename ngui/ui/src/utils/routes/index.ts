@@ -9,7 +9,6 @@ import biExportRoute from "./biExportRoute";
 import biExportsRoute from "./biExportsRoute";
 import cloudCostComparisonRoute from "./cloudCostComparisonRoute";
 import cloudExpensesRoute from "./cloudExpensesRoute";
-import cloudMigrationRoute from "./cloudMigrationRoute";
 import clusterTypesRoute from "./clusterTypesRoute";
 import connectJiraRoute from "./connectJiraRoute";
 import connectSlackRoute from "./connectSlackRoute";
@@ -27,7 +26,6 @@ import createResourceAssignmentRuleRoute from "./createResourceAssignmentRuleRou
 import createTaggingPolicyRoute from "./createTaggingPolicyRoute";
 import dataSourceOverviewRoute from "./dataSourceOverviewRoute";
 import dataSourcesRoute from "./dataSourcesRoute";
-import disasterRecoveryRoute from "./disasterRecoveryRoute";
 import editAssignmentRuleRoute from "./editAssignmentRuleRoute";
 import editBIExportRoute from "./editBIExportRoute";
 import editMlModelParameterRoute from "./editMlModelParameterRoute";
@@ -116,8 +114,6 @@ export const routes = [
   eventsRoute,
   finOpsPortalRoute,
   settingsRoute,
-  cloudMigrationRoute,
-  disasterRecoveryRoute,
   homeRoute,
   loginRoute,
   registerRoute,

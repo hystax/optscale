@@ -272,8 +272,7 @@ export const getPoolTtlAnalysis = (poolId) => POOL_TTL_ANALYSIS.replace(POOL_IDE
 export const EVENTS = "/events";
 export const INTEGRATIONS = "/integrations";
 export const INTEGRATION_QUERY_PARAM = "id";
-export const CLOUD_MIGRATION = "/cloud-migration";
-export const DISASTER_RECOVERY = "/disaster-recovery";
+
 export const SETTINGS = "/settings";
 export const getSettingsUrl = (tab) => (tab ? `${SETTINGS}?${TAB_QUERY_PARAM_NAME}=${tab}` : SETTINGS);
 
@@ -468,23 +467,7 @@ export const getS3DuplicateFinderCheck = (id) => S3_DUPLICATE_FINDER_CHECK.repla
 export const PRODUCTION = "https://my.optscale.com";
 export const DEMO = "https://demo.optscale.com";
 export const HYSTAX = "https://hystax.com";
-export const HYSTAX_CLOUD_MIGRATION = "https://hystax.com/cloud-migration/";
-export const HYSTAX_DISASTER_RECOVERY = "https://hystax.com/disaster-recovery/";
 export const HYSTAX_PRIVACY_POLICY = "https://hystax.com/privacy-policy/";
-
-export const HYSTAX_CLOUD_MIGRATION_AWS = "https://hystax.com/live-cloud-migration-to-aws/";
-export const HYSTAX_CLOUD_MIGRATION_AZURE = "https://hystax.com/live-cloud-migration-to-azure/";
-export const HYSTAX_CLOUD_MIGRATION_GCP = "https://hystax.com/live-cloud-migration-to-gcp/";
-export const HYSTAX_CLOUD_MIGRATION_VMWARE = "https://hystax.com/live-cloud-migration-to-vmware/";
-export const HYSTAX_CLOUD_MIGRATION_ALIBABA = "https://hystax.com/live-cloud-migration-to-alibaba/";
-export const HYSTAX_CLOUD_MIGRATION_OPENSTACK = "https://hystax.com/live-cloud-migration-to-openstack/";
-
-export const HYSTAX_DISASTER_RECOVERY_AWS = "https://hystax.com/disaster-recovery-to-aws/";
-export const HYSTAX_DISASTER_RECOVERY_AZURE = "https://hystax.com/disaster-recovery-to-azure/";
-export const HYSTAX_DISASTER_RECOVERY_GCP = "https://hystax.com/disaster-recovery-to-gcp/";
-export const HYSTAX_DISASTER_RECOVERY_VMWARE = "https://hystax.com/disaster-recovery-to-vmware/";
-export const HYSTAX_DISASTER_RECOVERY_ALIBABA = "https://hystax.com/disaster-recovery-to-alibaba/";
-export const HYSTAX_DISASTER_RECOVERY_OPENSTACK = "https://hystax.com/disaster-recovery-to-openstack/";
 
 export const FINOPS = "https://finopsinpractice.org/";
 export const FINOPS_FEATURES = "https://finopsinpractice.org/finops-in-practice-features-for-optscale/";

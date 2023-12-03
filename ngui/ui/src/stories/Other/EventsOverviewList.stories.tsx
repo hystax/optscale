@@ -5,7 +5,7 @@ const events = [
   {
     id: 1,
     description:
-      "Machine memcached1, rhel7.2_oracledb, IIS_Acura-Demo, memcached2, memcached3 for customer Snowdrop LLC went to status ERROR",
+      "Machine memcached1, rhel7.2_oracledb, IIS-Demo, memcached2, memcached3 for customer Snowdrop LLC went to status ERROR",
     time: 1578214058,
     level: "ERROR"
   },
