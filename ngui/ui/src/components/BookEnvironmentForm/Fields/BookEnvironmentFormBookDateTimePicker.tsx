@@ -44,6 +44,7 @@ const BookEnvironmentFormBookDateTimePicker = ({
           }}
           quickValues={quickValues}
           intervalMinutes={intervalMinutes}
+          withTimePicker
         />
       )}
     />

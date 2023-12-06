@@ -176,7 +176,14 @@ import {
   getGemini,
   getS3DuplicatesOrganizationSettings,
   updateOrganizationThemeSettings,
-  createSurvey
+  createSurvey,
+  getPowerSchedules,
+  createPowerSchedule,
+  getPowerSchedule,
+  deletePowerSchedule,
+  updatePowerSchedule,
+  attachInstancesToSchedule,
+  removeInstancesFromSchedule
 } from "./actionCreators";
 
 export {
@@ -357,5 +364,12 @@ export {
   getGemini,
   getS3DuplicatesOrganizationSettings,
   updateOrganizationThemeSettings,
-  createSurvey
+  createSurvey,
+  getPowerSchedules,
+  createPowerSchedule,
+  getPowerSchedule,
+  deletePowerSchedule,
+  updatePowerSchedule,
+  attachInstancesToSchedule,
+  removeInstancesFromSchedule
 };

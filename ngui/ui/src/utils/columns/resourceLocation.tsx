@@ -2,6 +2,7 @@ import { FormattedMessage } from "react-intl";
 import KeyValueLabel from "components/KeyValueLabel";
 import ResourceLocationCell from "components/ResourceLocationCell";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { intl } from "translations/react-intl-config";
 
 const resourceLocation = ({
   headerDataTestId,
@@ -42,7 +43,22 @@ const resourceLocation = ({
         }
       ].filter(({ node }) => node !== null)}
     />
-  )
+  ),
+  globalFilterFn: (_, filterValue, { row: { original } }) => {
+    const { [nameAccessor]: name, [regionAccessor]: region, [folderIdAccessor]: folderId, [zoneIdAccessor]: zoneId } = original;
+
+    const search = filterValue.toLocaleLowerCase();
+
+    return [
+      name,
+      `${intl.formatMessage({ id: "region" })}: ${region}`,
+      `${intl.formatMessage({ id: "folderId" })}: ${folderId}`,
+      `${intl.formatMessage({ id: "zoneId" })}: ${zoneId}`
+    ]
+      .join(" ")
+      .toLocaleLowerCase()
+      .includes(search);
+  }
 });
 
 export default resourceLocation;

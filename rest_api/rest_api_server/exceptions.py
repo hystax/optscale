@@ -525,9 +525,9 @@ class Err(enum.Enum):
         []
     ]
     OE0461 = [
-        "Limit can't be in past",
-        [],
-        []
+        "%s can't be in past",
+        ["Limit"],
+        ["Limit can't be in past"]
     ]
     OE0462 = [
         'One of [%s] should be specified',
@@ -967,4 +967,19 @@ class Err(enum.Enum):
         "Argument %s is required",
         [],
         []
+    ]
+    OE0550 = [
+        "Parameter %s should be time string in format HH:MM",
+        ['param'],
+        ['power_on']
+    ]
+    OE0552 = [
+        "Parameter %s can\'t be equal to %s",
+        ['param', 'param'],
+        ['power_on', 'power_off']
+    ]
+    OE0553 = [
+        "%s should be a timezone name",
+        ['param'],
+        ['timezone']
     ]

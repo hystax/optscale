@@ -6,9 +6,9 @@ const getCurrencySymbol = (currency, locale) =>
     .formatToParts(1)
     .find((x) => x.type === "currency").value;
 
-export default (() => {
-  const DEFAULT_LOCALE = "en-US";
+const DEFAULT_LOCALE = "en-US";
 
+export default (() => {
   const getCurrencyConfiguration = (currency, rest = {}) => ({
     style: "currency",
     currency,

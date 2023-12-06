@@ -1,3 +1,4 @@
+import AddInstanceToScheduleModal from "./AddInstanceToScheduleModal";
 import AddPoolModal from "./AddPoolModal";
 import ApplyResourcePerspectiveModal from "./ApplyResourcePerspectiveModal";
 import BookEnvironmentModal from "./BookEnvironmentModal";
@@ -23,6 +24,7 @@ import DeleteOrganizationConstraintModal from "./DeleteOrganizationConstraintMod
 import DeleteOrganizationModal from "./DeleteOrganizationModal";
 import DeleteOrganizationOptionModal from "./DeleteOrganizationOptionModal";
 import DeletePoolModal from "./DeletePoolModal";
+import DeletePowerScheduleModal from "./DeletePowerScheduleModal";
 import DeleteSshKeyModal from "./DeleteSshKeyModal";
 import DeleteWebhookModal from "./DeleteWebhookModal";
 import DisconnectCloudAccountModal from "./DisconnectCloudAccountModal";
@@ -36,6 +38,7 @@ import ReapplyClusterTypesModal from "./ReapplyClusterTypesModal";
 import ReapplyRulesetModal from "./ReapplyRulesetModal";
 import RecommendationModal from "./RecommendationModal";
 import ReleaseEnvironmentModal from "./ReleaseEnvironmentModal";
+import RemoveInstancesFromScheduleModal from "./RemoveInstancesFromScheduleModal";
 import RenameDataSourceModal from "./RenameDataSourceModal";
 import S3DuplicateFinderSettingsModal from "./S3DuplicateFinderSettingsModal";
 import SelectedBucketsInfoModal from "./SelectedBucketsInfoModal";
@@ -93,5 +96,8 @@ export {
   BucketDuplicatesModal,
   AddPoolModal,
   EditPoolModal,
-  UpdateDataSourceSkuModal
+  UpdateDataSourceSkuModal,
+  AddInstanceToScheduleModal,
+  RemoveInstancesFromScheduleModal,
+  DeletePowerScheduleModal
 };

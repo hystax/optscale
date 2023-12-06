@@ -458,6 +458,15 @@ def get_handlers(handler_kwargs, version=None):
              handler_kwargs),
             (urls_v2.disconnect_survey, h_v2.disconnect_survey.DisconnectSurveyAsyncItemHandler,
              handler_kwargs),
+            (urls_v2.power_schedules_collection,
+             h_v2.power_schedules.PowerSchedulesAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.power_schedules,
+             h_v2.power_schedules.PowerSchedulesAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.power_schedules_actions,
+             h_v2.power_schedules.PowerSchedulesActionsAsyncHandler,
+             handler_kwargs),
             *profiling_urls,
         ])
     return result

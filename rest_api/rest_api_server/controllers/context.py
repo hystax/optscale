@@ -7,7 +7,7 @@ from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.models import (
     Organization, CloudAccount, Employee, Pool, ReportImport, PoolAlert,
     PoolPolicy, ResourceConstraint, Rule, ShareableBooking, Webhook,
-    OrganizationConstraint, OrganizationBI, OrganizationGemini)
+    OrganizationConstraint, OrganizationBI, OrganizationGemini, PowerSchedule)
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   NotFoundException)
 from rest_api.rest_api_server.utils import tp_executor_context
@@ -45,7 +45,7 @@ class ContextController(MongoMixin):
                              'resource_constraint', 'rule',
                              'shareable_booking', 'webhook',
                              'organization_constraint', 'organization_bi',
-                             'organization_gemini']:
+                             'organization_gemini', 'power_schedule']:
             raise WrongArgumentsException(Err.OE0174, [type_name])
         return type_name, uuid
 
@@ -63,6 +63,7 @@ class ContextController(MongoMixin):
             'organization_constraint': OrganizationConstraint.__name__,
             'organization_bi': OrganizationBI.__name__,
             'organization_gemini': OrganizationGemini.__name__,
+            'power_schedule': PowerSchedule.__name__,
         }
 
         def call_query(base):
@@ -87,7 +88,9 @@ class ContextController(MongoMixin):
             'organization_constraint': (self.session.query(OrganizationConstraint),
                                         call_query),
             'organization_bi': (self.session.query(OrganizationBI), call_query),
-            'organization_gemini': (self.session.query(OrganizationGemini), call_query)
+            'organization_gemini': (self.session.query(OrganizationGemini),
+                                    call_query),
+            'power_schedule': (self.session.query(PowerSchedule), call_query),
         }
 
         query_base, func = query_map.get(type_name)
@@ -148,6 +151,9 @@ class ContextController(MongoMixin):
                 'organization', self._get_item('organization', x.organization_id)
             ),
             'organization_gemini': lambda x: (
+                'organization', self._get_item('organization', x.organization_id)
+            ),
+            'power_schedule': lambda x: (
                 'organization', self._get_item('organization', x.organization_id)
             ),
         }

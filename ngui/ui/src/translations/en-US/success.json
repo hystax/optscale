@@ -7,5 +7,7 @@
   "FE0008": "User has been deleted",
   "FE0009": "Organization option has been updated",
   "FE0010": "{0, select,\n thresholds {Thresholds}\n rightsizingStrategy {Rightsizing strategy}\n exclusions {Exclusions}\n insecurePorts {Insecure ports} \n other {Recommendation}} settings have been updated",
-  "FE0011": "Stopping process have been successfully initiated"
+  "FE0011": "Stopping process have been successfully initiated",
+  "FE0012": "{0} of {1} instances have been added to the schedule",
+  "FE0013": "{0} of {1} instances have been removed from the schedule"
 }

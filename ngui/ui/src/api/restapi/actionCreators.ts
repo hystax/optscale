@@ -272,7 +272,16 @@ import {
   UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   GET_ORGANIZATION_GEMINIS,
   GET_ORGANIZATION_CLOUD_RESOURCES,
-  CREATE_SURVEY
+  CREATE_SURVEY,
+  SET_POWER_SCHEDULES,
+  GET_POWER_SCHEDULES,
+  CREATE_POWER_SCHEDULES,
+  GET_POWER_SCHEDULE,
+  SET_POWER_SCHEDULE,
+  DELETE_POWER_SCHEDULE,
+  UPDATE_POWER_SCHEDULE,
+  ATTACH_INSTANCES_TO_SCHEDULE,
+  REMOVE_INSTANCES_FROM_SCHEDULE
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -2420,5 +2429,78 @@ export const createSurvey = (organizationId, { type, payload }) =>
     params: {
       survey_type: type,
       payload
+    }
+  });
+
+export const getPowerSchedules = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/power_schedules`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_POWER_SCHEDULES),
+    hash: hashParams(organizationId),
+    label: GET_POWER_SCHEDULES
+  });
+
+export const getPowerSchedule = (powerScheduleId) =>
+  apiAction({
+    url: `${API_URL}/power_schedules/${powerScheduleId}`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_POWER_SCHEDULE),
+    hash: hashParams(powerScheduleId),
+    label: GET_POWER_SCHEDULE
+  });
+
+export const createPowerSchedule = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/power_schedules`,
+    method: "POST",
+    label: CREATE_POWER_SCHEDULES,
+    affectedRequests: [GET_POWER_SCHEDULES],
+    params
+  });
+
+export const deletePowerSchedule = (powerScheduleId) =>
+  apiAction({
+    url: `${API_URL}/power_schedules/${powerScheduleId}`,
+    method: "DELETE",
+    label: DELETE_POWER_SCHEDULE,
+    affectedRequests: [GET_POWER_SCHEDULES]
+  });
+
+export const updatePowerSchedule = (powerScheduleId, params) =>
+  apiAction({
+    url: `${API_URL}/power_schedules/${powerScheduleId}`,
+    method: "PATCH",
+    label: UPDATE_POWER_SCHEDULE,
+    entityId: powerScheduleId,
+    affectedRequests: [GET_POWER_SCHEDULE, GET_POWER_SCHEDULES],
+    params
+  });
+
+export const attachInstancesToSchedule = (powerScheduleId, instancesToAttach) =>
+  apiAction({
+    url: `${API_URL}/power_schedules/${powerScheduleId}/actions`,
+    method: "POST",
+    label: ATTACH_INSTANCES_TO_SCHEDULE,
+    successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
+    affectedRequests: [GET_POWER_SCHEDULE, GET_POWER_SCHEDULES],
+    params: {
+      action: "attach",
+      instance_id: instancesToAttach
+    }
+  });
+
+export const removeInstancesFromSchedule = (powerScheduleId, instancesToRemove) =>
+  apiAction({
+    url: `${API_URL}/power_schedules/${powerScheduleId}/actions`,
+    method: "POST",
+    label: REMOVE_INSTANCES_FROM_SCHEDULE,
+    successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
+    affectedRequests: [GET_POWER_SCHEDULE, GET_POWER_SCHEDULES],
+    params: {
+      action: "detach",
+      instance_id: instancesToRemove
     }
   });

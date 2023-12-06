@@ -4,7 +4,8 @@ import unittest
 from optscale_client.config_client.client import Client as ConfigClient
 from unittest.mock import MagicMock, PropertyMock, patch
 
-from docker_images.bi_scheduler.scheduler import BIScheduler, DEFAULT_RUN_PERIOD, TASK_WAIT_TIMEOUT
+from docker_images.bi_scheduler.scheduler import (
+    BIScheduler, DEFAULT_RUN_PERIOD, TASK_WAIT_TIMEOUT)
 
 
 class TestBIScheduler(unittest.TestCase):

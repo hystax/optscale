@@ -40,6 +40,7 @@ const StartDatePicker = () => {
               iconButton: "btn_select_date"
             }
           }}
+          withTimePicker
         />
       )}
     />

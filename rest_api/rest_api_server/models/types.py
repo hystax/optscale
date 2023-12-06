@@ -1,5 +1,6 @@
 import json
-
+import datetime
+import pytz
 from cryptography.fernet import Fernet
 from sqlalchemy import (Integer, String, TypeDecorator, TEXT, LargeBinary,
                         Boolean, Enum, BigInteger, Float as FloatAlchemy)
@@ -33,8 +34,12 @@ class NullableString(TypeDecorator):
             if not isinstance(value, str):
                 raise WrongArgumentsException(Err.OE0214, [self.key])
             if not min_length <= len(value) <= max_length:
-                count = ('max %s' % max_length if min_length == 0
-                         else '%s-%s' % (min_length, max_length))
+                if min_length == 0:
+                    count = 'max %s' % max_length
+                elif max_length == min_length:
+                    count = max_length
+                else:
+                    count = '%s-%s' % (min_length, max_length)
                 raise WrongArgumentsException(Err.OE0215, [self.key, count])
         return value
 
@@ -65,6 +70,31 @@ class NotWhiteSpaceString(BaseString):
         super().validator(value, max_length=max_length, min_length=min_length)
         if value.isspace():
             raise WrongArgumentsException(Err.OE0416, [self.key])
+        return value
+
+
+class HMTimeString(BaseString):
+    """Class for saving time as string in format 'HH:MM'"""
+    impl = String(5)
+
+    def validator(self, value, max_length=5, min_length=5):
+        if value is None:
+            raise_not_provided_exception(self.key)
+        try:
+            datetime.datetime.strptime(value, "%H:%M").time()
+        except (TypeError, ValueError):
+            raise WrongArgumentsException(Err.OE0550, [self.key])
+        return value
+
+
+class TimezoneString(BaseString):
+    """Class for saving timezone names"""
+    impl = String(32)
+
+    def validator(self, value, max_length=32, min_length=1):
+        super().validator(value, max_length=max_length, min_length=min_length)
+        if value not in pytz.all_timezones:
+            raise WrongArgumentsException(Err.OE0553, [self.key])
         return value
 
 

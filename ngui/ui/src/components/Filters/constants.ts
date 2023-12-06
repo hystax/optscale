@@ -56,6 +56,8 @@ export const RESOURCE_FILTERS_NAMES = RESOURCE_FILTERS.map((ResourceFilter) => R
 
 export const RESOURCE_FILTERS_API_NAMES = RESOURCE_FILTERS.map((ResourceFilter) => ResourceFilter.apiName);
 
+export const POWER_SCHEDULE_INSTANCES_FILTERS = [PoolFilter, OwnerFilter, RegionFilter, TagFilter, WithoutTagFilter];
+
 export const ML_MODELS_FILTERS = [OwnerFilter, StatusFilter, GoalsFilter];
 export const ML_RUNS_FILTERS = [StatusFilter, GoalsFilter];
 export const ML_MODEL_RUNS_FILTERS = [StatusFilter, GoalsFilter];

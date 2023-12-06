@@ -293,7 +293,32 @@ const SelectorItems = ({ items, values, onChange, onApply }) =>
 
 const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, onApply, dataTestIds = {} }) => {
   const { label: labelDataTestId } = dataTestIds;
-  const valuesArray = Array.isArray(value) ? value : [value];
+
+  const getValuesArray = () => {
+    if (isEmptyObject(value)) {
+      return [];
+    }
+
+    return (Array.isArray(value) ? value : [value]).map((pickedValue) => {
+      const {
+        type: itemType,
+        displayedName: itemDisplayedName,
+        dataTestId
+      } = items.find((item) => item.name === pickedValue.name);
+
+      return {
+        name: pickedValue.name,
+        value: pickedValue.value,
+        displayedName: pickedValue.displayedName || itemDisplayedName,
+        displayedValue: pickedValue.displayedValue,
+        type: itemType,
+        dataTestId
+      };
+    });
+  };
+
+  const valuesArray = getValuesArray();
+
   const { classes } = useStyles();
 
   return (
@@ -304,7 +329,7 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
           {": "}
         </Typography>
       )}
-      {isEmptyObject(value) || valuesArray.length === 0 ? (
+      {valuesArray.length === 0 ? (
         <Typography component="span">
           <FormattedMessage id={NONE} />
         </Typography>
@@ -314,15 +339,12 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
             const {
               name: itemName,
               value: itemValue,
-              displayedName: customDisplayedName,
-              displayedValue: itemDisplayedValue
+              displayedValue: itemDisplayedValue,
+              type: itemType,
+              displayedName,
+              dataTestId
             } = pickedValue;
 
-            const {
-              type: itemType,
-              displayedName: itemDisplayedName,
-              dataTestId
-            } = items.find((item) => item.name === itemName);
             return (
               <PickedItem
                 key={`${itemName}-${itemValue}`}
@@ -331,7 +353,7 @@ const LinearSelector = ({ value, label, items, onClear, onClearAll, onChange, on
                 // equal to node that was defined in "values" array (LinearSelector)
                 // or to node that was defined as a displayedName in items
                 // or <FormattedMessage id={name}/>
-                displayedName={customDisplayedName || itemDisplayedName}
+                displayedName={displayedName}
                 displayedValue={itemDisplayedValue}
                 value={itemValue}
                 type={itemType}

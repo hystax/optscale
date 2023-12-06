@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { getAvailableFilters } from "api";
 import { GET_AVAILABLE_FILTERS } from "api/restapi/actionTypes";
@@ -69,9 +69,13 @@ export const useGet = (params = {}, exceptions) => {
     }
   }, [dispatch, shouldInvoke, params, organizationId]);
 
-  const filtersWithoutExceptions = exceptions
-    ? Object.fromEntries(Object.entries(filters).filter(([filterBackendName]) => !exceptions.includes(filterBackendName)))
-    : filters;
+  const filtersWithoutExceptions = useMemo(
+    () =>
+      exceptions
+        ? Object.fromEntries(Object.entries(filters).filter(([filterBackendName]) => !exceptions.includes(filterBackendName)))
+        : filters,
+    [exceptions, filters]
+  );
 
   return { isLoading, filters: filtersWithoutExceptions };
 };

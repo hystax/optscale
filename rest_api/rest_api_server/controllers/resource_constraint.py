@@ -102,7 +102,7 @@ class ResourceConstraintController(ConstraintBaseController, MongoMixin):
         check_int_attribute('limit', limit)
         if constraint_type == ConstraintTypes.TTL and limit != 0:
             if limit - int(datetime.utcnow().timestamp()) < 0:
-                raise WrongArgumentsException(Err.OE0461, [])
+                raise WrongArgumentsException(Err.OE0461, ['Limit'])
 
     def get_entity(self, item_id):
         try:

@@ -75,3 +75,4 @@ import rest_api.rest_api_server.handlers.v2.organization_bis
 import rest_api.rest_api_server.handlers.v2.relevant_flavors
 import rest_api.rest_api_server.handlers.v2.organization_geminis
 import rest_api.rest_api_server.handlers.v2.disconnect_survey
+import rest_api.rest_api_server.handlers.v2.power_schedules

@@ -8,7 +8,7 @@ import Filter from "../Filter";
 const getRegularResourceType = (typeName) => [typeName, OPTSCALE_RESOURCE_TYPES.REGULAR].join(":");
 
 const INSTANCE = "Instance";
-const INSTANCE_REGULAR = getRegularResourceType(INSTANCE);
+export const INSTANCE_REGULAR = getRegularResourceType(INSTANCE);
 
 const VOLUME = "Volume";
 const VOLUME_REGULAR = getRegularResourceType(VOLUME);

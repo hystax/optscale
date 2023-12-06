@@ -1,41 +1,31 @@
 import { useState } from "react";
 import { Select, MenuItem } from "@mui/material";
-import { subHours, parse } from "date-fns";
+import { parse } from "date-fns";
 import Day from "components/DateRangePicker/Day";
 import useStyles from "components/DateRangePicker/Header/Header.styles";
 import {
   format,
-  startOfDay,
-  endOfDay,
-  addMinutes,
-  EN_TIME_FORMAT_HH_MM,
+  EN_TIME_FORMAT_12_HOURS_CLOCK_HH_MM,
   EN_TIME_FORMAT_A,
   roundTimeToInterval,
-  HOURS_PER_DAY,
-  AMOUNT_30_MINUTES
+  AMOUNT_30_MINUTES,
+  generateDayHours,
+  MERIDIEM_NAMES
 } from "utils/datetime";
 
 const IntervalTimeSelectors = ({ value = +new Date(), setValue, stepMinutes = AMOUNT_30_MINUTES }) => {
   const { classes } = useStyles();
   const rounded = roundTimeToInterval(value, stepMinutes);
 
-  // making an array of times with set step, example - for 30 minutes "12:00, 12:30, 1:00, 1:30, ..."
-  const times = [];
-  const dayStart = startOfDay(+new Date());
-  const dayHalf = subHours(endOfDay(dayStart), HOURS_PER_DAY / 2);
-  for (let time = dayStart; time < dayHalf; time = addMinutes(time, stepMinutes)) {
-    times.push(format(time, EN_TIME_FORMAT_HH_MM));
-  }
+  const times = generateDayHours({ stepMinutes });
 
-  const [currentTime, setCurrentTime] = useState(() => format(rounded, EN_TIME_FORMAT_HH_MM));
+  const [currentTime, setCurrentTime] = useState(() => format(rounded, EN_TIME_FORMAT_12_HOURS_CLOCK_HH_MM));
 
-  // array of AM/PM
-  const ampm = [format(dayStart, EN_TIME_FORMAT_A), format(endOfDay(dayStart), EN_TIME_FORMAT_A)];
   const [currentAMPM, setCurrentAMPM] = useState(() => format(rounded, EN_TIME_FORMAT_A));
 
   const updateSelectedTimestamp = (time, ampmValue) => {
     const selectedTimeString = `${time} ${ampmValue}`;
-    const selectedTimeStringFormat = `${EN_TIME_FORMAT_HH_MM} ${EN_TIME_FORMAT_A}`;
+    const selectedTimeStringFormat = `${EN_TIME_FORMAT_12_HOURS_CLOCK_HH_MM} ${EN_TIME_FORMAT_A}`;
     setValue(+parse(selectedTimeString, selectedTimeStringFormat, value));
   };
 
@@ -68,7 +58,7 @@ const IntervalTimeSelectors = ({ value = +new Date(), setValue, stepMinutes = AM
         </Select>
       </div>
       <div style={{ display: "flex", justifyContent: "center", padding: "5px" }}>
-        {ampm.map((daytimeName) => (
+        {Object.values(MERIDIEM_NAMES).map((daytimeName) => (
           <Day
             key={daytimeName}
             outlined={currentAMPM === daytimeName}

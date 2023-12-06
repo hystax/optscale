@@ -1,11 +1,10 @@
 import json
-
 from sqlalchemy import Enum, and_
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import (Column, Integer, String, Boolean,
+from sqlalchemy import (Column, Integer, String, Boolean, Time,
                         ForeignKey, UniqueConstraint, CheckConstraint)
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
@@ -21,7 +20,8 @@ from rest_api.rest_api_server.models.enums import (
     CloudTypes, ImportStates, RolePurposes,
     AssignmentRequestStatuses, ThresholdBasedTypes, ThresholdTypes,
     ConstraintTypes, PoolPurposes, ConstraintLimitStates,
-    OrganizationConstraintTypes, BIOrganizationStatuses, BITypes, GeminiStatuses)
+    OrganizationConstraintTypes, BIOrganizationStatuses, BITypes,
+    GeminiStatuses)
 from rest_api.rest_api_server.models.types import (
     Email, Name, Uuid, NullableUuid, NullableMetadata, Int,
     NullableString, AutogenUuid, NullableBool, NullableText, NullableInt,
@@ -33,7 +33,8 @@ from rest_api.rest_api_server.models.types import (
     CostModelType, WebhookObjectType, WebhookActionType,
     MediumNullableString, MediumString, MediumLargeNullableString,
     ConstraintLimitState, OrganizationConstraintType, ConstraintDefinition,
-    RunResult, BIOrganizationStatus, BIType, Float, GeminiStatus)
+    RunResult, BIOrganizationStatus, BIType, Float, GeminiStatus,
+    HMTimeString, TimezoneString)
 
 
 class PermissionKeys(Enum):
@@ -1609,3 +1610,45 @@ class OrganizationGemini(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         res["filters"] = json.loads(res.pop("filters"))
         res["stats"] = json.loads(res.pop("stats"))
         return res
+
+
+class PowerSchedule(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
+    __tablename__ = "power_schedule"
+
+    organization_id = Column(Uuid("organization_id"),
+                             ForeignKey("organization.id"), nullable=False,
+                             info=ColumnPermissions.create_only)
+    name = Column(BaseString('name'), nullable=False,
+                  info=ColumnPermissions.full)
+    power_off = Column(HMTimeString('power_off'), nullable=False,
+                       info=ColumnPermissions.full)
+    power_on = Column(HMTimeString('power_on'), nullable=False,
+                      info=ColumnPermissions.full)
+    timezone = Column(TimezoneString('timezone'), nullable=False,
+                      info=ColumnPermissions.full)
+    enabled = Column(NullableBool('enabled'), nullable=False,
+                     info=ColumnPermissions.full)
+    start_date = Column(NullableInt("start_date"), default=0, nullable=False,
+                        info=ColumnPermissions.full)
+    end_date = Column(NullableInt("end_date"), default=0,
+                      nullable=False, info=ColumnPermissions.full)
+    last_eval = Column(Int("last_eval"), default=0,
+                       nullable=False, info=ColumnPermissions.update_only)
+    last_run = Column(Int("last_run"), default=0,
+                      nullable=False, info=ColumnPermissions.update_only)
+    last_run_error = Column(NullableText("last_run_error"), nullable=True,
+                            info=ColumnPermissions.update_only)
+
+    __table_args__ = (UniqueConstraint(
+        "organization_id", "name", "deleted_at",
+        name="uc_organization_id_name_deleted_at"),)
+
+    @hybrid_property
+    def unique_fields(self):
+        return ['organization_id', 'name']
+
+    @validates('organization_id', 'name', 'power_off', 'power_on', 'timezone',
+               'enabled', 'start_date', 'end_date', 'last_eval', 'last_run',
+               'last_run_error')
+    def _validate(self, key, value):
+        return self.get_validator(key, value)

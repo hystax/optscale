@@ -47,11 +47,14 @@ import {
   startOfYear,
   differenceInHours,
   areIntervalsOverlapping,
-  roundToNearestMinutes
+  roundToNearestMinutes,
+  parse,
+  subHours
 } from "date-fns";
 
 import { enUS } from "date-fns/locale";
 import { objectMap } from "./objects";
+import { capitalize } from "./strings";
 
 /**
  * @typedef {Object} DateRange
@@ -79,7 +82,9 @@ export const ABBREVIATED_WEEK_DAYS = [...Array(7).keys()].map((i) => enUS.locali
 
 export const EN_FULL_FORMAT = "MM/dd/yyyy hh:mm a";
 export const EN_FORMAT = "MM/dd/yyyy";
-export const EN_TIME_FORMAT_HH_MM = "hh:mm";
+export const EN_TIME_FORMAT_12_HOURS_CLOCK_HH_MM = "hh:mm";
+export const EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM_SS = "HH:mm:ss";
+export const EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM = "HH:mm";
 export const EN_TIME_FORMAT_A = "a";
 export const EN_TIME_FORMAT = "hh:mm a";
 export const EN_FORMAT_SHORT_YEAR = "MM/dd/yy";
@@ -225,6 +230,16 @@ export const getCurrentMonthRange = (isUtc = true) => {
   return {
     today: millisecondsToSeconds(performDateTimeFunction(endOfDay, isUtc, today)),
     startOfMonth: millisecondsToSeconds(performDateTimeFunction(startOfMonth, isUtc, today))
+  };
+};
+
+export const getXDaysAgoRange = (isUtc, daysCount) => {
+  const today = new Date();
+  const xDaysAgo = subDays(today, daysCount);
+
+  return {
+    end: millisecondsToSeconds(performDateTimeFunction(endOfDay, isUtc, today)),
+    start: millisecondsToSeconds(performDateTimeFunction(startOfDay, isUtc, xDaysAgo))
   };
 };
 
@@ -470,6 +485,65 @@ export const intervalToDuration = ({ start, end }) => {
   };
 };
 
+/**
+ * Formats the given duration into a human-readable string based on specified options.
+ *
+ * @param {Object} options - Options for formatting the interval duration.
+ * @param {number} options.duration - Object containing the duration values for different interval types.
+ * @param {Array} [options.formatTo] - Array of interval types to include in the formatted string.
+ * @param {number} [options.precision=2] - The number of interval types to include in the formatted string.
+ * @param {boolean} [options.compact=false] - Whether to format the string in a compact form.
+ * @param {Object} options.intlFormatter - An object providing an internationalization formatter, typically from react-intl.
+ * @returns {string} The formatted interval duration string.
+ */
+export const formatIntervalDuration = ({
+  duration,
+  formatTo = Object.values(INTERVAL_DURATION_VALUE_TYPES),
+  precision = 2,
+  compact = false,
+  intlFormatter
+}) => {
+  const timeFrames = formatTo.filter((type) => Boolean(duration[type])).slice(0, precision);
+
+  if (compact) {
+    return timeFrames
+      .map((type) => intlFormatter.formatMessage({ id: `x${capitalize(type)}Compact` }, { x: duration[type] }))
+      .join(" ");
+  }
+
+  return timeFrames
+    .map((type) => intlFormatter.formatMessage({ id: `x${capitalize(type)}` }, { x: duration[type] }))
+    .join(", ");
+};
+
+/**
+ * Formats a time duration from a past timestamp to a human-readable string representing the time elapsed.
+ *
+ * @param {Object} options - Options for formatting the time ago duration.
+ * @param {number} options.agoSecondsTimestamp - The timestamp in seconds indicating the past time.
+ * @param {number} [options.precision] - The number of interval types to include in the formatted string.
+ * @param {Object} options.intlFormatter - An object providing an internationalization formatter, typically from react-intl.
+ * @returns {string} The formatted time ago string with an internationalized "ago" suffix.
+ */
+export const formatIntervalTimeAgo = ({ agoSecondsTimestamp, precision, intlFormatter }) => {
+  const duration = intervalToDuration({ start: +new Date(), end: secondsToMilliseconds(agoSecondsTimestamp) });
+
+  const agoIntervalString = formatIntervalDuration({
+    formatTo: [
+      INTERVAL_DURATION_VALUE_TYPES.WEEKS,
+      INTERVAL_DURATION_VALUE_TYPES.DAYS,
+      INTERVAL_DURATION_VALUE_TYPES.HOURS,
+      INTERVAL_DURATION_VALUE_TYPES.MINUTES,
+      INTERVAL_DURATION_VALUE_TYPES.SECONDS
+    ],
+    duration,
+    precision,
+    intlFormatter
+  });
+
+  return `${agoIntervalString} ${intlFormatter.formatMessage({ id: "ago" })}`;
+};
+
 // TODO: Try date-fns utils
 export const formatSecondsToHHMMSS = (seconds) => {
   let delta = seconds;
@@ -547,6 +621,73 @@ const convertMinutesToSeconds = (minutes) => minutes * SECONDS_IN_MINUTE;
 
 const convertSecondsToMinutes = (seconds) => seconds / SECONDS_IN_MINUTE;
 
+/**
+ * Function parses the input time string using the provided format
+ * and then formats it according to the specified output format using date-fns functions.
+ *
+ * @param {Object} params
+ * @param {string} params.timeString - The input time string to be parsed.
+ * @param {string} params.timeStringFormat - The format of the input time string.
+ * @param {string} params.parsedTimeStringFormat - The desired output format.
+ *
+ * @returns {string} The formatted time string.
+ *
+ * @throws {Error} If the parsing or formatting fails.
+ *
+ * @example
+ * // Usage example:
+ * formatTimeString({
+ *   timeString="2023-10-11 12:34:56"
+ *   timeStringFormat="yyyy-MM-dd HH:mm:ss"
+ *   parsedTimeStringFormat="EEEE, MMMM d, yyyy h:mm a"
+ * })
+ * // Result: "Wednesday, October 11, 2023 12:34 PM"
+ */
+const formatTimeString = ({ timeString, timeStringFormat, parsedTimeStringFormat }) => {
+  const parsedTime = parse(timeString, timeStringFormat, new Date());
+
+  return format(parsedTime, parsedTimeStringFormat);
+};
+
+/**
+ * Generates an array of formatted time strings representing hours throughout the day.
+ *
+ * @param {Object} options - The options for generating day hours.
+ * @param {number} options.stepMinutes - The interval in minutes between each time entry.
+ * @param {string} [options.clockFormat="12"] - The format for displaying time, "12" for 12-hour clock or "24" for 24-hour clock.
+ *
+ * @returns {string[]} An array of formatted time strings.
+ *
+ * @example
+ * // Generate 12-hour time entries with a step of 60 minutes
+ * const hours12 = generateDayHours({ stepMinutes: 60, clockFormat: "12" });
+ * // ["12:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00"]
+ *
+ * // Generate 24-hour time entries with a step of 60 minutes
+ * const hours24 = generateDayHours({ stepMinutes: 60, clockFormat: "24" });
+ * // ["00:00:00", "01:00:00", "02:00:00", "03:00:00", "04:00:00", "05:00:00", "06:00:00", "07:00:00", "08:00:00", "09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00", "18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00", "23:00:00"]
+ */
+const generateDayHours = ({ stepMinutes, clockFormat = "12" }) => {
+  const hours = [];
+
+  const dayStart = startOfDay(new Date());
+  const dayEnd = endOfDay(dayStart);
+
+  const timeThreshold = clockFormat === "12" ? subHours(dayEnd, HOURS_PER_DAY / 2) : dayEnd;
+  const dataFormat = clockFormat === "12" ? EN_TIME_FORMAT_12_HOURS_CLOCK_HH_MM : EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM_SS;
+
+  for (let time = dayStart; time < timeThreshold; time = addMinutes(time, stepMinutes)) {
+    hours.push(format(time, dataFormat));
+  }
+
+  return hours;
+};
+
+const MERIDIEM_NAMES = Object.freeze({
+  AM: "AM",
+  PM: "PM"
+});
+
 export {
   addMonths,
   addHours,
@@ -591,5 +732,10 @@ export {
   isPast,
   areIntervalsOverlapping,
   convertMinutesToSeconds,
-  convertSecondsToMinutes
+  convertSecondsToMinutes,
+  parse,
+  formatTimeString,
+  subHours,
+  generateDayHours,
+  MERIDIEM_NAMES
 };

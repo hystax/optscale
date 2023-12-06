@@ -20,7 +20,8 @@ from tools.cloud_adapter.clouds.base import S3CloudMixin
 from tools.cloud_adapter.exceptions import (
     ReportFilesNotFoundException, CloudConnectionError,
     ReportConfigurationException, BucketNotFoundException,
-    BucketNameValidationError, BucketPrefixValidationError, S3ConnectionError)
+    BucketNameValidationError, BucketPrefixValidationError,
+    S3ConnectionError, InvalidResourceStateException, ResourceNotFound)
 from tools.cloud_adapter.model import (
     BucketResource,
     VolumeResource,
@@ -38,7 +39,8 @@ from yandex.cloud.compute.v1.disk_service_pb2 import ListDisksRequest
 from yandex.cloud.compute.v1.disk_service_pb2_grpc import DiskServiceStub
 from yandex.cloud.compute.v1.image_service_pb2 import ListImagesRequest
 from yandex.cloud.compute.v1.image_service_pb2_grpc import ImageServiceStub
-from yandex.cloud.compute.v1.instance_service_pb2 import ListInstancesRequest
+from yandex.cloud.compute.v1.instance_service_pb2 import (
+    ListInstancesRequest, StartInstanceRequest, StopInstanceRequest)
 from yandex.cloud.compute.v1.instance_service_pb2_grpc import InstanceServiceStub
 from yandex.cloud.compute.v1.snapshot_service_pb2 import ListSnapshotsRequest
 from yandex.cloud.compute.v1.snapshot_service_pb2_grpc import SnapshotServiceStub
@@ -938,3 +940,27 @@ class Nebius(S3CloudMixin):
 
     def configure_last_import_modified_at(self):
         pass
+
+    def start_instance(self, instance_id):
+        request = StartInstanceRequest(instance_id=instance_id)
+        try:
+            self.instance_service.Start(request)
+        except grpc.RpcError as exc:
+            if exc.code() == grpc.StatusCode.FAILED_PRECONDITION:
+                raise InvalidResourceStateException(exc.details())
+            elif exc.code() == grpc.StatusCode.NOT_FOUND:
+                raise ResourceNotFound(exc.details())
+            else:
+                raise
+
+    def stop_instance(self, instance_id):
+        request = StopInstanceRequest(instance_id=instance_id)
+        try:
+            self.instance_service.Stop(request)
+        except grpc.RpcError as exc:
+            if exc.code() == grpc.StatusCode.FAILED_PRECONDITION:
+                raise InvalidResourceStateException(exc.details())
+            elif exc.code() == grpc.StatusCode.NOT_FOUND:
+                raise ResourceNotFound(exc.details())
+            else:
+                raise
