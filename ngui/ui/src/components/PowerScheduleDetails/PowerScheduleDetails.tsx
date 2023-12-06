@@ -339,7 +339,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
             icon: <PowerSettingsNewOutlinedIcon />,
             dataTestId: `btn_deactivate`,
             type: "button",
-            action: onActivate,
+            action: onDeactivate,
             isLoading: isGetPowerScheduleLoading || isUpdatePowerScheduleLoading
           }
         : {
@@ -348,7 +348,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
             icon: <PowerSettingsNewOutlinedIcon />,
             dataTestId: `btn_activate`,
             type: "button",
-            action: onDeactivate,
+            action: onActivate,
             isLoading: isGetPowerScheduleLoading || isUpdatePowerScheduleLoading
           },
       {
