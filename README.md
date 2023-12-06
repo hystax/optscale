@@ -2,16 +2,15 @@
 ⭐ Drop a star to support OptScale ⭐
 </p>
 
-# FinOps platform for any cloud workloads + MLOps functionality for ML/AI teams
-
+# MLOps platform to run ML/AI experiments with optimal performance and cloud cost
 <p align="center">
 <a href="documentation/images/cover-GitHub.png"><img src="documentation/images/cover-GitHub.png" width="60%" align="middle"></a>
 </p>
-FinOps & MLOps open source platform to optimize any cloud workload performance and infrastructure cost. Cloud cost optimization, VM rightsizing, PaaS instrumentation, S3 duplicate finder, RI/SP usage, anomaly detection + AI developer tools for ML teams for optimal cloud utilization: ML/AI leaderboards, experiment tracking, ML experiment profiling, performance and cost optimization.
+OptScale is an open source MLOps platform that provides experiment tracking, model versioning, ML leaderboards with cloud cost optimization, and infrastructure performance details.
 <br>
 <br>
 <p align="center">
-<a href="https://my.optscale.com/live-demo?emailbypass=true&utm_source=github&utm_medium=readme"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
+<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
 </p>
 <br>
 <div align="center">
@@ -21,7 +20,10 @@ FinOps & MLOps open source platform to optimize any cloud workload performance a
 ![Clouds](https://img.shields.io/badge/Clouds-gray)
  <img src="documentation/images/cloud icons/aws-cloud.svg" height="20" />
 <img src="documentation/images/cloud icons/azure.svg" height="20" /> <img src="documentation/images/cloud icons/google.svg" height="20" /> <img src="documentation/images/cloud icons/alibaba.svg" height="20" /> <img src="documentation/images/cloud icons/k8s.svg" height="20" />
-![Budget](https://img.shields.io/badge/Overall_cloud_budget-$346M-green)
+![Supported technologies](https://img.shields.io/badge/Technologies-gray)
+<img src="documentation/images/cloud icons/databricks.svg" height="20" />
+<img src="documentation/images/cloud icons/mlflow.svg" height="20" /> <img src="documentation/images/cloud icons/pytorch.svg" height="20" /> <img src="documentation/images/cloud icons/tensorflow.svg" height="20" /> <img src="documentation/images/cloud icons/spark.svg" height="20" /> <img src="documentation/images/cloud icons/kubeflow.svg" height="20" />
+
 ![Customers](https://img.shields.io/badge/Organizations-183-orange)
 ![ML Teams](https://img.shields.io/badge/ML_teams-516-blue)
 ![ML/AI models](https://img.shields.io/badge/ML/AI_models-5K-purple)
@@ -33,7 +35,7 @@ FinOps & MLOps open source platform to optimize any cloud workload performance a
 ## OptScale schema
 
 <div align="center">
-  <img src="documentation/images/OptScale-scheme.png" height="400" />
+  <img src="documentation/images/OptScale-schema.png" height="400" />
 <br>
   <br>
 </div>
@@ -42,27 +44,31 @@ FinOps & MLOps open source platform to optimize any cloud workload performance a
   <table border="1px">
     <tbody>
       <tr>
-        <th>FinOps & cloud cost management</th>
-        <th>MLOps</th>
+        <th>MLOps capabilities</th>
+        <th>AI infrastructure optimization and instrumentation</th>
       </tr>
       <tr>
         <td>
           <ul>
-            <li>Forecast and monitor an IT infrastructure cost</li>
-            <li>Identify wastage and optimize IT expenses</li>
-            <li>Bring resource / application / service observability</li>
-            <li>IT asset management</li>
-            <li>Set TTL and budget constraints</li>
-            <li>Establish a long-term FinOps process by engaging engineering teams</li>
+            <li>Leaderboards with candidates and qualifications</li>
+            <li>Dataset and model tracking and versioning</li>
+            <li>Run metrics and experiment tracker</li>
+            <li>Hypertuning integrated with Optuna</li>
+            <li>Training launcher</li>
+            <li>Model training profiler</li>
             </ul>
           </td>
         <td>
           <ul>
-            <li>Team and individual ML engineer progress observability</li>
-            <li>ML/AI task profiling, bottleneck identification</li>
-            <li>PaaS or any external service instrumentation</li>
-            <li>Optimization recommendations</li>
-            <li>Runsets to automatically scale a number of experiments</li>
+            <li>Optimal utilization of Reserved Instances, Savings Plans, and Spot Instances</li>
+            <li>Unused resource detection</li>
+            <li>R&D resource power management and rightsizing</li>
+            <li>S3 duplicate object finder</li>
+            <li>Resource bottleneck identification</li>
+            <li>Optimal instance type and family selection</li>
+            <li>Databricks support</li>
+            <li>S3 and Redshift instrumentation</li>
+            <li>VM Power Schedules</li>
           </ul>
         </td>
       </tr>
@@ -70,30 +76,41 @@ FinOps & MLOps open source platform to optimize any cloud workload performance a
   </table>
 </div>
   
-You can check OptScale [live demo](https://my.optscale.com/live-demo?emailbypass=true&utm_source=github&utm_medium=readme) to explore product features on a pre-generated demo organization.
+You can check OptScale [live demo](https://my.optscale.com/live-demo) to explore product features on a pre-generated demo organization.
 
-Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com?utm_source=github&utm_medium=readme).
+Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com).
 
 ## Demos
 
-|              Cost and performance optimization recommendations             |                       Budgets and Pools                          |
+|                                  ML Tasks                                  |                          ML Leaderboards                         |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|     <img src="documentation/images/Recommendations.png" width="500">       |     <img src="documentation/images/Pools.png" width="500">       |
+|     <img src="documentation/images/ML-Tasks.png" width="500">              |<img src="documentation/images/ML-Leaderboards.png" width="500">  |
+
+
+|                             Experiment tracking                            |                       Arcee setup instructions                   |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
+|     <img src="documentation/images/Experiment-tracking.png" width="500">   |     <img src="documentation/images/Arcee.png" width="500">       |
                                                                                                                       
 
-|                             Reserved Instances                             |                          Cost explorer                           |
+|                                  Datasets                                  |                             Hypertuning                          |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|<img src="documentation/images/Reserved-Instances.png" width="500">         | <img src="documentation/images/Resources.png" width="500">       |  
+|<img src="documentation/images/Datasets-page.png" width="500">              |<img src="documentation/images/Hypertuning-page.png" width="500"> |  
 
 
-|                             ML model dashboard                             |                           Cost geo map                           |
+|                             Databricks connection                          |                           Recommendations                        |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|          <img src="documentation/images/Models.png" width="500">           |     <img src="documentation/images/Cost-map.png" width="500">    |
+|<img src="documentation/images/Databricks-connection-page.png" width="500"> |<img src="documentation/images/Recommendations.png" width="500">  |
 
 
-|        ML model overview with optimization and experiment tracking         |                     Cost breakdown by owner                      |
+|                               Cost geo map                                 |                          Power Schedules                         |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|  <img src="documentation/images/Models-extended.png" width="500">  |  <img src="documentation/images/Cost-explorer-by-owner.png" width="500"> |
+|  <img src="documentation/images/Cost-map.png" width="500">                 | <img src="documentation/images/Power-Schedules.png" width="500"> |
+
+
+|                     Reserved Instances and Savings Plans                   |                          Cost breakdown by owner                 |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
+|  <img src="documentation/images/RI-SP-page.png" width="500">               | <img src="documentation/images/Cost-explorer-by-owner.png" width="500"> |
+
 
 ## OptScale components and architecture
 
@@ -149,33 +166,29 @@ ip a
 If your deployment server is the service-host server, add `"ansible_connection=local"` to the ansible command.
 
 #### Creating user overlay
-Edit file with overlay - [optscale-deploy/overlay/user_template.yml](optscale-deploy/overlay/user_template.yml), see comments in overlay file for guidance.
+Edit file with overlay - [optscale-deploy/overlay/user_template.yml](optscale-deploy/overlay/user_template.yml); see comments in overlay file for guidance.
 
 
 #### Cluster installation
 run the following command:
 ```
-./runkube.py --with-elk  -o overlay/user_template.yml -- <deployment name> <version>
+./runkube.py --with-elk  -o overlay/user_template.yml -- <deployment name> component_versions.yaml
 ```
 or if you want to use socket:
 ```
-./runkube.py --use-socket --with-elk  -o overlay/user_template.yml -- <deployment name> <version>
+./runkube.py --use-socket --with-elk  -o overlay/user_template.yml -- <deployment name> component_versions.yaml
 
 ```
 
-**deployment name** must follow the RFC 1123 : https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
+**deployment name** must follow the RFC 1123: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
 
-**version**: 
-- Use hystax/optscale git tag (eg: 2023110701-public) if you use optscale public version.
-- Use your own tag version if you build your optscale images (eg: latest).
-
-**please note**: if you use key authentication, you should have required key (id_rsa) on the machine
+**please note**: if you use key authentication, you should have the required key (id_rsa) on the machine
 
 
 #### Cluster update
 Run the following command:
 ```
-./runkube.py --with-elk  --update-only -- <deployment name>  <version>
+./runkube.py --with-elk  --update-only -- <deployment name>  component_versions.yaml
 ```
 
 #### Get IP access http(s):
@@ -218,16 +231,16 @@ sudo systemctl daemon-reload
 sudo service docker restart
 ```
 
-## Roadmap (end of Y2023)
+## Roadmap
 
-- PaaS instrumentation - usage, cost, API call, and output details to any PaaS service, simple integration with any application. Python first, then Scala and Java
-- MLFlow integration - simple integrated UI for MLFlow, MLFlow plugin to propagate run cost
-- Integration with Optuna to leverage Spot and Reserved Instances for hyperparameter tuning
-- RAM and GPU parameter support for VM rightsizing
+- Cost plugin for MLflow, WanDB, and neptune.ai
+- Integration with Optuna to optimize Reserved Instance and other hardware parameter usage
+- Model versioning
+- Better hardware selection recommendations based on usage patterns and algorithms
 
 ## Documentation
 
-Read the [full OptScale documentation](https://hystax.com/documentation/optscale/?utm_source=github&utm_medium=readme) 📖
+Read the [full OptScale documentation](https://hystax.com/documentation/optscale/) 📖
 
 ## Contributing
 
@@ -237,11 +250,11 @@ Please read and accept our [Contribution Agreement](CONTRIBUTING.md) before subm
 
 Hystax drives FinOps & MLOps methodology and has crafted a community of FinOps-related people. The community discusses FinOps & MLOps best practices, our experts offer users how-tos and technical recommendations, and provide ongoing details and updates regarding the open-source OptScale solution.
 
-You can check it out on [FinOps and MLOps in practice website](https://finopsinpractice.org/?utm_source=github&utm_medium=readme)
+You can check it out on [FinOps and MLOps in practice website](https://finopsinpractice.org/)
 
 ## Contacts
 
-Feel free to reach us with questions, feedback or ideas at info@hystax.com.
+Feel free to reach out to us with questions, feedback, or ideas at info@hystax.com.
 You can check out the latest news from Hystax at:
 
 - [LinkedIn](https://www.linkedin.com/company/hystax)
