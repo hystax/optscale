@@ -172,15 +172,19 @@ Edit file with overlay - [optscale-deploy/overlay/user_template.yml](optscale-de
 #### Cluster installation
 run the following command:
 ```
-./runkube.py --with-elk  -o overlay/user_template.yml -- <deployment name> component_versions.yaml
+./runkube.py --with-elk  -o overlay/user_template.yml -- <deployment name> <version>
 ```
 or if you want to use socket:
 ```
-./runkube.py --use-socket --with-elk  -o overlay/user_template.yml -- <deployment name> component_versions.yaml
+./runkube.py --use-socket --with-elk  -o overlay/user_template.yml -- <deployment name> <version>
 
 ```
 
 **deployment name** must follow the RFC 1123: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
+
+**version**:
+- Use hystax/optscale git tag (eg: 2023110701-public) if you use optscale public version.
+- Use your own tag version if you build your optscale images (eg: latest).
 
 **please note**: if you use key authentication, you should have the required key (id_rsa) on the machine
 
@@ -188,7 +192,7 @@ or if you want to use socket:
 #### Cluster update
 Run the following command:
 ```
-./runkube.py --with-elk  --update-only -- <deployment name>  component_versions.yaml
+./runkube.py --with-elk  --update-only -- <deployment name>  <version>
 ```
 
 #### Get IP access http(s):
