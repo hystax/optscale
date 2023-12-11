@@ -16,7 +16,7 @@ from diworker.diworker.importers.base import CSVBaseReportImporter
 import pyarrow.parquet as pq
 
 LOG = logging.getLogger(__name__)
-CHUNK_SIZE = 500
+CHUNK_SIZE = 200
 GZIP_ENDING = '.gz'
 IGNORE_EXPENSE_TYPES = ['Credit']
 tag_prefixes = ['resource_tags_aws_', 'resource_tags_user_']
@@ -282,6 +282,8 @@ class AWSReportImporter(CSVBaseReportImporter):
                 start_date = self._datetime_from_expense(
                     row, 'lineItem/UsageStartDate').replace(
                     hour=0, minute=0, second=0)
+                if start_date < self.min_date_import_threshold:
+                    continue
                 row['start_date'] = start_date
                 row['end_date'] = self._datetime_from_expense(
                     row, 'lineItem/UsageEndDate')
@@ -334,6 +336,9 @@ class AWSReportImporter(CSVBaseReportImporter):
                     elif field_name == 'lineItem/UsageStartDate':
                         start_date = self._datetime_from_value(value).replace(
                             hour=0, minute=0, second=0)
+                        if start_date < self.min_date_import_threshold:
+                            skipped_rows.add(expense_num)
+                            continue
                         chunk[expense_num]['start_date'] = start_date
                     elif field_name == 'lineItem/UsageEndDate':
                         chunk[expense_num]['end_date'] = self._datetime_from_value(
@@ -620,6 +625,7 @@ class AWSReportImporter(CSVBaseReportImporter):
         filters = {
             'cloud_account_id': cloud_account_id,
             'resource_id': {'$exists': True, '$ne': None},
+            'start_date': {'$gte': self.min_date_import_threshold}
         }
         if billing_period:
             filters['bill/BillingPeriodStartDate'] = billing_period
@@ -641,9 +647,11 @@ class AWSReportImporter(CSVBaseReportImporter):
                 {'$project': {"root": 0}}
             ], allowDiskUse=True)
 
-    @staticmethod
-    def _get_billing_period_filters(billing_period):
-        return {'bill/BillingPeriodStartDate': billing_period}
+    def _get_billing_period_filters(self, billing_period):
+        return {
+            'bill/BillingPeriodStartDate': billing_period,
+            'start_date': {'$gte': self.min_date_import_threshold}
+        }
 
     @staticmethod
     def set_raw_chunk(expenses):

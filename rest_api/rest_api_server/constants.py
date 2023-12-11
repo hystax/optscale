@@ -183,6 +183,12 @@ class UrlsV2(Urls):
         'geminis': r"%s/geminis/(?P<gemini_id>["r"^/]+)",
         'geminis_data': r"%s/geminis/(?P<gemini_id>["r"^/]+)/data",
         'disconnect_survey': r"%s/organizations/(?P<organization_id>["r"^/]+)/disconnect_survey",
+        'power_schedules_collection':
+            r"%s/organizations/(?P<organization_id>[^/]+)/power_schedules",
+        'power_schedules':
+            r"%s/power_schedules/(?P<power_schedule_id>["r"^/]+)",
+        'power_schedules_actions':
+            r"%s/power_schedules/(?P<power_schedule_id>["r"^/]+)/actions",
     })
 
 

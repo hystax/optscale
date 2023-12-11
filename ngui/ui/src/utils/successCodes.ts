@@ -7,7 +7,9 @@ import {
   UPLOAD_CODE_REPORT,
   UPDATE_ORGANIZATION_OPTION,
   UPDATE_OPTIMIZATION_OPTIONS,
-  STOP_ML_RUNSET
+  STOP_ML_RUNSET,
+  ATTACH_INSTANCES_TO_SCHEDULE,
+  REMOVE_INSTANCES_FROM_SCHEDULE
 } from "api/restapi/actionTypes";
 import { ALERT_SEVERITY } from "./constants";
 
@@ -51,6 +53,24 @@ const labelToSuccessSettingsMap = Object.freeze({
   },
   [STOP_ML_RUNSET]: {
     code: "FE0011"
+  },
+  [ATTACH_INSTANCES_TO_SCHEDULE]: {
+    code: "FE0012",
+    getSeverity: (_, response) => (response.data?.succeeded?.length === 0 ? ALERT_SEVERITY.ERROR : ALERT_SEVERITY.SUCCESS),
+    getMessageParams: (_, response) => {
+      const successfullyAttachedResourcedCount = response.data?.succeeded?.length ?? 0;
+      const unsuccessfullyAttachedResourcedCount = response.data?.failed?.length ?? 0;
+      return [successfullyAttachedResourcedCount, successfullyAttachedResourcedCount + unsuccessfullyAttachedResourcedCount];
+    }
+  },
+  [REMOVE_INSTANCES_FROM_SCHEDULE]: {
+    code: "FE0013",
+    getSeverity: (_, response) => (response.data?.succeeded?.length === 0 ? ALERT_SEVERITY.ERROR : ALERT_SEVERITY.SUCCESS),
+    getMessageParams: (_, response) => {
+      const successfullyRemovedResourcedCount = response.data?.succeeded?.length ?? 0;
+      const unsuccessfullyRemovedResourcedCount = response.data?.failed?.length ?? 0;
+      return [successfullyRemovedResourcedCount, successfullyRemovedResourcedCount + unsuccessfullyRemovedResourcedCount];
+    }
   }
 });
 

@@ -18,7 +18,7 @@ import tools.cloud_adapter.exceptions
 import tools.cloud_adapter.model
 from tools.cloud_adapter.clouds.base import CloudBase
 from tools.cloud_adapter.exceptions import (
-    RegionNotFoundException,
+    RegionNotFoundException, ResourceNotFound
 )
 from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
@@ -295,6 +295,7 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
         )
         spotted = cloud_instance.scheduling.provisioning_model == "SPOT"
         network_id, network_name = self._extract_network()
+        zone_id = self._last_path_element(self._cloud_object.zone)
 
         super().__init__(
             **self._common_fields,
@@ -306,6 +307,7 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
             cloud_created_at=cloud_created_at,
             vpc_id=network_id,
             vpc_name=network_name,
+            zone_id=zone_id
         )
 
     def _new_labels_request(self, key, value):
@@ -1463,3 +1465,25 @@ class Gcp(CloudBase):
         if locations is None:
             raise RegionNotFoundException(f"Region `{region}` was not found in cloud")
         return locations
+
+    def start_instance(self, instance_name, zone):
+        try:
+            self.compute_instances_client.start(
+                project=self.project_id,
+                zone=zone,
+                instance=instance_name,
+                **DEFAULT_KWARGS,
+            )
+        except api_exceptions.NotFound as exc:
+            raise ResourceNotFound(str(exc))
+
+    def stop_instance(self, instance_name, zone):
+        try:
+            self.compute_instances_client.stop(
+                project=self.project_id,
+                zone=zone,
+                instance=instance_name,
+                **DEFAULT_KWARGS,
+            )
+        except api_exceptions.NotFound as exc:
+            raise ResourceNotFound(str(exc))

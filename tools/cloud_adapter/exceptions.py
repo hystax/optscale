@@ -72,3 +72,7 @@ class MetricsNotFoundException(ResourceNotFound):
 
 class MetricsServerTimeoutException(ResourceNotFound):
     pass
+
+
+class InvalidResourceStateException(CloudAdapterBaseException):
+    pass

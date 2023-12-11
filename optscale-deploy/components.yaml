@@ -59,3 +59,4 @@ users_dataset_generator:
 webhook_executor:
 gemini_scheduler:
 gemini_worker:
+power_schedule:

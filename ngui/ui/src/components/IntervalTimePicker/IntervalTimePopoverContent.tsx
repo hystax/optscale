@@ -24,7 +24,8 @@ const IntervalTimePopoverContent = ({
   initialDate = +new Date(),
   minDate,
   maxDate,
-  intervalMinutes = AMOUNT_30_MINUTES
+  intervalMinutes = AMOUNT_30_MINUTES,
+  withTimePicker = false
 }) => {
   const { classes, cx } = useStyles();
   const today = new Date();
@@ -120,10 +121,14 @@ const IntervalTimePopoverContent = ({
           />
         </Grid>
       </Grid>
-      <div className={classes.divider} />
-      <span className={cx(classes.wrapper, classes.selectors)}>
-        <IntervalTimeSelectors value={date} setValue={onTimeClickHandler} stepMinutes={intervalMinutes} />
-      </span>
+      {withTimePicker && (
+        <>
+          <div className={classes.divider} />
+          <span className={cx(classes.wrapper, classes.selectors)}>
+            <IntervalTimeSelectors value={date} setValue={onTimeClickHandler} stepMinutes={intervalMinutes} />
+          </span>
+        </>
+      )}
     </Grid>
   ) : null;
 };

@@ -114,6 +114,8 @@ class NebiusReportImporter(CSVBaseReportImporter):
 
                 self.detected_cloud_accounts.add(cloud_account_id)
                 date = self._datetime_from_expense(row, 'date')
+                if date < self.min_date_import_threshold:
+                    continue
                 row['start_date'] = date.replace(
                     hour=0, minute=0, second=0, microsecond=0)
                 row['end_date'] = date.replace(
@@ -140,7 +142,10 @@ class NebiusReportImporter(CSVBaseReportImporter):
         return tags
 
     def get_resource_ids(self, cloud_account_id, billing_period):
-        base_filters = {'cloud_account_id': cloud_account_id}
+        base_filters = {
+            'cloud_account_id': cloud_account_id,
+            'start_date': {'$gte': self.min_date_import_threshold}
+        }
         if billing_period:
             base_filters['date'] = billing_period
         resource_ids = self.mongo_raw.aggregate([
@@ -149,9 +154,11 @@ class NebiusReportImporter(CSVBaseReportImporter):
         ], allowDiskUse=True)
         return [x['_id'] for x in resource_ids]
 
-    @staticmethod
-    def _get_billing_period_filters(billing_period):
-        return {'date': billing_period}
+    def _get_billing_period_filters(self, billing_period):
+        return {
+            'date': billing_period,
+            'start_date': {'$gte': self.min_date_import_threshold}
+        }
 
     def get_resource_type(self, expense):
         sku_name = expense['sku_name']

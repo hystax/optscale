@@ -53,6 +53,7 @@ const EditResourceConstraintFormTtlLimitInput = ({ name, defaultValue }) => {
               item: "btn_ttl"
             }
           }}
+          withTimePicker
         />
       )}
     />

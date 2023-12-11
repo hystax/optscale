@@ -32,6 +32,8 @@ from aliyunsdkecs.request.v20140526 import (
     DescribeSnapshotLinksRequest,
     DescribeSnapshotsRequest,
     DescribeVpcsRequest,
+    StartInstancesRequest,
+    StopInstancesRequest
 )
 from aliyunsdkvpc.request.v20160428 import DescribeEipAddressesRequest
 from aliyunsdkram.request.v20150501 import (
@@ -54,6 +56,8 @@ from tools.cloud_adapter.exceptions import (
     InvalidParameterException,
     RegionNotFoundException,
     PricingNotFoundException,
+    ResourceNotFound,
+    InvalidResourceStateException
 )
 from tools.cloud_adapter.clouds.base import CloudBase
 from tools.cloud_adapter.model import (
@@ -1161,3 +1165,31 @@ class Alibaba(CloudBase):
 
     def set_currency(self, currency):
         self._currency = currency
+
+    def start_instance(self, instance_ids, region_id):
+        request = StartInstancesRequest.StartInstancesRequest()
+        request.set_InstanceIds(instance_ids)
+        try:
+            return self._send_request(
+                request, region_id=self._find_region(region_id))
+        except ServerException as exc:
+            if 'InvalidInstanceId' in exc.error_code:
+                raise ResourceNotFound(str(exc))
+            elif 'IncorrectInstanceStatus' in exc.error_code:
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise
+
+    def stop_instance(self, instance_ids, region_id):
+        request = StopInstancesRequest.StopInstancesRequest()
+        request.set_InstanceIds(instance_ids)
+        try:
+            return self._send_request(
+                request, region_id=self._find_region(region_id))
+        except ServerException as exc:
+            if 'InvalidInstanceId' in exc.error_code:
+                raise ResourceNotFound(str(exc))
+            elif 'IncorrectInstanceStatus' in exc.error_code:
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise

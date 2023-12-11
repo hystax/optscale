@@ -1,12 +1,13 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { getCleanExpenses } from "api";
+import { RESTAPI, getCleanExpenses } from "api";
 import { GET_CLEAN_EXPENSES } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useInScopeOfPageMockup } from "hooks/useInScopeOfPageMockup";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { MOCKED_ORGANIZATION_POOL_ID } from "stories";
+import { isError } from "utils/api";
 import { START_DATE_FILTER, END_DATE_FILTER } from "utils/constants";
 import { mapAvailableFilterKeys } from "./AvailableFiltersService";
 
@@ -242,8 +243,34 @@ export const useGet = ({ params = {} } = {}) => {
   return { isLoading, data: inScopeOfPageMockup ? mockedData : data };
 };
 
+const useGetOnDemand = () => {
+  const dispatch = useDispatch();
+  const { organizationId } = useOrganizationInfo();
+  const { apiData: data } = useApiData(GET_CLEAN_EXPENSES);
+
+  const { isLoading } = useApiState(GET_CLEAN_EXPENSES);
+
+  const getData = useCallback(
+    (params) =>
+      new Promise((resolve, reject) => {
+        dispatch((_, getState) => {
+          dispatch(getCleanExpenses(organizationId, mapCleanExpensesRequestParamsToApiParams(params))).then(() => {
+            if (!isError(GET_CLEAN_EXPENSES, getState())) {
+              const apiData = getState()?.[RESTAPI]?.[GET_CLEAN_EXPENSES];
+              return resolve(apiData);
+            }
+            return reject();
+          });
+        });
+      }),
+    [dispatch, organizationId]
+  );
+
+  return { isLoading, data, getData };
+};
+
 function CleanExpensesService() {
-  return { useGet };
+  return { useGet, useGetOnDemand };
 }
 
 export default CleanExpensesService;

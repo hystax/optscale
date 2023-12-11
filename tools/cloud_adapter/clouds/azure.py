@@ -1249,3 +1249,23 @@ class Azure(CloudBase):
 
     def set_currency(self, currency):
         self._currency = currency
+
+    def start_instance(self, instance_name, group_name):
+        try:
+            return self.compute.virtual_machines.start(
+                group_name, instance_name)
+        except CloudError as exc:
+            if exc.error.error == 'ResourceNotFound':
+                raise ResourceNotFound(str(exc))
+            else:
+                raise
+
+    def stop_instance(self, instance_name, group_name):
+        try:
+            return self.compute.virtual_machines.deallocate(
+                group_name, instance_name)
+        except CloudError as exc:
+            if exc.error.error == 'ResourceNotFound':
+                raise ResourceNotFound(str(exc))
+            else:
+                raise

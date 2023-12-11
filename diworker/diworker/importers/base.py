@@ -4,6 +4,7 @@ import os
 import requests
 import shutil
 import uuid
+from functools import cached_property
 
 from collections import defaultdict
 from pymongo import UpdateOne
@@ -16,6 +17,7 @@ from diworker.diworker.utils import retry_mongo_upsert, get_month_start
 
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200
+CSV_REWRITE_DAYS = 5
 
 
 class BaseReportImporter:
@@ -354,8 +356,7 @@ class BaseReportImporter:
                 }},
             ], allowDiskUse=True)
 
-    @staticmethod
-    def _get_billing_period_filters(period_start):
+    def _get_billing_period_filters(self, period_start):
         return {'start_date': {'$gte': period_start}}
 
     def _generate_clean_records(self, resource_ids, cloud_account_id,
@@ -596,6 +597,14 @@ class CSVBaseReportImporter(BaseReportImporter):
         self.report_files = defaultdict(list)
         self.last_import_modified_at = self.cloud_acc.get(
             'last_import_modified_at', 0)
+
+    @cached_property
+    def min_date_import_threshold(self) -> datetime:
+        last_import_dt = datetime.fromtimestamp(
+            self.cloud_acc.get('last_import_modified_at', 0), tz=timezone.utc)
+        return last_import_dt.replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) - timedelta(days=CSV_REWRITE_DAYS)
 
     def detect_period_start(self):
         pass

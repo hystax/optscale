@@ -49,6 +49,7 @@ const Selector = forwardRef(
       readOnly,
       shrinkLabel = undefined,
       sx,
+      margin,
       ...rest
     },
     ref
@@ -166,6 +167,7 @@ const Selector = forwardRef(
           className={formControlClasses}
           error={error}
           sx={memoizedPatchedSx}
+          margin={margin}
         >
           {label && (
             <InputLabel shrink={shrinkLabel} id={`${labelId}-selector-label`} required={required}>

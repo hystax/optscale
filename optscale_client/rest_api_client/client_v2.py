@@ -1927,3 +1927,36 @@ class Client(Client_v1):
             "payload": payload
         }
         return self.post(self.disconnect_survey_url(organization_id=organization_id), body)
+
+    @staticmethod
+    def power_schedules_url(id_=None, organization_id=None):
+        url = 'power_schedules'
+        if id_ is not None:
+            url = '%s/%s' % (url, id_)
+        if organization_id is not None:
+            url = '%s/%s' % (Client.organization_url(organization_id), url)
+        return url
+
+    def power_schedules_actions_url(self, id_):
+        return '%s/actions' % self.power_schedules_url(id_=id_)
+
+    def power_schedule_list(self, organization_id=None):
+        return self.get(
+            self.power_schedules_url(organization_id=organization_id))
+
+    def power_schedule_create(self, organization_id, params):
+        return self.post(
+            self.power_schedules_url(organization_id=organization_id), params)
+
+    def power_schedule_get(self, id_):
+        return self.get(self.power_schedules_url(id_=id_))
+
+    def power_schedule_update(self, id_, params):
+        return self.patch(self.power_schedules_url(id_=id_), params)
+
+    def power_schedule_delete(self, id_):
+        return self.delete(self.power_schedules_url(id_=id_))
+
+    def power_schedule_actions(self, id_, params):
+        url = self.power_schedules_actions_url(id_=id_)
+        return self.post(url, params)

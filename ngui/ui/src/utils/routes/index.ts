@@ -21,6 +21,7 @@ import createEnvironmentRoute from "./createEnvironmentRoute";
 import createMlModelParameterRoute from "./createMlModelParameterRoute";
 import createPoolAssignmentRuleRoute from "./createPoolAssignmentRuleRoute";
 import createPoolPolicyRoute from "./createPoolPolicyRoute";
+import createPowerScheduleRoute from "./createPowerScheduleRoute";
 import createQuotaAndBudgetPolicyRoute from "./createQuotaAndBudgetPolicyRoute";
 import createResourceAssignmentRuleRoute from "./createResourceAssignmentRuleRoute";
 import createTaggingPolicyRoute from "./createTaggingPolicyRoute";
@@ -62,6 +63,8 @@ import ownerExpensesRoute from "./ownerExpensesRoute";
 import poolExpensesRoute from "./poolExpensesRoute";
 import poolsRoute from "./poolsRoute";
 import poolTtlAnalysisRoute from "./poolTtlAnalysisRoute";
+import powerScheduleDetailsRoute from "./powerScheduleDetailsRoute";
+import powerSchedulesRoute from "./powerSchedulesRoute";
 import quotaRoute from "./quotaRoute";
 import quotasRoute from "./quotasRoute";
 import recommendationsRoute from "./recommendationsRoute";
@@ -162,7 +165,10 @@ export const routes = [
   editBIExportRoute,
   cloudCostComparisonRoute,
   s3DuplicateFinderRoute,
-  s3DuplicatesCheckRoute
+  s3DuplicatesCheckRoute,
+  powerSchedulesRoute,
+  createPowerScheduleRoute,
+  powerScheduleDetailsRoute
 ];
 
 export default BaseRoute;

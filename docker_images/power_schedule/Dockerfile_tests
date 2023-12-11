@@ -1,0 +1,9 @@
+ARG BUILDTAG=build
+FROM power_schedule:${BUILDTAG}
+
+COPY docker_images/power_schedule/test-requirements.txt .
+RUN pip install --no-cache-dir -r test-requirements.txt
+COPY docker_images/power_schedule/tests/*.py docker_images/power_schedule/tests/
+COPY docker_images/power_schedule/run_test.sh docker_images/power_schedule/run_test.sh
+
+WORKDIR /usr/src/app/

@@ -14,6 +14,7 @@ import k8sRightsizing from "./k8sRightsizingMenuItem";
 import mlModels from "./mlModelMenuItem";
 import mlRunsets from "./mlRunsetsMenuItem";
 import pools from "./poolsMenuItem";
+import powerSchedulesMenuItem from "./powerSchedulesMenuItem";
 import quotas from "./quotasMenuItem";
 import recommendationsArchive from "./recommendationsArchiveMenuItem";
 import recommendations from "./recommendationsMenuItem";
@@ -41,7 +42,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.POLICIES,
     menuSectionTitle: <MainMenuSectionTitle messageId="policies" />,
-    items: [anomalies, quotas, taggingPolicies, resourceLifecycle]
+    items: [anomalies, quotas, taggingPolicies, resourceLifecycle, powerSchedulesMenuItem]
   },
   {
     id: MAIN_MENU_SECTION_IDS.SANDBOX,

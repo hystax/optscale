@@ -1323,3 +1323,27 @@ class Aws(S3CloudMixin):
 
     def set_currency(self, currency):
         pass
+
+    def start_instance(self, instance_ids: list, region):
+        ec2 = self.session.client('ec2', region)
+        try:
+            return ec2.start_instances(InstanceIds=instance_ids)
+        except ClientError as exc:
+            if 'InvalidInstanceID' in exc.response['Error']['Code']:
+                raise ResourceNotFound(str(exc))
+            elif 'IncorrectInstanceState' in str(exc):
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise
+
+    def stop_instance(self, instance_ids: list, region):
+        ec2 = self.session.client('ec2', region)
+        try:
+            return ec2.stop_instances(InstanceIds=instance_ids)
+        except ClientError as exc:
+            if 'InvalidInstanceID' in str(exc):
+                raise ResourceNotFound(str(exc))
+            elif 'IncorrectInstanceState' in str(exc):
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise

@@ -11,7 +11,6 @@ import CloudLabel from "components/CloudLabel";
 import ExpenseCell from "components/ExpenseCell";
 import ExpensesTableHeader from "components/ExpensesTableHeader";
 import KeyValueLabel from "components/KeyValueLabel";
-import PoolLabel from "components/PoolLabel";
 import ResourceCell from "components/ResourceCell";
 import ResourcePaidNetworkTrafficList from "components/ResourcePaidNetworkTrafficList";
 import ResourceTypeLabel from "components/ResourceTypeLabel";
@@ -21,6 +20,7 @@ import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
 import { getCreateAssignmentRuleUrl } from "urls";
+import { resourcePoolOwner, tags } from "utils/columns";
 import { CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX, DOWNLOAD_FILE_FORMATS } from "utils/constants";
 import { MetadataNodes } from "utils/metadata";
 import { RESOURCE_ID_COLUMN_CELL_STYLE } from "utils/tables";
@@ -130,33 +130,34 @@ const CleanExpensesTable = ({
           return <CollapsableTableCell maxRows={5} tags={metadataTags} sorted={false} limit={33} />;
         }
       },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_pool_owner">
-            <FormattedMessage id="pool/owner" />
-          </TextWithDataTestId>
-        ),
+      resourcePoolOwner({
+        accessorKey: "pool/owner",
         columnSelector: {
           accessor: "pool/owner",
           messageId: "pool/owner",
           dataTestId: "btn_toggle_column_pool_owner"
         },
-        accessorKey: "pool/owner",
-        style: {
-          whiteSpace: "nowrap"
+        getOwner: (rowOriginal) => {
+          const { owner } = rowOriginal;
+
+          return owner
+            ? {
+                name: owner.name
+              }
+            : undefined;
         },
-        cell: ({
-          row: {
-            original: { pool, owner },
-            id
-          }
-        }) =>
-          pool || owner ? (
-            <CaptionedCell caption={owner ? owner.name : ""}>
-              {pool && <PoolLabel dataTestId={`resource_pool_${id}`} id={pool.id} name={pool.name} type={pool.purpose} />}
-            </CaptionedCell>
-          ) : null
-      },
+        getPool: (rowOriginal) => {
+          const { pool } = rowOriginal;
+
+          return pool
+            ? {
+                id: pool.id,
+                name: pool.name,
+                purpose: pool.purpose
+              }
+            : undefined;
+        }
+      }),
       {
         header: (
           <TextWithDataTestId dataTestId="lbl_type">
@@ -216,25 +217,15 @@ const CleanExpensesTable = ({
           );
         }
       },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_tags">
-            <FormattedMessage id="tags" />
-          </TextWithDataTestId>
-        ),
+      tags({
+        accessorKey: "tagsString",
+        getTags: (rowOriginal) => rowOriginal.tags ?? {},
         columnSelector: {
           accessor: "tags",
           messageId: "tags",
           dataTestId: "btn_toggle_column_tags"
-        },
-        accessorKey: "tagsString",
-        enableSorting: false,
-        cell: ({
-          row: {
-            original: { tags = {} }
-          }
-        }) => <CollapsableTableCell maxRows={5} tags={tags} />
-      }
+        }
+      })
     ],
     [endDateTimestamp, startDateTimestamp]
   );

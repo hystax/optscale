@@ -12,6 +12,7 @@ import expenses from "./expenses";
 import firstSeen from "./firstSeen";
 import firstSeenOn from "./firstSeenOn";
 import formattedNumber from "./formattedNumber";
+import formattedTime from "./formattedTime";
 import goals from "./goals";
 import goalValue from "./goalValue";
 import lastSeenUsed from "./lastSeenUsed";
@@ -34,15 +35,21 @@ import poolAndOwner from "./poolAndOwner";
 import poolOwner from "./poolOwner";
 import possibleMonthlySavings from "./possibleMonthlySavings";
 import possibleShutdownPeriods from "./possibleShutdownPeriods";
+import powerScheduleInstance from "./powerScheduleInstance";
+import powerScheduleLastRun from "./powerScheduleLastRun";
+import powerScheduleName from "./powerScheduleName";
+import powerScheduleValidityPeriod from "./powerScheduleValidityPeriod";
 import recommendedRightsizingSize from "./recommendedRightsizingSize";
 import recommendedSize from "./recommendedSize";
 import resource from "./resource";
 import resourceLocation from "./resourceLocation";
+import resourcePoolOwner from "./resourcePoolOwner";
 import resourceType from "./resourceType";
 import rightsizingSize from "./rightsizingSize";
 import savings from "./savings";
 import size from "./size";
 import startedAt from "./startedAt";
+import tags from "./tags";
 import tendency from "./tendency";
 import text from "./text";
 import usage from "./usage";
@@ -97,5 +104,12 @@ export {
   biExportLastSuccessfulExport,
   biExportTargetStorage,
   dataSource,
-  usage
+  usage,
+  resourcePoolOwner,
+  tags,
+  formattedTime,
+  powerScheduleValidityPeriod,
+  powerScheduleInstance,
+  powerScheduleName,
+  powerScheduleLastRun
 };

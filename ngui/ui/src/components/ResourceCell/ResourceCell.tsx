@@ -1,11 +1,13 @@
-import PriorityHighOutlinedIcon from "@mui/icons-material/PriorityHighOutlined";
+import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
+import { Box } from "@mui/material";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
-import CircleLabel from "components/CircleLabel";
+import Circle from "components/Circle";
 import IconLabel from "components/IconLabel";
+import OnScheduleLabel from "components/OnScheduleLabel";
 import ResourceLabel from "components/ResourceLabel";
 import ResourceName from "components/ResourceName";
 import { getResourceUrl } from "urls";
@@ -16,7 +18,8 @@ const getCaptionedCellProps = ({
   resourceId,
   cloudResourceIdentifier,
   showIsActive,
-  showIsConstraintViolated
+  showIsConstraintViolated,
+  powerScheduleId
 }) => {
   const resourceNameString = resourceName ?? "";
 
@@ -27,36 +30,44 @@ const getCaptionedCellProps = ({
       show: resourceNameString !== cloudResourceIdentifier
     },
     {
-      key: `isActive-${resourceId}`,
+      key: `statuses-${resourceId}`,
       node: (
-        <CircleLabel
-          figureColor="success"
-          label={
-            <Typography variant="caption">
-              <FormattedMessage id="active" />
-            </Typography>
-          }
-          textFirst={false}
-        />
+        <Box display="flex" gap={1}>
+          {showIsActive && (
+            <IconLabel
+              icon={<Circle color="success" mr={0.5} />}
+              label={
+                <Typography variant="caption" noWrap>
+                  <FormattedMessage id="active" />
+                </Typography>
+              }
+            />
+          )}
+          {powerScheduleId && <OnScheduleLabel powerScheduleId={powerScheduleId} />}
+          {showIsConstraintViolated && (
+            <IconLabel
+              icon={
+                <ErrorOutlineOutlinedIcon
+                  fontSize="inherit"
+                  color="error"
+                  sx={{
+                    mr: 0.5
+                  }}
+                />
+              }
+              label={
+                <Link to={`${getResourceUrl(resourceId)}?tab=constraints`} component={RouterLink}>
+                  <Typography variant="caption">
+                    <FormattedMessage id="constraintViolations" />
+                  </Typography>
+                </Link>
+              }
+              component={RouterLink}
+            />
+          )}
+        </Box>
       ),
-      show: showIsActive
-    },
-    {
-      key: `isConstraintViolated-${resourceId}`,
-      node: (
-        <IconLabel
-          icon={<PriorityHighOutlinedIcon fontSize="inherit" color="error" />}
-          label={
-            <Link to={`${getResourceUrl(resourceId)}?tab=constraints`} component={RouterLink}>
-              <Typography variant="caption">
-                <FormattedMessage id="constraintViolations" />
-              </Typography>
-            </Link>
-          }
-          component={RouterLink}
-        />
-      ),
-      show: showIsConstraintViolated
+      show: showIsActive || powerScheduleId || showIsConstraintViolated
     }
   ].filter(({ show }) => Boolean(show));
 
@@ -68,7 +79,8 @@ const ResourceCell = ({ rowData, disableActivityIcon, disableConstraintViolation
     resource_id: resourceId,
     resource_name: resourceName,
     active: isActive = false,
-    constraint_violated: isConstraintViolated = false
+    constraint_violated: isConstraintViolated = false,
+    power_schedule: powerScheduleId
   } = rowData;
 
   const { labelIds: labelDataTestIds } = dataTestIds;
@@ -80,7 +92,8 @@ const ResourceCell = ({ rowData, disableActivityIcon, disableConstraintViolation
         resourceId,
         cloudResourceIdentifier: getCloudResourceIdentifier(rowData),
         showIsActive: isActive && !disableActivityIcon,
-        showIsConstraintViolated: isConstraintViolated && !disableConstraintViolationIcon
+        showIsConstraintViolated: isConstraintViolated && !disableConstraintViolationIcon,
+        powerScheduleId
       })}
     >
       <ResourceLabel

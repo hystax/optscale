@@ -898,6 +898,16 @@ live_demo_generator:
   startingDeadlineSeconds: 100
   schedule: "0 * * * *"
 
+power_schedule:
+  name: power-schedule
+  replicaCount: 1 # amount of workers
+  image:
+    repository: power_schedule
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
 # list of databases to create (if not exist) during DC initialization
 databases:
   - auth-db

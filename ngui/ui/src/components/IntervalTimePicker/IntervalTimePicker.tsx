@@ -133,6 +133,7 @@ const Field = ({
 };
 
 const IntervalTimePicker = ({
+  name,
   value,
   onApply,
   validation = {},
@@ -146,7 +147,8 @@ const IntervalTimePicker = ({
   required = false,
   quickValues,
   intervalMinutes = AMOUNT_30_MINUTES,
-  dataTestIds = {}
+  dataTestIds = {},
+  withTimePicker = false
 }) => {
   const intl = useIntl();
 
@@ -173,9 +175,10 @@ const IntervalTimePicker = ({
         minDate={minDate}
         maxDate={maxDate}
         intervalMinutes={intervalMinutes}
+        withTimePicker={withTimePicker}
       />
     ),
-    [value, setIntermediateValue, minDate, maxDate, intervalMinutes]
+    [value, setIntermediateValue, minDate, maxDate, intervalMinutes, withTimePicker]
   );
 
   const onApplyHandler = () => {
@@ -195,6 +198,7 @@ const IntervalTimePicker = ({
       }}
     >
       <Field
+        name={name}
         labelMessageId={labelMessageId}
         validation={validation}
         value={displayedValue}

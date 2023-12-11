@@ -1,7 +1,7 @@
 import logging
 from collections import OrderedDict
 from datetime import datetime, timedelta
-
+from requests import HTTPError
 from optscale_client.insider_client.client import Client as InsiderClient
 
 from bumiworker.bumiworker.modules.base import ModuleBase
@@ -114,8 +114,12 @@ class ReservedInstancesBase(ModuleBase):
 
         for offer_key in offer_keys:
             params = self._offer_key_to_insider_params(offer_key)
-            _, offerings = self.insider_cl.find_reserved_instances_offerings(
-                **params)
+            try:
+                _, offerings = self.insider_cl.find_reserved_instances_offerings(
+                    **params)
+            except HTTPError:
+                LOG.warning('Offer %s not found' % str(offer_key))
+                continue
             insider_offerings[offer_key] = offerings
 
         for resource_id in resource_id_keys_map:
@@ -123,6 +127,8 @@ class ReservedInstancesBase(ModuleBase):
             res_flavor_key, res_offer_key = resource_id_keys_map[resource_id]
             raw_info = raw_expenses_map[resource_id]
             res_insider_offers = insider_offerings.get(res_offer_key)
+            if not res_insider_offers:
+                continue
             offer_1_monthly_cost, offer_2_monthly_cost = self.get_offers_monthly_costs(
                 res_insider_offers, instance)
             if offer_1_monthly_cost is None or offer_2_monthly_cost is None:

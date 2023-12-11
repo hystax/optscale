@@ -463,6 +463,16 @@ export const S3_DUPLICATE_FINDER_CHECK = concatenateUrl([
 ]);
 export const getS3DuplicateFinderCheck = (id) => S3_DUPLICATE_FINDER_CHECK.replace(S3_DUPLICATE_FINDER_CHECK_IDENTIFIER, id);
 
+// Instances Schedules
+const POWER_SCHEDULES_BASE = "power-schedules";
+const POWER_SCHEDULE_IDENTIFIER = ":powerScheduleId";
+
+export const POWER_SCHEDULES = concatenateUrl([POWER_SCHEDULES_BASE]);
+export const POWER_SCHEDULE_DETAILS = concatenateUrl([POWER_SCHEDULES_BASE, POWER_SCHEDULE_IDENTIFIER]);
+export const CREATE_POWER_SCHEDULE = concatenateUrl([POWER_SCHEDULES_BASE, CREATE]);
+
+export const getPowerScheduleDetailsUrl = (id) => POWER_SCHEDULE_DETAILS.replace(POWER_SCHEDULE_IDENTIFIER, id);
+
 // External urls
 export const PRODUCTION = "https://my.optscale.com";
 export const DEMO = "https://demo.optscale.com";

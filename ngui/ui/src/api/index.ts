@@ -191,7 +191,14 @@ import {
   getGemini,
   getS3DuplicatesOrganizationSettings,
   updateOrganizationThemeSettings,
-  createSurvey
+  createSurvey,
+  getPowerSchedules,
+  createPowerSchedule,
+  getPowerSchedule,
+  deletePowerSchedule,
+  updatePowerSchedule,
+  attachInstancesToSchedule,
+  removeInstancesFromSchedule
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
@@ -392,7 +399,14 @@ export {
   getGemini,
   getS3DuplicatesOrganizationSettings,
   updateOrganizationThemeSettings,
-  createSurvey
+  createSurvey,
+  getPowerSchedules,
+  createPowerSchedule,
+  getPowerSchedule,
+  deletePowerSchedule,
+  updatePowerSchedule,
+  attachInstancesToSchedule,
+  removeInstancesFromSchedule
 };
 
 export { RESTAPI, AUTH, KEEPER, SLACKER, JIRA_BUS };
