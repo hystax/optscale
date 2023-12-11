@@ -87,7 +87,7 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 |     <img src="documentation/images/ML-Tasks.png" width="500">              |<img src="documentation/images/ML-Leaderboards.png" width="500">  |
 
 
-|                             Experiment tracking                            |                       Arcee setup instructions                   |
+|                             Experiment tracking                            |                  ML model profiling integration                  |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
 |     <img src="documentation/images/Experiment-tracking.png" width="500">   |     <img src="documentation/images/Arcee.png" width="500">       |
                                                                                                                       
