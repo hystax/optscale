@@ -7,7 +7,7 @@ from rest_api.rest_api_server.exceptions import Err
 from tools.optscale_exceptions.common_exc import ConflictException
 from rest_api.rest_api_server.models.enums import ConstraintTypes
 from rest_api.rest_api_server.models.models import (
-    PoolPolicy, Pool, ResourceConstraint, Organization)
+    PoolPolicy, Pool, ResourceConstraint)
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.controllers.constraint_base import ConstraintBaseController
 from rest_api.rest_api_server.utils import check_int_attribute

@@ -2,19 +2,15 @@ import logging
 import uuid
 import datetime
 
-import requests
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import and_
-from optscale_client.herald_client.client_v2 import Client as HeraldClient
-from optscale_client.auth_client.client_v2 import Client as AuthClient
 from tools.optscale_exceptions.common_exc import (NotFoundException,
-                                                  WrongArgumentsException,
-                                                  HeraldException)
+                                                  WrongArgumentsException)
 from rest_api.rest_api_server.controllers.pool import PoolController
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import ThresholdTypes, ThresholdBasedTypes
 from rest_api.rest_api_server.models.models import (PoolAlert, Pool, AlertContact,
-                                                    Organization, Employee)
+                                                    Organization)
 from rest_api.rest_api_server.controllers.base import (BaseController,
                                                        BaseHierarchicalController)
 from rest_api.rest_api_server.controllers.employee import EmployeeController

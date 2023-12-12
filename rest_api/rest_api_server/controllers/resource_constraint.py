@@ -1,6 +1,5 @@
 import logging
-from datetime import datetime, time, timedelta
-from collections import defaultdict
+from datetime import datetime
 
 from sqlalchemy.sql import and_
 from rest_api.rest_api_server.exceptions import Err

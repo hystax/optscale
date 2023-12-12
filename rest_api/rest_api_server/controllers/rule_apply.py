@@ -2,7 +2,7 @@ import json
 import logging
 from copy import copy
 
-from pymongo import UpdateOne, UpdateMany
+from pymongo import UpdateOne
 from sqlalchemy import and_
 
 from tools.optscale_exceptions.common_exc import NotFoundException

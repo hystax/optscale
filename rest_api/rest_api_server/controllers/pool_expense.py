@@ -9,7 +9,7 @@ from rest_api.rest_api_server.controllers.expense import ExpenseController
 from rest_api.rest_api_server.controllers.base import (BaseController,
                                                        BaseHierarchicalController)
 from rest_api.rest_api_server.exceptions import Err
-from rest_api.rest_api_server.models.models import Organization, CloudAccount, Pool
+from rest_api.rest_api_server.models.models import Organization, Pool
 from rest_api.rest_api_server.utils import get_nil_uuid
 
 

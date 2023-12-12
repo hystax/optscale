@@ -1,6 +1,4 @@
-from datetime import datetime, timedelta
-from kombu import Connection as QConnection, Exchange
-from kombu.pools import producers
+from datetime import datetime
 import logging
 
 from sqlalchemy import and_
@@ -12,7 +10,6 @@ from rest_api.rest_api_server.controllers.base import BaseController
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.controllers.pool_policy import PoolPolicyController
 from rest_api.rest_api_server.controllers.cloud_resource import CloudResourceController
-from rest_api.rest_api_server.controllers.expense import ExpenseController
 from rest_api.rest_api_server.controllers.resource_constraint import (
     ResourceConstraintController)
 from rest_api.rest_api_server.controllers.pool_alert import PoolAlertController
@@ -21,7 +18,7 @@ from rest_api.rest_api_server.models.enums import (
     ThresholdBasedTypes)
 from rest_api.rest_api_server.models.models import (
     ConstraintLimitHit, Pool, Employee, Organization,
-    CloudAccount, RolePurposes)
+    CloudAccount)
 
 from tools.optscale_exceptions.common_exc import NotFoundException
 

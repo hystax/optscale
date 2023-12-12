@@ -6,7 +6,6 @@ from rest_api.rest_api_server.controllers.discovery_info import DiscoveryInfoCon
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.models import DiscoveryInfo
-from rest_api.rest_api_server.utils import check_list_attribute
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import and_, exists

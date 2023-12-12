@@ -210,6 +210,10 @@ class ContextController(MongoMixin):
                 Pool.id == resource['pool_id'])
         return type_name, query.one_or_none()
 
+    def on_finish(self):
+        if self._mongo_client is not None:
+            self._mongo_client.close()
+
 
 class ContextAsyncController(BaseAsyncControllerWrapper):
 

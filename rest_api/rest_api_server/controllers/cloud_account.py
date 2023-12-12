@@ -1,4 +1,3 @@
-import json
 import logging
 import re
 from datetime import datetime, timedelta
@@ -53,7 +52,7 @@ from rest_api.rest_api_server.utils import (
     check_bool_attribute, check_dict_attribute, check_float_attribute,
     check_int_attribute, check_string, check_string_attribute,
     raise_invalid_argument_exception, raise_not_provided_exception,
-    CURRENCY_MAP, encode_config, decode_config, is_valid_meta)
+    CURRENCY_MAP, encode_config, decode_config)
 LOG = logging.getLogger(__name__)
 
 

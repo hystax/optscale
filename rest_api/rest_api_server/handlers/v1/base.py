@@ -108,6 +108,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def on_finish(self):
         self.session().close()
+        if self._controller is not None:
+            self._controller.on_finish()
+        super().on_finish()
 
     @property
     def controller(self):

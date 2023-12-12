@@ -1,10 +1,9 @@
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.controllers.shareable_resource import ShareableBookingController
-from rest_api.rest_api_server.controllers.base import MongoMixin
 from rest_api.rest_api_server.exceptions import Err
 
 
-class ShareableResourceBulkController(ShareableBookingController, MongoMixin):
+class ShareableResourceBulkController(ShareableBookingController):
     def _sharing_failed_response(self, not_shared_ids,
                                  invalid_ids=None,
                                  not_active_ids=None):

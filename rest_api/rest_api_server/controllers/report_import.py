@@ -1,4 +1,3 @@
-import json
 import logging
 import uuid
 from sqlalchemy import and_, true, or_, exists
