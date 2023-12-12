@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """"recipient_role_purpose_nullable"
 
 Revision ID: 0e2ab5729d0e
@@ -15,7 +16,8 @@ down_revision = "b4443e4dd1ed"
 branch_labels = None
 depends_on = None
 
-role_purposes = sa.Enum("optscale_member", "optscale_engineer", "optscale_manager")
+role_purposes = sa.Enum("optscale_member", "optscale_engineer",
+                        "optscale_manager")
 
 
 def upgrade():
@@ -26,5 +28,6 @@ def upgrade():
 
 def downgrade():
     op.alter_column(
-        "recipient", "role_purpose", existing_type=role_purposes, nullable=False
+        "recipient", "role_purpose", existing_type=role_purposes,
+        nullable=False
     )

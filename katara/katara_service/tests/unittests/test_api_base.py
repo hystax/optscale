@@ -1,13 +1,20 @@
-import tornado.testing
-from unittest.mock import patch
 import uuid
+from unittest.mock import patch
 
-from katara.katara_service.models.models import *
+import tornado.testing
+
+from optscale_client.katara_client.client import (
+    FetchMethodHttpProvider,
+    Client as KataraClient
+)
+
+from katara.katara_service.models.models import (
+    Recipient, Report, ReportFormat, Schedule, Task
+)
 from katara.katara_service.main import make_app, Roles
 from katara.katara_service.models.db_factory import DBType, DBFactory
 from katara.katara_service.models.db_base import BaseDB
-
-import optscale_client.katara_client.client
+from katara.katara_service.utils import gen_id
 
 
 class TestBase(tornado.testing.AsyncHTTPTestCase):
@@ -17,11 +24,11 @@ class TestBase(tornado.testing.AsyncHTTPTestCase):
         self._db_session = None
 
     def get_app(self):
-        return make_app(DBType.Test, Roles.api, '127.0.0.1', 80)
+        return make_app(DBType.TEST, Roles.api, '127.0.0.1', 80)
 
     @property
     def db_session(self):
-        db = DBFactory(DBType.Test, None).db
+        db = DBFactory(DBType.TEST, None).db
         engine = db.engine
         if not self._db_session:
             self._db_session = BaseDB.session(engine)()
@@ -32,22 +39,20 @@ class TestBase(tornado.testing.AsyncHTTPTestCase):
         secret = gen_id()
         patch('optscale_client.config_client.client.Client.cluster_secret',
               return_value=secret).start()
-        http_provider = optscale_client.katara_client.client.FetchMethodHttpProvider(
-            self.fetch, rethrow=False)
-        self.client = optscale_client.katara_client.client.Client(
-            http_provider=http_provider)
+        http_provider = FetchMethodHttpProvider(self.fetch, rethrow=False)
+        self.client = KataraClient(http_provider=http_provider)
         self.client.secret = secret
 
     def tearDown(self):
-        DBFactory.clean_type(DBType.Test)
+        DBFactory.clean_type(DBType.TEST)
         super().tearDown()
 
     def generate_reports(self, count=1):
         session = self.db_session
         reports = []
         for i in range(count):
-            report = Report(module_name='module_%s' % i,
-                            name='report_%s' % i,
+            report = Report(module_name=f'module_{i}',
+                            name=f'report_{i}',
                             report_format=ReportFormat.html)
             session.add(report)
             reports.append(report)
@@ -57,7 +62,7 @@ class TestBase(tornado.testing.AsyncHTTPTestCase):
     def generate_recipients(self, count=1):
         session = self.db_session
         recipients = []
-        for i in range(count):
+        for _ in range(count):
             recipient = Recipient(
                 role_purpose='optscale_manager',
                 scope_id=str(uuid.uuid4()))

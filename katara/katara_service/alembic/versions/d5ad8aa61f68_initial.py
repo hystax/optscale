@@ -28,7 +28,8 @@ def upgrade():
         sa.Column("meta", sa.TEXT(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
-            "role_purpose", "scope_id", name="uc_recipient_role_purpose_scope_user"
+            "role_purpose", "scope_id",
+            name="uc_recipient_role_purpose_scope_user"
         ),
     )
     op.create_table(
@@ -38,12 +39,14 @@ def upgrade():
         sa.Column("name", sa.String(length=50), nullable=False),
         sa.Column("module_name", sa.String(length=128), nullable=False),
         sa.Column(
-            "report_format", sa.Enum("html", name="reportformat"), nullable=False
+            "report_format", sa.Enum("html", name="reportformat"),
+            nullable=False
         ),
         sa.Column("template", sa.String(length=128), nullable=False),
         sa.Column("description", sa.TEXT(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("name", "module_name", name="uc_report_name_module_name"),
+        sa.UniqueConstraint("name", "module_name",
+                            name="uc_report_name_module_name"),
     )
     op.create_table(
         "schedule",
@@ -54,8 +57,10 @@ def upgrade():
         sa.Column("crontab", sa.String(length=128), nullable=False),
         sa.Column("last_run", sa.Integer(), nullable=False),
         sa.Column("next_run", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(["recipient_id"], ["recipient.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["report_id"], ["report.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["recipient_id"], ["recipient.id"],
+                                ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["report_id"], ["report.id"],
+                                ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
             "report_id",

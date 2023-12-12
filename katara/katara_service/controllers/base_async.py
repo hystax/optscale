@@ -41,7 +41,8 @@ class BaseAsyncControllerWrapper(object):
 
     def get_awaitable(self, meth_name, *args, **kwargs):
         method = getattr(self.controller, meth_name)
-        return self.io_loop.run_in_executor(self.executor, functools.partial(method, *args, **kwargs))
+        return self.io_loop.run_in_executor(
+            self.executor, functools.partial(method, *args, **kwargs))
 
     def __getattr__(self, name):
 

@@ -70,8 +70,7 @@ class Base(object):
             s3_params = self.config_cl.read_branch('/minio')
             self._s3_client = boto3.client(
                 's3',
-                endpoint_url='http://{}:{}'.format(
-                    s3_params['host'], s3_params['port']),
+                endpoint_url=f"http://{s3_params['host']}:{s3_params['port']}",
                 aws_access_key_id=s3_params['access'],
                 aws_secret_access_key=s3_params['secret'],
                 config=BotoConfig(s3={'addressing_style': 'path'})
@@ -303,10 +302,8 @@ class GenerateReportData(CheckTimeoutThreshold):
                          on_continue_cb=self.on_continue_cb,
                          on_complete_cb=self.on_complete_cb).execute()
             return
-        report_name = 'task_%s_%s' % (
-            self.body['task_id'],
-            int(datetime.datetime.utcnow().timestamp()))
-        with open(report_name, 'w') as outfile:
+        report_name = f"task_{self.body['task_id']}_{self.body['task_id']}"
+        with open(report_name, 'w', encoding='utf-8') as outfile:
             json.dump(report_data, outfile)
         try:
             with open(report_name, 'rb') as f_report:

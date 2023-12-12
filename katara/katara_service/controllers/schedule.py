@@ -1,15 +1,18 @@
-import croniter
 import datetime
 import logging
+import croniter
 from sqlalchemy import and_, exists
 from sqlalchemy.exc import IntegrityError
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
 
 from katara.katara_service.controllers.base import BaseController
-from katara.katara_service.controllers.base_async import BaseAsyncControllerWrapper
+from katara.katara_service.controllers.base_async import (
+    BaseAsyncControllerWrapper
+)
 from katara.katara_service.exceptions import Err
-from katara.katara_service.models.models import Schedule, Task, Recipient, Report
+from katara.katara_service.models.models import (
+    Schedule, Task, Recipient, Report)
 
 from tools.optscale_exceptions.common_exc import (
     NotFoundException,
@@ -30,9 +33,10 @@ class ScheduleController(BaseController):
         return Schedule
 
     def put_tasks(self, tasks):
-        queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-            **self._config.read_branch('/rabbit')),
-            transport_options=RETRY_POLICY)
+        params = self._config.read_branch('/rabbit')
+        queue_conn = QConnection(f'amqp://{params["user"]}:{params["pass"]}@'
+                                 f'{params["host"]}:{params["port"]}',
+                                 transport_options=RETRY_POLICY)
 
         task_exchange = Exchange('katara-tasks', type='direct')
         with producers[queue_conn].acquire(block=True) as producer:

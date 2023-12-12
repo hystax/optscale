@@ -12,7 +12,7 @@ def create_report(module_name, organization_id, report_data, config_client):
     pythonpath = environ['PYTHONPATH'].split(pathsep)[0]
     import_base = dirname(__file__)[len(pythonpath):]
     import_base = import_base.replace('/', '.')
-    module = __import__('%s.%s' % (import_base, module_name),
+    module = __import__(f'{import_base}.{module_name}',
                         globals(), locals(), modules, 0)
     # main function is entrypoint so each module MUST have it
     return module.main(

@@ -2,17 +2,19 @@ import json
 import logging
 from sqlalchemy import and_, exists
 
-from katara.katara_service.controllers.base import BaseController
-from katara.katara_service.controllers.base_async import BaseAsyncControllerWrapper
-from katara.katara_service.exceptions import Err
-from katara.katara_service.models.models import Recipient, RolePurpose
-from katara.katara_service.utils import check_kwargs_empty, check_list_attribute
-
 from tools.optscale_exceptions.common_exc import (
     ConflictException,
     WrongArgumentsException,
 )
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
+
+from katara.katara_service.controllers.base import BaseController
+from katara.katara_service.controllers.base_async import (
+    BaseAsyncControllerWrapper)
+from katara.katara_service.exceptions import Err
+from katara.katara_service.models.models import Recipient, RolePurpose
+from katara.katara_service.utils import (
+    check_kwargs_empty, check_list_attribute)
 
 
 LOG = logging.getLogger(__name__)
@@ -29,7 +31,8 @@ class RecipientController(BaseController):
     @property
     def rest_cl(self):
         if self._rest_cl is None:
-            self._rest_cl = RestClient(url=self._config.restapi_url(), verify=False)
+            self._rest_cl = RestClient(url=self._config.restapi_url(),
+                                       verify=False)
             self._rest_cl.secret = self._config.cluster_secret()
         return self._rest_cl
 

@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """"added_budget_exceed_module"
 
 Revision ID: 7cdb069460b5

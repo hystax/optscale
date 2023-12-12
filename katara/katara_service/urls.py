@@ -2,13 +2,13 @@ class Urls:
     url_prefix = '/katara'
 
     urls_map = {
-        'tasks': r"%s/tasks/(?P<id>[^/]+)",
+        'tasks': r"%s/tasks/(?P<task_id>[^/]+)",
         'tasks_collection': r"%s/tasks",
-        'recipients': r"%s/recipients/(?P<id>[^/]+)",
+        'recipients': r"%s/recipients/(?P<recipient_id>[^/]+)",
         'recipients_collection': r"%s/recipients",
-        'reports': r"%s/reports/(?P<id>[^/]+)",
+        'reports': r"%s/reports/(?P<report_id>[^/]+)",
         'reports_collection': r"%s/reports",
-        'schedules': r"%s/schedules/(?P<id>[^/]+)",
+        'schedules': r"%s/schedules/(?P<schedule_id>[^/]+)",
         'schedules_collection': r"%s/schedules",
         'swagger': r'%s/swagger/(.*)'
     }

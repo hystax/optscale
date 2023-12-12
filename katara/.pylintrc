@@ -2,8 +2,11 @@
 reports=no
 
 [MESSAGES CONTROL]
-disable=R,C0111
+disable=R,C0111,W0707
 
 [BASIC]
-good-names=i, db, id
-generated-members=deleted, id, state, metadata
+class-const-naming-style=any
+good-names=i, db, id, down_revision, depends_on, branch_labels, revision
+generated-members=op.get_bind, op.bulk_insert, op.create_foreign_key,
+  op.add_column, op.alter_column, op.drop_constraint, op.drop_column,
+  op.create_table, op.drop_table, op.create_unique_constraint

@@ -52,12 +52,14 @@ class PoolExceedResources(Base):
         return {
             'email': [self.report_data['user_email']],
             'template_type': 'pool_exceed_resources_report',
-            'subject': 'Action Required: Hystax OptScale Pool Limit Exceed Alert',
+            'subject': 'Action Required: Hystax OptScale Pool Limit '
+                       'Exceed Alert',
             'template_params': {
                 'texts': {
                     'organization': {
                         'name': organization['name'],
-                        'currency_code': self.get_currency_code(organization['currency'])
+                        'currency_code': self.get_currency_code(
+                            organization['currency'])
                     },
                     'user': self.report_data,
                     'exceeded_pools': exceeded_pools,

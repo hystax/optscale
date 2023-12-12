@@ -1,13 +1,5 @@
 import json
 
-from katara.katara_service.controllers.task import TaskAsyncController
-from katara.katara_service.exceptions import Err
-from katara.katara_service.handlers.v2.base import (
-    BaseAsyncItemHandler,
-    BaseAsyncCollectionHandler
-)
-from katara.katara_service.utils import strtobool, check_list_attribute, ModelEncoder
-
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException,
     NotFoundException,
@@ -17,15 +9,24 @@ from tools.optscale_exceptions.common_exc import (
 )
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
+from katara.katara_service.controllers.task import TaskAsyncController
+from katara.katara_service.exceptions import Err
+from katara.katara_service.handlers.v2.base import (
+    BaseAsyncItemHandler,
+    BaseAsyncCollectionHandler
+)
+from katara.katara_service.utils import (
+    strtobool, check_list_attribute, ModelEncoder)
+
 
 class TaskAsyncItemHandler(BaseAsyncItemHandler):
     def _get_controller_class(self):
         return TaskAsyncController
 
-    async def delete(self, id, **kwargs):
+    async def delete(self, _task_id, **kwargs):
         self.raise405()
 
-    async def get(self, id):
+    async def get(self, task_id):
         """
         ---
         description: >
@@ -61,28 +62,35 @@ class TaskAsyncItemHandler(BaseAsyncItemHandler):
                         result: {type: string,
                             description: "Task result (report data)"}
                         schedule_id: {type: string,
-                            description: "Schedule id (part of simple response)"}
+                            description: "Schedule id
+                             (part of simple response)"}
                         schedule:
                              type: object
-                             description: "Task schedule (part of expanded response)"
+                             description: "Task schedule
+                              (part of expanded response)"
                              properties:
                                 id: {type: string,
                                     description: "Unique schedule id"}
                                 created_at: {type: integer,
-                                    description: "Created timestamp (service field)"}
+                                    description: "Created timestamp
+                                     (service field)"}
                                 crontab: {type: string,
                                     description: "Schedule in crontab format"}
                                 last_run: {type: integer,
-                                    description: "Last job run timestamp (service field)"}
+                                    description: "Last job run timestamp
+                                     (service field)"}
                                 next_run: {type: integer,
-                                    description: "Next job run timestamp (service field)"}
+                                    description: "Next job run timestamp
+                                     (service field)"}
                                 report:
                                     type: object
                                     properties:
                                         id: {type: string,
                                         description: "Unique report id"}
                                         created_at: {type: integer,
-                                            description: "Created timestamp (service field)"}
+                                            description:
+                                              "Created timestamp
+                                              (service field)"}
                                         name: {type: string,
                                             description: "Report name"}
                                         module_name: {type: string,
@@ -99,9 +107,11 @@ class TaskAsyncItemHandler(BaseAsyncItemHandler):
                                         id: {type: string,
                                         description: "Unique recipient id"}
                                         created_at: {type: integer,
-                                            description: "Created timestamp (service field)"}
+                                            description: "Created timestamp
+                                             (service field)"}
                                         role_purpose: {type: string,
-                                            description: "Role purpose of recipient"}
+                                            description: "Role purpose of
+                                             recipient"}
                                         scope_id: {type: string,
                                             description: "Recipient scope id"}
                                         user_id: {type: string,
@@ -132,10 +142,10 @@ class TaskAsyncItemHandler(BaseAsyncItemHandler):
             expanded = strtobool(expanded)
         except ValueError:
             raise OptHTTPError(400, Err.OKA0026, ['Expanded'])
-        item = await self._get_item(id)
+        item = await self._get_item(task_id)
         self.write(item.to_json(expanded))
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, task_id, **kwargs):
         """
         ---
         tags: [tasks]
@@ -187,7 +197,7 @@ class TaskAsyncItemHandler(BaseAsyncItemHandler):
         security:
         - secret: []
         """
-        await super().patch(id, **kwargs)
+        await super().patch(task_id, **kwargs)
 
 
 class TaskAsyncCollectionHandler(BaseAsyncCollectionHandler):
@@ -266,4 +276,5 @@ class TaskAsyncCollectionHandler(BaseAsyncCollectionHandler):
         except UnauthorizedException as ex:
             raise OptHTTPError.from_opt_exception(401, ex)
         self.set_status(201)
-        self.write(json.dumps([item.to_dict() for item in items], cls=ModelEncoder))
+        self.write(json.dumps([item.to_dict() for item in items],
+                              cls=ModelEncoder))
