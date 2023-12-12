@@ -5,13 +5,13 @@ import time
 import json
 from datetime import datetime
 from threading import Thread
-from pymongo import MongoClient, UpdateOne
+from pymongo import MongoClient
 from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue, binding
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
@@ -43,7 +43,7 @@ class HttpClient:
             response.raise_for_status()
         except Exception as ex:
             response_body = str(ex)
-        if response.status_code != requests.codes.no_content:
+        if response.status_code != requests.codes.get('no_content'):
             if 'application/json' in response.headers['Content-Type']:
                 response_body = json.loads(
                     response.content.decode('utf-8'))
@@ -227,7 +227,7 @@ class WebhookExecutorWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'DEBUG' if debug else 'INFO'
     setup_logging(loglevel=log_level, loggers=[''])

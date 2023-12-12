@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os
-import requests
 import time
 import traceback
 
@@ -13,7 +12,7 @@ from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from tools.cloud_adapter.cloud import Cloud as CloudAdapter
 from tools.cloud_adapter.exceptions import InvalidResourceTypeException
@@ -135,6 +134,7 @@ class ResourcesSaver:
                 behavior='update_existing', return_resources=True)
         for resource in resources:
             resource.post_discover()
+
 
 class DiscoveryWorker(ConsumerMixin):
     def __init__(self, connection, config_cl):
@@ -272,7 +272,8 @@ class DiscoveryWorker(ConsumerMixin):
                     if isinstance(res, Exception):
                         if self.is_404(res):
                             continue
-                        LOG.error("Exception: % %", str(res), traceback.print_tb(res.__traceback__))
+                        LOG.error("Exception: %s %s", str(res),
+                                  traceback.print_tb(res.__traceback__))
                         gen_list_chunk.remove(gen)
                         errors.add(str(res))
                     elif res:
@@ -342,7 +343,7 @@ class DiscoveryWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'INFO' if not debug else 'DEBUG'
     setup_logging(loglevel=log_level, loggers=[''])

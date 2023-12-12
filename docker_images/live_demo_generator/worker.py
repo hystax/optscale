@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os
-import requests
 import time
 
 from threading import Thread
@@ -10,7 +9,7 @@ from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 from datetime import datetime
 
 from optscale_client.config_client.client import Client as ConfigClient
@@ -72,11 +71,11 @@ class LiveDemoGenerator(ConsumerMixin):
         response['created_at'] = int(d_start.timestamp())
         self.mongo_cl.restapi.live_demos.insert_one(response)
         LOG.info('Live demo generated in %s seconds' % (
-                datetime.utcnow() - d_start).total_seconds())
+            datetime.utcnow() - d_start).total_seconds())
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'INFO' if not debug else 'DEBUG'
     setup_logging(loglevel=log_level, loggers=[''])

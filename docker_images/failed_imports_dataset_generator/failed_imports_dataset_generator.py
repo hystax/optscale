@@ -104,7 +104,7 @@ def _get_failed_cloud_accounts(mydb):
             ca_t.last_import_at, ca_t.last_import_attempt_error,
             ca_t.organization_id, org_t.name
         FROM (
-            SELECT id, name, organization_id, type, created_at, last_import_at, 
+            SELECT id, name, organization_id, type, created_at, last_import_at,
                 last_import_attempt_error
             FROM cloudaccount
             WHERE deleted_at=0

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import calendar
 import os
-import requests
 import time
 import uuid
 from enum import Enum
@@ -13,7 +12,7 @@ from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue, binding
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
@@ -673,8 +672,8 @@ class HeraldExecutorWorker(ConsumerMixin):
             end_date = datetime.combine(created, created.time().max) + timedelta(
                 days=1)
         elif constraint['type'] == 'expiring_budget':
-            start_date = datetime.utcfromtimestamp(constraint['definition'][
-                                                       'start_date'])
+            start_date = datetime.utcfromtimestamp(
+                constraint['definition']['start_date'])
             end_date = None
         elif constraint['type'] == 'recurring_budget':
             start_date = created.replace(day=1, hour=0, minute=0, second=0)
@@ -741,21 +740,21 @@ class HeraldExecutorWorker(ConsumerMixin):
                  if constraint['type'] not in resource_types
                  else round(latest_hit['value']))
         params = {
-                'texts': {
-                    'title': title,
-                    'organization': self._get_organization_params(organization),
-                    'organization_constraint': {**constraint_data},
-                    'limit_hit': {
-                        'created_at': hit_date,
-                        'value': value,
-                        'link': link,
-                        'constraint_limit': constraint_limit
-                    },
-                    'user': {
-                        'user_display_name': user_info.get('display_name')
-                    },
-                }
+            'texts': {
+                'title': title,
+                'organization': self._get_organization_params(organization),
+                'organization_constraint': {**constraint_data},
+                'limit_hit': {
+                    'created_at': hit_date,
+                    'value': value,
+                    'link': link,
+                    'constraint_limit': constraint_limit
+                },
+                'user': {
+                    'user_display_name': user_info.get('display_name')
+                },
             }
+        }
         if constraint['type'] == 'tagging_policy':
             tag = constraint['definition']['conditions'].get('tag')
             without_tag = constraint['definition']['conditions'].get('without_tag')
@@ -966,7 +965,7 @@ class HeraldExecutorWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'DEBUG' if debug else 'INFO'
     setup_logging(loglevel=log_level, loggers=[''])

@@ -81,7 +81,7 @@ class CleanMongoDB(object):
             session.close()
 
     @staticmethod
-    def delete_rows(collection, cloud_account_id,  chunk_size, rows_limit):
+    def delete_rows(collection, cloud_account_id, chunk_size, rows_limit):
         row_ids = list(collection.find(
             {'cloud_account_id': cloud_account_id}, ['_id']).limit(rows_limit))
         for j in range(0, len(row_ids), chunk_size):

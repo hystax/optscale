@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os
-import requests
 import time
 from pymongo import MongoClient, UpdateOne
 from datetime import datetime
@@ -11,7 +10,7 @@ from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Connection as QConnection, Exchange, Queue
 from kombu.pools import producers
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
@@ -119,8 +118,8 @@ class BookingObserverWorker(ConsumerMixin):
 
     def _publish_activities_tasks(self, tasks):
         queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-                **self.config_cl.read_branch('/rabbit')),
-                transport_options=RETRY_POLICY)
+            **self.config_cl.read_branch('/rabbit')),
+            transport_options=RETRY_POLICY)
         task_exchange = Exchange(ACTIVITIES_EXCHANGE_NAME, type='topic')
         with producers[queue_conn].acquire(block=True) as producer:
             for task_params in tasks:
@@ -149,7 +148,7 @@ class BookingObserverWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'INFO' if not debug else 'DEBUG'
     setup_logging(loglevel=log_level, loggers=[''])
