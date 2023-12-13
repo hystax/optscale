@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """"role_purpose_as_enum"
 
 Revision ID: 0f2b068b24b3
@@ -16,12 +17,14 @@ branch_labels = None
 depends_on = None
 
 
-role_purposes = sa.Enum("optscale_member", "optscale_engineer", "optscale_manager")
+role_purposes = sa.Enum("optscale_member", "optscale_engineer",
+                        "optscale_manager")
 
 
 def upgrade():
     op.alter_column(
-        "recipient", "role_purpose", existing_type=role_purposes, nullable=False
+        "recipient", "role_purpose", existing_type=role_purposes,
+        nullable=False
     )
 
 

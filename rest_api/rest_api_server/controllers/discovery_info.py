@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy.sql import and_, exists
+from sqlalchemy.sql import and_
 
 from tools.cloud_adapter.model import ResourceTypes, RES_MODEL_MAP
 from rest_api.rest_api_server.controllers.base import BaseController

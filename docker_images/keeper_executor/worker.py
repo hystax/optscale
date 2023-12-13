@@ -8,7 +8,7 @@ from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue, binding, Connection
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
@@ -626,7 +626,7 @@ class KeeperExecutorWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'DEBUG' if debug else 'INFO'
     setup_logging(loglevel=log_level, loggers=[''])

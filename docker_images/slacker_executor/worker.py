@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os
-import requests
 import time
 from datetime import datetime
 from threading import Thread
@@ -10,7 +9,7 @@ from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue, binding
 from requests import HTTPError
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from optscale_client.auth_client.client_v2 import Client as AuthClient
 from optscale_client.config_client.client import Client as ConfigClient
@@ -480,7 +479,7 @@ class SlackerExecutorWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'DEBUG' if debug else 'INFO'
     setup_logging(loglevel=log_level, loggers=[''])

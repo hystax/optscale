@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """"removed_obect_storage_states"
 
 Revision ID: 0f20c5e50c7e
@@ -60,7 +61,8 @@ def upgrade():
             update(task_table)
             .values(state="generating_data")
             .where(
-                task_table.c.state.in_(["generated_data", "putting_to_object_storage"])
+                task_table.c.state.in_(["generated_data",
+                                        "putting_to_object_storage"])
             )
         )
         update_task_stmt2 = (

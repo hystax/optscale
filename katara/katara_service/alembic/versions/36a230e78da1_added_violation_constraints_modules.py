@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """"added_violation_constraints_modules"
 
 Revision ID: 36a230e78da1
@@ -11,7 +12,9 @@ import uuid
 from alembic import op
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import table, column
-from sqlalchemy import Integer, insert, delete, String, TEXT, Enum, select, and_
+from sqlalchemy import (
+    Integer, insert, delete, String, TEXT, Enum, select, and_
+)
 
 
 # revision identifiers, used by Alembic.
@@ -47,9 +50,10 @@ report_table = table(
     column("description", TEXT()),
 )
 
-crontab = "0 0 * * MON"
+CRONTAB = "0 0 * * MON"
 modules = [
-    ("violated_constraints", "optscale_engineer", "Resource owner constraints report"),
+    ("violated_constraints", "optscale_engineer",
+     "Resource owner constraints report"),
     (
         "violated_constraints_diff",
         "optscale_manager",
@@ -100,7 +104,7 @@ def upgrade():
                             "id": gen_id(),
                             "report_id": budget_exceed_resources_report["id"],
                             "recipient_id": recipient["id"],
-                            "crontab": crontab,
+                            "crontab": CRONTAB,
                             "last_run": 0,
                             "next_run": now,
                             "created_at": now,
@@ -131,11 +135,13 @@ def downgrade():
             budget_exceed_res_stmt = select([report_table]).where(
                 report_table.c.module_name == module_name
             )
-            for budget_exceed_res_report in session.execute(budget_exceed_res_stmt):
+            for budget_exceed_res_report in session.execute(
+                    budget_exceed_res_stmt):
                 delete_schedule_stmt = delete(schedule_table).where(
                     and_(
                         schedule_table.c.recipient_id.in_(recipients_ids),
-                        schedule_table.c.report_id == budget_exceed_res_report["id"],
+                        schedule_table.c.report_id == budget_exceed_res_report[
+                            "id"],
                     )
                 )
                 session.execute(delete_schedule_stmt)

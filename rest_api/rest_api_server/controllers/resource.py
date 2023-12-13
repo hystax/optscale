@@ -62,6 +62,9 @@ class ResourceController(object):
                         str(ex))
             return {}
 
+    def on_finish(self):
+        pass
+
 
 class ResourceAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):

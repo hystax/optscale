@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 from kombu import Connection, Exchange, Queue
 from kombu.log import get_logger
 from kombu.mixins import ConsumerProducerMixin
@@ -51,13 +51,13 @@ class Worker(ConsumerProducerMixin):
                          callbacks=[self.process_task])]
 
     def put_herald_task(self, task_params):
-        task_exchange = Exchange(type='direct')
+        exchange = Exchange(type='direct')
         with producers[self.connection].acquire(block=True) as producer:
             producer.publish(
                 task_params,
                 serializer='json',
-                exchange=task_exchange,
-                declare=[task_exchange],
+                exchange=exchange,
+                declare=[exchange],
                 routing_key=self.herald_routing_key,
                 retry=True
             )
@@ -77,7 +77,8 @@ class Worker(ConsumerProducerMixin):
             _, katara_task = self.katara_cl.task_get(body['task_id'])
             task = TASKS_TRANSITIONS[katara_task['state']]
         except Exception as ex:
-            LOG.exception('Failed to get task %s: %s', body['task_id'], str(ex))
+            LOG.exception('Failed to get task %s: %s',
+                          body['task_id'], str(ex))
             message.ack()
             return
 
@@ -91,7 +92,8 @@ class Worker(ConsumerProducerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(
+        category=urllib3.exceptions.InsecureRequestWarning)
     setup_logging(loglevel='INFO', loggers=[''])
 
     config_cl = ConfigClient(
@@ -99,8 +101,9 @@ if __name__ == '__main__':
         port=int(os.environ.get('HX_ETCD_PORT', DEFAULT_ETCD_PORT)),
     )
     config_cl.wait_configured()
-    conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit'))
+    params = config_cl.read_branch('/rabbit')
+    conn_str = f'amqp://{params["user"]}:{params["pass"]}@' \
+               f'{params["host"]}:{params["port"]}'
     with Connection(conn_str) as conn:
         try:
             worker = Worker(conn, config_cl)

@@ -14,12 +14,11 @@ from pymongo import UpdateOne
 from optscale_client.config_client.client import etcd
 from datetime import datetime, timedelta
 from sqlalchemy import and_, true
-from clickhouse_driver import Client as ClickHouseClient
 
 from tools.cloud_adapter.model import ResourceTypes
 from tools.optscale_exceptions.common_exc import InternalServerError
 from rest_api.rest_api_server.controllers.base import (
-    BaseController, MongoMixin, BaseProfilingTokenController)
+    BaseController, MongoMixin, BaseProfilingTokenController, ClickHouseMixin)
 from rest_api.rest_api_server.controllers.base_async import (
     BaseAsyncControllerWrapper)
 from rest_api.rest_api_server.controllers.register import RegisterController
@@ -112,10 +111,9 @@ class ObjectGroups(enum.Enum):
                 if name not in {'AuthUsers', 'PoolRelations'})
 
 
-class LiveDemoController(BaseController, MongoMixin):
+class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
     def __init__(self, db_session, config=None, token=None, engine=None):
         super().__init__(db_session, config, token, engine)
-        self._clickhouse_cl = None
         self._recovery_map = {}
         self._build_obj_map = {
             ObjectGroups.CloudAccounts: self.build_cloud_account,
@@ -179,13 +177,13 @@ class LiveDemoController(BaseController, MongoMixin):
             ObjectGroups.Runners: self.runners_collection
 
         }
-        self._third_party_objects = [
-            ObjectGroups.Metrics,
-            ObjectGroups.K8sMetrics,
-            ObjectGroups.CleanExpenses,
-            ObjectGroups.TrafficExpenses,
-            ObjectGroups.RiSpUsages
-        ]
+        self._clickhouse_table_map = {
+            ObjectGroups.Metrics: 'average_metrics',
+            ObjectGroups.K8sMetrics: 'k8s_metrics',
+            ObjectGroups.CleanExpenses: 'expenses',
+            ObjectGroups.TrafficExpenses: 'traffic_expenses',
+            ObjectGroups.RiSpUsages: 'ri_sp_usage'
+        }
         self._key_object_group_map = {
             'pool_id': ObjectGroups.Pools.value,
             'employee_id': ObjectGroups.Employees.value,
@@ -268,14 +266,6 @@ class LiveDemoController(BaseController, MongoMixin):
     @property
     def runners_collection(self):
         return self.mongo_client.bulldozer.runner
-
-    @property
-    def clickhouse_cl(self):
-        if not self._clickhouse_cl:
-            user, password, host, db_name = self._config.clickhouse_params()
-            self._clickhouse_cl = ClickHouseClient(
-                host=host, password=password, database=db_name, user=user)
-        return self._clickhouse_cl
 
     def _get_demo_multiplier(self):
         try:
@@ -626,10 +616,8 @@ class LiveDemoController(BaseController, MongoMixin):
         obj['total_cost'] = obj.get('total_cost', 0) * self.multiplier
         return obj
 
-    def build_raw_expense(self, obj, objects_group, now, **kwargs):
-        obj_id = ObjectId()
-        self._recovery_map[objects_group.value][obj.pop('_id')] = obj_id
-        obj['_id'] = obj_id
+    def build_raw_expense(self, obj, now, **kwargs):
+        obj['_id'] = ObjectId()
         obj['cost'] = obj['cost'] * self.multiplier
         obj = self.offsets_to_datetimes(['end_date', 'start_date'], now, obj)
         obj = self.refresh_relations(['cloud_account_id'], obj)
@@ -834,8 +822,8 @@ class LiveDemoController(BaseController, MongoMixin):
         self._org_constraint_type_map[new_id] = obj['type']
         return OrganizationConstraint(**obj)
 
-    def build_organization_limit_hit(self, obj, objects_group, now,
-                                     organization_id, **kwargs):
+    def build_organization_limit_hit(self, obj, now, organization_id,
+                                     **kwargs):
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         obj = self.dict_key_offsets_to_timestamps(
             ['run_result.breakdown'], now, obj)
@@ -1104,15 +1092,8 @@ class LiveDemoController(BaseController, MongoMixin):
                         else:
                             obj_ids = dest.insert_many(bulk).inserted_ids
                         insertions_map[group].extend(obj_ids)
-                elif res and group in self._third_party_objects:
-                    obj_clickhouse_table_map = {
-                        ObjectGroups.Metrics: 'average_metrics',
-                        ObjectGroups.K8sMetrics: 'k8s_metrics',
-                        ObjectGroups.CleanExpenses: 'expenses',
-                        ObjectGroups.TrafficExpenses: 'traffic_expenses',
-                        ObjectGroups.RiSpUsages: 'ri_sp_usage'
-                    }
-                    table = obj_clickhouse_table_map.get(group)
+                elif res and group in self._clickhouse_table_map:
+                    table = self._clickhouse_table_map.get(group)
                     if not table:
                         continue
                     for i in range(0, len(res), CLICKHOUSE_BULK_SIZE):
@@ -1144,14 +1125,14 @@ class LiveDemoController(BaseController, MongoMixin):
 
     def _insert_clickhouse(self, table, bulk):
         db = CLICKHOUSE_TABLE_DB_MAP[table]
-        return self.clickhouse_cl.execute(
+        return self.clickhouse_client.execute(
             f'INSERT INTO {db}.{table} VALUES', bulk)
 
     def delete_clickhouse_info(self, cloud_accounts):
         cloud_account_ids = list(map(lambda x: x.id, cloud_accounts))
         for table in CLICKHOUSE_TABLE_DB_MAP:
             db = CLICKHOUSE_TABLE_DB_MAP[table]
-            self.clickhouse_cl.execute(
+            self.clickhouse_client.execute(
                 f'ALTER TABLE {db}.{table} DELETE '
                 f'WHERE cloud_account_id in {cloud_account_ids}')
 

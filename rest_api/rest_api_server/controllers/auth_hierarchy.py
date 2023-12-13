@@ -78,6 +78,9 @@ class AuthHierarchyController(object):
         }
         return result_scope.get(type)(type)
 
+    def on_finish(self):
+        pass
+
 
 class AuthHierarchyAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):

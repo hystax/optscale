@@ -52,10 +52,8 @@ class OrganizationExpenses(Base):
             self.organization_id, start, end,
             {'pool_id': self.get_nil_uuid()})
 
-        st_dt_string = '{day}/{month}/{year}'.format(
-            day=start_date.day, month=start_date.month, year=start_date.year)
-        e_dt_string = '{day}/{month}/{year}'.format(
-            day=today.day, month=today.month, year=today.year)
+        st_dt_string = f'{start_date.day}/{start_date.month}/{start_date.year}'
+        e_dt_string = f'{today.day}/{today.month}/{today.year}'
         return {
             'email': [self.report_data['user_email']],
             'template_type': 'weekly_expense_report',
@@ -81,7 +79,8 @@ class OrganizationExpenses(Base):
                         'total_cost': round(organization_total_cost, 2),
                         'forecast': round(organization_forecast, 2),
                         'id': self.organization_id,
-                        'currency_code': self.get_currency_code(org['currency'])
+                        'currency_code': self.get_currency_code(
+                            org['currency'])
                     }
                 }
             }
@@ -97,4 +96,5 @@ class OrganizationExpenses(Base):
 
 
 def main(organization_id, report_data, config_client):
-    return OrganizationExpenses(organization_id, report_data, config_client).generate()
+    return OrganizationExpenses(
+        organization_id, report_data, config_client).generate()

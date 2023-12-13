@@ -1,9 +1,10 @@
-import croniter
-from datetime import datetime
 import enum
 import json
+from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Enum, TEXT, ForeignKey
+import croniter
+
+from sqlalchemy import Column, Integer, String, Enum, TEXT, ForeignKey, Table
 from sqlalchemy import inspect, UniqueConstraint, or_
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.ext.declarative.base import _declarative_constructor
@@ -58,6 +59,9 @@ class ColumnPermissions(Enum):
 
 
 class Base(object):
+    __name__: str
+    __table__: Table
+
     def __init__(self, **kwargs):
         init_columns = list(filter(lambda x: x.info.get(
             PermissionKeys.is_creatable) is True, self.__table__.c))
@@ -67,10 +71,8 @@ class Base(object):
         _declarative_constructor(self, **kwargs)
 
     @declared_attr
-    # pylint: disable=E0213
-    def __tablename__(cls):
-        # pylint: disable=E1101
-        return cls.__name__.lower()
+    def __tablename__(self):
+        return self.__name__.lower()
 
     def to_dict(self, expanded=False):
         mapper = inspect(self).mapper
@@ -100,6 +102,7 @@ class BaseModel(object):
     id = Column(String(36), primary_key=True, default=gen_id)
     created_at = Column(Integer, default=get_current_timestamp,
                         nullable=False)
+    __table__: Table
 
     @hybrid_property
     def unique_fields(self):
@@ -215,7 +218,8 @@ class Report(Base, BaseModel):
 
 class Task(Base, BaseModel):
     __tablename__ = 'task'
-    schedule_id = Column(String(36), ForeignKey('schedule.id', ondelete='SET NULL'),
+    schedule_id = Column(String(36), ForeignKey('schedule.id',
+                                                ondelete='SET NULL'),
                          nullable=True, info=ColumnPermissions.create_only)
     schedule = relationship('Schedule')
     completed_at = Column(Integer, nullable=True)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import calendar
 import os
-import requests
 import time
 import uuid
 from copy import deepcopy
@@ -14,7 +13,7 @@ from kombu.utils.debug import setup_logging
 from kombu import Connection as QConnection
 from kombu import Exchange, Queue
 from kombu.pools import producers
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
@@ -517,7 +516,7 @@ class OrganizationViolationsWorker(ConsumerMixin):
                 self.month_start(date), start.time())).days + 1,
             # hit_days for resource_quota and anomalies constraints
             (start - datetime.combine(
-                        date - timedelta(days=1), start.time())).days + 1]
+                date - timedelta(days=1), start.time())).days + 1]
         _, response = self.rest_cl.organization_constraint_list(
             org_id, hit_days=max(hit_days))
         constraints = response.get('organization_constraints')
@@ -536,8 +535,8 @@ class OrganizationViolationsWorker(ConsumerMixin):
                               'Error: %s' % (constr['id'], str(exc)))
         self.publish_activities_tasks(notif_tasks)
         LOG.info('Organization violation process for organization %s completed'
-                 ' in %s seconds' % (
-                    org_id, int(datetime.utcnow().timestamp()) - start_ts))
+                 ' in %s seconds' %
+                 (org_id, int(datetime.utcnow().timestamp()) - start_ts))
 
     def process_task(self, body, message):
         try:
@@ -553,7 +552,7 @@ class OrganizationViolationsWorker(ConsumerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     debug = os.environ.get('DEBUG', False)
     log_level = 'INFO' if not debug else 'DEBUG'
     setup_logging(loglevel=log_level, loggers=[''])

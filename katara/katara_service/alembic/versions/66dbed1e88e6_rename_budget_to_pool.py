@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """"rename_budget_to_pool"
 
 Revision ID: 66dbed1e88e6

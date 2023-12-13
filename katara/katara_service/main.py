@@ -35,6 +35,7 @@ class Roles(enum.Enum):
 
 
 def get_handlers(handler_kwargs):
+    # pylint: disable=E1101
     return [
         (urls_v2.tasks,
          h_v2.tasks.TaskAsyncItemHandler, handler_kwargs),
@@ -61,10 +62,12 @@ def setup_api(db, config_cl):
         "engine": db.engine,
         "config": config_cl,
     }
+    # pylint: disable=E1101
+    swagger_handler = [
+        (urls_v2.swagger, h_v2.swagger.SwaggerStaticFileHandler,
+         {'path': SWAGGER_PATH, 'default_filename': 'index.html'})]
     app = tornado.web.Application(
-        get_handlers(handler_kwargs) +
-        [(urls_v2.swagger, h_v2.swagger.SwaggerStaticFileHandler,
-          {'path': SWAGGER_PATH, 'default_filename': 'index.html'})],
+        get_handlers(handler_kwargs) + swagger_handler,
         default_handler_class=h_v2.base.DefaultHandler
     )
     config_cl.tell_everybody_that_i_am_ready()
@@ -91,7 +94,8 @@ def make_app(db_type, role, etcd_host, etcd_port, wait=False):
         Roles.scheduler: setup_scheduler,
     }
     setup_func = applications_map.get(role)
-    config_cl = optscale_client.config_client.client.Client(host=etcd_host, port=etcd_port)
+    config_cl = optscale_client.config_client.client.Client(
+        host=etcd_host, port=etcd_port)
     if wait:
         config_cl.wait_configured()
 
@@ -113,7 +117,7 @@ def main():
                         default=role)
     args = parser.parse_args()
 
-    app = make_app(DBType.MySQL, args.role, args.etcdhost,
+    app = make_app(DBType.MYSQL, args.role, args.etcdhost,
                    args.etcdport, wait=True)
     if isinstance(app, tornado.ioloop.PeriodicCallback):
         LOG.info("Starting periodic")

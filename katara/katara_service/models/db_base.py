@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import katara.katara_service.models.models as model_base
 
 
-def should_retry(exception):
+def should_retry(_exception):
     return True
 
 

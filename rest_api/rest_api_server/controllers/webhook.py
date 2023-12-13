@@ -3,7 +3,6 @@ from sqlalchemy import exists, and_
 from tools.optscale_exceptions.common_exc import NotFoundException, ConflictException
 from rest_api.rest_api_server.controllers.base import BaseController, MongoMixin
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
-from rest_api.rest_api_server.controllers.organization import OrganizationController
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import WebhookObjectTypes, WebhookActionTypes
 from rest_api.rest_api_server.models.models import Webhook, Organization

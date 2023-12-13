@@ -17,4 +17,6 @@ jobs:
       - name: Build image
         run: bash -x build.sh bi_scheduler build
       - name: Build test image and run tests
+        run: bash -x docker_images/run_test.sh bi_scheduler
+      - name: Build test image and run unit tests
         run: bash -x docker_images/bi_scheduler/run_test.sh

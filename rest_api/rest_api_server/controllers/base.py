@@ -328,6 +328,12 @@ class BaseController(object):
         return list(map(lambda x: str(x.name),
                         self.model_type.__table__.columns))
 
+    def on_finish(self):
+        if getattr(self, '_clickhouse_client', None) is not None:
+            self._clickhouse_client.disconnect()
+        if getattr(self, '_mongo_client', None) is not None:
+            self._mongo_client.close()
+
     def _get_model_type(self):
         raise NotImplementedError
 

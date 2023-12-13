@@ -1,9 +1,7 @@
-import yaml
-import os.path
 import re
-import json
+import os.path
+import yaml
 from apispec import APISpec, utils
-from tornado.template import Template
 
 
 import katara.katara_service.main as server
@@ -57,7 +55,8 @@ def main():
             print("Warning: docstrings for '" + urlspec[0] + "' are not found")
 
     # Api spec file
-    with open(os.path.join(server.SWAGGER_PATH, "spec.yaml"), "w") as file:
+    with open(os.path.join(server.SWAGGER_PATH, "spec.yaml"), "w",
+              encoding='utf-8') as file:
         file.write(spec.to_yaml())
 
 

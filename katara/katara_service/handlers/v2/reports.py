@@ -37,7 +37,8 @@ class ReportAsyncCollectionHandler(BaseAsyncCollectionHandler):
                                     id: {type: string,
                                         description: "Unique report id"}
                                     created_at: {type: integer,
-                                        description: "Created timestamp (service field)"}
+                                        description:
+                                          "Created timestamp (service field)"}
                                     name: {type: string,
                                         description: "Report name"}
                                     module_name: {type: string,
@@ -69,13 +70,13 @@ class ReportAsyncItemHandler(BaseAsyncItemHandler):
     def _get_controller_class(self):
         return ReportAsyncController
 
-    async def delete(self, id, **kwargs):
+    async def delete(self, _report_id, **kwargs):
         await self.raise405()
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, _report_id, **kwargs):
         self.raise405()
 
-    async def get(self, id):
+    async def get(self, report_id):
         """
         ---
         description: >
@@ -124,4 +125,4 @@ class ReportAsyncItemHandler(BaseAsyncItemHandler):
         security:
         - secret: []
         """
-        await super().get(id)
+        await super().get(report_id)

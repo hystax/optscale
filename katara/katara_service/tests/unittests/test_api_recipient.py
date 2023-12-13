@@ -5,8 +5,6 @@ from katara.katara_service.tests.unittests.test_api_base import TestBase
 
 
 class TestRecipientApi(TestBase):
-    def setUp(self):
-        super().setUp()
 
     def test_recipient_get(self):
         recipients = self.generate_recipients(1)
@@ -15,13 +13,13 @@ class TestRecipientApi(TestBase):
         self.assertEqual(recipients[0].id, recipient['id'])
 
     def test_recipient_get_nonexisting(self):
-        id = str(uuid.uuid4())
-        code, _ = self.client.recipient_get(id)
+        id_ = str(uuid.uuid4())
+        code, _ = self.client.recipient_get(id_)
         self.assertEqual(code, 404)
 
     def test_recipient_list(self):
-        recipients = self.generate_recipients(3)
-        code, api_recipients = self.client.recipient_list(None)
+        self.generate_recipients(3)
+        code, _ = self.client.recipient_list(None)
         self.assertEqual(code, 400)
 
     def test_recipient_list_filtered(self):
@@ -54,14 +52,14 @@ class TestRecipientApi(TestBase):
         self.assertEqual(code, 404)
 
     def test_recipient_delete_nonexisting(self):
-        id = str(uuid.uuid4())
-        delete_criteria = [id]
+        id_ = str(uuid.uuid4())
+        delete_criteria = [id_]
         code, _ = self.client.recipients_delete(recipient_ids=delete_criteria)
         self.assertEqual(code, 204)
 
     def test_recipient_delete_nonlist_param(self):
-        id = str(uuid.uuid4())
-        delete_criteria = id
+        id_ = str(uuid.uuid4())
+        delete_criteria = id_
         code, _ = self.client.recipients_delete(recipient_ids=delete_criteria)
         self.assertEqual(code, 204)
 
@@ -106,7 +104,7 @@ class TestRecipientApi(TestBase):
         payload = {
             "scope_id": str(uuid.uuid4()),
         }
-        code, recipient = self.client.recipient_create(**payload)
+        code, _ = self.client.recipient_create(**payload)
         self.assertEqual(code, 400)
 
     def test_recipient_create_multi_assigned(self):
@@ -115,7 +113,7 @@ class TestRecipientApi(TestBase):
             "user_id": str(uuid.uuid4()),
             "scope_id": str(uuid.uuid4()),
         }
-        code, recipient = self.client.recipient_create(**payload)
+        code, _ = self.client.recipient_create(**payload)
         self.assertEqual(code, 400)
 
     def test_recipient_create_wrong_porpose(self):
@@ -123,7 +121,7 @@ class TestRecipientApi(TestBase):
             "role_purpose": 'optscale_slave',
             "scope_id": str(uuid.uuid4()),
         }
-        code, recipient = self.client.recipient_create(**payload)
+        code, _ = self.client.recipient_create(**payload)
         self.assertEqual(code, 400)
 
     def test_recipient_create_wrong_meta(self):

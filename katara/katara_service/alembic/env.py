@@ -1,7 +1,8 @@
+# pylint: disable=E1101
 from __future__ import with_statement
+from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from logging.config import fileConfig
 
 import katara.katara_service.models.models
 
@@ -59,6 +60,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

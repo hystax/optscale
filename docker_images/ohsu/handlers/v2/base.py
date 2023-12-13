@@ -30,7 +30,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self._controller = None
 
     def raise405(self):
-        raise OptHTTPError(405, Err.OH0002, [self.request.method])
+        raise OptHTTPError(405, Err.OHE0002, [self.request.method])
 
     def head(self, *args, **kwargs):
         self.raise405()

@@ -31,7 +31,7 @@ report_table = table(
     column("template", String(128)),
     column("description", TEXT()),
 )
-report_module = "organization_expenses"
+REPORT_MODULE = "organization_expenses"
 
 
 def upgrade():
@@ -42,10 +42,10 @@ def upgrade():
         ins_stmt = insert(report_table).values(
             id=str(uuid.uuid4()),
             created_at=int(datetime.datetime.utcnow().timestamp()),
-            name=report_module,
-            module_name=report_module,
+            name=REPORT_MODULE,
+            module_name=REPORT_MODULE,
             report_format="html",
-            template=report_module,
+            template=REPORT_MODULE,
             description="Organization expenses report",
         )
         session.execute(ins_stmt)
@@ -60,7 +60,8 @@ def downgrade():
 
     try:
         session.execute(
-            report_table.delete().where(report_table.c.module_name == report_module)
+            report_table.delete().where(
+                report_table.c.module_name == REPORT_MODULE)
         )
         session.commit()
     finally:

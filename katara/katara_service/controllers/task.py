@@ -6,7 +6,9 @@ from sqlalchemy import exists
 from sqlalchemy.exc import IntegrityError
 
 from katara.katara_service.controllers.base import BaseController
-from katara.katara_service.controllers.base_async import BaseAsyncControllerWrapper
+from katara.katara_service.controllers.base_async import (
+    BaseAsyncControllerWrapper
+)
 from katara.katara_service.controllers.schedule import ScheduleController
 from katara.katara_service.exceptions import Err
 from katara.katara_service.models.models import (

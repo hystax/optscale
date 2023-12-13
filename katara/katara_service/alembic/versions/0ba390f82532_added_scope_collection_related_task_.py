@@ -1,3 +1,4 @@
+# pylint: disable=C0103
 """"added_scope_collection_related_task_states"
 
 Revision ID: 0ba390f82532

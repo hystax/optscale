@@ -6,9 +6,11 @@ from katara.katara_service.models.models import TaskState
 from katara.katara_service.tests.unittests.test_api_base import TestBase
 
 
+PUT_TASK = "katara.katara_service.controllers.schedule." \
+           "ScheduleController.put_tasks"
+
+
 class TestTasktApi(TestBase):
-    def setUp(self):
-        super().setUp()
 
     def test_task_get(self):
         tasks = self.generate_tasks(1)
@@ -33,8 +35,8 @@ class TestTasktApi(TestBase):
         self.assertEqual(None, task['schedule'])
 
     def test_task_get_nonexisting(self):
-        id = str(uuid.uuid4())
-        code, _ = self.client.task_get(id)
+        id_ = str(uuid.uuid4())
+        code, _ = self.client.task_get(id_)
         self.assertEqual(code, 404)
 
     def test_task_update(self):
@@ -76,7 +78,7 @@ class TestTasktApi(TestBase):
             tasks[0].id, schedule_id=str(uuid.uuid4()))
         self.assertEqual(code, 400)
 
-    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch(PUT_TASK)
     def test_task_create(self, p_put_tasks):
         schedules = self.generate_schedules(1)
         task_payload = {
@@ -86,7 +88,7 @@ class TestTasktApi(TestBase):
         self.assertEqual(code, 201)
         self.assertEqual(1, p_put_tasks.call_count)
 
-    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch(PUT_TASK)
     def test_task_create_several(self, p_put_tasks):
         schedules = self.generate_schedules(2)
         task_payload = [
@@ -102,7 +104,7 @@ class TestTasktApi(TestBase):
         self.assertEqual(len(task_payload), len(tasks))
         self.assertEqual(1, p_put_tasks.call_count)
 
-    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch(PUT_TASK)
     def test_task_create_parent(self, p_put_tasks):
         schedules = self.generate_schedules(1)
         task_payload = {
@@ -120,17 +122,17 @@ class TestTasktApi(TestBase):
         self.assertEqual(tasks2[0]['parent_id'],
                          tasks[0]['id'])
 
-    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
-    def test_task_create_nonexisting_parent(self, p_put_tasks):
+    @patch(PUT_TASK)
+    def test_task_create_nonexisting_parent(self, _p_put_tasks):
         schedules = self.generate_schedules(1)
         task_payload = {
             'schedule_id': schedules[0].id,
             'parent_id': str(uuid.uuid4())
         }
-        code, tasks2 = self.client.tasks_create([task_payload])
+        code, _ = self.client.tasks_create([task_payload])
         self.assertEqual(code, 404)
 
-    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
+    @patch(PUT_TASK)
     def test_task_create_nonexisting_schedule(self, p_put_tasks):
         task_payload = {
             'schedule_id': str(uuid.uuid4())
@@ -139,8 +141,8 @@ class TestTasktApi(TestBase):
         self.assertEqual(code, 404)
         self.assertEqual(0, p_put_tasks.call_count)
 
-    @patch("katara.katara_service.controllers.schedule.ScheduleController.put_tasks")
-    def test_task_create_completed(self, p_put_tasks):
+    @patch(PUT_TASK)
+    def test_task_create_completed(self, _p_put_tasks):
         schedules = self.generate_schedules(1)
         task_payload = {
             'schedule_id': schedules[0].id,

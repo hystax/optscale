@@ -17,7 +17,7 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
     def _get_controller_class(self):
         return ScheduleAsyncController
 
-    async def get(self, id):
+    async def get(self, schedule_id):
         """
         ---
         description: >
@@ -48,9 +48,11 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
                         crontab: {type: string,
                             description: "Schedule in crontab format"}
                         last_run: {type: integer,
-                            description: "Last job run timestamp (service field)"}
+                            description:
+                              "Last job run timestamp (service field)"}
                         next_run: {type: integer,
-                            description: "Next job run timestamp (service field)"}
+                            description:
+                              "Next job run timestamp (service field)"}
             401:
                 description: |
                     Unauthorized:
@@ -66,9 +68,9 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
         security:
         - secret: []
         """
-        await super().get(id)
+        await super().get(schedule_id)
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, schedule_id, **kwargs):
         """
         ---
         tags: [schedules]
@@ -120,9 +122,9 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
         security:
         - secret: []
         """
-        await super().patch(id, **kwargs)
+        await super().patch(schedule_id, **kwargs)
 
-    async def delete(self, id, **kwargs):
+    async def delete(self, schedule_id, **kwargs):
         """
         ---
         tags: [schedules]
@@ -153,7 +155,7 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
         security:
         - secret: []
         """
-        await super().delete(id, **kwargs)
+        await super().delete(schedule_id, **kwargs)
 
 
 class ScheduleAsyncCollectionHandler(BaseAsyncCollectionHandler):
@@ -206,7 +208,8 @@ class ScheduleAsyncCollectionHandler(BaseAsyncCollectionHandler):
             409:
                 description: |
                     Conflict:
-                    - OKA0005: Report is already scheduled for recipient with rule
+                    - OKA0005: Report is already scheduled for recipient
+                    with rule
         security:
         - secret: []
         """
@@ -245,17 +248,23 @@ class ScheduleAsyncCollectionHandler(BaseAsyncCollectionHandler):
                                     id: {type: string,
                                         description: "Unique schedule id"}
                                     created_at: {type: integer,
-                                        description: "Created timestamp (service field)"}
+                                        description:
+                                          "Created timestamp (service field)"}
                                     report_id: {type: string,
                                         description: "Report id"}
                                     recipient_id: {type: string,
                                         description: "Recipient id"}
                                     crontab: {type: string,
-                                        description: "Schedule in crontab format"}
+                                        description:
+                                          "Schedule in crontab format"}
                                     last_run: {type: integer,
-                                        description: "Last job run timestamp (service field)"}
+                                        description:
+                                          "Last job run timestamp
+                                          (service field)"}
                                     next_run: {type: integer,
-                                        description: "Next job run timestamp (service field)"}
+                                        description:
+                                          "Next job run timestamp (
+                                          service field)"}
             400:
                 description: |
                     Wrong arguments:

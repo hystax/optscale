@@ -123,7 +123,7 @@ def process(config_cl):
                             (ca['id'], di_info['resource_type']))
             except requests.exceptions.HTTPError as ex:
                 LOG.error(
-                    'Failed to publish %s tasks for cloud account %s: %s',
+                    'Failed to publish tasks for cloud account %s: %s',
                     ca['id'], str(ex))
                 continue
     return tasks_map

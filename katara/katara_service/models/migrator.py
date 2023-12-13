@@ -32,11 +32,11 @@ class Migrator:
         self.alembic_env = EnvironmentContext(self.alembic_cfg,
                                               self.alembic_script)
 
-    def do_upgrade(self, revision, context):
+    def do_upgrade(self, revision, _context):
         """
-        Do upgrade for alembic coontext
+        Do upgrade for alembic context
         :param revision:
-        :param context:
+        :param _context:
         :return:
         """
         return self.alembic_script._upgrade_revs(

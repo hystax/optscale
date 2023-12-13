@@ -11,7 +11,9 @@ import uuid
 from alembic import op
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import table, column
-from sqlalchemy import Integer, insert, delete, String, TEXT, Enum, select, and_
+from sqlalchemy import (
+    Integer, insert, delete, String, TEXT, Enum, select, and_
+)
 
 
 # revision identifiers, used by Alembic.
@@ -47,8 +49,8 @@ report_table = table(
     column("description", TEXT()),
 )
 
-crontab = "0 0 * * *"
-module_name = "budget_exceed_resources"
+CRONTAB = "0 0 * * *"
+MODULE_NAME = "budget_exceed_resources"
 
 
 def get_current_timestamp():
@@ -68,8 +70,8 @@ def upgrade():
         ins_stmt = insert(report_table).values(
             id=str(uuid.uuid4()),
             created_at=int(datetime.datetime.utcnow().timestamp()),
-            name=module_name,
-            module_name=module_name,
+            name=MODULE_NAME,
+            module_name=MODULE_NAME,
             report_format="html",
             description="Budget exceed resources report",
         )
@@ -79,7 +81,7 @@ def upgrade():
             recipient_table.c.role_purpose == "optscale_engineer"
         )
         budget_exceed_resources_stmt = select([report_table]).where(
-            report_table.c.module_name == module_name
+            report_table.c.module_name == MODULE_NAME
         )
         schedules = []
         now = get_current_timestamp()
@@ -92,7 +94,7 @@ def upgrade():
                         "id": gen_id(),
                         "report_id": budget_exceed_resources_report["id"],
                         "recipient_id": engineer["id"],
-                        "crontab": crontab,
+                        "crontab": CRONTAB,
                         "last_run": 0,
                         "next_run": now,
                         "created_at": now,
@@ -120,17 +122,20 @@ def downgrade():
         engineers = session.execute(recipients_stmt)
         engineers_ids = list(map(lambda x: x["id"], engineers))
         budget_exceed_res_stmt = select([report_table]).where(
-            report_table.c.module_name == module_name
+            report_table.c.module_name == MODULE_NAME
         )
-        for budget_exceed_res_report in session.execute(budget_exceed_res_stmt):
+        for budget_exceed_res_report in session.execute(
+                budget_exceed_res_stmt):
             delete_schedule_stmt = delete(schedule_table).where(
                 and_(
-                    schedule_table.c.report_id == budget_exceed_res_report["id"],
+                    schedule_table.c.report_id == budget_exceed_res_report[
+                        "id"],
                     schedule_table.c.recipient_id.in_(engineers_ids),
                 )
             )
             session.execute(delete_schedule_stmt)
-        ins_stmt = delete(report_table).where(report_table.c.module_name == module_name)
+        ins_stmt = delete(report_table).where(
+            report_table.c.module_name == MODULE_NAME)
         session.execute(ins_stmt)
         session.commit()
     except Exception:

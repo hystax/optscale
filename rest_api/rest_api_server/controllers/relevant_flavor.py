@@ -2,9 +2,8 @@ import logging
 import requests
 import operator
 from collections import defaultdict
-from tools.optscale_exceptions.common_exc import (NotFoundException,
-                                                  WrongArgumentsException)
-from rest_api.rest_api_server.controllers.base import BaseController, MongoMixin
+from tools.optscale_exceptions.common_exc import (NotFoundException)
+from rest_api.rest_api_server.controllers.base import BaseController
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from concurrent.futures import ThreadPoolExecutor
 from optscale_client.insider_client.client import Client as InsiderClient

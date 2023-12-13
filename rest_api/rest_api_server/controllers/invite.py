@@ -1,10 +1,7 @@
 import datetime
-import hashlib
 import json
 import logging
-import random
 import requests
-import string
 import uuid
 
 from etcd import EtcdKeyNotFound

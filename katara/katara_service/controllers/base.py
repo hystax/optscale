@@ -73,8 +73,8 @@ class BaseController(object):
         immutables_matches = list(filter(lambda x: x in kwargs, immutables))
         if immutables_matches:
             message = ', '.join(immutables_matches)
-            LOG.warning('Immutable parameters %s: %s' %
-                        (self.model_type, message))
+            LOG.warning('Immutable parameters %s: %s',
+                        self.model_type, message)
             raise WrongArgumentsException(Err.OKA0019, [message])
 
     def _check_restrictions(self, restrictions, **kwargs):
@@ -85,8 +85,8 @@ class BaseController(object):
             kwargs.keys()))
         if unexpected_params:
             message = ', '.join(unexpected_params)
-            LOG.warning('Unexpected parameters %s: %s' %
-                        (self.model_type, message))
+            LOG.warning('Unexpected parameters %s: %s',
+                        self.model_type, message)
             raise WrongArgumentsException(Err.OKA0012, [message])
 
     def _validate(self, item, is_new=True, **kwargs):

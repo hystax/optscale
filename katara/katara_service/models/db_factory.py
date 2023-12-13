@@ -9,8 +9,8 @@ from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 
 
 class DBType(Enum):
-    Test = "test"
-    MySQL = "mysql"
+    TEST = "test"
+    MYSQL = "mysql"
 
 
 LOG = logging.getLogger(__name__)
@@ -18,10 +18,11 @@ LOG = logging.getLogger(__name__)
 
 class DBFactory:
     DBS = {
-        DBType.Test: TestDB,
-        DBType.MySQL: MySQLDB
+        DBType.TEST: TestDB,
+        DBType.MYSQL: MySQLDB
     }
     _instances = {}
+    _db = None
 
     @staticmethod
     def _get_db(db_type, config):

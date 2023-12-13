@@ -1,7 +1,9 @@
 import json
 
 
-from katara.katara_service.controllers.recipient import RecipientAsyncController
+from katara.katara_service.controllers.recipient import (
+    RecipientAsyncController
+)
 from katara.katara_service.exceptions import Err
 from katara.katara_service.handlers.v2.base import (
     BaseAsyncItemHandler,
@@ -24,7 +26,7 @@ class RecipientAsyncItemHandler(BaseAsyncItemHandler):
     def _get_controller_class(self):
         return RecipientAsyncController
 
-    async def get(self, id):
+    async def get(self, recipient_id):
         """
         ---
         description: >
@@ -71,9 +73,9 @@ class RecipientAsyncItemHandler(BaseAsyncItemHandler):
         security:
         - secret: []
         """
-        await super().get(id)
+        await super().get(recipient_id)
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, recipient_id, **kwargs):
         """
         ---
         tags: [recipients]
@@ -140,9 +142,9 @@ class RecipientAsyncItemHandler(BaseAsyncItemHandler):
         security:
         - secret: []
         """
-        await super().patch(id, **kwargs)
+        await super().patch(recipient_id, **kwargs)
 
-    async def delete(self, id, **kwargs):
+    async def delete(self, _recipient_id, **kwargs):
         self.raise405()
 
 
@@ -181,9 +183,11 @@ class RecipientAsyncCollectionHandler(BaseAsyncCollectionHandler):
                                     id: {type: string,
                                         description: "Unique recipient id"}
                                     created_at: {type: integer,
-                                        description: "Created timestamp (service field)"}
+                                        description:
+                                          "Created timestamp (service field)"}
                                     role_purpose: {type: string,
-                                        description: "Role purpose of recipient"}
+                                        description:
+                                          "Role purpose of recipient"}
                                     scope_id: {type: string,
                                         description: "Recipient scope id"}
                                     user_id: {type: string,
@@ -230,11 +234,13 @@ class RecipientAsyncCollectionHandler(BaseAsyncCollectionHandler):
                 type: object
                 properties:
                     role_purpose: {type: string,
-                        description: "Role purpose of recipient. User id field must not be filled."}
+                        description: "Role purpose of recipient.
+                          User id field must not be filled."}
                     scope_id: {type: string,
                         description: "Recipient scope id"}
                     user_id: {type: string,
-                        description: "Recipient user id. Role Purpose field must not be filled."}
+                        description: "Recipient user id. Role Purpose field
+                          must not be filled."}
                     meta: {type: string,
                         description: "Recipient metadata"}
         responses:

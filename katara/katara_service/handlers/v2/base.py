@@ -77,7 +77,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def on_finish(self):
         if self._session:
-            self._session.close()
+            self._session.close()  # pylint: disable=E1101
 
     @property
     def controller(self):
@@ -94,7 +94,7 @@ class BaseHandler(tornado.web.RequestHandler):
         res = {
             'error': {
                 'status_code': status_code,
-                'error_code': getattr(exc, 'error_code', 'U0%s' % status_code),
+                'error_code': getattr(exc, 'error_code', f'U0{status_code}'),
                 'reason': self._reason,
                 'params': getattr(exc, 'params', []),
             }
@@ -124,10 +124,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def log_exception(self, typ, value, tb):
         if isinstance(value, OptHTTPError):
             if value.log_message:
-                format = "%d %s: " + value.log_message
+                format_ = "%d %s: " + value.log_message
                 args = ([value.status_code, self._request_summary()] +
                         list(value.args))
-                LOG.warning(format, *args)
+                LOG.warning(format_, *args)
         else:
             out_list = traceback.format_exception(typ, value, tb)
 
@@ -135,19 +135,19 @@ class BaseHandler(tornado.web.RequestHandler):
                       self._request_summary(), self.request,
                       repr(''.join(out_list)))
 
-    def get_arg(self, name, type, default=None, repeated=False):
+    def get_arg(self, name, type_, default=None, repeated=False):
         try:
             if repeated:
-                return [type(a) for a in self.get_arguments(name)]
+                return [type_(a) for a in self.get_arguments(name)]
             else:
                 arg = self.get_argument(name, default=default)
                 if arg:
-                    if type == bool:
+                    if type_ == bool:
                         lowered = arg.lower()
                         if lowered not in ['true', 'false']:
                             raise WrongArgumentsException(Err.OKA0026, [name])
                         return lowered == 'true'
-                    return type(arg)
+                    return type_(arg)
                 else:
                     return arg
         except ValueError:
@@ -206,8 +206,7 @@ class BaseAsyncCollectionHandler(BaseSecretHandler):
 
     async def post(self, **url_params):
         data = self._request_body()
-        duplicates = list(filter(lambda x: x in url_params.keys(),
-                                 data.keys()))
+        duplicates = list(filter(lambda x: x in url_params, data))
         if duplicates:
             unexpected_string = ', '.join(duplicates)
             raise OptHTTPError(400, Err.OKA0012, [unexpected_string])
@@ -250,16 +249,16 @@ class BaseAsyncItemHandler(BaseSecretHandler):
         except NotImplementedError:
             raise OptHTTPError(405, Err.OKA0014, [])
 
-    async def get(self, id):
-        item = await self._get_item(id)
+    async def get(self, item_id):
+        item = await self._get_item(item_id)
         self.write(item.to_json())
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, item_id, **kwargs):
         data = self._request_body()
-        item = await self._get_item(id, **kwargs)
+        item = await self._get_item(item_id, **kwargs)
         self._validate_params(item, **kwargs)
         try:
-            item = await self.controller.edit(id, **data)
+            item = await self.controller.edit(item_id, **data)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         except NotFoundException as ex:
@@ -274,11 +273,11 @@ class BaseAsyncItemHandler(BaseSecretHandler):
             raise OptHTTPError(405, Err.OKA0014, [])
         self.write(item.to_json())
 
-    async def delete(self, id, **kwargs):
-        item = await self._get_item(id)
+    async def delete(self, item_id, **kwargs):
+        item = await self._get_item(item_id)
         self._validate_params(item, **kwargs)
         try:
-            await self.controller.delete(id, **kwargs)
+            await self.controller.delete(item_id, **kwargs)
         except ForbiddenException as ex:
             raise OptHTTPError.from_opt_exception(403, ex)
         except UnauthorizedException as ex:

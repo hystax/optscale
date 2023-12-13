@@ -6,9 +6,10 @@ from katara.katara_service.models.migrator import Migrator
 
 class MySQLDB(BaseDB):
     def _get_engine(self):
+        user, password, host, db = self._config.katara_db_params()
         return create_engine(
-            'mysql+mysqlconnector://%s:%s@%s/%s?charset=utf8mb4' %
-            self._config.katara_db_params(),
+            f'mysql+mysqlconnector://{user}:{password}@{host}/{db}'
+            f'?charset=utf8mb4',
             # inactive connections are invalidated in ~10 minutes (600 seconds)
             pool_recycle=500,
             pool_size=200,

@@ -4,8 +4,6 @@ from katara.katara_service.tests.unittests.test_api_base import TestBase
 
 
 class TestScheduleApi(TestBase):
-    def setUp(self):
-        super().setUp()
 
     def test_schedule_get(self):
         schedules = self.generate_schedules(1)
@@ -14,8 +12,8 @@ class TestScheduleApi(TestBase):
         self.assertEqual(schedules[0].id, schedule['id'])
 
     def test_schedule_get_nonexisting(self):
-        id = str(uuid.uuid4())
-        code, _ = self.client.schedule_get(id)
+        id_ = str(uuid.uuid4())
+        code, _ = self.client.schedule_get(id_)
         self.assertEqual(code, 404)
 
     def test_schedule_delete(self):
@@ -95,7 +93,7 @@ class TestScheduleApi(TestBase):
         report = self.generate_reports(1)[0]
         recipient = self.generate_recipients(1)[0]
         crontab = '*/2 * * * *'
-        _, schedule = self.client.schedule_create(
+        self.client.schedule_create(
             crontab=crontab, recipient_id=recipient.id, report_id=report.id)
         code, api_recipients = self.client.schedule_list(
             recipient_id=str(uuid.uuid4()))
@@ -109,10 +107,12 @@ class TestScheduleApi(TestBase):
         schedules = []
         for i in range(2):
             _, schedule = self.client.schedule_create(
-                crontab=crontab, recipient_id=recipients[i].id, report_id=reports[i].id)
+                crontab=crontab, recipient_id=recipients[i].id,
+                report_id=reports[i].id)
             schedules.append(schedule)
         code, api_recipients = self.client.schedule_list(
             recipient_id=recipients[1].id, report_id=reports[1].id)
         self.assertEqual(code, 200)
         self.assertEqual(len(api_recipients['schedules']), 1)
-        self.assertEqual(api_recipients['schedules'][0]['id'], schedules[1]['id'])
+        self.assertEqual(api_recipients['schedules'][0]['id'],
+                         schedules[1]['id'])

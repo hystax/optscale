@@ -16,3 +16,5 @@ jobs:
         uses: actions/checkout@v3
       - name: Build image
         run: bash -x build.sh users_dataset_generator build
+      - name: Build test image and run tests
+        run: bash -x docker_images/run_test.sh users_dataset_generator
