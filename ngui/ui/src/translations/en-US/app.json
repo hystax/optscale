@@ -149,7 +149,7 @@
   "assignedToMe": "Assigned to me",
   "assignmentRuleConditionsDescription": "Resource will be assigned according to this rule if it satisfies all the conditions.",
   "assignmentRules": "Assignment rules",
-  "assignmentRulesPageDescription": "Allocate your resources easily — Optscale will assign newly detected resources automatically according to the rules listed below. Rules are evaluated according to the priority. You can also force re-apply them for the whole organization or a specific pool if you need to reflect allocation policies changes immediately.",
+  "assignmentRulesPageDescription": "Allocate your resources easily — Optscale will assign newly detected resources automatically according to the rules listed above. Rules are evaluated according to the priority. You can also force re-apply them for the whole organization or a specific pool if you need to reflect allocation policies changes immediately.",
   "assignmentRulesTabDescription": "Here you can see assignment rules that have this pool as a target. <assignmentRulesLink>See all assignment rules.</assignmentRulesLink>",
   "assignmentRulesTitle": "Assignment Rules",
   "atLeastOneBreakdownMustBeSelected": "At least one breakdown must be selected",
