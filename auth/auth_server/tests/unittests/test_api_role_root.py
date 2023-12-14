@@ -1,10 +1,7 @@
-import uuid
-import random
-import string
 from unittest.mock import patch
 
-from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                            ActionGroup)
+from auth.auth_server.models.models import (Type, User, Action, Role,
+                                            Assignment, ActionGroup)
 from auth.auth_server.models.models import gen_salt
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 from auth.auth_server.utils import hash_password
@@ -31,11 +28,11 @@ class TestApiRoleRoot(TestAuthBase):
         self.admin_user = self.create_root_user(
             password=self.admin_user_password)
         session = self.db_session
-        type_partner = Type(id=10, name='partner',
+        type_partner = Type(id_=10, name='partner',
                             parent=self.admin_user.type)
         self.user_partner_password = 'passwd!!!111'
         salt_p = gen_salt()
-        self.user_partner = User('partner@hystax.com', type=type_partner,
+        self.user_partner = User('partner@hystax.com', type_=type_partner,
                                  password=hash_password(
                                      self.user_partner_password, salt_p),
                                  display_name='Partner user',
@@ -44,13 +41,13 @@ class TestApiRoleRoot(TestAuthBase):
         manage_roles_action_group = ActionGroup(name='MANAGE_ROLES')
         manage_users_action_group = ActionGroup(
             name='MANAGE_USERS_ASSIGNMENTS')
-        action_create_role = Action(name='CREATE_ROLE', type=type_partner,
+        action_create_role = Action(name='CREATE_ROLE', type_=type_partner,
                                     action_group=manage_roles_action_group)
-        action_list_roles = Action(name='LIST_ROLES', type=type_partner,
+        action_list_roles = Action(name='LIST_ROLES', type_=type_partner,
                                    action_group=manage_roles_action_group)
-        action_list_users = Action(name='LIST_USERS', type=type_partner,
+        action_list_users = Action(name='LIST_USERS', type_=type_partner,
                                    action_group=manage_users_action_group)
-        admin_role = Role(name='Super Admin', type=self.admin_user.type,
+        admin_role = Role(name='Super Admin', type_=self.admin_user.type,
                           lvl=self.admin_user.type, scope_id=None,
                           description='Super Admin')
         session.add(type_partner)
@@ -75,10 +72,11 @@ class TestApiRoleRoot(TestAuthBase):
         self.assertEqual(response['type_id'], self.admin_user.type.id)
         self.assertIsNone(response['scope_id'])
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch("auth.auth_server.controllers.base."
+           "BaseController.get_resources_info")
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch("auth.auth_server.controllers.base."
+           "BaseController.get_downward_hierarchy")
     def test_list_roles_assignable(self, p_get_hierarchy, p_get_context,
                                    p_res_info):
         p_get_hierarchy.return_value = self.hierarchy

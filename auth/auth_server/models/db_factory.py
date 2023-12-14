@@ -9,8 +9,8 @@ from auth.auth_server.models.db_mysql import MySQLDB
 
 
 class DBType(Enum):
-    Test = "test"
-    MySQL = "mysql"
+    TEST = "test"
+    MYSQL = "mysql"
 
 
 LOG = logging.getLogger(__name__)
@@ -18,8 +18,8 @@ LOG = logging.getLogger(__name__)
 
 class DBFactory(object):
     DBS = {
-        DBType.Test: TestDB,
-        DBType.MySQL: MySQLDB
+        DBType.TEST: TestDB,
+        DBType.MYSQL: MySQLDB
     }
     _instances = {}
 
@@ -32,7 +32,8 @@ class DBFactory(object):
         else:
             return db_class(config)
 
-    def __new__(cls, db_type, config=None, *args, **kwargs):
+    def __new__(cls, db_type, config, *args, **kwargs):
+        cls._db = None
         if db_type not in cls._instances:
             instance = super().__new__(cls, *args, **kwargs)
             instance._db = DBFactory._get_db(db_type, config)

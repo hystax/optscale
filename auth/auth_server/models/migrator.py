@@ -31,13 +31,14 @@ class Migrator(object):
         self.alembic_env = EnvironmentContext(self.alembic_cfg,
                                               self.alembic_script)
 
-    def do_upgrade(self, revision, context):
+    def do_upgrade(self, revision, _context):
         """
-        Do upgrade for alembic coontext
+        Do upgrade for alembic context
         :param revision:
-        :param context:
+        :param _context:
         :return:
         """
+        # pylint: disable=W0212
         return self.alembic_script._upgrade_revs(
             self.alembic_script.get_heads(), revision)
 
@@ -59,7 +60,7 @@ class Migrator(object):
                                    target_metadata=target_metadata,
                                    fn=self.do_upgrade)
         with self.alembic_env.begin_transaction():
-                self.alembic_env.run_migrations()
+            self.alembic_env.run_migrations()
 
     def migrate_all(self):
         try:

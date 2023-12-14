@@ -1,13 +1,10 @@
 from auth.auth_server.tests.unittests.test_model_base import TestModelBase
-from auth.auth_server.models.models import *
+from auth.auth_server.models.models import Type
 
 from auth.auth_server.models.exceptions import InvalidTreeException
 
 
 class TestType(TestModelBase):
-
-    def setUp(self):
-        super().setUp()
 
     def test_type_create(self):
         session = self.db_session
@@ -28,10 +25,10 @@ class TestType(TestModelBase):
         session.add(type_root)
         session.add(type_partner)
         session.commit()
-        self.assertEquals(type_partner.parent, type_root)
-        self.assertEquals(type_root.children[0], type_partner)
+        self.assertEqual(type_partner.parent, type_root)
+        self.assertEqual(type_root.children[0], type_partner)
         types = session.query(Type).all()
-        self.assertEquals(len(types), 2)
+        self.assertEqual(len(types), 2)
 
     def test_type_create_3_lvl_tree(self):
         session = self.db_session

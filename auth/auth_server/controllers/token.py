@@ -4,17 +4,18 @@ import hashlib
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
-from optscale_client.config_client.client import etcd
 from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import Token, User
-from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
-                                                  ForbiddenException,
-                                                  NotFoundException)
 from auth.auth_server.auth_token.macaroon import MacaroonToken
 from auth.auth_server.utils import (hash_password, popkey,
                                     raise_not_provided_error)
+
+from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
+                                                  ForbiddenException,
+                                                  NotFoundException)
+from optscale_client.config_client.client import etcd
 
 LOG = logging.getLogger(__name__)
 DEFAULT_TOKEN_EXPIRATION = 168
@@ -54,9 +55,9 @@ class TokenController(BaseController):
             raise ForbiddenException(Err.OA0038, [])
         return user
 
-    def _check_input(self, **input):
-        email = input.get('email')
-        password = input.get('password')
+    def _check_input(self, **input_):
+        email = input_.get('email')
+        password = input_.get('password')
         if not email or not password:
             raise WrongArgumentsException(Err.OA0039, [])
         user = self._check_user(email, password)

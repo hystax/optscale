@@ -8,7 +8,7 @@ from auth.auth_server.utils import as_dict, ModelEncoder
 
 class TypeAsyncItemHandler(types_v1.TypeAsyncItemHandler):
 
-    async def get(self, id, **kwargs):
+    async def get(self, type_id, **kwargs):
         """
         ---
         x-hidden: true
@@ -61,7 +61,7 @@ class TypeAsyncItemHandler(types_v1.TypeAsyncItemHandler):
         security:
         - token: []
         """
-        await super().get(id, **kwargs)
+        await super().get(type_id, **kwargs)
 
 
 class TypeAsyncCollectionHandler(BaseSecretHandler):

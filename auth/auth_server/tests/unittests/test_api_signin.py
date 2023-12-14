@@ -1,9 +1,5 @@
 import os
-from datetime import datetime
-
 from unittest.mock import patch
-
-from freezegun import freeze_time
 
 from auth.auth_server.models.models import (Type, User, Role, Assignment,
                                             Action, ActionGroup)
@@ -30,13 +26,13 @@ class TestSignIn(TestAuthBase):
         )
         admin_user = self.create_root_user()
         session = self.db_session
-        type_partner = Type(id=10, name='partner', parent=admin_user.type)
-        type_customer = Type(id=20, name='customer', parent=type_partner)
-        type_group = Type(id=30, name='group', parent=type_customer)
+        type_partner = Type(id_=10, name='partner', parent=admin_user.type)
+        type_customer = Type(id_=20, name='customer', parent=type_partner)
+        type_group = Type(id_=30, name='group', parent=type_customer)
         self.user_type_id = int(type_group.id)
         salt = gen_salt()
         user_partner = User(
-            'partner@domain.com', type=type_partner,
+            'partner@domain.com', type_=type_partner,
             password=hash_password('passwd!!!111', salt),
             display_name='Partner user', scope_id=self.partner_scope_id,
             salt=salt, type_id=type_partner.id)
@@ -44,7 +40,7 @@ class TestSignIn(TestAuthBase):
         self.user_customer_password = 'p@sswRD!'
         self.user_customer_name = 'Customer user'
         user_customer = User(
-            self.user_customer_email, type=type_customer,
+            self.user_customer_email, type_=type_customer,
             salt=salt,
             display_name=self.user_customer_name,
             password=hash_password(
@@ -53,29 +49,29 @@ class TestSignIn(TestAuthBase):
 
         user_action_group = ActionGroup(name='Manage users and assignments')
         # admin action has type=root
-        action_list_users = Action(name='LIST_USERS', type=type_customer,
+        action_list_users = Action(name='LIST_USERS', type_=type_customer,
                                    action_group=user_action_group)
         action_create_user = Action(name='CREATE_USER',
-                                    type=type_customer,
+                                    type_=type_customer,
                                     action_group=user_action_group)
         action_edit_user_info = Action(name='EDIT_USER_INFO',
-                                       type=type_customer,
+                                       type_=type_customer,
                                        action_group=user_action_group)
-        action_delete_user = Action(name='DELETE_USER', type=admin_user.type,
+        action_delete_user = Action(name='DELETE_USER', type_=admin_user.type,
                                     action_group=user_action_group)
         action_activate_user = Action(name='ACTIVATE_USER',
-                                      type=type_customer,
+                                      type_=type_customer,
                                       action_group=user_action_group)
         action_reset_password = Action(name='RESET_USER_PASSWORD',
-                                       type=type_customer,
+                                       type_=type_customer,
                                        action_group=user_action_group)
-        admin_role = Role(name='ADMIN', type=type_customer, lvl=type_customer,
+        admin_role = Role(name='ADMIN', type_=type_customer, lvl=type_customer,
                           scope_id=self.customer1_scope_id,
                           description='Admin')
-        partner1_nodelete_role = Role(name='P1 No delete', type=type_partner,
+        partner1_nodelete_role = Role(name='P1 No delete', type_=type_partner,
                                       lvl=type_customer,
                                       scope_id=self.partner_scope_id)
-        partner1_delete_role = Role(name='P1 User Deleter', type=type_partner,
+        partner1_delete_role = Role(name='P1 User Deleter', type_=type_partner,
                                     lvl=type_customer)
         session.add(type_partner)
         session.add(type_customer)
@@ -156,7 +152,7 @@ class TestSignIn(TestAuthBase):
                          'Incorrect request body received')
 
     def test_signin_no_client_id(self):
-        code, resp = self.client.post(
+        code, _ = self.client.post(
             self.client.signin_url(),
             {'provider': 'google', 'token': 'token'})
         self.assertEqual(code, 403)
@@ -165,7 +161,7 @@ class TestSignIn(TestAuthBase):
     def test_signin_invalid_token(self):
         with patch('google.oauth2.id_token.verify_oauth2_token',
                    side_effect=ValueError):
-            code, resp = self.client.signin(provider='google', token='token')
+            code, _ = self.client.signin(provider='google', token='token')
             self.assertEqual(code, 403)
 
     @patch.dict(os.environ, {'GOOGLE_OAUTH_CLIENT_ID': '223322'}, clear=True)
@@ -173,7 +169,7 @@ class TestSignIn(TestAuthBase):
         token_info = {'email': 'test@domain.com', 'name': 'John Doe'}
         with patch('google.oauth2.id_token.verify_oauth2_token',
                    return_value=token_info):
-            code, resp = self.client.signin(provider='google', token='token')
+            code, _ = self.client.signin(provider='google', token='token')
             self.assertEqual(code, 403)
 
     @patch.dict(os.environ, {'GOOGLE_OAUTH_CLIENT_ID': '223322'}, clear=True)
@@ -207,7 +203,8 @@ class TestSignIn(TestAuthBase):
         with patch('auth.auth_server.controllers.signin.'
                    'MicrosoftOauth2Provider.verify',
                    return_value=token_info):
-            code, resp = self.client.signin(provider='microsoft', token='token')
+            code, resp = self.client.signin(provider='microsoft',
+                                            token='token')
         self.assertEqual(code, 201)
         self.assertEqual(resp['user_email'], email)
 
@@ -221,25 +218,23 @@ class TestSignIn(TestAuthBase):
     def test_signin_existing_user(self):
         patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
-        token_info = {
-            'email': self.user_customer_email,
-            'name': self.user_customer_name,
-            'email_verified': True
-        }
-        with patch('google.oauth2.id_token.verify_oauth2_token',
+        token_info = (self.user_customer_email, self.user_customer_name)
+        with patch('auth.auth_server.controllers.signin.'
+                   'GoogleOauth2Provider.verify',
                    return_value=token_info):
             code, resp = self.client.signin(provider='google', token='token')
         self.assertEqual(code, 201)
         self.assertEqual(resp['user_email'], self.user_customer_email)
 
     @patch.dict(os.environ, {'MICROSOFT_OAUTH_CLIENT_ID': '123'}, clear=True)
-    def test_signin_existing_user(self):
+    def test_signin_existing_user_ms(self):
         patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
         token_info = (self.user_customer_email, self.user_customer_name)
         with patch('auth.auth_server.controllers.signin.'
                    'MicrosoftOauth2Provider.verify',
                    return_value=token_info):
-            code, resp = self.client.signin(provider='microsoft', token='token')
+            code, resp = self.client.signin(provider='microsoft',
+                                            token='token')
         self.assertEqual(code, 201)
         self.assertEqual(resp['user_email'], self.user_customer_email)

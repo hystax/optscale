@@ -5,9 +5,9 @@ from auth.auth_server.auth_token.macaroon import MacaroonToken
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (Token, User, Assignment, Role,
                                             Action, RoleAction, Type)
+from auth.auth_server.utils import get_context_values, get_digest
 from tools.optscale_exceptions.common_exc import (UnauthorizedException,
                                                   ForbiddenException)
-from auth.auth_server.utils import get_context_values, get_digest
 
 LOG = logging.getLogger(__name__)
 
@@ -44,8 +44,9 @@ class TokenStore(object):
         if scope_id and scope_id not in context_values:
             raise ForbiddenException(Err.OA0012, [])
         # requested level
-        ass_type_ids = ([ass_type.id] +
-                        list(map(lambda x: x.id, ass_type.parent_tree)))
+        ass_type_ids = (
+                [ass_type.id] + list(map(lambda x: x.id, ass_type.parent_tree))
+        )
         assignments_query = self.session.query(Assignment).join(
             User, and_(
                 User.id == user.id,
@@ -90,7 +91,7 @@ class TokenStore(object):
             raise ForbiddenException(Err.OA0012, [])
         return assignments
 
-    def action_resources(self, user, action_list=list()):
+    def action_resources(self, user, action_list=None):
         """
         Returns list of sorted tuples action-resource
         [(resource-id, type, ACTION_NAME)]
@@ -98,7 +99,7 @@ class TokenStore(object):
         [('a8897a68-46d9-4a8d-bcc9-71df31049fd5', 'organization', 'ACTION1'),
         [('13ea5490-1eba-4884-99cd-10e0e8e47f98', 'pool', 'ACTION2')]]
         :param user: User instance
-        :param action_list: list of actions names
+        :param action_list: list of actions names or None
         :return:
         """
         action_resources_query = self.session.query(
@@ -133,7 +134,7 @@ class TokenStore(object):
             Type.name, Action.name, Assignment.resource_id).all()
         return action_resources
 
-    def bulk_action_resources(self, user_ids, action_list=list()):
+    def bulk_action_resources(self, user_ids, action_list=None):
         """
         Returns map where key is user id and value is a list of sorted tuples
         (resource_id, type, action_name)
@@ -176,7 +177,7 @@ class TokenStore(object):
         return result
 
     def auth_user_list(self, user_id_list, action_list, allowed_lvls,
-                       context=list()):
+                       context=None):
         """
         Returns list of sorted tuples user_id-action
         [(user_id, ACTION_NAME)]
@@ -186,7 +187,7 @@ class TokenStore(object):
         :param user_id_list: list of user ids
         :param action_list: list of action names
         :param allowed_lvls: list allowed (by type access lvl) lvl ids
-        :param context: list of resource ids (str)
+        :param context: list of resource ids (str) or None
         :return:
         """
         auth_list_query = self.session.query(
@@ -220,7 +221,7 @@ class TokenStore(object):
                 Assignment.type_id.in_(allowed_lvls),
                 Assignment.user_id.in_(user_id_list),
                 or_(
-                    Assignment.resource_id.in_(context),
+                    Assignment.resource_id.in_(context or []),
                     Assignment.resource_id.is_(None)
                 )
             )

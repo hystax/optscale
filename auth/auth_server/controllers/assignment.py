@@ -1,18 +1,16 @@
-import json
 import logging
 import datetime
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 
 from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.role import RoleController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
 from auth.auth_server.exceptions import Err
-from auth.auth_server.models.models import (
-    Assignment, Role, Type, User)
+from auth.auth_server.models.models import Assignment, Role
+from auth.auth_server.utils import check_action
 from tools.optscale_exceptions.common_exc import (ForbiddenException,
                                                   NotFoundException,
                                                   WrongArgumentsException)
-from auth.auth_server.utils import check_action
 
 
 LOG = logging.getLogger(__name__)
@@ -26,11 +24,11 @@ class AssignmentController(BaseController):
     def _is_self_assign(user, item_user_id):
         return user.id == item_user_id
 
-    def _get_input(self, **input):
-        role_id = input.get('role_id')
-        user_id = input.get('user_id')
-        type_id = input.get('type_id')
-        resource_id = input.get('resource_id')
+    def _get_input(self, **input_):
+        role_id = input_.get('role_id')
+        user_id = input_.get('user_id')
+        type_id = input_.get('type_id')
+        resource_id = input_.get('resource_id')
         return role_id, user_id, type_id, resource_id
 
     def _check_assign_ability(self, token, user, item):
@@ -68,7 +66,7 @@ class AssignmentController(BaseController):
         self._check_input(role_id, user_id, type_id, resource_id)
         user = self.get_user(token)
         user_to_assign = self.get_user_by_id(user_id)
-        type = self.get_type(type_id)
+        type_ = self.get_type(type_id)
         assignable_roles, _ = RoleController(self.session, self._config).list(
             user_id, **{'token': token})
         # filter assignable roles by assignment level
@@ -85,7 +83,7 @@ class AssignmentController(BaseController):
         # possibility to have multiple simillar assignments now
         existent_item = self.session.query(Assignment).filter(
             and_(
-                Assignment.type_id == type.id,
+                Assignment.type_id == type_.id,
                 Assignment.resource_id == resource_id,
                 Assignment.role_id == role_id,
                 Assignment.deleted.is_(False),
@@ -95,7 +93,7 @@ class AssignmentController(BaseController):
         if existent_item:
             item = existent_item.pop()
         else:
-            item = Assignment(user_to_assign, type=type,
+            item = Assignment(user_to_assign, type_=type_,
                               resource_id=resource_id, role_id=role_id)
             self._check_assign_ability(token, user, item)
             self.session.add(item)
@@ -134,7 +132,7 @@ class AssignmentController(BaseController):
         scope_info = self.get_resources_info(payload).get(item.resource_id, {})
         return item, scope_info
 
-    def edit(self, item_id, **input):
+    def edit(self, item_id, **input_):
         raise NotImplementedError
 
     def list(self, **kwargs):
@@ -180,7 +178,8 @@ class AssignmentController(BaseController):
     def register(self, **kwargs):
         self.check_create_restrictions(**kwargs)
         role_id, user_id, type_id, resource_id = self._get_input(**kwargs)
-        self._check_input(role_id, user_id, type_id, resource_id, register=True)
+        self._check_input(role_id, user_id, type_id, resource_id,
+                          register=True)
         user_to_assign = self.get_user_by_id(user_id)
         type_ = self.get_type(type_id)
         existent_item = self.session.query(Assignment).filter(
@@ -195,7 +194,7 @@ class AssignmentController(BaseController):
         if existent_item:
             item = existent_item.pop()
         else:
-            item = Assignment(user_to_assign, type=type_,
+            item = Assignment(user_to_assign, type_=type_,
                               resource_id=resource_id, role_id=role_id)
             self.session.add(item)
             self.session.commit()

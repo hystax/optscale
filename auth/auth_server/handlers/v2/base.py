@@ -7,19 +7,19 @@ from auth.auth_server.handlers.v1.base import BaseHandler as BaseHandler_v1
 
 
 class BaseHandler(BaseHandler_v1):
-    def get_arg(self, name, type, default=None, repeated=False):
+    def get_arg(self, name, type_, default=None, repeated=False):
         try:
             if repeated:
-                return [type(a) for a in self.get_arguments(name)]
+                return [type_(a) for a in self.get_arguments(name)]
             else:
                 arg = self.get_argument(name, default=default)
                 if arg:
-                    if type == bool and isinstance(arg, str):
+                    if type_ == bool and isinstance(arg, str):
                         lowered = arg.lower()
                         if lowered not in ['true', 'false']:
                             raise WrongArgumentsException(Err.OA0063, [name])
                         return lowered == 'true'
-                    return type(arg)
+                    return type_(arg)
                 else:
                     return arg
         except ValueError:

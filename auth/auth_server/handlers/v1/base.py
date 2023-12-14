@@ -5,10 +5,11 @@ import tornado.web
 
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.db_base import BaseDB
+from auth.auth_server.utils import ModelEncoder, run_task
+
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   UnauthorizedException)
 from tools.optscale_exceptions.http_exc import OptHTTPError
-from auth.auth_server.utils import ModelEncoder, run_task
 
 LOG = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ class BaseHandler(tornado.web.RequestHandler):
         res = {
             'error': {
                 'status_code': status_code,
-                'error_code': getattr(exc, 'error_code', 'U0%s' % status_code),
+                'error_code': getattr(exc, 'error_code', f'U0{status_code}'),
                 'reason': self._reason,
                 'params': getattr(exc, 'params', []),
             }
@@ -115,10 +116,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def log_exception(self, typ, value, tb):
         if isinstance(value, OptHTTPError):
             if value.log_message:
-                format = "%d %s: " + value.log_message
+                format_ = "%d %s: " + value.log_message
                 args = ([value.status_code, self._request_summary()] +
                         list(value.args))
-                LOG.warning(format, *args)
+                LOG.warning(format_, *args)
         else:
             out_list = traceback.format_exception(typ, value, tb)
 
@@ -209,8 +210,7 @@ class BaseAsyncAuthCollectionHandler(BaseAuthHandler):
 
     async def post(self, **url_params):
         data = self._request_body()
-        duplicates = list(filter(lambda x: x in url_params.keys(),
-                                 data.keys()))
+        duplicates = list(filter(lambda x: x in url_params, data.keys()))
         if duplicates:
             unexpected_string = ', '.join(duplicates)
             raise OptHTTPError(400, Err.OA0022, [unexpected_string])
@@ -248,24 +248,24 @@ class BaseAsyncAuthItemHandler(BaseAuthHandler):
         self.set_status(201)
         self.write(res.to_json())
 
-    async def get(self, id, **kwargs):
+    async def get(self, item_id, **kwargs):
         kwargs.update(self.token)
-        item = await self._get_item(id, **kwargs)
+        item = await self._get_item(item_id, **kwargs)
         self._validate_params(item, **kwargs)
         self.write(item.to_json())
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, item_id, **kwargs):
         data = self._request_body()
         kwargs.update(self.token)
         data.update(self.token)
-        item = await self._get_item(id, **kwargs)
+        item = await self._get_item(item_id, **kwargs)
         self._validate_params(item, **kwargs)
-        res = await run_task(self.controller.edit, id, **data)
+        res = await run_task(self.controller.edit, item_id, **data)
         self.write(res.to_json())
 
-    async def delete(self, id, **kwargs):
-        item = await self._get_item(id)
+    async def delete(self, item_id, **kwargs):
+        item = await self._get_item(item_id)
         kwargs.update(self.token)
         self._validate_params(item, **kwargs)
-        await run_task(self.controller.delete, id, **kwargs)
+        await run_task(self.controller.delete, item_id, **kwargs)
         self.set_status(204)

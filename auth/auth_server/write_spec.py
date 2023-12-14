@@ -1,10 +1,8 @@
-import yaml
-import os.path
 import re
-import json
-import auth.auth_server.server as server
+import os.path
+import yaml
 from apispec import APISpec, utils
-from tornado.template import Template
+import auth.auth_server.server as server
 
 # Spec reference:
 # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md
@@ -13,9 +11,10 @@ OPENAPI_SPEC = """
 swagger: '2.0'
 info:
     description: >
-        OptScale Auth API. Call `POST` `/auth/v2/tokens` with `{"email": "<email>",
-        "password": "<password>"}` body to receive an authorization token and
-        use `Bearer <token>` string in `Authorization` header to authorize.
+        OptScale Auth API. Call `POST` `/auth/v2/tokens` with
+         `{"email": "<email>", "password": "<password>"}` body to receive an
+         authorization token and use `Bearer <token>` string in `Authorization`
+          header to authorize.
     title: Auth
     version: 1.0.0
 securityDefinitions:
@@ -70,9 +69,11 @@ def main():
             print("Warning: docstrings for '" + urlspec[0] + "' are not found")
 
     # Api spec files
-    with open(os.path.join(server.SWAGGER_PATH, "spec.yaml"), "w") as file:
+    with open(os.path.join(server.SWAGGER_PATH, "spec.yaml"), "w",
+              encoding='utf-8') as file:
         file.write(spec.to_yaml())
-    with open(os.path.join(server.SWAGGER_PATH, "spec_advanced.yaml"), "w") as file:
+    with open(os.path.join(server.SWAGGER_PATH, "spec_advanced.yaml"), "w",
+              encoding='utf-8') as file:
         file.write(spec_advanced.to_yaml())
 
 

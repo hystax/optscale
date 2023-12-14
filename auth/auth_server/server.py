@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 
-import optscale_client.config_client.client
 import tornado.ioloop
 import tornado.web
 from tornado.web import RedirectHandler
@@ -14,6 +13,8 @@ from auth.auth_server.constants import urls_v2
 from auth.auth_server.handlers.v1.base import DefaultHandler
 from auth.auth_server.handlers.v1.swagger import SwaggerStaticFileHandler
 from auth.auth_server.models.db_factory import DBType, DBFactory
+
+import optscale_client.config_client.client
 
 DEFAULT_PORT = 8905
 DEFAULT_ETCD_HOST = '127.0.0.1'
@@ -29,6 +30,7 @@ URL_PREFIX = "/auth/v2"
 
 
 def get_handlers(handler_kwargs):
+    # pylint: disable=E1101
     return [
         # urls for auth v2
         (urls_v2.tokens, get_handler_version(
@@ -105,10 +107,10 @@ def make_app(db_type, etcd_host, etcd_port, wait=False):
     config_cl.tell_everybody_that_i_am_ready()
     return tornado.web.Application(
         get_handlers(handler_kwargs) + [
-            (r'%s/swagger/(.*)' % URL_PREFIX,
+            (rf"{URL_PREFIX}/swagger/(.*)",
              SwaggerStaticFileHandler, {'path': SWAGGER_PATH}),
-            (r"%s/?" % URL_PREFIX, RedirectHandler,
-             {"url": "%s/swagger/spec.html" % URL_PREFIX}),
+            (rf"{URL_PREFIX}/?", RedirectHandler,
+             {"url": f"{URL_PREFIX}/swagger/spec.html"}),
         ],
         default_handler_class=DefaultHandler
     )
@@ -125,7 +127,7 @@ def main():
     parser.add_argument('--etcdport', type=int, default=etcd_port)
     args = parser.parse_args()
 
-    app = make_app(DBType.MySQL, args.etcdhost, args.etcdport, wait=True)
+    app = make_app(DBType.MYSQL, args.etcdhost, args.etcdport, wait=True)
     LOG.info("start listening on port %d", DEFAULT_PORT)
     app.listen(DEFAULT_PORT, decompress_request=True)
     tornado.ioloop.IOLoop.instance().start()

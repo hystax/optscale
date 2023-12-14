@@ -3,16 +3,15 @@ import hashlib
 import json
 import os
 import re
-
-from auth.auth_server.exceptions import Err
 from concurrent.futures import ThreadPoolExecutor
-from optscale_client.config_client.client import Client as ConfigClient
 from datetime import datetime
+from sqlalchemy import inspect
+from auth.auth_server.exceptions import Err
+from optscale_client.config_client.client import Client as ConfigClient
 from tools.optscale_exceptions.http_exc import OptHTTPError
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, UnauthorizedException, ForbiddenException,
     NotFoundException, ConflictException, FailedDependency)
-from sqlalchemy import inspect
 
 
 tp_executor = ThreadPoolExecutor(15)
@@ -91,14 +90,14 @@ def get_digest(val):
     return hashlib.md5(val.encode('utf-8')).hexdigest()
 
 
-def get_input(keys, **input):
+def get_input(keys, **inputs):
     return dict(filter(lambda x: x[1] is not None,
-                       {key: input.get(key) for key in keys}.items()))
+                       {key: inputs.get(key) for key in keys}.items()))
 
 
 def is_email_format(check_str):
-    regex = '^[a-z0-9!#$%&\'*+/=?`{|}~\^\-\+_()]+(\.[a-z0-9!#$%&\'*+/=?`{|}~\^\-\+_()]+)*' \
-            '@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,18})$'
+    regex = r"^[a-z0-9!#$%&\'*+/=?`{|}~\^\-\+_()]+(\.[a-z0-9!#$%&\'*+/=?`{|}" \
+            r"~\^\-\+_()]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,18})$"
     match = re.match(regex, str(check_str).lower())
     return bool(match)
 
@@ -190,7 +189,6 @@ class PasswordValidator(object):
         lowercase_error = re.search(r"[a-z]", password) is None
         symbol_error = re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~" + r'"]',
                                  password) is None
-
         # result should depend on criteria
         return not (length_error or digit_error or uppercase_error or
                     lowercase_error or symbol_error)
@@ -213,7 +211,7 @@ def load_payload(payload):
 def popkey(obj, key):
     if key in obj:
         obj.pop(key)
-    for k, v in obj.items():
+    for v in obj.values():
         if isinstance(v, dict):
             return popkey(v, key)
 

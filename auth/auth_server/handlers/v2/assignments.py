@@ -21,7 +21,7 @@ class AssignmentAsyncItemHandler(AssignmentAsyncItemHandler_v1,
     def prepare(self):
         pass
 
-    async def get(self, id, **kwargs):
+    async def get(self, assignment_id, **kwargs):
         """
         ---
         x-hidden: true
@@ -87,9 +87,9 @@ class AssignmentAsyncItemHandler(AssignmentAsyncItemHandler_v1,
         - token: []
         """
         await self.check_token()
-        await super().get(id, **kwargs)
+        await super().get(assignment_id, **kwargs)
 
-    async def delete(self, id, **kwargs):
+    async def delete(self, assignment_id, **kwargs):
         """
         ---
         tags: [assignments]
@@ -135,10 +135,10 @@ class AssignmentAsyncItemHandler(AssignmentAsyncItemHandler_v1,
         if not self.check_cluster_secret(raises=False):
             await self.check_token()
             kwargs.update(self.token)
-        item, _ = await self._get_item(id)
+        item, _ = await self._get_item(assignment_id)
         self._validate_params(item, **kwargs)
         try:
-            await self.controller.delete(id, **kwargs)
+            await self.controller.delete(assignment_id, **kwargs)
         except NotFoundException as ex:
             raise OptHTTPError.from_opt_exception(404, ex)
         except ForbiddenException as ex:
@@ -181,7 +181,8 @@ class AssignmentAsyncCollectionHandler(AssignmentAsyncCollectionHandler_v1,
                                     assignment_resource: {type: string,
                                         description: "Assignment resource id"}
                                     assignment_resource_type: {type: integer,
-                                        description: "Assignment resource type"}
+                                        description: "Assignment resource type"
+                                    }
                                     scope_name: {type: string,
                                         description: "Scope name"}
                                     role_id: {type: integer,
@@ -269,7 +270,8 @@ class AssignmentAsyncCollectionHandler(AssignmentAsyncCollectionHandler_v1,
                     Forbidden:
                     - OA0012: Forbidden!
                     - OA0017: Role not assignable to user
-                    - OA0018: Scope of assignment should be not greater than user scope
+                    - OA0018: Scope of assignment should be not greater than
+                         user scope
             404:
                 description: |
                     Not found:
@@ -308,8 +310,10 @@ class MyAssignmentCollectionHandler(AssignmentAsyncCollectionHandler_v1):
                                         description: "Assignment id"}
                                     assignment_resource: {type: string,
                                         description: "Assignment resource id"}
-                                    assignment_resource_type: {type: integer,
-                                        description: "Assignment resource type"}
+                                    assignment_resource_type: {
+                                        type: integer,
+                                        description: "Assignment resource type"
+                                    }
                                     role_id: {type: integer,
                                         description: "Role id"}
                                     role_name: {type: string,
@@ -405,8 +409,7 @@ class RegisterAssignmentCollectionHandler(BaseSecretHandler):
         self.check_cluster_secret()
         data = self._request_body()
         kwargs.update({'user_id': user_id})
-        duplicates = list(filter(lambda x: x in kwargs.keys(),
-                                 data.keys()))
+        duplicates = list(filter(lambda x: x in kwargs, data.keys()))
         if duplicates:
             unexpected_string = ', '.join(duplicates)
             raise OptHTTPError(400, Err.OA0022, [unexpected_string])

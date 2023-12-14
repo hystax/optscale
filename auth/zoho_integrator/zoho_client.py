@@ -20,7 +20,8 @@ from zcrmsdk.src.com.zoho.crm.api.record import (
     BodyWrapper,
     ActionWrapper,
 )
-from zcrmsdk.src.com.zoho.crm.api.tags import TagsOperations, AddTagsToRecordParam
+from zcrmsdk.src.com.zoho.crm.api.tags import (TagsOperations,
+                                               AddTagsToRecordParam)
 from zcrmsdk.src.com.zoho.crm.api.util import APIResponse
 
 from auth.zoho_integrator.registered_app import RegisteredApp
@@ -60,7 +61,7 @@ class ZohoClient:
             )
             self._initialized = True
         except Exception as e:
-            LOG.error(f"Wasn't able to initialize zoho client. Err: {str(e)}")
+            LOG.error("Wasn't able to initialize zoho client. Err: %s", str(e))
             raise
 
     def _get_token(self) -> OAuthToken:
@@ -87,38 +88,47 @@ class ZohoClient:
             return list_of_objects[0]
         raise RecordNotFoundException
 
-    def handle_api_response(self, response: APIResponse) -> Union[List, object]:
+    def handle_api_response(
+            self, response: APIResponse
+    ) -> Union[List, object]:
         if response is not None:
             status_code = response.get_status_code()
-            if not (http.HTTPStatus.BAD_REQUEST > status_code >= http.HTTPStatus.OK):
-                LOG.error(f"API request has failed. Status code: {status_code}")
+            if not (http.HTTPStatus.BAD_REQUEST > status_code >=
+                    http.HTTPStatus.OK):
+                LOG.error("API request has failed. Status code: %s",
+                          status_code)
                 raise APIFailedException()
             data = response.get_object()
-            if isinstance(data, ResponseWrapper) or isinstance(data, ActionWrapper):
+            if isinstance(data, ResponseWrapper) or isinstance(data,
+                                                               ActionWrapper):
                 data = data.get_data()
                 return data
             else:
                 return data
 
-    def upsert_record(self, record: Record, module: str) -> Union[List, object]:
+    def upsert_record(
+            self, record: Record, module: str
+    ) -> Union[List, object]:
         record_operations = RecordOperations()
         request = BodyWrapper()
         records_list = [record]
         request.set_data(records_list)
         header_instance = HeaderMap()
-        response = record_operations.upsert_records(module, request, header_instance)
+        response = record_operations.upsert_records(module, request,
+                                                    header_instance)
         data = self.handle_api_response(response)
         return data
 
     def add_tags(
         self, module: str, id_: int, tag_names: List[str]
     ) -> Union[List, object]:
-        LOG.info(f"Add tags {tag_names} to record with id {id_}")
+        LOG.info("Add tags %s to record with id %s", tag_names, id_)
         tags_operations = TagsOperations()
         param_instance = ParameterMap()
         for tag_name in tag_names:
             param_instance.add(AddTagsToRecordParam.tag_names, tag_name)
         param_instance.add(AddTagsToRecordParam.over_write, "false")
-        response = tags_operations.add_tags_to_record(id_, module, param_instance)
+        response = tags_operations.add_tags_to_record(
+            id_, module, param_instance)
         data = self.handle_api_response(response)
         return data

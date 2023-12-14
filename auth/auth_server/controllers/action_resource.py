@@ -6,9 +6,9 @@ from auth.auth_server.models.models import Type
 from auth.auth_server.auth_token.token_store import TokenStore
 from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
+from auth.auth_server.utils import load_payload
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   ForbiddenException)
-from auth.auth_server.utils import load_payload
 
 LOG = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class ActionResourceController(object):
         base_controller = BaseController(self.session, self._config)
         user_action_resources = base_controller.get_bulk_action_resources(
             user_ids, actions)
-        for user_id, action_resources in user_action_resources.items():
+        for action_resources in user_action_resources.values():
             for k, v in copy.deepcopy(action_resources).items():
                 action_resources[k] = list(
                     filter(lambda x: x[0] not in non_assignable, v))

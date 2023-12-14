@@ -4,16 +4,17 @@ class Urls:
     urls_map = {
         'tokens': r"%s/tokens",
         'users_collection': r"%s/users",
-        'users': r"%s/users/(?P<id>[^/]+)",
+        'users': r"%s/users/(?P<user_id>[^/]+)",
         'user_existence': r"%s/user_existence",
         'roles_collection': r"%s/roles",
-        'roles': r"%s/roles/(?P<id>[^/]+)",
+        'roles': r"%s/roles/(?P<role_id>[^/]+)",
         'authorize': r"%s/authorize",
         'assignments_collection': r"%s/users/(?P<user_id>[^/]+)/assignments",
-        'assignments': r"%s/users/(?P<user_id>[^/]+)/assignments/(?P<id>[^/]+)",
+        'assignments': r"%s/users/(?P<user_id>[^/]+)/assignments/"
+                       r"(?P<assignment_id>[^/]+)",
         'my_assignments': r"%s/assignments",
         'types_collection': r"%s/types",
-        'types': r"%s/types/(?P<id>[^/]+)",
+        'types': r"%s/types/(?P<type_id>[^/]+)",
         'scopes': r"%s/scopes",
         'allowed_actions': r"%s/allowed_actions",
         'digests': r"%s/digests",
@@ -23,7 +24,8 @@ class Urls:
         'assignment_register':
             r"%s/users/(?P<user_id>[^/]+)/assignment_register",
         'user_roles': r"%s/user_roles",
-        'user_action_resources': r"%s/users/(?P<user_id>[^/]+)/action_resources",
+        'user_action_resources':
+            r"%s/users/(?P<user_id>[^/]+)/action_resources",
         'bulk_action_resources': r"%s/bulk_action_resources",
         'signin': r"%s/signin",
     }

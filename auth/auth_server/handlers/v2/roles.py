@@ -1,23 +1,22 @@
 import json
 import logging
 
-from tornado import gen
-
 from auth.auth_server.controllers.role import RoleAsyncController
 from auth.auth_server.handlers.v1.base import BaseSecretHandler
 from auth.auth_server.handlers.v1.roles import (
     RoleAsyncItemHandler as RoleAsyncItemHandler_v1,
     RoleAsyncCollectionHandler as RoleAsyncCollectionHandler_v1)
+from auth.auth_server.utils import ModelEncoder, as_dict
+
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException)
 from tools.optscale_exceptions.http_exc import OptHTTPError
-from auth.auth_server.utils import ModelEncoder, as_dict
 
 LOG = logging.getLogger(__name__)
 
 
 class RoleAsyncItemHandler(RoleAsyncItemHandler_v1):
-    async def get(self, id, **kwargs):
+    async def get(self, role_id, **kwargs):
         """
         ---
         x-hidden: true
@@ -90,9 +89,9 @@ class RoleAsyncItemHandler(RoleAsyncItemHandler_v1):
         security:
         - token: []
         """
-        await super().get(id, **kwargs)
+        await super().get(role_id, **kwargs)
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, role_id, **kwargs):
         """
         ---
         x-hidden: true
@@ -100,7 +99,8 @@ class RoleAsyncItemHandler(RoleAsyncItemHandler_v1):
         summary: Edit role
         description: |
             Modifies a role with specified id
-            Required permission: EDIT_ROLES or EDIT_OWN_ROLES or EDIT_SUBLEVEL_ROLES
+            Required permission: |
+                EDIT_ROLES or EDIT_OWN_ROLES or EDIT_SUBLEVEL_ROLES
         parameters:
         -   name: id
             in: path
@@ -170,9 +170,9 @@ class RoleAsyncItemHandler(RoleAsyncItemHandler_v1):
         security:
         - token: []
         """
-        await super().patch(id, **kwargs)
+        await super().patch(role_id, **kwargs)
 
-    async def delete(self, id, **kwargs):
+    async def delete(self, role_id, **kwargs):
         """
         ---
         x-hidden: true
@@ -216,7 +216,7 @@ class RoleAsyncItemHandler(RoleAsyncItemHandler_v1):
         security:
         - token: []
         """
-        await super().delete(id, **kwargs)
+        await super().delete(role_id, **kwargs)
 
 
 class RoleAsyncCollectionHandler(RoleAsyncCollectionHandler_v1):

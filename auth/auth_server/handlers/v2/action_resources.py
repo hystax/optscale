@@ -228,15 +228,20 @@ class BulkActionResourcesAsyncHandler(BaseSecretHandler, BaseHandler):
                     example:
                         175bedaa-65cf-4802-a287-b9858588345f:
                         -   MANAGE_RESOURCES:
-                            -   ['pool', 'baf1ccda-2252-4c1a-b789-525be0a8f177']
-                            -   ['organization', 'a3666b42-fcc0-44a9-a184-068504b6fda4']
+                            -   ['pool',
+                                 'baf1ccda-2252-4c1a-b789-525be0a8f177']
+                            -   ['organization',
+                                 'a3666b42-fcc0-44a9-a184-068504b6fda4']
                         -   MANAGE_OWN_RESOURCES:
-                            -   ['pool', 'baf1ccda-2252-4c1a-b789-525be0a8f177']
-                            -   ['organization', 'a3666b42-fcc0-44a9-a184-068504b6fda4']
+                            -   ['pool',
+                                 'baf1ccda-2252-4c1a-b789-525be0a8f177']
+                            -   ['organization',
+                                 'a3666b42-fcc0-44a9-a184-068504b6fda4']
                         69ee3625-f559-4079-9aa8-8a6150051a4e:
                         -   MANAGE_RESOURCES: []
                         -   MANAGE_OWN_RESOURCES:
-                            -   ['pool', 'baf1ccda-2252-4c1a-b789-525be0a8f177']
+                            -   ['pool',
+                                 'baf1ccda-2252-4c1a-b789-525be0a8f177']
             400:
                 description: |
                     Wrong arguments:

@@ -3,7 +3,8 @@ from typing import List
 from zcrmsdk.src.com.zoho.crm.api.record import Record, Field
 from zcrmsdk.src.com.zoho.crm.api.util import Choice
 
-from auth.zoho_integrator.zoho_client import ZohoClient, RecordNotFoundException
+from auth.zoho_integrator.zoho_client import (ZohoClient,
+                                              RecordNotFoundException)
 
 
 FULL_NAME_SEP = " "
@@ -36,7 +37,8 @@ class ZohoIntegrator:
                     break
             except RecordNotFoundException:
                 LOG.debug(
-                    f"Wasn't able to find record with email {email} in module {module}"
+                    "Wasn't able to find record with email %s in module %s",
+                    email, module
                 )
                 continue
         return user, target_module
@@ -57,8 +59,10 @@ class ZohoIntegrator:
         record.add_field_value(Field.Leads.first_name(), first_name)
         record.add_field_value(Field.Leads.full_name(), full_name)
         record.add_field_value(Field.Leads.email(), email)
-        record.add_field_value(Field.Leads.lead_source(), Choice(DEFAULT_LEAD_SOURCE))
-        # for some reasons Lead_Source_Description doesn't exist in lead fields. Set manually.
+        record.add_field_value(Field.Leads.lead_source(),
+                               Choice(DEFAULT_LEAD_SOURCE))
+        # For some reasons Lead_Source_Description doesn't exist in lead
+        # fields. Set manually.
         record.add_field_value(
             Field("Lead_Source_Description"), DEFAULT_LEAD_SOURCE_DESCRIPTION
         )
@@ -69,24 +73,27 @@ class ZohoIntegrator:
         user, target_module = self.find_existing_record(email)
         if user:
             LOG.info(
-                f"Found user with email {email} in module {target_module}. Updating..."
+                "Found user with email %s in module %s. Updating...",
+                email, target_module
             )
-            if (
-                user.get_key_value(
-                    Field.Leads.last_name().get_api_name()) == LAST_NAME_PLACE_HOLDER
-            ):
+            api_name = Field.Leads.last_name().get_api_name()
+            if user.get_key_value(api_name) == LAST_NAME_PLACE_HOLDER:
                 LOG.debug("Found place holder in last name for existing user.")
                 _, new_last_name = self._get_first_last_names(full_name)
                 if new_last_name and new_last_name != LAST_NAME_PLACE_HOLDER:
-                    LOG.debug("Updating last name from place holder to specified")
-                    user.add_field_value(Field.Leads.last_name(), new_last_name)
+                    LOG.debug(
+                        "Updating last name from place holder to specified")
+                    user.add_field_value(Field.Leads.last_name(),
+                                         new_last_name)
                     # without adding this email field in request
-                    # zoho server will create new lead instead of update existing
+                    # zoho server will create new lead instead of update
+                    # existing
                     user.add_field_value(Field.Leads.email(), email)
                     modified = True
         else:
             LOG.info(
-                f"Wasn't able to find records with email {email} in modules. Creating a new one"
+                "Wasn't able to find records with email %s in modules. "
+                "Creating a new one", email
             )
             target_module = LEADS_MODULE_NAME
             user = self.new_record(email, full_name)
@@ -94,7 +101,7 @@ class ZohoIntegrator:
         if modified:
             LOG.info("User doesn't exist or was modified. Upsert record")
             data = self.client.upsert_record(user, target_module)
-            LOG.info(f"Data {data}")
+            LOG.info("Data %s", data)
             record_id = data[0].get_details().get("id")
         else:
             record_id = user.get_id()

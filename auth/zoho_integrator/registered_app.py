@@ -3,11 +3,10 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Optional
-
+from etcd import EtcdKeyError
 
 from zcrmsdk.src.com.zoho.crm.api.dc import USDataCenter, DataCenter
 from optscale_client.config_client.client import Client as ConfigClient
-from etcd import EtcdKeyError
 
 
 ETCD_EMAIL_KEY = "regapp_email"
@@ -39,7 +38,7 @@ class RegisteredApp:
                 redirect_uri,
             ) = config_client.zoho_params()
         except EtcdKeyError:
-            LOG.error(f"Couldn't get etcd params for zoho client")
+            LOG.error("Couldn't get etcd params for zoho client")
             return None
         return RegisteredApp(
             email=email,

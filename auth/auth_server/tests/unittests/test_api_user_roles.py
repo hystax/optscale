@@ -13,7 +13,8 @@ class TestUSerRolesApi(TestAuthBase):
         self.partner1_scope_id = 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d'
         self.partner2_scope_id = '640bae1c-2876-41e3-b6c3-1acb358dc387'
         session = self.db_session
-        self.type_partner = Type(id=10, name='partner', parent=admin_user.type)
+        self.type_partner = Type(id_=10, name='partner',
+                                 parent=admin_user.type)
         self.user_partner_password = 'passwd!!111'
         self.user_partner1 = User(email='partner@company.com',
                                   password=hash_password(
@@ -23,7 +24,7 @@ class TestUSerRolesApi(TestAuthBase):
                                   scope_id=self.partner1_scope_id,
                                   salt=user_partner_salt,
                                   type_id=self.type_partner.id)
-        self.manager_role = Role(name='Manager', type=self.type_partner,
+        self.manager_role = Role(name='Manager', type_=self.type_partner,
                                  lvl=self.type_partner,
                                  scope_id=self.partner1_scope_id,
                                  purpose='optscale_manager',
@@ -42,7 +43,7 @@ class TestUSerRolesApi(TestAuthBase):
                                   scope_id=self.partner2_scope_id,
                                   salt=user_partner_salt,
                                   type_id=self.type_partner.id)
-        self.engineer_role = Role(name='Engineer', type=self.type_partner,
+        self.engineer_role = Role(name='Engineer', type_=self.type_partner,
                                   lvl=self.type_partner,
                                   purpose='optscale_engineer',
                                   scope_id=self.partner2_scope_id,

@@ -1,6 +1,4 @@
 import logging
-
-import json
 import time
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import MultipleResultsFound
@@ -10,13 +8,13 @@ from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (Role, Action, RoleAction,
                                             ActionGroup, RolePurpose)
+from auth.auth_server.utils import (check_action, get_input, unique_list,
+                                    check_string_attribute, is_uuid,
+                                    pop_or_raise, get_context_values)
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   NotFoundException,
                                                   ForbiddenException,
                                                   ConflictException)
-from auth.auth_server.utils import (check_action, get_input, unique_list,
-                                    check_string_attribute, is_uuid, pop_or_raise,
-                                    get_context_values)
 
 LOG = logging.getLogger(__name__)
 
@@ -25,16 +23,16 @@ class RoleController(BaseController):
     def _get_model_type(self):
         return Role
 
-    def _get_role_by_id(self, id):
-        role = self.session.query(Role).get(id)
+    def _get_role_by_id(self, id_):
+        role = self.session.query(Role).get(id_)
         if not role or role.deleted:
-            raise NotFoundException(Err.OA0030, [id])
+            raise NotFoundException(Err.OA0030, [id_])
         return role
 
-    def _get_input(self, **input):
+    def _get_input(self, **input_):
         keys = ['name', 'type_id', 'lvl_id', 'shared', 'is_active', 'scope_id',
                 'deleted_at', 'description']
-        return get_input(keys, **input)
+        return get_input(keys, **input_)
 
     def _check_input(self, name, type_id, lvl_id, is_active, scope_id,
                      description, is_edit=False):
@@ -219,27 +217,27 @@ class RoleController(BaseController):
         except IntegrityError as ex:
             raise WrongArgumentsException(Err.OA0061, [str(ex)])
 
-    def edit(self, item_id, **input):
+    def edit(self, item_id, **input_):
         current_role = self._get_role_by_id(item_id)
-        token = input.pop('token')
-        new_actions_grouped = pop_or_raise(input, 'actions')
-        self.check_update_restrictions(**input)
-        self._check_input(input.get("name"),
-                          input.get("type_id"),
-                          input.get("lvl_id"),
-                          input.get("is_active"),
-                          input.get("scope_id"),
-                          input.get("description"),
+        token = input_.pop('token')
+        new_actions_grouped = pop_or_raise(input_, 'actions')
+        self.check_update_restrictions(**input_)
+        self._check_input(input_.get("name"),
+                          input_.get("type_id"),
+                          input_.get("lvl_id"),
+                          input_.get("is_active"),
+                          input_.get("scope_id"),
+                          input_.get("description"),
                           is_edit=True)
         if not self._check_edit_permissions(token, current_role):
             raise ForbiddenException(Err.OA0012, [])
         if new_actions_grouped is not None:
             allowed_lvls = ([x.id for x in current_role.lvl.child_tree] +
                             [current_role.lvl_id])
-            allowedActions = self.session.query(Action).filter(
+            allowed_actions = self.session.query(Action).filter(
                 Action.type_id.in_(allowed_lvls)
             ).all()
-            allowedActions = {r.name: r for r in allowedActions}
+            allowed_actions = {r.name: r for r in allowed_actions}
             new_actions = {}
             action_groups = self.session.query(ActionGroup).all()
             action_groups_names = list(map(lambda x: x.name, action_groups))
@@ -248,16 +246,19 @@ class RoleController(BaseController):
                     raise WrongArgumentsException(Err.OA0051, [action_group])
                 new_actions.update(v)
             for action_name, state in new_actions.items():
-                if action_name not in allowedActions:
+                if action_name not in allowed_actions:
                     raise WrongArgumentsException(Err.OA0036, [action_name])
                 if state:
-                    if allowedActions[action_name] not in current_role.actions:
-                        current_role.assign_action(allowedActions[action_name])
+                    if (allowed_actions[action_name] not in
+                            current_role.actions):
+                        current_role.assign_action(
+                            allowed_actions[action_name])
                 else:
-                    if allowedActions[action_name] in current_role.actions:
-                        current_role.remove_action(allowedActions[action_name])
+                    if allowed_actions[action_name] in current_role.actions:
+                        current_role.remove_action(
+                            allowed_actions[action_name])
 
-        filtered_input = self._get_input(**input)
+        filtered_input = self._get_input(**input_)
         if filtered_input:
             self.session.query(self.model_type).filter_by(id=item_id).update(
                 filtered_input)
@@ -281,9 +282,9 @@ class RoleController(BaseController):
                                                          user.scope_id)
         shared_roles = [r for r in list_roles if
                         r.shared and r.scope_id in list(context_values) +
-                        [None] and r.lvl_id in list(
-                            map(lambda x: x.id, user.type.child_tree)
-                        ) + [user.type_id]]
+                        [None] and r.lvl_id in list(map(
+                            lambda x: x.id, user.type.child_tree)) +
+                        [user.type_id]]
 
         downward_ids = self.get_downward_hierarchy_ids(downward_hierarchy)
         filtered_list_roles = [r for r in list_roles if

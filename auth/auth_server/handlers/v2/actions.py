@@ -8,7 +8,7 @@ from auth.auth_server.handlers.v1.actions import (
 class ActionAsyncHandler(ActionAsyncHandler_v1, BaseHandler):
     def get_request_data(self):
         payload = []
-        for k, v in self.request.arguments.items():
+        for k in self.request.arguments:
             items = self.get_arg(k, str, repeated=True)
             for item in items:
                 payload.append((k, item))
@@ -91,7 +91,8 @@ class ActionAsyncHandler(ActionAsyncHandler_v1, BaseHandler):
                 type: string
         -   name: resource_constraint
             in: query
-            description: resource_constraint id for which actions must be returned
+            description: |
+                resource_constraint id for which actions must be returned
             required: false
             type: array
             collectionFormat: multi
@@ -127,7 +128,8 @@ class ActionAsyncHandler(ActionAsyncHandler_v1, BaseHandler):
                     - OA0020: Invalid type
                     - OA0022: Unexpected parameters
                     - OA0050: Incorrect request body received
-                    - OA0066: Object id has a removed associated organization/pool id
+                    - OA0066: Object id has a removed associated
+                        organization/pool id
             401:
                 description: |
                     Unauthorized:

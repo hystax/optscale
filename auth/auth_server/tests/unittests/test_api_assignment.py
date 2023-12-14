@@ -1,10 +1,16 @@
 from unittest.mock import patch
 
-from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                            ActionGroup)
+from auth.auth_server.models.models import (Type, User, Action, Role,
+                                            Assignment, ActionGroup)
 from auth.auth_server.models.models import gen_salt
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 from auth.auth_server.utils import hash_password
+
+RES_INFO_URL = "auth.auth_server.controllers.base." \
+               "BaseController.get_resources_info"
+HIERARCHY_URL = "auth.auth_server.controllers.base." \
+                "BaseController.get_downward_hierarchy"
+CONTEXT_URL = "auth.auth_server.controllers.base.BaseController.get_context"
 
 
 class TestAssignment(TestAuthBase):
@@ -34,10 +40,11 @@ class TestAssignment(TestAuthBase):
                     }}}}}})
         admin_user = self.create_root_user()
         session = self.db_session
-        self.type_partner = Type(id=10, name='partner', parent=admin_user.type)
-        self.type_customer = Type(id=20, name='customer',
+        self.type_partner = Type(id_=10, name='partner',
+                                 parent=admin_user.type)
+        self.type_customer = Type(id_=20, name='customer',
                                   parent=self.type_partner)
-        self.type_group = Type(id=30, name='group', parent=self.type_customer)
+        self.type_group = Type(id_=30, name='group', parent=self.type_customer)
         user_partner_salt = gen_salt()
         self.user_partner_password = 'passwd!!111'
         # first partner user
@@ -53,7 +60,7 @@ class TestAssignment(TestAuthBase):
         user_customer1_salt = gen_salt()
         self.user_customer1_password = 'p@sswRD!'
         self.user_customer1 = User(
-            'customer@example.com', type=self.type_customer,
+            'customer@example.com', type_=self.type_customer,
             salt=user_customer1_salt,
             display_name='Customer user',
             password=hash_password(
@@ -62,27 +69,27 @@ class TestAssignment(TestAuthBase):
 
         user_action_group = ActionGroup(name='MANAGE_USERS')
         roles_action_group = ActionGroup(name='MANAGE_ROLES')
-        action_list_users = Action(name='LIST_USERS', type=self.type_customer,
+        action_list_users = Action(name='LIST_USERS', type_=self.type_customer,
                                    action_group=user_action_group)
         action_create_user = Action(name='CREATE_USER',
-                                    type=self.type_customer,
+                                    type_=self.type_customer,
                                     action_group=user_action_group)
         action_create_role = Action(name='CREATE_ROLE',
-                                    type=self.type_customer,
+                                    type_=self.type_customer,
                                     action_group=roles_action_group)
         action_update_own_roles = Action(name='EDIT_OWN_ROLES',
-                                         type=self.type_customer,
+                                         type_=self.type_customer,
                                          action_group=roles_action_group)
-        action_list_roles = Action(name='LIST_ROLES', type=self.type_customer,
+        action_list_roles = Action(name='LIST_ROLES', type_=self.type_customer,
                                    action_group=roles_action_group)
         action_assign_user_self = Action(name='ASSIGN_SELF',
-                                         type=self.type_customer,
+                                         type_=self.type_customer,
                                          action_group=user_action_group)
         action_assign_user = Action(name='ASSIGN_USER',
-                                    type=self.type_customer,
+                                    type_=self.type_customer,
                                     action_group=user_action_group)
 
-        self.admin_role = Role(name='ADMIN', type=self.type_partner,
+        self.admin_role = Role(name='ADMIN', type_=self.type_partner,
                                lvl=self.type_partner,
                                scope_id=self.partner1_scope_id,
                                description='Admin')
@@ -111,30 +118,25 @@ class TestAssignment(TestAuthBase):
         patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    def _create_role(self, p_get_context, name, lvl_id, type_id, context,
-                     scope_id=None, is_active=True, shared=False,
-                     description=None):
+    def _create_role(self, name, lvl_id, type_id, scope_id=None,
+                     is_active=True, shared=False, description=None):
         """
         Wraps create role API
-        :param p_get_context:
         :param name:
         :param lvl_id:
         :param type_id:
-        :param context:
         :param scope_id:
         :param is_active:
         :param shared:
         :param description:
         :return:
         """
-        p_get_context.return_value = context
         return self.client.role_create(name=name, type_id=type_id,
                                        lvl_id=lvl_id, is_active=is_active,
                                        scope_id=scope_id, shared=shared,
                                        description=description)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
+    @patch(RES_INFO_URL)
     def test_basic_assignment_list(self, p_res_info):
         p_res_info.return_value = {
             self.partner1_scope_id: {
@@ -148,10 +150,9 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x['role_id'] in [
             self.admin_role.id], response))), 1)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    def test_baisc_assignment_get(self, p_hierarchy, p_res_info):
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
+    def test_basic_assignment_get(self, p_hierarchy, p_res_info):
         resource_partner_name = 'Partner1'
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {
@@ -163,38 +164,34 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(code, 200)
         self.assertEqual(response['scope_name'], resource_partner_name)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_basic_assignment_delete_by_token(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
         self.client.secret = None
-        code, response = self.client.assignment_delete(
+        code, _ = self.client.assignment_delete(
             self.assignment.id, self.user_partner1.id)
         self.assertEqual(code, 204)
-        code, response = self.client.assignment_get(self.assignment.id,
-                                                    self.user_partner1.id)
+        code, _ = self.client.assignment_get(self.assignment.id,
+                                             self.user_partner1.id)
         self.assertEqual(code, 404)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_basic_assignment_delete_by_secret(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         p_res_info.return_value = {}
-        code, response = self.client.assignment_delete(
+        code, _ = self.client.assignment_delete(
             self.assignment.id, self.user_partner1.id)
         self.assertEqual(code, 204)
-        code, response = self.client.assignment_get(self.assignment.id,
-                                                    self.user_partner1.id)
+        code, _ = self.client.assignment_get(self.assignment.id,
+                                             self.user_partner1.id)
         self.assertEqual(code, 404)
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(CONTEXT_URL)
+    @patch(HIERARCHY_URL)
     def test_partner_assign_self(self, p_hierarchy, p_context, p_res_info):
         """
         try to create partner assignment for self
@@ -210,27 +207,25 @@ class TestAssignment(TestAuthBase):
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_partner.id,
                                     type_id=self.type_partner.id,
-                                    context=context,
                                     scope_id=self.partner1_scope_id)
         self.client.role_update(
             self.admin_role.id,
             actions={'MANAGE_USERS': {'ASSIGN_SELF': False}})
-        code, response = self.client.assignment_create(
+        code, _ = self.client.assignment_create(
             self.user_partner1.id, role['id'], self.type_partner.id,
             self.partner1_scope_id)
         self.assertEqual(code, 403)
         self.client.role_update(
             self.admin_role.id,
             actions={'MANAGE_USERS': {'ASSIGN_SELF': True}})
-        code, response = self.client.assignment_create(
+        code, _ = self.client.assignment_create(
             self.user_partner1.id, role['id'], self.type_partner.id,
             self.partner1_scope_id)
         self.assertEqual(code, 201)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(CONTEXT_URL)
+    @patch(HIERARCHY_URL)
     def test_api_assign_role_another_resource(self, p_hierarchy, p_context,
                                               p_res_info):
         """
@@ -246,27 +241,23 @@ class TestAssignment(TestAuthBase):
         context = {'partner': self.partner1_scope_id}
         p_context.return_value = context
         _, user = self._create_user(
-            email='user@email.com', password='password', display_name='User',
-            type_id=self.type_partner.id,
-            scope_id=self.partner1_scope_id)
+            email='user@email.com', password='password', display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_customer.id,
                                     type_id=self.type_partner.id,
-                                    context=context,
                                     scope_id=self.partner1_scope_id)
-        code, response = self.client.assignment_create(
+        code, _ = self.client.assignment_create(
             user['id'], role['id'], self.type_partner.id,
             self.partner2_scope_id)
         self.assertEqual(code, 403)
-        code, response = self.client.assignment_create(
+        code, _ = self.client.assignment_create(
             user['id'], role['id'], self.type_partner.id,
             self.customer2_1_scope_id)
         self.assertEqual(code, 403)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(CONTEXT_URL)
+    @patch(HIERARCHY_URL)
     def test_api_assignment_create_with_immutable(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -275,13 +266,10 @@ class TestAssignment(TestAuthBase):
                    'customer': self.customer1_scope_id}
         p_context.return_value = context
         _, user = self._create_user(
-            email='user@email.com', password='password', display_name='User',
-            type_id=self.type_customer.id,
-            scope_id=self.customer1_scope_id)
+            email='user@email.com', password='password', display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_customer.id,
                                     type_id=self.type_customer.id,
-                                    context=context,
                                     scope_id=self.customer1_scope_id)
         for immutable_param in ['id', 'created_at', 'deleted_at']:
             body = {
@@ -291,15 +279,14 @@ class TestAssignment(TestAuthBase):
                 immutable_param: "value"
             }
             code, response = self.client.post(
-                'users/%s/assignments' % user['id'], body)
+                f'users/{user["id"]}/assignments', body)
             self.assertEqual(code, 400)
             self.assertEqual(response['error']['reason'],
-                             'Parameter "%s" is immutable' % immutable_param)
+                             f'Parameter "{immutable_param}" is immutable')
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(CONTEXT_URL)
+    @patch(HIERARCHY_URL)
     def test_api_assignment_create_with_unexpected_param(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -308,13 +295,10 @@ class TestAssignment(TestAuthBase):
                    'customer': self.customer1_scope_id}
         p_context.return_value = context
         _, user = self._create_user(
-            email='user@email.com', password='password', display_name='User',
-            type_id=self.type_customer.id,
-            scope_id=self.customer1_scope_id)
+            email='user@email.com', password='password', display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_customer.id,
                                     type_id=self.type_customer.id,
-                                    context=context,
                                     scope_id=self.customer1_scope_id)
         for unexpected_param in ['param', 6, '', 'user_id']:
             body = {
@@ -324,15 +308,14 @@ class TestAssignment(TestAuthBase):
                 unexpected_param: "value"
             }
             code, response = self.client.post(
-                'users/%s/assignments' % user['id'], body)
+                f'users/{user["id"]}/assignments', body)
             self.assertEqual(code, 400)
             self.assertEqual(response['error']['reason'],
-                             'Unexpected parameters: %s' % unexpected_param)
+                             f'Unexpected parameters: {unexpected_param}')
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(CONTEXT_URL)
+    @patch(HIERARCHY_URL)
     def test_api_assignment_create_with_invalid_parameters(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -341,13 +324,10 @@ class TestAssignment(TestAuthBase):
                    'customer': self.customer1_scope_id}
         p_context.return_value = context
         _, user = self._create_user(
-            email='user@email.com', password='password', display_name='User',
-            type_id=self.type_customer.id,
-            scope_id=self.customer1_scope_id)
+            email='user@email.com', password='password', display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_customer.id,
                                     type_id=self.type_customer.id,
-                                    context=context,
                                     scope_id=self.customer1_scope_id)
         code, response = self.client.assignment_create(
             user['id'], str(role['id']), self.type_customer.id,
@@ -377,11 +357,9 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(response['error']['reason'],
                          'type_id should be integer')
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(CONTEXT_URL)
+    @patch(HIERARCHY_URL)
     def test_api_assign_role_higher_lvl(self, p_hierarchy, p_context,
                                         p_res_info):
         """
@@ -397,31 +375,23 @@ class TestAssignment(TestAuthBase):
         p_context.return_value = context
         _, user = self._create_user(
             email='user@email.com', password='password',
-            display_name='User',
-            type_id=self.type_partner.id,
-            scope_id=self.partner1_scope_id)
+            display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_partner.id,
                                     type_id=self.type_partner.id,
-                                    context=context,
                                     scope_id=self.partner1_scope_id)
-        code, response = self.client.assignment_create(
+        code, _ = self.client.assignment_create(
             user['id'], role['id'], self.type_customer.id,
             self.customer1_scope_id)
         self.assertEqual(code, 403)
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    def _create_user(self, p_hierarchy, email, password, display_name,
-                     type_id=None, scope_id=None, is_active=True):
-        p_hierarchy.return_value = self.hierarchy
+    def _create_user(self, email, password, display_name, is_active=True):
         return self.client.user_create(email, password,
                                        display_name=display_name,
                                        is_active=is_active)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_self_assignment_list(self, p_hierarchy, p_res_info):
         partner_resource_name = 'Partner'
         p_hierarchy.return_value = self.hierarchy
@@ -437,10 +407,9 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x['role_id'] in [
             self.admin_role.id], response))), 1)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(CONTEXT_URL)
+    @patch(HIERARCHY_URL)
     def test_api_assignment_create_registration(
             self, p_hierarchy, p_context, p_res_info):
         p_hierarchy.return_value = self.hierarchy
@@ -449,12 +418,10 @@ class TestAssignment(TestAuthBase):
                    'customer': self.customer1_scope_id}
         p_context.return_value = context
         _, user = self._create_user(
-            email='user@email.com', password='password', display_name='User',
-            type_id=self.type_partner.id)
+            email='user@email.com', password='password', display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_partner.id,
-                                    type_id=self.type_partner.id,
-                                    context=context)
+                                    type_id=self.type_partner.id)
         code, assignment = self.client.assignment_register(
             user['id'], role['id'],
             self.type_partner.id, self.partner1_scope_id)
@@ -464,12 +431,12 @@ class TestAssignment(TestAuthBase):
         self.assertEqual(assignment['type_id'], self.type_partner.id)
         self.assertEqual(assignment['resource_id'], self.partner1_scope_id)
         self.client.secret = 'bad_secret'
-        code, response = self.client.assignment_register(
+        code, _ = self.client.assignment_register(
             user['id'], role['id'],
             self.type_partner.id, self.partner1_scope_id)
         self.assertEqual(code, 403)
         self.client.secret = None
-        code, response = self.client.assignment_register(
+        code, _ = self.client.assignment_register(
             user['id'], role['id'],
             self.type_partner.id, self.partner1_scope_id)
         self.assertEqual(code, 401)

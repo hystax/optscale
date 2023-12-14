@@ -1,12 +1,13 @@
+import base64
+import json
 import logging
 import os
 import random
 import string
-import requests
-import jwt
-import base64
-import json
 from urllib.parse import urlencode
+
+import jwt
+import requests
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -133,7 +134,7 @@ class MicrosoftOauth2Provider:
             raise InvalidAuthorizationToken(f'invalid headers: {headers}')
 
     def get_azure_data(self, tenant_id=None):
-        resp = requests.get(self.config_url)
+        resp = requests.get(self.config_url, timeout=30)
         if not resp.ok:
             raise AzureVerifyTokenError(
                 f'Received {resp.status_code} response '
@@ -150,7 +151,7 @@ class MicrosoftOauth2Provider:
         except KeyError:
             raise AzureVerifyTokenError(f'Invalid config map: {config_map}')
 
-        resp = requests.get(jwks_uri)
+        resp = requests.get(jwks_uri, timeout=30)
         if not resp.ok:
             raise AzureVerifyTokenError(
                 f'Received {resp.status_code} response code from {jwks_uri}')
@@ -217,15 +218,15 @@ class SignInController(BaseController):
         return self._token_ctl
 
     @staticmethod
-    def _get_input(**input):
-        provider = pop_or_raise(input, 'provider')
+    def _get_input(**input_):
+        provider = pop_or_raise(input_, 'provider')
         check_string_attribute('provider', provider)
-        token = pop_or_raise(input, 'token')
+        token = pop_or_raise(input_, 'token')
         check_string_attribute('token', token, max_length=65536)
-        ip = input.pop('ip', None)
-        tenant_id = input.pop('tenant_id', None)
-        redirect_uri = input.pop('redirect_uri', None)
-        check_kwargs_is_empty(**input)
+        ip = input_.pop('ip', None)
+        tenant_id = input_.pop('tenant_id', None)
+        redirect_uri = input_.pop('redirect_uri', None)
+        check_kwargs_is_empty(**input_)
         return provider, token, ip, tenant_id, redirect_uri
 
     @staticmethod
@@ -242,7 +243,8 @@ class SignInController(BaseController):
         ) for _ in range(33))
 
     def signin(self, **kwargs):
-        provider, token, ip, tenant_id, redirect_uri = self._get_input(**kwargs)
+        provider, token, ip, tenant_id, redirect_uri = self._get_input(
+            **kwargs)
         verifier_class = self._get_verifier_class(provider)
         if not verifier_class:
             raise WrongArgumentsException(Err.OA0067, [provider])

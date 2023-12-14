@@ -25,9 +25,9 @@ class TypeAsyncItemHandler(BaseAsyncAuthItemHandler):
         except NotFoundException as ex:
             raise OptHTTPError.from_opt_exception(404, ex)
 
-    async def get(self, id, **kwargs):
+    async def get(self, item_id, **kwargs):
         kwargs.update(self.token)
-        res = await self._get_item(id, **kwargs)
+        res = await self._get_item(item_id, **kwargs)
         self.write(json.dumps(dict(list(res.to_dict().items())),
                               cls=ModelEncoder))
 
