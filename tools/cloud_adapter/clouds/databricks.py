@@ -219,3 +219,6 @@ class Databricks(CloudBase):
 
     def get_regions_coordinates(self):
         return {}
+
+    def discovery_calls_map(self):
+        return {}

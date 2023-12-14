@@ -13,6 +13,9 @@ class Environment(CloudBase):
     def configure_report(self):
         pass
 
+    def discovery_calls_map(self):
+        return {}
+
     def configure_last_import_modified_at(self):
         pass
 

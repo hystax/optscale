@@ -1,5 +1,6 @@
 import boto3
 import re
+import abc
 from botocore.config import Config as CoreConfig
 from botocore.session import Session as CoreSession
 from tools.cloud_adapter.exceptions import (InvalidResourceTypeException,
@@ -11,9 +12,10 @@ DEFAULT_CLIENT_CONFIG = CoreConfig(
 )
 
 
-class CloudBase:
+class CloudBase(abc.ABC):
+    @abc.abstractmethod
     def discovery_calls_map(self):
-        return {}
+        raise NotImplementedError
 
     def get_discovery_calls(self, resource_type):
         try:
@@ -31,8 +33,25 @@ class CloudBase:
     def configure_credentials(cls, config):
         return config
 
-    def get_children_configs(self):
-        return []
+    @abc.abstractmethod
+    def validate_credentials(self, org_id=None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def configure_report(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_currency(self, currency):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def configure_last_import_modified_at(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_regions_coordinates(self):
+        raise NotImplementedError
 
 
 class S3CloudMixin(CloudBase):
