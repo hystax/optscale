@@ -770,7 +770,7 @@ export const getAvailablePools = (organizationId, params = {}) =>
     method: "GET",
     onSuccess: handleSuccess(SET_AVAILABLE_POOLS),
     label: GET_AVAILABLE_POOLS,
-    ttl: MINUTE,
+    ttl: 30 * MINUTE,
     hash: hashParams({ ...params, organizationId }),
     params: {
       permission: params.permission || ["INFO_ORGANIZATION"],
