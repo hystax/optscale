@@ -2,8 +2,7 @@
   "env": {
     "browser": true,
     "es6": true,
-    "node": true,
-    "jest": true
+    "node": true
   },
   "extends": ["react-app", "eslint:recommended", "plugin:react/recommended", "airbnb-base", "prettier"],
   "globals": {
@@ -92,6 +91,7 @@
   "settings": {
     "import/resolver": {
       "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"],
         "moduleDirectory": ["node_modules", "src/"]
       }
     },
