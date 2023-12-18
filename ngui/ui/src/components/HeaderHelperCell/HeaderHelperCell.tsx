@@ -1,15 +1,25 @@
+import React from "react";
 import Box from "@mui/material/Box";
 import { useIntl } from "react-intl";
 import QuestionMark from "components/QuestionMark";
+
+type TitleType = { title: React.ReactNode; titleMessageId?: never } | { title?: never; titleMessageId: string };
+
+type HeaderHelperCellProps = {
+  helperMessageId: string;
+  titleDataTestId?: string;
+  helperMessageValues?: { [key: string]: string };
+  onTooltipTitleClick?: () => void;
+} & TitleType;
 
 const HeaderHelperCell = ({
   title,
   titleMessageId,
   titleDataTestId,
-  helperMessageId,
+  onTooltipTitleClick,
   helperMessageValues,
-  onTooltipTitleClick
-}) => {
+  helperMessageId
+}: HeaderHelperCellProps) => {
   const intl = useIntl();
 
   return (

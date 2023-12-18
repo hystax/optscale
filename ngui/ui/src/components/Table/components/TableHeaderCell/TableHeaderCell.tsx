@@ -27,6 +27,11 @@ const TableHeaderCell = ({ headerContext, stickyStyles = {}, getHeaderCellClassN
           active={isSorted}
           direction={labelSortDirection}
           onClick={headerContext.column.getToggleSortingHandler()}
+          sx={{
+            "&:hover svg": {
+              color: (theme) => theme.palette.secondary.main
+            }
+          }}
         >
           {label}
         </TableSortLabel>
