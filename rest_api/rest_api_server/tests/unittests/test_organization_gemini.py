@@ -125,3 +125,17 @@ class TestOrganizationGemini(TestApiBase):
 
         code, _ = self.client.gemini_delete(gemini["id"])
         self.assertEqual(204, code)
+
+    def test_delete_for_org(self):
+        _, temp_organization = self.client.organization_create({"name": "Temp org"})
+        _, gemini = self.client.gemini_create(
+            temp_organization["id"], self.filters
+        )
+        code, data = self.client.gemini_get(gemini["id"])
+        self.assertEqual(code, 200)
+
+        self.client.organization_delete(temp_organization["id"])
+
+        code, data = self.client.gemini_get(gemini["id"])
+        self.assertEqual(code, 404)
+        self.assertEqual(data["error"]["error_code"], "OE0002")

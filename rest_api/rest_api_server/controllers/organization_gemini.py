@@ -117,6 +117,11 @@ class OrganizationGeminiController(BaseController):
         return super().create(organization_id=organization_id,
                               filters=json.dumps(filters))
 
+    def delete_for_org(self, organization_id) -> None:
+        geminis = self.list(organization_id)
+        for gemini in geminis:
+            self.delete(gemini.id)
+
 
 class OrganizationGeminiAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self) -> type:
