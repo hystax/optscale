@@ -306,15 +306,22 @@ const useUpdatePool = () => {
   return { updatePool, isLoading };
 };
 
-const useGetPoolOwners = (poolId) => {
+const useGetPoolOwners = (
+  poolId: string,
+  excludeMyself = false
+): {
+  poolOwners: object[];
+  isLoading: boolean;
+  isDataReady: boolean;
+} => {
   const dispatch = useDispatch();
-  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_POOL_OWNERS);
+  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_POOL_OWNERS, { poolId, excludeMyself });
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getPoolOwners(poolId));
+      dispatch(getPoolOwners(poolId, excludeMyself));
     }
-  }, [dispatch, shouldInvoke, poolId]);
+  }, [dispatch, shouldInvoke, poolId, excludeMyself]);
 
   const {
     apiData: { poolOwners = [] }

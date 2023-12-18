@@ -13,7 +13,7 @@ const PoolFormTypeSelector = ({ isLoading, InputProps }) => {
   const intl = useIntl();
 
   return isLoading ? (
-    <SelectorLoader fullWidth labelId="defaultResourceOwner" isRequired />
+    <SelectorLoader fullWidth labelId="type" isRequired />
   ) : (
     <>
       <Controller
