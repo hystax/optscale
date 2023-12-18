@@ -1,8 +1,7 @@
 import { TrafficExpensesMocked } from "components/TrafficExpenses";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/TrafficExpensesMocked`
+  component: TrafficExpensesMocked
 };
 
 export const basic = () => <TrafficExpensesMocked />;

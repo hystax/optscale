@@ -1,5 +1,4 @@
 import EventsOverviewList from "components/EventsOverviewList";
-import { KINDS } from "stories";
 
 const events = [
   {
@@ -24,7 +23,7 @@ const events = [
 ];
 
 export default {
-  title: `${KINDS.OTHER}/EventsOverviewList`,
+  component: EventsOverviewList,
   argTypes: {
     events: { name: "Event", control: "object", defaultValue: events }
   }

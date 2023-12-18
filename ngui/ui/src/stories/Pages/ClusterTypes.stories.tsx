@@ -1,8 +1,7 @@
 import { ClusterTypesMocked } from "components/ClusterTypes";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/ClusterTypes`
+  component: ClusterTypes
 };
 
 export const basic = () => <ClusterTypesMocked />;

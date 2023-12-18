@@ -1,8 +1,7 @@
 import DataSourceDetails from "components/DataSourceDetails";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/DataSourceDetails`
+  component: DataSourceDetails
 };
 
 export const awsDataSourceDetails = () => (

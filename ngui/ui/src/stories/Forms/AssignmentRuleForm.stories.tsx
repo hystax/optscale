@@ -1,7 +1,7 @@
 import AssignmentRuleForm from "components/AssignmentRuleForm";
 
 export default {
-  title: "Forms/AssignmentRuleForm",
+  component: AssignmentRuleForm,
   argTypes: {
     isPoolSelectorReadOnly: { name: "Pool selector read only", control: "boolean", defaultValue: false },
     isOwnerSelectorReadOnly: { name: "Owner selector read only", control: "boolean", defaultValue: false },

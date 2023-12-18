@@ -1,8 +1,7 @@
 import LineChart from "components/LineChart";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/LineChart`,
+  component: LineChart,
   argTypes: {
     data: {
       name: "Data",

@@ -1,8 +1,8 @@
 import CleanExpensesTableGroup from "components/CleanExpensesTableGroup";
-import { KINDS, MOCKED_ORGANIZATION_POOL_ID } from "stories";
+import { MOCKED_ORGANIZATION_POOL_ID } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/CleanExpensesTableGroup`
+  component: CleanExpensesTableGroup
 };
 
 export const basic = () => (

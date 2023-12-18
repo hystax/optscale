@@ -1,8 +1,7 @@
 import BarChart from "components/BarChart";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/BarChart`,
+  component: BarChart,
   argTypes: {
     marker: { name: "Marker value", control: "number", defaultValue: 12 },
     layout: {

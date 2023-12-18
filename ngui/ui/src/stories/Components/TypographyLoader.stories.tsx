@@ -1,8 +1,7 @@
 import TypographyLoader from "components/TypographyLoader";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/TypographyLoader`,
+  component: TypographyLoader,
   argTypes: {
     variant: {
       name: "Color",

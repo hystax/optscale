@@ -1,8 +1,7 @@
 import TabsLoader from "components/TabsLoader";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/TabsLoader`,
+  component: TabsLoader,
   argTypes: {
     tabCount: { name: "Tab count", control: "number", defaultValue: 1 }
   }

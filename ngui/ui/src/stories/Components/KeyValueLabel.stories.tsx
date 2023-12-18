@@ -1,8 +1,7 @@
 import KeyValueLabel from "components/KeyValueLabel";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/KeyValueLabel`,
+  component: KeyValueLabel,
   argTypes: {
     separator: {
       name: "Separator",

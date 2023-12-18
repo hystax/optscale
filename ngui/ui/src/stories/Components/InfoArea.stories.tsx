@@ -1,8 +1,7 @@
 import InfoArea from "components/Table/components/InfoArea";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/InfoArea`,
+  component: InfoArea,
   argTypes: {
     rowCount: { name: "Row count", control: "number", defaultValue: 1 }
   }

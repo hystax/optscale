@@ -1,8 +1,7 @@
 import Pagination from "components/Table/components/Pagination";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Pagination`,
+  component: Pagination,
   argTypes: {
     position: {
       name: "Position",

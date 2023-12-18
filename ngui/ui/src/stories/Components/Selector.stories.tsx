@@ -4,10 +4,9 @@ import DynamicFeedOutlinedIcon from "@mui/icons-material/DynamicFeedOutlined";
 import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import Icon from "components/Icon";
 import Selector from "components/Selector";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Selector`
+  component: Selector
 };
 
 const data = {

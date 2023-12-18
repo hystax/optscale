@@ -1,8 +1,7 @@
 import Tooltip from "components/Tooltip";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Tooltip`
+  component: Tooltip
 };
 
 export const basic = () => (

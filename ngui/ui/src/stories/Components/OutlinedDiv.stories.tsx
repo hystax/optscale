@@ -1,10 +1,9 @@
 import PetsIcon from "@mui/icons-material/Pets";
 import IconButton from "components/IconButton";
 import OutlinedDiv from "components/OutlinedDiv";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/OutlinedDiv`
+  component: OutlinedDiv
 };
 
 export const basic = () => (

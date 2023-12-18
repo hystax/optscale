@@ -1,9 +1,8 @@
 import SummaryGrid from "components/SummaryGrid";
-import { KINDS } from "stories";
 import { SUMMARY_VALUE_COMPONENT_TYPES, SUMMARY_CARD_TYPES } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/SummaryGrid`,
+  component: SummaryGrid,
   argTypes: {
     value: { name: "Value", control: "number", defaultValue: 100 }
   }

@@ -1,9 +1,8 @@
 import Button from "components/Button";
 import IconError from "components/IconError";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/IconError`
+  component: IconError
 };
 
 export const basic = () => <IconError messageId="hystax" />;

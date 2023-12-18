@@ -1,8 +1,7 @@
 import EventsOverviewListItem from "components/EventsOverviewListItem";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.OTHER}/EventsOverviewListItem`,
+  component: EventsOverviewListItem,
   argTypes: {
     title: { name: "Title", control: "text", defaultValue: "Initial warning" },
     description: { name: "Description", control: "text", defaultValue: "Something went wrong!" },

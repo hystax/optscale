@@ -1,12 +1,11 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { v4 as uuidv4 } from "uuid";
 import FormattedMoney from "components/FormattedMoney";
-import { KINDS } from "stories";
 import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Table`,
+  component: Table,
   argTypes: {
     showSearch: { name: "Show search", control: "boolean", defaultValue: true },
     showSelection: { name: "Show selection", control: "boolean", defaultValue: true },

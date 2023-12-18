@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { FormattedMessage } from "react-intl";
 import ButtonGroupInput from "components/ButtonGroupInput";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ButtonGroupInput`
+  component: ButtonGroupInput
 };
 
 const AWS_ROOT_ACCOUNT = "aws";

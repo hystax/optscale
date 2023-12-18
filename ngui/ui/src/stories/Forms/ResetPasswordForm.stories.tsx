@@ -1,8 +1,7 @@
 import ResetPasswordForm from "components/ResetPasswordForm";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.FORMS}/ResetPasswordForm`,
+  component: ResetPasswordForm,
   argTypes: {
     isLoading: { name: "Loading", control: "boolean", defaultValue: false },
     sendState: { name: "Send state", control: "text", defaultValue: "unknown" }

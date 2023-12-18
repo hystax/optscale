@@ -2,10 +2,9 @@ import { capitalize } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useTheme } from "@mui/material/styles";
 import WrapperCard from "components/WrapperCard";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.MARKETING}/Palette`
+  title: "Marketing/Palette"
 };
 
 const ColorCard = ({ colorName, colorDefinition }) => {

@@ -1,9 +1,8 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ButtonLoader from "components/ButtonLoader";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ButtonLoader`,
+  component: ButtonLoader,
   argTypes: {
     messageId: { name: "Message ID", control: "text", defaultValue: "checkConnection" },
     size: {

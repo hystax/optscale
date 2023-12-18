@@ -1,9 +1,8 @@
 import PieChart from "components/PieChart";
 import PieChartLoader from "components/PieChartLoader";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/PieChartLoader`,
+  component: PieChartLoader,
   argTypes: {
     height: { name: "Height", control: "number", defaultValue: 30 }
   }

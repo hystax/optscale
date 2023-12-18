@@ -1,12 +1,12 @@
 import { Provider } from "react-redux";
 import configureMockStore from "redux-mock-store";
 import { GET_RESOURCE_COUNT_BREAKDOWN } from "api/restapi/actionTypes";
-import Resources, { data } from "components/Resources";
-import { KINDS } from "stories";
+import Resources from "components/Resources";
+import { data } from "components/Resources/ResourcesMocked";
 import { millisecondsToSeconds, addDays } from "utils/datetime";
 
 export default {
-  title: `${KINDS.PAGES}/Resources`
+  component: Resources
 };
 
 const firstDateRangePoint = millisecondsToSeconds(+new Date());
@@ -43,17 +43,13 @@ export const basic = () => (
     <Resources
       startDateTimestamp={firstDateRangePoint}
       endDateTimestamp={lastDateRangePoint}
-      filterValues={data.filterValues}
-      expenses={data.expenses}
       filters={data.filters}
-      entities={data.entities}
-      requestParams={data.requestParams}
-      totalExpenses={data.totalExpenses}
-      totalSaving={data.totalSaving}
+      filterValues={data.filterValues}
       onApply={() => console.log("onApply")}
       onFilterAdd={() => console.log("onFilterAdd")}
-      onFilterDelete={() => console.log("onFilterDelete")}
       onFiltersDelete={() => console.log("onFiltersDelete")}
+      onFilterDelete={() => console.log("onFilterDelete")}
+      requestParams={data.requestParams}
     />
   </Provider>
 );
@@ -62,17 +58,11 @@ export const isLoading = () => (
   <Resources
     startDateTimestamp={firstDateRangePoint}
     endDateTimestamp={lastDateRangePoint}
-    filterValues={{}}
-    expenses={[]}
     filters={{}}
-    entities={{}}
     requestParams={{
       startDate: firstDateRangePoint,
       endDate: lastDateRangePoint
     }}
-    totalExpenses={0}
-    totalSaving={0}
-    isLoadingProps={{ isLoading: true, isFilterValuesLoading: true }}
     onApply={() => console.log("onApply")}
     onFilterAdd={() => console.log("onFilterAdd")}
     onFilterDelete={() => console.log("onFilterDelete")}

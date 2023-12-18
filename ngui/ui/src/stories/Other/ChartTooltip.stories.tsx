@@ -2,10 +2,9 @@ import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import { ResponsiveBar } from "@nivo/bar";
 import ChartTooltip from "components/ChartTooltip";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.OTHER}/ChartTooltip`,
+  component: ChartTooltip,
   argTypes: {
     title: { name: "Title", control: "text", defaultValue: "Title" },
     text: { name: "Text", control: "text", defaultValue: "Text" },

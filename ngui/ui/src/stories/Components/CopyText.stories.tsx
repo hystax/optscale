@@ -1,8 +1,7 @@
 import CopyText from "components/CopyText";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/CopyText`,
+  component: CopyText,
   argTypes: {
     text: { name: "Text", control: "text", defaultValue: "message" },
     variant: {

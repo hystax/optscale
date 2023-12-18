@@ -1,10 +1,9 @@
 import { useState } from "react";
 import PoolTypeSelector from "components/PoolTypeSelector";
-import { KINDS } from "stories";
 import { POOL_TYPE_BUDGET } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/PoolTypeSelector`,
+  component: PoolTypeSelector,
   argTypes: {
     required: { name: "Required", control: "boolean", defaultValue: true },
     error: { name: "Error", control: "boolean", defaultValue: false },

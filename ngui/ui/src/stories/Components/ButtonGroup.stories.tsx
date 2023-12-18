@@ -1,8 +1,7 @@
 import ButtonGroup from "components/ButtonGroup";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ButtonGroup`,
+  component: ButtonGroup,
   argTypes: {
     activeButtonIndex: { name: "Active button index", control: "number", defaultValue: 0 }
   }

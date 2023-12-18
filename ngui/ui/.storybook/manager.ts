@@ -7,5 +7,5 @@ addons.setConfig({
     brandTitle: "Hystax OptScale",
     brandUrl: "https://optscale.hystax.com/",
     barSelectedColor: "#184286"
-  }
-)});
+  })
+});

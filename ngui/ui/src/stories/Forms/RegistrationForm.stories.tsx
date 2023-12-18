@@ -1,8 +1,7 @@
 import RegistrationForm from "components/RegistrationForm";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.FORMS}/RegistrationForm`,
+  component: RegistrationForm,
   argTypes: {
     isLoading: { name: "Loading", control: "boolean", defaultValue: false },
     sendState: { name: "Send state", control: "text", defaultValue: "unknown" }

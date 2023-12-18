@@ -1,8 +1,7 @@
-import PoolForm from "components/PoolForm";
-import { KINDS } from "stories";
+import { CreatePoolForm } from "components/PoolForm";
 
 export default {
-  title: `${KINDS.FORMS}/PoolForm`,
+  component: CreatePoolForm,
   argTypes: {
     isCreateLoading: { name: "Create loading", control: "boolean", defaultValue: false },
     isPoolOwnersLoading: { name: "Poll owner loading", control: "boolean", defaultValue: false },
@@ -30,13 +29,13 @@ const getIsLoadingProps = (args) => {
 const getIsEdit = (args) => args.isEdit;
 
 export const basic = (args) => (
-  <PoolForm
+  <CreatePoolForm
     onSubmit={() => console.log("On submit")}
     onCancel={() => console.log("On submit")}
-    poolId={getIsEdit() ? "pool_id" : null}
+    poolId={getIsEdit(args) ? "pool_id" : null}
     parentPoolId={args.withParentId ? "parent_pool_id" : null}
-    owners={getIsEdit() ? [] : null}
+    owners={getIsEdit(args) ? [] : null}
     hasSubPools={args.hasSubPools}
-    isLoadingProps={getIsLoadingProps()}
+    isLoadingProps={getIsLoadingProps(args)}
   />
 );

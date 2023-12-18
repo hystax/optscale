@@ -1,8 +1,7 @@
 import LatestEvents from "components/LatestEvents";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/LatestEvents`
+  component: LatestEvents
 };
 
 export const basic = () => <LatestEvents count={0} />;

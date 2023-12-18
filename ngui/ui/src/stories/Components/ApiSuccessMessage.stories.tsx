@@ -1,11 +1,10 @@
 import ApiSuccessMessage from "components/ApiSuccessMessage";
-import { KINDS } from "stories";
 import { SETTINGS_TYPE_SUCCESS_MESSAGE } from "utils/constants";
 
 const RECOMMENDATION_SETTINGS_TYPE_SUCCESS_MESSAGES = Object.values(SETTINGS_TYPE_SUCCESS_MESSAGE);
 
 export default {
-  title: `${KINDS.COMPONENTS}/ApiSuccessMessage`,
+  component: ApiSuccessMessage,
   argTypes: {
     resourceCount: { name: "FE06 Resource count", control: "number", defaultValue: 1 },
     totalResourceCount: { name: "FE06 Total resource count", control: "number", defaultValue: 10 },

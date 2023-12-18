@@ -1,8 +1,7 @@
 import Ellipsis from "components/Ellipsis";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Ellipsis`,
+  component: Ellipsis,
   argTypes: {
     variant: {
       name: "Variant",

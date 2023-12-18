@@ -1,5 +1,4 @@
 import ResourceRawExpenses from "components/ResourceRawExpenses";
-import { KINDS } from "stories";
 import { millisecondsToSeconds } from "utils/datetime";
 
 const expensesAllWithBothRateAndUnit = [
@@ -33,7 +32,7 @@ const expensesAllWithBothRateAndUnit = [
 ];
 
 export default {
-  title: `${KINDS.COMPONENTS}/ResourceRawExpenses`,
+  component: ResourceRawExpenses,
   argTypes: {
     expenses: {
       name: "Expenses",

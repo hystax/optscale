@@ -2,10 +2,9 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ActionBar from "components/ActionBar";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ActionBar`,
+  component: ActionBar,
   argTypes: {
     withMobileMessageId: { name: "With mobile message", control: "boolean", defaultValue: true }
   }

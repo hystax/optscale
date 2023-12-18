@@ -12,10 +12,9 @@ import Button from "components/Button";
 import ButtonGroup from "components/ButtonGroup";
 import IconButton from "components/IconButton";
 import WrapperCard from "components/WrapperCard";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.MARKETING}/Buttons`
+  title: "Marketing/Buttons"
 };
 
 const renderButtons = (buttons) => (

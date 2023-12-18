@@ -1,8 +1,8 @@
 import Resource from "components/Resource";
-import { KINDS, MOCKED_RESOURCE_ID } from "stories";
+import { MOCKED_RESOURCE_ID } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/Resource`,
+  component: Resource,
   argTypes: {
     isGetResourceLoading: { name: "Get resource loading", control: "boolean", defaultValue: false },
     isLoadingPatch: { name: "Loading patch", control: "boolean", defaultValue: false }

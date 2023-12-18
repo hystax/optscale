@@ -3,10 +3,9 @@ import Box from "@mui/material/Box";
 import awsLogo from "assets/clouds/aws.svg";
 import ActionBarHeader from "components/ActionBarHeader";
 import Image from "components/Image";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ActionBarHeader`
+  component: ActionBarHeader
 };
 
 export const basic = () => (

@@ -1,21 +1,7 @@
 import ResourceRecommendations from "components/ResourceRecommendations";
-import { KINDS } from "stories";
-import {
-  INSTANCE_MIGRATION_TYPE,
-  INSTANCES_IN_STOPPED_STATE_FOR_A_LONG_TIME_TYPE,
-  OBSOLETE_SNAPSHOTS_TYPE,
-  RESERVED_INSTANCES_TYPE,
-  RIGHTSIZING_INSTANCES_TYPE,
-  RIGHTSIZING_RDS_INSTANCES_TYPE,
-  SHORT_LIVING_INSTANCES_TYPE,
-  VOLUMES_NOT_ATTACHED_FOR_A_LONG_TIME_TYPE,
-  OBSOLETE_IPS_TYPE,
-  ABANDONED_NEBIUS_S3_BUCKETS_TYPE,
-  CVOS_AGREEMENT_OPPORTUNITIES_RECOMMENDATION_TYPE
-} from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ResourceRecommendations`
+  component: ResourceRecommendations
 };
 
 const recommendations = [
@@ -30,7 +16,7 @@ const recommendations = [
     cloud_account_id: "c46cf66c-84ba-41a7-820c-c2408b923353",
     cloud_account_name: "aws",
     cloud_type: "aws_cnr",
-    name: INSTANCE_MIGRATION_TYPE
+    name: "instance_migration"
   },
   {
     saving: 1.0869047777142857,
@@ -42,7 +28,7 @@ const recommendations = [
     resource_id: "4cc1117f-0cbc-439b-88e4-fc28fb20a737",
     cloud_account_id: "c46cf66c-84ba-41a7-820c-c2408b923353",
     cloud_account_name: "azure",
-    name: INSTANCES_IN_STOPPED_STATE_FOR_A_LONG_TIME_TYPE
+    name: "instances_in_stopped_state_for_a_long_time"
   },
   {
     cloud_resource_id: "snap-9323123124",
@@ -55,7 +41,7 @@ const recommendations = [
     last_seen: 1600078565,
     saving: 228,
     region: "ap-northeast-2",
-    name: OBSOLETE_SNAPSHOTS_TYPE
+    name: "obsolete_snapshots"
   },
   {
     saving: 15.84,
@@ -68,7 +54,7 @@ const recommendations = [
     cloud_account_id: "c46cf66c-84ba-41a7-820c-c2408b923353",
     cloud_account_name: "aws",
     cloud_type: "aws_cnr",
-    name: RESERVED_INSTANCES_TYPE
+    name: "reserved_instances"
   },
   {
     cloud_resource_id: "i-asdasfhakdfd",
@@ -87,7 +73,7 @@ const recommendations = [
     recommended_flavor_cpu: 2,
     recommended_flavor_ram: 4,
     cpu_usage: 0.69,
-    name: RIGHTSIZING_INSTANCES_TYPE
+    name: "rightsizing_instances"
   },
   {
     cloud_resource_id: "i-zxzxsfhakdfd",
@@ -106,7 +92,7 @@ const recommendations = [
     recommended_flavor_cpu: 2,
     recommended_flavor_ram: 4,
     cpu_usage: 0.69,
-    name: RIGHTSIZING_RDS_INSTANCES_TYPE
+    name: "rightsizing_rds"
   },
   {
     cloud_resource_id: "i-9323123124",
@@ -119,7 +105,7 @@ const recommendations = [
     first_seen: 1600077735,
     last_seen: 1600078565,
     saving: 150,
-    name: SHORT_LIVING_INSTANCES_TYPE
+    name: "short_living_instances"
   },
   {
     saving: 1.0869047777142857,
@@ -132,7 +118,7 @@ const recommendations = [
     cloud_account_id: "c46cf66c-84ba-41a7-820c-c2408b923353",
     cloud_account_name: "aws",
     region: "eu-central-1",
-    name: VOLUMES_NOT_ATTACHED_FOR_A_LONG_TIME_TYPE
+    name: "volumes_not_attached_for_a_long_time"
   },
   {
     saving: 4.563254672357,
@@ -146,7 +132,7 @@ const recommendations = [
     cloud_account_id: "c46cf66c-84ba-41a7-820c-c2408b923353",
     cloud_account_name: "azure cloud account",
     region: "eu-central-1",
-    name: OBSOLETE_IPS_TYPE
+    name: "obsolete_ips"
   },
   {
     saving: 4.563254672357,
@@ -160,7 +146,7 @@ const recommendations = [
     cloud_account_id: "c46cf66c-84ba-41a7-820c-c2408b923353",
     cloud_account_name: "azure cloud account",
     region: "eu-central-1",
-    name: ABANDONED_NEBIUS_S3_BUCKETS_TYPE
+    name: "s3_abandoned_buckets_nebius"
   },
   {
     saving: 5.563254672357,
@@ -174,7 +160,7 @@ const recommendations = [
     cloud_account_id: "c46cf66c-84ba-41a7-820c-c2408b923353",
     cloud_account_name: "azure cloud account",
     region: "eu-central-1",
-    name: CVOS_AGREEMENT_OPPORTUNITIES_RECOMMENDATION_TYPE
+    name: "cvos_opportunities"
   }
 ];
 

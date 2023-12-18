@@ -1,6 +1,6 @@
 import { GET_POOL_ALLOWED_ACTIONS, GET_ORGANIZATION_ALLOWED_ACTIONS } from "api/auth/actionTypes";
 import { GET_ORGANIZATIONS } from "api/restapi/actionTypes";
-import { MockState } from "utils/mockStore";
+import { MockState } from "utils/MockState";
 
 const POOL_ID = "pool_uuid";
 const ORGANIZATION_ID = "organization_uuid";

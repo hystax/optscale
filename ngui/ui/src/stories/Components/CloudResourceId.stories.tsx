@@ -1,8 +1,7 @@
 import CloudResourceId from "components/CloudResourceId";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/CloudResourceId`,
+  component: CloudResourceId,
   argTypes: {
     cloudResourceIdentifier: {
       name: "Cloud resource ID",
@@ -25,8 +24,5 @@ export const azureResourceLink = () => (
 );
 
 export const withKnobs = (args) => (
-  <CloudResourceId
-    resourceId={"46d16706-da10-4700-951b-fc9b5dd13c6b"}
-    cloudResourceIdentifier={argTypes.cloudResourceIdentifier}
-  />
+  <CloudResourceId resourceId={"46d16706-da10-4700-951b-fc9b5dd13c6b"} cloudResourceIdentifier={args.cloudResourceIdentifier} />
 );
