@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import Badge from "@atlaskit/badge";
 import Tabs, { Tab, TabList, TabPanel } from "@atlaskit/tabs";
 import PropTypes from "prop-types";
@@ -36,91 +36,117 @@ const EnvironmentNameCell = ({ environment }) => (
   </td>
 );
 
-const MyEnvironmentsTable = ({ environments, onSuccessAttachment, availableIssueStatusesForAutomaticUnlinking }) => (
-  <table>
-    <thead>
-      <tr>
-        <th>Environment</th>
-        <th>Type</th>
-        <th>Booking ends</th>
-        <th>Issues attached</th>
-        <ActionsTableHeader />
-      </tr>
-    </thead>
-    <tbody>
-      {environments.map((environment) => {
-        const { id: environmentId, details, current_booking: currentBooking } = environment;
-        const { details: activeBooking } = currentBooking ?? {};
+const MyEnvironmentsTable = ({ environments, onSuccessAttachment, availableIssueStatusesForAutomaticUnlinking }) => {
+  const tableRef = useRef();
 
-        return (
-          <tr key={environmentId}>
-            <EnvironmentNameCell environment={environment} />
-            <td>{details.resource_type}</td>
-            {activeBooking ? (
-              <>
-                <td>
-                  {activeBooking.released_at === 0
-                    ? "Never"
-                    : `In ${differenceInHours(new Date(activeBooking.released_at * 1000), new Date())} hours`}
-                </td>
-                <td>
-                  {activeBooking.jira_issue_attachments.length !== 0
-                    ? activeBooking.jira_issue_attachments.map((issueAttachment) => (
-                        <div key={issueAttachment.id}>{`${issueAttachment.project_key}-${issueAttachment.issue_number}`}</div>
-                      ))
-                    : "-"}
-                </td>
-              </>
-            ) : (
-              <>
-                <td>-</td>
-                <td>-</td>
-              </>
-            )}
-            <td>
-              <AttachEnvironmentDropdownButtonContainer
-                environmentId={environmentId}
-                onSuccess={onSuccessAttachment}
-                availableIssueStatusesForAutomaticUnlinking={availableIssueStatusesForAutomaticUnlinking}
-              />
-            </td>
-          </tr>
-        );
-      })}
-    </tbody>
-  </table>
-);
+  const [marginToFitDropdownMenu, setMarginToFitDropdownMenu] = useState(0);
 
-const AvailableEnvironmentsTable = ({ environments, onSuccessAttachment, availableIssueStatusesForAutomaticUnlinking }) => (
-  <table>
-    <thead>
-      <tr>
-        <th>Environment</th>
-        <th>Type</th>
-        <ActionsTableHeader />
-      </tr>
-    </thead>
-    <tbody>
-      {environments.map((environment) => {
-        const { id: environmentId, details } = environment;
+  return (
+    <table
+      ref={tableRef}
+      style={{
+        marginBottom: marginToFitDropdownMenu
+      }}
+    >
+      <thead>
+        <tr>
+          <th>Environment</th>
+          <th>Type</th>
+          <th>Booking ends</th>
+          <th>Issues attached</th>
+          <ActionsTableHeader />
+        </tr>
+      </thead>
+      <tbody>
+        {environments.map((environment) => {
+          const { id: environmentId, details, current_booking: currentBooking } = environment;
+          const { details: activeBooking } = currentBooking ?? {};
 
-        return (
-          <tr key={environmentId}>
-            <EnvironmentNameCell environment={environment} />
-            <td>{details.resource_type}</td>
-            <td>
-              <AcquireEnvironmentDropdownButtonContainer
-                environmentId={environmentId}
-                onSuccess={onSuccessAttachment}
-                availableIssueStatusesForAutomaticUnlinking={availableIssueStatusesForAutomaticUnlinking}
-              />
-            </td>
-          </tr>
-        );
-      })}
-    </tbody>
-  </table>
-);
+          return (
+            <tr key={environmentId}>
+              <EnvironmentNameCell environment={environment} />
+              <td>{details.resource_type}</td>
+              {activeBooking ? (
+                <>
+                  <td>
+                    {activeBooking.released_at === 0
+                      ? "Never"
+                      : `In ${differenceInHours(new Date(activeBooking.released_at * 1000), new Date())} hours`}
+                  </td>
+                  <td>
+                    {activeBooking.jira_issue_attachments.length !== 0
+                      ? activeBooking.jira_issue_attachments.map((issueAttachment) => (
+                          <div key={issueAttachment.id}>{`${issueAttachment.project_key}-${issueAttachment.issue_number}`}</div>
+                        ))
+                      : "-"}
+                  </td>
+                </>
+              ) : (
+                <>
+                  <td>-</td>
+                  <td>-</td>
+                </>
+              )}
+              <td>
+                <AttachEnvironmentDropdownButtonContainer
+                  environmentId={environmentId}
+                  onSuccess={onSuccessAttachment}
+                  availableIssueStatusesForAutomaticUnlinking={availableIssueStatusesForAutomaticUnlinking}
+                  tableRef={tableRef}
+                  setMarginToFitDropdownMenu={setMarginToFitDropdownMenu}
+                />
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+
+const AvailableEnvironmentsTable = ({ environments, onSuccessAttachment, availableIssueStatusesForAutomaticUnlinking }) => {
+  const tableRef = useRef();
+
+  const [marginToFitDropdownMenu, setMarginToFitDropdownMenu] = useState(0);
+
+  return (
+    <table
+      ref={tableRef}
+      style={{
+        marginBottom: marginToFitDropdownMenu
+      }}
+    >
+      <thead>
+        <tr>
+          <th>Environment</th>
+          <th>Type</th>
+          <ActionsTableHeader />
+        </tr>
+      </thead>
+      <tbody>
+        {environments.map((environment) => {
+          const { id: environmentId, details } = environment;
+
+          return (
+            <tr key={environmentId}>
+              <EnvironmentNameCell environment={environment} />
+              <td>{details.resource_type}</td>
+              <td>
+                <AcquireEnvironmentDropdownButtonContainer
+                  environmentId={environmentId}
+                  onSuccess={onSuccessAttachment}
+                  availableIssueStatusesForAutomaticUnlinking={availableIssueStatusesForAutomaticUnlinking}
+                  tableRef={tableRef}
+                  setMarginToFitDropdownMenu={setMarginToFitDropdownMenu}
+                />
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
 
 const OtherEnvironmentsTable = ({ environments }) => (
   <table>
