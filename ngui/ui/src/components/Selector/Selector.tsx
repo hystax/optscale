@@ -51,7 +51,7 @@ const Selector = forwardRef(
       shrinkLabel = undefined,
       sx,
       margin,
-      value,
+      value: selectedValue,
       ...rest
     },
     ref
@@ -87,7 +87,7 @@ const Selector = forwardRef(
     const getMenuItemClasses = ({ isSelected }) => cx(classes.menuItem, isSelected ? "" : classes.notSelectedItem);
 
     // We build selectors differenly using controlled/uncontrolled approach, see https://datatrendstech.atlassian.net/browse/OS-5830 to refactor.
-    const readOnlyValue = selectorItems.find((item) => item.value === value || item.value === selectedItemValue);
+    const readOnlyValue = selectorItems.find((item) => item.value === selectedValue || item.value === selectedItemValue);
 
     const selectionList = selectorItems.map((item) => {
       if (typeof item.render === "function") {
