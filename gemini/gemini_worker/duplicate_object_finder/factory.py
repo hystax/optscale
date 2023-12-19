@@ -1,4 +1,5 @@
-from duplicate_object_finder.aws.object_info import ObjectInfo
+from gemini.gemini_worker.duplicate_object_finder.aws.object_info import (
+    ObjectInfo)
 from gemini.gemini_worker.duplicate_object_finder.aws.main import find_duplicates
 
 

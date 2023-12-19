@@ -6,7 +6,7 @@ from datetime import datetime, timezone, timedelta
 from kombu import Connection, Exchange, Queue, Message
 from kombu.mixins import ConsumerMixin
 from kombu.utils.debug import setup_logging
-from duplicate_object_finder.factory import Factory
+from gemini.gemini_worker.duplicate_object_finder.factory import Factory
 from etcd import Lock as EtcdLock
 from clickhouse_driver import Client as ClickHouseClient
 from pymongo import MongoClient

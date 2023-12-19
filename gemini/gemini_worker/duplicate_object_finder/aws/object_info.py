@@ -30,10 +30,10 @@ class ObjectInfo:
                 size=obj["Size"],
             )
         except KeyError as exc:
-            LOG.error(f"Wrong object {obj}: {ex}")
+            LOG.error(f"Wrong object {obj}: {exc}")
             raise
         except Exception as exc:
-            LOG.error(f"Unexpected exception {ex}")
+            LOG.error(f"Unexpected exception {exc}")
             raise
 
     @property

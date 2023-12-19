@@ -42,7 +42,8 @@ class Scheduler(ConsumerProducerMixin):
             LOG.info(f"Status updated to {status} for gemini {gemini_id}")
         except Exception as exc:
             LOG.exception(
-                f"Not able to update status to {status} for gemini {gemini_id}: {ex}"
+                f"Not able to update status to {status} for gemini "
+                f"{gemini_id}: {exc}"
             )
             raise exc
 

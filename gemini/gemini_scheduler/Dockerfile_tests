@@ -3,7 +3,7 @@ FROM gemini_scheduler:${BUILDTAG}
 
 WORKDIR /usr/src/app/
 
-COPY gemini/gemini_scheduler/test-requirements.txt gemini/gemini_scheduler/test-requirements.txt
-COPY gemini/.pylintrc gemini/.coveragerc ./gemini/gemini_scheduler/
+COPY gemini/gemini_scheduler/test-requirements.txt ./test-requirements.txt
+COPY gemini/.pylintrc gemini/.coveragerc ./
 
-RUN pip install --no-cache-dir -r gemini/gemini_scheduler/test-requirements.txt
+RUN pip install --no-cache-dir -r test-requirements.txt
