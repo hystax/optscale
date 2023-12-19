@@ -11,7 +11,8 @@ Update aws system tags for inactive resources
 
 
 class AWSUpdateSystemTagsImporter(AWSReportImporter):
-    def save_clean_expenses(self, cloud_account_id, chunk, groupings_map):
+    def save_clean_expenses(self, cloud_account_id, chunk,
+                            unique_id_field='resource_id'):
         info_map = {
             r_id: self.get_resource_info_from_expenses(expenses)
             for r_id, expenses in chunk.items()
@@ -72,8 +73,7 @@ class Migration(BaseMigration):
                 )
                 importer = AWSUpdateSystemTagsImporter(**parameters)
                 LOG.info('Started updating tags for %s', cloud_account_id)
-                groupings_map = {'month_resource': {}, 'month_ca': {}}
-                importer.generate_clean_records(groupings_map, regeneration=True)
+                importer.generate_clean_records(regeneration=True)
                 LOG.info('Update tags completed')
 
     def downgrade(self):

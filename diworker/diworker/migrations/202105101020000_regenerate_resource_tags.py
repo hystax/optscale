@@ -82,8 +82,7 @@ class Migration(BaseMigration):
                 )
                 importer = AWSUpdateSystemTagsImporter(**parameters)
                 LOG.info('Started updating tags for %s', cloud_account_id)
-                groupings_map = {'month_resource': {}, 'month_ca': {}}
-                importer.generate_clean_records(groupings_map, regeneration=True)
+                importer.generate_clean_records(regeneration=True)
                 LOG.info('Update tags completed')
 
     def downgrade(self):

@@ -235,7 +235,7 @@ class AWSReportImporter(CSVBaseReportImporter):
             (service_code == 'AmazonECS' and 'Fargate' in usage_type) or
             (service_code == 'AmazonSageMaker' and (
                 'ml.' in description or item_type == 'SavingsPlanNegation')) or
-            (service_code == 'AWSLambda' and'Lambda-GB-Second' in usage_type) or
+            (service_code == 'AWSLambda' and 'Lambda-GB-Second' in usage_type) or
             ('BoxUsage' in usage_type)
         )
 
