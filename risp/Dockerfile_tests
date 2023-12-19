@@ -1,5 +1,6 @@
 ARG BUILDTAG=build
-FROM risp_worker:${BUILDTAG}
+ARG IMAGE=risp_worker
+FROM ${IMAGE}:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
 ADD risp/risp_worker/tests risp/risp_worker/tests
