@@ -11,6 +11,7 @@ import Select from "@mui/material/Select";
 import { useIntl } from "react-intl";
 import Icon from "components/Icon";
 import IconButton from "components/IconButton";
+import Input from "components/Input";
 import Tooltip from "components/Tooltip";
 import { capitalize } from "utils/strings";
 import useStyles from "./Selector.styles";
@@ -24,10 +25,10 @@ const renderMenuItemContent = (item, menuItemIcon) =>
   menuItemIcon ? (
     <>
       {renderMenuItemIcon(item, menuItemIcon)}
-      {item.name}
+      {item?.name}
     </>
   ) : (
-    item.name
+    item?.name
   );
 
 const Selector = forwardRef(
@@ -83,6 +84,8 @@ const Selector = forwardRef(
     const isItemSelected = (itemValue) => itemValue === selected;
 
     const getMenuItemClasses = ({ isSelected }) => cx(classes.menuItem, isSelected ? "" : classes.notSelectedItem);
+
+    const readOnlyValue = selectorItems.find((item) => item.value === selectedItemValue);
 
     const selectionList = selectorItems.map((item) => {
       if (typeof item.render === "function") {
@@ -163,36 +166,48 @@ const Selector = forwardRef(
       <>
         <FormControl
           fullWidth={fullWidth}
-          variant={readOnly ? "standard" : "outlined"}
+          variant="outlined"
           className={formControlClasses}
           error={error}
           sx={memoizedPatchedSx}
           margin={margin}
         >
-          {label && (
-            <InputLabel shrink={shrinkLabel} id={`${labelId}-selector-label`} required={required}>
-              {label}
-            </InputLabel>
+          {readOnly ? (
+            <Input
+              label={label}
+              required={required}
+              InputProps={{
+                readOnly: true,
+                startAdornment: menuItemIcon ? renderMenuItemIcon(readOnlyValue, menuItemIcon) : null
+              }}
+              value={readOnlyValue?.name}
+            />
+          ) : (
+            <>
+              {label && (
+                <InputLabel shrink={shrinkLabel} id={`${labelId}-selector-label`} required={required}>
+                  {label}
+                </InputLabel>
+              )}
+              <Select
+                notched={shrinkLabel}
+                data-test-id={dataTestId}
+                value={selectedItemValue}
+                label={label}
+                classes={{
+                  root: cx(classes.selectRoot, rest.classes?.root),
+                  icon: rest.endAdornment ? classes.iconPositionWithAdornment : ""
+                }}
+                IconComponent={ArrowDropDownIcon}
+                onChange={handleChange}
+                inputRef={ref}
+                {...rest}
+              >
+                {selectionList}
+              </Select>
+              {helperText ? <FormHelperText>{helperText}</FormHelperText> : null}{" "}
+            </>
           )}
-          <Select
-            notched={shrinkLabel}
-            data-test-id={dataTestId}
-            value={selectedItemValue}
-            label={label}
-            classes={{
-              root: cx(classes.selectRoot, rest.classes?.root),
-              icon: rest.endAdornment ? classes.iconPositionWithAdornment : ""
-            }}
-            IconComponent={readOnly ? () => null : ArrowDropDownIcon}
-            readOnly={readOnly}
-            disableUnderline={readOnly}
-            onChange={handleChange}
-            inputRef={ref}
-            {...rest}
-          >
-            {selectionList}
-          </Select>
-          {helperText ? <FormHelperText>{helperText}</FormHelperText> : null}
         </FormControl>
         {isMobile ? (
           <Box component="div" alignItems="center" className={classes["sectionMobile".concat(capitalize(breakpoint))]}>
