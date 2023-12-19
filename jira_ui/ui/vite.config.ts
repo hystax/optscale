@@ -12,6 +12,11 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "build"
     },
+    /*
+      Jira ui project is deployed under a nested path
+      https://vitejs.dev/guide/build#public-base-path
+    */
+    base: "/jira_ui",
     server: {
       open: true,
       port: 3001,
