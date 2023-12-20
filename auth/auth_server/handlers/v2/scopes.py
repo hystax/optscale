@@ -1,5 +1,3 @@
-from tornado import gen
-
 import auth.auth_server.handlers.v1.scopes as scopes_v1
 
 

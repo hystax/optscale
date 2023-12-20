@@ -1,6 +1,5 @@
 import datetime
 import copy
-import os
 import uuid
 from copy import deepcopy
 
@@ -15,6 +14,8 @@ from rest_api.rest_api_server.utils import decode_config
 from rest_api.rest_api_server.controllers.cloud_account import CloudAccountController
 from tools.cloud_adapter.exceptions import ReportConfigurationException
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.models.enums import CloudTypes
+from tools.cloud_adapter.cloud import Cloud as CloudAdapter
 
 
 class TestCloudAccountApi(TestApiBase):
@@ -1909,3 +1910,7 @@ class TestCloudAccountApi(TestApiBase):
         code, cost_model = self.client.sku_cost_model_get(cloud_acc['id'])
         self.assertEqual(code, 200)
         self.assertEqual(cost_model['value'], config['cost_model'])
+
+    def test_adapter_implemented(self):
+        for t in list(CloudTypes):
+            CloudAdapter.get_adapter({'type': t.value})

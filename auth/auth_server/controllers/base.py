@@ -1,22 +1,22 @@
-from sqlalchemy import and_
-from sqlalchemy.exc import IntegrityError
 import time
 import datetime
 import logging
 import requests
 from ordered_set import OrderedSet
+from sqlalchemy import and_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import MultipleResultsFound
 
 from auth.auth_server.exceptions import Err
-from auth.auth_server.models.models import Token, Type, User, Role, PermissionKeys
+from auth.auth_server.models.models import (Token, Type, User, Role,
+                                            PermissionKeys)
+from auth.auth_server.auth_token.token_store import TokenStore
+from auth.auth_server.utils import Config, popkey, get_digest
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   UnauthorizedException,
                                                   NotFoundException,
                                                   ForbiddenException)
 from tools.optscale_exceptions.http_exc import handle503
-from auth.auth_server.auth_token.token_store import TokenStore
-
-from auth.auth_server.utils import Config, popkey, get_digest
 from optscale_client.rest_api_client.client_v2 import Client as RestApiClient
 
 LOG = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class BaseController(object):
         return list(map(lambda x: str(x.name),
                         self.model_type.__table__.columns))
 
-    def _check_input(self, **input):
+    def _check_input(self, **input_):
         raise NotImplementedError
 
     @property
@@ -88,8 +88,8 @@ class BaseController(object):
         immutables_matches = list(filter(lambda x: x in kwargs, immutables))
         if immutables_matches:
             matches_string = ', '.join(immutables_matches)
-            LOG.warning('immutable parameters %s: %s' %
-                        (self.model_type, matches_string))
+            LOG.warning('immutable parameters %s: %s',
+                        self.model_type, matches_string)
             raise WrongArgumentsException(Err.OA0021, [matches_string])
         unexpected_params = list(filter(
             lambda x:
@@ -97,8 +97,8 @@ class BaseController(object):
             kwargs.keys()))
         if unexpected_params:
             unexpected_string = ', '.join(unexpected_params)
-            LOG.warning('Unexpected parameters %s: %s' %
-                        (self.model_type, unexpected_string))
+            LOG.warning('Unexpected parameters %s: %s',
+                        self.model_type, unexpected_string)
             raise WrongArgumentsException(Err.OA0022, [unexpected_string])
 
     def _get_model_type(self):
@@ -110,10 +110,10 @@ class BaseController(object):
             raise UnauthorizedException(Err.OA0023, [])
         return token.user
 
-    def get_user_by_id(self, id):
-        user = self.session.query(User).get(id)
+    def get_user_by_id(self, id_):
+        user = self.session.query(User).get(id_)
         if not user or user.deleted:
-            raise NotFoundException(Err.OA0024, [id])
+            raise NotFoundException(Err.OA0024, [id_])
         return user
 
     def get_users_by_ids(self, ids):
@@ -127,10 +127,10 @@ class BaseController(object):
             raise NotFoundException(Err.OA0024, [not_found_users.pop()])
         return users
 
-    def get_role_by_id(self, id):
-        role = self.session.query(Role).get(id)
+    def get_role_by_id(self, id_):
+        role = self.session.query(Role).get(id_)
         if not role or role.deleted:
-            raise NotFoundException(Err.OA0025, [id])
+            raise NotFoundException(Err.OA0025, [id_])
         return role
 
     def get_type_by_name(self, type_name):
@@ -178,8 +178,8 @@ class BaseController(object):
             user = self.get_user(token)
             assignments = TokenStore(session=self.session).check_permissions(
                 user, action, context, scope_type, scope_id)
-            LOG.info("Access granted: %s" % ','.join(map(lambda x: str(x),
-                                                         assignments)))
+            LOG.info("Access granted: %s", ','.join(
+                str(x) for x in assignments))
             return assignments
 
         except requests.exceptions.HTTPError as exc:
@@ -203,10 +203,11 @@ class BaseController(object):
             # in root case id will be "null"
             if i == 0:
                 id_item_hierarchy_map[None] = hierarchy[type_]['null']
-            elif i == len(ordered_types) - 1:  # last type doesn't have children
+            elif i == len(ordered_types) - 1:
+                # last type doesn't have children
                 continue
             else:
-                for _id in id_item_hierarchy_map.copy().keys():
+                for _id in id_item_hierarchy_map.copy():
                     if type_ in id_item_hierarchy_map[_id]:
                         id_item_hierarchy_map.update(
                             id_item_hierarchy_map[_id][type_])
@@ -235,13 +236,15 @@ class BaseController(object):
             result[action].append((res_type, res_id))
         return result
 
-    def get_action_resources(self, token=None, action_list=list(),
+    def get_action_resources(self, token=None, action_list=None,
                              user_id=None):
         """
         Returns List of actions with corresponding resources
         :return:
          {ACTION_NAME: [(type, uuid), (type, uuid)]}
         """
+        if action_list is None:
+            action_list = list()
         if not isinstance(action_list, list):
             return TypeError('action_list should be list')
         if user_id:
@@ -266,19 +269,19 @@ class BaseController(object):
 
     @handle503
     def get_resources_info(self, payload):
-        code, res_info = self.restapi_client.resources_get(payload)
+        _, res_info = self.restapi_client.resources_get(payload)
         return res_info
 
     @handle503
     def get_context(self, res_type, uuid):
         if not uuid:
             return {}
-        code, context = self.restapi_client.context_get(res_type, uuid)
+        _, context = self.restapi_client.context_get(res_type, uuid)
         return context
 
     @handle503
     def get_downward_hierarchy(self, res_type, uuid):
-        code, hierarchy = self.restapi_client.auth_hierarchy_get(
+        _, hierarchy = self.restapi_client.auth_hierarchy_get(
             res_type, uuid)
         return hierarchy
 

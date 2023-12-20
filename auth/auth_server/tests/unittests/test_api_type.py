@@ -27,13 +27,13 @@ class TestTypeApi(TestAuthBase):
 
     def test_type_get(self):
         _, types = self.client.type_list()
-        for type in types:
-            type_id = type.get('id')
-            type_name = type.get('name')
-            code, type = self.client.type_get(type_id)
+        for type_ in types:
+            type_id = type_.get('id')
+            type_name = type_.get('name')
+            code, type_ = self.client.type_get(type_id)
             self.assertEqual(code, 200)
-            self.assertEqual(type_id, type.get('id'))
-            self.assertEqual(type_name, type.get('name'))
+            self.assertEqual(type_id, type_.get('id'))
+            self.assertEqual(type_name, type_.get('name'))
 
     def test_type_list(self):
         code, types = self.client.type_list()

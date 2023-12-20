@@ -4,8 +4,8 @@ import string
 
 class DummyToken(object):
 
-    def __init__(self, len=150):
-        self.len = len
+    def __init__(self, length=150):
+        self.len = length
 
     def create(self):
         return ''.join(random.choice(string.ascii_uppercase + string.digits)

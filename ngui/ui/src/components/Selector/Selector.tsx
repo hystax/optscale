@@ -163,7 +163,7 @@ const Selector = forwardRef(
       <>
         <FormControl
           fullWidth={fullWidth}
-          variant="outlined"
+          variant={readOnly ? "standard" : "outlined"}
           className={formControlClasses}
           error={error}
           sx={memoizedPatchedSx}
@@ -185,6 +185,7 @@ const Selector = forwardRef(
             }}
             IconComponent={readOnly ? () => null : ArrowDropDownIcon}
             readOnly={readOnly}
+            disableUnderline={readOnly}
             onChange={handleChange}
             inputRef={ref}
             {...rest}

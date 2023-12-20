@@ -1,7 +1,8 @@
-from auth.auth_server.tests.unittests.test_model_base import TestModelBase
-from auth.auth_server.models.models import *
-
+import uuid
 from auth.auth_server.auth_token.token_store import TokenStore
+from auth.auth_server.models.models import (Action, ActionGroup, Assignment,
+                                            Type, Role, User)
+from auth.auth_server.tests.unittests.test_model_base import TestModelBase
 
 
 class TestActionResources(TestModelBase):
@@ -23,22 +24,22 @@ class TestActionResources(TestModelBase):
         user_action_group = ActionGroup(name='Manage users and assignments')
 
         self.user_partner = User(
-            'partner@allcom.com', type=type_partner, password='passwd',
+            'partner@allcom.com', type_=type_partner, password='passwd',
             display_name='Partner user', scope_id=self.partner_scope_id,
             type_id=type_partner.id)
         self.user_customer = User(
-            'customer@domain.com', type=type_customer,
+            'customer@domain.com', type_=type_customer,
             display_name='Customer user', password='passwd',
             scope_id=self.customer_scope_id, type_id=type_customer.id)
 
         action_list_users = Action(name=action_name_list_users,
-                                   type=type_partner,
+                                   type_=type_partner,
                                    action_group=user_action_group)
 
         action_create_users = Action(name=action_name_create_users,
-                                     type=type_customer,
+                                     type_=type_customer,
                                      action_group=user_action_group)
-        manager_role = Role(name=role_name, type=type_partner,
+        manager_role = Role(name=role_name, type_=type_partner,
                             lvl=type_partner,
                             scope_id=str(uuid.uuid4()),
                             description="Some manager action")

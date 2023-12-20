@@ -6,27 +6,27 @@ import Image from "components/Image";
 import PageTitle from "components/PageTitle";
 import useStyles from "./ActionBarHeader.styles";
 
-type SrcOrIconType = { src: string; icon: never } | { src: never; icon: JSX.Element };
+type SrcOrIconProps = { src: string; icon?: never } | { src?: never; icon: JSX.Element };
 
 type LogoTypeCommonProps = {
   alt: string;
   dataTestId: string;
 };
 
-type TextType = string | JSX.Element | (() => JSX.Element);
+type TextProp = string | JSX.Element | (() => JSX.Element);
 
-type TextOrMessageIdType = { text: TextType; messageId: never } | { text: never; messageId: string };
+type TextOrMessageIdProps = { text: TextProp; messageId?: never } | { text?: never; messageId: string };
 
 type ActionBarHeaderCommonProps = {
-  logo: LogoTypeCommonProps & SrcOrIconType;
+  logo: LogoTypeCommonProps & SrcOrIconProps;
   dataTestId: string;
   isLoading?: boolean;
   dataProductTourId?: string;
 };
 
-type ActionBarHeaderProps = ActionBarHeaderCommonProps & TextOrMessageIdType;
+type ActionBarHeaderProps = ActionBarHeaderCommonProps & TextOrMessageIdProps;
 
-const renderText = (text: TextType) => (typeof text === "function" ? text() : text);
+const renderText = (text: TextProp) => (typeof text === "function" ? text() : text);
 
 const ActionBarHeader = forwardRef<HTMLHeadingElement, ActionBarHeaderProps>(
   ({ text, messageId, isLoading, dataTestId, dataProductTourId, logo }, ref) => {
@@ -47,7 +47,8 @@ const ActionBarHeader = forwardRef<HTMLHeadingElement, ActionBarHeaderProps>(
           </Box>
         )}
         <PageTitle dataProductTourId={dataProductTourId} dataTestId={dataTestId} className={classes.title} ref={ref}>
-          {messageId ? <FormattedMessage id={messageId} /> : renderText(text)}
+          {messageId && <FormattedMessage id={messageId} />}
+          {text && renderText(text)}
         </PageTitle>
       </>
     );

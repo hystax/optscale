@@ -1,6 +1,6 @@
+import uuid
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth.auth_server.models.models import *
-from auth.auth_server.controllers.token import xstr
+from auth.auth_server.models.models import Type, User, gen_salt
 from auth.auth_server.utils import hash_password
 from auth.auth_server.tests.unittests.utils import extract_caveats
 
@@ -64,7 +64,7 @@ class TestTokenApi(TestAuthBase):
             self.assertEqual(code, 400)
             self.assertEqual(
                 token['error']['reason'],
-                'Parameter "%s" is immutable' % immutable_parameter)
+                f'Parameter "{immutable_parameter}" is immutable')
 
     def test_get_token_with_unexpected(self):
         session = self.db_session
@@ -88,7 +88,7 @@ class TestTokenApi(TestAuthBase):
             self.assertEqual(code, 400)
             self.assertEqual(
                 token['error']['reason'],
-                'Unexpected parameters: %s' % unexpected_parameter)
+                f'Unexpected parameters: {unexpected_parameter}')
 
     def test_not_allowed_method(self):
         code, response = self.client.get('tokens', {})

@@ -18,9 +18,20 @@ const SelectorLoader = ({ labelId, customClass, readOnly = false, isRequired = f
   const label = <FormattedMessage id={labelId} />;
 
   return (
-    <FormControl fullWidth={fullWidth} variant="outlined" className={formControlClasses} error={error}>
+    <FormControl
+      fullWidth={fullWidth}
+      variant={readOnly ? "standard" : "outlined"}
+      className={formControlClasses}
+      error={error}
+    >
       <InputLabel required={isRequired}>{label}</InputLabel>
-      <Select label={label} readOnly={readOnly} IconComponent={readOnly ? () => null : ArrowDropDownIcon} value={" "}>
+      <Select
+        disableUnderline={readOnly}
+        label={label}
+        readOnly={readOnly}
+        IconComponent={readOnly ? () => null : ArrowDropDownIcon}
+        value={" "}
+      >
         <MenuItem value={" "}>
           <Skeleton />
         </MenuItem>

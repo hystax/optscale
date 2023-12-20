@@ -72,7 +72,7 @@ const TagsBreakdown = ({
 }) => {
   const theme = useTheme();
 
-  const chartColors = { null: theme.palette.chart };
+  const chartColors = { null: theme.palette.chart[0] };
 
   const getChartHeader = (tag) => {
     const chartHeader = {

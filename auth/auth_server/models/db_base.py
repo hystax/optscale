@@ -3,13 +3,13 @@ from retrying import retry
 import auth.auth_server.models.models as model_base
 
 
-def should_retry(exception):
+def should_retry(_exception):
     return True
 
 
 class BaseDB(object):
 
-    def __init__(self, config=None, scopefunc=None):
+    def __init__(self, config=None, _scopefunc=None):
         self._engine = None
         self._config = config
 

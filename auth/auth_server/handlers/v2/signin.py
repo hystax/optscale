@@ -29,7 +29,8 @@ class SignInAsyncHandler(BaseAsyncCollectionHandler):
                     token: {type: string,
                         description: "Third party token"}
                     tenant_id: {type: string, required: false,
-                        description: "Azure AD tenant id (only for microsoft provider)"}
+                        description: "Azure AD tenant id
+                            (only for microsoft provider)"}
         responses:
             201:
                 description: Success
@@ -55,7 +56,8 @@ class SignInAsyncHandler(BaseAsyncCollectionHandler):
                     - OA0061: Database error
                     - OA0065: Argument should not contain only whitespaces
                     - OA0067: Invalid provider
-                    - OA0070: Registration with domain is prohibited. Please use your business email for registration
+                    - OA0070: Registration with domain is prohibited. Please
+                        use your business email for registration
             403:
                 description: |
                     Forbidden:

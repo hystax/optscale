@@ -1,7 +1,8 @@
 import auth.auth_server.handlers.v1.authorization_userlist as userlist_v1
 
 
-class AuthorizationUserlistAsyncHandler(userlist_v1.AuthorizationUserlistAsyncHandler):
+class AuthorizationUserlistAsyncHandler(
+        userlist_v1.AuthorizationUserlistAsyncHandler):
 
     async def post(self):
         """

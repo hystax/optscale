@@ -1,0 +1,662 @@
+""""initial"
+
+Revision ID: d7d1cf2f5182
+Revises:
+Create Date: 2023-12-07 15:13:36.362731
+
+"""
+
+import json
+import enum
+import uuid
+import string
+import random
+from datetime import datetime
+from alembic import op
+import sqlalchemy as sa
+from sqlalchemy import (Column, String, Integer, ForeignKey, Table,
+                        TEXT, Boolean, and_, Index, Enum, UniqueConstraint)
+from sqlalchemy.orm import relationship, backref, Session
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.declarative.base import _declarative_constructor
+from sqlalchemy.ext.hybrid import hybrid_property
+from auth.auth_server.models.exceptions import InvalidTreeException
+from auth.auth_server.utils import as_dict, ModelEncoder
+
+# revision identifiers, used by Alembic.
+revision = 'd7d1cf2f5182'
+down_revision = None
+branch_labels = None
+depends_on = None
+
+
+def gen_id():
+    return str(uuid.uuid4())
+
+
+def gen_salt():
+    return ''.join(random.choice(string.ascii_lowercase + string.digits)
+                   for _ in range(8))
+
+
+def get_current_timestamp():
+    return int(datetime.utcnow().timestamp())
+
+
+def create_tables():
+    op.create_table('type',
+                    sa.Column('id', sa.Integer(), nullable=False),
+                    sa.Column('created_at', sa.Integer(), nullable=False),
+                    sa.Column('deleted_at', sa.Integer(), nullable=False),
+                    sa.Column('parent_id', sa.Integer(), nullable=True),
+                    sa.Column('name', sa.String(length=24), nullable=False),
+                    sa.Column('assignable', sa.Boolean(), nullable=False),
+                    sa.ForeignKeyConstraint(['parent_id'], ['type.id'], ),
+                    sa.PrimaryKeyConstraint('id'))
+    op.create_index(op.f('ix_type_name'), 'type', ['name'], unique=True)
+
+    op.create_table('action',
+                    sa.Column('id', sa.Integer(), nullable=False),
+                    sa.Column('created_at', sa.Integer(), nullable=False),
+                    sa.Column('deleted_at', sa.Integer(), nullable=False),
+                    sa.Column('name', sa.String(length=64), nullable=False),
+                    sa.Column('type_id', sa.Integer(), nullable=True),
+                    sa.Column('action_group_id', sa.Integer(),
+                              nullable=False),
+                    sa.Column('order', sa.Integer(), nullable=False),
+                    sa.ForeignKeyConstraint(['type_id'], ['type.id'], ),
+                    sa.PrimaryKeyConstraint('id'))
+    op.create_index(op.f('ix_action_name'), 'action', ['name'], unique=True)
+
+    op.create_table('role',
+                    sa.Column('id', sa.Integer(), nullable=False),
+                    sa.Column('created_at', sa.Integer(), nullable=False),
+                    sa.Column('deleted_at', sa.Integer(), nullable=False),
+                    sa.Column('name', sa.String(length=64), nullable=False),
+                    sa.Column('description', sa.TEXT(), nullable=True),
+                    sa.Column('type_id', sa.Integer(), nullable=False),
+                    sa.Column('lvl_id', sa.Integer(), nullable=False),
+                    sa.Column('scope_id', sa.String(length=36),
+                              nullable=True),
+                    sa.Column('is_active', sa.Boolean(), nullable=False),
+                    sa.Column('shared', sa.Boolean(), nullable=False),
+                    sa.Column('purpose',
+                              Enum('optscale_member', 'optscale_engineer',
+                                   'optscale_manager'), nullable=True),
+                    sa.ForeignKeyConstraint(['type_id'], ['type.id'], ),
+                    sa.PrimaryKeyConstraint('id'))
+    op.create_index(op.f('ix_role_name'), 'role', ['name'], unique=False)
+    op.create_foreign_key('role_ibfk_lvl_2', 'role', 'type', ['lvl_id'],
+                          ['id'])
+    op.create_index('idx_role_name_scope', 'role', [
+        'name', 'type_id', 'scope_id', 'deleted_at'], unique=True)
+    op.create_index('uc_purpose_deleted_at', 'role', ['purpose', 'deleted_at'],
+                    unique=True)
+
+    op.create_table(
+        'user',
+        sa.Column('id', sa.String(length=36), nullable=False),
+        sa.Column('created_at', sa.Integer(), nullable=False),
+        sa.Column('deleted_at', sa.Integer(), nullable=False),
+        sa.Column('type_id', sa.Integer(), nullable=False),
+        sa.Column('email', sa.String(length=256), nullable=False),
+        sa.Column('password', sa.String(length=64), nullable=False),
+        sa.Column('salt', sa.String(length=20), nullable=False),
+        sa.Column('scope_id', sa.String(length=36), nullable=True),
+        sa.Column('display_name', sa.String(length=256),
+                  nullable=False),
+        sa.Column('is_active', sa.Boolean(), nullable=False),
+        sa.Column('slack_connected', sa.Boolean(), nullable=False),
+        sa.Column('is_password_autogenerated', sa.Boolean(),
+                  nullable=False),
+        sa.Column('jira_connected', sa.Boolean(), nullable=False),
+        sa.ForeignKeyConstraint(['type_id'], ['type.id'], ),
+        sa.PrimaryKeyConstraint('id'), mysql_row_format='DYNAMIC')
+    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=False)
+    op.create_index(op.f('ix_user_scope_id'), 'user', ['scope_id'],
+                    unique=False)
+
+    op.create_table(
+        'assignment',
+        sa.Column('created_at', sa.Integer(), nullable=False),
+        sa.Column('deleted_at', sa.Integer(), nullable=False),
+        sa.Column('id', sa.String(length=36), nullable=False),
+        sa.Column('type_id', sa.Integer(), nullable=False),
+        sa.Column('role_id', sa.Integer(), nullable=False),
+        sa.Column('user_id', sa.String(length=36), nullable=False),
+        sa.Column('resource_id', sa.String(length=36), nullable=True),
+        sa.ForeignKeyConstraint(['role_id'], ['role.id'], ),
+        sa.ForeignKeyConstraint(['type_id'], ['type.id'], ),
+        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('id'))
+    op.create_index(op.f('ix_assignment_resource_id'), 'assignment',
+                    ['resource_id'], unique=False)
+
+    op.create_table(
+        'role_action',
+        sa.Column('id', sa.String(length=36), nullable=False),
+        sa.Column('role_id', sa.Integer(), nullable=False),
+        sa.Column('action_id', sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(['action_id'], ['action.id'], ),
+        sa.ForeignKeyConstraint(['role_id'], ['role.id'], ),
+        sa.PrimaryKeyConstraint('id', 'role_id', 'action_id'),
+        sa.UniqueConstraint('id'))
+
+    op.create_table('token',
+                    sa.Column('user_id', sa.String(length=36), nullable=True),
+                    sa.Column('created_at', sa.TIMESTAMP(), nullable=False),
+                    sa.Column('valid_until', sa.TIMESTAMP(), nullable=False),
+                    sa.Column('ip', sa.String(length=39), nullable=False),
+                    sa.Column('digest', sa.String(length=32),
+                              nullable=False),
+                    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+                    mysql_row_format='DYNAMIC')
+    op.create_index(op.f('ix_token_valid_until'), 'token', ['valid_until'],
+                    unique=False)
+    op.create_primary_key('pk_token', 'token', ['digest'])
+
+    op.create_table('action_group',
+                    sa.Column('created_at', sa.Integer(), nullable=False),
+                    sa.Column('deleted_at', sa.Integer(), nullable=False),
+                    sa.Column('id', sa.Integer(), nullable=False),
+                    sa.Column('order', sa.Integer(), nullable=False),
+                    sa.Column('name', sa.String(length=50), nullable=False),
+                    sa.PrimaryKeyConstraint('id'))
+    op.create_index(op.f('ix_action_group_name'), 'action_group', ['name'],
+                    unique=True)
+    op.create_foreign_key('action_type_ibfk_2', 'action', 'action_group',
+                          ['action_group_id'], ['id'])
+
+
+class PermissionKeys(Enum):
+    is_creatable = 'is_creatable'
+    is_updatable = 'is_updatable'
+
+
+class ColumnPermissions(Enum):
+    full = {PermissionKeys.is_creatable: True,
+            PermissionKeys.is_updatable: True}
+    create_only = {PermissionKeys.is_creatable: True,
+                   PermissionKeys.is_updatable: False}
+    update_only = {PermissionKeys.is_creatable: False,
+                   PermissionKeys.is_updatable: True}
+
+
+class Base(object):
+    __name__: str
+    __table__: Table
+
+    def __init__(self, **kwargs):
+        init_columns = list(filter(lambda x: x.info.get(
+            PermissionKeys.is_creatable) is True, self.__table__.c))
+        for col in init_columns:
+            setattr(self, col.name, kwargs.get(col.name))
+            kwargs.pop(col.name, None)
+        _declarative_constructor(self, **kwargs)
+
+    @declared_attr
+    def __tablename__(self):
+        return self.__name__.lower()
+
+    def to_dict(self):
+        return as_dict(self)
+
+    def to_json(self):
+        return json.dumps(self.to_dict(), cls=ModelEncoder)
+
+
+Base = declarative_base(cls=Base)
+
+
+class BaseModel(object):
+    created_at = Column(Integer, default=get_current_timestamp,
+                        nullable=False)
+    deleted_at = Column(Integer, default=0, nullable=False)
+
+    @hybrid_property
+    def deleted(self):
+        return self.deleted_at != 0
+
+
+class BaseMixin(BaseModel):
+    id = Column(String(36), primary_key=True, default=gen_id)
+
+
+class BaseIntKeyMixin(BaseModel):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+
+class OrderMixin(object):
+    order = Column(Integer, nullable=False, default=0)
+
+
+class Type(Base, BaseIntKeyMixin):
+
+    __tablename__ = 'type'
+
+    parent_id = Column(Integer, ForeignKey('type.id'))
+    name = Column(String(24), nullable=False, index=True, unique=True)
+    assignable = Column(Boolean, nullable=False, default=True)
+    children = relationship(
+        'Type',
+        # cascade deletions
+        cascade="all",
+        # many to one + adjacency list - remote_side
+        # is required to reference the 'remote'
+        # column in the join condition.
+        backref=backref("parent", remote_side='Type.id'),
+        # children will be represented as a dictionary
+        # on the "name" attribute.
+        collection_class=list)
+
+    @hybrid_property
+    def child_tree(self):
+        all_ = []
+
+        def get_childs(node, li):
+            if node:
+                list_element = node.children
+                if len(list_element) == 1:
+                    li.append(list_element[0])
+                    get_childs(list_element[0], li)
+                elif len(list_element) > 1:
+                    raise InvalidTreeException("Invalid tree format")
+            else:
+                return
+
+        get_childs(self, all_)
+        return sorted(all_, key=lambda x: x.id)
+
+    @hybrid_property
+    def parent_tree(self):
+        all_ = []
+
+        def get_parents(node, li):
+            if node:
+                element = node.parent
+                if element:
+                    li.append(element)
+                    get_parents(element, li)
+            else:
+                return
+
+        get_parents(self, all_)
+        return sorted(all_, key=lambda x: x.id, reverse=True)
+
+    def __init__(self, id_=None, name=None, parent=None, assignable=True):
+        self.id = id_
+        self.name = name
+        self.parent = parent
+        self.assignable = assignable
+
+    def append(self, node_name):
+        self.children[node_name] = Type(node_name, parent=self)
+
+    def __repr__(self):
+        return f"Type(name={self.name}, id={self.id}, " \
+               f"parent_id={self.parent_id})"
+
+
+class RolePurpose(enum.Enum):
+    optscale_member = 'optscale_member'
+    optscale_engineer = 'optscale_engineer'
+    optscale_manager = 'optscale_manager'
+
+
+class RoleAction(Base):
+
+    __tablename__ = 'role_action'
+
+    id = Column(String(36), default=gen_id, primary_key=True, unique=True)
+    role_id = Column(Integer, ForeignKey('role.id'), primary_key=True)
+    action_id = Column(Integer, ForeignKey('action.id'), primary_key=True)
+
+    role = relationship("Role", backref=backref(
+        "role_action", cascade="all, delete-orphan"))
+    action = relationship("Action", backref=backref(
+        "role_action", cascade="all, delete-orphan"))
+
+    def __init__(self, role=None, action=None):
+        self.id = gen_id()
+        self.role = role
+        self.action = action
+
+    def __repr__(self):
+        role_action = self.role.name + " " + self.action.name
+        return f'<RoleAction {role_action}>'
+
+
+class Role(Base, BaseIntKeyMixin):
+
+    __tablename__ = 'role'
+
+    name = Column(String(64), index=True, nullable=False,
+                  info=ColumnPermissions.full)
+    description = Column(TEXT, nullable=True, info=ColumnPermissions.full)
+    type_id = Column(Integer, ForeignKey('type.id'), nullable=False,
+                     info=ColumnPermissions.create_only)
+    lvl_id = Column(Integer, ForeignKey('type.id'), nullable=False,
+                    info=ColumnPermissions.create_only)
+    scope_id = Column(String(36), nullable=True,
+                      info=ColumnPermissions.create_only)
+    shared = Column(Boolean, nullable=False, default=False,
+                    info=ColumnPermissions.full)
+    is_active = Column(Boolean, nullable=False, default=True,
+                       info=ColumnPermissions.full)
+    purpose = Column(Enum(RolePurpose))
+    actions = relationship("Action", secondary="role_action")
+    type = relationship("Type", backref="roles", foreign_keys=[type_id])
+    lvl = relationship("Type", backref="levels", foreign_keys=[lvl_id])
+    __table_args__ = (
+        Index('idx_role_name_scope', "name", "type_id",
+              "scope_id", "deleted_at", unique=True),
+        UniqueConstraint("purpose", "deleted_at", name="uc_purpose_deleted_at")
+    )
+
+    def assign_action(self, action):
+        # pylint: disable=E1101
+        self.role_action.append(RoleAction(role=self, action=action))
+
+    def remove_action(self, action):
+        self.actions.remove(action)
+
+    def __init__(self, name=None, type_=None, lvl=None, shared=False,
+                 is_active=True, scope_id=None, description=None, type_id=None,
+                 lvl_id=None, purpose=None):
+        if type_:
+            self.type = type_
+        if type_id is not None:
+            self.type_id = type_id
+        if lvl:
+            self.lvl = lvl
+        if lvl_id is not None:
+            self.lvl_id = lvl_id
+        self.name = name
+        self.scope_id = scope_id
+        self.shared = shared
+        self.is_active = is_active
+        self.description = description
+        self.users = []
+        self.purpose = purpose
+
+    def __repr__(self):
+        return f'<Role {self.name} (type: {self.type.name}) >'
+
+
+class Action(BaseIntKeyMixin, Base, OrderMixin):
+
+    __tablename__ = 'action'
+
+    name = Column(String(64), index=True, nullable=False, unique=True)
+    type_id = Column(Integer, ForeignKey('type.id'))
+    action_group_id = Column(Integer, ForeignKey('action_group.id'),
+                             nullable=False)
+    action_group = relationship("ActionGroup", backref="actions")
+    type = relationship("Type", backref='actions')
+    roles = relationship("Role", secondary="role_action", viewonly=True)
+
+    def __init__(self, name=None, type_=None, action_group=None,
+                 action_group_id=None, order=0):
+        if action_group:
+            self.action_group = action_group
+        if action_group_id is not None:
+            self.action_group_id = action_group_id
+        self.name = name
+        self.type = type_
+        self.order = order
+        self.roles = []
+
+    def __repr__(self):
+        return f'<Action {self.name}>'
+
+
+class ActionGroup(BaseIntKeyMixin, Base, OrderMixin):
+
+    __tablename__ = 'action_group'
+
+    name = Column(String(24), index=True, nullable=False, unique=True)
+
+    def __init__(self, name=None, order=0):
+        self.name = name
+        self.order = order
+
+    @property
+    def actual_actions(self):
+        return Session.object_session(self).query(Action).filter(
+            and_(
+                Action.deleted.is_(False),
+                Action.action_group_id == self.id
+            )
+        ).all()
+
+    def __repr__(self):
+        return f'<ActionGroup {self.name}>'
+
+
+def fill_data():
+    deleted_time = get_current_timestamp()
+    bind = op.get_bind()
+    session = Session(bind=bind)
+    try:
+        type_root = Type(id_=1, name='root', assignable=True)
+        type_organization = Type(id_=2, name='organization', parent=type_root,
+                                 assignable=True)
+        type_pool = Type(id_=3, name='pool', parent=type_organization,
+                         assignable=True)
+        for obj in [type_root, type_organization, type_pool]:
+            session.add(obj)
+
+        role_admin = Role(name='Super Admin', type_=type_root,
+                          description='Hystax Admin', lvl_id=type_root.id,
+                          is_active=True)
+        role_drplan_operator = Role(name='Drplan Operator', type_=type_pool,
+                                    description='DR plan operator',
+                                    lvl_id=type_pool.id, is_active=True)
+        role_drplan_operator.deleted_at = deleted_time
+        role_manager = Role(name='Manager', type_=type_root, lvl=type_root,
+                            description='Optscale manager', shared=True,
+                            purpose=RolePurpose.optscale_manager)
+        role_engineer = Role(name='Engineer', type_=type_root, lvl=type_root,
+                             description='Optscale engineer', shared=True,
+                             purpose=RolePurpose.optscale_engineer)
+        role_member = Role(name='Member', type_=type_root, lvl=type_root,
+                           description='Optscale member', shared=True,
+                           purpose=RolePurpose.optscale_member)
+        for role in [role_drplan_operator, role_admin, role_manager,
+                     role_engineer, role_engineer]:
+            session.add(role)
+
+        action_group_admin = ActionGroup(name='Super Admin', order=100)
+        action_group_assign = ActionGroup(
+            name='MANAGE_ASSIGNMENTS', order=200)
+        action_group_role = ActionGroup(
+            name='MANAGE_ROLES', order=300)
+        action_group_partners = ActionGroup(name='MANAGE_PARTNERS', order=800)
+        action_group_events = ActionGroup(
+            name='MANAGE_NOTIFICATIONS', order=900)
+        glob_mgmt_group = ActionGroup(name='GLOBAL_MANAGEMENT', order=1200)
+        optscale_ag = ActionGroup(name='OPTSCALE_MANAGEMENT', order=1300)
+        action_group_del_assignment = ActionGroup(name='assignment', order=900)
+        action_group_del_assignment.deleted_at = deleted_time
+        action_group_del_role = ActionGroup(name='role', order=1000)
+        action_group_del_role.deleted_at = deleted_time
+        for action_group in [action_group_admin, action_group_assign,
+                             action_group_role, action_group_del_assignment,
+                             action_group_del_role, action_group_partners,
+                             action_group_events, glob_mgmt_group, optscale_ag
+                             ]:
+            session.add(action_group)
+
+        action_admin = Action(
+            name='ADMIN', type_=type_root,
+            action_group=action_group_admin, order=110)
+        action_admin.deleted_at = deleted_time
+        action_admin.action_group.deleted_at = deleted_time
+        action_list_users = Action(
+            name='LIST_USERS', type_=type_pool,
+            action_group=action_group_assign, order=210)
+        action_create_user = Action(
+            name='CREATE_USER', type_=type_pool,
+            action_group=action_group_assign, order=220)
+        action_edit_user_info = Action(
+            name='EDIT_USER_INFO', type_=type_pool,
+            action_group=action_group_assign, order=230)
+        action_activate_user = Action(
+            name='ACTIVATE_USER', type_=type_pool,
+            action_group=action_group_assign, order=240)
+        action_delete_user = Action(
+            name='DELETE_USER', type_=type_pool,
+            action_group=action_group_assign, order=250)
+        action_reset_user_password = Action(
+            name='RESET_USER_PASSWORD', type_=type_pool, order=260,
+            action_group=action_group_assign)
+        action_assign_user = Action(
+            name='ASSIGN_USER', type_=type_pool,
+            action_group=action_group_assign, order=270)
+        action_assign_self = Action(
+            name='ASSIGN_SELF', type_=type_pool,
+            action_group=action_group_assign, order=280)
+        action_list_roles = Action(
+            name='LIST_ROLES', type_=type_pool,
+            action_group=action_group_role, order=310)
+        action_create_role = Action(
+            name='CREATE_ROLE', type_=type_pool,
+            action_group=action_group_role, order=320)
+        action_edit_roles = Action(
+            name='EDIT_ROLES', type_=type_pool,
+            action_group=action_group_role, order=330)
+        action_edit_own_roles = Action(
+            name='EDIT_OWN_ROLES', type_=type_pool, order=340,
+            action_group=action_group_role)
+        action_edit_sublevel_roles = Action(
+            name='EDIT_SUBLEVEL_ROLES', type_=type_organization, order=350,
+            action_group=action_group_role)
+        action_delete_role = Action(
+            name='DELETE_ROLE', type_=type_pool,
+            action_group=action_group_role, order=360)
+        action_delete_sublevel_role = Action(
+            name='DELETE_SUBLEVEL_ROLE', type_=type_organization, order=370,
+            action_group=action_group_role)
+        action_list_partners = Action(
+            name='INFO_PARTNER', type_=type_organization,
+            action_group=action_group_partners, order=810)
+        action_create_partner = Action(
+            name='CREATE_PARTNER', type_=type_root,
+            action_group=action_group_partners, order=820)
+        action_edit_partner = Action(
+            name='EDIT_PARTNER', type_=type_organization,
+            action_group=action_group_partners, order=830)
+        action_delete_partner = Action(
+            name='DELETE_PARTNER', type_=type_root,
+            action_group=action_group_partners, order=840)
+        action_ack_event = Action(
+            name='ACK_EVENT', type_=type_organization,
+            action_group=action_group_events, order=920)
+        action_poll_event = Action(
+            name='POLL_EVENT', type_=type_organization,
+            action_group=action_group_events, order=910)
+        action_get_config = Action(
+            name='GET_CONFIG', type_=type_root,
+            action_group=glob_mgmt_group, order=1210)
+        action_manage_clouds = Action(
+            name='MANAGE_CLOUDS', type_=type_pool,
+            action_group=glob_mgmt_group, order=1220)
+        action_manage_creds = Action(
+            name='MANAGE_CLOUD_CREDENTIALS', type_=type_organization,
+            action_group=optscale_ag, order=1310)
+        action_manage_resources = Action(
+            name='MANAGE_RESOURCES', type_=type_organization,
+            action_group=optscale_ag, order=1320)
+        action_manage_own_resources = Action(
+            name='MANAGE_OWN_RESOURCES', type_=type_organization,
+            action_group=optscale_ag, order=1330)
+        action_manage_pools = Action(
+            name='MANAGE_POOLS', type_=type_organization,
+            action_group=optscale_ag, order=1340)
+        action_manage_permissions = Action(
+            name='MANAGE_PERMISSIONS', type_=type_organization,
+            action_group=optscale_ag, order=1350)
+        action_info_organization = Action(
+            name='INFO_ORGANIZATION', type_=type_organization,
+            action_group=optscale_ag, order=1360)
+        action_manage_invites = Action(
+            name='MANAGE_INVITES', type_=type_organization,
+            action_group=optscale_ag, order=1370)
+        action_manage_checklists = Action(
+            name='MANAGE_CHECKLISTS', type_=type_organization,
+            action_group=optscale_ag, order=1380)
+        action_manage_booking_env = Action(
+            name='BOOK_ENVIRONMENTS', type_=type_organization,
+            action_group=optscale_ag, order=1390)
+        for action in [
+            action_admin, action_list_users, action_create_user,
+            action_edit_user_info, action_activate_user, action_delete_user,
+            action_reset_user_password, action_assign_user, action_assign_self,
+            action_list_roles, action_edit_roles, action_edit_own_roles,
+            action_delete_role, action_create_role, action_edit_sublevel_roles,
+            action_delete_sublevel_role, action_list_partners,
+            action_create_partner, action_edit_partner, action_delete_partner,
+            action_ack_event, action_poll_event, action_get_config,
+            action_manage_clouds, action_manage_creds, action_manage_resources,
+            action_manage_own_resources, action_manage_pools,
+            action_manage_permissions, action_info_organization,
+            action_manage_invites, action_manage_checklists,
+            action_manage_booking_env
+        ]:
+            session.add(action)
+            role_admin.assign_action(action)
+        role_actions_map = {
+            role_manager: ['INFO_ORGANIZATION', 'MANAGE_CLOUD_CREDENTIALS',
+                           'MANAGE_RESOURCES', 'MANAGE_OWN_RESOURCES',
+                           'MANAGE_POOLS', 'MANAGE_PERMISSIONS',
+                           'MANAGE_INVITES', 'ACK_EVENT', 'POLL_EVENT',
+                           'INFO_PARTNER', 'CREATE_PARTNER', 'EDIT_PARTNER',
+                           'DELETE_PARTNER', 'LIST_USERS', 'ASSIGN_USER',
+                           'ASSIGN_SELF', 'MANAGE_CHECKLISTS',
+                           'BOOK_ENVIRONMENTS'],
+            role_engineer: ['INFO_ORGANIZATION', 'MANAGE_OWN_RESOURCES',
+                            'ACK_EVENT', 'POLL_EVENT', 'INFO_PARTNER',
+                            'BOOK_ENVIRONMENTS'],
+            role_member: ['INFO_ORGANIZATION', 'POLL_EVENT', 'INFO_PARTNER']
+        }
+        for role, actions in role_actions_map.items():
+            for action_string in actions:
+                action = session.query(Action).filter_by(
+                    name=action_string
+                ).one_or_none()
+                if not action:
+                    raise ValueError(f'Action {action_string} not found')
+                role.assign_action(action)
+        session.commit()
+    finally:
+        session.close()
+
+
+def upgrade():
+    create_tables()
+    fill_data()
+
+
+def downgrade():
+    op.drop_constraint('pk_token', 'token', type_='primary')
+    op.drop_index(op.f('ix_token_valid_until'), table_name='token')
+    op.drop_table('token')
+    op.drop_table('role_action')
+    op.drop_index(op.f('ix_assignment_resource_id'), table_name='assignment')
+    op.drop_table('assignment')
+    op.drop_index(op.f('ix_user_scope_id'), table_name='user')
+    op.drop_index(op.f('ix_user_email'), table_name='user')
+    op.drop_table('user')
+    op.drop_constraint('role_ibfk_lvl_2', 'role', type_='foreignkey')
+    op.drop_index(op.f('ix_role_name'), table_name='role')
+    op.drop_index('idx_role_name_scope', table_name='role')
+    op.drop_constraint('uc_purpose_deleted_at', 'role', type_='unique')
+    op.drop_table('role')
+    op.drop_index(op.f('ix_action_name'), table_name='action')
+    op.drop_constraint('action_type_ibfk_2', 'action', type_='foreignkey')
+    op.drop_table('action')
+    op.drop_index(op.f('ix_type_name'), table_name='type')
+    op.drop_table('type')
+    op.drop_index(op.f('ix_action_group_name'), table_name='action_group')
+    op.drop_table('action_group')

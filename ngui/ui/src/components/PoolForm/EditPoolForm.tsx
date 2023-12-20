@@ -2,11 +2,12 @@ import { Box } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PoolTypesDescription from "components/PoolTypesDescription";
-import QuestionMark from "components/QuestionMark";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import PoolsService from "services/PoolsService";
 import { SCOPE_TYPES } from "utils/constants";
+import { SPACING_1 } from "utils/layouts";
 import {
   PoolFormNameInput,
   PoolFormLimitInput,
@@ -14,37 +15,6 @@ import {
   PoolFormAutoExtendCheckbox,
   PoolFormOwnerSelector
 } from "./FormElements";
-
-const NAME = "name";
-const TYPE = "type";
-
-const getInputNameMessage = (inputName) =>
-  ({
-    [NAME]: "organizationPoolName",
-    [TYPE]: "organizationPoolType"
-  })[inputName];
-
-const getReadOnlyProps = (inputName) => ({
-  readOnly: true,
-  endAdornment: (
-    <QuestionMark
-      messageId="youCannotEditField"
-      messageValues={{
-        fieldName: getInputNameMessage(inputName)
-      }}
-    />
-  )
-});
-
-const getInputProps = (inputName, isOrganizationPool, isReadOnly) => {
-  if (isOrganizationPool) {
-    return getReadOnlyProps(inputName);
-  }
-  if (isReadOnly) {
-    return { readOnly: true };
-  }
-  return {};
-};
 
 const EditPoolForm = ({ unallocatedLimit, poolInfo, onSuccess }) => {
   const { id, parent_id: parentPoolId } = poolInfo;
@@ -76,32 +46,36 @@ const EditPoolForm = ({ unallocatedLimit, poolInfo, onSuccess }) => {
   const onSubmit = (formValues) => updatePool({ ...formValues, poolId: id, parentPoolId }).then(onSuccess);
 
   const isOrganizationPool = !parentPoolId;
+  const nameAndTypeInputProps = isOrganizationPool || isReadOnly ? { readOnly: true } : undefined;
 
   return (
-    <FormProvider {...methods}>
-      <form data-test-id={`form_edit_pool`} onSubmit={handleSubmit(onSubmit)} noValidate>
-        <PoolFormOwnerSelector isLoading={!isPoolOwnersDataReady} owners={poolOwners} isReadOnly={isReadOnly} />
-        <PoolFormNameInput InputProps={getInputProps(NAME, isOrganizationPool, isReadOnly)} />
-        <PoolFormLimitInput unallocatedLimit={unallocatedLimit} isRootPool={!parentPoolId} isReadOnly={isReadOnly} />
-        {parentPoolId && <PoolFormAutoExtendCheckbox isReadOnly={isReadOnly} />}
-        <PoolFormTypeSelector InputProps={getInputProps(TYPE, isOrganizationPool, isReadOnly)} />
-        {!isOrganizationPool && <PoolTypesDescription />}
-        <FormButtonsWrapper justifyContent="space-between">
-          <Box display="flex">
-            <ButtonLoader
-              variant="contained"
-              messageId="save"
-              disabled={isReadOnly}
-              color="primary"
-              type="submit"
-              isLoading={isUpdatePoolLoading}
-              dataTestId="btn_create"
-              tooltip={{ show: isReadOnly, messageId: "onlyOrganizationManagersCanSetThisUp" }}
-            />
-          </Box>
-        </FormButtonsWrapper>
-      </form>
-    </FormProvider>
+    <>
+      <FormProvider {...methods}>
+        <form data-test-id={`form_edit_pool`} onSubmit={handleSubmit(onSubmit)} noValidate>
+          <PoolFormOwnerSelector isLoading={!isPoolOwnersDataReady} owners={poolOwners} isReadOnly={isReadOnly} />
+          <PoolFormNameInput InputProps={nameAndTypeInputProps} />
+          <PoolFormLimitInput unallocatedLimit={unallocatedLimit} isRootPool={!parentPoolId} isReadOnly={isReadOnly} />
+          {parentPoolId && <PoolFormAutoExtendCheckbox isReadOnly={isReadOnly} />}
+          <PoolFormTypeSelector InputProps={nameAndTypeInputProps} />
+          {!isOrganizationPool && <PoolTypesDescription />}
+          <FormButtonsWrapper justifyContent="space-between">
+            <Box display="flex">
+              <ButtonLoader
+                variant="contained"
+                messageId="save"
+                disabled={isReadOnly}
+                color="primary"
+                type="submit"
+                isLoading={isUpdatePoolLoading}
+                dataTestId="btn_create"
+                tooltip={{ show: isReadOnly, messageId: "onlyOrganizationManagersCanSetThisUp" }}
+              />
+            </Box>
+          </FormButtonsWrapper>
+        </form>
+      </FormProvider>
+      {isOrganizationPool && <InlineSeverityAlert sx={{ mt: SPACING_1 }} messageId="organizationPoolTypeAndNameNotice" />}
+    </>
   );
 };
 

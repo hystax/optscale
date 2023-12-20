@@ -1,16 +1,16 @@
-import os
+from unittest.mock import patch, PropertyMock
 
 import tornado.testing
-from unittest.mock import patch, PropertyMock
-from auth.auth_server.models.models import *
-from auth.auth_server.server import make_app
+
+from auth.auth_server.controllers.token import DEFAULT_TOKEN_EXPIRATION
+from auth.auth_server.models.models import Type, User, gen_id
 from auth.auth_server.models.db_factory import DBType, DBFactory
 from auth.auth_server.models.db_base import BaseDB
 from auth.auth_server.models.models import gen_salt
+from auth.auth_server.server import make_app
 from auth.auth_server.utils import hash_password
 import optscale_client.auth_client.client
 import optscale_client.auth_client.client_v2
-from auth.auth_server.controllers.token import DEFAULT_TOKEN_EXPIRATION
 
 
 class TestAuthBase(tornado.testing.AsyncHTTPTestCase):
@@ -20,11 +20,11 @@ class TestAuthBase(tornado.testing.AsyncHTTPTestCase):
         self._db_session = None
 
     def get_app(self):
-        return make_app(DBType.Test, '127.0.0.1', 80)
+        return make_app(DBType.TEST, '127.0.0.1', 80)
 
     @property
     def db_session(self):
-        db = DBFactory(DBType.Test, None).db
+        db = DBFactory(DBType.TEST, None).db
         engine = db.engine
         if not self._db_session:
             self._db_session = BaseDB.session(engine)()
@@ -50,34 +50,35 @@ class TestAuthBase(tornado.testing.AsyncHTTPTestCase):
               new_callable=PropertyMock,
               return_value=DEFAULT_TOKEN_EXPIRATION).start()
 
-        patch("auth.auth_server.controllers.base.BaseController.get_resources_info",
+        patch("auth.auth_server.controllers.base."
+              "BaseController.get_resources_info",
               return_value={}).start()
-        http_provider = optscale_client.auth_client.client.FetchMethodHttpProvider(
-            self.fetch, rethrow=False)
+        http_provider = optscale_client.auth_client.client.\
+            FetchMethodHttpProvider(self.fetch, rethrow=False)
         self.client = TestAuthBase.get_auth_client(version).Client(
             http_provider=http_provider)
         self.client.secret = secret
 
     def tearDown(self):
-        DBFactory.clean_type(DBType.Test)
+        DBFactory.clean_type(DBType.TEST)
         super().tearDown()
 
     def create_root_type(self):
         session = self.db_session
-        type = session.query(Type).get(0)
-        if not type:
-            type = Type(id=0, name='root')
-            session.add(type)
+        type_ = session.query(Type).get(0)
+        if not type_:
+            type_ = Type(id_=0, name='root')
+            session.add(type_)
             session.commit()
-        return type
+        return type_
 
     def create_root_user(self, email='root@hystax.com', password='toor'):
         session = self.db_session
-        type = self.create_root_type()
+        type_ = self.create_root_type()
         salt = gen_salt()
         password = hash_password(password, salt)
         root_user = User(email=email, password=password, salt=salt,
-                         display_name="I\'m root!", type=type)
+                         display_name="I\'m root!", type_=type_)
         session.add(root_user)
         session.commit()
         return root_user

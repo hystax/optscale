@@ -19,34 +19,34 @@ class TestAuthorize(TestAuthBase):
             "partner": self.partner2_scope_id,
         }
         session = self.db_session
-        type_root = Type(id=0, name='root')
-        type_partner = Type(id=10, name='partner', parent=type_root)
-        type_customer = Type(id=20, name='customer', parent=type_partner)
+        type_root = Type(id_=0, name='root')
+        type_partner = Type(id_=10, name='partner', parent=type_root)
+        type_customer = Type(id_=20, name='customer', parent=type_partner)
         self.root_user_pass = 'R00tpassword1'
         root_salt = gen_salt()
         user_root = User(
-            'root@allcom.com', type=type_root,
+            'root@allcom.com', type_=type_root,
             password=hash_password(self.root_user_pass, root_salt),
             display_name='I\'m Root!', scope_id=None, salt=root_salt
         )
         partner1_salt = gen_salt()
         self.partner1_password = 'p4sswOrd111'
         user_partner1 = User(
-            'partner1@allcom.com', type=type_partner,
+            'partner1@allcom.com', type_=type_partner,
             password=hash_password(self.partner1_password, partner1_salt),
             scope_id=self.partner1_scope_id, display_name='Awesome partner',
             type_id=type_partner.id, salt=partner1_salt)
         partner2_salt = gen_salt()
         self.partner2_password = 'PASSwoRD1123444'
         user_partner2 = User(
-            'partner2@allcom.com', type=type_partner,
+            'partner2@allcom.com', type_=type_partner,
             password=hash_password(self.partner2_password,
                                    partner2_salt),
             salt=partner2_salt,
             scope_id=self.partner2_scope_id,
             display_name='Not awesome partner', type_id=type_partner.id)
         user_backup_agent = User(
-            'customer@allcom.com', type=type_customer, password='my-pass',
+            'customer@allcom.com', type_=type_customer, password='my-pass',
             display_name='Agent Smith',
             scope_id=str(uuid.uuid4())
         )
@@ -57,19 +57,22 @@ class TestAuthorize(TestAuthBase):
         cs_action_group = ActionGroup(name='cloudsite')
         backup_action_group = ActionGroup(name='protection')
         # admin action has type=root
-        create_customer_action = Action(name='CREATE_CUSTOMER', type=type_root,
+        create_customer_action = Action(name='CREATE_CUSTOMER',
+                                        type_=type_root,
                                         action_group=manage_customers_group)
-        create_cs_action = Action(name='CREATE_CS', type=type_partner,
+        create_cs_action = Action(name='CREATE_CS', type_=type_partner,
                                   action_group=cs_action_group)
-        create_backup_action = Action(name='CREATE_BACKUP', type=type_customer,
+        create_backup_action = Action(name='CREATE_BACKUP',
+                                      type_=type_customer,
                                       action_group=backup_action_group)
         role_scope_id = str(uuid.uuid4())
-        admin_role = Role(name='ADMIN', type=type_partner, lvl=type_customer,
+        admin_role = Role(name='ADMIN', type_=type_partner, lvl=type_customer,
                           scope_id=role_scope_id, description='Admin')
-        operator_role = Role(name='Operator', type=type_partner,
+        operator_role = Role(name='Operator', type_=type_partner,
                              lvl=type_customer, scope_id=role_scope_id,
                              description='Cloud operator')
-        backup_operator_role = Role(name='Backup Operator', type=type_customer,
+        backup_operator_role = Role(name='Backup Operator',
+                                    type_=type_customer,
                                     lvl=type_customer, scope_id=role_scope_id,
                                     description='Backup Operator')
         session.add(type_root)
@@ -113,8 +116,8 @@ class TestAuthorize(TestAuthBase):
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_authorize_admin_notoken(self, p_get_context):
         p_get_context.return_value = self.context1
-        code, auth = self.client.authorize('CREATE_CUSTOMER', 'partner',
-                                           self.partner1_scope_id)
+        code, _ = self.client.authorize('CREATE_CUSTOMER', 'partner',
+                                        self.partner1_scope_id)
         self.assertEqual(code, 401)
 
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
@@ -144,8 +147,8 @@ class TestAuthorize(TestAuthBase):
         p_get_context.return_value = self.context2
         self.client.token = self.get_token(self.partner2_user_email,
                                            self.partner2_password)
-        code, auth = self.client.authorize('CREATE_CUSTOMER', 'partner',
-                                           self.partner2_scope_id)
+        code, _ = self.client.authorize('CREATE_CUSTOMER', 'partner',
+                                        self.partner2_scope_id)
         self.assertEqual(code, 403)
 
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
@@ -153,8 +156,8 @@ class TestAuthorize(TestAuthBase):
         p_get_context.return_value = self.context1
         self.client.token = self.get_token(self.partner1_user_email,
                                            self.partner1_password)
-        code, auth = self.client.authorize('CREATE_CUSTOMER', 'partner',
-                                           self.partner2_scope_id)
+        code, _ = self.client.authorize('CREATE_CUSTOMER', 'partner',
+                                        self.partner2_scope_id)
         self.assertEqual(code, 403)
 
     @patch("auth.auth_server.controllers.base.BaseController.get_context")

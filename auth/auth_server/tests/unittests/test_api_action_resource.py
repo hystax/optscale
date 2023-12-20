@@ -6,6 +6,9 @@ from auth.auth_server.models.models import gen_salt
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 from auth.auth_server.utils import hash_password
 
+HIERARCHY_URL = "auth.auth_server.controllers.base." \
+                "BaseController.get_downward_hierarchy"
+
 
 class TestActionResourcesApi(TestAuthBase):
     def setUp(self, version="v2"):
@@ -38,23 +41,23 @@ class TestActionResourcesApi(TestAuthBase):
         self.admin_user = self.create_root_user(
             password=self.admin_user_password)
         session = self.db_session
-        self.type_partner = Type(id=10, name='partner',
+        self.type_partner = Type(id_=10, name='partner',
                                  parent=self.admin_user.type)
-        self.type_customer = Type(id=20, name='customer',
+        self.type_customer = Type(id_=20, name='customer',
                                   parent=self.type_partner)
-        self.type_group = Type(id=30, name='group',
+        self.type_group = Type(id_=30, name='group',
                                parent=self.type_customer,
                                assignable=False)
         user_partner_salt = gen_salt()
         self.user_partner_password = 'passwd!!!111'
         self.user_partner = User(
-            'partner@example.com', type=self.type_partner,
+            'partner@example.com', type_=self.type_partner,
             password=hash_password(
                 self.user_partner_password, user_partner_salt),
             display_name='Partner user', scope_id=self.partner_scope_id,
             salt=user_partner_salt, type_id=self.type_partner.id)
         self.user_customer = User(
-            'user@example.com', type=self.type_customer,
+            'user@example.com', type_=self.type_customer,
             password=hash_password(
                 self.user_partner_password, user_partner_salt),
             display_name='Customer user', scope_id=self.customer1_scope_id,
@@ -63,19 +66,20 @@ class TestActionResourcesApi(TestAuthBase):
         user_action_group = ActionGroup(name='MANAGE_USERS')
         role_action_group = ActionGroup(name='MANAGE_ROLES')
 
-        action_list_users = Action(name='CREATE_USER', type=self.type_customer,
+        action_list_users = Action(name='CREATE_USER',
+                                   type_=self.type_customer,
                                    action_group=user_action_group)
         action_create_role = Action(name='CREATE_ROLE',
-                                    type=self.type_customer,
+                                    type_=self.type_customer,
                                     action_group=role_action_group)
-        self.admin_role = Role(name='ADMIN', type=self.type_partner,
+        self.admin_role = Role(name='ADMIN', type_=self.type_partner,
                                lvl=self.type_customer,
                                scope_id=self.partner_scope_id,
                                description='Admin',
                                shared=True)
 
         self.role_lvl_customer = Role(
-            name='customer_role', type=self.type_customer,
+            name='customer_role', type_=self.type_customer,
             lvl=self.type_customer, scope_id=self.customer1_scope_id,
             description='')
         session.add(self.type_partner)
@@ -107,8 +111,7 @@ class TestActionResourcesApi(TestAuthBase):
         session.add(assignment_customer3)
         session.commit()
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(HIERARCHY_URL)
     def test_action_partner_resources(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.user_partner.email,
@@ -120,8 +123,7 @@ class TestActionResourcesApi(TestAuthBase):
             self.partner_scope_id, self.customer1_scope_id,
             self.customer2_scope_id], response['CREATE_USER']))), 3)
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(HIERARCHY_URL)
     def test_action_customer_resources1(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.user_customer.email,
@@ -134,8 +136,7 @@ class TestActionResourcesApi(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x[1] in [
             self.customer3_scope_id], response['CREATE_ROLE']))), 1)
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(HIERARCHY_URL)
     def test_action_customer_non_assignable(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.user_customer.email,
@@ -147,8 +148,7 @@ class TestActionResourcesApi(TestAuthBase):
             lambda x: x[1] in [self.customer3_scope_id, self.group3_scope_id],
             response['CREATE_USER']))), 2)
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(HIERARCHY_URL)
     def test_action_root(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         self.client.token = self.get_token(self.admin_user.email,
@@ -161,8 +161,7 @@ class TestActionResourcesApi(TestAuthBase):
             self.customer1_scope_id, self.customer2_scope_id,
             self.customer3_scope_id], response['CREATE_USER']))), 5)
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(HIERARCHY_URL)
     def test_action_user_id(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         code, response = self.client.action_resources_get(
@@ -173,8 +172,7 @@ class TestActionResourcesApi(TestAuthBase):
             self.customer1_scope_id, self.customer2_scope_id,
             self.customer3_scope_id], response['CREATE_USER']))), 5)
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(HIERARCHY_URL)
     def test_bulk_action_resources(self, p_hierarchy):
         p_hierarchy.return_value = self.hierarchy
         user_ids = [self.admin_user.id, self.user_partner.id,

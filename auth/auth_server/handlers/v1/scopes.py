@@ -21,7 +21,8 @@ class ScopeAsyncHandler(BaseAuthHandler):
         return res
 
     async def get_assign_user_scope(self, user_id, role_id, **kwargs):
-        res = await self.controller.scope_assign_user(user_id, role_id, **kwargs)
+        res = await self.controller.scope_assign_user(
+            user_id, role_id, **kwargs)
         return res
 
     def _get_assing_user_arguments(self):

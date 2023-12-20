@@ -1,6 +1,7 @@
-from auth.auth_server.tests.unittests.test_model_base import TestModelBase
+import uuid
 from auth.auth_server.auth_token.macaroon import MacaroonToken
-from auth.auth_server.models.models import *
+from auth.auth_server.models.models import Type, User
+from auth.auth_server.tests.unittests.test_model_base import TestModelBase
 from auth.auth_server.tests.unittests.utils import extract_caveats
 
 
@@ -60,7 +61,8 @@ class TestToken(TestModelBase):
 
     def test_token_group(self):
         user_group = User('group@hystax.com', self.type_group, 'pass',
-                          display_name='Group user', scope_id=str(uuid.uuid4()))
+                          display_name='Group user',
+                          scope_id=str(uuid.uuid4()))
         self._check_token(user_group)
 
     def test_invalid_token(self):
@@ -81,5 +83,6 @@ class TestToken(TestModelBase):
         session.commit()
         macaroon_token = MacaroonToken(user.salt, user.id)
         token = macaroon_token.create(True, 'google')
+        # pylint: disable=W0212
         macaroon_token._secret = 'fake'
         self.assertFalse(macaroon_token.verify(token))

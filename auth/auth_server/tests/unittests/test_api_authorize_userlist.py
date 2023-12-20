@@ -4,8 +4,8 @@ from unittest.mock import patch
 from requests import HTTPError
 
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                            ActionGroup)
+from auth.auth_server.models.models import (Type, User, Action, Role,
+                                            Assignment, ActionGroup)
 from auth.auth_server.models.models import gen_salt
 from auth.auth_server.utils import hash_password
 
@@ -41,23 +41,23 @@ class TestAuthorizeUserlistApi(TestAuthBase):
         self.admin_user = self.create_root_user(
             password=self.admin_user_password)
         session = self.db_session
-        self.type_partner = Type(id=10, name='partner',
+        self.type_partner = Type(id_=10, name='partner',
                                  parent=self.admin_user.type)
-        self.type_customer = Type(id=20, name='customer',
+        self.type_customer = Type(id_=20, name='customer',
                                   parent=self.type_partner)
-        self.type_group = Type(id=30, name='group',
+        self.type_group = Type(id_=30, name='group',
                                parent=self.type_customer,
                                assignable=False)
         user_partner_salt = gen_salt()
         self.user_partner_password = 'passwd!!!111'
         self.user_partner = User(
-            'partner@somedomain.com', type=self.type_partner,
+            'partner@somedomain.com', type_=self.type_partner,
             password=hash_password(
                 self.user_partner_password, user_partner_salt),
             display_name='Partner user', scope_id=self.partner_scope_id,
             salt=user_partner_salt, type_id=self.type_partner.id)
         self.user_customer = User(
-            'user@somedomain.com', type=self.type_customer,
+            'user@somedomain.com', type_=self.type_customer,
             password=hash_password(
                 self.user_partner_password, user_partner_salt),
             display_name='Customer user', scope_id=self.customer3_scope_id,
@@ -68,34 +68,34 @@ class TestAuthorizeUserlistApi(TestAuthBase):
         custom_action_group = ActionGroup(name='CUSTOM_ACTIONS')
 
         action_create_device = Action(name='CREATE_DEVICE',
-                                      type=self.type_group,
+                                      type_=self.type_group,
                                       action_group=devices_action_group)
         action_managec_cs = Action(name='MANAGE_CLOUDSITES',
-                                   type=self.type_customer,
+                                   type_=self.type_customer,
                                    action_group=role_action_cloudsites)
         action_custom1 = Action(name='CUSTOM_ACTION1',
-                                type=self.type_customer,
+                                type_=self.type_customer,
                                 action_group=custom_action_group)
         action_custom2 = Action(name='CUSTOM_ACTION2',
-                                type=self.type_customer,
+                                type_=self.type_customer,
                                 action_group=custom_action_group)
         action_custom3 = Action(name='CUSTOM_ACTION3',
-                                type=self.type_customer,
+                                type_=self.type_customer,
                                 action_group=custom_action_group)
 
-        self.admin_role = Role(name='ADMIN', type=self.type_partner,
+        self.admin_role = Role(name='ADMIN', type_=self.type_partner,
                                lvl=self.type_customer,
                                scope_id=self.partner_scope_id,
                                description='Admin',
                                shared=True)
 
         self.role_lvl_customer = Role(
-            name='customer_role', type=self.type_customer,
+            name='customer_role', type_=self.type_customer,
             lvl=self.type_customer, scope_id=self.customer1_scope_id,
             description='')
 
         self.role_custom = Role(
-            name='custom_role', type=self.type_customer,
+            name='custom_role', type_=self.type_customer,
             lvl=self.type_customer, scope_id=self.customer3_scope_id,
             description='Some custom role')
 
@@ -209,8 +209,8 @@ class TestAuthorizeUserlistApi(TestAuthBase):
             list(map(lambda x: x.name, self.admin_role.actions)),
             invalid_scope_name, self.customer3_scope_id)
         self.assertEqual(code, 400)
-        self.assertEqual(response['error']['reason'], 'Invalid type %s' %
-                         invalid_scope_name)
+        self.assertEqual(response['error']['reason'],
+                         f'Invalid type {invalid_scope_name}')
 
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
     def test_invalid_scope_id(self, p_context):
@@ -223,8 +223,8 @@ class TestAuthorizeUserlistApi(TestAuthBase):
             list(map(lambda x: x.name, self.admin_role.actions)),
             'customer', invalid_scope_id)
         self.assertEqual(code, 404)
-        self.assertEqual(response['error']['reason'], '%s %s not found' %
-                         ('customer', invalid_scope_id))
+        self.assertEqual(response['error']['reason'],
+                         f'customer {invalid_scope_id} not found')
 
     def test_invalid_user_list_type(self):
         code, response = self.client.authorize_user_list(

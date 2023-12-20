@@ -6,9 +6,10 @@ from auth.auth_server.exceptions import Err
 from auth.auth_server.handlers.v1.base import (BaseAsyncAuthItemHandler,
                                                BaseAsyncAuthCollectionHandler,
                                                WrongArgumentsException)
+from auth.auth_server.utils import ModelEncoder
 from tools.optscale_exceptions.http_exc import OptHTTPError
-from tools.optscale_exceptions.common_exc import NotFoundException, ForbiddenException
-from auth.auth_server.utils import as_dict, ModelEncoder
+from tools.optscale_exceptions.common_exc import (NotFoundException,
+                                                  ForbiddenException)
 
 
 class AssignmentAsyncItemHandler(BaseAsyncAuthItemHandler):
@@ -37,9 +38,9 @@ class AssignmentAsyncItemHandler(BaseAsyncAuthItemHandler):
         except NotImplementedError:
             raise OptHTTPError(405, Err.OA0002, [])
 
-    async def get(self, id, **kwargs):
+    async def get(self, item_id, **kwargs):
         kwargs.update(self.token)
-        item, resource_info = await self._get_item(id, **kwargs)
+        item, resource_info = await self._get_item(item_id, **kwargs)
         self._validate_params(item, **kwargs)
         response = self.merge_resource_info(item, resource_info)
         self.write(json.dumps(response, cls=ModelEncoder))

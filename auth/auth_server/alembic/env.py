@@ -1,12 +1,12 @@
 from __future__ import with_statement
+from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from logging.config import fileConfig
 
 import auth.auth_server.models.models
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config = context.config  # pylint: disable=E1101
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -25,6 +25,7 @@ target_metadata = auth.auth_server.models.models.Base.metadata
 
 
 def run_migrations_offline():
+    # pylint: disable=E1101
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -45,6 +46,7 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
+    # pylint: disable=E1101
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
@@ -64,6 +66,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

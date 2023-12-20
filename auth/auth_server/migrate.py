@@ -30,7 +30,8 @@ class ConfigTemplate(object):
             'alembic',
             'sqlalchemy.url',
             ConfigTemplate.connection_string % (username, password, host, db))
-        with open(os.path.join(self.path, file_name), 'w') as fh:
+        with open(os.path.join(self.path, file_name), 'w',
+                  encoding='utf-8') as fh:
             config.write(fh)
 
 
@@ -47,7 +48,7 @@ def execute(cmd, path='..'):
 def migrate(args):
     template = ConfigTemplate()
     template.save(args.host, args.username, args.password, args.dbname)
-    cmd = ['alembic', 'revision', '--autogenerate', '-m', '"%s"' % args.name]
+    cmd = ['alembic', 'revision', '--autogenerate', '-m', f'"{args.name}"']
     execute(cmd)
 
 

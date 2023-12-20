@@ -1,9 +1,9 @@
+from unittest import mock
 from unittest.mock import patch
 from requests import HTTPError
-from unittest import mock
 
-from auth.auth_server.models.models import (Type, User, Action, Role, Assignment,
-                                            ActionGroup, gen_id)
+from auth.auth_server.models.models import (Type, User, Action, Role,
+                                            Assignment, ActionGroup, gen_id)
 from auth.auth_server.models.models import gen_salt
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 from auth.auth_server.utils import hash_password
@@ -16,7 +16,7 @@ class TestAllowedActionsApi(TestAuthBase):
         salt = gen_salt()
         password = 'pass'
         user = User(
-            '%s@test.com' % name, type=self.type_org,
+            f'{name}@test.com', type_=self.type_org,
             password=hash_password(password, salt),
             display_name=name, salt=salt, type_id=self.type_org.id)
         return user, password
@@ -51,27 +51,27 @@ class TestAllowedActionsApi(TestAuthBase):
         }
         admin_user = self.create_root_user()
         session = self.db_session
-        self.type_org = Type(id=10, name='partner', parent=admin_user.type)
+        self.type_org = Type(id_=10, name='partner', parent=admin_user.type)
         self.user1, self.pass1 = self._create_user('user1')
         self.user2, self.pass2 = self._create_user('user2')
         self.user3, self.pass3 = self._create_user('user3')
         action_group = ActionGroup(name='TEST_ACTION_GROUP')
-        self.action1 = Action(name='ACTION1', type=self.type_org,
+        self.action1 = Action(name='ACTION1', type_=self.type_org,
                               action_group=action_group)
-        self.action2 = Action(name='ACTION2', type=self.type_org,
+        self.action2 = Action(name='ACTION2', type_=self.type_org,
                               action_group=action_group)
-        self.action3 = Action(name='ACTION3', type=self.type_org,
+        self.action3 = Action(name='ACTION3', type_=self.type_org,
                               action_group=action_group)
-        self.action4 = Action(name='ACTION4', type=self.type_org,
+        self.action4 = Action(name='ACTION4', type_=self.type_org,
                               action_group=action_group)
         self.role1 = Role(
-            name='ROLE1', type=self.type_org, lvl=self.type_org,
+            name='ROLE1', type_=self.type_org, lvl=self.type_org,
             description='ROLE1')
         self.role2 = Role(
-            name='ROLE2', type=self.type_org, lvl=self.type_org,
+            name='ROLE2', type_=self.type_org, lvl=self.type_org,
             description='ROLE2')
         self.role3 = Role(
-            name='ROLE3', type=self.type_org, lvl=self.type_org,
+            name='ROLE3', type_=self.type_org, lvl=self.type_org,
             description='ROLE3')
         session.add(self.type_org)
         session.add(self.user1)

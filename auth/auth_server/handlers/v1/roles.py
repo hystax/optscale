@@ -2,13 +2,14 @@ import json
 import logging
 
 from auth.auth_server.controllers.role import RoleAsyncController
+from auth.auth_server.handlers.v1.base import (BaseAsyncAuthItemHandler,
+                                               BaseAsyncAuthCollectionHandler)
+from auth.auth_server.utils import ModelEncoder, as_dict
+
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, NotFoundException, ConflictException,
     ForbiddenException, UnauthorizedException)
-from auth.auth_server.handlers.v1.base import (BaseAsyncAuthItemHandler,
-                                               BaseAsyncAuthCollectionHandler)
 from tools.optscale_exceptions.http_exc import OptHTTPError
-from auth.auth_server.utils import ModelEncoder, as_dict
 
 LOG = logging.getLogger(__name__)
 
@@ -17,10 +18,10 @@ class RoleAsyncItemHandler(BaseAsyncAuthItemHandler):
     def _get_controller_class(self):
         return RoleAsyncController
 
-    async def get(self, id, **kwargs):
+    async def get(self, item_id, **kwargs):
         kwargs.update(self.token)
         try:
-            item = await self._get_item(id, **kwargs)
+            item = await self._get_item(item_id, **kwargs)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         except NotFoundException as ex:
@@ -34,13 +35,13 @@ class RoleAsyncItemHandler(BaseAsyncAuthItemHandler):
         self._validate_params(item, **kwargs)
         self.write(json.dumps(item))
 
-    async def patch(self, id, **kwargs):
+    async def patch(self, item_id, **kwargs):
         data = self._request_body()
-        item = await self._get_item(id, **kwargs)
+        item = await self._get_item(item_id, **kwargs)
         data.update(self.token)
         self._validate_params(item, **kwargs)
         try:
-            item = await self.controller.edit(id, **data)
+            item = await self.controller.edit(item_id, **data)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         except NotFoundException as ex:
@@ -53,8 +54,8 @@ class RoleAsyncItemHandler(BaseAsyncAuthItemHandler):
             raise OptHTTPError.from_opt_exception(401, ex)
         self.write(json.dumps(item))
 
-    async def delete(self, id, **kwargs):
-        await super().delete(id, **kwargs)
+    async def delete(self, id_, **kwargs):
+        await super().delete(id_, **kwargs)
 
 
 class RoleAsyncCollectionHandler(BaseAsyncAuthCollectionHandler):
@@ -65,7 +66,8 @@ class RoleAsyncCollectionHandler(BaseAsyncAuthCollectionHandler):
         kwargs.update(self.token)
         assignable = self.get_argument('assignable', default=None)
         try:
-            roles, resources_info = await self.controller.list(assignable, **kwargs)
+            roles, resources_info = await self.controller.list(
+                assignable, **kwargs)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
         except NotFoundException as ex:

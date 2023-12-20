@@ -1,12 +1,12 @@
 import uuid
-from requests import HTTPError
+from unittest import mock
 from unittest.mock import patch
+from requests import HTTPError
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 from auth.auth_server.models.models import (Type, User, Role, Assignment,
                                             Action, ActionGroup)
 from auth.auth_server.models.models import gen_salt
 from auth.auth_server.utils import hash_password
-from unittest import mock
 
 
 class TestAuthorize(TestAuthBase):
@@ -23,12 +23,13 @@ class TestAuthorize(TestAuthBase):
         user_admin = self.create_root_user(password=self.admin_user_pass)
         session = self.db_session
         self.admin_user_email = str(user_admin.email)
-        self.type_partner = Type(id=10, name='partner', parent=user_admin.type)
-        type_customer = Type(id=20, name='customer', parent=self.type_partner)
-        type_group = Type(id=30, name='group', parent=type_customer)
+        self.type_partner = Type(id_=10, name='partner',
+                                 parent=user_admin.type)
+        type_customer = Type(id_=20, name='customer', parent=self.type_partner)
+        type_group = Type(id_=30, name='group', parent=type_customer)
         salt = gen_salt()
         user_partner_password = 'partn33rp@sse00rD'
-        user_partner = User('partner@domain.com', type=self.type_partner,
+        user_partner = User('partner@domain.com', type_=self.type_partner,
                             password=hash_password(user_partner_password,
                                                    salt),
                             display_name='Generic partner user',
@@ -37,7 +38,7 @@ class TestAuthorize(TestAuthBase):
                             type_id=self.type_partner.id)
         self.user_customer_password = 'c4stom3r pasSw0RD!1'
         user_customer = User(
-            'customer@domain.com', type=type_customer,
+            'customer@domain.com', type_=type_customer,
             password=hash_password(self.user_customer_password,
                                    salt),
             scope_id=self.customer_scope_id,
@@ -45,7 +46,7 @@ class TestAuthorize(TestAuthBase):
             display_name='Generic customer user', type_id=type_customer.id)
         self.user_operator_password = 'Op3R4tor!'
         self.user_operator = User(
-            'op@domain.com', type=type_customer,
+            'op@domain.com', type_=type_customer,
             password=hash_password(self.user_operator_password,
                                    salt),
             display_name='Generic operator user',
@@ -57,17 +58,17 @@ class TestAuthorize(TestAuthBase):
                                          'replication settings')
         # admin action has type=root
         create_group_action = Action(name='CREATE_GROUP',
-                                     type=user_admin.type,
+                                     type_=user_admin.type,
                                      action_group=group_action_group)
         cs_action_group = ActionGroup('cloudsite')
-        create_cs_action = Action(name='CREATE_CS', type=type_customer,
+        create_cs_action = Action(name='CREATE_CS', type_=type_customer,
                                   action_group=cs_action_group)
-        delete_cs_action = Action(name='DELETE_CS', type=type_customer,
+        delete_cs_action = Action(name='DELETE_CS', type_=type_customer,
                                   action_group=cs_action_group)
         role_scope_id = str(uuid.uuid4())
-        admin_role = Role(name='ADMIN', type=type_customer, lvl=type_customer,
+        admin_role = Role(name='ADMIN', type_=type_customer, lvl=type_customer,
                                scope_id=role_scope_id, description='Admin')
-        self.operator_role = Role(name='Operator', type=type_customer,
+        self.operator_role = Role(name='Operator', type_=type_customer,
                                   lvl=type_customer, scope_id=role_scope_id,
                                   description='Cloud operator')
         session.add(self.type_partner)
@@ -249,7 +250,7 @@ class TestAuthorize(TestAuthBase):
             self.assertEqual(code, 400)
             self.assertEqual(
                 auth['error']['reason'],
-                'Unexpected parameters: %s' % unexpected_parameter)
+                f'Unexpected parameters: {unexpected_parameter}')
             self.assertEqual(auth['error']['error_code'], 'OA0022')
             self.assertEqual(
                 auth['error']['params'], [str(unexpected_parameter)])
@@ -307,8 +308,7 @@ class TestAuthorize(TestAuthBase):
         p_get_context.return_value = self.context
         self.client.token = self.get_token(self.user_operator_email,
                                            self.user_operator_password)
-        code, auth = self.client.authorize(
-            'DELETE_CS', 'root')
+        code, _ = self.client.authorize('DELETE_CS', 'root')
         self.assertEqual(code, 200)
 
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
@@ -320,7 +320,7 @@ class TestAuthorize(TestAuthBase):
             "resource_type": 'partner',
             "action": 'CREATE_CS',
         }
-        code, auth = self.client.post('authorize', body)
+        code, _ = self.client.post('authorize', body)
         self.assertEqual(code, 403)
 
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
@@ -332,7 +332,7 @@ class TestAuthorize(TestAuthBase):
             "resource_type": 'root',
             "action": 'CREATE_CS',
         }
-        code, auth = self.client.post('authorize', body)
+        code, _ = self.client.post('authorize', body)
         self.assertEqual(code, 200)
 
     @patch("auth.auth_server.controllers.base.BaseController.get_context")
@@ -345,7 +345,7 @@ class TestAuthorize(TestAuthBase):
         password = 'secret_pass'
         email = 'partner2@email.com'
         session = self.db_session
-        child_partner = User(email, type=self.type_partner,
+        child_partner = User(email, type_=self.type_partner,
                              password=hash_password(password, salt),
                              display_name='Another partner',
                              salt=salt,
@@ -356,12 +356,12 @@ class TestAuthorize(TestAuthBase):
 
         self.client.token = self.get_token(email, password)
 
-        code, auth = self.client.authorize('CREATE_GROUP', 'partner',
-                                           child_partner_scope_id)
+        code, _ = self.client.authorize('CREATE_GROUP', 'partner',
+                                        child_partner_scope_id)
         self.assertEqual(code, 403)
 
         self.client.token = self.get_token(self.admin_user_email,
                                            self.admin_user_pass)
-        code, auth = self.client.authorize('CREATE_GROUP', 'partner',
-                                           child_partner_scope_id)
+        code, _ = self.client.authorize('CREATE_GROUP', 'partner',
+                                        child_partner_scope_id)
         self.assertEqual(code, 200)

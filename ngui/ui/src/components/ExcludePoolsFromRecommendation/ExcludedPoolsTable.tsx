@@ -4,20 +4,29 @@ import PoolLabel from "components/PoolLabel";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 
-const getRowId = (row) => row.id;
+type SelectedPoolType = { [key: string]: [value: boolean] };
+
+type ExcludedPoolsTableType = {
+  availablePools: {
+    id: string;
+  }[];
+  isLoading: boolean;
+  isChangeSettingsAllowed: boolean;
+  selectedPools: SelectedPoolType;
+  onSelectedPoolChange: (pools: SelectedPoolType) => void;
+};
 
 const ExcludedPoolsTable = ({
   availablePools,
-  currentExcludedPools,
   isChangeSettingsAllowed,
   isLoading = false,
-  selectedPoolIds,
-  onSelectedPoolIdsChange
-}) => {
+  selectedPools,
+  onSelectedPoolChange
+}: ExcludedPoolsTableType) => {
   const tableData = useMemo(() => {
-    const excludedPoolsIds = Object.keys(currentExcludedPools);
+    const excludedPoolsIds = Object.keys(selectedPools);
     return isChangeSettingsAllowed ? availablePools : availablePools.filter(({ id }) => excludedPoolsIds.includes(id));
-  }, [availablePools, currentExcludedPools, isChangeSettingsAllowed]);
+  }, [availablePools, selectedPools, isChangeSettingsAllowed]);
 
   const columns = useMemo(
     () => [
@@ -33,17 +42,11 @@ const ExcludedPoolsTable = ({
     []
   );
 
-  const getRowSelectionProps = () => {
-    const rowSelectionState = Object.fromEntries(selectedPoolIds.map((id) => [id, true]));
-
-    return {
-      withSelection: true,
-      rowSelection: rowSelectionState,
-      onRowSelectionChange: (newState) => {
-        onSelectedPoolIdsChange(Object.keys(newState));
-      }
-    };
-  };
+  const getRowSelectionProps = () => ({
+    withSelection: true,
+    rowSelection: selectedPools,
+    onRowSelectionChange: (pools: SelectedPoolType) => onSelectedPoolChange(pools)
+  });
 
   return isLoading ? (
     <TableLoader columnsCounter={columns.length} />
@@ -57,8 +60,8 @@ const ExcludedPoolsTable = ({
       counters={{ showCounters: true, hideDisplayed: true }}
       withSearch
       queryParamPrefix="excludePools"
-      initialSelectedRows={currentExcludedPools}
-      getRowId={getRowId}
+      initialSelectedRows={selectedPools}
+      getRowId={(row) => row.id}
       {...(isChangeSettingsAllowed ? getRowSelectionProps() : {})}
     />
   );

@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.authors="Hystax"
 
 COPY optscale_client/auth_client /usr/src/app/optscale_client/auth_client
 COPY auth/test-requirements.txt auth/test-requirements.txt
-COPY auth/.pylintrc auth/.noserc auth/.coveragerc ./auth/auth_server/
+COPY auth/.pylintrc auth/.noserc auth/.coveragerc ./auth/
 RUN pip install --no-cache-dir -r auth/test-requirements.txt
 
 COPY auth/auth_server/tests auth/auth_server/tests

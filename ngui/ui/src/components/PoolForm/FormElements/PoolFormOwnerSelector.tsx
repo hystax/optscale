@@ -31,7 +31,7 @@ const PoolFormOwnerSelector = ({ isLoading, owners, isReadOnly = false }) => {
       render={({ field: { onChange, ...rest } }) => {
         const data = buildSelectorData(owners);
         return isLoading ? (
-          <SelectorLoader fullWidth labelId="defaultResourceOwner" isRequired />
+          <SelectorLoader fullWidth labelId="defaultResourceOwner" isRequired readOnly={isReadOnly} />
         ) : (
           <Selector
             error={!!errors.defaultOwnerId}

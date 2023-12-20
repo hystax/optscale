@@ -18,9 +18,9 @@ class MacaroonToken(object):
             identifier=self._ident,
             key=self._secret
         )
-        macaroon.add_first_party_caveat('%s:%s' % ('created', time.time()))
-        macaroon.add_first_party_caveat('%s:%s' % ('register', register))
-        macaroon.add_first_party_caveat('%s:%s' % ('provider', provider))
+        macaroon.add_first_party_caveat(f'created:{time.time()}')
+        macaroon.add_first_party_caveat(f'register:{register}')
+        macaroon.add_first_party_caveat(f'provider:{provider}')
         return macaroon.serialize()
 
     def verify(self, token):

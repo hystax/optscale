@@ -186,23 +186,6 @@ export const useGetAvailablePools = () => {
   return { data: pools, isLoading, isDataReady };
 };
 
-export const useGetAvailablePoolsOnce = () => {
-  const dispatch = useDispatch();
-  const { organizationId } = useOrganizationInfo();
-
-  const {
-    apiData: { pools = [] }
-  } = useApiData(GET_AVAILABLE_POOLS);
-
-  const { isLoading, isDataReady } = useApiState(GET_AVAILABLE_POOLS, { organizationId });
-
-  useEffect(() => {
-    dispatch(getAvailablePools(organizationId));
-  }, [dispatch, organizationId]);
-
-  return { data: pools, isLoading, isDataReady };
-};
-
 const useDelete = () => {
   const dispatch = useDispatch();
 
@@ -341,7 +324,7 @@ const useGetPoolOwners = (poolId) => {
 };
 
 function PoolsService() {
-  return { useGetAvailablePools, useGetAvailablePoolsOnce, useDelete, useGet, useCreatePool, useUpdatePool, useGetPoolOwners };
+  return { useGetAvailablePools, useDelete, useGet, useCreatePool, useUpdatePool, useGetPoolOwners };
 }
 
 export default PoolsService;

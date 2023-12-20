@@ -4,8 +4,8 @@ from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import Assignment
-from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from auth.auth_server.utils import check_kwargs_is_empty, pop_or_raise
+from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 LOG = logging.getLogger(__name__)
 
@@ -14,14 +14,14 @@ class AuthorizationController(BaseController):
     def _get_model_type(self):
         return Assignment
 
-    def _get_input(self, **input):
-        token = input.pop('token')
-        action = pop_or_raise(input, 'action')
-        res_type = pop_or_raise(input, 'resource_type')
-        uuid = input.pop('uuid') if 'uuid' in input else None
+    def _get_input(self, **input_):
+        token = input_.pop('token')
+        action = pop_or_raise(input_, 'action')
+        res_type = pop_or_raise(input_, 'resource_type')
+        uuid = input_.pop('uuid') if 'uuid' in input_ else None
         if not uuid and uuid is not None:
             raise WrongArgumentsException(Err.OA0054, [])
-        check_kwargs_is_empty(**input)
+        check_kwargs_is_empty(**input_)
         return token, action, res_type, uuid
 
     def authorize(self, **kwargs):

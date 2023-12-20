@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import patch
 
 from auth.auth_server.models.models import (Type, User, Action, Role,
@@ -5,7 +6,13 @@ from auth.auth_server.models.models import (Type, User, Action, Role,
 from auth.auth_server.models.models import gen_salt
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
 from auth.auth_server.utils import hash_password
-import uuid
+
+
+RES_INFO_URL = "auth.auth_server.controllers.base." \
+               "BaseController.get_resources_info"
+HIERARCHY_URL = "auth.auth_server.controllers.base." \
+                "BaseController.get_downward_hierarchy"
+CONTEXT_URL = "auth.auth_server.controllers.base.BaseController.get_context"
 
 
 class TestScopeApi(TestAuthBase):
@@ -38,11 +45,11 @@ class TestScopeApi(TestAuthBase):
         self.admin_user = self.create_root_user(
             password=self.admin_user_password)
         session = self.db_session
-        self.type_partner = Type(id=10, name='partner',
+        self.type_partner = Type(id_=10, name='partner',
                                  parent=self.admin_user.type)
-        self.type_customer = Type(id=20, name='customer',
+        self.type_customer = Type(id_=20, name='customer',
                                   parent=self.type_partner)
-        self.type_group = Type(id=30, name='group',
+        self.type_group = Type(id_=30, name='group',
                                parent=self.type_customer,
                                assignable=False)
         user_partner_salt = gen_salt()
@@ -50,14 +57,14 @@ class TestScopeApi(TestAuthBase):
         self.user_partner_password = 'passwd!!!111'
 
         self.user_partner = User(
-            'partner@domain.com', type=self.type_partner,
+            'partner@domain.com', type_=self.type_partner,
             password=hash_password(
                 self.user_partner_password, user_partner_salt),
             display_name='Partner user', scope_id=self.partner_scope_id,
             salt=user_partner_salt, type_id=self.type_partner.id)
 
         self.user_customer = User(
-            'user@domain.com', type=self.type_customer,
+            'user@domain.com', type_=self.type_customer,
             password=hash_password(
                 self.user_partner_password, user_partner_salt),
             display_name='Customer user', scope_id=self.customer1_scope_id,
@@ -66,23 +73,24 @@ class TestScopeApi(TestAuthBase):
         user_action_group = ActionGroup(name='MANAGE_USERS')
         role_action_group = ActionGroup(name='MANAGE_ROLES')
 
-        action_list_users = Action(name='CREATE_USER', type=self.type_customer,
+        action_list_users = Action(name='CREATE_USER',
+                                   type_=self.type_customer,
                                    action_group=user_action_group)
         action_create_role = Action(name='CREATE_ROLE',
-                                    type=self.type_customer,
+                                    type_=self.type_customer,
                                     action_group=role_action_group)
         action_assign_users = Action(name='ASSIGN_USER',
-                                     type=self.type_customer,
+                                     type_=self.type_customer,
                                      action_group=user_action_group)
 
-        self.admin_role = Role(name='ADMIN', type=self.type_partner,
+        self.admin_role = Role(name='ADMIN', type_=self.type_partner,
                                lvl=self.type_customer,
                                scope_id=self.partner_scope_id,
                                description='Admin',
                                shared=True)
 
         self.role_lvl_customer = Role(
-            name='customer_role', type=self.type_customer,
+            name='customer_role', type_=self.type_customer,
             lvl=self.type_customer, scope_id=self.customer1_scope_id,
             description='')
         session.add(self.type_partner)
@@ -119,13 +127,10 @@ class TestScopeApi(TestAuthBase):
         patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_context")
-    def _create_role(self, p_get_context, name, lvl_id, type_id, context,
-                     scope_id=None, is_active=True, shared=False,
-                     description=None):
+    def _create_role(self, name, lvl_id, type_id, scope_id=None,
+                     is_active=True, shared=False, description=None):
         """
         Wraps create role API
-        :param p_get_context:
         :param name:
         :param lvl_id:
         :param type_id:
@@ -136,15 +141,13 @@ class TestScopeApi(TestAuthBase):
         :param description:
         :return:
         """
-        p_get_context.return_value = context
         return self.client.role_create(name=name, type_id=type_id,
                                        lvl_id=lvl_id, is_active=is_active,
                                        scope_id=scope_id, shared=shared,
                                        description=description)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_scope_user_create(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         customer1_name = 'Customer1'
@@ -166,9 +169,8 @@ class TestScopeApi(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x['scope_type_id'] in [
             self.type_group.id], scope))), 0)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_scope_role_create(self, p_hierarchy, p_res_info):
         p_hierarchy.return_value = self.hierarchy
         customer1_name = 'Customer1'
@@ -190,9 +192,8 @@ class TestScopeApi(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x['scope_type_id'] in [
             self.type_group.id], scope))), 0)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_assign_user_scope_partner_role(self, p_hierarchy, p_res_info):
         """
         Because role have customer lvl, we should see partner
@@ -218,15 +219,14 @@ class TestScopeApi(TestAuthBase):
         code, scope = self.client.scope_user_assign_get(
             self.user_partner.id, self.admin_role.id)
         self.assertEqual(code, 200)
-        self.assertEquals(len(scope), 3)
+        self.assertEqual(len(scope), 3)
         self.assertEqual(len(list(filter(
             lambda x: x['scope_id'] in [self.partner_scope_id,
                                         self.customer1_scope_id,
                                         self.customer2_scope_id], scope))), 3)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_assign_user_scope_customer_role(self, p_hierarchy, p_res_info):
         hierarchy = ({
             'customer': {
@@ -243,10 +243,7 @@ class TestScopeApi(TestAuthBase):
         self.assertEqual(len(list(filter(
             lambda x: x['scope_id'] in [self.customer1_scope_id], scope))), 1)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    def test_assign_user_scope_bad_request(self, p_hierarchy, p_res_info):
+    def test_assign_user_scope_bad_request(self):
         code, _ = self.client.scope_user_assign_get(
             self.user_customer.id, None)
         self.assertEqual(code, 400)
@@ -257,10 +254,11 @@ class TestScopeApi(TestAuthBase):
             None, None)
         self.assertEqual(code, 400)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    def test_scope_assign_partner_role(self, p_hierarchy, p_res_info):
+    @patch(CONTEXT_URL)
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
+    def test_scope_assign_partner_role(self, p_hierarchy, p_res_info,
+                                       p_context):
         self.client.token = self.get_token(self.admin_user.email,
                                            self.admin_user_password)
         partner_hierarchy = (
@@ -278,14 +276,12 @@ class TestScopeApi(TestAuthBase):
         p_hierarchy.side_effect = [partner_hierarchy, self.hierarchy]
         p_res_info.return_value = {}
         context = {'partner': self.partner_scope_id}
+        p_context.return_value = context
         _, user = self._create_user(
-            email='user@email.com', password='password', display_name='User',
-            type_id=self.type_partner.id,
-            scope_id=self.partner_scope_id)
+            email='user@email.com', password='password', display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_partner.id,
                                     type_id=self.type_partner.id,
-                                    context=context,
                                     scope_id=self.partner_scope_id)
         code, scope = self.client.scope_user_assign_get(
             user['id'], role['id'])
@@ -293,10 +289,11 @@ class TestScopeApi(TestAuthBase):
         self.assertEqual(len(list(filter(lambda x: x['scope_id'] in [
             self.partner_scope_id], scope))), 1)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    def test_scope_assign_customer_role(self, p_hierarchy, p_res_info):
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
+    @patch(CONTEXT_URL)
+    def test_scope_assign_customer_role(self, p_context, p_hierarchy,
+                                        p_res_info):
         self.client.token = self.get_token(self.admin_user.email,
                                            self.admin_user_password)
         partner_hierarchy = (
@@ -314,14 +311,12 @@ class TestScopeApi(TestAuthBase):
         p_hierarchy.side_effect = [partner_hierarchy, self.hierarchy]
         p_res_info.return_value = {}
         context = {'partner': self.partner_scope_id}
+        p_context.return_value = context
         _, user = self._create_user(
-            email='user@email.com', password='password', display_name='User',
-            type_id=self.type_partner.id,
-            scope_id=self.partner_scope_id)
+            email='user@email.com', password='password', display_name='User')
         _, role = self._create_role(name='User Role',
                                     lvl_id=self.type_customer.id,
                                     type_id=self.type_partner.id,
-                                    context=context,
                                     scope_id=self.partner_scope_id)
         code, scope = self.client.scope_user_assign_get(
             user['id'], role['id'])
@@ -332,9 +327,8 @@ class TestScopeApi(TestAuthBase):
                                         self.customer1_scope_id,
                                         self.customer2_scope_id], scope))), 3)
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_assign_user_scope_invalid_user(self, p_hierarchy, p_res_info):
         hierarchy = ({'customer': {
             '19a00828-fbff-4318-8291-4b6c14a8066d': {
@@ -347,12 +341,11 @@ class TestScopeApi(TestAuthBase):
             code, scope = self.client.scope_user_assign_get(
                 invaild_id, self.role_lvl_customer.id)
             self.assertEqual(code, 404)
-            self.assertEquals(scope['error']['reason'],
-                              'User %s was not found' % invaild_id)
+            self.assertEqual(scope['error']['reason'],
+                             f'User {invaild_id} was not found')
 
-    @patch("auth.auth_server.controllers.base.BaseController.get_resources_info")
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
+    @patch(RES_INFO_URL)
+    @patch(HIERARCHY_URL)
     def test_assign_user_scope_invalid_roles(self, p_hierarchy, p_res_info):
         hierarchy = ({'customer': {
             '19a00828-fbff-4318-8291-4b6c14a8066d': {
@@ -365,14 +358,10 @@ class TestScopeApi(TestAuthBase):
             code, scope = self.client.scope_user_assign_get(
                 self.user_customer.id, invaild_id)
             self.assertEqual(code, 404)
-            self.assertEquals(scope['error']['reason'],
-                              'Role %s was not found' % invaild_id)
+            self.assertEqual(scope['error']['reason'],
+                             f'Role {invaild_id} was not found')
 
-    @patch(
-        "auth.auth_server.controllers.base.BaseController.get_downward_hierarchy")
-    def _create_user(self, p_hierarchy, email, password, display_name,
-                     type_id=None, scope_id=None, is_active=True):
-        p_hierarchy.return_value = self.hierarchy
+    def _create_user(self, email, password, display_name, is_active=True):
         return self.client.user_create(email, password,
                                        display_name=display_name,
                                        is_active=is_active)

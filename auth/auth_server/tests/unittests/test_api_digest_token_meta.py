@@ -13,19 +13,19 @@ class TestAllowedActionsApi(TestAuthBase):
         self.customer1_scope_id = '19a00828-fbff-4318-8291-4b6c14a8066d'
         admin_user = self.create_root_user()
         session = self.db_session
-        type_partner = Type(id=10, name='partner', parent=admin_user.type)
-        type_customer = Type(id=20, name='customer', parent=type_partner)
-        type_group = Type(id=30, name='group', parent=type_customer)
+        type_partner = Type(id_=10, name='partner', parent=admin_user.type)
+        type_customer = Type(id_=20, name='customer', parent=type_partner)
+        type_group = Type(id_=30, name='group', parent=type_customer)
         salt = gen_salt()
         self.user_partner_password = 's0mepassWD!!1112'
         self.user_partner = User(
-            'partner@domain.com', type=type_partner,
+            'partner@domain.com', type_=type_partner,
             password=hash_password(
                 self.user_partner_password, salt),
             display_name='Partner user', scope_id=self.partner_scope_id,
             salt=salt, type_id=type_partner.id)
         self.user_customer = User(
-            'user@domain.com', type=type_customer,
+            'user@domain.com', type_=type_customer,
             password=hash_password(
                 self.user_partner_password, salt),
             display_name='Customer user', scope_id=self.customer1_scope_id,
