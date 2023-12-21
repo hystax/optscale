@@ -1,8 +1,7 @@
 import QuestionMark from "components/QuestionMark";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/QuestionMark`,
+  component: QuestionMark,
   argTypes: {
     fontSize: {
       name: "Font size",

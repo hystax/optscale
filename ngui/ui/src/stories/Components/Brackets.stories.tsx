@@ -1,8 +1,7 @@
 import Brackets from "components/Brackets";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Brackets`,
+  component: Brackets,
   argTypes: {
     bold: { name: "Bold", control: "boolean", defaultValue: false },
     type: {

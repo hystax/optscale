@@ -3,14 +3,12 @@ import RecommendationCard, {
   ServicesChipsGrid,
   TableContent,
   Menu,
-  Header,
-  AWS_IAM,
-  ALIBABA_RDS
+  Header
 } from "containers/RecommendationsOverviewContainer/RecommendationCard";
-import { KINDS } from "stories";
+import { ALIBABA_RDS, AWS_IAM } from "hooks/useRecommendationServices";
 
 export default {
-  title: `${KINDS.COMPONENTS}/RecommendationCard`,
+  component: RecommendationCard,
   argTypes: {
     title: { name: "Title", control: "text", defaultValue: "Card title" },
     subtitleText: { name: "Subtitle", control: "text", defaultValue: "" },

@@ -1,10 +1,9 @@
 import { useState } from "react";
 import DateRangePicker from "components/DateRangePicker";
-import { KINDS } from "stories";
 import { startOfDay, endOfDay } from "utils/datetime";
 
 export default {
-  title: `${KINDS.COMPONENTS}/DateRangePicker`
+  component: DateRangePicker
 };
 
 const DateRange = ({ pickerProps = {} }) => {

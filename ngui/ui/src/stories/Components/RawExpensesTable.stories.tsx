@@ -1,5 +1,4 @@
 import RawExpensesTable from "components/RawExpensesTable";
-import { KINDS } from "stories";
 
 const dataSample1 = [
   {
@@ -45,7 +44,7 @@ const dataSample3 = [
 ];
 
 export default {
-  title: `${KINDS.COMPONENTS}/RawExpensesTable`,
+  component: RawExpensesTable,
   argTypes: {
     dataSample: {
       name: "Data",
@@ -72,10 +71,8 @@ const expenses = [
     "identity/LineItemId": "fgpclitux456yanvekldytgywyfpy3ddimcq73cfqyy6q5bpylqa",
     "identity/TimeInterval": "2020-06-02T00:00:00Z/2020-06-03T00:00:00Z",
     "lineItem/BlendedCost": "0.0000025800",
-    "lineItem/BlendedRate": "0.0000004300",
     "lineItem/CurrencyCode": "USD",
     "lineItem/LegalEntity": "Amazon Web Services, Inc.",
-    "lineItem/LineItemDescription": "$0.0043 per 10,000 GET and all other requests",
     "lineItem/LineItemType": "Usage",
     "lineItem/Operation": "ReadBucketPolicyStatus",
     "lineItem/ProductCode": "AmazonS3",
@@ -123,10 +120,8 @@ const expenses = [
     "identity/LineItemId": "fgpclitux456yanvekldytgywyfpy3ddimcq73cfqyy6q5bpylqa",
     "identity/TimeInterval": "2020-06-02T00:00:00Z/2020-06-03T00:00:00Z",
     "lineItem/BlendedCost": "0.0000025800",
-    "lineItem/BlendedRate": "0.0000004300",
     "lineItem/CurrencyCode": "USD",
     "lineItem/LegalEntity": "Amazon Web Services, Inc.",
-    "lineItem/LineItemDescription": "$0.0043 per 10,000 GET and all other requests",
     "lineItem/LineItemType": "Usage",
     "lineItem/Operation": "ReadBucketPolicyStatus",
     "lineItem/ProductCode": "AmazonS3",
@@ -174,10 +169,8 @@ const expenses = [
     "identity/LineItemId": "fgpclitux456yanvekldytgywyfpy3ddimcq73cfqyy6q5bpylqa",
     "identity/TimeInterval": "2020-06-02T00:00:00Z/2020-06-03T00:00:00Z",
     "lineItem/BlendedCost": "0.0000025800",
-    "lineItem/BlendedRate": "0.0000004300",
     "lineItem/CurrencyCode": "USD",
     "lineItem/LegalEntity": "Amazon Web Services, Inc.",
-    "lineItem/LineItemDescription": "$0.0043 per 10,000 GET and all other requests",
     "lineItem/LineItemType": "Usage",
     "lineItem/Operation": "ReadBucketPolicyStatus",
     "lineItem/ProductCode": "AmazonS3",

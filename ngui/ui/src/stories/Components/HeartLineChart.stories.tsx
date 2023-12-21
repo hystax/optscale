@@ -1,9 +1,8 @@
 import { Grid } from "@mui/material";
 import HeartLineChart, { DEFAULT_COLORS } from "components/HeartLineChart";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/HeartLineChart`,
+  component: HeartLineChart,
   argTypes: {
     debug: {
       name: "Debug",

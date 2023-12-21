@@ -3,10 +3,10 @@ import configureMockStore from "redux-mock-store";
 import { GET_ORGANIZATION_ALLOWED_ACTIONS } from "api/auth/actionTypes";
 import { GET_ORGANIZATIONS } from "api/restapi/actionTypes";
 import ClusterTypesTable from "components/ClusterTypesTable";
-import { KINDS, MOCKED_ORGANIZATION_ID } from "stories";
+import { MOCKED_ORGANIZATION_ID } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ClusterTypesTable`,
+  component: ClusterTypesTable,
   argTypes: {
     isLoading: { name: "Loading", control: "boolean", defaultValue: false }
   }

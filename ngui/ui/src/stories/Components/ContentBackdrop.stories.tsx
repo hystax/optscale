@@ -1,8 +1,8 @@
-import ContentBackdrop, { MESSAGE_TYPES } from "components/ContentBackdrop";
-import { KINDS } from "stories";
+import ContentBackdrop from "components/ContentBackdrop";
+import { MESSAGE_TYPES } from "components/Mocked";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ContentBackdrop`,
+  component: ContentBackdrop,
   argTypes: {
     messageType: {
       name: "Message type",

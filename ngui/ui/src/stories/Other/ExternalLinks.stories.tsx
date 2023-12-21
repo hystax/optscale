@@ -1,6 +1,5 @@
 import Link from "@mui/material/Link";
 import WrapperCard from "components/WrapperCard";
-import { KINDS } from "stories";
 import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
 import {
   PRODUCTION,
@@ -19,7 +18,7 @@ import {
 import { isEmpty } from "utils/arrays";
 
 export default {
-  title: `${KINDS.OTHER}/ExternalLinks`
+  component: ExternalLinks
 };
 
 const linksDefinition = {

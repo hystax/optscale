@@ -1,9 +1,8 @@
 import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import WrapperCard from "components/WrapperCard";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/WrapperCard`,
+  component: WrapperCard,
   argTypes: {
     link: { name: "Link", control: "text", defaultValue: "/test" },
     href: { name: "Href", control: "text", defaultValue: "https://hystax.com/" }

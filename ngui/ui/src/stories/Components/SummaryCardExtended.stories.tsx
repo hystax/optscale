@@ -1,9 +1,8 @@
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import SummaryCardExtended from "components/SummaryCardExtended";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/SummaryCardExtended`,
+  component: SummaryCardExtended,
   argTypes: {
     color: {
       name: "Color",

@@ -1,10 +1,9 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { FormattedMessage } from "react-intl";
 import IconButton from "components/IconButton";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/IconButton`,
+  component: IconButton,
   argTypes: {
     color: {
       name: "Color",

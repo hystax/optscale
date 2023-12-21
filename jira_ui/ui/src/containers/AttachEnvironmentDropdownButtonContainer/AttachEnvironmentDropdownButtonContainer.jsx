@@ -6,7 +6,9 @@ import makeRequest from "utils/makeRequest";
 const AttachEnvironmentDropdownButtonContainer = ({
   environmentId,
   onSuccess,
-  availableIssueStatusesForAutomaticUnlinking
+  availableIssueStatusesForAutomaticUnlinking,
+  tableRef,
+  setMarginToFitDropdownMenu
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,6 +36,8 @@ const AttachEnvironmentDropdownButtonContainer = ({
       onAttach={onAttach}
       isLoading={isLoading}
       availableIssueStatusesForAutomaticUnlinking={availableIssueStatusesForAutomaticUnlinking}
+      tableRef={tableRef}
+      setMarginToFitDropdownMenu={setMarginToFitDropdownMenu}
     />
   );
 };
@@ -41,7 +45,9 @@ const AttachEnvironmentDropdownButtonContainer = ({
 AttachEnvironmentDropdownButtonContainer.propTypes = {
   environmentId: PropTypes.string.isRequired,
   onSuccess: PropTypes.func.isRequired,
-  availableIssueStatusesForAutomaticUnlinking: PropTypes.array.isRequired
+  availableIssueStatusesForAutomaticUnlinking: PropTypes.array.isRequired,
+  tableRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.instanceOf(Element) })]).isRequired,
+  setMarginToFitDropdownMenu: PropTypes.func.isRequired
 };
 
 export default AttachEnvironmentDropdownButtonContainer;

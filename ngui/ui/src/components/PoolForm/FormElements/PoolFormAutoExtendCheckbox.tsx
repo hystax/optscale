@@ -16,6 +16,7 @@ const PoolFormAutoExtendCheckbox = ({ isLoading, isReadOnly = false }) => {
     <FormControlLabel
       control={
         <Controller
+          disabled={isReadOnly}
           name={AUTO_EXTENTION_FIELD_NAME}
           control={control}
           render={({ field: { onChange, ...rest } }) => (

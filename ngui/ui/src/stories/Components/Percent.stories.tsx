@@ -1,8 +1,7 @@
 import Percent from "components/Percent";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Percent`,
+  component: Percent,
   argTypes: {
     value: { name: "Value", control: "number", defaultValue: 4.2 }
   }

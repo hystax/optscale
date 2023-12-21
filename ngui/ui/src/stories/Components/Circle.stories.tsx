@@ -1,9 +1,8 @@
 import Grid from "@mui/material/Grid";
 import Circle from "components/Circle";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Circle`
+  component: Circle
 };
 
 export const circle = () => (

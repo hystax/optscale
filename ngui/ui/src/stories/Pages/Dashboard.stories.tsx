@@ -2,10 +2,10 @@ import { useContext } from "react";
 import { Provider } from "react-redux";
 import { GET_DATA_SOURCES, GET_ENVIRONMENTS } from "api/restapi/actionTypes";
 import Dashboard from "components/Dashboard";
-import { KINDS, MockPermissionsStateContext } from "stories";
+import { MockPermissionsStateContext } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/Dashboard`,
+  component: Dashboard,
   argTypes: {
     withEnvironments: { name: "With environments", control: "boolean", defaultValue: false }
   }

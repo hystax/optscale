@@ -1,12 +1,13 @@
 import configureStore from "store";
-import { mockStore, MockState } from "utils/mockStore";
+import { MockState } from "utils/MockState";
+import { mockStore } from "utils/mockStore";
 
 const stateData = { someData: "" };
 
 describe("getState() should return a valid object", () => {
   test("MockState object as a parameters", () => {
-    const store = mockStore(new MockState(stateData));
-    const { store: expectedStore } = configureStore(new MockState(stateData));
+    const store = mockStore(MockState(stateData));
+    const { store: expectedStore } = configureStore(MockState(stateData));
     expect(store.getState()).toEqual(expectedStore.getState());
   });
   test("{ state: ...} } as a parameters", () => {

@@ -1,9 +1,8 @@
 import Box from "@mui/material/Box";
 import OrganizationSelector from "components/OrganizationSelector";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/OrganizationSelector`
+  component: OrganizationSelector
 };
 
 const organizations = [

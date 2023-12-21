@@ -1,10 +1,9 @@
 import { useForm } from "react-hook-form";
 import QuestionMark from "components/QuestionMark";
 import SwitchField from "components/SwitchField";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/SwitchField`,
+  component: SwitchField,
   argTypes: {
     labelMessageId: { name: "Label message ID", control: "text", defaultValue: "name" },
     withEndAdornment: { name: "With end adornment", control: "boolean", defaultValue: false }

@@ -1,10 +1,9 @@
 import InputAdornment from "@mui/material/InputAdornment";
 import Input from "components/Input";
 import QuestionMark from "components/QuestionMark";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Input`,
+  component: Input,
   argTypes: {
     label: { name: "Label", control: "text", defaultValue: "Label" },
     isMasked: { name: "Masked", control: "boolean", defaultValue: false }

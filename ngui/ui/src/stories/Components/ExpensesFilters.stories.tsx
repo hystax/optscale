@@ -1,5 +1,4 @@
 import ExpensesFilters from "components/ExpensesFilters";
-import { KINDS } from "stories";
 import { getPoolIdWithSubPools } from "urls";
 import {
   RESOURCE_TYPE_FILTER,
@@ -14,7 +13,7 @@ import {
 } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/ExpensesFilters`
+  component: ExpensesFilters
 };
 
 const appliedFilters = {

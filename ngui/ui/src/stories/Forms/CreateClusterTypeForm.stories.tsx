@@ -1,8 +1,7 @@
 import CreateClusterTypeForm from "components/CreateClusterTypeForm";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.FORMS}/CreateClusterTypeForm`,
+  component: CreateClusterTypeForm,
   argTypes: {
     isSubmitLoading: { name: "Submit loading", control: "boolean", defaultValue: false }
   }

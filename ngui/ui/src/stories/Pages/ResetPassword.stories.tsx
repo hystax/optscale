@@ -1,8 +1,7 @@
 import ResetPassword from "components/ResetPassword";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/ResetPassword`,
+  component: ResetPassword,
   argTypes: {
     isLoading: { name: "Loading", control: "boolean", defaultValue: false }
   }

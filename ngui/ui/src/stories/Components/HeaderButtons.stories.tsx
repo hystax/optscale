@@ -1,8 +1,7 @@
 import HeaderButtons from "components/HeaderButtons";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/HeaderButtons`
+  component: HeaderButtons
 };
 
 export const basic = () => <HeaderButtons />;

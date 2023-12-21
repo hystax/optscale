@@ -778,7 +778,7 @@ export const getAvailablePools = (organizationId, params = {}) =>
     }
   });
 
-export const getPoolOwners = (poolId, excludeMyself = false) =>
+export const getPoolOwners = (poolId: string, excludeMyself = false) =>
   apiAction({
     url: `${API_URL}/pools/${poolId}/employees`,
     method: "GET",

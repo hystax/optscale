@@ -1,9 +1,8 @@
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import MenuItem from "components/MenuItem";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/MenuItem`
+  component: MenuItem
 };
 
 export const basic = () => (

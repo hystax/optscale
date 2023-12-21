@@ -48,7 +48,7 @@ class Migration(BaseMigration):
         description = expense.get('lineItem/LineItemDescription', '')
         return ((service_code == 'AmazonECS' and 'Fargate' in usage_type) or
                 (service_code == 'AmazonSageMaker' and 'ml.' in description) or
-                (service_code == 'AWSLambda' and'Lambda-GB-Second' in usage_type) or
+                (service_code == 'AWSLambda' and 'Lambda-GB-Second' in usage_type) or
                 ('BoxUsage' in usage_type))
 
     def upgrade(self):

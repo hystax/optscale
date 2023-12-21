@@ -2,10 +2,9 @@ import Grid from "@mui/material/Grid";
 import { FormattedMessage } from "react-intl";
 import CloudExpensesChart from "components/CloudExpensesChart";
 import WrapperCard from "components/WrapperCard";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/CloudExpensesChart`,
+  component: CloudExpensesChart,
   argTypes: {
     pool: { name: "Pool", control: "number", defaultValue: 123 },
     forecast: { name: "Forecast", control: "number", defaultValue: 321 }

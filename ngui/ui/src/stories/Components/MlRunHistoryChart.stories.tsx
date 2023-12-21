@@ -1,9 +1,8 @@
 import MlRunHistoryChart from "components/MlRunHistoryChart";
-import { KINDS } from "stories";
 import { GOALS_FILTER_TYPES } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/MlRunHistoryChart`,
+  component: MlRunHistoryChart,
   argTypes: {
     debug: {
       name: "Debug",

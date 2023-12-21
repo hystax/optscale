@@ -1,8 +1,7 @@
 import ConnectCloudAccountForm from "components/ConnectCloudAccountForm";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.FORMS}/ConnectCloudAccountForm`
+  component: ConnectCloudAccountForm
 };
 
 export const basic = () => (

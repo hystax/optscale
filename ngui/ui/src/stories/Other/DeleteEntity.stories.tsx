@@ -1,9 +1,8 @@
 import DeleteEntity from "components/DeleteEntity";
-import { KINDS } from "stories";
 import TableUseMemoWrapper from "stories/Other/TableUseMemoWrapper";
 
 export default {
-  title: `${KINDS.OTHER}/DeleteEntity`,
+  component: DeleteEntity,
   argTypes: {
     messageId: {
       name: "Message ID",

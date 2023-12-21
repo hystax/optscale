@@ -1,9 +1,8 @@
 import Grid from "@mui/material/Grid";
 import Chip from "components/Chip";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Chip`
+  component: Chip
 };
 
 const deleteChip = () => {

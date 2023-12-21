@@ -2,11 +2,10 @@ import Grid from "@mui/material/Grid";
 import { useTheme } from "@mui/material/styles";
 import { v4 as uuidv4 } from "uuid";
 import FormattedMoney from "components/FormattedMoney";
-import { KINDS } from "stories";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 
 export default {
-  title: `${KINDS.COMPONENTS}/FormattedMoney`,
+  component: FormattedMoney,
   argTypes: {
     purpose: {
       name: "Purpose",

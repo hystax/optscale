@@ -1,8 +1,7 @@
 import FormattedDigitalUnit, { IEC_UNITS, SI_UNITS } from "components/FormattedDigitalUnit";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/FormattedDigitalUnit`,
+  component: FormattedDigitalUnit,
   argTypes: {
     iec: {
       name: "IEC units",

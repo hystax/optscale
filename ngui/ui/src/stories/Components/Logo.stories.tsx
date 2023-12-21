@@ -1,8 +1,7 @@
 import Logo from "components/Logo";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Logo`,
+  component: Logo,
   argTypes: {
     size: {
       name: "Size",

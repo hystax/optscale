@@ -1,10 +1,9 @@
 import ExpensesBreakdown from "components/ExpensesBreakdown";
-import { KINDS } from "stories";
 import { COST_EXPLORER, EXPENSES_FILTERBY_TYPES, CLOUD_DETAILS, OWNER_DETAILS, POOL_DETAILS } from "utils/constants";
 import { getLastWeekRange, addDaysToTimestamp } from "utils/datetime";
 
 export default {
-  title: `${KINDS.PAGES}/ExpensesBreakdown`,
+  component: ExpensesBreakdown,
   argTypes: {
     type: {
       name: "Type",

@@ -1,9 +1,8 @@
 import RangePickerForm from "components/RangePickerForm";
-import { KINDS } from "stories";
 import { millisecondsToSeconds } from "utils/datetime";
 
 export default {
-  title: `${KINDS.FORMS}/RangePickerForm`
+  component: RangePickerForm
 };
 
 export const basic = () => (

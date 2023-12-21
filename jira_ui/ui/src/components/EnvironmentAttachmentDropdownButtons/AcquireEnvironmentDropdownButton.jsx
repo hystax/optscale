@@ -9,7 +9,9 @@ import DropdownButton from "./DropdownButton";
 export const AcquireEnvironmentDropdownButton = ({
   onAttach,
   availableIssueStatusesForAutomaticUnlinking,
-  isLoading = false
+  isLoading = false,
+  tableRef,
+  setMarginToFitDropdownMenu
 }) => {
   const { values: detachOnStatusValues, content: detachOnStatusContent } = useAutoDetachOnStatus(
     availableIssueStatusesForAutomaticUnlinking
@@ -19,7 +21,12 @@ export const AcquireEnvironmentDropdownButton = ({
     useReleaseEnvironmentIfNoIssueAttached();
 
   return (
-    <DropdownButton triggerLabel="Acquire" isLoading={isLoading}>
+    <DropdownButton
+      triggerLabel="Acquire"
+      isLoading={isLoading}
+      tableRef={tableRef}
+      setMarginToFitDropdownMenu={setMarginToFitDropdownMenu}
+    >
       {detachOnStatusContent}
       {releaseEnvironmentIfNoIssueAttachedContent}
       <DropdownItemGroup hasSeparator>
@@ -40,7 +47,9 @@ export const AcquireEnvironmentDropdownButton = ({
 AcquireEnvironmentDropdownButton.propTypes = {
   onAttach: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
-  availableIssueStatusesForAutomaticUnlinking: PropTypes.array.isRequired
+  availableIssueStatusesForAutomaticUnlinking: PropTypes.array.isRequired,
+  tableRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.instanceOf(Element) })]).isRequired,
+  setMarginToFitDropdownMenu: PropTypes.func.isRequired
 };
 
 export default AcquireEnvironmentDropdownButton;

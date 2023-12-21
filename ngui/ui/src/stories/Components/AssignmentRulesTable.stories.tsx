@@ -1,8 +1,7 @@
 import AssignmentRulesTable from "components/AssignmentRulesTable";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/AssignmentRulesTable`
+  component: AssignmentRulesTable
 };
 
 const assignmentRules = [

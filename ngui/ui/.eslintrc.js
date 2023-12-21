@@ -37,7 +37,8 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "airbnb-base",
-    "prettier"
+    "prettier",
+    "plugin:storybook/recommended"
   ],
   plugins: ["react", "react-hooks", "unused-imports"],
   rules: {

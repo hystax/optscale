@@ -1,8 +1,7 @@
 import Employees from "components/Employees";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.PAGES}/Employees`,
+  component: Employees,
   argTypes: {
     isLoading: { name: "Loading", control: "boolean", defaultValue: false }
   }

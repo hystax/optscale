@@ -2,23 +2,31 @@
 set -e
 
 BUILD_TAG='build'
-TEST_IMAGE=risp_tests:${BUILD_TAG}
 
-docker build -t ${TEST_IMAGE} --build-arg BUILDTAG=${BUILD_TAG} -f risp/Dockerfile_tests .
+SERVICES=("risp_scheduler" "risp_worker")
+for SERVICE in "${SERVICES[@]}"
+do
+    echo "Started testing ${SERVICE}>>>"
+    TEST_IMAGE="${SERVICE}_tests"
 
-echo "PEP8 tests>>>"
-docker run -i --rm ${TEST_IMAGE} \
-    bash -c "pep8 --max-line-length=120 ./risp"
-echo "<<<PEP8 tests"
+    docker build -t ${TEST_IMAGE}:${BUILD_TAG} --build-arg IMAGE=${SERVICE} -f risp/Dockerfile_tests .
 
-echo "Pylint tests>>>"
-docker run -i --rm ${TEST_IMAGE} \
-    bash -c "pylint --rcfile=risp/.pylintrc ./risp; exit \$(( \$? & 3 ))"
-echo "<<Pylint tests"
+    echo "Pycodestyle tests>>>"
+    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+        "pycodestyle --max-line-length=120 risp"
+    echo "<<<Pycodestyle tests"
 
-echo "Worker tests>>>"
-docker run -i --rm ${TEST_IMAGE} \
-    bash -c "python3 risp/run_tests.py"
-echo "<<Worker tests"
+    echo "Pylint tests>>>"
+    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+        "pylint --rcfile=risp/.pylintrc --fail-under=8 --fail-on=E,F ./risp/${SERVICE}"
+    echo "<<<Pylint tests"
 
-docker rmi ${TEST_IMAGE}
+    if [[ "${SERVICE}" == "risp_worker" ]]; then
+        echo "Worker tests>>>"
+        docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} \
+            bash -c "python3 risp/run_tests.py"
+        echo "<<Worker tests"
+    fi
+
+    docker rmi ${TEST_IMAGE}:${BUILD_TAG}
+done

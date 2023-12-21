@@ -9,7 +9,7 @@ import {
 import { getLastWeekRange } from "utils/datetime";
 import Resources from "./Resources";
 
-const data = {
+export const data = {
   filterValues: {
     active: [false, true]
   },

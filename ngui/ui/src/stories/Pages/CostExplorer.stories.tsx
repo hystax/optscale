@@ -1,9 +1,8 @@
 import CostExplorer from "components/CostExplorer";
-import { KINDS } from "stories";
 import { millisecondsToSeconds } from "utils/datetime";
 
 export default {
-  title: `${KINDS.PAGES}/CostExplorer`
+  component: CostExplorer
 };
 
 const firstDateRangePoint = millisecondsToSeconds(+new Date());

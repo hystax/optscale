@@ -2,10 +2,9 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import Tooltip from "components/Tooltip";
-import { KINDS } from "stories";
 
 export default {
-  title: `${KINDS.COMPONENTS}/Button`,
+  component: Button,
   argTypes: {
     messageId: { name: "Message ID", control: "text", defaultValue: "add" },
     size: {
