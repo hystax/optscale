@@ -1,10 +1,10 @@
 ARG BUILDTAG=build
-FROM pharos_receiver:${BUILDTAG}
+FROM pharos_worker:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
 WORKDIR /usr/src/app/
 
-COPY pharos_backend/pharos_receiver/test-requirements.txt .
+COPY pharos_backend/pharos_worker/test-requirements.txt .
 
 COPY pharos_backend/.pylintrc pharos_backend/.noserc pharos_backend/.coveragerc ./
 RUN pip install --no-cache-dir -r test-requirements.txt

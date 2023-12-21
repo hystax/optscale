@@ -2,7 +2,8 @@
 reports=no
 
 [MESSAGES CONTROL]
-disable=R,C0111
+disable=R, missing-module-docstring, missing-class-docstring,
+    missing-function-docstring
 
 [BASIC]
 good-names=i, db, id

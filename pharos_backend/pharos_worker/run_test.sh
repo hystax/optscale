@@ -2,9 +2,9 @@
 set -e
 
 BUILD_TAG='build'
-TEST_IMAGE=pharos_receiver_tests:${BUILD_TAG}
+TEST_IMAGE=pharos_worker_tests:${BUILD_TAG}
 
-docker build -t ${TEST_IMAGE} --build-arg BUILDTAG=${BUILD_TAG} -f pharos_backend/pharos_receiver/Dockerfile_tests .
+docker build -t ${TEST_IMAGE} --build-arg BUILDTAG=${BUILD_TAG} -f pharos_backend/pharos_worker/Dockerfile_tests .
 
 echo "Pycodestyle tests>>>"
 docker run -i --rm ${TEST_IMAGE} \

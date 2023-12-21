@@ -19,9 +19,9 @@ DEFAULT_ETCD_PORT = 80
 
 
 class Worker(ConsumerProducerMixin):
-    def __init__(self, connection, config_cl):
+    def __init__(self, connection, config_client):
         self.connection = connection
-        self.config_cl = config_cl
+        self.config_cl = config_client
 
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=[task_queue], accept=['json'],
@@ -32,7 +32,7 @@ class Worker(ConsumerProducerMixin):
 
     def process_task(self, body, message):
         try:
-            LOG.info('Started processing for task: %s' % body)
+            LOG.info('Started processing for task: %s', body)
             self._process_task(body)
         except Exception as exc:
             LOG.exception('Task execution failed: %s', str(exc))
