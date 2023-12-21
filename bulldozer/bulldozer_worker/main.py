@@ -1,16 +1,14 @@
 import os
 import logging
-import requests
+import urllib3
 
 import boto3
 from boto3.session import Config as BotoConfig
 
 from kombu import Connection, Exchange, Queue, Consumer
 from kombu.mixins import ConsumerProducerMixin
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-
-from transitions import TRANSITIONS
+from bulldozer.bulldozer_worker.transitions import TRANSITIONS
 
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
@@ -21,9 +19,9 @@ from optscale_client.arcee_client.client import Client as ArceeClient
 LOG = logging.getLogger(__name__)
 
 EXCHANGE_NAME = 'bulldozer-tasks'
-DLX_EXCHANGE_NAME = '%s-dlx' % EXCHANGE_NAME
+DLX_EXCHANGE_NAME = f'{EXCHANGE_NAME}-dlx'
 QUEUE_NAME = 'bulldozer-task'
-DLX_QUEUE_NAME = '%s-delayed' % QUEUE_NAME
+DLX_QUEUE_NAME = f'{QUEUE_NAME}-delayed'
 DLX_ARGUMENTS = {'x-dead-letter-exchange': EXCHANGE_NAME,
                  'x-dead-letter-routing-key': QUEUE_NAME}
 task_exchange = Exchange(EXCHANGE_NAME, type='direct')
@@ -41,10 +39,11 @@ BUCKET_NAME = "bulldozer-states"
 
 
 class BulldozerWorker(ConsumerProducerMixin):
-    def __init__(self, workdir, connection, config_cl):
+    def __init__(self, workdir, connection, conf_cl, rabbit_conn_str=None):
         self.workdir = workdir
         self.connection = connection
-        self.config_cl = config_cl
+        self.rabbit_conn_str = rabbit_conn_str
+        self.config_cl = conf_cl
         self._rest_cl = None
         self._bulldozer_client = None
         self._arcee_client = None
@@ -80,8 +79,7 @@ class BulldozerWorker(ConsumerProducerMixin):
             s3_params = self.config_cl.read_branch('/minio')
             self._minio_cl = boto3.client(
                 's3',
-                endpoint_url='http://{}:{}'.format(
-                    s3_params['host'], s3_params['port']),
+                endpoint_url=f"http://{s3_params['host']}:{s3_params['port']}",
                 aws_access_key_id=s3_params['access'],
                 aws_secret_access_key=s3_params['secret'],
                 config=BotoConfig(s3={'addressing_style': 'path'})
@@ -101,11 +99,10 @@ class BulldozerWorker(ConsumerProducerMixin):
             prefetch_count=1,
         )]
 
-    @staticmethod
-    def on_connection_revived():
+    def on_connection_revived(self):
         LOG.info('Recovering delayed queue')
         try:
-            with Connection(conn_str) as connection:
+            with Connection(self.rabbit_conn_str) as connection:
                 with connection.channel() as channel:
                     delayed_consumer = Consumer(channel, dlx_task_queue)
                     delayed_consumer.close()
@@ -165,18 +162,20 @@ class BulldozerWorker(ConsumerProducerMixin):
 
 
 if __name__ == '__main__':
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(
+        category=urllib3.exceptions.InsecureRequestWarning)
     logging.basicConfig(level=logging.INFO)
     os.makedirs(WORKDIR, exist_ok=True)
     config_cl = ConfigClient(
         host=os.environ.get('HX_ETCD_HOST'),
         port=int(os.environ.get('HX_ETCD_PORT')))
     config_cl.wait_configured()
-    conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit'))
+    params = config_cl.read_branch('/rabbit')
+    conn_str = f'amqp://{params["user"]}:{params["pass"]}@' \
+               f'{params["host"]}:{params["port"]}'
     with Connection(conn_str) as conn:
         try:
-            worker = BulldozerWorker(WORKDIR, conn, config_cl)
+            worker = BulldozerWorker(WORKDIR, conn, config_cl, conn_str)
             worker.run()
         except KeyboardInterrupt:
             print('sayonara')

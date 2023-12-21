@@ -42,9 +42,10 @@ class TaskProducer:
         return self._config_cl
 
     def create_task(self, task):
-        queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-            **self.config_cl.read_branch('/rabbit')),
-            transport_options=self.RETRY_POLICY)
+        params = self.config_cl.read_branch('/rabbit')
+        conn_str = f'amqp://{params["user"]}:{params["pass"]}@' \
+                   f'{params["host"]}:{params["port"]}'
+        queue_conn = QConnection(conn_str, transport_options=self.RETRY_POLICY)
 
         task_exchange = Exchange(self.EXCHANGE_NAME, type='direct')
         with producers[queue_conn].acquire(block=True) as producer:

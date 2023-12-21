@@ -1,0 +1,8 @@
+ARG BUILDTAG=build
+ARG IMAGE=bulldozer_api
+FROM ${IMAGE}:${BUILDTAG}
+LABEL org.opencontainers.image.authors="Hystax"
+
+COPY optscale_client/bulldozer_client optscale_client/bulldozer_client
+COPY bulldozer/test-requirements.txt bulldozer/.pylintrc ./bulldozer/
+RUN pip install --no-cache-dir -r bulldozer/test-requirements.txt

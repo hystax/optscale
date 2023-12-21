@@ -84,13 +84,14 @@ class CostCalc:
         return total_cost
 
     @lru_cache(maxsize=64)
-    def get_flavor_price(self, cloud_type, region, flavor, ttl_hash, os_type='linux'):
+    def get_flavor_price(self, cloud_type, region, flavor, _ttl_hash,
+                         os_type='linux'):
         """
         Gets price from Insider
         :param cloud_type:
         :param region:
         :param flavor:
-        :param ttl_hash:
+        :param _ttl_hash:
         :param os_type:
         :return:
         """

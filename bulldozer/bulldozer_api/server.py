@@ -10,10 +10,10 @@ from sanic.exceptions import SanicException
 import motor.motor_asyncio
 
 
-from cost_calc import CostCalc
-from producer import TaskProducer
-from name_generator import NameGenerator
-from utils import permutation
+from bulldozer.bulldozer_api.cost_calc import CostCalc
+from bulldozer.bulldozer_api.producer import TaskProducer
+from bulldozer.bulldozer_api.name_generator import NameGenerator
+from bulldozer.bulldozer_api.utils import permutation
 
 from optscale_client.aconfig_cl.aconfig_cl import AConfigCl
 
@@ -63,8 +63,7 @@ async def get_cluster_secret() -> str:
 
 
 name, password, host, port, db = get_db_params()
-uri = "mongodb://{u}:{p}@{host}:{port}/admin".format(
-    u=name, p=password, host=host, port=port)
+uri = f"mongodb://{name}:{password}@{host}:{port}/admin"
 client = motor.motor_asyncio.AsyncIOMotorClient(uri)
 db = client[db]
 
@@ -198,18 +197,19 @@ async def create_template(request):
     await check_token(token)
     doc = request.json
     # TODO: validators
-    name = doc.get("name")
-    if not name or not isinstance(name, str):
-        raise SanicException("Name required and should be string", status_code=400)
+    template_name = doc.get("name")
+    if not template_name or not isinstance(template_name, str):
+        raise SanicException("Name required and should be string",
+                             status_code=400)
     o = await db.template.find_one(
         {"$and": [
             {"token": token},
-            {"name": name},
+            {"name": template_name},
             {"deleted_at": 0}
         ]})
     if o:
         raise SanicException(
-            "Template with %s exists" % name, status_code=409)
+            f"Template with {template_name} exists", status_code=409)
     application_ids = (doc.get("application_ids") or list())
     cloud_account_ids = (doc.get("cloud_account_ids") or list())
 
@@ -234,7 +234,7 @@ async def create_template(request):
     hyperparameters = doc.get("hyperparameters")
     d = {
         "_id": str(uuid.uuid4()),
-        "name": name,
+        "name": template_name,
         "application_ids": application_ids,
         "cloud_account_ids": cloud_account_ids,
         "region_ids": region_ids,
@@ -311,22 +311,23 @@ async def update_template(request, id_: str):
     doc = request.json
     # TODO: validators
     d = dict()
-    name = doc.get("name")
-    if name is not None:
-        if not isinstance(name, str):
-            raise SanicException("Name required and should be string", status_code=400)
+    template_name = doc.get("name")
+    if template_name is not None:
+        if not isinstance(template_name, str):
+            raise SanicException("Name required and should be string",
+                                 status_code=400)
         # TODO: exclude deleted
-        if name != o["name"]:
+        if template_name != o["name"]:
             o = await db.template.find_one(
                 {"$and": [
                     {"token": token},
-                    {"name": name},
+                    {"name": template_name},
                     {"deleted_at": 0}
                 ]})
             if o:
                 raise SanicException(
-                    "Template with %s exists" % name, status_code=409)
-        d.update({"name": name})
+                    f"Template with {template_name} exists", status_code=409)
+        d.update({"name": template_name})
 
     application_ids = doc.get("application_ids")
     if application_ids is not None:
@@ -390,11 +391,12 @@ async def delete_template(request, id_: str):
     if not o:
         raise SanicException("Template not found", status_code=404)
     # check for create runsets
-    runset_ids = [doc["_id"] async for doc in db.runset.find({"template_id": id_})]
+    runset_ids = [doc["_id"] async for doc in db.runset.find(
+        {"template_id": id_})]
     if runset_ids:
-        raise SanicException("Template has runsets: %s" % (
-            ",".join(runset_ids)
-        ), status_code=409)
+        runsets = ",".join(runset_ids)
+        raise SanicException(f"Template has runsets: {runsets}",
+                             status_code=409)
 
     await db.template.update_one({"_id": id_}, {'$set': {
         "deleted_at": int(datetime.datetime.utcnow().timestamp())
@@ -567,7 +569,8 @@ async def get_runsets(request, template_id: str):
     token = await extract_token(request)
     await check_token(token)
     # TODO: exclude deleted
-    res = [doc async for doc in db.runset.find({"token": token, "template_id": template_id})]
+    res = [doc async for doc in db.runset.find({"token": token,
+                                                "template_id": template_id})]
     return json(res)
 
 
@@ -636,18 +639,18 @@ async def set_runset_state(request, id_: str):
     if requestor_runner_id:
         # if requestor runner id is set we should skip setting
         # destroy flag for it
-        filter = {
+        filter_ = {
                 "$and": [
                     {"runset_id": id_},
                     {"_id": {"$nin": [requestor_runner_id]}},
                 ]
             }
     else:
-        filter = {"runset_id": id_}
+        filter_ = {"runset_id": id_}
 
     # to avoid conflicting tasks in queue, we just set destroy flag
     # worker will check this flag and destroy if it set
-    await db.runner.update_many(filter, {'$set': {
+    await db.runner.update_many(filter_, {'$set': {
             "destroy": True}})
 
     await db.runset.update_one({"_id": id_}, {'$set': {
@@ -668,7 +671,8 @@ async def get_runners(request, id_: str):
     token = await extract_token(request)
     await check_token(token)
     # TODO: exclude deleted
-    runners = [doc async for doc in db.runner.find({"token": token, "runset_id": id_})]
+    runners = [doc async for doc in db.runner.find({"token": token,
+                                                    "runset_id": id_})]
     for runner in runners:
         cost = await CostCalc.run_async(
             cost_calc.calc_runner_cost,
@@ -717,7 +721,7 @@ async def bulk_get_runners(request):
     if len(args) < 1:
         raise SanicException("at list one param required", status_code=400)
     if not any(filter(lambda x: x in supported_keys, request.args.keys())):
-        raise SanicException("%s is required" % runset_id, status_code=400)
+        raise SanicException(f"{runset_id} is required", status_code=400)
 
     if runset_id in request.args.keys():
         runset_ids = request.args[runset_id]
@@ -751,7 +755,7 @@ async def update_runner(request, id_: str):
     reason = doc.get("reason")
     instance_id = doc.get("instance_id")
     state = doc.get("state")
-    name = doc.get("name")
+    runner_name = doc.get("name")
     ip_addr = doc.get("ip_addr")
     run_id = doc.get("run_id")
     destroyed_at = doc.get("destroyed_at")
@@ -767,8 +771,8 @@ async def update_runner(request, id_: str):
     if instance_id is not None:
         sd.update({"instance_id": instance_id})
 
-    if name is not None:
-        sd.update({"name": name})
+    if runner_name is not None:
+        sd.update({"name": runner_name})
 
     if state is not None:
         sd.update({"state": state})
@@ -837,8 +841,8 @@ async def update_runner(request, id_: str):
         TaskState.DESTROY_PREPARING
     ], runners)):
         sd.update({"state": RunsetState.STOPPING})
-    elif (any(map(lambda x: x["state"] == TaskState.DESTROYED, runners)) and not
-          all(map(lambda x: x["state"] in [
+    elif (any(map(lambda x: x["state"] == TaskState.DESTROYED, runners)) and
+          not all(map(lambda x: x["state"] in [
              TaskState.STARTING_PREPARING,
              TaskState.STARTING,
              TaskState.WAITING_ARCEE,
