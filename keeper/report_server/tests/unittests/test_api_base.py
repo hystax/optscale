@@ -2,7 +2,7 @@ import uuid
 
 import mongomock
 import tornado.testing
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 from keeper.report_server.server import make_app
 
@@ -20,17 +20,14 @@ class TestReportBase(tornado.testing.AsyncHTTPTestCase):
         return make_app('127.0.0.1', 80,
                         mongo_client_class=mongomock.MongoClient)
 
-    @patch('keeper.report_server.server.MongoClient')
-    @patch('optscale_client.config_client.client.Client')
-    @patch('keeper.report_server.controllers.message_publisher.Publisher')
-    def setUp(self, p_rabbit, p_config, p_mongo):
+    def setUp(self):
         secret = str(uuid.uuid4())
+        p_config = patch('optscale_client.config_client.client.Client').start()
         p_config.return_value.mongo_params.return_value = (
             'root', 'pass', 'localhost', 27017, 'keeper')
         p_config.return_value.rabbit_params.return_value = (
             'root', 'pass', 'localhost', 27017)
         p_config.return_value.cluster_secret.return_value = secret
-        p_config.return_value.agent_secret.return_value = secret
         super().setUp()
         patch(
             'keeper.report_server.handlers.v1.base.Config').start()

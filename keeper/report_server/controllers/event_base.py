@@ -40,6 +40,7 @@ class EventBaseController(BaseController):
     @staticmethod
     def get_events(time_start, time_end, evt_classes, levels, object_types,
                    ack_only, limit):
+        # pylint: disable=no-member
         events = Event.objects().order_by('-time', '-_id')
         if time_start:
             events = events(Q(time__gte=time_start))
@@ -71,6 +72,7 @@ class EventBaseController(BaseController):
             {"$unwind": "$read_event"},
             {"$project": {"event": "$event", "_id": 0}}
         ]
+        # pylint: disable=no-member
         ccd = ReadEvent.objects.aggregate(*pipeline)
         return dict(map(lambda x: (str(x['event']), True), ccd))
 
