@@ -70,7 +70,7 @@
   "OE0402": "Cloud account with these credentials already exists",
   "OE0403": "Pool should be an organization",
   "OE0404": "Cloud account {0} already exists for organization {1}",
-  "OE0407": "Sub pool limit cannot exceed parent pool limit",
+  "OE0407": "Sub-pool limit cannot exceed parent pool limit",
   "OE0415": "Requested creation time cannot be in the future",
   "OE0416": "{0} should not contain only whitespace",
   "OE0418": "{0} is not an organization",

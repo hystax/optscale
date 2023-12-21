@@ -1,4 +1,5 @@
 import { makeStyles } from "tss-react/mui";
+import { WIDTH_STRING as COMMUNITY_DOCS_WIDTH } from "components/DocsPanel/DocsPanel.styles";
 import { SPACING_1 } from "utils/layouts";
 
 export const DRAWER_WIDTH = 200;
@@ -50,6 +51,15 @@ const useStyles = makeStyles()((theme) => ({
     overflow: "hidden",
     flexGrow: 1,
     display: "flex"
+  },
+  wrapper: {
+    overflow: "hidden",
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) 0",
+    transition: "0.2s ease-in"
+  },
+  wrapperWithDocsOpened: {
+    gridTemplateColumns: `minmax(0, 1fr) ${COMMUNITY_DOCS_WIDTH}`
   }
 }));
 

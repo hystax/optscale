@@ -171,4 +171,6 @@ export const routes = [
   powerScheduleDetailsRoute
 ];
 
+export const ALL_ROUTES_PATTERNS = Object.freeze(routes.map(({ link }) => link));
+
 export default BaseRoute;

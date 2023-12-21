@@ -64,8 +64,7 @@ const FullHeightIframe = ({ source, iframeTitleMessageId, fallbackUrl, fallbackM
   return (
     <ContentBackdropLoader isLoading={isLoading}>
       <iframe
-        style={{ width: "100%", overflow: "hidden", height: `${height}px` }}
-        frameBorder="0"
+        style={{ width: "100%", overflow: "hidden", height: `${height}px`, border: 0 }}
         title={intl.formatMessage({ id: iframeTitleMessageId })}
         src={source}
       />

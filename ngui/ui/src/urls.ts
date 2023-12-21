@@ -20,6 +20,12 @@ const CONNECT = "connect";
 const INVITE = "invite";
 const EDIT = "edit";
 
+export const getDocsFileUrl = (url: string) =>
+  `/docs/${(url === "/" ? "home" : url)
+    .replace(/:.*?(\/|$)/g, "id/") // replace named ids (:poolId/) with just id (id/)
+    .replace(/(\/$|^\/)/g, "") // remove leading and trailing slash from a string
+    .replace(/\//g, "-")}.md`; // replace slashes with -
+
 export const HOME = "/";
 export const getHomeUrl = (organizationId) =>
   organizationId ? concatenateUrl([HOME, `?organizationId=${organizationId}`], "", "") : HOME;

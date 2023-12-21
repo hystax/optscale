@@ -47,7 +47,7 @@ const useGoogleLogin = ({ onSuccess, onError, clientId }) => {
 
       clientRef.current = client;
     } catch (e) {
-      console.error("An error occured during Google Auth initialization:", e);
+      console.error("An error occurred during Google Auth initialization:", e);
     }
   }, [clientId, scriptLoadedSuccessfully]);
 

@@ -66,6 +66,7 @@
     "redux": "^4.2.0",
     "redux-mock-store": "^1.5.4",
     "redux-persist": "^6.0.0",
+    "remark-directive": "^3.0.0",
     "remark-gfm": "^3.0.1",
     "require-context.macro": "^1.2.2",
     "reselect": "^4.1.7",
@@ -73,6 +74,7 @@
     "text-security": "^3.2.1",
     "tss-react": "^4.5.2",
     "typescript": "^5.3.3",
+    "unist-util-visit": "^5.0.0",
     "uuid": "^9.0.0",
     "vite": "^4.5.0",
     "vite-tsconfig-paths": "^4.2.2"
