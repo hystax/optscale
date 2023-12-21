@@ -2,8 +2,12 @@
 reports=no
 
 [MESSAGES CONTROL]
-disable=R,C0111
+disable=R, missing-module-docstring, missing-class-docstring,
+    missing-function-docstring
 
 [BASIC]
 good-names=i, db, id
-generated-members=deleted, id, state, metadata
+generated-members=deleted, id, state, metadata, op.get_bind, op.create_index,
+    op.drop_index, op.f, op.create_table, op.drop_table, op.add_column,
+    op.drop_column, op.create_foreign_key, op.alter_column, op.drop_constraint,
+    op.execute, is_

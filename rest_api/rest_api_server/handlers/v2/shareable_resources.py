@@ -28,7 +28,8 @@ class ShareableBookingBaseAsyncHandler(BaseAuthHandler, BaseHandler):
         cloud_resource_id = resource_id
         if resource_type == 'shareable_booking':
             try:
-                shareable_booking = await self._get_item(resource_id)
+                shareable_booking = await run_task(self.controller.get,
+                                                   resource_id)
             except NotFoundException as ex:
                 raise OptHTTPError.from_opt_exception(404, ex)
             cloud_resource_id = shareable_booking.resource_id

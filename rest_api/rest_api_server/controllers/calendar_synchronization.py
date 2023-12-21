@@ -248,9 +248,13 @@ class CalendarSynchronizationController(BaseController, MongoMixin):
                 continue
             event = self.get_event_template(
                 calendar_id, shareable_booking, resource)
-            event.pop('status', None)
             try:
-                google_event = self.google_calendar_cl.create_event(**event)
+                google_event = self.google_calendar_cl.create_event(
+                    calendar_id=event['calendar_id'], start=event['start'],
+                    end=event['end'], summary=event.get('summary'),
+                    description=event.get('description'),
+                    private_properties=event.get('private_properties')
+                )
                 res.append(google_event)
             except CalendarException as ex:
                 raise FailedDependency(Err.OE0489, [str(ex)])

@@ -99,8 +99,8 @@ class NodeController(BaseController):
                 if payload.get('hourly_price') is None:
                     payload['hourly_price'] = default_price
                 self.check_create_restrictions(**payload)
-                new_node = self.model_type(
-                    cloud_account_id=cloud_account_id, **payload)
+                model = self.model_type
+                new_node = model(cloud_account_id=cloud_account_id, **payload)
                 self.session.add(new_node)
                 res.append(new_node)
             self.session.commit()

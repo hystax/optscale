@@ -144,11 +144,11 @@ class RunController(BaseProfilingController, RunCostsMixin):
             if process_ram is not None:
                 result[t]['metrics']['process_ram'].append(
                     process_ram / BYTES_IN_MB)
-        for l in logs:
-            t = math.ceil(l['time'])
+        for log in logs:
+            t = math.ceil(log['time'])
             if t not in result:
                 result[t] = defaultdict(lambda: defaultdict(list))
-            for k, v in l.get('data', {}).items():
+            for k, v in log.get('data', {}).items():
                 if k not in goal_function_map:
                     continue
                 if isinstance(v, str):

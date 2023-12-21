@@ -40,9 +40,9 @@ def format_resource(resource: dict, cloud_account: dict) -> dict:
 class ApplicationController(BaseProfilingController, RunCostsMixin):
     @staticmethod
     def format_application(
-            application: dict, owner: Union[dict, None],
-            runs: list, run_costs: dict, executors: dict
-    ) -> dict:
+            application: 'dict', owner: 'Union[dict, None]',
+            runs: 'list', run_costs: 'dict', executors: 'dict'
+    ) -> 'dict':
         status = None
         last_run_reached_goals = dict()
         last_run_start, last_successful_run, last_run_duration = 0, 0, 0

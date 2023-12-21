@@ -1001,7 +1001,7 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         for key in properties.keys():
             if not isinstance(key, str):
                 raise WrongArgumentsException(
-                    Err.OE0214, ['Properties key % key' % key])
+                    Err.OE0214, ['Properties key %s key' % key])
         old_properties = {} if new_environment else resource.get('env_properties', {})
         new_properties = dict(old_properties, **properties)
         for key, value in dict(new_properties).items():

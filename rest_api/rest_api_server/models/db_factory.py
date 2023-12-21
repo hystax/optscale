@@ -5,6 +5,7 @@ from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.db_test import TestDB
 from rest_api.rest_api_server.models.db_mysql import MySQLDB
+from rest_api.rest_api_server.models.db_base import BaseDB
 
 
 class DBType(Enum):
@@ -16,6 +17,7 @@ LOG = logging.getLogger(__name__)
 
 
 class DBFactory(object):
+    _db: BaseDB
     DBS = {
         DBType.Test: TestDB,
         DBType.MySQL: MySQLDB

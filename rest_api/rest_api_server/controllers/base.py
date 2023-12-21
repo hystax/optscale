@@ -35,7 +35,7 @@ RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
 
 
-class PriorityMixin(object):
+class PriorityMixin:
     # the model should have organization_id and priority fields
     @retry(**PRIORITY_RETRIES)
     def change_priority(self, action, item, all_items, output_wrapper):
@@ -60,7 +60,7 @@ class PriorityMixin(object):
             result_items = self.set_priority(all_items, item, target_priority)
             self.session.commit()
         except IntegrityError as exc:
-            LOG.warning('Unable to change %s priority: %s', (
+            LOG.warning('Unable to change %s priority: %s' % (
                 item.__class__.__name__, str(exc)))
             self.session.rollback()
             self.session.expunge_all()
@@ -104,7 +104,7 @@ class PriorityMixin(object):
         return [id_object_map.get(r) for r in item_ids]
 
 
-class ResourceFormatMixin(object):
+class ResourceFormatMixin:
     def get_org_id_by_cloud_acc_id(self, cloud_account_id):
         return self.session.query(
             CloudAccount.organization_id
@@ -191,7 +191,7 @@ class ResourceFormatMixin(object):
         return resource
 
 
-class MongoMixin(object):
+class MongoMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._mongo_client = None
@@ -225,7 +225,7 @@ class MongoMixin(object):
         return self.mongo_client.restapi.archived_recommendations
 
 
-class ClickHouseMixin(object):
+class ClickHouseMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._clickhouse_client = None
@@ -293,7 +293,7 @@ class OrganizationValidatorMixin:
         return organization
 
 
-class BaseController(object):
+class BaseController:
 
     def __init__(self, db_session, config=None, token=None, engine=None):
         super().__init__()
@@ -329,10 +329,12 @@ class BaseController(object):
                         self.model_type.__table__.columns))
 
     def on_finish(self):
-        if getattr(self, '_clickhouse_client', None) is not None:
-            self._clickhouse_client.disconnect()
-        if getattr(self, '_mongo_client', None) is not None:
-            self._mongo_client.close()
+        clickhouse_cl = getattr(self, '_clickhouse_client', None)
+        if clickhouse_cl is not None:
+            clickhouse_cl.disconnect()
+        mongo_cl = getattr(self, '_mongo_client', None)
+        if mongo_cl is not None:
+            mongo_cl.close()
 
     def _get_model_type(self):
         raise NotImplementedError

@@ -106,15 +106,6 @@ class OrganizationController(BaseController):
         ).all()
         return list(map(lambda x: x.to_dict(), pools))
 
-    def _extract_children(self, items, result):
-        children = self.session.query(self.model_type).filter(
-            self.model_type.parent_id.in_(items),
-            self.model_type.deleted.is_(False)).all()
-        if children:
-            result.extend(children)
-            self._extract_children(
-                list(map(lambda x: x.id, children)), result)
-
     def create_report_subscriptions(self, org_id):
         _, reports = self.katara_client.report_list()
         reports = reports.get('reports', [])

@@ -54,6 +54,7 @@ def get_handlers(handler_kwargs, version=None):
 
     # v2 only
     if not version or version == 'v2':
+        # pylint: disable=no-member
         profiling_urls = [
             (urls_v2.applications_collection,
              h_v2.profiling.applications.ApplicationsAsyncCollectionHandler,

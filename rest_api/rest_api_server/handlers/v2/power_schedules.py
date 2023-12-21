@@ -573,5 +573,5 @@ class PowerSchedulesActionsAsyncHandler(BaseAsyncCollectionHandler,
             res = await run_task(self.controller.bulk_action,
                                  power_schedule_id, data)
         except NotFoundException as exc:
-            raise OptHTTPError.from_opt_exception(404, exс)
+            raise OptHTTPError.from_opt_exception(404, exc)
         self.write(res)

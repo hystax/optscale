@@ -94,11 +94,6 @@ class GeminiDataAsyncController(BaseAsyncControllerWrapper):
         return GeminiDataController
 
 
-class GeminiDataAsyncController(BaseAsyncControllerWrapper):
-    def _get_controller_class(self):
-        return GeminiDataController
-
-
 class OrganizationGeminiController(BaseController):
     """
     Controller for /restapi/v2/organizations/{id}/geminis and /restapi/v2/geminis

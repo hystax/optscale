@@ -107,6 +107,7 @@ class ObjectGroups(enum.Enum):
 
     @classmethod
     def rest_objects(cls):
+        # pylint: disable=no-member
         return (cls._member_map_[name] for name in cls._member_names_
                 if name not in {'AuthUsers', 'PoolRelations'})
 

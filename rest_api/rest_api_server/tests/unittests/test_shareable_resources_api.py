@@ -866,7 +866,8 @@ class TestShareableResourcesApi(TestApiBase):
             'end': dt.replace(hour=23, minute=59, second=0,
                               microsecond=0) + timedelta(days=365),
             'start': dt,
-            'description': ANY
+            'description': ANY,
+            'private_properties': None
         }
         p_create_event.assert_called_once_with(**expected_call)
 

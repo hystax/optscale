@@ -46,6 +46,7 @@ class GoogleCalendarClient(object):
 
     @property
     def events(self):
+        # pylint: disable=no-member
         return self.service.events()
 
     @wrap_http_error

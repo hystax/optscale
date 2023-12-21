@@ -280,7 +280,6 @@ class AssignmentRequestAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                     - OE0380: Current user doesn't have enough permissions for target pool
                     - OE0381: Current user has no permissions for target resource
                     - OE0391: Current user can't accept/decline this request
-                    - OE0415: Requested creation time is in future
                     - OE0419: Current user can't cancel this request
             401:
                 description: |

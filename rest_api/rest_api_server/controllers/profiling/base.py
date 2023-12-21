@@ -241,8 +241,8 @@ class BaseProfilingController(BaseProfilingTokenController):
     def list_logs(self, profiling_token, run_id):
         arcee = self.get_arcee_client(profiling_token)
         _, logs = arcee.run_logs_get(run_id)
-        for l in logs:
-            ArceeObject.format(l)
+        for log in logs:
+            ArceeObject.format(log)
         return logs
 
     @handle_http_exc
