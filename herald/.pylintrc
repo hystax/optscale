@@ -6,4 +6,5 @@ disable=R,C0111
 
 [BASIC]
 good-names=i, db, id
-generated-members=deleted, id, state, metadata
+generated-members=deleted, id, state, metadata, op.create_table, op.drop_table,
+    op.bulk_insert, op.add_column, op.drop_column, is_

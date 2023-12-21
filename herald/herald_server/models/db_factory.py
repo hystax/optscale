@@ -3,7 +3,8 @@ import logging
 
 from herald.herald_server.models.db_test import TestDB
 from herald.herald_server.models.db_mysql import MySQLDB
-
+from herald.herald_server.exceptions import Err
+from herald.herald_server.models.db_base import BaseDB
 
 from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 
@@ -17,6 +18,7 @@ LOG = logging.getLogger(__name__)
 
 
 class DBFactory(object):
+    _db: BaseDB
     DBS = {
         DBType.Test: TestDB,
         DBType.MySQL: MySQLDB
@@ -28,8 +30,7 @@ class DBFactory(object):
         db_class = DBFactory.DBS.get(db_type)
         if not db_class:
             LOG.error('Nonexistent model type specified: %s', db_type)
-            raise InvalidModelTypeException(
-                'G0024', "Invalid model type: %s", [db_type])
+            raise InvalidModelTypeException(Err.G0024, [db_type])
         else:
             return db_class(config)
 

@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 class TestEmailApi(TestHeraldBase):
     def setUp(self, *args):
-        super().setUp()
+        super().setUp(*args)
 
     def test_email_send(self):
         email = ["test@hystax.com"]
@@ -24,7 +24,7 @@ class TestEmailApi(TestHeraldBase):
             'reply_to_email': reply_to_email
         }
         self.assertEqual(201, code)
-        self.assertEquals(result, response)
+        self.assertDictEqual(result, response)
 
     def test_email_hystax_registration_send(self):
         email = ["test@hystax.com"]
@@ -47,7 +47,7 @@ class TestEmailApi(TestHeraldBase):
             'reply_to_email': None
         }
         self.assertEqual(201, code)
-        self.assertEquals(result, response)
+        self.assertDictEqual(result, response)
 
     def test_email_hystax_registration_not_publish(self):
         email = ["test@hystax.com"]
@@ -70,40 +70,40 @@ class TestEmailApi(TestHeraldBase):
             'reply_to_email': None
         }
         self.assertEqual(201, code)
-        self.assertEquals(result, response)
+        self.assertDictEqual(result, response)
 
     def test_validation_email_payload(self):
         valid_email = 'test@hystax.com'
         code, response = self.client_v2.email_send(email=[valid_email],
                                                    subject=None)
         self.assertEqual(400, code)
-        self.assertEquals('subject is not provided',
-                          response['error']['reason'])
+        self.assertEqual('subject is not provided',
+                         response['error']['reason'])
         code, response = self.client_v2.email_send(email=None, subject='subj')
         self.assertEqual(400, code)
-        self.assertEquals('email is not provided', response['error']['reason'])
+        self.assertEqual('email is not provided', response['error']['reason'])
         invalid_email = ['invalid_email']
         code, response = self.client_v2.email_send(email=invalid_email,
                                                    subject='subj')
         self.assertEqual(400, code)
-        self.assertEquals('invalid email', response['error']['reason'])
+        self.assertEqual('invalid email', response['error']['reason'])
         code, response = self.client_v2.email_send(email=valid_email,
                                                    subject='subj')
         self.assertEqual(400, code)
-        self.assertEquals('invalid email', response['error']['reason'])
+        self.assertEqual('invalid email', response['error']['reason'])
         code, response = self.client_v2.email_send(
             email=[valid_email], subject='subj', template_type=None)
         self.assertEqual(400, code)
-        self.assertEquals('template_type is not provided',
-                          response['error']['reason'])
+        self.assertEqual('template_type is not provided',
+                         response['error']['reason'])
         code, response = self.client_v2.email_send(
             email=[valid_email], subject='subj',
             template_type='not_existing_type')
         self.assertEqual(400, code)
-        self.assertEquals('invalid template_type', response['error']['reason'])
+        self.assertEqual('invalid template_type', response['error']['reason'])
         invalid_template_params = 'template_params'
         code, response = self.client_v2.email_send(
             email=[valid_email], subject='subj',
             template_params=invalid_template_params)
         self.assertEqual(400, code)
-        self.assertEquals('invalid template_params', response['error']['reason'])
+        self.assertEqual('invalid template_params', response['error']['reason'])

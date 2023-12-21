@@ -62,8 +62,20 @@ class Err(enum.Enum):
         "\"payload\" should be a string with valid JSON",
     ]
 
+    G0019 = [
+        "must provide email address in payload for reaction 'email'"
+    ]
+
+    G0022 = [
+        "must provide phone number in payload for reaction 'sms'",
+    ]
+
     G0023 = [
         "invalid value for reaction type - %s",
+    ]
+
+    G0024 = [
+        "Invalid model type: %s",
     ]
 
     G0025 = [

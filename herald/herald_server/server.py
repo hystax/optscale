@@ -50,6 +50,7 @@ def make_app(db_type, etcd_host, etcd_port, wait=False):
         "rabbit_client": rabbit_client,
     }
     config_cl.tell_everybody_that_i_am_ready()
+    # pylint: disable=no-member
     return tornado.web.Application([
         (urls_v1.user_notification,
          UserNotificationAsyncCollectionHandler, handler_kwargs),

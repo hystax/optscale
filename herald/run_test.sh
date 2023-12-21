@@ -6,17 +6,19 @@ TEST_IMAGE=herald_tests:${BUILD_TAG}
 
 docker build -t ${TEST_IMAGE} --build-arg BUILDTAG=${BUILD_TAG} -f herald/Dockerfile_tests .
 
-echo "PEP8 tests>>>"
+echo "Pycodestyle tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "pep8 --max-line-length=120 --ignore=E701 ."
-echo "<<<PEP8 tests"
+    bash -c "pycodestyle --max-line-length=120 herald"
+echo "<<<Pycodestyle tests"
 
 echo "Pylint tests>>>"
-docker run -i --rm ${TEST_IMAGE} bash -c "cd herald/herald_server && ls && pylint --rcfile=.pylintrc ./"
+docker run -i --rm ${TEST_IMAGE} \
+    bash -c "pylint --rcfile=herald/.pylintrc --fail-under=8 --fail-on=E,F ./herald"
+echo "<<<Pylint tests"
 
 echo "Nose tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "cd herald/herald_server && nosetests --config .noserc"
+    bash -c "nosetests --config herald/.noserc ./herald/herald_server"
 echo "<<Nose tests"
 
 docker rmi ${TEST_IMAGE}

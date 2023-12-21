@@ -18,7 +18,8 @@ def generate_event_template_params(event, config_client):
             'object_name': event.get('object_name'),
             'title': 'Hystax notifications service',
             'top_text': 'You have received the following notification for the customer ',
-            'bottom_text1': 'You have received this email because you have event notification turned on. Please use ',
+            'bottom_text1': 'You have received this email because you have event '
+                            'notification turned on. Please use ',
             'bottom_text2': 'if you want to alter your notification settings.'
         }
     }
@@ -61,11 +62,15 @@ def get_default_template():
     return {
         'images': {
             'logo': 'https://cdn.hystax.com/OptScale/email-images/logo-optscale-white.png',
-            'optscale_banner': 'https://cdn.hystax.com/OptScale/email-images/optscale-welcome-banner.png',
+            'optscale_banner':
+                'https://cdn.hystax.com/OptScale/email-images/optscale-welcome-banner.png',
             'telegram': 'https://cdn.hystax.com/OptScale/email-images/telegram.png',
-            'optscale_ml_banner': 'https://cdn.hystax.com/OptScale/email-images/optscale-ml-welcome-banner.png',
-            'optscale_mlops': 'https://cdn.hystax.com/OptScale/email-images/optscale-mlops-capabilities.png',
-            'optscale_finops': 'https://cdn.hystax.com/OptScale/email-images/optscale-finops-capabilities.png',
+            'optscale_ml_banner':
+                'https://cdn.hystax.com/OptScale/email-images/optscale-ml-welcome-banner.png',
+            'optscale_mlops':
+                'https://cdn.hystax.com/OptScale/email-images/optscale-mlops-capabilities.png',
+            'optscale_finops':
+                'https://cdn.hystax.com/OptScale/email-images/optscale-finops-capabilities.png',
         },
         'texts': {
             'product': 'Hystax OptScale',

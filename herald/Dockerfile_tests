@@ -6,10 +6,8 @@ WORKDIR /usr/src/app/
 
 
 COPY herald/test-requirements.txt herald/test-requirements.txt
-COPY herald/.pylintrc herald/.noserc herald/.coveragerc ./herald/herald_server/
-
+COPY herald/.pylintrc herald/.noserc herald/.coveragerc ./herald/
 COPY optscale_client/herald_client optscale_client/herald_client
-
 
 RUN pip install --no-cache-dir -r herald/test-requirements.txt
 

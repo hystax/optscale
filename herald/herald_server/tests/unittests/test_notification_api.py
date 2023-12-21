@@ -12,7 +12,7 @@ from herald.herald_server.tests.unittests.test_herald_base import TestHeraldBase
 
 class TestNotificationApi(TestHeraldBase):
     def setUp(self, *args):
-        super().setUp()
+        super().setUp(*args)
         self.user_id = str(uuid.uuid4())
 
         patch('herald.herald_server.handlers.v1.base.BaseAuthHandler.get_meta_by_token',

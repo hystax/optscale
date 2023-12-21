@@ -7,6 +7,7 @@ import herald.herald_server.models.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+# pylint: disable=no-member
 config = context.config
 
 # Interpret the config file for Python logging.
@@ -65,6 +66,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()
