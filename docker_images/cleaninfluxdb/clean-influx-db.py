@@ -22,10 +22,10 @@ class CleanInfluxDB:
         measurements = [m['key'] for m in series_result_list[0][1]]
         measurements_to_clean = [m.split(',')[0] for m in measurements]
         for measurement in measurements_to_clean:
-            LOG.info('Cleaning %s measurement' % measurement)
+            LOG.info('Cleaning %s measurement', measurement)
             result = self.client.query('DELETE FROM \"%s\" WHERE time < now() - %dd;' %
                                        (measurement, DAYS_TO_STORE))
-            LOG.info('Result of clean: %s' % result)
+            LOG.info('Result of clean: %s', result)
         LOG.info('Done')
 
 

@@ -1,5 +1,6 @@
 import logging
-from bumiworker.bumiworker.modules.recommendations.instances_in_stopped_state_for_a_long_time import SUPPORTED_CLOUD_TYPES
+from bumiworker.bumiworker.modules.recommendations.instances_in_stopped_state_for_a_long_time import (
+    SUPPORTED_CLOUD_TYPES)
 from bumiworker.bumiworker.modules.stuck_in_state_for_a_long_time_base import StuckInStateForALongTimeBase
 
 LOG = logging.getLogger(__name__)

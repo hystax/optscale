@@ -73,16 +73,16 @@ if __name__ == '__main__':
     log_level = 'INFO' if not debug else 'DEBUG'
     setup_logging(loglevel=log_level, loggers=[''])
 
-    config_cl = ConfigClient(
+    config_client = ConfigClient(
         host=os.environ.get('HX_ETCD_HOST'),
         port=int(os.environ.get('HX_ETCD_PORT')),
     )
-    config_cl.wait_configured()
+    config_client.wait_configured()
     conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit'))
+        **config_client.read_branch('/rabbit'))
     with Connection(conn_str) as conn:
         try:
-            worker = ResourceViolationsWorker(conn, config_cl)
+            worker = ResourceViolationsWorker(conn, config_client)
             worker.run()
         except KeyboardInterrupt:
             worker.running = False

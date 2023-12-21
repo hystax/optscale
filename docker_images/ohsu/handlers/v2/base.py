@@ -32,25 +32,25 @@ class BaseHandler(tornado.web.RequestHandler):
     def raise405(self):
         raise OptHTTPError(405, Err.OHE0002, [self.request.method])
 
-    def head(self, *args, **kwargs):
+    def head(self, *args, **kwargs):  # pylint: disable=W0613
         self.raise405()
 
     def get(self, *args, **kwargs):
         self.raise405()
 
-    def post(self, *args, **kwargs):
+    def post(self, *args, **kwargs):  # pylint: disable=W0613
         self.raise405()
 
     def delete(self, *args, **kwargs):
         self.raise405()
 
-    def patch(self, *args, **kwargs):
+    def patch(self, *args, **kwargs):  # pylint: disable=W0613
         self.raise405()
 
-    def put(self, *args, **kwargs):
+    def put(self, *args, **kwargs):  # pylint: disable=W0613
         self.raise405()
 
-    def options(self, *args, **kwargs):
+    def options(self, *args, **kwargs):  # pylint: disable=W0613
         self.raise405()
 
     def _get_request(self):
@@ -77,7 +77,7 @@ class BaseHandler(tornado.web.RequestHandler):
         res = {
             'error': {
                 'status_code': status_code,
-                'error_code': getattr(exc, 'error_code', 'U0%s' % status_code),
+                'error_code': getattr(exc, 'error_code', f'U0{status_code}'),
                 'reason': self._reason,
                 'params': getattr(exc, 'params', []),
             }
@@ -98,14 +98,14 @@ class BaseHandler(tornado.web.RequestHandler):
         out_list = traceback.format_exception(typ, value, tb)
         if isinstance(value, tornado.web.HTTPError):
             if value.log_message:
-                format = "%d %s: " + value.log_message + "\\n%s"
+                _format = "%d %s: " + value.log_message + "\\n%s"
                 args = ([value.status_code, self._request_summary()] +
                         list(value.args) + [repr(''.join(out_list))])
             else:
-                format = "%d %s:\\n%s"
+                _format = "%d %s:\\n%s"
                 args = ([value.status_code, self._request_summary()] +
                         [repr(''.join(out_list))])
-            LOG.warning(format, *args)
+            LOG.warning(_format, *args)
         else:
             LOG.error("Uncaught exception %s\\n%r\\n %s",
                       self._request_summary(), self.request,
@@ -114,22 +114,22 @@ class BaseHandler(tornado.web.RequestHandler):
     def get_request_arguments(self):
         return self._request_arguments()
 
-    def get_arg(self, name, type, default=None, repeated=False):
+    def get_arg(self, name, _type, default=None, repeated=False):
         try:
             if repeated:
-                result = [type(a) for a in self.get_arguments(name)]
+                result = [_type(a) for a in self.get_arguments(name)]
                 if not result and default:
                     result = default
                 return result
             else:
                 arg = self.get_argument(name, default=default)
                 if arg:
-                    if type == bool and isinstance(arg, str):
+                    if _type == bool and isinstance(arg, str):
                         lowered = arg.lower()
                         if lowered not in ['true', 'false']:
-                            raise ValueError('%s should be true or false' % arg)
+                            raise ValueError(f'{arg} should be true or false')
                         return lowered == 'true'
-                    return type(arg)
+                    return _type(arg)
                 else:
                     return arg
         except (ValueError, TypeError):

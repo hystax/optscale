@@ -15,13 +15,13 @@ ROUTING_KEY = 'live-demo-generation'
 EXCHANGE_NAME = 'live-demo-generations'
 
 
-def publish_tasks(count):
+def publish_tasks(config_client, count):
     queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit')),
+        **config_client.read_branch('/rabbit')),
         transport_options=RETRY_POLICY)
     task_exchange = Exchange(EXCHANGE_NAME, type='direct')
     with producers[queue_conn].acquire(block=True) as producer:
-        for i in range(0, count):
+        for _ in range(0, count):
             producer.publish(
                 {},
                 serializer='json',
@@ -33,8 +33,8 @@ def publish_tasks(count):
             )
 
 
-def main(config_cl):
-    mongo_params = config_cl.mongo_params()
+def main(config_client):
+    mongo_params = config_client.mongo_params()
     mongo_conn_string = "mongodb://%s:%s@%s:%s" % mongo_params[:-1]
     mongo_cl = MongoClient(mongo_conn_string)
     live_demos_collection = mongo_cl.restapi.live_demos
@@ -43,13 +43,13 @@ def main(config_cl):
         'created_at': {'$gte': int(dt.timestamp())}
     })
     if count > 0:
-        publish_tasks(count)
-        LOG.info('Published %s tasks' % count)
+        publish_tasks(config_client, count)
+        LOG.info('Published %s tasks', count)
     deleted = live_demos_collection.delete_many({
         'created_at': {'$lt': int(dt.timestamp())}
     }).deleted_count
     if deleted:
-        LOG.info('Deleted %s old live demos' % deleted)
+        LOG.info('Deleted %s old live demos', deleted)
 
 
 if __name__ == '__main__':

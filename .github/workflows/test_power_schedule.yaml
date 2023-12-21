@@ -17,4 +17,6 @@ jobs:
       - name: Build image
         run: bash -x build.sh power_schedule build
       - name: Build test image and run tests
+        run: bash -x docker_images/run_test.sh power_schedule
+      - name: Build test image and run unit tests
         run: bash -x docker_images/power_schedule/run_test.sh

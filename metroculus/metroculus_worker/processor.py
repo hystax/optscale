@@ -459,11 +459,12 @@ class MetricsProcessor(object):
         for metric_type, metric_query_map in K8S_METRIC_QUERY_MAP.items():
             for metric_name, query_format in metric_query_map.items():
                 query_format_count = query_format.count('%s')
+                query = None
                 if query_format_count == len(params):
                     query = query_format % params
                 elif query_format_count == len(extended_params):
                     query = query_format % extended_params
-                else:
+                if not query:
                     continue
                 metric_usages = adapter.get_metric(query, now)
                 for metric_usage in metric_usages:

@@ -10,13 +10,14 @@ do
     TEST_IMAGE="${SERVICE}_tests"
     docker build -t ${TEST_IMAGE}:${BUILD_TAG} --build-arg IMAGE=${SERVICE} -f insider/Dockerfile_tests .
 
-    echo "PEP8 tests>>>"
-    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c "pep8 --max-line-length=120 ."
-    echo "<<<PEP8 tests"
+    echo "Pycodestyle tests>>>"
+    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+        "pycodestyle --max-line-length=120 insider"
+    echo "<<<Pycodestyle tests"
 
     echo "Pylint tests>>>"
-    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} \
-        bash -c "pylint --rcfile=insider/.pylintrc ./insider/${SERVICE}; exit \$(( \$? & 3 ))"
+    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+        "pylint --rcfile=insider/.pylintrc --fail-under=9 --fail-on=E,F ./insider/${SERVICE}"
     echo "<<<Pylint tests"
 
     if [[ "${SERVICE}" == "insider_api" ]]; then

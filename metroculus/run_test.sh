@@ -10,18 +10,20 @@ do
     TEST_IMAGE="${SERVICE}_tests"
     docker build -t ${TEST_IMAGE}:${BUILD_TAG} --build-arg IMAGE=${SERVICE} -f metroculus/Dockerfile_tests .
 
-    echo "PEP8 tests>>>"
-    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c "pep8 --max-line-length=120 ."
-    echo "<<<PEP8 tests"
+    echo "Pycodestyle tests>>>"
+    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+        "pycodestyle --max-line-length=120 metroculus"
+    echo "<<<Pycodestyle tests"
 
     echo "Pylint tests>>>"
-    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} \
-        bash -c "pylint --rcfile=metroculus/.pylintrc ./metroculus/${SERVICE}; exit \$(( \$? & 3 ))"
+    docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+        "pylint --rcfile=metroculus/.pylintrc --fail-under=9 --fail-on=E,F ./metroculus/${SERVICE}"
     echo "<<<Pylint tests"
 
     if [[ "${SERVICE}" == "metroculus_api" ]]; then
         echo "Nose tests>>>"
-        docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c "nosetests --config metroculus/.noserc"
+        docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+            "nosetests --config metroculus/.noserc ./metroculus/${SERVICE}"
         echo "<<Nose tests"
     fi
 

@@ -14,13 +14,13 @@ SUPPORTED_CLOUD_TYPES = {'aws_cnr', 'azure_cnr', 'alibaba_cnr', 'gcp_cnr',
                          'nebius'}
 
 
-def publish_tasks(config_cl):
+def publish_tasks(config_client):
     queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit')),
+        **config_client.read_branch('/rabbit')),
         transport_options=RETRY_POLICY)
 
     task_exchange = Exchange('trapper-tasks', type='direct')
-    cloud_account_map = get_cloud_account_map(config_cl)
+    cloud_account_map = get_cloud_account_map(config_client)
     if cloud_account_map:
         with producers[queue_conn].acquire(block=True) as producer:
             for cloud_account_id, _type in cloud_account_map.items():
@@ -36,9 +36,9 @@ def publish_tasks(config_cl):
     LOG.info('Published %s tasks', len(cloud_account_map))
 
 
-def get_cloud_account_map(config_cl):
-    rest_cl = RestClient(url=config_cl.restapi_url(), verify=False)
-    rest_cl.secret = config_cl.cluster_secret()
+def get_cloud_account_map(config_client):
+    rest_cl = RestClient(url=config_client.restapi_url(), verify=False)
+    rest_cl.secret = config_client.cluster_secret()
 
     _, response = rest_cl.organization_list()
     cloud_account_map = {}

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import os
 import time
-from pymongo import MongoClient, UpdateOne
 from datetime import datetime
 from threading import Thread
+from pymongo import MongoClient, UpdateOne
 from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu import Connection
@@ -29,9 +29,9 @@ RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
 
 
 class BookingObserverWorker(ConsumerMixin):
-    def __init__(self, connection, config_cl):
+    def __init__(self, connection, config_client):
         self.connection = connection
-        self.config_cl = config_cl
+        self.config_cl = config_client
         self._rest_cl = None
         self.running = True
         self.thread = Thread(target=self.heartbeat)
@@ -78,7 +78,7 @@ class BookingObserverWorker(ConsumerMixin):
             start_date = observe.get('observe_time', 0)
         except StopIteration:
             start_date = 0
-        LOG.info('Last observe time for %s: %s' % (organization_id, start_date))
+        LOG.info('Last observe time for %s: %s', organization_id, start_date)
         return start_date
 
     def _update_observe_time(self, observe_time, org_id):
@@ -113,8 +113,7 @@ class BookingObserverWorker(ConsumerMixin):
                     })
         self._publish_activities_tasks(tasks)
         self._update_observe_time(observe_time, organization_id)
-        LOG.info('%s tasks published for org: %s' % (len(tasks),
-                                                     organization_id))
+        LOG.info('%s tasks published for org: %s', len(tasks), organization_id)
 
     def _publish_activities_tasks(self, tasks):
         queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(

@@ -23,9 +23,9 @@ LOG = get_logger(__name__)
 
 
 class LiveDemoGenerator(ConsumerMixin):
-    def __init__(self, connection, config_cl):
+    def __init__(self, connection, config_client):
         self.connection = connection
-        self.config_cl = config_cl
+        self.config_cl = config_client
         self._rest_cl = None
         self.running = True
         self.thread = Thread(target=self.heartbeat)
@@ -70,8 +70,8 @@ class LiveDemoGenerator(ConsumerMixin):
         _, response = self.rest_cl.live_demo_create()
         response['created_at'] = int(d_start.timestamp())
         self.mongo_cl.restapi.live_demos.insert_one(response)
-        LOG.info('Live demo generated in %s seconds' % (
-            datetime.utcnow() - d_start).total_seconds())
+        LOG.info('Live demo generated in %s seconds',
+                 (datetime.utcnow() - d_start).total_seconds())
 
 
 if __name__ == '__main__':

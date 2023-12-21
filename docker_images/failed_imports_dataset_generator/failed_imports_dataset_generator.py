@@ -1,13 +1,13 @@
-import boto3
 import csv
 import json
 import logging
 import os
-from optscale_client.config_client.client import Client as ConfigClient
+from urllib import parse
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from urllib import parse
+import boto3
+from optscale_client.config_client.client import Client as ConfigClient
 
 DEFAULT_ETCD_HOST = 'etcd'
 DEFAULT_ETCD_PORT = 80
@@ -24,18 +24,16 @@ HEADERS = [
 TAGS = {"public": "yes"}
 
 
-def _get_session_to_auth_db(config_cl):
-    user, password, host, db_name = config_cl.auth_db_params()
-    auth_url = 'mysql+mysqlconnector://%s:%s@%s/%s?charset=utf8mb4' % (
-        user, password, host, db_name)
+def _get_session_to_auth_db(config_client):
+    user, password, host, db_name = config_client.auth_db_params()
+    auth_url = f'mysql+mysqlconnector://{user}:{password}@{host}/{db_name}?charset=utf8mb4'
     engine = create_engine(auth_url, encoding='utf-8')
     return sessionmaker(bind=engine)()
 
 
-def _get_session_to_my_db(config_cl):
-    user, password, host, db_name = config_cl.rest_db_params()
-    mydb_url = 'mysql+mysqlconnector://%s:%s@%s/%s?charset=utf8mb4' % (
-        user, password, host, db_name)
+def _get_session_to_my_db(config_client):
+    user, password, host, db_name = config_client.rest_db_params()
+    mydb_url = f'mysql+mysqlconnector://{user}:{password}@{host}/{db_name}?charset=utf8mb4'
     engine = create_engine(mydb_url, encoding='utf-8')
     return sessionmaker(bind=engine)()
 
@@ -49,10 +47,10 @@ def _get_aws_s3_session(access_key, secret_key):
 
 
 def _upload(s3_client, bucket, path, filename):
-    LOG.info(f"Uploading to S3: {filename}")
+    LOG.info("Uploading to S3: %s", filename)
     s3_client.upload_file(filename, bucket, os.path.join(path, filename),
                           ExtraArgs={"Tagging": parse.urlencode(TAGS)})
-    LOG.info(f"Uploaded to S3: {filename}")
+    LOG.info("Uploaded to S3: %s", filename)
     manifest_file_name = f"manifest.yaml"
     manifest = {
         "fileLocations": [
@@ -129,7 +127,7 @@ def _get_failed_cloud_accounts(mydb):
     return result
 
 
-def _get_last_employee_info(auth_db, organization_ids, config_cl):
+def _get_last_employee_info(auth_db, organization_ids, config_client):
     query = f"""
         SELECT assignment_t.resource_id, token_t.created_at, user_t.email
         FROM (
@@ -155,7 +153,7 @@ def _get_last_employee_info(auth_db, organization_ids, config_cl):
         """
     query_result = auth_db.execute(query)
     result = {}
-    blacklist = domain_blacklist(config_cl)
+    blacklist = domain_blacklist(config_client)
     for r in query_result:
         r_id, dt, email = r
         if any(filter(lambda x: x in email, blacklist)):
@@ -174,8 +172,8 @@ def domain_blacklist(_config):
         return []
 
 
-def main(config_cl):
-    params = config_cl.read_branch('/failed_imports_dataset_generator')
+def main(config_client):
+    params = config_client.read_branch('/failed_imports_dataset_generator')
     if params.get('enable') == "False":
         return
     aws_access_key = params['aws_access_key_id']
@@ -183,12 +181,12 @@ def main(config_cl):
     bucket = params['bucket']
     s3_path = params.get('s3_path', '')
     filename = params['filename']
-    auth_cl = _get_session_to_auth_db(config_cl)
-    mydb_cl = _get_session_to_my_db(config_cl)
+    auth_cl = _get_session_to_auth_db(config_client)
+    mydb_cl = _get_session_to_my_db(config_client)
     result = _get_failed_cloud_accounts(mydb_cl)
     organization_ids = list(map(lambda x: x[6], result))
     employee_info = _get_last_employee_info(
-        auth_cl, organization_ids, config_cl)
+        auth_cl, organization_ids, config_client)
     for r in result:
         r.extend(employee_info.get(r[6], [None, None]))
     with open(filename, 'w') as f:
@@ -196,12 +194,12 @@ def main(config_cl):
         csv_writer.writerow(HEADERS)
         for r in result:
             csv_writer.writerow(r)
-    LOG.info(f'Dataset file {filename} was generated. '
-             f'Will upload to s3 bucket {bucket}')
+    LOG.info('Dataset file %s was generated. Will upload to s3 bucket %s',
+             filename, bucket)
 
     s3_client = _get_aws_s3_session(aws_access_key, aws_secret_key)
     _upload(s3_client, bucket, s3_path, filename)
-    LOG.info("Finished processing. Rows count: %s" % len(result))
+    LOG.info("Finished processing. Rows count: %s", len(result))
 
 
 if __name__ == "__main__":

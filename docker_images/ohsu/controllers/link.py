@@ -4,13 +4,13 @@ import socket
 import subprocess
 import time
 from datetime import datetime
+from requests.exceptions import HTTPError
 from docker_images.ohsu.controllers.base import BaseController
 from docker_images.ohsu.controllers.base_async import BaseAsyncControllerWrapper
 from docker_images.ohsu.exceptions import Err
 from tools.optscale_exceptions.common_exc import (
     NotFoundException, WrongArgumentsException)
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
-from requests.exceptions import HTTPError
 
 
 LOG = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class SHSLinkController(BaseController):
     def _remove_file(filepath):
         if os.path.exists(filepath):
             os.remove(filepath)
-        LOG.info(f'SHS config {filepath} was removed')
+        LOG.info('SHS config %s was removed', filepath)
 
     @staticmethod
     def _get_shs_port(organization_id):
@@ -95,8 +95,8 @@ class SHSLinkController(BaseController):
                 '--properties-file', f'{config_file_path}'],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, error = result.communicate()
-            LOG.debug(f'Output: {output}')
-            LOG.debug(f'Error: {error}')
+            LOG.debug('Output: %s', output)
+            LOG.debug('Error: %s', error)
             if error:
                 raise SHSStartException(
                     f'Error staring history server: {error}')
@@ -121,7 +121,7 @@ class SHSLinkController(BaseController):
         if not shs_port:
             raise Exception('Spark History Server port not found')
         link = f'http://{public_ip}:{shs_port}/history/{app_id}/jobs'
-        LOG.info(f'link: {link}')
+        LOG.info('link: %s', link)
         return {'link': link}
 
     def _check_organization(self, organization_id):
@@ -151,8 +151,8 @@ class SHSLinkController(BaseController):
                 SPARK_DAEMON_CMD, 'stop', SHS_CLASS, organization_id],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, error = result.communicate()
-            LOG.debug(f'Output: {output}')
-            LOG.debug(f'Error: {error}')
+            LOG.debug('Output: %s', output)
+            LOG.debug('Error: %s', error)
 
             shs_config = SHS_CONF_DIR + organization_id
             self._remove_file(shs_config)
@@ -162,8 +162,8 @@ class SHSLinkController(BaseController):
                 organization_id, hostname)
             self._remove_file(shs_log)
         else:
-            LOG.warning(f'SHS process for organization {organization_id} is '
-                        f'already dead')
+            LOG.warning('SHS process for organization %s is already dead',
+                        organization_id)
 
 
 class SHSLinkAsyncController(BaseAsyncControllerWrapper):
