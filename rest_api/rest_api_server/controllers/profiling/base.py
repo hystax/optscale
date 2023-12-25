@@ -19,6 +19,29 @@ def format_cloud_account(cloud_account: CloudAccount) -> dict:
     }
 
 
+def format_application(application: dict):
+    if application is None:
+        return {}
+    return {
+        'id': application['_id'],
+        'name': application['name'],
+        'deleted': application['deleted_at'] != 0
+    }
+
+
+def format_dataset(dataset: dict) -> dict:
+    return {
+        'id': dataset.get('id') or dataset.get('_id'),
+        'name': dataset['name'],
+        'deleted': dataset['deleted_at'] != 0,
+        'path': dataset['path'],
+        'labels': dataset['labels'],
+        'training_set': dataset['training_set'],
+        'validation_set': dataset['validation_set'],
+        'description': dataset.get('description')
+    }
+
+
 class ArceeObject:
     INNER_OBJECTS = {}
     REMOVE_KEYS = ['token']
@@ -201,6 +224,14 @@ class BaseProfilingController(BaseProfilingTokenController):
         return response
 
     @handle_http_exc
+    def bulk_get_applications(self, profiling_token, application_ids,
+                              include_deleted=False):
+        arcee = self.get_arcee_client(profiling_token)
+        _, applications = arcee.applications_bulk_get(
+            application_ids, include_deleted)
+        return applications
+
+    @handle_http_exc
     def update_application(self, profiling_token, application_id, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
         _, updated_app = arcee.application_update(application_id, **kwargs)
@@ -318,3 +349,140 @@ class BaseProfilingController(BaseProfilingTokenController):
                 stages_result[i]['end'] = run['finish']
             ArceeObject.format(stages_result[i])
         return stages_result
+
+    @handle_http_exc
+    def get_leaderboard(self, profiling_token, application_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard = arcee.leaderboard_get(application_id)
+        ArceeObject.format(leaderboard)
+        return leaderboard
+
+    @handle_http_exc
+    def create_leaderboard(self, profiling_token, application_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard = arcee.leaderboards_create(application_id, **kwargs)
+        ArceeObject.format(leaderboard)
+        return leaderboard
+
+    @handle_http_exc
+    def create_leaderboard_dataset(self, profiling_token, leaderboard_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard = arcee.leaderboard_dataset_create(leaderboard_id, **kwargs)
+        ArceeObject.format(leaderboard)
+        return leaderboard
+
+    @handle_http_exc
+    def update_leaderboard_dataset(self, profiling_token, leaderboard_dataset_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard_dataset = arcee.leaderboard_dataset_update(leaderboard_dataset_id, **kwargs)
+        ArceeObject.format(leaderboard_dataset)
+        return leaderboard_dataset
+
+    @handle_http_exc
+    def list_leaderboard_dataset(self, profiling_token, leaderboard_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard_datasets = arcee.leaderboard_datasets_get(leaderboard_id, **kwargs)
+        for leaderboard_dataset in leaderboard_datasets:
+            ArceeObject.format(leaderboard_dataset)
+        return leaderboard_datasets
+
+    @handle_http_exc
+    def get_leaderboard_dataset(self, profiling_token, leaderboard_dataset_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard_dataset = arcee.leaderboard_dataset_get(leaderboard_dataset_id)
+        ArceeObject.format(leaderboard_dataset)
+        return leaderboard_dataset
+
+    @handle_http_exc
+    def delete_leaderboard_dataset(self, profiling_token, leaderboard_dataset_id):
+        arcee = self.get_arcee_client(profiling_token)
+        arcee.leaderboard_dataset_delete(leaderboard_dataset_id)
+
+    @handle_http_exc
+    def update_leaderboard(self, profiling_token, application_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, updated = arcee.leaderboard_update(application_id, **kwargs)
+        return updated
+
+    @handle_http_exc
+    def delete_leaderboard(self, profiling_token, application_id):
+        arcee = self.get_arcee_client(profiling_token)
+        arcee.leaderboard_delete(application_id)
+
+    @handle_http_exc
+    def get_leaderboard_details(self, profiling_token, application_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard = arcee.leaderboard_details_get(application_id)
+        ArceeObject.format(leaderboard)
+        return leaderboard
+
+    @handle_http_exc
+    def get_leaderboard_dataset_details(self, profiling_token, leaderboard_dataset_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard_dataset_details = arcee.leaderboard_dataset_details(leaderboard_dataset_id)
+        for i in leaderboard_dataset_details:
+            ArceeObject.format(i)
+        return leaderboard_dataset_details
+
+    @handle_http_exc
+    def generate_leaderboard(self, profiling_token, leaderboard_dataset_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard = arcee.leaderboard_generate(leaderboard_dataset_id)
+        return leaderboard
+
+    @handle_http_exc
+    def bulk_gen_runs(self, profiling_token, application_id, run_ids):
+        arcee = self.get_arcee_client(profiling_token)
+        _, runs = arcee.runs_bulk_get_by_ids(application_id, run_ids)
+        return runs
+
+    @handle_http_exc
+    def get_dataset(self, profiling_token, dataset_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, dataset = arcee.dataset_get(dataset_id)
+        ArceeObject.format(dataset)
+        return dataset
+
+    @handle_http_exc
+    def list_datasets(self, profiling_token, include_deleted=False):
+        arcee = self.get_arcee_client(profiling_token)
+        _, response = arcee.dataset_list(include_deleted)
+        for r in response:
+            ArceeObject.format(r)
+        return response
+
+    @handle_http_exc
+    def create_dataset(self, profiling_token, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, dataset = arcee.dataset_create(**kwargs)
+        ArceeObject.format(dataset)
+        return dataset
+
+    @handle_http_exc
+    def update_dataset(self, profiling_token, dataset_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, dataset = arcee.dataset_update(dataset_id, **kwargs)
+        return dataset
+
+    @handle_http_exc
+    def delete_dataset(self, profiling_token, dataset_id):
+        arcee = self.get_arcee_client(profiling_token)
+        arcee.dataset_delete(dataset_id)
+
+    @handle_http_exc
+    def list_labels(self, profiling_token):
+        arcee = self.get_arcee_client(profiling_token)
+        _, labels = arcee.labels_list()
+        return labels
+
+    @handle_http_exc
+    def get_console(self, profiling_token, run_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, console = arcee.console_get(run_id)
+        return console
+
+    @handle_http_exc
+    def get_executors_breakdown(self, profiling_token):
+        arcee = self.get_arcee_client(profiling_token)
+        _, breakdown = arcee.executors_breakdown_get()
+        return breakdown

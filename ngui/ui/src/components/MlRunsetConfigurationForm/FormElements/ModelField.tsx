@@ -5,7 +5,7 @@ import SelectorLoader from "components/SelectorLoader";
 
 export const FIELD_NAME = "model";
 
-const LABEL_ID = "model";
+const LABEL_ID = "task";
 
 const ModelField = ({ models, isLoading }) => {
   const intl = useIntl();
@@ -30,7 +30,7 @@ const ModelField = ({ models, isLoading }) => {
           <SelectorLoader readOnly fullWidth labelId={LABEL_ID} isRequired />
         ) : (
           <Selector
-            dataTestId="selector_models"
+            dataTestId="selector_tasks"
             fullWidth
             required
             error={!!errors[FIELD_NAME]}

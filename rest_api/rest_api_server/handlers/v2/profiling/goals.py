@@ -439,6 +439,10 @@ class GoalsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 description: |
                     Not found:
                     - OE0002: Object not found
+            409:
+                description: |
+                    Conflict:
+                    - OE0554: Goal used in leaderboard(s)
         security:
         - token: []
         """

@@ -16,20 +16,29 @@ import Tooltip from "components/Tooltip";
 import { capitalize } from "utils/strings";
 import useStyles from "./Selector.styles";
 
-const renderMenuItemIcon = (item, iconDefinition) => {
-  const { component: IconComponent = Icon, getComponentProps = {} } = iconDefinition;
-  return <IconComponent color="inherit" hasRightMargin {...getComponentProps(item)} />;
+const MenuItemWithIcon = ({ item, menuItemIcon }) => {
+  const { placement = "start", component: IconComponent = Icon, getComponentProps = {} } = menuItemIcon;
+
+  const icon = (
+    <IconComponent
+      color="inherit"
+      hasRightMargin={placement === "start"}
+      hasLeftMargin={placement === "end"}
+      {...getComponentProps(item)}
+    />
+  );
+
+  return (
+    <Box display="flex" alignItems="center">
+      {placement === "start" && icon}
+      {item.name}
+      {placement === "end" && icon}
+    </Box>
+  );
 };
 
-const renderMenuItemContent = (item, menuItemIcon) =>
-  menuItemIcon ? (
-    <>
-      {renderMenuItemIcon(item, menuItemIcon)}
-      {item?.name}
-    </>
-  ) : (
-    item?.name
-  );
+const MenuItemContent = ({ item, menuItemIcon }) =>
+  menuItemIcon ? <MenuItemWithIcon item={item} menuItemIcon={menuItemIcon} /> : item.name;
 
 const Selector = forwardRef(
   (
@@ -142,7 +151,7 @@ const Selector = forwardRef(
 
       return (
         <MenuItem key={menuItemProps.key} {...menuItemProps}>
-          {renderMenuItemContent(item, menuItemIcon)}
+          <MenuItemContent item={item} menuItemIcon={menuItemIcon} />
         </MenuItem>
       );
     });
@@ -180,7 +189,7 @@ const Selector = forwardRef(
               required={required}
               InputProps={{
                 readOnly: true,
-                startAdornment: menuItemIcon ? renderMenuItemIcon(readOnlyValue, menuItemIcon) : null
+                startAdornment: menuItemIcon ? <MenuItemWithIcon item={readOnlyValue} menuItemIcon={menuItemIcon} /> : null
               }}
               value={readOnlyValue?.name}
             />

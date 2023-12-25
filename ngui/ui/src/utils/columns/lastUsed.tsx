@@ -6,7 +6,7 @@ import { unixTimestampToDateTime } from "utils/datetime";
 const lastUsed = ({
   id = "last_used",
   headerDataTestId = "last_used_label",
-  titleMessageId = "lastUser",
+  titleMessageId = "lastUsed",
   accessorKey = "last_used",
   accessorFn,
   defaultSort

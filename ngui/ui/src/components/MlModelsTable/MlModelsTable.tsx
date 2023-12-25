@@ -12,7 +12,7 @@ import MlRunStatus from "components/MlRunStatus";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useIntervalTimeAgo } from "hooks/useIntervalTimeAgo";
-import { getMlModelDetailsUrl, ML_MODEL_CREATE } from "urls";
+import { getMlModelDetailsUrl, ML_TASK_CREATE } from "urls";
 import { duration, goals as goalsColumn } from "utils/columns";
 import { SPACING_1 } from "utils/layouts";
 import { getModelsGoalsKeyNameEntries, getFirstGoalEntryKey } from "utils/ml";
@@ -78,7 +78,7 @@ const MlModelsTable = ({ models, filterValues, appliedFilters, onFilterChange })
       },
       {
         header: (
-          <TextWithDataTestId dataTestId="lbl_last_run">
+          <TextWithDataTestId dataTestId="lbl_last_model">
             <FormattedMessage id="lastRun" />
           </TextWithDataTestId>
         ),
@@ -86,7 +86,7 @@ const MlModelsTable = ({ models, filterValues, appliedFilters, onFilterChange })
         columnSelector: {
           accessor: "lastRun",
           messageId: "lastRun",
-          dataTestId: "btn_toggle_column_last_run"
+          dataTestId: "btn_toggle_column_last_model"
         },
         cell: ({ row: { original } }) =>
           original.last_run === 0 ? (
@@ -97,20 +97,20 @@ const MlModelsTable = ({ models, filterValues, appliedFilters, onFilterChange })
       },
       duration({
         headerMessageId: "lastRunDuration",
-        headerDataTestId: "lbl_last_run_duration",
+        headerDataTestId: "lbl_last_model_duration",
         accessorKey: "last_run_duration",
         options: {
           columnSelector: {
             accessor: "lastRunDuration",
             messageId: "lastRunDuration",
-            dataTestId: "btn_toggle_column_last_run_durations"
+            dataTestId: "btn_toggle_column_last_model_durations"
           }
         }
       }),
       goalsColumn({
         headerMessageId: "goals",
         headerDataTestId: "lbl_goals",
-        helperMessageId: "modelGoalsDescription",
+        helperMessageId: "runGoalsDescription",
         accessorKey: "last_run_reached_goals",
         onSortByGoalKeyChange: (newKey) => setSortByGoalKey(newKey),
         goalsKeyNameEntries,
@@ -163,7 +163,7 @@ const MlModelsTable = ({ models, filterValues, appliedFilters, onFilterChange })
           variant: "contained",
           type: "button",
           dataTestId: "btn-create-model",
-          link: ML_MODEL_CREATE,
+          link: ML_TASK_CREATE,
           requiredActions: ["EDIT_PARTNER"]
         }
       ]
@@ -183,9 +183,9 @@ const MlModelsTable = ({ models, filterValues, appliedFilters, onFilterChange })
             actionBar={tableActionBarDefinition}
             withSearch
             localization={{
-              emptyMessageId: "noModels"
+              emptyMessageId: "noTasks"
             }}
-            columnsSelectorUID="mlModelsTable"
+            columnsSelectorUID="mlTasksTable"
             pageSize={50}
           />
         </div>

@@ -82,50 +82,9 @@ class ExecutorController(BaseProfilingController, MongoMixin):
                 })
         return resources
 
-    def breakdown_get(self, breakdown_by, profiling_token):
-        breakdowns_map = {
-            'executors_count': lambda x: x['instance_id'],
-            'cpu': lambda x: x.get(
-                'proc_stats', {}).get('ps_stats', {}).get('cpu_percent', 0),
-            'ram': lambda x: x.get(
-                'proc_stats', {}).get('ps_stats', {}).get('used_ram_mb', 0),
-            'process_cpu': lambda x: x.get(
-                'proc_stats', {}).get('proc', {}).get('cpu', 0),
-            'process_ram': lambda x: x.get(
-                'proc_stats', {}).get('proc', {}).get('mem', {}).get(
-                'vms', {}).get('t', 0) / BYTES_IN_MB,
-            'gpu_load': lambda x: x.get(
-                'proc_stats', {}).get('gpu_stats', {}).get('avg_gpu_load', 0),
-            'gpu_memory_free': lambda x: x.get('proc_stats', {}).get(
-                'gpu_stats', {}).get('avg_gpu_memory_free', 0),
-            'gpu_memory_total': lambda x: x.get('proc_stats', {}).get(
-                'gpu_stats', {}).get('avg_gpu_memory_total', 0),
-            'gpu_memory_used': lambda x: x.get('proc_stats', {}).get(
-                'gpu_stats', {}).get('avg_gpu_memory_used', 0),
-        }
-        applications = self.list_applications(profiling_token)
-        result = defaultdict(list)
-        for app in applications:
-            try:
-                runs = self.list_application_runs(profiling_token, app['id'])
-                for run in runs:
-                    proc_data = self.list_proc_data(profiling_token, run['id'])
-                    for p in proc_data:
-                        dt = datetime.fromtimestamp(p['timestamp']).replace(
-                            hour=0, minute=0, second=0, microsecond=0,
-                            tzinfo=timezone.utc)
-                        result[dt].append(breakdowns_map[breakdown_by](p))
-            except HTTPError:
-                continue
-        breakdown = {}
-        for dt, values in result.items():
-            if breakdown_by == 'executors_count':
-                breakdown[int(dt.timestamp())] = len(set(values))
-            else:
-                breakdown[int(dt.timestamp())] = sum(values) / len(values)
+    def breakdown_get(self, profiling_token):
         return {
-            'breakdown': breakdown,
-            'breakdown_by': breakdown_by
+            'breakdown': self.get_executors_breakdown(profiling_token)
         }
 
 

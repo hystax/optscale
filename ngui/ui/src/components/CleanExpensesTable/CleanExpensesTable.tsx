@@ -316,43 +316,41 @@ const CleanExpensesTable = ({
   };
 
   return (
-    <>
-      <Table
-        data={tableData}
-        columns={columns}
-        pageSize={50}
-        withSelection
-        memoBodyCells
-        rowSelection={rowSelection}
-        onRowSelectionChange={setRowSelection}
-        actionBar={{
-          show: true,
-          definition: {
-            items: getActionBarItems()
-          }
-        }}
-        getRowId={(row) => row.resource_id}
-        withSearch
-        columnsSelectorUID={disableColumnsSelection ? "" : "cleanExpensesTable"}
-        localization={{ emptyMessageId: "noResources" }}
-        queryParamPrefix={CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX}
-        counters={{ showCounters: true, hideTotal: true }}
-        dataTestIds={{
-          infoArea: {
-            displayed: "counter_displayed",
-            selected: "counter_selected"
-          },
-          searchInput: "input_search",
-          searchButton: "btn_search",
-          deleteSearchButton: "btn_delete_search",
-          columnsSelector: {
-            container: "list_columns",
-            button: "btn_columns",
-            clear: "btn_select_clear_all"
-          }
-        }}
-      />
-    </>
+    <Table
+      data={tableData}
+      columns={columns}
+      pageSize={50}
+      withSelection
+      memoBodyCells
+      rowSelection={rowSelection}
+      onRowSelectionChange={setRowSelection}
+      actionBar={{
+        show: true,
+        definition: {
+          items: getActionBarItems()
+        }
+      }}
+      getRowId={(row) => row.resource_id}
+      withSearch
+      columnsSelectorUID={disableColumnsSelection ? "" : "cleanExpensesTable"}
+      localization={{ emptyMessageId: "noResources" }}
+      queryParamPrefix={CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX}
+      counters={{ showCounters: true, hideTotal: true }}
+      dataTestIds={{
+        infoArea: {
+          displayed: "counter_displayed",
+          selected: "counter_selected"
+        },
+        searchInput: "input_search",
+        searchButton: "btn_search",
+        deleteSearchButton: "btn_delete_search",
+        columnsSelector: {
+          container: "list_columns",
+          button: "btn_columns",
+          clear: "btn_select_clear_all"
+        }
+      }}
+    />
   );
 };
 

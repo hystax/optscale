@@ -15,19 +15,19 @@ import TableCellActions from "components/TableCellActions";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
-import { ML_MODELS_PARAMETER_CREATE, getEditModelParameterUrl, ML_MODELS } from "urls";
+import { ML_TASK_PARAMETER_CREATE, getEditModelParameterUrl, ML_TASKS } from "urls";
 import { goalValue, name, tendency, text } from "utils/columns";
 import aggregateFunction from "utils/columns/aggregateFunction";
 import { SPACING_2 } from "utils/layouts";
 
 const actionBarDefinition = {
   breadcrumbs: [
-    <Link key={1} to={ML_MODELS} component={RouterLink}>
-      <FormattedMessage id="models" />
+    <Link key={1} to={ML_TASKS} component={RouterLink}>
+      <FormattedMessage id="tasks" />
     </Link>
   ],
   title: {
-    messageId: "mlParametersLibraryTitle",
+    messageId: "mlMetricsLibraryTitle",
     dataTestId: "lbl_ml_global_parameters"
   }
 };
@@ -41,7 +41,7 @@ const tableActionBarDefinition = {
       color: "success",
       variant: "contained",
       type: "button",
-      link: ML_MODELS_PARAMETER_CREATE,
+      link: ML_TASK_PARAMETER_CREATE,
       requiredActions: ["EDIT_PARTNER"],
       dataTestId: "btn_add"
     }
@@ -125,13 +125,13 @@ const MlModelGlobalParameters = ({ parameters, isLoading }) => {
                 definition: tableActionBarDefinition
               }}
               localization={{
-                emptyMessageId: "noParameters"
+                emptyMessageId: "noMetrics"
               }}
               pageSize={50}
             />
           </div>
           <div>
-            <InlineSeverityAlert messageId="mlGlobalParametersDescription" />
+            <InlineSeverityAlert messageId="mlGlobalMetricsDescription" />
           </div>
         </Stack>
       </PageContentWrapper>

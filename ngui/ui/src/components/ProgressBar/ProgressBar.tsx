@@ -5,10 +5,10 @@ import Tooltip from "components/Tooltip";
 import { capitalize } from "utils/strings";
 import useStyles from "./ProgressBar.styles";
 
-const ProgressBar = ({ children, value, color = "primary", tooltip = {}, wrapperSx }) => {
-  const { classes, cx } = useStyles();
+const ProgressBar = ({ children, height = "2rem", value, color = "primary", tooltip, wrapperSx }) => {
+  const { classes, cx } = useStyles({ height });
 
-  const { show: showTooltip = false, value: tooltipValue = "", messageId = "", placement = "top" } = tooltip;
+  const { show: showTooltip = false, value: tooltipValue = "", messageId = "", placement = "top" } = tooltip ?? {};
 
   const renderProgress = () => (
     <Box className={classes.wrapper} sx={wrapperSx}>

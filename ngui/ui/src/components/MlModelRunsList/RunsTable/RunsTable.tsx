@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
 import CollapsableTableCell from "components/CollapsableTableCell";
 import { useMoneyFormatter } from "components/FormattedMoney";
@@ -12,7 +12,7 @@ import MlRunStatusHeaderCell from "components/MlRunStatusHeaderCell";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { getMlModelRunUrl, getMlRunsetDetailsUrl } from "urls";
-import { duration, goals, startedAt } from "utils/columns";
+import { duration, goals, startedAt, hyperparameters, dataset } from "utils/columns";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 import { formatRunFullName, getFirstGoalEntryKey, getRunsGoalsKeyNameEntries } from "utils/ml";
 import { isEmpty as isEmptyObject } from "utils/objects";
@@ -20,8 +20,6 @@ import { CELL_EMPTY_VALUE } from "utils/tables";
 
 const RunsTable = ({ runs }) => {
   const theme = useTheme();
-
-  const { modelId } = useParams();
 
   const formatMoney = useMoneyFormatter();
 
@@ -39,7 +37,7 @@ const RunsTable = ({ runs }) => {
         accessorFn: ({ number, name }) => getNameString({ number, name }),
         defaultSort: "desc",
         sortingFn: "alphanumeric",
-        globalFilterFn: (runName, filterValue, { row }) => {
+        searchFn: (runName, filterValue, { row }) => {
           const search = filterValue.toLocaleLowerCase();
 
           const {
@@ -49,7 +47,7 @@ const RunsTable = ({ runs }) => {
           return [runName, runsetName].some((str) => str.toLocaleLowerCase().includes(search));
         },
         cell: ({ cell, row: { original } }) => {
-          const { id, runset } = original;
+          const { id: runId, runset, application_id: applicationId } = original;
 
           return (
             <CaptionedCell
@@ -76,7 +74,7 @@ const RunsTable = ({ runs }) => {
                   : null
               }
             >
-              <Link to={getMlModelRunUrl(modelId, id)} component={RouterLink}>
+              <Link to={getMlModelRunUrl(applicationId, runId)} component={RouterLink}>
                 {cell.getValue()}
               </Link>
             </CaptionedCell>
@@ -101,6 +99,11 @@ const RunsTable = ({ runs }) => {
         goalsKeyNameEntries,
         sortByGoalKey
       }),
+      dataset({
+        id: "dataset",
+        accessorFn: (originalRow) => originalRow.dataset?.name
+      }),
+      hyperparameters(),
       {
         header: (
           <TextWithDataTestId dataTestId="lbl_expenses">
@@ -146,7 +149,7 @@ const RunsTable = ({ runs }) => {
         }
       })
     ];
-  }, [modelId, formatMoney, goalsKeyNameEntries, sortByGoalKey]);
+  }, [formatMoney, goalsKeyNameEntries, sortByGoalKey]);
 
   const tableData = useMemo(() => runs, [runs]);
 

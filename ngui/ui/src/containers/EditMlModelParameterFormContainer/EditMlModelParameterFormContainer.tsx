@@ -2,20 +2,20 @@ import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MlModelParameterForm, { ML_MODEL_PARAMETER_FORM_FIELD_NAMES } from "components/MlModelParameterForm";
 import MlModelsService from "services/MlModelsService";
-import { ML_MODELS_PARAMETERS } from "urls";
+import { ML_TASK_PARAMETERS } from "urls";
 
 const EditMlModelParameterFormContainer = () => {
   const navigate = useNavigate();
 
-  const { parameterId } = useParams();
+  const { metricId } = useParams();
 
   const { useAlwaysGetGlobalParameter, useUpdateGlobalParameter } = MlModelsService();
 
-  const { isLoading: isGetGlobalParameterLoading, parameter } = useAlwaysGetGlobalParameter(parameterId);
+  const { isLoading: isGetGlobalParameterLoading, parameter } = useAlwaysGetGlobalParameter(metricId);
 
-  const { onUpdate, isLoading: isUpdateGlobalParameterLoading } = useUpdateGlobalParameter(parameterId);
+  const { onUpdate, isLoading: isUpdateGlobalParameterLoading } = useUpdateGlobalParameter(metricId);
 
-  const redirect = () => navigate(ML_MODELS_PARAMETERS);
+  const redirect = () => navigate(ML_TASK_PARAMETERS);
 
   const onSubmit = (formData) => {
     onUpdate(formData).then(() => {

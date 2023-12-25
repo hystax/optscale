@@ -5,30 +5,33 @@ import ActionBar from "components/ActionBar";
 import PageContentWrapper from "components/PageContentWrapper";
 import TabsWrapper from "components/TabsWrapper";
 import MlEditModelFormContainer from "containers/MlEditModelFormContainer";
+import MlEditModelLeaderboardContainer from "containers/MlEditModelLeaderboardContainer";
 import MlEditModelParametersContainer from "containers/MlEditModelParametersContainer";
-import { ML_MODELS, getMlModelDetailsUrl } from "urls";
+import { ML_TASKS, getMlModelDetailsUrl } from "urls";
+import { isEmpty as isEmptyObject } from "utils/objects";
 
 const SETTING_TABS = Object.freeze({
   COMMON: "common",
-  PARAMETERS: "parameters"
+  PARAMETERS: "metrics",
+  LEADERBOARDS: "leaderboards"
 });
 
-const MlEditModel = ({ model, isLoading = false }) => {
+const MlEditModel = ({ leaderboard, model, isLoading = false }) => {
   const { id, name } = model;
 
   const actionBarDefinition = {
     breadcrumbs: [
-      <Link key={1} to={ML_MODELS} component={RouterLink}>
-        <FormattedMessage id="models" />
+      <Link key={1} to={ML_TASKS} component={RouterLink}>
+        <FormattedMessage id="tasks" />
       </Link>,
       <Link key={2} to={getMlModelDetailsUrl(id)} component={RouterLink}>
         {name}
       </Link>
     ],
     title: {
-      messageId: "editModelTitle",
+      messageId: "editTaskTitle",
       isLoading,
-      dataTestId: "lbl_edit_model"
+      dataTestId: "lbl_edit_task"
     }
   };
 
@@ -40,9 +43,18 @@ const MlEditModel = ({ model, isLoading = false }) => {
     },
     {
       title: SETTING_TABS.PARAMETERS,
-      dataTestId: "tab_parameters",
+      dataTestId: "tab_metrics",
       node: <MlEditModelParametersContainer modelParameters={model.goals ?? []} />
-    }
+    },
+    ...(!isEmptyObject(leaderboard)
+      ? [
+          {
+            title: SETTING_TABS.LEADERBOARDS,
+            dataTestId: "tab_leaderboard",
+            node: <MlEditModelLeaderboardContainer leaderboard={leaderboard} task={model} />
+          }
+        ]
+      : [])
   ];
 
   return (

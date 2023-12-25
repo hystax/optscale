@@ -16,14 +16,14 @@ const MlEditModelParametersContainer = ({ modelParameters }) => {
     return parameters;
   };
 
-  const { modelId } = useParams();
+  const { taskId } = useParams();
   const { useUpdateModel, useGetGlobalParameters } = MlModelsService();
 
   const { isLoading: isGetGlobalParametersLoading, parameters: globalParameters } = useGetGlobalParameters();
   const { onUpdate, isLoading: isUpdateLoading } = useUpdateModel();
 
   const onAttachChange = (formData) => {
-    onUpdate(modelId, formData);
+    onUpdate(taskId, formData);
   };
 
   return (

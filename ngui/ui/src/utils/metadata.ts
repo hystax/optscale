@@ -1,4 +1,5 @@
-import { IEC_UNITS, useFormatDigitalUnit } from "components/FormattedDigitalUnit";
+import { IEC_UNITS } from "components/FormattedDigitalUnit";
+import { formatDigitalUnit } from "components/FormattedDigitalUnit/FormattedDigitalUnit";
 import { intl } from "translations/react-intl-config";
 import { METADATA_FIELDS } from "utils/constants";
 import { EN_FORMAT, formatUTC } from "utils/datetime";
@@ -47,7 +48,6 @@ export const MetadataNodes = ({
     platform_id: platformId
   } = {}
 }) => {
-  const formatDigitalUnit = useFormatDigitalUnit();
   const captionSettings = [
     { value: firstSeen, messageId: METADATA_FIELDS.FIRST_SEEN },
     { value: lastSeen, messageId: METADATA_FIELDS.LAST_SEEN },

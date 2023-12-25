@@ -34,7 +34,7 @@ class ConfigTemplate(object):
             config.write(fh)
 
 
-def execute(cmd, path='..'):
+def execute(cmd, path='../..'):
     LOG.debug('Executing command %s', ' '.join(cmd))
     myenv = os.environ.copy()
     myenv['PYTHONPATH'] = path

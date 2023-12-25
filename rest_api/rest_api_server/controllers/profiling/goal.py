@@ -48,6 +48,8 @@ class GoalController(BaseProfilingController):
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, ['Goal', id])
+            if ex.response.status_code == 409:
+                raise ConflictException(Err.OE0554, [id])
             raise
 
 

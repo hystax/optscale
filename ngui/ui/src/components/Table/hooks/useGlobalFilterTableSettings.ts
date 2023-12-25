@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { getFilteredRowModel } from "@tanstack/react-table";
 import { getQueryParams, updateQueryParams } from "utils/network";
 import { getSearchQueryKey } from "utils/tables";
-import { globalFilterFn, handleChange } from "../utils";
+import { globalFilterFn } from "../utils";
 
 const addSearchToQueryParams = (searchKey, searchText) => {
   updateQueryParams({ [searchKey]: searchText });
@@ -13,14 +13,14 @@ const getInitialSearchValue = (key) => {
   return search;
 };
 
-export const useGlobalFilterTableSettings = ({ queryParamPrefix, columns, withSearch }) => {
+const useSearch = ({ withSearch, queryParamPrefix }) => {
   const searchQueryKey = getSearchQueryKey(queryParamPrefix);
 
-  const [globalFilter, setGlobalFilter] = useState(getInitialSearchValue(searchQueryKey));
+  const [search, setSearch] = useState(withSearch ? getInitialSearchValue(searchQueryKey) : "");
 
   const onSearchChange = useCallback(
     (newSearchValue, { tableContext }) => {
-      setGlobalFilter(newSearchValue);
+      setSearch(newSearchValue);
       addSearchToQueryParams(searchQueryKey, newSearchValue);
 
       tableContext.setPageIndex(0);
@@ -28,9 +28,43 @@ export const useGlobalFilterTableSettings = ({ queryParamPrefix, columns, withSe
     [searchQueryKey]
   );
 
-  if (!withSearch) {
-    return { state: {}, tableOptions: {} };
-  }
+  return {
+    search,
+    onSearchChange
+  };
+};
+
+const useRange = ({ rangeFilter }) => {
+  const [range, setRange] = useState(rangeFilter ? [rangeFilter.min, rangeFilter.max] : [-Infinity, Infinity]);
+
+  const onRangeChange = useCallback((newRange, { tableContext }) => {
+    setRange(newRange);
+    tableContext.setPageIndex(0);
+  }, []);
+
+  return {
+    range,
+    onRangeChange
+  };
+};
+
+export const useGlobalFilterTableSettings = ({ queryParamPrefix, columns, withSearch, rangeFilter }) => {
+  const { search, onSearchChange } = useSearch({
+    withSearch,
+    queryParamPrefix
+  });
+
+  const { range, onRangeChange } = useRange({
+    rangeFilter
+  });
+
+  const globalFilter = useMemo(
+    () => ({
+      search,
+      range
+    }),
+    [range, search]
+  );
 
   return {
     state: {
@@ -38,9 +72,9 @@ export const useGlobalFilterTableSettings = ({ queryParamPrefix, columns, withSe
     },
     tableOptions: {
       getFilteredRowModel: getFilteredRowModel(),
-      globalFilterFn: globalFilterFn(columns),
-      onGlobalFilterChange: handleChange(globalFilter, setGlobalFilter)
+      globalFilterFn: globalFilterFn({ columns, withSearch, rangeFilter })
     },
-    onSearchChange
+    onSearchChange,
+    onRangeChange
   };
 };

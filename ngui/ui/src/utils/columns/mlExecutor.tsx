@@ -17,13 +17,13 @@ const ExecutorInfo = ({ info, showRunInspect }) => {
   const runInfo = run
     ? [
         {
-          key: "run",
+          key: "model",
           node: (
             <div style={{ display: "flex", flexDirection: "row" }}>
-              <KeyValueLabel style={{ flexWrap: "nowrap" }} messageId="run" value={run} />
+              <KeyValueLabel style={{ flexWrap: "nowrap" }} messageId="model" value={run} />
               {showRunInspect && (
                 <Tooltip title={<FormattedMessage id="inspect" />}>
-                  <IconButton onClick={() => console.log("inspect run", run)} icon={<LoupeIcon fontSize="inherit" />} />
+                  <IconButton icon={<LoupeIcon fontSize="inherit" />} />
                 </Tooltip>
               )}
             </div>

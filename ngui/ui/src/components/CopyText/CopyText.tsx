@@ -18,7 +18,8 @@ const CopyText = ({
   normalWhitespace = false,
   Icon = FileCopyOutlinedIcon,
   copyMessageId = "copy",
-  copiedMessageId = "copied"
+  copiedMessageId = "copied",
+  sx = {}
 }) => {
   const { classes, cx } = useStyles();
 
@@ -26,10 +27,17 @@ const CopyText = ({
 
   const [titleMessageId, setTitleMessageId] = useState(copyMessageId);
 
+  const { display = "flex", alignItems = "center", ...restSx } = sx;
+
   return (
     <Typography
       component="span"
       variant={variant}
+      sx={{
+        display,
+        alignItems,
+        restSx
+      }}
       className={cx(classes.wrapper, normalWhitespace ? classes.normalWhitespace : undefined)}
       data-test-id={textDataTestId}
     >

@@ -72,17 +72,21 @@ const MlModelRunsList = ({ runs, isLoading }) => {
 
   return (
     <Stack spacing={SPACING_2}>
-      <RunsFilters
-        datePicker={
-          <LinearDatePicker selectedRange={selectedRange} onSelectedRangeChange={onSelectedRangeChange} ranges={ranges} />
-        }
-        runs={runs}
-        onChange={setAppliedFilters}
-        appliedFilters={appliedFilters}
-        isLoading={isLoading}
-      />
-      <RunsBreakdowns runs={filteredRuns} isLoading={isLoading} />
-      {isLoading ? <TableLoader columnsCounter={4} /> : <RunsTable runs={filteredRuns} />}
+      <div>
+        <RunsFilters
+          datePicker={
+            <LinearDatePicker selectedRange={selectedRange} onSelectedRangeChange={onSelectedRangeChange} ranges={ranges} />
+          }
+          runs={runs}
+          onChange={setAppliedFilters}
+          appliedFilters={appliedFilters}
+          isLoading={isLoading}
+        />
+      </div>
+      <div>
+        <RunsBreakdowns runs={filteredRuns} isLoading={isLoading} />
+      </div>
+      <div>{isLoading ? <TableLoader columnsCounter={4} /> : <RunsTable runs={filteredRuns} />}</div>
     </Stack>
   );
 };

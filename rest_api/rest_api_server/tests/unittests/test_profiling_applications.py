@@ -1,7 +1,10 @@
 import uuid
-from rest_api.rest_api_server.tests.unittests.test_profiling_base import TestProfilingBase
 from unittest.mock import patch
 from datetime import datetime
+from requests import HTTPError
+from requests.models import Response
+from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
+    TestProfilingBase)
 
 
 class TestApplicationApi(TestProfilingBase):
@@ -11,7 +14,8 @@ class TestApplicationApi(TestProfilingBase):
         _, self.org = self.client.organization_create({'name': "organization"})
         self.valid_application = {
             'name': 'My test project',
-            'key': 'test_project'
+            'key': 'test_project',
+            'description': 'Test description'
         }
         auth_user = str(uuid.uuid4())
         _, self.employee = self.client.employee_create(
@@ -173,6 +177,36 @@ class TestApplicationApi(TestProfilingBase):
         for g in [goal_2['id'], goal_3['id'], goal_4['id']]:
             self.assertTrue(g in list(map(lambda x: x['id'], resp['goals'])))
 
+    def test_update_reset(self):
+        code, app = self.client.application_create(
+            self.org['id'], self.valid_application)
+        self.assertEqual(code, 201)
+
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {'description': None})
+        self.assertEqual(code, 200)
+        self.assertIsNone(resp['description'])
+
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {'name': None})
+        self.assertEqual(code, 400)
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {'attach': None})
+        self.assertEqual(code, 400)
+
+    def test_update_empty(self):
+        code, app = self.client.application_create(
+            self.org['id'], self.valid_application)
+        self.assertEqual(code, 201)
+
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {'description': ''})
+        self.assertEqual(code, 200)
+
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {'attach': []})
+        self.assertEqual(code, 400)
+
     def test_detach_last(self):
         goal_1 = self._create_goal(self.org['id'], 'goal_1')
         self.valid_application['goals'] = [goal_1['id']]
@@ -299,6 +333,26 @@ class TestApplicationApi(TestProfilingBase):
         code, app = self.client.application_create(
             self.org['id'], self.valid_application)
         self.assertEqual(code, 409)
+
+    def test_update_on_arcee_conflict_err(self):
+        code, app = self.client.application_create(
+            self.org['id'], self.valid_application)
+        self.assertEqual(code, 201)
+
+        def raise_409(*_args, **_kwargs):
+            err = HTTPError('Goal is used in leaderboard')
+            err.response = Response()
+            err.response.status_code = 409
+            raise err
+
+        patch('rest_api.rest_api_server.controllers.base.'
+              'BaseProfilingTokenController.arcee_client.application_update',
+              side_effect=raise_409).start()
+
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {'name': 'name'})
+        self.assertEqual(code, 409)
+        self.assertEqual(resp['error']['error_code'], 'OE0556')
 
     def test_application_last_run_and_history(self):
         goal_1 = self._create_goal(self.org['id'], 'loss')

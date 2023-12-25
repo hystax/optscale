@@ -1,10 +1,12 @@
-import datetime
+from datetime import datetime, timezone
 import uuid
+from typing import Optional, List
+
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
 from unittest.mock import patch, PropertyMock
 from requests.exceptions import HTTPError
 from requests.models import Response
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 
 class TestProfilingBase(TestApiBase):
@@ -41,7 +43,32 @@ class TestProfilingBase(TestApiBase):
             executor.update(kwargs)
         return executor
 
-    def _gen_run(self, token, application_id, executor_ids, **kwargs):
+    def _gen_dataset(self, token, **kwargs):
+        dataset = {
+            '_id': str(uuid.uuid4()),
+            'path': str(uuid.uuid4()),
+            'name': f'Dataset {int(datetime.now(tz=timezone.utc).timestamp())}',
+            'description': 'Discovered in training <app_key> - <run_name>(<run_id>)',
+            'labels': ['test'],
+            'created_at': int(datetime.now(tz=timezone.utc).timestamp()),
+            'deleted_at': 0,
+            'token': token,
+            'training_set': {
+                'path': str(uuid.uuid4()),
+                'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
+                'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
+            },
+            'validation_set': {
+                'path': str(uuid.uuid4()),
+                'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
+                'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
+            }
+        }
+        if kwargs:
+            dataset.update(kwargs)
+        return dataset
+
+    def _gen_run(self, token, application_id, executor_ids, dataset_id, **kwargs):
         run = {
             '_id': str(uuid.uuid4()),
             'application_id': application_id,
@@ -55,9 +82,24 @@ class TestProfilingBase(TestApiBase):
         }
         if executor_ids:
             run['executors'] = executor_ids
+        if dataset_id:
+            run['dataset_id'] = dataset_id
         if kwargs:
             run.update(kwargs)
         return run
+
+    def _create_application(self, organization_id, owner_id, **kwargs):
+        app_obj = {
+            'owner_id': owner_id,
+            'name': 'app_key',
+            'key': 'app_key',
+            'goals': []
+        }
+        if kwargs:
+            app_obj.update(kwargs)
+        code, app = self.client.application_create(organization_id, app_obj)
+        self.assertEqual(code, 201)
+        return app
 
     def _create_goal(self, organization_id, key, func='avg', **kwargs):
         goal_obj = {
@@ -74,15 +116,20 @@ class TestProfilingBase(TestApiBase):
         return goal
 
     def _create_run(self, organization_id, application_id, executor_ids=None,
-                    **kwargs):
+                    dataset_path=None, **kwargs):
         _, resp = self.client.profiling_token_get(organization_id)
         profiling_token = resp['token']
         if executor_ids:
             for executor_id in executor_ids:
                 self.mongo_client.arcee.executors.insert_one(
                     self._gen_executor(profiling_token, instance_id=executor_id))
+        dataset_id = None
+        if dataset_path:
+            res = self.mongo_client.arcee.datasets.insert_one(
+                self._gen_dataset(profiling_token, path=dataset_path))
+            dataset_id = res.inserted_id
         run = self._gen_run(
-            profiling_token, application_id, executor_ids, **kwargs)
+            profiling_token, application_id, executor_ids, dataset_id, **kwargs)
         self.mongo_client.arcee.runs.insert_one(run)
         return run
 
@@ -97,6 +144,16 @@ class TestProfilingBase(TestApiBase):
             r.update(kwargs)
         self.mongo_client.arcee.logs.insert_one(r)
         return r
+
+    def _create_console(self, run_id, output, error):
+        console = {
+            '_id': str(uuid.uuid4()),
+            'run_id': run_id,
+            'output': output,
+            'error': error
+        }
+        self.mongo_client.arcee.consoles.insert_one(console)
+        return console
 
     def _create_proc_stats(
             self, run_id, time, instance_id, cpu_percent, used_ram_mb,
@@ -162,6 +219,10 @@ class ArceeMock:
         self.profiling_milestones = mongo_cl.arcee.milestones
         self.profiling_stages = mongo_cl.arcee.stages
         self.profiling_proc_data = mongo_cl.arcee.proc_data
+        self.profiling_leaderboards = mongo_cl.arcee.leaderboards
+        self.profiling_leaderboard_datasets = mongo_cl.arcee.leaderboard_datasets
+        self.profiling_datasets = mongo_cl.arcee.datasets
+        self.profiling_consoles = mongo_cl.arcee.consoles
         self._token = None
 
     @staticmethod
@@ -203,7 +264,7 @@ class ArceeMock:
         run['runExecutors'] = run_executors
 
     def application_create(self, application_key, owner_id, name=None,
-                           goals=None):
+                           goals=None, description=None):
         b = {
             'key': application_key,
             'owner_id': owner_id,
@@ -212,6 +273,7 @@ class ArceeMock:
             'token': self.token,
             '_id': str(uuid.uuid4()),
             'deleted_at': 0,
+            'description': description
         }
         existing = list(self.profiling_application.find(
             {'token': self.token, 'key': application_key, 'deleted_at': 0}))
@@ -252,7 +314,7 @@ class ArceeMock:
         return 200, applications[0]
 
     def application_update(self, application_id, owner_id=None, name=None,
-                           goals=None):
+                           goals=None, **params):
         b = dict()
         if owner_id is not None:
             b.update({
@@ -266,21 +328,23 @@ class ArceeMock:
             b.update({
                 "goals": goals
             })
-        self.profiling_application.update_one(
-            filter={
-                '_id': application_id,
-                'token': self.token,
-                'deleted_at': 0
-            },
-            update={'$set': b}
-        )
-        return 200, {'updated': True}
+        b.update(params)
+        if b:
+            self.profiling_application.update_one(
+                filter={
+                    '_id': application_id,
+                    'token': self.token,
+                    'deleted_at': 0
+                },
+                update={'$set': b}
+            )
+        return 200, {'updated': bool(b)}
 
     def application_delete(self, id):
         res = self.profiling_application.update_one(
             {'token': self.token, '_id': id, 'deleted_at': 0},
             {'$set': {
-                'deleted_at': int(datetime.datetime.utcnow().timestamp())
+                'deleted_at': int(datetime.now(tz=timezone.utc).timestamp())
             }}
         )
         if res.modified_count == 0:
@@ -351,6 +415,37 @@ class ArceeMock:
         if res.deleted_count == 0:
             self._raise_http_error(404)
         return 204, None
+
+    def executors_breakdown_get(self):
+        application_ids = self.profiling_application.distinct(
+            "_id", {"token": self.token, "deleted_at": 0})
+        if not application_ids:
+            return 200, {}
+
+        pipeline = [
+            {"$match": {"application_id": {"$in": application_ids}}},
+            {"$project": {
+                "_id": 0,
+                "timestamp": "$start",
+                "executor": "$executors"
+            }},
+            {"$unwind": '$executor'}
+        ]
+        ts_executors = defaultdict(list)
+        for data in self.profiling_runs.aggregate(pipeline):
+            dt = datetime.fromtimestamp(data['timestamp']).replace(
+                hour=0, minute=0, second=0, microsecond=0,
+                tzinfo=timezone.utc)
+            ts_executors[int(dt.timestamp())].append(data['executor'])
+
+        breakdown = {}
+        day_in_sec = 60 * 60 * 24
+        if ts_executors:
+            min_ts = min(ts_executors.keys())
+            max_ts = max(ts_executors.keys())
+            for ts in range(min_ts, max_ts + day_in_sec, day_in_sec):
+                breakdown[ts] = len(set(ts_executors.get(ts, [])))
+        return 200, breakdown
 
     def executors_get(self, applications_ids=None, run_ids=None):
         if not applications_ids and not run_ids:
@@ -441,3 +536,265 @@ class ArceeMock:
             'run_id': run_id
         }))
         return 200, proc_data
+
+    def leaderboards_create(self, application_id, primary_goal, grouping_tags,
+                            other_goals=None,
+                            filters=None, group_by_hp=True):
+        existing = list(self.profiling_leaderboards.find(
+            {'token': self.token, 'application_id': application_id,
+             'deleted_at': 0}))
+        if existing:
+            self._raise_http_error(409)
+        if other_goals is None:
+            other_goals = []
+        if filters is None:
+            filters = []
+        leaderboard = {
+            "application_id": application_id,
+            "primary_goal": primary_goal,
+            "other_goals": other_goals,
+            "filters": filters,
+            "grouping_tags": grouping_tags,
+            "group_by_hp": group_by_hp,
+            "token": self.token,
+            "_id": str(uuid.uuid4()),
+            "deleted_at": 0,
+            "created_at": int(datetime.now(tz=timezone.utc).timestamp())
+        }
+        inserted = self.profiling_leaderboards.insert_one(leaderboard)
+        return 201, list(self.profiling_leaderboards.find(
+            {'_id': inserted.inserted_id}))[0]
+
+    def leaderboard_dataset_create(self, leaderboard_id, name, dataset_ids):
+        leaderboard_dataset = {
+            "leaderboard_id": leaderboard_id,
+            "dataset_ids": dataset_ids,
+            "name": name,
+            "token": self.token,
+            "_id": str(uuid.uuid4()),
+            "deleted_at": 0,
+            "created_at": int(datetime.now(tz=timezone.utc).timestamp())
+        }
+        inserted = self.profiling_leaderboard_datasets.insert_one(leaderboard_dataset)
+        return 201, list(self.profiling_leaderboard_datasets.find(
+            {'_id': inserted.inserted_id}))[0]
+
+    def leaderboard_dataset_update(self, leaderboard_dataset_id, name, dataset_ids):
+        leaderboard_dataset = self.profiling_leaderboard_datasets.find_one(
+            {'token': self.token, '_id': leaderboard_dataset_id,
+             'deleted_at': 0})
+        if not leaderboard_dataset:
+            self._raise_http_error(404)
+        if name:
+            leaderboard_dataset.update({
+                'name': name
+            })
+        if dataset_ids:
+            leaderboard_dataset.update({
+                'dataset_ids': dataset_ids
+            })
+        self.profiling_leaderboard_datasets.update_one(
+            filter={
+                '_id': leaderboard_dataset['_id'],
+                'token': self.token,
+                'deleted_at': 0
+            },
+            update={'$set': leaderboard_dataset}
+        )
+        return 200, list(self.profiling_leaderboard_datasets.find(
+            {'_id': leaderboard_dataset_id}))[0]
+
+    def leaderboard_dataset_get(self, leaderboard_dataset_id):
+        leaderboard_dataset = list(self.profiling_leaderboard_datasets.find(
+            {'token': self.token, '_id': leaderboard_dataset_id,
+             'deleted_at': 0}))
+        if not leaderboard_dataset:
+            self._raise_http_error(404)
+        return 200, leaderboard_dataset[0]
+
+    def leaderboard_dataset_delete(self, leaderboard_dataset_id):
+        res = self.profiling_leaderboard_datasets.delete_one(
+            {'token': self.token, '_id': leaderboard_dataset_id,
+             'deleted_at': 0})
+        if res.deleted_count == 0:
+            self._raise_http_error(404)
+        return 204, None
+
+    @staticmethod
+    def leaderboard_dataset_details(leaderboard_dataset_id):
+        # this method contains complex logic, so not need emulate it here
+        # just interface test
+        return 200, []
+
+    @staticmethod
+    def leaderboard_generate(leaderboard_dataset_id):
+        # this method contains complex logic, so not need emulate it here
+        # just interface test
+        return 200, []
+
+    def runs_bulk_get_by_ids(self, application_id, run_ids):
+        if not run_ids:
+            self._raise_http_error(400)
+        runs_q = {'application_id': application_id,
+                  '_id': {'$in': run_ids}}
+        runs = list(self.profiling_runs.find(runs_q))
+        return 200, runs
+
+    def leaderboard_update(self, application_id, primary_goal=None,
+                           grouping_tags=None, other_goals=None, filters=None,
+                           group_by_hp=None):
+        leaderboard = self.profiling_leaderboards.find_one(
+            {'token': self.token, 'application_id': application_id,
+             'deleted_at': 0})
+        if not leaderboard:
+            self._raise_http_error(404)
+        for key, param in {
+            'primary_goal': primary_goal,
+            'grouping_tags': grouping_tags,
+            'other_goals': other_goals,
+            'filters': filters,
+            'group_by_hp': group_by_hp
+        }.items():
+            if param is not None:
+                leaderboard.update({
+                    key: param
+                })
+        self.profiling_leaderboards.update_one(
+            filter={
+                '_id': leaderboard['_id'],
+                'token': self.token,
+                'deleted_at': 0
+            },
+            update={'$set': leaderboard}
+        )
+        return 200, {'updated': True}
+
+    def leaderboard_datasets_get(self, leaderboard_id):
+        match_filter = {
+            "leaderboard_id": leaderboard_id,
+            'token': self.token,
+            'deleted_at': 0
+        }
+        datasets = list(self.profiling_leaderboard_datasets.find(match_filter))
+        return 200, datasets
+
+    def leaderboard_get(self, application_id):
+        leaderboards = list(self.profiling_leaderboards.find(
+            {'token': self.token, 'application_id': application_id,
+             'deleted_at': 0}))
+        if not leaderboards:
+            return 200, {}
+        return 200, leaderboards[0]
+
+    def leaderboard_delete(self, application_id):
+        res = self.profiling_leaderboards.delete_one(
+            {'token': self.token, 'application_id': application_id,
+             'deleted_at': 0})
+        if res.deleted_count == 0:
+            self._raise_http_error(404)
+        return 204, None
+
+    def leaderboard_details_get(self, application_id):
+        # TODO: implement leaderboard details
+        return 200, {}
+
+    def dataset_create(
+            self,
+            path: str,
+            labels: List[str] = None,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            training_set: Optional[dict] = None,
+            validation_set: Optional[dict] = None
+    ):
+        d = {
+            "_id": str(uuid.uuid4()),
+            "path": path,
+            "name": name,
+            "description": description,
+            "labels": labels or list(),
+            "token": self.token,
+            "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
+            "deleted_at": 0,
+            "training_set": training_set,
+            "validation_set": validation_set,
+        }
+        inserted = self.profiling_datasets.insert_one(d)
+        dataset = list(self.profiling_datasets.find(
+            {'_id': inserted.inserted_id}))[0]
+        return 201, dataset
+
+    def dataset_list(self, include_deleted=False):
+        match_filter = {
+            'token': self.token,
+            'deleted_at': 0
+        }
+        if include_deleted:
+            match_filter.pop('deleted_at')
+        datasets = list(self.profiling_datasets.find(match_filter))
+        return 200, datasets
+
+    def dataset_get(self, id_):
+        datasets = list(self.profiling_datasets.find(
+            {'token': self.token, '_id': id_}))
+        if not datasets:
+            self._raise_http_error(404)
+        return 200, datasets[0]
+
+    def dataset_update(self, id_: str, **params):
+        if params:
+            self.profiling_datasets.update_one(
+                filter={
+                    '_id': id_,
+                    'token': self.token
+                },
+                update={'$set': params}
+            )
+        return 200, self.dataset_get(id_)[1]
+
+    def dataset_delete(self, id_):
+        res = self.profiling_datasets.update_one(
+            filter={'token': self.token, '_id': id_},
+            update={'$set': {
+                'deleted_at': int(datetime.now(tz=timezone.utc).timestamp())}
+            }
+        )
+        if res.modified_count == 0:
+            self._raise_http_error(404)
+        return 204, None
+
+    def labels_list(self):
+        pipeline = [
+            {"$match": {"token": self.token, "deleted_at": 0}},
+            {"$sort": {"created_at": -1}},
+            {"$unwind": "$labels"},
+            {"$group": {"_id": None, "labels": {"$push": "$labels"}}},
+        ]
+        labels = []
+        cur = self.profiling_datasets.aggregate(pipeline)
+        try:
+            res = cur.next()
+        except StopIteration:
+            pass
+        else:
+            # keep insertion order
+            labels.extend(OrderedDict.fromkeys(res.get('labels', [])).keys())
+        return 200, labels
+
+    def console_create(self, run_id: str, output: str, error: str):
+        d = {
+            "_id": str(uuid.uuid4()),
+            "run_id": run_id,
+            "output": output,
+            "error": error,
+        }
+        inserted = self.profiling_consoles.insert_one(d)
+        console = list(self.profiling_consoles.find(
+            {'_id': inserted.inserted_id}))[0]
+        return 201, console
+
+    def console_get(self, run_id: str):
+        consoles = list(self.profiling_consoles.find({'run_id': run_id}))
+        if not consoles:
+            self._raise_http_error(404)
+        return 200, consoles[0]

@@ -261,7 +261,12 @@ class ApplicationController(BaseProfilingController, RunCostsMixin):
         owner_id = kwargs.get('owner_id')
         if owner_id is not None:
             self._get_employee(owner_id, organization_id)
-        self.update_application(profiling_token, application_id, **kwargs)
+        try:
+            self.update_application(profiling_token, application_id, **kwargs)
+        except HTTPError as exc:
+            if exc.response.status_code == 409:
+                raise ConflictException(Err.OE0556, [])
+            raise
         return self.get(organization_id, application_id, profiling_token)
 
     def delete(self, application_id, profiling_token):

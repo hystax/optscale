@@ -1,7 +1,6 @@
 import json
 from urllib.parse import urlencode
 from optscale_client.rest_api_client.client import Client as Client_v1
-from typing import Optional
 
 
 class Client(Client_v1):
@@ -1645,6 +1644,12 @@ class Client(Client_v1):
         return '%s/breakdown' % Client.runs_url(organization_id, id)
 
     @staticmethod
+    def runs_bulk_url(organization_id, application_id):
+        url = "%s/runs/bulk" % Client.applications_url(organization_id,
+                                                       application_id)
+        return url
+
+    @staticmethod
     def application_optimizations_url(organization_id, application_id):
         return '%s/optimizations' % Client.applications_url(
             organization_id, application_id)
@@ -1692,9 +1697,8 @@ class Client(Client_v1):
             application_id=application_ids, run_id=run_ids)
         return self.get(url)
 
-    def executors_breakdown_get(self, organization_id, breakdown_by):
-        url = self.executors_breakdown_url(
-            organization_id) + self.query_url(breakdown_by=breakdown_by)
+    def executors_breakdown_get(self, organization_id):
+        url = self.executors_breakdown_url(organization_id)
         return self.get(url)
 
     def run_get(self, organization_id, run_id):
@@ -1926,7 +1930,8 @@ class Client(Client_v1):
             "survey_type": survey_type,
             "payload": payload
         }
-        return self.post(self.disconnect_survey_url(organization_id=organization_id), body)
+        return self.post(self.disconnect_survey_url(
+            organization_id=organization_id), body)
 
     @staticmethod
     def power_schedules_url(id_=None, organization_id=None):
@@ -1960,3 +1965,147 @@ class Client(Client_v1):
     def power_schedule_actions(self, id_, params):
         url = self.power_schedules_actions_url(id_=id_)
         return self.post(url, params)
+
+    def leaderboard_url(self, organization_id, application_id):
+        return '%s/leaderboard' % Client.applications_url(
+            organization_id, application_id)
+
+    @staticmethod
+    def leaderboard_dataset_url(organization_id, leaderboard_dataset_id):
+        return '%s/leaderboard_datasets/%s' % (
+            Client.organization_url(organization_id), leaderboard_dataset_id)
+
+    @staticmethod
+    def leaderboard_generate_url(organization_id, leaderboard_dataset_id):
+        return "%s/generate" % (Client.leaderboard_dataset_url(
+            organization_id, leaderboard_dataset_id))
+
+    @staticmethod
+    def leaderboard_datasets_url(organization_id, leaderboard_id):
+        return '%s/leaderboards/%s/leaderboard_datasets' % (
+            Client.organization_url(organization_id), leaderboard_id)
+
+    def leaderboard_create(self, organization_id, application_id, params):
+        return self.post(
+            self.leaderboard_url(organization_id, application_id), params)
+
+    def leaderboard_get(self, organization_id, application_id, details=False):
+        url = self.leaderboard_url(
+            organization_id, application_id) + self.query_url(details=details)
+        return self.get(url)
+
+    def leaderboard_update(self, organization_id, application_id, params):
+        return self.patch(
+            self.leaderboard_url(organization_id, application_id), params)
+
+    def leaderboard_delete(self, organization_id, application_id):
+        return self.delete(
+            self.leaderboard_url(organization_id, application_id))
+
+    @staticmethod
+    def datasets_url(organization_id, id=None):
+        url = '%s/datasets' % Client.organization_url(organization_id)
+        if id is not None:
+            url += '/%s' % id
+        return url
+
+    def dataset_create(self, organization_id, params):
+        return self.post(self.datasets_url(organization_id), params)
+
+    def dataset_update(self, organization_id, dataset_id, params):
+        return self.patch(self.datasets_url(
+            organization_id, dataset_id), params)
+
+    def dataset_delete(self, organization_id, dataset_id):
+        return self.delete(self.datasets_url(organization_id, dataset_id))
+
+    def dataset_get(self, organization_id, dataset_id):
+        return self.get(self.datasets_url(organization_id, dataset_id))
+
+    def dataset_list(self, organization_id):
+        return self.get(self.datasets_url(organization_id))
+
+    @staticmethod
+    def labels_url(organization_id):
+        return '%s/labels' % Client.organization_url(organization_id)
+
+    def labels_list(self, organization_id):
+        return self.get(self.labels_url(organization_id))
+
+    def leaderboard_dataset_get(self, organization_id, leaderboard_dataset_id,
+                                details=False):
+        url = self.leaderboard_dataset_url(
+            organization_id, leaderboard_dataset_id) + self.query_url(
+            details=details)
+        return self.get(url)
+
+    def leaderboard_dataset_create(self, organization_id, name, leaderboard_id,
+                                   dataset_ids):
+        params = {
+            "name": name,
+            "dataset_ids": dataset_ids
+        }
+        url = self.leaderboard_datasets_url(organization_id, leaderboard_id)
+        return self.post(url, params)
+
+    def leaderboard_dataset_update(self, organization_id,
+                                   leaderboard_dataset_id,  name=None,
+                                   dataset_ids=None):
+        params = {
+            "name": name,
+            "dataset_ids": dataset_ids
+        }
+        url = self.leaderboard_dataset_url(organization_id,
+                                           leaderboard_dataset_id)
+        return self.patch(url, params)
+
+    def leaderboard_dataset_delete(self, organization_id,
+                                   leaderboard_dataset_id):
+        url = self.leaderboard_dataset_url(organization_id,
+                                           leaderboard_dataset_id)
+        return self.delete(url)
+
+    def leaderboard_generate(self, organization_id, leaderboard_dataset_id):
+        return self.get(self.leaderboard_generate_url(organization_id,
+                                                      leaderboard_dataset_id))
+
+    def runs_bulk_get(self, organization_id, application_id, run_ids):
+        url = Client.runs_bulk_url(organization_id, application_id)
+        url += self.query_url(
+            run_id=run_ids,
+        )
+        return self.get(url)
+
+    def leaderboard_dataset_list(self, organization_id, leaderboard_id):
+        url = self.leaderboard_datasets_url(
+            organization_id, leaderboard_id)
+        return self.get(url)
+
+    @staticmethod
+    def layouts_url(org_id, layout_id=None):
+        url = '%s/layouts' % Client.organization_url(org_id)
+        if layout_id is not None:
+            url = '%s/%s' % (url, layout_id)
+        return url
+
+    def layouts_create(self, organization_id, params):
+        return self.post(self.layouts_url(organization_id), params)
+
+    def layouts_list(self, org_id, layout_type=None, include_shared=False,
+                     entity_id=None):
+        url = self.layouts_url(org_id) + self.query_url(
+            layout_type=layout_type, include_shared=include_shared,
+            entity_id=entity_id)
+        return self.get(url)
+
+    def layout_get(self, org_id, layout_id):
+        url = self.layouts_url(org_id, layout_id)
+        return self.get(url)
+
+    def layout_update(self, org_id, layout_id, params):
+        url = self.layouts_url(org_id, layout_id)
+        return self.patch(url, params)
+
+    def layout_delete(self, org_id, layout_id):
+        url = self.layouts_url(org_id, layout_id)
+        return self.delete(url)

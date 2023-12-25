@@ -461,12 +461,16 @@ class WaitArcee(ContinueWithDestroyConditions):
             run_id = runs[0]
             LOG.info("run found! run id: %s", run_id)
             LOG.info("updating run %s with runset id %s", run_id, runset_id)
+            # get run info
+            _, run = self.arcee_cl.run_get(run_id)
+            existing_hp = run.get("hyperparameters", dict())
+            existing_hp.update(hp)
             # update run
             self.arcee_cl.run_update(
                 run_id,
                 runset_id=runset_id,
                 runset_name=runset_name,
-                hyperparameters=hp,
+                hyperparameters=existing_hp,
             )
             self.bulldozer_cl.update_runner(
                 runner_id,

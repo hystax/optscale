@@ -553,6 +553,12 @@ class TestEmployeeApi(TestApiBase):
             self.assertEqual(code, 201)
             code, resp = self.client.assignment_request_list(self.org_id)
             self.assertEqual(code, 200)
+            code, resp = self.client.layouts_create(self.org_id, {
+                'type': 'test',
+                'name': 'test',
+                'shared': True
+            })
+            self.assertEqual(code, 201)
         patch('rest_api.rest_api_server.controllers.employee.EmployeeController.'
               'auth_client.user_roles_get',
               return_value=(200,
@@ -568,6 +574,9 @@ class TestEmployeeApi(TestApiBase):
         self.assertEqual(
             resp['assignment_requests']['outgoing'][0]['requester_id'],
             root_emp['id'])
+        code, resp = self.client.layouts_list(self.org_id)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['layouts'][0]['owner_id'], root_emp['id'])
 
     def test_delete_self_deleting(self):
         patch('rest_api.rest_api_server.controllers.employee.EmployeeController.'

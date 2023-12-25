@@ -14,7 +14,7 @@ import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { getMlModelRunUrl } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
-import { duration, goals, startedAt } from "utils/columns";
+import { duration, goals, startedAt, dataset, hyperparameters } from "utils/columns";
 import { formatRunFullName, getFirstGoalEntryKey, getRunsGoalsKeyNameEntries } from "utils/ml";
 import { isEmpty as isEmptyObject } from "utils/objects";
 import { CELL_EMPTY_VALUE } from "utils/tables";
@@ -37,14 +37,14 @@ const RunsTable = ({ runs, isLoading = false }) => {
         cell: ({
           cell,
           row: {
-            original: { application_id: modelId, id, color }
+            original: { id, color, application_id: applicationId }
           }
         }) => (
           <CircleLabel
             figureColor={color}
             textFirst={false}
             label={
-              <Link to={getMlModelRunUrl(modelId, id)} component={RouterLink}>
+              <Link to={getMlModelRunUrl(applicationId, id)} component={RouterLink}>
                 {cell.getValue()}
               </Link>
             }
@@ -60,25 +60,6 @@ const RunsTable = ({ runs, isLoading = false }) => {
           }
         }) => <MlRunStatusCell reason={reason} status={status} />
       },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_hyperparameters">
-            <FormattedMessage id="hyperparameters" />
-          </TextWithDataTestId>
-        ),
-        id: "hyperparameters",
-        enableGlobalFilter: false,
-        cell: ({
-          row: {
-            original: { hyperparameters }
-          }
-        }) => {
-          if (isEmptyObject(hyperparameters)) {
-            return CELL_EMPTY_VALUE;
-          }
-          return Object.entries(hyperparameters).map(([name, value]) => <KeyValueLabel key={name} text={name} value={value} />);
-        }
-      },
       goals({
         headerMessageId: "goals",
         headerDataTestId: "lbl_goals",
@@ -87,6 +68,11 @@ const RunsTable = ({ runs, isLoading = false }) => {
         goalsKeyNameEntries,
         sortByGoalKey
       }),
+      dataset({
+        id: "dataset",
+        accessorFn: (originalRow) => originalRow.dataset?.name
+      }),
+      hyperparameters(),
       startedAt({
         headerMessageId: "startedAt",
         headerDataTestId: "lbl_started_at",

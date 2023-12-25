@@ -1,8 +1,8 @@
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { Box } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import Grid from "@mui/material/Grid";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Button from "components/Button";
@@ -150,28 +150,30 @@ const HyperparameterField = ({ isLoading }) => {
       ) : (
         <>
           {fields.map((item, index) => (
-            <Grid key={item.id} container spacing={SPACING_1}>
-              <Grid item xs={12} sm={4} md={5} lg={4}>
+            <Box key={item.id} display="flex" gap={SPACING_1} flexWrap="wrap">
+              <Box flexGrow={1} flexBasis="150px">
                 <NameInput index={index} />
-              </Grid>
-              <Grid item xs={10} sm={7} md={6} lg={7}>
-                <EnvironmentName index={index} />
-              </Grid>
-              <Grid item xs={2} sm={1}>
-                <FormControl sx={{ alignItems: "flex-end", width: "100%" }}>
-                  <IconButton
-                    color="error"
-                    icon={<DeleteOutlinedIcon />}
-                    onClick={() => remove(index)}
-                    tooltip={{
-                      show: true,
-                      value: <FormattedMessage id="delete" />
-                    }}
-                    dataTestId={`btn_delete_hyperparameter_${index}`}
-                  />
-                </FormControl>
-              </Grid>
-            </Grid>
+              </Box>
+              <Box display="flex" flexBasis="200px" flexGrow={2} gap={SPACING_1}>
+                <Box flexGrow={1}>
+                  <EnvironmentName index={index} />
+                </Box>
+                <Box>
+                  <FormControl sx={{ alignItems: "flex-end", width: "100%" }}>
+                    <IconButton
+                      color="error"
+                      icon={<DeleteOutlinedIcon />}
+                      onClick={() => remove(index)}
+                      tooltip={{
+                        show: true,
+                        value: <FormattedMessage id="delete" />
+                      }}
+                      dataTestId={`btn_delete_hyperparameter_${index}`}
+                    />
+                  </FormControl>
+                </Box>
+              </Box>
+            </Box>
           ))}
           <FormControl fullWidth>
             <Button

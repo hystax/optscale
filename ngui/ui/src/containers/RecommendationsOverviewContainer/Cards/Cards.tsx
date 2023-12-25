@@ -96,7 +96,7 @@ const Cards = ({
         />
       }
     >
-      <TableContent data={r.previewItems} />
+      <TableContent data={r.previewItems.slice(0, 3)} />
     </RecommendationCard>
   ));
 };

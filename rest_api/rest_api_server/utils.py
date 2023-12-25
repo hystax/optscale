@@ -334,17 +334,17 @@ def check_string_attribute(name, value, min_length=1, max_length=255,
         raise WrongArgumentsException(Err.OE0215, [name, count])
 
 
-def check_dict_attribute(name, value):
-    if not value:
+def check_dict_attribute(name, value, allow_empty=False):
+    if not value and not allow_empty:
         raise_not_provided_exception(name)
-    if not isinstance(value, dict):
+    if value and not isinstance(value, dict):
         raise WrongArgumentsException(Err.OE0344, [name])
 
 
-def check_list_attribute(name, value):
-    if not value:
+def check_list_attribute(name, value, allow_empty=False):
+    if not value and not allow_empty:
         raise_not_provided_exception(name)
-    if not isinstance(value, list):
+    if value and not isinstance(value, list):
         raise WrongArgumentsException(Err.OE0385, [name])
 
 
@@ -358,12 +358,13 @@ def check_int_attribute(name, value, min_length=0, max_length=MAX_32_INT):
             Err.OE0224, [name, min_length, max_length])
 
 
-def check_float_attribute(name, value, min_length=0, max_length=MAX_32_INT):
+def check_float_attribute(name, value, min_length=0, max_length=MAX_32_INT,
+                          check_length=True):
     if value is None:
         raise_not_provided_exception(name)
     if not isinstance(value, float) and not isinstance(value, int):
         raise WrongArgumentsException(Err.OE0466, [name])
-    if not min_length <= value <= max_length:
+    if check_length and not min_length <= value <= max_length:
         raise WrongArgumentsException(
             Err.OE0224, [name, min_length, max_length])
 

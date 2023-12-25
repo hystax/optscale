@@ -1,0 +1,28 @@
+export const FIELD_NAMES = Object.freeze({
+  RUN_TAGS_FIELD_NAME: "runTags",
+  GROUP_BY_HYPERPARAMETERS_FIELD_NAME: "groupByHyperparameters",
+  PRIMARY_METRIC_FIELD_NAME: "primaryMetric",
+  SECONDARY_METRICS_FIELD_NAME: "secondaryMetrics",
+  METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES: Object.freeze({
+    NAME: "metricRestrictions",
+    ARRAY_FIELD_NAMES: Object.freeze({
+      METRIC_MIN: "min",
+      METRIC_MAX: "max",
+      METRIC: "metric"
+    })
+  })
+});
+
+export const defaultValues = Object.freeze({
+  [FIELD_NAMES.RUN_TAGS_FIELD_NAME]: Object.freeze([]),
+  [FIELD_NAMES.GROUP_BY_HYPERPARAMETERS_FIELD_NAME]: true,
+  [FIELD_NAMES.PRIMARY_METRIC_FIELD_NAME]: "",
+  [FIELD_NAMES.SECONDARY_METRICS_FIELD_NAME]: Object.freeze([]),
+  [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.NAME]: Object.freeze([
+    Object.freeze({
+      [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MAX]: "",
+      [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MIN]: "",
+      [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC]: ""
+    })
+  ])
+});

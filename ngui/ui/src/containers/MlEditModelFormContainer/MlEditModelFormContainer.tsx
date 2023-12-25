@@ -3,9 +3,11 @@ import MlEditModelForm from "components/MlEditModelForm";
 import EmployeesService from "services/EmployeesService";
 import MlModelsService from "services/MlModelsService";
 import { getMlModelDetailsUrl } from "urls";
+import { ML_MODEL_DETAILS_TAB_NAME } from "utils/constants";
+import { getQueryParams } from "utils/network";
 
 const MlEditModelFormContainer = ({ model }) => {
-  const { modelId } = useParams();
+  const { taskId } = useParams();
   const navigate = useNavigate();
 
   const { useUpdateModel } = MlModelsService();
@@ -14,13 +16,14 @@ const MlEditModelFormContainer = ({ model }) => {
   const { useGet: useGetEmployees } = EmployeesService();
   const { isLoading: isGetEmployeesLoading, employees } = useGetEmployees();
 
-  const redirectToModelDetails = () => navigate(getMlModelDetailsUrl(modelId));
+  const redirectToModelDetails = () => {
+    const { [ML_MODEL_DETAILS_TAB_NAME]: taskDetailsTab } = getQueryParams();
+
+    return navigate(`${getMlModelDetailsUrl(taskId)}?${ML_MODEL_DETAILS_TAB_NAME}=${taskDetailsTab}`);
+  };
 
   const onSubmit = (formData) => {
-    onUpdate(modelId, {
-      name: formData.name,
-      owner_id: formData.ownerId
-    }).then(() => {
+    onUpdate(taskId, formData).then(() => {
       redirectToModelDetails();
     });
   };

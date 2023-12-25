@@ -3,11 +3,11 @@ import MlModelDetails from "components/MlModelDetails";
 import MlModelsService from "services/MlModelsService";
 
 const MlModelDetailsContainer = () => {
-  const { modelId } = useParams();
+  const { taskId } = useParams();
 
   const { useGetOne } = MlModelsService();
 
-  const { model, isLoading, isDataReady } = useGetOne(modelId);
+  const { model, isLoading, isDataReady } = useGetOne(taskId);
 
   return <MlModelDetails isDataReady={isDataReady} isLoading={isLoading} model={model} />;
 };

@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
-from rest_api.rest_api_server.controllers.profiling.run import RunAsyncController
+from rest_api.rest_api_server.controllers.profiling.run import (
+    RunAsyncController, RunBulkAsyncController)
 from rest_api.rest_api_server.utils import run_task, ModelEncoder, check_int_attribute
 from rest_api.rest_api_server.handlers.v1.base_async import (
     BaseAsyncItemHandler, BaseAsyncCollectionHandler)
@@ -11,8 +12,124 @@ from rest_api.rest_api_server.exceptions import Err
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
+class RunBulkAsyncHandler(BaseAsyncCollectionHandler,
+                          BaseAuthHandler,
+                          ProfilingHandler):
+    def _get_controller_class(self):
+        return RunBulkAsyncController
+
+    def post(self, *args, **kwargs):
+        self.raise405()
+
+    async def get(self, organization_id, application_id, **kwargs):
+        """
+        ---
+        description: |
+            Get list of application runs bulk
+            Required permission: INFO_ORGANIZATION
+        tags: [profiling_runs]
+        summary: List of application runs
+        parameters:
+        -   name: organization_id
+            in: path
+            description: Organization id
+            required: true
+            type: string
+        -   name: application_id
+            in: path
+            description: Application id
+            required: true
+            type: string
+        -   in: query
+            name: run_id
+            description: run id
+            required: false
+        responses:
+            200:
+                description: Application runs
+                schema:
+                    type: object
+                    properties:
+                        type: array
+                        items:
+                            type: object
+                            properties:
+                                id:
+                                    type: string
+                                    description: Run id
+                                application_id:
+                                    type: string
+                                    description: App id
+                                start:
+                                    type: integer
+                                    description: Start time
+                                finish:
+                                    type: integer
+                                    description: End time
+                                state:
+                                    type: integer
+                                    description: Run status
+                                number:
+                                    type: integer
+                                    description: Number of run
+                                imports:
+                                    type: array
+                                    description: List of imported modules
+                                    items:
+                                        type: string
+                                tags:
+                                    type: object
+                                    description: Object with tags
+                                hyperparameters:
+                                    type: object
+                                    description: Object with hyperparameters
+                                data:
+                                    type: object
+                                    description: Object with data
+                                executors:
+                                    type: array
+                                    description: List of executors
+                                    items:
+                                        type: string
+                                dataset_id:
+                                    type: string
+                                    description: Dataset id
+            401:
+                description: |
+                    Unauthorized:
+                    - OE0235: Unauthorized
+                    - OE0237: This resource requires authorization
+                    - OE0543: External unauthorized
+            403:
+                description: |
+                    Forbidden:
+                    - OE0234: Forbidden
+            404:
+                description: |
+                    Not found:
+                    - OE0002: Object not found
+        security:
+        - token: []
+        """
+        arg = "run_id"
+        run_ids = self.get_arguments(arg)
+        await self.check_permissions(
+            'INFO_ORGANIZATION', 'organization', organization_id)
+        token = await self._get_profiling_token(organization_id)
+        try:
+            res = await run_task(
+                self.controller.bulk_runs_get, application_id, token, run_ids)
+        except OptHTTPError as exc:
+            if exc.status_code == 400:
+                res = []
+            else:
+                raise
+        self.write(json.dumps(res, cls=ModelEncoder))
+
+
 class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
-                                BaseAuthHandler, ProfilingHandler):
+                                BaseAuthHandler,
+                                ProfilingHandler):
     def _get_controller_class(self):
         return RunAsyncController
 
@@ -105,9 +222,20 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                         description: Object with data
                                     executors:
                                         type: array
-                                        description: list of executors
+                                        description: List of executors
                                         items:
                                             type: string
+                                    dataset:
+                                        type: object
+                                        description: Dataset object
+                                    git:
+                                        type: object
+                                        description: Git object
+                                    command:
+                                        type: string
+                                        description: |
+                                            Command with which instrumented
+                                            program has been launched
             401:
                 description: |
                     Unauthorized:
@@ -144,9 +272,6 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                           ProfilingHandler):
     def _get_controller_class(self):
         return RunAsyncController
-
-    def post(self, *args, **kwargs):
-        self.raise405()
 
     async def get(self, organization_id, id, **url_params):
         """
@@ -193,20 +318,42 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             description: Number of run
                         tags:
                             type: object
-                            description: object with run tags
+                            description: Object with run tags
                         data:
                             type: object
-                            description: object with run data
+                            description: Object with run data
                         executors:
                             type: array
-                            description: list of executors
+                            description: List of executors
                             items:
                                 type: object
                         goals:
                             type: array
-                            description: list of goals
+                            description: List of goals
                             items:
                                 type: object
+                        dataset:
+                            type: object
+                            description: Dataset object
+                        git:
+                            type: object
+                            description: Git object
+                        command:
+                            type: string
+                            description: |
+                                Command with which instrumented
+                                program has been launched
+                        console:
+                            type: object
+                            description: |
+                                Console error and output
+                            properties:
+                                output:
+                                    type: string
+                                    description: console output data
+                                error:
+                                    type: string
+                                    description: console error data
             401:
                 description: |
                     Unauthorized:

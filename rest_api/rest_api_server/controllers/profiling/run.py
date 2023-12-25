@@ -1,36 +1,46 @@
 import math
 from collections import defaultdict
 from datetime import datetime
+from typing import Optional
+
 from requests.exceptions import HTTPError
 
-from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
+from rest_api.rest_api_server.controllers.base_async import (
+    BaseAsyncControllerWrapper)
 from rest_api.rest_api_server.controllers.profiling.base import (
-    BaseProfilingController, RunCostsMixin)
+    ArceeObject, BaseProfilingController, RunCostsMixin, format_dataset)
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import RunStates
 
-from tools.optscale_exceptions.common_exc import NotFoundException
+from tools.optscale_exceptions.common_exc import (
+    NotFoundException, WrongArgumentsException)
 
 DAY_IN_HOURS = 24
 BYTES_IN_MB = 1024 * 1024
 
 
-class RunController(BaseProfilingController, RunCostsMixin):
+class RunBulkController(BaseProfilingController):
 
-    def get(self, organization_id, run_id, profiling_token):
+    def bulk_runs_get(self, application_id, profiling_token, run_ids):
         try:
-            run = self.get_run(profiling_token, run_id)
+            runs = self.bulk_gen_runs(profiling_token, application_id, run_ids)
+            for run in runs:
+                ArceeObject.format(run)
+                if 'dataset' in run:
+                    run['dataset'] = format_dataset(run.get('dataset', {}))
+            return runs
         except HTTPError as ex:
             if ex.response.status_code == 404:
-                raise NotFoundException(Err.OE0002, ['Run', run_id])
+                raise NotFoundException(
+                    Err.OE0002, ['Application', application_id])
             raise
-        cloud_accounts_ids = self.get_cloud_account_ids(organization_id)
-        run_costs = self._get_run_costs(cloud_accounts_ids, [run])
-        goals = self.__get_application_goals(
-            run['application_id'], profiling_token)
-        return self.formatted_run(run, goals, run_costs)
 
-    def formatted_run(self, run, application_goals, run_costs):
+
+class RunController(BaseProfilingController, RunCostsMixin):
+    def formatted_run(
+            self, run, application_goals, datasets, run_costs, console=None,
+            include_console=False
+    ):
         state = run['state']
         run['status'] = RunStates(state).name
         finish = run.get('finish')
@@ -44,7 +54,55 @@ class RunController(BaseProfilingController, RunCostsMixin):
                 'id': run.pop('runset_id'),
                 'name': run.pop('runset_name', None)
             }
+        run['dataset'] = datasets.get(run.pop('dataset_id', None))
+        if include_console:
+            run['console'] = console
         return run
+
+    def _get_datasets(
+            self, dataset_ids: set[str], profiling_token: str
+    ) -> dict[str, dict]:
+        if not dataset_ids:
+            return {}
+        datasets = self.list_datasets(profiling_token, include_deleted=True)
+        datasets_dict = {d['id']: format_dataset(d) for d in filter(
+            lambda x: x['id'] in dataset_ids, datasets)}
+        if len(dataset_ids) != len(datasets_dict):
+            not_found = list(filter(
+                lambda x: x not in datasets_dict.keys(), dataset_ids))
+            raise NotFoundException(
+                Err.OE0002, ['Dataset', ', '.join(not_found)])
+        return datasets_dict
+
+    def __get_console(self, run_id: str, profiling_token: str) -> Optional[dict]:
+        try:
+            console = self.get_console(profiling_token, run_id)
+        except HTTPError as ex:
+            if ex.response.status_code == 404:
+                return
+            raise
+        return {
+            'output': console.get('output'),
+            'error': console.get('error')
+        }
+
+    def get(self, organization_id, run_id, profiling_token):
+        try:
+            run = self.get_run(profiling_token, run_id)
+        except HTTPError as ex:
+            if ex.response.status_code == 404:
+                raise NotFoundException(Err.OE0002, ['Run', run_id])
+            raise
+        cloud_accounts_ids = self.get_cloud_account_ids(organization_id)
+        run_costs = self._get_run_costs(cloud_accounts_ids, [run])
+        goals = self.__get_application_goals(
+            run['application_id'], profiling_token)
+        datasets = {}
+        if run.get('dataset_id'):
+            datasets = self._get_datasets({run['dataset_id']}, profiling_token)
+        console = self.__get_console(run_id, profiling_token)
+        return self.formatted_run(
+            run, goals, datasets, run_costs, console, include_console=True)
 
     def list(self, organization_id, application_id, profiling_token, **kwargs):
         start_date = kwargs.get('start_date')
@@ -57,6 +115,7 @@ class RunController(BaseProfilingController, RunCostsMixin):
                     Err.OE0002, ['Application', application_id])
             raise
         runs = []
+        dataset_ids = set()
         for run in data:
             run_start = run['start']
             if start_date and start_date > run_start:
@@ -64,11 +123,14 @@ class RunController(BaseProfilingController, RunCostsMixin):
             if end_date and end_date < run_start:
                 continue
             runs.append(run)
+            if run.get('dataset_id'):
+                dataset_ids.add(run['dataset_id'])
         cloud_accounts_ids = self.get_cloud_account_ids(organization_id)
         run_costs = self._get_run_costs(cloud_accounts_ids, runs)
         goals = self.__get_application_goals(application_id, profiling_token)
+        datasets = self._get_datasets(dataset_ids, profiling_token)
         return sorted([
-            self.formatted_run(run, goals, run_costs) for run in runs
+            self.formatted_run(run, goals, datasets, run_costs) for run in runs
         ], key=lambda d: d['start'])
 
     def __get_application_goals(self, app_id, profiling_token):
@@ -179,3 +241,8 @@ class RunController(BaseProfilingController, RunCostsMixin):
 class RunAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):
         return RunController
+
+
+class RunBulkAsyncController(BaseAsyncControllerWrapper):
+    def _get_controller_class(self):
+        return RunBulkController

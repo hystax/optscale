@@ -1,3 +1,4 @@
+import { Slider } from "@mui/material";
 import Box from "@mui/material/Box";
 import ActionBar from "components/ActionBar";
 import SearchInput from "components/SearchInput";
@@ -41,6 +42,9 @@ const TableActions = ({
   withSearch,
   onSearchChange,
   searchValue = "",
+  rangeFilter,
+  onRangeChange,
+  rangeValue,
   tableContext,
   columnsSelectorUID,
   dataTestIds = {}
@@ -74,6 +78,25 @@ const TableActions = ({
         {withSearch && <SearchInput onSearch={onSearchChange} initialSearchText={searchValue} dataTestIds={dataTestIds} />}
         {showColumnsSelector && <ColumnsSelector tableContext={tableContext} dataTestIds={columnsSelectorTestIds} />}
       </Box>
+      {!!rangeFilter && (
+        <Box flexGrow={1} px={2}>
+          {rangeFilter.title(rangeValue)}
+          <Slider
+            getAriaLabel={() => ""}
+            value={rangeValue}
+            step={rangeFilter.step}
+            min={rangeFilter.min}
+            max={rangeFilter.max}
+            onChange={(_, segment) => {
+              let [a, b] = segment;
+              a = a === b && b === rangeFilter.max ? Math.max(0, a - rangeFilter.step) : a;
+              b = a === b && b !== rangeFilter.max ? Math.min(rangeFilter.max, a + rangeFilter.step) : b;
+              onRangeChange([a, b]);
+            }}
+            valueLabelDisplay="off"
+          />
+        </Box>
+      )}
     </Box>
   );
 };

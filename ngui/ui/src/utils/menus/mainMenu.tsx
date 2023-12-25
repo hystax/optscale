@@ -11,8 +11,9 @@ import finOpsPortal from "./finOpsPortalMenuItem";
 import home from "./homeMenuItem";
 import integrations from "./integrationsMenuItem";
 import k8sRightsizing from "./k8sRightsizingMenuItem";
+import mlDatasets from "./mlDatasetsMenuItem";
+import mlHypertuningMenuItem from "./mlHypertuningMenuItem";
 import mlModels from "./mlModelMenuItem";
-import mlRunsets from "./mlRunsetsMenuItem";
 import pools from "./poolsMenuItem";
 import powerSchedulesMenuItem from "./powerSchedulesMenuItem";
 import quotas from "./quotasMenuItem";
@@ -37,7 +38,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="mlOps" />,
-    items: [mlModels, mlRunsets]
+    items: [mlModels, mlDatasets, mlHypertuningMenuItem]
   },
   {
     id: MAIN_MENU_SECTION_IDS.POLICIES,

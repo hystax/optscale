@@ -53,6 +53,7 @@ const Table = ({
   withHeader = true,
   withFooter = false,
   withSearch,
+  rangeFilter,
   dataTestIds = {},
   queryParamPrefix,
   localization = {},
@@ -80,7 +81,10 @@ const Table = ({
   getRowCellClassName,
   getHeaderCellClassName,
   onRowClick,
-  isSelectedRow
+  isSelectedRow,
+  overflowX = "auto",
+  disableBottomBorderForLastRow = false,
+  tableLayout = "auto"
 }) => {
   const { showCounters = false, hideTotal = false, hideDisplayed = false } = counters;
 
@@ -110,10 +114,12 @@ const Table = ({
   const {
     state: globalFilterState,
     tableOptions: globalFilterTableOptions,
-    onSearchChange
+    onSearchChange,
+    onRangeChange
   } = useGlobalFilterTableSettings({
     queryParamPrefix,
     withSearch,
+    rangeFilter,
     columns: columnsProperty
   });
 
@@ -204,7 +210,10 @@ const Table = ({
         selectedRowsCount={selectedRowsCounts}
         withSearch={withSearch}
         onSearchChange={withSearch ? (newSearchValue) => onSearchChange(newSearchValue, { tableContext: table }) : null}
-        searchValue={withSearch ? globalFilterState.globalFilter : ""}
+        searchValue={withSearch ? globalFilterState.globalFilter.search : undefined}
+        onRangeChange={rangeFilter ? (newRangeValue) => onRangeChange(newRangeValue, { tableContext: table }) : null}
+        rangeValue={rangeFilter ? globalFilterState.globalFilter.range : undefined}
+        rangeFilter={rangeFilter}
         tableContext={table}
         columnsSelectorUID={columnsSelectorUID}
         /**
@@ -214,11 +223,19 @@ const Table = ({
       />
       {/* Wrap with box in order to make table fit 100% width with small amount of columns */}
       {/* TODO: Consider using MUI TableContainer */}
-      <Box className={classes.horizontalScroll}>
+      <Box
+        className={classes.tableContainer}
+        sx={{
+          overflowX
+        }}
+      >
         {isLoading ? (
           <TableLoader columnsCounter={columns.length ?? 5} showHeader />
         ) : (
           <MuiTable
+            sx={{
+              tableLayout
+            }}
             style={{
               ...stickyTableStyles
             }}
@@ -241,7 +258,17 @@ const Table = ({
             )}
             <TableBody>
               {isEmptyArray(rows) ? (
-                <TableRow>
+                <TableRow
+                  sx={
+                    disableBottomBorderForLastRow
+                      ? {
+                          "&:last-child > td": {
+                            borderBottom: "none"
+                          }
+                        }
+                      : {}
+                  }
+                >
                   <TableCell align="center" colSpan={columns.length}>
                     <FormattedMessage id={localization.emptyMessageId || DEFAULT_EMPTY_MESSAGE_ID} />
                   </TableCell>
@@ -251,7 +278,21 @@ const Table = ({
                   const rowStyle = typeof getRowStyle === "function" ? getRowStyle(row.original) : {};
 
                   return (
-                    <TableRow {...getRowHoverProperties(row)} data-test-id={`row_${index}`} key={row.id} style={rowStyle}>
+                    <TableRow
+                      {...getRowHoverProperties(row)}
+                      data-test-id={`row_${index}`}
+                      key={row.id}
+                      style={rowStyle}
+                      sx={
+                        disableBottomBorderForLastRow
+                          ? {
+                              "&:last-child > td": {
+                                borderBottom: "none"
+                              }
+                            }
+                          : {}
+                      }
+                    >
                       {row.getVisibleCells().map((cell) => {
                         if (cell.column.id === SELECTION_COLUMN_ID) {
                           return <TableBodyCell key={cell.id} cell={cell} />;

@@ -1,4 +1,4 @@
-import Grid from "@mui/material/Grid";
+import { Box } from "@mui/material";
 import { useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Input from "components/Input";
@@ -19,8 +19,8 @@ const CustomTagField = ({ isLoading }) => {
 
   return (
     <>
-      <Grid container spacing={SPACING_1}>
-        <Grid item xs={12} sm={4} md={5} lg={4}>
+      <Box display="flex" gap={SPACING_1}>
+        <Box flexGrow={1} flexBasis="150px">
           {isLoading ? (
             <InputLoader fullWidth />
           ) : (
@@ -45,8 +45,8 @@ const CustomTagField = ({ isLoading }) => {
               })}
             />
           )}
-        </Grid>
-        <Grid item xs={12} sm={8} md={7} lg={8}>
+        </Box>
+        <Box flexGrow={2} flexBasis="200px">
           {isLoading ? (
             <InputLoader fullWidth />
           ) : (
@@ -71,8 +71,8 @@ const CustomTagField = ({ isLoading }) => {
               })}
             />
           )}
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </>
   );
 };

@@ -33,3 +33,9 @@ export const getGoalsStatus = (goals) => {
   }
   return GOAL_STATUS.NOT_MET;
 };
+
+export const LEADERBOARD_ERRORS = Object.freeze({
+  "models deleted": "modelsDeletedReason",
+  "primary_metric deleted": "primaryMetricDeletedReason",
+  "filter goal deleted": "filterGoalDeletedReason"
+});

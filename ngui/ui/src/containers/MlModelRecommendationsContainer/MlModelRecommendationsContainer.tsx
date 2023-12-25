@@ -1,41 +1,26 @@
 import { useParams } from "react-router-dom";
-import ModelDetailsSummary from "components/MlModelDetails/ModelDetailsSummary";
+import MlModelRecommendations from "components/MlModelRecommendations";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import MlModelsService from "services/MlModelsService";
-import { modelRecommendations } from "utils/mlDemoData/mlRecommendations";
 
-const DemoContainer = ({ model, isModelDetailsLoading }) => (
-  <ModelDetailsSummary
-    model={model}
-    recommendations={modelRecommendations}
-    isModelDetailsLoading={isModelDetailsLoading}
-    isGetRecommendationsLoading={false}
-  />
-);
+const DemoContainer = () => {
+  const { taskId } = useParams();
 
-const Container = ({ model, isModelDetailsLoading }) => {
-  const { modelId } = useParams();
-
-  const { useGetModelRecommendations } = MlModelsService();
-  const { isLoading: isGetRecommendationsLoading, recommendations } = useGetModelRecommendations(modelId);
-  return (
-    <ModelDetailsSummary
-      model={model}
-      recommendations={recommendations}
-      isModelDetailsLoading={isModelDetailsLoading}
-      isGetRecommendationsLoading={isGetRecommendationsLoading}
-    />
-  );
+  return <MlModelRecommendations taskId={taskId} isLoading={false} recommendations={MlModelRecommendations} />;
 };
 
-const MlModelRecommendationsContainer = ({ model, isModelDetailsLoading }) => {
+const Container = () => {
+  const { taskId } = useParams();
+
+  const { useGetModelRecommendations } = MlModelsService();
+  const { isLoading: isGetRecommendationsLoading, recommendations } = useGetModelRecommendations(taskId);
+  return <MlModelRecommendations taskId={taskId} isLoading={isGetRecommendationsLoading} recommendations={recommendations} />;
+};
+
+const MlModelRecommendationsContainer = () => {
   const { isDemo } = useOrganizationInfo();
 
-  return isDemo ? (
-    <DemoContainer model={model} isModelDetailsLoading={isModelDetailsLoading} />
-  ) : (
-    <Container model={model} isModelDetailsLoading={isModelDetailsLoading} />
-  );
+  return isDemo ? <DemoContainer /> : <Container />;
 };
 
 export default MlModelRecommendationsContainer;

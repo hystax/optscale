@@ -4,7 +4,7 @@ import { RANGE_DATES } from "containers/RangePickerFormContainer/reducer";
 import { millisecondsToSeconds } from "utils/datetime";
 import { objectMap } from "utils/objects";
 
-export const CURRENT_VERSION = 10;
+export const CURRENT_VERSION = 12;
 
 // When we modify storage structure, we will need to properly use migrations:
 // https://github.com/rt2zz/redux-persist/blob/master/docs/migrations.md

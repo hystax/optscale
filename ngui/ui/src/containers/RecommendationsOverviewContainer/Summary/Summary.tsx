@@ -71,7 +71,6 @@ const getRiSpExpensesCardDefinition = ({ riSpExpensesSummary, isLoading, navigat
     },
     button: {
       show: true,
-      icon: <ExitToAppOutlinedIcon />,
       onClick: () => {
         const { startDate, endDate } = getLast30DaysRange();
         const { dataSourceId } = getQueryParams();

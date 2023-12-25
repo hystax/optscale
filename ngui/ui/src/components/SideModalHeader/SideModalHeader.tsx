@@ -11,6 +11,7 @@ import { capitalize } from "utils/strings";
 import useStyles from "./SideModalHeader.styles";
 
 const SideModalHeader = ({
+  text,
   messageId,
   onClose,
   showExpand = false,
@@ -35,7 +36,7 @@ const SideModalHeader = ({
       <AppBar className={headerClasses} position="static">
         <Toolbar>
           <SideModalTitle dataTestId={titleDataTestId} className={classes.title}>
-            <FormattedMessage id={messageId} values={formattedMessageValues} />
+            {text ?? <FormattedMessage id={messageId} values={formattedMessageValues} />}
           </SideModalTitle>
           {showExpand && (
             <IconButton

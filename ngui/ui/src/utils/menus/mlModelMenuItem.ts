@@ -6,9 +6,9 @@ import BaseMenuItem from "./baseMenuItem";
 class MlModelsMenuItem extends BaseMenuItem {
   route = mlModelsRoute;
 
-  messageId = "models";
+  messageId = "tasks";
 
-  dataTestId = "btn_ml_models";
+  dataTestId = "btn_ml_tasks";
 
   icon = HubOutlinedIcon;
 

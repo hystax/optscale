@@ -1,92 +1,22 @@
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Box, Stack } from "@mui/material";
 import { FormattedMessage, FormattedNumber } from "react-intl";
+import { useNavigate } from "react-router-dom";
 import CloudLabel from "components/CloudLabel";
 import ExecutorLabel from "components/ExecutorLabel";
-import FormattedDuration from "components/FormattedDuration";
 import FormattedMoney from "components/FormattedMoney";
 import KeyValueLabel from "components/KeyValueLabel";
 import LastModelRunGoals from "components/LastModelRunGoals";
-import MlModelRecommendations from "components/MlModelRecommendations";
-import MlModelStatus from "components/MlModelStatus";
-import SubTitle from "components/SubTitle";
-import SummaryGrid from "components/SummaryGrid";
+import Markdown from "components/Markdown";
 import SummaryList from "components/SummaryList";
-import MlModelRunsListContainer from "containers/MlModelRunsListContainer";
+import TypographyLoader from "components/TypographyLoader";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { getEditMlModelUrl } from "urls";
-import { ML_MODEL_STATUS, SUMMARY_CARD_TYPES, SUMMARY_VALUE_COMPONENT_TYPES } from "utils/constants";
+import { ML_MODEL_DETAILS_TAB_NAME } from "utils/constants";
 import { getTimeDistance } from "utils/datetime";
 import { SPACING_2 } from "utils/layouts";
+import { getQueryParams } from "utils/network";
 import { isEmpty as isEmptyObject } from "utils/objects";
-
-const SummaryCards = ({ status, lastRunDuration, recommendationsCount, totalSaving, totalCost, isModelDetailsLoading }) => {
-  const items = [
-    {
-      key: "status",
-      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.Custom,
-      CustomValueComponent: MlModelStatus,
-      valueComponentProps: { status, iconSize: "medium" },
-      color: {
-        [ML_MODEL_STATUS.CREATED]: "info",
-        [ML_MODEL_STATUS.RUNNING]: "primary",
-        [ML_MODEL_STATUS.ABORTED]: "info",
-        [ML_MODEL_STATUS.COMPLETED]: "success",
-        [ML_MODEL_STATUS.FAILED]: "error"
-      }[status],
-      captionMessageId: "status",
-      renderCondition: () => status !== undefined,
-      isLoading: isModelDetailsLoading,
-      dataTestIds: {
-        cardTestId: "card_run_status"
-      }
-    },
-    {
-      key: "duration",
-      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.Custom,
-      CustomValueComponent: FormattedDuration,
-      valueComponentProps: {
-        durationInSeconds: lastRunDuration ?? 0
-      },
-      renderCondition: () => lastRunDuration && lastRunDuration !== 0,
-      captionMessageId: "lastRunDuration",
-      dataTestIds: {
-        cardTestId: "card_last_run_duration"
-      },
-      isLoading: isModelDetailsLoading
-    },
-    {
-      key: "lifetimeCost",
-      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
-      valueComponentProps: {
-        value: totalCost
-      },
-      captionMessageId: "lifetimeCost",
-      isLoading: isModelDetailsLoading
-    },
-    {
-      key: "recommendations",
-      type: SUMMARY_CARD_TYPES.EXTENDED,
-      valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
-      valueComponentProps: {
-        value: totalSaving
-      },
-      captionMessageId: "summarySavings",
-      relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
-      relativeValueComponentProps: {
-        value: recommendationsCount
-      },
-      relativeValueCaptionMessageId: "recommendationsCount",
-      dataTestIds: {
-        cardTestId: "card_total_exp"
-      },
-      color: totalSaving || recommendationsCount > 20 ? "error" : "success",
-      isLoading: isModelDetailsLoading
-    }
-  ];
-
-  return <SummaryGrid summaryData={items} />;
-};
 
 const LastRunExecutorSummary = ({ isLoading, lastRunExecutor }) => {
   const { isDemo } = useOrganizationInfo();
@@ -137,8 +67,8 @@ const LastRunExecutorSummary = ({ isLoading, lastRunExecutor }) => {
 };
 
 const SummaryInfo = ({
-  modelId,
-  modelKey,
+  taskId,
+  taskKey,
   lastRunReachedGoals,
   lastRunGoals,
   runsCount,
@@ -147,94 +77,96 @@ const SummaryInfo = ({
   lastRunCost,
   ownerName,
   lastRunExecutor
-}) => (
-  <Box display="flex" flexWrap="wrap" rowGap={1} columnGap={16}>
-    <Box>
-      <SummaryList
-        titleMessage={<FormattedMessage id="trackedParameters" />}
-        titleIconButton={{
-          icon: <SettingsIcon fontSize="small" />,
-          link: getEditMlModelUrl(modelId, { tab: "parameters" })
-        }}
-        isLoading={isLoading}
-        items={
-          isEmptyObject(lastRunReachedGoals) ? (
-            <FormattedMessage id="thereAreNoParameterDefinedForModel" />
-          ) : (
-            <LastModelRunGoals lastRunGoals={lastRunGoals} modelReachedGoals={lastRunReachedGoals} />
-          )
-        }
-      />
-    </Box>
-    <Box>
-      <SummaryList
-        titleMessage={<FormattedMessage id="modelSummary" />}
-        isLoading={isLoading}
-        items={[
-          <KeyValueLabel key="key" messageId="key" value={modelKey} />,
-          <KeyValueLabel key="runs" messageId="runs" value={<FormattedNumber value={runsCount} />} />,
-          <KeyValueLabel
-            key="lastSuccessfulRun"
-            messageId="lastSuccessfulRun"
-            value={
-              <FormattedMessage
-                id={lastSuccessfulRunTimestamp === 0 ? "never" : "valueAgo"}
-                values={{
-                  value: lastSuccessfulRunTimestamp ? getTimeDistance(lastSuccessfulRunTimestamp) : null
-                }}
-              />
-            }
-          />,
-          <KeyValueLabel key="lastRunCost" messageId="lastRunCost" value={<FormattedMoney value={lastRunCost} />} />,
-          <KeyValueLabel key="owner" messageId="owner" value={ownerName} />
-        ]}
-      />
-    </Box>
-    <Box>
-      <LastRunExecutorSummary isLoading={isLoading} lastRunExecutor={lastRunExecutor} />
-    </Box>
-  </Box>
-);
-
-const ModelDetailsSummary = ({
-  model,
-  recommendations,
-  isModelDetailsLoading = false,
-  isGetRecommendationsLoading = false
 }) => {
+  const navigate = useNavigate();
+
+  return (
+    <Box display="flex" flexWrap="wrap" rowGap={1} columnGap={16}>
+      <Box>
+        <SummaryList
+          titleMessage={<FormattedMessage id="trackedMetrics" />}
+          titleIconButton={{
+            icon: <SettingsIcon fontSize="small" />,
+            onClick: () => {
+              const { [ML_MODEL_DETAILS_TAB_NAME]: mlModelDetailsTabName } = getQueryParams();
+              navigate(
+                getEditMlModelUrl(taskId, {
+                  tab: "metrics",
+                  [ML_MODEL_DETAILS_TAB_NAME]: mlModelDetailsTabName
+                })
+              );
+            }
+          }}
+          isLoading={isLoading}
+          items={
+            isEmptyObject(lastRunReachedGoals) ? (
+              <FormattedMessage id="thereAreNoMetricsDefinedForModel" />
+            ) : (
+              <LastModelRunGoals lastRunGoals={lastRunGoals} modelReachedGoals={lastRunReachedGoals} />
+            )
+          }
+        />
+      </Box>
+      <Box>
+        <SummaryList
+          titleMessage={<FormattedMessage id="summary" />}
+          isLoading={isLoading}
+          items={[
+            <KeyValueLabel key="key" messageId="key" value={taskKey} />,
+            <KeyValueLabel key="runs" messageId="runs" value={<FormattedNumber value={runsCount} />} />,
+            <KeyValueLabel
+              key="lastSuccessfulRun"
+              messageId="lastSuccessfulRun"
+              value={
+                <FormattedMessage
+                  id={lastSuccessfulRunTimestamp === 0 ? "never" : "valueAgo"}
+                  values={{
+                    value: lastSuccessfulRunTimestamp ? getTimeDistance(lastSuccessfulRunTimestamp) : null
+                  }}
+                />
+              }
+            />,
+            <KeyValueLabel key="lastRunCost" messageId="lastRunCost" value={<FormattedMoney value={lastRunCost} />} />,
+            <KeyValueLabel key="owner" messageId="owner" value={ownerName} />
+          ]}
+        />
+      </Box>
+      <Box>
+        <LastRunExecutorSummary isLoading={isLoading} lastRunExecutor={lastRunExecutor} />
+      </Box>
+    </Box>
+  );
+};
+
+const ModelDetailsSummary = ({ model, isModelDetailsLoading = false }) => {
   const {
-    id: modelId,
-    key: modelKey,
-    status,
-    last_run_duration: lastRunDuration,
+    id: taskId,
+    key: taskKey,
+    description,
     last_run_cost: lastRunCost = 0,
     run_goals: lastRunGoals = [],
     owner: { name: ownerName } = {},
     last_successful_run: lastSuccessfulRunTimestamp,
-    total_cost: totalCost = 0,
     runs_count: runsCount = 0,
     last_run_executor: lastRunExecutor,
     last_run_reached_goals: lastRunReachedGoals = {}
   } = model;
 
-  const { total_count: recommendationsCount = 0, total_saving: totalSaving = 0 } = recommendations;
-
   return (
     <Stack spacing={SPACING_2}>
-      <div>
-        <SummaryCards
-          status={status}
-          recommendationsCount={recommendationsCount}
-          totalSaving={totalSaving}
-          lastRunDuration={lastRunDuration}
-          totalCost={totalCost}
-          isModelDetailsLoading={isModelDetailsLoading}
-        />
-      </div>
+      {isModelDetailsLoading ? (
+        <TypographyLoader linesCount={4} />
+      ) : (
+        description && (
+          <div>
+            <Markdown>{description}</Markdown>
+          </div>
+        )
+      )}
       <div>
         <SummaryInfo
-          modelId={modelId}
-          modelKey={modelKey}
+          taskId={taskId}
+          taskKey={taskKey}
           lastRunReachedGoals={lastRunReachedGoals}
           lastRunGoals={lastRunGoals}
           runsCount={runsCount}
@@ -244,18 +176,6 @@ const ModelDetailsSummary = ({
           ownerName={ownerName}
           lastRunExecutor={lastRunExecutor}
         />
-      </div>
-      <div>
-        <SubTitle>
-          <FormattedMessage id="recommendations" />
-        </SubTitle>
-        <MlModelRecommendations modelId={modelId} isLoading={isGetRecommendationsLoading} recommendations={recommendations} />
-      </div>
-      <div>
-        <SubTitle>
-          <FormattedMessage id="runs" />
-        </SubTitle>
-        <MlModelRunsListContainer />
       </div>
     </Stack>
   );

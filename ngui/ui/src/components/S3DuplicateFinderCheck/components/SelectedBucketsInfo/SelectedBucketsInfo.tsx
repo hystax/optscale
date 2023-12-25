@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
-import { SI_UNITS, useFormatDigitalUnit } from "components/FormattedDigitalUnit";
+import { SI_UNITS, formatDigitalUnit } from "components/FormattedDigitalUnit";
 import { useMoneyFormatter } from "components/FormattedMoney";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import KeyValueLabel from "components/KeyValueLabel";
@@ -57,7 +57,6 @@ const BucketsTable = ({ fromBucket, toBucket }) => {
 
 const Duplicates = ({ crossBucketsStats }) => {
   const formatMoney = useMoneyFormatter();
-  const formatDigitalUnit = useFormatDigitalUnit();
 
   return (
     <Box>

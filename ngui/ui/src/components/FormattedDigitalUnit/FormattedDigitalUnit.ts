@@ -57,24 +57,20 @@ export const getConvertedValueAndUnitName = (value, baseUnit = SI_UNITS.BYTE) =>
 
 const APPROXIMATE_ZERO_THRESHOLD = 0.01;
 
-export const useFormatDigitalUnit =
-  () =>
-  ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }) => {
-    const [convertedValue, unitName] = getConvertedValueAndUnitName(value, baseUnit);
+export const formatDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }) => {
+  const [convertedValue, unitName] = getConvertedValueAndUnitName(value, baseUnit);
 
-    const formattedNumber =
-      convertedValue !== 0 && convertedValue < APPROXIMATE_ZERO_THRESHOLD
-        ? "≈0"
-        : intl.formatNumber(convertedValue, { maximumFractionDigits });
+  const formattedNumber =
+    convertedValue !== 0 && convertedValue < APPROXIMATE_ZERO_THRESHOLD
+      ? "≈0"
+      : intl.formatNumber(convertedValue, { maximumFractionDigits });
 
-    const formattedUnit = intl.formatMessage({ id: "digitalUnits" }, { unit: unitName });
+  const formattedUnit = intl.formatMessage({ id: "digitalUnits" }, { unit: unitName });
 
-    return `${formattedNumber} ${formattedUnit}`;
-  };
-
-const FormattedDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }) => {
-  const format = useFormatDigitalUnit();
-  return format({ value, baseUnit, maximumFractionDigits });
+  return `${formattedNumber} ${formattedUnit}`;
 };
+
+const FormattedDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }) =>
+  formatDigitalUnit({ value, baseUnit, maximumFractionDigits });
 
 export default FormattedDigitalUnit;

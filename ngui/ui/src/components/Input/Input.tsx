@@ -14,12 +14,15 @@ const Input = forwardRef((props, ref) => {
     InputProps = {},
     InputLabelProps = {},
     isMasked = false,
+    minRows,
+    maxRows,
     variant,
     sx,
     ...rest
   } = props;
 
   const { classes, cx } = useStyles();
+
   const inputClassName = cx(isMasked ? classes.masked : "");
 
   const { readOnly = false, style: originalStyles } = InputProps;
@@ -49,6 +52,8 @@ const Input = forwardRef((props, ref) => {
         ...InputLabelProps
       }}
       InputProps={InputPropsMerged}
+      minRows={minRows}
+      maxRows={maxRows}
       {...rest}
       inputRef={ref}
     />

@@ -1,6 +1,6 @@
-import { SET_MODEL_BREAKDOWNS } from "./actionTypes";
+import { SET_MODEL_OVERVIEW_CHART } from "./actionTypes";
 
-export const setBreakdowns = (storeId, modelId, breakdowns) => ({
-  type: SET_MODEL_BREAKDOWNS,
-  payload: { storeId, id: modelId, breakdowns }
+export const setModelOverviewChart = (storeId, taskId, breakdowns) => ({
+  type: SET_MODEL_OVERVIEW_CHART,
+  payload: { storeId, id: taskId, breakdowns }
 });

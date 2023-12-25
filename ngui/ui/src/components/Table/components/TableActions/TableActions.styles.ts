@@ -6,6 +6,8 @@ const useStyles = makeStyles()((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: theme.spacing(1),
     flexGrow: 1,
     maxWidth: "100%",
     "& > *": {

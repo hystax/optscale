@@ -59,7 +59,7 @@ const Markdown = ({ children }) => (
         </Link>
       ),
       h1: ({ children: markdownChildren }) => (
-        <MarkdownTypography variant="h5" component="h1">
+        <MarkdownTypography variant="h6" component="h1">
           {markdownChildren}
         </MarkdownTypography>
       ),

@@ -1,10 +1,10 @@
-import { ML_MODEL_CREATE } from "urls";
+import { ML_TASK_CREATE } from "urls";
 import BaseRoute from "./baseRoute";
 
 class MlModelCreateRoute extends BaseRoute {
   page = "MlModelCreate";
 
-  link = ML_MODEL_CREATE;
+  link = ML_TASK_CREATE;
 }
 
 export default new MlModelCreateRoute();

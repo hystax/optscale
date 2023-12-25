@@ -73,23 +73,9 @@ class TestExecutorsApi(TestProfilingBase):
         self.assertEqual(len(resp['executors']), 3)
 
     def test_executors_breakdown_params(self):
-        code, resp = self.client.executors_breakdown_get(self.org['id'],
-                                                         breakdown_by=None)
-        self.assertEqual(code, 400)
-        self.verify_error_code(resp, 'OE0216')
-
-        for br in [123, '123']:
-            code, resp = self.client.executors_breakdown_get(
-                self.org['id'], breakdown_by=br)
-            self.assertEqual(code, 400)
-            self.verify_error_code(resp, 'OE0217')
-
-        for br in ['executors_count', 'cpu', 'ram']:
-            code, resp = self.client.executors_breakdown_get(
-                self.org['id'], breakdown_by=br)
-            self.assertEqual(code, 200)
-            self.assertEqual(
-                resp, {'breakdown': {}, 'breakdown_by': br})
+        code, resp = self.client.executors_breakdown_get(self.org['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['breakdown'], {})
 
         code, app1 = self.client.application_create(
             self.org['id'], {'name': 'pr_1', 'key': 'k_1'})
@@ -97,48 +83,28 @@ class TestExecutorsApi(TestProfilingBase):
         code, app2 = self.client.application_create(
             self.org['id'], {'name': 'pr_2', 'key': 'k_2'})
         self.assertEqual(code, 201)
-        run_1_1 = self._create_run(self.org['id'], app1['id'], [])
-        run_1_2 = self._create_run(self.org['id'], app1['id'], [])
+        run_1_start_ts = int(datetime.utcnow().timestamp())
+        run_2_start_ts = run_1_start_ts - 24 * 3600
+        run_3_start_ts = run_1_start_ts - 2 * 24 * 3600
+        self._create_run(
+            self.org['id'], app1['id'], ['i-1'],
+            start=run_1_start_ts)
+        self._create_run(
+            self.org['id'], app1['id'], ['i-1'],
+            start=run_1_start_ts)
+        self._create_run(
+            self.org['id'], app1['id'], ['i-2'],
+            start=run_2_start_ts)
+        self._create_run(
+            self.org['id'], app2['id'], ['i-4'],
+            start=run_3_start_ts)
 
-        dt1 = datetime(2022, 2, 5, tzinfo=timezone.utc)
-        dt2 = dt1 + timedelta(days=2)
-        dt1 = int(dt1.timestamp())
-        dt2 = int(dt2.timestamp())
-        self._create_proc_stats(
-            run_1_1['_id'], dt1, 'i-1', 10, 100, 5, 25 * BYTES_IN_MB,
-            gpu_load=10, gpu_memory_free=20, gpu_memory_used=10,
-            gpu_memory_total=100)
-        self._create_proc_stats(
-            run_1_1['_id'], dt1, 'i-2', 20, 200, 10, 50 * BYTES_IN_MB,
-            gpu_load=20, gpu_memory_free=60, gpu_memory_used=40,
-            gpu_memory_total=120)
-        self._create_proc_stats(
-            run_1_2['_id'], dt2, 'i-3', 30, 300, 15, 75 * BYTES_IN_MB,
-            gpu_load=30, gpu_memory_free=40, gpu_memory_used=50,
-            gpu_memory_total=80)
-
-        run_2_1 = self._create_run(self.org['id'], app2['id'], [])
-        self._create_proc_stats(
-            run_2_1['_id'], dt2, 'i-1', 40, 400, 20, 100 * BYTES_IN_MB,
-            gpu_load=40, gpu_memory_free=50, gpu_memory_used=30,
-            gpu_memory_total=90)
-
-        for br, expected in [
-            ('executors_count', {str(dt1): 2, str(dt2): 2}),
-            ('cpu', {str(dt1): 15.0, str(dt2): 35.0}),
-            ('ram', {str(dt1): 150.0, str(dt2): 350.0}),
-            ('process_cpu', {str(dt1): 7.5, str(dt2): 17.5}),
-            ('process_ram', {str(dt1): 37.5, str(dt2): 87.5}),
-            ('gpu_load', {str(dt1): 15.0, str(dt2): 35.0}),
-            ('gpu_memory_free', {str(dt1): 40.0, str(dt2): 45.0}),
-            ('gpu_memory_used', {str(dt1): 25.0, str(dt2): 40.0}),
-            ('gpu_memory_total', {str(dt1): 110.0, str(dt2): 85.0})
-        ]:
-            code, resp = self.client.executors_breakdown_get(
-                self.org['id'], breakdown_by=br)
-            self.assertEqual(code, 200)
-            self.assertDictEqual(
-                resp, {'breakdown': expected, 'breakdown_by': br})
+        code, resp = self.client.executors_breakdown_get(
+            self.org['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['breakdown']), 3)
+        for v in resp['breakdown'].values():
+            self.assertEqual(v, 1)
 
     def test_list_executors_multi_app(self):
         code, resp = self.client.executor_list(self.org['id'])

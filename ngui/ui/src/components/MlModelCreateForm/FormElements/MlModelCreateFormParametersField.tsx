@@ -16,7 +16,7 @@ import AggregateFunctionFormattedMessage from "components/AggregateFunctionForma
 import KeyValueLabel from "components/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import TendencyFormattedMessage from "components/TendencyFormattedMessage";
-import { ML_MODELS_PARAMETERS } from "urls";
+import { ML_TASK_PARAMETERS } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 
 const Parameter = ({ name, goalKey, tendency, aggregateFunction, value, isSelected, onSelect }) => (
@@ -64,15 +64,15 @@ const MlModelCreateFormParametersField = ({ name, parameters = [], isLoading = f
         ) : (
           <FormControl fullWidth>
             <SubTitle>
-              <FormattedMessage id="parameters" />
+              <FormattedMessage id="metrics" />
             </SubTitle>
             {isEmptyArray(parameters) ? (
               <Typography>
                 <FormattedMessage
-                  id="noParametersToTrack"
+                  id="noMetircsToTrack"
                   values={{
                     link: (chunks) => (
-                      <Link data-test-id="link_parameters_library" href={ML_MODELS_PARAMETERS} target="_blank" rel="noopener">
+                      <Link data-test-id="link_metrics_library" href={ML_TASK_PARAMETERS} target="_blank" rel="noopener">
                         {chunks}
                       </Link>
                     )
@@ -82,7 +82,7 @@ const MlModelCreateFormParametersField = ({ name, parameters = [], isLoading = f
             ) : (
               <>
                 <Typography gutterBottom>
-                  <FormattedMessage id="createMlModel.selectParameters" />
+                  <FormattedMessage id="createMlModel.selectMetrics" />
                 </Typography>
                 <Grid container spacing={1}>
                   {parameters.map((parameter) => {

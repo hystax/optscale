@@ -2,7 +2,7 @@ import { useTheme } from "@mui/material/styles";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useParams } from "react-router-dom";
 import DynamicFractionDigitsValue, { useFormatDynamicFractionDigitsValue } from "components/DynamicFractionDigitsValue";
-import FormattedDigitalUnit, { IEC_UNITS, useFormatDigitalUnit } from "components/FormattedDigitalUnit";
+import FormattedDigitalUnit, { IEC_UNITS, formatDigitalUnit } from "components/FormattedDigitalUnit";
 import FormattedMoney, { useMoneyFormatter } from "components/FormattedMoney";
 import { useFormatIntervalDuration } from "hooks/useFormatIntervalDuration";
 import { useModelBreakdownState } from "reducers/modelBreakdown/useModelBreakdownState";
@@ -46,7 +46,7 @@ const Breakdown = ({ runs }) => {
   const theme = useTheme();
   const intl = useIntl();
 
-  const { modelId } = useParams();
+  const { taskId } = useParams();
 
   const formatInterval = useFormatIntervalDuration();
   const formatDuration = getDurationFormatter({
@@ -54,7 +54,7 @@ const Breakdown = ({ runs }) => {
     formatMessage: intl.formatMessage
   });
   const formatMoney = useMoneyFormatter();
-  const formatDigitalUnit = useFormatDigitalUnit();
+
   const formatDynamicFractionDigitsValue = useFormatDynamicFractionDigitsValue();
 
   const getMetricsBreakdownConfig = () => [
@@ -163,7 +163,7 @@ const Breakdown = ({ runs }) => {
   const colorsMap = getColorsMap(breakdownNames, theme.palette.chart);
 
   const { selectedBreakdowns, addBreakdown, removeBreakdown } = useModelBreakdownState({
-    modelId,
+    taskId,
     storeId: "model_runs",
     breakdownNames,
     initialSelectedBreakdowns: goalsBreakdownNames,

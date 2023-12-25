@@ -1,8 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useInheritedColor, useOrdinalColorScale } from "@nivo/colors";
 import { useTheme, useValueFormatter } from "@nivo/core";
+import { ChartsTooltipContext } from "contexts/ChartsTooltipContext";
 import { usePoints, useSlices } from "./hooks";
 import SliceTooltip, { TOOLTIP_ANCHOR } from "./SliceTooltip";
+
+const useMousePosition = () => {
+  const { setMousePosition: setExternalMousePosition, mousePosition: externalMousePosition } = useContext(ChartsTooltipContext);
+
+  const [mousePositionState, setMousePositionState] = useState(undefined);
+
+  const mousePosition = useMemo(() => externalMousePosition ?? mousePositionState, [externalMousePosition, mousePositionState]);
+
+  const setMousePosition = useCallback(
+    (coordinates) => {
+      if (typeof setExternalMousePosition === "function") {
+        setExternalMousePosition(coordinates);
+      } else {
+        setMousePositionState(coordinates);
+      }
+    },
+    [setExternalMousePosition]
+  );
+
+  return [mousePosition, setMousePosition];
+};
 
 export const SliceTooltipLayer = ({
   sliceTooltip,
@@ -81,16 +103,14 @@ export const SliceTooltipLayer = ({
     });
   }, []);
 
+  const [mousePosition, setMousePosition] = useMousePosition();
+
   useEffect(() => {
-    function mouseMoveHandler(event) {
-      const { clientX, clientY } = event;
-      const bounds = event.target.getBoundingClientRect();
+    if (mousePosition) {
+      const { x, y } = mousePosition;
 
-      const cursorX = clientX - bounds.left;
-      const cursorY = clientY - bounds.top;
-
-      const cursorXRelativeToLinesAres = cursorX - linesAreaRectangle.xStart;
-      const cursorYRelativeToLinesAres = cursorY - linesAreaRectangle.yStart;
+      const cursorXRelativeToLinesAres = x - linesAreaRectangle.xStart;
+      const cursorYRelativeToLinesAres = y - linesAreaRectangle.yStart;
 
       const sliceUnderCursor = slices.find(
         ({ x0, width, height }) =>
@@ -101,8 +121,8 @@ export const SliceTooltipLayer = ({
         setSlice(sliceUnderCursor);
         setTooltipSettings({
           position: {
-            x: clientX - bounds.left,
-            y: clientY - bounds.top
+            x,
+            y
           },
           anchor: cursorXRelativeToLinesAres > linesAreaRectangle.width / 2 ? TOOLTIP_ANCHOR.LEFT : TOOLTIP_ANCHOR.RIGHT
         });
@@ -110,11 +130,35 @@ export const SliceTooltipLayer = ({
         resetSlice();
         resetTooltip();
       }
+    } else {
+      resetSlice();
+      resetTooltip();
+    }
+  }, [
+    linesAreaRectangle.width,
+    linesAreaRectangle.xStart,
+    linesAreaRectangle.yStart,
+    mousePosition,
+    resetSlice,
+    resetTooltip,
+    slices
+  ]);
+
+  useEffect(() => {
+    function mouseMoveHandler(event) {
+      const { clientX, clientY } = event;
+      const bounds = event.target.getBoundingClientRect();
+      const cursorX = clientX - bounds.left;
+      const cursorY = clientY - bounds.top;
+
+      setMousePosition({
+        x: cursorX,
+        y: cursorY
+      });
     }
 
     function mouseLeaveHandler() {
-      resetSlice();
-      resetTooltip();
+      setMousePosition(undefined);
     }
 
     const element = canvasRef.current;
@@ -125,7 +169,7 @@ export const SliceTooltipLayer = ({
       element.removeEventListener("mousemove", mouseMoveHandler);
       element.removeEventListener("mouseleave", mouseLeaveHandler);
     };
-  }, [linesAreaRectangle.width, linesAreaRectangle.xStart, linesAreaRectangle.yStart, resetSlice, resetTooltip, slices]);
+  }, [setMousePosition]);
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");

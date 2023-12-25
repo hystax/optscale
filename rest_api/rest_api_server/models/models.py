@@ -6,7 +6,8 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy import (Column, Integer, String, Boolean, Time, Table,
                         ForeignKey, UniqueConstraint, CheckConstraint)
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.sql.expression import false
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 
 from tools.cloud_adapter.cloud import SUPPORTED_BILLING_TYPES
@@ -1662,3 +1663,32 @@ class PowerSchedule(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
                'last_run_error')
     def _validate(self, key, value):
         return self.get_validator(key, value)
+
+
+class Layout(Base, ValidatorMixin):
+    __tablename__ = 'layout'
+    id = Column(NullableUuid('id'), primary_key=True, default=gen_id,
+                info=ColumnPermissions.create_only)
+    name = Column(NotWhiteSpaceString('name'), nullable=False,
+                  info=ColumnPermissions.full)
+    data = Column(NullableJSON('data'), nullable=True, default='{}',
+                  info=ColumnPermissions.full)
+    type = Column(NotWhiteSpaceString('type'), nullable=False,
+                  info=ColumnPermissions.create_only)
+    shared = Column(NullableBool('shared'), nullable=True, default=False,
+                    info=ColumnPermissions.full)
+    owner_id = Column(Uuid('owner_id'),
+                      ForeignKey('employee.id'),
+                      info=ColumnPermissions.full,
+                      nullable=False)
+    owner = relationship("Employee", foreign_keys=[owner_id])
+    entity_id = Column(NullableUuid('entity_id'), nullable=True,
+                       info=ColumnPermissions.create_only)
+
+    @validates("name", "data", "type", "shared", "owner_id", "entity_id")
+    def _validate(self, key, value):
+        return self.get_validator(key, value)
+
+    @hybrid_property
+    def deleted(self):
+        return false()

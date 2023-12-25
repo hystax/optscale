@@ -20,7 +20,6 @@ import {
   FONT_SIZE,
   HEIGHT,
   MARGIN,
-  PARAMETER_FALLBACK_VALUE,
   getChartRunsData,
   getParametersDimensions,
   getRunNamesDimensionTicks,
@@ -30,12 +29,48 @@ import {
 // https://github.com/plotly/react-plotly.js#customizing-the-plotlyjs-bundle
 const Plot = createPlotlyComponent(Plotly);
 
+const getHyperparametersValueToTickValueMap = (chartRunsData) => {
+  const hyperparameterNames = Object.keys(chartRunsData[0]?.hyperparameters ?? {});
+
+  return Object.fromEntries(
+    hyperparameterNames.map((name) => {
+      const hyperparameterValues = [...new Set(chartRunsData.map(({ hyperparameters }) => hyperparameters[name]))];
+
+      const includesNotSetValue = hyperparameterValues.some((value) => value === undefined);
+
+      const sortedValues = hyperparameterValues.toSorted((a, b) => {
+        if (typeof a === "number" && typeof b === "number") {
+          return a - b;
+        }
+        return String(a).localeCompare(String(b));
+      });
+
+      const orderedValues = includesNotSetValue
+        ? [undefined, ...sortedValues.filter((value) => value !== undefined)]
+        : sortedValues;
+
+      const valueToTick = Object.fromEntries(orderedValues.map((value, index) => [value, index]));
+      const tickToValue = Object.fromEntries(orderedValues.map((value, index) => [index, value]));
+
+      return [
+        name,
+        {
+          valueToTick,
+          tickToValue
+        }
+      ];
+    })
+  );
+};
+
 const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
   const chartRunsData = getChartRunsData(runs);
 
-  const hyperparameterNames = Object.keys(runs[0]?.hyperparameters ?? {}).map((name) => name);
+  const hyperparametersValueToTickValueMap = getHyperparametersValueToTickValueMap(chartRunsData);
 
-  const goalsDefinition = runs[0]?.reached_goals ?? {};
+  const hyperparameterNames = Object.keys(chartRunsData[0]?.hyperparameters ?? {}).map((name) => name);
+
+  const goalsDefinition = chartRunsData[0]?.reachedGoals ?? {};
 
   const goalKeys = Object.keys(goalsDefinition).map((key) => key) ?? [];
 
@@ -63,19 +98,35 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
     };
   };
 
-  const initializeHyperparameterDimension = (hyperparameterName) => ({
-    label: `${hyperparameterName} (${intl.formatMessage({ id: "hyperparameterAbbreviation" })})`,
-    dimensionName: hyperparameterName,
-    dimensionGroup: DIMENSION_GROUPS.HYPERPARAMETERS,
-    values: chartRunsData.map((d) => d.hyperparameters[hyperparameterName] ?? PARAMETER_FALLBACK_VALUE)
-  });
+  const initializeHyperparameterDimension = (hyperparameterName) => {
+    const hyperparameterValues = chartRunsData.map((d) => d.hyperparameters[hyperparameterName]);
+
+    const tickvals = Object.keys(hyperparametersValueToTickValueMap[hyperparameterName].tickToValue).map(Number);
+
+    const ticktext = tickvals.map(
+      (value) => hyperparametersValueToTickValueMap[hyperparameterName].tickToValue[value] ?? "(not set)"
+    );
+
+    const values = hyperparameterValues.map(
+      (value) => hyperparametersValueToTickValueMap[hyperparameterName].valueToTick[value]
+    );
+
+    return {
+      label: `${hyperparameterName} (${intl.formatMessage({ id: "hyperparameterAbbreviation" })})`,
+      dimensionName: hyperparameterName,
+      dimensionGroup: DIMENSION_GROUPS.HYPERPARAMETERS,
+      tickvals,
+      ticktext,
+      values
+    };
+  };
 
   const initializeGoalDimension = (goalKey) => ({
     label: getGoalNameByKey(goalKey),
     dimensionName: goalKey,
     dimensionGroup: DIMENSION_GROUPS.GOALS,
     values: chartRunsData.map((run) => {
-      const { value = PARAMETER_FALLBACK_VALUE } = run.reachedGoals?.[goalKey] ?? {};
+      const { value = 0 } = run.reachedGoals?.[goalKey] ?? {};
 
       return value;
     })
@@ -110,10 +161,16 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
 
   return (
     <Stack spacing={SPACING_1}>
-      <Box display="flex" alignItems="center" height="30px">
-        <SubTitle>
+      <Stack direction="row" spacing={0} alignItems="center" height="30px">
+        <SubTitle sx={{ mr: 1 }}>
           <FormattedMessage id="correlations" />
         </SubTitle>
+        <QuestionMark
+          tooltipText={<FormattedMessage id="correlationsChartHint" />}
+          fontSize="small"
+          Icon={InfoOutlinedIcon}
+          withLeftMargin={false}
+        />
         {[hyperparameterNames, goalKeys].every(isEmptyArray) ? null : (
           <ParametersSelector
             hyperparametersDimensionsNames={hyperparameterNames}
@@ -140,12 +197,6 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
             }}
           />
         )}
-        <QuestionMark
-          tooltipText={<FormattedMessage id="correlationsChartHint" />}
-          fontSize="small"
-          Icon={InfoOutlinedIcon}
-          withLeftMargin={false}
-        />
         {isSomethingSelected && (
           <Button
             color="error"
@@ -156,7 +207,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
             customClass={classes.clearFiltersButton}
           />
         )}
-      </Box>
+      </Stack>
       <Box height={`${HEIGHT}px`}>
         {isEmptyArray(chartRunsData) ? (
           <Typography
@@ -175,7 +226,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
               onInitialized={(figure) => {
                 const [runsCorrelationsTrace] = figure.data;
                 const { dimensions } = runsCorrelationsTrace;
-                const selectedRuns = getSelectedRuns(chartRunsData, dimensions);
+                const selectedRuns = getSelectedRuns(chartRunsData, dimensions, hyperparametersValueToTickValueMap);
 
                 setSelectedRunNumbers(selectedRuns.map(({ runNumber }) => runNumber));
 
@@ -185,7 +236,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
                 const [runsCorrelationsTrace] = figure.data;
                 const { dimensions } = runsCorrelationsTrace;
 
-                const selectedRuns = getSelectedRuns(chartRunsData, dimensions);
+                const selectedRuns = getSelectedRuns(chartRunsData, dimensions, hyperparametersValueToTickValueMap);
 
                 const updateRunNamesDimensionTicks = () => {
                   const { tickvals, ticktext } = getRunNamesDimensionTicks({
@@ -226,7 +277,16 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
                     // https://plotly.com/javascript/reference/parcoords/#parcoords-line-color
                     color: chartRunsData.map(({ index }) => index),
                     // https://plotly.com/javascript/reference/parcoords/#parcoords-line-colorscale
-                    colorscale: chartRunsData.map(({ index, color }) => [index / (chartRunsData.length - 1), color])
+                    colorscale:
+                      chartRunsData.length === 1
+                        ? [
+                            [0, chartRunsData[0].color],
+                            [1, chartRunsData[0].color]
+                          ]
+                        : chartRunsData.map(({ index, color }) => [
+                            chartRunsData.length === 1 ? 0 : index / (chartRunsData.length - 1),
+                            color
+                          ])
                   }
                 }
               ]}

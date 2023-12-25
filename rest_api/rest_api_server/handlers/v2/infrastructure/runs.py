@@ -135,6 +135,20 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                                 target_value:
                                                     type: number
                                                     description: Goal target value
+                                    runset:
+                                        type: object
+                                        description: Runset object
+                                    dataset:
+                                        type: object
+                                        description: Dataset object
+                                    git:
+                                        type: object
+                                        description: Git object
+                                    command:
+                                        type: string
+                                        description: |
+                                            Command with which instrumented
+                                            program has been launched
 
             401:
                 description: |

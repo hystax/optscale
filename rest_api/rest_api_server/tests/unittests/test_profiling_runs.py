@@ -17,6 +17,12 @@ class TestRunsApi(TestProfilingBase):
             self.org['id'], {'name': 'name1', 'auth_user_id': self.auth_user})
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
               'get_user_id', return_value=self.auth_user).start()
+        self.git_data = {
+            'remote': "git@github.com:hystax/optscale_arcee.git",
+            'branch': "feature/ml_leaderboard",
+            'commit_id': "1fde95d5664ae9e542610993e17ee81b135b55c0",
+            'status': "dirty"
+        }
 
     def test_get_run(self):
         code, resp = self.client.run_get(self.org['id'], '123')
@@ -35,15 +41,104 @@ class TestRunsApi(TestProfilingBase):
         run = self._create_run(self.org['id'],
                                app['id'],
                                ['i-1', 'i-2'],
+                               's3://ml-bucket/dataset',
                                data={'step': 2000, 'loss': 55})
         code, resp = self.client.run_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['executors']), 2)
         self.assertEqual(len(resp['goals']), 2)
-        # ????????????
-        # goal_values = {'loss': 55, 'step': None}
-        # for goal in resp['goals']:
-        #     self.assertEqual(goal['value'], goal_values.get(goal['name']))
+        self.assertTrue(resp['dataset'])
+
+    def test_get_run_git_data(self):
+        goal_1 = self._create_goal(self.org['id'], 'loss')
+        goal_2 = self._create_goal(self.org['id'], 'goal_2')
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'goals': [goal_1['id'], goal_2['id']]
+            })
+        self.assertEqual(code, 201)
+        run = self._create_run(self.org['id'],
+                               app['id'],
+                               ['i-1', 'i-2'],
+                               's3://ml-bucket/dataset',
+                               data={'step': 2000, 'loss': 55},
+                               git=self.git_data)
+        code, resp = self.client.run_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['git'], self.git_data)
+
+    def test_get_run_console_data(self):
+        goal_1 = self._create_goal(self.org['id'], 'loss')
+        goal_2 = self._create_goal(self.org['id'], 'goal_2')
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'goals': [goal_1['id'], goal_2['id']]
+            })
+        self.assertEqual(code, 201)
+        run = self._create_run(self.org['id'],
+                               app['id'],
+                               ['i-1', 'i-2'],
+                               's3://ml-bucket/dataset',
+                               data={'step': 2000, 'loss': 55},
+                               git=self.git_data)
+        code, resp = self.client.run_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertIsNone(resp['console'])
+
+        console_data = {
+            'output': 'output',
+            'error': 'error'
+        }
+        self._create_console(run['_id'], **console_data)
+        code, resp = self.client.run_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['console'], console_data)
+
+    def test_get_run_no_datasets(self):
+        goal_1 = self._create_goal(self.org['id'], 'loss')
+        goal_2 = self._create_goal(self.org['id'], 'goal_2')
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'goals': [goal_1['id'], goal_2['id']]
+            })
+        self.assertEqual(code, 201)
+        run = self._create_run(self.org['id'],
+                               app['id'],
+                               ['i-1', 'i-2'],
+                               data={'step': 2000, 'loss': 55})
+        code, resp = self.client.run_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertIsNone(resp['dataset'])
+
+    def test_get_run_deleted_dataset(self):
+        goal_1 = self._create_goal(self.org['id'], 'loss')
+        goal_2 = self._create_goal(self.org['id'], 'goal_2')
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'goals': [goal_1['id'], goal_2['id']]
+            })
+        self.assertEqual(code, 201)
+        run = self._create_run(self.org['id'],
+                               app['id'],
+                               ['i-1', 'i-2'],
+                               's3://ml-bucket/dataset',
+                               data={'step': 2000, 'loss': 55})
+        code, resp = self.client.dataset_list(self.org['id'])
+        self.assertEqual(code, 200)
+        for dataset in resp['datasets']:
+            code, _ = self.client.dataset_delete(self.org['id'], dataset['id'])
+            self.assertEqual(code, 204)
+        code, resp = self.client.run_get(self.org['id'], run['_id'])
+        self.assertEqual(code, 200)
+        self.assertTrue(resp.get('dataset', {}).get('deleted'))
 
     def test_get_runset_run(self):
         goal_1 = self._create_goal(self.org['id'], 'loss')
@@ -247,6 +342,30 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(code, 200)
         self.assertEqual(resp['last_run_cost'], 5)
         self.assertEqual(resp['total_cost'], 190)
+
+    def test_list_run_git_data(self):
+        goal_1 = self._create_goal(self.org['id'], 'loss')
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'goals': [goal_1['id']]
+            })
+        self.assertEqual(code, 201)
+        run_1 = self._create_run(self.org['id'],
+                                 app['id'], ['i-1'],
+                                 data={'step': 1500, 'loss': 55},
+                                 start=int(datetime(2022, 5, 15).timestamp()),
+                                 git=self.git_data)
+        run_2 = self._create_run(self.org['id'],
+                                 app['id'], ['i-2'],
+                                 data={'step': 2000, 'loss': 70},
+                                 start=int(datetime(2022, 5, 20).timestamp()),
+                                 git=None)
+        code, resp = self.client.run_list(self.org['id'], app['id'])
+        self.assertEqual(len(resp['runs']), 2)
+        for run in resp['runs']:
+            self.assertTrue('git' in run)
 
     def test_list_run(self):
         goal_1 = self._create_goal(self.org['id'], 'loss')
