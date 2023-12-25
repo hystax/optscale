@@ -44,10 +44,13 @@ const DocsPanel = () => {
     if (!isOpened) {
       return undefined;
     }
+
     const controller = new AbortController();
     const { signal } = controller;
+
     async function loadHelp() {
       try {
+        setStatus(STATUSES.LOADING);
         const response = await fetch(documentationUrl, { signal });
         if (response.headers.get("content-type")?.startsWith("text/markdown")) {
           const text = await response.text();
@@ -63,9 +66,6 @@ const DocsPanel = () => {
         }
       }
     }
-
-    setMarkdown("");
-    setStatus(STATUSES.MISSING);
 
     loadHelp();
 
