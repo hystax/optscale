@@ -94,6 +94,11 @@ const Markdown = ({ children }) => (
           <img style={{ maxWidth: "100%" }} src={src} alt={alt} />
         </Box>
       ),
+      li: ({ children: liChildren }) => (
+        <Typography>
+          <li>{liChildren}</li>
+        </Typography>
+      ),
       DividingHeader
     }}
     remarkPlugins={[remarkGfm, remarkDirective, reactMarkdownRemarkDirective]}

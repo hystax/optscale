@@ -47,7 +47,7 @@ const HeaderButtons = () => {
   const minimumWidthToShowCommunityDocs = theme.breakpoints.values.md + DOCS_PANEL_WIDTH;
   const isCommunityVisible = useIsUpMediaQuery(minimumWidthToShowCommunityDocs);
 
-  const { openTips, closeTips, isOpened: isDocsOpened } = useContext(CommunityDocsContext);
+  const { isCommunityDocsOpened, setIsCommunityDocsOpened } = useContext(CommunityDocsContext);
 
   return (
     <>
@@ -94,8 +94,8 @@ const HeaderButtons = () => {
             startIcon={<SchoolIcon />}
             color="primary"
             messageId="tips"
-            variant={isDocsOpened ? "contained" : "outlined"}
-            onClick={isDocsOpened ? closeTips : openTips}
+            variant={isCommunityDocsOpened ? "contained" : "outlined"}
+            onClick={setIsCommunityDocsOpened}
             tooltip={{
               show: true,
               value: <FormattedMessage id="communityDocs" />

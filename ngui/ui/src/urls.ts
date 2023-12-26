@@ -22,7 +22,7 @@ const EDIT = "edit";
 
 export const getDocsFileUrl = (url: string) =>
   `/docs/${(url === "/" ? "home" : url)
-    .replace(/:.*?(\/|$)/g, "id/") // replace named ids (:poolId/) with just id (id/)
+    .replace(/:.*?(\/|$)/g, "id/") // replace dynamic ID segments (:poolId/) with just id (id/)
     .replace(/(\/$|^\/)/g, "") // remove leading and trailing slash from a string
     .replace(/\//g, "-")}.md`; // replace slashes with -
 

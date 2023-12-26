@@ -147,7 +147,6 @@ export const routes = [
   resourceLifecycleRoute,
   createPoolPolicyRoute,
   themeSettingsRoute,
-  notFoundRoute,
   createMlModelParameterRoute,
   editMlModelParameterRoute,
   mlEditModelRoute,
@@ -176,7 +175,12 @@ export const routes = [
   powerSchedulesRoute,
   createPowerScheduleRoute,
   powerScheduleDetailsRoute,
-  setupLeaderboardRoute
+  setupLeaderboardRoute,
+  // React router 6.x does not require the not found route (*) to be at the end,
+  // but the matchPath hook that is used in the DocsPanel component seems to honor the order.
+  // Moving it to the bottom for "safety" reasons.
+  // TODO: investigate https://reactrouter.com/en/main/hooks/use-route-error and switching to data routers https://reactrouter.com/en/main/routers/picking-a-router
+  notFoundRoute
 ];
 
 export const ALL_ROUTES_PATTERNS = Object.freeze(routes.map(({ link }) => link));

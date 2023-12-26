@@ -30,7 +30,7 @@ const DocumentationUrl = ({ url }: { url: string }) => <strong>ngui/ui/public{ur
 
 const DocsPanel = () => {
   const { classes } = useStyles();
-  const { openTips, closeTips, isOpened, allRoutesPatterns } = useContext(CommunityDocsContext);
+  const { isCommunityDocsOpened, setIsCommunityDocsOpened, allRoutesPatterns } = useContext(CommunityDocsContext);
 
   const [status, setStatus] = useState(STATUSES.LOADING);
 
@@ -38,10 +38,11 @@ const DocsPanel = () => {
 
   const { pathname } = useLocation();
   const [currentMatch] = allRoutesPatterns.filter((pattern) => matchPath(pattern, pathname));
+
   const documentationUrl = getDocsFileUrl(currentMatch);
 
   useEffect(() => {
-    if (!isOpened) {
+    if (!isCommunityDocsOpened) {
       return undefined;
     }
 
@@ -70,7 +71,7 @@ const DocsPanel = () => {
     loadHelp();
 
     return () => controller.abort();
-  }, [documentationUrl, isOpened]);
+  }, [documentationUrl, isCommunityDocsOpened]);
 
   return (
     <Paper className={classes.wrapper} elevation={0}>
@@ -79,7 +80,7 @@ const DocsPanel = () => {
           <SideModalTitle sx={{ flexGrow: 1 }}>
             <FormattedMessage id="communityDocs" />
           </SideModalTitle>
-          <IconButton icon={<CloseIcon />} onClick={isOpened ? closeTips : openTips} color="inherit" />
+          <IconButton icon={<CloseIcon />} onClick={setIsCommunityDocsOpened} color="inherit" />
         </Toolbar>
       </AppBar>
       <Box className={classes.content}>

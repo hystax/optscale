@@ -1,14 +1,13 @@
 import React from "react";
 
 type CommunityDocsContextType = {
-  isOpened: boolean;
-  openTips: () => void;
-  closeTips: () => void;
+  isCommunityDocsOpened: boolean;
+  setIsCommunityDocsOpened: () => void;
   allRoutesPatterns: readonly string[];
 };
 export default React.createContext({
-  isOpened: false,
-  openTips: () => {},
+  isCommunityDocsOpened: false,
+  setIsCommunityDocsOpened: () => {},
   closeTips: () => {},
   allRoutesPatterns: []
 } as CommunityDocsContextType);

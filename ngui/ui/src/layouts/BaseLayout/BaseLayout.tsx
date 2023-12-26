@@ -102,12 +102,12 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
     setMobileOpen(!mobileOpen);
   };
 
-  const { isOpened: isDocsOpened } = useContext(CommunityDocsContext);
+  const { isCommunityDocsOpened } = useContext(CommunityDocsContext);
 
   return (
     <>
       <TopAlertWrapper />
-      <Box className={cx(classes.wrapper, isDocsOpened ? classes.wrapperWithDocsOpened : "")}>
+      <Box className={cx(classes.wrapper, isCommunityDocsOpened ? classes.wrapperWithDocsOpened : "")}>
         <Box className={classes.layoutWrapper}>
           <PendingInvitationsAlert />
           <AppBar position="static" className={classes.appBar}>
