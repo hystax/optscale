@@ -1,1 +1,0 @@
-check-alembic-down-revisions==0.0.7

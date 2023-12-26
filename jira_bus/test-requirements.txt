@@ -5,4 +5,6 @@ pycodestyle==2.11.1
 pylint==3.0.2
 freezegun==0.3.8
 
+# OptScale packages
 -e optscale_client/jira_bus_client
+-e tools/check_alembic_down_revisions

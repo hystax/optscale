@@ -7,6 +7,7 @@ WORKDIR /usr/src/app/
 
 COPY herald/test-requirements.txt herald/test-requirements.txt
 COPY herald/.pylintrc herald/.noserc herald/.coveragerc ./herald/
+COPY tools/check_alembic_down_revisions tools/check_alembic_down_revisions
 COPY optscale_client/herald_client optscale_client/herald_client
 
 RUN pip install --no-cache-dir -r herald/test-requirements.txt

@@ -16,6 +16,11 @@ docker run -i --rm ${TEST_IMAGE} \
     bash -c "pylint --rcfile=herald/.pylintrc --fail-under=8 --fail-on=E,F ./herald"
 echo "<<<Pylint tests"
 
+echo "Alembic down revision tests>>>"
+docker run -i --rm ${TEST_IMAGE} bash -c \
+    "tools/check_alembic_down_revisions/check_alembic_down_revisions.py --alembic_versions_path herald/herald_server/alembic/versions"
+echo "<<Alembic down revision tests"
+
 echo "Nose tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
     bash -c "nosetests --config herald/.noserc ./herald/herald_server"

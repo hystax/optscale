@@ -1665,7 +1665,7 @@ class PowerSchedule(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         return self.get_validator(key, value)
 
 
-class Layout(Base, ValidatorMixin):
+class Layout(Base, BaseMixin, ValidatorMixin):
     __tablename__ = 'layout'
     id = Column(NullableUuid('id'), primary_key=True, default=gen_id,
                 info=ColumnPermissions.create_only)

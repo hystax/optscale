@@ -5,4 +5,6 @@ pylint==3.0.2
 freezegun==0.3.8
 concurrencytest==0.1.2
 
+# OptScale packages
 -e optscale_client/katara_client
+-e tools/check_alembic_down_revisions

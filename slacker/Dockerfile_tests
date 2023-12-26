@@ -1,6 +1,7 @@
 ARG BUILDTAG=build
 FROM slacker:${BUILDTAG}
 
+COPY tools/check_alembic_down_revisions tools/check_alembic_down_revisions
 COPY optscale_client/slacker_client optscale_client/slacker_client
 COPY slacker/test-requirements.txt slacker/.pylintrc slacker/.noserc slacker/.coveragerc ./slacker/
 COPY slacker/slacker_server/tests slacker/slacker_server/tests

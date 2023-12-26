@@ -5,3 +5,4 @@ pylint==3.0.2
 freezegun==0.3.8
 
 -e optscale_client/herald_client
+-e tools/check_alembic_down_revisions

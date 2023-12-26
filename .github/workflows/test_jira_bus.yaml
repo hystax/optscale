@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize]
     paths:
-    - 'jira_bus/jira_bus_server/**'
+    - 'jira_bus/**'
   workflow_dispatch:
 
 

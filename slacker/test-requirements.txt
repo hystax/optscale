@@ -6,3 +6,4 @@ freezegun==0.3.8
 pyyaml==5.4.1
 # OptScale packages
 -e optscale_client/slacker_client
+-e tools/check_alembic_down_revisions
