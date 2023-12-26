@@ -25,11 +25,6 @@ const stringifiedPowerScheduleValidityPeriod = ({ startDate, endDate }: PowerSch
 };
 
 const PowerScheduleValidityPeriod = ({ startDate, endDate }: PowerScheduleValidityPeriodProps) => {
-  console.log({
-    startDate,
-    endDate
-  });
-
   if (!endDate) {
     return `${intl.formatMessage({ id: "since" })} ${unixTimestampToDateTime(startDate, EN_FORMAT)}`;
   }
