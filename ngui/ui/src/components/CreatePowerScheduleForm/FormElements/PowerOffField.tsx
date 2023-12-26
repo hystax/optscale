@@ -23,16 +23,15 @@ const PowerOffField = ({ name = FIELD_NAMES.POWER_OFF.FIELD }) => {
           required: (value) => (!value.time ? intl.formatMessage({ id: "thisFieldIsRequired" }) : true)
         }
       }}
-      render={({ field: { name: fieldName, onBlur, onChange, ref, value } }) => (
+      render={({ field: { onChange, value, ...rest } }) => (
         <FormControl fullWidth>
           <Box display="flex" alignItems="center">
             <Selector
               margin="none"
-              name={fieldName}
               fullWidth
               required
               value={value[FIELD_NAMES.POWER_OFF.TIME]}
-              error={!!errors[fieldName]}
+              error={!!errors[name]}
               onChange={(newTime) =>
                 onChange({
                   ...value,
@@ -41,13 +40,12 @@ const PowerOffField = ({ name = FIELD_NAMES.POWER_OFF.FIELD }) => {
               }
               data={{ items: TIME_VALUES.map((timeValue) => ({ name: timeValue, value: timeValue })) }}
               labelId="instancePowerOff"
-              ref={ref}
-              onBlur={onBlur}
               MenuProps={{
                 sx: {
                   height: "300px"
                 }
               }}
+              {...rest}
             />
             {Object.values(MERIDIEM_NAMES).map((daytimeName) => (
               <Day
@@ -64,7 +62,7 @@ const PowerOffField = ({ name = FIELD_NAMES.POWER_OFF.FIELD }) => {
               />
             ))}
           </Box>
-          {!!errors[fieldName] && <FormHelperText error>{errors?.[fieldName]?.message}</FormHelperText>}
+          {!!errors[name] && <FormHelperText error>{errors?.[name]?.message}</FormHelperText>}
         </FormControl>
       )}
     />

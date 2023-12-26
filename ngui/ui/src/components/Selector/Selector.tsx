@@ -89,6 +89,8 @@ const Selector = forwardRef(
     };
 
     const { items: selectorItems = [], selected } = data;
+    // There is a hidden bug. Originally, the actual value was coming from `rest` and overrode value={selectedItemValue} in Select below.
+    // In the scope of OS-7177 it was taken out and broke the Selector. selectedItemValue is not the desired value. Needs to be investigated and fixed.
     const selectedItemValue = selectorItems.some((item) => item.value === selected) ? selected : "";
 
     const isItemSelected = (itemValue) => itemValue === selected;
@@ -203,7 +205,7 @@ const Selector = forwardRef(
               <Select
                 notched={shrinkLabel}
                 data-test-id={dataTestId}
-                value={selectedItemValue}
+                value={selectedValue}
                 label={label}
                 classes={{
                   root: cx(classes.selectRoot, rest.classes?.root),
@@ -231,7 +233,7 @@ const Selector = forwardRef(
             <Select
               data-test-id={dataTestId}
               className={classes.mobileSelect}
-              value={selectedItemValue}
+              value={selectedValue}
               label={label}
               open={open}
               onClose={handleClose}
