@@ -5,13 +5,13 @@ import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
 import ExecutorsPanel from "components/ExecutorsPanel";
 import PageContentWrapper from "components/PageContentWrapper";
-import { ML_MODELS } from "urls";
+import { ML_TASKS } from "urls";
 import { SPACING_2 } from "utils/layouts";
 
 const actionBarDefinition = {
   breadcrumbs: [
-    <Link key={1} to={ML_MODELS} component={RouterLink}>
-      <FormattedMessage id="models" />
+    <Link key={1} to={ML_TASKS} component={RouterLink}>
+      <FormattedMessage id="tasks" />
     </Link>
   ],
   title: {

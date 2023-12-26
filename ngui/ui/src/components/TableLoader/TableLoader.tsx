@@ -2,10 +2,15 @@ import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
 import useStyles from "./TableLoader.styles";
 
-const TableLoader = ({ showHeader, columnsCounter = 3 }) => {
+type TableLoaderProps = {
+  showHeader?: boolean;
+  columnsCounter?: number;
+};
+
+const TableLoader = ({ showHeader, columnsCounter = 3 }: TableLoaderProps) => {
   const { classes } = useStyles();
 
-  const TableLoaderColumns = (counter) =>
+  const renderTableLoaderColumns = (counter: number) =>
     [...Array(counter).keys()].map((x) => (
       <Grid key={`column-${x}`} item xs>
         <Grid container direction="column">
@@ -26,7 +31,7 @@ const TableLoader = ({ showHeader, columnsCounter = 3 }) => {
     <>
       {showHeader ? <Skeleton height={60} /> : null}
       <Grid container direction="row" spacing={3}>
-        {TableLoaderColumns(columnsCounter)}
+        {renderTableLoaderColumns(columnsCounter)}
       </Grid>
     </>
   );

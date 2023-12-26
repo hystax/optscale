@@ -4,8 +4,9 @@ from sqlalchemy import inspect
 from sqlalchemy.ext.declarative.base import _declarative_constructor
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import (Column, Integer, String, Boolean, Time,
+from sqlalchemy import (Column, Integer, String, Boolean, Time, Table,
                         ForeignKey, UniqueConstraint, CheckConstraint)
+from sqlalchemy.sql.expression import false
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 
@@ -54,6 +55,9 @@ class ColumnPermissions(Enum):
 
 
 class Base(object):
+    __table__: Table
+    __name__: str
+
     def __init__(self, **kwargs):
         init_columns = list(filter(lambda x: x.info.get(
             PermissionKeys.is_creatable) is True, self.__table__.c))
@@ -63,10 +67,17 @@ class Base(object):
         _declarative_constructor(self, **kwargs)
 
     @declared_attr
-    # pylint: disable=E0213
-    def __tablename__(cls):
-        # pylint: disable=E1101
-        return cls.__name__.lower()
+    def __tablename__(self):
+        return self.__name__.lower()
+
+
+Base = declarative_base(cls=Base, constructor=None)
+
+
+class BaseMixin(object):
+    @hybrid_property
+    def unique_fields(self):
+        return list()
 
     def to_dict(self):
         return {c.key: getattr(self, c.key)
@@ -76,19 +87,12 @@ class Base(object):
         return json.dumps(self.to_dict(), cls=ModelEncoder)
 
 
-Base = declarative_base(cls=Base, constructor=None)
-
-
-class BaseMixin(object):
+class BaseDeletableMixin(BaseMixin):
     deleted_at = Column(Integer, default=0, nullable=False)
 
     @hybrid_property
     def deleted(self):
         return self.deleted_at != 0
-
-    @hybrid_property
-    def unique_fields(self):
-        return list()
 
     @hybrid_method
     def get_uniqueness_filter(self, is_new=True):
@@ -105,16 +109,16 @@ class BaseMixin(object):
         return outer_filter
 
 
-class MutableMixin(BaseMixin):
+class MutableMixin(BaseDeletableMixin):
     id = Column(NullableUuid('id'), primary_key=True, default=gen_id,
                 info=ColumnPermissions.create_only)
 
 
-class ImmutableMixin(BaseMixin):
+class ImmutableMixin(BaseDeletableMixin):
     id = Column(NullableUuid('id'), primary_key=True, default=gen_id)
 
 
-class ImmutableRequiredMixin(BaseMixin):
+class ImmutableRequiredMixin(BaseDeletableMixin):
     id = Column(NullableUuid('id'), primary_key=True,
                 info=ColumnPermissions.create_only)
 
@@ -137,11 +141,13 @@ class ValidatorMixin(object):
         return getattr(type(self), key).type.validator(*args, **kwargs)
 
 
-class CreatedMixin(BaseMixin):
+class CreatedMixin(BaseDeletableMixin):
     created_at = Column(Integer, default=now_timestamp, nullable=False)
 
 
 class Organization(Base, MutableMixin, ValidatorMixin, CreatedMixin):
+    __tablename__ = 'organization'
+
     id = Column(AutogenUuid('id'), primary_key=True, default=gen_id,
                 info=ColumnPermissions.create_only)
     name = Column(NotWhiteSpaceString('name'), nullable=False,
@@ -529,6 +535,7 @@ class Employee(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
         result = super().to_dict()
         result.update({
             'default_ssh_key_id':
+                # pylint: disable=no-member
                 self.default_ssh_key[0].id if self.default_ssh_key else None
         })
         return result
@@ -593,6 +600,7 @@ class Invite(Base, CreatedMixin, MutableMixin, ValidatorMixin):
         result['organization'] = meta.get('organization')
         result['organization_id'] = meta.get('organization_id')
         result['invite_assignments'] = []
+        # pylint: disable=no-member
         for invite_assignment in self.invite_assignments:
             result['invite_assignments'].append({
                 'id': invite_assignment.id,
@@ -723,12 +731,13 @@ class PoolAlert(Base, CreatedMixin, MutableMixin, ValidatorMixin):
     def to_dict(self):
         alert_dict = super().to_dict()
         alert_dict['contacts'] = []
+        # pylint: disable=no-member
         for contact in self.contacts:
             alert_dict['contacts'].append(contact.to_dict())
         return alert_dict
 
 
-class AlertContact(Base):
+class AlertContact(Base, BaseMixin):
     __tablename__ = 'alert_contact'
 
     id = Column(String(36), default=gen_id, primary_key=True, unique=True)
@@ -1120,6 +1129,7 @@ class ShareableBooking(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     def to_dict(self):
         result = super().to_dict()
         result['jira_issue_attachments'] = []
+        # pylint: disable=no-member
         for jira_issue_attachment in self.jira_issue_attachments:
             result['jira_issue_attachments'].append(
                 jira_issue_attachment.to_dict()
@@ -1372,6 +1382,7 @@ class OrganizationConstraint(Base, CreatedMixin, ImmutableMixin, ValidatorMixin)
             if isinstance(constr_dict[f], str):
                 constr_dict[f] = json.loads(constr_dict[f])
         if hasattr(self, 'limit_hits'):
+            # pylint: disable=no-member
             constr_dict['limit_hits'] = [x.to_dict() for x in self.limit_hits]
         return constr_dict
 
@@ -1652,3 +1663,32 @@ class PowerSchedule(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
                'last_run_error')
     def _validate(self, key, value):
         return self.get_validator(key, value)
+
+
+class Layout(Base, BaseMixin, ValidatorMixin):
+    __tablename__ = 'layout'
+    id = Column(NullableUuid('id'), primary_key=True, default=gen_id,
+                info=ColumnPermissions.create_only)
+    name = Column(NotWhiteSpaceString('name'), nullable=False,
+                  info=ColumnPermissions.full)
+    data = Column(NullableJSON('data'), nullable=True, default='{}',
+                  info=ColumnPermissions.full)
+    type = Column(NotWhiteSpaceString('type'), nullable=False,
+                  info=ColumnPermissions.create_only)
+    shared = Column(NullableBool('shared'), nullable=True, default=False,
+                    info=ColumnPermissions.full)
+    owner_id = Column(Uuid('owner_id'),
+                      ForeignKey('employee.id'),
+                      info=ColumnPermissions.full,
+                      nullable=False)
+    owner = relationship("Employee", foreign_keys=[owner_id])
+    entity_id = Column(NullableUuid('entity_id'), nullable=True,
+                       info=ColumnPermissions.create_only)
+
+    @validates("name", "data", "type", "shared", "owner_id", "entity_id")
+    def _validate(self, key, value):
+        return self.get_validator(key, value)
+
+    @hybrid_property
+    def deleted(self):
+        return false()

@@ -908,6 +908,16 @@ power_schedule:
   startingDeadlineSeconds: 100
   schedule: "*/5 * * * *"
 
+layout_cleaner:
+  name: layout-cleaner
+  image:
+    id:
+    repository: layout_cleaner
+    tag: *tag
+    pullPolicy: Never
+  startingDeadlineSeconds: 100
+  schedule: "0 3 * * *"
+
 # list of databases to create (if not exist) during DC initialization
 databases:
   - auth-db

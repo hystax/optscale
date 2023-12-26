@@ -51,7 +51,7 @@ const Details = ({
           items={
             <>
               <KeyValueLabel
-                messageId="models"
+                messageId="tasks"
                 isBoldValue
                 value={
                   isEmptyArray(models) ? null : (

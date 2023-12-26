@@ -968,10 +968,20 @@ class Err(enum.Enum):
         [],
         []
     ]
+    OE0549 = [
+        "Leaderboard is already exist for application %s",
+        ["application_id"],
+        ["a3706242-47a9-4e55-b7ab-b9f58fa9ec31"]
+    ]
     OE0550 = [
         "Parameter %s should be time string in format HH:MM",
         ['param'],
         ['power_on']
+    ]
+    OE0551 = [
+        "%s with %s \"%s\" already exists",
+        ["entity type", "param name",  "provided name"],
+        ["Partner", "name", "Development"]
     ]
     OE0552 = [
         "Parameter %s can\'t be equal to %s",
@@ -982,4 +992,19 @@ class Err(enum.Enum):
         "%s should be a timezone name",
         ['param'],
         ['timezone']
+    ]
+    OE0554 = [
+        "Goal with id \"%s\" used in leaderboard(s)",
+        ['Goal id'],
+        []
+    ]
+    OE0555 = [
+        "Dataset with id \"%s\" used in leaderboard(s)",
+        ['Dataset id'],
+        []
+    ]
+    OE0556 = [
+        "Goal is used in application leaderboard(s)",
+        [],
+        []
     ]

@@ -1,4 +1,4 @@
-import { useState, Children } from "react";
+import { useState, Children, useContext } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -10,6 +10,7 @@ import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
 import CollapsableMenuDrawer from "components/CollapsableMenuDrawer";
+import DocsPanel from "components/DocsPanel";
 import ErrorBoundary from "components/ErrorBoundary";
 import HeaderButtons from "components/HeaderButtons";
 import Hidden from "components/Hidden";
@@ -20,6 +21,7 @@ import PendingInvitationsAlert from "components/PendingInvitationsAlert";
 import TopAlertWrapper from "components/TopAlertWrapper";
 import MainLayoutContainer from "containers/MainLayoutContainer";
 import OrganizationSelectorContainer from "containers/OrganizationSelectorContainer";
+import { CommunityDocsContext } from "contexts/CommunityDocsContext";
 import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { REGISTER } from "urls";
@@ -92,7 +94,7 @@ const AppToolbar = ({ onMenuIconClick, mainMenu, showMainMenu = false, showOrgan
 const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector = false, mainMenu }) => {
   const { organizationId } = useOrganizationInfo();
 
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -100,50 +102,59 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
     setMobileOpen(!mobileOpen);
   };
 
+  const { isCommunityDocsOpened } = useContext(CommunityDocsContext);
+
   return (
-    <div className={classes.layoutWrapper}>
+    <>
       <TopAlertWrapper />
-      <PendingInvitationsAlert />
-      <AppBar position="static" className={classes.appBar}>
-        <AppToolbar
-          showMainMenu={showMainMenu}
-          onMenuIconClick={handleDrawerToggle}
-          showOrganizationSelector={showOrganizationSelector}
-          mainMenu={mainMenu}
-        />
-      </AppBar>
-      <Box className={classes.menuAndContentWrapper}>
-        {showMainMenu && (
-          <>
-            <Hidden mode="down" breakpoint="md">
-              <CollapsableMenuDrawer>
-                <MainMenu menu={mainMenu} />
-              </CollapsableMenuDrawer>
-            </Hidden>
-            <Hidden mode="up" breakpoint="md">
-              <Drawer
-                variant="temporary"
-                classes={{
-                  paper: classes.drawerPaper
-                }}
-                onClose={handleDrawerToggle}
-                open={mobileOpen}
-                ModalProps={{
-                  keepMounted: true
-                }}
-              >
-                <MainMenu menu={mainMenu} />
-              </Drawer>
-            </Hidden>
-          </>
-        )}
-        <Container key={organizationId} id={BASE_LAYOUT_CONTAINER_ID} component="main" className={classes.content}>
-          <ErrorBoundary>
-            <MainLayoutContainer>{Children.only(children)}</MainLayoutContainer>
-          </ErrorBoundary>
-        </Container>
+      <Box className={cx(classes.wrapper, isCommunityDocsOpened ? classes.wrapperWithDocsOpened : "")}>
+        <Box className={classes.layoutWrapper}>
+          <PendingInvitationsAlert />
+          <AppBar position="static" className={classes.appBar}>
+            <AppToolbar
+              showMainMenu={showMainMenu}
+              onMenuIconClick={handleDrawerToggle}
+              showOrganizationSelector={showOrganizationSelector}
+              mainMenu={mainMenu}
+            />
+          </AppBar>
+          <Box className={classes.menuAndContentWrapper}>
+            {showMainMenu && (
+              <>
+                <Hidden mode="down" breakpoint="md">
+                  <CollapsableMenuDrawer>
+                    <MainMenu menu={mainMenu} />
+                  </CollapsableMenuDrawer>
+                </Hidden>
+                <Hidden mode="up" breakpoint="md">
+                  <Drawer
+                    variant="temporary"
+                    classes={{
+                      paper: classes.drawerPaper
+                    }}
+                    onClose={handleDrawerToggle}
+                    open={mobileOpen}
+                    ModalProps={{
+                      keepMounted: true
+                    }}
+                  >
+                    <MainMenu menu={mainMenu} />
+                  </Drawer>
+                </Hidden>
+              </>
+            )}
+            <Container key={organizationId} id={BASE_LAYOUT_CONTAINER_ID} component="main" className={classes.content}>
+              <ErrorBoundary>
+                <MainLayoutContainer>{Children.only(children)}</MainLayoutContainer>
+              </ErrorBoundary>
+            </Container>
+          </Box>
+        </Box>
+        <Box>
+          <DocsPanel />
+        </Box>
       </Box>
-    </div>
+    </>
   );
 };
 

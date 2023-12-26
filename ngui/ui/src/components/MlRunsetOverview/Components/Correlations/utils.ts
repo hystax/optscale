@@ -18,12 +18,6 @@ export const MARGIN = Object.freeze({
 
 const CHART_AREA_HEIGH = HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
 
-/**
- * This value serves as a fallback when the API does not provide the goal/hyperparameter value.
- * For instance, if it was not sent by the api.
- */
-export const PARAMETER_FALLBACK_VALUE = 0;
-
 export const FONT_SIZE = 14;
 
 export const getChartRunsData = (runs) =>
@@ -31,9 +25,7 @@ export const getChartRunsData = (runs) =>
     runName: formatRunFullName(runNumber, runName),
     runNumber,
     reachedGoals,
-    hyperparameters: Object.fromEntries(
-      Object.entries(hyperparameters).map(([name, value]) => [name, value ?? PARAMETER_FALLBACK_VALUE])
-    ),
+    hyperparameters,
     index,
     color
   }));
@@ -116,7 +108,7 @@ export const getRunNamesDimensionTicks = ({ chartRunsData, selectedChartRunsData
   };
 };
 
-export const getSelectedRuns = (data, runsCorrelationsTraceDimensions) => {
+export const getSelectedRuns = (data, runsCorrelationsTraceDimensions, hyperparametersValueToTickValueMap) => {
   const getConstraintsRange = (dimensionGroup) =>
     runsCorrelationsTraceDimensions
       .filter((traceDimension) => traceDimension.dimensionGroup === dimensionGroup)
@@ -147,17 +139,13 @@ export const getSelectedRuns = (data, runsCorrelationsTraceDimensions) => {
   return data
     .filter((run) => checkRanges(getConstraintsRange(DIMENSION_GROUPS.RUN_NAMES), () => run.index))
     .filter((run) =>
-      checkRanges(
-        getConstraintsRange(DIMENSION_GROUPS.HYPERPARAMETERS),
-        (accessor) => run.hyperparameters[accessor] ?? PARAMETER_FALLBACK_VALUE
-      )
+      checkRanges(getConstraintsRange(DIMENSION_GROUPS.HYPERPARAMETERS), (accessor) => {
+        const hyperparameterValue = run.hyperparameters[accessor];
+
+        return hyperparametersValueToTickValueMap[accessor].valueToTick[hyperparameterValue];
+      })
     )
-    .filter((run) =>
-      checkRanges(
-        getConstraintsRange(DIMENSION_GROUPS.GOALS),
-        (accessor) => run.reachedGoals[accessor]?.value ?? PARAMETER_FALLBACK_VALUE
-      )
-    );
+    .filter((run) => checkRanges(getConstraintsRange(DIMENSION_GROUPS.GOALS), (accessor) => run.reachedGoals[accessor]?.value));
 };
 
 export const getParametersDimensions = (dimensions) =>

@@ -49,9 +49,9 @@ def main(config_cl):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    config_cl = ConfigClient(
+    config_client = ConfigClient(
         host=os.environ.get('HX_ETCD_HOST'),
         port=int(os.environ.get('HX_ETCD_PORT')),
     )
-    config_cl.wait_configured()
-    main(config_cl)
+    config_client.wait_configured()
+    main(config_client)

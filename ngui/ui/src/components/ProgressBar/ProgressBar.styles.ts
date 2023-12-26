@@ -5,18 +5,19 @@ import { SPACING_1 } from "utils/layouts";
 
 const ALPHA = 0.8;
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme, { height }) => ({
   wrapper: {
     position: "relative",
     display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    height
   },
   progress: {
     position: "absolute",
-    height: "2rem",
     borderRadius: "0.3rem",
     width: "100%",
+    height: "100%",
     backgroundColor: lighten(theme.palette.common.black, 0.95)
   },
   valuePrimary: {

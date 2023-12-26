@@ -166,7 +166,7 @@ class AwsProvider(BaseProvider):
 
         # TODO: Add currency support
         now = datetime.utcnow()
-        regex = re.compile(f"{instance_family}\.", re.IGNORECASE)
+        regex = re.compile(f"{instance_family}\\.", re.IGNORECASE)
         query = {
             'instanceType': regex,
             'location': location,

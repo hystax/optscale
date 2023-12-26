@@ -283,6 +283,12 @@ class BaseInfraController(BaseProfilingTokenController, MongoMixin):
         return executors
 
     @handle_http_exc
+    def list_datasets(self, profiling_token, include_deleted=False):
+        arcee = self.get_arcee_client(profiling_token)
+        _, datasets = arcee.dataset_list(include_deleted)
+        return datasets
+
+    @handle_http_exc
     def create_template(self, infrastructure_token, **kwargs):
         bulldozer = self.get_bulldozer_client(infrastructure_token)
         _, template = bulldozer.template_create(**kwargs)

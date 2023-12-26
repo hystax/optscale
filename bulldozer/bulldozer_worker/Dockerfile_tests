@@ -1,0 +1,7 @@
+ARG BUILDTAG=build
+ARG IMAGE=bulldozer_worker
+FROM ${IMAGE}:${BUILDTAG}
+LABEL org.opencontainers.image.authors="Hystax"
+
+COPY bulldozer/test-requirements.txt bulldozer/.pylintrc ./bulldozer/
+RUN pip install --no-cache-dir -r bulldozer/test-requirements.txt

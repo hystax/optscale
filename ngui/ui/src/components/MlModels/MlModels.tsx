@@ -13,7 +13,7 @@ import { ProfilingIntegrationModal } from "components/SideModalManager/SideModal
 import TableLoader from "components/TableLoader";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useRefetchApis } from "hooks/useRefetchApis";
-import { ML_MODELS_PARAMETERS, ML_EXECUTORS } from "urls";
+import { ML_TASK_PARAMETERS, ML_EXECUTORS } from "urls";
 import {
   GOALS_BE_FILTER,
   GOAL_STATUS,
@@ -34,8 +34,8 @@ const PageActionBar = () => {
 
   const actionBarDefinition = {
     title: {
-      messageId: "models",
-      dataTestId: "lbl_ml_models"
+      messageId: "tasks",
+      dataTestId: "lbl_ml_tasks"
     },
     items: [
       {
@@ -55,12 +55,12 @@ const PageActionBar = () => {
         action: () => openSideModal(ProfilingIntegrationModal, {})
       },
       {
-        key: "btn-manage-parameters",
+        key: "btn-manage-metrics",
         icon: <SettingsIcon fontSize="small" />,
-        messageId: "manageParameters",
-        dataTestId: "btn_manage_parameters",
+        messageId: "manageMetrics",
+        dataTestId: "btn_manage_metrics",
         type: "button",
-        link: ML_MODELS_PARAMETERS
+        link: ML_TASK_PARAMETERS
       },
       {
         key: "btn-executors",
@@ -201,7 +201,7 @@ const MlModels = ({ models, isLoading }) => {
             )}
           </div>
           <div>
-            <InlineSeverityAlert messageId="mlModelsDescription" />
+            <InlineSeverityAlert messageId="mlTasksDescription" />
           </div>
         </Stack>
       </PageContentWrapper>

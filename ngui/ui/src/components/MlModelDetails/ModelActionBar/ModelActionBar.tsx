@@ -2,16 +2,29 @@ import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
-import { Link as RouterLink } from "react-router-dom";
-import { GET_ML_MODEL, GET_ML_MODEL_RECOMMENDATIONS, GET_ML_MODEL_RUNS, GET_ML_EXECUTORS } from "api/restapi/actionTypes";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import {
+  GET_ML_MODEL,
+  GET_ML_MODEL_RECOMMENDATIONS,
+  GET_ML_MODEL_RUNS,
+  GET_ML_EXECUTORS,
+  GET_ML_LEADERBOARD,
+  GET_ML_LEADERBOARD_DATASETS,
+  GET_ML_LEADERBOARD_DATASET,
+  GET_ML_LEADERBOARD_DATASET_DETAILS
+} from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
 import { ProfilingIntegrationModal } from "components/SideModalManager/SideModals";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useRefetchApis } from "hooks/useRefetchApis";
-import { getEditMlModelUrl, ML_MODELS } from "urls";
+import { getEditMlModelUrl, ML_TASKS } from "urls";
+import { ML_MODEL_DETAILS_TAB_NAME } from "utils/constants";
+import { getQueryParams } from "utils/network";
 
-const ModelActionBar = ({ isLoading, isDataReady, name, modelKey, modelId }) => {
+const ModelActionBar = ({ isLoading, isDataReady, name, taskKey, taskId }) => {
   const openSideModal = useOpenSideModal();
+
+  const navigate = useNavigate();
 
   const refetch = useRefetchApis();
 
@@ -23,7 +36,16 @@ const ModelActionBar = ({ isLoading, isDataReady, name, modelKey, modelId }) => 
       dataTestId: "btn_refresh",
       type: "button",
       action: () => {
-        refetch([GET_ML_MODEL, GET_ML_MODEL_RECOMMENDATIONS, GET_ML_MODEL_RUNS, GET_ML_EXECUTORS]);
+        refetch([
+          GET_ML_MODEL,
+          GET_ML_MODEL_RECOMMENDATIONS,
+          GET_ML_MODEL_RUNS,
+          GET_ML_EXECUTORS,
+          GET_ML_LEADERBOARD,
+          GET_ML_LEADERBOARD_DATASETS,
+          GET_ML_LEADERBOARD_DATASET,
+          GET_ML_LEADERBOARD_DATASET_DETAILS
+        ]);
       }
     },
     {
@@ -33,13 +55,20 @@ const ModelActionBar = ({ isLoading, isDataReady, name, modelKey, modelId }) => 
       dataTestId: "btn_profiling_integration",
       type: "button",
       isLoading: !isDataReady,
-      action: () => openSideModal(ProfilingIntegrationModal, { modelKey })
+      action: () => openSideModal(ProfilingIntegrationModal, { taskKey })
     },
     {
       key: "edit",
       icon: <SettingsIcon fontSize="small" />,
       messageId: "configure",
-      link: getEditMlModelUrl(modelId),
+      action: () => {
+        const { [ML_MODEL_DETAILS_TAB_NAME]: tab } = getQueryParams();
+        navigate(
+          getEditMlModelUrl(taskId, {
+            [ML_MODEL_DETAILS_TAB_NAME]: tab
+          })
+        );
+      },
       type: "button",
       isLoading: !isDataReady,
       requiredActions: ["EDIT_PARTNER"],
@@ -49,8 +78,8 @@ const ModelActionBar = ({ isLoading, isDataReady, name, modelKey, modelId }) => 
 
   const actionBarDefinition = {
     breadcrumbs: [
-      <Link key={1} to={ML_MODELS} component={RouterLink}>
-        <FormattedMessage id="models" />
+      <Link key={1} to={ML_TASKS} component={RouterLink}>
+        <FormattedMessage id="tasks" />
       </Link>
     ],
     title: {

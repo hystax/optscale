@@ -23,9 +23,9 @@ TASK_QUEUE = Queue(QUEUE_NAME, TASK_EXCHANGE, routing_key=QUEUE_NAME)
 
 
 class CalendarObserverWorker(ConsumerMixin):
-    def __init__(self, connection, config_cl):
+    def __init__(self, connection, config_client):
         self.connection = connection
-        self.config_cl = config_cl
+        self.config_cl = config_client
         self._rest_cl = None
         self.running = True
         self.thread = Thread(target=self.heartbeat)

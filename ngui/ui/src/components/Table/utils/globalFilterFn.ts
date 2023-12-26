@@ -12,19 +12,25 @@ const getValue = (row, columnId) => {
 
 const getColumnById = (columnId, columns) => columns.find(({ id, accessorKey }) => [id, accessorKey].includes(columnId));
 
-export const globalFilterFn = (columns) => (row, columnId, filterValue) => {
-  const value = getValue(row, columnId);
+const searchFilter = ({ row, filterValue, columnId, columns }) => {
+  const { search } = filterValue;
 
   const columnDef = getColumnById(columnId, columns);
 
-  if (typeof columnDef?.globalFilterFn === "function") {
-    return columnDef?.globalFilterFn(row.getValue(columnId), filterValue, {
+  if (typeof columnDef?.searchFn === "function") {
+    return columnDef.searchFn(row.getValue(columnId), search, {
       row,
       columnId
     });
   }
 
-  const search = filterValue.toLocaleLowerCase();
+  const value = getValue(row, columnId);
 
-  return value?.toLocaleLowerCase().includes(search);
+  return value?.toLocaleLowerCase().includes(search.toLocaleLowerCase());
 };
+
+export const globalFilterFn =
+  ({ columns, withSearch, rangeFilter }) =>
+  (row, columnId, filterValue) =>
+    (withSearch ? searchFilter({ row, filterValue, columnId, columns }) : true) &&
+    (rangeFilter ? rangeFilter.filterFn(row.original, filterValue.range) : true);

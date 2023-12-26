@@ -34,7 +34,7 @@ const MlRunsetOverview = ({
     name: runsetName,
     template: { name: runsetTemplateName, id: runsetTemplateId } = {},
     number: runsetNumber,
-    application: { id: modelId, name: modelName, deleted: isModelDeleted = false } = {},
+    application: { id: taskId, name: modelName, deleted: isModelDeleted = false } = {},
     runs_count: runsCount = 0,
     succeeded_runs: completedRuns = 0,
     cost = 0,
@@ -104,13 +104,13 @@ const MlRunsetOverview = ({
               <TypographyLoader rowsCount={1} />
             ) : (
               <KeyValueLabel
-                messageId="model"
+                messageId="task"
                 isBoldValue={false}
                 value={() =>
                   isModelDeleted ? (
                     <strong>{modelName}</strong>
                   ) : (
-                    <Link to={getMlModelDetailsUrl(modelId)} component={RouterLink}>
+                    <Link to={getMlModelDetailsUrl(taskId)} component={RouterLink}>
                       {modelName}
                     </Link>
                   )

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import ErrorBoundary from "components/ErrorBoundary";
 import LayoutWrapper from "components/LayoutWrapper";
+import CommunityDocsContextProvider from "contexts/CommunityDocsContext/CommunityDocsContextProvider";
 import { useApiData } from "hooks/useApiData";
 import { useOrganizationIdQueryParameterListener } from "hooks/useOrganizationIdQueryParameterListener";
 import { useRootData } from "hooks/useRootData";
@@ -44,15 +45,17 @@ const RouteRender = ({ isTokenRequired, component, layout, context }) => {
 };
 
 const App = () => (
-  <Routes>
-    {routes.map(({ key, component, layout, link, isTokenRequired = true, context }) => (
-      <Route
-        key={key}
-        path={link}
-        element={<RouteRender isTokenRequired={isTokenRequired} component={component} context={context} layout={layout} />}
-      />
-    ))}
-  </Routes>
+  <CommunityDocsContextProvider>
+    <Routes>
+      {routes.map(({ key, component, layout, link, isTokenRequired = true, context }) => (
+        <Route
+          key={key}
+          path={link}
+          element={<RouteRender isTokenRequired={isTokenRequired} component={component} context={context} layout={layout} />}
+        />
+      ))}
+    </Routes>
+  </CommunityDocsContextProvider>
 );
 
 export default App;

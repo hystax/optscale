@@ -91,7 +91,7 @@ class LogsBulkController(BaseController):
         # TODO: rename 'dmAppId' to 'paAppId' for pharos agent
         app_id = body['dmAppId']
         data = body['data']
-        organization_id = self.get_organization_id(app_id)
+        organization_id = self.get_organization_id(app_id) or None
         filename = self.save_logs_to_file(data, app_id)
         self.upload_to_minio(organization_id, filename)
         self.publish_task({

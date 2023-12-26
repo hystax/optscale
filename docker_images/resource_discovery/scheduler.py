@@ -17,9 +17,9 @@ RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
 
 
-def publish_tasks(tasks_map):
+def publish_tasks(config_client, tasks_map):
     queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit')),
+        **config_client.read_branch('/rabbit')),
         transport_options=RETRY_POLICY)
     task_exchange = Exchange('resource-discovery', type='direct')
     with producers[queue_conn].acquire(block=True) as producer:
@@ -69,15 +69,15 @@ def _update_discovery_info(rest_cl, cloud_account_type, cloud_account_id,
         } for r_type in r_types_to_create]}
         rest_cl.discovery_info_create_bulk(cloud_account_id, create_payload)
         LOG.info('Created discovery info for resource types %s cloud '
-                 'account %s' % (r_types_to_create, cloud_account_id))
+                 'account %s', r_types_to_create, cloud_account_id)
 
     r_types_to_delete = existing_r_types - cloud_supported_r_types
     if r_types_to_delete:
         d_info_ids = [x['id'] for x in discovery_infos['discovery_info']
                       if x['resource_type'] in r_types_to_delete]
         rest_cl.discovery_info_delete_bulk(cloud_account_id, d_info_ids)
-        LOG.info('Deleted discovery info id %s for cloud account %s' % (
-            d_info_ids, cloud_account_id))
+        LOG.info('Deleted discovery info id %s for cloud account %s',
+                 d_info_ids, cloud_account_id)
 
     if r_types_to_delete or r_types_to_create:
         _, discovery_infos = rest_cl.discovery_info_list(cloud_account_id)
@@ -129,15 +129,15 @@ def process(config_cl):
     return tasks_map
 
 
-def main(config_cl):
+def main(config_client):
     start_time = datetime.utcnow()
-    tasks_map = process(config_cl)
+    tasks_map = process(config_client)
     exec_time = (datetime.utcnow() - start_time).total_seconds()
     if tasks_map:
-        publish_tasks(tasks_map)
-        LOG.info('Published %s tasks (%s seconds) for orgs: %s' % (
-            sum(len(x) for x in tasks_map.values()), exec_time,
-            list(tasks_map.keys())))
+        publish_tasks(config_client, tasks_map)
+        LOG.info('Published %s tasks (%s seconds) for orgs: %s',
+                 sum(len(x) for x in tasks_map.values()), exec_time,
+                 list(tasks_map.keys()))
 
 
 if __name__ == '__main__':

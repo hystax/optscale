@@ -1,7 +1,7 @@
 import json
 import logging
 import pika
-
+from pika.adapters.tornado_connection import TornadoConnection
 
 LOG = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class Publisher:
     def connect(self):
         LOG.info('Connecting to rabbit')
 
-        self._connection = pika.TornadoConnection(
+        self._connection = TornadoConnection(
             self.connection_parameters,
             self.on_connection_open
         )
@@ -53,7 +53,7 @@ class Publisher:
         self._channel = None
         LOG.warning('Connection closed, reopening in 5 seconds: (%s) %s',
                     reply_code, reply_text)
-        self._connection.add_timeout(5, self.connect)
+        self._connection.ioloop.add_timeout(5, self.connect)
 
     def open_channel(self):
         LOG.info('Creating a new channel')

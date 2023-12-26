@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import CloudLabel from "components/CloudLabel";
-import { SI_UNITS, useFormatDigitalUnit } from "components/FormattedDigitalUnit";
+import { SI_UNITS, formatDigitalUnit } from "components/FormattedDigitalUnit";
 import FormattedMoney from "components/FormattedMoney";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import KeyValueLabel from "components/KeyValueLabel";
@@ -12,7 +12,6 @@ import { FORMATTED_MONEY_TYPES } from "utils/constants";
 import BaseSideModal from "./BaseSideModal";
 
 const Component = ({ bucket, onClose }) => {
-  const formatDigitalUnit = useFormatDigitalUnit();
   const awsDataSources = useAwsDataSources();
   const bucketDataSource = awsDataSources.find(({ id }) => id === bucket.cloud_account_id);
 

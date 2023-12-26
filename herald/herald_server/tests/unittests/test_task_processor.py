@@ -12,7 +12,7 @@ from herald.herald_server.tests.unittests.test_herald_base import TestHeraldBase
 
 class TestTaskProcessor(TestHeraldBase):
     def setUp(self, *args):
-        super().setUp()
+        super().setUp(*args)
         self.user_id = str(uuid.uuid4())
 
         self.mail_reaction = {

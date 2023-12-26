@@ -584,6 +584,15 @@ const getThemeConfig = (settings = {}) => {
         main: "#4AB4EE",
         contrastText: common.white
       },
+      gold: {
+        main: "#FFD700"
+      },
+      silver: {
+        main: "#C0C0C0"
+      },
+      bronze: {
+        main: "#CD7F32"
+      },
       chart,
       monoChart,
       googleMap: googleMapPalette,

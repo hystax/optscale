@@ -1,9 +1,8 @@
 import json
 import logging
 
-
 from herald.herald_server.processors.base import BaseProcessor
-
+from herald.herald_server.exceptions import Err
 
 from herald.modules.email_generator.generator import generate_email
 from herald.modules.template_generator.template_generator import (
@@ -22,10 +21,7 @@ class EmailProcessor(BaseProcessor):
     @staticmethod
     def validate_payload(payload):
         if 'email' not in payload:
-            raise WrongArgumentsException(
-                'G0019',
-                'must provide email address in payload for reaction "email"',
-                [])
+            raise WrongArgumentsException(Err.G0019, [])
 
     @staticmethod
     def create_tasks(event, reactions, config_client=None):

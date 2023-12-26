@@ -6,18 +6,24 @@ TEST_IMAGE=jira_bus_tests:${BUILD_TAG}
 
 docker build -t ${TEST_IMAGE} --build-arg BUILDTAG=${BUILD_TAG} -f jira_bus/Dockerfile_tests .
 
-echo "PEP8 tests>>>"
+echo "Pycodestyle tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "pep8 --max-line-length=120 --ignore=E701,E203,E231 ."
-echo "<<<PEP8 tests"
-
+    bash -c "pycodestyle --max-line-length=120 jira_bus"
+echo "<<<Pycodestyle tests"
 
 echo "Pylint tests>>>"
-docker run -i --rm ${TEST_IMAGE} bash -c "cd jira_bus/jira_bus_server && pylint --rcfile=.pylintrc ./"
+docker run -i --rm ${TEST_IMAGE} bash -c \
+    "pylint --rcfile=jira_bus/.pylintrc --fail-under=9 --fail-on=E,F ./jira_bus"
+echo "<<Pylint tests"
+
+echo "Alembic down revision tests>>>"
+docker run -i --rm ${TEST_IMAGE} bash -c \
+    "tools/check_alembic_down_revisions/check_alembic_down_revisions.py --alembic_versions_path jira_bus/jira_bus_server/alembic/versions"
+echo "<<Alembic down revision tests"
 
 echo "Nose tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "cd jira_bus/jira_bus_server && nosetests --config .noserc"
+    bash -c "nosetests --config jira_bus/.noserc jira_bus"
 echo "<<Nose tests"
 
 docker rmi ${TEST_IMAGE}

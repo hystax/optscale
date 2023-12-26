@@ -43,6 +43,9 @@ import inviteEmployeesRoute from "./inviteEmployeesRoute";
 import k8sRightsizingRoute from "./k8sRightsizingRoute";
 import liveDemoRoute from "./liveDemoRoute";
 import loginRoute from "./loginRoute";
+import mlDatasetCreateRoute from "./mlDatasetCreateRoute";
+import mlDatasetEditRoute from "./mlDatasetEditRoute";
+import mlDatasetsRoute from "./mlDatasetsRoute";
 import mlEditModelRoute from "./mlEditModelRoute";
 import mlExecutorsRoute from "./mlExecutorsRoute";
 import mlModelCreateRoute from "./mlModelCreateRoute";
@@ -78,6 +81,7 @@ import riSpRoute from "./riSpRoute";
 import s3DuplicateFinderRoute from "./s3DuplicateFinderRoute";
 import s3DuplicatesCheckRoute from "./s3DuplicatesCheckRoute";
 import settingsRoute from "./settingsRoute";
+import setupLeaderboardRoute from "./setupLeaderboardRoute";
 import taggingPoliciesRoute from "./taggingPoliciesRoute";
 import taggingPolicyRoute from "./taggingPolicyRoute";
 import themeSettingsRoute from "./themeSettingsRoute";
@@ -143,13 +147,15 @@ export const routes = [
   resourceLifecycleRoute,
   createPoolPolicyRoute,
   themeSettingsRoute,
-  notFoundRoute,
   createMlModelParameterRoute,
   editMlModelParameterRoute,
   mlEditModelRoute,
   mlExecutorsRoute,
   mlRunsetsRoute,
   mlModelCreateRoute,
+  mlDatasetsRoute,
+  mlDatasetCreateRoute,
+  mlDatasetEditRoute,
   mlModelDetailsRoute,
   mlModuleRunRoute,
   mlModelGlobalParametersRoute,
@@ -168,7 +174,15 @@ export const routes = [
   s3DuplicatesCheckRoute,
   powerSchedulesRoute,
   createPowerScheduleRoute,
-  powerScheduleDetailsRoute
+  powerScheduleDetailsRoute,
+  setupLeaderboardRoute,
+  // React router 6.x does not require the not found route (*) to be at the end,
+  // but the matchPath hook that is used in the DocsPanel component seems to honor the order.
+  // Moving it to the bottom for "safety" reasons.
+  // TODO: investigate https://reactrouter.com/en/main/hooks/use-route-error and switching to data routers https://reactrouter.com/en/main/routers/picking-a-router
+  notFoundRoute
 ];
+
+export const ALL_ROUTES_PATTERNS = Object.freeze(routes.map(({ link }) => link));
 
 export default BaseRoute;

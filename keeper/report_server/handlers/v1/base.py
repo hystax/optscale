@@ -134,7 +134,6 @@ class BaseAuthHandler(BaseHandler):
     def initialize(self, mongo_client, config, rabbit_client):
         super().initialize(mongo_client, config, rabbit_client)
         self.cluster_secret = config.cluster_secret()
-        self.agent_secret = config.agent_secret()
 
     @property
     def token(self):
@@ -183,9 +182,6 @@ class BaseAuthHandler(BaseHandler):
 
     def check_cluster_secret(self, **kwargs):
         return self._check_secret(self.cluster_secret, **kwargs)
-
-    def check_agent_secret(self, **kwargs):
-        return self._check_secret(self.agent_secret, **kwargs)
 
     def _check_secret(self, secret, raises=True):
         if raises:

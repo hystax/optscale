@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import MlModelParameterForm, { ML_MODEL_PARAMETER_FORM_FIELD_NAMES } from "components/MlModelParameterForm";
 import MlModelsService from "services/MlModelsService";
-import { ML_MODELS_PARAMETERS } from "urls";
+import { ML_TASK_PARAMETERS } from "urls";
 
 const CreateMlModelParameterFormContainer = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const CreateMlModelParameterFormContainer = () => {
 
   const { onCreate, isLoading } = useCreateGlobalParameter();
 
-  const redirect = () => navigate(ML_MODELS_PARAMETERS);
+  const redirect = () => navigate(ML_TASK_PARAMETERS);
 
   const onSubmit = (formData) => {
     onCreate(formData).then(() => {

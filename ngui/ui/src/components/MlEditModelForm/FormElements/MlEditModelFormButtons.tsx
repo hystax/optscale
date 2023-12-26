@@ -25,7 +25,7 @@ const DeleteModelButton = ({ id, name }) => {
   );
 };
 
-const MlEditModelFormButtons = ({ modelId, modelName, onCancel, isLoading = false }) => {
+const MlEditModelFormButtons = ({ taskId, modelName, onCancel, isLoading = false }) => {
   const { isDemo } = useOrganizationInfo();
 
   return (
@@ -43,7 +43,7 @@ const MlEditModelFormButtons = ({ modelId, modelName, onCancel, isLoading = fals
         />
         <Button messageId="cancel" dataTestId="btn_cancel" onClick={onCancel} />
       </Box>
-      <DeleteModelButton id={modelId} name={modelName} />
+      <DeleteModelButton id={taskId} name={modelName} />
     </FormButtonsWrapper>
   );
 };

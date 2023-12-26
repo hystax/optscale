@@ -2,7 +2,8 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from requests import HTTPError
 
-from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
+from rest_api.rest_api_server.controllers.base_async import (
+    BaseAsyncControllerWrapper)
 from rest_api.rest_api_server.controllers.infrastructure.base import (
     BaseInfraController, get_cost)
 from rest_api.rest_api_server.exceptions import Err
@@ -24,15 +25,27 @@ class RunController(BaseInfraController):
         executor['total_cost'] = cost
         return executor
 
-    def format_runset(self, id_, name):
+    def format_runset(self, id_: str, name: str) -> dict:
         return {
             'id': id_,
             'name': name
         }
 
+    def format_dataset(self, dataset: dict) -> dict:
+        return {
+            'id': dataset['_id'],
+            'name': dataset['name'],
+            'deleted': dataset['deleted_at'] != 0,
+            'path': dataset['path'],
+            'labels': dataset['labels'],
+            'training_set': dataset['training_set'],
+            'validation_set': dataset['validation_set'],
+        }
+
     def format_run(
             self, run: dict, application_goals: list[dict],
-            executors: dict[str, dict]) -> dict:
+            executors: dict[str, dict], datasets: dict[str, dict]
+    ) -> dict:
         run['id'] = run.pop('_id')
         run.pop('token', None)
         if run.get('hyperparameters') is None:
@@ -54,6 +67,7 @@ class RunController(BaseInfraController):
                 continue
             execs.append(executor_object)
         run['executors'] = execs
+        run['dataset'] = datasets.get(run.pop('dataset_id', None))
         return run
 
     def _get_executors_usage(
@@ -131,6 +145,15 @@ class RunController(BaseInfraController):
         executors = self.get_executors(profiling_token, run_ids)
         return {e['instance_id']: e for e in executors}
 
+    def _get_datasets(
+            self, organization_id: str, dataset_ids: set[str]
+    ) -> dict[str, dict]:
+        if not dataset_ids:
+            return {}
+        profiling_token = self.get_profiling_token(organization_id)
+        datasets = self.list_datasets(profiling_token, include_deleted=True)
+        return {d['_id']: d for d in datasets if d['_id'] in dataset_ids}
+
     def list(self, organization_id, runset_id, infrastructure_token, **kwargs):
         runset = self.__get_runset(infrastructure_token, runset_id)
         runs = self._bulk_get_runs(organization_id, runset_id)
@@ -139,8 +162,11 @@ class RunController(BaseInfraController):
         # infra executors are directly binded to runs, mapping them
         runs_map = {}
         run_ids = []
+        dataset_ids = set()
         for run in runs:
             run_ids.append(run['_id'])
+            if run.get('dataset_id'):
+                dataset_ids.add(run['dataset_id'])
             for executor in run.get('executors', []):
                 runs_map[executor] = run
         goals = self._get_application_goals(
@@ -154,8 +180,11 @@ class RunController(BaseInfraController):
         executors = {i_id: self.format_executor(e, costs.get(i_id))
                      for i_id, e in executors.items()}
         goals = [self.format_goal(g) for g in goals]
+        datasets = {d_id: self.format_dataset(d)
+                    for d_id, d in self._get_datasets(
+                organization_id, dataset_ids).items()}
         return sorted([
-            self.format_run(run, goals, executors)
+            self.format_run(run, goals, executors, datasets)
             for run in runs
         ], key=lambda d: d['start'])
 

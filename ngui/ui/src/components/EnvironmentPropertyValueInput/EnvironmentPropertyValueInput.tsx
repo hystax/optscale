@@ -1,6 +1,6 @@
 import { FormattedMessage, useIntl } from "react-intl";
 import Input from "components/Input";
-import { ENVIRONMENT_PROPERTY_VALUE_MAX_INPUT_LENGTH } from "utils/constants";
+import { DEFAULT_MAX_TEXTAREA_LENGTH } from "utils/constants";
 
 const EnvironmentPropertyValueInput = ({ name, register, error, helperText, dataTestId }) => {
   const intl = useIntl();
@@ -17,16 +17,16 @@ const EnvironmentPropertyValueInput = ({ name, register, error, helperText, data
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         },
         maxLength: {
-          value: ENVIRONMENT_PROPERTY_VALUE_MAX_INPUT_LENGTH,
+          value: DEFAULT_MAX_TEXTAREA_LENGTH,
           message: intl.formatMessage(
             { id: "maxLength" },
-            { inputName: intl.formatMessage({ id: "propertyValue" }), max: ENVIRONMENT_PROPERTY_VALUE_MAX_INPUT_LENGTH }
+            { inputName: intl.formatMessage({ id: "propertyValue" }), max: DEFAULT_MAX_TEXTAREA_LENGTH }
           )
         }
       })}
       rows={4}
       multiline
-      placeholder={intl.formatMessage({ id: "propertyValuePlaceholder" })}
+      placeholder={intl.formatMessage({ id: "markdownIsSupported" })}
       dataTestId={dataTestId}
     />
   );

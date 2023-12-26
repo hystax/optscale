@@ -56,7 +56,9 @@ import {
   SET_BI_EXPORT,
   GET_BI_EXPORT,
   UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
-  GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
+  GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
+  UPDATE_ML_LEADERBOARD_DATASET,
+  GET_ML_LEADERBOARD_DATASET
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -264,4 +266,10 @@ export const onUpdateS3DuplicatesOrganizationSettings = (data) => ({
   type: UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   payload: data,
   label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
+});
+
+export const onUpdateMlLeaderboardDataset = (data) => ({
+  type: UPDATE_ML_LEADERBOARD_DATASET,
+  payload: data,
+  label: GET_ML_LEADERBOARD_DATASET
 });

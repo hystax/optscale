@@ -170,13 +170,12 @@ export const EVENT_LEVEL = Object.freeze({
 export const CLOUD_ACCOUNT_TYPES_LIST = Object.keys(CLOUD_ACCOUNT_TYPE);
 
 export const DEFAULT_MAX_INPUT_LENGTH = 255;
+export const DEFAULT_MAX_TEXTAREA_LENGTH = 2000;
 export const NAME_MAX_SIZE = 255;
 export const TAG_KEY_MAX_SIZE = 255;
 export const EMAIL_MAX_LENGTH = 255;
-export const MAX_ORGANIZATION_NAME_LENGTH = DEFAULT_MAX_INPUT_LENGTH;
 
 export const ENVIRONMENT_PROPERTY_NAME_MAX_INPUT_LENGTH = 64;
-export const ENVIRONMENT_PROPERTY_VALUE_MAX_INPUT_LENGTH = 2000;
 
 export const EMPTY_UUID = NIL_UUID;
 export const NOT_SET_BACKEND_FILTER_VALUE = null;
@@ -567,28 +566,6 @@ export const RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY = Object.freeze({
 
 export const RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY_VALUES = Object.freeze(Object.values(RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY));
 
-export const ML_EXECUTORS_DAILY_BREAKDOWN_BY = Object.freeze({
-  CPU: "cpu",
-  RAM: "ram",
-  EXECUTORS_COUNT: "executors_count",
-  PROCESS_CPU: "process_cpu",
-  PROCESS_RAM: "process_ram",
-  GPU_LOAD: "gpu_load",
-  GPU_MEMORY_USED: "gpu_memory_used"
-});
-
-export const ML_EXECUTORS_BREAKDOWN_BY_MESSAGES = Object.freeze({
-  CPU: "cpu",
-  RAM: "ram",
-  EXECUTORS_COUNT: "executorsCount",
-  PROCESS_CPU: "processCPU",
-  PROCESS_RAM: "processRAM",
-  GPU_LOAD: "gpu",
-  GPU_MEMORY_USED: "gpuMemory"
-});
-
-export const ML_MODEL_RUN_DAILY_BREAKDOWN_BY_VALUES = Object.freeze(Object.values(ML_EXECUTORS_DAILY_BREAKDOWN_BY));
-
 export const RESOURCE_COUNT_ANOMALY = "resource_count_anomaly";
 
 export const EXPENSE_ANOMALY = "expense_anomaly";
@@ -787,8 +764,13 @@ export const BREAKDOWN_LINEAR_SELECTOR_ITEMS = [
 
 export const ML_MODEL_DETAILS_TABS = Object.freeze({
   OVERVIEW: "overview",
-  EXECUTORS: "executors"
+  RUNS: "runs",
+  LEADERBOARDS: "leaderboards",
+  EXECUTORS: "executors",
+  RECOMMENDATIONS: "recommendations"
 });
+
+export const ML_MODEL_DETAILS_TAB_NAME = "taskDetailsTab";
 
 export const ML_RUN_STATUS = Object.freeze({
   STOPPED: "stopped",
@@ -939,4 +921,8 @@ export const ML_RUNSET_ABORT_CONDITION_TYPES = Object.freeze({
 export const ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH = Object.freeze({
   MEDIUM: "150px",
   LARGE: "300px"
+});
+
+export const LAYOUT_TYPES = Object.freeze({
+  ML_RUN_CHARTS_DASHBOARD: "ml_run_charts_dashboard"
 });

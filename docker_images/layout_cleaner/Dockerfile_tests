@@ -1,0 +1,6 @@
+ARG BUILDTAG=build
+FROM layout_cleaner:${BUILDTAG}
+LABEL org.opencontainers.image.authors="Hystax"
+
+COPY docker_images/layout_cleaner/test-requirements.txt  docker_images/layout_cleaner/.pylintrc docker_images/layout_cleaner/
+RUN pip install --no-cache-dir -r docker_images/layout_cleaner/test-requirements.txt

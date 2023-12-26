@@ -1,17 +1,23 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LiveHelpOutlinedIcon from "@mui/icons-material/LiveHelpOutlined";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import SchoolIcon from "@mui/icons-material/School";
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
+import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
+import Button from "components/Button";
+import { WIDTH as DOCS_PANEL_WIDTH } from "components/DocsPanel/DocsPanel.styles";
 import IconButton from "components/IconButton";
 import Popover from "components/Popover";
 import { PRODUCT_TOUR, useStartTour } from "components/Tour";
 import { useIsTourAvailableForCurrentBreakpoint } from "components/Tour/hooks";
 import ProfileMenuContainer from "containers/ProfileMenuContainer";
+import { CommunityDocsContext } from "contexts/CommunityDocsContext";
 import { useMainMenuState } from "hooks/useMainMenuState";
+import { useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { DOCS_HYSTAX_OPTSCALE } from "urls";
 import useStyles from "./HeaderButtons.styles";
 
@@ -36,6 +42,12 @@ const HeaderButtons = () => {
   };
 
   const isTourAvailableForCurrentBreakpoint = useIsTourAvailableForCurrentBreakpoint();
+
+  const theme = useTheme();
+  const minimumWidthToShowCommunityDocs = theme.breakpoints.values.md + DOCS_PANEL_WIDTH;
+  const isCommunityVisible = useIsUpMediaQuery(minimumWidthToShowCommunityDocs);
+
+  const { isCommunityDocsOpened, setIsCommunityDocsOpened } = useContext(CommunityDocsContext);
 
   return (
     <>
@@ -77,6 +89,19 @@ const HeaderButtons = () => {
           }
           menu={<ProfileMenuContainer />}
         />
+        {isCommunityVisible && (
+          <Button
+            startIcon={<SchoolIcon />}
+            color="primary"
+            messageId="tips"
+            variant={isCommunityDocsOpened ? "contained" : "outlined"}
+            onClick={setIsCommunityDocsOpened}
+            tooltip={{
+              show: true,
+              value: <FormattedMessage id="communityDocs" />
+            }}
+          />
+        )}
       </Box>
       {/* TODO: Maybe we can make the Popup component more universal and include the case below */}
       {/* TODO: https://datatrendstech.atlassian.net/browse/NGUI-2808 to handle dynamic header buttons, product tour is hidden on mdDown (when hamburger menu is activated) */}

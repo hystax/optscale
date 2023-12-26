@@ -9,7 +9,7 @@ import HtmlSymbol from "components/HtmlSymbol";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import SubTitle from "components/SubTitle";
 import { ProfilingIntegrationModalContext } from "contexts/ProfilingIntegrationModalContext";
-import { ML_MODELS_PARAMETERS, ML_MODELS, PYPI_OPTSCALE_ARCEE } from "urls";
+import { ML_TASK_PARAMETERS, ML_TASKS, PYPI_OPTSCALE_ARCEE } from "urls";
 
 const Pre = ({ children }) => {
   const theme = useTheme();
@@ -58,20 +58,20 @@ const Import = () => (
   </>
 );
 
-const Initialization = ({ profilingToken, modelKey, isLoading }) => {
+const Initialization = ({ profilingToken, taskKey, isLoading }) => {
   const intl = useIntl();
 
   const { onClose } = useContext(ProfilingIntegrationModalContext);
 
   const arceeInitUsingContextManager = (
     <CodeBlock
-      text={`with arcee.init("${profilingToken}", "${modelKey ?? "model_key"}"):
+      text={`with arcee.init("${profilingToken}", "${taskKey ?? "task_key"}"):
     # ${intl.formatMessage({ id: "mlProfilingIntegration.someCode" })}`}
     />
   );
   const arceeInitUsingFunctionCall = (
     <CodeBlock
-      text={`arcee.init("${profilingToken}", "${modelKey ?? "model_key"}"):
+      text={`arcee.init("${profilingToken}", "${taskKey ?? "task_key"}"):
 # ${intl.formatMessage({ id: "mlProfilingIntegration.someCode" })}
 arcee.finish()
 # ${intl.formatMessage({ id: "mlProfilingIntegration.orInCaseOfError" })}
@@ -124,7 +124,7 @@ arcee.error()
         messageValues={{
           link: (chunks) => (
             <Link
-              to={ML_MODELS}
+              to={ML_TASKS}
               // Explicitly close the modal to cover cases where it was opened on the "/models" page
               onClick={onClose}
               component={RouterLink}
@@ -165,7 +165,7 @@ const SendingMetrics = () => (
       </li>
     </ul>
     <Box mb={1}>
-      <CodeBlock text={`arcee.send({ "parameter_key_1": value_1, "parameter_key_2": value_2 })`} />
+      <CodeBlock text={`arcee.send({ "metric_key_1": value_1, "metric_key_2": value_2 })`} />
     </Box>
     <InlineSeverityAlert
       sx={{
@@ -174,7 +174,7 @@ const SendingMetrics = () => (
       messageId="mlProfilingIntegration.listOfAvailableParameters"
       messageValues={{
         link: (chunks) => (
-          <Link to={ML_MODELS_PARAMETERS} component={RouterLink}>
+          <Link to={ML_TASK_PARAMETERS} component={RouterLink}>
             {chunks}
           </Link>
         )
@@ -186,7 +186,7 @@ const SendingMetrics = () => (
 const TaggingModelRun = () => (
   <>
     <SubTitle fontWeight="bold">
-      <FormattedMessage id="mlProfilingIntegration.taggingModelRuns" />
+      <FormattedMessage id="mlProfilingIntegration.taggingTaskRun" />
     </SubTitle>
     <Typography gutterBottom>
       <FormattedMessage
@@ -278,14 +278,77 @@ const AddingStage = () => (
   </>
 );
 
+const LoggingDatasets = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.loggingDatasetsTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.loggingDataset" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.loggingDatasetDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock text={`arcee.dataset("dataset_path")`} />
+  </>
+);
+
+const AddHyperparameters = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.addHyperparametersTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.addHyperparameters" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.addHyperparameters.keyParameterDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.addHyperparameters.valueParameterDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock
+      text={`arcee.hyperparam("hyperparam_key", hyperparam_value)
+`}
+    />
+  </>
+);
+
 const FinishModelRun = () => (
   <>
     <SubTitle fontWeight="bold">
-      <FormattedMessage id="mlProfilingIntegration.finishModelRunTitle" />
+      <FormattedMessage id="mlProfilingIntegration.finishTaskRunTitle" />
     </SubTitle>
     <Typography gutterBottom>
       <FormattedMessage
-        id="mlProfilingIntegration.finishModelRun"
+        id="mlProfilingIntegration.finishTaskRun"
         values={{
           ...preFormatMessageValues
         }}
@@ -299,10 +362,10 @@ const FailModelRun = () => (
   <>
     <Typography gutterBottom>
       <SubTitle fontWeight="bold">
-        <FormattedMessage id="mlProfilingIntegration.failModelRunTitle" />
+        <FormattedMessage id="mlProfilingIntegration.failTaskRunTitle" />
       </SubTitle>
       <FormattedMessage
-        id="mlProfilingIntegration.failModelRun"
+        id="mlProfilingIntegration.failTaskRun"
         values={{
           ...preFormatMessageValues
         }}
@@ -312,7 +375,7 @@ const FailModelRun = () => (
   </>
 );
 
-const ProfilingIntegration = ({ profilingToken, modelKey, isLoading }) => (
+const ProfilingIntegration = ({ profilingToken, taskKey, isLoading }) => (
   <Stack spacing={1}>
     <div>
       <Typography gutterBottom>
@@ -335,7 +398,7 @@ const ProfilingIntegration = ({ profilingToken, modelKey, isLoading }) => (
       <Import />
     </div>
     <div>
-      <Initialization profilingToken={profilingToken} modelKey={modelKey} isLoading={isLoading} />
+      <Initialization profilingToken={profilingToken} taskKey={taskKey} isLoading={isLoading} />
     </div>
     <div>
       <SendingMetrics />
@@ -348,6 +411,12 @@ const ProfilingIntegration = ({ profilingToken, modelKey, isLoading }) => (
     </div>
     <div>
       <AddingStage />
+    </div>
+    <div>
+      <LoggingDatasets />
+    </div>
+    <div>
+      <AddHyperparameters />
     </div>
     <div>
       <FinishModelRun />

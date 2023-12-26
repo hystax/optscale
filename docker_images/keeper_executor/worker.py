@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import hashlib
 import os
-import requests
 import time
 from threading import Thread
+import requests
 from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu.utils.debug import setup_logging
@@ -31,9 +31,9 @@ TASK_QUEUE = Queue(QUEUE_NAME, TASK_EXCHANGE, bindings=[
 
 
 class KeeperExecutorWorker(ConsumerMixin):
-    def __init__(self, connection, config_cl):
+    def __init__(self, connection, config_client):
         self.connection = connection
-        self.config_cl = config_cl
+        self.config_cl = config_client
         self._auth_cl = None
         self._rest_cl = None
         self._report_cl = None

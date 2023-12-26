@@ -29,7 +29,7 @@ const useGet = ({ modelIds, runIds } = {}) => {
   return { isLoading, executors };
 };
 
-const useGetBreakdown = (params) => {
+const useGetBreakdown = () => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
@@ -38,13 +38,13 @@ const useGetBreakdown = (params) => {
     apiData: { breakdown = {} }
   } = useApiData(GET_ML_EXECUTORS_BREAKDOWN);
 
-  const { isLoading, shouldInvoke } = useApiState(GET_ML_EXECUTORS_BREAKDOWN, { organizationId, ...params });
+  const { isLoading, shouldInvoke } = useApiState(GET_ML_EXECUTORS_BREAKDOWN, organizationId);
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getMlExecutorsBreakdown(organizationId, params));
+      dispatch(getMlExecutorsBreakdown(organizationId));
     }
-  }, [shouldInvoke, dispatch, organizationId, params]);
+  }, [shouldInvoke, dispatch, organizationId]);
 
   return { isLoading, breakdown };
 };

@@ -37,36 +37,12 @@ class Config(object):
         self.client = ConfigClient(host=etcd_host, port=etcd_port)
 
     @property
-    def block_size(self):
-        return self.client.block_size()
-
-    @property
-    def max_cpu(self):
-        return self.client.max_cpu()
-
-    @property
-    def max_ram(self):
-        return self.client.max_ram()
-
-    @property
-    def external_network_cidr(self):
-        return self.client.external_network_cidr()
-
-    @property
     def auth_url(self):
         return self.client.auth_url()
 
     @property
-    def receiver_url(self):
-        return self.client.receiver_url()
-
-    @property
     def cluster_secret(self):
         return self.client.cluster_secret()
-
-    @property
-    def agent_secret(self):
-        return self.client.agent_secret()
 
 
 class ModelEncoder(json.JSONEncoder):
@@ -84,7 +60,7 @@ class ModelEncoder(json.JSONEncoder):
 
 
 def is_uuid(check_str):
-    pattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\Z'
+    pattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\Z'
     return bool(re.match(pattern, str(check_str).lower()))
 
 

@@ -2,13 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getIntersection, isEmpty as isEmptyArray } from "utils/arrays";
 import { getQueryParams, updateQueryParams } from "utils/network";
-import { setBreakdowns as setBreakdownsActionCreator } from "./actionCreator";
+import { setModelOverviewChart as setBreakdownsActionCreator } from "./actionCreator";
 import { MODEL_BREAKDOWN } from "./reducer";
 
 export const useModelBreakdownState = ({
   breakdownNames,
   queryParamName,
-  modelId,
+  taskId,
   storeId,
   initialSelectedBreakdowns = [],
   fallbackBreakdowns = []
@@ -16,7 +16,7 @@ export const useModelBreakdownState = ({
   const dispatch = useDispatch();
 
   const reduxData = useSelector((state) => {
-    const storeData = state[MODEL_BREAKDOWN]?.[modelId]?.[storeId] ?? undefined;
+    const storeData = state[MODEL_BREAKDOWN]?.[taskId]?.[storeId] ?? undefined;
 
     return storeData;
   });
@@ -56,8 +56,8 @@ export const useModelBreakdownState = ({
   });
 
   useEffect(() => {
-    dispatch(setBreakdownsActionCreator(storeId, modelId, selectedBreakdowns));
-  }, [modelId, dispatch, selectedBreakdowns, storeId]);
+    dispatch(setBreakdownsActionCreator(storeId, taskId, selectedBreakdowns));
+  }, [taskId, dispatch, selectedBreakdowns, storeId]);
 
   useEffect(() => {
     updateQueryParams({
@@ -80,9 +80,14 @@ export const useModelBreakdownState = ({
     [selectedBreakdowns]
   );
 
+  const onSelectionChange = (updatedBreakdownsSelectionNames) => {
+    setSelectedBreakdowns(updatedBreakdownsSelectionNames);
+  };
+
   return {
     selectedBreakdowns,
     addBreakdown,
-    removeBreakdown
+    removeBreakdown,
+    onSelectionChange
   };
 };

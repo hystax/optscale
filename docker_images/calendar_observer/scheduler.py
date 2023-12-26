@@ -13,9 +13,9 @@ RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
 
 
-def publish_tasks(org_ids, config_cl):
+def publish_tasks(org_ids, config_client):
     queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit')),
+        **config_client.read_branch('/rabbit')),
         transport_options=RETRY_POLICY)
 
     task_exchange = Exchange('calendar-observers', type='direct')

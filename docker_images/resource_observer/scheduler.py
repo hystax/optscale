@@ -13,9 +13,9 @@ RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
 
 
-def publish_tasks(org_ids, config_cl):
+def publish_tasks(org_ids, config_client):
     queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit')),
+        **config_client.read_branch('/rabbit')),
         transport_options=RETRY_POLICY)
 
     task_exchange = Exchange('resource-observer', type='direct')
@@ -33,18 +33,18 @@ def publish_tasks(org_ids, config_cl):
             LOG.info('Task published for org %s', org_id)
 
 
-def get_org_ids(config_cl):
-    rest_cl = RestClient(url=config_cl.restapi_url(), verify=False)
-    rest_cl.secret = config_cl.cluster_secret()
+def get_org_ids(config_client):
+    rest_cl = RestClient(url=config_client.restapi_url(), verify=False)
+    rest_cl.secret = config_client.cluster_secret()
 
     _, response = rest_cl.organization_list({'with_connected_accounts': True})
     return [org['id'] for org in response['organizations']]
 
 
-def main(config_cl):
-    org_ids = get_org_ids(config_cl)
+def main(config_client):
+    org_ids = get_org_ids(config_client)
     LOG.info('Publishing tasks for orgs: %s', org_ids)
-    publish_tasks(org_ids, config_cl)
+    publish_tasks(org_ids, config_client)
 
 
 if __name__ == '__main__':

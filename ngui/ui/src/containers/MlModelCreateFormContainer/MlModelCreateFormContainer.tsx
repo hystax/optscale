@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import MlModelCreateForm from "components/MlModelCreateForm";
 import EmployeesService from "services/EmployeesService";
 import MlModelsService from "services/MlModelsService";
-import { ML_MODELS } from "urls";
+import { ML_TASKS } from "urls";
 
 const MlModelCreateFormContainer = () => {
   const { useGet: useGetEmployees } = EmployeesService();
@@ -15,7 +15,7 @@ const MlModelCreateFormContainer = () => {
 
   const { isLoading: isCreateModelLoading, onCreate } = useCreateModel();
 
-  const redirect = () => navigate(ML_MODELS);
+  const redirect = () => navigate(ML_TASKS);
 
   const onSubmit = (formData) => {
     onCreate(formData).then(() => redirect());

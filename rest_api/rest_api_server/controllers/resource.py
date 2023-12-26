@@ -32,7 +32,7 @@ class ResourceController(object):
                 raise ValueError
             resource_ids = list(map(lambda x: x[1], li))
             query_set = self.session.query(
-                literal_column(repr(Organization.__table__.name)).label(
+                literal_column(repr(Organization.__tablename__)).label(
                     "resource"),
                 Organization.id, Organization.name
             ).filter(
@@ -42,7 +42,7 @@ class ResourceController(object):
                 )
             ).union(
                 self.session.query(
-                    literal_column(repr(Pool.__table__.name)).label(
+                    literal_column(repr(Pool.__tablename__)).label(
                         "resource"),
                     Pool.id,
                     Pool.name,

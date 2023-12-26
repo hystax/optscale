@@ -24,6 +24,8 @@ def get_current_timestamp():
 
 
 class Base(object):
+    __name__: str
+
     @declared_attr
     # pylint: disable=E0213
     def __tablename__(cls):

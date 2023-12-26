@@ -13,26 +13,26 @@ LOG = logging.getLogger(__name__)
 
 
 def _generate_context(template_params, config_client):
-    def update_template(d, u):
-        for k, v in u.items():
-            if isinstance(v, collections.abc.Mapping):
-                d[k] = update_template(d.get(k, {}), v)
+    def update_template(template, params):
+        for key, value in params.items():
+            if isinstance(value, collections.abc.Mapping):
+                template[k] = update_template(template.get(key, {}), value)
             else:
-                d[k] = v
-        return d
+                template[k] = value
+        return template
 
     def get_numbered_params(params_dict):
         numbered_dict = {}
-        for k, v in params_dict.items():
-            if isinstance(v, numbers.Number):
-                numbered_dict[k] = v
+        for key, value in params_dict.items():
+            if isinstance(value, numbers.Number):
+                numbered_dict[k] = value
         return numbered_dict
 
     def update_template_style(numbered_dict):
         style = {}
         display_visibility_name = 'element_visibility_%s'
-        for k, v in numbered_dict.items():
-            style[display_visibility_name % k] = 'table-row' if v else 'none'
+        for key, value in numbered_dict.items():
+            style[display_visibility_name % k] = 'table-row' if value else 'none'
         return style
 
     def generate_control_panel_parameters(organization_map):

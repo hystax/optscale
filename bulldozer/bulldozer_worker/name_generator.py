@@ -355,4 +355,4 @@ class NameGenerator:
 
     @classmethod
     def get_random_name(cls, seperator="_"):
-        return "{}{}{}".format(choice(cls.__left__), seperator, choice(cls.__right__))
+        return f"{choice(cls.__left__)}{seperator}{choice(cls.__right__)}"

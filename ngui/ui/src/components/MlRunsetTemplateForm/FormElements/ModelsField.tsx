@@ -51,8 +51,8 @@ const ModelsField = ({ models, isLoading }) => {
             renderInput={(params) => (
               <Input
                 {...params}
-                dataTestId="input_models"
-                label={<FormattedMessage id="models" />}
+                dataTestId="input_tasks"
+                label={<FormattedMessage id="tasks" />}
                 required
                 error={!!errors[FIELD_NAME]}
                 helperText={errors[FIELD_NAME]?.message}

@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import CopyTextComponent from "components/CopyText";
 import ExpandableList from "components/ExpandableList";
 import KeyValueLabel from "components/KeyValueLabel";
@@ -29,7 +30,11 @@ const renderItems =
 
     const renderTag = () => {
       if (value === null) {
-        return <CopyText textToCopy={stringKey}>{displayedKey}</CopyText>;
+        return (
+          <Typography>
+            <CopyText textToCopy={stringKey}>{displayedKey}</CopyText>
+          </Typography>
+        );
       }
 
       const textToCopy = `${stringKey}: ${stringValue}`;

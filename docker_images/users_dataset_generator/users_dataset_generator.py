@@ -1,17 +1,18 @@
-import boto3
 import csv
 import json
 import logging
 import re
 import os
-from clickhouse_driver import Client as ClickHouseClient
 from collections import defaultdict
-from optscale_client.config_client.client import Client as ConfigClient
 from datetime import datetime, timedelta
-from pymongo import MongoClient
+from urllib import parse
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from urllib import parse
+from pymongo import MongoClient
+import boto3
+from clickhouse_driver import Client as ClickHouseClient
+from optscale_client.config_client.client import Client as ConfigClient
 
 DEFAULT_ETCD_HOST = 'etcd'
 DEFAULT_ETCD_PORT = 80
@@ -316,6 +317,6 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     etcd_host = os.environ.get('HX_ETCD_HOST', DEFAULT_ETCD_HOST)
     etcd_port = os.environ.get('HX_ETCD_PORT', DEFAULT_ETCD_PORT)
-    config_cl = ConfigClient(host=etcd_host, port=int(etcd_port))
-    config_cl.wait_configured()
-    main(config_cl)
+    config_client = ConfigClient(host=etcd_host, port=int(etcd_port))
+    config_client.wait_configured()
+    main(config_client)

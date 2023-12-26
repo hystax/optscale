@@ -7,7 +7,7 @@ export default {
     isPoolOwnersLoading: { name: "Poll owner loading", control: "boolean", defaultValue: false },
     isGetPoolLoading: { name: "Get pool loading", control: "boolean", defaultValue: false },
     isEditLoading: { name: "Edit loading", control: "boolean", defaultValue: false },
-    hasSubPools: { name: "With sub pools", control: "boolean", defaultValue: false },
+    hasSubPools: { name: "With sub-pools", control: "boolean", defaultValue: false },
     withParentId: { name: "With parent", control: "boolean", defaultValue: false },
     isEdit: { name: "Edit mode", control: "boolean", defaultValue: false }
   }

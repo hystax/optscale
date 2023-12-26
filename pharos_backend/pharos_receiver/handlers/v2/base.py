@@ -34,7 +34,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self._controller = None
 
     def raise405(self):
-        raise OptHTTPError(405, Err.OD0002, [self.request.method])
+        raise OptHTTPError(405, Err.ODE0002, [self.request.method])
 
     def head(self, *args, **kwargs):
         self.raise405()
@@ -99,7 +99,7 @@ class BaseHandler(tornado.web.RequestHandler):
         try:
             return json.loads(self.request.body.decode('utf-8'))
         except JSONDecodeError:
-            raise OptHTTPError(400, Err.OIC0003, [])
+            raise OptHTTPError(400, Err.ODE0003, [])
 
     def _request_arguments(self):
         return self.request.arguments

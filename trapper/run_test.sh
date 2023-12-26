@@ -9,13 +9,14 @@ do
   TEST_IMAGE="${SERVICE}_tests"
   docker build -t ${TEST_IMAGE}:${BUILD_TAG} --build-arg IMAGE=${SERVICE} -f trapper/${SERVICE}/Dockerfile_tests .
 
-  echo "PEP8 tests>>>"
-  docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c "pep8 --max-line-length=120 ."
-  echo "<<<PEP8 tests"
+  echo "Pycodestyle tests>>>"
+  docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
+      "pycodestyle --max-line-length=120 trapper"
+  echo "<<<Pycodestyle tests"
 
   echo "Pylint tests>>>"
   docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} \
-        bash -c "cd trapper && pylint --rcfile=.pylintrc ./${SERVICE}; exit \$(( \$? & 3 ))"
+      bash -c "cd trapper && pylint --rcfile=.pylintrc --fail-under=9 --fail-on=E,F ./${SERVICE}"
   echo "<<<Pylint tests"
 
   echo "Nose tests>>>"

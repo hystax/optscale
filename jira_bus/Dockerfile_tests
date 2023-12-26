@@ -5,8 +5,9 @@ WORKDIR /usr/src/app/
 
 
 COPY jira_bus/test-requirements.txt .
-COPY jira_bus/.pylintrc jira_bus/.noserc jira_bus/.coveragerc ./jira_bus/jira_bus_server/
+COPY jira_bus/.pylintrc jira_bus/.noserc jira_bus/.coveragerc ./jira_bus/
 
+COPY tools/check_alembic_down_revisions tools/check_alembic_down_revisions
 COPY optscale_client/jira_bus_client optscale_client/jira_bus_client
 RUN pip install --no-cache-dir -r test-requirements.txt
 

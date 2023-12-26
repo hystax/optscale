@@ -6,7 +6,7 @@ import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
 from threading import Event, Thread
-
+import queue
 from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu import Connection
@@ -19,7 +19,6 @@ from tools.cloud_adapter.exceptions import InvalidResourceTypeException
 from tools.cloud_adapter.model import ResourceTypes, RES_MODEL_MAP
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
-import queue
 
 
 CHUNK_SIZE = 200
@@ -80,7 +79,7 @@ class ResourcesSaver:
                 LOG.exception('Failed to add a chunk to the queue: '
                               'writing paused, timeout exceeded')
         except queue.Full as exc:
-            LOG.exception('Failed to add a chunk to the queue: %s' % str(exc))
+            LOG.exception('Failed to add a chunk to the queue: %s', str(exc))
 
     @property
     def proc(self):
@@ -102,14 +101,14 @@ class ResourcesSaver:
             except queue.Empty:
                 self.empty.set()
             except Exception as exc:
-                LOG.warning('Failed to save a chunk: %s' % str(exc))
+                LOG.warning('Failed to save a chunk: %s', str(exc))
 
     @staticmethod
     def get_resource_type_model(resource_type):
         try:
             return RES_MODEL_MAP[resource_type]
         except KeyError:
-            raise Exception('Invalid resource type %s' % resource_type)
+            raise Exception(f'Invalid resource type {resource_type}')
 
     def build_payload(self, resource, resource_type):
         obj = {}
@@ -217,7 +216,7 @@ class DiscoveryWorker(ConsumerMixin):
                 discover_calls = adapter.get_discovery_calls(resource_type)
             except InvalidResourceTypeException:
                 LOG.exception('Discovery calls for resource type %s are '
-                              'not found' % resource_type)
+                              'not found', resource_type)
                 return res
             futures = []
             for call in discover_calls:

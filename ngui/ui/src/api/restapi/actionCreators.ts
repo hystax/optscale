@@ -201,6 +201,19 @@ import {
   UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
   GET_ML_MODELS,
   SET_ML_MODELS,
+  GET_ML_LEADERBOARD,
+  SET_ML_LEADERBOARD,
+  CREATE_ML_LEADERBOARD,
+  GET_ML_LEADERBOARD_DATASET_DETAILS,
+  SET_ML_LEADERBOARD_DATASET_DETAILS,
+  UPDATE_ML_LEADERBOARD,
+  GET_ML_DATASETS,
+  SET_ML_DATASETS,
+  CREATE_ML_DATASET,
+  GET_ML_DATASET,
+  SET_ML_DATASET,
+  UPDATE_ML_DATASET,
+  DELETE_ML_DATASET,
   GET_ML_GLOBAL_PARAMETERS,
   SET_ML_GLOBAL_PARAMETERS,
   GET_ML_GLOBAL_PARAMETER,
@@ -281,7 +294,23 @@ import {
   DELETE_POWER_SCHEDULE,
   UPDATE_POWER_SCHEDULE,
   ATTACH_INSTANCES_TO_SCHEDULE,
-  REMOVE_INSTANCES_FROM_SCHEDULE
+  REMOVE_INSTANCES_FROM_SCHEDULE,
+  SET_ML_MODEL_RUNS_BULK,
+  GET_ML_MODEL_RUNS_BULK,
+  GET_ML_LEADERBOARD_DATASETS,
+  SET_ML_LEADERBOARD_DATASETS,
+  CREATE_ML_LEADERBOARD_DATASET,
+  UPDATE_ML_LEADERBOARD_DATASET,
+  DELETE_ML_LEADERBOARD_DATASET,
+  SET_ML_LEADERBOARD_DATASET,
+  GET_ML_LEADERBOARD_DATASET,
+  SET_LAYOUTS,
+  GET_LAYOUTS,
+  SET_LAYOUT,
+  GET_LAYOUT,
+  CREATE_LAYOUT,
+  UPDATE_LAYOUT,
+  DELETE_LAYOUT
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -317,7 +346,8 @@ import {
   onSuccessGetMLOptimizationDetails,
   onUpdateMlRunsetTemplate,
   onUpdateBIExport,
-  onUpdateS3DuplicatesOrganizationSettings
+  onUpdateS3DuplicatesOrganizationSettings,
+  onUpdateMlLeaderboardDataset
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -1984,23 +2014,160 @@ export const getMlModels = (organizationId) =>
     label: GET_ML_MODELS
   });
 
-export const getMlModelRecommendations = (organizationId, modelId) =>
+export const getMlLeaderboards = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${modelId}/optimizations`,
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/leaderboard`,
+    method: "GET",
+    ttl: 30 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_LEADERBOARD),
+    hash: hashParams({ organizationId, taskId }),
+    label: GET_ML_LEADERBOARD
+  });
+
+export const createMlLeaderboard = (organizationId, taskId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/leaderboard`,
+    method: "POST",
+    label: CREATE_ML_LEADERBOARD,
+    params,
+    affectedRequests: [GET_ML_LEADERBOARD]
+  });
+
+export const updateMlLeaderboard = (organizationId, taskId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/leaderboard`,
+    method: "PATCH",
+    label: UPDATE_ML_LEADERBOARD,
+    params,
+    affectedRequests: [GET_ML_LEADERBOARD_DATASET_DETAILS, GET_ML_LEADERBOARD]
+  });
+
+export const getMlLeaderboardDatasets = (organizationId, leaderboardId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}/leaderboard_datasets`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_LEADERBOARD_DATASETS),
+    hash: hashParams({ organizationId, leaderboardId }),
+    label: GET_ML_LEADERBOARD_DATASETS
+  });
+
+export const getMlLeaderboardDataset = (organizationId, leaderboardDatasetId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_LEADERBOARD_DATASET),
+    hash: hashParams({ organizationId, leaderboardDatasetId }),
+    label: GET_ML_LEADERBOARD_DATASET
+  });
+
+export const createMlLeaderboardDataset = (organizationId, leaderboardId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}/leaderboard_datasets`,
+    method: "POST",
+    label: CREATE_ML_LEADERBOARD_DATASET,
+    affectedRequests: [GET_ML_LEADERBOARD_DATASETS],
+    params: {
+      dataset_ids: params.datasetIds,
+      name: params.name
+    }
+  });
+
+export const updateMlLeaderboardDataset = (organizationId, leaderboardDatasetId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}`,
+    method: "PATCH",
+    label: UPDATE_ML_LEADERBOARD_DATASET,
+    onSuccess: onUpdateMlLeaderboardDataset,
+    affectedRequests: [GET_ML_LEADERBOARD_DATASET_DETAILS],
+    params: {
+      dataset_ids: params.datasetIds,
+      name: params.name
+    }
+  });
+
+export const deleteMlLeaderboardDataset = (organizationId, leaderboardDatasetId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}`,
+    method: "DELETE",
+    label: DELETE_ML_LEADERBOARD_DATASET,
+    affectedRequests: [GET_ML_LEADERBOARD_DATASETS]
+  });
+
+export const getMlLeaderboardDatasetInfo = (organizationId, leaderboardDatasetId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}/generate`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_LEADERBOARD_DATASET_DETAILS),
+    hash: hashParams({ organizationId, leaderboardDatasetId }),
+    label: GET_ML_LEADERBOARD_DATASET_DETAILS
+  });
+
+export const getMlDatasets = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/datasets`,
+    method: "GET",
+    ttl: 30 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_DATASETS),
+    hash: hashParams(organizationId),
+    label: GET_ML_DATASETS
+  });
+
+export const getMlDataset = (organizationId, datasetId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/datasets/${datasetId}`,
+    method: "GET",
+    ttl: 30 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_DATASET),
+    hash: hashParams(organizationId, datasetId),
+    label: GET_ML_DATASET
+  });
+
+export const createMlDataset = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/datasets`,
+    method: "POST",
+    label: CREATE_ML_DATASET,
+    params,
+    affectedRequests: [GET_ML_DATASETS]
+  });
+
+export const updateMlDataset = (organizationId, datasetId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/datasets/${datasetId}`,
+    method: "PATCH",
+    label: UPDATE_ML_DATASET,
+    params,
+    affectedRequests: [GET_ML_DATASET, GET_ML_DATASETS]
+  });
+
+export const deleteMlDataset = (organizationId, datasetId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/datasets/${datasetId}`,
+    method: "DELETE",
+    label: DELETE_ML_DATASET,
+    affectedRequests: [GET_ML_DATASETS]
+  });
+
+export const getMlModelRecommendations = (organizationId, taskId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/optimizations`,
     method: "GET",
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_MODEL_RECOMMENDATIONS),
-    hash: hashParams({ organizationId, modelId }),
+    hash: hashParams({ organizationId, taskId }),
     label: GET_ML_MODEL_RECOMMENDATIONS
   });
 
-export const getMlModelRecommendationDetails = (organizationId, modelId, params = {}) =>
+export const getMlModelRecommendationDetails = (organizationId, taskId, params = {}) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${modelId}/optimizations`,
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/optimizations`,
     method: "GET",
     onSuccess: onSuccessGetMLOptimizationDetails,
     label: GET_ML_OPTIMIZATION_DETAILS,
-    hash: hashParams({ organizationId, modelId, ...params }),
+    hash: hashParams({ organizationId, taskId, ...params }),
     ttl: 5 * MINUTE,
     params: {
       type: params.type,
@@ -2008,24 +2175,37 @@ export const getMlModelRecommendationDetails = (organizationId, modelId, params 
     }
   });
 
-export const getMlModel = (organizationId, modelId) =>
+export const getMlModel = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${modelId}`,
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}`,
     method: "GET",
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_MODEL),
-    hash: hashParams({ organizationId, modelId }),
+    hash: hashParams({ organizationId, taskId }),
     label: GET_ML_MODEL
   });
 
-export const getMlModelRuns = (organizationId, modelId) =>
+export const getMlModelRuns = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${modelId}/runs`,
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/runs`,
     method: "GET",
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_MODEL_RUNS),
-    hash: hashParams({ organizationId, modelId }),
+    hash: hashParams({ organizationId, taskId }),
     label: GET_ML_MODEL_RUNS
+  });
+
+export const getMlModelRunsBulk = (organizationId, taskId, runIds) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/runs/bulk`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_MODEL_RUNS_BULK),
+    hash: hashParams({ organizationId, taskId, runIds }),
+    label: GET_ML_MODEL_RUNS_BULK,
+    params: {
+      run_id: runIds
+    }
   });
 
 export const getMlRunDetails = (organizationId, runId) =>
@@ -2057,9 +2237,9 @@ export const createMlModel = (organizationId, params) =>
     affectedRequests: [GET_ML_MODELS]
   });
 
-export const updateMlModel = (organizationId, modelId, params) =>
+export const updateMlModel = (organizationId, taskId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${modelId}`,
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}`,
     method: "PATCH",
     label: UPDATE_ML_MODEL,
     onSuccess: onUpdateMlModel,
@@ -2067,9 +2247,9 @@ export const updateMlModel = (organizationId, modelId, params) =>
     affectedRequests: [GET_ML_MODELS]
   });
 
-export const deleteMlModel = (organizationId, modelId) =>
+export const deleteMlModel = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${modelId}`,
+    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}`,
     method: "DELETE",
     label: DELETE_ML_MODEL,
     affectedRequests: [GET_ML_MODELS]
@@ -2086,13 +2266,13 @@ export const getMlGlobalParameters = (organizationId) =>
     onSuccess: handleSuccess(SET_ML_GLOBAL_PARAMETERS)
   });
 
-export const getMlGlobalParameter = (organizationId, parameterId) =>
+export const getMlGlobalParameter = (organizationId, metricId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals/${parameterId}`,
+    url: `${API_URL}/organizations/${organizationId}/goals/${metricId}`,
     method: "GET",
     label: GET_ML_GLOBAL_PARAMETER,
     ttl: 5 * MINUTE,
-    hash: hashParams({ organizationId, parameterId }),
+    hash: hashParams({ organizationId, metricId }),
     onSuccess: handleSuccess(SET_ML_GLOBAL_PARAMETER)
   });
 
@@ -2105,18 +2285,18 @@ export const createGlobalParameter = (organizationId, params) =>
     affectedRequests: [GET_ML_GLOBAL_PARAMETERS]
   });
 
-export const updateGlobalParameter = (organizationId, parameterId, params) =>
+export const updateGlobalParameter = (organizationId, metricId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals/${parameterId}`,
+    url: `${API_URL}/organizations/${organizationId}/goals/${metricId}`,
     method: "PATCH",
     label: UPDATE_GLOBAL_PARAMETER,
     affectedRequests: [GET_ML_GLOBAL_PARAMETERS],
     params
   });
 
-export const deleteGlobalParameter = (organizationId, parameterId) =>
+export const deleteGlobalParameter = (organizationId, metricId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals/${parameterId}`,
+    url: `${API_URL}/organizations/${organizationId}/goals/${metricId}`,
     method: "DELETE",
     label: DELETE_GLOBAL_PARAMETER,
     affectedRequests: [GET_ML_GLOBAL_PARAMETERS]
@@ -2146,20 +2326,14 @@ export const getMlExecutors = (organizationId, params) =>
     }
   });
 
-export const getMlExecutorsBreakdown = (organizationId, params) =>
+export const getMlExecutorsBreakdown = (organizationId) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/executors_breakdown`,
     method: "GET",
     onSuccess: handleSuccess(SET_ML_EXECUTORS_BREAKDOWN),
     label: GET_ML_EXECUTORS_BREAKDOWN,
     ttl: 5 * MINUTE,
-    hash: hashParams({ organizationId, ...params }),
-    // Filtering by date is not yet supported by the backend
-    params: {
-      breakdown_by: params.breakdownBy
-      // start_date: params.startDate,
-      // end_date: params.endDate,
-    }
+    hash: hashParams(organizationId)
   });
 
 export const getRiSpUsageBreakdown = (organizationId, params) =>
@@ -2503,4 +2677,66 @@ export const removeInstancesFromSchedule = (powerScheduleId, instancesToRemove) 
       action: "detach",
       instance_id: instancesToRemove
     }
+  });
+
+export const getLayouts = (organizationId, { layoutType, entityId, includeShared }) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/layouts`,
+    method: "GET",
+    hash: hashParams({ organizationId, layoutType, entityId, includeShared }),
+    onSuccess: handleSuccess(SET_LAYOUTS),
+    label: GET_LAYOUTS,
+    ttl: 5 * MINUTE,
+    params: {
+      type: layoutType,
+      entity_id: entityId,
+      include_shared: includeShared
+    }
+  });
+
+export const getLayout = (organizationId, layoutId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/layouts/${layoutId}`,
+    method: "GET",
+    hash: hashParams({ organizationId, layoutId }),
+    onSuccess: handleSuccess(SET_LAYOUT),
+    label: GET_LAYOUT,
+    ttl: 5 * MINUTE
+  });
+
+export const createLayout = (organizationId, params = {}) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/layouts`,
+    method: "POST",
+    label: CREATE_LAYOUT,
+    affectedRequests: [GET_LAYOUTS],
+    onSuccess: handleSuccess(CREATE_LAYOUT),
+    params: {
+      name: params.name,
+      shared: params.shared,
+      data: params.data,
+      type: params.type,
+      entity_id: params.entityId
+    }
+  });
+
+export const updateLayout = (organizationId, layoutId, params = {}) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/layouts/${layoutId}`,
+    method: "PATCH",
+    label: UPDATE_LAYOUT,
+    affectedRequests: [GET_LAYOUTS, GET_LAYOUT],
+    params: {
+      name: params.name,
+      shared: params.shared,
+      data: params.data
+    }
+  });
+
+export const deleteLayout = (organizationId, layoutId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/layouts/${layoutId}`,
+    method: "DELETE",
+    label: DELETE_LAYOUT,
+    affectedRequests: [GET_LAYOUTS]
   });

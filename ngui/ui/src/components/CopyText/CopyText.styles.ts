@@ -3,8 +3,6 @@ import { makeStyles } from "tss-react/mui";
 const useStyles = makeStyles()((theme) => ({
   wrapper: {
     wordBreak: "break-word",
-    display: "flex",
-    alignItems: "center",
     "& .animatedCopyIcon": {
       opacity: 0,
       transform: `translate(${theme.spacing(-1)}, 0px)`,

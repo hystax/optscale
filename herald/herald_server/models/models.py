@@ -1,3 +1,4 @@
+# pylint: disable=abstract-method
 import json
 from datetime import datetime
 
@@ -12,7 +13,8 @@ from sqlalchemy import (
     TypeDecorator,
     TEXT,
     Boolean,
-    BigInteger
+    BigInteger,
+    Table
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -265,6 +267,8 @@ class ColumnPermissions(Enum):
 
 
 class Base(object):
+    __table__: Table
+
     def __init__(self, **kwargs):
         init_columns = list(filter(lambda x: x.info.get(
             PermissionKeys.is_creatable) is True, self.__table__.c))
@@ -279,12 +283,6 @@ class Base(object):
         # pylint: disable=E1101
         return cls.__name__.lower()
 
-    def to_dict(self):
-        return as_dict(self)
-
-    def to_json(self):
-        return json.dumps(self, cls=ModelEncoder)
-
 
 Base = declarative_base(cls=Base, constructor=None)
 
@@ -297,6 +295,12 @@ class BaseModel(object):
     @hybrid_property
     def deleted(self):
         return self.deleted_at != 0
+
+    def to_dict(self):
+        return as_dict(self)
+
+    def to_json(self):
+        return json.dumps(self, cls=ModelEncoder)
 
 
 class BaseMixin(BaseModel):

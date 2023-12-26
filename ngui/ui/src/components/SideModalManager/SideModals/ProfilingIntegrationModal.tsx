@@ -16,7 +16,7 @@ class ProfilingIntegrationModal extends BaseSideModal {
   get content() {
     return (
       <ProfilingIntegrationModalContextProvider onClose={this.closeSideModal}>
-        <ProfilingIntegrationContainer modelKey={this.payload?.modelKey} />
+        <ProfilingIntegrationContainer taskKey={this.payload?.taskKey} />
       </ProfilingIntegrationModalContextProvider>
     );
   }

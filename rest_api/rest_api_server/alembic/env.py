@@ -7,6 +7,7 @@ import rest_api.rest_api_server.models.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+# pylint: disable=no-member
 config = context.config
 
 fileConfig(config.config_file_name)

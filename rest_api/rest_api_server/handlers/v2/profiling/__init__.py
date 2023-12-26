@@ -4,3 +4,7 @@ import rest_api.rest_api_server.handlers.v2.profiling.goals
 import rest_api.rest_api_server.handlers.v2.profiling.profiling_tokens
 import rest_api.rest_api_server.handlers.v2.profiling.runs
 import rest_api.rest_api_server.handlers.v2.profiling.optimizations
+import rest_api.rest_api_server.handlers.v2.profiling.leaderboards
+import rest_api.rest_api_server.handlers.v2.profiling.datasets
+import rest_api.rest_api_server.handlers.v2.profiling.labels
+import rest_api.rest_api_server.handlers.v2.profiling.leaderboard_datasets

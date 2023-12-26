@@ -9,7 +9,7 @@ import FormButtonsWrapper from "components/FormButtonsWrapper";
 import PageContentWrapper from "components/PageContentWrapper";
 import SubmitButtonLoader from "components/SubmitButtonLoader";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { ML_MODELS, ML_MODELS_PARAMETERS } from "urls";
+import { ML_TASKS, ML_TASK_PARAMETERS } from "urls";
 import { SPACING_1 } from "utils/layouts";
 import { NameField, KeyField, TendencySelector, DefaultGoalValueField, AggregateFunctionSelector } from "./FormElements";
 
@@ -43,17 +43,17 @@ const MlModelParameterForm = ({
       <ActionBar
         data={{
           breadcrumbs: [
-            <Link key={1} to={ML_MODELS} component={RouterLink}>
-              <FormattedMessage id="models" />
+            <Link key={1} to={ML_TASKS} component={RouterLink}>
+              <FormattedMessage id="tasks" />
             </Link>,
-            <Link key={2} to={ML_MODELS_PARAMETERS} component={RouterLink}>
-              <FormattedMessage id="mlParametersLibraryTitle" />
+            <Link key={2} to={ML_TASK_PARAMETERS} component={RouterLink}>
+              <FormattedMessage id="mlMetricsLibraryTitle" />
             </Link>,
             isEdit ? <span key={3}>{defaultValues.name}</span> : null
           ],
           title: {
             isLoading: isEdit && isGetLoading,
-            messageId: isEdit ? "editParameterTitle" : "addParameterTitle",
+            messageId: isEdit ? "editMetricTitle" : "addMetricTitle",
             dataTestId: "lbl_add_parameter"
           }
         }}

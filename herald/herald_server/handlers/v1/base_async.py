@@ -25,12 +25,12 @@ class BaseAsyncCollectionHandler(BaseHandler):
         self._validate_params(**data)
         try:
             res = await self.controller.create(**data)
-        except WrongArgumentsException as ex:
-            raise OptHTTPError.from_opt_exception(400, ex)
-        except NotFoundException as ex:
-            raise OptHTTPError.from_opt_exception(404, ex)
-        except ConflictException as ex:
-            raise OptHTTPError.from_opt_exception(409, ex)
+        except WrongArgumentsException as exc:
+            raise OptHTTPError.from_opt_exception(400, exc)
+        except NotFoundException as exc:
+            raise OptHTTPError.from_opt_exception(404, exc)
+        except ConflictException as exc:
+            raise OptHTTPError.from_opt_exception(409, exc)
         self.set_status(201)
         self.write(res.to_json())
 
@@ -51,8 +51,8 @@ class BaseAsyncItemHandler(BaseHandler):
             item = await self._get_item(id, **kwargs)
             self._validate_params(item, **kwargs)
             self.write(item.to_json())
-        except NotFoundException as ex:
-            raise OptHTTPError.from_opt_exception(404, ex)
+        except NotFoundException as exc:
+            raise OptHTTPError.from_opt_exception(404, exc)
 
     async def patch(self, id, **kwargs):
         data = self._request_body()
@@ -60,12 +60,12 @@ class BaseAsyncItemHandler(BaseHandler):
         self._validate_params(item, **kwargs)
         try:
             res = await self.controller.edit(id, **data)
-        except WrongArgumentsException as ex:
-            raise OptHTTPError.from_opt_exception(400, ex)
-        except NotFoundException as ex:
-            raise OptHTTPError.from_opt_exception(404, ex)
-        except ConflictException as ex:
-            raise OptHTTPError.from_opt_exception(409, ex)
+        except WrongArgumentsException as exc:
+            raise OptHTTPError.from_opt_exception(400, exc)
+        except NotFoundException as exc:
+            raise OptHTTPError.from_opt_exception(404, exc)
+        except ConflictException as exc:
+            raise OptHTTPError.from_opt_exception(409, exc)
         self.write(res.to_json())
 
     async def delete(self, id, **kwargs):
@@ -73,8 +73,8 @@ class BaseAsyncItemHandler(BaseHandler):
         self._validate_params(item, **kwargs)
         try:
             await self.controller.delete(id, **kwargs)
-        except NotFoundException as ex:
-            raise OptHTTPError.from_opt_exception(404, ex)
-        except WrongArgumentsException as ex:
-            raise OptHTTPError.from_opt_exception(400, ex)
+        except NotFoundException as exc:
+            raise OptHTTPError.from_opt_exception(404, exc)
+        except WrongArgumentsException as exc:
+            raise OptHTTPError.from_opt_exception(400, exc)
         self.set_status(204)

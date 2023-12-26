@@ -5,7 +5,7 @@ from rest_api.rest_api_server.handlers.v2.profiling.base import ProfilingHandler
 from rest_api.rest_api_server.handlers.v1.base_async import (
     BaseAsyncCollectionHandler, BaseAsyncItemHandler)
 from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
-from rest_api.rest_api_server.utils import run_task, ModelEncoder, check_string_attribute
+from rest_api.rest_api_server.utils import run_task, ModelEncoder, check_string_attribute, check_list_attribute
 from tools.optscale_exceptions.http_exc import OptHTTPError
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from rest_api.rest_api_server.exceptions import Err
@@ -17,7 +17,7 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         return ApplicationAsyncController
 
     def _validate_params(self, **data):
-        allowed_args = ['key', 'name', 'goals', 'owner_id']
+        allowed_args = ['key', 'name', 'goals', 'owner_id', 'description']
         unexpected_args = list(filter(lambda x: x not in allowed_args, data))
         if unexpected_args:
             message = ', '.join(unexpected_args)
@@ -30,6 +30,9 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 if not isinstance(value, str):
                     raise OptHTTPError(400, Err.OE0214, [k])
                 check_string_attribute(k, value)
+            description = data.get('description')
+            if description:
+                check_string_attribute('description', description)
             owner_id = data.get('owner_id')
             if owner_id is not None:
                 if not isinstance(owner_id, str):
@@ -77,6 +80,10 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         type: string
                         description: Application name
                         example: goals_met
+                    description:
+                        type: string
+                        description: Application description
+                        example: Example Application
                     goals:
                         type: array
                         description: list of attached goals
@@ -93,6 +100,7 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     example:
                         id: 6e278b91-25f7-4baf-89ba-b43e92539781
                         name: Goals Met
+                        description: Example Application
                         key: goals_met
                         owner_id: 5c285343-274e-44c2-9b8b-c87359601fc4
                         goals:
@@ -172,7 +180,7 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         ---
         description: |
             Get list of applications
-            Required permission: INFO_ORGANIZATION
+            Required permission: INFO_ORGANIZATION or CLUSTER_SECRET
         tags: [profiling_applications]
         summary: List of organization applications
         parameters:
@@ -204,6 +212,10 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                         type: string
                                         description: |
                                             Application owner id
+                                    description:
+                                        type: string
+                                        description: |
+                                            Application description
                                     key:
                                         type: string
                                         description: |
@@ -300,9 +312,11 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     - OE0002: Object not found
         security:
         - token: []
+        - secret: []
         """
-        await self.check_permissions(
-            'INFO_ORGANIZATION', 'organization', organization_id)
+        if not self.check_cluster_secret(raises=False):
+            await self.check_permissions(
+                'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
         res = await run_task(self.controller.list, organization_id, token)
         applications_dict = {'applications': res}
@@ -311,29 +325,35 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
 
 class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                                    ProfilingHandler):
+    VALIDATION_MAP = {
+        'attach': (check_list_attribute, False, {}),
+        'detach': (check_list_attribute, False, {}),
+        'description': (check_string_attribute, True, {'min_length': 0}),
+        'owner_id': (check_string_attribute, False, {}),
+        'name': (check_string_attribute, False, {}),
+    }
+
     def _get_controller_class(self):
         return ApplicationAsyncController
 
     def _validate_params(self, **data):
-        allowed_args = ['name', 'attach', 'detach', 'owner_id']
-        unexpected_args = list(filter(lambda x: x not in allowed_args, data))
+        unexpected_args = list(filter(
+            lambda x: x not in self.VALIDATION_MAP, data))
         if unexpected_args:
             message = ', '.join(unexpected_args)
             raise OptHTTPError(400, Err.OE0212, [message])
         try:
-            for k in ['name', 'owner_id']:
-                value = data.get(k)
-                if value is not None:
-                    if not isinstance(value, str):
-                        raise OptHTTPError(400, Err.OE0214, [k])
-                    check_string_attribute(k, value)
-            for k in ['attach', 'detach']:
-                goals = data.get(k)
-                if goals:
-                    if not isinstance(goals, list):
-                        raise OptHTTPError(400, Err.OE0385, [k])
-                    for goal_id in goals:
-                        check_string_attribute('goal_id', goal_id)
+            for param_name, validation_data in self.VALIDATION_MAP.items():
+                if param_name not in data:
+                    continue
+                validation_func, is_optional, extras = validation_data
+                param_value = data.get(param_name)
+                if param_value is not None or (
+                        param_value is None and not is_optional):
+                    validation_func(param_name, param_value, **extras)
+                    if isinstance(param_value, list):
+                        for v in param_value:
+                            check_string_attribute(f'{param_name} values', v)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
 
@@ -378,6 +398,10 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             type: string
                             description: |
                                 Application key
+                        description:
+                            type: string
+                            description: |
+                                Application description
                         status:
                             type: string
                             description: |
@@ -515,6 +539,11 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         description: New application owner id
                         required: False
                         example: 5340379b-b88b-402a-be18-be442b66321e
+                    description:
+                        type: string
+                        description: New application description
+                        required: False
+                        example: New Application description
                     attach:
                         type: array
                         description: list of goals to attach
@@ -539,6 +568,7 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         id: 6e278b91-25f7-4baf-89ba-b43e92539781
                         name: Goals Met
                         key: goals_met
+                        description: New application description
                         owner_id: 5c285343-274e-44c2-9b8b-c87359601fc4
                         goals:
                             -   id: b65f85f8-d2cb-4ea6-88ab-4a9f2a82ba20
@@ -596,6 +626,10 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 description: |
                     Not found:
                     - OE0002: Object not found
+            409:
+                description: |
+                    Conflict:
+                    - OE0556: Goal is used in application leaderboard(s)
         security:
         - token: []
         """

@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 import os
-import requests
 import time
 import json
 from datetime import datetime
 from threading import Thread
+import urllib3
+import requests
 from pymongo import MongoClient
 from kombu.mixins import ConsumerMixin
 from kombu.log import get_logger
 from kombu import Connection
 from kombu.utils.debug import setup_logging
 from kombu import Exchange, Queue, binding
-import urllib3
 from optscale_client.config_client.client import Client as ConfigClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
@@ -232,16 +232,16 @@ if __name__ == '__main__':
     log_level = 'DEBUG' if debug else 'INFO'
     setup_logging(loglevel=log_level, loggers=[''])
 
-    config_cl = ConfigClient(
+    config_client = ConfigClient(
         host=os.environ.get('HX_ETCD_HOST'),
         port=int(os.environ.get('HX_ETCD_PORT')),
     )
-    config_cl.wait_configured()
+    config_client.wait_configured()
     conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
-        **config_cl.read_branch('/rabbit'))
+        **config_client.read_branch('/rabbit'))
     with Connection(conn_str) as conn:
         try:
-            worker = WebhookExecutorWorker(conn, config_cl)
+            worker = WebhookExecutorWorker(conn, config_client)
             worker.run()
         except KeyboardInterrupt:
             worker.running = False

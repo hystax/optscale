@@ -125,8 +125,8 @@ class BaseController(object):
                     setattr(item, key, value)
                 self.session.add(item)
                 self.session.commit()
-        except IntegrityError as ex:
-            raise WrongArgumentsException(Err.G0027, [str(ex)])
+        except IntegrityError as exc:
+            raise WrongArgumentsException(Err.G0027, [str(exc)])
         return item
 
     def delete(self, item_id):

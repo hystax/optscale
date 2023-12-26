@@ -83,6 +83,10 @@ import {
   CREATE_ORGANIZATION,
   UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
   SET_ML_MODELS,
+  SET_ML_LEADERBOARD,
+  SET_ML_LEADERBOARD_DATASET_DETAILS,
+  SET_ML_DATASETS,
+  SET_ML_DATASET,
   SET_ML_GLOBAL_PARAMETERS,
   SET_ML_GLOBAL_PARAMETER,
   SET_PROFILING_TOKEN,
@@ -112,7 +116,15 @@ import {
   SET_GEMINI,
   SET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   SET_POWER_SCHEDULES,
-  SET_POWER_SCHEDULE
+  SET_POWER_SCHEDULE,
+  SET_ML_MODEL_RUNS_BULK,
+  SET_ML_LEADERBOARD_DATASETS,
+  SET_ML_LEADERBOARD_DATASET,
+  UPDATE_ML_LEADERBOARD_DATASET,
+  GET_ML_LEADERBOARD_DATASETS,
+  SET_LAYOUTS,
+  SET_LAYOUT,
+  CREATE_LAYOUT
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -720,6 +732,30 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
+    case SET_ML_LEADERBOARD: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_LEADERBOARD_DATASET_DETAILS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_DATASETS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_DATASET: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
     case SET_ML_GLOBAL_PARAMETERS: {
       return {
         ...state,
@@ -870,10 +906,67 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
+    case SET_ML_MODEL_RUNS_BULK: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
     case SET_POWER_SCHEDULE: {
       return {
         ...state,
         [action.label]: action.payload
+      };
+    }
+    case SET_LAYOUTS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_LEADERBOARD_DATASETS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_LEADERBOARD_DATASET: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case UPDATE_ML_LEADERBOARD_DATASET: {
+      const updatedLeaderboardDatasets =
+        state[GET_ML_LEADERBOARD_DATASETS]?.map((datum) =>
+          datum.id === action.payload.id
+            ? {
+                ...datum,
+                ...action.payload
+              }
+            : datum
+        ) ?? [];
+
+      return {
+        ...state,
+        [GET_ML_LEADERBOARD_DATASETS]: updatedLeaderboardDatasets,
+        [action.label]: action.payload
+      };
+    }
+    case SET_LAYOUT: {
+      return {
+        ...state,
+        [action.label]: {
+          ...action.payload
+        }
+      };
+    }
+    case CREATE_LAYOUT: {
+      return {
+        ...state,
+        [action.label]: {
+          ...action.payload
+        }
       };
     }
     default:

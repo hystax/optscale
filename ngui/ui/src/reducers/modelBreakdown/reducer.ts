@@ -1,10 +1,10 @@
-import { SET_MODEL_BREAKDOWNS } from "./actionTypes";
+import { SET_MODEL_OVERVIEW_CHART } from "./actionTypes";
 
 export const MODEL_BREAKDOWN = "modelBreakdown";
 
 const reducer = (state = {}, action) => {
   switch (action.type) {
-    case SET_MODEL_BREAKDOWNS:
+    case SET_MODEL_OVERVIEW_CHART: {
       return {
         ...state,
         [action.payload.id]: {
@@ -12,6 +12,7 @@ const reducer = (state = {}, action) => {
           [action.payload.storeId]: action.payload.breakdowns
         }
       };
+    }
     default:
       return state;
   }

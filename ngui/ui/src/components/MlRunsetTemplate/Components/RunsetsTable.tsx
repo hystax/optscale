@@ -59,11 +59,11 @@ const RunsetsTable = ({ runsets, isLoading }) => {
       },
       {
         header: (
-          <TextWithDataTestId dataTestId="lbl_model">
-            <FormattedMessage id="model" />
+          <TextWithDataTestId dataTestId="lbl_task">
+            <FormattedMessage id="task" />
           </TextWithDataTestId>
         ),
-        id: "model",
+        id: "task",
         accessorFn: ({ application: model = {} }) => model.name,
         cell: ({
           cell,

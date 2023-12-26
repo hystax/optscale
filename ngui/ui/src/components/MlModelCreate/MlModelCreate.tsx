@@ -4,17 +4,17 @@ import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
 import PageContentWrapper from "components/PageContentWrapper";
 import MlModelCreateFormContainer from "containers/MlModelCreateFormContainer";
-import { ML_MODELS } from "urls";
+import { ML_TASKS } from "urls";
 
 const actionBarDefinition = {
   breadcrumbs: [
-    <Link key={1} to={ML_MODELS} component={RouterLink}>
-      <FormattedMessage id="models" />
+    <Link key={1} to={ML_TASKS} component={RouterLink}>
+      <FormattedMessage id="tasks" />
     </Link>
   ],
   title: {
-    messageId: "addModelTitle",
-    dataTestId: "lbl_add_model"
+    messageId: "addTaskTitle",
+    dataTestId: "lbl_add_task"
   }
 };
 

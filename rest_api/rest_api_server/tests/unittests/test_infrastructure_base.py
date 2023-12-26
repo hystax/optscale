@@ -146,7 +146,33 @@ class TestInfrastructureBase(TestApiBase):
             executor.update(kwargs)
         return executor
 
-    def _gen_run(self, token, application_id, runset_id, executor_ids, **kwargs):
+    def _gen_dataset(self, token, **kwargs):
+        dataset = {
+            '_id': str(uuid.uuid4()),
+            'path': str(uuid.uuid4()),
+            'name': f'Dataset {datetime.datetime.utcnow().timestamp()}',
+            'description': 'Discovered in training <app_key> - <run_name>(<run_id>)',
+            'labels': ['test'],
+            'created_at': int(datetime.datetime.utcnow().timestamp()),
+            'deleted_at': 0,
+            'token': token,
+            'training_set': {
+                'path': str(uuid.uuid4()),
+                'timespan_from': int(datetime.datetime.utcnow().timestamp()),
+                'timespan_to': int(datetime.datetime.utcnow().timestamp())
+            },
+            'validation_set': {
+                'path': str(uuid.uuid4()),
+                'timespan_from': int(datetime.datetime.utcnow().timestamp()),
+                'timespan_to': int(datetime.datetime.utcnow().timestamp())
+            }
+        }
+        if kwargs:
+            dataset.update(kwargs)
+        return dataset
+
+    def _gen_run(self, token, application_id, runset_id,
+                 executor_ids, dataset_id, **kwargs):
         run = {
             '_id': str(uuid.uuid4()),
             'application_id': application_id,
@@ -163,20 +189,28 @@ class TestInfrastructureBase(TestApiBase):
         }
         if executor_ids:
             run['executors'] = executor_ids
+        if dataset_id:
+            run['dataset_id'] = dataset_id
         if kwargs:
             run.update(kwargs)
         return run
 
     def _create_run(self, organization_id, application_id, runset_id,
-                    executor_ids=None, **kwargs):
+                    executor_ids=None, dataset_path=None, **kwargs):
         _, resp = self.client.profiling_token_get(organization_id)
         profiling_token = resp['token']
         if executor_ids:
             for executor_id in executor_ids:
                 self.mongo_client.arcee.executors.insert_one(
                     self._gen_executor(profiling_token, instance_id=executor_id))
+        dataset_id = None
+        if dataset_path:
+            res = self.mongo_client.arcee.datasets.insert_one(
+                self._gen_dataset(profiling_token, path=dataset_path))
+            dataset_id = res.inserted_id
         run = self._gen_run(
-            profiling_token, application_id, runset_id, executor_ids, **kwargs)
+            profiling_token, application_id, runset_id,
+            executor_ids, dataset_id, **kwargs)
         self.mongo_client.arcee.runs.insert_one(run)
         return run
 

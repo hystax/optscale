@@ -3,6 +3,8 @@ import biExportLastSuccessfulExport from "./biExportLastSuccessfulExport";
 import biExportName from "./biExportName";
 import biExportNextExport from "./biExportNextExport";
 import biExportTargetStorage from "./biExportTargetStorage";
+import dataset from "./dataset";
+import datasetLabels from "./datasetLabels";
 import dataSource from "./dataSource";
 import detectedAt from "./detectedAt";
 import discoveryStatus from "./discoveryStatus";
@@ -15,9 +17,12 @@ import formattedNumber from "./formattedNumber";
 import formattedTime from "./formattedTime";
 import goals from "./goals";
 import goalValue from "./goalValue";
+import hyperparameters from "./hyperparameters";
 import lastSeenUsed from "./lastSeenUsed";
 import lastTimeLocal from "./lastTimeLocal";
 import lastUsed from "./lastUsed";
+import leaderboardCriteriaDataset from "./leaderboardCriteriaDataset";
+import leaderboardCriteriaDatasetLabels from "./leaderboardCriteriaDatasetLabels";
 import milestones from "./milestones";
 import mlAverageLifetime from "./mlAverageLifetime";
 import mlComputeLocation from "./mlComputeLocation";
@@ -111,5 +116,10 @@ export {
   powerScheduleValidityPeriod,
   powerScheduleInstance,
   powerScheduleName,
-  powerScheduleLastRun
+  powerScheduleLastRun,
+  dataset,
+  hyperparameters,
+  datasetLabels,
+  leaderboardCriteriaDataset,
+  leaderboardCriteriaDatasetLabels
 };

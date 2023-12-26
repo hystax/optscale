@@ -2,6 +2,7 @@ ARG BUILDTAG=build
 FROM auth:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
+COPY tools/check_alembic_down_revisions tools/check_alembic_down_revisions
 COPY optscale_client/auth_client /usr/src/app/optscale_client/auth_client
 COPY auth/test-requirements.txt auth/test-requirements.txt
 COPY auth/.pylintrc auth/.noserc auth/.coveragerc ./auth/

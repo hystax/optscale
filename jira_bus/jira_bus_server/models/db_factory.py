@@ -4,7 +4,7 @@ from enum import Enum
 from jira_bus.jira_bus_server.exceptions import Err
 from jira_bus.jira_bus_server.models.db_mysql import MySQLDB
 from jira_bus.jira_bus_server.models.db_test import TestDB
-
+from jira_bus.jira_bus_server.models.db_base import BaseDB
 from tools.optscale_exceptions.common_exc import InvalidModelTypeException
 
 
@@ -17,6 +17,7 @@ LOG = logging.getLogger(__name__)
 
 
 class DBFactory:
+    _db: BaseDB
     DBS = {DBType.Test: TestDB, DBType.MySQL: MySQLDB}
     _instances = {}
 

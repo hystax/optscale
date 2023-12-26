@@ -18,7 +18,8 @@ from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import (
     AuthenticationType, PoolPurposes, RolePurposes)
 from rest_api.rest_api_server.models.models import (
-    AssignmentRequest, Employee, Organization, Pool, Rule, ShareableBooking)
+    AssignmentRequest, Employee, Layout, Organization, Pool, Rule,
+    ShareableBooking)
 from rest_api.rest_api_server.utils import Config, CURRENCY_MAP
 
 from optscale_client.auth_client.client_v2 import Client as AuthClient
@@ -275,6 +276,10 @@ class EmployeeController(BaseController, MongoMixin):
             Pool.deleted_at == 0,
             Pool.id.in_(pool_ids))).all()
 
+    def _get_layouts(self, owner_id):
+        return self.session.query(Layout).filter(
+            Layout.owner_id == owner_id).all()
+
     def _reassign_resources_to_new_owner(self, new_owner_id, employee, scopes):
         owned_pools = {pool_id: pool for pool_id, pool in scopes.items()
                        if pool.get('default_owner_id') == employee.id}
@@ -301,6 +306,9 @@ class EmployeeController(BaseController, MongoMixin):
         bookings = self._get_shareable_bookings(employee.id)
         for booking in bookings:
             booking.acquired_by_id = new_owner_id
+        layouts = self._get_layouts(employee.id)
+        for layout in layouts:
+            layout.owner_id = new_owner_id
 
         try:
             self.session.commit()

@@ -57,7 +57,7 @@ class RunnerController(BaseInfraController):
             raise
         return runset
 
-    def __list(self, infrastructure_token, runset_id) -> list:
+    def __list(self, infrastructure_token, runset_id) -> 'list':
         return self.list_runners(infrastructure_token, runset_id)
 
     def list(self, organization_id, runset_id, infrastructure_token):

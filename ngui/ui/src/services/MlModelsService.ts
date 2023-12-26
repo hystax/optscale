@@ -17,7 +17,8 @@ import {
   updateMlModel,
   getMlModelRecommendations,
   getMlRunDetails,
-  getMlRunDetailsBreakdown
+  getMlRunDetailsBreakdown,
+  getMlModelRunsBulk
 } from "api";
 import {
   GET_ML_MODELS,
@@ -34,7 +35,8 @@ import {
   GET_ML_RUN_DETAILS,
   GET_ML_RUN_DETAILS_BREAKDOWN,
   GET_ML_OPTIMIZATION_DETAILS,
-  GET_ML_MODEL_RECOMMENDATIONS
+  GET_ML_MODEL_RECOMMENDATIONS,
+  GET_ML_MODEL_RUNS_BULK
 } from "api/restapi/actionTypes";
 import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiData } from "hooks/useApiData";
@@ -63,7 +65,7 @@ const useGetAll = () => {
   return { isLoading, models };
 };
 
-const useGetModelRecommendations = (modelId) => {
+const useGetModelRecommendations = (taskId) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
@@ -72,19 +74,19 @@ const useGetModelRecommendations = (modelId) => {
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_MODEL_RECOMMENDATIONS, {
     organizationId,
-    modelId
+    taskId
   });
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getMlModelRecommendations(organizationId, modelId));
+      dispatch(getMlModelRecommendations(organizationId, taskId));
     }
-  }, [shouldInvoke, dispatch, organizationId, modelId]);
+  }, [shouldInvoke, dispatch, organizationId, taskId]);
 
   return { isLoading, recommendations: apiData };
 };
 
-const useGetModelRecommendation = ({ modelId, type, status }) => {
+const useGetModelRecommendation = ({ taskId, type, status }) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
@@ -93,7 +95,7 @@ const useGetModelRecommendation = ({ modelId, type, status }) => {
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_OPTIMIZATION_DETAILS, {
     organizationId,
-    modelId,
+    taskId,
     type,
     status
   });
@@ -103,7 +105,7 @@ const useGetModelRecommendation = ({ modelId, type, status }) => {
   useEffect(() => {
     if (shouldInvoke) {
       dispatch((_, getState) => {
-        dispatch(getMlModelRecommendationDetails(organizationId, modelId, { type, status })).then(() => {
+        dispatch(getMlModelRecommendationDetails(organizationId, taskId, { type, status })).then(() => {
           const newOptimizations = getState()?.[RESTAPI]?.[GET_ML_OPTIMIZATION_DETAILS] ?? {};
           const recommendation = new allRecommendations[type](status, newOptimizations);
 
@@ -117,7 +119,7 @@ const useGetModelRecommendation = ({ modelId, type, status }) => {
         });
       });
     }
-  }, [shouldInvoke, dispatch, organizationId, status, type, modelId, allRecommendations]);
+  }, [shouldInvoke, dispatch, organizationId, status, type, taskId, allRecommendations]);
 
   return { isLoading, data };
 };
@@ -149,10 +151,10 @@ const useUpdateModel = () => {
   const { organizationId } = useOrganizationInfo();
   const { isLoading } = useApiState(UPDATE_ML_MODEL);
 
-  const onUpdate = (modelId, params) =>
+  const onUpdate = (taskId, params) =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
-        dispatch(updateMlModel(organizationId, modelId, params)).then(() => {
+        dispatch(updateMlModel(organizationId, taskId, params)).then(() => {
           if (!isError(UPDATE_ML_MODEL, getState())) {
             return resolve();
           }
@@ -170,10 +172,10 @@ const useDeleteModel = () => {
   const { organizationId } = useOrganizationInfo();
   const { isLoading } = useApiState(DELETE_ML_MODEL);
 
-  const onDelete = (modelId) =>
+  const onDelete = (taskId) =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
-        dispatch(deleteMlModel(organizationId, modelId)).then(() => {
+        dispatch(deleteMlModel(organizationId, taskId)).then(() => {
           if (!isError(DELETE_ML_MODEL, getState())) {
             return resolve();
           }
@@ -185,32 +187,32 @@ const useDeleteModel = () => {
   return { onDelete, isLoading };
 };
 
-const useGetOne = (modelId) => {
+const useGetOne = (taskId) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
 
   const { apiData } = useApiData(GET_ML_MODEL);
 
-  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_ML_MODEL, { organizationId, modelId });
+  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_ML_MODEL, { organizationId, taskId });
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getMlModel(organizationId, modelId));
+      dispatch(getMlModel(organizationId, taskId));
     }
-  }, [modelId, dispatch, organizationId, shouldInvoke]);
+  }, [taskId, dispatch, organizationId, shouldInvoke]);
 
   return { isLoading, isDataReady, model: apiData };
 };
 
-const useGetModelRunsList = (modelId) => {
+const useGetModelRunsList = (taskId) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
 
   const { isLoading, isDataReady, shouldInvoke } = useApiState(GET_ML_MODEL_RUNS, {
     organizationId,
-    modelId
+    taskId
   });
 
   const {
@@ -219,9 +221,31 @@ const useGetModelRunsList = (modelId) => {
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getMlModelRuns(organizationId, modelId));
+      dispatch(getMlModelRuns(organizationId, taskId));
     }
-  }, [modelId, dispatch, organizationId, shouldInvoke]);
+  }, [taskId, dispatch, organizationId, shouldInvoke]);
+
+  return { isLoading, isDataReady, runs };
+};
+
+const useGetModelRunsBulk = (taskId, runIds) => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+
+  const { isLoading, isDataReady, shouldInvoke } = useApiState(GET_ML_MODEL_RUNS_BULK, {
+    organizationId,
+    taskId,
+    runIds
+  });
+
+  const { apiData: runs } = useApiData(GET_ML_MODEL_RUNS_BULK, []);
+
+  useEffect(() => {
+    if (shouldInvoke) {
+      dispatch(getMlModelRunsBulk(organizationId, taskId, runIds));
+    }
+  }, [taskId, dispatch, organizationId, shouldInvoke, runIds]);
 
   return { isLoading, isDataReady, runs };
 };
@@ -231,7 +255,7 @@ const useGetModelRun = (runId) => {
 
   const { organizationId } = useOrganizationInfo();
 
-  const { isLoading, shouldInvoke } = useApiState(GET_ML_RUN_DETAILS, { organizationId, runId });
+  const { isLoading, isDataReady, shouldInvoke } = useApiState(GET_ML_RUN_DETAILS, { organizationId, runId });
 
   const { apiData } = useApiData(GET_ML_RUN_DETAILS);
 
@@ -241,7 +265,7 @@ const useGetModelRun = (runId) => {
     }
   }, [dispatch, organizationId, runId, shouldInvoke]);
 
-  return { isLoading, run: apiData };
+  return { isLoading, isDataReady, run: apiData };
 };
 
 const useGetRunBreakdown = (runId) => {
@@ -289,7 +313,7 @@ const useGetGlobalParameters = () => {
   return { isLoading, parameters: goals };
 };
 
-const useAlwaysGetGlobalParameter = (parameterId) => {
+const useAlwaysGetGlobalParameter = (metricId) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
@@ -302,14 +326,14 @@ const useAlwaysGetGlobalParameter = (parameterId) => {
 
   useEffect(() => {
     dispatch((_, getState) => {
-      dispatch(getMlGlobalParameter(organizationId, parameterId)).then(() => {
+      dispatch(getMlGlobalParameter(organizationId, metricId)).then(() => {
         const state = getState();
         if (!isError(GET_ML_GLOBAL_PARAMETER, getState())) {
           setParameter(state.restapi[GET_ML_GLOBAL_PARAMETER]);
         }
       });
     });
-  }, [dispatch, organizationId, parameterId]);
+  }, [dispatch, organizationId, metricId]);
 
   return { isLoading, parameter };
 };
@@ -335,7 +359,7 @@ const useCreateGlobalParameter = () => {
   return { onCreate, isLoading };
 };
 
-const useUpdateGlobalParameter = (parameterId) => {
+const useUpdateGlobalParameter = (metricId) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
@@ -344,7 +368,7 @@ const useUpdateGlobalParameter = (parameterId) => {
   const onUpdate = (params) =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
-        dispatch(updateGlobalParameter(organizationId, parameterId, params)).then(() => {
+        dispatch(updateGlobalParameter(organizationId, metricId, params)).then(() => {
           if (!isError(UPDATE_GLOBAL_PARAMETER, getState())) {
             return resolve();
           }
@@ -362,10 +386,10 @@ const useDeleteGlobalParameter = () => {
   const { organizationId } = useOrganizationInfo();
   const { isLoading } = useApiState(DELETE_GLOBAL_PARAMETER);
 
-  const onDelete = (parameterId) =>
+  const onDelete = (metricId) =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
-        dispatch(deleteGlobalParameter(organizationId, parameterId)).then(() => {
+        dispatch(deleteGlobalParameter(organizationId, metricId)).then(() => {
           if (!isError(DELETE_GLOBAL_PARAMETER, getState())) {
             return resolve();
           }
@@ -393,7 +417,8 @@ function MlModelsService() {
     useCreateGlobalParameter,
     useUpdateGlobalParameter,
     useAlwaysGetGlobalParameter,
-    useDeleteGlobalParameter
+    useDeleteGlobalParameter,
+    useGetModelRunsBulk
   };
 }
 

@@ -99,7 +99,7 @@ class Base:
         self.on_continue = on_continue
 
     def _exec(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def check_timeout(self):
         pass
@@ -162,7 +162,7 @@ class Base:
             self.body["try"] += 1
         else:
             self.body["state"] = TaskState.ERROR
-            self.body["reason"] = "%s" % str(err) or None
+            self.body["reason"] = f"{str(err)}" or None
         self.on_continue(self.body, self.delayed)
 
     def execute(self):
@@ -215,13 +215,11 @@ class ContinueWithDestroyConditions(Continue):
         if max_budget:
             _, runset = self.bulldozer_cl.runset_get(runset_id)
             cost = runset.get("cost", 0.0)
-            LOG.info(
-                "checking for budget runner %s: max: %f, current (estimated): %f",
-                runner_id, max_budget, cost)
+            LOG.info("checking for budget runner %s: max: %f, "
+                     "current (estimated): %f", runner_id, max_budget, cost)
             if max_budget < cost:
                 raise BudgetExceeded(
-                    "Budget exceeded max: %d, current: %d" % (
-                        max_budget, cost))
+                    f"Budget exceeded max: {max_budget}, current: {cost}")
         max_duration = destroy_conditions.get("max_duration")
         if max_duration:
             LOG.info("checking for max duration %d for runner %s",
@@ -234,9 +232,8 @@ class ContinueWithDestroyConditions(Continue):
                          runner_id, now, threshold)
                 if now > threshold:
                     raise TimeoutConditionExceeded(
-                        "Duration exceeded: current time: %d threshold: %d" % (
-                            now, threshold
-                        )
+                        f"Duration exceeded: current time: {now} "
+                        f"threshold: {threshold}"
                     )
 
     def _exec(self):
@@ -257,9 +254,7 @@ class SetFinished(Base):
         # update runner reason
         LOG.info("updating reason for runner %s, reason: %s",
                  runner_id, reason)
-        _, r = self.bulldozer_cl.update_runner(
-            runner_id,
-            reason="%s" % reason)
+        self.bulldozer_cl.update_runner(runner_id, reason=f"{reason}")
 
         # if runner knows about arcee run, need to update it also
         if run_id:
@@ -308,7 +303,8 @@ class SetFailed(SetFinished):
             LOG.info("Entering error state for runner %s", runner_id)
             _, runner = self.bulldozer_cl.get_runner(runner_id)
             cloud_account_id = runner["cloud_account_id"]
-            _, cloud_account = self.rest_cl.cloud_account_get(cloud_account_id, True)
+            _, cloud_account = self.rest_cl.cloud_account_get(
+                cloud_account_id, True)
             c_type = self.body.get("type")
             infra = Infra(
                 runner_id,
@@ -317,8 +313,10 @@ class SetFailed(SetFinished):
                 self.bucket_name,
                 self.workdir,
                 creds={
-                    "aws_access_key_id": cloud_account["config"]["access_key_id"],
-                    "aws_secret_access_key": cloud_account["config"]["secret_access_key"]
+                    "aws_access_key_id": cloud_account["config"][
+                        "access_key_id"],
+                    "aws_secret_access_key": cloud_account["config"][
+                        "secret_access_key"]
                 }
             )
             infra.destroy()
@@ -327,7 +325,7 @@ class SetFailed(SetFinished):
             # basically exception
             LOG.exception("Cleanup problem: %s", str(exc))
         finally:
-            _, r = self.bulldozer_cl.update_runner(
+            self.bulldozer_cl.update_runner(
                 runner_id,
                 state=TaskState.ERROR,
                 destroyed_at=int(datetime.datetime.utcnow().timestamp()))
@@ -346,7 +344,7 @@ class StartInfra(Continue):
 
     def _exec(self):
         runner_id = self.body.get('runner_id')
-        LOG.info("processing starting runner %s" % runner_id)
+        LOG.info("processing starting runner %s", runner_id)
         _, runner = self.bulldozer_cl.get_runner(runner_id)
         cloud_account_id = runner["cloud_account_id"]
         prefix = runner.get("name_prefix", "")
@@ -361,22 +359,23 @@ class StartInfra(Continue):
 
         if hp is not None and isinstance(hp, dict):
             for k, v in hp.items():
-                user_data += "export %s=%s\n" % (k, v)
+                user_data += f"export {k}={v}\n"
         if commands is not None:
             user_data += commands
-        name = "%s_%s" % (prefix, NameGenerator.get_random_name())
-        _, r = self.bulldozer_cl.update_runner(
+        name = f"{prefix}_{NameGenerator.get_random_name()}"
+        self.bulldozer_cl.update_runner(
             runner_id,
             state=TaskState.STARTING,
             name=name)
-        _, cloud_account = self.rest_cl.cloud_account_get(cloud_account_id, True)
+        _, cloud_account = self.rest_cl.cloud_account_get(
+            cloud_account_id, True)
         # TODO: get cloud type form cloud account to support multi-cloud
         # Now only AWS is supported
         c_type = "AWS"
         if not self.body.get("type"):
             # if we have spot settings we should try spot instances first
             if bool(runner.get("spot_settings")):
-                c_type = "%s_%s" % (c_type, "SPOT")
+                c_type = f"{c_type}_SPOT"
                 LOG.info("spot settings found, new type: %s, runner: %s",
                          c_type, runner_id)
             self.body["type"] = c_type
@@ -388,10 +387,12 @@ class StartInfra(Continue):
             self.workdir,
             creds={
                 "aws_access_key_id": cloud_account["config"]["access_key_id"],
-                "aws_secret_access_key": cloud_account["config"]["secret_access_key"]
+                "aws_secret_access_key": cloud_account["config"][
+                    "secret_access_key"]
             }
         )
-        LOG.info("starting infra for runner %s with user data: %s", runner_id, user_data)
+        LOG.info("starting infra for runner %s with user data: %s",
+                 runner_id, user_data)
 
         id_, ip_addr = infra.start(
             name,
@@ -405,9 +406,10 @@ class StartInfra(Continue):
             open_ingress=open_ingress,
         )
 
-        LOG.info("Created runner id=%s, instance=%s, ip=%s", runner_id, id_, ip_addr)
+        LOG.info("Created runner id=%s, instance=%s, ip=%s",
+                 runner_id, id_, ip_addr)
         # update runner in bulldozer API
-        _, r = self.bulldozer_cl.update_runner(
+        self.bulldozer_cl.update_runner(
             runner_id,
             state=TaskState.WAITING_ARCEE,
             started_at=int(datetime.datetime.utcnow().timestamp()),
@@ -459,14 +461,18 @@ class WaitArcee(ContinueWithDestroyConditions):
             run_id = runs[0]
             LOG.info("run found! run id: %s", run_id)
             LOG.info("updating run %s with runset id %s", run_id, runset_id)
+            # get run info
+            _, run = self.arcee_cl.run_get(run_id)
+            existing_hp = run.get("hyperparameters", dict())
+            existing_hp.update(hp)
             # update run
-            _, run = self.arcee_cl.run_update(
+            self.arcee_cl.run_update(
                 run_id,
                 runset_id=runset_id,
                 runset_name=runset_name,
-                hyperparameters=hp,
+                hyperparameters=existing_hp,
             )
-            _, r = self.bulldozer_cl.update_runner(
+            self.bulldozer_cl.update_runner(
                 runner_id,
                 run_id=run_id,
                 state=TaskState.STARTED,
@@ -488,13 +494,14 @@ class Stop(Continue):
     def _exec(self):
         runner_id = self.body.get('runner_id')
         LOG.info("starting task destroying runner: %s", runner_id)
-        _, r = self.bulldozer_cl.update_runner(
+        self.bulldozer_cl.update_runner(
             runner_id,
             state=TaskState.DESTROYING,
         )
         _, runner = self.bulldozer_cl.get_runner(runner_id)
         cloud_account_id = runner["cloud_account_id"]
-        _, cloud_account = self.rest_cl.cloud_account_get(cloud_account_id, True)
+        _, cloud_account = self.rest_cl.cloud_account_get(
+            cloud_account_id, True)
         infra = Infra(
             runner_id,
             "AWS",
@@ -503,16 +510,18 @@ class Stop(Continue):
             self.workdir,
             creds={
                 "aws_access_key_id": cloud_account["config"]["access_key_id"],
-                "aws_secret_access_key": cloud_account["config"]["secret_access_key"]
+                "aws_secret_access_key": cloud_account["config"][
+                    "secret_access_key"]
             }
         )
         try:
             infra.destroy()
         except Exception as exc:
-            LOG.error("error executing terraform for runner %s: %s", runner_id, str(exc))
+            LOG.error("error executing terraform for runner %s: %s",
+                      runner_id, str(exc))
         finally:
             # update runner
-            _, r = self.bulldozer_cl.update_runner(
+            self.bulldozer_cl.update_runner(
                 runner_id,
                 state=TaskState.DESTROYED,
                 destroyed_at=int(datetime.datetime.utcnow().timestamp())
@@ -546,7 +555,8 @@ class WaitRun(ContinueWithDestroyConditions):
                 goals = run.get('reached_goals', {})
                 LOG.info('goals for run %s (runner %s) goals: %s',
                          run_id, runner_id, str(goals))
-                reached = bool(goals) and all(map(lambda x: x.get("reached", False), goals.values()))
+                reached = bool(goals) and all(map(
+                    lambda x: x.get("reached", False), goals.values()))
                 if reached:
                     LOG.info("reached goal for run %s, runner id: %s",
                              run_id, runner_id)
@@ -568,19 +578,19 @@ class WaitRun(ContinueWithDestroyConditions):
         state = run["state"]
         LOG.info("Got arcee run: %s", str(run))
         if state == ArceeState.FINISHED:
-            LOG.info("Run %s completed by runner %s checking for reached goals if set",
-                     run_id, runner_id)
+            LOG.info("Run %s completed by runner %s checking for reached "
+                     "goals if set", run_id, runner_id)
             self.check_goals_reached(runner, run)
             # if state is finished need to schedule destroying runner
             LOG.info("Run %s completed, scheduling destroying runner %s infra",
                      run_id, runner_id)
-            _, r = self.bulldozer_cl.update_runner(
+            self.bulldozer_cl.update_runner(
                 runner_id,
                 state=TaskState.DESTROYING_SCHEDULED)
             self.update_task_state()
         elif state == ArceeState.ERROR:
             LOG.info("Run %s failed, setting runner %s error state",
                      run_id, runner_id)
-            raise RunFailedException("Run %s failed for runner %s" % (
-                                     run_id, runner_id))
+            raise RunFailedException(
+                f"Run {run_id} failed for runner {runner_id}")
         super()._exec()

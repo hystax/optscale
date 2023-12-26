@@ -159,14 +159,6 @@ class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
             description: Organization id
             required: true
             type: string
-        -   name: breakdown_by
-            in: query
-            description: Breakdown by
-            required: true
-            type: string
-            enum: ['executors_count', 'cpu', 'ram', 'process_cpu', 'process_ram',
-                'gpu_load', 'gpu_memory_free', 'gpu_memory_total',
-                'gpu_memory_used']
         responses:
             200:
                 description: Executors breakdown
@@ -175,14 +167,9 @@ class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
                     properties:
                         breakdown:
                             type: object
-                            description: breakdown by day
                             example:
                                 1640995200: 24
                                 1641168000: 32
-                        breakdown_by:
-                            type: string
-                            description: applied breakdown_by filter
-                            example: executors_count
             401:
                 description: |
                     Unauthorized:
@@ -202,17 +189,7 @@ class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
         """
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
-        breakdown_by = self.get_arg('breakdown_by', str)
-        if breakdown_by is None:
-            raise OptHTTPError(400, Err.OE0216, ['breakdown_by'])
-        allowed_breakdowns = [
-            'executors_count', 'cpu', 'ram', 'process_cpu', 'process_ram',
-            'gpu_load', 'gpu_memory_free', 'gpu_memory_total',
-            'gpu_memory_used'
-        ]
-        if breakdown_by not in allowed_breakdowns:
-            raise OptHTTPError(400, Err.OE0217, ['breakdown_by'])
         token = await self._get_profiling_token(organization_id)
         res = await run_task(
-            self.controller.breakdown_get, breakdown_by, token)
+            self.controller.breakdown_get, token)
         self.write(json.dumps(res, cls=ModelEncoder))

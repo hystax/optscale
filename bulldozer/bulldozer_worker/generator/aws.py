@@ -70,7 +70,7 @@ class TFGenerator:
             image = self.aws_image_region_map.get(self.region)
             if not image:
                 raise DefaultImageNotSupported(
-                    "default image for region %s not supported" % self.region)
+                    f"default image for region {self.region} not supported")
             self._image = image
         return self._image
 
@@ -106,13 +106,14 @@ class TFGenerator:
 
 
 class TFGeneratorAWS(TFGenerator):
-    template_file = os.path.join(os.path.dirname(__file__), "templates", "aws.tft")
+    template_file = os.path.join(os.path.dirname(__file__), "templates",
+                                 "aws.tft")
 
     def get_generate_func(self):
         return self.generate_payload()
 
     def render(self):
-        with open(self.template_file, 'r') as fh:
+        with open(self.template_file, 'r', encoding='utf-8') as fh:
             template = fh.read()
         return pymustache.render(template, self.get_generate_func())
 
@@ -133,5 +134,5 @@ class TFGeneratorFactory:
     def get_generator(cls, platform):
         tfg = cls.TFGEN_MAP.get(platform)
         if not tfg:
-            raise NotSupportedException("%s not supported", platform)
+            raise NotSupportedException(f"{platform} not supported")
         return tfg

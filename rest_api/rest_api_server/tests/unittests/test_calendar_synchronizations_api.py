@@ -311,7 +311,8 @@ class TestCalendarSynchronizationsApi(TestApiBase):
             'end': datetime(2020, 4, 15).replace(
                 hour=23, minute=59, second=0, microsecond=0) + timedelta(days=365),
             'start': datetime(2020, 4, 15),
-            'description': ANY
+            'description': ANY,
+            'private_properties': None
         }
         p_create_event.assert_called_once_with(**expected_call)
         code, booking = self.client.shareable_book_get(booking['id'])

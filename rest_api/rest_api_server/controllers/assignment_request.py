@@ -87,14 +87,10 @@ class AssignmentRequestController(BaseController):
     def _validate_patch_parameters(**params):
         allowed_parameters = ['action']
         if params.pop('action') == 'accept':
-            allowed_parameters.extend(['owner_id', 'pool_id', 'created_at'])
+            allowed_parameters.extend(['owner_id', 'pool_id'])
         for param in allowed_parameters:
             value = params.get(param)
-            if param == 'created_at' and value is not None:
-                check_int_attribute(param, value)
-                if not AssignmentController.validate_creation_time(value):
-                    raise ForbiddenException(Err.OE0415, [])
-            elif value is not None:
+            if value is not None:
                 check_string_attribute(param, value)
         unexpected_params = [
             p for p in params.keys() if p not in allowed_parameters]

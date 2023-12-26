@@ -56,6 +56,46 @@ class TestRunsApi(TestInfrastructureBase):
             self.organization_id, self.runset_id)
         self.assertEqual(code, 200)
 
+    def test_list_dataset(self):
+        code, _ = self.client.runset_list(
+            self.organization_id, self.template_id)
+        self.assertEqual(code, 200)
+        now = int(datetime.utcnow().timestamp())
+        self._create_run(
+            self.organization_id, self.application_id, self.runset_id,
+            [self.instance_id], 's3://ml-bucket/dataset',
+            start=now - 60, finish=now - 10)
+        code, res = self.client.runset_run_list(
+            self.organization_id, self.runset_id)
+        self.assertEqual(code, 200)
+        for run in res['runs']:
+            self.assertIsNotNone(run['dataset'])
+
+    def test_list_deleted_dataset(self):
+        code, _ = self.client.runset_list(
+            self.organization_id, self.template_id)
+        self.assertEqual(code, 200)
+        now = int(datetime.utcnow().timestamp())
+        self._create_run(
+            self.organization_id, self.application_id, self.runset_id,
+            [self.instance_id], 's3://ml-bucket/dataset',
+            start=now - 60, finish=now - 10)
+        code, res = self.client.runset_run_list(
+            self.organization_id, self.runset_id)
+        self.assertEqual(code, 200)
+        for run in res['runs']:
+            self.assertIsNotNone(run['dataset'])
+            self.assertFalse(run['dataset']['deleted'])
+            code, _ = self.client.dataset_delete(
+                self.organization_id, run['dataset']['id'])
+            self.assertEqual(code, 204)
+        code, res = self.client.runset_run_list(
+            self.organization_id, self.runset_id)
+        self.assertEqual(code, 200)
+        for run in res['runs']:
+            self.assertIsNotNone(run['dataset'])
+            self.assertTrue(run['dataset']['deleted'])
+
     def test_list_deleted_ca(self):
         code, _ = self.client.runset_list(
             self.organization_id, self.template_id)

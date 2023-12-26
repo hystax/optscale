@@ -9,7 +9,7 @@ const MlEditModelParameters = ({ parameters, onAttachChange, isLoading = false, 
     <ContentBackdropLoader isLoading={isUpdateLoading}>
       <MlModelParametersTable parameters={parameters} isLoading={isLoading} onAttachChange={onAttachChange} />
     </ContentBackdropLoader>
-    <InlineSeverityAlert messageId="mlModelSpecificParametersDescription" />
+    <InlineSeverityAlert messageId="mlTaskSpecificMetricsDescription" />
   </Stack>
 );
 

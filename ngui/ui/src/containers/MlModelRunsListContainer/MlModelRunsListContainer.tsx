@@ -3,10 +3,10 @@ import MlModelRunsList from "components/MlModelRunsList";
 import MlModelsService from "services/MlModelsService";
 
 const MlModelRunsListContainer = () => {
-  const { modelId } = useParams();
+  const { taskId } = useParams();
 
   const { useGetModelRunsList } = MlModelsService();
-  const { runs = [], isLoading, isDataReady } = useGetModelRunsList(modelId);
+  const { runs = [], isLoading, isDataReady } = useGetModelRunsList(taskId);
 
   return <MlModelRunsList runs={runs} isLoading={isLoading || !isDataReady} />;
 };

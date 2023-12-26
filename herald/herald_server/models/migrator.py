@@ -61,11 +61,11 @@ class Migrator(object):
                                    target_metadata=target_metadata,
                                    fn=self.do_upgrade)
         with self.alembic_env.begin_transaction():
-                self.alembic_env.run_migrations()
+            self.alembic_env.run_migrations()
 
     def migrate_all(self):
         try:
             self.migrate()
-        except Exception as ex:
-            LOG.error("Failed to apply migrations with error %s", str(ex))
+        except Exception as exc:
+            LOG.error("Failed to apply migrations with error %s", str(exc))
             raise

@@ -1,8 +1,11 @@
 import time
-from datetime import datetime
+from collections import OrderedDict, defaultdict
+from datetime import datetime, timezone
 import asyncio
+from enum import Enum
+
 from etcd import Lock as EtcdLock, Client as EtcdClient
-from typing import Tuple
+from typing import Tuple, Optional, List, Union
 import os
 import uuid
 
@@ -13,15 +16,24 @@ from sanic.log import logger
 from sanic.response import json
 from sanic.exceptions import SanicException
 import motor.motor_asyncio
+from sanic_ext import validate
+from typing_extensions import Annotated
+
+from arcee_receiver.modules.leader_board import (
+    get_calculated_leaderboard, Tendencies)
+from arcee_receiver.modules.leader_board import get_goals as _get_app_goals
 
 from optscale_client.aconfig_cl.aconfig_cl import AConfigCl
 
-app = Sanic("arcee")
+from pydantic import BaseModel, Field, BeforeValidator
 
+app = Sanic("arcee")
 
 etcd_host = os.environ.get('HX_ETCD_HOST')
 etcd_port = int(os.environ.get('HX_ETCD_PORT'))
 config_client = AConfigCl(host=etcd_host, port=etcd_port)
+
+DAY_IN_SEC = 86400
 
 
 class ArceeState:
@@ -59,6 +71,111 @@ client = motor.motor_asyncio.AsyncIOMotorClient(uri)
 db = client[db_name]
 
 
+class SubDataset(BaseModel):
+    path: str
+    timespan_from: Optional[int] = None
+    timespan_to: Optional[int] = None
+
+
+class DatasetPatchIn(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    labels: List[str] = []
+    training_set: Optional[SubDataset] = None
+    validation_set: Optional[SubDataset] = None
+
+
+class DatasetPostIn(DatasetPatchIn):
+    path: str
+
+
+class Dataset(DatasetPostIn):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias='_id')
+    token: str
+    created_at: int = Field(
+        default_factory=lambda: int(datetime.utcnow().timestamp()))
+    deleted_at: int = 0
+
+
+class RunPatchIn(BaseModel):
+    finish: Optional[bool] = None
+    tags: Optional[dict] = {}
+    hyperparameters: Optional[dict] = {}
+    reason: Optional[str] = None
+    state: Optional[int] = None
+    runset_id: Optional[str] = None
+    runset_name: Optional[str] = None
+
+
+class Git(BaseModel):
+    remote: str
+    branch: str
+    commit_id: str
+    status: str
+
+
+class RunPostIn(BaseModel):
+    name: str
+    imports: list[str] = []
+    git: Optional[Git] = None
+    command: str
+
+
+class Run(RunPostIn, RunPatchIn):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias='_id')
+    application_id: str
+    start: int = Field(
+        default_factory=lambda: int(datetime.utcnow().timestamp()))
+    number: int
+    deleted_at: int = 0
+    data: dict = {}
+    executors: list = []
+    dataset_id: Optional[str] = None
+    state: int = ArceeState.STARTED
+    finish: Optional[int] = None
+
+
+class ApplicationPatchIn(BaseModel):
+    goals: Optional[List[str]] = []
+    name: Optional[str] = None
+    description: Optional[str] = None
+    owner_id: Optional[str] = None
+
+
+class ConsolePostIn(BaseModel):
+    output: str
+    error: str
+
+
+class Console(ConsolePostIn):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias='_id')
+    run_id: str
+
+
+class LeaderboardDatasetPatchIn(BaseModel):
+    dataset_ids: Optional[list]
+    name: Optional[str]
+
+    @staticmethod
+    def remove_dup_ds_ids(kwargs):
+        ds_ids = kwargs.get("dataset_ids")
+        if ds_ids:
+            kwargs["dataset_ids"] = list(set(ds_ids))
+
+
+class LeaderboardDatasetPostIn(LeaderboardDatasetPatchIn):
+    name: str
+
+
+class LeaderboardDataset(LeaderboardDatasetPostIn):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias='_id')
+    token: str
+    leaderboard_id: str
+    created_at: int = Field(
+        default_factory=lambda: int(datetime.utcnow().timestamp()))
+    deleted_at: int = 0
+
+
 async def extract_token(request):
     # TODO: middleware
     token = request.headers.get('x-api-key')
@@ -85,7 +202,7 @@ async def check_run_state(run):
 
 
 async def extract_secret(request, raise_on):
-    # TODO: middleware
+    # TODO: middleware?
     secret = request.headers.get('Secret')
     if not secret:
         if raise_on:
@@ -134,10 +251,10 @@ async def check_goals(goals):
     :param goals:
     :return:
     """
-    if goals is None:
-        return
     if not isinstance(goals, list):
         raise SanicException("goals should be list", status_code=400)
+    if not goals:
+        return
     existing_goals = [doc["_id"] async for doc in db.goal.find({"_id": {"$in": goals}})]
     missing = list(filter(lambda x: x not in existing_goals, goals))
     if missing:
@@ -157,6 +274,7 @@ async def create_application(request):
     goals = (doc.get("goals") or list())
     await check_goals(goals)
     display_name = doc.get("name", key)
+    description = doc.get("description")
     doc.update({"token": token})
     o = await db.application.find_one(
         {"token": token, "key": key, "deleted_at": 0})
@@ -165,16 +283,19 @@ async def create_application(request):
     doc["_id"] = str(uuid.uuid4())
     doc["name"] = display_name
     doc["deleted_at"] = 0
+    doc["description"] = description
     await db.application.insert_one(doc)
     return json(doc)
 
 
 @app.route('/arcee/v2/applications/<id_>', methods=["PATCH", ])
-async def update_application(request, id_: str):
+@validate(json=ApplicationPatchIn)
+async def update_application(request, body: ApplicationPatchIn, id_: str):
     """
     update application
     :param request:
-    :param id_
+    :param body:
+    :param id_:
     :return:
     """
     token = await extract_token(request)
@@ -183,19 +304,13 @@ async def update_application(request, id_: str):
         {"token": token, "_id": id_, "deleted_at": 0})
     if not o:
         raise SanicException("Not found", status_code=404)
-    doc = request.json
-    # TODO: validators
-    goals = doc.get("goals")
-    await check_goals(goals)
-    display_name = doc.get("name")
-    owner_id = doc.get('owner_id')
-    d = {}
-    if goals is not None:
-        d.update({'goals': goals})
-    if display_name is not None:
-        d.update({'name': display_name})
-    if owner_id is not None:
-        d.update({'owner_id': owner_id})
+    await check_goals(body.goals)
+    goals_to_remove = set(o['goals']) - set(body.goals)
+    for goal_id in goals_to_remove:
+        if await _goal_used_in_lb(db, goal_id, application_id=id_):
+            raise SanicException(f"Goal is used in application leaderboard(s)",
+                                 status_code=409)
+    d = body.model_dump(exclude_unset=True)
     if d:
         await db.application.update_one(
             {"_id": id_}, {'$set': d})
@@ -265,7 +380,7 @@ async def get_application(request, id_: str):
     """
     Gets applications names based on provided application id
     :param request:
-    :param id_
+    :param id_:
     :return:
     """
     token = await extract_token(request)
@@ -294,7 +409,7 @@ async def delete_application(request, id_: str):
     """
     Deletes applications names based on provided application id
     :param request:
-    :param id_
+    :param id_:
     :return:
     """
     deleted_logs = 0
@@ -302,6 +417,7 @@ async def delete_application(request, id_: str):
     deleted_runs = 0
     deleted_stages = 0
     deleted_proc_data = 0
+    deleted_consoles = 0
     token = await extract_token(request)
     await check_token(token)
     o = await db.application.find_one(
@@ -315,14 +431,30 @@ async def delete_application(request, id_: str):
             db.stage.delete_many({'run_id': {'$in': runs}}),
             db.proc_data.delete_many({'run_id': {'$in': runs}}),
             db.log.delete_many({'run': {'$in': runs}}),
-            db.run.delete_many({"application_id": id_})
+            db.run.delete_many({"application_id": id_}),
+            db.console.delete_many({'run_id': {'$in': runs}})
         )
-        dm, ds, dpd, dl, dr = results
+        dm, ds, dpd, dl, dr, dc = results
         deleted_milestones = dm.deleted_count
         deleted_stages = ds.deleted_count
         deleted_logs = dl.deleted_count
         deleted_runs = dr.deleted_count
         deleted_proc_data = dpd.deleted_count
+        deleted_consoles = dc.deleted_count
+    leaderboard = await db.leaderboard.find_one(
+        {"token": token, "application_id": id_, "deleted_at": 0})
+    now = int(datetime.now(tz=timezone.utc).timestamp())
+    if leaderboard:
+        datasets = [doc async for doc in db.leaderboard_dataset.find(
+            {'leaderboard_id': leaderboard['_id'], 'deleted_at': 0},
+            {'_id': 1})]
+        await db.leaderboard_dataset.update_many(
+            {"_id": {'$in': [x['_id'] for x in datasets]},
+             'deleted_at': 0},
+            {'$set': {"deleted_at": now}})
+        await db.leaderboard.update_one(
+            {"_id": leaderboard['_id']},
+            {'$set': {"deleted_at": now}})
     await db.application.update_one(
         {"_id": id_},
         {'$set': {"deleted_at": int(datetime.utcnow().timestamp())}})
@@ -333,50 +465,40 @@ async def delete_application(request, id_: str):
         "deleted_logs": deleted_logs,
         "deleted_runs": deleted_runs,
         "deleted_stages": deleted_stages,
-        "deleted_proc_data": deleted_proc_data
+        "deleted_proc_data": deleted_proc_data,
+        "deleted_console_output": deleted_consoles
     })
 
 
 @app.route('/arcee/v2/applications/<name>/run', methods=["POST", ])
-async def create_application_run(request, name: str):
+@validate(json=RunPostIn)
+async def create_application_run(request, body: RunPostIn, name: str):
     """
     create application run
+    :param body:
     :param request:
     :param name: str
     :return:
     """
     token = await extract_token(request)
     await check_token(token)
-    # TODO: validators
-    # find applications with given name-token
+
     o = await db.application.find_one(
         {"token": token, "key": name, "deleted_at": 0})
     if not o:
         raise SanicException("Not found", status_code=404)
+
     application_id = o["_id"]
-    doc = request.json
-    imports = doc.get("imports", [])
-    run_name = doc.get("name")
     run_cnt = await db.run.count_documents({"application_id": application_id})
-    d = {
-        "_id": str(uuid.uuid4()),
-        "application_id": application_id,
-        "start": int(datetime.utcnow().timestamp()),
-        "finish": None,
-        "state": ArceeState.STARTED,
-        "name": run_name,
-        "number": run_cnt + 1,
-        "imports": imports,
-        "deleted_at": 0,
-    }
-    await db.run.insert_one(
-        d
+    r = Run(
+        application_id=application_id, number=run_cnt + 1, **body.model_dump()
     )
-    return json({"id": d["_id"]})
+
+    await db.run.insert_one(r.model_dump(by_alias=True))
+    return json({"id": r.id})
 
 
 async def reached_goals(run):
-
     result = dict()
     func_map = {
         'more': lambda x, y: x >= y,
@@ -405,7 +527,7 @@ async def reached_goals(run):
         result[k] = dict()
         result[k].update(v)
         g = data_goals.get(k)
-        if g:
+        if g is not None:
             func = func_map.get(v.get("tendency"), lambda x, y: False)
             reached = func(g, v["target_value"])
             result[k]["value"] = g
@@ -551,9 +673,11 @@ async def get_executors(request):
 
 
 @app.route('/arcee/v2/run/<run_id>', methods=["PATCH", ])
-async def update_run(request, run_id: str):
+@validate(json=RunPatchIn)
+async def update_run(request, body: RunPatchIn, run_id: str):
     """
     update application run
+    :param body:
     :param request:
     :param run_id: str
     :return:
@@ -564,33 +688,26 @@ async def update_run(request, run_id: str):
     if not res:
         token = await extract_token(request)
         await check_token(token)
-    doc = request.json
-    # TODO: validators
-    finish = doc.get("finish", False)
-    tags = doc.get("tags", {})
-    hyperparameters = doc.get("hyperparameters", {})
-    reason = doc.get("reason")
-    o = await db.run.find_one({"_id": run_id})
-    if not o:
+
+    r = await db.run.find_one({"_id": run_id})
+    if not r:
         raise SanicException("Run not found", status_code=404)
     if token is not None:
         # omit check if accessed by secret
-        await check_run_state(o)
+        await check_run_state(r)
         # check application
-        await check_application(token, o)
-    d = {}
-    if finish:
+        await check_application(token, r)
+
+    d = body.model_dump(exclude_unset=True, exclude={'finish'})
+    # TODO: remove "finish" from PATCH payload. Set ts based on "state"
+    if body.finish:
         d.update({"finish": int(datetime.utcnow().timestamp())})
-    if tags:
-        d.update({"tags": tags})
+    hyperparameters = d.get("hyperparameters", {})
     if hyperparameters:
-        d.update({"hyperparameters": hyperparameters})
-    if reason:
-        d.update({"reason": reason})
-    for param in ["state", "runset_id", "reason", "runset_name"]:
-        value = doc.get(param)
-        if value is not None:
-            d.update({param: value})
+        existing_hyperparams = r.get("hyperparameters", {})
+        existing_hyperparams.update(hyperparameters)
+        d.update({"hyperparameters": existing_hyperparams})
+
     await db.run.update_one(
         {"_id": run_id}, {'$set': d})
     return json({"updated": True, "id": run_id})
@@ -646,43 +763,100 @@ async def get_milestones(request, run_id: str):
     return json(res)
 
 
+class PlatformType(str, Enum):
+    ali = "ali"
+    aws = "aws"
+    azure = "azure"
+    gcp = "gcp"
+    unknown = "unknown"
+
+
+class InstanceLifeCycle(str, Enum):
+    OnDemand = "OnDemand"
+    Preemptible = "Preemptible"
+    Spot = "Spot"
+    Unknown = "Unknown"
+
+
+class PlatformPostIn(BaseModel):
+    platform_type: PlatformType
+    instance_id: str
+    account_id: str
+    local_ip: str
+    public_ip: str
+    instance_lc: InstanceLifeCycle
+    instance_type: str
+    instance_region: str
+    availability_zone: str
+
+
+def filter_strings(stats: dict) -> dict:
+    return {k: v for k, v in stats.items() if isinstance(v, (int, float))}
+
+
+StatsData = Annotated[
+    dict[str, Union[int, float]], BeforeValidator(filter_strings)]
+
+
+class StatsPostIn(BaseModel):
+    project: str
+    run: str
+    data: StatsData
+    platform: PlatformPostIn
+
+
+class Platform(PlatformPostIn):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias='_id')
+
+
+class Log(BaseModel):
+    project: str
+    run: str
+    data: StatsData
+    instance_id: Optional[str]
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias='_id')
+    time: float = Field(
+        default_factory=lambda: datetime.utcnow().timestamp())
+
+
 @app.route('/arcee/v2/collect', methods=["POST", ])
-async def collect(request):
+@validate(json=StatsPostIn)
+async def collect(request, body: StatsPostIn):
     token = await extract_token(request)
     await check_token(token)
-    r = json({'received': True, 'message': request.json})
-    document = request.json
-    platform = document.pop("platform", {})
-    instance = platform.get("instance_id")
-    run_id = document.get("run")
-    if instance:
-        o = await db.platform.find_one({"instance_id": instance})
-        if not o and platform:
-            platform["_id"] = str(uuid.uuid4())
-            await db.platform.insert_one(platform)
-        document["instance_id"] = instance
-    document["_id"] = str(uuid.uuid4())
-    document["time"] = datetime.utcnow().timestamp()
+
+    platform = body.platform
+    instance_id = platform.instance_id
+    if instance_id:
+        o = await db.platform.find_one({"instance_id": instance_id})
+        if not o:
+            await db.platform.insert_one(
+                Platform(**platform.model_dump()).model_dump(by_alias=True))
+
+    run_id = body.run
     run = await db.run.find_one({"_id": run_id})
     if not run:
         raise SanicException("Not found", status_code=404)
     await check_run_state(run)
-    await db.log.insert_one(document)
-    data = run.get("data", {})
+
+    log = Log(instance_id=instance_id, project=body.project,
+              run=body.run, data=body.data)
+    await db.log.insert_one(log.model_dump(by_alias=True))
+
     executors = run.get("executors", [])
-    if instance:
-        executors.append(instance)
-    new_data = document.get("data", {})
-    data.update(new_data)
+    if instance_id:
+        executors.append(instance_id)
+    old_data = run.get("data", {})
+    new_data = body.data
     await db.run.update_one(
         {"_id": run_id}, {
             '$set': {
-                "data": data,
+                "data": {**old_data, **new_data},
                 "executors": list(set(executors)),
             }
         })
-    logger.info("x-api-key: %s, data: %s" % (request.headers['x-api-key'], request.json))
-    return r
+    logger.info("x-api-key: %s, data: %s" % (token, request.json))
+    return json({'received': True, 'message': body.model_dump()})
 
 
 @app.route('/arcee/v2/applications/<app_id>/run', methods=["GET", ])
@@ -758,6 +932,86 @@ async def get_runs(request):
     return json(runs)
 
 
+@app.route('/arcee/v2/applications/<application_id>/runs/bulk', methods=["GET", ])
+async def bulk_get_runs(request, application_id: str):
+    """
+    Bulk get runs by run ids
+    """
+    token = await extract_token(request)
+    await check_token(token)
+    run_ids = request.args.getlist("run_id")
+    if not run_ids:
+        raise SanicException("run_ids is required", status_code=400)
+    o = await db.application.find_one(
+        {"token": token, "_id": application_id, "deleted_at": 0})
+    if not o:
+        raise SanicException("Application not found", status_code=404)
+    goals = await _get_app_goals(db, application_id)
+    pipeline = [
+        {
+            "$match": {
+                "_id": {
+                    "$in": run_ids
+                },
+                "application_id": application_id
+            }
+        },
+        {
+            "$lookup": {
+                "from": "dataset",
+                "localField": "dataset_id",
+                "foreignField": "_id",
+                "as": "dataset"
+            }
+        },
+        {
+            "$unwind": {
+                "path": "$dataset",
+                "preserveNullAndEmptyArrays": True
+            }
+        },
+        {
+         "$project": {
+                "_id": 1,
+                "name": 1,
+                "runset_id": 1,
+                "runset_name": 1,
+                "finish": 1,
+                "tags": 1,
+                "hyperparameters": 1,
+                "state": 1,
+                "application_id": 1,
+                "start": 1,
+                "number": 1,
+                "deleted_at": 1,
+                "dataset": 1,
+                "data": 1
+         },
+        }
+    ]
+    cur = db.run.aggregate(pipeline)
+    res = [i async for i in cur]
+    for i in res:
+        ext_data = {}
+        data = i.get("data", {})
+        # due to dup key it's more effectively
+        for k, v in data.copy().items():
+            gl = goals.get(k, {})
+            ext_data[k] = {
+                "name": gl.get("name"),
+                "value": v,
+                "func": gl.get("func")
+            }
+        # replace the data
+        i["data"] = ext_data
+        ds = i.get("dataset")
+        if ds:
+            ds["id"] = ds["_id"]
+            ds.pop("_id")
+            ds.pop("token")
+    return json(res)
+
+
 @app.route('/arcee/v2/goals', methods=["POST", ])
 async def create_goal(request):
     """
@@ -824,6 +1078,56 @@ async def get_goal(request, goal_id: str):
     return json(o)
 
 
+async def _goal_used_in_lb(db, goal_id: str, application_id: str=None):
+    match_block = [
+        {"deleted_at": {"$eq": 0}},
+        {
+            "$expr": {
+                "$or": [
+                    {"$eq": ["$primary_goal", "$$goalId"]},
+                    {"$in": ["$$goalId", {"$ifNull": ["$other_goals", []]}]}
+                ]
+            }
+        }]
+    if application_id:
+        match_block.append({'application_id': application_id})
+    pipeline = [
+        {
+            "$match": {
+                "_id": goal_id
+            }
+        },
+        {
+            "$lookup": {
+                "from": "leaderboard",
+                "let": {"goalId": "$_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$and": match_block
+                        }
+                    },
+                    {
+                        "$project": {"_id": 1}
+                    }
+                ],
+                "as": "used_in_leaderboard"
+            }
+        },
+        {
+            "$project": {
+                "goal_used": {"$gt": [{"$size": "$used_in_leaderboard"}, 0]}
+            }
+        }
+    ]
+    cur = db.goal.aggregate(pipeline)
+    try:
+        ri = await cur.next()
+    except StopAsyncIteration:
+        return False
+    return ri.get("goal_used", False)
+
+
 @app.route('/arcee/v2/goals/<goal_id>', methods=["DELETE", ])
 async def delete_goal(request, goal_id: str):
     """
@@ -837,6 +1141,8 @@ async def delete_goal(request, goal_id: str):
     o = await db.goal.find_one({"token": token, "_id": goal_id})
     if not o:
         raise SanicException("Not found", status_code=404)
+    if await _goal_used_in_lb(db, goal_id):
+        raise SanicException("Goal used in leaderboard", status_code=409)
     await db.goal.delete_one({'_id': goal_id})
     return json({"deleted": True, "_id": goal_id})
 
@@ -1008,7 +1314,7 @@ async def get_token(request, token: str):
             {
                 "$or": [
                     {"token": token},
-                    {"_id":  token}
+                    {"_id": token}
                 ]
             }
         ]
@@ -1109,6 +1415,41 @@ async def create_proc_data(request, run_id: str):
     return json({"id": d["_id"]})
 
 
+@app.route('/arcee/v2/executors/breakdown', methods=["GET", ])
+async def get_executors_breakdown(request):
+    token = await extract_token(request)
+    await check_token(token)
+
+    application_ids = await db.application.distinct(
+        "_id", {"token": token, "deleted_at": 0})
+    if not application_ids:
+        return json({})
+
+    pipeline = [
+        {"$match": {"application_id": {"$in": application_ids}}},
+        {"$project": {
+            "_id": 0,
+            "timestamp": "$start",
+            "executor": "$executors"
+        }},
+        {"$unwind": '$executor'}
+    ]
+    ts_executors = defaultdict(list)
+    async for data in db.run.aggregate(pipeline):
+        dt = datetime.fromtimestamp(data['timestamp']).replace(
+            hour=0, minute=0, second=0, microsecond=0,
+            tzinfo=timezone.utc)
+        ts_executors[int(dt.timestamp())].append(data['executor'])
+
+    breakdown = {}
+    if ts_executors:
+        min_ts = min(ts_executors.keys())
+        max_ts = max(ts_executors.keys())
+        for ts in range(min_ts, max_ts + DAY_IN_SEC, DAY_IN_SEC):
+            breakdown[ts] = len(set(ts_executors.get(ts, [])))
+    return json(breakdown)
+
+
 @app.route('/arcee/v2/run/<run_id>/proc', methods=["GET", ])
 async def get_proc_data(request, run_id: str):
     """
@@ -1151,6 +1492,619 @@ async def get_run_ids_by_executor(request, executor_id: str):
         app_run_ids = [doc["_id"] async for doc in db.run.find({"application_id": {"$in": app_ids}})]
         run_ids = list(set(run_ids) & set(app_run_ids))
     return json(run_ids)
+
+
+@app.route('/arcee/v2/applications/<application_id>/leaderboards',
+           methods=["POST", ])
+async def create_leaderboard(request, application_id: str):
+    """
+    create leaderboard
+    :param request:
+    :param application_id: str
+    :return:
+    """
+    token = await extract_token(request)
+    await check_token(token)
+    # TODO: validators
+    doc = request.json
+    primary_goal = doc.get('primary_goal')
+    other_goals = doc.get('other_goals', [])
+    filters = doc.get("filters", [])
+    grouping_tags = doc.get('grouping_tags', [])
+    group_by_hp = doc.get('group_by_hp', False)
+    # find leaderboard with given application_id
+    exists = await db.leaderboard.find_one(
+        {"token": token, "application_id": application_id, "deleted_at": 0})
+    if exists:
+        raise SanicException("Conflict", status_code=409)
+    leaderboard = {
+        "_id": str(uuid.uuid4()),
+        "application_id": application_id,
+        "grouping_tags": grouping_tags,
+        "primary_goal": primary_goal,
+        "other_goals": other_goals,
+        "filters": filters,
+        "group_by_hp": group_by_hp,
+        "token": token,
+        "deleted_at": 0,
+        "created_at": int(datetime.now(tz=timezone.utc).timestamp())
+    }
+    await db.leaderboard.insert_one(leaderboard)
+    return json(leaderboard)
+
+
+async def _create_leaderboard_dataset(**kwargs) -> dict:
+    LeaderboardDataset.remove_dup_ds_ids(kwargs)
+    d = LeaderboardDataset(**kwargs).model_dump(by_alias=True)
+    await db.leaderboard_dataset.insert_one(d)
+    return d
+
+
+@app.route('/arcee/v2/leaderboards/<leaderboard_id>/leaderboard_datasets',
+           methods=["POST", ])
+@validate(json=LeaderboardDatasetPostIn)
+async def create_leaderboard_dataset(request, body: LeaderboardDatasetPostIn, leaderboard_id: str):
+    token = await extract_token(request)
+    await check_token(token)
+
+    leaderboard = await db.leaderboard.find_one(
+        {"token": token, "_id": leaderboard_id, "deleted_at": 0})
+    if not leaderboard:
+        raise SanicException("Leaderboard not found", status_code=404)
+    d = await _create_leaderboard_dataset(token=token, leaderboard_id=leaderboard_id,
+                                          **body.model_dump())
+    return json(d, status=201)
+
+
+@app.route('/arcee/v2/leaderboard_datasets/<id_>', methods=["GET", ])
+async def get_leaderboard_dataset(request, id_: str):
+    token = await extract_token(request)
+    await check_token(token)
+    d = await db.leaderboard_dataset.find_one(
+        {"$and": [
+            {"token": token},
+            {"_id": id_},
+            {"deleted_at": 0}
+        ]})
+    if not d:
+        raise SanicException("LeaderboardDataset not found", status_code=404)
+    pipeline = [
+        {
+            "$match":
+                {
+                    "$and": [
+                        {"token": token},
+                        {"_id": id_},
+                        {"deleted_at": 0}
+                    ]
+                }
+        },
+        {
+            "$lookup": {
+                "from": "dataset",
+                "localField": "dataset_ids",
+                "foreignField": "_id",
+                "as": "datasets"
+            }
+        },
+    ]
+    cur = db.leaderboard_dataset.aggregate(pipeline)
+    return json(await cur.next())
+
+
+@app.route('/arcee/v2/leaderboards/<leaderboard_id>/leaderboard_datasets', methods=["GET", ])
+async def get_leaderboard_datasets(request, leaderboard_id: str):
+    token = await extract_token(request)
+    await check_token(token)
+    match_filter = {
+        "leaderboard_id": leaderboard_id,
+        "token": token,
+        "deleted_at": 0
+    }
+    include_deleted = "include_deleted"
+    if (include_deleted in request.args.keys() and
+            await to_bool(request.args.get(include_deleted))):
+        match_filter.pop('deleted_at')
+    pipeline = [
+        {
+            "$match": match_filter
+        },
+        {
+            "$lookup": {
+                "from": "leaderboard",
+                "localField": "leaderboard_id",
+                "foreignField": "_id",
+                "as": "leaderboard"
+            }
+        },
+        {
+            "$unwind": "$leaderboard"
+        },
+        {
+            "$lookup": {
+                "from": "goal",
+                "localField": "leaderboard.primary_goal",
+                "foreignField": "_id",
+                "as": "primary_metric"
+            }
+        },
+        {
+            "$unwind": "$primary_metric"
+        },
+        {
+            "$project": {
+                "leaderboard": 0,
+                "primary_metric._id": 0,
+                "primary_metric.token": 0
+            }
+        },
+    ]
+    cur = db.leaderboard_dataset.aggregate(pipeline)
+    result = []
+    leaderboard = None
+    tendency = None
+    key = None
+    func = None
+    async for leaderboard_dataset in cur:
+        # candidates (1-st level groups) are basically the same for all
+        # leaderboard datasets, so generate leaderboard once to use it as
+        # a list of candidates
+        if not leaderboard:
+            leaderboard = await get_calculated_leaderboard(
+                db, token, leaderboard_dataset['_id'])
+
+        # primary_metric is the same for all leaderboard datasets
+        if not tendency:
+            tendency = leaderboard_dataset['primary_metric']['tendency']
+        if not key:
+            key = leaderboard_dataset['primary_metric']['key']
+        if not func:
+            func = leaderboard_dataset['primary_metric']['func']
+
+        lb_dataset_ids = leaderboard_dataset['dataset_ids']
+
+        best_score = None
+        for cand in leaderboard:
+            # get primary metric value for group according to datasets ids
+            cand_score = None
+            qualification = set(cand['dataset_ids']) & set(lb_dataset_ids)
+
+            if set(lb_dataset_ids) == set(cand['qualification']):
+                # primary metric for current LB dataset is already calculated
+                cand_score = cand['primary_metric'][key]['value']
+            elif not lb_dataset_ids or qualification == set(lb_dataset_ids):
+                # group is not qualified by required datasets, but contains
+                # some suitable runs
+                runs = cand['run_ids']
+                pipeline = [
+                    {'$match': {'_id': {'$in': runs}}},
+                    {'$group': {'_id': None,
+                                'score': {'$%s' % func: '$data.%s' % key}}},
+                ]
+                if lb_dataset_ids:
+                    pipeline[0]['$match'].update(
+                        {'dataset_id': {'$in': lb_dataset_ids}})
+                res = db.run.aggregate(pipeline)
+                try:
+                    r = await res.next()
+                except StopAsyncIteration:
+                    r = {'score': None}
+                cand_score = r['score']
+            if cand_score and (not best_score or (
+                    tendency == Tendencies.MORE.value and best_score < cand_score) or (
+                    tendency == Tendencies.LESS.value and best_score > cand_score)):
+                best_score = cand_score
+        leaderboard_dataset['primary_metric']['value'] = best_score
+        result.append(leaderboard_dataset)
+    return json(result)
+
+
+@app.route('/arcee/v2/leaderboard_datasets/<id_>', methods=["PATCH", ])
+@validate(json=LeaderboardDatasetPatchIn)
+async def update_leaderboard_dataset(request, body: LeaderboardDatasetPatchIn, id_: str):
+    token = await extract_token(request)
+    await check_token(token)
+    o = await db.leaderboard_dataset.find_one(
+        {"$and": [
+            {"token": token},
+            {"_id": id_},
+            {"deleted_at": 0}
+        ]})
+    if not o:
+        raise SanicException("LeaderboardDataset not found", status_code=404)
+    d = body.model_dump(exclude_unset=True)
+    if d:
+        LeaderboardDatasetPatchIn.remove_dup_ds_ids(d)
+        await db.leaderboard_dataset.update_one(
+            {"_id": id_}, {'$set': d})
+    o = await db.leaderboard_dataset.find_one({"_id": id_})
+    return json(o)
+
+
+@app.route('/arcee/v2/leaderboard_datasets/<id_>', methods=["DELETE", ])
+async def delete_leaderboard_dataset(request, id_: str):
+    token = await extract_token(request)
+    await check_token(token)
+    o = await db.leaderboard_dataset.find_one({"token": token, "_id": id_})
+    if not o:
+        raise SanicException("LeaderboardDataset not found", status_code=404)
+    await db.leaderboard_dataset.update_one({"_id": id_}, {'$set': {
+        "deleted_at": int(datetime.utcnow().timestamp())
+    }})
+    return json('', status=204)
+
+
+@app.route('/arcee/v2/leaderboard_datasets/<id_>/details', methods=["GET", ])
+async def get_leaderboard_dataset_details(request, id_: str):
+    token = await extract_token(request)
+    await check_token(token)
+    o = await db.leaderboard_dataset.find_one(
+        {"$and": [
+            {"token": token},
+            {"_id": id_},
+            {"deleted_at": 0}
+        ]})
+    if not o:
+        raise SanicException("LeaderboardDataset not found", status_code=404)
+    # get coverage
+    ids = o['dataset_ids']
+    pipeline = [
+        {
+            "$match": {
+                "_id": {"$in": ids},
+                "token": token,
+                "deleted_at": {"$eq": 0},
+            }
+        },
+        {"$sort": {"created_at": -1}},
+        {
+            "$lookup": {
+                "from": "run",
+                "as": "run_data",
+                "let": {"dsid": "$_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {
+                                "$and": [
+                                    {"$eq": ["$dataset_id", "$$dsid"]},
+                                    {"$eq": ["$state", 2]},
+                                ]
+                            }
+                        }
+                    },
+                    {"$sort": {"start": -1}},
+                    {"$limit": 1},
+                ],
+            }
+        },
+        {"$unwind": "$run_data"},
+    ]
+
+    cur = db.dataset.aggregate(pipeline)
+    res = [i async for i in cur]
+    return json(res)
+
+
+@app.route('/arcee/v2/applications/<application_id>/leaderboards',
+           methods=["GET", ])
+async def get_leaderboard(request, application_id: str):
+    """
+    get leaderboard
+    :param request:
+    :param application_id: str
+    :return:
+    """
+    response = {}
+    token = await extract_token(request)
+    await check_token(token)
+    leaderboard = await db.leaderboard.find_one(
+        {"token": token, "application_id": application_id, "deleted_at": 0})
+    if leaderboard:
+        response = leaderboard
+    return json(response)
+
+
+@app.route('/arcee/v2/applications/<application_id>/leaderboards',
+           methods=["PATCH", ])
+async def change_leaderboard(request, application_id: str):
+    """
+    update leaderboard
+    :param request:
+    :param application_id: str
+    :return:
+    """
+    token = await extract_token(request)
+    await check_token(token)
+    # TODO: validators
+    doc = request.json
+    leaderboard = await db.leaderboard.find_one(
+        {"token": token, "application_id": application_id, "deleted_at": 0})
+    if not leaderboard:
+        raise SanicException("Not found", status_code=404)
+
+    for key, param in {
+        'primary_goal': doc.get('primary_goal'),
+        'grouping_tags': doc.get('grouping_tags'),
+        'other_goals': doc.get('other_goals'),
+        'filters': doc.get("filters"),
+        'group_by_hp': doc.get('group_by_hp')
+    }.items():
+        if param is not None:
+            leaderboard.update({
+                key: param
+            })
+    if leaderboard:
+        await db.leaderboard.update_one(
+            {"_id": leaderboard['_id']}, {'$set': leaderboard})
+    return json({"updated": bool(leaderboard), "id": leaderboard['_id']})
+
+
+@app.route('/arcee/v2/applications/<application_id>/leaderboards',
+           methods=["DELETE", ])
+async def delete_leaderboard(request, application_id: str):
+    """
+    deletes leaderboard
+    :param request:
+    :param application_id: str
+    :return:
+    """
+    token = await extract_token(request)
+    await check_token(token)
+    leaderboard = await db.leaderboard.find_one(
+        {"token": token, "application_id": application_id, "deleted_at": 0})
+    if not leaderboard:
+        raise SanicException("Not found", status_code=404)
+    deleted_at = int(datetime.now(tz=timezone.utc).timestamp())
+    await db.leaderboard_dataset.update_many(
+        {"leaderboard_id": leaderboard["_id"]},
+        {'$set': {'deleted_at': deleted_at}}
+    )
+    await db.leaderboard.update_one(
+        {"_id": leaderboard['_id']},
+        {'$set': {'deleted_at': deleted_at}}
+    )
+    return json({"deleted": True, "_id": leaderboard['_id']})
+
+
+@app.route('/arcee/v2/leaderboard_datasets/<leaderboard_dataset_id>/generate',
+           methods=["GET", ])
+async def leaderboard_details(request, leaderboard_dataset_id: str):
+    """
+    Calculate leaderboard
+    :param request:
+    :param leaderboard_dataset_id: str
+    :return:
+    """
+    token = await extract_token(request)
+    await check_token(token)
+    lb = await get_calculated_leaderboard(db, token, leaderboard_dataset_id)
+    return json(lb)
+
+
+async def _create_dataset(**kwargs) -> dict:
+    d = Dataset(**kwargs).model_dump(by_alias=True)
+    await db.dataset.insert_one(d)
+    return d
+
+
+@app.route('/arcee/v2/datasets', methods=["POST", ])
+@validate(json=DatasetPostIn)
+async def create_dataset(request, body: DatasetPostIn):
+    token = await extract_token(request)
+    await check_token(token)
+    o = await db.dataset.find_one(
+        {"$and": [
+            {"token": token},
+            {"path": body.path},
+            {"deleted_at": 0}
+        ]})
+    if o:
+        raise SanicException("Dataset exists", status_code=409)
+    d = await _create_dataset(
+        token=token, **body.model_dump(exclude_unset=True))
+    return json(d, status=201)
+
+
+@app.route("/arcee/v2/run/<run_id>/dataset_register", methods=["POST", ])
+@validate(json=DatasetPostIn)
+async def register_dataset(request, body: DatasetPostIn, run_id: str):
+    token = await extract_token(request)
+    await check_token(token)
+    run = await db.run.find_one({"_id": run_id})
+    if not run:
+        raise SanicException("Run not found", status_code=404)
+    d = await db.dataset.find_one(
+        {"$and": [
+            {"token": token},
+            {"path": body.path},
+            {"deleted_at": 0}
+        ]})
+    if not d:
+        d = await _create_dataset(
+            token=token, **body.model_dump(exclude_unset=True))
+    await db.run.update_one(
+        {"_id": run_id}, {"$set": {"dataset_id": d["_id"]}})
+    return json({"id": d["_id"]})
+
+
+@app.route('/arcee/v2/datasets', methods=["GET", ])
+async def get_datasets(request):
+    token = await extract_token(request)
+    await check_token(token)
+    match_filter = {
+        "token": token,
+        "deleted_at": 0
+    }
+    # TODO: possibly move to bulk_get API with ability to get deleted objects
+    include_deleted = "include_deleted"
+    if (include_deleted in request.args.keys() and
+            await to_bool(request.args.get(include_deleted))):
+        match_filter.pop('deleted_at')
+    res = [Dataset(**doc).model_dump(by_alias=True)
+           async for doc in db.dataset.find(match_filter)]
+    return json(res)
+
+
+@app.route('/arcee/v2/datasets/<id_>', methods=["GET", ])
+async def get_dataset(request, id_: str):
+    token = await extract_token(request)
+    await check_token(token)
+    d = await db.dataset.find_one(
+        {"$and": [
+            {"token": token},
+            {"_id": id_},
+            {"deleted_at": 0}
+        ]})
+    if not d:
+        raise SanicException("Dataset not found", status_code=404)
+    return json(Dataset(**d).model_dump(by_alias=True))
+
+
+@app.route('/arcee/v2/datasets/<id_>', methods=["PATCH", ])
+@validate(json=DatasetPatchIn)
+async def update_dataset(request, body: DatasetPatchIn, id_: str):
+    token = await extract_token(request)
+    await check_token(token)
+    o = await db.dataset.find_one(
+        {"$and": [
+            {"token": token},
+            {"_id": id_},
+            {"deleted_at": 0}
+        ]})
+    if not o:
+        raise SanicException("Dataset not found", status_code=404)
+    d = body.model_dump(exclude_unset=True)
+    if d:
+        await db.dataset.update_one(
+            {"_id": id_}, {'$set': d})
+    o = await db.dataset.find_one({"_id": id_})
+    return json(Dataset(**o).model_dump(by_alias=True))
+
+
+async def _dataset_used_in_leaderboard(db, dataset_id: str):
+    pipeline = [
+        {
+            "$match": {
+                "_id": dataset_id
+            }
+        },
+        {
+            "$lookup": {
+                "from": "leaderboard_dataset",
+                "let": {"dataset_id": "$_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {
+                                "$and": [
+                                    {"$in": ["$$dataset_id", "$dataset_ids"]},
+                                    {"$eq": ["$deleted_at", 0]}
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "as": "leaderboard_info"
+            }
+        },
+        {
+            "$addFields": {
+                "used": {
+                    "$cond": {
+                        "if": {"$gt": [{"$size": "$leaderboard_info"}, 0]},
+                        "then": True,
+                        "else": False
+                    }
+                }
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "used": 1
+            }
+        }
+    ]
+    cur = db.dataset.aggregate(pipeline)
+    try:
+        ri = await cur.next()
+    except StopAsyncIteration:
+        return False
+    return ri.get("used", False)
+
+
+@app.route('/arcee/v2/datasets/<id_>', methods=["DELETE", ])
+async def delete_dataset(request, id_: str):
+    token = await extract_token(request)
+    await check_token(token)
+    o = await db.dataset.find_one({"token": token, "_id": id_})
+    if not o:
+        raise SanicException("Dataset not found", status_code=404)
+    if await _dataset_used_in_leaderboard(db, id_):
+        raise SanicException("Dataset used in leaderboard", status_code=409)
+    await db.dataset.update_one({"_id": id_}, {'$set': {
+        "deleted_at": int(datetime.utcnow().timestamp())
+    }})
+    return json('', status=204)
+
+
+@app.route('/arcee/v2/labels', methods=["GET", ])
+async def get_labels(request):
+    token = await extract_token(request)
+    await check_token(token)
+    pipeline = [
+        {"$match": {"token": token, "deleted_at": 0}},
+        {"$sort": {"created_at": -1}},
+        {"$unwind": "$labels"},
+        {"$group": {"_id": None, "labels": {"$push": "$labels"}}},
+    ]
+    labels = []
+    cur = db.dataset.aggregate(pipeline)
+    try:
+        res = await cur.next()
+    except StopAsyncIteration:
+        pass
+    else:
+        # keep insertion order
+        labels.extend(OrderedDict.fromkeys(res.get('labels', [])).keys())
+    return json(labels)
+
+
+@app.route('/arcee/v2/run/<run_id>/consoles', methods=["POST", ])
+@validate(json=ConsolePostIn)
+async def create_run_console(request, body: ConsolePostIn, run_id: str):
+    token = await extract_token(request)
+    await check_token(token)
+    run = await db.run.find_one({"_id": run_id})
+    if not run:
+        raise SanicException("Not found", status_code=404)
+    await check_run_state(run)
+    await check_application(token, run)
+    c = await db.console.find_one({"run_id": run_id})
+    if c:
+        raise SanicException("Console exists", status_code=409)
+    console = Console(run_id=run["_id"], **body.model_dump())
+    default_output_length = 512 * 1024
+    for prop in ['output', 'error']:
+        val = getattr(console, prop, None)
+        if val and len(val) > default_output_length:
+            setattr(console, prop, val[:default_output_length])
+    await db.console.insert_one(
+        console.model_dump(by_alias=True)
+    )
+    return json({"id": console.id})
+
+
+@app.route('/arcee/v2/run/<run_id>/console', methods=["GET", ])
+async def get_run_console(request, run_id: str):
+    token = await extract_token(request)
+    await check_token(token)
+    console = await db.console.find_one(
+        {"run_id": run_id})
+    if not console:
+        raise SanicException("Not found", status_code=404)
+    return json(console)
 
 
 if __name__ == '__main__':

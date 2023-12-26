@@ -54,13 +54,9 @@ def get_handlers(handler_kwargs, version=None):
             (urls.ack_event, get_handler_version(
                 handlers, "events"
             ).EventAckAsyncHandler, handler_kwargs),
-        ])
-
-    # v2 only
-    if not version or version == 'v2':
-        result.extend([
-            (urls_v2.feedbacks, h_v2.feedbacks.FeedbacksAsyncHandler,
-             handler_kwargs)
+            (urls.feedbacks, get_handler_version(
+                handlers, "feedbacks"
+            ).FeedbacksAsyncHandler, handler_kwargs)
         ])
     return result
 

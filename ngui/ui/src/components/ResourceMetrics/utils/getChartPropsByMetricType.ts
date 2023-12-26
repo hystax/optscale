@@ -1,6 +1,6 @@
 import { useTheme } from "@mui/material/styles";
 import { useIntl } from "react-intl";
-import { SI_UNITS, useFormatDigitalUnit } from "components/FormattedDigitalUnit";
+import { SI_UNITS, formatDigitalUnit } from "components/FormattedDigitalUnit";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { getAverageLineValue, getTotalLineValue } from "utils/charts";
 import { METRIC_TYPES } from "utils/constants";
@@ -124,7 +124,7 @@ const diskOperationsChartProps = ({ metricType, metrics, colors, intl }) => {
   });
 };
 
-const networkChartProps = ({ metricType, metrics, colors, intl, formatDigitalUnit }) => {
+const networkChartProps = ({ metricType, metrics, colors, intl }) => {
   const getMemoryInLineDefinition = (data) => ({
     line: {
       id: "in",
@@ -202,7 +202,6 @@ const useChartPropsByMetricType = (metricType, metrics) => {
   const theme = useTheme();
   const colors = theme.palette.chart;
   const intl = useIntl();
-  const formatDigitalUnit = useFormatDigitalUnit();
 
   if (metricType === METRIC_TYPES.CPU) {
     return cpuMetricChartProps({ metricType, metrics: metricsLineData, colors, intl });
@@ -214,7 +213,7 @@ const useChartPropsByMetricType = (metricType, metrics) => {
     return diskOperationsChartProps({ metricType, metrics: metricsLineData, colors, intl });
   }
   if (metricType === METRIC_TYPES.NETWORK) {
-    return networkChartProps({ metricType, metrics: metricsLineData, colors, intl, formatDigitalUnit });
+    return networkChartProps({ metricType, metrics: metricsLineData, colors, intl });
   }
 
   throw new Error("Unknown metric type");

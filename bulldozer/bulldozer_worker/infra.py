@@ -1,11 +1,11 @@
-import boto3
 import os
 import shutil
-from typing import Union
 import subprocess
 import re
 import tarfile
 import logging
+from typing import Union
+import boto3
 
 from bulldozer.bulldozer_worker.exceptions import NotSupportedException
 from bulldozer.bulldozer_worker.generator.aws import TFGeneratorFactory
@@ -36,7 +36,8 @@ class Infra:
         "AWS_SPOT": os.path.join("variables", "aws", var_file),
     }
 
-    state_files = [template_file, 'terraform.tfstate', 'terraform.tfstate.backup']
+    state_files = [template_file, 'terraform.tfstate',
+                   'terraform.tfstate.backup']
 
     # default workspace
     workspace = "/var/lib/bulldozer/"
@@ -92,7 +93,8 @@ class Infra:
         if self._generator is None:
             gen = TFGeneratorFactory.get_generator(self.platform_type)
             if not gen:
-                raise NotSupportedException("%s is not supported" % self.platform_type)
+                raise NotSupportedException(
+                    f"{self.platform_type} is not supported")
             self._generator = gen
         return self._generator
 
@@ -114,7 +116,7 @@ class Infra:
         :return:
         """
         name = self.seed
-        filename = "%s.tar.gz" % name
+        filename = f"{name}.tar.gz"
         os.chdir(path)
         with tarfile.open(filename, "w:gz") as tfh:
             for item in self.state_files:
@@ -129,7 +131,7 @@ class Infra:
 
     def extract(self, path: str) -> None:
         name = self.seed
-        filename = "%s.tar.gz" % name
+        filename = f"{name}.tar.gz"
         os.chdir(path)
         with tarfile.open(filename) as fh:
             fh.extractall()
@@ -171,27 +173,31 @@ class Infra:
         file_path = os.path.join(path, self.var_values)
         acc_key = self._creds.get("aws_access_key_id")
         sec_key = self._creds.get("aws_secret_access_key")
-        with open(file_path, "w") as fh:
-            fh.write('access_key = "%s"\n' % acc_key)
-            fh.write('secret_key = "%s"\n' % sec_key)
+        with open(file_path, "w", encoding='utf-8') as fh:
+            fh.write(f'access_key = "{acc_key}"\n')
+            fh.write(f'secret_key = "{sec_key}"\n')
 
     @property
     def exe_path(self):
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), 'terraform'))
+        return os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                            'terraform'))
 
     def copy_artifacts(self, path: str):
         """
         Copies artifacts (such as provider, lock)
         :return:
         """
-        provider_path = os.path.join(os.path.dirname(__file__), self.platform_dir)
+        provider_path = os.path.join(os.path.dirname(__file__),
+                                     self.platform_dir)
         # copy provider
         shutil.copytree(provider_path, os.path.join(path, self.platform_dir))
         # copy lock
-        shutil.copyfile(os.path.join(os.path.dirname(__file__), self.get_lock_file_path()),
+        shutil.copyfile(os.path.join(os.path.dirname(__file__),
+                                     self.get_lock_file_path()),
                         os.path.join(path, self.lock_file))
         # copy var
-        shutil.copyfile(os.path.join(os.path.dirname(__file__), self.get_var_file_path()),
+        shutil.copyfile(os.path.join(os.path.dirname(__file__),
+                                     self.get_var_file_path()),
                         os.path.join(path, self.var_file))
 
     def start(
@@ -206,7 +212,8 @@ class Infra:
             tags=None,
             open_ingress=False,
     ):
-        gen = self.generator(
+        gen_cls = self.generator
+        gen = gen_cls(
             self.seed,
             name,
             image,
@@ -223,16 +230,19 @@ class Infra:
         os.makedirs(path, exist_ok=True)
         template_file = os.path.join(path, self.template_file)
         try:
-            with open(template_file, "w") as fh:
+            with open(template_file, "w", encoding='utf-8') as fh:
                 fh.write(template)
             self.copy_artifacts(path)
             self.make_vars(path)
             # save plan to the logs
-            out = subprocess.check_output([self.exe_path, "apply", "--auto-approve"], cwd=path).decode('UTF-8')
+            out = subprocess.check_output(
+                [self.exe_path, "apply", "--auto-approve"],
+                cwd=path).decode('UTF-8')
             LOG.info(out)
             LOG.debug("extracting instance id and ip address")
             instance_id, ip_addr = self.extract_outputs(out)
-            LOG.info("started instance runner_id: %s -> instance id: %s, ip: %s",
+            LOG.info("started instance runner_id: %s -> "
+                     "instance id: %s, ip: %s",
                      self.seed, instance_id, ip_addr)
             # create archive with states
             filename = self.archive(path)
@@ -246,10 +256,12 @@ class Infra:
             LOG.error("Infra failed because of %s", str(exc))
             try:
                 LOG.info("Cleaning up runner %s", str(self.seed))
-                subprocess.check_output([self.exe_path, "destroy", "--auto-approve"], cwd=path).decode('UTF-8')
-            except:
+                subprocess.check_output(
+                    [self.exe_path, "destroy", "--auto-approve"],
+                    cwd=path).decode('UTF-8')
+            except Exception:
                 pass
-            raise InfraException("Infra exception: %s" % str(exc))
+            raise InfraException(f"Infra exception: {str(exc)}")
         finally:
             # ensure we cleaned workdir in case of infra failure
             shutil.rmtree(path, ignore_errors=True)
@@ -268,7 +280,8 @@ class Infra:
             self.copy_artifacts(path)
             self.make_vars(path)
             plan = subprocess.check_output(
-                [self.exe_path, "destroy", "--auto-approve"], cwd=path).decode('UTF-8')
+                [self.exe_path, "destroy", "--auto-approve"],
+                cwd=path).decode('UTF-8')
             LOG.info(plan)
             # by design do not remove states for s3
         finally:

@@ -7,9 +7,8 @@ WORKDIR /usr/src/app/
 COPY katara/katara_service/test-requirements.txt katara/test-requirements.txt
 COPY katara/.pylintrc katara/katara_service/.noserc katara/.coveragerc ./katara/katara_service/
 
+COPY tools/check_alembic_down_revisions tools/check_alembic_down_revisions
 COPY optscale_client/katara_client optscale_client/katara_client
-
-
 
 RUN pip install --no-cache-dir -r katara/test-requirements.txt
 COPY katara/katara_service/tests katara/katara_service/tests

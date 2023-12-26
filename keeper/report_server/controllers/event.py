@@ -1,3 +1,4 @@
+# pylint: disable=no-member
 import logging
 import hashlib
 from datetime import datetime
@@ -116,7 +117,7 @@ class EventController(EventBaseController):
                 evt_dict.update({'read': reads.get(event.id, False)})
                 events_result.append(evt_dict)
                 if str(event.id) not in reads.keys() and (
-                        not event.ack or(event.ack and event.acknowledged_by)):
+                        not event.ack or (event.ack and event.acknowledged_by)):
                     to_read.append(str(event.id))
             # marking events as read, we cant crash here
             if to_read:
@@ -170,7 +171,7 @@ class EventController(EventBaseController):
             raise WrongArgumentsException(
                 Err.OK0028, [])
         unexpected = list(filter(
-            lambda x: x not in['resolution', 'timestamp'], kwargs))
+            lambda x: x not in ['resolution', 'timestamp'], kwargs))
         if unexpected:
             args = ','.join(unexpected)
             raise WrongArgumentsException(Err.OK0030, [args])

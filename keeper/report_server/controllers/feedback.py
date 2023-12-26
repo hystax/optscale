@@ -19,7 +19,7 @@ def is_valid_meta(metadata):
         meta = json.loads(metadata)
         if not isinstance(meta, dict):
             return False
-    except:
+    except Exception:
         return False
     return True
 
@@ -60,6 +60,7 @@ class FeedbackController(EventBaseController):
         email = kwargs.get('email')
         url = kwargs.get('url')
         limit = kwargs.get('limit')
+        # pylint: disable=no-member
         feedbacks = Feedback.objects().order_by('-time')
         if time_start:
             feedbacks = feedbacks(Q(time__gte=time_start))

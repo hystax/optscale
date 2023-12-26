@@ -4,11 +4,11 @@ import MlExecutorsTable from "components/MlExecutorsTable";
 import MlExecutorsService from "services/MlExecutorsService";
 
 const MlModelExecutorsContainer = () => {
-  const { modelId } = useParams();
+  const { taskId } = useParams();
 
   const { useGet } = MlExecutorsService();
 
-  const modelIds = useMemo(() => [modelId], [modelId]);
+  const modelIds = useMemo(() => [taskId], [taskId]);
 
   const { isLoading, executors = [] } = useGet({ modelIds });
 

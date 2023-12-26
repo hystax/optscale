@@ -54,6 +54,7 @@ def get_handlers(handler_kwargs, version=None):
 
     # v2 only
     if not version or version == 'v2':
+        # pylint: disable=no-member
         profiling_urls = [
             (urls_v2.applications_collection,
              h_v2.profiling.applications.ApplicationsAsyncCollectionHandler,
@@ -87,7 +88,31 @@ def get_handlers(handler_kwargs, version=None):
              handler_kwargs),
             (urls_v2.application_optimizations,
              h_v2.profiling.optimizations.ApplicationOptimizationsAsyncHandler,
-             handler_kwargs)
+             handler_kwargs),
+            (urls_v2.leaderboards,
+             h_v2.profiling.leaderboards.LeaderboardsAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.leaderboard_dataset,
+             h_v2.profiling.leaderboard_datasets.LeaderboardsDatasetAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.datasets_collection,
+             h_v2.profiling.datasets.DatasetsAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.leaderboard_dataset_collection,
+             h_v2.profiling.leaderboard_datasets.LeaderboardsDatasetAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.leaderboard_dataset_generate,
+             h_v2.profiling.leaderboard_datasets.LeaderboardsDatasetAsyncGenerateHandler,
+             handler_kwargs),
+            (urls_v2.datasets,
+             h_v2.profiling.datasets.DatasetsAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.labels_collection,
+             h_v2.profiling.labels.LabelsAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.runs_bulk,
+             h_v2.profiling.runs.RunBulkAsyncHandler,
+             handler_kwargs),
         ]
         infrastructure_urls = [
             (urls_v2.infra_profiling_token,
@@ -466,6 +491,12 @@ def get_handlers(handler_kwargs, version=None):
              handler_kwargs),
             (urls_v2.power_schedules_actions,
              h_v2.power_schedules.PowerSchedulesActionsAsyncHandler,
+             handler_kwargs),
+            (urls_v2.layouts_collection,
+             h_v2.layouts.LayoutsAsyncCollectionHandler,
+             handler_kwargs),
+            (urls_v2.layouts,
+             h_v2.layouts.LayoutsAsyncItemHandler,
              handler_kwargs),
             *profiling_urls,
         ])

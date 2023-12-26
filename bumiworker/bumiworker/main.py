@@ -45,6 +45,8 @@ class Worker(ConsumerProducerMixin):
     def on_connection_revived(self):
         LOG.info('Recovering delayed queue')
         try:
+            conn_str = 'amqp://{user}:{pass}@{host}:{port}'.format(
+                **self.config_cl.read_branch('/rabbit'))
             with Connection(conn_str) as connection:
                 with connection.channel() as channel:
                     delayed_consumer = Consumer(channel, dlx_task_queue)
