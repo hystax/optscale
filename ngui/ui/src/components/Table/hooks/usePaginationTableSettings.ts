@@ -24,14 +24,14 @@ const handleChange = (state, changeState) => (updater) => {
   changeState(updater(state));
 };
 
-export const usePaginationTableSettings = ({ pageSize, rowsCount, queryParamPrefix }) => {
+export const usePaginationTableSettings = ({ pageSize, rowsCount, queryParamPrefix, enablePaginationQueryParam = true }) => {
   const queryKeyForPage = getPaginationQueryKey(queryParamPrefix);
 
   const isPaginationEnabled = Number.isInteger(pageSize) && pageSize > 0;
 
   const [pagination, setPagination] = useState(() => ({
     pageSize,
-    pageIndex: getPageIndexQueryParamValue(queryKeyForPage)
+    pageIndex: enablePaginationQueryParam ? getPageIndexQueryParamValue(queryKeyForPage) : 0
   }));
 
   const paginationState = useMemo(() => {
@@ -54,7 +54,9 @@ export const usePaginationTableSettings = ({ pageSize, rowsCount, queryParamPref
         autoResetPageIndex: false,
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: handleChange(pagination, (newPaginationState) => {
-          updateQueryParams({ [queryKeyForPage]: newPaginationState.pageIndex + 1 });
+          if (enablePaginationQueryParam) {
+            updateQueryParams({ [queryKeyForPage]: newPaginationState.pageIndex + 1 });
+          }
           setPagination(newPaginationState);
         })
       }

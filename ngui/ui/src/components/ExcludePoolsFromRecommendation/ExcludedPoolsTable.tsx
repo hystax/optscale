@@ -60,8 +60,8 @@ const ExcludedPoolsTable = ({
       counters={{ showCounters: true, hideDisplayed: true }}
       withSearch
       queryParamPrefix="excludePools"
-      initialSelectedRows={selectedPools}
       getRowId={(row) => row.id}
+      enableSearchQueryParam={false}
       {...(isChangeSettingsAllowed ? getRowSelectionProps() : {})}
     />
   );
