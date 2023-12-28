@@ -84,7 +84,9 @@ const Table = ({
   isSelectedRow,
   overflowX = "auto",
   disableBottomBorderForLastRow = false,
-  tableLayout = "auto"
+  tableLayout = "auto",
+  enableSearchQueryParam,
+  enablePaginationQueryParam
 }) => {
   const { showCounters = false, hideTotal = false, hideDisplayed = false } = counters;
 
@@ -117,8 +119,9 @@ const Table = ({
     onSearchChange,
     onRangeChange
   } = useGlobalFilterTableSettings({
-    queryParamPrefix,
     withSearch,
+    queryParamPrefix,
+    enableSearchQueryParam,
     rangeFilter,
     columns: columnsProperty
   });
@@ -132,7 +135,8 @@ const Table = ({
       withExpanded,
       getSubRows
     }),
-    queryParamPrefix
+    queryParamPrefix,
+    enablePaginationQueryParam
   });
 
   const columns = useColumns(columnsProperty, {

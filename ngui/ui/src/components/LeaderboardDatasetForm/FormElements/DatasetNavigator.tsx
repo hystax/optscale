@@ -207,6 +207,8 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
       columns={columns}
       withSearch
       pageSize={5}
+      enableSearchQueryParam={false}
+      enablePaginationQueryParam={false}
       localization={{
         emptyMessageId: "noDatasets"
       }}

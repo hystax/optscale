@@ -13,19 +13,26 @@ const getInitialSearchValue = (key) => {
   return search;
 };
 
-const useSearch = ({ withSearch, queryParamPrefix }) => {
-  const searchQueryKey = getSearchQueryKey(queryParamPrefix);
+const useSearch = ({ queryParamPrefix, enableSearchQueryParam = true }) => {
+  const searchQueryKey = enableSearchQueryParam ? getSearchQueryKey(queryParamPrefix) : undefined;
 
-  const [search, setSearch] = useState(withSearch ? getInitialSearchValue(searchQueryKey) : "");
+  const [search, setSearch] = useState(() => {
+    if (enableSearchQueryParam) {
+      return getInitialSearchValue(searchQueryKey);
+    }
+    return "";
+  });
 
   const onSearchChange = useCallback(
     (newSearchValue, { tableContext }) => {
       setSearch(newSearchValue);
-      addSearchToQueryParams(searchQueryKey, newSearchValue);
+      if (enableSearchQueryParam) {
+        addSearchToQueryParams(searchQueryKey, newSearchValue);
+      }
 
       tableContext.setPageIndex(0);
     },
-    [searchQueryKey]
+    [searchQueryKey, enableSearchQueryParam]
   );
 
   return {
@@ -48,10 +55,16 @@ const useRange = ({ rangeFilter }) => {
   };
 };
 
-export const useGlobalFilterTableSettings = ({ queryParamPrefix, columns, withSearch, rangeFilter }) => {
+export const useGlobalFilterTableSettings = ({
+  withSearch,
+  queryParamPrefix,
+  enableSearchQueryParam,
+  columns,
+  rangeFilter
+}) => {
   const { search, onSearchChange } = useSearch({
-    withSearch,
-    queryParamPrefix
+    queryParamPrefix,
+    enableSearchQueryParam
   });
 
   const { range, onRangeChange } = useRange({

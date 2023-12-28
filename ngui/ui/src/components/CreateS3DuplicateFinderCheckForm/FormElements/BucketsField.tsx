@@ -56,7 +56,7 @@ const TableField = ({ buckets, value, dataSources, onChange, errors }) => {
       <Table
         columns={columns}
         withSearch
-        queryParamPrefix="bucketsSearch"
+        enableSearchQueryParam={false}
         data={tableData}
         memoBodyCells
         withSelection
@@ -64,6 +64,7 @@ const TableField = ({ buckets, value, dataSources, onChange, errors }) => {
         getRowId={(row) => getCloudResourceIdentifier(row)}
         onRowSelectionChange={onChange}
         pageSize={10}
+        enablePaginationQueryParam={false}
         localization={{
           emptyMessageId: "noBuckets"
         }}

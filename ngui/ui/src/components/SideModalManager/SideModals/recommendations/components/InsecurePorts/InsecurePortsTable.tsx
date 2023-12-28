@@ -71,12 +71,13 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
       data={memoizedPorts}
       columns={columns}
       pageSize={50}
+      enablePaginationQueryParam={false}
       withSearch
+      enableSearchQueryParam={false}
       counters={{ showCounters: true, hideDisplayed: true }}
       localization={{
         emptyMessageId: "noPorts"
       }}
-      queryParamPrefix="ports"
     />
   );
 };
