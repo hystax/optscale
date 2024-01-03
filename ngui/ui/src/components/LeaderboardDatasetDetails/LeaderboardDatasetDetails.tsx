@@ -8,20 +8,24 @@ import LeaderboardDatasetDetailsTable from "components/MlModelLeaderboard/compon
 import SubTitle from "components/SubTitle";
 import TableLoader from "components/TableLoader";
 import TypographyLoader from "components/TypographyLoader";
+import { useIsAllowed } from "hooks/useAllowedActions";
 
-const Title = ({ leaderboard, leaderboardDataset, isLoading }) =>
-  isLoading ? (
-    <TypographyLoader />
-  ) : (
+const Title = ({ leaderboard, leaderboardDataset }) => {
+  const isManageLeaderboardDatasetAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
+
+  return (
     <Box display="flex" alignItems="center" flexWrap="wrap">
       <SubTitle sx={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{leaderboardDataset.name}</SubTitle>
-      <Box>
-        <EditLeaderboardDatasetIconButton leaderboardDataset={leaderboardDataset} />
-        <CopyLeaderboardDatasetIconButton leaderboard={leaderboard} leaderboardDataset={leaderboardDataset} />
-        <DeleteLeaderboardDatasetButton leaderboardDataset={leaderboardDataset} />
-      </Box>
+      {isManageLeaderboardDatasetAllowed && (
+        <Box>
+          <EditLeaderboardDatasetIconButton leaderboardDataset={leaderboardDataset} />
+          <CopyLeaderboardDatasetIconButton leaderboard={leaderboard} leaderboardDataset={leaderboardDataset} />
+          <DeleteLeaderboardDatasetButton leaderboardDataset={leaderboardDataset} />
+        </Box>
+      )}
     </Box>
   );
+};
 
 const Datasets = ({ datasets = [], isLoading }) =>
   isLoading ? (
@@ -54,7 +58,11 @@ const LeaderboardDatasetDetails = ({ leaderboard, leaderboardDataset, leaderboar
   return (
     <Stack overflow="auto" flexGrow={1} spacing={1}>
       <div>
-        <Title leaderboard={leaderboard} leaderboardDataset={leaderboardDataset} isLoading={isGetLeaderboardDatasetLoading} />
+        {isGetLeaderboardDatasetLoading ? (
+          <TypographyLoader />
+        ) : (
+          <Title leaderboard={leaderboard} leaderboardDataset={leaderboardDataset} isLoading={isGetLeaderboardDatasetLoading} />
+        )}
       </div>
       <div>
         <Datasets datasets={leaderboardDataset.datasets} isLoading={isGetLeaderboardDatasetLoading} />
