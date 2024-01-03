@@ -61,7 +61,7 @@ const LeaderboardDatasetsListSection = ({
     >
       {selectedLeaderboardDataset &&
         leaderboardDatasets.map((leaderboardDataset) => {
-          const isSelected = leaderboardDataset.name === selectedLeaderboardDataset.name;
+          const isSelected = leaderboardDataset.id === selectedLeaderboardDataset.id;
           return (
             <LeaderboardDatasetCard
               key={leaderboard.id}
