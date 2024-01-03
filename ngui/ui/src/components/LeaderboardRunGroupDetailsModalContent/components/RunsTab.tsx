@@ -15,6 +15,8 @@ import { dataset } from "utils/columns";
 import { SPACING_2 } from "utils/layouts";
 import { formatRunFullName } from "utils/ml";
 
+const RUNS_TABLE_ROWS_PER_PAGE = 10;
+
 const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }) => {
   const tableData = useMemo(() => runsData, [runsData]);
   const formatIntervalTimeAgo = useFormatIntervalTimeAgo();
@@ -99,6 +101,8 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
       localization={{
         emptyMessageId: "noRuns"
       }}
+      pageSize={RUNS_TABLE_ROWS_PER_PAGE}
+      enablePaginationQueryParam={false}
     />
   );
 };
