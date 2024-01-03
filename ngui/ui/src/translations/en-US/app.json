@@ -974,6 +974,7 @@
   "latest": "Latest",
   "launch": "Launch",
   "leaderboard": "Leaderboard",
+  "leaderboardContactManagerMessage": "Please contact your organization manager to setup a leadearboard.",
   "leaderboardQualificationProtocol.coverDatasets": "Run should cover the following datasets:",
   "leaderboardQualificationProtocol.metricRestrictions": "Run should fit the following metric restrictions:",
   "leaderboards": "Leaderboards",
