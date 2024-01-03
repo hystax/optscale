@@ -15,6 +15,15 @@ const dataset = ({ id, accessorFn, accessorKey }) => ({
       <FormattedMessage id="dataset" />
     </TextWithDataTestId>
   ),
+  searchFn: (_, filterValue, { row }) => {
+    const search = filterValue.toLocaleLowerCase();
+
+    const { dataset: rowDataset } = row.original;
+
+    const { name, path, labels = [] } = rowDataset;
+
+    return [name, path, labels.join(" ")].some((str) => str.toLocaleLowerCase().includes(search));
+  },
   cell: ({ row: { original } }) => {
     const { dataset: rowDataset } = original;
 

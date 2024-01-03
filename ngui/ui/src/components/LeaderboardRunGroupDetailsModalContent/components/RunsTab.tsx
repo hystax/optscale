@@ -1,9 +1,9 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, Stack, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
-import DynamicFractionDigitsValue from "components/DynamicFractionDigitsValue";
+import { useFormatDynamicFractionDigitsValue } from "components/DynamicFractionDigitsValue";
 import KeyValueLabel from "components/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import Table from "components/Table";
@@ -17,9 +17,17 @@ import { formatRunFullName } from "utils/ml";
 
 const RUNS_TABLE_ROWS_PER_PAGE = 10;
 
+const useFormatRunTimeAgo = () => {
+  const formatIntervalTimeAgo = useFormatIntervalTimeAgo();
+
+  return useCallback((finish) => formatIntervalTimeAgo(finish, 1), [formatIntervalTimeAgo]);
+};
+
 const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }) => {
   const tableData = useMemo(() => runsData, [runsData]);
-  const formatIntervalTimeAgo = useFormatIntervalTimeAgo();
+
+  const formatRunTimeAgo = useFormatRunTimeAgo();
+  const formatDynamicFractionDigitsValue = useFormatDynamicFractionDigitsValue();
 
   const columns = useMemo(
     () => [
@@ -35,10 +43,17 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
           const search = filterValue.toLocaleLowerCase();
 
           const {
-            original: { runset_name: runsetName = "" }
+            original: { runset_name: runsetName, finish }
           } = row;
 
-          return [runName, runsetName].some((str) => str.toLocaleLowerCase().includes(search));
+          const timeAgo = formatRunTimeAgo(finish);
+
+          return [
+            runName,
+            timeAgo,
+            // runsetName can be null
+            runsetName ?? ""
+          ].some((str) => str.toLocaleLowerCase().includes(search));
         },
         sortingFn: "alphanumeric",
         cell: ({ cell, row: { original } }) => {
@@ -48,7 +63,7 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
             <CaptionedCell
               caption={[
                 {
-                  node: <Typography variant="caption">{formatIntervalTimeAgo(finish, 1)}</Typography>,
+                  node: <Typography variant="caption">{formatRunTimeAgo(finish)}</Typography>,
                   key: "timeAgo"
                 },
                 ...(runsetName
@@ -87,11 +102,16 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
       ...[runGroupPrimaryMetric, ...runGroupSecondaryMetrics].map(({ key, name }) => ({
         header: <TextWithDataTestId dataTestId={`lbl_${key}`}>{name}</TextWithDataTestId>,
         id: key,
+        searchFn: (value, filterValue) => {
+          const search = filterValue.toLocaleLowerCase();
+
+          return formatDynamicFractionDigitsValue({ value }).includes(search);
+        },
         accessorFn: (originalRow) => originalRow.data?.[key]?.value,
-        cell: ({ cell }) => <DynamicFractionDigitsValue value={cell.getValue()} />
+        cell: ({ cell }) => formatDynamicFractionDigitsValue({ value: cell.getValue() })
       }))
     ],
-    [formatIntervalTimeAgo, runGroupPrimaryMetric, runGroupSecondaryMetrics]
+    [formatDynamicFractionDigitsValue, formatRunTimeAgo, runGroupPrimaryMetric, runGroupSecondaryMetrics]
   );
 
   return (
@@ -101,8 +121,10 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
       localization={{
         emptyMessageId: "noRuns"
       }}
+      withSearch
       pageSize={RUNS_TABLE_ROWS_PER_PAGE}
       enablePaginationQueryParam={false}
+      enableSearchQueryParam={false}
     />
   );
 };
