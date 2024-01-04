@@ -25,7 +25,7 @@ def _generate_context(template_params, config_client):
         numbered_dict = {}
         for key, value in params_dict.items():
             if isinstance(value, numbers.Number):
-                numbered_dict[k] = value
+                numbered_dict[key] = value
         return numbered_dict
 
     def update_template_style(numbered_dict):
