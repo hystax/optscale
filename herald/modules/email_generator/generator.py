@@ -16,9 +16,9 @@ def _generate_context(template_params, config_client):
     def update_template(template, params):
         for key, value in params.items():
             if isinstance(value, collections.abc.Mapping):
-                template[k] = update_template(template.get(key, {}), value)
+                template[key] = update_template(template.get(key, {}), value)
             else:
-                template[k] = value
+                template[key] = value
         return template
 
     def get_numbered_params(params_dict):
