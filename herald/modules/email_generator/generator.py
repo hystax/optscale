@@ -32,7 +32,7 @@ def _generate_context(template_params, config_client):
         style = {}
         display_visibility_name = 'element_visibility_%s'
         for key, value in numbered_dict.items():
-            style[display_visibility_name % k] = 'table-row' if value else 'none'
+            style[display_visibility_name % key] = 'table-row' if value else 'none'
         return style
 
     def generate_control_panel_parameters(organization_map):
