@@ -45,13 +45,13 @@ const getData = (breakdown) => {
 
   const totals = tableData.reduce(
     (acc, datum) => ({
-      total_sp_usage_hrs: acc.total_sp_usage_hrs + datum.sp_usage_hrs ?? 0,
-      total_ri_usage_hrs: acc.total_ri_usage_hrs + datum.ri_usage_hrs ?? 0,
-      total_total_usage_hrs: acc.total_total_usage_hrs + datum.total_usage_hrs ?? 0,
-      total_sp_cost_with_offer: acc.total_sp_cost_with_offer + datum.sp_cost_with_offer ?? 0,
-      total_ri_cost_with_offer: acc.total_ri_cost_with_offer + datum.ri_cost_with_offer ?? 0,
-      total_total_cost_with_offer: acc.total_total_cost_with_offer + datum.total_cost_with_offer ?? 0,
-      total_total_cost_without_offer: acc.total_total_cost_without_offer + datum.total_cost_without_offer ?? 0
+      total_sp_usage_hrs: acc.total_sp_usage_hrs + datum.sp_usage_hrs || 0,
+      total_ri_usage_hrs: acc.total_ri_usage_hrs + datum.ri_usage_hrs || 0,
+      total_total_usage_hrs: acc.total_total_usage_hrs + datum.total_usage_hrs || 0,
+      total_sp_cost_with_offer: acc.total_sp_cost_with_offer + datum.sp_cost_with_offer || 0,
+      total_ri_cost_with_offer: acc.total_ri_cost_with_offer + datum.ri_cost_with_offer || 0,
+      total_total_cost_with_offer: acc.total_total_cost_with_offer + datum.total_cost_with_offer || 0,
+      total_total_cost_without_offer: acc.total_total_cost_without_offer + datum.total_cost_without_offer || 0
     }),
     {
       total_sp_usage_hrs: 0,

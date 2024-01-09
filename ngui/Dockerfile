@@ -15,8 +15,8 @@ COPY ngui/ui/package.json ./package.json
 COPY ngui/ui/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY ngui/ui/ ./
-# .eslintrc.js on build step will produce an error, but it is still needed on testing
-RUN mv .eslintrc.js .disabled.eslintrc.js
+# .eslintrc.cjs on build step will produce an error, but it is still needed on testing
+RUN mv .eslintrc.cjs .disabled.eslintrc.cjs
 RUN pnpm build && rm -rf node_modules
 
 # -------- Server --------
