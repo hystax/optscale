@@ -1,4 +1,3 @@
-import React from "react";
 import StagesAndMilestonesContainer from "containers/StagesAndMilestonesContainer";
 import BaseSideModal from "./BaseSideModal";
 

@@ -1,4 +1,3 @@
-import React from "react";
 import { FormControl, FormControlLabel, Switch, Typography } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { FormattedMessage } from "react-intl";

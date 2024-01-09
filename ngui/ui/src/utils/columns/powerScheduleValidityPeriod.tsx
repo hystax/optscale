@@ -1,4 +1,3 @@
-import React from "react";
 import { FormattedMessage } from "react-intl";
 import PowerScheduleValidityPeriod, { stringifiedPowerScheduleValidityPeriod } from "components/PowerScheduleValidityPeriod";
 import TextWithDataTestId from "components/TextWithDataTestId";

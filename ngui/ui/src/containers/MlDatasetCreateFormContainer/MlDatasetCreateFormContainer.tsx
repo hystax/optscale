@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { MlDatasetCreateForm } from "components/MlDatasetForm";
 import MlDatasetsService from "services/MlDatasetsService";

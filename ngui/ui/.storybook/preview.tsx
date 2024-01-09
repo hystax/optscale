@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import intlConfig from "../src/translations/react-intl-config";
 import { MockState } from "../src/utils/MockState";

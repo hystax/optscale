@@ -1,4 +1,3 @@
-import React from "react";
 import { Autocomplete } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";

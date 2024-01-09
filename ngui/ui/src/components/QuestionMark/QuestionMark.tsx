@@ -1,4 +1,4 @@
-import React from "react";
+import { MouseEvent, ReactNode, ComponentType } from "react";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SvgIconProps } from "@mui/material";
 import { FormattedMessage } from "react-intl";
@@ -7,7 +7,7 @@ import useStyles from "./QuestionMark.styles";
 
 type TooltipTitleType =
   | {
-      tooltipText: React.ReactNode;
+      tooltipText: ReactNode;
       messageId?: never;
       messageValues?: never;
       onTooltipTitleClick?: never;
@@ -16,7 +16,7 @@ type TooltipTitleType =
       tooltipText?: never;
       messageId: string;
       messageValues?: { [key: string]: string };
-      onTooltipTitleClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+      onTooltipTitleClick?: (event: MouseEvent<HTMLDivElement>) => void;
     };
 
 type QuestionMarkProps = {
@@ -24,7 +24,7 @@ type QuestionMarkProps = {
   rightSide?: boolean;
   dataTestId?: string;
   className?: string;
-  Icon?: React.ComponentType<SvgIconProps>;
+  Icon?: ComponentType<SvgIconProps>;
   color?: SvgIconProps["color"];
   withLeftMargin?: boolean;
 } & TooltipTitleType;

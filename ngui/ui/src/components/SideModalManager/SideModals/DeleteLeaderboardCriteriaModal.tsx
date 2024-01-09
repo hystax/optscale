@@ -1,4 +1,3 @@
-import React from "react";
 import DeleteLeaderboardDatasetContainer from "containers/DeleteLeaderboardDatasetContainer";
 import BaseSideModal from "./BaseSideModal";
 

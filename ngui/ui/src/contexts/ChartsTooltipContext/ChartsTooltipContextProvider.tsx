@@ -1,4 +1,3 @@
-import React from "react";
 import ChartsTooltipContext from "./ChartsTooltipContext";
 
 const ChartsTooltipContextProvider = ({ children, setMousePosition, mousePosition }) => (

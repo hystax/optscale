@@ -1,4 +1,3 @@
-import React from "react";
 import { FormattedMessage } from "react-intl";
 import CollapsableTableCell from "components/CollapsableTableCell";
 import TextWithDataTestId from "components/TextWithDataTestId";

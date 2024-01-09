@@ -1,4 +1,3 @@
-import React from "react";
 import CloneLeaderboardDatasetFormContainer from "containers/CloneLeaderboardDatasetFormContainer";
 import BaseSideModal from "./BaseSideModal";
 

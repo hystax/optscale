@@ -1,4 +1,3 @@
-import React from "react";
 import { Stack } from "@mui/system";
 import ActionBar from "components/ActionBar";
 import MlDatasetsTable from "components/MlDatasetsTable";

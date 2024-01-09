@@ -1,9 +1,9 @@
-import React from "react";
+import { ReactNode } from "react";
 import { FormattedMessage } from "react-intl";
 
 type TextWithDataTestIdProps = {
   dataTestId: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
   messageId?: string;
 };
 

@@ -1,4 +1,3 @@
-import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
 import InputLoader from "components/InputLoader";

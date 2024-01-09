@@ -1,4 +1,3 @@
-import React from "react";
 import DeleteMlChartsDashboardContainer from "containers/DeleteMlChartsDashboardContainer";
 import BaseSideModal from "./BaseSideModal";
 

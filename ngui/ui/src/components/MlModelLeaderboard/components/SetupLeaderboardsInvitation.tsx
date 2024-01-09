@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Stack } from "@mui/material";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useParams } from "react-router-dom";

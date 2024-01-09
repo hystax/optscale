@@ -1,4 +1,3 @@
-import React from "react";
 import { FormattedMessage } from "react-intl";
 import LeaderboardRunGroupDetailsModalContent from "components/LeaderboardRunGroupDetailsModalContent";
 import BaseSideModal from "./BaseSideModal";

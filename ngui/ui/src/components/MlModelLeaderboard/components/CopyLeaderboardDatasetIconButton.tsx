@@ -1,4 +1,3 @@
-import React from "react";
 import FileCopyOutlinedIcon from "@mui/icons-material/FileCopyOutlined";
 import IconButton from "components/IconButton";
 import { CloneLeaderboardDatasetModal } from "components/SideModalManager/SideModals";

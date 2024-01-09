@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LeaderboardDatasets } from "components/MlModelLeaderboard/components";
 import TableLoader from "components/TableLoader";
 import MlLeaderboardsService from "services/MlLeaderboardsService";

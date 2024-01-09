@@ -1,4 +1,3 @@
-import React from "react";
 import MlDatasets from "components/MlDatasets";
 import MlDatasetsService from "services/MlDatasetsService";
 

@@ -1,4 +1,3 @@
-import React from "react";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import IconButton from "components/IconButton";
 import { EditLeaderboardDatasetModal } from "components/SideModalManager/SideModals";

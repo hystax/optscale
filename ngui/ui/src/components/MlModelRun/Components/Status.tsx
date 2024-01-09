@@ -1,4 +1,3 @@
-import React from "react";
 import FormattedDuration from "components/FormattedDuration";
 import MlRunStatus from "components/MlRunStatus";
 import SummaryGrid from "components/SummaryGrid";
