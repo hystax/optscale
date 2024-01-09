@@ -4,6 +4,7 @@ import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { RAW_EXPENSES } from "reducers/columns";
 import { STATIC_RAW_EXPENSES_COLUMNS } from "reducers/columns/utils";
+import { LAYOUT_TYPES } from "utils/constants";
 import { isObject } from "utils/objects";
 
 const getUniqueFields = (expenses) => expenses.reduce((res, curr) => [...new Set([...res, ...Object.keys(curr)])], []).sort();
@@ -64,6 +65,7 @@ const RawExpensesTable = ({ expenses, isLoading }) => {
       withSearch
       counters={{ showCounters: true }}
       columnsSelectorUID={RAW_EXPENSES}
+      columnSetsSelectorId={LAYOUT_TYPES.RESOURCE_RAW_EXPENSES_COLUMNS}
     />
   );
 };

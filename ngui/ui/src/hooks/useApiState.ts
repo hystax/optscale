@@ -2,7 +2,16 @@ import { useSelector } from "react-redux";
 import { hashParams } from "api/utils";
 import { isError as getIsError, isTtlExpired } from "utils/api";
 
-export const useApiState = (targetAction, requestParams) => {
+export const useApiState = (
+  targetAction: string,
+  requestParams?: { [key: string]: unknown }
+): {
+  isLoading: boolean;
+  isError: boolean;
+  shouldInvoke: boolean;
+  entityId: string;
+  isDataReady: boolean;
+} => {
   const isLoading = useSelector((state) => state.api?.[targetAction]?.isLoading ?? false);
 
   const isError = useSelector((state) => getIsError(targetAction, state) ?? false);

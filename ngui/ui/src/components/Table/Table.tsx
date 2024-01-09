@@ -74,6 +74,7 @@ const Table = ({
   onExpandedChange,
   actionBar,
   columnsSelectorUID,
+  columnSetsSelectorId,
   columnOrder,
   onColumnOrderChange,
   stickySettings = {},
@@ -220,6 +221,7 @@ const Table = ({
         rangeFilter={rangeFilter}
         tableContext={table}
         columnsSelectorUID={columnsSelectorUID}
+        columnSetsSelectorId={columnSetsSelectorId}
         /**
          * TODO: Split dataTestIds and pass only what belongs to TableActions
          */

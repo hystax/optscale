@@ -2,6 +2,7 @@ import { Slider } from "@mui/material";
 import Box from "@mui/material/Box";
 import ActionBar from "components/ActionBar";
 import SearchInput from "components/SearchInput";
+import ColumnSets from "../ColumnSets";
 import ColumnsSelector from "../ColumnsSelector";
 import useStyles from "./TableActions.styles";
 
@@ -47,6 +48,7 @@ const TableActions = ({
   rangeValue,
   tableContext,
   columnsSelectorUID,
+  columnSetsSelectorId,
   dataTestIds = {}
 }) => {
   const { classes } = useStyles();
@@ -54,9 +56,10 @@ const TableActions = ({
   const { columnsSelector: columnsSelectorTestIds = {} } = dataTestIds;
   const { show: showActionBar = false, definition: actionBarDefinition } = actionBar;
 
-  const showColumnsSelector = !!columnsSelectorUID;
+  const withColumnsSelector = !!columnsSelectorUID;
+  const withColumnSetsSelector = !!columnSetsSelectorId;
 
-  const gotSomethingToDisplay = showActionBar || withSearch || showColumnsSelector;
+  const gotSomethingToDisplay = showActionBar || withSearch || withColumnsSelector || withColumnSetsSelector;
 
   /**
    * TODO: Do not render TableActions completely if there is nothing to display
@@ -74,9 +77,19 @@ const TableActions = ({
           selectedRowsCount={selectedRowsCount}
         />
       )}
-      <Box style={{ marginLeft: showActionBar ? "" : "auto", display: "flex", flexWrap: "nowrap" }}>
+      <Box
+        sx={{
+          marginLeft: showActionBar ? "" : "auto",
+          display: "flex",
+          flexWrap: withSearch && withColumnSetsSelector && withColumnsSelector ? "wrap" : "nowrap",
+          gap: 1
+        }}
+      >
         {withSearch && <SearchInput onSearch={onSearchChange} initialSearchText={searchValue} dataTestIds={dataTestIds} />}
-        {showColumnsSelector && <ColumnsSelector tableContext={tableContext} dataTestIds={columnsSelectorTestIds} />}
+        <Box display="flex" flexWrap="nowrap">
+          {withColumnsSelector && <ColumnsSelector tableContext={tableContext} dataTestIds={columnsSelectorTestIds} />}
+          {withColumnSetsSelector && <ColumnSets tableContext={tableContext} />}
+        </Box>
       </Box>
       {!!rangeFilter && (
         <Box flexGrow={1} px={2}>

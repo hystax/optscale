@@ -924,5 +924,6 @@ export const ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH = Object.freeze({
 });
 
 export const LAYOUT_TYPES = Object.freeze({
-  ML_RUN_CHARTS_DASHBOARD: "ml_run_charts_dashboard"
+  ML_RUN_CHARTS_DASHBOARD: "ml_run_charts_dashboard",
+  RESOURCE_RAW_EXPENSES_COLUMNS: "resource_raw_expenses_columns"
 });
