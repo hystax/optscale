@@ -90,9 +90,8 @@ class Configurator(object):
         if self.config.get('skip_config_update', False):
             LOG.info('Only making structure updates')
             self.etcd_cl.update_structure('/', config, always_update=[
-                '/cloud_agent_services',
                 '/cluster_capabilities/supported_clouds',
-                '/cluster_capabilities/common/acura_version',
+                '/cluster_capabilities/common/optscale_version',
             ])
             self.commit_config()
             return
