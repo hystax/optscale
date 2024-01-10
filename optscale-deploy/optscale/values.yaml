@@ -188,6 +188,9 @@ elk:
     logstash_udp_port: 12201
     internal_kibana_port: 80
     external_kibana_port: 30081
+  env:
+    htpasswd_user: userforelk
+    htpasswd_pass: passwordforelk
 
 ngui:
   name: &ngui_name ngui
@@ -386,6 +389,9 @@ grafana:
       repository: grafana_nginx
       tag: *tag
       pullPolicy: Never
+  env:
+    htpasswd_user: userforgrafana
+    htpasswd_pass: passwordforgrafana
 
 insider_scheduler:
   name: insider-scheduler
