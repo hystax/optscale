@@ -510,7 +510,8 @@ const getThemeConfig = (settings = {}) => {
           root: {
             "&:hover": {
               color: text.primary,
-              "& svg": {
+              // Apply color only to the sort arrow icon
+              "> svg:last-child": {
                 color: primary.main
               }
             },

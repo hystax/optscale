@@ -1,4 +1,3 @@
-import React from "react";
 import LeaderboardDatasetDetails from "components/LeaderboardDatasetDetails";
 import MlLeaderboardsService from "services/MlLeaderboardsService";
 

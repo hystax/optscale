@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SetupLeaderboard from "components/SetupLeaderboard";
 import { FIELD_NAMES } from "components/SetupLeaderboardsForm";

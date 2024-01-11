@@ -78,6 +78,10 @@ spec:
           value: {{ $config.ls_heap_size }}
         - name: ES_HEAP_SIZE
           value: {{ $config.es_heap_size }}
+        - name: HTPASSWD_USER
+          value: {{ $config.env.htpasswd_user }}
+        - name: HTPASSWD_PASS
+          value: {{ $config.env.htpasswd_pass }}
         ports:
         - containerPort: {{ $config.service.logstash_udp_port }}
           protocol: UDP

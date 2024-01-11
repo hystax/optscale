@@ -330,9 +330,6 @@ class Client(etcd.Client):
     def cluster_secret(self):
         return self.get("/secret/cluster").value
 
-    def agent_secret(self):
-        return self.get("/secret/agent").value
-
     @retry(**DEFAULT_RETRY_ARGS, retry_on_exception=_should_retry)
     def increase_and_return(self, key, max_value=50000):
         """

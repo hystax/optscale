@@ -1,3 +1,3 @@
-import React from "react";
+import { createContext } from "react";
 
-export default React.createContext({ setMousePosition: undefined, mousePosition: undefined });
+export default createContext({ setMousePosition: undefined, mousePosition: undefined });

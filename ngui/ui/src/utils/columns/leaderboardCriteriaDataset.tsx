@@ -1,4 +1,3 @@
-import React from "react";
 import { Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";

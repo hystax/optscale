@@ -1,4 +1,3 @@
-import React from "react";
 import SaveMlChartsDashboardForm from "components/SaveMlChartsDashboardForm";
 import LayoutsService from "services/LayoutsService";
 

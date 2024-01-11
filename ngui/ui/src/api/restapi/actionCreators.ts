@@ -2700,6 +2700,7 @@ export const getLayout = (organizationId, layoutId) =>
     method: "GET",
     hash: hashParams({ organizationId, layoutId }),
     onSuccess: handleSuccess(SET_LAYOUT),
+    entityId: layoutId,
     label: GET_LAYOUT,
     ttl: 5 * MINUTE
   });
@@ -2738,5 +2739,6 @@ export const deleteLayout = (organizationId, layoutId) =>
     url: `${API_URL}/organizations/${organizationId}/layouts/${layoutId}`,
     method: "DELETE",
     label: DELETE_LAYOUT,
-    affectedRequests: [GET_LAYOUTS]
+    affectedRequests: [GET_LAYOUTS],
+    entityId: layoutId
   });

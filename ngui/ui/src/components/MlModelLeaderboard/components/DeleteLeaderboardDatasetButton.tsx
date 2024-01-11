@@ -1,4 +1,3 @@
-import React from "react";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import IconButton from "components/IconButton";
 import { DeleteLeaderboardCriteriaModal } from "components/SideModalManager/SideModals";

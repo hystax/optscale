@@ -1,4 +1,3 @@
-import React from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import ButtonLoader from "components/ButtonLoader";

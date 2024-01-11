@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Box } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import SetupLeaderboardsForm, { FIELD_NAMES } from "components/SetupLeaderboardsForm";

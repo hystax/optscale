@@ -13,7 +13,7 @@ function join {
 HOSTNAME=$(hostname)
 # Parse out cluster name, formatted as: petset_name-index
 IFS='-' read -ra ADDR <<< "$(hostname)"
-CLUSTER_NAME="acura_galera"
+CLUSTER_NAME="optscale_galera"
 
 while read -ra LINE; do
     if [[ "${LINE}" == *"${HOSTNAME}"* ]]; then

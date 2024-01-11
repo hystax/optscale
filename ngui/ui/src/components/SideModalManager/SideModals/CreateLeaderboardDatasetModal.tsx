@@ -1,4 +1,3 @@
-import React from "react";
 import CreateLeaderboardDatasetFormContainer from "containers/CreateLeaderboardDatasetFormContainer";
 import BaseSideModal from "./BaseSideModal";
 

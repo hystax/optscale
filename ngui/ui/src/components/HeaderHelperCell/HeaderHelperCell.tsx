@@ -1,9 +1,9 @@
-import React from "react";
+import { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import { useIntl } from "react-intl";
 import QuestionMark from "components/QuestionMark";
 
-type TitleType = { title: React.ReactNode; titleMessageId?: never } | { title?: never; titleMessageId: string };
+type TitleType = { title: ReactNode; titleMessageId?: never } | { title?: never; titleMessageId: string };
 
 type HeaderHelperCellProps = {
   helperMessageId: string;

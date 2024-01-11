@@ -1,4 +1,3 @@
-import React from "react";
 import DeleteEntity from "components/DeleteEntity";
 import LayoutsService from "services/LayoutsService";
 

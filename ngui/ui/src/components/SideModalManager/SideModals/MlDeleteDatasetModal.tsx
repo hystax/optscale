@@ -1,4 +1,3 @@
-import React from "react";
 import MlDeleteDatasetContainer from "containers/MlDeleteDatasetContainer";
 import BaseSideModal from "./BaseSideModal";
 

@@ -1,4 +1,3 @@
-import React from "react";
 import { getMilestoneTuplesGroupedByTime } from "components/ExecutionBreakdown/utils";
 import StagesAndMilestones from "components/StagesAndMilestones";
 import { getData } from "containers/ExecutionBreakdownContainer/utils";

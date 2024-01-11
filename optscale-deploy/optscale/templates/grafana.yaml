@@ -80,6 +80,11 @@ spec:
         imagePullPolicy: {{ $config.grafana_nginx.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
+        env:
+          - name: HTPASSWD_USER
+            value: {{ $config.env.htpasswd_user }}
+          - name: HTPASSWD_PASS
+            value: {{ $config.env.htpasswd_pass }}
 {{ include "ready_probe" $config | indent 8 }}
       volumes:
       - name: shared

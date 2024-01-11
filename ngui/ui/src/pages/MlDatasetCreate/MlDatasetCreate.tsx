@@ -1,4 +1,3 @@
-import React from "react";
 import MlDatasetCreateComponent from "components/MlDatasetCreate";
 import Protector from "components/Protector";
 

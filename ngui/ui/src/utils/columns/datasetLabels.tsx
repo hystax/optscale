@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import LabelChip from "components/LabelChip";

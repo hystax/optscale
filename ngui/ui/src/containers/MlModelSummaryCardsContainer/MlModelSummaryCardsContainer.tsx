@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import ModelSummaryGrid from "components/MlModelDetails/ModelSummaryGrid";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";

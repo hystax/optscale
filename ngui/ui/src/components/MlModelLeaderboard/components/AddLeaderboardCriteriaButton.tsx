@@ -1,4 +1,3 @@
-import React from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import Button from "components/Button";
 import { CreateLeaderboardDatasetModal } from "components/SideModalManager/SideModals";

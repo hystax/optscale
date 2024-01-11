@@ -96,3 +96,13 @@ ngui:
     google_map_api_key: ""
     ganalytics_id: ""
     hotjar_id: ""
+
+elk:
+  env:
+    htpasswd_user: userforelk
+    htpasswd_pass: passwordforelk
+
+grafana:
+  env:
+    htpasswd_user: userforgrafana
+    htpasswd_pass: passwordforgrafana

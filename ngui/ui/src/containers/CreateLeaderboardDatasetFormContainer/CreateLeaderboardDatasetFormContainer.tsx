@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import LeaderboardDatasetForm, { FIELD_NAMES } from "components/LeaderboardDatasetForm";
 import MlDatasetsService from "services/MlDatasetsService";
 import MlLeaderboardsService from "services/MlLeaderboardsService";

@@ -1,4 +1,3 @@
-import React from "react";
 import TableLoader from "components/TableLoader";
 import MlModelLeaderboardDatasetsContainer from "containers/MlModelLeaderboardDatasetsContainer";
 import { SetupLeaderboardsInvitation } from "./components";

@@ -6,6 +6,7 @@ import BucketDuplicatesModal from "./BucketDuplicatesModal";
 import CiCdIntegrationModal from "./CiCdIntegrationModal";
 import CloneLeaderboardDatasetModal from "./CloneLeaderboardDatasetModal";
 import CloudCostComparisonModal from "./CloudCostComparisonModal";
+import ColumnSetsModal from "./ColumnSetsModal";
 import ConnectGoogleCalendarModal from "./ConnectGoogleCalendarModal";
 import CreateLeaderboardDatasetModal from "./CreateLeaderboardDatasetModal";
 import CreateOrganizationModal from "./CreateOrganizationModal";
@@ -119,5 +120,6 @@ export {
   DeleteLeaderboardCriteriaModal,
   RenameMlRunChartModal,
   SaveMlChartsDashboard,
-  DeleteMlChartsDashboard
+  DeleteMlChartsDashboard,
+  ColumnSetsModal
 };

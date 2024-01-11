@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import MlModelLeaderboard from "components/MlModelLeaderboard";
 import MlLeaderboardsService from "services/MlLeaderboardsService";

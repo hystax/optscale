@@ -1,4 +1,3 @@
-import React from "react";
 import KeyValueLabel from "components/KeyValueLabel";
 import LineChart from "components/LineChart";
 import { EN_FORMAT_SHORT_YEAR, formatUTC } from "utils/datetime";

@@ -1,4 +1,3 @@
-import React from "react";
 import { FormattedMessage } from "react-intl";
 import { intl } from "translations/react-intl-config";
 import { EN_FORMAT, unixTimestampToDateTime } from "utils/datetime";

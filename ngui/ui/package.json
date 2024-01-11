@@ -30,7 +30,7 @@
     "@uiw/react-textarea-code-editor": "^2.1.1",
     "@visx/brush": "^2.12.2",
     "@visx/group": "2.10.0",
-    "@vitejs/plugin-react-swc": "^3.4.1",
+    "@vitejs/plugin-react-swc": "^3.5.0",
     "ajv": "^8.12.0",
     "analytics": "^0.8.1",
     "axios": "^1.6.2",
@@ -76,8 +76,13 @@
     "typescript": "^5.3.3",
     "unist-util-visit": "^5.0.0",
     "uuid": "^9.0.0",
-    "vite": "^4.5.0",
-    "vite-tsconfig-paths": "^4.2.2"
+    "vite": "^5.0.11",
+    "vite-tsconfig-paths": "^4.2.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "d3-color": "^3.1.0"
+    }
   },
   "scripts": {
     "start": "vite",
@@ -119,9 +124,10 @@
     "@storybook/addon-links": "^7.6.5",
     "@storybook/addons": "^7.6.5",
     "@storybook/react": "^7.6.5",
-    "@storybook/react-vite": "^7.6.5",
+    "@storybook/react-vite": "^7.6.6",
     "@storybook/theming": "^7.6.5",
     "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "eslint": "^8.56.0",
@@ -131,7 +137,6 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-storybook": "^0.6.15",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "fs-extra": "^11.2.0",
     "glob": "^10.3.10",
     "jsdom": "^22.1.0",
     "prettier": "^3.1.1",

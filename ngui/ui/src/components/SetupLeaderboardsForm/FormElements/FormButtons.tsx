@@ -1,4 +1,3 @@
-import React from "react";
 import Button from "components/Button";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import SubmitButtonLoader from "components/SubmitButtonLoader";
