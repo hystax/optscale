@@ -164,7 +164,6 @@ const Breakdown = ({ runs }) => {
 
   const { selectedBreakdowns, addBreakdown, removeBreakdown } = useModelBreakdownState({
     taskId,
-    storeId: "model_runs",
     breakdownNames,
     initialSelectedBreakdowns: goalsBreakdownNames,
     fallbackBreakdowns: [METRIC_BREAKDOWN_NAME.DURATION, METRIC_BREAKDOWN_NAME.EXPENSES],

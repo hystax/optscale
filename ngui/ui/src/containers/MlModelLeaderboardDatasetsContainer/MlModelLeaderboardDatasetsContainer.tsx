@@ -1,29 +1,32 @@
-import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { LeaderboardDatasets } from "components/MlModelLeaderboard/components";
 import TableLoader from "components/TableLoader";
+import { useModelSelectedLeaderboardDatasetId } from "reducers/modelBreakdown/useModelSelectedLeaderboardDatasetId";
 import MlLeaderboardsService from "services/MlLeaderboardsService";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 
 const MlModelLeaderboardDatasetsContainer = ({ leaderboard }) => {
+  const { taskId } = useParams();
+
   const { useGetLeaderboardDatasets } = MlLeaderboardsService();
 
   const { isLoading, leaderboardDatasets } = useGetLeaderboardDatasets(leaderboard.id);
 
-  const [selectedLeaderboardDataset, setSelectedLeaderboardDataset] = useState(null);
+  const { selectedLeaderboardDatasetId, onSelectionChange } = useModelSelectedLeaderboardDatasetId(taskId as string);
 
-  useEffect(() => {
-    setSelectedLeaderboardDataset((currentlySelectedDataset) => {
-      if (isEmptyArray(leaderboardDatasets)) {
-        return null;
-      }
+  const getSelectedLeaderboardDataset = () => {
+    if (isEmptyArray(leaderboardDatasets)) {
+      return null;
+    }
 
-      const updatedCurrentlySelectedDataset = currentlySelectedDataset
-        ? leaderboardDatasets.find(({ id }) => id === currentlySelectedDataset.id)
-        : null;
+    const selectedLeaderboardDataset = leaderboardDatasets.find(({ id }) => id === selectedLeaderboardDatasetId);
 
-      return updatedCurrentlySelectedDataset || leaderboardDatasets[0];
-    });
-  }, [leaderboardDatasets]);
+    if (selectedLeaderboardDataset) {
+      return selectedLeaderboardDataset;
+    }
+
+    return leaderboardDatasets[0];
+  };
 
   return isLoading ? (
     <TableLoader />
@@ -31,8 +34,10 @@ const MlModelLeaderboardDatasetsContainer = ({ leaderboard }) => {
     <LeaderboardDatasets
       leaderboard={leaderboard}
       leaderboardDatasets={leaderboardDatasets}
-      selectedLeaderboardDataset={selectedLeaderboardDataset}
-      onSelectedLeaderboardDashboardChange={setSelectedLeaderboardDataset}
+      selectedLeaderboardDataset={getSelectedLeaderboardDataset()}
+      onSelectedLeaderboardDatasetIdChange={(newLeaderboardDatasetId) => {
+        onSelectionChange(newLeaderboardDatasetId);
+      }}
     />
   );
 };

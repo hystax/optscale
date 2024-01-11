@@ -1,6 +1,14 @@
-import { SET_MODEL_OVERVIEW_CHART } from "./actionTypes";
+import { SET_LEADERBOARD_DATASET, SET_MODEL_OVERVIEW_CHART } from "./actionTypes";
 
-export const setModelOverviewChart = (storeId, taskId, breakdowns) => ({
+export const setModelOverviewChart = (taskId: string, breakdowns: string[]) => ({
   type: SET_MODEL_OVERVIEW_CHART,
-  payload: { storeId, id: taskId, breakdowns }
+  payload: { id: taskId, breakdowns }
+});
+
+export const setModelLeaderboardDataset = (taskId: string, leaderboardDatasetId: string) => ({
+  type: SET_LEADERBOARD_DATASET,
+  payload: {
+    taskId,
+    leaderboardDatasetId
+  }
 });
