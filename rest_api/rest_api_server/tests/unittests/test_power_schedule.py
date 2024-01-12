@@ -519,3 +519,22 @@ class TestPowerSchedule(TestApiBase):
         code, _ = self.client.get(
             self.client.power_schedules_actions_url(id_='test'), {})
         self.assertEqual(code, 405)
+
+    def test_update_ps_with_res_with_policy(self):
+        code, schedule = self.client.power_schedule_create(
+            self.org_id_1, self.valid_ps)
+        self.assertEqual(201, code)
+        policy = {
+            'limit': 0,
+            'type': 'ttl'
+        }
+        code, policy = self.client.pool_policy_create(
+            self.org['pool_id'], policy)
+        self.assertEqual(code, 201)
+        self.create_cloud_resource(
+            self.cloud_acc['id'], active=True, pool_id=self.org['pool_id'],
+            power_schedule=schedule['id'])
+        code, resp = self.client.power_schedule_update(schedule['id'],
+                                                       {'name': 'new name'})
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['resources'][0]['details']['policies']), 1)

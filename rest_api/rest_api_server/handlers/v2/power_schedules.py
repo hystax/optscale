@@ -433,7 +433,7 @@ class PowerSchedulesAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
         data = self._request_body()
         result = await run_task(
             self.controller.edit, power_schedule_id, **data)
-        self.write(result)
+        self.write(json.dumps(result, cls=ModelEncoder))
 
     async def delete(self, power_schedule_id, **kwargs):
         """
