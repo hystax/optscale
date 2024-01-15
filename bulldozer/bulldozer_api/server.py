@@ -8,7 +8,9 @@ from sanic.response import json
 from sanic.log import logger
 from sanic.exceptions import SanicException
 import motor.motor_asyncio
-
+from etcd import Lock as EtcdLock, Client as EtcdClient
+from mongodb_migrations.cli import MigrationManager
+from mongodb_migrations.config import Configuration
 
 from bulldozer.bulldozer_api.cost_calc import CostCalc
 from bulldozer.bulldozer_api.producer import TaskProducer
@@ -62,10 +64,10 @@ async def get_cluster_secret() -> str:
     return await config_client.cluster_secret()
 
 
-name, password, host, port, db = get_db_params()
+name, password, host, port, db_name = get_db_params()
 uri = f"mongodb://{name}:{password}@{host}:{port}/admin"
 client = motor.motor_asyncio.AsyncIOMotorClient(uri)
-db = client[db]
+db = client[db_name]
 
 cost_calc = CostCalc()
 
@@ -864,4 +866,18 @@ async def update_runner(request, id_: str):
 
 
 if __name__ == '__main__':
+    logger.info('Waiting for migration lock')
+    # trick to lock migrations
+    with EtcdLock(EtcdClient(host=etcd_host, port=etcd_port),
+                  'bulldozer_migrations'):
+        config_params = {
+            'mongo_username': name,
+            'mongo_password': password,
+            'mongo_url': "mongodb://{host}:{port}/admin".format(
+                host=host, port=port),
+            'mongo_database': db_name
+        }
+        manager = MigrationManager(config=Configuration(config=config_params))
+        manager.run()
+    logger.info('Starting server')
     app.run(host='0.0.0.0', port=8896)

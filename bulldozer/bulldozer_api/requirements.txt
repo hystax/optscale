@@ -3,6 +3,7 @@ sanic==22.6.2
 motor==3.0.0
 websockets==10.4
 kombu==4.6.8
+mongodb-migrations==1.2.1
 # OptScale packages
 -e optscale_client/config_client
 -e optscale_client/insider_client
