@@ -23,7 +23,7 @@ const LeaderboardDatasetsListSection = ({
   leaderboard,
   leaderboardDatasets,
   selectedLeaderboardDataset,
-  onSelectedLeaderboardDashboardChange
+  onSelectedLeaderboardDatasetIdChange
 }) => {
   const isAddLeaderboardCriteriaAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
 
@@ -69,18 +69,17 @@ const LeaderboardDatasetsListSection = ({
           }
         }}
       >
-        {selectedLeaderboardDataset &&
-          leaderboardDatasets.map((leaderboardDataset) => {
-            const isSelected = leaderboardDataset.id === selectedLeaderboardDataset.id;
-            return (
-              <LeaderboardDatasetCard
-                key={leaderboard.id}
-                leaderboardDataset={leaderboardDataset}
-                onClick={() => onSelectedLeaderboardDashboardChange(leaderboardDataset)}
-                selected={isSelected}
-              />
-            );
-          })}
+        {leaderboardDatasets.map((leaderboardDataset) => {
+          const isSelected = selectedLeaderboardDataset && leaderboardDataset.id === selectedLeaderboardDataset.id;
+          return (
+            <LeaderboardDatasetCard
+              key={leaderboard.id}
+              leaderboardDataset={leaderboardDataset}
+              onClick={() => onSelectedLeaderboardDatasetIdChange(leaderboardDataset.id)}
+              selected={isSelected}
+            />
+          );
+        })}
       </Box>
     </Box>
   );
@@ -89,7 +88,7 @@ const LeaderboardDatasetsListSection = ({
 const LeaderboardDatasets = ({
   leaderboard,
   leaderboardDatasets = [],
-  onSelectedLeaderboardDashboardChange,
+  onSelectedLeaderboardDatasetIdChange,
   selectedLeaderboardDataset
 }) => (
   <Box
@@ -112,7 +111,7 @@ const LeaderboardDatasets = ({
           leaderboard={leaderboard}
           leaderboardDatasets={leaderboardDatasets}
           selectedLeaderboardDataset={selectedLeaderboardDataset}
-          onSelectedLeaderboardDashboardChange={onSelectedLeaderboardDashboardChange}
+          onSelectedLeaderboardDatasetIdChange={onSelectedLeaderboardDatasetIdChange}
         />
         {selectedLeaderboardDataset && (
           <LeaderboardDatasetDetailsContainer leaderboard={leaderboard} leaderboardDatasetId={selectedLeaderboardDataset.id} />

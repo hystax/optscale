@@ -1,7 +1,28 @@
+import { type ReactNode } from "react";
 import { Card, CardActions, CardContent, Link, Skeleton, Typography } from "@mui/material";
 import useStyles from "./RecommendationCard.styles";
 
-const RecommendationCard = ({ color, header, description, cta, onCtaClick, menu, children, isLoading = false }) => {
+type RecommendationCardProps = {
+  color?: "primary" | "secondary" | "info" | "success" | "error" | "warning";
+  header?: ReactNode;
+  description?: ReactNode;
+  cta?: ReactNode;
+  onCtaClick?: () => void;
+  menu?: ReactNode;
+  children?: ReactNode;
+  isLoading?: boolean;
+};
+
+const RecommendationCard = ({
+  color,
+  header,
+  description,
+  cta,
+  onCtaClick,
+  menu,
+  children,
+  isLoading = false
+}: RecommendationCardProps) => {
   const { classes } = useStyles(color);
 
   return (
