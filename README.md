@@ -10,7 +10,7 @@ OptScale is an open source MLOps platform that provides experiment tracking, mod
 <br>
 <br>
 <p align="center">
-<a href="https://my.optscale.com/live-demo"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
+<a href="https://my.optscale.com/live-demo?emailbypass=true&utm_source=github&utm_medium=readme"><img src="documentation/images/button-live-demo-github.svg" width="25%" align="middle"></a>
 </p>
 <br>
 <div align="center">
