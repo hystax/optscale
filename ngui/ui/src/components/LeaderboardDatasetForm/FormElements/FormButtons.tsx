@@ -17,6 +17,7 @@ const FormButtons = ({ onCancel, isLoading = false }) => {
           variant="contained"
           type="submit"
           disabled={isDemo}
+          tooltip={{ show: isDemo, messageId: "notAvailableInLiveDemo" }}
           isLoading={isLoading}
         />
         <Button messageId="cancel" dataTestId="btn_cancel" onClick={onCancel} />
