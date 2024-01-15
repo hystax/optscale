@@ -2,13 +2,16 @@ import http from "http";
 import path from "path";
 import express from "express";
 import dotevn from "dotenv";
-import rateLimit from "./utils/rateLimit.js";
+import rateLimitMiddleware from "./middleware/rateLimitMiddleware.js";
+import checkJwtParameterForGetPageRoutesMiddleware from "./middleware/checkJwtParameterForGetPageRoutesMiddleware.js";
 
 dotevn.config();
 
 const app = express();
 
-app.use(rateLimit);
+rateLimitMiddleware(app);
+
+checkJwtParameterForGetPageRoutesMiddleware(app);
 
 app.use(
   "/jira_ui",
