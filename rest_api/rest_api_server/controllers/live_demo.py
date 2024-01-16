@@ -29,7 +29,8 @@ from rest_api.rest_api_server.models.models import (
     CloudAccount, Checklist, Employee, Pool, Organization, PoolPolicy,
     ResourceConstraint, ConstraintLimitHit, Rule, Condition, DiscoveryInfo,
     ClusterType, K8sNode, CostModel, ShareableBooking, OrganizationOption,
-    OrganizationConstraint, OrganizationLimitHit, OrganizationGemini, ProfilingToken)
+    OrganizationConstraint, OrganizationLimitHit, OrganizationGemini,
+    ProfilingToken, PowerSchedule)
 from rest_api.rest_api_server.utils import gen_id, encode_config
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
@@ -71,6 +72,7 @@ class ObjectGroups(enum.Enum):
     Employees = 'employees'
     Pools = 'pools'
     ClusterTypes = 'cluster_types'
+    PowerSchedules = 'power_schedules'
     Resources = 'resources'
     RawExpenses = 'raw_expenses'
     CleanExpenses = 'clean_expenses'
@@ -165,7 +167,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.Consoles: self.build_console,
             ObjectGroups.Leaderboards: self.build_leaderboard,
             ObjectGroups.LeaderboardDatasets: self.build_leaderboard_dataset,
-            ObjectGroups.OrganizationGeminis: self.build_organization_gemini
+            ObjectGroups.OrganizationGeminis: self.build_organization_gemini,
+            ObjectGroups.PowerSchedules: self.build_power_schedule
         }
         self._dest_map = {
             ObjectGroups.Resources: self.resources_collection,
@@ -224,7 +227,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'dataset_ids': ObjectGroups.Datasets.value,
             'primary_goal': ObjectGroups.Goals.value,
             'other_goals': ObjectGroups.Goals.value,
-            'filters': ObjectGroups.Goals.value
+            'filters': ObjectGroups.Goals.value,
+            'power_schedule': ObjectGroups.PowerSchedules.value
         }
         self._multiplier = None
         self._duplication_module_res_info_map = defaultdict(dict)
@@ -642,7 +646,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 datetime.utcnow() + timedelta(days=7)).timestamp())
         obj = self.refresh_relations(
             ['employee_id', 'pool_id',
-             'cloud_account_id', 'cluster_type_id'],
+             'cloud_account_id', 'cluster_type_id', 'power_schedule'],
             obj)
         if obj.get('cluster_type_id'):
             obj['organization_id'] = organization_id
@@ -1039,6 +1043,17 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj["stats"] = json.dumps(self._multiply_organization_gemini_stats(
             obj.pop("stats")))
         return OrganizationGemini(**obj)
+
+    def build_power_schedule(self, obj, objects_group, now, organization_id,
+                             **kwargs):
+        new_id = str(uuid.uuid4())
+        self._recovery_map[objects_group.value][obj['id']] = new_id
+        obj['id'] = new_id
+        obj['organization_id'] = organization_id
+        obj = self.offsets_to_timestamps([
+            'created_at', 'start_date', 'end_date', 'last_eval', 'last_run'
+        ], now, obj)
+        return PowerSchedule(**obj)
 
     def rollback(self, insertions_map):
         for group, ids in insertions_map.items():
