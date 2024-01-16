@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "install": "npm ci --ignore-scripts",
-    "start": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
