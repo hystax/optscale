@@ -308,13 +308,23 @@ class TestRunsApi(TestProfilingBase):
                 'end_date': datetime(2022, 5, 15, 16),
                 'lineItem/UsageAmount': '1',
                 'cost': 1,
-                'lineItem/UsageType': 'BoxUsage',
+                'box_usage': True,
                 'cloud_account_id': cloud_acc['id'],
                 'resource_id': res_2['cloud_resource_id']
             },
         ]
         self.raw_expenses.insert_many(raw_data)
-
+        resource_ids_map = {
+            r['cloud_resource_id']: r['id'] for r in result['resources']
+        }
+        for raw in raw_data:
+            self.expenses.append({
+                'resource_id': resource_ids_map[raw['resource_id']],
+                'cost': raw['cost'],
+                'date': int(raw['start_date'].timestamp()),
+                'cloud_account_id': raw['cloud_account_id'],
+                'sign': 1
+            })
         code, app = self.client.application_create(
             self.org['id'], {
                 'name': 'My test project',
@@ -595,12 +605,23 @@ class TestRunsApi(TestProfilingBase):
                 'end_date': datetime(2022, 5, 15, 16),
                 'identity/TimeInterval': '2017-11-01T00:00:00Z/2017-11-01T01:00:00Z',
                 'cost': 200,
-                'lineItem/UsageType': 'BoxUsage',
+                'box_usage': True,
                 'cloud_account_id': cloud_acc['id'],
                 'resource_id': res_2['cloud_resource_id']
             },
         ]
         self.raw_expenses.insert_many(raw_data)
+        resource_ids_map = {
+            r['cloud_resource_id']: r['id'] for r in result['resources']
+        }
+        for raw in raw_data:
+            self.expenses.append({
+                'resource_id': resource_ids_map[raw['resource_id']],
+                'cost': raw['cost'],
+                'date': int(raw['start_date'].timestamp()),
+                'cloud_account_id': raw['cloud_account_id'],
+                'sign': 1
+            })
 
         code, app = self.client.application_create(
             self.org['id'], {
