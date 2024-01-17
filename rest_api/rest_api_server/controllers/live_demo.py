@@ -29,7 +29,8 @@ from rest_api.rest_api_server.models.models import (
     CloudAccount, Checklist, Employee, Pool, Organization, PoolPolicy,
     ResourceConstraint, ConstraintLimitHit, Rule, Condition, DiscoveryInfo,
     ClusterType, K8sNode, CostModel, ShareableBooking, OrganizationOption,
-    OrganizationConstraint, OrganizationLimitHit, OrganizationGemini, ProfilingToken)
+    OrganizationConstraint, OrganizationLimitHit, OrganizationGemini,
+    ProfilingToken, PowerSchedule)
 from rest_api.rest_api_server.utils import gen_id, encode_config
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
@@ -71,6 +72,7 @@ class ObjectGroups(enum.Enum):
     Employees = 'employees'
     Pools = 'pools'
     ClusterTypes = 'cluster_types'
+    PowerSchedules = 'power_schedules'
     Resources = 'resources'
     RawExpenses = 'raw_expenses'
     CleanExpenses = 'clean_expenses'
@@ -96,6 +98,7 @@ class ObjectGroups(enum.Enum):
     Applications = 'applications'
     Templates = 'templates'
     Runsets = 'runsets'
+    Datasets = 'datasets'
     Runs = 'runs'
     Runners = 'runners'
     Platforms = 'platforms'
@@ -103,6 +106,9 @@ class ObjectGroups(enum.Enum):
     Milestones = 'milestones'
     Stages = 'stages'
     ProcData = 'proc_data'
+    Consoles = 'consoles'
+    Leaderboards = 'leaderboards'
+    LeaderboardDatasets = 'leaderboard_datasets'
     OrganizationGeminis = 'organization_geminis'
 
     @classmethod
@@ -157,7 +163,12 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.Templates: self.build_template,
             ObjectGroups.Runsets: self.build_runset,
             ObjectGroups.Runners: self.build_runner,
-            ObjectGroups.OrganizationGeminis: self.build_organization_gemini
+            ObjectGroups.Datasets: self.build_dataset,
+            ObjectGroups.Consoles: self.build_console,
+            ObjectGroups.Leaderboards: self.build_leaderboard,
+            ObjectGroups.LeaderboardDatasets: self.build_leaderboard_dataset,
+            ObjectGroups.OrganizationGeminis: self.build_organization_gemini,
+            ObjectGroups.PowerSchedules: self.build_power_schedule
         }
         self._dest_map = {
             ObjectGroups.Resources: self.resources_collection,
@@ -175,8 +186,12 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.ProcData: self.proc_data_collection,
             ObjectGroups.Templates: self.templates_collection,
             ObjectGroups.Runsets: self.runsets_collection,
-            ObjectGroups.Runners: self.runners_collection
-
+            ObjectGroups.Runners: self.runners_collection,
+            ObjectGroups.Datasets: self.datasets_collection,
+            ObjectGroups.Consoles: self.consoles_collection,
+            ObjectGroups.Leaderboards: self.leaderboards_collection,
+            ObjectGroups.LeaderboardDatasets:
+                self.leaderboard_datasets_collection,
         }
         self._clickhouse_table_map = {
             ObjectGroups.Metrics: 'average_metrics',
@@ -206,7 +221,14 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'run': ObjectGroups.Runs.value,  # thanks to arcee.log
             'run_id': ObjectGroups.Runs.value,
             'template_id': ObjectGroups.Templates.value,
-            'runset_id': ObjectGroups.Runsets.value
+            'runset_id': ObjectGroups.Runsets.value,
+            'leaderboard_id': ObjectGroups.Leaderboards.value,
+            'dataset_id': ObjectGroups.Datasets.value,
+            'dataset_ids': ObjectGroups.Datasets.value,
+            'primary_goal': ObjectGroups.Goals.value,
+            'other_goals': ObjectGroups.Goals.value,
+            'filters': ObjectGroups.Goals.value,
+            'power_schedule': ObjectGroups.PowerSchedules.value
         }
         self._multiplier = None
         self._duplication_module_res_info_map = defaultdict(dict)
@@ -267,6 +289,22 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
     @property
     def runners_collection(self):
         return self.mongo_client.bulldozer.runner
+
+    @property
+    def datasets_collection(self):
+        return self.mongo_client.arcee.dataset
+
+    @property
+    def consoles_collection(self):
+        return self.mongo_client.arcee.console
+
+    @property
+    def leaderboards_collection(self):
+        return self.mongo_client.arcee.leaderboard
+
+    @property
+    def leaderboard_datasets_collection(self):
+        return self.mongo_client.arcee.leaderboard_dataset
 
     def _get_demo_multiplier(self):
         try:
@@ -489,7 +527,12 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 else:
                     if isinstance(obj_[key_], list):
                         for i, val_ in enumerate(obj_[key_]):
-                            obj_[key_][i] = self._recovery_map[object_group_].get(val_)
+                            if isinstance(val_, dict):
+                                obj_[key_][i]['id'] = self._recovery_map[
+                                    object_group_].get(val_['id'])
+                            else:
+                                obj_[key_][i] = self._recovery_map[
+                                    object_group_].get(val_)
                     else:
                         obj_[key_] = self._recovery_map[object_group_].get(
                             obj_.get(key_))
@@ -603,7 +646,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 datetime.utcnow() + timedelta(days=7)).timestamp())
         obj = self.refresh_relations(
             ['employee_id', 'pool_id',
-             'cloud_account_id', 'cluster_type_id'],
+             'cloud_account_id', 'cluster_type_id', 'power_schedule'],
             obj)
         if obj.get('cluster_type_id'):
             obj['organization_id'] = organization_id
@@ -862,12 +905,55 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.refresh_relations(['owner_id', 'goals'], obj)
         return obj
 
+    def build_dataset(self, obj, now, objects_group, profiling_token, **kwargs):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = profiling_token
+        obj['deleted_at'] = 0
+        obj = self.offsets_to_timestamps([
+            'created_at',
+            'training_set.timespan_from',
+            'training_set.timespan_to',
+            'validation_set.timespan_from',
+            'validation_set.timespan_to'
+        ], now, obj)
+        return obj
+
+    def build_console(self, obj, objects_group, **kwargs):
+        obj['_id'] = gen_id()
+        obj = self.refresh_relations(['run_id'], obj)
+        return obj
+
+    def build_leaderboard(self, obj, now, objects_group, profiling_token,
+                          **kwargs):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = profiling_token
+        obj['deleted_at'] = 0
+        obj = self.refresh_relations(
+            ['application_id', 'primary_goal', 'other_goals', 'filters'], obj)
+        obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        return obj
+
+    def build_leaderboard_dataset(
+            self, obj, now, profiling_token, **kwargs):
+        obj['_id'] = gen_id()
+        obj['token'] = profiling_token
+        obj['deleted_at'] = 0
+        obj = self.refresh_relations(['leaderboard_id', 'dataset_ids'], obj)
+        obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        return obj
+
     def build_run(self, obj, objects_group, now, **kwargs):
         new_id = gen_id()
         self._recovery_map[objects_group.value][obj['_id']] = new_id
         obj['_id'] = new_id
         if obj.get('runset_id'):
             obj = self.refresh_relations(['runset_id'], obj)
+        if obj.get('dataset_id'):
+            obj = self.refresh_relations(['dataset_id'], obj)
         obj = self.refresh_relations(['application_id'], obj)
         obj = self.offsets_to_timestamps(['start', 'finish'], now, obj)
         return obj
@@ -957,6 +1043,17 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj["stats"] = json.dumps(self._multiply_organization_gemini_stats(
             obj.pop("stats")))
         return OrganizationGemini(**obj)
+
+    def build_power_schedule(self, obj, objects_group, now, organization_id,
+                             **kwargs):
+        new_id = str(uuid.uuid4())
+        self._recovery_map[objects_group.value][obj['id']] = new_id
+        obj['id'] = new_id
+        obj['organization_id'] = organization_id
+        obj = self.offsets_to_timestamps([
+            'created_at', 'start_date', 'end_date', 'last_eval', 'last_run'
+        ], now, obj)
+        return PowerSchedule(**obj)
 
     def rollback(self, insertions_map):
         for group, ids in insertions_map.items():

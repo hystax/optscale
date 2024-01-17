@@ -1673,6 +1673,73 @@ BASIC_PRESET = {
             "last_run_offset": -36612,
             "last_completed_offset": -36908
         }
+    ],
+    "consoles": [
+        {
+            "output": "Task Done!\n\nSaved PyTorch Model State to result.py",
+            "error": "",
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397"
+        }
+    ],
+    "leaderboards": [
+        {
+            "_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
+            "application_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "grouping_tags": [
+                "Algorithm",
+                "code_commit"
+            ],
+            "primary_goal": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+            "other_goals": [
+                "804f6834-6c73-45d5-a34a-ea3b111855c3"
+            ],
+            "filters": [
+                {
+                    "id": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+                    "max": 100,
+                    "min": 63.6
+                },
+                {
+                    "id": "804f6834-6c73-45d5-a34a-ea3b111855c3",
+                    "max": 22,
+                    "min": 2
+                }
+            ],
+            "group_by_hp": True,
+            "created_at_offset": 143457
+        }
+    ],
+    "leaderboard_datasets": [
+        {
+            "dataset_ids": [
+                "38766d9c-e20e-4cae-a3d1-1e19a58abc59"
+            ],
+            "name": "Leaderboard",
+            "leaderboard_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
+            "created_at_offset": 143434
+        }
+    ],
+    "datasets": [
+        {
+            "_id": "38766d9c-e20e-4cae-a3d1-1e19a58abc59",
+            "name": "100 flowers",
+            "description": "Dataset with code to create label mapping and data splitting for classification",
+            "labels": [
+                "flowers"
+            ],
+            "training_set": {
+                "path": "https://s3.amazonaws.com/ml-bucket/training.csv"
+            },
+            "validation_set": {
+                "path": "https://s3.amazonaws.com/ml-bucket/validation.csv"
+            },
+            "path": "https://s3.amazonaws.com/ml-bucket/flowers_231021.csv",
+            "created_at_offset": 146220,
+            "training_set.timespan_from_offset": 7554600,
+            "training_set.timespan_to_offset": 1074600,
+            "validation_set.timespan_from_offset": 7554600,
+            "validation_set.timespan_to_offset": 1074600
+        }
     ]
 }
 

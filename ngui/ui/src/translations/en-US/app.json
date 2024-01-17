@@ -2126,7 +2126,6 @@
   "timerange": "Timerange {from} — {to}",
   "timespanFrom": "Timespan from",
   "timespanTo": "Timespan to",
-  "tips": "Tips",
   "to": "To",
   "toConfirmTheDeletionOfOrganization": "To confirm the deletion of this organization, type <i>{confirmationText}</i> in the box.",
   "toConnectGoogleCalendarToOptScale": "To connect Google Calendar to OptScale, perform the following:{br}1. Create or choose one of the existing secondary calendars in your Google Calendar.{br}2. Share it with OptScale service account: {br}<strong>{link}</strong>3. Paste calendar ID below.",

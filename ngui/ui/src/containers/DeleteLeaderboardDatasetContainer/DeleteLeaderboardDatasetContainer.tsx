@@ -1,7 +1,10 @@
 import DeleteEntity from "components/DeleteEntity";
+import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import MlLeaderboardsService from "services/MlLeaderboardsService";
 
 const DeleteLeaderboardDatasetContainer = ({ leaderboardDataset, onSuccess, onCancel }) => {
+  const { isDemo } = useOrganizationInfo();
+
   const { useDeleteLeaderboardDataset } = MlLeaderboardsService();
   const { isLoading: isDeleteLeaderboardDatasetLoading, onDelete } = useDeleteLeaderboardDataset();
 
@@ -9,7 +12,12 @@ const DeleteLeaderboardDatasetContainer = ({ leaderboardDataset, onSuccess, onCa
     <DeleteEntity
       onCancel={onCancel}
       deleteButtonProps={{
-        onDelete: () => onDelete(leaderboardDataset.id).then(onSuccess)
+        onDelete: () => onDelete(leaderboardDataset.id).then(onSuccess),
+        disabled: isDemo,
+        tooltip: {
+          show: isDemo,
+          messageId: "notAvailableInLiveDemo"
+        }
       }}
       isLoading={isDeleteLeaderboardDatasetLoading}
       dataTestIds={{
