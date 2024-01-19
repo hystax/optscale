@@ -5,6 +5,7 @@ from unittest.mock import patch, ANY
 from rest_api.rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api.rest_api_server.models.db_base import BaseDB
 from rest_api.rest_api_server.models.models import Checklist, OrganizationLimitHit
+from rest_api.rest_api_server.utils import timestamp_to_day_start
 
 from freezegun import freeze_time
 
@@ -70,6 +71,7 @@ class TestPoolApi(TestApiBase):
             )
             session.add(record)
             session.commit()
+        last_seen = int(datetime.utcnow().timestamp())
         self.resources_collection.update_one(
             filter={
                 '_id': resource_id
@@ -78,7 +80,9 @@ class TestPoolApi(TestApiBase):
                 'recommendations': recommendations,
                 'active': True,
                 'pool_id': pool_id,
-                'last_seen': int(datetime.utcnow().timestamp())}}
+                'last_seen': last_seen,
+                '_last_seen_date': timestamp_to_day_start(last_seen)
+            }}
         )
 
     def test_get(self):
@@ -559,7 +563,9 @@ class TestPoolApi(TestApiBase):
                 'name': 'name',
                 'resource_type': 'Instance',
                 'first_seen': int(day_in_month.timestamp()),
-                'last_seen': int(day_in_month.timestamp())
+                'last_seen': int(day_in_month.timestamp()),
+                '_first_seen_date': day_in_month,
+                '_last_seen_date': day_in_month
             }
             self.resources_collection.insert_one(resource)
             self.expenses.append({

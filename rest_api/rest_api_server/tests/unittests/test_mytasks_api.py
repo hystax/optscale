@@ -173,7 +173,9 @@ class TestMyTasksApi(TestApiBase):
             'name': 'name',
             'resource_type': 'Instance',
             'first_seen': int(date.timestamp()),
-            'last_seen': int(date.timestamp())
+            '_first_seen_date': date,
+            'last_seen': int(date.timestamp()),
+            '_last_seen_date': date
         }
         self.resources_collection.insert_one(resource)
         self.expenses.append({

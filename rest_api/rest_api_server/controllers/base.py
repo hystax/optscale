@@ -147,6 +147,9 @@ class ResourceFormatMixin:
         }
         if resource.get('_id'):
             resource['id'] = resource.pop('_id')
+        hidden_keys = list(filter(lambda x: x.startswith('_'), resource.keys()))
+        for k in hidden_keys:
+            resource.pop(k, None)
         for nullable_field in optional_params:
             if nullable_field not in resource:
                 resource[nullable_field] = default_values.get(

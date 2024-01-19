@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from unittest.mock import patch
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.utils import timestamp_to_day_start
 
 
 class TestResourcesCountApi(TestApiBase):
@@ -85,6 +86,12 @@ class TestResourcesCountApi(TestApiBase):
 
     def _add_extra_fields(self, resources, **kwargs):
         resource_ids = [x['id'] for x in resources]
+        first_seen = kwargs.get('first_seen')
+        if first_seen:
+            kwargs['_first_seen_date'] = timestamp_to_day_start(first_seen)
+        last_seen = kwargs.get('last_seen')
+        if last_seen:
+            kwargs['_last_seen_date'] = timestamp_to_day_start(last_seen)
         self.resources_collection.update_many(
             filter={
                 '_id': {'$in': resource_ids}

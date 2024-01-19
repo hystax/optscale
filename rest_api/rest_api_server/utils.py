@@ -762,3 +762,8 @@ def handle_http_exc(func):
                 raise ForbiddenException(Err.OE0234, [])
             raise
     return inner
+
+
+def timestamp_to_day_start(timestamp) -> datetime:
+    return datetime.utcfromtimestamp(timestamp).replace(
+        hour=0, minute=0, second=0, microsecond=0)

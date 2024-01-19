@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, timedelta
-
+from collections import defaultdict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import and_, or_, exists
 from pymongo import UpdateOne
@@ -28,7 +28,8 @@ from rest_api.rest_api_server.models.enums import (CloudTypes, ThresholdBasedTyp
 from rest_api.rest_api_server.utils import (
     check_string_attribute, check_int_attribute, check_dict_attribute,
     encoded_tags, encoded_map, retry_mongo_upsert, update_tags,
-    generate_discovered_cluster_resources_stat, check_bool_attribute)
+    generate_discovered_cluster_resources_stat, check_bool_attribute,
+    timestamp_to_day_start)
 from tools.cloud_adapter.model import RES_MODEL_MAP, ResourceTypes
 
 LOG = logging.getLogger(__name__)
@@ -646,6 +647,9 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             value = resource.pop(service_field, default_value)
             if value and value != db_resource.get(service_field):
                 changed[service_field] = value
+        for k in ['first_seen', 'last_seen']:
+            if k in changed:
+                changed['_%s_date' % k] = timestamp_to_day_start(changed[k])
         resource_tags = resource.pop('tags', {})
         meta = resource.pop('meta', None) or {}
         meta = {k: v for k, v in meta.items()
@@ -840,14 +844,16 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                              'cloud_account_id', 'organization_id']
             field_op_map = {
                 'first_seen': '$min',
-                'last_seen': '$max'
+                'last_seen': '$max',
+                '_first_seen_date': '$min',
+                '_last_seen_date': '$max'
             }
             for update, insertion in zip(updates_bulk, insertions_bulk):
-                op_details = {}
+                op_details = defaultdict(dict)
                 for field, op in field_op_map.items():
                     val = update.pop(field, None)
                     if val is not None:
-                        op_details[op] = {field: val}
+                        op_details[op].update({field: val})
                 for cmd, data in {'$set': update,
                                   '$setOnInsert': insertion}.items():
                     if data:

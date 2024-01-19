@@ -19,7 +19,8 @@ from rest_api.rest_api_server.models.models import (
     ClusterType, Organization, CloudAccount, AssignmentRequest,
     ResourceConstraint, ShareableBooking)
 from rest_api.rest_api_server.utils import (
-    RetriableException, should_retry, encoded_tags, update_tags)
+    RetriableException, should_retry, encoded_tags, update_tags,
+    timestamp_to_day_start)
 
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException, ConflictException, NotFoundException)
@@ -36,7 +37,8 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
     def __init__(self, db_session, config=None, token=None, engine=None):
         super().__init__(db_session, config, token, engine)
         self._cluster_inherited_fields = [
-            'active', 'first_seen', 'last_seen', 'tags']
+            'active', 'first_seen', 'last_seen', 'tags', '_first_seen_date',
+            '_last_seen_date']
 
     def _get_model_type(self):
         return ClusterType
@@ -234,12 +236,16 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
                 else:
                     cluster['last_seen'] = max(
                         cluster['last_seen'], change['last_seen'])
+                cluster['_last_seen_date'] = timestamp_to_day_start(
+                    cluster['last_seen'])
             if change.get('first_seen'):
                 if not cluster.get('first_seen'):
                     cluster['first_seen'] = change['first_seen']
                 else:
                     cluster['first_seen'] = min(
                         cluster['first_seen'], change['first_seen'])
+                cluster['_first_seen_date'] = timestamp_to_day_start(
+                    cluster['first_seen'])
 
     def sync_clusters(self, clusters_map, exclusions):
         updates = []

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import patch
 
 from freezegun import freeze_time
@@ -1606,3 +1606,54 @@ class TestCloudResourceApi(TestApiBase):
                     is_report_import=True)
                 self.assertEqual(code, 400)
                 self.verify_error_code(response, 'OE0215')
+
+    def test_first_last_seen_dates(self):
+        resource = {
+            'cloud_resource_id': 'res_id_1',
+            'name': 'resource_1',
+            'resource_type': 'test',
+        }
+        valid_body = {
+            'resources': [
+                resource
+            ]}
+        day_1 = datetime(2022, 10, 10, 11, 15, 0)
+        with freeze_time(day_1):
+            code, result = self.cloud_resource_create_bulk(
+                self.cloud_acc1_id, valid_body, return_resources=True)
+            self.assertEqual(code, 200)
+            self.assertIsNotNone(result.get('resources'))
+            for r in self.resources_collection.find({}):
+                self.assertEqual(r['first_seen'], int(day_1.timestamp()))
+                self.assertEqual(r['last_seen'], int(day_1.timestamp()))
+                self.assertEqual(r['_first_seen_date'], datetime(2022, 10, 10))
+                self.assertEqual(r['_last_seen_date'], datetime(2022, 10, 10))
+
+        fs = datetime(2022, 5, 5, 5, 5, 5)
+        ls = datetime(2023, 5, 5, 5, 5, 5)
+        # wrong first and last seen. Dates should stay the same
+        resource.update({
+            'first_seen': int(ls.timestamp()),
+            'last_seen': int(fs.timestamp())
+        })
+        self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, valid_body, behavior='update_existing')
+        for r in self.resources_collection.find({}):
+            self.assertEqual(r['first_seen'], int(day_1.timestamp()))
+            self.assertEqual(r['last_seen'], int(day_1.timestamp()))
+            self.assertEqual(r['_first_seen_date'], datetime(2022, 10, 10))
+            self.assertEqual(r['_last_seen_date'], datetime(2022, 10, 10))
+
+        # correct new values should be updated
+        resource.update({
+            'first_seen': int(fs.timestamp()),
+            'last_seen': int(ls.timestamp())
+        })
+        self.cloud_resource_create_bulk(
+            self.cloud_acc1_id, valid_body, return_resources=True,
+            behavior='update_existing')
+        for r in self.resources_collection.find({}):
+            self.assertEqual(r['first_seen'], int(fs.timestamp()))
+            self.assertEqual(r['last_seen'], int(ls.timestamp()))
+            self.assertEqual(r['_first_seen_date'], datetime(2022, 5, 5))
+            self.assertEqual(r['_last_seen_date'], datetime(2023, 5, 5))

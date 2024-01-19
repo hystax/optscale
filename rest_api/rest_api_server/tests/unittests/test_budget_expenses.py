@@ -1,7 +1,7 @@
 from datetime import datetime
 from freezegun import freeze_time
 from unittest.mock import patch
-
+from rest_api.rest_api_server.utils import timestamp_to_day_start
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
 from rest_api.rest_api_server.utils import gen_id
 
@@ -103,6 +103,7 @@ class TestPoolExpensesApi(TestApiBase):
 
     def add_expense(self, day, cost, cloud, pool, resource_id=None):
         if not resource_id:
+            timestamp = int(day.timestamp())
             resource = {
                 '_id': self.gen_id(),
                 'cloud_account_id': cloud,
@@ -111,8 +112,10 @@ class TestPoolExpensesApi(TestApiBase):
                 'employee_id': self.employee_1['id'],
                 'name': 'name',
                 'resource_type': 'Instance',
-                'first_seen': int(day.timestamp()),
-                'last_seen': int(day.timestamp())
+                'first_seen': timestamp,
+                '_first_seen_date': timestamp_to_day_start(timestamp),
+                'last_seen': timestamp,
+                '_last_seen_date': timestamp_to_day_start(timestamp),
             }
             self.resources_collection.insert_one(resource)
             resource_id = resource['_id']

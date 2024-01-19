@@ -73,6 +73,8 @@ class ShortLivingInstances(ModuleBase):
                 {'cloud_account_id': {
                     '$in': list(cloud_account_map.keys())}},
                 {'resource_type': 'Instance'},
+                {'_first_seen_date': {
+                    '$gte': self.timestamp_to_day_start(first_seen)}},
                 {'first_seen': {'$gte': first_seen}}
             ]
         }, ['cloud_resource_id', 'meta.cpu_count'])
