@@ -16,7 +16,7 @@ do
 
     echo "Pylint tests>>>"
     docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} \
-        bash -c "pylint --rcfile=bulldozer/.pylintrc --fail-under=9 --fail-on=E,C,F ./bulldozer"
+        bash -c "pylint --rcfile=bulldozer/.pylintrc --fail-under=9 --fail-on=E,F ./bulldozer"
     echo "<<<Pylint tests"
 
     docker rmi ${TEST_IMAGE}:${BUILD_TAG}

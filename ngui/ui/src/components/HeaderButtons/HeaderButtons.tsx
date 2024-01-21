@@ -4,11 +4,11 @@ import LiveHelpOutlinedIcon from "@mui/icons-material/LiveHelpOutlined";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SchoolIcon from "@mui/icons-material/School";
+import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
 import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
-import Button from "components/Button";
 import { WIDTH as DOCS_PANEL_WIDTH } from "components/DocsPanel/DocsPanel.styles";
 import IconButton from "components/IconButton";
 import Popover from "components/Popover";
@@ -75,6 +75,17 @@ const HeaderButtons = () => {
             value: <FormattedMessage id="productTour" />
           }}
         />
+        {isCommunityVisible && (
+          <IconButton
+            icon={isCommunityDocsOpened ? <SchoolIcon /> : <SchoolOutlinedIcon />}
+            onClick={setIsCommunityDocsOpened}
+            color="primary"
+            tooltip={{
+              show: true,
+              value: <FormattedMessage id="communityDocs" />
+            }}
+          />
+        )}
         <Popover
           label={
             <IconButton
@@ -89,19 +100,6 @@ const HeaderButtons = () => {
           }
           menu={<ProfileMenuContainer />}
         />
-        {isCommunityVisible && (
-          <Button
-            startIcon={<SchoolIcon />}
-            color="primary"
-            messageId="tips"
-            variant={isCommunityDocsOpened ? "contained" : "outlined"}
-            onClick={setIsCommunityDocsOpened}
-            tooltip={{
-              show: true,
-              value: <FormattedMessage id="communityDocs" />
-            }}
-          />
-        )}
       </Box>
       {/* TODO: Maybe we can make the Popup component more universal and include the case below */}
       {/* TODO: https://datatrendstech.atlassian.net/browse/NGUI-2808 to handle dynamic header buttons, product tour is hidden on mdDown (when hamburger menu is activated) */}

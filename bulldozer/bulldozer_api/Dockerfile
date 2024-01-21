@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 ENV PYTHONPATH /usr/src/app/
 
 COPY bulldozer/bulldozer_api/requirements.txt bulldozer/requirements.txt
+COPY bulldozer/bulldozer_api/migrations ./migrations
 
 COPY optscale_client/aconfig_cl optscale_client/aconfig_cl
 COPY optscale_client/config_client optscale_client/config_client

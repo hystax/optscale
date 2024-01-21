@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 from rest_api.rest_api_server.controllers.base import (
-    BaseProfilingTokenController, MongoMixin)
+    BaseProfilingTokenController, MongoMixin, ClickHouseMixin)
 from rest_api.rest_api_server.models.enums import RunStates
 from rest_api.rest_api_server.models.models import CloudAccount
 from rest_api.rest_api_server.utils import handle_http_exc
@@ -92,33 +92,18 @@ class Run(ArceeObject):
             obj['executors'] = []
 
 
-class RunCostsMixin(MongoMixin):
+class RunCostsMixin(MongoMixin, ClickHouseMixin):
     @staticmethod
-    def __is_flavor_cost(expense) -> bool:
-        if (expense.get('lineItem/UsageType') and
-                'BoxUsage' in expense['lineItem/UsageType']):
-            return True
-        elif (expense.get('meter_details', {}).get(
-                'meter_category') == 'Virtual Machines'):
-            return True
-        elif (expense.get('BillingItem') == 'Cloud server configuration' and
-              'key:acs:ecs:payType value:spot' not in expense.get('Tags', [])):
-            return True
-        return False
-
-    def __calculate_instance_work(self, expenses) -> tuple[int, float]:
-        total_cost = 0
+    def __calculate_instance_work(expenses) -> float:
         working_hours = 0
         for e in expenses:
-            total_cost += e['cost']
-            if self.__is_flavor_cost(e):
-                if e.get('lineItem/UsageAmount'):
-                    working_hours += float(e['lineItem/UsageAmount'])
-                elif e.get('usage_quantity'):
-                    working_hours += float(e['usage_quantity'])
-                elif e.get('Usage'):
-                    working_hours += float(e['Usage'])
-        return working_hours or DAY_IN_HOURS, total_cost
+            if e.get('lineItem/UsageAmount'):
+                working_hours += float(e['lineItem/UsageAmount'])
+            elif e.get('usage_quantity'):
+                working_hours += float(e['usage_quantity'])
+            elif e.get('Usage'):
+                working_hours += float(e['Usage'])
+        return working_hours or DAY_IN_HOURS
 
     def _get_run_costs(self, cloud_account_ids: list, runs: list) -> dict:
         if not runs:
@@ -151,18 +136,14 @@ class RunCostsMixin(MongoMixin):
                 'cloud_account_id': {'$in': cloud_account_ids},
                 'start_date': {'$gte': min_dt, '$lt': max_dt},
                 'end_date': {'$lte': max_dt},
-                'resource_id': {'$in': list(executors)}
+                'resource_id': {'$in': list(executors)},
+                'box_usage': True
             }},
             {'$project': {
-                'cost': 1,
                 'resource_id': 1,
                 'lineItem/UsageAmount': 1,  # aws
                 'usage_quantity': 1,  # azure
                 'Usage': 1,  # ali
-                'lineItem/UsageType': 1,
-                'meter_details': 1,
-                'BillingItem': 1,
-                'Tags': 1,
             }}
         ]
         exp_map = defaultdict(list)
@@ -173,17 +154,68 @@ class RunCostsMixin(MongoMixin):
         for resource_id, expenses in exp_map.items():
             executor_work_map[resource_id] = self.__calculate_instance_work(
                 expenses)
+        executor_costs = self._get_executor_costs(
+            cloud_account_ids, list(executors), min_dt, max_dt)
         for run in runs:
             run_id = run['id']
             cost = 0
             for executor, duration in run_executor_duration_map.get(
                     run_id, {}).items():
-                working_hours, w_cost = executor_work_map.get(
-                    executor, (DAY_IN_HOURS, 0))
+                w_cost = executor_costs.get(executor, 0)
+                working_hours = executor_work_map.get(
+                    executor, DAY_IN_HOURS)
                 # cost for what period in hours was collected
                 w_time = working_hours * HOUR_IN_SEC
                 cost += w_cost * duration / w_time
             result[run_id] = cost
+        return result
+
+    def _get_resource_ids_map(self, cloud_account_ids, cloud_resource_ids):
+        resources = self.resources_collection.find({
+            'cloud_account_id': {'$in': cloud_account_ids},
+            'cloud_resource_id': {'$in': cloud_resource_ids}
+        }, ['_id', 'cloud_resource_id'])
+        return {r['_id']: r['cloud_resource_id'] for r in resources}
+
+    def _get_executor_costs(self, cloud_account_ids, cloud_resource_ids,
+                            start_date, end_date):
+        resource_ids_map = self._get_resource_ids_map(cloud_account_ids,
+                                                      cloud_resource_ids)
+        query = """
+            SELECT
+                resource_id, SUM(cost * sign)
+            FROM expenses
+            WHERE cloud_account_id IN cloud_account_ids
+                AND resource_id IN resource_ids
+                AND date >= %(start_date)s
+                AND date <= %(end_date)s
+            GROUP BY resource_id
+            HAVING SUM(sign) > 0
+        """
+        expenses = self.execute_clickhouse(
+            query=query,
+            params={
+                'start_date': start_date,
+                'end_date': end_date,
+            },
+            external_tables=[
+                {
+                    'name': 'resource_ids',
+                    'structure': [('_id', 'String')],
+                    'data': [
+                        {'_id': r_id} for r_id in list(resource_ids_map.keys())
+                    ]
+                },
+                {
+                    'name': 'cloud_account_ids',
+                    'structure': [('_id', 'String')],
+                    'data': [{'_id': r_id} for r_id in cloud_account_ids]
+                }
+            ],
+        )
+        result = {}
+        for r_id, cost in expenses:
+            result[resource_ids_map[r_id]] = cost
         return result
 
 
