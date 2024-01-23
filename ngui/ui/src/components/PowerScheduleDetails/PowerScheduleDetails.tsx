@@ -25,6 +25,7 @@ import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import Tooltip from "components/Tooltip";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
+import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { POWER_SCHEDULES } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { powerScheduleInstance, resourceLocation, resourcePoolOwner, size, tags } from "utils/columns";
@@ -141,6 +142,7 @@ const Details = ({
 
 const ResourcesOnSchedule = ({ resources, isLoading = false }) => {
   const { powerScheduleId } = useParams();
+  const { isDemo } = useOrganizationInfo();
 
   const openSideModal = useOpenSideModal();
 
@@ -248,7 +250,8 @@ const ResourcesOnSchedule = ({ resources, isLoading = false }) => {
             messageId: "removeInstancesFromSchedule",
             type: "button",
             dataTestId: "btn_delete_instances_from_schedule",
-            disabled: isEmptyArray(selectedRows),
+            disabled: isEmptyArray(selectedRows) || isDemo,
+            tooltip: { show: isDemo, messageId: "notAvailableInLiveDemo" },
             requiredActions: ["EDIT_PARTNER"],
             action: () =>
               openSideModal(RemoveInstancesFromScheduleModal, {

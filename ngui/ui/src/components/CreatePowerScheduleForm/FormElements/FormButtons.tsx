@@ -4,7 +4,12 @@ import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 
-const FormButtons = ({ onCancel, isLoading = false }) => {
+type FormButtonsProps = {
+  onCancel: () => void;
+  isLoading?: boolean;
+};
+
+const FormButtons = ({ onCancel, isLoading = false }: FormButtonsProps) => {
   const { isDemo } = useOrganizationInfo();
 
   return (
@@ -17,6 +22,7 @@ const FormButtons = ({ onCancel, isLoading = false }) => {
           variant="contained"
           type="submit"
           disabled={isDemo}
+          tooltip={{ show: isDemo, messageId: "notAvailableInLiveDemo" }}
           isLoading={isLoading}
         />
         <Button messageId="cancel" dataTestId="btn_cancel" onClick={onCancel} />
