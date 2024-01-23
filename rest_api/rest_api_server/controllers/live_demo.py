@@ -31,7 +31,8 @@ from rest_api.rest_api_server.models.models import (
     ClusterType, K8sNode, CostModel, ShareableBooking, OrganizationOption,
     OrganizationConstraint, OrganizationLimitHit, OrganizationGemini,
     ProfilingToken, PowerSchedule)
-from rest_api.rest_api_server.utils import gen_id, encode_config
+from rest_api.rest_api_server.utils import (
+    gen_id, encode_config, timestamp_to_day_start)
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
 
@@ -644,6 +645,9 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         if obj.get('active', False):
             obj['last_seen'] = int((
                 datetime.utcnow() + timedelta(days=7)).timestamp())
+        obj['_last_seen_date'] = timestamp_to_day_start(obj.get('last_seen', 0))
+        obj['_first_seen_date'] = timestamp_to_day_start(
+            obj.get('first_seen', 0))
         obj = self.refresh_relations(
             ['employee_id', 'pool_id',
              'cloud_account_id', 'cluster_type_id', 'power_schedule'],

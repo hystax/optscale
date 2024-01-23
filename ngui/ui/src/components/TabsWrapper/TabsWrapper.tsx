@@ -78,18 +78,22 @@ const Tabs = ({ tabsProps, headerAdornment, headerSx }) => {
     name,
     queryTabName,
     queryParamsOnChangeBlacklist = [],
-    keepTabContentMounted = false
+    keepTabContentMounted = false,
+    shouldhaveQueryParam = true
   } = tabsProps;
+
   const tabName = queryTabName || TAB_QUERY_PARAM_NAME;
   const { [tabName]: tab = defaultTab } = getQueryParams();
   const [currentQueryTab, setCurrentQueryTab] = useState(tab);
   const [activeTabState, setActiveTab] = useState(tab);
 
   useEffect(() => {
-    const newTab = externalActiveTab || activeTabState;
-    updateQueryParams({ [tabName]: newTab });
+    if (shouldhaveQueryParam) {
+      const newTab = externalActiveTab || activeTabState;
+      updateQueryParams({ [tabName]: newTab });
+    }
     setCurrentQueryTab(externalActiveTab || activeTabState);
-  }, [activeTabState, tabName, externalActiveTab]);
+  }, [activeTabState, tabName, externalActiveTab, shouldhaveQueryParam]);
 
   useEffect(() => {
     if (tab !== currentQueryTab) {

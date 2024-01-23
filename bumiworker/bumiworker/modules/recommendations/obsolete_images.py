@@ -94,6 +94,7 @@ class ObsoleteImages(ModuleBase):
                     '$and': [
                         {'cloud_account_id': {'$in': account_ids}},
                         {'meta.snapshots': {'$size': 1}},
+                        {'_first_seen_date': {'$lte': last_week_time}},
                         {'first_seen': {
                             '$lte': int(
                                 last_week_time.timestamp())}}

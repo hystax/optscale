@@ -218,11 +218,14 @@ class NebiusMigration(ModuleBase):
         cloud_account_ids = list(cloud_account_map.keys())
         dt = datetime.utcnow() - timedelta(seconds=days_threshold * DAY_IN_SEC)
         month_multiplier = DAYS_IN_MONTH / days_threshold
+        last_seen = int(dt.timestamp())
         instances = self.mongo_client.restapi.resources.find({
             '$and': [
                 {'cloud_account_id': {'$in': cloud_account_ids}},
                 {'resource_type': {'$in': ['Instance', 'RDS Instance']}},
-                {'last_seen': {'$gte': int(dt.timestamp())}},
+                {'_last_seen_date': {
+                    '$gte': self.timestamp_to_day_start(last_seen)}},
+                {'last_seen': {'$gte': last_seen}},
             ]}, ['cloud_account_id', 'cloud_resource_id',
                  'cloud_resource_hash', 'region', 'meta']
         )

@@ -3,7 +3,7 @@ import FormattedMoney from "components/FormattedMoney";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 
-const expenses = ({ id, headerDataTestId, headerMessageId, accessorKey, accessorFn } = {}) => ({
+const expenses = ({ id, headerDataTestId, headerMessageId, accessorKey, accessorFn, defaultSort } = {}) => ({
   id,
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -12,6 +12,7 @@ const expenses = ({ id, headerDataTestId, headerMessageId, accessorKey, accessor
   ),
   accessorKey,
   accessorFn,
+  defaultSort,
   cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
 });
 

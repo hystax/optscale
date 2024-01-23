@@ -12,7 +12,8 @@ from rest_api.rest_api_server.models.models import (Organization, Pool,
                                                     CloudAccount, Employee)
 from sqlalchemy import and_
 
-from rest_api.rest_api_server.utils import get_nil_uuid, encode_string, encoded_tags
+from rest_api.rest_api_server.utils import (
+    get_nil_uuid, encode_string, encoded_tags, timestamp_to_day_start)
 from rest_api.rest_api_server.controllers.base import (
     BaseController, BaseHierarchicalController, MongoMixin, ClickHouseMixin,
     ResourceFormatMixin)
@@ -59,6 +60,8 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
         resource_results = self.resources_collection.find({
             resource_field_mappings.get(
                 filter_field, filter_field): {'$in': filter_list},
+            '_last_seen_date': {'$gte': start_date.replace(
+                hour=0, minute=0, second=0, microsecond=0)},
             'last_seen': {'$gte': int(start_date.timestamp())},
         }, resource_fields)
 
@@ -111,6 +114,9 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
                 '$match': {
                     '$and': [
                         {'cloud_account_id': {'$in': cloud_acc_list}},
+                        {'_first_seen_date': {'$lt': end_date}},
+                        {'_last_seen_date': {'$gte': start_date.replace(
+                            hour=0, minute=0, second=0, microsecond=0)}},
                         {'first_seen': {'$lt': int(end_date.timestamp())}},
                         {'last_seen': {'$gte': int(start_date.timestamp())}},
                     ]
@@ -1119,6 +1125,10 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
         query = {
             '$and': [
                 {'$or': list(main_filters.values())},
+                {'_first_seen_date': {'$lte': timestamp_to_day_start(
+                    end_date)}},
+                {'_last_seen_date': {'$gte': timestamp_to_day_start(
+                    start_date)}},
                 {'first_seen': {'$lte': end_date}},
                 {'last_seen': {'$gte': start_date}},
                 {'deleted_at': 0}

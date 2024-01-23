@@ -1,7 +1,13 @@
 import Grid from "@mui/material/Grid";
 import { useInnerBorders } from "hooks/useInnerBorders";
 
-const DashboardGridLayout = ({ topResourcesExpensesCard, environmentsCard, organizationExpenses, recommendationsCard }) => {
+const DashboardGridLayout = ({
+  topResourcesExpensesCard,
+  environmentsCard,
+  organizationExpenses,
+  recommendationsCard,
+  poolsRequiringAttentionCard
+}) => {
   const squareNodes = [
     { key: "organizationExpenses", node: organizationExpenses },
     {
@@ -12,6 +18,10 @@ const DashboardGridLayout = ({ topResourcesExpensesCard, environmentsCard, organ
     {
       key: "environmentsCard",
       node: environmentsCard
+    },
+    {
+      key: "poolsRequiringAttentionCard",
+      node: poolsRequiringAttentionCard
     }
   ].filter(({ node }) => Boolean(node));
 

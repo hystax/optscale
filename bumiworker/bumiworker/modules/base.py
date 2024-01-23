@@ -159,6 +159,11 @@ class ModuleBase(ServiceBase):
     def unique_record_keys(self):
         return 'cloud_account_id', 'cloud_resource_id',
 
+    @staticmethod
+    def timestamp_to_day_start(timestamp) -> datetime:
+        return datetime.utcfromtimestamp(timestamp).replace(
+            hour=0, minute=0, second=0, microsecond=0)
+
     def get_organization_currency(self):
         _, organization = self.rest_client.organization_get(
             self.organization_id)

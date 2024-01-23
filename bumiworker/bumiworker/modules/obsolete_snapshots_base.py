@@ -90,11 +90,13 @@ class ObsoleteSnapshotsBase(ModuleBase):
 
     def get_snapshots_used_by_volumes(self, now, cloud_account_id,
                                       obsolete_threshold):
+        last_seen = int((now - obsolete_threshold).timestamp())
         pipeline_volumes_parents = [
             {
                 '$match': {
-                    'last_seen': {'$gte': int(
-                        (now - obsolete_threshold).timestamp())},
+                    'last_seen': {'$gte': last_seen},
+                    '_last_seen_date': {
+                        '$gte': self.timestamp_to_day_start(last_seen)},
                     'deleted_at': 0,
                     'resource_type': 'Volume',
                     'cloud_account_id': cloud_account_id

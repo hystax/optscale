@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from unittest.mock import patch, ANY, call
-
+from freezegun import freeze_time
 from pymongo import UpdateMany
 
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
@@ -870,3 +870,39 @@ class TestClusterTypesApi(TestApiBase):
         clustered_resources = list(self.resources_collection.find(
             {'cluster_id': {'$exists': True}}))
         self.assertEqual(len(clustered_resources), 1)
+
+    def test_cluster_dates(self):
+        dt1 = datetime(2022, 5, 5, 5, 5)
+        with freeze_time(dt1):
+            code, resource1 = self.create_cloud_resource(
+                self.cloud_acc['id'],
+                tags={'type': 'val', 'resource_1': 'resource_1'},
+                region='us-east',
+                last_seen=int(datetime(2023, 6, 6, 6, 6).timestamp())
+            )
+        self.assertEqual(code, 201)
+
+        dt2 = datetime(2023, 1, 1, 1, 1)
+        with freeze_time(dt2):
+            code, resource2 = self.create_cloud_resource(
+                self.cloud_acc['id'], tags={'type': 'val'}, region='us-west',
+                last_seen=int(datetime(2023, 7, 7, 7, 7).timestamp())
+            )
+            self.assertEqual(code, 201)
+
+        code, cluster_type = self.client.cluster_type_create(
+            self.org_id, self.valid_cluster_type)
+        self.assertEqual(code, 201)
+
+        code, res = self.client.cluster_types_apply(self.org_id)
+        self.assertEqual(code, 201)
+
+        clusters = list(self.resources_collection.find(
+            {'cluster_type_id': cluster_type['id']}))
+        self.assertEqual(len(clusters), 1)
+        cluster = clusters[0]
+        self.assertEqual(cluster['first_seen'], int(dt1.timestamp()))
+        self.assertEqual(cluster['_first_seen_date'], datetime(2022, 5, 5))
+        self.assertEqual(cluster['last_seen'],
+                         int(datetime(2023, 7, 7, 7, 7).timestamp()))
+        self.assertEqual(cluster['_last_seen_date'], datetime(2023, 7, 7))

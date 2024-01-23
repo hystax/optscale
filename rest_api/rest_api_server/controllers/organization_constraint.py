@@ -18,7 +18,7 @@ from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerW
 from rest_api.rest_api_server.controllers.constraint_base import ConstraintBaseController
 from rest_api.rest_api_server.utils import (
     check_int_attribute, get_nil_uuid, check_dict_attribute,
-    check_string_attribute, check_float_attribute)
+    check_string_attribute, check_float_attribute, timestamp_to_day_start)
 
 JOINED_ENTITY_MAP = {
     'cloud_account': ('cloud_account_id', ['id', 'name', 'type']),
@@ -142,6 +142,10 @@ class FilterDetailsController(AvailableFiltersController):
                     ]},
                     {'cloud_account_id': {'$in': cloud_account_ids}}
                 ]},
+                {'_first_seen_date': {'$lte': timestamp_to_day_start(
+                    end_date)}},
+                {'_last_seen_date': {'$gte': timestamp_to_day_start(
+                    start_date)}},
                 {'first_seen': {'$lte': end_date}},
                 {'last_seen': {'$gte': start_date}},
                 {'deleted_at': 0}

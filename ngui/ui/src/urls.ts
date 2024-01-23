@@ -100,6 +100,7 @@ export const getOwnerExpensesUrl = (employeeId) => OWNER_EXPENSES.replace(EMPLOY
 // Pools
 export const POOLS = concatenateUrl([POOLS_BASE]);
 export const POOL_QUERY_PARAM_NAME = "pool";
+export const EDIT_POOL_TAB_QUERY = "poolEditTab";
 export const getPoolUrl = (poolId) => concatenateUrl([POOLS, `${POOL_QUERY_PARAM_NAME}=${poolId}`], "", "?");
 
 export const WITH_SUBPOOLS_SIGN = "+";

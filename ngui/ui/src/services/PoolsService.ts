@@ -204,10 +204,7 @@ const useDelete = () => {
   return { deletePool, isDeletePoolLoading: isLoading };
 };
 
-const withPoolChildren = true;
-const withPoolDetails = true;
-
-const useGet = () => {
+const useGet = ({ withPoolDetails = true, withPoolChildren = true } = {}) => {
   const { organizationPoolId } = useOrganizationInfo();
   const dispatch = useDispatch();
 
@@ -239,7 +236,7 @@ const useGet = () => {
         });
       });
     }
-  }, [dispatch, shouldInvoke, organizationPoolId]);
+  }, [dispatch, shouldInvoke, organizationPoolId, withPoolDetails, withPoolChildren]);
 
   return { isLoading, isDataReady, data, isGetPoolAllowedActionsLoading };
 };
