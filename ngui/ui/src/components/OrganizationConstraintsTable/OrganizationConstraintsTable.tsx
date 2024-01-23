@@ -1,31 +1,19 @@
 import { useMemo } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CancelIcon from "@mui/icons-material/Cancel";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import Link from "@mui/material/Link";
 import { FormattedMessage } from "react-intl";
-import { Link as RouterLink } from "react-router-dom";
 import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import AnomaliesFilters from "components/AnomaliesFilters";
-import AnomalyRunChartCell from "components/AnomalyRunChartCell";
-import CaptionedCell from "components/CaptionedCell";
 import Filters from "components/Filters";
 import { RESOURCE_FILTERS } from "components/Filters/constants";
-import FormattedMoney, { useMoneyFormatter } from "components/FormattedMoney";
-import IconLabel from "components/IconLabel";
-import KeyValueLabel from "components/KeyValueLabel";
-import ProgressBar from "components/ProgressBar";
+import { useMoneyFormatter } from "components/FormattedMoney";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import Tooltip from "components/Tooltip";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useApiData } from "hooks/useApiData";
-import { useIntervalTimeAgo } from "hooks/useIntervalTimeAgo";
 import { intl } from "translations/react-intl-config";
-import { getAnomalyUrl, getQuotaAndBudgetUrl, getTaggingPolicyUrl } from "urls";
 import { isEmpty } from "utils/arrays";
+import { organizationConstraintName, organizationConstraintStatus } from "utils/columns";
 import {
   QUOTA_POLICY,
   RECURRING_BUDGET_POLICY,
@@ -33,16 +21,11 @@ import {
   ANOMALY_TYPES,
   TAGGING_POLICY,
   EMPTY_UUID,
-  TAGGING_POLICY_TYPES,
-  QUOTAS_AND_BUDGETS_TYPES,
   FORMATTED_MONEY_TYPES
 } from "utils/constants";
 import { formatUTC } from "utils/datetime";
-import { getPoolColorStatus } from "utils/layouts";
 import { isEmpty as isEmptyObject } from "utils/objects";
 import { CELL_EMPTY_VALUE } from "utils/tables";
-import SlicedText from "../SlicedText";
-import useStyles from "./OrganizationConstraintsTable.styles";
 
 const buildDescription = ({ type, definition, formatter, rawString = false }) => {
   if (ANOMALY_TYPES[type]) {
@@ -123,92 +106,6 @@ const buildDescription = ({ type, definition, formatter, rawString = false }) =>
   return null;
 };
 
-const getLink = (id, type) => {
-  if (ANOMALY_TYPES[type]) {
-    return getAnomalyUrl(id);
-  }
-
-  if (TAGGING_POLICY_TYPES[type]) {
-    return getTaggingPolicyUrl(id);
-  }
-
-  return getQuotaAndBudgetUrl(id);
-};
-
-const ConstraintStatusCell = ({ lastRun, lastRunResult, type, definition }) => {
-  const { classes } = useStyles();
-
-  if (lastRun === 0 || isEmptyObject(lastRunResult)) {
-    return <FormattedMessage id="noStatusInformationYet" />;
-  }
-
-  if (ANOMALY_TYPES[type]) {
-    const { breakdown = {}, average = 0, today = 0 } = lastRunResult;
-
-    return (
-      <AnomalyRunChartCell breakdown={breakdown} today={today} average={average} threshold={definition.threshold} type={type} />
-    );
-  }
-
-  if (QUOTAS_AND_BUDGETS_TYPES[type]) {
-    const { current, limit } = lastRunResult;
-    const xDividedByY = current / limit;
-    const percent = xDividedByY * 100;
-
-    const label = type === QUOTA_POLICY ? current : <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={current} />;
-    return (
-      <ProgressBar color={getPoolColorStatus(percent)} value={percent} wrapperSx={{ minWidth: "160px" }}>
-        {label}
-      </ProgressBar>
-    );
-  }
-
-  // and for TAGGING_POLICY_TYPES[type]
-  const { value: violations } = lastRunResult;
-
-  return (
-    <div className={classes.centered}>
-      {violations === 0 ? (
-        <CheckCircleIcon fontSize="small" color="success" />
-      ) : (
-        <>
-          <CancelIcon fontSize="small" color="error" />
-          <FormattedMessage id="violationsRightNow" values={{ value: violations }} />
-        </>
-      )}
-    </div>
-  );
-};
-
-const NameCell = ({ lastRun, limitHits, id, type, name }) => {
-  const timeAgo = useIntervalTimeAgo(lastRun, 1);
-  const hitsNum = limitHits.length;
-  return (
-    <CaptionedCell
-      caption={{
-        key: "lastRunCaption",
-        node: lastRun ? (
-          <IconLabel
-            icon={
-              hitsNum !== 0 && (
-                <Tooltip title={intl.formatMessage({ id: "hitsForLastDays" }, { value: hitsNum, amount: 3 })}>
-                  <ErrorOutlineIcon fontSize="inherit" />
-                </Tooltip>
-              )
-            }
-            label={<KeyValueLabel variant="caption" messageId="lastCheck" value={timeAgo} />}
-            component={RouterLink}
-          />
-        ) : null
-      }}
-    >
-      <Link to={getLink(id, type)} component={RouterLink}>
-        <SlicedText limit={40} text={name} />
-      </Link>
-    </CaptionedCell>
-  );
-};
-
 const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = false }) => {
   const isManageResourcesAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
   const formatter = useMoneyFormatter();
@@ -247,36 +144,8 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
 
   const columns = useMemo(
     () => [
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_name">
-            <FormattedMessage id="name" />
-          </TextWithDataTestId>
-        ),
-        accessorKey: "name",
-        cell: ({
-          row: {
-            original: { id, type, last_run: lastRun, limit_hits: limitHits = [] }
-          },
-          cell
-        }) => <NameCell lastRun={lastRun} limitHits={limitHits} id={id} type={type} name={cell.getValue()} />,
-        defaultSort: "asc"
-      },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_status">
-            <FormattedMessage id="status" />
-          </TextWithDataTestId>
-        ),
-        id: "status",
-        cell: ({
-          row: {
-            original: { last_run: lastRun, last_run_result: lastRunResult = {}, definition, type }
-          }
-        }) => <ConstraintStatusCell lastRun={lastRun} lastRunResult={lastRunResult} type={type} definition={definition} />,
-        enableSorting: false,
-        enableGlobalFilter: false
-      },
+      organizationConstraintName(),
+      organizationConstraintStatus(),
       {
         header: (
           <TextWithDataTestId dataTestId="lbl_description">

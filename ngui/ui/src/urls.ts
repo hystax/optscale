@@ -132,8 +132,8 @@ export const QUOTA_AND_BUDGET_CREATE = concatenateUrl([QUOTAS_AND_BUDGETS_BASE, 
 export const TAGGING_POLICIES_BASE = "tagging-policies";
 const TAGGING_POLICY_IDENTIFIER = ":taggingPolicyId";
 
-export const TAGGING_POLICY = concatenateUrl([TAGGING_POLICIES_BASE, TAGGING_POLICY_IDENTIFIER]);
 export const TAGGING_POLICIES = concatenateUrl([TAGGING_POLICIES_BASE]);
+export const TAGGING_POLICY = concatenateUrl([TAGGING_POLICIES_BASE, TAGGING_POLICY_IDENTIFIER]);
 export const getTaggingPolicyUrl = (policyId) => TAGGING_POLICY.replace(TAGGING_POLICY_IDENTIFIER, policyId);
 
 export const TAGGING_POLICY_CREATE = concatenateUrl([TAGGING_POLICIES_BASE, CREATE]);

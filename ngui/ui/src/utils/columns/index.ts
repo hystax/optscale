@@ -36,6 +36,8 @@ import mlLocalStorageBottleneckDuration from "./mlLocalStorageBottleneckDuration
 import mlRunsCount from "./mlRunsCount";
 import name from "./name";
 import openPorts from "./openPorts";
+import organizationConstraintName from "./organizationConstraintName";
+import organizationConstraintStatus from "./organizationConstraintStatus";
 import poolAndOwner from "./poolAndOwner";
 import poolOwner from "./poolOwner";
 import possibleMonthlySavings from "./possibleMonthlySavings";
@@ -121,5 +123,7 @@ export {
   hyperparameters,
   datasetLabels,
   leaderboardCriteriaDataset,
-  leaderboardCriteriaDatasetLabels
+  leaderboardCriteriaDatasetLabels,
+  organizationConstraintName,
+  organizationConstraintStatus
 };

@@ -1,13 +1,22 @@
+import { type ReactNode } from "react";
 import Grid from "@mui/material/Grid";
 import { useInnerBorders } from "hooks/useInnerBorders";
 
+type DashboardGridLayoutProps = {
+  topResourcesExpensesCard: ReactNode;
+  policiesCard: ReactNode;
+  organizationExpenses: ReactNode;
+  recommendationsCard: ReactNode;
+  poolsRequiringAttentionCard: ReactNode;
+};
+
 const DashboardGridLayout = ({
   topResourcesExpensesCard,
-  environmentsCard,
+  policiesCard,
   organizationExpenses,
   recommendationsCard,
   poolsRequiringAttentionCard
-}) => {
+}: DashboardGridLayoutProps) => {
   const squareNodes = [
     { key: "organizationExpenses", node: organizationExpenses },
     {
@@ -16,8 +25,8 @@ const DashboardGridLayout = ({
     },
     { key: "recommendationsCard", node: recommendationsCard },
     {
-      key: "environmentsCard",
-      node: environmentsCard
+      key: "policiesCard",
+      node: policiesCard
     },
     {
       key: "poolsRequiringAttentionCard",
