@@ -6,6 +6,7 @@ import GetAssignmentRulesContainer from "containers/GetAssignmentRulesContainer"
 import PoolConstraintsContainer from "containers/PoolConstraintsContainer";
 import ShareSettingsContainer from "containers/ShareSettingsContainer";
 import PoolsService from "services/PoolsService";
+import { EDIT_POOL_TAB_QUERY } from "urls";
 import BaseSideModal from "./BaseSideModal";
 
 export const EDIT_POOL_TABS = Object.freeze({
@@ -14,8 +15,6 @@ export const EDIT_POOL_TABS = Object.freeze({
   CONSTRAINTS: "constraints",
   ASSIGNMENT_RULES: "assignmentRules"
 });
-
-export const EDIT_POOL_TAB_QUERY = "poolEditTab";
 
 const EditPool = ({ onSuccess, id }) => {
   const { useGet } = PoolsService();

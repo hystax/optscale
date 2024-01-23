@@ -28,7 +28,7 @@ import useStyles from "./Table.styles";
 import { getRowsCount } from "./utils";
 import { SELECTION_COLUMN_ID } from "./utils/constants";
 
-const DEFAULT_EMPTY_MESSAGE_ID = "noRecordsToDisplay";
+const DEFAULT_EMPTY_MESSAGE_ID = "noDataToDisplay";
 
 const Table = ({
   data,
