@@ -6,9 +6,7 @@ import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import WrapperCard from "components/WrapperCard";
-import { ANOMALIES, QUOTAS_AND_BUDGETS, TAGGING_POLICIES } from "urls";
 import { organizationConstraintName, organizationConstraintStatus } from "utils/columns";
-import { isAnomalyConstraint, isQuotasAndBudgetsConstraint, isTaggingPolicyConstraint } from "utils/organizationConstraints";
 
 const ConstraintsTable = ({ constraints }) => {
   const tableData = useMemo(() => constraints, [constraints]);
@@ -22,36 +20,16 @@ const ConstraintsTable = ({ constraints }) => {
             <FormattedMessage id="type" />
           </TextWithDataTestId>
         ),
-        accessorKey: "type",
-        cell: ({ cell }) => {
-          const constraintType = cell.getValue();
-
-          switch (true) {
-            case isAnomalyConstraint(constraintType): {
-              return (
-                <Link to={ANOMALIES} component={RouterLink}>
-                  <FormattedMessage id="anomaly" />
-                </Link>
-              );
-            }
-            case isQuotasAndBudgetsConstraint(constraintType): {
-              return (
-                <Link to={QUOTAS_AND_BUDGETS} component={RouterLink}>
-                  <FormattedMessage id="quota/Budget" />
-                </Link>
-              );
-            }
-            case isTaggingPolicyConstraint(constraintType): {
-              return (
-                <Link to={TAGGING_POLICIES} component={RouterLink}>
-                  <FormattedMessage id="tagging" />
-                </Link>
-              );
-            }
-            default:
-              return null;
+        accessorKey: "typeMessageId",
+        cell: ({
+          row: {
+            original: { typeMessageId, typeLink }
           }
-        }
+        }) => (
+          <Link to={typeLink} component={RouterLink}>
+            <FormattedMessage id={typeMessageId} />
+          </Link>
+        )
       },
       organizationConstraintStatus()
     ],
