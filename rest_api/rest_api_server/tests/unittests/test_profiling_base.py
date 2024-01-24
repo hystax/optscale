@@ -519,6 +519,20 @@ class ArceeMock:
         }))
         return 200, logs
 
+    def run_delete(self, run_id):
+        run = self.profiling_runs.find_one({"_id": run_id})
+        if not run:
+            self._raise_http_error(404)
+        app = self.profiling_application.find_one({
+            "_id": run["application_id"],
+            "token": self.token,
+            "deleted_at": 0
+        })
+        if not app:
+            self._raise_http_error(403)
+        self.profiling_runs.delete_one({'_id': run_id})
+        return 204, None
+
     def token_create(self, token):
         return 200, {}
 

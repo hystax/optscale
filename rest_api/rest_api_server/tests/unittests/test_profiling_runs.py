@@ -756,3 +756,22 @@ class TestRunsApi(TestProfilingBase):
                          {'avg': 25.0, 'sum': 50, 'max': 30, 'last': 30})
         self.assertEqual(resp['breakdown'][str(now)]['data'],
                          {'avg': 45.0, 'sum': 90, 'max': 50, 'last': 40})
+
+    def test_delete_run(self):
+        code, app = self.client.application_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+            })
+        run = self._create_run(self.org['id'], app['id'], ['i-1'],
+                               start=1, finish=3)
+
+        _, org2 = self.client.organization_create({'name': "organization_2"})
+        code, resp = self.client.run_delete(org2['id'], run['_id'])
+        self.assertEqual(code, 403)
+
+        code, resp = self.client.run_delete(self.org['id'], run['_id'])
+        self.assertEqual(code, 204)
+
+        code, resp = self.client.run_delete(self.org['id'], run['_id'])
+        self.assertEqual(code, 404)

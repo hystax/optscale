@@ -377,6 +377,50 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         res = await run_task(self.controller.get, organization_id, id, token)
         self.write(json.dumps(res, cls=ModelEncoder))
 
+    async def delete(self, organization_id, id, **kwargs):
+        """
+        ---
+        description: |
+            Deletes run with specified id
+            Required permission: CLUSTER_SECRET
+        tags: [profiling_runs]
+        summary: Delete run
+        parameters:
+        -   name: organization_id
+            in: path
+            description: Organization id
+            required: true
+            type: string
+        -   name: id
+            in: path
+            description: Run ID
+            required: true
+            type: string
+        responses:
+            204:
+                description: Success
+            401:
+                description: |
+                    Unauthorized:
+                    - OE0235: Unauthorized
+                    - OE0237: This resource requires authorization
+            403:
+                description: |
+                    Forbidden:
+                    - OE0234: Forbidden
+                    - OE0236: Bad secret
+            404:
+                description: |
+                    Not found:
+                    - OE0002: Object not found
+        security:
+        - token: []
+        """
+        self.check_cluster_secret()
+        token = await self._get_profiling_token(organization_id)
+        await run_task(self.controller.delete, id, token)
+        self.set_status(204)
+
 
 class RunBreakdownItemHandler(RunAsyncItemHandler, ProfilingHandler):
 

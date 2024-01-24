@@ -237,6 +237,14 @@ class RunController(BaseProfilingController, RunCostsMixin):
             'stages': stages,
         }
 
+    def delete(self, id, profiling_token):
+        try:
+            self.delete_run(profiling_token, id)
+        except HTTPError as ex:
+            if ex.response.status_code == 404:
+                raise NotFoundException(Err.OE0002, ['Run', id])
+            raise
+
 
 class RunAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):

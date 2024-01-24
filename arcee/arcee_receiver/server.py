@@ -1012,6 +1012,30 @@ async def bulk_get_runs(request, application_id: str):
     return json(res)
 
 
+@app.route('/arcee/v2/run/<run_id>', methods=["DELETE", ])
+async def delete_run(request, run_id: str):
+    """
+    deletes run
+    :param request:
+    :param run_id:
+    :return:
+    """
+    token = await extract_token(request)
+    await check_token(token)
+    run = await db.run.find_one({"_id": run_id})
+    if not run:
+        raise SanicException("Not found", status_code=404)
+    await check_application(token, run)
+
+    await db.console.delete_many({'run_id': run['_id']})
+    await db.log.delete_many({'run': run['_id']})
+    await db.stage.delete_many({'run_id': run['_id']})
+    await db.milestone.delete_many({'run_id': run['_id']})
+    await db.proc_data.delete_many({'run_id': run['_id']}),
+    await db.run.delete_one({'_id': run_id})
+    return json({"deleted": True, "_id": run_id})
+
+
 @app.route('/arcee/v2/goals', methods=["POST", ])
 async def create_goal(request):
     """
