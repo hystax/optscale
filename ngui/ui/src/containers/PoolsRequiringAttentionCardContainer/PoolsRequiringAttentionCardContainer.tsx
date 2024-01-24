@@ -3,6 +3,20 @@ import { isCostOverLimit, isForecastOverLimit } from "components/PoolsTable/util
 import PoolsService from "services/PoolsService";
 import { isEmpty } from "utils/arrays";
 
+// TODO: move to generic types when created
+type Pool = {
+  id: string;
+  name: string;
+  purpose: string;
+  cost: number;
+  forecast: number;
+  limit: number;
+  children: Pool[];
+};
+
+const hasLimit = (limit: number) => limit !== 0;
+const getRemain = (limit: number, cost: number) => limit - cost;
+
 const getRequiringAttentionPools = ({
   id: rootId,
   name: rootName,
@@ -11,47 +25,55 @@ const getRequiringAttentionPools = ({
   forecast: rootForecast = 0,
   limit: rootLimit = 0,
   children = []
-}) => {
-  // Make a flat list of child pools and neccessary root pool fields
-  const allPools = [
-    ...children,
-    {
-      id: rootId,
-      name: rootName,
-      cost: rootCost,
-      forecast: rootForecast,
-      purpose: rootPurpose,
-      parent_id: null,
-      limit: rootLimit
-    }
-  ];
-
+}: Pool) => {
   const withExceededLimit = [];
   const withForecastedOverspend = [];
 
-  allPools.forEach(({ id, name, purpose, limit = 0, cost = 0, forecast = 0 }) => {
-    // To get actual pool data, find all children and and substract cost, forecast and limit from current pool
-    const poolChildren = allPools.filter(({ parent_id: parentId }) => id === parentId);
-
-    let poolCost = cost;
-    let poolForecast = forecast;
-    let poolLimit = limit;
-
-    // Just skipped if there are no children, the origical values are taken
-    poolChildren.forEach(({ cost: childCost = 0, forecast: childForecast = 0, limit: childLimit = 0 }) => {
-      poolCost -= childCost;
-      poolForecast -= childForecast;
-      poolLimit -= childLimit;
-    });
+  // Calculate for children pools
+  children.forEach(({ id, name, purpose, limit = 0, cost = 0, forecast = 0 }) => {
+    const withLimit = hasLimit(limit);
+    const remain = getRemain(limit, cost);
+    const pool = {
+      id,
+      name,
+      purpose,
+      cost,
+      forecast,
+      hasLimit: withLimit,
+      remain,
+      limit
+    };
 
     // Pools can go into both categories simultaneously
-    if (isCostOverLimit({ limit: poolLimit, cost: poolCost })) {
-      withExceededLimit.push({ id, name, purpose, cost: poolCost, forecast: poolForecast });
+    if (isCostOverLimit({ limit, cost })) {
+      withExceededLimit.push(pool);
     }
-    if (isForecastOverLimit({ limit: poolLimit, forecast: poolForecast })) {
-      withForecastedOverspend.push({ id, name, purpose, cost: poolCost, forecast: poolForecast });
+    if (isForecastOverLimit({ limit, forecast })) {
+      withForecastedOverspend.push(pool);
     }
   });
+
+  // Calculate for root/parent pool
+  const withRootLimit = hasLimit(rootLimit);
+  const rootRemain = getRemain(rootLimit, rootCost);
+
+  const rootPool = {
+    id: rootId,
+    name: rootName,
+    purpose: rootPurpose,
+    cost: rootCost,
+    forecast: rootForecast,
+    hasLimit: withRootLimit,
+    remain: rootRemain,
+    limit: rootLimit
+  };
+
+  if (isCostOverLimit({ limit: rootLimit, cost: rootCost })) {
+    withExceededLimit.push(rootPool);
+  }
+  if (isForecastOverLimit({ limit: rootLimit, forecast: rootForecast })) {
+    withForecastedOverspend.push(rootPool);
+  }
 
   return { withExceededLimit, withForecastedOverspend };
 };
