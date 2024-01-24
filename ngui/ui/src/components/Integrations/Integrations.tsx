@@ -5,7 +5,7 @@ import IntegrationJiraContainer from "containers/IntegrationJiraContainer";
 import IntegrationsBIExportContainer from "containers/IntegrationsBIExportContainer";
 import IntegrationsGoogleCalendarContainer from "containers/IntegrationsGoogleCalendarContainer";
 import IntegrationsSlackContainer from "containers/IntegrationsSlackContainer";
-import { useInnerBorders } from "hooks/useInnerBorders";
+import { getSquareNodesStyle } from "utils/layouts";
 import { BI_EXPORT } from "./BIExport";
 import GitHub from "./GitHub";
 import { GITHUB } from "./GitHub/GitHub";
@@ -54,37 +54,19 @@ const integrationsGridItems = [
   }
 ];
 
-const Integrations = () => {
-  const makeBorders = useInnerBorders({
-    tileCount: integrationsGridItems.length,
-    columns: 2,
-    borderStyle: "1px solid",
-    lastChildBorderOnMobile: false
-  });
-
-  return (
-    <>
-      <ActionBar data={actionBarDefinition} />
-      <PageContentWrapper>
-        <Grid container>
-          {integrationsGridItems.map(({ key, node }, i) => (
-            <Grid
-              key={key}
-              item
-              xs={12}
-              sm={6}
-              sx={{
-                ...makeBorders(i),
-                borderColor: "divider"
-              }}
-            >
-              {node}
-            </Grid>
-          ))}
-        </Grid>
-      </PageContentWrapper>
-    </>
-  );
-};
+const Integrations = () => (
+  <>
+    <ActionBar data={actionBarDefinition} />
+    <PageContentWrapper>
+      <Grid container>
+        {integrationsGridItems.map(({ key, node }, i) => (
+          <Grid key={key} item md={12} lg={6} sx={getSquareNodesStyle(integrationsGridItems.length, i)}>
+            {node}
+          </Grid>
+        ))}
+      </Grid>
+    </PageContentWrapper>
+  </>
+);
 
 export default Integrations;

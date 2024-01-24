@@ -37,3 +37,27 @@ export const getPoolColorStatus = (percent = 0) => {
   }
   return SUCCESS;
 };
+
+/**
+ * Calculate border styles for n*2 cards/nodes layouts (home page, integrations)
+ *
+ * @param count - The number of cards/nodes
+ * @param index - The current card/node index. Cards are iterated in a loop.
+ *
+ * TODO - improve to add a dynamic number of columns, more breakpoints
+ * @returns The border styles object, ready to use for `sx`
+ */
+export const getSquareNodesStyle = (count: number, index: number) => ({
+  borderRight: {
+    xs: "0",
+    lg: index % 2 === 0 ? "1px solid" : "0px solid"
+  },
+  borderBottom: {
+    xs: index + 1 === count ? "0" : "1px solid",
+    lg: index + 2 >= count ? "0" : "1px solid"
+  },
+  borderColor: {
+    xs: "divider",
+    lg: "divider"
+  }
+});
