@@ -609,6 +609,7 @@
   "editBIExportTitle": "Edit Business Intelligence Export",
   "editDatasetTitle": "Edit Dataset",
   "editLeaderboardCriteria": "Edit leaderboard criteria",
+  "editMetricTitle": "Edit Metric",
   "editRunsetTemplateTitle": "Edit Runset Template",
   "editTaskTitle": "Edit Task",
   "edit{}": "Edit {value}",
