@@ -42,7 +42,7 @@ const ConstraintsTable = ({ constraints }) => {
       enablePaginationQueryParam={false}
       data={tableData}
       columns={columns}
-      localization={{ emptyMessageId: "noPolicies" }}
+      localization={{ emptyMessageId: "noPolicyViolations" }}
       pageSize={5}
     />
   );
