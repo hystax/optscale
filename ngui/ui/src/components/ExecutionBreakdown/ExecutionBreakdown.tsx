@@ -322,7 +322,7 @@ const ExecutionBreakdown = ({ breakdown, milestones, reachedGoals = {}, taskId }
               checked={showMilestones}
             />
             <ChartSwitch
-              messageId="syncMarkers"
+              messageId="syncTooltips"
               onChange={(newChecked) => (newChecked ? enableTooltipSync() : disableTooltipSync())}
               checked={syncTooltips}
             />

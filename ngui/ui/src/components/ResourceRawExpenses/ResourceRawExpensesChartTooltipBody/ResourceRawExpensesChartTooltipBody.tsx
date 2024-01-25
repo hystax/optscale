@@ -1,16 +1,15 @@
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import CircleLabel from "components/CircleLabel";
 import FormattedMoney from "components/FormattedMoney";
 import KeyValueLabel from "components/KeyValueLabel";
 import ResourceUsageFormattedNumber from "components/ResourceUsageFormattedNumber";
+import { intl } from "translations/react-intl-config";
 import { getLength, isEmpty, splitIntoTwoChunks } from "utils/arrays";
 import { FORMATTED_MONEY_TYPES, ONE_CENT } from "utils/constants";
 
 const DISPLAYED_TOOLTIP_ITEMS = 10;
 
 const ResourceRawExpensesChartTooltipBody = ({ slice, stacked }) => {
-  const intl = useIntl();
-
   const { points: allPoints } = slice;
   const [points, limitExceededPoints] = splitIntoTwoChunks(allPoints, DISPLAYED_TOOLTIP_ITEMS);
 
