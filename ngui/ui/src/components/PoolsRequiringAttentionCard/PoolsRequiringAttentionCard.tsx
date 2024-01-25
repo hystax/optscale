@@ -1,14 +1,15 @@
 import { useState, useMemo } from "react";
+import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import StorageOutlinedIcon from "@mui/icons-material/StorageOutlined";
 import { Stack } from "@mui/material";
-import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
 import PoolLabel from "components/PoolLabel";
+import { expenses, poolForecast } from "components/PoolsTable/columns";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TabsWrapper from "components/TabsWrapper";
@@ -16,8 +17,7 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import WrapperCard from "components/WrapperCard";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import PoolLimitIcon from "icons/PoolLimitIcon";
-import { POOLS, getThisMonthResourcesByPoolWithoutSubpoolsUrl } from "urls";
-import { expenses } from "utils/columns";
+import { POOLS, getThisMonthResourcesByPoolWithoutSubpoolsUrl, getThisMonthPoolExpensesUrl } from "urls";
 import { SPACING_2 } from "utils/layouts";
 import useStyles from "./PoolsRequiringAttentionCard.styles";
 
@@ -50,7 +50,7 @@ const SetRootPoolLimit = () => {
   );
 };
 
-const PoolsTable = ({ pools }) => {
+const PoolsTable = ({ pools, sortColumn }) => {
   const tableData = useMemo(() => pools, [pools]);
   const navigate = useNavigate();
 
@@ -65,32 +65,39 @@ const PoolsTable = ({ pools }) => {
         accessorKey: "name",
         cell: ({
           row: {
-            original: { id, name, purpose }
+            original: { name, purpose }
+          }
+        }) => <PoolLabel disableLink name={name} type={purpose} />
+      },
+      expenses({ defaultSort: sortColumn === "cost" ? "desc" : undefined }),
+      poolForecast({ defaultSort: sortColumn === "forecast" ? "desc" : undefined }),
+      {
+        id: "actions",
+        header: <FormattedMessage id="actions" />,
+        enableSorting: false,
+        cell: ({
+          row: {
+            original: { id }
           }
         }) => (
-          <Box display="flex">
-            <PoolLabel disableLink name={name} type={purpose} />
+          <>
             <IconButton
+              key="seeResourceList"
               onClick={() => navigate(getThisMonthResourcesByPoolWithoutSubpoolsUrl(id))}
-              tooltip={{ show: true, value: <FormattedMessage id="seeResourceList" /> }}
               icon={<StorageOutlinedIcon fontSize="small" />}
+              tooltip={{ show: true, value: <FormattedMessage id="seeResourceList" /> }}
             />
-          </Box>
+            <IconButton
+              key="seeInCostExplorer"
+              onClick={() => navigate(getThisMonthPoolExpensesUrl(id))}
+              icon={<BarChartOutlinedIcon fontSize="small" />}
+              tooltip={{ show: true, value: <FormattedMessage id="seeInCostExplorer" /> }}
+            />
+          </>
         )
-      },
-      expenses({
-        headerDataTestId: "lbl_expenses_this_month",
-        headerMessageId: "expensesThisMonth",
-        accessorKey: "cost",
-        defaultSort: "desc"
-      }),
-      expenses({
-        headerDataTestId: "lbl_forecast_this_month",
-        headerMessageId: "forecastThisMonth",
-        accessorKey: "forecast"
-      })
+      }
     ],
-    [navigate]
+    [navigate, sortColumn]
   );
 
   return (
@@ -112,12 +119,12 @@ const Tabs = ({ withExceededLimit, withForecastedOverspend }) => {
     {
       title: "exceededLimit",
       dataTestId: "tab_exceeded_limit",
-      node: <PoolsTable pools={withExceededLimit} />
+      node: <PoolsTable pools={withExceededLimit} sortColumn="cost" />
     },
     {
       title: "forecastedOverspend",
       dataTestId: "tab_forecasted_overspend",
-      node: <PoolsTable pools={withForecastedOverspend} />
+      node: <PoolsTable pools={withForecastedOverspend} sortColumn="forecast" />
     }
   ];
 

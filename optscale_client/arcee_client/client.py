@@ -452,6 +452,14 @@ class Client:
         """
         return self.get(self.run_url(run_id))
 
+    def run_delete(self, run_id):
+        """
+        Deletes run by run_id
+        :param run_id:
+        :return:
+        """
+        return self.delete(self.run_url(run_id))
+
     def executors_get(self, applications_ids=None, run_ids=None):
         """
         Gets executors

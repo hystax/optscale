@@ -79,7 +79,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
         onConstraintsClick: (id) => openEditModal(EDIT_POOL_TABS.CONSTRAINTS, id)
       }),
       poolLimit(),
-      expenses(),
+      expenses({ defaultSort: "desc" }),
       poolForecast(),
       text({
         headerMessageId: "owner",

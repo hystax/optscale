@@ -357,6 +357,11 @@ class BaseProfilingController(BaseProfilingTokenController):
         return run
 
     @handle_http_exc
+    def delete_run(self, profiling_token, run_id):
+        arcee = self.get_arcee_client(profiling_token)
+        arcee.run_delete(run_id)
+
+    @handle_http_exc
     def list_milestones(self, profiling_token, run_id):
         arcee = self.get_arcee_client(profiling_token)
         _, milestones = arcee.run_milestones_get(run_id)

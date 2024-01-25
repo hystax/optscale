@@ -1712,6 +1712,9 @@ class Client(Client_v1):
                             ) + self.query_url(**kwargs)
         return self.get(url)
 
+    def run_delete(self, organization_id, run_id):
+        return self.delete(self.runs_url(organization_id, id=run_id))
+
     def application_optimizations_get(self, organization_id, application_id,
                                       types=None, status=None):
         url = self.application_optimizations_url(

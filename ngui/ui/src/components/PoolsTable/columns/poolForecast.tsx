@@ -7,9 +7,10 @@ import { FORMATTED_MONEY_TYPES } from "utils/constants";
 import { percentXofY, round } from "utils/math";
 import { isForecastOverLimit } from "../utils";
 
-const poolForecast = () => ({
+const poolForecast = ({ defaultSort } = {}) => ({
   header: <TextWithDataTestId dataTestId="lbl_forecast" messageId="forecastThisMonth" />,
   accessorKey: "forecast",
+
   cell: ({ cell, row: { original } }) => {
     const forecast = cell.getValue();
     const { hasLimit, limit } = original;
@@ -40,6 +41,7 @@ const poolForecast = () => ({
       </Tooltip>
     );
   },
+  defaultSort,
   columnSelector: {
     accessor: "forecast",
     messageId: "forecast",

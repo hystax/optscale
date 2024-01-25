@@ -7,7 +7,7 @@ import Tooltip from "components/Tooltip";
 import { FORMATTED_MONEY_TYPES, SUCCESS } from "utils/constants";
 import { percentXofY, round } from "utils/math";
 
-const expenses = () => ({
+const expenses = ({ defaultSort } = {}) => ({
   header: <TextWithDataTestId dataTestId="lbl_expenses" messageId="expensesThisMonth" />,
   accessorKey: "cost",
   cell: ({
@@ -76,7 +76,7 @@ const expenses = () => ({
       </ProgressBar>
     );
   },
-  defaultSort: "desc",
+  defaultSort,
   columnSelector: {
     accessor: "cost",
     messageId: "expensesThisMonth",

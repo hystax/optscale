@@ -1,5 +1,5 @@
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
-import { Box, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import MenuItem from "@mui/material/MenuItem";
@@ -49,11 +49,12 @@ const PerspectiveMenuItem = ({ perspectiveName }) => {
 };
 
 const Property = ({ messageId, value }) => (
-  <Typography mb={SPACING_1}>
+  <Typography component="div">
     <strong>
       <FormattedMessage id={messageId} />
     </strong>
-    : {value}
+    &#58;&nbsp;
+    {value}
   </Typography>
 );
 
@@ -80,7 +81,7 @@ const TopResourcesView = ({ data }) => {
       <Tooltip
         key={id}
         title={
-          <>
+          <Stack spacing={SPACING_1}>
             <Property messageId="id" value={getCloudResourceIdentifier(original)} />
             {!!original.resource_name && <Property messageId="name" value={original.resource_name} />}
             <Property
@@ -101,7 +102,7 @@ const TopResourcesView = ({ data }) => {
                 }
               />
             )}
-          </>
+          </Stack>
         }
       >
         <Typography component="div" className={classes.item}>

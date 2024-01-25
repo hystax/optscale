@@ -7,7 +7,7 @@ import MailTo from "components/MailTo";
 import Mocked, { MESSAGE_TYPES } from "components/Mocked";
 import PageContentWrapper from "components/PageContentWrapper";
 import { PRODUCT_TOUR, useProductTour, useStartTour } from "components/Tour";
-import EnvironmentsCardContainer from "containers/EnvironmentsCardContainer";
+import OrganizationConstraintsCardContainer from "containers/OrganizationConstraintsCardContainer";
 import OrganizationExpensesContainer from "containers/OrganizationExpensesContainer";
 import PoolsRequiringAttentionCardContainer from "containers/PoolsRequiringAttentionCardContainer";
 import RecommendationsCardContainer from "containers/RecommendationsCardContainer";
@@ -45,7 +45,7 @@ const Dashboard = () => {
 
   const dashboardGridItems = {
     topResourcesExpensesCard: thereAreOnlyEnvironmentDataSources ? null : <TopResourcesExpensesCardContainer />,
-    environmentsCard: <EnvironmentsCardContainer />,
+    policiesCard: <OrganizationConstraintsCardContainer />,
     organizationExpenses: thereAreOnlyEnvironmentDataSources ? null : <OrganizationExpensesContainer />,
     recommendationsCard: <RecommendationsCardContainer />,
     poolsRequiringAttentionCard: <PoolsRequiringAttentionCardContainer />
