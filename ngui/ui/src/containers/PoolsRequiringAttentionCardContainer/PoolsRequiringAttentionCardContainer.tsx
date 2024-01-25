@@ -11,7 +11,9 @@ type Pool = {
   cost: number;
   forecast: number;
   limit: number;
-  children: Pool[];
+  children?: Pool[];
+  hasLimit?: boolean;
+  remain?: number;
 };
 
 const hasLimit = (limit: number) => limit !== 0;
@@ -26,32 +28,8 @@ const getRequiringAttentionPools = ({
   limit: rootLimit = 0,
   children = []
 }: Pool) => {
-  const withExceededLimit = [];
-  const withForecastedOverspend = [];
-
-  // Calculate for children pools
-  children.forEach(({ id, name, purpose, limit = 0, cost = 0, forecast = 0 }) => {
-    const withLimit = hasLimit(limit);
-    const remain = getRemain(limit, cost);
-    const pool = {
-      id,
-      name,
-      purpose,
-      cost,
-      forecast,
-      hasLimit: withLimit,
-      remain,
-      limit
-    };
-
-    // Pools can go into both categories simultaneously
-    if (isCostOverLimit({ limit, cost })) {
-      withExceededLimit.push(pool);
-    }
-    if (isForecastOverLimit({ limit, forecast })) {
-      withForecastedOverspend.push(pool);
-    }
-  });
+  const withExceededLimit: Pool[] = [];
+  const withForecastedOverspend: Pool[] = [];
 
   // Calculate for root/parent pool
   const withRootLimit = hasLimit(rootLimit);
@@ -68,12 +46,27 @@ const getRequiringAttentionPools = ({
     limit: rootLimit
   };
 
-  if (isCostOverLimit({ limit: rootLimit, cost: rootCost })) {
-    withExceededLimit.push(rootPool);
-  }
-  if (isForecastOverLimit({ limit: rootLimit, forecast: rootForecast })) {
-    withForecastedOverspend.push(rootPool);
-  }
+  [...children, rootPool].forEach(({ id, name, purpose, limit = 0, cost = 0, forecast = 0 }) => {
+    const withLimit = hasLimit(limit);
+    const remain = getRemain(limit, cost);
+    const pool = {
+      id,
+      name,
+      purpose,
+      cost,
+      forecast,
+      hasLimit: withLimit,
+      remain,
+      limit
+    };
+
+    // Pools can technically go into both categories simultaneously, but the goal is to focus on
+    if (isCostOverLimit({ limit, cost })) {
+      withExceededLimit.push(pool);
+    } else if (isForecastOverLimit({ limit, forecast })) {
+      withForecastedOverspend.push(pool);
+    }
+  });
 
   return { withExceededLimit, withForecastedOverspend };
 };
