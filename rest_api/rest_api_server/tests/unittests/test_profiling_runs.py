@@ -775,3 +775,9 @@ class TestRunsApi(TestProfilingBase):
 
         code, resp = self.client.run_delete(self.org['id'], run['_id'])
         self.assertEqual(code, 404)
+
+    def test_delete_run_invalid_org(self):
+        code, resp = self.client.run_delete(
+            str(uuid.uuid4()), str(uuid.uuid4()))
+        self.assertEqual(code, 404)
+        self.verify_error_code(resp, 'OE0002')
