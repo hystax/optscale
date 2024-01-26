@@ -92,7 +92,7 @@ const DocsPanel = () => {
         {status === STATUSES.OK && (
           <>
             <Box m={SPACING_2}>
-              <Markdown>{markdown}</Markdown>
+              <Markdown transformImageUri={(uri) => `/docs/${uri}`}>{markdown}</Markdown>
             </Box>
             <InlineSeverityAlert
               messageId="contributeToDocs"
