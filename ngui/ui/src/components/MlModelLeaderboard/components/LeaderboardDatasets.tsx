@@ -73,7 +73,7 @@ const LeaderboardDatasetsListSection = ({
           const isSelected = selectedLeaderboardDataset && leaderboardDataset.id === selectedLeaderboardDataset.id;
           return (
             <LeaderboardDatasetCard
-              key={leaderboard.id}
+              key={leaderboardDataset.id}
               leaderboardDataset={leaderboardDataset}
               onClick={() => onSelectedLeaderboardDatasetIdChange(leaderboardDataset.id)}
               selected={isSelected}
