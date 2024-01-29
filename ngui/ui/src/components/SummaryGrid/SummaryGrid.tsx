@@ -14,7 +14,7 @@ const getValueComponentSettings = (type, CustomComponent) => ({
   component: {
     [SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber]: FormattedNumber,
     [SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney]: ({ value, ...rest }) => {
-      const { currency = "USD" } = useOrganizationInfo();
+      const { currency } = useOrganizationInfo();
 
       return (
         <Tooltip title={<FormattedNumber format={currency} value={value} />}>

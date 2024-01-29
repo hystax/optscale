@@ -8,7 +8,7 @@ import TtlMessage from "./TtlMessage";
 
 export const useFormatConstraintHitMessage = () => {
   const intl = useIntl();
-  const { currency = "USD" } = useOrganizationInfo();
+  const { currency } = useOrganizationInfo();
 
   return useCallback(
     ({ limit, type, formats }) => {

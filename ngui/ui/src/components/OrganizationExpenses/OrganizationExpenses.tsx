@@ -39,7 +39,7 @@ const getChartData = (expenses) =>
   });
 
 const OrganizationExpenses = ({ data, isLoading }) => {
-  const { currency = "USD" } = useOrganizationInfo();
+  const { currency } = useOrganizationInfo();
   const theme = useTheme();
   const { expenses = {}, total = 0 } = data;
 
