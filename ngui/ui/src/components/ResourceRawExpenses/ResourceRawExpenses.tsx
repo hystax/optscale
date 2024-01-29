@@ -39,7 +39,7 @@ const ResourceRawExpenses = ({ expenses, shownExpenses, startDate, endDate, isLo
           yScale={{
             stacked: true
           }}
-          renderTooltipBody={ResourceRawExpensesChartTooltipBody}
+          renderTooltipBody={({ slice, stacked }) => <ResourceRawExpensesChartTooltipBody slice={slice} stacked={stacked} />}
           axisLeft={{
             format: (value) => formatMoney(FORMATTED_MONEY_TYPES.COMPACT, value)
           }}

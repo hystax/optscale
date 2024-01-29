@@ -198,7 +198,7 @@ export const SliceTooltipLayer = ({
       }}
     >
       {slice && (
-        <SliceTooltip container={containerRef} position={tooltipSettings.position} anchor={tooltipSettings.anchor}>
+        <SliceTooltip position={tooltipSettings.position} anchor={tooltipSettings.anchor}>
           {sliceTooltip({
             slice
           })}

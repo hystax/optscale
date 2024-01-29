@@ -48,9 +48,9 @@ const DividingHeader = ({ children }) => (
   </Box>
 );
 
-const Markdown = ({ children }) => (
+const Markdown = ({ children, transformImageUri }) => (
   <ReactMarkdown
-    transformImageUri={(uri) => `/docs/${uri}`}
+    transformImageUri={(uri) => (typeof transformImageUri === "function" ? transformImageUri(uri) : uri)}
     linkTarget="_blank"
     components={{
       a: ({ children: markdownChildren, href }) => (

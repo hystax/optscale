@@ -651,7 +651,7 @@ class BaseHierarchicalController(BaseController):
         return result
 
 
-class BaseProfilingTokenController(BaseController):
+class BaseProfilingTokenController(BaseController, OrganizationValidatorMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._arcee_client = None
@@ -692,6 +692,7 @@ class BaseProfilingTokenController(BaseController):
         ).one_or_none()
 
     def get_or_create_profiling_token(self, organization_id):
+        self.check_organization(organization_id)
         item = self._get(organization_id)
         if not item:
             try:
