@@ -80,32 +80,9 @@ export const SliceTooltipLayer = ({
   const canvasRef = useRef();
   const containerRef = useRef();
 
-  const [slice, setSlice] = useState(null);
-  const [tooltipSettings, setTooltipSettings] = useState({
-    position: {
-      x: 0,
-      y: 0
-    },
-    anchor: "left"
-  });
-
-  const resetSlice = useCallback(() => {
-    setSlice(null);
-  }, []);
-
-  const resetTooltip = useCallback(() => {
-    setTooltipSettings({
-      position: {
-        x: 0,
-        y: 0
-      },
-      anchor: "right"
-    });
-  }, []);
-
   const [mousePosition, setMousePosition] = useMousePosition();
 
-  useEffect(() => {
+  const getSliceAndTooltipSettings = () => {
     if (mousePosition) {
       const { x, y } = mousePosition;
 
@@ -118,31 +95,32 @@ export const SliceTooltipLayer = ({
       );
 
       if (sliceUnderCursor) {
-        setSlice(sliceUnderCursor);
-        setTooltipSettings({
-          position: {
-            x,
-            y
-          },
-          anchor: cursorXRelativeToLinesAres > linesAreaRectangle.width / 2 ? TOOLTIP_ANCHOR.LEFT : TOOLTIP_ANCHOR.RIGHT
-        });
-      } else {
-        resetSlice();
-        resetTooltip();
+        return {
+          slice: sliceUnderCursor,
+          tooltipSettings: {
+            position: {
+              x,
+              y
+            },
+            anchor: cursorXRelativeToLinesAres > linesAreaRectangle.width / 2 ? TOOLTIP_ANCHOR.LEFT : TOOLTIP_ANCHOR.RIGHT
+          }
+        };
       }
-    } else {
-      resetSlice();
-      resetTooltip();
     }
-  }, [
-    linesAreaRectangle.width,
-    linesAreaRectangle.xStart,
-    linesAreaRectangle.yStart,
-    mousePosition,
-    resetSlice,
-    resetTooltip,
-    slices
-  ]);
+
+    return {
+      slice: null,
+      tooltipSettings: {
+        position: {
+          x: 0,
+          y: 0
+        },
+        anchor: "right"
+      }
+    };
+  };
+
+  const { slice, tooltipSettings } = getSliceAndTooltipSettings();
 
   useEffect(() => {
     function mouseMoveHandler(event) {
