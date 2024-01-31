@@ -54,7 +54,12 @@ const SecondaryMetricsSelector = ({ metrics = [], isLoading = false }) => {
                 helperText={errors[FIELD_NAME]?.message}
                 InputProps={{
                   ...params.InputProps,
-                  endAdornment: <QuestionMark messageId="secondaryMetricsHint" dataTestId="qmark_secondary_metrics" />
+                  endAdornment: (
+                    <>
+                      <QuestionMark messageId="secondaryMetricsHint" dataTestId="qmark_secondary_metrics" />
+                      {params.InputProps.endAdornment}
+                    </>
+                  )
                 }}
               />
             )}

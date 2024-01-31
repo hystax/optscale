@@ -34,7 +34,6 @@ const PrimaryMetricSelector = ({ metrics = [], isLoading = false }) => {
         ) : (
           <Autocomplete
             name={name}
-            freeSolo
             value={formFieldValue}
             onChange={(event, newValue) => {
               onChange(newValue);
@@ -68,7 +67,12 @@ const PrimaryMetricSelector = ({ metrics = [], isLoading = false }) => {
                 helperText={errors[FIELD_NAME]?.message}
                 InputProps={{
                   ...params.InputProps,
-                  endAdornment: <QuestionMark messageId="primaryMetricHint" dataTestId="qmark_primary_metric" />
+                  endAdornment: (
+                    <>
+                      <QuestionMark messageId="primaryMetricHint" dataTestId="qmark_primary_metric" />
+                      {params.InputProps.endAdornment}
+                    </>
+                  )
                 }}
                 required
                 ref={ref}
