@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 from diworker.diworker.importers.base import BaseReportImporter
 
 LOG = logging.getLogger(__name__)
-CHUNK_SIZE = 200
+WRITE_CHUNK_SIZE = 200
+READ_CHUNK_SIZE = 20
 CORES_SYSTEM_TAG = 'compute.googleapis.com/cores'
 FLAVOR_SYSTEM_TAG = 'compute.googleapis.com/machine_spec'
 OPTSCALE_RESOURCE_ID_TAG = 'optscale_tracking_id'
@@ -130,7 +131,7 @@ class GcpReportImporter(BaseReportImporter):
             usage_rows = self._merge_same_billing_items(usage_rows)
             for r in usage_rows:
                 chunk.append(r)
-                if len(chunk) == CHUNK_SIZE:
+                if len(chunk) == WRITE_CHUNK_SIZE:
                     self.update_raw_records(chunk)
                     chunk = []
             if chunk:
@@ -217,30 +218,23 @@ class GcpReportImporter(BaseReportImporter):
         def save_expenses(resources_unique_ids, unique_id_field):
             resource_count = len(resources_unique_ids)
             progress = 0
-            for i in range(0, resource_count, CHUNK_SIZE):
+            for i in range(0, resource_count, READ_CHUNK_SIZE):
                 new_progress = round(i / resource_count * 100)
                 if new_progress != progress:
                     progress = new_progress
                     LOG.info('Progress: %s', progress)
 
                 filters = base_filters + [{unique_id_field: {
-                    '$in': resources_unique_ids[i:i + CHUNK_SIZE]
+                    '$in': resources_unique_ids[i:i + READ_CHUNK_SIZE]
                 }}]
                 expenses = self.mongo_raw.aggregate([
                     {'$match': {
                         '$and': filters,
                     }},
-                    {'$group': {
-                        '_id': {
-                            unique_id_field: '$%s' % unique_id_field,
-                            'start_date': {'$dayOfYear': '$start_date'},
-                        },
-                        'expenses': {'$push': '$$ROOT'}
-                    }},
                 ], allowDiskUse=True)
                 chunk = defaultdict(list)
                 for e in expenses:
-                    chunk[e['_id'][unique_id_field]].extend(e['expenses'])
+                    chunk[e[unique_id_field]].append(e)
                 self.save_clean_expenses(self.cloud_acc_id, chunk,
                                          unique_id_field=unique_id_field)
 

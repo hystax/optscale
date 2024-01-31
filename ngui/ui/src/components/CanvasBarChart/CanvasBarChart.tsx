@@ -225,7 +225,7 @@ const CanvasBarChart = ({
   const canvasRef = useRef();
   const barsRef = useRef();
 
-  const { currency = "USD" } = useOrganizationInfo();
+  const { currency } = useOrganizationInfo();
 
   useClickableBarHover({
     refs: {

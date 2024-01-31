@@ -4,27 +4,28 @@ import { useTheme } from "@mui/material/styles";
 import { ResponsiveBar } from "@nivo/bar";
 import { useIntl } from "react-intl";
 import ChartTooltip from "components/ChartTooltip";
-import FormattedMoney from "components/FormattedMoney";
+import { useMoneyFormatter } from "components/FormattedMoney";
 import { useBarChartColors } from "hooks/useChartColors";
 import { useChartHoverStyles } from "hooks/useChartHoverStyles";
 import { useChartLayoutOptions } from "hooks/useChartLayoutOptions";
 import { useChartTheme } from "hooks/useChartTheme";
+import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { useResizeObserver } from "hooks/useResizeObserver";
 import { AXIS_FORMATS, getBarTicks, getChartWidth, getMaxAndMinBandValues, TICK_COUNT } from "utils/charts";
 import {
-  FORMATTED_MONEY_TYPES,
   DEFAULT_BAR_CHART_HEIGHT,
   DEFAULT_BAR_CHART_MARGIN,
-  DEFAULT_CHART_BORDER_WIDTH
+  DEFAULT_CHART_BORDER_WIDTH,
+  FORMATTED_MONEY_TYPES
 } from "utils/constants";
 import { isEmpty } from "utils/objects";
 
-const formatAxis = (format) =>
+const formatAxis = (axisFormat, formatter, format) =>
   ({
-    [AXIS_FORMATS.MONEY]: (value) => <FormattedMoney value={value} type={FORMATTED_MONEY_TYPES.TINY_COMPACT} />,
+    [AXIS_FORMATS.MONEY]: (value) => formatter(FORMATTED_MONEY_TYPES.TINY_COMPACT, value, { format }),
     [AXIS_FORMATS.RAW]: (value) => value,
     [AXIS_FORMATS.PERCENTAGE]: (value) => `${value * 100}%`
-  })[format];
+  })[axisFormat];
 
 const legendSettings = [
   {
@@ -109,9 +110,12 @@ const BarChart = ({
    */
   const chartWidth = getChartWidth(wrapperWidth, margin, layout);
 
+  const formatter = useMoneyFormatter();
+  const { currency } = useOrganizationInfo();
+
   const { axisLeft, axisBottom, enableGridX, enableGridY, gridXValues, gridYValues } = useChartLayoutOptions({
     layout,
-    formatAxis: formatAxis(axisFormat),
+    formatAxis: formatAxis(axisFormat, formatter, currency),
     tickValues,
     chartWidth,
     data,

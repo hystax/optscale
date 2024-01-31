@@ -42,7 +42,7 @@ const formatTinyCompact =
   };
 
 export const useMoneyFormatter = () => {
-  const { currency = "USD" } = useOrganizationInfo();
+  const { currency } = useOrganizationInfo();
 
   const intl = useIntl();
 

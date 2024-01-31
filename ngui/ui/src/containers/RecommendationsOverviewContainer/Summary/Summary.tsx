@@ -1,10 +1,9 @@
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
-import { useNavigate } from "react-router-dom";
+import { type NavigateFunction, useNavigate } from "react-router-dom";
 import { SI_UNITS } from "components/FormattedDigitalUnit";
 import { STATUS } from "components/S3DuplicateFinderCheck/utils";
 import SummaryGrid from "components/SummaryGrid";
 import { useAwsDataSources } from "hooks/useAwsDataSources";
-import { useIsRiSpEnabled } from "hooks/useIsRiSpEnabled";
 import S3DuplicatesService from "services/S3DuplicatesService";
 import { S3_DUPLICATE_FINDER, getRiSpCoverageUrl } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
@@ -12,7 +11,25 @@ import { SUMMARY_CARD_TYPES, SUMMARY_VALUE_COMPONENT_TYPES } from "utils/constan
 import { getCurrentUTCTimeInSec, getLast30DaysRange, getTimeDistance } from "utils/datetime";
 import { getQueryParams } from "utils/network";
 
-const getNextCheckCardValue = (lastRun, lastCompleted, nextRun) => {
+type RiSpExpensesSummaryType = {
+  totalCostWithOffer: number;
+  totalSaving: number;
+  computeExpensesCoveredWithCommitments: number;
+};
+
+type SummaryProps = {
+  totalSaving: number;
+  lastCompleted: number;
+  lastRun: number;
+  nextRun: number;
+  riSpExpensesSummary: RiSpExpensesSummaryType;
+  isLoadingProps: {
+    isRecommendationsLoading: boolean;
+    isRiSpExpensesSummaryLoading: boolean;
+  };
+};
+
+const getNextCheckCardValue = (lastRun: number, lastCompleted: number, nextRun: number) => {
   if (lastRun !== lastCompleted) {
     return {
       id: "runningRightNow"
@@ -35,7 +52,15 @@ const getNextCheckCardValue = (lastRun, lastCompleted, nextRun) => {
   };
 };
 
-const getRiSpExpensesCardDefinition = ({ riSpExpensesSummary, isLoading, navigate }) => {
+const getRiSpExpensesCardDefinition = ({
+  riSpExpensesSummary,
+  isLoading,
+  navigate
+}: {
+  riSpExpensesSummary: RiSpExpensesSummaryType;
+  isLoading: boolean;
+  navigate: NavigateFunction;
+}) => {
   const { totalCostWithOffer, totalSaving, computeExpensesCoveredWithCommitments } = riSpExpensesSummary;
 
   const getColor = () => {
@@ -176,10 +201,8 @@ const useS3DuplicateFinderCheckCardDefinition = () => {
   };
 };
 
-const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, riSpExpensesSummary, isLoadingProps }) => {
+const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, riSpExpensesSummary, isLoadingProps }: SummaryProps) => {
   const navigate = useNavigate();
-
-  const isRiSpEnabled = useIsRiSpEnabled();
 
   const { isRecommendationsLoading, isRiSpExpensesSummaryLoading } = isLoadingProps;
 
@@ -221,9 +244,7 @@ const Summary = ({ totalSaving, lastCompleted, lastRun, nextRun, riSpExpensesSum
       relativeValueCaptionMessageId: "nextCheckTime",
       isLoading: isRecommendationsLoading
     },
-    ...(isRiSpEnabled
-      ? [getRiSpExpensesCardDefinition({ riSpExpensesSummary, isLoading: isRiSpExpensesSummaryLoading, navigate })]
-      : []),
+    getRiSpExpensesCardDefinition({ riSpExpensesSummary, isLoading: isRiSpExpensesSummaryLoading, navigate }),
     s3DuplicateFinderCheckCardDefinition
   ];
 

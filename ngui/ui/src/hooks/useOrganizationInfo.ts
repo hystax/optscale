@@ -33,7 +33,7 @@ export const useOrganizationInfo = () => {
     name,
     is_demo: isDemo = false,
     id: newOrganizationId,
-    currency
+    currency = "USD"
   } = getActiveOrganization(organizationId, organizations);
 
   return {
