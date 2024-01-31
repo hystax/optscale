@@ -6,13 +6,13 @@ import { Box } from "@mui/system";
 import { FormattedMessage, FormattedNumber } from "react-intl";
 import ActionBar from "components/ActionBar";
 import AnomaliesFilters from "components/AnomaliesFilters";
+import DetectedConstraintsHistory from "components/DetectedConstraintsHistory";
 import FormattedMoney from "components/FormattedMoney";
 import IconButton from "components/IconButton";
 import KeyValueLabel from "components/KeyValueLabel";
 import PageContentWrapper from "components/PageContentWrapper";
 import { DeleteOrganizationConstraintModal } from "components/SideModalManager/SideModals";
 import SubTitle from "components/SubTitle";
-import DetectedConstraintsHistoryContainer from "containers/DetectedConstraintsHistoryContainer";
 import EditOrganizationConstraintNameFormContainer from "containers/EditOrganizationConstraintNameFormContainer";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
@@ -68,8 +68,8 @@ const ConstraintName = ({ id, name }) => {
 
 const ConstraintProperties = ({ id, name, type, definition = {} }) => {
   if (!type) {
-    // means constraint is not loaded: parent component using "isLoading" (using isDataReady leads to old data flickering)
-    // todo: convinient loading strategy
+    // Means constraint is not loaded: parent component using "isLoading" (using isDataReady leads to old data flickering)
+    // TODO: Convenient loading strategy
     return null;
   }
 
@@ -144,7 +144,7 @@ const ConstraintProperties = ({ id, name, type, definition = {} }) => {
   );
 };
 
-const FiltersSection = ({ filters = {}, isLoading }) => (
+const FiltersSection = ({ filters = {}, isLoading = false }) => (
   <>
     <SubTitle>
       <FormattedMessage id="filters" />
@@ -157,9 +157,12 @@ const OrganizationConstraint = ({
   actionBarBreadcrumbsDefinition,
   actionBarTitleDefinition,
   constraint,
-  isLoading = false
+  limitHits,
+  isLoadingProps = {}
 }) => {
   const openSideModal = useOpenSideModal();
+
+  const { isGetConstraintLoading = false, isGetLimitHitsLoading = false } = isLoadingProps;
 
   const isAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
 
@@ -174,7 +177,7 @@ const OrganizationConstraint = ({
         icon: <DeleteOutlinedIcon fontSize="small" />,
         messageId: "delete",
         type: "button",
-        isLoading,
+        isLoading: isGetConstraintLoading,
         show: isAllowed,
         dataTestId: "btn_delete",
         action: () => openSideModal(DeleteOrganizationConstraintModal, { id, name, type })
@@ -183,7 +186,7 @@ const OrganizationConstraint = ({
   };
 
   const renderFiltersSection = () => {
-    if (isLoading) {
+    if (isGetConstraintLoading) {
       return <FiltersSection isLoading />;
     }
     if (isEmptyObject(filters)) {
@@ -198,7 +201,7 @@ const OrganizationConstraint = ({
       <PageContentWrapper>
         <Stack spacing={SPACING_1}>
           <div>
-            {isLoading ? (
+            {isGetConstraintLoading ? (
               <Skeleton width="100%">
                 <ConstraintProperties />
               </Skeleton>
@@ -207,7 +210,11 @@ const OrganizationConstraint = ({
             )}
           </div>
           <div>{renderFiltersSection()}</div>
-          <DetectedConstraintsHistoryContainer constraint={constraint} isGetConstraintLoading={isLoading} />
+          <DetectedConstraintsHistory
+            constraint={constraint}
+            limitHits={limitHits}
+            isLoading={isGetConstraintLoading || isGetLimitHitsLoading}
+          />
         </Stack>
       </PageContentWrapper>
     </>
