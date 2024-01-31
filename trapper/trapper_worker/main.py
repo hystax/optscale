@@ -39,7 +39,7 @@ class TrafficProcessingWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def process_traffic(self, cloud_account_id, cloud_type):
         module = ProcessorFactory.get_module(cloud_type, self.config_cl)

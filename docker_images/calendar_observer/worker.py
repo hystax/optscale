@@ -42,7 +42,7 @@ class CalendarObserverWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def observe_calendar(self, task):
         org_id = task.get('organization_id')

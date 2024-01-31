@@ -48,7 +48,7 @@ class Worker(ConsumerProducerMixin):
 
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=[task_queue], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def put_herald_task(self, task_params):
         exchange = Exchange(type='direct')

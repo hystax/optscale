@@ -99,7 +99,7 @@ class SlackerExecutorWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     @staticmethod
     def ts_to_slacker_time_format(timestamp):

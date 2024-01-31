@@ -87,7 +87,7 @@ class WebhookExecutorWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def get_environment_meta(self, webhook, meta_info):
         _, environment = self.rest_cl.cloud_resource_get(
