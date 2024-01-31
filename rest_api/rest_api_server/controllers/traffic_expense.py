@@ -102,16 +102,16 @@ class TrafficExpenseController(CleanExpenseController):
         total_cost, total_usage = 0, 0
         for (e,) in expenses:
             cloud_account_id, _from, _to, usage, cost = e
-            if cloud_account_id not in ca_coordinates_map:
-                ca_coordinates_map[cloud_account_id] = self._get_coordinates(
+            cloud_type = cloud_accounts_map[cloud_account_id]['type']
+            if cloud_type not in ca_coordinates_map:
+                ca_coordinates_map[cloud_type] = self._get_coordinates(
                     cloud_accounts_map[cloud_account_id])
-            region_coordinates = ca_coordinates_map[cloud_account_id]
+            region_coordinates = ca_coordinates_map[cloud_type]
             # TODO: We should think about cache for coordinates by cloud_type
             from_coords, to_coords = self._extract_coordinates(
                 region_coordinates, [_from, _to])
             total_cost += cost
             total_usage += usage
-            cloud_type = cloud_accounts_map[cloud_account_id]['type']
             grp_key = cloud_type, from_coords['name'], to_coords['name']
             if grp_key in traffic_expenses:
                 traffic_expenses[grp_key]['cost'] += cost
