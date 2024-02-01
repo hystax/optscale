@@ -374,3 +374,34 @@ class TestApplicationApi(TestProfilingBase):
         run_goal = resp['run_goals'][0]
         self.assertEqual(run_goal['last_run_value'], 10)
         self.assertEqual(run_goal['history'], [55, 10])
+
+    def test_application_description_length(self):
+        valid_application = self.valid_application.copy()
+        max_len_description = ''.join('x' for _ in range(0, 1000))
+        valid_application['description'] = max_len_description
+        code, app = self.client.application_create(
+            self.org['id'], valid_application)
+        self.assertEqual(code, 201)
+        self.assertTrue(len(app['description']), 1000)
+
+        valid_application['description'] = max_len_description + 'x'
+        code, resp = self.client.application_create(
+            self.org['id'], valid_application)
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0215')
+
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {
+                'description': valid_application['description']
+            }
+        )
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0215')
+
+        code, resp = self.client.application_update(
+            self.org['id'], app['id'], {
+                'description': valid_application['description'][2:]
+            }
+        )
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['description']), 999)
