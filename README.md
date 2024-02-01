@@ -2,11 +2,11 @@
 ⭐ Drop a star to support OptScale ⭐
 </p>
 
-# MLOps platform to run ML/AI experiments with optimal performance and cloud cost
+# FinOps and MLOps platform to run ML/AI and regular cloud workloads with optimal performance and cost
 <p align="center">
 <a href="documentation/images/cover-GitHub.png"><img src="documentation/images/cover-GitHub.png" width="60%" align="middle"></a>
 </p>
-OptScale is an open source MLOps platform that provides experiment tracking, model versioning, ML leaderboards with cloud cost optimization, and infrastructure performance details.
+OptScale is an open source FinOps and MLOps platform that provides cloud cost optimization for all types of organizations and MLOps capabilities like experiment tracking, model versioning, ML leaderboards.
 <br>
 <br>
 <p align="center">
@@ -45,17 +45,17 @@ OptScale is an open source MLOps platform that provides experiment tracking, mod
     <tbody>
       <tr>
         <th>MLOps capabilities</th>
-        <th>AI infrastructure optimization and instrumentation</th>
+        <th>FinOps and cloud cost optimization</th>
       </tr>
       <tr>
         <td>
           <ul>
-            <li>Leaderboards with candidates and qualifications</li>
+            <li>ML Leaderboards with candidates and qualifications</li>
             <li>Dataset and model tracking and versioning</li>
             <li>Run metrics and experiment tracker</li>
             <li>Hypertuning integrated with Optuna</li>
             <li>Training launcher</li>
-            <li>Model training profiler</li>
+            <li>ML Model training profiler</li>
             </ul>
           </td>
         <td>
@@ -97,12 +97,12 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 |<img src="documentation/images/Datasets-page.png" width="500">              |<img src="documentation/images/Hypertuning-page.png" width="500"> |  
 
 
-|                             Databricks connection                          |                           Recommendations                        |
+|                             Databricks connection                          |                  Cost and performance recommendations            |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
 |<img src="documentation/images/Databricks-connection-page.png" width="500"> |<img src="documentation/images/Recommendations.png" width="500">  |
 
 
-|                               Cost geo map                                 |                          Power Schedules                         |
+|                               Cost geo map                                 |                          VM Power Schedules                      |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
 |  <img src="documentation/images/Cost-map.png" width="500">                 | <img src="documentation/images/Power-Schedules.png" width="500"> |
 
@@ -122,7 +122,7 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 ## Getting started
 
- Minimum hardware requirements for OptScale cluster: CPU: 8+ cores, RAM: 16Gb, SSD: 150+ Gb. 
+Minimum hardware requirements for OptScale cluster: CPU: 8+ cores, RAM: 16Gb, SSD: 150+ Gb. 
  
 NVMe SSD is recommended.  
 **OS Required**: [Ubuntu 20.04](https://releases.ubuntu.com/focal/).  
