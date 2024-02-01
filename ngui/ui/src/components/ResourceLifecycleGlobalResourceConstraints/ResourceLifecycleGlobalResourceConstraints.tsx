@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { Stack } from "@mui/material";
 import Link from "@mui/material/Link";
 import { Box } from "@mui/system";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -26,6 +27,7 @@ import {
 import { RESOURCES } from "urls";
 import { checkError } from "utils/api";
 import { CONSTRAINTS_TYPES, CONSTRAINT_MESSAGE_FORMAT } from "utils/constraints";
+import { SPACING_2 } from "utils/layouts";
 import { getResourceDisplayedName } from "utils/resources";
 import { RESOURCE_ID_COLUMN_CELL_STYLE } from "utils/tables";
 
@@ -271,23 +273,27 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
   }, [isAllowedToEditAnyResourcePolicy, openSideModal]);
 
   return (
-    <>
-      {isLoading ? (
-        <TableLoader columnsCounter={columns.length} />
-      ) : (
-        <Table withSearch data={data} columns={columns} localization={{ emptyMessageId: "noResourceConstraints" }} />
-      )}
-      <InlineSeverityAlert
-        messageId="globalResourceConstraintsDescription"
-        messageValues={{
-          link: (chunks) => (
-            <Link href={RESOURCES} target="_blank" rel="noopener">
-              {chunks}
-            </Link>
-          )
-        }}
-      />
-    </>
+    <Stack spacing={SPACING_2}>
+      <div>
+        {isLoading ? (
+          <TableLoader columnsCounter={columns.length} />
+        ) : (
+          <Table withSearch data={data} columns={columns} localization={{ emptyMessageId: "noResourceConstraints" }} />
+        )}
+      </div>
+      <div>
+        <InlineSeverityAlert
+          messageId="globalResourceConstraintsDescription"
+          messageValues={{
+            link: (chunks) => (
+              <Link href={RESOURCES} target="_blank" rel="noopener">
+                {chunks}
+              </Link>
+            )
+          }}
+        />
+      </div>
+    </Stack>
   );
 };
 

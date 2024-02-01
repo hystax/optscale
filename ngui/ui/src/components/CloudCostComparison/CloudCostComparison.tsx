@@ -20,13 +20,7 @@ const CloudCostComparison = ({ isLoading, relevantSizes, defaultFormValues, onFi
     <PageContentWrapper>
       <Stack spacing={SPACING_1}>
         <div>
-          <InlineSeverityAlert
-            messageId="cloudCostComparisonDescription"
-            messageValues={{ br: <br /> }}
-            sx={{
-              width: "100%"
-            }}
-          />
+          <InlineSeverityAlert messageId="cloudCostComparisonDescription" messageValues={{ br: <br /> }} />
         </div>
         <div>
           <CloudCostComparisonFiltersForm onSubmit={onFiltersApply} defaultValues={defaultFormValues} />

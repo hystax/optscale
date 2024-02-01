@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import { Checkbox, FormControlLabel, Grid, Typography } from "@mui/material";
+import { Checkbox, FormControlLabel, Grid, Stack, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import ActionBar from "components/ActionBar";
 import BookingsCalendar from "components/BookingsCalendar";
@@ -16,7 +16,7 @@ import { useFilterByPermissions } from "hooks/useAllowedActions";
 import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { ENVIRONMENTS_STATUS_FILTERS, SCOPE_TYPES } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
-import { SPACING_1, SPACING_4 } from "utils/layouts";
+import { SPACING_1, SPACING_2, SPACING_4 } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
 // TODO: maybe move into separate component and use it in ExpensesBreakdownBreakdownByButtonsGroup as well
@@ -167,7 +167,6 @@ const Environments = ({
               activeButtonIndex={activeViewIndex}
               isMobile={isMobile}
             />
-
             <Grid
               item
               container
@@ -217,24 +216,28 @@ const Environments = ({
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            {activeViewFilter === ENVIRONMENTS_VIEWS.TABLE && (
-              <EnvironmentsTable
-                data={filteredEnvironments}
-                onUpdateActivity={onUpdateActivity}
-                entityId={entityId}
-                isLoadingProps={isLoadingProps}
-              />
-            )}
-            {activeViewFilter === ENVIRONMENTS_VIEWS.CALENDAR && (
-              <Grid container spacing={SPACING_1}>
-                <Grid item xs={12} sx={{ minHeight: "600px" }}>
-                  <BookingsCalendar environments={filteredEnvironments} isLoadingProps={isLoadingProps} />
-                </Grid>
-              </Grid>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <InlineSeverityAlert messageId="environmentsDescription" messageDataTestId="p_environments_list" />
+            <Stack spacing={SPACING_2}>
+              <div>
+                {activeViewFilter === ENVIRONMENTS_VIEWS.TABLE && (
+                  <EnvironmentsTable
+                    data={filteredEnvironments}
+                    onUpdateActivity={onUpdateActivity}
+                    entityId={entityId}
+                    isLoadingProps={isLoadingProps}
+                  />
+                )}
+                {activeViewFilter === ENVIRONMENTS_VIEWS.CALENDAR && (
+                  <Grid container>
+                    <Grid item xs={12} sx={{ minHeight: "600px" }}>
+                      <BookingsCalendar environments={filteredEnvironments} isLoadingProps={isLoadingProps} />
+                    </Grid>
+                  </Grid>
+                )}
+              </div>
+              <div>
+                <InlineSeverityAlert messageId="environmentsDescription" messageDataTestId="p_environments_list" />
+              </div>
+            </Stack>
           </Grid>
         </Grid>
       </PageContentWrapper>

@@ -29,12 +29,7 @@ const RenameDataSourceForm = ({ name, onSubmit, onCancel, isLoading = false }) =
             <DataSourceNameField />
           </div>
           <div>
-            <InlineSeverityAlert
-              sx={{
-                width: "100%"
-              }}
-              messageId="dataSourceRenamingWarning"
-            />
+            <InlineSeverityAlert messageId="dataSourceRenamingWarning" />
           </div>
         </Stack>
         <FormButtonsWrapper>
