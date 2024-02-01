@@ -2,7 +2,7 @@
   "FE0000": "Success",
   "FE0001": "File has been uploaded",
   "FE0003": "{0, plural,\n  =1 {User has been}\n  other {Users have been}\n} invited",
-  "FE0006": "{0} of {1} resources have been marked as IT Environments",
+  "FE0006": "{0} of {1} resources have been marked as Shared Environments",
   "FE0007": "Assignment rule \"{0}\" has been created",
   "FE0008": "User has been deleted",
   "FE0009": "Organization option has been updated",

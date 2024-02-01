@@ -70,7 +70,7 @@ const DataSourceUsageAnalysis = ({ isConfirmed, onConfirm, dataSources = [], isL
             values={{
               // TODO: probably need to remove p from app.json and component from here
               p: (chunks) => <p>{chunks}</p>,
-              itEnvironmentsLink: (chunks) => (
+              environmentsLink: (chunks) => (
                 <Link to={ENVIRONMENTS} component={RouterLink}>
                   {chunks}
                 </Link>

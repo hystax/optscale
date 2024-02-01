@@ -2,7 +2,7 @@ import { makeStyles } from "tss-react/mui";
 import { WIDTH_STRING as COMMUNITY_DOCS_WIDTH } from "components/DocsPanel/DocsPanel.styles";
 import { SPACING_1 } from "utils/layouts";
 
-export const DRAWER_WIDTH = 200;
+export const DRAWER_WIDTH = 205;
 
 const useStyles = makeStyles()((theme) => ({
   appBar: {

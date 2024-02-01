@@ -64,7 +64,7 @@ class ResourceTypeFilter extends Filter {
       return `${filterItem.name} (${intl.formatMessage({ id: "cluster" })})`;
     }
     if (filterItem.type === OPTSCALE_RESOURCE_TYPES.ENVIRONMENT) {
-      return `${filterItem.name} (${intl.formatMessage({ id: "ItEnvironment" })})`;
+      return `${filterItem.name} (${intl.formatMessage({ id: "SharedEnvironment" })})`;
     }
     return filterItem.name;
   }

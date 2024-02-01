@@ -3,7 +3,7 @@ import BaseSideModal from "./BaseSideModal";
 
 class DeleteEnvironmentModal extends BaseSideModal {
   headerProps = {
-    messageId: "deleteItEnvironmentTitle",
+    messageId: "deleteEnvironmentTitle",
     color: "error",
     dataTestIds: {
       title: "lbl_delete_environment",

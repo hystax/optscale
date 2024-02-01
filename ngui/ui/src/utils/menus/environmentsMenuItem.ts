@@ -1,4 +1,4 @@
-import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
+import ScreenShareOutlinedIcon from "@mui/icons-material/ScreenShareOutlined";
 import { PRODUCT_TOUR_IDS } from "components/Tour";
 import { ENVIRONMENT_CREATE } from "urls";
 import environments from "utils/routes/environmentsRoute";
@@ -13,7 +13,7 @@ class EnvironmentsMenuItem extends BaseMenuItem {
 
   dataProductTourId = PRODUCT_TOUR_IDS.ENVIRONMENTS;
 
-  icon = DnsOutlinedIcon;
+  icon = ScreenShareOutlinedIcon;
 
   isActive = (currentPath) => currentPath.startsWith(this.route.link) || currentPath.startsWith(ENVIRONMENT_CREATE);
 }
