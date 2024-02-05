@@ -1,20 +1,20 @@
 import { Stack } from "@mui/material";
 import Link from "@mui/material/Link";
 import { Link as RouterLink } from "react-router-dom";
-import AssignmentRulesTable from "components/AssignmentRulesTable";
+import PoolAssignmentRulesTable from "components/AssignmentRulesTable/PoolAssignmentRulesTable";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import AssignmentRuleService from "services/AssignmentRuleService";
 import { ASSIGNMENT_RULES } from "urls";
 import { SPACING_2 } from "utils/layouts";
 
-const GetAssignmentRulesContainer = ({ poolId, interactive }) => {
+const PoolAssignmentRulesContainer = ({ poolId }) => {
   const { useGet } = AssignmentRuleService();
   const { isLoading, assignmentRules } = useGet({ poolId });
 
   return (
     <Stack spacing={SPACING_2}>
       <div>
-        <AssignmentRulesTable interactive={interactive} rules={assignmentRules} poolId={poolId} isLoading={isLoading} />
+        <PoolAssignmentRulesTable rules={assignmentRules} isLoading={isLoading} />
       </div>
       <div>
         <InlineSeverityAlert
@@ -32,4 +32,4 @@ const GetAssignmentRulesContainer = ({ poolId, interactive }) => {
   );
 };
 
-export default GetAssignmentRulesContainer;
+export default PoolAssignmentRulesContainer;

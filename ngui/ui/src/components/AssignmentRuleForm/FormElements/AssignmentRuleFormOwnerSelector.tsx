@@ -11,8 +11,7 @@ const AssignmentRuleFormOwnerSelector = ({
   poolSelectorName,
   poolOwners,
   pools,
-  isFormDataLoading = false,
-  readOnly = false
+  isFormDataLoading = false
 }) => {
   const {
     control,
@@ -42,7 +41,6 @@ const AssignmentRuleFormOwnerSelector = ({
         <Selector
           id="owner-selector"
           fullWidth
-          readOnly={readOnly}
           isLoading={isGetPoolOwnerLoading || isFormDataLoading}
           required
           error={!!errors[fieldName]}

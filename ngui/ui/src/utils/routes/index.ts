@@ -19,7 +19,6 @@ import createClusterTypeRoute from "./createClusterTypeRoute";
 import createDataSourceRoute from "./createDataSourceRoute";
 import createEnvironmentRoute from "./createEnvironmentRoute";
 import createMlModelParameterRoute from "./createMlModelParameterRoute";
-import createPoolAssignmentRuleRoute from "./createPoolAssignmentRuleRoute";
 import createPoolPolicyRoute from "./createPoolPolicyRoute";
 import createPowerScheduleRoute from "./createPowerScheduleRoute";
 import createQuotaAndBudgetPolicyRoute from "./createQuotaAndBudgetPolicyRoute";
@@ -30,7 +29,6 @@ import dataSourcesRoute from "./dataSourcesRoute";
 import editAssignmentRuleRoute from "./editAssignmentRuleRoute";
 import editBIExportRoute from "./editBIExportRoute";
 import editMlModelParameterRoute from "./editMlModelParameterRoute";
-import editPoolAssignmentRuleRoute from "./editPoolAssignmentRuleRoute";
 import environmentsRoute from "./environmentsRoute";
 import eventsRoute from "./eventsRoute";
 import expensesMapRoute from "./expensesMapRoute";
@@ -96,9 +94,7 @@ export const routes = [
   assignmentRulesRoute,
   createAssignmentRuleRoute,
   editAssignmentRuleRoute,
-  createPoolAssignmentRuleRoute,
   createResourceAssignmentRuleRoute,
-  editPoolAssignmentRuleRoute,
   organizationsOverviewRoute,
   poolsRoute,
   taggingPoliciesRoute,

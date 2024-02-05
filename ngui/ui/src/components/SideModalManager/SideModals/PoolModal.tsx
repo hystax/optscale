@@ -2,7 +2,7 @@ import { useState } from "react";
 import PoolLabel from "components/PoolLabel";
 import PoolSummary from "components/PoolSummary";
 import TabsWrapper from "components/TabsWrapper";
-import GetAssignmentRulesContainer from "containers/GetAssignmentRulesContainer";
+import PoolAssignmentRulesContainer from "containers/PoolAssignmentRulesContainer";
 import PoolConstraintsContainer from "containers/PoolConstraintsContainer";
 import ShareSettingsContainer from "containers/ShareSettingsContainer";
 import PoolsService from "services/PoolsService";
@@ -42,7 +42,7 @@ const Pool = ({ onSuccess, id }) => {
     {
       title: POOL_TABS.ASSIGNMENT_RULES,
       dataTestId: "tab_assignment",
-      node: <GetAssignmentRulesContainer interactive={false} poolId={poolId} />
+      node: <PoolAssignmentRulesContainer poolId={poolId} />
     },
     {
       title: POOL_TABS.SHARE,

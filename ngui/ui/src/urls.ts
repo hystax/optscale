@@ -163,20 +163,6 @@ export const getCreateAssignmentRuleUrl = ({ conditions = [] } = {}) => {
 export const ASSIGNMENT_RULE_EDIT = concatenateUrl([ASSIGNMENT_RULE_BASE, ASSIGNMENT_RULE_IDENTIFIER, EDIT]);
 export const getEditAssignmentRuleUrl = (ruleId) => ASSIGNMENT_RULE_EDIT.replace(ASSIGNMENT_RULE_IDENTIFIER, ruleId);
 
-// Pool assignment rules
-export const POOL_ASSIGNMENT_RULE_CREATE = concatenateUrl([POOLS_BASE, POOL_IDENTIFIER, ASSIGNMENT_RULE_BASE, CREATE]);
-export const getCreatePoolAssignmentRuleUrl = (poolId) => POOL_ASSIGNMENT_RULE_CREATE.replace(POOL_IDENTIFIER, poolId);
-
-export const POOL_ASSIGNMENT_RULE_EDIT = concatenateUrl([
-  POOLS_BASE,
-  POOL_IDENTIFIER,
-  ASSIGNMENT_RULE_BASE,
-  ASSIGNMENT_RULE_IDENTIFIER,
-  EDIT
-]);
-export const getEditPoolAssignmentRuleUrl = (poolId, ruleId) =>
-  POOL_ASSIGNMENT_RULE_EDIT.replace(POOL_IDENTIFIER, poolId).replace(ASSIGNMENT_RULE_IDENTIFIER, ruleId);
-
 // User management
 export const USER_MANAGEMENT = concatenateUrl([USER_MANAGEMENT_BASE_URL]);
 

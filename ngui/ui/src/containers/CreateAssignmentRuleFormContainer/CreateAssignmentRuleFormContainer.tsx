@@ -11,7 +11,7 @@ import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { getPoolUrl, ASSIGNMENT_RULES, POOLS } from "urls";
+import { ASSIGNMENT_RULES, POOLS } from "urls";
 import { isError } from "utils/api";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import {
@@ -28,38 +28,18 @@ import { parseJSON } from "utils/strings";
 const { META_INFO, TYPE } = CONDITION;
 const { KEY: TAG_KEY, VALUE: TAG_VALUE } = TAG_CONDITION;
 
-const PageActionBar = ({ isFormDataLoading, poolId, pools }) => {
-  const getActionBarDefinitions = () => {
-    if (poolId) {
-      const pool = pools.find(({ id }) => id === poolId) ?? {};
-
-      const { name: poolName = "..." } = pool;
-
-      return {
-        breadcrumbs: [
-          <Link key={1} to={POOLS} component={RouterLink}>
-            <FormattedMessage id="pools" />
-          </Link>,
-          <Link key={2} to={getPoolUrl(poolId)} component={RouterLink}>
-            {poolName}
-          </Link>
-        ],
-        titleText: <FormattedMessage id="addAssignmentRuleToTitle" values={{ poolName }} />
-      };
-    }
-
-    return {
-      breadcrumbs: [
-        <Link key={1} to={POOLS} component={RouterLink}>
-          <FormattedMessage id="pools" />
-        </Link>,
-        <Link key={2} to={ASSIGNMENT_RULES} component={RouterLink}>
-          <FormattedMessage id="assignmentRulesTitle" />
-        </Link>
-      ],
-      titleText: <FormattedMessage id="addAssignmentRuleTitle" />
-    };
-  };
+const PageActionBar = ({ isFormDataLoading }) => {
+  const getActionBarDefinitions = () => ({
+    breadcrumbs: [
+      <Link key={1} to={POOLS} component={RouterLink}>
+        <FormattedMessage id="pools" />
+      </Link>,
+      <Link key={2} to={ASSIGNMENT_RULES} component={RouterLink}>
+        <FormattedMessage id="assignmentRulesTitle" />
+      </Link>
+    ],
+    titleText: <FormattedMessage id="addAssignmentRuleTitle" />
+  });
 
   const { titleText, breadcrumbs } = getActionBarDefinitions();
 
@@ -70,7 +50,7 @@ const PageActionBar = ({ isFormDataLoading, poolId, pools }) => {
         title: {
           text: titleText,
           dataTestId: "lbl_add_rule",
-          isLoading: poolId && isFormDataLoading
+          isLoading: isFormDataLoading
         }
       }}
     />
@@ -107,7 +87,7 @@ export const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
   return isEmptyArray(conditions) ? DEFAULT_CONDITIONS : conditions;
 };
 
-const CreateAssignmentRuleFormContainer = ({ poolId }) => {
+const CreateAssignmentRuleFormContainer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { organizationId, organizationPoolId } = useOrganizationInfo();
@@ -127,11 +107,7 @@ const CreateAssignmentRuleFormContainer = ({ poolId }) => {
   });
 
   const redirect = () => {
-    if (!poolId) {
-      navigate(ASSIGNMENT_RULES);
-    } else {
-      navigate(`${POOLS}?pool=${poolId}`);
-    }
+    navigate(ASSIGNMENT_RULES);
   };
 
   const { isLoading: isCreateAssignmentRuleLoading } = useApiState(CREATE_ASSIGNMENT_RULE);
@@ -153,25 +129,21 @@ const CreateAssignmentRuleFormContainer = ({ poolId }) => {
         .then(() => {
           const { pools: availablePools } = getState()?.[RESTAPI]?.[GET_AVAILABLE_POOLS] ?? {};
 
-          // poolId - if creating from a particular pool
-          // organizationPoolId - from assignment rules page
-          const defaultPoolId = poolId || organizationPoolId;
-
           const { default_owner_id: defaultOwnerId = "" } =
-            availablePools.find((availablePool) => availablePool.id === defaultPoolId) ?? {};
+            availablePools.find((availablePool) => availablePool.id === organizationPoolId) ?? {};
 
           // There is no need to wait for getPoolOwners to be loaded since the default owner depends only on the pool
           setDefaultValues((currentDefaultValues) => ({
             ...currentDefaultValues,
-            poolId: defaultPoolId,
+            poolId: organizationPoolId,
             ownerId: defaultOwnerId
           }));
 
-          return dispatch(getPoolOwners(defaultPoolId));
+          return dispatch(getPoolOwners(organizationPoolId));
         })
         .finally(() => setIsFormDataLoading(false));
     });
-  }, [poolId, dispatch, organizationPoolId, organizationId]);
+  }, [dispatch, organizationPoolId, organizationId]);
 
   // get cloud accounts
   // Attention: we don't request cloud account here as they are included in the initial loader
@@ -180,7 +152,7 @@ const CreateAssignmentRuleFormContainer = ({ poolId }) => {
 
   return (
     <>
-      <PageActionBar isFormDataLoading={isFormDataLoading} poolId={poolId} pools={pools} />
+      <PageActionBar isFormDataLoading={isFormDataLoading} pools={pools} />
       <PageContentWrapper>
         <Box
           sx={{
@@ -211,10 +183,6 @@ const CreateAssignmentRuleFormContainer = ({ poolId }) => {
             }}
             poolOwners={poolOwners}
             defaultValues={defaultValues}
-            readOnlyProps={{
-              poolSelector: !!poolId,
-              ownerSelector: false
-            }}
             isLoadingProps={{
               isActiveCheckboxLoading: false,
               isNameInputLoading: false,

@@ -2,7 +2,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
 import Selector, { Item, ItemContentWithPoolIcon } from "components/Selector";
 
-const AssignmentRuleFormPoolSelector = ({ name, ownerSelectorName, readOnly = false, pools, onPoolChange, isLoading }) => {
+const AssignmentRuleFormPoolSelector = ({ name, ownerSelectorName, pools, onPoolChange, isLoading }) => {
   const {
     control,
     setValue,
@@ -24,7 +24,6 @@ const AssignmentRuleFormPoolSelector = ({ name, ownerSelectorName, readOnly = fa
       render={({ field: { onChange, ...rest } }) => (
         <Selector
           id="target-pool-selector"
-          readOnly={readOnly}
           fullWidth
           required
           isLoading={isLoading}

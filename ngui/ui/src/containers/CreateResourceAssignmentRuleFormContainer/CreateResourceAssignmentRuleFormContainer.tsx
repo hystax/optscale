@@ -219,10 +219,6 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             }}
             poolOwners={owners}
             defaultValues={defaultValues}
-            readOnlyProps={{
-              poolSelector: false,
-              ownerSelector: false
-            }}
             isLoadingProps={{
               isActiveCheckboxLoading: false,
               isNameInputLoading: false,

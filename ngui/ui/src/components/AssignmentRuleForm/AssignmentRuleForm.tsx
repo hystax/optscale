@@ -58,7 +58,6 @@ const AssignmentRuleForm = ({
   onPoolChange,
   poolOwners,
   defaultValues,
-  readOnlyProps = {},
   isLoadingProps = {}
 }) => {
   const { classes, cx } = useStyles();
@@ -366,14 +365,12 @@ const AssignmentRuleForm = ({
         <AssignmentRuleFormPoolSelector
           name={POOL_SELECTOR_NAME}
           ownerSelectorName={OWNER_SELECTOR_NAME}
-          readOnly={readOnlyProps.poolSelector}
           pools={pools}
           onPoolChange={onPoolChange}
           isLoading={isLoadingProps.isPoolSelectorLoading}
         />
         <AssignmentRuleFormOwnerSelector
           name={OWNER_SELECTOR_NAME}
-          readOnly={readOnlyProps.ownerSelector}
           poolOwners={poolOwners}
           pools={pools}
           currentPool

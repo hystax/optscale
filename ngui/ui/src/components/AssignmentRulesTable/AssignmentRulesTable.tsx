@@ -5,122 +5,22 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import DoubleArrowOutlinedIcon from "@mui/icons-material/DoubleArrowOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import RepeatOutlinedIcon from "@mui/icons-material/RepeatOutlined";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
-import CaptionedCell from "components/CaptionedCell";
-import CircleLabel from "components/CircleLabel";
-import KeyValueLabel from "components/KeyValueLabel";
-import PoolLabel from "components/PoolLabel";
 import DeleteAssignmentRuleModal from "components/SideModalManager/SideModals/DeleteAssignmentRuleModal";
 import ReapplyRulesetModal from "components/SideModalManager/SideModals/ReapplyRulesetModal";
-import SlicedText from "components/SlicedText";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
-import {
-  getCreateAssignmentRuleUrl,
-  getEditAssignmentRuleUrl,
-  getCreatePoolAssignmentRuleUrl,
-  getEditPoolAssignmentRuleUrl
-} from "urls";
-import { isEmpty as isEmptyArray } from "utils/arrays";
-import { CONDITION_TYPES, TAG_IS, CLOUD_IS, TAG_VALUE_STARTS_WITH } from "utils/constants";
+import { getCreateAssignmentRuleUrl, getEditAssignmentRuleUrl } from "urls";
+import { conditions, name, poolOwner, priority } from "./columns";
+import prepareData from "./utils/prepareData";
 
-const isPriorityActionDisabled = (priority, condition) => priority === condition;
+const isPriorityActionDisabled = (rulePriority, condition) => rulePriority === condition;
 
-const getColumns = (tableActions, poolId) => {
-  const columns = [
-    {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_name">
-          <FormattedMessage id="name" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "name",
-      cell: ({ row: { original } }) => (
-        <CircleLabel
-          figureColor={original.active ? "success" : "info"}
-          label={<SlicedText limit={32} text={original.name} />}
-          tooltip={{ show: true, messageId: original.active ? "active" : "inactive", placement: "right" }}
-        />
-      )
-    },
-    {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_conditions">
-          <FormattedMessage id="conditions" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "conditionsObject.conditionsString",
-      cell: ({ row: { original } }) => original.conditionsObject.conditionsRender
-    }
-  ];
-
-  if (!isEmptyArray(tableActions)) {
-    columns.push({
-      header: (
-        <TextWithDataTestId dataTestId="lbl_actions">
-          <FormattedMessage id="actions" />
-        </TextWithDataTestId>
-      ),
-      enableSorting: false,
-      id: "actions",
-      cell: ({ row: { id, original } }) => (
-        <TableCellActions
-          items={tableActions.map((item) => ({
-            key: item.messageId,
-            messageId: item.messageId,
-            color: item.color,
-            dataTestId: `${item.dataTestId}_${id}`,
-            disabled: item.disabledPriority ? isPriorityActionDisabled(original.priority, item.disabledPriority) : false,
-            icon: item.icon,
-            action: () => item.action(original.id)
-          }))}
-        />
-      )
-    });
-  }
-
-  if (poolId) {
-    columns.splice(1, 0, {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_owner">
-          <FormattedMessage id="owner" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "owner_name"
-    });
-  } else {
-    columns.splice(1, 0, {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_assign">
-          <FormattedMessage id="assignTo" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "pool/owner",
-      cell: ({ row: { original } }) => (
-        <CaptionedCell caption={original.owner_name}>
-          <PoolLabel id={original.pool_id} name={original.pool_name} type={original.pool_purpose} />
-        </CaptionedCell>
-      )
-    });
-    columns.splice(columns.length - 1, 0, {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_priority">
-          <FormattedMessage id="priority" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "priority",
-      defaultSort: "asc"
-    });
-  }
-  return columns;
-};
-
-const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority, interactive = true }) => {
-  const intl = useIntl();
+const AssignmentRulesTable = ({ rules, isLoading, onUpdatePriority }) => {
   const navigate = useNavigate();
   const openSideModal = useOpenSideModal();
 
@@ -128,84 +28,23 @@ const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority, inte
 
   const rulesCount = assignmentRules.length;
 
-  const tableData = useMemo(() => {
-    const translateType = (type) =>
-      intl.formatMessage({
-        id: CONDITION_TYPES[type]
-      });
+  const tableData = useMemo(
+    () =>
+      prepareData({
+        assignmentRules,
+        entities
+      }),
+    [assignmentRules, entities]
+  );
 
-    const getConditionsObject = (conditions) =>
-      [...conditions]
-        // sort by translated values in asc order: "name_ends_with" -> "name ends with"
-        .sort((a, b) => {
-          const aTranslatedTypeInLowerCase = translateType(a.type).toLowerCase();
-          const bTranslatedTypeInLowerCase = translateType(b.type).toLowerCase();
-          if (aTranslatedTypeInLowerCase > bTranslatedTypeInLowerCase) {
-            return 1;
-          }
-          if (aTranslatedTypeInLowerCase < bTranslatedTypeInLowerCase) {
-            return -1;
-          }
-          return 0;
-        })
-        .reduce(
-          (resultObject, { id, type, meta_info: metaInfo }) => {
-            let value = metaInfo;
-            if ([TAG_VALUE_STARTS_WITH, TAG_IS].includes(type)) {
-              try {
-                const metaObj = JSON.parse(metaInfo);
-                value = JSON.stringify({ [metaObj.key]: metaObj.value });
-              } catch (err) {
-                console.log(err);
-              }
-            }
-            if (type === CLOUD_IS) {
-              value = entities?.[metaInfo]?.name;
-            }
-            return {
-              ...resultObject,
-              conditionsString: `${resultObject.conditionsString ? `${resultObject.conditionsString},` : ""}${translateType(
-                type
-              )}: ${value}`,
-              conditionsRender: [
-                ...resultObject.conditionsRender,
-                <KeyValueLabel key={id} messageId={CONDITION_TYPES[type]} value={value} />
-              ]
-            };
-          },
-          {
-            conditionsString: "",
-            conditionsRender: []
-          }
-        );
-
-    return poolId
-      ? assignmentRules.map(({ conditions = {}, ...rest }) => ({
-          ...rest,
-          conditionsObject: getConditionsObject(conditions)
-        }))
-      : assignmentRules.map(({ conditions = {}, ...rest }) => ({
-          ...rest,
-          "pool/owner": `${rest.pool_name} ${rest.owner_name}`,
-          conditionsObject: getConditionsObject(conditions)
-        }));
-  }, [assignmentRules, poolId, entities, intl]);
-
-  const addButtonAction = () => navigate(poolId ? getCreatePoolAssignmentRuleUrl(poolId) : getCreateAssignmentRuleUrl());
+  const addButtonAction = () => navigate(getCreateAssignmentRuleUrl());
 
   const columns = useMemo(() => {
-    if (!interactive) {
-      return getColumns([], poolId);
-    }
-
-    const editIconAction = (rowDataRuleId) =>
-      navigate(poolId ? getEditPoolAssignmentRuleUrl(poolId, rowDataRuleId) : getEditAssignmentRuleUrl(rowDataRuleId));
-
     const basicActions = [
       {
         messageId: "edit",
         icon: <EditOutlinedIcon />,
-        action: (rowDataId) => editIconAction(rowDataId),
+        action: (rowDataId) => navigate(getEditAssignmentRuleUrl(rowDataId)),
         dataTestId: "btn_edit"
       },
       {
@@ -255,33 +94,58 @@ const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority, inte
         }
       }
     ];
-    const tableActions = poolId ? basicActions : [...priorityActions, ...basicActions];
-    return getColumns(tableActions, poolId);
-  }, [rulesCount, poolId, navigate, onUpdatePriority, openSideModal, interactive]);
+
+    return [
+      name(),
+      poolOwner(),
+      conditions(),
+      priority(),
+      {
+        header: (
+          <TextWithDataTestId dataTestId="lbl_actions">
+            <FormattedMessage id="actions" />
+          </TextWithDataTestId>
+        ),
+        enableSorting: false,
+        id: "actions",
+        cell: ({ row: { id, original } }) => (
+          <TableCellActions
+            items={[...priorityActions, ...basicActions].map((item) => ({
+              key: item.messageId,
+              messageId: item.messageId,
+              color: item.color,
+              dataTestId: `${item.dataTestId}_${id}`,
+              disabled: item.disabledPriority ? isPriorityActionDisabled(original.priority, item.disabledPriority) : false,
+              icon: item.icon,
+              action: () => item.action(original.id)
+            }))}
+          />
+        )
+      }
+    ];
+  }, [rulesCount, navigate, onUpdatePriority, openSideModal]);
 
   const actionBarDefinition = {
-    items: interactive
-      ? [
-          {
-            key: "bu-add",
-            icon: <AddOutlinedIcon fontSize="small" />,
-            messageId: "add",
-            color: "success",
-            variant: "contained",
-            type: "button",
-            dataTestId: "btn_add",
-            action: addButtonAction
-          },
-          {
-            key: "bu-reapply",
-            icon: <RepeatOutlinedIcon fontSize="small" />,
-            messageId: "reapplyRuleset",
-            type: "button",
-            action: () => openSideModal(ReapplyRulesetModal),
-            dataTestId: "btn_re_apply"
-          }
-        ]
-      : []
+    items: [
+      {
+        key: "bu-add",
+        icon: <AddOutlinedIcon fontSize="small" />,
+        messageId: "add",
+        color: "success",
+        variant: "contained",
+        type: "button",
+        dataTestId: "btn_add",
+        action: addButtonAction
+      },
+      {
+        key: "bu-reapply",
+        icon: <RepeatOutlinedIcon fontSize="small" />,
+        messageId: "reapplyRuleset",
+        type: "button",
+        action: () => openSideModal(ReapplyRulesetModal),
+        dataTestId: "btn_re_apply"
+      }
+    ]
   };
 
   return isLoading ? (
@@ -289,7 +153,7 @@ const AssignmentRulesTable = ({ rules, poolId, isLoading, onUpdatePriority, inte
   ) : (
     <>
       <Table
-        withSearch={interactive}
+        withSearch
         data={tableData}
         columns={columns}
         localization={{ emptyMessageId: "noAutomaticResourceAssignmentRules" }}
