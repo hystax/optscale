@@ -179,30 +179,6 @@ class MyTasksController(BaseController, MongoMixin):
         managed_pool_ids = [pool.id for pool in managed_pools]
         pool_ids = [pool.id for pool in pools]
         pool_map = {x.id: x for x in pools + managed_pools}
-        cloud_accounts = self.session.query(CloudAccount).filter(
-            and_(
-                CloudAccount.organization_id == organization.id,
-                CloudAccount.deleted.is_(False)
-            )
-        ).all()
-        resource_filter = {'$and': [
-            {'$or': [
-                {'organization_id': organization.id},
-                {'cloud_account_id': {'$in': [ca.id for ca in cloud_accounts]}}
-            ]},
-            {'deleted_at': 0},
-            {'active': True}
-        ]}
-
-        if organization.pool_id not in managed_pool_ids:
-            resource_filter['$and'].append({'$or': [
-                {'pool_id': {'$in': managed_pool_ids}},
-                {'$and': [
-                    {'employee_id': employee.id},
-                    {'pool_id': {'$in': pool_ids}}
-                ]}
-            ]})
-        resource_ids = set(self.resources_collection.distinct('_id', resource_filter))
         constraints_map, policy_map, resource_hit_map = dict(), dict(), dict()
         for model, dest_map, group_key in [(ResourceConstraint, constraints_map, 'resource_id'),
                                            (PoolPolicy, policy_map, 'pool_id')]:
@@ -228,12 +204,23 @@ class MyTasksController(BaseController, MongoMixin):
                 resource_hits[hit.type.value] = hit
 
         resource_to_find = set(
-            resource_hit_map.keys() | constraints_map.keys()) & resource_ids
-        resource_map = {r['_id']: r for r in self.resources_collection.find({
+            resource_hit_map.keys() | constraints_map.keys())
+        resource_filter = {
             '_id': {'$in': list(resource_to_find)},
             'deleted_at': 0,
             'active': True
-        })}
+        }
+        if organization.pool_id not in managed_pool_ids:
+            resource_filter['$or'] = [
+                {'pool_id': {'$in': managed_pool_ids}},
+                {'$and': [
+                    {'employee_id': employee.id},
+                    {'pool_id': {'$in': pool_ids}}
+                ]}
+            ]
+        resource_map = {
+            r['_id']: r for r in self.resources_collection.find(resource_filter)
+        }
 
         pool_names = self.get_pool_details(pool_ids)
         differ_constraint_results = []

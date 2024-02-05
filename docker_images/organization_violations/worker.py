@@ -66,7 +66,7 @@ class OrganizationViolationsWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[WORKER_TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def publish_activities_tasks(self, tasks):
         queue_conn = QConnection('amqp://{user}:{pass}@{host}:{port}'.format(

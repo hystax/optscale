@@ -136,7 +136,7 @@ class Run(RunPostIn, RunPatchIn):
 
 
 class ApplicationPatchIn(BaseModel):
-    goals: Optional[List[str]] = []
+    goals: Optional[List[str]] = None
     name: Optional[str] = None
     description: Optional[str] = None
     owner_id: Optional[str] = None
@@ -304,12 +304,13 @@ async def update_application(request, body: ApplicationPatchIn, id_: str):
         {"token": token, "_id": id_, "deleted_at": 0})
     if not o:
         raise SanicException("Not found", status_code=404)
-    await check_goals(body.goals)
-    goals_to_remove = set(o['goals']) - set(body.goals)
-    for goal_id in goals_to_remove:
-        if await _goal_used_in_lb(db, goal_id, application_id=id_):
-            raise SanicException(f"Goal is used in application leaderboard(s)",
-                                 status_code=409)
+    if body.goals is not None:
+        await check_goals(body.goals)
+        goals_to_remove = set(o['goals']) - set(body.goals)
+        for goal_id in goals_to_remove:
+            if await _goal_used_in_lb(db, goal_id, application_id=id_):
+                raise SanicException(f"Goal is used in application leaderboard(s)",
+                                     status_code=409)
     d = body.model_dump(exclude_unset=True)
     if d:
         await db.application.update_one(

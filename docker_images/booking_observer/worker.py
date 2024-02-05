@@ -57,7 +57,7 @@ class BookingObserverWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[BOOKING_OBSERVER_TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def process_booking_activities(self, task):
         org_id = task.get('organization_id')

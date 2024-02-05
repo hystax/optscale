@@ -288,7 +288,7 @@ class HeraldExecutorWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def get_auth_users(self, user_ids):
         _, response = self.auth_cl.user_list(user_ids)

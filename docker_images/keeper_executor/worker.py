@@ -343,7 +343,7 @@ class KeeperExecutorWorker(ConsumerMixin):
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task], prefetch_count=10)]
 
     def get_user_id(self, token):
         user_digest = hashlib.md5(token.encode('utf-8')).hexdigest()

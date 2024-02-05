@@ -2,7 +2,7 @@ import { FormattedMessage } from "react-intl";
 import DetectedConstraintsHistoryTable from "components/DetectedConstraintsHistoryTable";
 import SubTitle from "components/SubTitle";
 import TableLoader from "components/TableLoader";
-import OrganizationsLimitHitsService from "services/OrganizationsLimitHitsService";
+import TypographyLoader from "components/TypographyLoader";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import {
   EXPENSE_ANOMALY,
@@ -29,37 +29,28 @@ const mapConstraintTypeToTitleMessageId = (type) => {
   );
 };
 
-const HistorySection = ({ children, type }) => (
-  <>
-    <SubTitle>
-      <FormattedMessage id={mapConstraintTypeToTitleMessageId(type)} />
-    </SubTitle>
-    {children}
-  </>
-);
-
-const DetectedConstraintsHistoryContainer = ({ constraint, isGetConstraintLoading = false }) => {
-  const { useGet } = OrganizationsLimitHitsService();
-
-  const { isLoading, data } = useGet(constraint.id);
-
-  if (isLoading || isGetConstraintLoading) {
+const DetectedConstraintsHistory = ({ limitHits, constraint, isLoading = false }) => {
+  if (isLoading) {
     return (
-      <HistorySection>
+      <>
+        <TypographyLoader />
         <TableLoader columnsCounter={3} />
-      </HistorySection>
+      </>
     );
   }
 
-  if (isEmptyArray(data)) {
+  if (isEmptyArray(limitHits)) {
     return null;
   }
 
   return (
-    <HistorySection type={constraint.type}>
-      <DetectedConstraintsHistoryTable limitHits={data} constraint={constraint} />
-    </HistorySection>
+    <>
+      <SubTitle>
+        <FormattedMessage id={mapConstraintTypeToTitleMessageId(constraint?.type)} />
+      </SubTitle>
+      <DetectedConstraintsHistoryTable limitHits={limitHits} constraint={constraint} />
+    </>
   );
 };
 
-export default DetectedConstraintsHistoryContainer;
+export default DetectedConstraintsHistory;
