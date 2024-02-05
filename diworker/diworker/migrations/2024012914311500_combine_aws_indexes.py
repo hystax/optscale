@@ -47,7 +47,7 @@ class Migration(BaseMigration):
                 partialFilterExpression=partial_exp)
             LOG.info('Added index %s', new_index_name)
         for index_name in old_indexes_map.keys():
-            if index_name not in new_indexes_map:
+            if index_name not in new_indexes_map and index_name in existing_index_map:
                 self.raw_collection.drop_index(index_name)
                 LOG.info('Dropped index %s', index_name)
 
