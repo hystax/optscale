@@ -3,6 +3,7 @@ import EditAssignmentRuleFormContainer from "containers/EditAssignmentRuleFormCo
 
 const EditAssignmentRule = () => {
   const { assignmentRuleId, poolId } = useParams();
+
   return <EditAssignmentRuleFormContainer assignmentRuleId={assignmentRuleId} poolId={poolId} />;
 };
 

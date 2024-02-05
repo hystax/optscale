@@ -18,7 +18,7 @@ import IconButton from "components/IconButton";
 import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import QuestionMark from "components/QuestionMark";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent, ItemContentWithDataSourceIcon } from "components/Selector";
 import {
   CONDITION_TYPES,
   CONDITION,
@@ -48,18 +48,6 @@ const POOL_SELECTOR_NAME = "poolId";
 const OWNER_SELECTOR_NAME = "ownerId";
 
 const { META_INFO, TYPE } = CONDITION;
-
-const buildSelectorData = (selected) => ({
-  selected,
-  items: Object.keys(CONDITION_TYPES).map((key) => ({ name: <FormattedMessage id={CONDITION_TYPES[key]} />, value: `${key}` }))
-});
-
-const buildCloudSelectorData = (cloudAccounts) => ({
-  items: cloudAccounts.map(({ id, name }) => ({
-    name,
-    value: id
-  }))
-});
 
 const AssignmentRuleForm = ({
   onSubmit,
@@ -225,7 +213,7 @@ const AssignmentRuleForm = ({
     return (
       <Controller
         name={`${CONDITIONS}.${count}.${NAME}`}
-        defaultValue={field[NAME]}
+        defaultValue={field[NAME] ?? ""}
         control={control}
         rules={{
           required: {
@@ -235,15 +223,20 @@ const AssignmentRuleForm = ({
         }}
         render={({ field: controllerField }) => (
           <Selector
-            dataTestId={`selector_cloud_account_${count}`}
-            customClass={classes.item}
+            id={`selector-cloud-account-${count}`}
+            fullWidth
             error={!!cloudSelectorError}
             required
             helperText={cloudSelectorError && cloudSelectorError.message}
-            data={buildCloudSelectorData(cloudAccounts)}
-            labelId={CLOUD_SELECTOR_LABEL_ID}
+            labelMessageId={CLOUD_SELECTOR_LABEL_ID}
             {...controllerField}
-          />
+          >
+            {cloudAccounts.map(({ id, name, type }) => (
+              <Item key={id} value={id}>
+                <ItemContentWithDataSourceIcon dataSourceType={type}>{name}</ItemContentWithDataSourceIcon>
+              </Item>
+            ))}
+          </Selector>
         )}
       />
     );
@@ -274,17 +267,24 @@ const AssignmentRuleForm = ({
             name={`${CONDITIONS}.${count}.${TYPE}`}
             defaultValue={field[TYPE]}
             control={control}
-            render={({ field: { value, onChange } }) => (
+            render={({ field: controlledField }) => (
               <Selector
-                data={buildSelectorData(value)}
-                labelId="type"
-                dataTestId={`selector_type_${count}`}
+                id={`selector-type-${count}`}
+                fullWidth
                 required
-                onChange={onChange}
+                labelMessageId="type"
                 error={!!typeError}
                 helperText={typeError && typeError.message}
-                customClass={classes.item}
-              />
+                {...controlledField}
+              >
+                {Object.entries(CONDITION_TYPES).map(([conditionType, conditionMessageId]) => (
+                  <Item key={conditionType} value={conditionType}>
+                    <ItemContent>
+                      <FormattedMessage id={conditionMessageId} />
+                    </ItemContent>
+                  </Item>
+                ))}
+              </Selector>
             )}
           />
         </Box>
@@ -370,15 +370,9 @@ const AssignmentRuleForm = ({
           pools={pools}
           onPoolChange={onPoolChange}
           isLoading={isLoadingProps.isPoolSelectorLoading}
-          classes={{
-            customClass: classes.item
-          }}
         />
         <AssignmentRuleFormOwnerSelector
           name={OWNER_SELECTOR_NAME}
-          classes={{
-            customClass: classes.item
-          }}
           readOnly={readOnlyProps.ownerSelector}
           poolOwners={poolOwners}
           pools={pools}

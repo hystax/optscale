@@ -2,7 +2,7 @@ import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import ButtonGroup from "components/ButtonGroup";
 import Hidden from "components/Hidden";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { POOL_DETAILS, CLOUD_DETAILS, OWNER_DETAILS, EXPENSES_FILTERBY_TYPES, KUBERNETES_CNR } from "utils/constants";
 
 const filters = [
@@ -41,19 +41,21 @@ const ExpensesBreakdownBreakdownByButtonsGroup = ({ type, onClick, filterBy, dat
     <>
       <Hidden mode="up" breakpoint="sm">
         <Selector
-          sx={{ display: { xs: "inherit", sm: "none" } }}
-          data={{
-            selected: buttonsGroup[activeButtonIndex === -1 ? 0 : activeButtonIndex].id,
-            items: buttonsGroup.map((button) => ({
-              name: <FormattedMessage id={button.messageId} />,
-              value: button.id
-            }))
-          }}
-          labelId="breakdownBy"
+          id="breakdown-by-selector"
+          labelMessageId="breakdownBy"
+          value={buttonsGroup[activeButtonIndex === -1 ? 0 : activeButtonIndex].id}
           onChange={(buttonId) => {
             buttonsGroup.find((button) => button.id === buttonId).action();
           }}
-        />
+        >
+          {buttonsGroup.map((button) => (
+            <Item key={button.id} value={button.id}>
+              <ItemContent>
+                <FormattedMessage id={button.messageId} />
+              </ItemContent>
+            </Item>
+          ))}
+        </Selector>
       </Hidden>
       <Hidden mode="down" breakpoint="sm">
         <Typography component="span">

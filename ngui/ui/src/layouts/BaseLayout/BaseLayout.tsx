@@ -84,7 +84,11 @@ const AppToolbar = ({ onMenuIconClick, mainMenu, showMainMenu = false, showOrgan
         </Box>
       ) : null}
       <Box display="flex" alignItems="center">
-        {showOrganizationSelector && <OrganizationSelectorContainer mainMenu={mainMenu} />}
+        {showOrganizationSelector && (
+          <Box mr={1}>
+            <OrganizationSelectorContainer mainMenu={mainMenu} />
+          </Box>
+        )}
         <HeaderButtons />
       </Box>
     </Toolbar>

@@ -26,7 +26,7 @@ import {
   NEBIUS
 } from "utils/constants";
 
-const getSettings = (type) =>
+export const getSettings = (type) =>
   ({
     [AWS_CNR]: {
       icon: AwsLogoIcon,

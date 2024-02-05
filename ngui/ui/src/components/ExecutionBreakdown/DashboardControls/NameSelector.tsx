@@ -1,13 +1,11 @@
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import { FormattedMessage } from "react-intl";
-import Icon from "components/Icon";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContent, Title } from "components/Selector";
 import { DEFAULT_DASHBOARD } from "hooks/useModelRunChartState";
 
 export const DEFAULT_ID = "default";
 
-const NameSelector = ({ dashboards, currentEmployeeId, selected, onChange, saved, isLoading }) => {
+const NameSelector = ({ dashboards, currentEmployeeId, selected, onChange, saved = false, isLoading = false }) => {
   const defaultDashboard = dashboards.find(({ id }) => id === DEFAULT_DASHBOARD.id);
 
   const myDashboards = dashboards.filter(({ owner_id: ownerId }) => ownerId === currentEmployeeId);
@@ -24,72 +22,55 @@ const NameSelector = ({ dashboards, currentEmployeeId, selected, onChange, saved
     return name;
   };
 
-  const selectorData = {
-    items: [
-      {
-        value: defaultDashboard.id,
-        name: formatDashboardName(defaultDashboard.id, defaultDashboard.name),
-        shared: false
-      },
-      {
-        render: ({ title }) =>
-          title({
-            children: <FormattedMessage id="mine" />
-          })
-      },
-      ...myDashboards.map(({ id, name, shared }) => ({
-        value: id,
-        name: formatDashboardName(id, name),
-        shared,
-        owned: true
-      })),
-      {
-        render: ({ title }) =>
-          title({
-            children: <FormattedMessage id="shared" />
-          })
-      },
-      ...sharedDashboards.map(({ id, name, shared }) => ({
-        value: id,
-        name: formatDashboardName(id, name),
-        shared,
-        owned: false
-      }))
-    ],
-    selected
-  };
-
-  return isLoading ? (
-    <SelectorLoader labelId="dashboard" />
-  ) : (
+  return (
     <Selector
-      sx={{ minWidth: { sm: "300px", xs: "200px" } }}
+      id="run-dashboard-selector"
+      value={selected}
       onChange={onChange}
-      data={selectorData}
-      labelId="dashboard"
-      menuItemIcon={{
-        placement: "end",
-        component: ({ shared }) => {
-          if (shared) {
-            return (
-              <Icon
-                icon={ShareOutlinedIcon}
-                hasLeftMargin
-                color="inherit"
-                fontSize="inherit"
-                tooltip={{
-                  show: true,
-                  messageId: "shared"
-                }}
-              />
-            );
-          }
+      labelMessageId="dashboard"
+      isLoading={isLoading}
+      sx={{ minWidth: { sm: "300px", xs: "200px" } }}
+    >
+      <Item value={defaultDashboard.id}>
+        <ItemContent>{formatDashboardName(defaultDashboard.id, defaultDashboard.name)}</ItemContent>
+      </Item>
+      <Title>
+        <FormattedMessage id="mine" />
+      </Title>
+      {myDashboards.map(({ id, name, shared }) => {
+        const icon = shared
+          ? {
+              placement: "end",
+              IconComponent: ShareOutlinedIcon,
+              tooltipTitle: <FormattedMessage id="shared" />
+            }
+          : undefined;
 
-          return null;
-        },
-        getComponentProps: (item) => item
-      }}
-    />
+        return (
+          <Item key={id} value={id}>
+            <ItemContent icon={icon}>{formatDashboardName(id, name)}</ItemContent>
+          </Item>
+        );
+      })}
+      <Title>
+        <FormattedMessage id="shared" />
+      </Title>
+      {sharedDashboards.map(({ id, name, shared }) => {
+        const icon = shared
+          ? {
+              placement: "end",
+              IconComponent: ShareOutlinedIcon,
+              tooltipTitle: <FormattedMessage id="shared" />
+            }
+          : undefined;
+
+        return (
+          <Item key={id} value={id}>
+            <ItemContent icon={icon}>{formatDashboardName(id, name)}</ItemContent>
+          </Item>
+        );
+      })}
+    </Selector>
   );
 };
 

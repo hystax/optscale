@@ -1,16 +1,8 @@
 import { useFormContext, Controller } from "react-hook-form";
 import { useIntl } from "react-intl";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContent } from "components/Selector";
 
-const buildSelectorData = (data) => ({
-  items: data.map((obj) => ({
-    name: obj.name,
-    value: obj.id
-  }))
-});
-
-const PoolFormOwnerSelector = ({ isLoading, owners, isReadOnly = false }) => {
+const PoolFormOwnerSelector = ({ owners, isLoading = false, isReadOnly = false }) => {
   const {
     control,
     formState: { errors }
@@ -28,26 +20,24 @@ const PoolFormOwnerSelector = ({ isLoading, owners, isReadOnly = false }) => {
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         }
       }}
-      render={({ field: { onChange, ...rest } }) => {
-        const data = buildSelectorData(owners);
-        return isLoading ? (
-          <SelectorLoader fullWidth labelId="defaultResourceOwner" isRequired readOnly={isReadOnly} />
-        ) : (
-          <Selector
-            error={!!errors.defaultOwnerId}
-            helperText={errors.defaultOwnerId && errors.defaultOwnerId.message}
-            data={data}
-            dataTestId="selector_owner"
-            labelId="defaultResourceOwner"
-            fullWidth
-            onChange={(id) => {
-              onChange(id);
-            }}
-            readOnly={isReadOnly}
-            {...rest}
-          />
-        );
-      }}
+      render={({ field }) => (
+        <Selector
+          id="pool-owner-selector"
+          error={!!errors.defaultOwnerId}
+          helperText={errors.defaultOwnerId && errors.defaultOwnerId.message}
+          labelMessageId="defaultResourceOwner"
+          fullWidth
+          isLoading={isLoading}
+          readOnly={isReadOnly}
+          {...field}
+        >
+          {owners.map((owner) => (
+            <Item key={owner.id} value={owner.id}>
+              <ItemContent>{owner.name}</ItemContent>
+            </Item>
+          ))}
+        </Selector>
+      )}
     />
   );
 };

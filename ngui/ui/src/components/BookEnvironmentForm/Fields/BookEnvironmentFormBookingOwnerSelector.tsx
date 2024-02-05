@@ -1,19 +1,18 @@
 import { useFormContext, Controller } from "react-hook-form";
 import { useIntl } from "react-intl";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { sortObjectsAlphabetically } from "utils/arrays";
-
-const buildSelectorData = (data) => ({
-  items: data.map((obj) => ({
-    name: obj.name,
-    value: obj.id
-  }))
-});
 
 const sortOwnersAlphabeticallyByName = (owners) => sortObjectsAlphabetically({ array: owners, field: "name" });
 
-const BookEnvironmentFormBookingOwnerSelector = ({ fieldName, isLoading, owners, currentEmployeeId, isSshRequired }) => {
+const BookEnvironmentFormBookingOwnerSelector = ({
+  fieldName,
+  isLoading = false,
+  owners,
+  currentEmployeeId = "",
+  isSshRequired,
+  readOnly = false
+}) => {
   const {
     control,
     trigger,
@@ -49,27 +48,29 @@ const BookEnvironmentFormBookingOwnerSelector = ({ fieldName, isLoading, owners,
           }
         }
       }}
-      render={({ field: { onChange, ...restControlledFields } }) => {
-        const data = buildSelectorData(sortedOwners);
-        return isLoading ? (
-          <SelectorLoader fullWidth labelId="bookingOwner" isRequired />
-        ) : (
-          <Selector
-            required
-            error={!!errors[fieldName]}
-            helperText={errors[fieldName] ? errors[fieldName].message : hintDefaultSshWillBeUsed}
-            data={data}
-            dataTestId="selector_booking_owner"
-            labelId="bookingOwner"
-            fullWidth
-            onChange={(...args) => {
-              onChange(...args);
-              trigger();
-            }}
-            {...restControlledFields}
-          />
-        );
-      }}
+      render={({ field: { onChange, ...restControlledFields } }) => (
+        <Selector
+          id="booking-owner-selector"
+          fullWidth
+          required
+          error={!!errors[fieldName]}
+          helperText={errors[fieldName] ? errors[fieldName].message : hintDefaultSshWillBeUsed}
+          labelMessageId="bookingOwner"
+          onChange={(...args) => {
+            onChange(...args);
+            trigger();
+          }}
+          readOnly={readOnly}
+          isLoading={isLoading}
+          {...restControlledFields}
+        >
+          {sortedOwners.map(({ id, name }) => (
+            <Item key={id} value={id}>
+              <ItemContent>{name}</ItemContent>
+            </Item>
+          ))}
+        </Selector>
+      )}
     />
   );
 };

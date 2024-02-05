@@ -6,7 +6,6 @@ import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import EnvironmentSshKey from "components/EnvironmentSshKey";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import SelectorLoader from "components/SelectorLoader";
 import {
   secondsToMilliseconds,
   areIntervalsOverlapping,
@@ -18,7 +17,6 @@ import {
 } from "utils/datetime";
 import useStyles from "./BookEnvironmentForm.styles";
 import BookEnvironmentFormBookDateTimePicker from "./Fields/BookEnvironmentFormBookDateTimePicker";
-import BookEnvironmentFormBookingOwnerReadOnlyInput from "./Fields/BookEnvironmentFormBookingOwnerReadOnlyInput";
 import BookEnvironmentFormBookingOwnerSelector from "./Fields/BookEnvironmentFormBookingOwnerSelector";
 
 const BOOKING_OWNER = "bookingOwnerId";
@@ -95,19 +93,6 @@ const BookEnvironmentForm = ({
     isCreateSshKeyLoading = false
   } = isLoadingProps;
 
-  const renderBookingOwnerField = () =>
-    canSetBookingOwner ? (
-      <BookEnvironmentFormBookingOwnerSelector
-        fieldName={BOOKING_OWNER}
-        owners={owners}
-        isLoading={isGetAuthorizedEmployeesLoading}
-        currentEmployeeId={defaultBookingOwner?.id}
-        isSshRequired={isSshRequired}
-      />
-    ) : (
-      <BookEnvironmentFormBookingOwnerReadOnlyInput value={defaultBookingOwner?.name} />
-    );
-
   return (
     <FormProvider {...methods}>
       <form
@@ -122,11 +107,14 @@ const BookEnvironmentForm = ({
       >
         {/* To make fields fullWidth. Perhaps is should be resolved in the scope of IntervalTimePicker level (in the Popover)  */}
         <Box display="grid" className={classes.fieldsWrapper}>
-          {isGetAuthorizedEmployeesLoading ? (
-            <SelectorLoader fullWidth labelId="bookingOwner" isRequired />
-          ) : (
-            renderBookingOwnerField()
-          )}
+          <BookEnvironmentFormBookingOwnerSelector
+            fieldName={BOOKING_OWNER}
+            owners={owners}
+            isLoading={isGetAuthorizedEmployeesLoading}
+            currentEmployeeId={defaultBookingOwner?.id}
+            isSshRequired={isSshRequired}
+            readOnly={!canSetBookingOwner}
+          />
           <BookEnvironmentFormBookDateTimePicker
             intervalMinutes={INTERVAL_ENVIRONMENT}
             maxDate={maxPickerDate}

@@ -1,5 +1,6 @@
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
+import { Box } from "@mui/material";
 import IconButton from "components/IconButton";
 import { DeleteMlChartsDashboard, SaveMlChartsDashboard } from "components/SideModalManager/SideModals";
 import { isDefaultDashboard } from "hooks/useModelRunChartState";
@@ -36,16 +37,18 @@ const DashboardControls = ({
 
   return (
     <>
-      <NameSelector
-        currentEmployeeId={currentEmployeeId}
-        dashboards={dashboards}
-        selected={dashboard.id}
-        saved={saved}
-        onChange={(id) => {
-          onDashboardChange(id);
-        }}
-        isLoading={isLoadingProps.isSetupLoading || isLoadingProps.isSelectNewLoading}
-      />
+      <Box mr={1}>
+        <NameSelector
+          currentEmployeeId={currentEmployeeId}
+          dashboards={dashboards}
+          selected={dashboard.id}
+          saved={saved}
+          onChange={(id) => {
+            onDashboardChange(id);
+          }}
+          isLoading={isLoadingProps.isSetupLoading || isLoadingProps.isSelectNewLoading}
+        />
+      </Box>
       <div>
         <IconButton
           icon={<SaveIcon />}

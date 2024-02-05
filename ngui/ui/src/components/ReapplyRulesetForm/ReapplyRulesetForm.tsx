@@ -10,23 +10,13 @@ import ButtonGroup from "components/ButtonGroup";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import PoolLabel from "components/PoolLabel";
-import PoolTypeIcon from "components/PoolTypeIcon";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContentWithPoolIcon } from "components/Selector";
 import { EMPTY_UUID } from "utils/constants";
 
 const POOL_ID = "poolId";
 const INCLUDE_CHILDREN = "includeChildren";
 const WHOLE_ORGANIZATION_ID = 0;
 const SPECIFIC_POOL_ID = 1;
-
-const buildPoolSelectorData = (pools) => ({
-  items: pools.map(({ id, name, pool_purpose: poolPurpose }) => ({
-    name,
-    value: id,
-    type: poolPurpose
-  }))
-});
 
 const getChildren = (array, parentId) => {
   const children = array.filter((x) => x.parent_id === parentId);
@@ -88,38 +78,35 @@ const ReapplyRulesetForm = ({ onSubmit, pools, closeSideModal, isFormLoading, is
           </Typography>
           <ButtonGroup buttons={buttonsGroup} activeButtonIndex={isSpecificPool ? SPECIFIC_POOL_ID : WHOLE_ORGANIZATION_ID} />
         </FormButtonsWrapper>
-        {isFormLoading
-          ? isSpecificPool && <SelectorLoader readOnly fullWidth labelId="pools" isRequired />
-          : isSpecificPool && (
-              <Controller
-                name={POOL_ID}
-                control={control}
-                rules={{
-                  required: {
-                    value: true,
-                    message: intl.formatMessage({ id: "thisFieldIsRequired" })
-                  }
-                }}
-                render={({ field: { onChange, ...rest } }) => (
-                  <Selector
-                    dataTestId="pools_selector"
-                    required
-                    menuItemIcon={{
-                      component: PoolTypeIcon,
-                      getComponentProps: ({ type }) => ({
-                        type
-                      })
-                    }}
-                    error={!!errors[POOL_ID]}
-                    helperText={errors?.[POOL_ID]?.message}
-                    data={buildPoolSelectorData(pools)}
-                    labelId="pools"
-                    onChange={(id) => onChange(id)}
-                    {...rest}
-                  />
-                )}
-              />
+        {isSpecificPool && (
+          <Controller
+            name={POOL_ID}
+            control={control}
+            rules={{
+              required: {
+                value: true,
+                message: intl.formatMessage({ id: "thisFieldIsRequired" })
+              }
+            }}
+            render={({ field }) => (
+              <Selector
+                id="pool-selector"
+                required
+                labelMessageId="pools"
+                error={!!errors[POOL_ID]}
+                helperText={errors?.[POOL_ID]?.message}
+                isLoading={isFormLoading}
+                {...field}
+              >
+                {pools.map(({ id, name, pool_purpose: poolPurpose }) => (
+                  <Item key={id} value={id}>
+                    <ItemContentWithPoolIcon poolType={poolPurpose}>{name}</ItemContentWithPoolIcon>
+                  </Item>
+                ))}
+              </Selector>
             )}
+          />
+        )}
         {poolId !== EMPTY_UUID && isSpecificPool && (
           <FormControlLabel
             control={

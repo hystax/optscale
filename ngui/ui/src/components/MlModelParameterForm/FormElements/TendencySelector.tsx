@@ -1,25 +1,11 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { GOALS_FILTER_TYPES } from "utils/constants";
-
-const buildSelectorData = ({ intl }) => ({
-  items: [
-    {
-      name: intl.formatMessage({ id: "lessIsBetter" }),
-      value: GOALS_FILTER_TYPES.LESS_IS_BETTER
-    },
-    {
-      name: intl.formatMessage({ id: "moreIsBetter" }),
-      value: GOALS_FILTER_TYPES.MORE_IS_BETTER
-    }
-  ]
-});
 
 const FIELD_MESSAGE_ID = "tendency";
 
-const TendencySelector = ({ name, isLoading }) => {
+const TendencySelector = ({ name, isLoading = false }) => {
   const {
     control,
     formState: { errors }
@@ -27,9 +13,7 @@ const TendencySelector = ({ name, isLoading }) => {
 
   const intl = useIntl();
 
-  return isLoading ? (
-    <SelectorLoader fullWidth labelId={FIELD_MESSAGE_ID} isRequired readOnly />
-  ) : (
+  return (
     <Controller
       name={name}
       control={control}
@@ -39,20 +23,24 @@ const TendencySelector = ({ name, isLoading }) => {
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         }
       }}
-      render={({ field: { onChange, ...rest } }) => (
+      render={({ field }) => (
         <Selector
-          dataTestId="selector_tendency"
+          id="tendency-selector"
           fullWidth
           required
           error={!!errors[name]}
           helperText={errors?.[name]?.message}
-          data={buildSelectorData({ intl })}
-          labelId={FIELD_MESSAGE_ID}
-          onChange={(id) => {
-            onChange(id);
-          }}
-          {...rest}
-        />
+          labelMessageId={FIELD_MESSAGE_ID}
+          isLoading={isLoading}
+          {...field}
+        >
+          <Item value={GOALS_FILTER_TYPES.LESS_IS_BETTER}>
+            <ItemContent>{intl.formatMessage({ id: "lessIsBetter" })}</ItemContent>
+          </Item>
+          <Item value={GOALS_FILTER_TYPES.MORE_IS_BETTER}>
+            <ItemContent>{intl.formatMessage({ id: "moreIsBetter" })}</ItemContent>
+          </Item>
+        </Selector>
       )}
     />
   );

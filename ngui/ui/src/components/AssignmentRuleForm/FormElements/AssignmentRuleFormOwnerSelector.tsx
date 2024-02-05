@@ -1,20 +1,8 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
 import { GET_POOL_OWNERS } from "api/restapi/actionTypes";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { useApiState } from "hooks/useApiState";
-
-const buildOwnerSelectorData = ({ poolOwners, selectedPoolId, pools = [], intl }) => {
-  const { default_owner_id: poolDefaultOwnerId } = pools.find((pool) => pool.id === selectedPoolId) ?? {};
-
-  return {
-    items: poolOwners.map(({ id, name }) => ({
-      name: id === poolDefaultOwnerId ? intl.formatMessage({ id: "value(default)" }, { value: name }) : name,
-      value: id
-    }))
-  };
-};
 
 const LABEL_ID = "owner";
 
@@ -24,8 +12,7 @@ const AssignmentRuleFormOwnerSelector = ({
   poolOwners,
   pools,
   isFormDataLoading = false,
-  readOnly = false,
-  classes = {}
+  readOnly = false
 }) => {
   const {
     control,
@@ -38,6 +25,8 @@ const AssignmentRuleFormOwnerSelector = ({
 
   const watchSelectedPool = watch(poolSelectorName);
 
+  const { default_owner_id: poolDefaultOwnerId } = pools.find((pool) => pool.id === watchSelectedPool) ?? {};
+
   return (
     <Controller
       name={fieldName}
@@ -49,27 +38,27 @@ const AssignmentRuleFormOwnerSelector = ({
         }
       }}
       // it is important to define selector inside the Controller since we need to persist currently selected owner between loading-rendered states
-      render={({ field: { onChange, ...rest } }) =>
-        isGetPoolOwnerLoading || isFormDataLoading ? (
-          <SelectorLoader readOnly={readOnly} fullWidth labelId={LABEL_ID} isRequired />
-        ) : (
-          <Selector
-            dataTestId="selector_owner"
-            fullWidth
-            readOnly={readOnly}
-            required
-            customClass={classes.customClass}
-            error={!!errors[fieldName]}
-            helperText={errors?.[fieldName]?.message}
-            data={buildOwnerSelectorData({ poolOwners, selectedPoolId: watchSelectedPool, pools, intl })}
-            labelId={LABEL_ID}
-            onChange={(id) => {
-              onChange(id);
-            }}
-            {...rest}
-          />
-        )
-      }
+      render={({ field }) => (
+        <Selector
+          id="owner-selector"
+          fullWidth
+          readOnly={readOnly}
+          isLoading={isGetPoolOwnerLoading || isFormDataLoading}
+          required
+          error={!!errors[fieldName]}
+          helperText={errors?.[fieldName]?.message}
+          labelMessageId={LABEL_ID}
+          {...field}
+        >
+          {poolOwners.map(({ id, name }) => (
+            <Item key={id} value={id}>
+              <ItemContent>
+                {id === poolDefaultOwnerId ? intl.formatMessage({ id: "value(default)" }, { value: name }) : name}
+              </ItemContent>
+            </Item>
+          ))}
+        </Selector>
+      )}
     />
   );
 };

@@ -44,13 +44,13 @@ const EditPoolForm = ({ unallocatedLimit, poolInfo, onSuccess, onCancel }) => {
   const onSubmit = (formValues) => updatePool({ ...formValues, poolId: id, parentPoolId }).then(onSuccess);
 
   const isOrganizationPool = !parentPoolId;
-  const nameAndTypeInputProps = isOrganizationPool || isReadOnly ? { readOnly: true } : undefined;
+  const nameAndTypeReadOnly = !!(isOrganizationPool || isReadOnly);
 
   return (
     <FormProvider {...methods}>
       <form data-test-id={`form_edit_pool`} onSubmit={handleSubmit(onSubmit)} noValidate>
-        <PoolFormNameInput InputProps={nameAndTypeInputProps} />
-        <PoolFormTypeSelector InputProps={{ ...nameAndTypeInputProps }} />
+        <PoolFormNameInput readOnly={nameAndTypeReadOnly} />
+        <PoolFormTypeSelector readOnly={nameAndTypeReadOnly} />
         <PoolFormOwnerSelector isLoading={!isPoolOwnersDataReady} owners={poolOwners} isReadOnly={isReadOnly} />
         <PoolFormLimitInput unallocatedLimit={unallocatedLimit} isRootPool={!parentPoolId} isReadOnly={isReadOnly} />
         {parentPoolId && <PoolFormAutoExtendCheckbox isReadOnly={isReadOnly} />}

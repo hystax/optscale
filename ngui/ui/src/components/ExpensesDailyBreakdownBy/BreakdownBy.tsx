@@ -1,15 +1,19 @@
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { breakdowns } from "hooks/useBreakdownBy";
 
-const BreakdownBy = ({ value, onChange }) => (
-  <Selector
-    data={{
-      selected: value,
-      items: breakdowns
-    }}
-    labelId="categorizeBy"
-    onChange={onChange}
-  />
+type BreakdownByProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+const BreakdownBy = ({ value, onChange }: BreakdownByProps) => (
+  <Selector id="resource-categorize-by-selector" labelMessageId="categorizeBy" value={value} onChange={onChange}>
+    {breakdowns.map((breakdown) => (
+      <Item key={breakdown.value} value={breakdown.value}>
+        <ItemContent>{breakdown.name}</ItemContent>
+      </Item>
+    ))}
+  </Selector>
 );
 
 export default BreakdownBy;

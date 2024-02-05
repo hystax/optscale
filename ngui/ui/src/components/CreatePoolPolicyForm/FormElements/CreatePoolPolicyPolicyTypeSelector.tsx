@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { useConstraints } from "hooks/useConstraints";
 import { getDifference } from "utils/arrays";
 import { CONSTRAINTS_TYPES } from "utils/constraints";
@@ -24,31 +24,32 @@ const CreatePoolPolicyPolicyTypeSelector = ({ name, selectedPool }) => {
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         }
       }}
-      render={({ field: { onChange, ...rest } }) => (
+      render={({ field }) => (
         <Selector
+          id="policy-type-selector"
           disabled={!selectedPool.id}
-          data={{
-            items: selectedPool.id
-              ? getDifference(
-                  constraints,
-                  selectedPool.policies.map(({ type }) => type)
-                ).map((constraintType) => ({
-                  name: intl.formatMessage({ id: CONSTRAINTS_TYPES[constraintType] }),
-                  value: constraintType
-                }))
-              : []
-          }}
           fullWidth
-          labelId="policyType"
-          dataTestId="policy_type"
+          labelMessageId="policyType"
           required
-          onChange={(value) => {
-            onChange(value);
-          }}
           error={!!errors[name]}
           helperText={errors[name] && errors[name].message}
-          {...rest}
-        />
+          {...field}
+        >
+          {selectedPool.id
+            ? getDifference(
+                constraints,
+                selectedPool.policies.map(({ type }) => type)
+              ).map((constraintType) => (
+                <Item key={constraintType} value={constraintType}>
+                  <ItemContent>
+                    {intl.formatMessage({
+                      id: CONSTRAINTS_TYPES[constraintType]
+                    })}
+                  </ItemContent>
+                </Item>
+              ))
+            : null}
+        </Selector>
       )}
     />
   );

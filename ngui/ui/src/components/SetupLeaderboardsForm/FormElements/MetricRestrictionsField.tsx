@@ -8,7 +8,7 @@ import Button from "components/Button";
 import IconButton from "components/IconButton";
 import Input from "components/Input";
 import InputLoader from "components/InputLoader";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
 import { FIELD_NAMES } from "../constants";
@@ -159,13 +159,9 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
       }}
       render={({ field: { onChange, ...rest } }) => (
         <Selector
-          labelId="metric"
-          data={{
-            items: metrics.map(({ id: metricId, name: metricName }) => ({
-              name: metricName,
-              value: metricId
-            }))
-          }}
+          id={`metric-selector-${index}`}
+          required
+          labelMessageId="metric"
           onChange={(newValue) => {
             onChange(newValue);
             if (isSubmitted) {
@@ -174,13 +170,17 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
               });
             }
           }}
-          required
           error={!!errors[FIELD_NAME]?.[index]?.[METRIC]}
           helperText={errors[FIELD_NAME]?.[index]?.[METRIC] && errors[FIELD_NAME]?.[index]?.[METRIC]?.message}
-          dataTestId={`selector_metric_${index}`}
           fullWidth
           {...rest}
-        />
+        >
+          {metrics.map(({ id: metricId, name: metricName }) => (
+            <Item key={metricId} value={metricId}>
+              <ItemContent>{metricName}</ItemContent>
+            </Item>
+          ))}
+        </Selector>
       )}
     />
   );

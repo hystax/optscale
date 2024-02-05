@@ -4,7 +4,7 @@ import { RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY, RESOURCES_EXPENSES_DAILY_BREAKDO
 import { updateQueryParams } from "utils/network";
 import { useReactiveSearchParams } from "./useReactiveSearchParams";
 
-const getBreakdownDefinition = (value, messageId) => ({
+const getBreakdownDefinition = (value: string, messageId: string) => ({
   value,
   name: intl.formatMessage({ id: messageId })
 });
@@ -39,7 +39,7 @@ export const breakdowns = Object.freeze([
   k8sServiceBreakdown
 ]);
 
-export const useBreakdownBy = ({ queryParamName }) => {
+export const useBreakdownBy = ({ queryParamName }: { queryParamName: string }) => {
   const searchParams = useReactiveSearchParams(useMemo(() => [queryParamName], [queryParamName]));
 
   const breakdownByQueryParameterValue = searchParams[queryParamName];
@@ -56,7 +56,7 @@ export const useBreakdownBy = ({ queryParamName }) => {
     }
   }, [queryParamName, searchParams]);
 
-  const onBreakdownByChange = (newBreakdownByValue) => {
+  const onBreakdownByChange = (newBreakdownByValue: string) => {
     updateQueryParams({
       [queryParamName]: newBreakdownByValue
     });

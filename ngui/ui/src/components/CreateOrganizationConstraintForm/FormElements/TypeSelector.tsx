@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { ANOMALY_TYPES, QUOTAS_AND_BUDGETS_TYPES, TAGGING_POLICY_TYPES } from "utils/constants";
 import { CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES } from "../constants";
 
@@ -13,13 +13,6 @@ const TypeSelector = ({ types }) => {
   } = useFormContext();
 
   const intl = useIntl();
-
-  const selectorData = {
-    items: types.map((type) => ({
-      value: type,
-      name: intl.formatMessage({ id: ANOMALY_TYPES[type] || QUOTAS_AND_BUDGETS_TYPES[type] || TAGGING_POLICY_TYPES[type] })
-    }))
-  };
 
   return (
     <Controller
@@ -34,14 +27,24 @@ const TypeSelector = ({ types }) => {
       }}
       render={({ field: controllerField }) => (
         <Selector
+          id="type-selector"
           fullWidth
           required
           error={!!errors[FIELD_NAME]}
           helperText={errors[FIELD_NAME]?.message}
-          data={selectorData}
-          labelId="type"
+          labelMessageId="type"
           {...controllerField}
-        />
+        >
+          {types.map((type) => (
+            <Item key={type} value={type}>
+              <ItemContent>
+                {intl.formatMessage({
+                  id: ANOMALY_TYPES[type] || QUOTAS_AND_BUDGETS_TYPES[type] || TAGGING_POLICY_TYPES[type]
+                })}
+              </ItemContent>
+            </Item>
+          ))}
+        </Selector>
       )}
     />
   );

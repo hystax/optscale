@@ -9,7 +9,7 @@ import EnvironmentsTable from "components/EnvironmentsTable";
 import Hidden from "components/Hidden";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PageContentWrapper from "components/PageContentWrapper";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { ENVIRONMENTS_TOUR_IDS } from "components/Tour";
 import { useIsTourAvailableForCurrentBreakpoint } from "components/Tour/hooks";
 import { useFilterByPermissions } from "hooks/useAllowedActions";
@@ -24,18 +24,23 @@ const ButtonsGroupWithLabel = ({ labelId, buttons, activeButtonIndex, isMobile }
   <Grid item container direction="row" spacing={isMobile ? 0 : SPACING_1} alignItems="center" style={{ width: "auto" }}>
     <Hidden mode="up" breakpoint="sm">
       <Selector
-        data={{
-          selected: buttons[activeButtonIndex === -1 ? 0 : activeButtonIndex].id,
-          items: buttons.map((button) => ({
-            name: <FormattedMessage id={button.messageId} />,
-            value: button.id
-          }))
-        }}
-        labelId={labelId}
+        id="environment-view-selector"
+        labelMessageId={labelId}
+        value={buttons[activeButtonIndex === -1 ? 0 : activeButtonIndex].id}
         onChange={(buttonId) => {
           buttons.find((button) => button.id === buttonId).action();
         }}
-      />
+      >
+        {buttons.map((button) => (
+          <Item key={button.id} value={button.id} data-test-id={`dropdown_item_filter_${button.id}`}>
+            <ItemContent>
+              <Typography variant="body2" component="span">
+                <FormattedMessage id={button.messageId} />
+              </Typography>
+            </ItemContent>
+          </Item>
+        ))}
+      </Selector>
     </Hidden>
     <Hidden mode="down" breakpoint="sm">
       <Grid item style={{ paddingTop: 0 }}>
@@ -192,27 +197,23 @@ const Environments = ({
               style={{ width: "auto" }}
             >
               <Selector
-                sx={{ "& .MuiInput-input": { display: "flex", alignItems: "center" } }}
-                data={{
-                  selected: activeStatusFilter,
-                  items: Object.values(ENVIRONMENTS_STATUS_FILTERS).map((filter) => ({
-                    name: <FormattedMessage id={filter} />,
-                    value: filter,
-                    dataTestId: `dropdown_item_filter_${filter}`
-                  }))
-                }}
-                renderValue={(value) => (
-                  <Typography variant="body2" component="span">
-                    <FormattedMessage id={value} />
-                  </Typography>
-                )}
-                size="small"
+                id="environment-status-selector"
                 variant="standard"
-                dataTestId="dropdown_filter_status"
+                value={activeStatusFilter}
                 onChange={(value) => {
                   setActiveStatusFilter(value);
                 }}
-              />
+              >
+                {Object.values(ENVIRONMENTS_STATUS_FILTERS).map((filter) => (
+                  <Item key={filter} value={filter} data-test-id={`dropdown_item_filter_${filter}`}>
+                    <ItemContent>
+                      <Typography variant="body2" component="span">
+                        <FormattedMessage id={filter} />
+                      </Typography>
+                    </ItemContent>
+                  </Item>
+                ))}
+              </Selector>
             </Grid>
           </Grid>
           <Grid item xs={12}>

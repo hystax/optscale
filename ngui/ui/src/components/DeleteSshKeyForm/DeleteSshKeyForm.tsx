@@ -1,21 +1,13 @@
-import { useMemo } from "react";
 import Typography from "@mui/material/Typography";
 import { useForm, Controller } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { isEmpty } from "utils/arrays";
 
 export const NEW_DEFAULT_KEY = "newDefaultKey";
-
-const buildSshKeysSelectorData = (keys) =>
-  keys.map(({ id, name, fingerprint }) => ({
-    id,
-    name: `${name} (${fingerprint})`,
-    value: id
-  }));
 
 const DeleteSshKeyForm = ({ onSubmit, closeSideModal, isDefaultKey, isLoading, keysToSelect = [] }) => {
   const intl = useIntl();
@@ -31,7 +23,6 @@ const DeleteSshKeyForm = ({ onSubmit, closeSideModal, isDefaultKey, isLoading, k
     formState: { errors }
   } = methods;
 
-  const selectorData = useMemo(() => ({ items: buildSshKeysSelectorData(keysToSelect) }), [keysToSelect]);
   const shouldShowSelector = !isEmpty(keysToSelect);
 
   const NewKeySelector = () => (
@@ -46,13 +37,19 @@ const DeleteSshKeyForm = ({ onSubmit, closeSideModal, isDefaultKey, isLoading, k
       }}
       render={({ field: controllerField }) => (
         <Selector
+          id="ssh-key-selector"
           required
           error={!!errors[NEW_DEFAULT_KEY]}
           helperText={errors?.[NEW_DEFAULT_KEY]?.message}
-          data={selectorData}
-          labelId="newDefaultSshKey"
+          labelMessageId="newDefaultSshKey"
           {...controllerField}
-        />
+        >
+          {keysToSelect.map(({ id, name, fingerprint }) => (
+            <Item key={id} value={id}>
+              <ItemContent>{`${name} (${fingerprint})`}</ItemContent>
+            </Item>
+          ))}
+        </Selector>
       )}
     />
   );
