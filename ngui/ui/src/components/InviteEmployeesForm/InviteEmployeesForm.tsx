@@ -126,51 +126,47 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
   );
 
   const renderOrganizationField = (count) => (
-    <Grid item xs={7}>
-      <Input
-        required
-        InputProps={{
-          readOnly: true
-        }}
-        defaultValue={name}
-        label={<FormattedMessage id="organization" />}
-        type="text"
-        dataTestId={`input_org_${count}`}
-      />
-    </Grid>
+    <Input
+      required
+      InputProps={{
+        readOnly: true
+      }}
+      defaultValue={name}
+      label={<FormattedMessage id="organization" />}
+      type="text"
+      dataTestId={`input_org_${count}`}
+    />
   );
 
   const renderPoolField = (count, error) => (
-    <Grid item xs={7}>
-      <Controller
-        name={`${ADDITIONAL_ROLES}.${count}.${POOL_ID}`}
-        control={control}
-        rules={{
-          required: {
-            value: true,
-            message: intl.formatMessage({ id: "thisFieldIsRequired" })
-          }
-        }}
-        render={({ field }) => (
-          <Selector
-            id="pool-selector"
-            labelMessageId="pool"
-            required
-            error={!!error}
-            fullWidth
-            helperText={error && error.message}
-            isLoading={isGetAvailablePoolsLoading}
-            {...field}
-          >
-            {availablePools.map((obj) => (
-              <Item key={obj.id} value={obj.id} disabled={busyPoolIds.includes(obj.id) && obj.id !== field.value}>
-                <ItemContentWithPoolIcon poolType={obj.pool_purpose}>{obj.name}</ItemContentWithPoolIcon>
-              </Item>
-            ))}
-          </Selector>
-        )}
-      />
-    </Grid>
+    <Controller
+      name={`${ADDITIONAL_ROLES}.${count}.${POOL_ID}`}
+      control={control}
+      rules={{
+        required: {
+          value: true,
+          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+        }
+      }}
+      render={({ field }) => (
+        <Selector
+          id="pool-selector"
+          labelMessageId="pool"
+          required
+          error={!!error}
+          fullWidth
+          helperText={error && error.message}
+          isLoading={isGetAvailablePoolsLoading}
+          {...field}
+        >
+          {availablePools.map((obj) => (
+            <Item key={obj.id} value={obj.id} disabled={busyPoolIds.includes(obj.id) && obj.id !== field.value}>
+              <ItemContentWithPoolIcon poolType={obj.pool_purpose}>{obj.name}</ItemContentWithPoolIcon>
+            </Item>
+          ))}
+        </Selector>
+      )}
+    />
   );
 
   const additionalRolesRow = (count) => {
@@ -194,58 +190,66 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     const renderScopeField = getScopeFieldRenderer();
 
     return (
-      <Box display="flex" gap={SPACING_1}>
-        <Box flexGrow={1}>
-          <Controller
-            name={`${ADDITIONAL_ROLES}.${count}.${ROLE}`}
-            control={control}
-            rules={{
-              required: {
-                value: true,
-                message: intl.formatMessage({ id: "thisFieldIsRequired" })
-              }
-            }}
-            render={({ field }) => (
-              <Selector
-                id="role-selector"
-                labelMessageId="role"
-                required
-                error={!!roleError}
-                helperText={roleError && roleError.message}
-                fullWidth
-                {...field}
-              >
-                {[ORGANIZATION_MANAGER, MANAGER, ENGINEER].map((role) => (
-                  <Item
-                    key={role}
-                    value={role}
-                    disabled={role === ORGANIZATION_MANAGER && busyRoles.includes(ORGANIZATION_MANAGER) && role !== field.value}
-                  >
-                    <ItemContent>
-                      <FormattedMessage id={ROLE_PURPOSES[role]} />
-                    </ItemContent>
-                  </Item>
-                ))}
-              </Selector>
-            )}
-          />
-        </Box>
-        <Box flexGrow={2}>{renderScopeField()}</Box>
-        <Box>
-          <FormControl className={cx(classes.item, classes.deleteButton)}>
-            <IconButton
-              color="error"
-              icon={<DeleteOutlinedIcon />}
-              onClick={() => remove(count)}
-              tooltip={{
-                show: true,
-                value: <FormattedMessage id="delete" />
+      <Grid container spacing={SPACING_1}>
+        <Grid item xs={4}>
+          <Box>
+            <Controller
+              name={`${ADDITIONAL_ROLES}.${count}.${ROLE}`}
+              control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message: intl.formatMessage({ id: "thisFieldIsRequired" })
+                }
               }}
-              dataTestId={`btn_delete_${count}`}
+              render={({ field }) => (
+                <Selector
+                  id="role-selector"
+                  labelMessageId="role"
+                  required
+                  error={!!roleError}
+                  helperText={roleError && roleError.message}
+                  fullWidth
+                  {...field}
+                >
+                  {[ORGANIZATION_MANAGER, MANAGER, ENGINEER].map((role) => (
+                    <Item
+                      key={role}
+                      value={role}
+                      disabled={
+                        role === ORGANIZATION_MANAGER && busyRoles.includes(ORGANIZATION_MANAGER) && role !== field.value
+                      }
+                    >
+                      <ItemContent>
+                        <FormattedMessage id={ROLE_PURPOSES[role]} />
+                      </ItemContent>
+                    </Item>
+                  ))}
+                </Selector>
+              )}
             />
-          </FormControl>
-        </Box>
-      </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={8}>
+          <Box display="flex">
+            <Box flexGrow={1}>{renderScopeField()}</Box>
+            <Box>
+              <FormControl className={cx(classes.item, classes.deleteButton)}>
+                <IconButton
+                  color="error"
+                  icon={<DeleteOutlinedIcon />}
+                  onClick={() => remove(count)}
+                  tooltip={{
+                    show: true,
+                    value: <FormattedMessage id="delete" />
+                  }}
+                  dataTestId={`btn_delete_${count}`}
+                />
+              </FormControl>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
     );
   };
 
