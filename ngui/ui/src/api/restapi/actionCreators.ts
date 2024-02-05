@@ -100,9 +100,6 @@ import {
   GET_FINOPS_CHECKLIST,
   SET_FINOPS_CHECKLIST,
   UPDATE_FINOPS_CHECKLIST,
-  GET_TECHNICAL_AUDIT,
-  SET_TECHNICAL_AUDIT,
-  UPDATE_TECHNICAL_AUDIT,
   GET_CLUSTER_TYPES,
   SET_CLUSTER_TYPES,
   CREATE_CLUSTER_TYPE,
@@ -324,7 +321,6 @@ import {
   onSuccessCreateLiveDemo,
   onSuccessUpdateAssignmentRulePriority,
   onFinOpsChecklist,
-  onUpdateTechnicalAudit,
   onSuccessExportLinkChange,
   onSuccessUpdateEnvironmentProperty,
   onSuccessCreateWebhook,
@@ -1491,27 +1487,6 @@ export const updateFinOpsChecklist = (organizationId, value) =>
     method: "PATCH",
     label: UPDATE_FINOPS_CHECKLIST,
     onSuccess: onFinOpsChecklist,
-    params: {
-      value: JSON.stringify(value)
-    }
-  });
-
-export const getTechnicalAudit = (organizationId) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/options/technical_audit_application`,
-    method: "GET",
-    onSuccess: handleSuccess(SET_TECHNICAL_AUDIT),
-    ttl: HOUR,
-    hash: hashParams(organizationId),
-    label: GET_TECHNICAL_AUDIT
-  });
-
-export const updateTechnicalAudit = (organizationId, value) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/options/technical_audit_application`,
-    method: "PATCH",
-    label: UPDATE_TECHNICAL_AUDIT,
-    onSuccess: onUpdateTechnicalAudit,
     params: {
       value: JSON.stringify(value)
     }

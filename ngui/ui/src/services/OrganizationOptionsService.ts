@@ -3,8 +3,6 @@ import { useDispatch } from "react-redux";
 import {
   getOptimizationOptions,
   updateOptimizationOptions,
-  getTechnicalAudit,
-  updateTechnicalAudit,
   getOrganizationOptions,
   getOrganizationOption,
   updateOrganizationOption,
@@ -23,8 +21,6 @@ import {
   GET_ORGANIZATION_OPTION,
   GET_OPTIMIZATION_OPTIONS,
   UPDATE_OPTIMIZATION_OPTIONS,
-  GET_TECHNICAL_AUDIT,
-  UPDATE_TECHNICAL_AUDIT,
   UPDATE_ORGANIZATION_OPTION,
   CREATE_ORGANIZATION_OPTION,
   DELETE_ORGANIZATION_OPTION,
@@ -246,54 +242,6 @@ const useUpdateOrganizationPerspectives = () => {
   return { isLoading, update };
 };
 
-const useGetTechnicalAudit = () => {
-  const dispatch = useDispatch();
-  const { organizationId } = useOrganizationInfo();
-
-  const {
-    apiData: { value: options = "{}" }
-  } = useApiData(GET_TECHNICAL_AUDIT, {});
-
-  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_TECHNICAL_AUDIT, organizationId);
-
-  useEffect(() => {
-    if (shouldInvoke) {
-      dispatch(getTechnicalAudit(organizationId));
-    }
-  }, [dispatch, organizationId, shouldInvoke]);
-
-  return { options: parseJSON(options), isGetTechnicalAuditLoading: isLoading, isGetTechnicalAuditDataReady: isDataReady };
-};
-
-const useUpdateTechnicalAudit = () => {
-  const dispatch = useDispatch();
-
-  const { organizationId } = useOrganizationInfo();
-
-  const { isLoading } = useApiState(UPDATE_TECHNICAL_AUDIT);
-
-  const {
-    apiData: { value: options = "{}" }
-  } = useApiData(GET_TECHNICAL_AUDIT, {});
-
-  const update = (value = {}) => {
-    const { codeReportFiles: storedCodeReportFiles = [], ...restStoredOptions } = parseJSON(options);
-
-    const { codeReportFiles = [], ...restValues } = value;
-    const resultValue = {
-      ...restStoredOptions,
-      ...restValues,
-      codeReportFiles: [...storedCodeReportFiles, ...codeReportFiles]
-    };
-
-    dispatch(updateTechnicalAudit(organizationId, resultValue));
-  };
-
-  const reset = () => dispatch(updateTechnicalAudit(organizationId, { step: 0 }));
-
-  return { update, reset, isUpdateTechnicalAuditLoading: isLoading };
-};
-
 const useGetRecommendationsDownloadOptions = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
@@ -365,8 +313,6 @@ function OrganizationOptionsService() {
     useGetRecommendationOptions,
     useGetRecommendationOptionsOnce,
     useUpdateRecommendationOptions,
-    useGetTechnicalAudit,
-    useUpdateTechnicalAudit,
     useGetRecommendationsDownloadOptions,
     useUpdateThemeSettings,
     useUpdateOrganizationPerspectives,
