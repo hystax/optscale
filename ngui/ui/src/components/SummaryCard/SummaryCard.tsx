@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import TouchAppIcon from "@mui/icons-material/TouchApp";
 import { Box, Typography } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -13,13 +14,22 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import useStyles from "./SummaryCard.styles";
 import SummaryCardPdf from "./SummaryCardPdf";
 
-const CardLayout = forwardRef(({ children, color, button = {}, onClick, cardTestId, ...rest }, ref) => {
+const CardLayout = forwardRef(({ children, color, clickable, onClick, cardTestId, ...rest }, ref) => {
   const { classes, cx } = useStyles(color);
-  const cardColorClasses = cx(classes.root, button.show ? classes.button : "");
+  const cardClasses = cx(classes.root, clickable ? classes.button : "");
 
   return (
-    <Card {...rest} elevation={0} data-test-id={cardTestId} className={cardColorClasses} onClick={onClick} ref={ref}>
-      <CardContent className={classes.content}>{children}</CardContent>
+    <Card {...rest} elevation={0} data-test-id={cardTestId} className={cardClasses} onClick={onClick} ref={ref}>
+      <CardContent className={classes.content}>
+        <Box>
+          {children}
+          {clickable && (
+            <Box position="absolute" bottom={0} right={0}>
+              <TouchAppIcon color="info" sx={{ opacity: 0.5 }} />
+            </Box>
+          )}
+        </Box>
+      </CardContent>
     </Card>
   );
 });
@@ -73,6 +83,8 @@ const SummaryCard = ({
       );
     }
 
+    const clickable = button?.show;
+
     return (
       <Tooltip title={tooltipMessage} placement={button.tooltip?.placement}>
         <Box height="100%" position="relative">
@@ -95,8 +107,10 @@ const SummaryCard = ({
               </Typography>
             </>
           ) : null}
-          <CardLayout button={button} cardTestId={cardTestId} onClick={cardClickHandler} color={themeColor}>
-            {customContent || <SummaryCardContent {...{ value, caption, dataTestIds, icon, help, button }} />}
+          <CardLayout clickable={clickable} cardTestId={cardTestId} onClick={cardClickHandler} color={themeColor}>
+            {customContent || (
+              <SummaryCardContent value={value} caption={caption} dataTestIds={dataTestIds} icon={icon} help={help} />
+            )}
             {pdfId ? (
               <SummaryCardPdf pdfId={pdfId} renderData={() => ({ rawValue, rawCaption, color: themeColor, currency })} />
             ) : null}

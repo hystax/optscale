@@ -1,4 +1,3 @@
-import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import { type NavigateFunction, useNavigate } from "react-router-dom";
 import { SI_UNITS } from "components/FormattedDigitalUnit";
 import { STATUS } from "components/S3DuplicateFinderCheck/utils";
@@ -131,7 +130,6 @@ const useS3DuplicateFinderCheckCardDefinition = () => {
 
   const button = {
     show: true,
-    icon: <ExitToAppOutlinedIcon />,
     onClick: () => {
       navigate(S3_DUPLICATE_FINDER);
     },

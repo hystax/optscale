@@ -1,7 +1,14 @@
 import SummaryGrid from "components/SummaryGrid";
 import { SUMMARY_VALUE_COMPONENT_TYPES } from "utils/constants";
 
-const SummaryCards = ({ runsCount, completedRuns, cost, isLoading }) => (
+type SummaryCardsProps = {
+  runsCount: number;
+  completedRuns: number;
+  cost: number;
+  isLoading?: boolean;
+};
+
+const SummaryCards = ({ runsCount, completedRuns, cost, isLoading = false }: SummaryCardsProps) => (
   <SummaryGrid
     summaryData={[
       {
