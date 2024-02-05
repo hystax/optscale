@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useRootData } from "hooks/useRootData";
+import { isCostOverLimit, isForecastOverLimit } from "utils/pools";
 import { EXPANDED_POOL_ROWS } from "../reducer";
-import { isCostOverLimit, isForecastOverLimit } from "../utils";
 
 const checkPoolAndSubpools = (parent, subPools, isExpanded = false) => {
   // testing parent

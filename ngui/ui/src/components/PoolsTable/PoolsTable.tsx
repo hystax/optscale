@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 import { useDispatch } from "react-redux";
 import DashedTypography from "components/DashedTypography";
-import { EditPoolModal } from "components/SideModalManager/SideModals";
-import { EDIT_POOL_TABS } from "components/SideModalManager/SideModals/EditPoolModal";
+import { PoolModal } from "components/SideModalManager/SideModals";
+import { POOL_TABS } from "components/SideModalManager/SideModals/PoolModal";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import Tooltip from "components/Tooltip";
@@ -32,7 +32,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
     (tab, poolId) => {
       const info = [rootPool, ...rootPoolChildren].find(({ id }) => id === poolId);
       updateQueryParams({ [EDIT_POOL_TAB_QUERY]: tab });
-      openSideModal(EditPoolModal, { id: poolId, info });
+      openSideModal(PoolModal, { id: poolId, info });
     },
     [openSideModal, rootPool, rootPoolChildren]
   );
@@ -75,8 +75,8 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
   const columns = useMemo(
     () => [
       poolName({
-        onExpensesExportClick: (id) => openEditModal(EDIT_POOL_TABS.SHARE, id),
-        onConstraintsClick: (id) => openEditModal(EDIT_POOL_TABS.CONSTRAINTS, id)
+        onExpensesExportClick: (id) => openEditModal(POOL_TABS.SHARE, id),
+        onConstraintsClick: (id) => openEditModal(POOL_TABS.CONSTRAINTS, id)
       }),
       poolLimit(),
       expenses({ defaultSort: "desc" }),
@@ -106,7 +106,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
   );
 
   const { isSelectedRow, handleRowClick } = useHoverableRows({
-    onClick: (selectedPool) => openEditModal(EDIT_POOL_TABS.GENERAL, selectedPool),
+    onClick: (selectedPool) => openEditModal(POOL_TABS.GENERAL, selectedPool),
     rootPool,
     isGetPoolDataReady
   });

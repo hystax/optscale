@@ -2,19 +2,19 @@ import { makeStyles } from "tss-react/mui";
 
 const HOVER = "hover";
 
-const useStyles = makeStyles()((theme, { borderWidth }) => ({
+const useStyles = makeStyles()((theme, { borderWidth, isClickable }) => ({
   wrapper: {
     "& svg": {
       [`& .${HOVER}`]: {
         strokeWidth: borderWidth + 1,
-        cursor: "pointer"
+        cursor: isClickable ? "pointer" : "auto"
       }
     }
   }
 }));
 
-export const useChartHoverStyles = ({ borderWidth = 0 }) => {
-  const { classes } = useStyles({ borderWidth });
+export const useChartHoverStyles = ({ borderWidth = 0, isClickable = false }) => {
+  const { classes } = useStyles({ borderWidth, isClickable });
 
   const addHoverClass = (element) => {
     element.classList.add(HOVER);

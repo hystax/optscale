@@ -17,7 +17,7 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import WrapperCard from "components/WrapperCard";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import PoolLimitIcon from "icons/PoolLimitIcon";
-import { POOLS, getThisMonthResourcesByPoolWithoutSubpoolsUrl, getThisMonthPoolExpensesUrl } from "urls";
+import { POOLS, getThisMonthPoolExpensesUrl, getThisMonthResourcesByPoolUrl } from "urls";
 import { SPACING_2 } from "utils/layouts";
 import useStyles from "./PoolsRequiringAttentionCard.styles";
 
@@ -83,7 +83,7 @@ const PoolsTable = ({ pools, sortColumn }) => {
           <>
             <IconButton
               key="seeResourceList"
-              onClick={() => navigate(getThisMonthResourcesByPoolWithoutSubpoolsUrl(id))}
+              onClick={() => navigate(getThisMonthResourcesByPoolUrl(id))}
               icon={<StorageOutlinedIcon fontSize="small" />}
               tooltip={{ show: true, value: <FormattedMessage id="seeResourceList" /> }}
             />

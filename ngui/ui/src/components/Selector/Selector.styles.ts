@@ -9,16 +9,18 @@ const useStyles = makeStyles()((theme) => ({
       marginRight: 0
     }
   },
-  selectRoot: {
-    "& svg": {
-      color: theme.palette.info.main
-    }
-  },
-  notSelectedItem: {
-    "& svg": {
-      color: theme.palette.info.main
-    }
-  },
+  // TODO - get back to the styles once selector is rebuilt, this currently breaks a quesion mark svg color.
+  // https://github.com/hystax/optscale_internal/pull/496
+  // selectRoot: {
+  //   "& svg": {
+  //     color: theme.palette.info.main
+  //   }
+  // },
+  // notSelectedItem: {
+  //   "& svg": {
+  //     color: theme.palette.info.main
+  //   }
+  // },
   menuTitle: {
     fontWeight: "bold",
     pointerEvents: "none"
