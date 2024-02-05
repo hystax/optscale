@@ -12,6 +12,7 @@ class BackendUrls:
     organization_assignment = f"{url_prefix}/organization_assignment"
     organization_collection = f"{url_prefix}/organization"
     issue_info = f"{url_prefix}/issue_info"
+    authorize = f"{url_prefix}/authorize"
     shareable_resource = f"{url_prefix}/shareable_resource"
     issue_attachment_collection = (
         f"{url_prefix}/shareable_resource/(?P<resource_id>[^/]+)/issue_attachment"

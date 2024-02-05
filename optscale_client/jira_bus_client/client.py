@@ -258,6 +258,9 @@ class Client:
     def organization_status_url(self, organization_id):
         return "organization/{}/status".format(organization_id)
 
+    def authorize_url(self):
+        return "authorize"
+
     def app_descriptor(self, base_host=None):
         url = self.app_descriptor_url() + self.query_url(base_host=base_host)
         return self.get(url)
@@ -327,3 +330,6 @@ class Client:
 
     def organization_status_get(self, organization_id):
         return self.get(self.organization_status_url(organization_id))
+
+    def authorize(self, data):
+        return self.post(self.authorize_url(), data)
