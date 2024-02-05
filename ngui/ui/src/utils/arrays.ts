@@ -40,23 +40,48 @@ export const getSumByNestedObjectKey = (array, key, nested) =>
     return sum + x;
   }, 0);
 
-export const sortObjects = ({ array, field, type = "desc", compareFunction }) => {
-  const defaultCompareFunction = (valueOne, valueTwo) => {
-    const testValueOne = Array.isArray(field) ? idx(field, valueOne) : valueOne[field];
-    const testValueTwo = Array.isArray(field) ? idx(field, valueTwo) : valueTwo[field];
-    if (testValueOne > testValueTwo) {
-      return type === "desc" ? -1 : 1;
+export const sortObjects = <T, K extends keyof T>({
+  array,
+  field,
+  type = "desc",
+  compareFunction
+}: {
+  array: T[];
+} & (
+  | {
+      field: K;
+      type?: "asc" | "desc";
+      compareFunction?: never;
     }
-    if (testValueOne < testValueTwo) {
-      return type === "desc" ? 1 : -1;
+  | {
+      field?: never;
+      type?: never;
+      compareFunction: (valueOne: T, valueTwo: T) => number;
     }
-    return 0;
-  };
-  return [...array].sort(typeof compareFunction === "function" ? compareFunction : defaultCompareFunction);
-};
+)) =>
+  [...array].sort(
+    typeof compareFunction === "function"
+      ? compareFunction
+      : (valueOne: T, valueTwo: T) => {
+          const testValueOne = Array.isArray(field) ? idx(field, valueOne) : valueOne[field];
+          const testValueTwo = Array.isArray(field) ? idx(field, valueTwo) : valueTwo[field];
+          if (testValueOne > testValueTwo) {
+            return type === "desc" ? -1 : 1;
+          }
+          if (testValueOne < testValueTwo) {
+            return type === "desc" ? 1 : -1;
+          }
+          return 0;
+        }
+  );
 
-export const sortObjectsAlphabetically = ({ array, field }) => {
-  const compareFunction = (firstEl, secondEl) => firstEl[field].localeCompare(secondEl[field]);
+export const sortObjectsAlphabetically = <T, K extends keyof T>({ array, field }: { array: T[]; field: K }) => {
+  const compareFunction = (firstEl: T, secondEl: T) => {
+    const firstElValue = firstEl[field];
+    const secondElValue = secondEl[field];
+
+    return (firstElValue as string).localeCompare(secondElValue as string);
+  };
 
   return sortObjects({ array, compareFunction });
 };

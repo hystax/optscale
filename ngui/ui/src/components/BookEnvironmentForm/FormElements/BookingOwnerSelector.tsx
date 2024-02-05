@@ -3,16 +3,31 @@ import { useIntl } from "react-intl";
 import Selector, { Item, ItemContent } from "components/Selector";
 import { sortObjectsAlphabetically } from "utils/arrays";
 
-const sortOwnersAlphabeticallyByName = (owners) => sortObjectsAlphabetically({ array: owners, field: "name" });
+type Owner = {
+  id: string;
+  name: string;
+  default_ssh_key_id: string;
+};
 
-const BookEnvironmentFormBookingOwnerSelector = ({
+type BookingOwnerSelectorProps = {
+  fieldName: string;
+  isLoading?: boolean;
+  owners: Owner[];
+  currentEmployeeId?: string;
+  isSshRequired: boolean;
+  readOnly?: boolean;
+};
+
+const sortOwnersAlphabeticallyByName = (owners: Owner[]) => sortObjectsAlphabetically({ array: owners, field: "name" });
+
+const BookingOwnerSelector = ({
   fieldName,
   isLoading = false,
   owners,
   currentEmployeeId = "",
   isSshRequired,
   readOnly = false
-}) => {
+}: BookingOwnerSelectorProps) => {
   const {
     control,
     trigger,
@@ -75,4 +90,4 @@ const BookEnvironmentFormBookingOwnerSelector = ({
   );
 };
 
-export default BookEnvironmentFormBookingOwnerSelector;
+export default BookingOwnerSelector;

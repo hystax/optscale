@@ -2,7 +2,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import IntervalTimePicker from "components/IntervalTimePicker";
 import { startOfDay, roundTimeToInterval, AMOUNT_30_MINUTES } from "utils/datetime";
 
-const BookEnvironmentFormBookDateTimePicker = ({
+const BookDateTimePicker = ({
   name,
   maxDate,
   required,
@@ -51,4 +51,4 @@ const BookEnvironmentFormBookDateTimePicker = ({
   );
 };
 
-export default BookEnvironmentFormBookDateTimePicker;
+export default BookDateTimePicker;

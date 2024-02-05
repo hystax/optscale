@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { CircularProgress } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { CircularProgress, FormControl } from "@mui/material";
 import { useFormContext, Controller } from "react-hook-form";
 import { useIntl } from "react-intl";
 import ButtonGroup from "components/ButtonGroup";
@@ -15,7 +14,17 @@ const ADD_KEY = "addKey";
 
 export const SELECTED_KEY_FIELD_ID = "selectedKeyId";
 
-const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) => {
+type EnvironmentSshKeyProps = {
+  sshKeys: {
+    id: string;
+    name: string;
+    fingerprint: string;
+  }[];
+  isGetSshKeysReady: boolean;
+  defaultKeyId: string;
+};
+
+const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }: EnvironmentSshKeyProps) => {
   const intl = useIntl();
   const methods = useFormContext();
   const userHaveSshKeys = !isEmpty(sshKeys);
@@ -51,9 +60,9 @@ const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) =>
     <CircularProgress />
   ) : (
     <>
-      <Grid item>
+      <FormControl>
         <ButtonGroup buttons={buttons} activeButtonIndex={activeTabIndex} />
-      </Grid>
+      </FormControl>
       {activeTab === MY_KEYS && (
         <Controller
           name={SELECTED_KEY_FIELD_ID}
@@ -70,6 +79,7 @@ const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) =>
               id="environment-ssh-key-selector"
               required
               labelMessageId="sshKeyForBooking"
+              fullWidth
               error={!!errors[SELECTED_KEY_FIELD_ID]}
               helperText={errors?.[SELECTED_KEY_FIELD_ID]?.message}
               {...field}
@@ -85,9 +95,7 @@ const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) =>
       )}
       {activeTab === ADD_KEY && (
         <>
-          <Grid item xs={12}>
-            <InlineSeverityAlert messageDataTestId="ssh-hint" messageId="sshHint" />
-          </Grid>
+          <InlineSeverityAlert messageDataTestId="ssh-hint" messageId="sshHint" />
           <CreateSshKeyNameField />
           <CreateSshKeyValueField />
         </>
