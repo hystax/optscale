@@ -3,7 +3,7 @@ import path from "path";
 import express from "express";
 import dotevn from "dotenv";
 import rateLimitMiddleware from "./middleware/rateLimitMiddleware.js";
-import checkJwtParameterForGetPageRoutesMiddleware from "./middleware/checkJwtParameterForGetPageRoutesMiddleware.js";
+import checkJwtForPageRoutesMiddleware from "./middleware/checkJwtForPageRoutesMiddleware.js";
 
 dotevn.config();
 
@@ -11,7 +11,7 @@ const app = express();
 
 rateLimitMiddleware(app);
 
-checkJwtParameterForGetPageRoutesMiddleware(app);
+checkJwtForPageRoutesMiddleware(app);
 
 app.use(
   "/jira_ui",
