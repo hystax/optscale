@@ -46,7 +46,7 @@ const getConditions = (conditions = []) =>
     };
   });
 
-const EditAssignmentRuleFormContainer = ({ assignmentRuleId, poolId }) => {
+const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { organizationId, organizationPoolId } = useOrganizationInfo();
@@ -62,11 +62,7 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId, poolId }) => {
   });
 
   const redirect = () => {
-    if (!poolId) {
-      navigate(ASSIGNMENT_RULES);
-    } else {
-      navigate(`${POOLS}?pool=${poolId}`);
-    }
+    navigate(ASSIGNMENT_RULES);
   };
 
   const { isLoading: isUpdateAssignmentRuleLoading } = useApiState(UPDATE_ASSIGNMENT_RULE);
@@ -131,7 +127,7 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId, poolId }) => {
           setIsFormDataLoading(false);
         });
     });
-  }, [assignmentRuleId, poolId, dispatch, organizationPoolId, organizationId]);
+  }, [assignmentRuleId, dispatch, organizationPoolId, organizationId]);
 
   return (
     <>
@@ -183,10 +179,6 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId, poolId }) => {
             }}
             poolOwners={poolOwners}
             defaultValues={defaultValues}
-            readOnlyProps={{
-              poolSelector: !!poolId,
-              ownerSelector: false
-            }}
             isLoadingProps={{
               isActiveCheckboxLoading: isFormDataLoading,
               isNameInputLoading: isFormDataLoading,

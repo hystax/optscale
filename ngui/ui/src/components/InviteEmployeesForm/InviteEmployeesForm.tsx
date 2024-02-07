@@ -14,9 +14,7 @@ import Chip from "components/Chip";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import IconButton from "components/IconButton";
 import Input from "components/Input";
-import PoolTypeIcon from "components/PoolTypeIcon";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContent, ItemContentWithPoolIcon } from "components/Selector";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
 import { getDifference, isEmpty } from "utils/arrays";
@@ -30,25 +28,6 @@ const ADDITIONAL_ROLES = "additionalRoles";
 const ROLE = "role";
 const POOL_ID = "poolId";
 const DEFAULT_ADDITIONAL_ROLE_CONDITION = { role: "", poolId: "" };
-
-const buildRolesSelectorData = (roles, selected, busyRoles) => ({
-  selected,
-  items: roles.map((role) => ({
-    value: role,
-    name: <FormattedMessage id={ROLE_PURPOSES[role]} />,
-    disabled: role === ORGANIZATION_MANAGER && busyRoles.includes(ORGANIZATION_MANAGER) && role !== selected
-  }))
-});
-
-const buildPoolsSelectorData = (selected, data, busyPoolIds) => ({
-  selected,
-  items: data.map((obj) => ({
-    name: obj.name,
-    value: obj.id,
-    type: obj.pool_purpose,
-    disabled: busyPoolIds.includes(obj.id) && obj.id !== selected
-  }))
-});
 
 const getFormattedData = (additionalRoles, organizationId, emails) =>
   emails.reduce(
@@ -147,55 +126,47 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
   );
 
   const renderOrganizationField = (count) => (
-    <Grid item xs={7}>
-      <Input
-        required
-        InputProps={{
-          readOnly: true
-        }}
-        defaultValue={name}
-        label={<FormattedMessage id="organization" />}
-        type="text"
-        dataTestId={`input_org_${count}`}
-      />
-    </Grid>
+    <Input
+      required
+      InputProps={{
+        readOnly: true
+      }}
+      defaultValue={name}
+      label={<FormattedMessage id="organization" />}
+      type="text"
+      dataTestId={`input_org_${count}`}
+    />
   );
 
   const renderPoolField = (count, error) => (
-    <Grid item xs={7}>
-      {isGetAvailablePoolsLoading ? (
-        <SelectorLoader readOnly fullWidth labelId="pool" isRequired />
-      ) : (
-        <Controller
-          name={`${ADDITIONAL_ROLES}.${count}.${POOL_ID}`}
-          control={control}
-          rules={{
-            required: {
-              value: true,
-              message: intl.formatMessage({ id: "thisFieldIsRequired" })
-            }
-          }}
-          render={({ field: { onChange, value } }) => (
-            <Selector
-              data={buildPoolsSelectorData(value, availablePools, busyPoolIds)}
-              menuItemIcon={{
-                component: PoolTypeIcon,
-                getComponentProps: (itemInfo) => ({
-                  type: itemInfo.type
-                })
-              }}
-              labelId="pool"
-              dataTestId={`selector_pool_${count}`}
-              required
-              onChange={(selected) => onChange(selected)}
-              error={!!error}
-              helperText={error && error.message}
-              customClass={classes.item}
-            />
-          )}
-        />
+    <Controller
+      name={`${ADDITIONAL_ROLES}.${count}.${POOL_ID}`}
+      control={control}
+      rules={{
+        required: {
+          value: true,
+          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+        }
+      }}
+      render={({ field }) => (
+        <Selector
+          id="pool-selector"
+          labelMessageId="pool"
+          required
+          error={!!error}
+          fullWidth
+          helperText={error && error.message}
+          isLoading={isGetAvailablePoolsLoading}
+          {...field}
+        >
+          {availablePools.map((obj) => (
+            <Item key={obj.id} value={obj.id} disabled={busyPoolIds.includes(obj.id) && obj.id !== field.value}>
+              <ItemContentWithPoolIcon poolType={obj.pool_purpose}>{obj.name}</ItemContentWithPoolIcon>
+            </Item>
+          ))}
+        </Selector>
       )}
-    </Grid>
+    />
   );
 
   const additionalRolesRow = (count) => {
@@ -219,47 +190,66 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     const renderScopeField = getScopeFieldRenderer();
 
     return (
-      <Box display="flex" gap={SPACING_1}>
-        <Box flexGrow={1}>
-          <Controller
-            name={`${ADDITIONAL_ROLES}.${count}.${ROLE}`}
-            control={control}
-            rules={{
-              required: {
-                value: true,
-                message: intl.formatMessage({ id: "thisFieldIsRequired" })
-              }
-            }}
-            render={({ field: { onChange, value } }) => (
-              <Selector
-                data={buildRolesSelectorData([ORGANIZATION_MANAGER, MANAGER, ENGINEER], value, busyRoles)}
-                labelId="role"
-                dataTestId={`selector_role_${count}`}
-                required
-                onChange={(selected) => onChange(selected)}
-                error={!!roleError}
-                helperText={roleError && roleError.message}
-                customClass={classes.item}
-              />
-            )}
-          />
-        </Box>
-        <Box flexGrow={2}>{renderScopeField()}</Box>
-        <Box>
-          <FormControl className={cx(classes.item, classes.deleteButton)}>
-            <IconButton
-              color="error"
-              icon={<DeleteOutlinedIcon />}
-              onClick={() => remove(count)}
-              tooltip={{
-                show: true,
-                value: <FormattedMessage id="delete" />
+      <Grid container spacing={SPACING_1}>
+        <Grid item xs={4}>
+          <Box>
+            <Controller
+              name={`${ADDITIONAL_ROLES}.${count}.${ROLE}`}
+              control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message: intl.formatMessage({ id: "thisFieldIsRequired" })
+                }
               }}
-              dataTestId={`btn_delete_${count}`}
+              render={({ field }) => (
+                <Selector
+                  id="role-selector"
+                  labelMessageId="role"
+                  required
+                  error={!!roleError}
+                  helperText={roleError && roleError.message}
+                  fullWidth
+                  {...field}
+                >
+                  {[ORGANIZATION_MANAGER, MANAGER, ENGINEER].map((role) => (
+                    <Item
+                      key={role}
+                      value={role}
+                      disabled={
+                        role === ORGANIZATION_MANAGER && busyRoles.includes(ORGANIZATION_MANAGER) && role !== field.value
+                      }
+                    >
+                      <ItemContent>
+                        <FormattedMessage id={ROLE_PURPOSES[role]} />
+                      </ItemContent>
+                    </Item>
+                  ))}
+                </Selector>
+              )}
             />
-          </FormControl>
-        </Box>
-      </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={8}>
+          <Box display="flex">
+            <Box flexGrow={1}>{renderScopeField()}</Box>
+            <Box>
+              <FormControl className={cx(classes.item, classes.deleteButton)}>
+                <IconButton
+                  color="error"
+                  icon={<DeleteOutlinedIcon />}
+                  onClick={() => remove(count)}
+                  tooltip={{
+                    show: true,
+                    value: <FormattedMessage id="delete" />
+                  }}
+                  dataTestId={`btn_delete_${count}`}
+                />
+              </FormControl>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
     );
   };
 

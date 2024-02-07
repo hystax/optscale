@@ -1,16 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import PoolTypeIcon from "components/PoolTypeIcon";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
-
-const buildPoolSelectorData = (pools) => ({
-  items: pools.map(({ id, name, pool_purpose: poolPurpose }) => ({
-    name,
-    value: id,
-    type: poolPurpose
-  }))
-});
+import Selector, { Item, ItemContentWithPoolIcon } from "components/Selector";
 
 const TtlAnalysisFormPoolSelector = ({ name, pools, fullWidth = false, isLoading = false, isReadOnly = false }) => {
   const intl = useIntl();
@@ -30,31 +20,26 @@ const TtlAnalysisFormPoolSelector = ({ name, pools, fullWidth = false, isLoading
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         }
       }}
-      render={({ field: { onChange, ...rest } }) =>
-        isLoading ? (
-          <SelectorLoader readOnly={isReadOnly} fullWidth={fullWidth} labelId="pool" isRequired />
-        ) : (
-          <Selector
-            shrinkLabel
-            required
-            dataTestId="selector_pool"
-            readOnly={isReadOnly}
-            fullWidth={fullWidth}
-            error={!!errors[name]}
-            menuItemIcon={{
-              component: PoolTypeIcon,
-              getComponentProps: ({ type }) => ({
-                type
-              })
-            }}
-            helperText={errors?.[name]?.message}
-            data={buildPoolSelectorData(pools)}
-            labelId="pool"
-            onChange={onChange}
-            {...rest}
-          />
-        )
-      }
+      render={({ field }) => (
+        <Selector
+          id="pool-selector"
+          shrinkLabel
+          required
+          readOnly={isReadOnly}
+          fullWidth
+          error={!!errors[name]}
+          helperText={errors?.[name]?.message}
+          labelMessageId="pool"
+          isLoading={isLoading}
+          {...field}
+        >
+          {pools.map(({ id, name: poolName, pool_purpose: poolPurpose }) => (
+            <Item key={id} value={id}>
+              <ItemContentWithPoolIcon poolType={poolPurpose}>{poolName}</ItemContentWithPoolIcon>
+            </Item>
+          ))}
+        </Selector>
+      )}
     />
   );
 };

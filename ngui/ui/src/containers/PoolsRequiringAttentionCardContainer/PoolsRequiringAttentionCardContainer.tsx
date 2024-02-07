@@ -1,7 +1,7 @@
 import PoolsRequiringAttentionCard from "components/PoolsRequiringAttentionCard";
-import { isCostOverLimit, isForecastOverLimit } from "components/PoolsTable/utils";
 import PoolsService from "services/PoolsService";
 import { isEmpty } from "utils/arrays";
+import { isCostOverLimit, isForecastOverLimit } from "utils/pools";
 
 // TODO: move to generic types when created
 type Pool = {

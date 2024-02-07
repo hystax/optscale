@@ -2,7 +2,7 @@ import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import Button from "components/Button";
-import EditPoolModal from "components/SideModalManager/SideModals/EditPoolModal";
+import PoolModal from "components/SideModalManager/SideModals/PoolModal";
 import { useAllowedItems } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -30,7 +30,7 @@ const CLOUD_CONNECTION_BACKDROP_MESSAGE = "cloudConnectionBackdropMessage";
 const redirectToCreateCloudAccount = (navigate) => navigate(CLOUD_ACCOUNT_CONNECT);
 const redirectToCreateK8sAccount = (navigate) => navigate(CLOUD_ACCOUNT_CONNECT_K8S);
 const openEditPoolModal = (_, poolId, { openSideModal, organizationInfo }) =>
-  openSideModal(EditPoolModal, { id: poolId, info: organizationInfo });
+  openSideModal(PoolModal, { id: poolId, info: organizationInfo });
 
 const redirectToCreateRule = (navigate) => navigate(ASSIGNMENT_RULE_CREATE);
 const redirectToCreateEnvironment = (navigate) => navigate(ENVIRONMENT_CREATE);

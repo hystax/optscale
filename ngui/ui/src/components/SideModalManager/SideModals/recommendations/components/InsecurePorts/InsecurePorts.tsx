@@ -6,7 +6,7 @@ import FormControl from "@mui/material/FormControl";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import Input from "components/Input";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { intl } from "translations/react-intl-config";
 import { INSECURE_PORTS_MAP, MAX_PORT, MIN_PORT } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
@@ -94,25 +94,24 @@ const InsecurePorts = ({ insecurePorts = [], setData, isLoading, isChangeSetting
           <>
             <Grid item xs={3}>
               <Selector
-                data={{
-                  selected: ruleParams.selectedProtocol,
-                  items: [
-                    {
-                      value: "tcp",
-                      name: <FormattedMessage id="tcp" />
-                    },
-                    {
-                      value: "udp",
-                      name: <FormattedMessage id="udp" />
-                    }
-                  ]
-                }}
+                id="protocol-selector"
                 fullWidth
                 required
-                labelId="protocol"
-                dataTestId="selector_protocol"
+                labelMessageId="protocol"
+                value={ruleParams.selectedProtocol}
                 onChange={(selectedProtocol) => setRuleParams({ ...ruleParams, selectedProtocol, portError: null })}
-              />
+              >
+                <Item value="tcp">
+                  <ItemContent>
+                    <FormattedMessage id="tcp" />
+                  </ItemContent>
+                </Item>
+                <Item value="udp">
+                  <ItemContent>
+                    <FormattedMessage id="udp" />
+                  </ItemContent>
+                </Item>
+              </Selector>
             </Grid>
             <Grid item xs={6}>
               <Autocomplete

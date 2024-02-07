@@ -4,7 +4,7 @@ import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import { NAME_MAX_SIZE } from "utils/constants";
 
-const PoolFormNameInput = ({ isLoading, InputProps }) => {
+const PoolFormNameInput = ({ isLoading, readOnly }) => {
   const {
     register,
     formState: { errors }
@@ -21,7 +21,9 @@ const PoolFormNameInput = ({ isLoading, InputProps }) => {
       dataTestId="input_name"
       error={!!errors.name}
       helperText={errors.name && errors.name.message}
-      InputProps={InputProps}
+      InputProps={{
+        readOnly
+      }}
       {...register("name", {
         required: {
           value: true,

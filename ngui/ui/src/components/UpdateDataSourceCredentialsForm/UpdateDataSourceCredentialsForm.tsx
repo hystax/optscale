@@ -218,14 +218,7 @@ const CredentialInputs = ({ type }) => {
 };
 
 const UpdateCredentialsWarning = ({ type }) => {
-  const renderUpdateWarning = () => (
-    <InlineSeverityAlert
-      sx={{
-        width: "100%"
-      }}
-      messageId="updateDateSourceCredentialsWarning"
-    />
-  );
+  const renderUpdateWarning = () => <InlineSeverityAlert messageId="updateDateSourceCredentialsWarning" />;
 
   switch (type) {
     case AWS_CNR:

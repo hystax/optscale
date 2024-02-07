@@ -1,14 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
-
-const buildSelectorData = (employees) => ({
-  items: employees.map(({ id, name }) => ({
-    name,
-    value: id
-  }))
-});
+import Selector, { Item, ItemContent } from "components/Selector";
 
 const MlModelCreateFormOwnerField = ({ name, employees = [], isLoading = false }) => {
   const {
@@ -28,25 +20,24 @@ const MlModelCreateFormOwnerField = ({ name, employees = [], isLoading = false }
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         }
       }}
-      render={({ field: { onChange, ...rest } }) =>
-        isLoading ? (
-          <SelectorLoader readOnly fullWidth labelId="owner" isRequired />
-        ) : (
-          <Selector
-            dataTestId="selector_owner"
-            fullWidth
-            required
-            error={!!errors[name]}
-            helperText={errors?.[name]?.message}
-            data={buildSelectorData(employees)}
-            labelId="owner"
-            onChange={(id) => {
-              onChange(id);
-            }}
-            {...rest}
-          />
-        )
-      }
+      render={({ field }) => (
+        <Selector
+          id="owner-selector"
+          fullWidth
+          required
+          error={!!errors[name]}
+          helperText={errors?.[name]?.message}
+          labelMessageId="owner"
+          isLoading={isLoading}
+          {...field}
+        >
+          {employees.map((employee) => (
+            <Item key={employee.id} value={employee.id}>
+              <ItemContent>{employee.name}</ItemContent>
+            </Item>
+          ))}
+        </Selector>
+      )}
     />
   );
 };

@@ -22,6 +22,7 @@ from jira_bus.jira_bus_server.handlers.v2.issue_attachment import (
     IssueAttachmentItemHandler,
 )
 from jira_bus.jira_bus_server.handlers.v2.issue_info import IssueInfoHandler
+from jira_bus.jira_bus_server.handlers.v2.authorize import AuthorizeHandler
 from jira_bus.jira_bus_server.handlers.v2.organization_assignment import (
     OrganizationAssignmentHandler,
 )
@@ -75,6 +76,7 @@ def get_handlers(handler_kwargs):
             handler_kwargs,
         ),
         (backend_urls.issue_info, IssueInfoHandler, handler_kwargs),
+        (backend_urls.authorize, AuthorizeHandler, handler_kwargs),
         (backend_urls.shareable_resource, ShareableResourceHandler, handler_kwargs),
         (
             backend_urls.issue_attachment_collection,

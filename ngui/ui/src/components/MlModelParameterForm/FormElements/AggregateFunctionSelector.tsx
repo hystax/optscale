@@ -1,19 +1,11 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
 import { AGGREGATE_FUNCTION, AGGREGATE_FUNCTION_MESSAGE_ID } from "components/AggregateFunctionFormattedMessage";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
-
-const buildSelectorData = ({ intl }) => ({
-  items: Object.values(AGGREGATE_FUNCTION).map((aggregateFunction) => ({
-    name: intl.formatMessage({ id: AGGREGATE_FUNCTION_MESSAGE_ID[aggregateFunction] }),
-    value: aggregateFunction
-  }))
-});
+import Selector, { Item, ItemContent } from "components/Selector";
 
 const FIELD_MESSAGE_ID = "aggregateFunction";
 
-const AggregateFunctionSelector = ({ name, isLoading }) => {
+const AggregateFunctionSelector = ({ name, isLoading = false }) => {
   const {
     control,
     formState: { errors }
@@ -21,9 +13,7 @@ const AggregateFunctionSelector = ({ name, isLoading }) => {
 
   const intl = useIntl();
 
-  return isLoading ? (
-    <SelectorLoader fullWidth labelId={FIELD_MESSAGE_ID} isRequired readOnly />
-  ) : (
+  return (
     <Controller
       name={name}
       control={control}
@@ -33,20 +23,23 @@ const AggregateFunctionSelector = ({ name, isLoading }) => {
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         }
       }}
-      render={({ field: { onChange, ...rest } }) => (
+      render={({ field }) => (
         <Selector
-          dataTestId="selector_function"
+          id="aggregate-function-selector"
           fullWidth
           required
           error={!!errors[name]}
           helperText={errors?.[name]?.message}
-          data={buildSelectorData({ intl })}
-          labelId={FIELD_MESSAGE_ID}
-          onChange={(id) => {
-            onChange(id);
-          }}
-          {...rest}
-        />
+          labelMessageId={FIELD_MESSAGE_ID}
+          isLoading={isLoading}
+          {...field}
+        >
+          {Object.values(AGGREGATE_FUNCTION).map((aggregateFunction) => (
+            <Item key={aggregateFunction} value={aggregateFunction}>
+              <ItemContent>{intl.formatMessage({ id: AGGREGATE_FUNCTION_MESSAGE_ID[aggregateFunction] })}</ItemContent>
+            </Item>
+          ))}
+        </Selector>
       )}
     />
   );

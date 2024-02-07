@@ -100,7 +100,7 @@
   "OE0491": "Unable to modify a calendar event: {0}",
   "OE0492": "Unable to delete a calendar event",
   "OE0493": "Calendar validation has failed",
-  "OE0495": "Booking an IT Environment in the past is not allowed",
+  "OE0495": "Booking a Shared Environment in the past is not allowed",
   "OE0500": "Currency cannot be changed if an organization has a connected data source",
   "OE0515": "The interval between dates should be less than a year",
   "OE0526": "Profiling token already exists in the organization {0}",

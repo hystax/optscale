@@ -6,10 +6,14 @@ import MlModelParametersTable from "./MlModelParametersTable";
 
 const MlEditModelParameters = ({ parameters, onAttachChange, isLoading = false, isUpdateLoading = false }) => (
   <Stack spacing={SPACING_2}>
-    <ContentBackdropLoader isLoading={isUpdateLoading}>
-      <MlModelParametersTable parameters={parameters} isLoading={isLoading} onAttachChange={onAttachChange} />
-    </ContentBackdropLoader>
-    <InlineSeverityAlert messageId="mlTaskSpecificMetricsDescription" />
+    <div>
+      <ContentBackdropLoader isLoading={isUpdateLoading}>
+        <MlModelParametersTable parameters={parameters} isLoading={isLoading} onAttachChange={onAttachChange} />
+      </ContentBackdropLoader>
+    </div>
+    <div>
+      <InlineSeverityAlert messageId="mlTaskSpecificMetricsDescription" />
+    </div>
   </Stack>
 );
 

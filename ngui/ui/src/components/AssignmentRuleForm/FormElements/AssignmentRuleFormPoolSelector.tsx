@@ -1,26 +1,8 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import PoolTypeIcon from "components/PoolTypeIcon";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContentWithPoolIcon } from "components/Selector";
 
-const buildPoolSelectorData = (pools) => ({
-  items: pools.map(({ id, name, pool_purpose: poolPurpose }) => ({
-    name,
-    value: id,
-    type: poolPurpose
-  }))
-});
-
-const AssignmentRuleFormPoolSelector = ({
-  name,
-  ownerSelectorName,
-  readOnly = false,
-  pools,
-  onPoolChange,
-  classes = {},
-  isLoading
-}) => {
+const AssignmentRuleFormPoolSelector = ({ name, ownerSelectorName, pools, onPoolChange, isLoading }) => {
   const {
     control,
     setValue,
@@ -29,9 +11,7 @@ const AssignmentRuleFormPoolSelector = ({
   } = useFormContext();
   const intl = useIntl();
 
-  return isLoading ? (
-    <SelectorLoader readOnly={readOnly} fullWidth labelId="targetPool" isRequired />
-  ) : (
+  return (
     <Controller
       name={name}
       control={control}
@@ -43,20 +23,13 @@ const AssignmentRuleFormPoolSelector = ({
       }}
       render={({ field: { onChange, ...rest } }) => (
         <Selector
-          readOnly={readOnly}
-          dataTestId="selector_target_pool"
-          customClass={classes.customClass}
+          id="target-pool-selector"
+          fullWidth
           required
-          menuItemIcon={{
-            component: PoolTypeIcon,
-            getComponentProps: ({ type }) => ({
-              type
-            })
-          }}
+          isLoading={isLoading}
           error={!!errors[name]}
           helperText={errors?.[name]?.message}
-          data={buildPoolSelectorData(pools)}
-          labelId="targetPool"
+          labelMessageId="targetPool"
           onChange={(id) => {
             onPoolChange(id, (owners) => {
               const { default_owner_id: defaultOwnerId } = pools.find((pool) => pool.id === id);
@@ -73,7 +46,13 @@ const AssignmentRuleFormPoolSelector = ({
             onChange(id);
           }}
           {...rest}
-        />
+        >
+          {pools.map(({ id: poolId, name: poolName, pool_purpose: poolPurpose }) => (
+            <Item key={poolId} value={poolId}>
+              <ItemContentWithPoolIcon poolType={poolPurpose}>{poolName}</ItemContentWithPoolIcon>
+            </Item>
+          ))}
+        </Selector>
       )}
     />
   );

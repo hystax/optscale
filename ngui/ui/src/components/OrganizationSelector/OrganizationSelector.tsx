@@ -1,110 +1,126 @@
+import { useState } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ApartmentIcon from "@mui/icons-material/Apartment";
+import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { Box } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
-import Icon from "components/Icon";
-import SelectorComponent from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Hidden from "components/Hidden";
+import IconButton from "components/IconButton";
+import Selector, { Button, Divider, Item, ItemContent } from "components/Selector";
 import { CreateOrganizationModal } from "components/SideModalManager/SideModals";
+import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ORGANIZATIONS_OVERVIEW } from "urls";
-import useStyles from "./OrganizationSelector.styles";
 
-const prepareSelectorData = (organizationId, organizations) => ({
-  selected: organizationId,
-  items: organizations
-    .map((obj, index) => ({
-      name: obj.name,
-      value: obj.id,
-      dataTestId: `org_${index}`
-    }))
-    .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
-});
+const HIDDEN_SELECTOR_SX = { visibility: "hidden", maxWidth: 0, minWidth: 0 };
 
-const Selector = ({ organizations = [], organizationId, onChange }) => {
+const SELECTOR_SX = {
+  "&.MuiFormControl-root": {
+    "& label": {
+      color: (theme) => theme.palette.primary.main
+    },
+    "& div": {
+      color: (theme) => theme.palette.primary.main,
+      "&.Mui-focused": {
+        "& fieldset": {
+          borderColor: (theme) => theme.palette.primary.main
+        }
+      }
+    },
+    "& svg": {
+      color: (theme) => theme.palette.primary.main
+    },
+    "& fieldset": {
+      borderColor: (theme) => theme.palette.primary.main
+    },
+    "&:hover fieldset": {
+      borderColor: (theme) => theme.palette.primary.main
+    }
+  }
+};
+
+type OrganizationSelectorProps = {
+  organizations?: {
+    id: string;
+    name: string;
+  }[];
+  organizationId?: string;
+  onChange: (value: string) => void;
+  isLoading?: boolean;
+};
+
+const OrganizationSelector = ({
+  organizations = [],
+  organizationId = "",
+  onChange,
+  isLoading = false
+}: OrganizationSelectorProps) => {
   const { isDemo } = useOrganizationInfo();
   const openSideModal = useOpenSideModal();
   const navigate = useNavigate();
-  const { classes } = useStyles();
 
-  const selectorDefinition = prepareSelectorData(organizationId, organizations);
+  const isDownSm = useIsDownMediaQuery("sm");
 
-  const organizationOverviewItem = {
-    key: "organizationsOverview",
-    render: ({ button }) =>
-      button({
-        children: (
-          <>
-            <Icon color="inherit" hasRightMargin icon={VisibilityOutlinedIcon} />
-            <FormattedMessage id="organizationsOverview" />
-          </>
-        ),
-        onClick: () => navigate(ORGANIZATIONS_OVERVIEW),
-        dataTestId: "orgs_dashboard"
-      })
-  };
-
-  const createOrganizationItem = {
-    key: "creteOrganization",
-    render: ({ button }) =>
-      button({
-        children: (
-          <>
-            <Icon color="inherit" hasRightMargin icon={AddOutlinedIcon} />
-            <FormattedMessage id="createNewOrganization" />
-          </>
-        ),
-        onClick: () => openSideModal(CreateOrganizationModal, { onSuccess: onChange }),
-        dataTestId: "orgs_create_new",
-        disabled: isDemo,
-        tooltip: {
-          content: <FormattedMessage id="notAvailableInLiveDemo" />,
-          show: isDemo
-        }
-      })
-  };
-
-  const data = {
-    ...selectorDefinition,
-    items: [
-      ...selectorDefinition.items,
-      {
-        key: "divider",
-        render: ({ divider }) => divider()
-      },
-      organizationOverviewItem,
-      createOrganizationItem
-    ]
-  };
+  const [open, setOpen] = useState(false);
+  const handleClose = () => setOpen(false);
+  const handleOpen = () => setOpen(true);
 
   return (
-    <SelectorComponent
-      data={data}
-      labelId="organization"
-      dataTestId="select_org"
-      onChange={onChange}
-      customClass={classes.organizationSelector}
-      isMobile
-      menuItemIcon={{
-        component: Icon,
-        getComponentProps: () => ({
-          icon: ApartmentIcon,
-          hasRightMargin: true
-        })
-      }}
-    />
-  );
-};
-
-const OrganizationSelector = ({ organizations = [], organizationId, onChange, isLoading }) => {
-  const { classes } = useStyles();
-
-  return isLoading ? (
-    <SelectorLoader customClass={classes.organizationSelector} labelId="organization" />
-  ) : (
-    <Selector organizations={organizations} organizationId={organizationId} onChange={onChange} />
+    <Box display="flex" alignItems="center">
+      <Hidden mode="up" breakpoint="sm">
+        <IconButton icon={<ExpandMoreOutlinedIcon />} onClick={handleOpen} />
+      </Hidden>
+      <Selector
+        id="organization-selector"
+        labelMessageId="organization"
+        value={organizationId}
+        onChange={onChange}
+        compact
+        open={open}
+        onOpen={handleOpen}
+        onClose={handleClose}
+        isLoading={isLoading}
+        sx={isDownSm ? HIDDEN_SELECTOR_SX : SELECTOR_SX}
+      >
+        {organizations
+          .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
+          .map((obj) => (
+            <Item key={obj.name} value={obj.id}>
+              <ItemContent
+                icon={{
+                  IconComponent: ApartmentIcon
+                }}
+              >
+                {obj.name}
+              </ItemContent>
+            </Item>
+          ))}
+        <Divider />
+        <Button
+          icon={{
+            IconComponent: VisibilityOutlinedIcon
+          }}
+          onClick={() => navigate(ORGANIZATIONS_OVERVIEW)}
+          dataTestId="orgs_dashboard"
+        >
+          <FormattedMessage id="organizationsOverview" />
+        </Button>
+        <Button
+          icon={{
+            IconComponent: AddOutlinedIcon
+          }}
+          onClick={() => openSideModal(CreateOrganizationModal, { onSuccess: onChange })}
+          dataTestId="orgs_create_new"
+          disabled={isDemo}
+          tooltipTitle={isDemo ? <FormattedMessage id="notAvailableInLiveDemo" /> : null}
+        >
+          <FormattedMessage id="organizationsOverview" />
+        </Button>
+      </Selector>
+    </Box>
   );
 };
 

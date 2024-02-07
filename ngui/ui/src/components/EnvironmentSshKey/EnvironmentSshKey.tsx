@@ -1,13 +1,12 @@
-import { useState, useMemo } from "react";
-import { CircularProgress } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { useState } from "react";
+import { CircularProgress, FormControl } from "@mui/material";
 import { useFormContext, Controller } from "react-hook-form";
 import { useIntl } from "react-intl";
 import ButtonGroup from "components/ButtonGroup";
 import CreateSshKeyNameField from "components/CreateSshKeyNameField";
 import CreateSshKeyValueField from "components/CreateSshKeyValueField";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { isEmpty } from "utils/arrays";
 
 const MY_KEYS = "myKeys";
@@ -15,24 +14,23 @@ const ADD_KEY = "addKey";
 
 export const SELECTED_KEY_FIELD_ID = "selectedKeyId";
 
-const buildSshKeysSelectorData = (keys, defaultKeyId, defaultKeyText) =>
-  keys.map(({ id, name, fingerprint }) => ({
-    name: `${name} (${fingerprint}) ${defaultKeyId === id ? defaultKeyText : ""}`,
-    value: id
-  }));
+type EnvironmentSshKeyProps = {
+  sshKeys: {
+    id: string;
+    name: string;
+    fingerprint: string;
+  }[];
+  isGetSshKeysReady: boolean;
+  defaultKeyId: string;
+};
 
-const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) => {
+const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }: EnvironmentSshKeyProps) => {
   const intl = useIntl();
   const methods = useFormContext();
   const userHaveSshKeys = !isEmpty(sshKeys);
   const [activeTab, setActiveTab] = useState(userHaveSshKeys ? MY_KEYS : ADD_KEY);
 
   const defaultKeyText = `[${intl.formatMessage({ id: "default" }).toLowerCase()}]`;
-
-  const selectorData = useMemo(
-    () => ({ items: buildSshKeysSelectorData(sshKeys, defaultKeyId, defaultKeyText) }),
-    [sshKeys, defaultKeyId, defaultKeyText]
-  );
 
   const {
     control,
@@ -62,9 +60,9 @@ const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) =>
     <CircularProgress />
   ) : (
     <>
-      <Grid item>
+      <FormControl>
         <ButtonGroup buttons={buttons} activeButtonIndex={activeTabIndex} />
-      </Grid>
+      </FormControl>
       {activeTab === MY_KEYS && (
         <Controller
           name={SELECTED_KEY_FIELD_ID}
@@ -78,21 +76,26 @@ const EnvironmentSshKey = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId }) =>
           defaultValue={defaultKeyId}
           render={({ field }) => (
             <Selector
+              id="environment-ssh-key-selector"
               required
+              labelMessageId="sshKeyForBooking"
+              fullWidth
               error={!!errors[SELECTED_KEY_FIELD_ID]}
               helperText={errors?.[SELECTED_KEY_FIELD_ID]?.message}
-              data={selectorData}
-              labelId="sshKeyForBooking"
               {...field}
-            />
+            >
+              {sshKeys.map(({ id, name, fingerprint }) => (
+                <Item key={id} value={id}>
+                  <ItemContent>{`${name} (${fingerprint}) ${defaultKeyId === id ? defaultKeyText : ""}`}</ItemContent>
+                </Item>
+              ))}
+            </Selector>
           )}
         />
       )}
       {activeTab === ADD_KEY && (
         <>
-          <Grid item xs={12}>
-            <InlineSeverityAlert messageDataTestId="ssh-hint" messageId="sshHint" />
-          </Grid>
+          <InlineSeverityAlert messageDataTestId="ssh-hint" messageId="sshHint" />
           <CreateSshKeyNameField />
           <CreateSshKeyValueField />
         </>

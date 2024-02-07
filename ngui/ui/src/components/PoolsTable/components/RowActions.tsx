@@ -6,17 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { AddPoolModal, DeletePoolModal } from "components/SideModalManager/SideModals";
 import TableCellActions from "components/TableCellActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
-import {
-  getThisMonthPoolExpensesUrl,
-  getThisMonthResourcesByPoolUrl,
-  getThisMonthResourcesByPoolWithoutSubpoolsUrl
-} from "urls";
+import { getThisMonthPoolExpensesUrl, getThisMonthResourcesByPoolUrl } from "urls";
 import { SCOPE_TYPES } from "utils/constants";
 
 const RowActions = ({ row }) => {
-  // No id means self-assigned sub-pool
-  const { parent_id: parentId, id = parentId, hasChildren, name, unallocated_limit: unallocatedLimit } = row.original;
-  const isSelfAsignedPool = id !== row.original.id;
+  const { parent_id: parentId, id, hasChildren, name, unallocated_limit: unallocatedLimit } = row.original;
 
   const navigate = useNavigate();
 
@@ -50,7 +44,7 @@ const RowActions = ({ row }) => {
       icon: <StorageOutlinedIcon />,
       action: (e) => {
         e.stopPropagation();
-        navigate(isSelfAsignedPool ? getThisMonthResourcesByPoolWithoutSubpoolsUrl(id) : getThisMonthResourcesByPoolUrl(id));
+        navigate(getThisMonthResourcesByPoolUrl(id));
       },
       dataTestId: "btn_see_rl"
     },

@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import Grid from "@mui/material/Grid";
-import { useIntl } from "react-intl";
 import ActionBar from "components/ActionBar";
 import PageContentWrapper from "components/PageContentWrapper";
 import PoolsTable from "components/PoolsTable";
@@ -35,12 +34,7 @@ const PoolsOverview = ({ data, isLoading, isDataReady, isGetPoolAllowedActionsLo
     ]
   };
 
-  const intl = useIntl();
-  // creating "self assigned" pools
-  const poolsPatched = useMemo(
-    () => patchPools(data, (poolName) => intl.formatMessage({ id: "assignedTo" }, { name: poolName })),
-    [data, intl]
-  );
+  const poolsPatched = useMemo(() => patchPools(data), [data]);
 
   return (
     <>

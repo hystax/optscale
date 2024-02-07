@@ -29,31 +29,31 @@ const PieChart = ({
   borderWidth = DEFAULT_CHART_BORDER_WIDTH,
   shouldApplyHoverStyles = true
 }) => {
-  const { height = 30, margin = { top: 10 } } = style;
+  // Consume full width of a container by default. theme.spacing seems to be working correctly with percentage as well.
+  const { height = 30, width = "100%", margin = { top: 10 } } = style;
   const theme = useTheme();
 
   const chartPalette = palette || theme.palette.chart;
 
-  const [wrapperClass, addHoverClass, removeHoverClass] = useChartHoverStyles({ borderWidth });
+  const [wrapperClass, addHoverClass, removeHoverClass] = useChartHoverStyles({
+    borderWidth,
+    isClickable: typeof onClick === "function"
+  });
 
   const applyHoverStyles = (node, event) => {
-    if (onClick) {
-      const shouldApply =
-        typeof shouldApplyHoverStyles === "function" ? shouldApplyHoverStyles(node, event) : shouldApplyHoverStyles;
-      if (shouldApply) {
-        addHoverClass(event.target);
-      }
+    const shouldApply =
+      typeof shouldApplyHoverStyles === "function" ? shouldApplyHoverStyles(node, event) : shouldApplyHoverStyles;
+    if (shouldApply) {
+      addHoverClass(event.target);
     }
   };
 
   const removeHoverStyles = (node, event) => {
-    if (onClick) {
-      removeHoverClass(event.target);
-    }
+    removeHoverClass(event.target);
   };
 
   return (
-    <Box className={wrapperClass} height={theme.spacing(height)}>
+    <Box className={wrapperClass} height={theme.spacing(height)} width={theme.spacing(width)}>
       <ResponsivePie
         data={data}
         layers={["arcs", CenteredMetric]}

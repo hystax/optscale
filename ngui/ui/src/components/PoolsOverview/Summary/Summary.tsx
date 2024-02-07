@@ -1,4 +1,3 @@
-import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import SummaryGrid from "components/SummaryGrid";
 import { getPoolIdWithSubPools, getResourcesExpensesUrl } from "urls";
 import { AVAILABLE_SAVINGS_FILTER, POOL_ID_FILTER, SUMMARY_CARD_TYPES, SUMMARY_VALUE_COMPONENT_TYPES } from "utils/constants";
@@ -6,7 +5,19 @@ import { getCurrentMonthRange } from "utils/datetime";
 import { getPoolColorStatus } from "utils/layouts";
 import { intPercentXofY } from "utils/math";
 
-const Summary = ({ data, isLoading }) => {
+type SummaryProps = {
+  data: {
+    id: string;
+    limit: number;
+    cost: number;
+    forecast: number;
+    saving: number;
+    children: SummaryProps["data"][];
+  };
+  isLoading?: boolean;
+};
+
+const Summary = ({ data, isLoading = false }: SummaryProps) => {
   const { id, limit = 0, cost = 0, forecast = 0, saving = 0 } = data;
 
   const costPercent = intPercentXofY(cost, limit);
@@ -92,7 +103,6 @@ const Summary = ({ data, isLoading }) => {
       renderCondition: () => saving !== 0,
       button: {
         show: true,
-        icon: <ListAltOutlinedIcon />,
         link: getResourcesExpensesUrl({
           [POOL_ID_FILTER]: getPoolIdWithSubPools(id),
           [AVAILABLE_SAVINGS_FILTER]: true,

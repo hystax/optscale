@@ -2,7 +2,7 @@ import { Box, FormControl, FormHelperText } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
 import Day from "components/DateRangePicker/Day";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { MERIDIEM_NAMES } from "utils/datetime";
 import { FIELD_NAMES, TIME_VALUES } from "../constants";
 
@@ -27,6 +27,7 @@ const PowerOffField = ({ name = FIELD_NAMES.POWER_OFF.FIELD }) => {
         <FormControl fullWidth>
           <Box display="flex" alignItems="center">
             <Selector
+              id="power-off-selector"
               margin="none"
               fullWidth
               required
@@ -38,15 +39,18 @@ const PowerOffField = ({ name = FIELD_NAMES.POWER_OFF.FIELD }) => {
                   time: newTime
                 })
               }
-              data={{ items: TIME_VALUES.map((timeValue) => ({ name: timeValue, value: timeValue })) }}
-              labelId="instancePowerOff"
-              MenuProps={{
-                sx: {
-                  height: "300px"
-                }
+              labelMessageId="instancePowerOff"
+              sx={{
+                marginRight: (theme) => theme.spacing(1)
               }}
               {...rest}
-            />
+            >
+              {TIME_VALUES.map((timeValue) => (
+                <Item key={timeValue} value={timeValue}>
+                  <ItemContent>{timeValue}</ItemContent>
+                </Item>
+              ))}
+            </Selector>
             {Object.values(MERIDIEM_NAMES).map((daytimeName) => (
               <Day
                 key={daytimeName}

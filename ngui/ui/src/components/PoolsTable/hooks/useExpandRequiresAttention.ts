@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import { getRecursiveParent } from "utils/arrays";
+import { isCostOverLimit, isForecastOverLimit } from "utils/pools";
 import { setExpandedRows } from "../actionCreators";
-import { isCostOverLimit, isForecastOverLimit } from "../utils";
 
 const useExpandRequiresAttention = (rootPool) => {
   const dispatch = useDispatch();

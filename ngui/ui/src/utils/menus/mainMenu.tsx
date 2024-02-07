@@ -28,7 +28,7 @@ import users from "./usersMenuItem";
 export default [
   {
     id: MAIN_MENU_SECTION_IDS.HOME,
-    items: [home, recommendations, resources, pools]
+    items: [home, recommendations, resources, pools, environments]
   },
   {
     id: MAIN_MENU_SECTION_IDS.FINOPS,
@@ -48,7 +48,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.SANDBOX,
     menuSectionTitle: <MainMenuSectionTitle messageId="sandbox" />,
-    items: [environments, k8sRightsizing, recommendationsArchive, cloudCostComparisonMenuItem]
+    items: [k8sRightsizing, recommendationsArchive, cloudCostComparisonMenuItem]
   },
   {
     id: MAIN_MENU_SECTION_IDS.SYSTEM,

@@ -1,13 +1,11 @@
 import { Box, FormHelperText, Input, Typography } from "@mui/material";
 import { FormattedMessage, useIntl } from "react-intl";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContent } from "components/Selector";
 import TypographyLoader from "components/TypographyLoader";
 import { intl as rawIntl } from "translations/react-intl-config";
 import { RIGHTSIZING_METRIC_LIMIT_TYPES } from "utils/constants";
 import { isEmpty as isEmptyObject } from "utils/objects";
 import { isNumberInRange } from "utils/validation";
-import useStyles from "./RightsizingStrategy.styles";
 
 export const NAME = "rightsizingStrategy";
 
@@ -80,30 +78,29 @@ const RightsizingStrategy = ({
 }) => {
   const intl = useIntl();
 
-  const { classes } = useStyles();
-
   const strategyValuesMessageValues =
     strategy === STRATEGIES.CUSTOM
       ? {
           type: (
             <Selector
-              customClass={classes.customSelectorStyles}
-              data={{
-                items: Object.values(STRATEGY_METRICS).map(({ type }) => ({
-                  name: intl.formatMessage({ id: getMetricLimitMessageId(type) }).toLowerCase(),
-                  value: type
-                }))
-              }}
-              sx={{
-                // align inline selector with a formatted text
-                margin: "-2px 0px 0px 0px"
-              }}
+              id="custom-strategy-cpu-usage-selector"
               variant="standard"
               value={customMetric.type}
               onChange={(value) => {
                 onCustomMetricChange("type", value);
               }}
-            />
+              sx={{
+                margin: "-2px 0px 0px 0px",
+                minWidth: "32px",
+                marginRight: 0
+              }}
+            >
+              {Object.values(STRATEGY_METRICS).map(({ type }) => (
+                <Item key={type} value={type}>
+                  <ItemContent>{intl.formatMessage({ id: getMetricLimitMessageId(type) }).toLowerCase()}</ItemContent>
+                </Item>
+              ))}
+            </Selector>
           ),
           limit: (
             <Input
@@ -131,38 +128,36 @@ const RightsizingStrategy = ({
       <Typography gutterBottom>
         <FormattedMessage id="rightsizingStrategyDescription" />
       </Typography>
-      {isLoading ? (
-        <SelectorLoader readOnly labelId="strategy" />
-      ) : (
-        <Selector
-          data={{
-            items: [
-              {
-                name: <FormattedMessage id="optimal" />,
-                value: STRATEGIES.OPTIMAL
-              },
-              {
-                name: <FormattedMessage id="safe" />,
-                value: STRATEGIES.SAFE
-              },
-              {
-                name: <FormattedMessage id="aggressive" />,
-                value: STRATEGIES.AGGRESSIVE
-              },
-              {
-                name: <FormattedMessage id="custom" />,
-                value: STRATEGIES.CUSTOM
-              }
-            ]
-          }}
-          labelId="strategy"
-          value={strategy}
-          onChange={(value) => {
-            onStrategyChange(value);
-          }}
-        />
-      )}
-
+      <Selector
+        id="strategy-selector"
+        labelMessageId="strategy"
+        value={strategy}
+        isLoading={isLoading}
+        onChange={(value) => {
+          onStrategyChange(value);
+        }}
+      >
+        <Item value={STRATEGIES.OPTIMAL}>
+          <ItemContent>
+            <FormattedMessage id="optimal" />
+          </ItemContent>
+        </Item>
+        <Item value={STRATEGIES.SAFE}>
+          <ItemContent>
+            <FormattedMessage id="safe" />
+          </ItemContent>
+        </Item>
+        <Item value={STRATEGIES.AGGRESSIVE}>
+          <ItemContent>
+            <FormattedMessage id="aggressive" />
+          </ItemContent>
+        </Item>
+        <Item value={STRATEGIES.CUSTOM}>
+          <ItemContent>
+            <FormattedMessage id="custom" />
+          </ItemContent>
+        </Item>
+      </Selector>
       {isLoading ? (
         <TypographyLoader />
       ) : (

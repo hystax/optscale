@@ -1,4 +1,3 @@
-import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
 import SummaryGrid from "components/SummaryGrid";
 import SummaryService from "services/SummaryService";
 import { RECOMMENDATIONS } from "urls";
@@ -49,7 +48,6 @@ const ExpensesSummaryContainer = ({ requestParams }) => {
       isLoading,
       button: {
         show: true,
-        icon: <ThumbUpAltOutlinedIcon />,
         link: RECOMMENDATIONS,
         tooltip: {
           show: true,

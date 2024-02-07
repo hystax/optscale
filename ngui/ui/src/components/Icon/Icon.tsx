@@ -14,7 +14,7 @@ const Icon = ({
 }) => {
   const { classes, cx } = useStyles();
 
-  const { show: showTooltip = false, value = "", messageId = "", body, placement = "bottom" } = tooltip;
+  const { show: showTooltip = false, value = "", messageId = "", body, placement = "top" } = tooltip;
 
   const iconClasses = cx(classes.icon, hasRightMargin ? classes.right : "", hasLeftMargin ? classes.left : "", classes[color]);
 

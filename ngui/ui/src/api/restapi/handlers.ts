@@ -20,8 +20,6 @@ import {
   SET_ASSIGNMENT_RULES,
   SET_FINOPS_CHECKLIST,
   GET_FINOPS_CHECKLIST,
-  GET_TECHNICAL_AUDIT,
-  SET_TECHNICAL_AUDIT,
   UPDATE_POOL_EXPENSES_EXPORT,
   UPDATE_ENVIRONMENT_PROPERTY,
   CREATE_WEBHOOK,
@@ -182,12 +180,6 @@ export const onFinOpsChecklist = (data) => ({
   type: SET_FINOPS_CHECKLIST,
   payload: data,
   label: GET_FINOPS_CHECKLIST
-});
-
-export const onUpdateTechnicalAudit = (data) => ({
-  type: SET_TECHNICAL_AUDIT,
-  payload: data,
-  label: GET_TECHNICAL_AUDIT
 });
 
 export const onSuccessExportLinkChange = (data) => ({

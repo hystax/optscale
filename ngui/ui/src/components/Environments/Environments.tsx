@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import { Checkbox, FormControlLabel, Grid, Typography } from "@mui/material";
+import { Checkbox, FormControlLabel, Grid, Stack, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import ActionBar from "components/ActionBar";
 import BookingsCalendar from "components/BookingsCalendar";
@@ -9,14 +9,14 @@ import EnvironmentsTable from "components/EnvironmentsTable";
 import Hidden from "components/Hidden";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PageContentWrapper from "components/PageContentWrapper";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { ENVIRONMENTS_TOUR_IDS } from "components/Tour";
 import { useIsTourAvailableForCurrentBreakpoint } from "components/Tour/hooks";
 import { useFilterByPermissions } from "hooks/useAllowedActions";
 import { useIsDownMediaQuery } from "hooks/useMediaQueries";
 import { ENVIRONMENTS_STATUS_FILTERS, SCOPE_TYPES } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
-import { SPACING_1, SPACING_4 } from "utils/layouts";
+import { SPACING_1, SPACING_2, SPACING_4 } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
 // TODO: maybe move into separate component and use it in ExpensesBreakdownBreakdownByButtonsGroup as well
@@ -24,18 +24,23 @@ const ButtonsGroupWithLabel = ({ labelId, buttons, activeButtonIndex, isMobile }
   <Grid item container direction="row" spacing={isMobile ? 0 : SPACING_1} alignItems="center" style={{ width: "auto" }}>
     <Hidden mode="up" breakpoint="sm">
       <Selector
-        data={{
-          selected: buttons[activeButtonIndex === -1 ? 0 : activeButtonIndex].id,
-          items: buttons.map((button) => ({
-            name: <FormattedMessage id={button.messageId} />,
-            value: button.id
-          }))
-        }}
-        labelId={labelId}
+        id="environment-view-selector"
+        labelMessageId={labelId}
+        value={buttons[activeButtonIndex === -1 ? 0 : activeButtonIndex].id}
         onChange={(buttonId) => {
           buttons.find((button) => button.id === buttonId).action();
         }}
-      />
+      >
+        {buttons.map((button) => (
+          <Item key={button.id} value={button.id} data-test-id={`dropdown_item_filter_${button.id}`}>
+            <ItemContent>
+              <Typography variant="body2" component="span">
+                <FormattedMessage id={button.messageId} />
+              </Typography>
+            </ItemContent>
+          </Item>
+        ))}
+      </Selector>
     </Hidden>
     <Hidden mode="down" breakpoint="sm">
       <Grid item style={{ paddingTop: 0 }}>
@@ -167,7 +172,6 @@ const Environments = ({
               activeButtonIndex={activeViewIndex}
               isMobile={isMobile}
             />
-
             <Grid
               item
               container
@@ -193,48 +197,48 @@ const Environments = ({
               style={{ width: "auto" }}
             >
               <Selector
-                sx={{ "& .MuiInput-input": { display: "flex", alignItems: "center" } }}
-                data={{
-                  selected: activeStatusFilter,
-                  items: Object.values(ENVIRONMENTS_STATUS_FILTERS).map((filter) => ({
-                    name: <FormattedMessage id={filter} />,
-                    value: filter,
-                    dataTestId: `dropdown_item_filter_${filter}`
-                  }))
-                }}
-                renderValue={(value) => (
-                  <Typography variant="body2" component="span">
-                    <FormattedMessage id={value} />
-                  </Typography>
-                )}
-                size="small"
+                id="environment-status-selector"
                 variant="standard"
-                dataTestId="dropdown_filter_status"
+                value={activeStatusFilter}
                 onChange={(value) => {
                   setActiveStatusFilter(value);
                 }}
-              />
+              >
+                {Object.values(ENVIRONMENTS_STATUS_FILTERS).map((filter) => (
+                  <Item key={filter} value={filter} data-test-id={`dropdown_item_filter_${filter}`}>
+                    <ItemContent>
+                      <Typography variant="body2" component="span">
+                        <FormattedMessage id={filter} />
+                      </Typography>
+                    </ItemContent>
+                  </Item>
+                ))}
+              </Selector>
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            {activeViewFilter === ENVIRONMENTS_VIEWS.TABLE && (
-              <EnvironmentsTable
-                data={filteredEnvironments}
-                onUpdateActivity={onUpdateActivity}
-                entityId={entityId}
-                isLoadingProps={isLoadingProps}
-              />
-            )}
-            {activeViewFilter === ENVIRONMENTS_VIEWS.CALENDAR && (
-              <Grid container spacing={SPACING_1}>
-                <Grid item xs={12} sx={{ minHeight: "600px" }}>
-                  <BookingsCalendar environments={filteredEnvironments} isLoadingProps={isLoadingProps} />
-                </Grid>
-              </Grid>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <InlineSeverityAlert messageId="environmentsDescription" messageDataTestId="p_environments_list" />
+            <Stack spacing={SPACING_2}>
+              <div>
+                {activeViewFilter === ENVIRONMENTS_VIEWS.TABLE && (
+                  <EnvironmentsTable
+                    data={filteredEnvironments}
+                    onUpdateActivity={onUpdateActivity}
+                    entityId={entityId}
+                    isLoadingProps={isLoadingProps}
+                  />
+                )}
+                {activeViewFilter === ENVIRONMENTS_VIEWS.CALENDAR && (
+                  <Grid container>
+                    <Grid item xs={12} sx={{ minHeight: "600px" }}>
+                      <BookingsCalendar environments={filteredEnvironments} isLoadingProps={isLoadingProps} />
+                    </Grid>
+                  </Grid>
+                )}
+              </div>
+              <div>
+                <InlineSeverityAlert messageId="environmentsDescription" messageDataTestId="p_environments_list" />
+              </div>
+            </Stack>
           </Grid>
         </Grid>
       </PageContentWrapper>

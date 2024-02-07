@@ -12,4 +12,4 @@
 ### Settings
 
 - Configure cluster types by clicking the "Configure cluster types" button from the page toolbar.
-- You can mark selected resources as IT Environments by clicking the "Mark as IT Environment" button from the table toolbar.
+- You can mark selected resources as Shared Environments by clicking the "Mark as Shared Environment" button from the table toolbar.

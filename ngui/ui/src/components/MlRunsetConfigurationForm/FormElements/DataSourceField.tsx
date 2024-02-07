@@ -1,14 +1,12 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import CloudTypeIcon from "components/CloudTypeIcon";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContentWithDataSourceIcon } from "components/Selector";
 
 export const FIELD_NAME = "dataSource";
 
 const LABEL_ID = "dataSource";
 
-const DataSourceField = ({ dataSources, isLoading }) => {
+const DataSourceField = ({ dataSources, isLoading = false }) => {
   const intl = useIntl();
 
   const {
@@ -26,35 +24,24 @@ const DataSourceField = ({ dataSources, isLoading }) => {
           message: intl.formatMessage({ id: "thisFieldIsRequired" })
         }
       }}
-      render={({ field: { onChange, ...rest } }) =>
-        isLoading ? (
-          <SelectorLoader readOnly fullWidth labelId={LABEL_ID} isRequired />
-        ) : (
-          <Selector
-            dataTestId="selector_data_source"
-            fullWidth
-            required
-            menuItemIcon={{
-              component: CloudTypeIcon,
-              getComponentProps: (itemInfo) => ({
-                type: itemInfo.type
-              })
-            }}
-            error={!!errors[FIELD_NAME]}
-            helperText={errors?.[FIELD_NAME]?.message}
-            data={{
-              items: dataSources.map(({ id, name, type }) => ({
-                name,
-                value: id,
-                type
-              }))
-            }}
-            labelId={LABEL_ID}
-            onChange={onChange}
-            {...rest}
-          />
-        )
-      }
+      render={({ field }) => (
+        <Selector
+          id="data-source-selector"
+          fullWidth
+          required
+          error={!!errors[FIELD_NAME]}
+          helperText={errors?.[FIELD_NAME]?.message}
+          labelMessageId={LABEL_ID}
+          isLoading={isLoading}
+          {...field}
+        >
+          {dataSources.map(({ id, name, type }) => (
+            <Item key={id} value={id}>
+              <ItemContentWithDataSourceIcon dataSourceType={type}>{name}</ItemContentWithDataSourceIcon>
+            </Item>
+          ))}
+        </Selector>
+      )}
     />
   );
 };

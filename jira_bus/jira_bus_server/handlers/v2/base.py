@@ -243,16 +243,19 @@ class BaseHandler(RequestHandler):
         except AttributeError:
             raise OptHTTPError(401, Err.OJ0012, [])
 
-    def _check_atlassian_qsh(self, qsh, context_qsh):
+    def _check_atlassian_qsh(self, qsh, context_qsh, method=None, url=None):
+        if not url:
+            url = self.request.uri
+        if not method:
+            method = self.request.method
         if context_qsh:
             computed_qsh = "context-qsh"
         else:
-            computed_qsh = hash_url(
-                http_method=self.request.method, url=self.request.uri
-            )
+            computed_qsh = hash_url(http_method=method, url=url)
         if qsh != computed_qsh:
             LOG.error(
-                "received qsh %s did not match computed qsh %s", qsh, computed_qsh
+                "received qsh %s did not match computed qsh %s",
+                qsh, computed_qsh
             )
             raise OptHTTPError(401, Err.OJ0012, [])
 
@@ -333,7 +336,8 @@ class BaseHandler(RequestHandler):
         return self._get_token_data(jwt_token, require_account, require_issue)
 
     async def check_atlassian_auth(
-            self, context_qsh=False, require_account=False, require_issue=False
+            self, context_qsh=False, require_account=False, require_issue=False,
+            token=None, method=None, url=None
     ):
         """
         Check ordinary atlassian auth token. These tokens are verified by a
@@ -352,26 +356,34 @@ class BaseHandler(RequestHandler):
         :param require_issue: Some API calls may be executed in Jira issue
             context. Set this parameter to True to require Jira issue key to be
             present.
+        :param jwt: Atlassian JWT string. Provide it to validate external JWT.
+        :param url: Request URL string for generating qsh to validate Atlassian
+            JWT. Provide it to validate external JWT.
+        :param method: Request method string for generating qsh to validate
+            Atlassian JWT. Provide it to validate external JWT.
         :return: tuple: (client_key, account_id, issue_key).
             Client ID is Jira tenant ID (the entity where our app is
             installed). Account ID is current Jira user account ID, it can be
             None if operation is executed without user. Issue key is Jira issue
             key, can be None if operation is executed outside of issue context.
         """
+        if not token:
+            token = self.token
 
         # Support fake credentials for our testing needs
         if fake_results := self._get_fake_token_data(require_account, require_issue):
             return fake_results
 
         try:
-            client_key = jwt.decode(self.token, options={"verify_signature": False})[
+            client_key = jwt.decode(token, options={"verify_signature": False})[
                 "iss"
             ]
             shared_secret = await self.controller.get_atlassian_shared_secret(
                 client_key
             )
-            jwt_token = jwt.decode(self.token, shared_secret, algorithms=["HS256"])
-            self._check_atlassian_qsh(jwt_token["qsh"], context_qsh)
+            jwt_token = jwt.decode(token, shared_secret, algorithms=["HS256"])
+            self._check_atlassian_qsh(jwt_token["qsh"], context_qsh,
+                                      method=method, url=url)
         except PyJWTError as exc:
             LOG.error("Token verify error: %s", exc)
             raise OptHTTPError(401, Err.OJ0012, [])

@@ -1,12 +1,11 @@
 import { useEffect } from "react";
-import { Box } from "@mui/material";
+import { FormControl } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { useIntl } from "react-intl";
 import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import EnvironmentSshKey from "components/EnvironmentSshKey";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import SelectorLoader from "components/SelectorLoader";
 import {
   secondsToMilliseconds,
   areIntervalsOverlapping,
@@ -16,10 +15,7 @@ import {
   roundTimeToInterval,
   INTERVAL_ENVIRONMENT
 } from "utils/datetime";
-import useStyles from "./BookEnvironmentForm.styles";
-import BookEnvironmentFormBookDateTimePicker from "./Fields/BookEnvironmentFormBookDateTimePicker";
-import BookEnvironmentFormBookingOwnerReadOnlyInput from "./Fields/BookEnvironmentFormBookingOwnerReadOnlyInput";
-import BookEnvironmentFormBookingOwnerSelector from "./Fields/BookEnvironmentFormBookingOwnerSelector";
+import { BookDateTimePicker, BookingOwnerSelector } from "./FormElements";
 
 const BOOKING_OWNER = "bookingOwnerId";
 const BOOK_SINCE_PICKER_NAME = "bookSince";
@@ -65,7 +61,6 @@ const BookEnvironmentForm = ({
   currentEmployeeSshKeys,
   isGetSshKeysReady
 }) => {
-  const { classes } = useStyles();
   const intl = useIntl();
 
   const methods = useForm({
@@ -95,19 +90,6 @@ const BookEnvironmentForm = ({
     isCreateSshKeyLoading = false
   } = isLoadingProps;
 
-  const renderBookingOwnerField = () =>
-    canSetBookingOwner ? (
-      <BookEnvironmentFormBookingOwnerSelector
-        fieldName={BOOKING_OWNER}
-        owners={owners}
-        isLoading={isGetAuthorizedEmployeesLoading}
-        currentEmployeeId={defaultBookingOwner?.id}
-        isSshRequired={isSshRequired}
-      />
-    ) : (
-      <BookEnvironmentFormBookingOwnerReadOnlyInput value={defaultBookingOwner?.name} />
-    );
-
   return (
     <FormProvider {...methods}>
       <form
@@ -120,14 +102,18 @@ const BookEnvironmentForm = ({
         )}
         noValidate
       >
-        {/* To make fields fullWidth. Perhaps is should be resolved in the scope of IntervalTimePicker level (in the Popover)  */}
-        <Box display="grid" className={classes.fieldsWrapper}>
-          {isGetAuthorizedEmployeesLoading ? (
-            <SelectorLoader fullWidth labelId="bookingOwner" isRequired />
-          ) : (
-            renderBookingOwnerField()
-          )}
-          <BookEnvironmentFormBookDateTimePicker
+        <FormControl fullWidth>
+          <BookingOwnerSelector
+            fieldName={BOOKING_OWNER}
+            owners={owners}
+            isLoading={isGetAuthorizedEmployeesLoading}
+            currentEmployeeId={defaultBookingOwner?.id}
+            isSshRequired={isSshRequired}
+            readOnly={!canSetBookingOwner}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <BookDateTimePicker
             intervalMinutes={INTERVAL_ENVIRONMENT}
             maxDate={maxPickerDate}
             name={BOOK_SINCE_PICKER_NAME}
@@ -168,7 +154,9 @@ const BookEnvironmentForm = ({
               }
             }}
           />
-          <BookEnvironmentFormBookDateTimePicker
+        </FormControl>
+        <FormControl fullWidth>
+          <BookDateTimePicker
             intervalMinutes={INTERVAL_ENVIRONMENT}
             maxDate={maxPickerDate}
             name={BOOK_UNTIL_PICKER_NAME}
@@ -208,14 +196,14 @@ const BookEnvironmentForm = ({
               }
             }}
           />
-          {isSshRequired && isBookingForMyself ? (
-            <EnvironmentSshKey
-              sshKeys={currentEmployeeSshKeys}
-              isGetSshKeysReady={isGetSshKeysReady}
-              defaultKeyId={defaultBookingOwner?.default_ssh_key_id}
-            />
-          ) : null}
-        </Box>
+        </FormControl>
+        {isSshRequired && isBookingForMyself ? (
+          <EnvironmentSshKey
+            sshKeys={currentEmployeeSshKeys}
+            isGetSshKeysReady={isGetSshKeysReady}
+            defaultKeyId={defaultBookingOwner?.default_ssh_key_id}
+          />
+        ) : null}
         <FormButtonsWrapper>
           <ButtonLoader
             dataTestId="bnt_add"

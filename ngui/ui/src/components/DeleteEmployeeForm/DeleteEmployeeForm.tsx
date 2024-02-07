@@ -8,7 +8,7 @@ import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import OrganizationLabel from "components/OrganizationLabel";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import { EMPLOYEES_INVITE } from "urls";
 
 const ORGANIZATION_MANAGER_ID = "organizationManagerId";
@@ -71,13 +71,19 @@ const DeleteEmployeeForm = ({
             }}
             render={({ field: controllerField }) => (
               <Selector
+                id="organization-manager-selector"
                 required
                 error={!!errors[ORGANIZATION_MANAGER_ID]}
                 helperText={errors?.[ORGANIZATION_MANAGER_ID]?.message}
-                data={{ items: organizationManagersWhoSuitableForAssignment }}
-                labelId="organizationManagers"
+                labelMessageId="organizationManager"
                 {...controllerField}
-              />
+              >
+                {organizationManagersWhoSuitableForAssignment.map(({ name, value }) => (
+                  <Item key={value} value={value}>
+                    <ItemContent>{name}</ItemContent>
+                  </Item>
+                ))}
+              </Selector>
             )}
           />
         </>

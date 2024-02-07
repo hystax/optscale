@@ -35,12 +35,12 @@ import DeleteWebhookModal from "./DeleteWebhookModal";
 import DisconnectCloudAccountModal from "./DisconnectCloudAccountModal";
 import DisconnectGoogleCalendarModal from "./DisconnectGoogleCalendarModal";
 import EditLeaderboardDatasetModal from "./EditLeaderboardDatasetModal";
-import EditPoolModal from "./EditPoolModal";
 import EnvironmentCostModelModal from "./EnvironmentCostModelModal";
 import ExcludePoolsFromRecommendationModal from "./ExcludePoolsFromRecommendationModal";
 import LeaderboardRunGroupDetailsModal from "./LeaderboardRunGroupDetailsModal";
 import MlDeleteDatasetModal from "./MlDeleteDatasetModal";
 import MlDeleteModelModal from "./MlDeleteModelModal";
+import PoolModal from "./PoolModal";
 import ProfilingIntegrationModal from "./ProfilingIntegrationModal";
 import ReapplyClusterTypesModal from "./ReapplyClusterTypesModal";
 import ReapplyRulesetModal from "./ReapplyRulesetModal";
@@ -106,7 +106,7 @@ export {
   S3DuplicateFinderSettingsModal,
   BucketDuplicatesModal,
   AddPoolModal,
-  EditPoolModal,
+  PoolModal,
   UpdateDataSourceSkuModal,
   AddInstanceToScheduleModal,
   RemoveInstancesFromScheduleModal,

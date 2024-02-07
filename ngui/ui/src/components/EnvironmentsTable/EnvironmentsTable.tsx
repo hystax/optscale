@@ -286,8 +286,8 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
           isEnvironmentAvailable
         });
       },
-      dataTestId: `btn_book_${index}`,
-      requiredActions: ["BOOK_ENVIRONMENTS"]
+      dataTestId: `btn_book_${index}`
+      // requiredActions: ["BOOK_ENVIRONMENTS"]
     });
 
     const getReleaseAction = (activeBooking, index) => ({

@@ -4,7 +4,6 @@ import DnsOutlinedIcon from "@mui/icons-material/DnsOutlined";
 import GroupWorkOutlinedIcon from "@mui/icons-material/GroupWorkOutlined";
 import LaunchOutlinedIcon from "@mui/icons-material/LaunchOutlined";
 import MediationOutlinedIcon from "@mui/icons-material/MediationOutlined";
-import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
 import { Link } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { FormattedMessage } from "react-intl";
@@ -247,7 +246,6 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
       button: {
         // Hide recommendations related button for clusters - "!clusterTypeId"
         show: !clusterTypeId,
-        icon: <ThumbUpAltOutlinedIcon />,
         onClick: () => setActiveTab(RECOMMENDATIONS_TAB),
         tooltip: {
           show: true,

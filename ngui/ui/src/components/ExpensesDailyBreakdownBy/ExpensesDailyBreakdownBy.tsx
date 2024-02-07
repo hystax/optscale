@@ -1,6 +1,6 @@
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
-import Selector from "components/Selector";
+import Selector, { Item, ItemContent } from "components/Selector";
 import WrapperCard from "components/WrapperCard";
 import { useSyncQueryParamWithState } from "hooks/useSyncQueryParamWithState";
 import { DAILY_EXPENSES_SPLIT_PARAMETER_NAME } from "urls";
@@ -21,17 +21,18 @@ const ExpensesDailyBreakdownBy = ({ breakdown, breakdownByValue, onBreakdownByCh
   return (
     <WrapperCard>
       <Stack spacing={SPACING_1}>
-        <div>
+        <Box display="flex" gap={1}>
           <BreakdownBy value={breakdownByValue} onChange={onBreakdownByChange} />
-          <Selector
-            data={{
-              selected: split,
-              items: SPLITS.map((splitValue) => ({ value: splitValue, name: <FormattedMessage id={splitValue} /> }))
-            }}
-            labelId="expenses"
-            onChange={setSplit}
-          />
-        </div>
+          <Selector id="expenses-split-selector" labelMessageId="expenses" value={split} onChange={setSplit}>
+            {SPLITS.map((splitValue) => (
+              <Item key={splitValue} value={splitValue}>
+                <ItemContent>
+                  <FormattedMessage id={splitValue} />
+                </ItemContent>
+              </Item>
+            ))}
+          </Selector>
+        </Box>
         <div>
           <ExpensesDailyBreakdownByBarChart
             dataTestId="expenses_breakdown_chart"

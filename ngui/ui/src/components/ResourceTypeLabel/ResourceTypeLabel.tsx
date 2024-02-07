@@ -22,7 +22,7 @@ const EnvironmentLabel = ({ label, iconDataTestId }) => (
     icon={<Icon icon={DnsOutlinedIcon} dataTestId={iconDataTestId} hasRightMargin />}
     label={
       <span>
-        {label} (<FormattedMessage id="ItEnvironment" />)
+        {label} (<FormattedMessage id="SharedEnvironment" />)
       </span>
     }
   />
@@ -38,7 +38,7 @@ const EnvironmentClusterLabel = ({ label, iconDataTestId }) => (
     }
     label={
       <span>
-        {label} (<FormattedMessage id="ItEnvironment" />, <FormattedMessage id="cluster" />)
+        {label} (<FormattedMessage id="SharedEnvironment" />, <FormattedMessage id="cluster" />)
       </span>
     }
   />

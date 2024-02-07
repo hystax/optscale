@@ -2,7 +2,6 @@ import { Box } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import PoolTypesDescription from "components/PoolTypesDescription";
 import PoolsService from "services/PoolsService";
 import { PoolFormNameInput, PoolFormLimitInput, PoolFormTypeSelector, PoolFormAutoExtendCheckbox } from "./FormElements";
 
@@ -21,7 +20,6 @@ const CreatePoolForm = ({ parentId, onSuccess, unallocatedLimit }) => {
         <PoolFormLimitInput unallocatedLimit={unallocatedLimit} />
         <PoolFormAutoExtendCheckbox />
         <PoolFormTypeSelector />
-        <PoolTypesDescription />
         <FormButtonsWrapper justifyContent="space-between">
           <Box display="flex">
             <ButtonLoader

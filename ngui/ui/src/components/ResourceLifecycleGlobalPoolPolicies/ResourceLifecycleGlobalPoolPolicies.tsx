@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Stack } from "@mui/material";
 import Switch from "@mui/material/Switch";
 import { Box } from "@mui/system";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -17,6 +17,7 @@ import PoolPolicyService from "services/PoolPolicyService";
 import { RESOURCE_LIFECYCLE_CREATE_POOL_POLICY } from "urls";
 import { SCOPE_TYPES } from "utils/constants";
 import { CONSTRAINTS_TYPES, CONSTRAINT_MESSAGE_FORMAT } from "utils/constraints";
+import { SPACING_2 } from "utils/layouts";
 
 const UpdatePoolPolicyActivityContainer = ({ policyId, poolId, active }) => {
   const { useUpdateGlobalPoolPolicyActivity } = PoolPolicyService();
@@ -240,25 +241,29 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
   };
 
   return (
-    <>
-      {isLoading ? (
-        <TableLoader columnsCounter={columns.length} />
-      ) : (
-        <Table
-          withSearch
-          data={data}
-          localization={{
-            emptyMessageId: "noPoolPolicies"
-          }}
-          columns={columns}
-          actionBar={{
-            show: true,
-            definition: actionBarDefinition
-          }}
-        />
-      )}
-      <InlineSeverityAlert messageId="globalPoolPoliciesDescription" />
-    </>
+    <Stack spacing={SPACING_2}>
+      <div>
+        {isLoading ? (
+          <TableLoader columnsCounter={columns.length} />
+        ) : (
+          <Table
+            withSearch
+            data={data}
+            localization={{
+              emptyMessageId: "noPoolPolicies"
+            }}
+            columns={columns}
+            actionBar={{
+              show: true,
+              definition: actionBarDefinition
+            }}
+          />
+        )}
+      </div>
+      <div>
+        <InlineSeverityAlert messageId="globalPoolPoliciesDescription" />
+      </div>
+    </Stack>
   );
 };
 

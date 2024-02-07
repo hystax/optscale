@@ -83,9 +83,6 @@ export const EDIT_BI_EXPORT = concatenateUrl([BI_EXPORTS_BASE, BI_EXPORTS_IDENTI
 export const getBIExportUrl = (biExportId) => BI_EXPORT.replace(BI_EXPORTS_IDENTIFIER, biExportId);
 export const getEditBIExportUrl = (biExportId) => EDIT_BI_EXPORT.replace(BI_EXPORTS_IDENTIFIER, biExportId);
 
-// Technical audit
-export const TECHNICAL_AUDIT = "/technical-audit";
-
 // We should also check if we can generalize other get[Enitity]ExpensesUrl
 export const getPoolExpensesUrl = (poolId) => POOL_EXPENSES.replace(POOL_IDENTIFIER, poolId);
 export const getThisMonthPoolExpensesUrl = (poolId) => {
@@ -165,20 +162,6 @@ export const getCreateAssignmentRuleUrl = ({ conditions = [] } = {}) => {
 
 export const ASSIGNMENT_RULE_EDIT = concatenateUrl([ASSIGNMENT_RULE_BASE, ASSIGNMENT_RULE_IDENTIFIER, EDIT]);
 export const getEditAssignmentRuleUrl = (ruleId) => ASSIGNMENT_RULE_EDIT.replace(ASSIGNMENT_RULE_IDENTIFIER, ruleId);
-
-// Pool assignment rules
-export const POOL_ASSIGNMENT_RULE_CREATE = concatenateUrl([POOLS_BASE, POOL_IDENTIFIER, ASSIGNMENT_RULE_BASE, CREATE]);
-export const getCreatePoolAssignmentRuleUrl = (poolId) => POOL_ASSIGNMENT_RULE_CREATE.replace(POOL_IDENTIFIER, poolId);
-
-export const POOL_ASSIGNMENT_RULE_EDIT = concatenateUrl([
-  POOLS_BASE,
-  POOL_IDENTIFIER,
-  ASSIGNMENT_RULE_BASE,
-  ASSIGNMENT_RULE_IDENTIFIER,
-  EDIT
-]);
-export const getEditPoolAssignmentRuleUrl = (poolId, ruleId) =>
-  POOL_ASSIGNMENT_RULE_EDIT.replace(POOL_IDENTIFIER, poolId).replace(ASSIGNMENT_RULE_IDENTIFIER, ruleId);
 
 // User management
 export const USER_MANAGEMENT = concatenateUrl([USER_MANAGEMENT_BASE_URL]);
@@ -501,14 +484,6 @@ export const FINOPS_FEATURES = "https://finopsinpractice.org/finops-in-practice-
 export const FINOPS_HOWTOS = "https://finopsinpractice.org/blog-posts-list-for-optscale/";
 
 export const JIRA_MARKETPLACE = "https://marketplace.atlassian.com/apps/1227110/hystax-optscale-for-jira";
-
-export const CODECLIMATE = "https://github.com/codeclimate/codeclimate";
-export const CODECLIMATE_GITLAB_WRAPPER = "https://gitlab.com/gitlab-org/ci-cd/codequality";
-export const SEMGREP = "https://github.com/returntocorp/semgrep";
-export const SEMGREP_GUIDE = "https://semgrep.dev/docs/getting-started/";
-export const SEMGREP_SETTING = "https://github.com/returntocorp/semgrep/issues/2387#issuecomment-759411656";
-export const CLOC = "https://github.com/AlDanial/cloc";
-export const TECHNICAL_AUDIT_SURVEY = "https://survey.hystax.com/zs/jED7SK";
 
 // Hystax documentation urls
 export const DOCS_HYSTAX_OPTSCALE = "https://hystax.com/documentation/optscale/";

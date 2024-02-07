@@ -38,7 +38,6 @@ import {
   SET_LIVE_DEMO,
   SET_TTL_ANALYSIS,
   SET_FINOPS_CHECKLIST,
-  SET_TECHNICAL_AUDIT,
   SET_CLUSTER_TYPES,
   SET_ENVIRONMENTS,
   SET_ENVIRONMENT_BOOKINGS,
@@ -509,12 +508,6 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_FINOPS_CHECKLIST: {
-      return {
-        ...state,
-        [action.label]: action.payload
-      };
-    }
-    case SET_TECHNICAL_AUDIT: {
       return {
         ...state,
         [action.label]: action.payload

@@ -19,7 +19,13 @@ import {
   POOL_TYPES_LIST
 } from "utils/constants";
 
-const getIcon = (type) =>
+type PoolType = keyof typeof POOL_TYPES;
+
+type PoolTypeIconProps = {
+  type: PoolType;
+};
+
+export const getIcon = (type: PoolType) =>
   ({
     [POOL_TYPE_BUDGET]: CalculateOutlinedIcon,
     [POOL_TYPE_BUSINESS_UNIT]: DomainOutlinedIcon,
@@ -30,7 +36,7 @@ const getIcon = (type) =>
     [POOL_TYPE_ASSET_POOL]: DynamicFeedOutlinedIcon
   })[type];
 
-const PoolTypeIcon = ({ type, ...rest }) =>
+const PoolTypeIcon = ({ type, ...rest }: PoolTypeIconProps) =>
   POOL_TYPES_LIST.includes(type) ? (
     <Icon
       icon={getIcon(type)}

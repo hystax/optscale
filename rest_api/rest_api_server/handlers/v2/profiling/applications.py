@@ -32,7 +32,8 @@ class ApplicationsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 check_string_attribute(k, value)
             description = data.get('description')
             if description:
-                check_string_attribute('description', description)
+                check_string_attribute('description', description,
+                                       max_length=1000)
             owner_id = data.get('owner_id')
             if owner_id is not None:
                 if not isinstance(owner_id, str):
@@ -328,7 +329,9 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
     VALIDATION_MAP = {
         'attach': (check_list_attribute, False, {}),
         'detach': (check_list_attribute, False, {}),
-        'description': (check_string_attribute, True, {'min_length': 0}),
+        'description': (
+            check_string_attribute, True, {'min_length': 0, 'max_length': 1000}
+        ),
         'owner_id': (check_string_attribute, False, {}),
         'name': (check_string_attribute, False, {}),
     }

@@ -7,8 +7,8 @@ from pymongo import MongoClient
 from optscale_client.config_client.client import Client as ConfigClient
 
 LOG = logging.getLogger(__name__)
-DEMO_LIFETIME_DAYS = 3
-DEMO_COUNT = 10
+DEMO_LIFETIME_DAYS = 2
+DEMO_COUNT = 5
 RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                 'interval_step': 1, 'interval_max': 3}
 ROUTING_KEY = 'live-demo-generation'

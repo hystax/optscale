@@ -1,5 +1,4 @@
-import { Link } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Link, Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
@@ -22,21 +21,19 @@ const actionBarDefinition = {
   }
 };
 
-const renderCardWithContent = (rules, isLoading, onUpdatePriority) => (
-  <Grid container spacing={SPACING_2}>
-    <Grid item xs={12}>
-      <AssignmentRulesTable rules={rules} isLoading={isLoading} onUpdatePriority={onUpdatePriority} />
-    </Grid>
-  </Grid>
-);
-
 const AssignmentRules = ({ rules, onUpdatePriority, isLoading = false, isUpdateLoading = false }) => (
   <>
     <ActionBar data={actionBarDefinition} />
     <PageContentWrapper>
       <ContentBackdropLoader isLoading={isUpdateLoading}>
-        {renderCardWithContent(rules, isLoading, onUpdatePriority)}
-        <InlineSeverityAlert messageId="assignmentRulesPageDescription" messageDataTestId="p_environments_list" />
+        <Stack spacing={SPACING_2}>
+          <div>
+            <AssignmentRulesTable rules={rules} isLoading={isLoading} onUpdatePriority={onUpdatePriority} />
+          </div>
+          <div>
+            <InlineSeverityAlert messageId="assignmentRulesPageDescription" messageDataTestId="p_environments_list" />
+          </div>
+        </Stack>
       </ContentBackdropLoader>
     </PageContentWrapper>
   </>

@@ -34,7 +34,7 @@ const renderWithIcon = ({ value, icon, isValueOverflow, valueRef, valueTestId })
   </Grid>
 );
 
-const SummaryCardContent = ({ value, caption, dataTestIds, icon = {}, help = {}, button = {} }) => {
+const SummaryCardContent = ({ value, caption, dataTestIds, icon = {}, help = {} }) => {
   const { classes } = useStyles();
   const [isValueOverflow, setIsValueOverflow] = useState(false);
 
@@ -45,7 +45,6 @@ const SummaryCardContent = ({ value, caption, dataTestIds, icon = {}, help = {},
   }, []);
 
   const { show: showHelp = false, messageId: helpMessageId, dataTestId: helpDataTestId } = help;
-  const { show: showButton = false, icon: buttonIcon } = button;
   const { show: showIcon = false, value: iconValue } = icon;
   const { titleTestId, valueTestId } = dataTestIds || {};
 
@@ -66,7 +65,6 @@ const SummaryCardContent = ({ value, caption, dataTestIds, icon = {}, help = {},
           {showIcon
             ? renderWithIcon({ value, icon: iconValue, isValueOverflow, valueRef, valueTestId })
             : renderValue({ isValueOverflow, value, valueRef, dataTestId: valueTestId })}
-          {showButton && <span className={classes.icon}>{buttonIcon}</span>}
         </Box>
       )}
     </>

@@ -1,8 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
-import PoolTypeIcon from "components/PoolTypeIcon";
-import Selector from "components/Selector";
-import SelectorLoader from "components/SelectorLoader";
+import Selector, { Item, ItemContentWithPoolIcon } from "components/Selector";
 
 const CreatePoolPolicyPoolSelector = ({ name, onChange, pools, isLoading = false }) => {
   const {
@@ -14,9 +12,7 @@ const CreatePoolPolicyPoolSelector = ({ name, onChange, pools, isLoading = false
 
   const labelId = "pool";
 
-  return isLoading ? (
-    <SelectorLoader fullWidth labelId={labelId} isRequired />
-  ) : (
+  return (
     <Controller
       name={name}
       control={control}
@@ -28,22 +24,9 @@ const CreatePoolPolicyPoolSelector = ({ name, onChange, pools, isLoading = false
       }}
       render={({ field: { onChange: onChangeControllerValue, ...rest } }) => (
         <Selector
-          data={{
-            items: pools.map(({ id, name: poolName, pool_purpose: poolPurpose }) => ({
-              name: poolName,
-              value: id,
-              type: poolPurpose
-            }))
-          }}
-          menuItemIcon={{
-            component: PoolTypeIcon,
-            getComponentProps: ({ type }) => ({
-              type
-            })
-          }}
+          id="pool-selector"
           fullWidth
-          labelId={labelId}
-          dataTestId="pool_selector"
+          labelMessageId={labelId}
           required
           onChange={(newPoolId) => {
             onChangeControllerValue(newPoolId);
@@ -53,8 +36,15 @@ const CreatePoolPolicyPoolSelector = ({ name, onChange, pools, isLoading = false
           }}
           error={!!errors[name]}
           helperText={errors[name] && errors[name].message}
+          isLoading={isLoading}
           {...rest}
-        />
+        >
+          {pools.map(({ id, name: poolName, pool_purpose: poolPurpose }) => (
+            <Item key={id} value={id}>
+              <ItemContentWithPoolIcon poolType={poolPurpose}>{poolName}</ItemContentWithPoolIcon>
+            </Item>
+          ))}
+        </Selector>
       )}
     />
   );

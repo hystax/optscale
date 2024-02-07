@@ -1,3 +1,4 @@
-import PoolTypeIcon from "./PoolTypeIcon";
+import PoolTypeIcon, { getIcon } from "./PoolTypeIcon";
 
+export { getIcon };
 export default PoolTypeIcon;
