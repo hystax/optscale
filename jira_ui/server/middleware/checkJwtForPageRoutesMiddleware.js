@@ -1,4 +1,5 @@
 import https from "https";
+import fetch from "node-fetch";
 
 const pagePathPattern = /\/jira_ui\/(configure|issue_left_panel)/;
 
