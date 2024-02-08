@@ -520,3 +520,5 @@ export const EMAIL_INFO = "info@hystax.com";
 
 export const isProduction = () => window.location.origin === PRODUCTION;
 export const isDemo = () => window.location.origin === DEMO;
+
+export const USER_EMAIL_QUERY_PARAMETER_NAME = "userEmail";

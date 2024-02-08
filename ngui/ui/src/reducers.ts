@@ -37,7 +37,6 @@ import CloudCostComparisonSelectedSizes, {
 import ColumnsReducer, { COLUMNS } from "reducers/columns/reducer";
 import ModelBreakdown, { MODEL_BREAKDOWN } from "reducers/modelBreakdown/reducer";
 import { RESET } from "reducers/route/actionTypes";
-import SignoutOptions, { SIGNOUT_OPTIONS } from "reducers/signoutOptions/reducer";
 import taskRunsDashboard, { TASK_RUNS_DASHBOARD } from "reducers/taskRunsDashboard/reducer";
 
 const ROOT = "root";
@@ -91,7 +90,6 @@ const appReducer = combineReducers({
   [MODEL_BREAKDOWN]: ModelBreakdown,
   [CLOUD_COST_COMPARISON_SELECTED_SIZES]: CloudCostComparisonSelectedSizes,
   [RECOMMENDATIONS_CONTROLS_STATE]: RecommendationsControlsStateReducer,
-  [SIGNOUT_OPTIONS]: SignoutOptions,
   [TASK_RUNS_DASHBOARD]: taskRunsDashboard
 });
 

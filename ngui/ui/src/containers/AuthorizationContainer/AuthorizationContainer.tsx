@@ -38,7 +38,13 @@ const AuthorizationContainer = () => {
     );
   };
 
-  const getLoginSuccessRedirectionPath = ({ userEmail }) => (userEmailQueryParameter === userEmail ? next : HOME);
+  const getLoginSuccessRedirectionPath = ({ userEmail }) => {
+    if (userEmailQueryParameter) {
+      return userEmailQueryParameter === userEmail ? next : HOME;
+    }
+
+    return next;
+  };
 
   const onSubmitLogin = ({ email, password }) => {
     authorize(
