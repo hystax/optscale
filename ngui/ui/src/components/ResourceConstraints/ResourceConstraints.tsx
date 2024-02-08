@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import { FormattedMessage } from "react-intl";
@@ -9,8 +10,7 @@ import ResourceConstraintContainer from "containers/ResourceConstraintContainer"
 import ResourceLimitHitsContainer from "containers/ResourceLimitHitsContainer";
 import { DOCS_HYSTAX_RESOURCE_CONSTRAINTS, CLUSTER_TYPES } from "urls";
 import { RESOURCE_PAGE_TABS } from "utils/constants";
-import { SPACING_2 } from "utils/layouts";
-import useStyles from "./ResourceConstraints.styles";
+import { SPACING_1, SPACING_2 } from "utils/layouts";
 
 const linkRender = (chunks) => (
   <Link href={DOCS_HYSTAX_RESOURCE_CONSTRAINTS} data-test-id="link_help" target="_blank" rel="noopener">
@@ -29,12 +29,11 @@ const BillingOnly = () => (
   </Grid>
 );
 
-const CommonConstraints = ({ poolId, resourceId, constraints, poolPolicies, isLoading, employeeId }) => {
-  const { classes } = useStyles();
-  return (
+const CommonConstraints = ({ poolId, resourceId, constraints, poolPolicies, isLoading, employeeId }) => (
+  <Box display="flex" flexWrap="wrap" columnGap={SPACING_2} rowGap={SPACING_1}>
     <EnabledConstraints
       render={(type) => (
-        <div className={classes.constraintWrapper}>
+        <div>
           <ResourceConstraintContainer
             poolId={poolId}
             resourceId={resourceId}
@@ -47,8 +46,8 @@ const CommonConstraints = ({ poolId, resourceId, constraints, poolPolicies, isLo
         </div>
       )}
     />
-  );
-};
+  </Box>
+);
 
 const ResourceConstraints = ({
   resourceId,
