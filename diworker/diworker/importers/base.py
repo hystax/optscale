@@ -18,6 +18,7 @@ from diworker.diworker.utils import retry_mongo_upsert, get_month_start
 LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200
 CSV_REWRITE_DAYS = 5
+REPORTS_PATH_PREFIX = 'reports'
 
 
 class BaseReportImporter:
@@ -417,10 +418,11 @@ class BaseReportImporter:
     def import_report(self):
         LOG.info('Started import for %s', self.cloud_acc_id)
         self.prepare()
-        self.data_import()
-
-        LOG.info('Cleanup')
-        self.cleanup()
+        try:
+            self.data_import()
+        finally:
+            LOG.info('Cleanup')
+            self.cleanup()
 
         LOG.info('Updating import time')
         self.update_cloud_import_time(int(time.time()))
@@ -592,7 +594,7 @@ class CSVBaseReportImporter(BaseReportImporter):
         self.billing_periods = set()
         self.detected_cloud_accounts = set()
         self.detected_cloud_accounts.add(self.cloud_acc_id)
-        self.reports_dir = str(uuid.uuid4())
+        self.reports_dir = f'{REPORTS_PATH_PREFIX}/{uuid.uuid4()}'
         os.makedirs(self.reports_dir)
         self.report_files = defaultdict(list)
         self.last_import_modified_at = self.cloud_acc.get(
