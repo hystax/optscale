@@ -1660,9 +1660,17 @@ class Client(Client_v1):
     def application_list(self, organization_id):
         return self.get(self.applications_url(organization_id))
 
-    def application_get(self, organization_id, application_id):
-        return self.get(self.applications_url(
-            organization_id, application_id))
+    def application_get(self, organization_id, application_id,
+                        last_runs=None, last_leaderboards=None):
+        url = self.applications_url(organization_id, application_id)
+        query_params = {}
+        if last_runs is not None:
+            query_params['last_runs'] = last_runs
+        if last_leaderboards is not None:
+            query_params['last_leaderboards'] = last_leaderboards
+        if query_params:
+            url += self.query_url(**query_params)
+        return self.get(url)
 
     def application_update(self, organization_id, application_id, params):
         return self.patch(

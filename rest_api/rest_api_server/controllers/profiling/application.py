@@ -9,6 +9,10 @@ from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerW
 from rest_api.rest_api_server.controllers.employee import EmployeeController
 from rest_api.rest_api_server.controllers.profiling.base import (
     BaseProfilingController, RunCostsMixin)
+from rest_api.rest_api_server.controllers.profiling.leaderboard_dataset import (
+    LeaderboardDatasetController)
+from rest_api.rest_api_server.controllers.profiling.leaderboard import (
+    LeaderboardController)
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import RunStates
 from rest_api.rest_api_server.models.models import Employee
@@ -148,7 +152,8 @@ class ApplicationController(BaseProfilingController, RunCostsMixin):
             raise
         return self.format_application(application, employee, [], {}, {})
 
-    def get(self, organization_id, application_id, profiling_token):
+    def get(self, organization_id, application_id, profiling_token,
+            last_runs=0, last_leaderboards=0):
         try:
             application = self.get_application(profiling_token, application_id)
         except HTTPError as ex:
@@ -164,6 +169,21 @@ class ApplicationController(BaseProfilingController, RunCostsMixin):
         run_costs = self._get_run_costs(list(cloud_accounts.keys()), runs)
         executors = self._get_last_runs_executors(
             profiling_token, cloud_accounts, {application_id: runs})
+        if last_runs:
+            application.update({'last_runs': runs[-last_runs:]})
+        if last_leaderboards:
+            leaderboard = LeaderboardController(
+                self.session, self._config, self.token
+            ).get(application_id, profiling_token)
+            leaderboards_datasets = []
+            if leaderboard:
+                leaderboards_datasets = sorted(
+                    LeaderboardDatasetController(
+                        self.session, self._config, self.token
+                    ).list(
+                        leaderboard['id'], profiling_token
+                    ), key=lambda x: x['created_at'])[-last_leaderboards:]
+            application.update({'last_leaderboards': leaderboards_datasets})
         return self.format_application(
             application, employees.get(application.get('owner_id')),
             runs, run_costs, executors)
