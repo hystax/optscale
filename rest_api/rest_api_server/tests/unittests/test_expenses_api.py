@@ -3312,6 +3312,7 @@ class TestExpensesApi(TestApiBase):
                 '_id': {
                     'date': self.prev_start,
                     'region': 'region1',
+                    'cloud_account_id': self.cloud_acc1['id']
                 },
             },
             {
@@ -3319,6 +3320,7 @@ class TestExpensesApi(TestApiBase):
                 '_id': {
                     'date': self.prev_start,
                     'region': 'region2',
+                    'cloud_account_id': self.cloud_acc1['id']
                 },
             },
             {
@@ -3326,6 +3328,7 @@ class TestExpensesApi(TestApiBase):
                 '_id': {
                     'date': self.start_date,
                     'region': 'region1',
+                    'cloud_account_id': self.cloud_acc1['id']
                 },
             },
             {
@@ -3333,6 +3336,7 @@ class TestExpensesApi(TestApiBase):
                 '_id': {
                     'date': self.second_date,
                     'region': 'region1',
+                    'cloud_account_id': self.cloud_acc1['id']
                 },
             },
             {
@@ -3340,6 +3344,7 @@ class TestExpensesApi(TestApiBase):
                 '_id': {
                     'date': self.start_date,
                     'region': 'region2',
+                    'cloud_account_id': self.cloud_acc1['id']
                 },
             },
             {
@@ -3347,6 +3352,7 @@ class TestExpensesApi(TestApiBase):
                 '_id': {
                     'date': self.second_date,
                     'region': 'region2',
+                    'cloud_account_id': self.cloud_acc1['id']
                 },
             },
             {
@@ -3354,6 +3360,7 @@ class TestExpensesApi(TestApiBase):
                 '_id': {
                     'date': self.start_date,
                     'region': 'region3',
+                    'cloud_account_id': self.cloud_acc1['id']
                 },
             },
             {
@@ -5366,3 +5373,80 @@ class TestExpensesApi(TestApiBase):
             self.org_id, time, time + 1)
         self.assertEqual(code, 200)
         self.assertEqual(response['total_count'], 2)
+
+    @patch('tools.cloud_adapter.clouds.azure.Azure.get_regions_coordinates')
+    @patch('tools.cloud_adapter.clouds.aws.Aws.get_regions_coordinates')
+    def test_region_expenses_duplicated_regions(
+            self, p_aws_regions_map, p_azure_regions_map):
+        code, resource1 = self.create_cloud_resource(
+            self.cloud_acc1['id'], region='region1')
+        self.assertEqual(code, 201)
+        code, resource2 = self.create_cloud_resource(
+            self.cloud_acc1['id'], region='global')
+        self.assertEqual(code, 201)
+        code, resource3 = self.create_cloud_resource(
+            self.cloud_acc2['id'], region='global')
+        self.assertEqual(code, 201)
+
+        dt = datetime.utcnow()
+        expenses = [
+            {
+                'cost': 150, 'date': dt,
+                'cloud_acc': resource1['cloud_account_id'],
+                'region': resource1['region'],
+                'resource_id': resource1['id'],
+            },
+            {
+                'cost': 200, 'date': dt,
+                'cloud_acc': resource2['cloud_account_id'],
+                'region': resource2['region'],
+                'resource_id': resource2['id'],
+            },
+            {
+                'cost': 250, 'date': dt,
+                'cloud_acc': resource3['cloud_account_id'],
+                'region': resource3['region'],
+                'resource_id': resource3['id'],
+            }
+        ]
+        for e in expenses:
+            self.expenses.append({
+                'resource_id': e['resource_id'],
+                'cost': e['cost'],
+                'date': e['date'],
+                'cloud_account_id': e['cloud_acc'],
+                'sign': 1
+            })
+        p_aws_regions_map.return_value = {
+            'region1': {'longitude': 1, 'latitude': 1},
+            'global': {'longitude': 3, 'latitude': 3}
+        }
+        p_azure_regions_map.return_value = {
+            'global': {'longitude': 3, 'latitude': 3}
+        }
+        end_date = datetime.utcnow()
+        start_date = end_date - timedelta(days=1)
+
+        code, resp = self.client.region_expenses_get(
+            self.org_id, int(start_date.timestamp()), int(end_date.timestamp()))
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['expenses']['total'], 600)
+        self.assertEqual(len(resp['expenses']['regions']), 3)
+        for e in [
+            {
+                'name': 'region1', 'id': 'region1', 'total': 150,
+                'previous_total': 0, 'longitude': 1, 'latitude': 1,
+                'type': 'aws_cnr'
+            },
+            {
+                'name': 'global', 'id': 'global', 'total': 200,
+                'previous_total': 0, 'longitude': 3, 'latitude': 3,
+                'type': 'aws_cnr'
+            },
+            {
+                'name': 'global', 'id': 'global', 'total': 250,
+                'previous_total': 0, 'longitude': 3, 'latitude': 3,
+                'type': 'azure_cnr'
+            }
+        ]:
+            self.assertTrue(e in resp['expenses']['regions'])

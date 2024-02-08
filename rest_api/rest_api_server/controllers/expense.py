@@ -74,13 +74,13 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
         expenses_results = self.execute_clickhouse(
             query="""
                 SELECT
-                    date, group_field, SUM(cost * sign) AS total_cost
+                    date, group_field, cloud_account_id, SUM(cost * sign) AS total_cost
                 FROM expenses
                 JOIN resources ON expenses.resource_id = resources._id
                     AND expenses.cloud_account_id = resources.cloud_account_id
                 WHERE date >= %(start_date)s
                     AND date <= %(end_date)s
-                GROUP BY date, group_field
+                GROUP BY date, group_field, cloud_account_id
                 HAVING SUM(sign) > 0
                 ORDER BY total_cost DESC
             """,
@@ -102,9 +102,10 @@ class ExpenseController(MongoMixin, ClickHouseMixin):
         return [{
             '_id': {
                 'date': x[0],
-                group_by: x[1]
+                group_by: x[1],
+                'cloud_account_id': x[2]
             },
-            'cost': x[2]
+            'cost': x[3]
         } for x in expenses_results]
 
     def get_cloud_expenses_with_resource_info(self, cloud_acc_list, start_date,
@@ -1907,7 +1908,7 @@ class RegionExpenseController(FilteredFormattedExpenseController,
             else:
                 region_name = info.get('name', region)
         return {
-            region_name: {
+            (region_name, cloud_type): {
                 'name': region_name,
                 'id': region,
                 'total': 0,
@@ -1942,22 +1943,26 @@ class RegionExpenseController(FilteredFormattedExpenseController,
     def get_formatted_result(self, db_result, cloud_accs, starting_time, prev_start_ts):
         result = self.get_result_base(prev_start_ts)
         info_map = self.get_info_map(cloud_accs)
-
+        ca_type_map = {ca.id: ca.type.value for ca in cloud_accs}
         for group in db_result:
             region = group.get('_id', {}).get(self.GROUPING_FIELD)
-            if region is None and not info_map.get(region):
+            cloud_type = ca_type_map.get(
+                group.get('_id', {}).get('cloud_account_id'))
+            key = (region, cloud_type)
+            if region is None and not info_map.get(key):
                 info_map.update(
-                    self._generate_info_map_element(None, {'longitude': None, 'latitude': None})
+                    self._generate_info_map_element(
+                        None, {'longitude': None, 'latitude': None})
                 )
-            if region not in info_map.keys():
+            if key not in info_map.keys():
                 continue
 
             if group['_id']['date'] >= starting_time:
                 result['total'] += group['cost']
-                info_map[region]['total'] += group['cost']
+                info_map[key]['total'] += group['cost']
             else:
                 result['previous_total'] += group['cost']
-                info_map[region]['previous_total'] += group['cost']
+                info_map[key]['previous_total'] += group['cost']
                 continue
 
         result['total'] = round(result['total'], 6)

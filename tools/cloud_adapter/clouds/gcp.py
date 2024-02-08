@@ -1441,6 +1441,12 @@ class Gcp(CloudBase):
             "longitude": 85.324,
             "name": "Asia",
         }
+        # Global
+        regions["global"] = {
+            "longitude": -98.48424,
+            "latitude": 39.01190,
+            "name": 'Global'
+        }
 
         regions["australia-southeast1"]["alias"] = "Australia"
         regions["asia-east2"]["alias"] = "China"
