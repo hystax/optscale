@@ -2,6 +2,7 @@ FROM python:3.9.16-slim
 LABEL org.opencontainers.image.authors="Hystax"
 
 WORKDIR /src
+RUN mkdir -p /src/archive
 
 COPY optscale_client/config_client optscale_client/config_client
 COPY docker_images/cleanmongodb/requirements.txt .

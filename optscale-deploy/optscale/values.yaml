@@ -651,6 +651,8 @@ cleanmongodb:
   schedule: "*/3 * * * *"
   chunk_size: 500
   rows_limit: 10000
+  archive_enable:
+  file_max_rows: 10000
 
 trapper_scheduler:
   name: trapper-scheduler
