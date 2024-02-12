@@ -52,7 +52,7 @@ class TestOrganizationApi(TestApiBase):
         _, org_pool = self.client.pool_get(self.organization['pool_id'])
         self.assertEqual(org_pool['name'], self.organization['name'])
         code, organization_dict = self.client.organization_update(
-            organization_id, dict(name="new name"))
+            organization_id, dict(name="new name", cleaned_at=6))
         self.assertEqual(code, 200)
         self.assertEqual(organization_dict["name"], "new name")
         _, org_pool = self.client.pool_get(organization_dict['pool_id'])
@@ -115,6 +115,7 @@ class TestOrganizationApi(TestApiBase):
     def test_create_organization(self):
         self.assertEqual(self.code, 201)
         self.assertEqual(self.organization['name'], 'test_name')
+        self.assertEqual(self.organization['cleaned_at'], 0)
 
     @patch('rest_api.rest_api_server.controllers.pool.PoolController.'
            '_authorize_action_for_user', return_value=True)

@@ -22,6 +22,32 @@ class CleanMongoDB(object):
         super().__init__()
         self._config_client = None
         self._mongo_client = None
+        self._archive_enable = ARCHIVE_ENABLED
+        self._file_max_rows = FILE_MAX_ROWS
+        self._chunk_size = CHUNK_SIZE
+        self._limits = {
+            # linked to cloud_account_id
+            self.mongo_client.restapi.raw_expenses: ROWS_LIMIT,
+            self.mongo_client.restapi.resources: ROWS_LIMIT,
+            # linked to run_id
+            self.mongo_client.arcee.console: ROWS_LIMIT,
+            self.mongo_client.arcee.log: ROWS_LIMIT,
+            self.mongo_client.arcee.milestone: ROWS_LIMIT,
+            self.mongo_client.arcee.proc_data: ROWS_LIMIT,
+            self.mongo_client.arcee.stage: ROWS_LIMIT,
+            # linked to application_id
+            self.mongo_client.arcee.run: ROWS_LIMIT,
+            # linked to profiling_token.token
+            self.mongo_client.arcee.application: ROWS_LIMIT,
+            self.mongo_client.arcee.dataset: ROWS_LIMIT,
+            self.mongo_client.arcee.goal: ROWS_LIMIT,
+            self.mongo_client.arcee.leaderboard: ROWS_LIMIT,
+            self.mongo_client.arcee.leaderboard_dataset: ROWS_LIMIT,
+            # linked to profiling_token.infrastructure_token
+            self.mongo_client.bulldozer.template: ROWS_LIMIT,
+            self.mongo_client.bulldozer.runset: ROWS_LIMIT,
+            self.mongo_client.bulldozer.runner: ROWS_LIMIT,
+        }
 
     @property
     def config_client(self):
@@ -58,6 +84,145 @@ class CleanMongoDB(object):
         )
         return Session(bind=engine)
 
+    @property
+    def limits(self):
+        return self._limits
+
+    @limits.setter
+    def limits(self, value):
+        self._limits = value
+
+    @property
+    def chunk_size(self):
+        return self._chunk_size
+
+    @chunk_size.setter
+    def chunk_size(self, value):
+        self._chunk_size = value
+
+    @property
+    def archive_enable(self):
+        return self._archive_enable
+
+    @archive_enable.setter
+    def archive_enable(self, value):
+        self._archive_enable = value
+
+    @property
+    def file_max_rows(self):
+        return self._file_max_rows
+
+    @file_max_rows.setter
+    def file_max_rows(self, value):
+        self._file_max_rows = value
+
+    def get_deleted_organization_info(self):
+        result = None
+        session = self.get_session()
+        stmt = """SELECT org_t.id, profiling_token.token,
+                    profiling_token.infrastructure_token
+                  FROM (
+                    SELECT id FROM organization
+                    WHERE organization.deleted_at != 0 AND
+                      organization.cleaned_at = 0
+                    LIMIT 1
+                  ) as org_t
+                  JOIN profiling_token
+                  ON org_t.id = profiling_token.organization_id"""
+        try:
+            result = next(session.execute(stmt))
+        except StopIteration:
+            pass
+        finally:
+            session.close()
+        return result
+
+    def delete_in_chunks(self, collection, filter_name, filter_value,
+                         archive=False, archive_cloud_account_id=None):
+        rows_limit = self.limits.get(collection, 0)
+        if not rows_limit:
+            return 0
+        if isinstance(filter_value, list):
+            filter_value = {'$in': filter_value}
+        row_ids = list(collection.find({filter_name: filter_value}, ['_id']
+                                       ).limit(rows_limit))
+        for j in range(0, len(row_ids), self.chunk_size):
+            chunk = [row['_id'] for row in row_ids[j: j + self.chunk_size]]
+            if archive:
+                LOG.info('Archiving raw expenses')
+                last_file_name = self.get_archive_file(
+                    archive_cloud_account_id)
+                file_length = self.get_file_length(last_file_name)
+                split_data = self.split_chunk_by_files(
+                    chunk, self.file_max_rows - file_length, last_file_name,
+                    archive_cloud_account_id, self.file_max_rows)
+                for file, raw_expenses in split_data.items():
+                    path = os.path.join(ARCHIVE_PATH, file)
+                    exp_count = len(raw_expenses)
+                    full_expenses_rows = collection.find(
+                        {'_id': {'$in': raw_expenses}})
+                    with open(path, 'a+') as f:
+                        if raw_expenses:
+                            LOG.info(
+                                f'Saving {exp_count} expenses to file {path}')
+                            for row in full_expenses_rows:
+                                f.write(self._row_to_json(row) + '\n')
+            collection.delete_many({'_id': {'$in': chunk}})
+        remainder_rows = rows_limit - len(row_ids)
+        return remainder_rows
+
+    def _delete_runs(self, runs_ids_chunk):
+        run_collections = [self.mongo_client.arcee.console,
+                           self.mongo_client.arcee.log,
+                           self.mongo_client.arcee.milestone,
+                           self.mongo_client.arcee.stage,
+                           self.mongo_client.arcee.proc_data]
+        if all(self.limits.get(x) == 0 for x in run_collections):
+            # maximum number of entities related to runs have already
+            # been deleted
+            return False
+        for collection in run_collections:
+            filter_name = 'run_id'
+            if collection == self.mongo_client.arcee.log:
+                filter_name = 'run'
+            self.limits[collection] = self.delete_in_chunks(
+                collection, filter_name, runs_ids_chunk)
+        if all(self.limits.get(x) != 0 for x in run_collections):
+            # all entities related to runs chunk are cleaned up, runs
+            # can be deleted
+            self.limits[
+                self.mongo_client.arcee.run] = self.delete_in_chunks(
+                self.mongo_client.arcee.run, '_id', runs_ids_chunk)
+            return True
+        return False
+
+    def _delete_by_application(self, token):
+        all_applications_deleted = False
+        rows_limit = self.limits.get(self.mongo_client.arcee.application)
+        applications = list(self.mongo_client.arcee.application.find(
+            {'token': token}, ['_id']).limit(rows_limit))
+        are_runs_deleted = []
+        for i in range(0, len(applications), CHUNK_SIZE):
+            apps_chunk = [
+                row['_id'] for row in applications[i:i + CHUNK_SIZE]]
+            runs_limit = self.limits.get(self.mongo_client.arcee.run)
+            runs = list(self.mongo_client.arcee.run.find(
+                {'application_id': {'$in': apps_chunk}}, ['_id']
+            ).limit(runs_limit))
+            for j in range(0, len(runs), CHUNK_SIZE):
+                runs_chunk = [row['_id'] for row in runs[i:i + CHUNK_SIZE]]
+                are_runs_deleted.append(self._delete_runs(runs_chunk))
+            if all(are_runs_deleted):
+                self.limits[
+                    self.mongo_client.arcee.application] = self.delete_in_chunks(
+                    self.mongo_client.arcee.application, '_id', apps_chunk)
+            else:
+                # can't delete more applications as can't delete more runs
+                break
+        else:
+            all_applications_deleted = True
+        return all_applications_deleted
+
     def get_deleted_cloud_account(self):
         session = self.get_session()
         stmt = """SELECT cloudaccount.id FROM cloudaccount
@@ -73,12 +238,21 @@ class CleanMongoDB(object):
             session.close()
         return result
 
-    def update_cleaned_at(self, cloud_account_id):
-        LOG.info(f'Updating cleaned_at for {cloud_account_id}')
+    def update_cleaned_at(self, cloud_account_id=None, organization_id=None):
         session = self.get_session()
         now = int(datetime.utcnow().timestamp())
-        stmt = f"""UPDATE cloudaccount
-                   SET cleaned_at={now} WHERE id='{cloud_account_id}'"""
+        if cloud_account_id:
+            LOG.info(
+                f'Updating cleaned_at for cloud account {cloud_account_id}')
+            stmt = f"""UPDATE cloudaccount
+                       SET cleaned_at={now} WHERE id='{cloud_account_id}'"""
+        elif organization_id:
+            LOG.info(
+                f'Updating cleaned_at for organization {organization_id}')
+            stmt = f"""UPDATE organization
+                       SET cleaned_at={now} WHERE id='{organization_id}'"""
+        else:
+            return
         try:
             session.execute(stmt)
             session.commit()
@@ -133,71 +307,96 @@ class CleanMongoDB(object):
             result[new_filename] = chunk[i:i+file_max_rows]
         return result
 
-    def delete_rows(self, collection, cloud_account_id,  chunk_size, rows_limit,
-                    archive_enable=False, file_max_rows=0):
-        rows = list(collection.find(
-            {'cloud_account_id': cloud_account_id}).limit(rows_limit))
-        for j in range(0, len(rows), chunk_size):
-            chunk = rows[j: j + chunk_size]
-            chunk_ids = [row['_id'] for row in chunk]
-            if archive_enable:
-                LOG.info('Archiving raw expenses')
-                last_file_name = self.get_archive_file(cloud_account_id)
-                file_length = self.get_file_length(last_file_name)
-                split_data = self.split_chunk_by_files(
-                    chunk, file_max_rows - file_length, last_file_name,
-                    cloud_account_id, file_max_rows)
-                for file, raw_expenses in split_data.items():
-                    path = os.path.join(ARCHIVE_PATH, file)
-                    exp_count = len(raw_expenses)
-                    with open(path, 'a+') as f:
-                        if raw_expenses:
-                            LOG.info(
-                                f'Saving {exp_count} expenses to file {path}')
-                            for row in raw_expenses:
-                                f.write(self._row_to_json(row) + '\n')
-            collection.delete_many({'_id': {'$in': chunk_ids}})
+    def _delete_by_organization(self, org_id, token, infra_token):
+        arcee_collections = [self.mongo_client.arcee.dataset,
+                             self.mongo_client.arcee.goal,
+                             self.mongo_client.arcee.leaderboard,
+                             self.mongo_client.arcee.leaderboard_dataset]
+        bulldozer_collections = [self.mongo_client.bulldozer.template,
+                                 self.mongo_client.bulldozer.runset,
+                                 self.mongo_client.bulldozer.runner]
+        LOG.info('Start processing ML objects for organization %s', org_id)
+        for collection in arcee_collections:
+            self.limits[collection] = self.delete_in_chunks(
+                collection, 'token', token)
+        for collection in bulldozer_collections:
+            self.limits[collection] = self.delete_in_chunks(
+                collection, 'token', infra_token)
+        apps_deleted = self._delete_by_application(token)
 
-    def clean_cloud_account(self, chunk_size, exp_limit, res_limit,
-                            archive_enable, file_max_rows):
+        if apps_deleted and all(
+                limit > 0 for collection, limit in self.limits.items()
+                if collection in arcee_collections + bulldozer_collections):
+            self.update_cleaned_at(organization_id=org_id)
+
+    def organization_limits(self):
+        collections = [self.mongo_client.arcee.application,
+                       self.mongo_client.arcee.dataset,
+                       self.mongo_client.arcee.goal,
+                       self.mongo_client.arcee.leaderboard,
+                       self.mongo_client.arcee.leaderboard_dataset,
+                       self.mongo_client.arcee.run,
+                       self.mongo_client.arcee.console,
+                       self.mongo_client.arcee.log,
+                       self.mongo_client.arcee.milestone,
+                       self.mongo_client.arcee.stage,
+                       self.mongo_client.arcee.proc_data,
+                       self.mongo_client.bulldozer.template,
+                       self.mongo_client.bulldozer.runset,
+                       self.mongo_client.bulldozer.runner]
+        return [self.limits[x] for x in collections]
+
+    def delete_by_organization(self):
+        info = self.get_deleted_organization_info()
+        if not info:
+            return
+        while info and all(limit > 0 for limit in self.organization_limits()):
+            org_id, token, infra_token = info
+            self._delete_by_organization(org_id, token, infra_token)
+            info = self.get_deleted_organization_info()
+        LOG.info('Organizations ML objects processing is completed')
+
+    def _delete_by_cloud_account(self, cloud_account_id):
+        restapi_collections = [self.mongo_client.restapi.raw_expenses,
+                               self.mongo_client.restapi.resources]
+        LOG.info(f'Started processing for cloud account {cloud_account_id}')
+        for collection in restapi_collections:
+            archive = False
+            if (collection == self.mongo_client.restapi.raw_expenses
+                    and self.archive_enable):
+                archive = True
+            self.limits[collection] = self.delete_in_chunks(
+                    collection, 'cloud_account_id', cloud_account_id,
+                    archive=archive, archive_cloud_account_id=cloud_account_id)
+        if all(limit > 0 for collection, limit in self.limits.items()
+               if collection in restapi_collections):
+            self.update_cleaned_at(cloud_account_id=cloud_account_id)
+
+    def cloud_account_limits(self):
+        collections = [self.mongo_client.restapi.resources,
+                       self.mongo_client.restapi.raw_expenses]
+        return [self.limits[x] for x in collections]
+
+    def delete_by_cloud_account(self):
         cloud_account_id = self.get_deleted_cloud_account()
-        if cloud_account_id:
-            LOG.info(f'Started processing for cloud account {cloud_account_id}')
-            exp_count = self.mongo_client.restapi.raw_expenses.count_documents(
-                {'cloud_account_id': cloud_account_id})
-            if exp_count:
-                self.delete_rows(
-                    self.mongo_client.restapi.raw_expenses, cloud_account_id,
-                    chunk_size, exp_limit, archive_enable, file_max_rows)
-            res_count = self.mongo_client.restapi.resources.count_documents(
-                {'cloud_account_id': cloud_account_id})
-            if res_count:
-                self.delete_rows(self.mongo_client.restapi.resources,
-                                 cloud_account_id, chunk_size, res_limit)
-            return cloud_account_id, exp_count, res_count
-
-    def clean(self, chunk_size, exp_limit, res_limit,
-              archive_enable, file_max_rows):
-        while exp_limit and res_limit:
-            result = self.clean_cloud_account(
-                chunk_size, exp_limit, res_limit, archive_enable, file_max_rows)
-            if result is None:
-                return
-            cloud_account_id, exp_count, res_count = result
-            if exp_count <= exp_limit and res_count <= res_limit:
-                self.update_cleaned_at(cloud_account_id)
-            exp_limit = exp_limit - exp_count
-            res_limit = res_limit - res_count
+        while cloud_account_id and all(
+                limit > 0 for limit in self.cloud_account_limits()):
+            self._delete_by_cloud_account(cloud_account_id)
+            cloud_account_id = self.get_deleted_cloud_account()
+        LOG.info('Cloud accounts processing is completed')
 
     def clean_mongo(self):
         settings = self.get_settings()
-        chunk_size = int(settings.get('chunk_size', 0) or CHUNK_SIZE)
-        rows_limit = int(settings.get('rows_limit', 0) or ROWS_LIMIT)
-        archive_enable = bool(
+        self.archive_enable = bool(
             settings.get('archive_enable', False)) or ARCHIVE_ENABLED
-        file_max_rows = int(settings.get('file_max_rows', 0)) or FILE_MAX_ROWS
-        self.clean(chunk_size, rows_limit, rows_limit,
-                   archive_enable, file_max_rows)
+        self.file_max_rows = int(settings.get(
+            'file_max_rows', 0)) or FILE_MAX_ROWS
+        self.chunk_size = int(settings.get('chunk_size') or CHUNK_SIZE)
+        rows_limit = int(settings.get('rows_limit') or ROWS_LIMIT)
+        for collection in self.limits:
+            self.limits[collection] = rows_limit
+        self.delete_by_cloud_account()
+        self.delete_by_organization()
         LOG.info('Processing completed')
 
 
