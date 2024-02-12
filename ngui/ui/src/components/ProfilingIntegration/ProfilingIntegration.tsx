@@ -5,8 +5,9 @@ import { useTheme } from "@mui/material/styles";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CodeBlock from "components/CodeBlock";
+import CopyText from "components/CopyText";
 import HtmlSymbol from "components/HtmlSymbol";
-import InlineSeverityAlert from "components/InlineSeverityAlert";
+import KeyValueLabel from "components/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import { ProfilingIntegrationModalContext } from "contexts/ProfilingIntegrationModalContext";
 import { ML_TASK_PARAMETERS, ML_TASKS, PYPI_OPTSCALE_ARCEE } from "urls";
@@ -87,6 +88,45 @@ arcee.error()
       </SubTitle>
       <Box>
         <Typography gutterBottom>
+          <FormattedMessage id="mlProfilingIntegration.initDescription" />
+        </Typography>
+        <ul>
+          <li>
+            {isLoading ? (
+              <Skeleton />
+            ) : (
+              <KeyValueLabel
+                isBoldValue={false}
+                messageId="profilingToken"
+                value={<CopyText text={profilingToken}>{profilingToken}</CopyText>}
+              />
+            )}
+          </li>
+          <li>
+            <Typography>
+              {taskKey ? (
+                <KeyValueLabel isBoldValue={false} messageId="taskKey" value={<CopyText text={taskKey}>{taskKey}</CopyText>} />
+              ) : (
+                <FormattedMessage
+                  id="mlProfilingIntegration.initDescription.taskKeyCanBeFound"
+                  values={{
+                    link: (chunks) => (
+                      <Link
+                        to={ML_TASKS}
+                        // Explicitly close the modal to cover cases where it was opened on the "/models" page
+                        onClick={onClose}
+                        component={RouterLink}
+                      >
+                        {chunks}
+                      </Link>
+                    )
+                  }}
+                />
+              )}
+            </Typography>
+          </li>
+        </ul>
+        <Typography gutterBottom>
           <FormattedMessage
             id="mlProfilingIntegration.initCollectorUsingContextManager"
             values={{
@@ -116,24 +156,6 @@ arcee.error()
         </Typography>
         {isLoading ? <Skeleton width="100%">{arceeInitUsingFunctionCall}</Skeleton> : arceeInitUsingFunctionCall}
       </Box>
-      <InlineSeverityAlert
-        sx={{
-          width: "100%"
-        }}
-        messageId="mlProfilingIntegration.seeModels"
-        messageValues={{
-          link: (chunks) => (
-            <Link
-              to={ML_TASKS}
-              // Explicitly close the modal to cover cases where it was opened on the "/models" page
-              onClick={onClose}
-              component={RouterLink}
-            >
-              {chunks}
-            </Link>
-          )
-        }}
-      />
     </>
   );
 };
@@ -147,7 +169,12 @@ const SendingMetrics = () => (
       <FormattedMessage
         id="mlProfilingIntegration.sendMetrics"
         values={{
-          ...preFormatMessageValues
+          ...preFormatMessageValues,
+          link: (chunks) => (
+            <Link to={ML_TASK_PARAMETERS} component={RouterLink}>
+              {chunks}
+            </Link>
+          )
         }}
       />
       <HtmlSymbol symbol="colon" />
@@ -167,19 +194,6 @@ const SendingMetrics = () => (
     <Box mb={1}>
       <CodeBlock text={`arcee.send({ "metric_key_1": value_1, "metric_key_2": value_2 })`} />
     </Box>
-    <InlineSeverityAlert
-      sx={{
-        width: "100%"
-      }}
-      messageId="mlProfilingIntegration.listOfAvailableParameters"
-      messageValues={{
-        link: (chunks) => (
-          <Link to={ML_TASK_PARAMETERS} component={RouterLink}>
-            {chunks}
-          </Link>
-        )
-      }}
-    />
   </>
 );
 
