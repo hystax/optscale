@@ -1952,7 +1952,8 @@ class RegionExpenseController(FilteredFormattedExpenseController,
             if region is None and not info_map.get(key):
                 info_map.update(
                     self._generate_info_map_element(
-                        None, {'longitude': None, 'latitude': None})
+                        None, {'longitude': None, 'latitude': None},
+                        cloud_type=cloud_type)
                 )
             if key not in info_map.keys():
                 continue
