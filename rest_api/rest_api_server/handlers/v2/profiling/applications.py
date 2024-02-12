@@ -380,12 +380,12 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             required: true
             type: string
         -   name: last_runs
-            in: path
+            in: query
             description: Number of last runs
             required: false
             type: integer
         -   name: last_leaderboards
-            in: path
+            in: query
             description: Number of last leaderboards
             required: false
             type: integer

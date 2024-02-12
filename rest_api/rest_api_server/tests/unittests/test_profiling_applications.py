@@ -1,6 +1,6 @@
 import uuid
 from unittest.mock import patch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from requests import HTTPError
 from requests.models import Response
 from freezegun import freeze_time
@@ -255,12 +255,15 @@ class TestApplicationApi(TestProfilingBase):
         code, resp = self.client.application_get(self.org['id'], app['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['status'], 'created')
-
+        dt = int(datetime(2024, 2, 2).timestamp())
         for run_state, expected_status in enumerate([
             'running', 'completed', 'failed'
         ], start=1):
+            start = dt + run_state
+            finish = start + 1
             self._create_run(
-                self.org['id'], app['id'], ['i-1'], state=run_state)
+                self.org['id'], app['id'], ['i-1'], state=run_state,
+                start=start, finish=finish)
             _, resp = self.client.application_get(self.org['id'], app['id'])
             self.assertEqual(resp['status'], expected_status)
 
@@ -444,6 +447,8 @@ class TestApplicationApi(TestProfilingBase):
                                                  last_runs=10)
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['last_runs']), 2)
+        self.assertTrue(resp['last_runs'][0]['start'], now - 2)
+        self.assertTrue(resp['last_runs'][1]['start'], now - 3)
 
     def test_application_last_leaderboards(self):
         _, app = self.client.application_create(
@@ -481,7 +486,7 @@ class TestApplicationApi(TestProfilingBase):
             }
         }
         _, dataset = self.client.dataset_create(self.org['id'], valid_dataset)
-        dt = datetime(2023, 10, 10)
+        dt = datetime(2023, 10, 10, tzinfo=timezone.utc)
         with freeze_time(dt + timedelta(days=1)):
             self.client.leaderboard_dataset_create(
                 self.org['id'], "test", leaderboard['id'], [dataset['id']])
@@ -501,3 +506,7 @@ class TestApplicationApi(TestProfilingBase):
         code, resp = self.client.application_get(
             self.org['id'], app['id'], last_leaderboards=10)
         self.assertEqual(len(resp['last_leaderboards']), 2)
+        self.assertEqual(resp['last_leaderboards'][0]['created_at'],
+                         int((dt + timedelta(days=1)).timestamp()))
+        self.assertEqual(resp['last_leaderboards'][1]['created_at'],
+                         int(dt.timestamp()))

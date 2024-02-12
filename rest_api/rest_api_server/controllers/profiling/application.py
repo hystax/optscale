@@ -170,7 +170,10 @@ class ApplicationController(BaseProfilingController, RunCostsMixin):
         executors = self._get_last_runs_executors(
             profiling_token, cloud_accounts, {application_id: runs})
         if last_runs:
-            application.update({'last_runs': runs[-last_runs:]})
+            application.update({
+                'last_runs': sorted(
+                    runs, key=lambda x: x['start'], reverse=True)[:last_runs]
+            })
         if last_leaderboards:
             leaderboard = LeaderboardController(
                 self.session, self._config, self.token
@@ -182,7 +185,8 @@ class ApplicationController(BaseProfilingController, RunCostsMixin):
                         self.session, self._config, self.token
                     ).list(
                         leaderboard['id'], profiling_token
-                    ), key=lambda x: x['created_at'])[-last_leaderboards:]
+                    ), key=lambda x: x['created_at'], reverse=True
+                )[:last_leaderboards]
             application.update({'last_leaderboards': leaderboards_datasets})
         return self.format_application(
             application, employees.get(application.get('owner_id')),
