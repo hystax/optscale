@@ -172,7 +172,8 @@ def update_metrics_pipeline(metrics, group_block, project_block,
                     None, "$%s" % metric]}}
         if metric == primary_metric_key:
             if project_block["$project"].get("primary_metric") is None:
-                project_block["$project"]["primary_metric"] = metric_project_cond
+                project_block["$project"][
+                    "primary_metric"] = metric_project_cond
         else:
             if project_block["$project"].get("metrics") is None:
                 project_block["$project"]["metrics"] = {}

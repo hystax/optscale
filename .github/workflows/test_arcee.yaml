@@ -1,5 +1,5 @@
-name: Build Arcee test image
-run-name: Build arcee test image - started by ${{ github.actor }}
+name: Build Arcee test image and run tests on it
+run-name: Build arcee test image and run tests on it - started by ${{ github.actor }}
 on:
   pull_request:
     types: [opened, synchronize]
@@ -16,3 +16,5 @@ jobs:
         uses: actions/checkout@v3
       - name: Build image
         run: bash -x build.sh arcee build
+      - name: Build test image and run tests
+        run: bash -x arcee/run_test.sh
