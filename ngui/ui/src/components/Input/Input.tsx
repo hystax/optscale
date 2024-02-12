@@ -25,14 +25,10 @@ const Input = forwardRef((props, ref) => {
 
   const inputClassName = cx(isMasked ? classes.masked : "");
 
-  const { readOnly = false, style: originalStyles } = InputProps;
-
-  // text-security docs: Use -webkit-text-security if the browser supports it
-  // added here due to tss react does not parse kebab-style props properly
-  const style = { ...originalStyles, ...(isMasked ? { WebkitTextSecurity: "disc" } : {}) };
+  const { readOnly = false, style } = InputProps;
 
   // Please note, disableUnderline not supported by outlined variant.
-  // But now we replacing variant to standart if control is readOnly
+  // But now we replacing variant to standard if control is readOnly
   const InputPropsMerged = { ...InputProps, style, ...(readOnly ? { disableUnderline: true } : {}) };
 
   return (
