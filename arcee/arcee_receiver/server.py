@@ -1982,7 +1982,8 @@ if __name__ == '__main__':
             'mongo_password': password,
             'mongo_url': "mongodb://{host}:{port}/admin".format(
                 host=host, port=port),
-            'mongo_database': db_name
+            'mongo_database': db_name,
+            'mongo_migrations_path': 'arcee/arcee_receiver/migrations'
         }
         manager = MigrationManager(config=Configuration(config=config_params))
         manager.run()
