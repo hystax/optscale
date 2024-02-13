@@ -1,0 +1,7 @@
+ARG BUILDTAG=build
+FROM arcee:${BUILDTAG}
+
+COPY arcee/run_test.sh arcee/.pylintrc arcee/
+COPY arcee/test-requirements.txt arcee/
+RUN pip install --no-cache-dir -r arcee/test-requirements.txt
+COPY arcee/arcee_receiver/tests/*.py arcee/arcee_receiver/tests/

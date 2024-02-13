@@ -68,8 +68,7 @@ const BookEnvironmentForm = ({
       [BOOKING_OWNER]: "",
       [BOOK_SINCE_PICKER_NAME]: isEnvironmentAvailable ? undefined : roundTimeToInterval(+new Date(), INTERVAL_ENVIRONMENT),
       [BOOK_UNTIL_PICKER_NAME]: undefined
-    },
-    shouldUnregister: true
+    }
   });
 
   const { handleSubmit, reset, watch } = methods;
@@ -102,16 +101,14 @@ const BookEnvironmentForm = ({
         )}
         noValidate
       >
-        <FormControl fullWidth>
-          <BookingOwnerSelector
-            fieldName={BOOKING_OWNER}
-            owners={owners}
-            isLoading={isGetAuthorizedEmployeesLoading}
-            currentEmployeeId={defaultBookingOwner?.id}
-            isSshRequired={isSshRequired}
-            readOnly={!canSetBookingOwner}
-          />
-        </FormControl>
+        <BookingOwnerSelector
+          fieldName={BOOKING_OWNER}
+          owners={owners}
+          isLoading={isGetAuthorizedEmployeesLoading}
+          currentEmployeeId={defaultBookingOwner?.id}
+          isSshRequired={isSshRequired}
+          readOnly={!canSetBookingOwner}
+        />
         <FormControl fullWidth>
           <BookDateTimePicker
             intervalMinutes={INTERVAL_ENVIRONMENT}

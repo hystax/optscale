@@ -1,8 +1,8 @@
 import { API } from "api/reducer";
 import { reset } from "reducers/route";
-import { setSignOutOptions } from "reducers/signoutOptions";
+import { USER_EMAIL_QUERY_PARAMETER_NAME } from "urls";
 import requestManager from "utils/requestManager";
-import { getFullPath } from "./network";
+import { updateQueryParams } from "./network";
 
 /**
  *
@@ -62,12 +62,11 @@ export const reformatBreakdown = (breakdown) =>
 
 export const signOut = (dispatch, payload) => {
   const { userEmail } = payload;
-  dispatch(
-    setSignOutOptions({
-      next: `${getFullPath().replace(/&/g, "%26")}`,
-      userEmail
-    })
-  );
+
+  updateQueryParams({
+    [USER_EMAIL_QUERY_PARAMETER_NAME]: userEmail
+  });
+
   dispatch(reset());
   requestManager.cancelAllPendingRequests();
 };

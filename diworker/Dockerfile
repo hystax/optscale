@@ -13,4 +13,7 @@ COPY diworker/requirements.txt diworker/requirements.txt
 RUN pip install --no-cache-dir -r diworker/requirements.txt
 COPY diworker/diworker diworker/diworker
 
+# used to store the report being processed. Automatically deleted
+VOLUME ["/src/reports"]
+
 CMD ["/src/diworker/diworker/main.py"]

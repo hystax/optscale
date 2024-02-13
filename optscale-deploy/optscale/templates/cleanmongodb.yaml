@@ -43,4 +43,12 @@ spec:
               value: {{ .Values.etcd.service.name }}
             - name: HX_ETCD_PORT
               value: {{ .Values.etcd.service.externalPort | quote }}
+            volumeMounts:
+              - name: cleanmongodb-data-volume
+                mountPath: /src/archive/
           restartPolicy: Never
+          volumes:
+            - name: cleanmongodb-data-volume
+              hostPath:
+                path: /optscale/cleanmongodb/archive
+                type: DirectoryOrCreate

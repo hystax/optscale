@@ -379,6 +379,16 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             description: Application id
             required: true
             type: string
+        -   name: last_runs
+            in: query
+            description: Number of last runs
+            required: false
+            type: integer
+        -   name: last_leaderboards
+            in: query
+            description: Number of last leaderboards
+            required: false
+            type: integer
         responses:
             200:
                 description: Organization applications list
@@ -447,7 +457,7 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             type: integer
                             description: |
                                 Number of runs
-                        runs:
+                        last_runs:
                             type: array
                             description: list of runs
                             items:
@@ -482,6 +492,32 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                                     description: list of executors
                                     items:
                                         type: string
+                        last_leaderboards:
+                            type: array
+                            description: list of leaderboard datasets
+                            items:
+                                type: object
+                            properties:
+                                leaderboard_id:
+                                    type: string
+                                    description: Leaderboard id
+                                dataset_ids:
+                                    type: array
+                                    description: list of dataset ids
+                                    items:
+                                        type: string
+                                name:
+                                    type: string
+                                    description: Leaderboard dataset name
+                                deleted_at:
+                                    type: integer
+                                    description: Deleted at timestamp
+                                created_at:
+                                    type: integer
+                                    description: Created at timestamp
+                                id:
+                                    type: string
+                                    description: Leaderboard dataset id
             401:
                 description: |
                     Unauthorized:
@@ -501,9 +537,12 @@ class ApplicationsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         """
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
+        last_runs = self.get_arg('last_runs', int, 0)
+        last_leaderboards = self.get_arg('last_leaderboards', int, 0)
         token = await self._get_profiling_token(organization_id)
         res = await run_task(self.controller.get, organization_id,
-                             application_id, token)
+                             application_id, token, last_runs=last_runs,
+                             last_leaderboards=last_leaderboards)
         self.write(json.dumps(res, cls=ModelEncoder))
 
     async def patch(self, organization_id, application_id, **kwargs):

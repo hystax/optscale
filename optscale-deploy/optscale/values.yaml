@@ -651,6 +651,8 @@ cleanmongodb:
   schedule: "*/3 * * * *"
   chunk_size: 500
   rows_limit: 10000
+  archive_enable:
+  file_max_rows: 10000
 
 trapper_scheduler:
   name: trapper-scheduler
@@ -979,9 +981,6 @@ cleanelkdb:
 # Set to true if you want to start/update cluster without touching existing config
 # Used when --update-only runkube flag is set
 skip_config_update: false
-
-# set to true to deploy HA Optscale on multi-master k8s cluster (tested with 3 nodes)
-ha: false
 
 ssl:
   # set to false to not force ssl redirect on k8s ingress

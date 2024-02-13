@@ -1,8 +1,9 @@
 import uuid
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from requests import HTTPError
 from requests.models import Response
+from freezegun import freeze_time
 from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
     TestProfilingBase)
 
@@ -254,12 +255,15 @@ class TestApplicationApi(TestProfilingBase):
         code, resp = self.client.application_get(self.org['id'], app['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['status'], 'created')
-
+        dt = int(datetime(2024, 2, 2).timestamp())
         for run_state, expected_status in enumerate([
             'running', 'completed', 'failed'
         ], start=1):
+            start = dt + run_state
+            finish = start + 1
             self._create_run(
-                self.org['id'], app['id'], ['i-1'], state=run_state)
+                self.org['id'], app['id'], ['i-1'], state=run_state,
+                start=start, finish=finish)
             _, resp = self.client.application_get(self.org['id'], app['id'])
             self.assertEqual(resp['status'], expected_status)
 
@@ -405,3 +409,104 @@ class TestApplicationApi(TestProfilingBase):
         )
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['description']), 999)
+
+    def test_get_invalid_params(self):
+        code, app = self.client.application_create(
+            self.org['id'], self.valid_application)
+        self.assertEqual(code, 201)
+        for value in ['invalid', True]:
+            code, resp = self.client.application_get(
+                self.org['id'], app['id'], last_runs=value)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0217')
+            code, resp = self.client.application_get(
+                self.org['id'], app['id'], last_leaderboards=value)
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0217')
+
+    def test_application_last_runs(self):
+        code, app = self.client.application_create(
+            self.org['id'], self.valid_application)
+        self.assertEqual(code, 201)
+        now = int(datetime(2024, 10, 10, 12, 15).timestamp())
+        self._create_run(self.org['id'], app['id'], ['i-1'],
+                         start=now - 2, finish=now, data={'loss': 10})
+        self._create_run(self.org['id'], app['id'], ['i-2'], start=now - 5,
+                         finish=now - 3, data={'loss': 55})
+        code, resp = self.client.application_get(self.org['id'], app['id'])
+        self.assertEqual(code, 200)
+        self.assertIsNone(resp.get('last_runs'))
+
+        code, resp = self.client.application_get(self.org['id'], app['id'],
+                                                 last_runs=1)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['last_runs']), 1)
+        self.assertEqual(resp['last_runs'][0]['finish'], now)
+
+        code, resp = self.client.application_get(self.org['id'], app['id'],
+                                                 last_runs=10)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['last_runs']), 2)
+        self.assertTrue(resp['last_runs'][0]['start'], now - 2)
+        self.assertTrue(resp['last_runs'][1]['start'], now - 3)
+
+    def test_application_last_leaderboards(self):
+        _, app = self.client.application_create(
+            self.org['id'], self.valid_application)
+        goal1 = self._create_goal(self.org['id'], key='goal1_key')
+        leaderboard = {
+            'primary_goal': goal1['id'],
+            'other_goals': [],
+            'grouping_tags': ['test_tag'],
+            'group_by_hp': True,
+            'filters': [
+                 {
+                    'id': goal1['id'],
+                    'min': 1,
+                    'max': 100
+                 }
+            ],
+        }
+        _, leaderboard = self.client.leaderboard_create(
+            self.org['id'], app['id'], leaderboard)
+        valid_dataset = {
+            'path': 's3://ml-bucket/dataset',
+            'name': 'Test',
+            'description': 'Test ML dataset',
+            'labels': ['test', 'demo'],
+            'training_set': {
+                'path': 's3://ml-bucket/training_set',
+                'timespan_from': 1698740386,
+                'timespan_to': 1698741386
+            },
+            'validation_set': {
+                'path': 's3://ml-bucket/validation_set',
+                'timespan_from': 1698740386,
+                'timespan_to': 1698741386
+            }
+        }
+        _, dataset = self.client.dataset_create(self.org['id'], valid_dataset)
+        dt = datetime(2023, 10, 10, tzinfo=timezone.utc)
+        with freeze_time(dt + timedelta(days=1)):
+            self.client.leaderboard_dataset_create(
+                self.org['id'], "test", leaderboard['id'], [dataset['id']])
+        with freeze_time(dt):
+            self.client.leaderboard_dataset_create(
+                self.org['id'], "test2", leaderboard['id'], [dataset['id']])
+        code, resp = self.client.application_get(self.org['id'], app['id'])
+        self.assertEqual(code, 200)
+        self.assertIsNone(resp.get('last_leaderboards'))
+
+        code, resp = self.client.application_get(
+            self.org['id'], app['id'], last_leaderboards=1)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['last_leaderboards']), 1)
+        self.assertEqual(resp['last_leaderboards'][0]['name'], 'test')
+
+        code, resp = self.client.application_get(
+            self.org['id'], app['id'], last_leaderboards=10)
+        self.assertEqual(len(resp['last_leaderboards']), 2)
+        self.assertEqual(resp['last_leaderboards'][0]['created_at'],
+                         int((dt + timedelta(days=1)).timestamp()))
+        self.assertEqual(resp['last_leaderboards'][1]['created_at'],
+                         int(dt.timestamp()))

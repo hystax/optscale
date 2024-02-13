@@ -1,0 +1,7 @@
+pytest==7.4.2
+pytest-asyncio==0.21.1
+pytest-mock==3.11.1
+sanic-testing==23.6.0
+mongomock-motor==0.0.21
+pycodestyle==2.11.0
+pylint==3.0.2

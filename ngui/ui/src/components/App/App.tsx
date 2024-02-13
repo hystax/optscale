@@ -5,10 +5,10 @@ import LayoutWrapper from "components/LayoutWrapper";
 import CommunityDocsContextProvider from "contexts/CommunityDocsContext/CommunityDocsContextProvider";
 import { useApiData } from "hooks/useApiData";
 import { useOrganizationIdQueryParameterListener } from "hooks/useOrganizationIdQueryParameterListener";
-import { useRootData } from "hooks/useRootData";
-import { SIGNOUT_OPTIONS } from "reducers/signoutOptions/reducer";
-import { LOGIN } from "urls";
+import { LOGIN, USER_EMAIL_QUERY_PARAMETER_NAME } from "urls";
 import mainMenu from "utils/menus";
+import { formQueryString, getPathname, getQueryParams } from "utils/network";
+import { isEmpty } from "utils/objects";
 import { routes } from "utils/routes";
 
 const RouteContent = ({ component, layout, context }) => (
@@ -16,11 +16,23 @@ const RouteContent = ({ component, layout, context }) => (
 );
 
 const LoginNavigation = () => {
-  const {
-    rootData: { next, userEmail }
-  } = useRootData(SIGNOUT_OPTIONS);
+  const currentPathName = getPathname();
+  const currentQueryParams = getQueryParams();
 
-  const to = `${LOGIN}?next=${next}&userEmail=${userEmail}`;
+  const { [USER_EMAIL_QUERY_PARAMETER_NAME]: email, ...restQueryParams } = currentQueryParams;
+
+  const getNextParameter = () => {
+    const nextRoute = currentPathName;
+    const nextRouteQueryParams = isEmpty(restQueryParams) ? "" : `?${formQueryString(restQueryParams).replace(/&/g, "%26")}`;
+
+    return `next=${nextRoute}${nextRouteQueryParams}`;
+  };
+
+  const getEmailParameter = () => `${USER_EMAIL_QUERY_PARAMETER_NAME}=${email}`;
+
+  const parametersString = [getNextParameter(), ...(email ? [getEmailParameter()] : [])].join("&");
+
+  const to = `${LOGIN}?${parametersString}`;
 
   return <Navigate to={to} />;
 };
