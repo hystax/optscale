@@ -19,7 +19,7 @@ const MetricChart = ({ lines, formatYAxis, emptyMessageId, legend, yFormat, isLo
           margin: {
             left: marginLeft,
             top: 5,
-            bottom: 20,
+            bottom: 25,
             right: 32
           }
         }}
