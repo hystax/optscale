@@ -6,6 +6,7 @@ import { GET_TOKEN } from "api/auth/actionTypes";
 import ButtonLoader from "components/ButtonLoader";
 import Invitations from "components/Invitations";
 import Logo from "components/Logo";
+import { getLoginRedirectionPath } from "containers/AuthorizationContainer/AuthorizationContainer";
 import { useApiData } from "hooks/useApiData";
 import { SPACING_6 } from "utils/layouts";
 import useStyles from "./AcceptInvitations.styles";
@@ -45,11 +46,15 @@ const AcceptInvitations = ({ invitations = [], activateScope, isLoadingProps = {
       </Box>
       <Box>
         <ButtonLoader
-          messageId="goToDashboard"
+          messageId="proceedToOptScale"
           size="medium"
           color="primary"
           variant="contained"
-          onClick={() => activateScope(userEmail)}
+          onClick={() =>
+            activateScope(userEmail, {
+              getOnSuccessRedirectionPath: ({ userEmail: scopeUserEmail }) => getLoginRedirectionPath(scopeUserEmail)
+            })
+          }
           isLoading={isGetOrganizationsLoading || isCreateOrganizationLoading || isUpdateInvitationLoading}
           startIcon={<NavigationIcon />}
           customWrapperClass={classes.dashboardButton}

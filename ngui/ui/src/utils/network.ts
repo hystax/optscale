@@ -59,7 +59,7 @@ export const removeQueryParam = (key) => {
  * // queryString = "age=27&name=Sally&surname=Wong"
  *
  */
-export const formQueryString = (params) => queryString.stringify(params);
+export const formQueryString = (params: Record<string, unknown>) => queryString.stringify(params);
 
 export const getMenuRootUrl = (menu) => {
   const currentPath = getPathname();

@@ -15,10 +15,20 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { HOME_FIRST_TIME, HOME, REGISTER, LOGIN } from "urls";
 import { getQueryParams } from "utils/network";
 
+export const getLoginRedirectionPath = (scopeUserEmail: string) => {
+  const { next = HOME, userEmail: userEmailQueryParameter } = getQueryParams();
+
+  if (userEmailQueryParameter) {
+    return userEmailQueryParameter === scopeUserEmail ? next : HOME;
+  }
+
+  return next;
+};
+
 const AuthorizationContainer = () => {
   const { pathname } = useLocation();
 
-  const { invited: queryInvited, next = HOME, userEmail: userEmailQueryParameter } = getQueryParams();
+  const { invited: queryInvited, next = HOME } = getQueryParams();
 
   const { authorize, register, isRegistrationInProgress, isAuthInProgress, thirdPartySignIn, setIsAuthInProgress } =
     useNewAuthorization();
@@ -38,19 +48,11 @@ const AuthorizationContainer = () => {
     );
   };
 
-  const getLoginSuccessRedirectionPath = ({ userEmail }) => {
-    if (userEmailQueryParameter) {
-      return userEmailQueryParameter === userEmail ? next : HOME;
-    }
-
-    return next;
-  };
-
   const onSubmitLogin = ({ email, password }) => {
     authorize(
       { email, password },
       {
-        getOnSuccessRedirectionPath: getLoginSuccessRedirectionPath
+        getOnSuccessRedirectionPath: ({ userEmail }) => getLoginRedirectionPath(userEmail)
       }
     );
   };
@@ -59,7 +61,7 @@ const AuthorizationContainer = () => {
     thirdPartySignIn(
       { provider, params },
       {
-        getOnSuccessRedirectionPath: getLoginSuccessRedirectionPath
+        getOnSuccessRedirectionPath: ({ userEmail }) => getLoginRedirectionPath(userEmail)
       }
     );
 

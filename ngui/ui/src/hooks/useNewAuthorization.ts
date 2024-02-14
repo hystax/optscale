@@ -10,7 +10,7 @@ import { ACCEPT_INVITATIONS, HOME } from "urls";
 import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
 import { checkError } from "utils/api";
 import { isEmpty } from "utils/arrays";
-import { getQueryParams } from "utils/network";
+import { formQueryString, getQueryParams } from "utils/network";
 import { useApiState } from "./useApiState";
 
 export const PROVIDERS = Object.freeze({
@@ -115,7 +115,7 @@ export const useNewAuthorization = () => {
               const { userEmail } = getState()?.[AUTH]?.[GET_TOKEN] ?? {};
               Promise.resolve(activateScope(userEmail, { getOnSuccessRedirectionPath }));
             } else {
-              navigate(ACCEPT_INVITATIONS);
+              navigate(`${ACCEPT_INVITATIONS}?${formQueryString(getQueryParams())}`);
             }
           })
           .catch(() => {
@@ -140,7 +140,7 @@ export const useNewAuthorization = () => {
               const { userEmail } = getState()?.[AUTH]?.[GET_TOKEN] ?? {};
               Promise.resolve(activateScope(userEmail, { getOnSuccessRedirectionPath }));
             } else {
-              navigate(ACCEPT_INVITATIONS);
+              navigate(`${ACCEPT_INVITATIONS}?${formQueryString(getQueryParams())}`);
             }
           })
           .catch(() => {
