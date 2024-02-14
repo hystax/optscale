@@ -382,7 +382,12 @@ class CleanMongoDB(object):
         while cloud_account_id and all(
                 limit > 0 for limit in self.cloud_account_limits()):
             self._delete_by_cloud_account(cloud_account_id)
+            cleaned_cloud_account_id = cloud_account_id
             cloud_account_id = self.get_deleted_cloud_account()
+            if cleaned_cloud_account_id == cloud_account_id:
+                # last cloud account that can't be cleaned up in current
+                # iteration, should be cleaned in the next run
+                break
         LOG.info('Cloud accounts processing is completed')
 
     def clean_mongo(self):
