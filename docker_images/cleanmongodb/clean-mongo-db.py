@@ -224,8 +224,10 @@ class CleanMongoDB(object):
         return all_applications_deleted
 
     def get_deleted_cloud_account(self):
+        result = None
         session = self.get_session()
-        stmt = """SELECT cloudaccount.id FROM cloudaccount
+        stmt = """SELECT cloudaccount.id, organization.is_demo
+                  FROM cloudaccount
                   JOIN organization
                   ON organization.id = cloudaccount.organization_id
                   WHERE (organization.deleted_at != 0
@@ -233,7 +235,9 @@ class CleanMongoDB(object):
                   AND cloudaccount.cleaned_at = 0
                   LIMIT 1"""
         try:
-            result = session.execute(stmt).scalar()
+            result = next(session.execute(stmt))
+        except StopIteration:
+            pass
         finally:
             session.close()
         return result
@@ -356,14 +360,14 @@ class CleanMongoDB(object):
             info = self.get_deleted_organization_info()
         LOG.info('Organizations ML objects processing is completed')
 
-    def _delete_by_cloud_account(self, cloud_account_id):
+    def _delete_by_cloud_account(self, cloud_account_id, is_demo):
         restapi_collections = [self.mongo_client.restapi.raw_expenses,
                                self.mongo_client.restapi.resources]
         LOG.info(f'Started processing for cloud account {cloud_account_id}')
         for collection in restapi_collections:
             archive = False
             if (collection == self.mongo_client.restapi.raw_expenses
-                    and self.archive_enable):
+                    and self.archive_enable and not is_demo):
                 archive = True
             self.limits[collection] = self.delete_in_chunks(
                     collection, 'cloud_account_id', cloud_account_id,
@@ -378,12 +382,12 @@ class CleanMongoDB(object):
         return [self.limits[x] for x in collections]
 
     def delete_by_cloud_account(self):
-        cloud_account_id = self.get_deleted_cloud_account()
+        cloud_account_id, is_demo = self.get_deleted_cloud_account()
         while cloud_account_id and all(
                 limit > 0 for limit in self.cloud_account_limits()):
-            self._delete_by_cloud_account(cloud_account_id)
+            self._delete_by_cloud_account(cloud_account_id, is_demo)
             cleaned_cloud_account_id = cloud_account_id
-            cloud_account_id = self.get_deleted_cloud_account()
+            cloud_account_id, is_demo = self.get_deleted_cloud_account()
             if cleaned_cloud_account_id == cloud_account_id:
                 # last cloud account that can't be cleaned up in current
                 # iteration, should be cleaned in the next run
