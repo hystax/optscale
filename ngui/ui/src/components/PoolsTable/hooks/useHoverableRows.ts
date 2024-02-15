@@ -14,8 +14,8 @@ const useHoverableRows = ({ onClick, rootPool, isGetPoolDataReady }) => {
     queryParamName: POOL_QUERY_PARAM_NAME,
     defaultValue: ""
   });
-  // No id means self-assigned sub-pool
-  const handleRowClick = ({ parent_id: parentId, id = parentId }) => {
+
+  const handleRowClick = ({ id }) => {
     setSelectedPool(id);
     onClick(id);
   };

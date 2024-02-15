@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useTheme } from "@mui/material/styles";
 import { useRootData } from "hooks/useRootData";
-import { isCostOverLimit, isForecastOverLimit } from "utils/pools";
+import { isCostOverLimit, isForecastOverLimit, hasLimit } from "utils/pools";
 import { EXPANDED_POOL_ROWS } from "../reducer";
 
 const checkPoolAndSubpools = (parent, subPools, isExpanded = false) => {
@@ -15,7 +15,7 @@ const checkPoolAndSubpools = (parent, subPools, isExpanded = false) => {
     return checks;
   }
 
-  subPools.every((pool) => {
+  subPools?.every((pool) => {
     if (pool.parent_id === parent.id) {
       const childCheck = checkPoolAndSubpools(pool, subPools);
 
@@ -38,9 +38,9 @@ const useGetRowStyle = (pools) => {
   const { rootData: expandedPoolIds = [] } = useRootData(EXPANDED_POOL_ROWS);
   const getRowStyle = useCallback(
     (original) => {
-      const { hasLimit, id } = original;
+      const { limit, id } = original;
 
-      if (!hasLimit) {
+      if (!hasLimit(limit)) {
         return noAttentionStyle;
       }
 
