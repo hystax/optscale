@@ -32,10 +32,10 @@ const getCaptionedCellProps = ({
     {
       key: `statuses-${resourceId}`,
       node: (
-        <Box display="flex" gap={1}>
+        <Box display="flex" flexDirection="column">
           {showIsActive && (
             <IconLabel
-              icon={<Circle color="success" mr={0.5} />}
+              icon={<Circle color="success" />}
               label={
                 <Typography variant="caption" noWrap>
                   <FormattedMessage id="active" />
@@ -46,18 +46,10 @@ const getCaptionedCellProps = ({
           {powerScheduleId && <OnScheduleLabel powerScheduleId={powerScheduleId} />}
           {showIsConstraintViolated && (
             <IconLabel
-              icon={
-                <ErrorOutlineOutlinedIcon
-                  fontSize="inherit"
-                  color="error"
-                  sx={{
-                    mr: 0.5
-                  }}
-                />
-              }
+              icon={<ErrorOutlineOutlinedIcon fontSize="inherit" color="error" />}
               label={
                 <Link to={`${getResourceUrl(resourceId)}?tab=constraints`} component={RouterLink}>
-                  <Typography variant="caption">
+                  <Typography variant="caption" noWrap>
                     <FormattedMessage id="constraintViolations" />
                   </Typography>
                 </Link>
