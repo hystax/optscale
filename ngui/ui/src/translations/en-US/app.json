@@ -523,7 +523,6 @@
   "deletePoolNotice": "This action is <strong>irreversible.</strong>{break}All resources in this pool will be reassigned to its parent pool. Owners will be remapped according to their permissions in the new pool.",
   "deletePoolQuestion": "Are you sure you want to delete the pool <strong>{pool}</strong>?",
   "deletePoolTitle": "Delete Pool",
-  "deletePowerSchedule": "Delete power schedule",
   "deletePowerScheduleQuestion": "Are you sure you want to delete the power schedule <strong>{name}</strong>?",
   "deletePowerScheduleTitle": "Delete Power Schedule",
   "deletePropertyTitle": "Delete Property «{name}»",

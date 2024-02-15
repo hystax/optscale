@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 import PlayCircleOutlineOutlinedIcon from "@mui/icons-material/PlayCircleOutlineOutlined";
 import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOutlined";
 import StopCircleOutlinedIcon from "@mui/icons-material/StopCircleOutlined";
 import { Box, Link, Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import ActionBar from "components/ActionBar";
 import IconLabel from "components/IconLabel";
 import IntervalTimeAgo from "components/IntervalTimeAgo";
@@ -26,12 +27,23 @@ import TableLoader from "components/TableLoader";
 import Tooltip from "components/Tooltip";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { POWER_SCHEDULES } from "urls";
+import { PowerScheduleResponse } from "services/PowerScheduleService";
+import { POWER_SCHEDULES, getEditPowerScheduleUrl } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { powerScheduleInstance, resourceLocation, resourcePoolOwner, size, tags } from "utils/columns";
 import { SUMMARY_VALUE_COMPONENT_TYPES } from "utils/constants";
 import { formatTimeString } from "utils/datetime";
 import { SPACING_4 } from "utils/layouts";
+
+type PowerScheduleDetailsProps = {
+  powerSchedule: PowerScheduleResponse;
+  onActivate: () => void;
+  onDeactivate: () => void;
+  isLoadingProps?: {
+    isGetPowerScheduleLoading?: boolean;
+    isUpdatePowerScheduleLoading?: boolean;
+  };
+};
 
 const Details = ({
   timeZone,
@@ -288,7 +300,9 @@ const ResourcesOnSchedule = ({ resources, isLoading = false }) => {
   );
 };
 
-const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadingProps = {} }) => {
+const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadingProps = {} }: PowerScheduleDetailsProps) => {
+  const navigate = useNavigate();
+
   const { isGetPowerScheduleLoading = false, isUpdatePowerScheduleLoading = false } = isLoadingProps;
 
   const openSideModal = useOpenSideModal();
@@ -335,6 +349,16 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
       isLoading: isGetPowerScheduleLoading
     },
     items: [
+      {
+        key: "edit",
+        icon: <EditOutlinedIcon fontSize="small" />,
+        messageId: "edit",
+        type: "button",
+        dataTestId: "btn_edit_power_schedule",
+        isLoading: isGetPowerScheduleLoading,
+        action: () => navigate(getEditPowerScheduleUrl(id)),
+        requiredActions: ["EDIT_PARTNER"]
+      },
       enabled
         ? {
             key: "deactivate",
@@ -343,7 +367,8 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
             dataTestId: `btn_deactivate`,
             type: "button",
             action: onDeactivate,
-            isLoading: isGetPowerScheduleLoading || isUpdatePowerScheduleLoading
+            isLoading: isGetPowerScheduleLoading || isUpdatePowerScheduleLoading,
+            requiredActions: ["EDIT_PARTNER"]
           }
         : {
             key: "activate",
@@ -352,7 +377,8 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
             dataTestId: `btn_activate`,
             type: "button",
             action: onActivate,
-            isLoading: isGetPowerScheduleLoading || isUpdatePowerScheduleLoading
+            isLoading: isGetPowerScheduleLoading || isUpdatePowerScheduleLoading,
+            requiredActions: ["EDIT_PARTNER"]
           },
       {
         key: "delete",
@@ -361,7 +387,8 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
         type: "button",
         dataTestId: "btn_delete_power_schedule",
         isLoading: isGetPowerScheduleLoading,
-        action: () => openSideModal(DeletePowerScheduleModal, { id, name })
+        action: () => openSideModal(DeletePowerScheduleModal, { id, name }),
+        requiredActions: ["EDIT_PARTNER"]
       }
     ]
   };

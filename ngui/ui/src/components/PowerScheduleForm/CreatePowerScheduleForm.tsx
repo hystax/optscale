@@ -11,11 +11,20 @@ import {
   PowerOffField,
   TimeZoneField
 } from "./FormElements";
+import { type FormValues } from "./types";
 
-const CreatePowerScheduleForm = ({ onSubmit, onCancel, isLoadingProps = {} }) => {
+type CreatePowerScheduleFormProps = {
+  onSubmit: (formData: FormValues) => void;
+  onCancel: () => void;
+  isLoadingProps?: {
+    isSubmitLoading?: boolean;
+  };
+};
+
+const CreatePowerScheduleForm = ({ onSubmit, onCancel, isLoadingProps = {} }: CreatePowerScheduleFormProps) => {
   const { isSubmitLoading = false } = isLoadingProps;
 
-  const methods = useForm({
+  const methods = useForm<FormValues>({
     defaultValues: {
       [FIELD_NAMES.NAME]: "",
       [FIELD_NAMES.POWER_ON.FIELD]: {
@@ -48,7 +57,7 @@ const CreatePowerScheduleForm = ({ onSubmit, onCancel, isLoadingProps = {} }) =>
           <TimeZoneField />
           <InitiationDateField />
           <ExpirationDateField />
-          <FormButtons onCancel={onCancel} isLoading={isSubmitLoading} />
+          <FormButtons submitButtonMessageId="create" onCancel={onCancel} isLoading={isSubmitLoading} />
         </form>
       </FormProvider>
     </Box>

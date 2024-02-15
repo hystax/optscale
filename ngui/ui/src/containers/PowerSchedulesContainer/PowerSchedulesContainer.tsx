@@ -7,9 +7,6 @@ const PowerSchedulesContainer = () => {
 
   const { isLoading: isUpdatePowerScheduleLoading, onUpdate, updatingEntityId } = useUpdate();
 
-  const onActivate = (powerScheduleId) => onUpdate(powerScheduleId, { enabled: true });
-  const onDeactivate = (powerScheduleId) => onUpdate(powerScheduleId, { enabled: false });
-
   return (
     <PowerSchedules
       isLoadingProps={{
@@ -18,8 +15,8 @@ const PowerSchedulesContainer = () => {
       }}
       powerSchedules={powerSchedules}
       updatingEntityId={updatingEntityId}
-      onActivate={onActivate}
-      onDeactivate={onDeactivate}
+      onActivate={(powerScheduleId) => onUpdate(powerScheduleId, { enabled: true })}
+      onDeactivate={(powerScheduleId) => onUpdate(powerScheduleId, { enabled: false })}
     />
   );
 };

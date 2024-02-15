@@ -470,8 +470,10 @@ const POWER_SCHEDULE_IDENTIFIER = ":powerScheduleId";
 export const POWER_SCHEDULES = concatenateUrl([POWER_SCHEDULES_BASE]);
 export const POWER_SCHEDULE_DETAILS = concatenateUrl([POWER_SCHEDULES_BASE, POWER_SCHEDULE_IDENTIFIER]);
 export const CREATE_POWER_SCHEDULE = concatenateUrl([POWER_SCHEDULES_BASE, CREATE]);
+export const EDIT_POWER_SCHEDULE = concatenateUrl([POWER_SCHEDULES_BASE, POWER_SCHEDULE_IDENTIFIER, EDIT]);
 
-export const getPowerScheduleDetailsUrl = (id) => POWER_SCHEDULE_DETAILS.replace(POWER_SCHEDULE_IDENTIFIER, id);
+export const getPowerScheduleDetailsUrl = (id: string) => POWER_SCHEDULE_DETAILS.replace(POWER_SCHEDULE_IDENTIFIER, id);
+export const getEditPowerScheduleUrl = (id: string) => EDIT_POWER_SCHEDULE.replace(POWER_SCHEDULE_IDENTIFIER, id);
 
 // External urls
 export const PRODUCTION = "https://my.optscale.com";

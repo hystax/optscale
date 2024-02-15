@@ -3,12 +3,12 @@ import PowerScheduleDetails from "components/PowerScheduleDetails";
 import PowerScheduleService from "services/PowerScheduleService";
 
 const PowerScheduleDetailsContainer = () => {
-  const { powerScheduleId } = useParams();
+  const { powerScheduleId } = useParams() as { powerScheduleId: string };
 
   const { useGet, useUpdate } = PowerScheduleService();
 
   const { isLoading: isGetPowerScheduleLoading, powerSchedule } = useGet(powerScheduleId);
-  const { isLoading: isUpdatePowerScheduleLoading, onUpdate } = useUpdate(powerScheduleId);
+  const { isLoading: isUpdatePowerScheduleLoading, onUpdate } = useUpdate();
 
   const onActivate = () => onUpdate(powerScheduleId, { enabled: true });
   const onDeactivate = () => onUpdate(powerScheduleId, { enabled: false });

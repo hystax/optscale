@@ -4,7 +4,7 @@ import { isError as getIsError, isTtlExpired } from "utils/api";
 
 export const useApiState = (
   targetAction: string,
-  requestParams?: { [key: string]: unknown }
+  requestParams?: string | { [key: string]: unknown }
 ): {
   isLoading: boolean;
   isError: boolean;

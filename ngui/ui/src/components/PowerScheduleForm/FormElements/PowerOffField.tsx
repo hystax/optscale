@@ -6,7 +6,7 @@ import Selector, { Item, ItemContent } from "components/Selector";
 import { MERIDIEM_NAMES } from "utils/datetime";
 import { FIELD_NAMES, TIME_VALUES } from "../constants";
 
-const PowerOnField = ({ name = FIELD_NAMES.POWER_ON.FIELD }) => {
+const PowerOffField = ({ name = FIELD_NAMES.POWER_OFF.FIELD, isLoading = false }) => {
   const {
     formState: { errors },
     control
@@ -27,11 +27,12 @@ const PowerOnField = ({ name = FIELD_NAMES.POWER_ON.FIELD }) => {
         <FormControl fullWidth>
           <Box display="flex" alignItems="center">
             <Selector
-              id="power-on-selector"
+              id="power-off-selector"
               margin="none"
+              isLoading={isLoading}
               fullWidth
               required
-              value={value[FIELD_NAMES.POWER_ON.TIME]}
+              value={value[FIELD_NAMES.POWER_OFF.TIME]}
               error={!!errors[name]}
               onChange={(newTime) =>
                 onChange({
@@ -39,7 +40,7 @@ const PowerOnField = ({ name = FIELD_NAMES.POWER_ON.FIELD }) => {
                   time: newTime
                 })
               }
-              labelMessageId="instancePowerOn"
+              labelMessageId="instancePowerOff"
               sx={{
                 marginRight: (theme) => theme.spacing(1)
               }}
@@ -54,8 +55,8 @@ const PowerOnField = ({ name = FIELD_NAMES.POWER_ON.FIELD }) => {
             {Object.values(MERIDIEM_NAMES).map((daytimeName) => (
               <Day
                 key={daytimeName}
-                outlined={value[FIELD_NAMES.POWER_ON.TIME_OF_DAY] === daytimeName}
-                filled={value[FIELD_NAMES.POWER_ON.TIME_OF_DAY] === daytimeName}
+                outlined={value[FIELD_NAMES.POWER_OFF.TIME_OF_DAY] === daytimeName}
+                filled={value[FIELD_NAMES.POWER_OFF.TIME_OF_DAY] === daytimeName}
                 onClick={() =>
                   onChange({
                     ...value,
@@ -73,4 +74,4 @@ const PowerOnField = ({ name = FIELD_NAMES.POWER_ON.FIELD }) => {
   );
 };
 
-export default PowerOnField;
+export default PowerOffField;
