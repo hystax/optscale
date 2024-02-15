@@ -8,8 +8,10 @@ from tools.cloud_adapter.clouds.aws import Aws
 from tools.cloud_adapter.clouds.azure import Azure
 from tools.cloud_adapter.clouds.nebius import Nebius
 from tools.cloud_adapter.clouds.gcp import Gcp
-from tools.cloud_adapter.exceptions import RegionNotFoundException
-from tools.optscale_exceptions.common_exc import WrongArgumentsException
+from tools.cloud_adapter.exceptions import (RegionNotFoundException,
+                                            ForbiddenException)
+from tools.optscale_exceptions.common_exc import (
+    WrongArgumentsException, ForbiddenException as OptForbidden)
 from insider.insider_api.controllers.base import (BaseController,
                                                   BaseAsyncControllerWrapper,
                                                   CachedThreadPoolExecutor,
@@ -381,6 +383,8 @@ class FlavorController(BaseController):
                 raise WrongArgumentsException(Err.OI0012, [region])
             except ValueError as ex:
                 raise WrongArgumentsException(Err.OI0017, [str(ex)])
+            except ForbiddenException:
+                raise OptForbidden(Err.OI0020, [])
 
         source_flavor_family = source_flavor_id.split("-")[0]
         flavors = []

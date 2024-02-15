@@ -2,7 +2,8 @@ import json
 import logging
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
                                                   UnauthorizedException,
-                                                  NotFoundException)
+                                                  NotFoundException,
+                                                  ForbiddenException)
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
 from insider.insider_api.controllers.flavor import FlavorAsyncController
@@ -221,5 +222,7 @@ class FlavorsHandler(SecretHandler):
             raise OptHTTPError.from_opt_exception(404, ex)
         except UnauthorizedException as ex:
             raise OptHTTPError.from_opt_exception(401, ex)
+        except ForbiddenException as ex:
+            raise OptHTTPError.from_opt_exception(403, ex)
         self.set_status(200)
         self.write(json.dumps(res, cls=ModelEncoder))

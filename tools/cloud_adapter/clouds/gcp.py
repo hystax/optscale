@@ -8,6 +8,7 @@ import logging
 import requests
 import requests.exceptions as requests_exceptions
 from google.api_core import retry, exceptions as api_exceptions
+from google.api_core.exceptions import Forbidden
 from google.auth import exceptions as auth_exceptions
 from google.cloud import bigquery
 from google.cloud import compute
@@ -18,7 +19,7 @@ import tools.cloud_adapter.exceptions
 import tools.cloud_adapter.model
 from tools.cloud_adapter.clouds.base import CloudBase
 from tools.cloud_adapter.exceptions import (
-    RegionNotFoundException, ResourceNotFound
+    RegionNotFoundException, ResourceNotFound, ForbiddenException
 )
 from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 
@@ -1050,8 +1051,12 @@ class Gcp(CloudBase):
 
     def _query_prices(self, sku_desription_pattern: str):
         query = self._build_pricing_query(sku_desription_pattern)
-        query_job = self.bigquery_client.query(query, **DEFAULT_KWARGS)
-        return query_job.result()
+        try:
+            query_job = self.bigquery_client.query(query, **DEFAULT_KWARGS)
+            result = query_job.result()
+        except Forbidden as ex:
+            raise ForbiddenException(str(ex))
+        return result
 
     @staticmethod
     def _parse_price(row) -> float:

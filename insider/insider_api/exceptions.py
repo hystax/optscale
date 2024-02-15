@@ -78,3 +78,6 @@ class Err(enum.Enum):
     OI0019 = [
         "Invalid credentials: %s"
     ]
+    OI0020 = [
+        "Forbidden"
+    ]
