@@ -85,7 +85,7 @@ const OrganizationSelector = ({
         isLoading={isLoading}
         sx={isDownSm ? HIDDEN_SELECTOR_SX : SELECTOR_SX}
       >
-        {organizations
+        {[...organizations]
           .sort(({ name: nameA }, { name: nameB }) => nameA.localeCompare(nameB))
           .map((obj) => (
             <Item key={obj.name} value={obj.id}>
@@ -117,7 +117,7 @@ const OrganizationSelector = ({
           disabled={isDemo}
           tooltipTitle={isDemo ? <FormattedMessage id="notAvailableInLiveDemo" /> : null}
         >
-          <FormattedMessage id="organizationsOverview" />
+          <FormattedMessage id="createNewOrganization" />
         </Button>
       </Selector>
     </Box>
