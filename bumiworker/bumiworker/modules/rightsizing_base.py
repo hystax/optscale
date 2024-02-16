@@ -204,6 +204,8 @@ class RightsizingBase(ModuleBase):
                 **params)
             return flavor
         except HTTPError as ex:
+            if ex.response.status_code == 403:
+                raise
             LOG.warning('Unable to get %s flavor: %s', mode, str(ex))
 
     def _handle_instances(self, current_flavor_params, cloud_account,

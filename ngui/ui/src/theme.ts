@@ -464,6 +464,7 @@ const getThemeConfig = (settings = {}) => {
         },
         styleOverrides: {
           root: {
+            paddingLeft: "2rem",
             // https://github.com/mui-org/material-ui/issues/29842
             "&.Mui-selected": {
               backgroundColor: ACTION_SELECTED,

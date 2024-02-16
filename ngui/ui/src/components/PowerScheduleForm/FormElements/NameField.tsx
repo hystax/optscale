@@ -1,11 +1,12 @@
 import { useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Input from "components/Input";
+import InputLoader from "components/InputLoader";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
 import { notOnlyWhiteSpaces } from "utils/validation";
 import { FIELD_NAMES } from "../constants";
 
-const NameField = ({ name = FIELD_NAMES.NAME }) => {
+const NameField = ({ name = FIELD_NAMES.NAME, isLoading = false }) => {
   const {
     register,
     formState: { errors }
@@ -13,7 +14,9 @@ const NameField = ({ name = FIELD_NAMES.NAME }) => {
 
   const intl = useIntl();
 
-  return (
+  return isLoading ? (
+    <InputLoader fullWidth />
+  ) : (
     <Input
       dataTestId="input_name"
       label={<FormattedMessage id="name" />}

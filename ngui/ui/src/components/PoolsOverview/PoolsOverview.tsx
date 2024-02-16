@@ -1,10 +1,8 @@
-import { useMemo } from "react";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import Grid from "@mui/material/Grid";
 import ActionBar from "components/ActionBar";
 import PageContentWrapper from "components/PageContentWrapper";
 import PoolsTable from "components/PoolsTable";
-import { patchPools } from "components/PoolsTable/utils";
 import PoolTypeIcon from "components/PoolTypeIcon";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ASSIGNMENT_RULES } from "urls";
@@ -34,19 +32,17 @@ const PoolsOverview = ({ data, isLoading, isDataReady, isGetPoolAllowedActionsLo
     ]
   };
 
-  const poolsPatched = useMemo(() => patchPools(data), [data]);
-
   return (
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
         <Grid container spacing={SPACING_2}>
           <Grid item>
-            <Summary data={poolsPatched} isLoading={isLoading} />
+            <Summary data={data} isLoading={isLoading} />
           </Grid>
           <Grid item xs={12}>
             <PoolsTable
-              rootPool={poolsPatched}
+              rootPool={data}
               isLoadingProps={{ isGetPoolLoading: isLoading, isGetPoolDataReady: isDataReady, isGetPoolAllowedActionsLoading }}
             />
           </Grid>

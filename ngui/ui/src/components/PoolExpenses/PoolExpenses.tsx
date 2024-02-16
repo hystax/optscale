@@ -4,66 +4,58 @@ import FormattedMoney from "components/FormattedMoney";
 import ProgressBar from "components/ProgressBar";
 import Tooltip from "components/Tooltip";
 import { FORMATTED_MONEY_TYPES, SUCCESS } from "utils/constants";
-import { percentXofY, round } from "utils/math";
+import { percentXofY, round, intPercentXofY } from "utils/math";
 
-type PoolCostProps = {
+type PoolExpensesProps = {
   limit: number;
   cost: number;
 };
 
-const PoolExpenses = ({ limit, cost }: PoolCostProps) => {
-  const remain = limit - cost;
+const NoLimit = ({ cost }: { cost: number }) => (
+  <Tooltip title={<FormattedMessage id="thisPoolHasNoLimit" />} placement="top">
+    <Typography component="span">
+      <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />
+    </Typography>
+  </Tooltip>
+);
 
-  const expensesCommonWidthStyles = { width: "100%", maxWidth: "150px" };
-  const expensesTextStyles = { fontWeight: "bold", display: "block", textAlign: "center" };
-  const costFormatted = <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />;
-  if (limit === 0) {
-    return (
-      <Tooltip title={<FormattedMessage id="thisPoolHasNoLimit" />}>
-        <Typography sx={{ ...expensesTextStyles, ...expensesCommonWidthStyles }}>{costFormatted}</Typography>
-      </Tooltip>
-    );
-  }
+const CostOverLimit = ({ cost, limit }: PoolExpensesProps) => {
+  const xTimesMoreValue = round(percentXofY(cost, limit), 1);
+  const xTimesMore = xTimesMoreValue === 1 ? "" : ` (x${xTimesMoreValue})`;
 
-  if (cost > limit) {
-    const getTimesMore = () => {
-      const timesMoreValue = round(percentXofY(cost, limit), 1);
-      return timesMoreValue !== 1 ? ` (x${timesMoreValue})` : "";
-    };
-    // self assigned pool can have 0 limit
-    const timesMore = limit !== 0 ? getTimesMore() : "";
+  return (
+    <Tooltip
+      title={
+        <FormattedMessage
+          id="thisMonthExpensesExceedThePoolLimitBy"
+          values={{
+            value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost - limit} />
+          }}
+        />
+      }
+      placement="top"
+    >
+      <Typography sx={{ fontWeight: "bold" }} color="error" component="span">
+        <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />
+        {xTimesMore}
+      </Typography>
+    </Tooltip>
+  );
+};
 
-    return (
-      <Tooltip
-        title={
-          <FormattedMessage
-            id="thisMonthExpensesExceedThePoolLimitBy"
-            values={{
-              value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={-remain} />
-            }}
-          />
-        }
-      >
-        <Typography sx={{ ...expensesTextStyles, ...expensesCommonWidthStyles }} color="error">
-          {costFormatted}
-          {timesMore}
-        </Typography>
-      </Tooltip>
-    );
-  }
+const CostUnderLimit = ({ cost, limit }: PoolExpensesProps) => {
+  const percent = intPercentXofY(cost, limit);
 
-  const xDividedByY = cost / limit;
-  const percent = xDividedByY * 100;
   return (
     <ProgressBar
-      wrapperSx={expensesCommonWidthStyles}
+      wrapperSx={{ width: "100%", maxWidth: "150px" }}
       tooltip={{
         show: cost !== 0,
         value: (
           <FormattedMessage
             id="leftX"
             values={{
-              value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={remain} />
+              value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={limit - cost} />
             }}
           />
         )
@@ -71,9 +63,21 @@ const PoolExpenses = ({ limit, cost }: PoolCostProps) => {
       color={SUCCESS}
       value={percent}
     >
-      {costFormatted}
+      <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />
     </ProgressBar>
   );
+};
+
+const PoolExpenses = ({ cost, limit }: PoolExpensesProps) => {
+  if (limit === 0) {
+    return <NoLimit cost={cost} />;
+  }
+
+  if (cost > limit) {
+    return <CostOverLimit cost={cost} limit={limit} />;
+  }
+
+  return <CostUnderLimit cost={cost} limit={limit} />;
 };
 
 export default PoolExpenses;

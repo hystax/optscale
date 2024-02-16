@@ -7,14 +7,19 @@ import { AddPoolModal, DeletePoolModal } from "components/SideModalManager/SideM
 import TableCellActions from "components/TableCellActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { getThisMonthPoolExpensesUrl, getThisMonthResourcesByPoolUrl } from "urls";
+import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SCOPE_TYPES } from "utils/constants";
 
-const RowActions = ({ row }) => {
-  const { parent_id: parentId, id, hasChildren, name, unallocated_limit: unallocatedLimit } = row.original;
-
+const RowActions = ({
+  row: {
+    original: { parent_id: parentId, id, name, unallocated_limit: unallocatedLimit },
+    subRows
+  }
+}) => {
   const navigate = useNavigate();
-
   const openSideModal = useOpenSideModal();
+
+  const hasChildren = !isEmptyArray(subRows);
 
   const getDeleteTooltip = () => {
     if (!parentId) {
@@ -56,7 +61,7 @@ const RowActions = ({ row }) => {
         e.stopPropagation();
         navigate(getThisMonthPoolExpensesUrl(id));
       },
-      dataTestId: `btn_see_in_ce_${row.id}`
+      dataTestId: `btn_see_in_ce_${id}`
     },
     {
       key: "delete",
@@ -68,12 +73,12 @@ const RowActions = ({ row }) => {
         e.stopPropagation();
         openSideModal(DeletePoolModal, { poolId: id });
       },
-      dataTestId: `btn_delete_${row.id}`,
+      dataTestId: `btn_delete_${id}`,
       requiredActions: ["MANAGE_POOLS"]
     }
   ];
 
-  return <TableCellActions entityType={SCOPE_TYPES.POOL} entityId={row.original.id} items={tableActions} />;
+  return <TableCellActions entityType={SCOPE_TYPES.POOL} entityId={id} items={tableActions} />;
 };
 
 export default RowActions;

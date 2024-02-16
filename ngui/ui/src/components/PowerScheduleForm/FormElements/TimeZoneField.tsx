@@ -2,6 +2,7 @@ import { Autocomplete, FormControl, Typography, createFilterOptions } from "@mui
 import { Controller, useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Input from "components/Input";
+import InputLoader from "components/InputLoader";
 import localeManager from "translations/react-intl-config";
 import { FIELD_NAMES } from "../constants";
 
@@ -41,13 +42,13 @@ const TIME_ZONE_NAMES = Object.fromEntries(
   })
 );
 
-const getTimeZoneString = (timeZone) => {
+const getTimeZoneString = (timeZone: string) => {
   const { shortOffsetZoneName, longGenericZoneName } = TIME_ZONE_NAMES[timeZone];
 
   return [timeZone, shortOffsetZoneName, longGenericZoneName].join(" ");
 };
 
-const TimeZoneField = ({ name = FIELD_NAMES.TIME_ZONE }) => {
+const TimeZoneField = ({ name = FIELD_NAMES.TIME_ZONE, isLoading = false }) => {
   const intl = useIntl();
 
   const {
@@ -55,7 +56,9 @@ const TimeZoneField = ({ name = FIELD_NAMES.TIME_ZONE }) => {
     formState: { errors }
   } = useFormContext();
 
-  return (
+  return isLoading ? (
+    <InputLoader fullWidth />
+  ) : (
     <FormControl fullWidth>
       <Controller
         name={name}

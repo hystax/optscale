@@ -224,7 +224,7 @@ class CleanMongoDB(object):
         return all_applications_deleted
 
     def get_deleted_cloud_account(self):
-        result = None
+        result = (None, None)
         session = self.get_session()
         stmt = """SELECT cloudaccount.id, organization.is_demo
                   FROM cloudaccount

@@ -11,13 +11,36 @@ import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
+import { type PowerScheduleResponse } from "services/PowerScheduleService";
 import { CREATE_POWER_SCHEDULE } from "urls";
 import { formattedTime, powerScheduleLastRun, powerScheduleName, powerScheduleValidityPeriod, text } from "utils/columns";
 
-const PowerSchedules = ({ powerSchedules, onActivate, onDeactivate, updatingEntityId, isLoadingProps = {} }) => {
+type PowerSchedulesProps = {
+  powerSchedules: PowerScheduleResponse[];
+  onActivate: (id: string) => void;
+  onDeactivate: (id: string) => void;
+  updatingEntityId: string;
+  isLoadingProps?: {
+    isGetPowerSchedulesLoading?: boolean;
+    isUpdatePowerScheduleLoading?: boolean;
+  };
+};
+
+const PowerSchedules = ({
+  powerSchedules,
+  onActivate,
+  onDeactivate,
+  updatingEntityId,
+  isLoadingProps = {}
+}: PowerSchedulesProps) => {
   const openSideModal = useOpenSideModal();
   const navigate = useNavigate();
+
+  const isManagePowerScheduleAllowed = useIsAllowed({
+    requiredActions: ["EDIT_PARTNER"]
+  });
 
   const { isGetPowerSchedulesLoading, isUpdatePowerScheduleLoading } = isLoadingProps;
 
@@ -42,8 +65,57 @@ const PowerSchedules = ({ powerSchedules, onActivate, onDeactivate, updatingEnti
 
   const tableData = useMemo(() => powerSchedules, [powerSchedules]);
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const getActionsColumn = () => ({
+      header: (
+        <TextWithDataTestId dataTestId="lbl_actions">
+          <FormattedMessage id="actions" />
+        </TextWithDataTestId>
+      ),
+      id: "actions",
+      cell: ({
+        row: {
+          original: { id, name, enabled },
+          index
+        }
+      }) => (
+        <TableCellActions
+          items={[
+            enabled
+              ? {
+                  key: "deactivate",
+                  messageId: "deactivate",
+                  icon: <PowerSettingsNewOutlinedIcon />,
+                  color: "error",
+                  dataTestId: `btn_deactivate_${index}`,
+                  isLoading: updatingEntityId === id && isUpdatePowerScheduleLoading,
+                  action: () => onDeactivate(id)
+                }
+              : {
+                  key: "activate",
+                  messageId: "activate",
+                  icon: <PowerSettingsNewOutlinedIcon />,
+                  color: "success",
+                  dataTestId: `btn_activate_${index}`,
+                  isLoading: updatingEntityId === id && isUpdatePowerScheduleLoading,
+                  action: () => onActivate(id)
+                },
+            {
+              key: "deletePowerSchedule",
+              messageId: "delete",
+              icon: <DeleteOutlinedIcon />,
+              color: "error",
+              dataTestId: `btn_delete_power_schedule${index}`,
+              action: () => {
+                openSideModal(DeletePowerScheduleModal, { id, name });
+              }
+            }
+          ]}
+        />
+      )
+    });
+
+    return [
       powerScheduleName({
         accessorKey: "name",
         headerDataTestId: "lbl_name",
@@ -89,57 +161,9 @@ const PowerSchedules = ({ powerSchedules, onActivate, onDeactivate, updatingEnti
         startDateAccessor: "start_date",
         endDateAccessor: "end_date"
       }),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_actions">
-            <FormattedMessage id="actions" />
-          </TextWithDataTestId>
-        ),
-        id: "actions",
-        cell: ({
-          row: {
-            original: { id, name, enabled },
-            index
-          }
-        }) => (
-          <TableCellActions
-            items={[
-              enabled
-                ? {
-                    key: "deactivate",
-                    messageId: "deactivate",
-                    icon: <PowerSettingsNewOutlinedIcon />,
-                    color: "error",
-                    dataTestId: `btn_deactivate_${index}`,
-                    isLoading: updatingEntityId === id && isUpdatePowerScheduleLoading,
-                    action: () => onDeactivate(id)
-                  }
-                : {
-                    key: "activate",
-                    messageId: "activate",
-                    icon: <PowerSettingsNewOutlinedIcon />,
-                    color: "success",
-                    dataTestId: `btn_activate_${index}`,
-                    isLoading: updatingEntityId === id && isUpdatePowerScheduleLoading,
-                    action: () => onActivate(id)
-                  },
-              {
-                key: "deletePowerSchedule",
-                messageId: "deletePowerSchedule",
-                icon: <DeleteOutlinedIcon />,
-                color: "error",
-                dataTestId: `btn_delete_power_schedule${index}`,
-                action: () => {
-                  openSideModal(DeletePowerScheduleModal, { id, name });
-                }
-              }
-            ]}
-          />
-        )
-      }
-    ],
-    [isUpdatePowerScheduleLoading, onActivate, onDeactivate, openSideModal, updatingEntityId]
-  );
+      ...(isManagePowerScheduleAllowed ? [getActionsColumn()] : [])
+    ];
+  }, [isManagePowerScheduleAllowed, isUpdatePowerScheduleLoading, onActivate, onDeactivate, openSideModal, updatingEntityId]);
 
   return (
     <>

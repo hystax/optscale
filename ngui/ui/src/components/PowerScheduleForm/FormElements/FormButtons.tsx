@@ -5,18 +5,19 @@ import FormButtonsWrapper from "components/FormButtonsWrapper";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 
 type FormButtonsProps = {
+  submitButtonMessageId: string;
   onCancel: () => void;
   isLoading?: boolean;
 };
 
-const FormButtons = ({ onCancel, isLoading = false }: FormButtonsProps) => {
+const FormButtons = ({ submitButtonMessageId, onCancel, isLoading = false }: FormButtonsProps) => {
   const { isDemo } = useOrganizationInfo();
 
   return (
     <FormButtonsWrapper justifyContent="space-between">
       <Box display="flex">
         <ButtonLoader
-          messageId="create"
+          messageId={submitButtonMessageId}
           dataTestId="btn_create"
           color="primary"
           variant="contained"

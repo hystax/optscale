@@ -1,10 +1,11 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
+import InputLoader from "components/InputLoader";
 import IntervalTimePicker from "components/IntervalTimePicker";
 import { EN_FORMAT, getNYearsFromToday } from "utils/datetime";
 import { FIELD_NAMES } from "../constants";
 
-const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE }) => {
+const ExpirationDateField = ({ name = FIELD_NAMES.EXPIRATION_DATE, isLoading = false }) => {
   const {
     control,
     trigger,
@@ -13,26 +14,26 @@ const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE }) => {
 
   const intl = useIntl();
 
-  return (
+  return isLoading ? (
+    <InputLoader fullWidth />
+  ) : (
     <Controller
       name={name}
       control={control}
       rules={{
         validate: {
-          isLessThanExpirationDate: (value, formValues) => {
-            const expirationDate = formValues[FIELD_NAMES.EXPIRATION_DATE];
-
-            if (!expirationDate || !value) {
+          isGreaterThanInitiationDate: (value, formValues) => {
+            const initiationDate = formValues[FIELD_NAMES.INITIATION_DATE];
+            if (!(initiationDate && value)) {
               return true;
             }
-
             return (
-              value <= expirationDate ||
+              value >= initiationDate ||
               intl.formatMessage(
-                { id: "xShouldBeLessThanOrEqualToY" },
+                { id: "xShouldBeGreaterThanOrEqualToY" },
                 {
-                  x: intl.formatMessage({ id: "initiationDate" }),
-                  y: intl.formatMessage({ id: "expirationDate" })
+                  x: intl.formatMessage({ id: "expirationDate" }),
+                  y: intl.formatMessage({ id: "initiationDate" })
                 }
               )
             );
@@ -41,19 +42,19 @@ const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE }) => {
       }}
       render={({ field: { name: fieldName, onChange, value } }) => (
         <IntervalTimePicker
-          labelMessageId="initiationDate"
+          labelMessageId="expirationDate"
           value={value}
           onApply={(date) => {
             onChange(date);
             if (isSubmitted) {
-              trigger(FIELD_NAMES.EXPIRATION_DATE);
+              trigger(FIELD_NAMES.INITIATION_DATE);
             }
           }}
           fullWidth
           margin="dense"
           format={EN_FORMAT}
           maxDate={getNYearsFromToday(5)}
-          notSetMessageId="initiationDate"
+          notSetMessageId="expirationDate"
           validation={{
             dataTestId: `input_${fieldName}`,
             error: !!errors[fieldName],
@@ -71,4 +72,4 @@ const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE }) => {
   );
 };
 
-export default InitiationDateField;
+export default ExpirationDateField;

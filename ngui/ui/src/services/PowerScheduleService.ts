@@ -23,7 +23,41 @@ import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { isError } from "utils/api";
 
-const useGetAll = () => {
+export type PowerScheduleResponse =
+  | {
+      id: string;
+      name: string;
+      power_on: string;
+      power_off: string;
+      timezone: string;
+      start_date: number;
+      end_date: number;
+      last_run: number;
+      created_at: number;
+      deleted_at: number;
+      last_eval: number;
+      organization_id: string;
+      enabled: boolean;
+      last_run_error: string | null;
+      resources_count: number;
+      resources: object[];
+    }
+  | Record<string, never>;
+
+export type PowerScheduleApiParams = {
+  name: string;
+  power_on: string;
+  power_off: string;
+  timezone: string;
+  enabled?: boolean;
+  start_date?: number;
+  end_date?: number;
+};
+
+const useGetAll = (): {
+  isLoading: boolean;
+  powerSchedules: PowerScheduleResponse[];
+} => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -51,7 +85,7 @@ const useCreate = () => {
   const { organizationId } = useOrganizationInfo();
   const { isLoading } = useApiState(CREATE_POWER_SCHEDULES);
 
-  const onCreate = (params) =>
+  const onCreate = (params: PowerScheduleApiParams): Promise<void> =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
         dispatch(createPowerSchedule(organizationId, params)).then(() => {
@@ -66,7 +100,12 @@ const useCreate = () => {
   return { onCreate, isLoading };
 };
 
-const useGet = (powerScheduleId) => {
+const useGet = (
+  powerScheduleId: string
+): {
+  isLoading: boolean;
+  powerSchedule: PowerScheduleResponse;
+} => {
   const dispatch = useDispatch();
 
   const { isLoading, shouldInvoke } = useApiState(GET_POWER_SCHEDULE, powerScheduleId);
@@ -77,7 +116,7 @@ const useGet = (powerScheduleId) => {
     }
   }, [dispatch, shouldInvoke, powerScheduleId]);
 
-  const { apiData } = useApiData(GET_POWER_SCHEDULE);
+  const { apiData } = useApiData(GET_POWER_SCHEDULE) as { apiData: PowerScheduleResponse };
 
   return {
     isLoading,
@@ -90,7 +129,7 @@ const useDelete = () => {
 
   const { isLoading } = useApiState(DELETE_POWER_SCHEDULE);
 
-  const onDelete = (powerScheduleId) =>
+  const onDelete = (powerScheduleId: string): Promise<void> =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
         dispatch(deletePowerSchedule(powerScheduleId)).then(() => {
@@ -110,20 +149,17 @@ const useUpdate = () => {
 
   const { isLoading, entityId } = useApiState(UPDATE_POWER_SCHEDULE);
 
-  const onUpdate = (powerScheduleId, params) =>
-    new Promise(
-      (resolve, reject) => {
-        dispatch((_, getState) => {
-          dispatch(updatePowerSchedule(powerScheduleId, params)).then(() => {
-            if (!isError(UPDATE_POWER_SCHEDULE, getState())) {
-              return resolve();
-            }
-            return reject();
-          });
+  const onUpdate = (powerScheduleId: string, params: Partial<PowerScheduleApiParams>): Promise<void> =>
+    new Promise((resolve, reject) => {
+      dispatch((_, getState) => {
+        dispatch(updatePowerSchedule(powerScheduleId, params)).then(() => {
+          if (!isError(UPDATE_POWER_SCHEDULE, getState())) {
+            return resolve();
+          }
+          return reject();
         });
-      },
-      [dispatch]
-    );
+      });
+    });
 
   return { onUpdate, updatingEntityId: entityId, isLoading };
 };
@@ -133,7 +169,7 @@ const useAttachInstancesToSchedule = () => {
 
   const { isLoading } = useApiState(ATTACH_INSTANCES_TO_SCHEDULE);
 
-  const onAttach = (powerScheduleId, instancesToAttach) =>
+  const onAttach = (powerScheduleId: string, instancesToAttach: string[]): Promise<void> =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
         dispatch(attachInstancesToSchedule(powerScheduleId, instancesToAttach)).then(() => {
@@ -153,7 +189,7 @@ const useRemoveInstancesFromSchedule = () => {
 
   const { isLoading } = useApiState(REMOVE_INSTANCES_FROM_SCHEDULE);
 
-  const onRemove = (powerScheduleId, instancesToRemove) =>
+  const onRemove = (powerScheduleId: string, instancesToRemove: string[]): Promise<void> =>
     new Promise((resolve, reject) => {
       dispatch((_, getState) => {
         dispatch(removeInstancesFromSchedule(powerScheduleId, instancesToRemove)).then(() => {

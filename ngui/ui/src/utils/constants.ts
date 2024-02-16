@@ -21,6 +21,12 @@ export const ORGANIZATION_ROLE_PURPOSES = Object.freeze({
   [MEMBER]: "member"
 });
 
+export const INVITABLE_ROLE_PURPOSES = Object.freeze({
+  [ORGANIZATION_MANAGER]: "organizationManager",
+  [MANAGER]: "manager",
+  [ENGINEER]: "engineer"
+});
+
 // Pool purposes
 export const POOL_TYPE_BUDGET = "budget";
 export const POOL_TYPE_BUSINESS_UNIT = "business_unit";

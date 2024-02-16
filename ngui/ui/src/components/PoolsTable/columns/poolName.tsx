@@ -14,15 +14,7 @@ const poolName = ({ onExpensesExportClick, onConstraintsClick }) => ({
   accessorKey: "name",
   cell: ({ row }) => {
     const { original, id: rowId } = row;
-    const {
-      purpose: type,
-      parent_id: parentId,
-      // No id means self-assigned sub-pool
-      id = parentId,
-      name,
-      expenses_export_link: expensesExportLink,
-      policies
-    } = original;
+    const { purpose: type, id, name, expenses_export_link: expensesExportLink, policies } = original;
     const constraintsApplied = !isEmptyArray(policies) && policies.some(({ active }) => active);
 
     return (

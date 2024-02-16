@@ -6,7 +6,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray, Controller, type SubmitHandler, type FieldError } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
@@ -17,8 +17,16 @@ import Input from "components/Input";
 import Selector, { Item, ItemContent, ItemContentWithPoolIcon } from "components/Selector";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
-import { getDifference, isEmpty } from "utils/arrays";
-import { SCOPE_TYPES, EMAIL_MAX_LENGTH, MANAGER, ROLE_PURPOSES, ENGINEER, ORGANIZATION_MANAGER } from "utils/constants";
+import { getDifference, isEmpty as isEmptyArray } from "utils/arrays";
+import {
+  SCOPE_TYPES,
+  EMAIL_MAX_LENGTH,
+  MANAGER,
+  ENGINEER,
+  ORGANIZATION_MANAGER,
+  POOL_TYPES,
+  INVITABLE_ROLE_PURPOSES
+} from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { removeKey } from "utils/objects";
 import { emailRegex, splitInvites } from "utils/strings";
@@ -27,26 +35,71 @@ import useStyles from "./InviteEmployeesForm.styles";
 const ADDITIONAL_ROLES = "additionalRoles";
 const ROLE = "role";
 const POOL_ID = "poolId";
-const DEFAULT_ADDITIONAL_ROLE_CONDITION = { role: "", poolId: "" };
+const DEFAULT_ADDITIONAL_ROLE_CONDITION = { role: "", poolId: "" } as const;
 
-const getFormattedData = (additionalRoles, organizationId, emails) =>
-  emails.reduce(
-    (invitations, email) => ({
-      ...invitations,
-      [email]: !isEmpty(additionalRoles)
-        ? additionalRoles.map((item) => ({
-            scope_id: item.role === ORGANIZATION_MANAGER ? organizationId : item.poolId,
-            scope_type: item.role === ORGANIZATION_MANAGER ? SCOPE_TYPES.ORGANIZATION : SCOPE_TYPES.POOL,
-            purpose: item.role === ORGANIZATION_MANAGER ? MANAGER : item.role
-          }))
-        : [{ scope_id: organizationId, scope_type: SCOPE_TYPES.ORGANIZATION, purpose: null }]
-    }),
-    {}
-  );
+type Pool = {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  pool_purpose: keyof typeof POOL_TYPES;
+};
 
-const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProps = {} }) => {
+type PoolTreeNode = Pool & {
+  level: number;
+  children: PoolTreeNode[];
+};
+
+type Invitation = { scope_id: string; scope_type: (typeof SCOPE_TYPES)[keyof typeof SCOPE_TYPES]; purpose: string | null };
+
+type EmailInvitations = Record<string, Invitation[]>;
+
+type InviteEmployeesFormProps = {
+  availablePools: Pool[];
+  onSubmit: (invitations: EmailInvitations, successCallback: () => void) => void;
+  onCancel: () => void;
+  isLoadingProps?: {
+    isCreateInvitationsLoading?: boolean;
+    isGetAvailablePoolsLoading?: boolean;
+  };
+};
+
+type FormValues = {
+  additionalRoles: { role: keyof typeof INVITABLE_ROLE_PURPOSES; poolId: string }[];
+};
+
+const getEmailInvitations = (
+  additionalRoles: FormValues["additionalRoles"],
+  organizationId: string,
+  emails: string[]
+): EmailInvitations => {
+  const invitations: Invitation[] = !isEmptyArray(additionalRoles)
+    ? additionalRoles.map((item) => ({
+        scope_id: item.role === ORGANIZATION_MANAGER ? organizationId : item.poolId,
+        scope_type: item.role === ORGANIZATION_MANAGER ? SCOPE_TYPES.ORGANIZATION : SCOPE_TYPES.POOL,
+        purpose: item.role === ORGANIZATION_MANAGER ? MANAGER : item.role
+      }))
+    : [{ scope_id: organizationId, scope_type: SCOPE_TYPES.ORGANIZATION, purpose: null }];
+
+  return Object.fromEntries(emails.map((email) => [email, invitations]));
+};
+
+const flattenPoolTree = (poolsTree: PoolTreeNode[], level = 0): PoolTreeNode[] =>
+  poolsTree.flatMap((pool) => [pool, ...flattenPoolTree(pool.children, level + 1)]);
+
+const getPoolTree = (pools: InviteEmployeesFormProps["availablePools"], id: string | null = null, level = 0): PoolTreeNode[] =>
+  [...pools]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .filter((pool) => pool.parent_id === id)
+    .map((pool) => ({
+      ...pool,
+      level,
+      children: getPoolTree(pools, pool.id, level + 1)
+    }));
+
+const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProps = {} }: InviteEmployeesFormProps) => {
   const { classes, cx } = useStyles();
 
+  const flatPools = flattenPoolTree(getPoolTree(availablePools));
   const { isCreateInvitationsLoading = false, isGetAvailablePoolsLoading = false } = isLoadingProps;
 
   const { name, organizationId, isDemo } = useOrganizationInfo();
@@ -55,11 +108,14 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     handleSubmit,
     watch,
     formState: { errors }
-  } = useForm({
+  } = useForm<FormValues>({
     shouldUnregister: true
   });
 
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<{
+    emails: string[];
+    invalidEmails: string[];
+  }>({
     emails: [],
     invalidEmails: []
   });
@@ -84,18 +140,19 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
   const [isEmptyEmail, setIsEmptyEmail] = useState(false);
   const [isOnlyInvalidEmail, setIsOnlyInvalidEmail] = useState(false);
 
-  const onFormSubmit = (formData) => {
+  const onFormSubmit: SubmitHandler<FormValues> = (formData) => {
     const { emails, invalidEmails } = values;
-    if (isEmpty(emails)) {
+    if (isEmptyArray(emails)) {
       // Custom error handling for email field, since it is not a part of the form
       // TODO - onFormSubmit will not be triggered if there are validation error on the form itself, the error will not be shown
       // investigate if it is possible to make autocomplete a form field
-      if (isEmpty(invalidEmails)) {
+      if (isEmptyArray(invalidEmails)) {
         return setIsEmptyEmail(true);
       }
       return setIsOnlyInvalidEmail(true);
     }
-    return onSubmit(getFormattedData(formData[ADDITIONAL_ROLES], organizationId, emails), onSuccessCallback);
+
+    return onSubmit(getEmailInvitations(formData[ADDITIONAL_ROLES], organizationId, emails), onSuccessCallback);
   };
 
   const organizationMemberRow = (
@@ -125,7 +182,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     </Grid>
   );
 
-  const renderOrganizationField = (count) => (
+  const renderOrganizationField = (count: number) => (
     <Input
       required
       InputProps={{
@@ -138,7 +195,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     />
   );
 
-  const renderPoolField = (count, error) => (
+  const renderPoolField = (count: number, error?: FieldError) => (
     <Controller
       name={`${ADDITIONAL_ROLES}.${count}.${POOL_ID}`}
       control={control}
@@ -159,9 +216,21 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
           isLoading={isGetAvailablePoolsLoading}
           {...field}
         >
-          {availablePools.map((obj) => (
-            <Item key={obj.id} value={obj.id} disabled={busyPoolIds.includes(obj.id) && obj.id !== field.value}>
-              <ItemContentWithPoolIcon poolType={obj.pool_purpose}>{obj.name}</ItemContentWithPoolIcon>
+          {flatPools.map((obj) => (
+            <Item
+              sx={{
+                pl: (theme) => {
+                  const themeSpacing = theme.components?.MuiMenuItem?.styleOverrides?.root?.paddingLeft ?? "0px";
+                  return `calc(${themeSpacing} + ${theme.spacing(obj.level * 2)})`;
+                }
+              }}
+              key={obj.id}
+              value={obj.id}
+              disabled={busyPoolIds.includes(obj.id) && obj.id !== field.value}
+            >
+              <Box>
+                <ItemContentWithPoolIcon poolType={obj.pool_purpose}>{obj.name}</ItemContentWithPoolIcon>
+              </Box>
             </Item>
           ))}
         </Selector>
@@ -169,7 +238,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     />
   );
 
-  const additionalRolesRow = (count) => {
+  const additionalRolesRow = (count: number) => {
     const roleError = errors?.[ADDITIONAL_ROLES]?.[count]?.[ROLE];
     const poolError = errors?.[ADDITIONAL_ROLES]?.[count]?.[POOL_ID];
 
@@ -212,7 +281,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
                   fullWidth
                   {...field}
                 >
-                  {[ORGANIZATION_MANAGER, MANAGER, ENGINEER].map((role) => (
+                  {Object.entries(INVITABLE_ROLE_PURPOSES).map(([role, roleMessageId]) => (
                     <Item
                       key={role}
                       value={role}
@@ -221,7 +290,7 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
                       }
                     >
                       <ItemContent>
-                        <FormattedMessage id={ROLE_PURPOSES[role]} />
+                        <FormattedMessage id={roleMessageId} />
                       </ItemContent>
                     </Item>
                   ))}
@@ -253,9 +322,9 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     );
   };
 
-  const isEmailValid = (email) => emailRegex.test(email) && email.length <= EMAIL_MAX_LENGTH;
+  const isEmailValid = (email: string) => emailRegex.test(email) && email.length <= EMAIL_MAX_LENGTH;
 
-  const saveEmails = (emails) => {
+  const saveEmails = (emails: string[]) => {
     emails.forEach((email) => {
       if (isEmailValid(email)) {
         setValues((prevState) => ({ ...prevState, emails: [...new Set([...prevState.emails, email])] }));
@@ -268,13 +337,13 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
     });
   };
 
-  const emailsChange = (emailsString) => saveEmails(splitInvites(emailsString));
+  const emailsChange = (emailsString: string) => saveEmails(splitInvites(emailsString));
 
-  const handleEmailsChange = (email) => {
+  const handleEmailsChange = (email: string) => {
     emailsChange(email);
   };
 
-  const deleteEmail = (option) => {
+  const deleteEmail = (option: string) => {
     const { emails, invalidEmails } = values;
     if (emails.includes(option)) {
       setValues({
