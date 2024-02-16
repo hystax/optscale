@@ -11,6 +11,7 @@ from keeper.report_server.controllers.event_base import EventBaseController
 
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
+
 LOG = logging.getLogger(__name__)
 
 
@@ -31,21 +32,20 @@ def _check_filter_json(objects, type):
 
 class FeedbackController(EventBaseController):
     def check_immutables(self, kwargs):
-        for immutable in ['time', 'user_id']:
+        for immutable in ["time", "user_id"]:
             if immutable in kwargs:
-                raise WrongArgumentsException(
-                    Err.OK0041, [immutable])
+                raise WrongArgumentsException(Err.OK0041, [immutable])
 
     def submit(self, **kwargs):
         self.check_immutables(kwargs)
-        token = kwargs.pop('token')
+        token = kwargs.pop("token")
         if token:
             user_id = self.get_user_id_by_token(token)
-            kwargs.update({'user_id': user_id})
-        kwargs['time'] = int(datetime.utcnow().timestamp())
-        metadata = kwargs.get('metadata')
+            kwargs.update({"user_id": user_id})
+        kwargs["time"] = int(datetime.utcnow().timestamp())
+        metadata = kwargs.get("metadata")
         if metadata:
-            _check_filter_json(metadata, 'metadata')
+            _check_filter_json(metadata, "metadata")
         feedback = Feedback(**kwargs)
         try:
             feedback.save()
@@ -54,14 +54,14 @@ class FeedbackController(EventBaseController):
         return feedback.to_dict()
 
     def list(self, **kwargs):
-        time_start = kwargs.get('time_start')
-        time_end = kwargs.get('time_end')
-        user_id = kwargs.get('user_id')
-        email = kwargs.get('email')
-        url = kwargs.get('url')
-        limit = kwargs.get('limit')
+        time_start = kwargs.get("time_start")
+        time_end = kwargs.get("time_end")
+        user_id = kwargs.get("user_id")
+        email = kwargs.get("email")
+        url = kwargs.get("url")
+        limit = kwargs.get("limit")
         # pylint: disable=no-member
-        feedbacks = Feedback.objects().order_by('-time')
+        feedbacks = Feedback.objects().order_by("-time")
         if time_start:
             feedbacks = feedbacks(Q(time__gte=time_start))
         if time_end:

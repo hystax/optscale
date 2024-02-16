@@ -14,7 +14,7 @@ from keeper.report_server.utils import tp_executor, Config
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException,
     ForbiddenException,
-    UnauthorizedException
+    UnauthorizedException,
 )
 
 from tools.optscale_exceptions.http_exc import OptHTTPError
@@ -25,20 +25,29 @@ LOG = logging.getLogger(__name__)
 
 
 class DefaultHandler(tornado.web.RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Content-Type", "application/json; charset=UTF-8")
+
     def write_error(self, status_code, **kwargs):
-        self.set_header('Content-Type', 'application/json')
         self.set_status(404)
-        self.finish(json.dumps({
-            'error': {
-                'status_code': 404,
-                'error_code': Err.OK0023.name,
-                'reason': self._reason,
-                'params': [],
-            }
-        }))
+        self.finish(
+            json.dumps(
+                {
+                    "error": {
+                        "status_code": 404,
+                        "error_code": Err.OK0023.name,
+                        "reason": self._reason,
+                        "params": [],
+                    }
+                }
+            )
+        )
 
 
 class BaseHandler(tornado.web.RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Content-Type", "application/json; charset=UTF-8")
+
     def initialize(self, mongo_client, config, rabbit_client):
         self.mongo_client = mongo_client
         self._config = config
@@ -81,9 +90,12 @@ class BaseHandler(tornado.web.RequestHandler):
     def controller(self):
         if not self._controller:
             self._controller = self._get_controller_class()(
-                self.mongo_client, self._config,
-                self.rabbit_client)
+                self.mongo_client, self._config, self.rabbit_client
+            )
         return self._controller
+
+    def write_json(self, response):
+        self.write(json.dumps(response, cls=ModelEncoder))
 
     def _validate_params(self, **kwargs):
         pass
@@ -92,25 +104,20 @@ class BaseHandler(tornado.web.RequestHandler):
         raise NotImplementedError
 
     def write_error(self, status_code, **kwargs):
-        exc = kwargs.get('exc_info')[1]
+        exc = kwargs.get("exc_info")[1]
         res = {
-            'error': {
-                'status_code': status_code,
-                'error_code': getattr(exc, 'error_code', 'U0%s' % status_code),
-                'reason': self._reason,
-                'params': getattr(exc, 'params', []),
+            "error": {
+                "status_code": status_code,
+                "error_code": getattr(exc, "error_code", "U0%s" % status_code),
+                "reason": self._reason,
+                "params": getattr(exc, "params", []),
             }
         }
-        self.set_content_type('application/json; charset="utf-8"')
         self.finish(json.dumps(res, cls=ModelEncoder))
-
-    def set_content_type(self,
-                         content_type='application/json; charset="utf-8"'):
-        self.set_header('Content-Type', content_type)
 
     def _request_body(self):
         try:
-            return json.loads(self.request.body.decode('utf-8'))
+            return json.loads(self.request.body.decode("utf-8"))
         except (JSONDecodeError, TypeError):
             raise OptHTTPError(400, Err.OK0038, [])
 
@@ -118,47 +125,48 @@ class BaseHandler(tornado.web.RequestHandler):
         if isinstance(value, tornado.web.HTTPError):
             if value.log_message:
                 format = "%d %s: " + value.log_message
-                args = ([value.status_code, self._request_summary()] +
-                        list(value.args))
+                args = [value.status_code, self._request_summary()] + list(value.args)
                 LOG.warning(format, *args)
         else:
             out_list = traceback.format_exception(typ, value, tb)
 
-            LOG.error("Uncaught exception %s\\n%r\\n %s",
-                      self._request_summary(), self.request,
-                      repr(''.join(out_list)))
+            LOG.error(
+                "Uncaught exception %s\\n%r\\n %s",
+                self._request_summary(),
+                self.request,
+                repr("".join(out_list)),
+            )
 
 
 class BaseAuthHandler(BaseHandler):
-
     def initialize(self, mongo_client, config, rabbit_client):
         super().initialize(mongo_client, config, rabbit_client)
         self.cluster_secret = config.cluster_secret()
 
     @property
     def token(self):
-        auth_header = self.request.headers.get('Authorization')
+        auth_header = self.request.headers.get("Authorization")
         if not auth_header:
             return None
         return auth_header[7:]
 
     @property
     def secret(self):
-        return self.request.headers.get('Secret')
+        return self.request.headers.get("Secret")
 
     def prepare(self):
         try:
             if not self.token and not self.secret:
-                raise UnauthorizedException(
-                    Err.OK0005, [])
+                raise UnauthorizedException(Err.OK0005, [])
         except UnauthorizedException as exc:
             self.set_status(401)
-            self.finish({'error': str(exc)})
+            self.finish({"error": str(exc)})
         super().prepare()
 
     def get_awaitable(self, meth, *args, **kwargs):
         return self.io_loop.run_in_executor(
-            self.executor, functools.partial(meth, *args, **kwargs))
+            self.executor, functools.partial(meth, *args, **kwargs)
+        )
 
     async def check_permissions(self, action, type, resource_id):
         await self.get_awaitable(self._check_permissions, action, type, resource_id)
@@ -166,18 +174,17 @@ class BaseAuthHandler(BaseHandler):
     def _check_permissions(self, action, type, resource_id):
         client = AuthClient(url=Config().auth_url)
         client.token = self.token
-        LOG.info('Given Auth token is %s:' % self.token)
+        LOG.info("Given Auth token is %s:" % self.token)
         try:
             code, response = client.authorize(action, type, resource_id)
-            LOG.info('Auth code %s, response: %s', code, response)
+            LOG.info("Auth code %s, response: %s", code, response)
         except requests.exceptions.HTTPError as exc:
             if exc.response.status_code == 403:
                 raise OptHTTPError(403, Err.OK0002, [])
             if exc.response.status_code == 401:
                 raise OptHTTPError(401, Err.OK0003, [])
             if exc.response.status_code == 404:
-                raise OptHTTPError(404, Err.OK0004,
-                                   ["business unit", resource_id])
+                raise OptHTTPError(404, Err.OK0004, ["business unit", resource_id])
             raise
 
     def check_cluster_secret(self, **kwargs):
@@ -195,20 +202,18 @@ class BaseAuthHandler(BaseHandler):
 
 class BaseReportHandler(BaseAuthHandler):
     async def validate_payload(self, payload_dict):
-        customers = payload_dict.get('customers')
-        if (not customers or not isinstance(customers,
-                                            list) or not len(customers) > 0):
+        customers = payload_dict.get("customers")
+        if not customers or not isinstance(customers, list) or not len(customers) > 0:
             raise OptHTTPError(400, Err.OK0009, [])
         for customer_id in customers:
-            await self.check_permissions('INFO_CUSTOMER', 'customer',
-                                         customer_id)
+            await self.check_permissions("INFO_CUSTOMER", "customer", customer_id)
 
     async def get(self):
         try:
             data = self.get_request_data()
         except ValueError:
             raise OptHTTPError(400, Err.OK0026, [])
-        payload = data.get('payload')
+        payload = data.get("payload")
         if payload is None:
             raise OptHTTPError(400, Err.OK0025, [])
         try:
@@ -223,7 +228,7 @@ class BaseReportHandler(BaseAuthHandler):
             res = await self.controller.get(**payload_dict)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        self.write_json(res)
 
 
 class BaseReceiveHandler(BaseAuthHandler):
@@ -240,4 +245,4 @@ class BaseReceiveHandler(BaseAuthHandler):
         except UnauthorizedException as ex:
             raise OptHTTPError.from_opt_exception(401, ex)
         self.set_status(201)
-        self.write(json.dumps(res))
+        self.write_json(res)

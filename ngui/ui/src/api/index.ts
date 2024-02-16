@@ -13,8 +13,6 @@ import {
 import { AUTH } from "./auth/reducer";
 import { updateUserAssignment, getJiraOrganizationStatus } from "./jira_bus";
 import { JIRA_BUS } from "./jira_bus/reducer";
-import { getEvents, getEventsCount, API_URL as KEEPER_API_URL } from "./keeper";
-import { KEEPER } from "./keeper/reducer";
 import {
   getOrganizationFeatures,
   getOrganizationOptions,
@@ -234,8 +232,6 @@ export {
   getOrganizationAllowedActions,
   getPoolAllowedActions,
   resetPassword,
-  getEvents,
-  getEventsCount,
   getOrganizationFeatures,
   getOrganizationOptions,
   getOrganizationOption,
@@ -445,6 +441,6 @@ export {
   deleteLayout
 };
 
-export { RESTAPI, AUTH, KEEPER, SLACKER, JIRA_BUS };
+export { RESTAPI, AUTH, SLACKER, JIRA_BUS };
 
-export { REST_API_URL, KEEPER_API_URL, AUTH_API_URL };
+export { REST_API_URL, AUTH_API_URL };

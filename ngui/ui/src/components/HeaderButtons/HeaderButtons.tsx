@@ -52,8 +52,6 @@ const HeaderButtons = () => {
   return (
     <>
       <Box component="div" className={classes.sectionDesktop}>
-        {/* Was commented out due to the NGUI-1039 task
-      <LatestEventsContainer /> */}
         <IconButton
           dataTestId="btn_doc"
           color="primary"
@@ -106,10 +104,6 @@ const HeaderButtons = () => {
       <Box component="div" className={classes.sectionMobile}>
         <IconButton icon={<MoreVertIcon />} color="primary" onClick={openMobileMenu} />
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMobileMenu}>
-          {/* Was commented out due to the NGUI-1039 task
-        <Box className={classes.customMenuItem}>
-          <LatestEventsContainer />
-        </Box> */}
           <Box className={classes.customMenuItem}>
             <IconButton
               href={DOCS_HYSTAX_OPTSCALE}

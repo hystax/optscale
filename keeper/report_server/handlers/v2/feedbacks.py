@@ -1,30 +1,24 @@
-import json
-
 from keeper.report_server.exceptions import Err
-from keeper.report_server.handlers.v2.base import BaseReceiveHandler
+from keeper.report_server.handlers.v2.receive import ReceiveHandler
 from keeper.report_server.controllers.feedback import FeedbackAsyncController
-from keeper.report_server.utils import ModelEncoder
-
 
 from tools.optscale_exceptions.http_exc import OptHTTPError
 from tools.optscale_exceptions.common_exc import (
     WrongArgumentsException,
-    UnauthorizedException
+    UnauthorizedException,
 )
 
 
-class FeedbacksAsyncHandler(BaseReceiveHandler):
-
+class FeedbacksAsyncHandler(ReceiveHandler):
     def _get_controller_class(self):
         return FeedbackAsyncController
 
     def _validate_get_params(self, data):
-        valid_keys = ['time_start', 'time_end', 'user_id', 'email', 'url',
-                      'limit']
+        valid_keys = ["time_start", "time_end", "user_id", "email", "url", "limit"]
         self._validate(valid_keys, data)
 
     def _validate_post_params(self, data):
-        valid_keys = ['email', 'url', 'text', 'metadata']
+        valid_keys = ["email", "url", "text", "metadata"]
         self._validate(valid_keys, data)
 
     @staticmethod
@@ -109,25 +103,25 @@ class FeedbacksAsyncHandler(BaseReceiveHandler):
         - secret: []
         """
         if not self.check_cluster_secret(raises=False):
-            await self.check_permissions('POLL_EVENT', 'root', None)
+            await self.check_permissions("POLL_EVENT", "root", None)
         data = {
-            'time_start': self.get_arg('time_start', int),
-            'time_end': self.get_arg('time_end', int),
-            'user_id': self.get_arg('user_id', str),
-            'email': self.get_arg('email', str),
-            'url': self.get_arg('url', str),
-            'limit': self.get_arg('limit', int)
+            "time_start": self.get_arg("time_start", int),
+            "time_end": self.get_arg("time_end", int),
+            "user_id": self.get_arg("user_id", str),
+            "email": self.get_arg("email", str),
+            "url": self.get_arg("url", str),
+            "limit": self.get_arg("limit", int),
         }
         data = {k: v for k, v in data.items() if v is not None}
         self._validate_get_params(data)
-        data.update({'token': self.token})
+        data.update({"token": self.token})
         try:
             res = await self.controller.list(**data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        self.write_json(res)
 
     async def post(self, **kwargs):
         """
@@ -187,5 +181,5 @@ class FeedbacksAsyncHandler(BaseReceiveHandler):
         await self.check_token()
         data = self._request_body()
         self._validate_post_params(data)
-        data.update({'token': self.token})
+        data.update({"token": self.token})
         await super().post(**data)

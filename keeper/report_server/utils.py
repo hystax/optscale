@@ -7,13 +7,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 from keeper.report_server.exceptions import Err
 
-
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from optscale_client.config_client.client import Client as ConfigClient
 
 
-MAX_32_INT = 2 ** 31 - 1
-MAX_64_INT = 2 ** 63 - 1
+MAX_32_INT = 2**31 - 1
+MAX_64_INT = 2**63 - 1
+
 tp_executor = ThreadPoolExecutor(15)
 
 
@@ -30,10 +30,9 @@ def singleton(class_):
 
 @singleton
 class Config(object):
-
     def __init__(self):
-        etcd_host = os.environ.get('HX_ETCD_HOST')
-        etcd_port = int(os.environ.get('HX_ETCD_PORT'))
+        etcd_host = os.environ.get("HX_ETCD_HOST")
+        etcd_port = int(os.environ.get("HX_ETCD_PORT"))
         self.client = ConfigClient(host=etcd_host, port=etcd_port)
 
     @property
@@ -60,14 +59,16 @@ class ModelEncoder(json.JSONEncoder):
 
 
 def is_uuid(check_str):
-    pattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\Z'
+    pattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\Z"
     return bool(re.match(pattern, str(check_str).lower()))
 
 
 def is_not_list_of_uuids(check_list):
-    return (not check_list or not isinstance(check_list, list) or
-            any(not isinstance(_id, str) or not is_uuid(_id)
-                for _id in check_list))
+    return (
+        not check_list
+        or not isinstance(check_list, list)
+        or any(not isinstance(_id, str) or not is_uuid(_id) for _id in check_list)
+    )
 
 
 def raise_not_provided_exception(argument):
@@ -80,8 +81,7 @@ def check_int_attribute(name, value, min_length=0, max_length=MAX_64_INT):
     if not isinstance(value, int) or isinstance(value, bool):
         raise WrongArgumentsException(Err.OK0036, [name])
     if not min_length <= value <= max_length:
-        raise WrongArgumentsException(
-            Err.OK0037, [name, min_length, max_length])
+        raise WrongArgumentsException(Err.OK0037, [name, min_length, max_length])
 
 
 def validate_key_in_collection(key, collection):
@@ -93,5 +93,4 @@ def validate_key_in_collection(key, collection):
 
 def _check_filter_list(objects, type):
     if objects is not None and not isinstance(objects, list):
-        raise WrongArgumentsException(
-            Err.OK0027, [type])
+        raise WrongArgumentsException(Err.OK0027, [type])

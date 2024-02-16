@@ -1,6 +1,11 @@
-
 from mongoengine import (
-    Document, IntField, StringField, ReferenceField, DENY, BooleanField, )
+    Document,
+    IntField,
+    StringField,
+    ReferenceField,
+    DENY,
+    BooleanField,
+)
 
 
 class Event(Document):
@@ -21,17 +26,12 @@ class Event(Document):
     initiator_id = StringField(max_length=36, required=False)
     initiator_name = StringField(required=False)
 
-    meta = {
-        'indexes': [
-            {
-                'fields': ['-time']
-            }]
-    }
+    meta = {"indexes": [{"fields": ["-time"]}]}
 
     def to_dict(self):
         obj_dict = self.to_mongo().to_dict()
-        del obj_dict['_id']
-        obj_dict.update({'id': str(self.id)})
+        del obj_dict["_id"]
+        obj_dict.update({"id": str(self.id)})
         return obj_dict
 
 
@@ -48,15 +48,10 @@ class Feedback(Document):
     url = StringField(required=False)
     user_id = StringField(max_length=36, required=False)
 
-    meta = {
-        'indexes': [
-            {
-                'fields': ['-time']
-            }]
-    }
+    meta = {"indexes": [{"fields": ["-time"]}]}
 
     def to_dict(self):
         obj_dict = self.to_mongo().to_dict()
-        del obj_dict['_id']
-        obj_dict.update({'id': str(self.id)})
+        del obj_dict["_id"]
+        obj_dict.update({"id": str(self.id)})
         return obj_dict

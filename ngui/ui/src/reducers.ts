@@ -4,7 +4,6 @@ import { persistReducer, createMigrate } from "redux-persist";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import AuthReducer, { AUTH } from "api/auth/reducer";
 import JiraBusReducer, { JIRA_BUS } from "api/jira_bus/reducer";
-import KeeperReducer, { KEEPER } from "api/keeper/reducer";
 import ApiReducer, { API } from "api/reducer";
 import RestapiReducer, { RESTAPI } from "api/restapi/reducer";
 import SlackerReducer, { SLACKER } from "api/slacker/reducer";
@@ -45,15 +44,11 @@ const removeStorageItems = (keys) => {
   keys.forEach((key) => localForage.removeItem(key));
 };
 
-const removeLegacyStorageItems = (keys) => {
-  keys.forEach((key) => localStorage.removeItem(key));
-};
-
 const persistConfig = {
   key: ROOT,
   storage: localForage,
   keyPrefix: "",
-  blacklist: [AUTH, API, KEEPER, RESTAPI, JIRA_BUS, CLOUD_COST_COMPARISON_SELECTED_SIZES],
+  blacklist: [AUTH, API, RESTAPI, JIRA_BUS, CLOUD_COST_COMPARISON_SELECTED_SIZES],
   version: CURRENT_VERSION,
   migrate: createMigrate(migrations, { debug: true })
 };
@@ -69,7 +64,6 @@ const authPersistConfig = {
 const appReducer = combineReducers({
   [API]: ApiReducer,
   [AUTH]: persistReducer(authPersistConfig, AuthReducer),
-  [KEEPER]: KeeperReducer,
   [RESTAPI]: RestapiReducer,
   [SLACKER]: SlackerReducer,
   [JIRA_BUS]: JiraBusReducer,
@@ -98,17 +92,11 @@ const rootReducer = (incomingState, action) => {
   if (action.type === RESET) {
     // Remove auth to clean up a token
     removeStorageItems([AUTH]);
-    // Remove from local storage. This is temporary, we stopped persisting them, but the data will remain in the local storage in users' browsers.
-    // Will be able to remove later, not earlier than token expiration, probably in a few weeks for safety
-    // Date added March 29th 2021
-    removeLegacyStorageItems([RESTAPI, KEEPER, AUTH, ROOT]);
-    removeLegacyStorageItems([`persist:${RESTAPI}`, `persist:${KEEPER}`]);
 
     // Do not persist the following keys after signing out
     const {
       [API]: api,
       [RESTAPI]: restapi,
-      [KEEPER]: keeper,
       [JIRA_BUS]: jiraBus,
       [RANGE_DATES]: rangeDates,
       [EXPANDED_POOL_ROWS]: expandedPoolRows,
