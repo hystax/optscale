@@ -11,7 +11,7 @@ const ApolloClientProvider = ({ children }) => {
   } = useApiData(GET_TOKEN);
 
   const httpLink = new HttpLink({
-    uri: "http://localhost:4000/api",
+    uri: "/api",
     headers: {
       "x-optscale-token": token
     }

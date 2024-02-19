@@ -1,4 +1,3 @@
-import path from "path";
 import { RESTDataSource, AugmentedRequest } from "@apollo/datasource-rest";
 import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
 import { RequestParam } from "../../graphql/__generated__/resolversTypes.js";
@@ -6,7 +5,7 @@ import { RequestParam } from "../../graphql/__generated__/resolversTypes.js";
 class KeeperClient extends RESTDataSource {
   private token: string;
 
-  override baseURL = path.join(process.env.PROXY_URL, "/report/v2/");
+  override baseURL = "http://keeper/report/v2/";
 
   constructor(options: { token: string; cache: KeyValueCache }) {
     super(options);
@@ -46,8 +45,7 @@ class KeeperClient extends RESTDataSource {
       `organizations/${organizationId}/events?${params}`
     );
 
-    // This will go away after https://datatrendstech.atlassian.net/browse/OS-6395
-    return JSON.parse(events).events;
+    return events.events;
   }
 }
 
