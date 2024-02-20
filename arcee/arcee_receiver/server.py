@@ -105,10 +105,22 @@ async def check_secret(secret, raise_on=True):
     return secret == required
 
 
+AUTH_VALIDATION_TYPES = ['secret', 'token', 'secret_or_token']
+
+
 @app.on_request
 async def handle_auth(request):
     # different validations according to route context
-    if request.route.ctx.label == 'token':
+
+    if not request.route:
+        # request.route is None on unknown URLs, sanic will raise 404
+        return
+
+    # having one of supported labels is a mandatory for arcee requests
+    if (not hasattr(request.route.ctx, 'label')
+            or request.route.ctx.label not in AUTH_VALIDATION_TYPES):
+        raise SanicException('Unknown auth validation type', status_code=500)
+    elif request.route.ctx.label == 'token':
         token = await extract_token(request)
         await check_token(token, raise_on=True)
         request.ctx.token = token
@@ -122,8 +134,6 @@ async def handle_auth(request):
             token = await extract_token(request)
             await check_token(token, raise_on=True)
             request.ctx.token = token
-    else:
-        raise SanicException('Unknown auth validation type', status_code=500)
 
 
 async def check_run_state(run):
