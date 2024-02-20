@@ -58,10 +58,13 @@ class TestShareableResourcesApi(TestApiBase):
                               pool_id=None, resource_type='test_type',
                               name='test_resource', tags=None, last_seen=None,
                               region=None, first_seen=None,
-                              shareable=False):
+                              shareable=False, use_resource_hash=False):
         now = int(datetime.utcnow().timestamp())
+        resource_key = 'cloud_resource_id'
+        if use_resource_hash:
+            resource_key = 'cloud_resource_hash'
         resource = {
-            'cloud_resource_id': self.gen_id(),
+            resource_key: self.gen_id(),
             'name': name,
             'resource_type': resource_type,
             'employee_id': employee_id,
@@ -254,3 +257,23 @@ class TestShareableResourcesApi(TestApiBase):
         self.verify_shareable_resources_response(
             data, invalid_ids=[(resource['id'],
                                resource['cloud_resource_id'])])
+
+    def test_shareable_resources_with_hash(self):
+        resource = self.create_cloud_resource(
+            self.cloud_acc_id, name='instance',
+            resource_type=ResourceTypes.instance.value)
+        hash_resource = self.create_cloud_resource(
+            self.cloud_acc_id, name='instance2',
+            resource_type=ResourceTypes.instance.value, use_resource_hash=True)
+        self._make_resources_active([resource['id']])
+
+        code, data = self.client.resources_bulk_share(
+            self.org_id, resource_ids=[resource['id'], hash_resource['id']])
+        self.assertEqual(code, 201)
+        self.assertEqual(data['succeeded'], [resource['id']])
+        self.assertEqual(data['failed'], [{
+            'id': hash_resource['id'],
+            'message': 'Resource %s is not active' %
+                       hash_resource['cloud_resource_hash'],
+            'code': 'OE0443'
+        }])
