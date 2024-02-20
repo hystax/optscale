@@ -343,7 +343,8 @@ import {
   onUpdateMlRunsetTemplate,
   onUpdateBIExport,
   onUpdateS3DuplicatesOrganizationSettings,
-  onUpdateMlLeaderboardDataset
+  onUpdateMlLeaderboardDataset,
+  onUpdatePowerSchedule
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -2623,8 +2624,9 @@ export const updatePowerSchedule = (powerScheduleId, params) =>
     url: `${API_URL}/power_schedules/${powerScheduleId}`,
     method: "PATCH",
     label: UPDATE_POWER_SCHEDULE,
+    onSuccess: onUpdatePowerSchedule,
     entityId: powerScheduleId,
-    affectedRequests: [GET_POWER_SCHEDULE, GET_POWER_SCHEDULES],
+    affectedRequests: [GET_POWER_SCHEDULES],
     params
   });
 
