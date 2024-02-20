@@ -3,6 +3,7 @@
 .vscode
 
 **/.env.sample
+**/codegen.ts
 **/.storybook
 **/node_modules
 **/npm-debug.*

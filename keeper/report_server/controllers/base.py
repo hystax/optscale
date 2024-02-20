@@ -1,20 +1,15 @@
-
 from requests import HTTPError
-from mongoengine.errors import ValidationError
-
 
 from keeper.report_server.exceptions import Err
 
-
 from tools.optscale_exceptions.common_exc import (
     UnauthorizedException,
-    WrongArgumentsException
+    WrongArgumentsException,
 )
 from optscale_client.auth_client.client_v2 import Client as AuthClient
 
 
 class BaseController(object):
-
     def __init__(self, mongo_client, config, rabbit_client):
         self.mongo_client = mongo_client
         self._config = config
@@ -23,9 +18,12 @@ class BaseController(object):
 
     @staticmethod
     def _list(action_resources, entity, action):
-        return list(map(lambda x: x[1],
-                        filter(lambda x: x[0] == entity,
-                               action_resources[action])))
+        return list(
+            map(
+                lambda x: x[1],
+                filter(lambda x: x[0] == entity, action_resources[action]),
+            )
+        )
 
     def get_resources(self, token, action):
         """
@@ -36,9 +34,8 @@ class BaseController(object):
         """
         self.auth_client.token = token
         try:
-            _, action_resources = self.auth_client.action_resources_get(
-                [action])
-            organizations = self._list(action_resources, 'organization', action)
+            _, action_resources = self.auth_client.action_resources_get([action])
+            organizations = self._list(action_resources, "organization", action)
         except HTTPError as exc:
             if exc.response.status_code == 401:
                 raise UnauthorizedException(Err.OK0003, [])
@@ -51,10 +48,11 @@ class BaseController(object):
         Raise an OptScale exception from mongo validation error
         :type exc: ValidationError
         """
-        def flatten_dict(nested_dict, sep='.', prefix=''):
+
+        def flatten_dict(nested_dict, sep=".", prefix=""):
             flat_dict = {}
             for k, v in nested_dict.items():
-                new_key = '{}{}{}'.format(prefix, sep, k) if prefix else str(k)
+                new_key = "{}{}{}".format(prefix, sep, k) if prefix else str(k)
                 if isinstance(v, dict):
                     flat_dict.update(flatten_dict(v, sep, new_key))
                 else:
@@ -62,7 +60,5 @@ class BaseController(object):
             return flat_dict
 
         errors_dict = flatten_dict(exc.to_dict())
-        error_str = ', '.join(
-            ('{} ({})'.format(k, v) for k, v in errors_dict.items()))
-        raise WrongArgumentsException(
-            Err.OK0044, [error_str])
+        error_str = ", ".join(("{} ({})".format(k, v) for k, v in errors_dict.items()))
+        raise WrongArgumentsException(Err.OK0044, [error_str])

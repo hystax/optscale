@@ -1,22 +1,14 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { getEvents } from "api";
-import { GET_EVENTS } from "api/keeper/actionTypes";
+import { useState } from "react";
+import { useQuery } from "@apollo/client";
 import Events from "components/Events";
-import { useApiData } from "hooks/useApiData";
-import { useApiState } from "hooks/useApiState";
-import { useInitialMount } from "hooks/useInitialMount";
+import { GET_EVENTS } from "graphql/api/keeper/queries";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { isEmpty } from "utils/arrays";
 import { EVENT_LEVEL } from "utils/constants";
 import { scrolledToBottom } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
 const EventsContainer = () => {
   const { organizationId } = useOrganizationInfo();
-  const {
-    apiData: { events: eventsApiData = [] }
-  } = useApiData(GET_EVENTS);
 
   const { level, timeStart, timeEnd, lastId } = getQueryParams();
 
@@ -29,25 +21,15 @@ const EventsContainer = () => {
 
   const [events, setEvents] = useState([]);
 
-  const { isLoading, shouldInvoke } = useApiState(GET_EVENTS, { ...requestParams, organizationId });
-
-  const dispatch = useDispatch();
-
-  const { isInitialMount, setIsInitialMount } = useInitialMount();
-
-  useEffect(() => {
-    if (!isEmpty(eventsApiData)) {
-      setEvents((state) => [...state, ...eventsApiData]);
+  const { loading } = useQuery(GET_EVENTS, {
+    variables: {
+      organizationId,
+      requestParams
+    },
+    onCompleted: (data) => {
+      setEvents((state) => [...state, ...(data?.events ?? [])]);
     }
-  }, [eventsApiData]);
-
-  useEffect(() => {
-    if (isInitialMount && shouldInvoke) {
-      setIsInitialMount(false);
-      setEvents([]);
-      dispatch(getEvents(organizationId, requestParams));
-    }
-  }, [dispatch, shouldInvoke, requestParams, organizationId, isInitialMount, setIsInitialMount]);
+  });
 
   const applyFilter = (sourceParams) => {
     const { level: newLevel } = sourceParams;
@@ -62,7 +44,6 @@ const EventsContainer = () => {
     updateQueryParams(params);
     setRequestParams(params);
     setEvents([]);
-    dispatch(getEvents(organizationId, params));
   };
 
   const handleScroll = (event) => {
@@ -76,7 +57,6 @@ const EventsContainer = () => {
         };
         setRequestParams(params);
         updateQueryParams(params);
-        dispatch(getEvents(organizationId, params));
       }
     }
   };
@@ -85,7 +65,7 @@ const EventsContainer = () => {
     <Events
       eventLevel={requestParams.level}
       events={events}
-      isLoading={isLoading}
+      isLoading={loading}
       onScroll={handleScroll}
       applyFilter={applyFilter}
     />

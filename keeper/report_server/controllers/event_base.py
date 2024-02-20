@@ -9,19 +9,19 @@ from keeper.report_server.controllers.base import BaseController
 
 from tools.optscale_exceptions.common_exc import UnauthorizedException
 
+
 LOG = logging.getLogger(__name__)
 
 
 class EventBaseController(BaseController):
-
     def __init__(self, mongo_client, config, rabbit_client):
         super().__init__(mongo_client, config, rabbit_client)
 
     def get_poll_resources(self, token):
-        return self.get_resources(token, 'POLL_EVENT')
+        return self.get_resources(token, "POLL_EVENT")
 
     def get_ack_resources(self, token):
-        return self.get_resources(token, 'ACK_EVENT')
+        return self.get_resources(token, "ACK_EVENT")
 
     def get_token_meta(self, digests):
         """
@@ -38,10 +38,11 @@ class EventBaseController(BaseController):
         return token_meta_dict
 
     @staticmethod
-    def get_events(time_start, time_end, evt_classes, levels, object_types,
-                   ack_only, limit):
+    def get_events(
+        time_start, time_end, evt_classes, levels, object_types, ack_only, limit
+    ):
         # pylint: disable=no-member
-        events = Event.objects().order_by('-time', '-_id')
+        events = Event.objects().order_by("-time", "-_id")
         if time_start:
             events = events(Q(time__gte=time_start))
         if time_end:
@@ -66,21 +67,22 @@ class EventBaseController(BaseController):
                     "from": "event",
                     "localField": "event",
                     "foreignField": "_id",
-                    "as": "read_event"
+                    "as": "read_event",
                 }
             },
             {"$unwind": "$read_event"},
-            {"$project": {"event": "$event", "_id": 0}}
+            {"$project": {"event": "$event", "_id": 0}},
         ]
         # pylint: disable=no-member
         ccd = ReadEvent.objects.aggregate(*pipeline)
-        return dict(map(lambda x: (str(x['event']), True), ccd))
+        return dict(map(lambda x: (str(x["event"]), True), ccd))
 
     def get_meta_by_token(self, token):
-        user_digest = list(map(
-            lambda x: hashlib.md5(x.encode('utf-8')).hexdigest(), [token]))[0]
+        user_digest = list(
+            map(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest(), [token])
+        )[0]
         token_meta = self.get_token_meta([user_digest]).get(user_digest, {})
         return token_meta
 
     def get_user_id_by_token(self, token):
-        return self.get_meta_by_token(token).get('user_id', '')
+        return self.get_meta_by_token(token).get("user_id", "")

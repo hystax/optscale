@@ -1,20 +1,27 @@
-import json
-
-
-from keeper.report_server.controllers.event import (EventAsyncController,
-                                                    EventCountAsyncController)
-from keeper.report_server.handlers.v2.base import (BaseReportHandler,
-                                                   BaseAuthHandler, BaseReceiveHandler)
-from keeper.report_server.utils import ModelEncoder
-
+from keeper.report_server.controllers.event import (
+    EventAsyncController,
+    EventCountAsyncController,
+)
+from keeper.report_server.handlers.v2.auth import (
+    AuthHandler,
+)
+from keeper.report_server.handlers.v2.report import (
+    ReportHandler,
+)
+from keeper.report_server.handlers.v2.receive import (
+    ReceiveHandler,
+)
 
 from tools.optscale_exceptions.common_exc import (
-    UnauthorizedException, NotFoundException, WrongArgumentsException,
-    ForbiddenException)
+    UnauthorizedException,
+    NotFoundException,
+    WrongArgumentsException,
+    ForbiddenException,
+)
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
-class EventAsyncHandler(BaseReceiveHandler):
+class EventAsyncHandler(ReceiveHandler):
     def _get_controller_class(self):
         return EventAsyncController
 
@@ -139,21 +146,20 @@ class EventAsyncHandler(BaseReceiveHandler):
         - token: []
         """
         try:
-            await self.check_permissions('POLL_EVENT', 'organization', organization_id)
+            await self.check_permissions("POLL_EVENT", "organization", organization_id)
             data = {
-                'limit': self.get_arg('limit', int),
-                'time_start': self.get_arg('time_start', int),
-                'time_end': self.get_arg('time_end', int),
-                'ack_only': self.get_arg('ack_only', bool),
-                'last_id': self.get_arg('last_id', str),
-                'include_read': self.get_arg('include_read', bool),
-                'levels': self.get_arg('level', str, repeated=True),
-                'object_types': self.get_arg('object_type', str,
-                                             repeated=True),
-                'evt_classes': self.get_arg('evt_class', str, repeated=True),
-                'read_on_get': self.get_arg('read_on_get', bool),
-                'organization_id': organization_id,
-                'token': self.token
+                "limit": self.get_arg("limit", int),
+                "time_start": self.get_arg("time_start", int),
+                "time_end": self.get_arg("time_end", int),
+                "ack_only": self.get_arg("ack_only", bool),
+                "last_id": self.get_arg("last_id", str),
+                "include_read": self.get_arg("include_read", bool),
+                "levels": self.get_arg("level", str, repeated=True),
+                "object_types": self.get_arg("object_type", str, repeated=True),
+                "evt_classes": self.get_arg("evt_class", str, repeated=True),
+                "read_on_get": self.get_arg("read_on_get", bool),
+                "organization_id": organization_id,
+                "token": self.token,
             }
             data = {k: v for k, v in data.items() if v is not None}
             res = await self.controller.list(**data)
@@ -163,7 +169,7 @@ class EventAsyncHandler(BaseReceiveHandler):
             raise OptHTTPError.from_opt_exception(404, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        self.write_json(res)
 
     async def post(self, organization_id, **kwargs):
         """
@@ -297,27 +303,27 @@ class EventAsyncHandler(BaseReceiveHandler):
         security:
         - token: []
         """
-        await self.check_permissions('POLL_EVENT', 'organization', organization_id)
+        await self.check_permissions("POLL_EVENT", "organization", organization_id)
         data = self._request_body()
-        data.update({'token': self.token, 'organization_id': organization_id})
+        data.update({"token": self.token, "organization_id": organization_id})
         try:
             res = await self.controller.ack_all(**data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        self.write_json(res)
 
 
-class EventCountAsyncHandler(BaseReportHandler):
+class EventCountAsyncHandler(ReportHandler):
     def _get_controller_class(self):
         return EventCountAsyncController
 
     def get_request_data(self):
         data = {
-            'token': self.token,
-            'ack_only': self.get_arg('ack_only', bool),
-            'levels': self.get_arg('level', str, repeated=True),
+            "token": self.token,
+            "ack_only": self.get_arg("ack_only", bool),
+            "levels": self.get_arg("level", str, repeated=True),
         }
         return {k: v for k, v in data.items() if v is not None}
 
@@ -380,17 +386,17 @@ class EventCountAsyncHandler(BaseReportHandler):
         security:
         - token: []
         """
-        await self.check_permissions('POLL_EVENT', 'organization', organization_id)
+        await self.check_permissions("POLL_EVENT", "organization", organization_id)
         data = self.get_request_data()
-        data.update({'token': self.token, 'organization_id': organization_id})
+        data.update({"token": self.token, "organization_id": organization_id})
         try:
             res = await self.controller.get_count(**data)
         except UnauthorizedException as exc:
             raise OptHTTPError.from_opt_exception(401, exc)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        self.write_json(res)
 
 
-class EventAckAsyncHandler(BaseAuthHandler):
+class EventAckAsyncHandler(AuthHandler):
     def _get_controller_class(self):
         return EventAsyncController
 
@@ -452,7 +458,7 @@ class EventAckAsyncHandler(BaseAuthHandler):
             raise OptHTTPError.from_opt_exception(404, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        self.write_json(res)
 
     async def patch(self, id, **data):
         """
@@ -500,7 +506,7 @@ class EventAckAsyncHandler(BaseAuthHandler):
         - token: []
         """
         data = self._request_body()
-        data.update({'token': self.token})
+        data.update({"token": self.token})
         try:
             res = await self.controller.ack(id, **data)
         except UnauthorizedException as exc:
@@ -511,4 +517,4 @@ class EventAckAsyncHandler(BaseAuthHandler):
             raise OptHTTPError.from_opt_exception(404, exc)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        self.write_json(res)

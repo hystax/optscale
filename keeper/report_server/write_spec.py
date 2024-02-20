@@ -42,10 +42,10 @@ securityDefinitions:
 
 def main():
     settings = yaml.load(OPENAPI_SPEC)
-    title = settings['info'].pop('title')
-    spec_version = settings['info'].pop('version')
-    openapi_version = settings.pop('swagger')
-    for version in ['v2']:
+    title = settings["info"].pop("title")
+    spec_version = settings["info"].pop("version")
+    openapi_version = settings.pop("swagger")
+    for version in ["v2"]:
         spec = APISpec(
             title=title,
             version=spec_version,
@@ -68,8 +68,9 @@ def main():
                 print("Warning: docstrings for '" + urlspec[0] + "' are not found")
 
         # Api spec file
-        with open(os.path.join(server.SWAGGER_PATH, "spec_%s.yaml" % version
-                               ), "w") as file:
+        with open(
+            os.path.join(server.SWAGGER_PATH, "spec_%s.yaml" % version), "w"
+        ) as file:
             file.write(spec.to_yaml())
 
 

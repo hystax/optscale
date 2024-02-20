@@ -1,0 +1,30 @@
+type Event {
+  time: Int
+  level: String
+  evt_class: String
+  object_id: String
+  object_type: String
+  object_name: String
+  organization_id: String
+  description: String
+  ack: Boolean
+  localized: String
+  id: String
+  read: Boolean
+  acknowledged_user: String
+}
+
+# Investigate timeStart and timeEnd. They might come from UI as stings and as numbers
+input RequestParam {
+  limit: Int = 80
+  level: String
+  timeStart: String
+  timeEnd: String
+  lastId: String
+  includeRead: Boolean = true
+  readOnGet: Boolean = true
+}
+
+type Query {
+  events(organizationId: ID!, requestParams: RequestParam): [Event]
+}

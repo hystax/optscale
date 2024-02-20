@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -6,64 +7,30 @@ import http from "http";
 import cors from "cors";
 import path from "path";
 import bodyParser from "body-parser";
-import dotevn from "dotenv";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import checkEnvironment from "./checkEnvironment.js";
+import KeeperClient from "./api/keeper/client.js";
+import resolvers from "./graphql/resolvers/keeper.js";
 
-// Load environemtn variables from .env file
-dotevn.config();
 checkEnvironment(["UI_BUILD_PATH", "PROXY_URL"]);
 
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
-const typeDefs = `#graphql
-  # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
+const app = express();
 
-  # This "Hello" type defines the queryable fields for every hello in our data source.
-  type Hello {
-    message: String
-  }
+const httpServer = http.createServer(app);
 
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "hellos" query returns an array of zero or more Hellos (defined above).
-  type Query {
-    hellos: [Hello]
-  }
-`;
-
-const hellos = [
-  {
-    message: "world",
-  },
-  {
-    title: "test",
-  },
-];
-
-// Resolvers define the technique for fetching the types defined in the
-// schema. This resolver retrieves hellos from the "hellos" array above.
-const resolvers = {
-  Query: {
-    hellos: () => hellos,
-  },
-};
-
-interface MyContext {
-  token?: string;
+interface ContextValue {
+  dataSources: {
+    keeper: KeeperClient;
+  };
 }
 
-// Required logic for integrating with Express
-const app = express();
-// Our httpServer handles incoming requests to our Express app.
-// Below, we tell Apollo Server to "drain" this httpServer,
-// enabling our servers to shut down gracefully.
-const httpServer = http.createServer(app);
+const typeDefs = readFileSync("./graphql/schemas/keeper.graphql", {
+  encoding: "utf-8",
+});
 
 // Same ApolloServer initialization as before, plus the drain plugin
 // for our httpServer.
-const server = new ApolloServer<MyContext>({
+const server = new ApolloServer<ContextValue>({
   typeDefs,
   resolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
@@ -80,7 +47,19 @@ app.use(
   // expressMiddleware accepts the same arguments:
   // an Apollo Server instance and optional configuration options
   expressMiddleware(server, {
-    context: async ({ req }) => ({ token: req.headers.token }),
+    context: async ({ req }) => {
+      const { cache } = server;
+
+      const token = req.headers["x-optscale-token"] as string;
+
+      return {
+        // We create new instances of our data sources with each request,
+        // passing in our server's cache.
+        dataSources: {
+          keeper: new KeeperClient({ token, cache }),
+        },
+      };
+    },
   })
 );
 
@@ -93,7 +72,6 @@ const proxyMiddleware = createProxyMiddleware({
 
 app.use("/auth", proxyMiddleware);
 app.use("/jira_bus", proxyMiddleware);
-app.use("/keeper", proxyMiddleware);
 app.use("/restapi", proxyMiddleware);
 app.use("/slacker", proxyMiddleware);
 

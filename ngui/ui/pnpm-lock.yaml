@@ -83,12 +83,6 @@ dependencies:
   '@uiw/react-textarea-code-editor':
     specifier: ^2.1.1
     version: 2.1.1(@babel/runtime@7.23.8)(react-dom@18.2.0)(react@18.2.0)
-  '@visx/brush':
-    specifier: ^2.12.2
-    version: 2.12.2(react@18.2.0)
-  '@visx/group':
-    specifier: 2.10.0
-    version: 2.10.0(react@18.2.0)
   '@vitejs/plugin-react-swc':
     specifier: ^3.5.0
     version: 3.5.0(vite@5.0.12)
@@ -5132,10 +5126,6 @@ packages:
       '@types/node': 20.10.5
     dev: true
 
-  /@types/d3-color@1.4.5:
-    resolution: {integrity: sha512-5sNP3DmtSnSozxcjqmzQKsDOuVJXZkceo1KJScDc1982kk/TS9mTPc6lpli1gTu1MIBF1YWutpHpjucNWcIj5g==}
-    dev: false
-
   /@types/d3-color@2.0.6:
     resolution: {integrity: sha512-tbaFGDmJWHqnenvk3QGSvD3RVwr631BjKRD7Sc7VLRgrdX5mk5hTyoeBL6rXZaeoXzmZwIl1D2HPogEdt1rHBg==}
     dev: false
@@ -5146,16 +5136,6 @@ packages:
 
   /@types/d3-format@1.4.5:
     resolution: {integrity: sha512-mLxrC1MSWupOSncXN/HOlWUAAIffAEBaI4+PKy2uMPsKe4FNZlk7qrbTjmzJXITQQqBHivaks4Td18azgqnotA==}
-    dev: false
-
-  /@types/d3-interpolate@1.4.5:
-    resolution: {integrity: sha512-k9L18hXXv7OvK4PqW1kSFYIzasGOvfhPUWmHFkoZ8/ci99EAmY4HoF6zMefrHl0SGV7XYc7Qq2MNh8dK3edg5A==}
-    dependencies:
-      '@types/d3-color': 1.4.5
-    dev: false
-
-  /@types/d3-path@1.0.11:
-    resolution: {integrity: sha512-4pQMp8ldf7UaB/gR8Fvvy69psNHkTpD/pVw3vmEi8iZAB9EPMBruB1JvHO4BIq9QkUUd2lV1F5YXpMNj7JPBpw==}
     dev: false
 
   /@types/d3-path@2.0.4:
@@ -5170,12 +5150,6 @@ packages:
     resolution: {integrity: sha512-YOpKj0kIEusRf7ofeJcSZQsvKbnTwpe1DUF+P2qsotqG53kEsjm7EzzliqQxMkAWdkZcHrg5rRhB4JiDOQPX+A==}
     dependencies:
       '@types/d3-time': 2.1.4
-    dev: false
-
-  /@types/d3-shape@1.3.12:
-    resolution: {integrity: sha512-8oMzcd4+poSLGgV0R1Q1rOlx/xdmozS4Xab7np0eamFFUYq71AU9pOCJEFnkXW2aI/oXdVYJzw6pssbSut7Z9Q==}
-    dependencies:
-      '@types/d3-path': 1.0.11
     dev: false
 
   /@types/d3-shape@2.1.7:
@@ -5329,6 +5303,7 @@ packages:
 
   /@types/lodash@4.14.202:
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
+    dev: true
 
   /@types/mdast@3.0.15:
     resolution: {integrity: sha512-LnwD+mUEfxWMa1QpDraczIn6k0Ee3SMicuYSSzS6ZYl2gKS09EClnJYGd8Du6rfc5r/GZEk5o1mRb8TaTj03sQ==}
@@ -5719,93 +5694,6 @@ packages:
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
-
-  /@visx/brush@2.12.2(react@18.2.0):
-    resolution: {integrity: sha512-2WNgL2S7W3EHVrp2q5kzJF9SkcdUtO+vha3h25N3GWsi/q0Da1Djz8JSLAH6WEPFkRK7sneEt7zikjxWv0upxA==}
-    peerDependencies:
-      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
-    dependencies:
-      '@visx/drag': 2.10.0(react@18.2.0)
-      '@visx/event': 2.6.0
-      '@visx/group': 2.10.0(react@18.2.0)
-      '@visx/scale': 2.2.2
-      '@visx/shape': 2.12.2(react@18.2.0)
-      classnames: 2.3.2
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: false
-
-  /@visx/curve@2.1.0:
-    resolution: {integrity: sha512-9b6JOnx91gmOQiSPhUOxdsvcnW88fgqfTPKoVgQxidMsD/I3wksixtwo8TR/vtEz2aHzzsEEhlv1qK7Y3yaSDw==}
-    dependencies:
-      '@types/d3-shape': 1.3.12
-      d3-shape: 1.3.7
-    dev: false
-
-  /@visx/drag@2.10.0(react@18.2.0):
-    resolution: {integrity: sha512-1G7ABfue8/Jn7tHxEPsDK+84Jbgej3Cqgi8FHaV15XlDRlaWs/fDNz4ECdJUGvhXuXLYCpaWFzhD1HaSEDJL1g==}
-    peerDependencies:
-      react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
-    dependencies:
-      '@types/react': 18.2.45
-      '@visx/event': 2.6.0
-      '@visx/point': 2.6.0
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: false
-
-  /@visx/event@2.6.0:
-    resolution: {integrity: sha512-WGp91g82s727g3NAnENF1ppC3ZAlvWg+Y+GG0WFg34NmmOZbvPI/PTOqTqZE3x6B8EUn8NJiMxRjxIMbi+IvRw==}
-    dependencies:
-      '@types/react': 18.2.45
-      '@visx/point': 2.6.0
-    dev: false
-
-  /@visx/group@2.10.0(react@18.2.0):
-    resolution: {integrity: sha512-DNJDX71f65Et1+UgQvYlZbE66owYUAfcxTkC96Db6TnxV221VKI3T5l23UWbnMzwFBP9dR3PWUjjqhhF12N5pA==}
-    peerDependencies:
-      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
-    dependencies:
-      '@types/react': 18.2.45
-      classnames: 2.3.2
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: false
-
-  /@visx/point@2.6.0:
-    resolution: {integrity: sha512-amBi7yMz4S2VSchlPdliznN41TuES64506ySI22DeKQ+mc1s1+BudlpnY90sM1EIw4xnqbKmrghTTGfy6SVqvQ==}
-    dev: false
-
-  /@visx/scale@2.2.2:
-    resolution: {integrity: sha512-3aDySGUTpe6VykDQmF+g2nz5paFu9iSPTcCOEgkcru0/v5tmGzUdvivy8CkYbr87HN73V/Jc53lGm+kJUQcLBw==}
-    dependencies:
-      '@types/d3-interpolate': 1.4.5
-      '@types/d3-scale': 3.3.5
-      '@types/d3-time': 2.1.4
-      d3-interpolate: 1.4.0
-      d3-scale: 3.3.0
-      d3-time: 2.1.1
-    dev: false
-
-  /@visx/shape@2.12.2(react@18.2.0):
-    resolution: {integrity: sha512-4gN0fyHWYXiJ+Ck8VAazXX0i8TOnLJvOc5jZBnaJDVxgnSIfCjJn0+Nsy96l9Dy/bCMTh4DBYUBv9k+YICBUOA==}
-    peerDependencies:
-      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
-    dependencies:
-      '@types/d3-path': 1.0.11
-      '@types/d3-shape': 1.3.12
-      '@types/lodash': 4.14.202
-      '@types/react': 18.2.45
-      '@visx/curve': 2.1.0
-      '@visx/group': 2.10.0(react@18.2.0)
-      '@visx/scale': 2.2.2
-      classnames: 2.3.2
-      d3-path: 1.0.9
-      d3-shape: 1.3.7
-      lodash: 4.17.21
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: false
 
   /@vitejs/plugin-react-swc@3.5.0(vite@5.0.12):
     resolution: {integrity: sha512-1PrOvAaDpqlCV+Up8RkAh9qaiUjoDUcjtttyhXDKw53XA6Ve16SOp6cCOpRs8Dj8DqUQs6eTW5YkLcLJjrXAig==}
@@ -6635,10 +6523,6 @@ packages:
     resolution: {integrity: sha512-kgMuFyE78OC6Dyu3Dy7vcx4uy97EIbVxJB/B0eJ3bUNAkwdNcxYzgKltnyADiYwsR7SEqkkUPsEUT//OVS6XMA==}
     dev: false
 
-  /classnames@2.3.2:
-    resolution: {integrity: sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==}
-    dev: false
-
   /clean-stack@2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
     engines: {node: '>=6'}
@@ -7038,12 +6922,6 @@ packages:
 
   /d3-hierarchy@1.1.9:
     resolution: {integrity: sha512-j8tPxlqh1srJHAtxfvOUwKNYJkQuBFdM1+JAUfq6xqH5eAqf93L7oG1NVqDa4CpFZNvnNKtCYEUC8KY9yEn9lQ==}
-    dev: false
-
-  /d3-interpolate@1.4.0:
-    resolution: {integrity: sha512-V9znK0zc3jOPV4VD2zZn0sDhZU3WAE2bmlxdIwwQPPzPjvyLkd8B3JUVdS1IDUFDkWZ72c9qnv1GK2ZagTZ8EA==}
-    dependencies:
-      d3-color: 3.1.0
     dev: false
 
   /d3-interpolate@2.0.1:
