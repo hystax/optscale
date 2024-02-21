@@ -77,6 +77,7 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         self.expenses = []
         self.traffic_expenses = []
         self.ri_sp_usage = []
+        self.uncovered_usage = []
         self.gemini = []
         self.raw_expenses = self.mongo_client.restapi.raw_expenses
         self.resources_collection = self.mongo_client.restapi.resources
@@ -610,8 +611,20 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
                     ('offer_cost', 'Float64', 0),
                     ('on_demand_cost', 'Float64', 0),
                     ('usage', 'Float64', 0),
+                    ('ri_norm_factor', 'Float32', 0),
+                    ('expected_cost', 'Float64', 0),
                     ('sign', 'Int8', 1)
                 ], self.ri_sp_usage
+            ),
+            'uncovered_usage': (
+                [
+                    ('cloud_account_id', 'String', 'default'),
+                    ('resource_id', 'String', 'default'),
+                    ('date', 'DateTime', datetime.utcnow()),
+                    ('usage', 'Float64', 0),
+                    ('cost', 'Float64', 0),
+                    ('sign', 'Int8', 1)
+                ], self.uncovered_usage
             ),
             'gemini': (
                 [
@@ -628,6 +641,8 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
             table_name = 'traffic_expenses'
         elif 'from ri_sp_usage' in query.lower():
             table_name = 'ri_sp_usage'
+        elif 'from uncovered_usage' in query.lower():
+            table_name = 'uncovered_usage'
         elif 'from gemini' in query.lower():
             table_name = 'gemini'
         else:

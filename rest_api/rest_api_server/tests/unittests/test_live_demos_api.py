@@ -335,12 +335,24 @@ BASIC_PRESET = {
     "ri_sp_usage": [
         {
             "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
-            "resource_id": "14d75330-c111-482a-97d0-0fe4b3b7125c",
-            "offer_id": "3addfeea-e4f7-48f1-846a-68827ae9a92b",
+            "resource_id": PRESET_CLOUD_RESOURCE_ID,
+            "offer_id": "savings_plan_arn",
             "offer_type": "ri",
             "offer_cost": 99,
             "on_demand_cost": 111,
             "usage": 12,
+            "ri_norm_factor": 1,
+            "expected_cost": 1.1,
+            "sign": 1,
+            "date_offset": 229009
+        }
+    ],
+    "uncovered_usage": [
+        {
+            "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
+            "resource_id": PRESET_CLOUD_RESOURCE_ID,
+            "usage": 12,
+            "cost": 24,
             "sign": 1,
             "date_offset": 229009
         }
@@ -1823,22 +1835,47 @@ class TestLiveDemosApi(TestApiBase):
         self.assertEqual(table, 'ri_sp_usage')
         self.assertEqual(len(values), len(preset_expenses))
         for i, exp in enumerate(values):
-            self.assertEqual(exp['offer_type'], preset_expenses[i]['offer_type'])
-            self.assertEqual(exp['offer_cost'],
-                             preset_expenses[i]['offer_cost'] * self.multiplier)
-            self.assertEqual(exp['on_demand_cost'],
-                             preset_expenses[i]['on_demand_cost'] * self.multiplier)
+            self.assertEqual(exp['offer_type'],
+                             preset_expenses[i]['offer_type'])
+            self.assertEqual(exp['offer_id'],
+                             preset_expenses[i]['offer_id'])
+            self.assertEqual(exp['resource_id'],
+                             preset_expenses[i]['resource_id'])
+            self.assertEqual(
+                exp['offer_cost'],
+                preset_expenses[i]['offer_cost'] * self.multiplier)
+            self.assertEqual(
+                exp['on_demand_cost'],
+                preset_expenses[i]['on_demand_cost'] * self.multiplier)
+            self.assertEqual(
+                exp['expected_cost'],
+                preset_expenses[i]['expected_cost'] * self.multiplier)
+            self.assertEqual(exp['usage'], preset_expenses[i]['usage'])
+
+    def check_uncovered_usage(self, ch_mock_obj):
+        preset_expenses = BASIC_PRESET['uncovered_usage'].copy()
+        table, values = ch_mock_obj.call_args_list[3][0]
+        self.assertEqual(table, 'uncovered_usage')
+        self.assertEqual(len(values), len(preset_expenses))
+        for i, exp in enumerate(values):
+            self.assertEqual(exp['resource_id'],
+                             preset_expenses[i]['resource_id'])
+            self.assertEqual(
+                exp['cost'],
+                preset_expenses[i]['cost'] * self.multiplier)
             self.assertEqual(exp['usage'], preset_expenses[i]['usage'])
 
     def check_clickhouse(self, ch_mock_obj):
-        self.assertEqual(ch_mock_obj.call_count, 3)
+        self.assertEqual(ch_mock_obj.call_count, 4)
         self.check_clean_expenses(ch_mock_obj)
         self.check_traffic_expenses(ch_mock_obj)
         self.check_ri_sp_usage(ch_mock_obj)
+        self.check_uncovered_usage(ch_mock_obj)
 
     def pregenerate_live_demo(self):
-        with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
-                   'load_preset', return_value=deepcopy(self.preset)):
+        with patch('rest_api.rest_api_server.controllers.live_demo.'
+                   'LiveDemoController.load_preset',
+                   return_value=deepcopy(self.preset)):
             code, response = self.client.live_demo_create()
         self.assertEqual(code, 201)
         response['created_at'] = int(datetime.utcnow().timestamp())

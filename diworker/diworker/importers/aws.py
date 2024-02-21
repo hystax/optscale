@@ -132,6 +132,12 @@ class AWSReportImporter(CSVBaseReportImporter):
             'savingsPlan/SavingsPlanEffectiveCost',
             'reservation/EffectiveCost',
             'pricing/publicOnDemandCost',
+            'savingPlan/UsedCommitment',
+            'savingsPlan/SavingsPlanRate',
+            'reservation/UnusedQuantity',
+            'reservation/UnusedRecurringFee',
+            'reservation/UnusedAmortizedUpfrontFeeForBillingPeriod',
+            'reservation/AmortizedUpfrontFeeForBillingPeriod',
             'end_date',
             'cost',
             'report_identity',
@@ -282,7 +288,9 @@ class AWSReportImporter(CSVBaseReportImporter):
                 start_date = self._datetime_from_expense(
                     row, 'lineItem/UsageStartDate').replace(
                     hour=0, minute=0, second=0)
-                if start_date < self.min_date_import_threshold:
+                # RIFee is created once a month and is updated every day
+                if (start_date < self.min_date_import_threshold and
+                        row['lineItem/LineItemType'] != 'RIFee'):
                     continue
                 row['start_date'] = start_date
                 row['end_date'] = self._datetime_from_expense(
@@ -336,9 +344,6 @@ class AWSReportImporter(CSVBaseReportImporter):
                     elif field_name == 'lineItem/UsageStartDate':
                         start_date = self._datetime_from_value(value).replace(
                             hour=0, minute=0, second=0)
-                        if start_date < self.min_date_import_threshold:
-                            skipped_rows.add(expense_num)
-                            continue
                         chunk[expense_num]['start_date'] = start_date
                     elif field_name == 'lineItem/UsageEndDate':
                         chunk[expense_num]['end_date'] = self._datetime_from_value(
@@ -353,10 +358,16 @@ class AWSReportImporter(CSVBaseReportImporter):
 
             expenses = [x for x in chunk if x and
                         chunk.index(x) not in skipped_rows]
-            for expense in expenses:
+            for j, expense in enumerate(expenses):
+                # RIFee is created once a month and is updated every day
+                if (expense['start_date'] < self.min_date_import_threshold
+                        and expense['lineItem/LineItemType'] != 'RIFee'):
+                    expenses.pop(j)
                 expense['created_at'] = self.import_start_ts
                 if self._is_flavor_usage(expense):
                     expense['box_usage'] = True
+                if expense['cloud_account_id'] is None:
+                    expenses.pop(j)
                 self._set_resource_id(expense)
             if expenses:
                 self.update_raw_records(expenses)

@@ -161,8 +161,6 @@ class UrlsV2(Urls):
         'risp_processing_tasks_collection':
             r"%s/cloud_accounts/(?P<cloud_account_id>[^/]+)/risp_processing_tasks",
         'risp_processing_tasks': r"%s/risp_processing_tasks/(?P<id>[^/]+)",
-        'ri_sp_usage_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/ri_sp_usage_breakdown",
-        'ri_sp_expenses_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/ri_sp_expenses_breakdown",
         'infra_profiling_token': r"%s/infrastructure/(?P<infrastructure_token>[^/]+)/profiling_token",
         'templates_collection': r"%s/organizations/(?P<organization_id>[^/]+)/templates",
         'templates': r"%s/organizations/(?P<organization_id>[^/]+)/templates/(?P<template_id>[^/]+)",
@@ -206,6 +204,9 @@ class UrlsV2(Urls):
             r"%s/organizations/(?P<organization_id>[^/]+)/layouts",
         'layouts': r"%s/organizations/(?P<organization_id>[^/]+)/"
                    r"layouts/(?P<layout_id>[^/]+)",
+        'ri_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/ri_breakdown",
+        'sp_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/sp_breakdown",
+        'offer_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/offer_breakdown",
     })
 
 

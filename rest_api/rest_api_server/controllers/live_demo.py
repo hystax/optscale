@@ -57,7 +57,8 @@ CLICKHOUSE_TABLE_DB_MAP = {
     'k8s_metrics': 'default',
     'expenses': 'default',
     'traffic_expenses': 'default',
-    'ri_sp_usage': 'risp'
+    'ri_sp_usage': 'risp',
+    'uncovered_usage': 'risp'
 }
 ROUTING_KEY = 'live-demo-generation'
 EXCHANGE_NAME = 'live-demo-generations'
@@ -95,6 +96,7 @@ class ObjectGroups(enum.Enum):
     OrganizationConstraint = 'organization_constraint'
     OrganizationLimitHit = 'organization_limit_hit'
     RiSpUsages = 'ri_sp_usage'
+    UncoveredUsages = 'uncovered_usage'
     Goals = 'goals'
     Applications = 'applications'
     Templates = 'templates'
@@ -153,6 +155,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.ArchivedRecommendations:
                 self.build_archived_recommendations,
             ObjectGroups.RiSpUsages: self.build_ri_sp_usage,
+            ObjectGroups.UncoveredUsages: self.build_uncovered_usage,
             ObjectGroups.Goals: self.build_goal,
             ObjectGroups.Applications: self.build_application,
             ObjectGroups.Runs: self.build_run,
@@ -199,7 +202,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.K8sMetrics: 'k8s_metrics',
             ObjectGroups.CleanExpenses: 'expenses',
             ObjectGroups.TrafficExpenses: 'traffic_expenses',
-            ObjectGroups.RiSpUsages: 'ri_sp_usage'
+            ObjectGroups.RiSpUsages: 'ri_sp_usage',
+            ObjectGroups.UncoveredUsages: 'uncovered_usage'
         }
         self._key_object_group_map = {
             'pool_id': ObjectGroups.Pools.value,
@@ -885,12 +889,20 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
 
     def build_ri_sp_usage(self, obj, now, **kwargs):
         obj = self.offsets_to_datetimes(['date'], now, obj, clear_time=True)
-        obj = self.refresh_relations(
-            ['cloud_account_id', 'resource_id', 'offer_id'], obj)
+        obj = self.refresh_relations(['cloud_account_id'], obj)
         multipliered_on_demand_cost = obj['on_demand_cost'] * self.multiplier
         multipliered_offer_cost = obj['offer_cost'] * self.multiplier
+        multipliered_expected_cost = obj['expected_cost'] * self.multiplier
         obj['on_demand_cost'] = multipliered_on_demand_cost
         obj['offer_cost'] = multipliered_offer_cost
+        obj['expected_cost'] = multipliered_expected_cost
+        return obj
+
+    def build_uncovered_usage(self, obj, now, **kwargs):
+        obj = self.offsets_to_datetimes(['date'], now, obj, clear_time=True)
+        obj = self.refresh_relations(['cloud_account_id'], obj)
+        multipliered_cost = obj['cost'] * self.multiplier
+        obj['cost'] = multipliered_cost
         return obj
 
     def build_goal(self, obj, objects_group, profiling_token, **kwargs):

@@ -1,6 +1,6 @@
+import os
 import logging
 import requests
-import os
 from kombu import Connection as QConnection, Exchange
 from kombu.pools import producers
 from optscale_client.config_client.client import Client as ConfigClient
@@ -26,8 +26,8 @@ def get_cloud_accounts(config_cl):
                 [x['id'] for x in cloud_accounts['cloud_accounts']
                  if x['type'] in SUPPORTED_CLOUD_TYPES])
         except requests.exceptions.HTTPError as ex:
-            LOG.error('Failed to publish tasks for org %s: %s' % (
-                org['id'], str(ex)))
+            LOG.error('Failed to publish tasks for org %s: %s',
+                      org['id'], str(ex))
             continue
     return cloud_accounts_list
 
