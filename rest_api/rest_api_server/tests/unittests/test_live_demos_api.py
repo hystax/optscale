@@ -59,6 +59,8 @@ BASIC_PRESET = {
             "_id": "14d75330-c111-482a-97d0-0fe4b3b7125c",
             "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
             "region": "eu-central-1",
+            'meta.start_offset': 62416,
+            "meta.end_offset": 62416,
             "recommendations": {
                 "modules": [
                     {
@@ -1901,6 +1903,11 @@ class TestLiveDemosApi(TestApiBase):
                 self.check_db(check_empty=False)
                 self.check_mongo(check_empty=False)
                 self.check_clickhouse(clickhouse_mock)
+                result = list(self.resources_collection.find())
+                for resource in result:
+                    if resource['cloud_resource_id'] == PRESET_CLOUD_RESOURCE_ID:
+                        self.assertIn('start', resource.get('meta', {}))
+                        self.assertIn('end', resource.get('meta', {}))
 
     def test_live_demo_org_constraint_create(self):
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController'

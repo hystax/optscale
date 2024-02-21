@@ -645,7 +645,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 obj[k] = new_id
         obj = self.offsets_to_timestamps(
             ['created_at', 'last_seen', 'deleted_at',
-             'recommendations.run_timestamp'], now, obj)
+             'recommendations.run_timestamp', 'meta.start', 'meta.end'],
+            now, obj)
         if obj.get('active', False):
             obj['last_seen'] = int((
                 datetime.utcnow() + timedelta(days=7)).timestamp())

@@ -433,6 +433,8 @@ class AWSReportImporter(CSVBaseReportImporter):
         offering_type = None
         purchase_term = None
         applied_region = None
+        start = None
+        end = None
 
         for e in expenses:
             start_date = self._datetime_from_expense(
@@ -489,6 +491,24 @@ class AWSReportImporter(CSVBaseReportImporter):
                 if not applied_region and 'savingsPlan/Region' in e:
                     applied_region = e['savingsPlan/Region']
                     meta_dict['applied_region'] = applied_region
+                if not start and 'savingsPlan/StartTime' in e:
+                    try:
+                        start = int(datetime.strptime(
+                            e.get('savingsPlan/StartTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['start'] = start
+                    except (TypeError, ValueError):
+                        pass
+                if not end and 'savingsPlan/EndTime' in e:
+                    try:
+                        end = int(datetime.strptime(
+                            e.get('savingsPlan/EndTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['end'] = end
+                    except (TypeError, ValueError):
+                        pass
             elif resource_type == 'Reserved Instances':
                 if not payment_option and 'pricing/PurchaseOption' in e:
                     payment_option = e['pricing/PurchaseOption']
@@ -499,7 +519,24 @@ class AWSReportImporter(CSVBaseReportImporter):
                 if not purchase_term and 'pricing/LeaseContractLength' in e:
                     purchase_term = e['pricing/LeaseContractLength']
                     meta_dict['purchase_term'] = purchase_term
-
+                if not start and 'reservation/StartTime' in e:
+                    try:
+                        start = int(datetime.strptime(
+                            e.get('reservation/StartTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['start'] = start
+                    except (TypeError, ValueError):
+                        pass
+                if not end and 'reservation/EndTime' in e:
+                    try:
+                        end = int(datetime.strptime(
+                            e.get('reservation/EndTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['end'] = end
+                    except (TypeError, ValueError):
+                        pass
         for product_family_value in self.main_resources_product_family_map.get(
                 resource_type, []):
             family_region = family_region_map.get(product_family_value, None)
@@ -693,7 +730,7 @@ class AWSReportImporter(CSVBaseReportImporter):
     def _get_cloud_extras(self, info):
         res = defaultdict(dict)
         for k in ['os', 'preinstalled', 'payment_option', 'offering_type',
-                  'purchase_term', 'applied_region']:
+                  'purchase_term', 'applied_region', 'start', 'end']:
             val = info.get(k)
             if val:
                 res['meta'][k] = val
