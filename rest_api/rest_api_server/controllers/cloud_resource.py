@@ -660,7 +660,8 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                                'payment_option', 'offering_type',
                                'purchase_term', 'applied_region', 'start', 'end',
                                'sku', 'clusterNodeType', 'clusterOwnerUserId',
-                               'clusterOwnerUserName', 'workspaceId')
+                               'clusterOwnerUserName', 'workspaceId', 'zone',
+                               'platform', 'instance_type')
         for key in updatable_meta_keys:
             value = meta.pop(key, None)
             if value:

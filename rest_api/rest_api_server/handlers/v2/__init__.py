@@ -78,3 +78,4 @@ import rest_api.rest_api_server.handlers.v2.disconnect_survey
 import rest_api.rest_api_server.handlers.v2.power_schedules
 import rest_api.rest_api_server.handlers.v2.layouts
 import rest_api.rest_api_server.handlers.v2.offer_breakdowns
+import rest_api.rest_api_server.handlers.v2.ri_group_breakdowns

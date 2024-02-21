@@ -52,7 +52,9 @@ class TestOfferBreakdownApi(TestApiBase):
             'meta': {
                 'payment_option': 'Partial Upfront',
                 'offering_type': 'standard',
-                'purchase_term': '1yr'
+                'purchase_term': '1yr',
+                'start': 0,
+                'instance_type': 't2.large'
             }
         }
         self.sp = {
@@ -133,7 +135,9 @@ class TestOfferBreakdownApi(TestApiBase):
                 'purchase_term': self.ri['meta']['purchase_term'],
                 'cloud_account_type': 'aws_cnr',
                 'cloud_account_name': self.cloud_acc1['name'],
-                'cloud_account_id': self.cloud_acc1['id']
+                'cloud_account_id': self.cloud_acc1['id'],
+                'start': 0,
+                'instance_type': 't2.large'
             }, {
                 'offer_type': 'sp',
                 'cloud_resource_id': self.sp_acc2['cloud_resource_id'],
@@ -189,7 +193,9 @@ class TestOfferBreakdownApi(TestApiBase):
                 'purchase_term': self.ri['meta']['purchase_term'],
                 'cloud_account_type': 'aws_cnr',
                 'cloud_account_name': self.cloud_acc1['name'],
-                'cloud_account_id': self.cloud_acc1['id']
+                'cloud_account_id': self.cloud_acc1['id'],
+                'start': 0,
+                'instance_type': 't2.large'
             }],
         }
         self.assertDictEqual(response['breakdown'], result)
@@ -242,7 +248,9 @@ class TestOfferBreakdownApi(TestApiBase):
                 'purchase_term': self.ri['meta']['purchase_term'],
                 'cloud_account_type': 'aws_cnr',
                 'cloud_account_name': self.cloud_acc1['name'],
-                'cloud_account_id': self.cloud_acc1['id']
+                'cloud_account_id': self.cloud_acc1['id'],
+                'start': 0,
+                'instance_type': 't2.large'
             }, {
                 'offer_type': 'sp',
                 'cloud_resource_id': self.sp_acc2['cloud_resource_id'],
@@ -322,7 +330,9 @@ class TestOfferBreakdownApi(TestApiBase):
                 'purchase_term': self.ri['meta']['purchase_term'],
                 'cloud_account_type': 'aws_cnr',
                 'cloud_account_name': self.cloud_acc1['name'],
-                'cloud_account_id': self.cloud_acc1['id']
+                'cloud_account_id': self.cloud_acc1['id'],
+                'start': 0,
+                'instance_type': 't2.large'
             }],
         }
         self.assertDictEqual(response['breakdown'], result)
@@ -536,7 +546,9 @@ class TestOfferBreakdownApi(TestApiBase):
                 'purchase_term': self.ri['meta']['purchase_term'],
                 'cloud_account_type': 'aws_cnr',
                 'cloud_account_name': self.cloud_acc1['name'],
-                'cloud_account_id': self.cloud_acc1['id']
+                'cloud_account_id': self.cloud_acc1['id'],
+                'start': 0,
+                'instance_type': 't2.large'
             }],
         }
         self.assertDictEqual(response['breakdown'], result)
@@ -560,7 +572,9 @@ class TestOfferBreakdownApi(TestApiBase):
                 'purchase_term': self.ri['meta']['purchase_term'],
                 'cloud_account_type': 'aws_cnr',
                 'cloud_account_name': self.cloud_acc1['name'],
-                'cloud_account_id': self.cloud_acc1['id']
+                'cloud_account_id': self.cloud_acc1['id'],
+                'start': 0,
+                'instance_type': 't2.large'
             }],
             str(day1_ts): [
                 {
@@ -574,7 +588,9 @@ class TestOfferBreakdownApi(TestApiBase):
                     'purchase_term': self.ri['meta']['purchase_term'],
                     'cloud_account_type': 'aws_cnr',
                     'cloud_account_name': self.cloud_acc1['name'],
-                    'cloud_account_id': self.cloud_acc1['id']
+                    'cloud_account_id': self.cloud_acc1['id'],
+                    'start': 0,
+                    'instance_type': 't2.large'
                 },
                 {
                     'offer_type': 'sp',

@@ -117,6 +117,9 @@ class TestRISPWorker(unittest.TestCase):
         self.worker._ri_expected_cost_per_day.side_effect = self.ri_expected_side_eff
         self.worker._sp_expected_cost_per_day.side_effect = self.sp_expected_side_eff
 
+    def mock_mongo_uncovered_expenses(self):
+        self.worker.get_uncovered_raw_expenses.side_effect = self.uncover_side_eff
+
     def mock_risp_tasks(self, tasks=None):
         if not tasks:
             tasks = []
@@ -461,22 +464,31 @@ class TestRISPWorker(unittest.TestCase):
             'resource_id': 'cloud_resource_id_1',
             'pricing/unit': 'Second',
             'lineItem/UsageAmount': 1800,
-            'pricing/publicOnDemandCost': 10
+            'pricing/publicOnDemandCost': 10,
+            'product/operatingSystem': 'Linux',
+            'product/instanceType': 't2',
+            'product/region': 'us-west-1'
         }, {
             'start_date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
             'resource_id': 'cloud_resource_id_2',
             'pricing/unit': 'hrs',
             'lineItem/UsageAmount': 3,
-            'pricing/publicOnDemandCost': 30
+            'pricing/publicOnDemandCost': 30,
+            'product/operatingSystem': 'Linux',
+            'product/instanceType': 't2',
+            'product/region': 'us-west-1'
         }, {
             'start_date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
             'resource_id': 'cloud_resource_id_2',
             'pricing/unit': 'hrs',
             'lineItem/UsageAmount': 2.5,
-            'pricing/publicOnDemandCost': 25
+            'pricing/publicOnDemandCost': 25,
+            'product/operatingSystem': 'Linux',
+            'product/instanceType': 't2',
+            'product/region': 'us-west-1'
         }
         ]
-        ch_expense = ('cloud_resource_id_1',
+        ch_expense = ('t2', 'Linux', 'us-west-1', 'cloud_resource_id_1',
                       datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
                       123, 1)
         self.mock_uncovered_ch_expenses([ch_expense])
@@ -486,6 +498,9 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
                     'resource_id': 'cloud_resource_id_1',
+                    'instance_type': 't2',
+                    'os': 'Linux',
+                    'location': 'us-west-1',
                     'usage': 1,
                     'cost': 123,
                     'sign': -1
@@ -494,6 +509,9 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
                     'resource_id': 'cloud_resource_id_1',
+                    'instance_type': 't2',
+                    'os': 'Linux',
+                    'location': 'us-west-1',
                     'cost': 10,
                     'usage': 0.5,  # 1800 / 3600
                     'sign': 1
@@ -502,6 +520,9 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
                     'resource_id': 'cloud_resource_id_2',
+                    'instance_type': 't2',
+                    'os': 'Linux',
+                    'location': 'us-west-1',
                     'cost': 55.0,  # 25 + 30
                     'usage': 5.5,  # 2.5 + 3
                     'sign': 1

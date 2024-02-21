@@ -19,6 +19,19 @@ LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200
 GZIP_ENDING = '.gz'
 IGNORE_EXPENSE_TYPES = ['Credit']
+RI_PLATFORMS = [
+    'Linux/UNIX',
+    'Linux with SQL Server Standard',
+    'Linux with SQL Server Web',
+    'Linux with SQL Server Enterprise',
+    'SUSE Linux',
+    'Red Hat Enterprise Linux',
+    'Red Hat Enterprise Linux with HA',
+    'Windows',
+    'Windows with SQL Server Standard',
+    'Windows with SQL Server Web',
+    'Windows with SQL Server Enterprise',
+]
 tag_prefixes = ['resource_tags_aws_', 'resource_tags_user_']
 
 
@@ -435,6 +448,9 @@ class AWSReportImporter(CSVBaseReportImporter):
         applied_region = None
         start = None
         end = None
+        instance_type = None
+        platform = None
+        zone = None
 
         for e in expenses:
             start_date = self._datetime_from_expense(
@@ -537,6 +553,19 @@ class AWSReportImporter(CSVBaseReportImporter):
                         meta_dict['end'] = end
                     except (TypeError, ValueError):
                         pass
+                if not instance_type and 'lineItem/UsageType' in e:
+                    instance_type = e['lineItem/UsageType'].split(
+                        ':')[-1]
+                    meta_dict['instance_type'] = instance_type
+                if not platform and 'lineItem/LineItemDescription' in e:
+                    platform = e['lineItem/LineItemDescription']
+                    for ri_platform in RI_PLATFORMS:
+                        if ri_platform in platform:
+                            meta_dict['platform'] = ri_platform
+                            break
+                if not zone and 'reservation/AvailabilityZone' in e:
+                    zone = e['reservation/AvailabilityZone']
+                    meta_dict['instance_type'] = zone
         for product_family_value in self.main_resources_product_family_map.get(
                 resource_type, []):
             family_region = family_region_map.get(product_family_value, None)
@@ -730,7 +759,8 @@ class AWSReportImporter(CSVBaseReportImporter):
     def _get_cloud_extras(self, info):
         res = defaultdict(dict)
         for k in ['os', 'preinstalled', 'payment_option', 'offering_type',
-                  'purchase_term', 'applied_region', 'start', 'end']:
+                  'purchase_term', 'applied_region', 'start', 'end', 'platform',
+                  'instance_type', 'zone']:
             val = info.get(k)
             if val:
                 res['meta'][k] = val

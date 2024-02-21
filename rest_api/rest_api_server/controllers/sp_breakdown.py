@@ -1,8 +1,6 @@
 import logging
-import json
-from clickhouse_driver import Client as ClickHouseClient
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from rest_api.rest_api_server.controllers.ri_breakdown import (
     RiBreakdownController)
 from rest_api.rest_api_server.controllers.base_async import (
@@ -76,23 +74,22 @@ class SpBreakdownController(RiBreakdownController):
         # SP may be used on several cloud accounts at the same time.
         # Rows from other cloud account have expected_cost=0, so find main
         # cloud account for offers to add offer_cost to main account cost
-        query = """
-            SELECT cloud_account_id, date, sum(offer_cost), sum(expected_cost)
-            FROM (
-              SELECT offer_id, date, any(cloud_account_id) as cloud_account_id,
-                sum(offer_cost * sign) AS offer_cost,
-                any(n_expected_cost) AS expected_cost
-              FROM (
-                SELECT offer_id, date, offer_cost, sign,
-                  if(expected_cost=0, null, cloud_account_id) as cloud_account_id,
-                  if(expected_cost=0, null, expected_cost) as n_expected_cost
-                FROM ri_sp_usage
-                WHERE cloud_account_id IN cloud_account_ids AND
-                  date >= %(start_date)s AND date <= %(end_date)s AND
-                  offer_type = 'sp')
-              GROUP BY offer_id, date
-              HAVING sum(sign) > 0)
-            GROUP BY cloud_account_id, date"""
+        query = """SELECT cloud_account_id, date, sum(offer_cost), sum(expected_cost)
+                   FROM (
+                     SELECT offer_id, date, any(cloud_account_id) as cloud_account_id,
+                       sum(offer_cost * sign) AS offer_cost,
+                       any(n_expected_cost) AS expected_cost
+                     FROM (
+                       SELECT offer_id, date, offer_cost, sign,
+                         if(expected_cost=0, null, cloud_account_id) as cloud_account_id,
+                         if(expected_cost=0, null, expected_cost) as n_expected_cost
+                       FROM ri_sp_usage
+                       WHERE cloud_account_id IN cloud_account_ids AND
+                         date >= %(start_date)s AND date <= %(end_date)s AND
+                         offer_type = 'sp')
+                     GROUP BY offer_id, date
+                     HAVING sum(sign) > 0)
+                   GROUP BY cloud_account_id, date"""
         return self.execute_clickhouse(
             query,
             params={'start_date': start_date, 'end_date': end_date},

@@ -10,6 +10,19 @@ Set 'start' and 'end' to Savings Plan and Reserved Instances resources meta
 
 CHUNK_SIZE = 200
 LOG = logging.getLogger(__name__)
+RI_PLATFORMS = [
+    'Linux/UNIX',
+    'Linux with SQL Server Standard',
+    'Linux with SQL Server Web',
+    'Linux with SQL Server Enterprise',
+    'SUSE Linux',
+    'Red Hat Enterprise Linux',
+    'Red Hat Enterprise Linux with HA',
+    'Windows',
+    'Windows with SQL Server Standard',
+    'Windows with SQL Server Web',
+    'Windows with SQL Server Enterprise',
+]
 
 
 class Migration(BaseMigration):
@@ -85,7 +98,13 @@ class Migration(BaseMigration):
                                     {'$eq': ['$lineItem/LineItemType',
                                              'RIFee']},
                                     '$reservation/EndTime',
-                                    '$savingsPlan/EndTime']}}}
+                                    '$savingsPlan/EndTime']}},
+                                'instance_type': {
+                                    '$first': '$lineItem/UsageType'},
+                                'platform': {
+                                    '$first': '$lineItem/LineItemDescription'},
+                                'zone': {
+                                    '$first': '$reservation/AvailabilityZone'}}
                      }
                 ]
                 expenses = self.mongo_raw.aggregate(pipeline)
@@ -108,6 +127,18 @@ class Migration(BaseMigration):
                         updates['meta.start'] = start
                     if end:
                         updates['meta.end'] = end
+                    instance_type = expense.get('instance_type')
+                    if instance_type:
+                        instance_type = instance_type.split(':')[-1]
+                        updates['meta.instance_type'] = instance_type
+                    platform = expense['platform']
+                    for ri_platform in RI_PLATFORMS:
+                        if ri_platform in platform:
+                            updates['meta.platform'] = ri_platform
+                            break
+                    zone = expense.get('zone')
+                    if zone:
+                        updates['meta.zone'] = zone
                     if updates:
                         updates_chunk.append(UpdateOne(
                             filter={'_id': resource_ids_map[expense['_id']]},

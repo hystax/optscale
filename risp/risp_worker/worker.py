@@ -72,8 +72,8 @@ class RISPWorker(ConsumerMixin):
 
     def get_ri_sp_usage_expenses(self, cloud_account_id, resource_ids,
                                  offer_type, start_date, end_date):
-        return self.clickhouse_client.execute("""
-                SELECT resource_id, date, offer_id, any(ri_norm_factor),
+        return self.clickhouse_client.execute(
+            """SELECT resource_id, date, offer_id, any(ri_norm_factor),
                     any(expected_cost), sum(offer_cost * sign),
                     sum(on_demand_cost * sign), sum(usage * sign)
                 FROM ri_sp_usage
@@ -83,8 +83,8 @@ class RISPWorker(ConsumerMixin):
                     AND date <= %(end_date)s
                     AND resource_id in %(resource_ids)s
                 GROUP BY resource_id, date, offer_id
-                HAVING sum(sign) > 0
-            """, params={
+                HAVING sum(sign) > 0""",
+            params={
                 'cloud_account_id': cloud_account_id,
                 'start_date': start_date,
                 'end_date': end_date,
@@ -399,14 +399,16 @@ class RISPWorker(ConsumerMixin):
 
     def get_uncovered_usage_expenses(self, cloud_account_id, resource_ids,
                                      start_date, end_date):
-        return self.clickhouse_client.execute("""
-                SELECT resource_id, date, sum(cost * sign), sum(usage * sign)
+        return self.clickhouse_client.execute(
+            """SELECT instance_type, os, location, resource_id, date,
+                    sum(cost * sign), sum(usage * sign)
                 FROM uncovered_usage
                 WHERE cloud_account_id = %(cloud_account_id)s
                     AND date >= %(start_date)s
                     AND date <= %(end_date)s
                     AND resource_id in %(resource_ids)s
-                GROUP BY resource_id, date
+                GROUP BY resource_id, date, location, os,
+                    instance_type
                 HAVING sum(sign) > 0
             """, params={
                 'cloud_account_id': cloud_account_id,
@@ -416,12 +418,16 @@ class RISPWorker(ConsumerMixin):
             })
 
     @staticmethod
-    def uncovered_usage_expense(cloud_account_id, date, resource_id,
-                                usage, cost, sign=1):
+    def uncovered_usage_expense(
+            instance_type, os_type, location, cloud_account_id, date,
+            resource_id, usage, cost, sign=1):
         return {
             'cloud_account_id': cloud_account_id,
             'date': date,
             'resource_id': resource_id,
+            'instance_type': instance_type,
+            'os': os_type,
+            'location': location,
             'cost': cost,
             'usage': usage,
             'sign': sign
@@ -439,14 +445,19 @@ class RISPWorker(ConsumerMixin):
                 'resource_id': 1,
                 'pricing/unit': 1,
                 'lineItem/UsageAmount': 1,
-                'pricing/publicOnDemandCost': 1
+                'pricing/publicOnDemandCost': 1,
+                'product/operatingSystem': 1,
+                'product/instanceType': 1,
+                'product/region': 1,
+                'lineItem/AvailabilityZone': 1
             }
         )
 
     def generate_uncovered_usage(self, cloud_account_id, start_date, end_date):
         LOG.info('Start generating uncovered usage for cloud account %s',
                  cloud_account_id)
-        new_expenses_map = defaultdict(lambda: defaultdict(lambda: (0, 0)))
+        new_expenses_map = defaultdict(lambda: defaultdict(
+            lambda: defaultdict(lambda: (0, 0))))
         raw_expenses = self.get_uncovered_raw_expenses(
             cloud_account_id, start_date, end_date)
         for expense in raw_expenses:
@@ -454,12 +465,17 @@ class RISPWorker(ConsumerMixin):
             usage_hrs = float(expense['lineItem/UsageAmount'])
             if 'second' in expense['pricing/unit'].lower():
                 usage_hrs = usage_hrs / SECONDS_IN_HOUR
+            os_type = expense.get('product/operatingSystem', '')
+            instance_type = expense.get('product/instanceType', '')
+            location = expense.get('lineItem/AvailabilityZone') or expense.get(
+                'product/region', '')
+            res_data = (os_type, instance_type, location)
             total_cost = new_expenses_map[expense['resource_id']][
-                expense['start_date']][0]
+                expense['start_date']][res_data][0]
             total_usage = new_expenses_map[expense['resource_id']][
-                expense['start_date']][1]
-            new_expenses_map[expense['resource_id']][expense['start_date']] = (
-                total_cost + cost, total_usage + usage_hrs)
+                expense['start_date']][res_data][1]
+            new_expenses_map[expense['resource_id']][expense['start_date']][
+                res_data] = (total_cost + cost, total_usage + usage_hrs)
         cloud_resource_ids = list(new_expenses_map)
         ch_expenses_list = []
         for i in range(0, len(cloud_resource_ids), CHUNK_SIZE):
@@ -468,11 +484,13 @@ class RISPWorker(ConsumerMixin):
                 cloud_account_id, cloud_resource_ids_chunk, start_date,
                 end_date)
             for existing_expense in existing_expenses:
-                (cloud_resource_id, date, cost, usage) = existing_expense
+                (instance_type, os_type, location, cloud_resource_id, date,
+                 cost, usage) = existing_expense
+                res_data = (os_type, instance_type, location)
                 date = date.replace(tzinfo=timezone.utc)
                 existing_expense_values = (cost, usage)
                 new_expense_values = new_expenses_map.get(
-                    cloud_resource_id, {}).get(date)
+                    cloud_resource_id, {}).get(date, {}).get(res_data)
                 if not new_expense_values:
                     continue
                 elif new_expense_values == existing_expense_values:
@@ -482,16 +500,18 @@ class RISPWorker(ConsumerMixin):
                 # cancel record for existing record
                 ch_expenses_list.append(
                     self.uncovered_usage_expense(
-                        cloud_account_id, date, cloud_resource_id, usage, cost,
-                        sign=-1))
+                        instance_type, os_type, location, cloud_account_id,
+                        date, cloud_resource_id, usage, cost, sign=-1))
 
         for cloud_resource_id, data in new_expenses_map.items():
             for date, usage_data in data.items():
-                cost, usage = usage_data
-                ch_expenses_list.append(
-                    self.uncovered_usage_expense(
-                        cloud_account_id, date, cloud_resource_id, usage,
-                        cost, sign=1))
+                for res_data, cost_data in usage_data.items():
+                    (os_type, instance_type, location) = res_data
+                    cost, usage = cost_data
+                    ch_expenses_list.append(
+                        self.uncovered_usage_expense(
+                            instance_type, os_type, location, cloud_account_id,
+                            date, cloud_resource_id, usage, cost, sign=1))
         LOG.info('Expenses list: %s', ch_expenses_list)
         if ch_expenses_list:
             self.insert_clickhouse_expenses(ch_expenses_list,

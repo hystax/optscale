@@ -236,26 +236,26 @@ class RiBreakdownController(CleanExpenseController):
         # RI may be used on several cloud accounts at the same time.
         # Rows from other cloud account have expected_cost=0, so find main
         # cloud account for offers to add offer_cost to main account cost
-        query = """
-            SELECT cloud_account_id, date, sum(offer_cost), sum(expected_cost),
-              sum(n_usage)
-            FROM (
-              SELECT offer_id, date, any(cloud_account_id) as cloud_account_id,
-                sum(offer_cost * sign) AS offer_cost,
-                sum(n_usage * sign) AS n_usage,
-                any(n_expected_cost) AS expected_cost
-              FROM (
-                SELECT offer_id, date, offer_cost, sign,
-                  if(expected_cost=0, null, cloud_account_id) as cloud_account_id,
-                  if(expected_cost=0, null, expected_cost) as n_expected_cost,
-                  usage * ri_norm_factor AS n_usage
-                FROM ri_sp_usage
-                WHERE cloud_account_id IN cloud_account_ids AND
-                  date >= %(start_date)s AND date <= %(end_date)s AND
-                  offer_type = 'ri')
-              GROUP BY offer_id, date
-              HAVING sum(sign) > 0)
-            GROUP BY cloud_account_id, date"""
+        query = """SELECT cloud_account_id, date, sum(offer_cost),
+                     sum(expected_cost), sum(n_usage)
+                   FROM (
+                     SELECT offer_id, date,
+                       any(cloud_account_id) as cloud_account_id,
+                       sum(offer_cost * sign) AS offer_cost,
+                       sum(n_usage * sign) AS n_usage,
+                       any(n_expected_cost) AS expected_cost
+                     FROM (
+                       SELECT offer_id, date, offer_cost, sign,
+                         if(expected_cost=0, null, cloud_account_id) as cloud_account_id,
+                         if(expected_cost=0, null, expected_cost) as n_expected_cost,
+                         usage * ri_norm_factor AS n_usage
+                       FROM ri_sp_usage
+                       WHERE cloud_account_id IN cloud_account_ids AND
+                         date >= %(start_date)s AND date <= %(end_date)s AND
+                         offer_type = 'ri')
+                     GROUP BY offer_id, date
+                     HAVING sum(sign) > 0)
+                   GROUP BY cloud_account_id, date"""
         return self.execute_clickhouse(
             query, params={
                 'start_date': start_date,
@@ -299,18 +299,19 @@ class RiBreakdownController(CleanExpenseController):
                         data['overprovision_hrs'][flavor_name] = ri_usage
         return cloud_account_usage
 
-    def get(self, organization_id, **params):
-        filters = params.copy()
+    def get_aws_accounts_map(self, organization_id):
         _, cloud_accounts = self.get_organization_and_cloud_accs(
             organization_id)
-        self.handle_filters(params, filters, organization_id)
-        aws_cloud_accs_map = {
+        return {
             x.id: {
                 'type': x.type.value,
                 'name': x.name
             }
             for x in cloud_accounts if x.type.value in SUPPORTED_CLOUD_TYPES
         }
+
+    @staticmethod
+    def filter_cloud_accounts(params, aws_cloud_accs_map):
         cloud_account_ids = params.get('cloud_account_id')
         if not cloud_account_ids:
             cloud_account_ids = list(aws_cloud_accs_map.keys())
@@ -318,6 +319,14 @@ class RiBreakdownController(CleanExpenseController):
             for cloud_account_id in cloud_account_ids:
                 if cloud_account_id not in aws_cloud_accs_map.keys():
                     cloud_account_ids.remove(cloud_account_id)
+        return cloud_account_ids
+
+    def get(self, organization_id, **params):
+        filters = params.copy()
+        aws_cloud_accs_map = self.get_aws_accounts_map(organization_id)
+        self.handle_filters(params, filters, organization_id)
+        cloud_account_ids = self.filter_cloud_accounts(
+            params, aws_cloud_accs_map)
         flavor_rate_map = self.get_flavors(cloud_account_ids)
         cloud_account_total = self.get_total_stats(cloud_account_ids)
         cloud_account_usage = self.get_cloud_account_usage_stats(

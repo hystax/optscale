@@ -207,6 +207,7 @@ class UrlsV2(Urls):
         'ri_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/ri_breakdown",
         'sp_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/sp_breakdown",
         'offer_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/offer_breakdown",
+        'ri_group_breakdown': r"%s/organizations/(?P<organization_id>["r"^/]+)/ri_group_breakdown",
     })
 
 

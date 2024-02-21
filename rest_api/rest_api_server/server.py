@@ -502,6 +502,9 @@ def get_handlers(handler_kwargs, version=None):
             (urls_v2.offer_breakdown,
              h_v2.offer_breakdowns.OfferBreakdownAsyncHandler,
              handler_kwargs),
+            (urls_v2.ri_group_breakdown,
+             h_v2.ri_group_breakdowns.RiGroupBreakdownAsyncHandler,
+             handler_kwargs),
             *profiling_urls,
         ])
     return result

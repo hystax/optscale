@@ -438,6 +438,9 @@ class TestRiBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'location': 'us-east',
+                'os': 'Linux',
+                'instance_type': 't2.large',
                 'usage': 1000,
                 'cost': 1000,
                 'sign': 1
@@ -481,6 +484,9 @@ class TestRiBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'location': 'us-east',
+                'os': 'Linux',
+                'instance_type': 't2.large',
                 'usage': 1000,
                 'cost': 1000,
                 'sign': 1
@@ -710,6 +716,9 @@ class TestRiBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'location': 'us-east',
+                'os': 'Linux',
+                'instance_type': 't2.large',
                 'cost': 1000,
                 'usage': 999,
                 'sign': 1
@@ -718,6 +727,9 @@ class TestRiBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc2['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'location': 'us-east',
+                'os': 'Linux',
+                'instance_type': 't2.large',
                 'cost': 2000,
                 'usage': 1999,
                 'sign': 1
@@ -726,6 +738,9 @@ class TestRiBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc2['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'location': 'us-east',
+                'os': 'Linux',
+                'instance_type': 't2.large',
                 'cost': 2000,
                 'usage': 1999,
                 'sign': -1

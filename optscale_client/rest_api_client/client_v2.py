@@ -2127,3 +2127,12 @@ class Client(Client_v1):
         url = self.offer_breakdown_url(organization_id) + self.query_url(
             **kwargs)
         return self.get(url)
+
+    def ri_group_breakdown_url(self, organization_id):
+        return '%s/ri_group_breakdown' % self.organization_url(
+            organization_id)
+
+    def ri_group_breakdown_get(self, organization_id, **kwargs):
+        url = self.ri_group_breakdown_url(organization_id) + self.query_url(
+            **kwargs)
+        return self.get(url)

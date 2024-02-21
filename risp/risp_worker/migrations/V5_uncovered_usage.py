@@ -36,7 +36,11 @@ class Migration(MigrationBase):
                 'resource_id': 1,
                 'pricing/unit': 1,
                 'lineItem/UsageAmount': 1,
-                'pricing/publicOnDemandCost': 1
+                'pricing/publicOnDemandCost': 1,
+                'product/operatingSystem': 1,
+                'product/instanceType': 1,
+                'product/region': 1,
+                'lineItem/AvailabilityZone': 1
             }
         )
         for expense in expenses:
@@ -44,10 +48,17 @@ class Migration(MigrationBase):
             usage_hrs = float(expense['lineItem/UsageAmount'])
             if 'second' in expense['pricing/unit'].lower():
                 usage_hrs = usage_hrs / SECONDS_IN_HOUR
+            os = expense.get('product/operatingSystem', '')
+            instance_type = expense.get('product/instanceType', '')
+            location = expense.get('lineItem/AvailabilityZone') or expense.get(
+                'product/region', '')
             new_expenses.append({
                 'cloud_account_id': cloud_account_id,
                 'date': expense['start_date'],
                 'resource_id': expense['resource_id'],
+                'instance_type': instance_type,
+                'os': os,
+                'location': location,
                 'cost': cost,
                 'usage': usage_hrs,
                 'sign': 1
@@ -96,6 +107,9 @@ class Migration(MigrationBase):
                              cloud_account_id String,
                              resource_id String,
                              date DateTime,
+                             instance_type String,
+                             os String,
+                             location String,
                              usage Float64,
                              cost Float64,
                              sign Int8)

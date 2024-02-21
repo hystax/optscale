@@ -621,6 +621,9 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
                     ('cloud_account_id', 'String', 'default'),
                     ('resource_id', 'String', 'default'),
                     ('date', 'DateTime', datetime.utcnow()),
+                    ('instance_type', 'String', 'default'),
+                    ('os', 'String', 'default'),
+                    ('location', 'String', 'default'),
                     ('usage', 'Float64', 0),
                     ('cost', 'Float64', 0),
                     ('sign', 'Int8', 1)

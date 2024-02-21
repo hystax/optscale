@@ -95,7 +95,7 @@ class Migration(MigrationBase):
                 if not expenses:
                     new_ch_expenses.append({
                         'cloud_account_id': cloud_account_id,
-                        'resource_id': None,
+                        'resource_id': '',
                         'date': date,
                         'offer_id': ri_id,
                         'offer_type': offer_type,

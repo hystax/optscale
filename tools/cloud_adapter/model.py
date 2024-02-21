@@ -465,16 +465,20 @@ class SavingsPlanResource(CloudResource):
 
 class ReservedInstancesResource(CloudResource):
     __slots__ = ('payment_option', 'offering_type', 'purchase_term', 'start',
-                 'end')
+                 'end', 'platform', 'instance_type', 'zone')
 
     def __init__(self, payment_option=None, offering_type=None,
-                 purchase_term=None, start=None, end=None,  **kwargs):
+                 purchase_term=None, start=None, end=None, platform=None,
+                 instance_type=None, zone=None, **kwargs):
         super().__init__(**kwargs)
         self.payment_option = payment_option
         self.offering_type = offering_type
         self.purchase_term = purchase_term
         self.start = start
         self.end = end
+        self.platform = platform
+        self.instance_type = instance_type
+        self.zone = zone
 
     def __repr__(self):
         return (
@@ -491,7 +495,10 @@ class ReservedInstancesResource(CloudResource):
             'offering_type': self.offering_type,
             'purchase_term': self.purchase_term,
             'start': self.start,
-            'end': self.end
+            'end': self.end,
+            'platform': self.platform,
+            'instance_type': self.instance_type,
+            'zone': self.zone
         })
         return meta
 

@@ -99,7 +99,9 @@ class OfferBreakdownController(RiBreakdownController):
                     }
                     meta = offer.get('meta', {})
                     for field in ['payment_option', 'offering_type',
-                                  'purchase_term', 'applied_region']:
+                                  'purchase_term', 'applied_region',
+                                  'start', 'end', 'instance_type', 'zone',
+                                  'platform']:
                         if field in meta:
                             res_dict[field] = meta.get(field)
                     res_dict.update(self.format_cloud_account(

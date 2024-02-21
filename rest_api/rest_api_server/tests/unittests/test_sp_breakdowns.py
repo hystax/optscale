@@ -170,6 +170,9 @@ class TestSpBreakdownApi(TestApiBase):
         self.uncovered_usage = [{
             'cloud_account_id': [self.cloud_acc1['id']],
             'date': self.start_ts,
+            'location': 'us-east',
+            'os': 'Linux',
+            'instance_type': 't2.large',
             'cost': 2,
             'usage': 2,
             'resource_id': 'res_id',
@@ -472,6 +475,9 @@ class TestSpBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'location': 'us-east',
+                'os': 'Linux',
+                'instance_type': 't2.large',
                 'usage': 1000,
                 'cost': 1000,
                 'sign': 1
@@ -515,6 +521,9 @@ class TestSpBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'location': 'us-east',
+                'os': 'Linux',
+                'instance_type': 't2.large',
                 'usage': 1000,
                 'cost': 1000,
                 'sign': 1

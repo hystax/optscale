@@ -52,7 +52,7 @@ BASIC_PRESET = {
             "pool_name": "Engineering",
             "cloud_resource_id": PRESET_CLOUD_RESOURCE_ID,
             "employee_id": "083298ff-6575-4adb-a82a-92cea7bc8ff0",
-            "meta": {},
+            "meta": {'instance_type': 't3.large'},
             "name": PRESET_RESOURCE_NAME,
             "tags": {},
             "deleted_at_offset": 0,
@@ -1908,6 +1908,7 @@ class TestLiveDemosApi(TestApiBase):
                     if resource['cloud_resource_id'] == PRESET_CLOUD_RESOURCE_ID:
                         self.assertIn('start', resource.get('meta', {}))
                         self.assertIn('end', resource.get('meta', {}))
+                        self.assertIn('instance_type', resource.get('meta', {}))
 
     def test_live_demo_org_constraint_create(self):
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController'
