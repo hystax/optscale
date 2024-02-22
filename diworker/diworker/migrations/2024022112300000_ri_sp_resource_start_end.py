@@ -49,7 +49,7 @@ class Migration(BaseMigration):
         for org in organizations['organizations']:
             _, accounts = self.rest_cl.cloud_account_list(
                 org['id'], type='aws_cnr')
-            result = [x['id'] for x in accounts['cloud_accounts']]
+            result.extend(x['id'] for x in accounts['cloud_accounts'])
         return result
 
     def upgrade(self):
