@@ -56,7 +56,9 @@ import {
   UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   UPDATE_ML_LEADERBOARD_DATASET,
-  GET_ML_LEADERBOARD_DATASET
+  GET_ML_LEADERBOARD_DATASET,
+  SET_POWER_SCHEDULE,
+  GET_POWER_SCHEDULE
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -264,4 +266,10 @@ export const onUpdateMlLeaderboardDataset = (data) => ({
   type: UPDATE_ML_LEADERBOARD_DATASET,
   payload: data,
   label: GET_ML_LEADERBOARD_DATASET
+});
+
+export const onUpdatePowerSchedule = (data) => ({
+  type: SET_POWER_SCHEDULE,
+  payload: data,
+  label: GET_POWER_SCHEDULE
 });

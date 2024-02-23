@@ -35,6 +35,12 @@ class ShareableResourceBulkController(ShareableBookingController):
             )
 
     def bulk_share(self, organization_id, resource_ids):
+        def extract_resource_id_list(r_list):
+            return [(
+                res['id'],
+                res.get('cloud_resource_id') or res.get('cloud_resource_hash')
+            ) for res in r_list]
+
         result = {}
         resources, invalid_res, not_active_res = self._check_resources(
             organization_id, resource_ids)
@@ -48,12 +54,9 @@ class ShareableResourceBulkController(ShareableBookingController):
         for res in shareable:
             result['succeeded'].append(res['id'])
 
-        not_to_share_ids = [(res['id'], res['cloud_resource_id'])
-                            for res in not_to_share]
-        invalid_resources_ids = [(res['id'], res['cloud_resource_id'])
-                                 for res in invalid_res]
-        not_active_ids = [(res['id'], res['cloud_resource_id'])
-                          for res in not_active_res]
+        not_to_share_ids = extract_resource_id_list(not_to_share)
+        invalid_resources_ids = extract_resource_id_list(invalid_res)
+        not_active_ids = extract_resource_id_list(not_active_res)
         result['failed'] = self._sharing_failed_response(
             not_to_share_ids, invalid_resources_ids, not_active_ids)
         if contains_shareable_resources is False and share_ids:
