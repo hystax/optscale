@@ -1,25 +1,27 @@
 import RiSpCoverage from "components/RiSpCoverage";
-import RiSpService from "services/RiSpService";
+import { useRiSpBreakdowns } from "hooks/useRiSpBreakdowns";
 
-const RiSpCoverageContainer = ({ startDate, endDate, dataSourceIds }) => {
-  const { useGetUsageBreakdown, useGetExpensesBreakdown } = RiSpService();
+type RiSpCoverageContainerProps = {
+  startDate: number;
+  endDate: number;
+  dataSourceIds: string[];
+};
 
-  const { isLoading: isGetUsageBreakdownLoading, breakdown: usageBreakdown } = useGetUsageBreakdown(
+const RiSpCoverageContainer = ({ startDate, endDate, dataSourceIds }: RiSpCoverageContainerProps) => {
+  const { isLoading, expensesBreakdown, usageBreakdown } = useRiSpBreakdowns({
     startDate,
     endDate,
     dataSourceIds
-  );
-  const { isLoading: isGetExpensesBreakdownLoading, breakdown: expensesBreakdown } = useGetExpensesBreakdown(
-    startDate,
-    endDate,
-    dataSourceIds
-  );
+  });
 
   return (
     <RiSpCoverage
       usageBreakdown={usageBreakdown}
       expensesBreakdown={expensesBreakdown}
-      isLoadingProps={{ isGetUsageBreakdownLoading, isGetExpensesBreakdownLoading }}
+      isLoadingProps={{
+        isGetUsageBreakdownLoading: isLoading,
+        isGetExpensesBreakdownLoading: isLoading
+      }}
     />
   );
 };

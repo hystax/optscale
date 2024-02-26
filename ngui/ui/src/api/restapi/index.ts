@@ -157,8 +157,6 @@ import {
   getMlRunDetails,
   getMlRunDetailsBreakdown,
   getMlModelRecommendations,
-  getRiSpUsageBreakdown,
-  getRiSpExpensesBreakdown,
   getMlRunsetTemplates,
   getMlRunsetTemplate,
   updateMlRunsetTemplate,
@@ -201,7 +199,9 @@ import {
   getLayout,
   createLayout,
   updateLayout,
-  deleteLayout
+  deleteLayout,
+  getReservedInstancesBreakdown,
+  getSavingPlansBreakdown
 } from "./actionCreators";
 
 export {
@@ -364,8 +364,6 @@ export {
   getMlRunDetails,
   getMlRunDetailsBreakdown,
   getMlModelRecommendations,
-  getRiSpUsageBreakdown,
-  getRiSpExpensesBreakdown,
   getMlRunsetTemplates,
   getMlRunsetTemplate,
   updateMlRunsetTemplate,
@@ -407,5 +405,7 @@ export {
   getLayout,
   createLayout,
   updateLayout,
-  deleteLayout
+  deleteLayout,
+  getReservedInstancesBreakdown,
+  getSavingPlansBreakdown
 };

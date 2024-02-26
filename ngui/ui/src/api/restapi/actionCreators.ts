@@ -239,10 +239,6 @@ import {
   GET_ML_MODEL_RECOMMENDATIONS,
   GET_OPTIMIZATIONS_OVERVIEW,
   GET_OPTIMIZATION_DETAILS,
-  GET_RI_SP_USAGE_BREAKDOWN,
-  SET_RI_SP_USAGE_BREAKDOWN,
-  GET_RI_SP_EXPENSES_BREAKDOWN,
-  SET_RI_SP_EXPENSES_BREAKDOWN,
   GET_ML_OPTIMIZATION_DETAILS,
   SET_ML_RUNSET_TEMPLATES,
   GET_ML_RUNSET_TEMPLATES,
@@ -307,7 +303,11 @@ import {
   GET_LAYOUT,
   CREATE_LAYOUT,
   UPDATE_LAYOUT,
-  DELETE_LAYOUT
+  DELETE_LAYOUT,
+  SET_RESERVED_INSTANCES_BREAKDOWN,
+  GET_RESERVED_INSTANCES_BREAKDOWN,
+  SET_SAVING_PLANS_BREAKDOWN,
+  GET_SAVING_PLANS_BREAKDOWN
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -2312,12 +2312,12 @@ export const getMlExecutorsBreakdown = (organizationId) =>
     hash: hashParams(organizationId)
   });
 
-export const getRiSpUsageBreakdown = (organizationId, params) =>
+export const getReservedInstancesBreakdown = (organizationId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/ri_sp_usage_breakdown`,
+    url: `${API_URL}/organizations/${organizationId}/ri_breakdown`,
     method: "GET",
-    onSuccess: handleSuccess(SET_RI_SP_USAGE_BREAKDOWN),
-    label: GET_RI_SP_USAGE_BREAKDOWN,
+    onSuccess: handleSuccess(SET_RESERVED_INSTANCES_BREAKDOWN),
+    label: GET_RESERVED_INSTANCES_BREAKDOWN,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
     params: {
@@ -2327,12 +2327,12 @@ export const getRiSpUsageBreakdown = (organizationId, params) =>
     }
   });
 
-export const getRiSpExpensesBreakdown = (organizationId, params) =>
+export const getSavingPlansBreakdown = (organizationId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/ri_sp_expenses_breakdown`,
+    url: `${API_URL}/organizations/${organizationId}/sp_breakdown`,
     method: "GET",
-    onSuccess: handleSuccess(SET_RI_SP_EXPENSES_BREAKDOWN),
-    label: GET_RI_SP_EXPENSES_BREAKDOWN,
+    onSuccess: handleSuccess(SET_SAVING_PLANS_BREAKDOWN),
+    label: GET_SAVING_PLANS_BREAKDOWN,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
     params: {
