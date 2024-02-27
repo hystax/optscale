@@ -119,7 +119,7 @@ class RiBreakdownController(CleanExpenseController):
                 'cloud_account_id': {'$in': cloud_account_ids},
                 'start_date': {
                     '$gte': datetime.fromtimestamp(self.start_date),
-                    '$lt': datetime.fromtimestamp(self.end_date)},
+                    '$lte': datetime.fromtimestamp(self.end_date)},
                 'box_usage': True,
                 'lineItem/LineItemType': 'DiscountedUsage'
             }
