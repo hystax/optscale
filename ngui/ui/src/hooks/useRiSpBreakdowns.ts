@@ -34,8 +34,8 @@ const getBreakdown = ({ riBreakdown, spBreakdown, breakdownType }: { breakdownTy
           cloud_account_name: spCloudAccountBreakdown?.cloud_account_name,
           ...(breakdownType === BREAKDOWN_TYPES.USAGE && {
             total_usage_hrs: spCloudAccountBreakdown?.total_usage_hrs ?? 0,
-            ri_usage_hrs: spCloudAccountBreakdown?.sp_usage_hrs ?? 0,
-            sp_usage_hrs: riCloudAccountBreakdown?.ri_usage_hrs ?? 0
+            ri_usage_hrs: riCloudAccountBreakdown?.ri_usage_hrs ?? 0,
+            sp_usage_hrs: spCloudAccountBreakdown?.sp_usage_hrs ?? 0
           }),
           ...(breakdownType === BREAKDOWN_TYPES.COST && {
             ri: {
