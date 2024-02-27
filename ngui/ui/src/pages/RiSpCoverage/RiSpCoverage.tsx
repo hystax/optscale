@@ -57,6 +57,8 @@ const RiSpCoverage = () => {
     setSelectedEndDate(endDate);
   };
 
+  const allDataSources = cloudAccounts.filter((cloudAccount) => TARGET_DATA_SOURCES_TYPES.includes(cloudAccount.type));
+
   return (
     <>
       <ActionBar data={actionBarDefinition} />
@@ -65,7 +67,7 @@ const RiSpCoverage = () => {
           <Stack direction="row" spacing={SPACING_2}>
             <div>
               <DataSourceMultiSelect
-                allDataSources={cloudAccounts.filter((cloudAccount) => TARGET_DATA_SOURCES_TYPES.includes(cloudAccount.type))}
+                allDataSources={allDataSources}
                 dataSourceIds={selectedDataSourceIds}
                 onChange={setSelectedDataSources}
                 displayEmpty

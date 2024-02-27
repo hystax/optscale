@@ -429,22 +429,25 @@ class ImageResource(CloudResource):
 
 class SavingsPlanResource(CloudResource):
     __slots__ = ('payment_option', 'offering_type', 'purchase_term',
-                 'applied_region')
+                 'applied_region', 'start', 'end')
 
     def __init__(self, payment_option=None, offering_type=None,
-                 purchase_term=None, applied_region=None, **kwargs):
+                 purchase_term=None, applied_region=None, start=None, end=None,
+                 **kwargs):
         super().__init__(**kwargs)
         self.payment_option = payment_option
         self.offering_type = offering_type
         self.purchase_term = purchase_term
         self.applied_region = applied_region
+        self.start = start
+        self.end = end
 
     def __repr__(self):
         return (
             'Savings Plan {0} payment_option={1} offering_type={2} '
-            'purchase_term={3} applied_region={3}'.format(
+            'purchase_term={3} applied_region={4} start={5} end={6}'.format(
                 self.cloud_resource_id, self.payment_option, self.offering_type,
-                self.purchase_term, self.applied_region))
+                self.purchase_term, self.applied_region, self.start, self.end))
 
     @property
     def meta(self):
@@ -453,27 +456,36 @@ class SavingsPlanResource(CloudResource):
             'payment_option': self.payment_option,
             'offering_type': self.offering_type,
             'purchase_term': self.purchase_term,
-            'applied_region': self.applied_region
+            'applied_region': self.applied_region,
+            'start': self.start,
+            'end': self.end
         })
         return meta
 
 
 class ReservedInstancesResource(CloudResource):
-    __slots__ = ('payment_option', 'offering_type', 'purchase_term')
+    __slots__ = ('payment_option', 'offering_type', 'purchase_term', 'start',
+                 'end', 'platform', 'instance_type', 'zone')
 
     def __init__(self, payment_option=None, offering_type=None,
-                 purchase_term=None,  **kwargs):
+                 purchase_term=None, start=None, end=None, platform=None,
+                 instance_type=None, zone=None, **kwargs):
         super().__init__(**kwargs)
         self.payment_option = payment_option
         self.offering_type = offering_type
         self.purchase_term = purchase_term
+        self.start = start
+        self.end = end
+        self.platform = platform
+        self.instance_type = instance_type
+        self.zone = zone
 
     def __repr__(self):
         return (
             'Reserved Instances {0} payment_option={1} offering_type={2} '
-            'purchase_term={3}'.format(
+            'purchase_term={3} start={4} end={5}'.format(
                 self.cloud_resource_id, self.payment_option, self.offering_type,
-                self.purchase_term))
+                self.purchase_term, self.start, self.end))
 
     @property
     def meta(self):
@@ -481,7 +493,12 @@ class ReservedInstancesResource(CloudResource):
         meta.update({
             'payment_option': self.payment_option,
             'offering_type': self.offering_type,
-            'purchase_term': self.purchase_term
+            'purchase_term': self.purchase_term,
+            'start': self.start,
+            'end': self.end,
+            'platform': self.platform,
+            'instance_type': self.instance_type,
+            'zone': self.zone
         })
         return meta
 

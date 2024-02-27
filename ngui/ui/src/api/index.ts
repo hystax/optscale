@@ -168,8 +168,6 @@ import {
   updateMlModel,
   deleteMlModel,
   getMlModelRecommendations,
-  getRiSpUsageBreakdown,
-  getRiSpExpensesBreakdown,
   getMlRunsetTemplates,
   getMlRunsetTemplate,
   updateMlRunsetTemplate,
@@ -214,7 +212,9 @@ import {
   getLayout,
   createLayout,
   updateLayout,
-  deleteLayout
+  deleteLayout,
+  getReservedInstancesBreakdown,
+  getSavingPlansBreakdown
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
@@ -391,8 +391,6 @@ export {
   updateMlModel,
   deleteMlModel,
   getMlModelRecommendations,
-  getRiSpUsageBreakdown,
-  getRiSpExpensesBreakdown,
   getMlRunsetTemplates,
   getMlRunsetTemplate,
   updateMlRunsetTemplate,
@@ -438,7 +436,9 @@ export {
   getLayout,
   createLayout,
   updateLayout,
-  deleteLayout
+  deleteLayout,
+  getReservedInstancesBreakdown,
+  getSavingPlansBreakdown
 };
 
 export { RESTAPI, AUTH, SLACKER, JIRA_BUS };

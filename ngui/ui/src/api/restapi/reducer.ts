@@ -98,8 +98,6 @@ import {
   SET_ML_MODEL_RECOMMENDATIONS,
   SET_OPTIMIZATIONS_OVERVIEW,
   SET_OPTIMIZATION_DETAILS,
-  SET_RI_SP_USAGE_BREAKDOWN,
-  SET_RI_SP_EXPENSES_BREAKDOWN,
   SET_ML_OPTIMIZATION_DETAILS,
   SET_ML_RUNSET_TEMPLATES,
   SET_ML_RUNSET_TEMPLATE,
@@ -123,7 +121,9 @@ import {
   GET_ML_LEADERBOARD_DATASETS,
   SET_LAYOUTS,
   SET_LAYOUT,
-  CREATE_LAYOUT
+  CREATE_LAYOUT,
+  SET_RESERVED_INSTANCES_BREAKDOWN,
+  SET_SAVING_PLANS_BREAKDOWN
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -809,12 +809,6 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_RI_SP_USAGE_BREAKDOWN:
-    case SET_RI_SP_EXPENSES_BREAKDOWN:
-      return {
-        ...state,
-        [action.label]: action.payload.breakdown
-      };
     case SET_ML_RUNSET_TEMPLATES: {
       return {
         ...state,
@@ -960,6 +954,18 @@ const reducer = (state = {}, action) => {
         [action.label]: {
           ...action.payload
         }
+      };
+    }
+    case SET_RESERVED_INSTANCES_BREAKDOWN: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_SAVING_PLANS_BREAKDOWN: {
+      return {
+        ...state,
+        [action.label]: action.payload
       };
     }
     default:

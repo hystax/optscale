@@ -1756,22 +1756,20 @@ class Client(Client_v1):
     def risp_processing_task_delete(self, task_id):
         return self.delete(self.risp_processing_task_url(task_id))
 
-    def ri_sp_usage_breakdown_url(self, organization_id):
-        return '%s/ri_sp_usage_breakdown' % self.organization_url(
+    def ri_breakdown_url(self, organization_id):
+        return '%s/ri_breakdown' % self.organization_url(
             organization_id)
 
-    def ri_sp_usage_breakdown_get(self, organization_id, **kwargs):
-        url = self.ri_sp_usage_breakdown_url(organization_id) + self.query_url(
-            **kwargs)
+    def ri_breakdown_get(self, organization_id, **kwargs):
+        url = self.ri_breakdown_url(organization_id) + self.query_url(**kwargs)
         return self.get(url)
 
-    def ri_sp_expenses_breakdown_url(self, organization_id):
-        return '%s/ri_sp_expenses_breakdown' % self.organization_url(
+    def sp_breakdown_url(self, organization_id):
+        return '%s/sp_breakdown' % self.organization_url(
             organization_id)
 
-    def ri_sp_expenses_breakdown_get(self, organization_id, **kwargs):
-        url = self.ri_sp_expenses_breakdown_url(organization_id) + self.query_url(
-            **kwargs)
+    def sp_breakdown_get(self, organization_id, **kwargs):
+        url = self.sp_breakdown_url(organization_id) + self.query_url(**kwargs)
         return self.get(url)
 
     def profiling_token_by_infrastructure_token_get(self, infrastructure_token):
@@ -2120,3 +2118,21 @@ class Client(Client_v1):
     def layout_delete(self, org_id, layout_id):
         url = self.layouts_url(org_id, layout_id)
         return self.delete(url)
+
+    def offer_breakdown_url(self, organization_id):
+        return '%s/offer_breakdown' % self.organization_url(
+            organization_id)
+
+    def offer_breakdown_get(self, organization_id, **kwargs):
+        url = self.offer_breakdown_url(organization_id) + self.query_url(
+            **kwargs)
+        return self.get(url)
+
+    def ri_group_breakdown_url(self, organization_id):
+        return '%s/ri_group_breakdown' % self.organization_url(
+            organization_id)
+
+    def ri_group_breakdown_get(self, organization_id, **kwargs):
+        url = self.ri_group_breakdown_url(organization_id) + self.query_url(
+            **kwargs)
+        return self.get(url)

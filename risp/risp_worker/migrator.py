@@ -130,8 +130,7 @@ class Migrator:
         new_migrations = local_versions[len(ch_versions):]
         for filename in new_migrations:
             LOG.info('Upgrading version %s', filename)
-            import_path = '%s.%s.%s' % (
-                import_base, MIGRATIONS_FOLDER, filename)
+            import_path = f'{import_base}.{MIGRATIONS_FOLDER}.{filename}'
             module = importlib.import_module(import_path)
             migration = module.Migration(self.config_cl)
             migration.upgrade()

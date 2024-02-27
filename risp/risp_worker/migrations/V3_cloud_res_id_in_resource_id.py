@@ -94,8 +94,7 @@ class Migration(MigrationBase):
                 params={"offer_id": offer_id})[0][0]
             if count:
                 for j in range(0, count, CH_CHUNK_SIZE):
-                    query = insert_query + 'LIMIT %s OFFSET %s' % (
-                        CH_CHUNK_SIZE, j)
+                    query = insert_query + f'LIMIT {CH_CHUNK_SIZE} OFFSET {j}'
                     self.clickhouse_client.execute(
                         query, params={"offer_id": offer_id})
 

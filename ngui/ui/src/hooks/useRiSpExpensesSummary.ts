@@ -1,13 +1,15 @@
-import RiSpService from "services/RiSpService";
 import { getLast30DaysRange } from "utils/datetime";
 import { percentXofY } from "utils/math";
+import { useRiSpBreakdowns } from "./useRiSpBreakdowns";
 
 export const useRiSpExpensesSummary = (dataSourceIds) => {
-  const { useGetExpensesBreakdown } = RiSpService();
-
   const { startDate, endDate } = getLast30DaysRange();
 
-  const { isLoading, breakdown: expensesBreakdown } = useGetExpensesBreakdown(startDate, endDate, dataSourceIds);
+  const { isLoading, expensesBreakdown } = useRiSpBreakdowns({
+    startDate,
+    endDate,
+    dataSourceIds
+  });
 
   const summary = Object.values(expensesBreakdown)
     .flatMap((breakdownDatum) => breakdownDatum)

@@ -19,6 +19,19 @@ LOG = logging.getLogger(__name__)
 CHUNK_SIZE = 200
 GZIP_ENDING = '.gz'
 IGNORE_EXPENSE_TYPES = ['Credit']
+RI_PLATFORMS = [
+    'Linux/UNIX',
+    'Linux with SQL Server Standard',
+    'Linux with SQL Server Web',
+    'Linux with SQL Server Enterprise',
+    'SUSE Linux',
+    'Red Hat Enterprise Linux',
+    'Red Hat Enterprise Linux with HA',
+    'Windows',
+    'Windows with SQL Server Standard',
+    'Windows with SQL Server Web',
+    'Windows with SQL Server Enterprise',
+]
 tag_prefixes = ['resource_tags_aws_', 'resource_tags_user_']
 
 
@@ -132,6 +145,12 @@ class AWSReportImporter(CSVBaseReportImporter):
             'savingsPlan/SavingsPlanEffectiveCost',
             'reservation/EffectiveCost',
             'pricing/publicOnDemandCost',
+            'savingPlan/UsedCommitment',
+            'savingsPlan/SavingsPlanRate',
+            'reservation/UnusedQuantity',
+            'reservation/UnusedRecurringFee',
+            'reservation/UnusedAmortizedUpfrontFeeForBillingPeriod',
+            'reservation/AmortizedUpfrontFeeForBillingPeriod',
             'end_date',
             'cost',
             'report_identity',
@@ -282,7 +301,9 @@ class AWSReportImporter(CSVBaseReportImporter):
                 start_date = self._datetime_from_expense(
                     row, 'lineItem/UsageStartDate').replace(
                     hour=0, minute=0, second=0)
-                if start_date < self.min_date_import_threshold:
+                # RIFee is created once a month and is updated every day
+                if (start_date < self.min_date_import_threshold and
+                        row['lineItem/LineItemType'] != 'RIFee'):
                     continue
                 row['start_date'] = start_date
                 row['end_date'] = self._datetime_from_expense(
@@ -336,9 +357,6 @@ class AWSReportImporter(CSVBaseReportImporter):
                     elif field_name == 'lineItem/UsageStartDate':
                         start_date = self._datetime_from_value(value).replace(
                             hour=0, minute=0, second=0)
-                        if start_date < self.min_date_import_threshold:
-                            skipped_rows.add(expense_num)
-                            continue
                         chunk[expense_num]['start_date'] = start_date
                     elif field_name == 'lineItem/UsageEndDate':
                         chunk[expense_num]['end_date'] = self._datetime_from_value(
@@ -352,7 +370,11 @@ class AWSReportImporter(CSVBaseReportImporter):
                         chunk[expense_num][field_name] = value
 
             expenses = [x for x in chunk if x and
-                        chunk.index(x) not in skipped_rows]
+                        chunk.index(x) not in skipped_rows and
+                        x['cloud_account_id'] is not None and
+                        # RIFee is created once a month and is updated every day
+                        (x['start_date'] >= self.min_date_import_threshold or
+                         x['lineItem/LineItemType'] == 'RIFee')]
             for expense in expenses:
                 expense['created_at'] = self.import_start_ts
                 if self._is_flavor_usage(expense):
@@ -422,6 +444,11 @@ class AWSReportImporter(CSVBaseReportImporter):
         offering_type = None
         purchase_term = None
         applied_region = None
+        start = None
+        end = None
+        instance_type = None
+        platform = None
+        zone = None
 
         for e in expenses:
             start_date = self._datetime_from_expense(
@@ -478,6 +505,24 @@ class AWSReportImporter(CSVBaseReportImporter):
                 if not applied_region and 'savingsPlan/Region' in e:
                     applied_region = e['savingsPlan/Region']
                     meta_dict['applied_region'] = applied_region
+                if not start and 'savingsPlan/StartTime' in e:
+                    try:
+                        start = int(datetime.strptime(
+                            e.get('savingsPlan/StartTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['start'] = start
+                    except (TypeError, ValueError):
+                        pass
+                if not end and 'savingsPlan/EndTime' in e:
+                    try:
+                        end = int(datetime.strptime(
+                            e.get('savingsPlan/EndTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['end'] = end
+                    except (TypeError, ValueError):
+                        pass
             elif resource_type == 'Reserved Instances':
                 if not payment_option and 'pricing/PurchaseOption' in e:
                     payment_option = e['pricing/PurchaseOption']
@@ -488,7 +533,37 @@ class AWSReportImporter(CSVBaseReportImporter):
                 if not purchase_term and 'pricing/LeaseContractLength' in e:
                     purchase_term = e['pricing/LeaseContractLength']
                     meta_dict['purchase_term'] = purchase_term
-
+                if not start and 'reservation/StartTime' in e:
+                    try:
+                        start = int(datetime.strptime(
+                            e.get('reservation/StartTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['start'] = start
+                    except (TypeError, ValueError):
+                        pass
+                if not end and 'reservation/EndTime' in e:
+                    try:
+                        end = int(datetime.strptime(
+                            e.get('reservation/EndTime'),
+                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
+                                tzinfo=timezone.utc).timestamp())
+                        meta_dict['end'] = end
+                    except (TypeError, ValueError):
+                        pass
+                if not instance_type and 'lineItem/UsageType' in e:
+                    instance_type = e['lineItem/UsageType'].split(
+                        ':')[-1]
+                    meta_dict['instance_type'] = instance_type
+                if not platform and 'lineItem/LineItemDescription' in e:
+                    platform = e['lineItem/LineItemDescription']
+                    for ri_platform in RI_PLATFORMS:
+                        if ri_platform in platform:
+                            meta_dict['platform'] = ri_platform
+                            break
+                if not zone and 'reservation/AvailabilityZone' in e:
+                    zone = e['reservation/AvailabilityZone']
+                    meta_dict['instance_type'] = zone
         for product_family_value in self.main_resources_product_family_map.get(
                 resource_type, []):
             family_region = family_region_map.get(product_family_value, None)
@@ -682,7 +757,8 @@ class AWSReportImporter(CSVBaseReportImporter):
     def _get_cloud_extras(self, info):
         res = defaultdict(dict)
         for k in ['os', 'preinstalled', 'payment_option', 'offering_type',
-                  'purchase_term', 'applied_region']:
+                  'purchase_term', 'applied_region', 'start', 'end', 'platform',
+                  'instance_type', 'zone']:
             val = info.get(k)
             if val:
                 res['meta'][k] = val
