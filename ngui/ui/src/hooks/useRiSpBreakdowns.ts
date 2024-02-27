@@ -15,7 +15,7 @@ const getBreakdown = ({ riBreakdown, spBreakdown, breakdownType }: { breakdownTy
   const breakdownDates = Object.keys(spBreakdown.breakdown);
 
   const dataSourceIds =
-    Object.values(spBreakdown.breakdown)?.[0].map((breakdownDatum) => breakdownDatum.cloud_account_id) ?? [];
+    Object.values(spBreakdown.breakdown)?.[0]?.map((breakdownDatum) => breakdownDatum.cloud_account_id) ?? [];
 
   return Object.fromEntries(
     breakdownDates.map((date) => [
