@@ -194,7 +194,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'offer_type': 'ri',
                 'offer_cost': 10,
                 'on_demand_cost': 11,
-                'usage': 0.2,
+                'usage': 0.2222222222,
                 'ri_norm_factor': 2,
                 'expected_cost': 11,
                 'sign': 1
@@ -210,12 +210,13 @@ class TestRiBreakdownApi(TestApiBase):
         result = {
             str(self.start_ts): [{
                 'cloud_account_id': self.cloud_acc1['id'],
-                'total_usage_hrs': 0.2,
+                'total_usage_hrs': 0.2222222222,
                 'cost_without_offer': 11,
                 'cost_with_offer': 10,
-                'ri_usage_hrs': 0.2,
+                'ri_usage_hrs': 0.2222222222,
+                # round((11 - 10) / (10 / (0.22222222222 * 2)) / 4, 10)
                 'ri_overprovision_hrs': {
-                    't2.large': 0.01  # (11 - 10) / (10 / (0.2 * 2)) / 4
+                    't2.large': 0.0111111111
                 },
                 'ri_overprovision': 1,  # 11 - 10
                 'cloud_account_type': self.cloud_acc1['type'],

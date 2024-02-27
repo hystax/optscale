@@ -173,6 +173,8 @@ class RiBreakdownController(CleanExpenseController):
         overprovision_hrs = ri_sp_stats.get('overprovision_hrs', {})
         cost_with_offer = ri_sp_stats.get('cost_with_offer', 0)
         cost_without_offer = ri_sp_stats.get('cost_without_offer', 0)
+        for flavor_name, hrs in overprovision_hrs.items():
+            overprovision_hrs[flavor_name] = round(hrs, 10)
         for flavor in flavors_map:
             if flavor not in overprovision_hrs:
                 overprovision_hrs[flavor] = 0
@@ -187,7 +189,7 @@ class RiBreakdownController(CleanExpenseController):
             'cost_with_offer': total_cost_with_offer,
             f'{self.RESOURCE_PREFIX}_usage_hrs': usage,
             f'{self.RESOURCE_PREFIX}_overprovision_hrs': overprovision_hrs,
-            f'{self.RESOURCE_PREFIX}_overprovision': overprovision,
+            f'{self.RESOURCE_PREFIX}_overprovision': round(overprovision, 10),
             f'{self.RESOURCE_PREFIX}_cost_without_offer': cost_without_offer,
             f'{self.RESOURCE_PREFIX}_cost_with_offer': cost_with_offer
         }
