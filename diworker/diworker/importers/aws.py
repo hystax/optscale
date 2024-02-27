@@ -370,17 +370,15 @@ class AWSReportImporter(CSVBaseReportImporter):
                         chunk[expense_num][field_name] = value
 
             expenses = [x for x in chunk if x and
-                        chunk.index(x) not in skipped_rows]
-            for j, expense in enumerate(expenses):
-                # RIFee is created once a month and is updated every day
-                if (expense['start_date'] < self.min_date_import_threshold
-                        and expense['lineItem/LineItemType'] != 'RIFee'):
-                    expenses.pop(j)
+                        chunk.index(x) not in skipped_rows and
+                        x['cloud_account_id'] is not None and
+                        # RIFee is created once a month and is updated every day
+                        (x['start_date'] >= self.min_date_import_threshold or
+                         x['lineItem/LineItemType'] == 'RIFee')]
+            for expense in expenses:
                 expense['created_at'] = self.import_start_ts
                 if self._is_flavor_usage(expense):
                     expense['box_usage'] = True
-                if expense['cloud_account_id'] is None:
-                    expenses.pop(j)
                 self._set_resource_id(expense)
             if expenses:
                 self.update_raw_records(expenses)
