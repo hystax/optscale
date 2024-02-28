@@ -173,6 +173,13 @@ class RISPWorker(ConsumerMixin):
         new_expenses_map = defaultdict(lambda: defaultdict(dict))
         offer_expenses = self.get_offers_expenses_by_type(
             offer_type, cloud_account_id, start_date, end_date)
+        if offer_type == 'ri':
+            # lineItem/NormalizationFactor is missing for RDS instances,
+            # use 1 as default value
+            default_ri_norm_factor = 1
+        else:
+            # SP not use lineItem/NormalizationFactor
+            default_ri_norm_factor = 0
         for expense in offer_expenses:
             LOG.info('Processing expense: %s', expense)
             expense['offer_type'] = offer_type
@@ -190,7 +197,8 @@ class RISPWorker(ConsumerMixin):
             on_demand_cost = sum(float(x) for x in expense['on_demand_cost'])
             usage = sum(float(x) for x in expense['usage_hours']) + sum(
                 float(x) / SECONDS_IN_HOUR for x in expense['usage_seconds'])
-            ri_norm_factor = float(expense.get('ri_norm_factor', 0))
+            ri_norm_factor = float(expense.get(
+                'ri_norm_factor', default_ri_norm_factor))
             new_expenses_map[cloud_resource_id][exp_start][cloud_offer_id] = (
                 offer_cost, on_demand_cost, usage, ri_norm_factor)
         return new_expenses_map, cloud_resource_ids
