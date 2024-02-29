@@ -125,6 +125,11 @@ class RiBreakdownController(CleanExpenseController):
             }
         )
         for flavor_name in expenses:
+            if 'db.' in flavor_name:
+                # RDS instances don't have normalization factor
+                # use 1 as default
+                flavor_factor_map[flavor_name] = 1
+                continue
             for key, value in RI_FACTOR_MAP.items():
                 if key in flavor_name:
                     flavor_factor_map[flavor_name] = value

@@ -102,7 +102,10 @@ class Migration(MigrationBase):
                     for expense in expenses:
                         ri_id = expense['reservation/ReservationARN']
                         start_date = expense['start_date']
-                        factor = float(expense['lineItem/NormalizationFactor'])
+                        # lineItem/NormalizationFactor is missing for
+                        # RDS instances
+                        factor = float(
+                            expense.get('lineItem/NormalizationFactor', 1))
                         for offer_id in offer_ids:
                             if (offer_id in ri_id and
                                     start_date in data[offer_id]):

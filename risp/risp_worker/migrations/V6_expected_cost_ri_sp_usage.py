@@ -44,17 +44,21 @@ class Migration(MigrationBase):
                 'start_date': 1,
                 'end_date': 1,
                 'reservation/TotalReservedNormalizedUnits': 1,
+                'reservation/TotalReservedUnits': 1,
                 'lineItem/NormalizationFactor': 1,
                 'lineItem/UnblendedCost': 1,
                 'lineItem/UsageStartDate': 1,
                 'resource_id': 1
             })
         for expense in expenses:
-            total_norm_hours = float(expense[
-                'reservation/TotalReservedNormalizedUnits'])
+            # lineItem/TotalReservedNormalizedUnits is missing for RDS instances
+            total_norm_hours = float(expense.get(
+                'reservation/TotalReservedNormalizedUnits') or expense.get(
+                'reservation/TotalReservedUnits'))
             cost_per_n_hr = float(expense[
                                 'lineItem/UnblendedCost']) / total_norm_hours
-            norm_factor = float(expense['lineItem/NormalizationFactor'])
+            # lineItem/NormalizationFactor is missing for RDS instances
+            norm_factor = float(expense.get('lineItem/NormalizationFactor', 1))
             exp_start_date = expense['start_date'].replace(tzinfo=timezone.utc)
             exp_end_date = expense['end_date'].replace(tzinfo=timezone.utc)
             dates = self.dates_range(exp_start_date, exp_end_date)
