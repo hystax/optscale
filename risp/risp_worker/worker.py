@@ -267,6 +267,7 @@ class RISPWorker(ConsumerMixin):
                 'start_date': 1,
                 'end_date': 1,
                 'reservation/TotalReservedNormalizedUnits': 1,
+                'reservation/TotalReservedUnits': 1,
                 'reservation/AmortizedUpfrontFeeForBillingPeriod': 1,
                 'lineItem/NormalizationFactor': 1,
                 'lineItem/UnblendedCost': 1,
@@ -279,8 +280,10 @@ class RISPWorker(ConsumerMixin):
         expenses = self._ri_expected_cost_per_day(
             cloud_account_id, start_date, end_date)
         for expense in expenses:
-            total_norm_hours = float(expense[
-                'reservation/TotalReservedNormalizedUnits'])
+            # lineItem/TotalReservedNormalizedUnits is missing for RDS instances
+            total_norm_hours = float(expense.get(
+                'reservation/TotalReservedNormalizedUnits') or expense.get(
+                'reservation/TotalReservedUnits'))
             total_cost_per_month = float(
                 expense['lineItem/UnblendedCost']) + float(
                     expense['reservation/AmortizedUpfrontFeeForBillingPeriod'])
