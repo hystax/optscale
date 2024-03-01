@@ -291,21 +291,25 @@ const getThemeConfig = (settings = {}) => {
       },
       MuiAutocomplete: {
         styleOverrides: {
-          option: {
+          option: ({ theme }) => ({
             "&.MuiAutocomplete-option": {
-              color: secondary.contrastText,
+              /*
+                Make option font styles similar to the MuiMenuItem
+              */
+              ...theme.typography.body2,
               /* 
                 When options are selected, Autocomplete does not add any Mui classes, 
                 so we need to rely on the aria-selected element property instead.
               */
               "&[aria-selected='true']": {
                 backgroundColor: ACTION_SELECTED,
+                color: secondary.contrastText,
                 "&.Mui-focused": {
                   backgroundColor: ACTION_SELECTED
                 }
               }
             }
-          }
+          })
         }
       },
       MuiButton: {
@@ -464,7 +468,6 @@ const getThemeConfig = (settings = {}) => {
         },
         styleOverrides: {
           root: {
-            paddingLeft: "2rem",
             // https://github.com/mui-org/material-ui/issues/29842
             "&.Mui-selected": {
               backgroundColor: ACTION_SELECTED,

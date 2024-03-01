@@ -218,14 +218,9 @@ const InviteEmployeesForm = ({ availablePools, onSubmit, onCancel, isLoadingProp
         >
           {flatPools.map((obj) => (
             <Item
-              sx={{
-                pl: (theme) => {
-                  const themeSpacing = theme.components?.MuiMenuItem?.styleOverrides?.root?.paddingLeft ?? "0px";
-                  return `calc(${themeSpacing} + ${theme.spacing(obj.level * 2)})`;
-                }
-              }}
               key={obj.id}
               value={obj.id}
+              depth={obj.level}
               disabled={busyPoolIds.includes(obj.id) && obj.id !== field.value}
             >
               <Box>
