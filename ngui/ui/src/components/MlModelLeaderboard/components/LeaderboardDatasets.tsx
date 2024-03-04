@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
-import LeaderboardDatasetDetailsContainer from "containers/LeaderboardDatasetDetailsContainer";
+import LeaderboardDatasetDetails from "components/LeaderboardDatasetDetails";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import AddLeaderboardCriteriaButton from "./AddLeaderboardCriteriaButton";
@@ -22,7 +22,8 @@ const NoLeaderboards = ({ leaderboardId }) => {
 const LeaderboardDatasetsListSection = ({
   leaderboard,
   leaderboardDatasets,
-  selectedLeaderboardDataset,
+  leaderboardDataset,
+  selectedLeaderboardDatasetId,
   onSelectedLeaderboardDatasetIdChange
 }) => {
   const isAddLeaderboardCriteriaAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
@@ -69,13 +70,13 @@ const LeaderboardDatasetsListSection = ({
           }
         }}
       >
-        {leaderboardDatasets.map((leaderboardDataset) => {
-          const isSelected = selectedLeaderboardDataset && leaderboardDataset.id === selectedLeaderboardDataset.id;
+        {leaderboardDatasets.map((datum) => {
+          const isSelected = leaderboardDataset && datum.id === selectedLeaderboardDatasetId;
           return (
             <LeaderboardDatasetCard
-              key={leaderboardDataset.id}
-              leaderboardDataset={leaderboardDataset}
-              onClick={() => onSelectedLeaderboardDatasetIdChange(leaderboardDataset.id)}
+              key={datum.id}
+              leaderboardDataset={datum}
+              onClick={() => onSelectedLeaderboardDatasetIdChange(datum.id)}
               selected={isSelected}
             />
           );
@@ -88,8 +89,11 @@ const LeaderboardDatasetsListSection = ({
 const LeaderboardDatasets = ({
   leaderboard,
   leaderboardDatasets = [],
+  leaderboardDataset,
+  selectedLeaderboardDatasetId,
+  leaderboardDatasetDetails,
   onSelectedLeaderboardDatasetIdChange,
-  selectedLeaderboardDataset
+  isLoadingProps = {}
 }) => (
   <Box
     display="flex"
@@ -110,12 +114,19 @@ const LeaderboardDatasets = ({
         <LeaderboardDatasetsListSection
           leaderboard={leaderboard}
           leaderboardDatasets={leaderboardDatasets}
-          selectedLeaderboardDataset={selectedLeaderboardDataset}
+          leaderboardDataset={leaderboardDataset}
+          selectedLeaderboardDatasetId={selectedLeaderboardDatasetId}
           onSelectedLeaderboardDatasetIdChange={onSelectedLeaderboardDatasetIdChange}
         />
-        {selectedLeaderboardDataset && (
-          <LeaderboardDatasetDetailsContainer leaderboard={leaderboard} leaderboardDatasetId={selectedLeaderboardDataset.id} />
-        )}
+        <LeaderboardDatasetDetails
+          leaderboard={leaderboard}
+          leaderboardDataset={leaderboardDataset}
+          leaderboardDatasetDetails={leaderboardDatasetDetails}
+          isLoadingProps={{
+            isGetLeaderboardDatasetLoading: isLoadingProps.isGetLeaderboardDatasetLoading,
+            isGetLeaderboardDatasetDetailsLoading: isLoadingProps.isGetLeaderboardDatasetDetailsLoading
+          }}
+        />
       </>
     )}
   </Box>

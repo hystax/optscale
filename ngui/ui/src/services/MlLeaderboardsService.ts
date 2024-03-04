@@ -9,7 +9,8 @@ import {
   createMlLeaderboardDataset,
   updateMlLeaderboardDataset,
   deleteMlLeaderboardDataset,
-  getMlLeaderboardDataset
+  getMlLeaderboardDataset,
+  RESTAPI
 } from "api";
 import {
   GET_ML_LEADERBOARD,
@@ -49,6 +50,33 @@ const useGetLeaderboard = (taskId) => {
   };
 };
 
+const useGetLeaderboardOnDemand = () => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+
+  const { isLoading } = useApiState(GET_ML_LEADERBOARD);
+
+  const { apiData: leaderboard } = useApiData(GET_ML_LEADERBOARD);
+
+  const getData = useCallback(
+    (taskId) =>
+      new Promise((resolve, reject) => {
+        dispatch((_, getState) => {
+          dispatch(getMlLeaderboards(organizationId, taskId)).then(() => {
+            if (!isError(GET_ML_LEADERBOARD, getState())) {
+              const apiData = getState()?.[RESTAPI]?.[GET_ML_LEADERBOARD];
+              return resolve(apiData);
+            }
+            return reject();
+          });
+        });
+      }),
+    [dispatch, organizationId]
+  );
+
+  return { isLoading, data: leaderboard, getData };
+};
 const useCreateLeaderboard = () => {
   const dispatch = useDispatch();
 
@@ -118,6 +146,38 @@ const useGetLeaderboardDatasets = (leaderboardId) => {
   };
 };
 
+const useGetLeaderboardDatasetsOnDemand = () => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+
+  const { apiData: data } = useApiData(GET_ML_LEADERBOARD_DATASETS, []);
+
+  const { isLoading } = useApiState(GET_ML_LEADERBOARD_DATASETS);
+
+  const getData = useCallback(
+    (leaderboardId) =>
+      new Promise((resolve, reject) => {
+        dispatch((_, getState) => {
+          dispatch(getMlLeaderboardDatasets(organizationId, leaderboardId)).then(() => {
+            if (!isError(GET_ML_LEADERBOARD_DATASETS, getState())) {
+              const apiData = getState()?.[RESTAPI]?.[GET_ML_LEADERBOARD_DATASETS];
+              return resolve(apiData);
+            }
+            return reject();
+          });
+        });
+      }),
+    [dispatch, organizationId]
+  );
+
+  return {
+    isLoading,
+    data,
+    getData
+  };
+};
+
 const useGetLeaderboardDataset = (leaderboardDatasetId) => {
   const dispatch = useDispatch();
 
@@ -136,6 +196,38 @@ const useGetLeaderboardDataset = (leaderboardDatasetId) => {
   return {
     isLoading,
     leaderboardDataset
+  };
+};
+
+const useGetLeaderboardDatasetOnDemand = () => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+
+  const { apiData: leaderboardDataset } = useApiData(GET_ML_LEADERBOARD_DATASET);
+
+  const { isLoading } = useApiState(GET_ML_LEADERBOARD_DATASET);
+
+  const getData = useCallback(
+    (leaderboardDatasetId) =>
+      new Promise((resolve, reject) => {
+        dispatch((_, getState) => {
+          dispatch(getMlLeaderboardDataset(organizationId, leaderboardDatasetId)).then(() => {
+            if (!isError(GET_ML_LEADERBOARD_DATASET, getState())) {
+              const apiData = getState()?.[RESTAPI]?.[GET_ML_LEADERBOARD_DATASET];
+              return resolve(apiData);
+            }
+            return reject();
+          });
+        });
+      }),
+    [dispatch, organizationId]
+  );
+
+  return {
+    isLoading,
+    getData,
+    data: leaderboardDataset
   };
 };
 
@@ -232,19 +324,56 @@ const useGetLeaderboardDatasetDetails = (leaderboardDatasetId) => {
   };
 };
 
+const useGetLeaderboardDatasetDetailsOnDemand = () => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+
+  const { apiData: leaderboardDatasetDetails } = useApiData(GET_ML_LEADERBOARD_DATASET_DETAILS, []);
+
+  const { isLoading } = useApiState(GET_ML_LEADERBOARD_DATASET_DETAILS);
+
+  const getData = useCallback(
+    (leaderboardDatasetId) =>
+      new Promise((resolve, reject) => {
+        dispatch((_, getState) => {
+          dispatch(getMlLeaderboardDatasetDetails(organizationId, leaderboardDatasetId)).then(() => {
+            if (!isError(GET_ML_LEADERBOARD_DATASET_DETAILS, getState())) {
+              const apiData = getState()?.[RESTAPI]?.[GET_ML_LEADERBOARD_DATASET_DETAILS];
+              return resolve(apiData);
+            }
+            return reject();
+          });
+        });
+      }),
+    [dispatch, organizationId]
+  );
+
+  return {
+    isLoading,
+    getData,
+    data: leaderboardDatasetDetails
+  };
+};
+
 function MlLeaderboardsService() {
   return {
     useGetLeaderboard,
+    useGetLeaderboardOnDemand,
     useCreateLeaderboard,
     useUpdateLeaderboard,
 
     useGetLeaderboardDatasets,
+    useGetLeaderboardDatasetsOnDemand,
+
     useGetLeaderboardDataset,
+    useGetLeaderboardDatasetOnDemand,
     useCreateLeaderboardDataset,
     useUpdateLeaderboardDataset,
     useDeleteLeaderboardDataset,
 
-    useGetLeaderboardDatasetDetails
+    useGetLeaderboardDatasetDetails,
+    useGetLeaderboardDatasetDetailsOnDemand
   };
 }
 

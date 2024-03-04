@@ -1,3 +1,0 @@
-import LeaderboardDatasetDetailsContainer from "./LeaderboardDatasetDetailsContainer";
-
-export default LeaderboardDatasetDetailsContainer;
