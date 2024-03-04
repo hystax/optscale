@@ -1,7 +1,7 @@
 import { lighten } from "@mui/material";
 import { makeStyles } from "tss-react/mui";
 import { DRAWER_WIDTH } from "layouts/BaseLayout/BaseLayout.styles";
-import { SPACING_1 } from "utils/layouts";
+import { SPACING_2 } from "utils/layouts";
 
 const INTERACTIVE_BORDER_WIDTH = 20;
 
@@ -65,12 +65,10 @@ const useStyles = makeStyles()((theme, { buttonOpacity, isExpanded }) => ({
     borderStyle: "solid",
     backgroundColor: theme.palette.common.white,
     color: theme.palette.info.main,
-    maxWidth: "0.9em",
-    maxHeight: "0.9em",
-    fontSize: "0.9em",
+    padding: "0.25rem",
     transform: "translateX(-50%)",
     left: "50%",
-    top: theme.spacing(SPACING_1),
+    top: theme.spacing(SPACING_2),
     borderRadius: "50%",
     transition: "opacity 0.2s ease-in",
     opacity: buttonOpacity,
@@ -78,10 +76,6 @@ const useStyles = makeStyles()((theme, { buttonOpacity, isExpanded }) => ({
       backgroundColor: theme.palette.primary.main,
       color: theme.palette.common.white
     }
-  },
-  invisibleButtonBack: {
-    width: "150%",
-    height: "2.5em"
   },
   buttonIcon: {
     transition: "transform 0.2s ease-in",

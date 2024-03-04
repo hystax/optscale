@@ -47,7 +47,6 @@ const CollapsableMenuDrawer = ({ children }) => {
         className={classes.menuCollapseBorder}
       >
         <div
-          className={classes.invisibleButtonBack}
           onMouseMove={(e) => {
             e.stopPropagation();
             e.preventDefault();

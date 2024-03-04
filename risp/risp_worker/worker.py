@@ -197,8 +197,8 @@ class RISPWorker(ConsumerMixin):
             on_demand_cost = sum(float(x) for x in expense['on_demand_cost'])
             usage = sum(float(x) for x in expense['usage_hours']) + sum(
                 float(x) / SECONDS_IN_HOUR for x in expense['usage_seconds'])
-            ri_norm_factor = float(expense.get(
-                'ri_norm_factor', default_ri_norm_factor))
+            ri_norm_factor = float(
+                expense.get('ri_norm_factor') or default_ri_norm_factor)
             new_expenses_map[cloud_resource_id][exp_start][cloud_offer_id] = (
                 offer_cost, on_demand_cost, usage, ri_norm_factor)
         return new_expenses_map, cloud_resource_ids
@@ -288,7 +288,7 @@ class RISPWorker(ConsumerMixin):
                 expense['lineItem/UnblendedCost']) + float(
                     expense['reservation/AmortizedUpfrontFeeForBillingPeriod'])
             cost_per_n_hr = total_cost_per_month / total_norm_hours
-            norm_factor = float(expense['lineItem/NormalizationFactor'])
+            norm_factor = float(expense.get('lineItem/NormalizationFactor', 1))
             exp_start_date = expense['start_date'].replace(tzinfo=timezone.utc)
             exp_end_date = expense['end_date'].replace(tzinfo=timezone.utc)
             dates = self.dates_range(exp_start_date, exp_end_date)

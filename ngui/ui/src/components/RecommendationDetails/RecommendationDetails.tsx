@@ -1,11 +1,15 @@
+import { useEffect } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import TabsWrapper from "components/TabsWrapper";
 import { ACTIVE, DISMISSED, EXCLUDED } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
 import MlModelsService from "services/MlModelsService";
+import { removeQueryParam } from "utils/network";
 import Details from "./Details";
 import RecommendationDetailsService from "./RecommendationDetailsService";
 import SelectedCloudAccounts from "./SelectedCloudAccounts";
+
+const QUERY_TAB_NAME = "recommendationDetailsTab";
 
 const Recommendations = ({ isLoading, type, limit, data, status, dataSourceIds, withDownload }) => {
   if (isLoading) {
@@ -53,6 +57,13 @@ const RecommendationDetails = ({
   dismissable = false,
   withExclusions = false
 }) => {
+  useEffect(
+    () => () => {
+      removeQueryParam(QUERY_TAB_NAME);
+    },
+    []
+  );
+
   const tabs = [ACTIVE, dismissable ? DISMISSED : false, withExclusions ? EXCLUDED : false].filter(Boolean).map((name) => ({
     title: name,
     node: mlModelId ? (
@@ -72,7 +83,7 @@ const RecommendationDetails = ({
       )}
       <TabsWrapper
         tabsProps={{
-          queryTabName: "recommendationDetailsTab",
+          queryTabName: QUERY_TAB_NAME,
           tabs,
           defaultTab: ACTIVE,
           name: "recommendations-data"
