@@ -97,7 +97,7 @@ const RangePicker = ({
           }
           helperText={validation.helperText}
           fullWidth={fullWidth}
-          dataTestId={"text_selected_dates"}
+          dataTestId="text_selected_dates"
           style={{ minWidth: "130px" }}
         >
           {dateAsText}
