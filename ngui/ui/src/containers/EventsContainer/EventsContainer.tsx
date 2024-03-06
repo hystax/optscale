@@ -12,10 +12,11 @@ const EventsContainer = () => {
 
   const { level, timeStart, timeEnd, lastId } = getQueryParams();
 
+  // Undefined query parameters are ignored in the API calls
   const [requestParams, setRequestParams] = useState({
     level,
-    timeStart,
-    timeEnd,
+    timeStart: timeStart === undefined ? timeStart : Number(timeStart),
+    timeEnd: timeEnd === undefined ? timeEnd : Number(timeEnd),
     lastId
   });
 

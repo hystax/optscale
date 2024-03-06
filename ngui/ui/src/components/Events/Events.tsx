@@ -37,13 +37,10 @@ const Loader = () => (
 const Picker = ({ onApply }) => {
   const filterParams = getQueryParams();
 
-  const initialStartDateValue = filterParams.timeStart ? Number(filterParams.timeStart) : null;
-  const initialEndDateValue = filterParams.timeEnd ? Number(filterParams.timeEnd) : null;
-
   return (
     <RangePickerForm
-      initialStartDateValue={initialStartDateValue}
-      initialEndDateValue={initialEndDateValue}
+      initialStartDateValue={filterParams?.timeStart}
+      initialEndDateValue={filterParams?.timeEnd}
       onApply={(startDate, endDate) =>
         onApply({
           timeStart: startDate,

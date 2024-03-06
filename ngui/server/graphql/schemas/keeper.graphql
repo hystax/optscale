@@ -14,12 +14,12 @@ type Event {
   acknowledged_user: String
 }
 
-# Investigate timeStart and timeEnd. They might come from UI as stings and as numbers
+# TODO: circle back on types - required types must be exclamated (see organizationId below and generated resolversTypes)
 input RequestParam {
   limit: Int = 80
   level: String
-  timeStart: String
-  timeEnd: String
+  timeStart: Int
+  timeEnd: Int
   lastId: String
   includeRead: Boolean = true
   readOnGet: Boolean = true

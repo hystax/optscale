@@ -50,8 +50,8 @@ export type RequestParam = {
   level?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   readOnGet?: InputMaybe<Scalars['Boolean']['input']>;
-  timeEnd?: InputMaybe<Scalars['String']['input']>;
-  timeStart?: InputMaybe<Scalars['String']['input']>;
+  timeEnd?: InputMaybe<Scalars['Int']['input']>;
+  timeStart?: InputMaybe<Scalars['Int']['input']>;
 };
 
 

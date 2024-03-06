@@ -3,7 +3,7 @@ import { lighten, useTheme } from "@mui/material/styles";
 import DynamicFractionDigitsValue from "components/DynamicFractionDigitsValue";
 import SlicedText from "components/SlicedText";
 
-const LeaderboardDatasetCard = ({ leaderboardDataset, onClick, selected }) => {
+const LeaderboardDatasetCard = ({ leaderboardDataset, onClick, selected, isLoading }) => {
   const theme = useTheme();
 
   const { name, primary_metric: { name: primaryMetricName, value: primaryMetricValue } = {} } = leaderboardDataset;
@@ -24,9 +24,7 @@ const LeaderboardDatasetCard = ({ leaderboardDataset, onClick, selected }) => {
         }
       }}
     >
-      <Typography noWrap>
-        <SlicedText text={name} limit={20} />
-      </Typography>
+      <Typography noWrap>{isLoading ? "loading" : <SlicedText text={name} limit={20} />}</Typography>
       <Typography variant="caption" noWrap>
         {primaryMetricName}
         &#58;&nbsp;

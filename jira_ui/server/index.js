@@ -9,6 +9,9 @@ dotevn.config();
 
 const app = express();
 
+// https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues
+app.set("trust proxy", 1);
+
 rateLimitMiddleware(app);
 
 checkJwtForPageRoutesMiddleware(app);

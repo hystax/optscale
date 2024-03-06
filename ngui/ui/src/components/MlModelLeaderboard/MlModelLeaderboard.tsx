@@ -1,13 +1,37 @@
 import TableLoader from "components/TableLoader";
-import MlModelLeaderboardDatasetsContainer from "containers/MlModelLeaderboardDatasetsContainer";
-import { SetupLeaderboardsInvitation } from "./components";
+import { LeaderboardDatasets, SetupLeaderboardsInvitation } from "./components";
 
-const MlModelLeaderboard = ({ leaderboard, isLoading = false }) => {
-  if (isLoading) {
+const MlModelLeaderboard = ({
+  leaderboard,
+  leaderboardDatasets,
+  leaderboardDataset,
+  selectedLeaderboardDatasetId,
+  leaderboardDatasetDetails,
+  onSelectedLeaderboardDatasetIdChange,
+  isLoadingProps = {}
+}) => {
+  if (isLoadingProps.isGetLeaderboardLoading || isLoadingProps.isGetLeaderboardDatasetsLoading) {
     return <TableLoader />;
   }
 
-  return leaderboard?.id ? <MlModelLeaderboardDatasetsContainer leaderboard={leaderboard} /> : <SetupLeaderboardsInvitation />;
+  if (leaderboard?.id) {
+    return (
+      <LeaderboardDatasets
+        leaderboard={leaderboard}
+        leaderboardDatasets={leaderboardDatasets}
+        leaderboardDataset={leaderboardDataset}
+        selectedLeaderboardDatasetId={selectedLeaderboardDatasetId}
+        leaderboardDatasetDetails={leaderboardDatasetDetails}
+        onSelectedLeaderboardDatasetIdChange={onSelectedLeaderboardDatasetIdChange}
+        isLoadingProps={{
+          isGetLeaderboardDatasetLoading: isLoadingProps.isGetLeaderboardDatasetLoading,
+          isGetLeaderboardDatasetDetailsLoading: isLoadingProps.isGetLeaderboardDatasetDetailsLoading
+        }}
+      />
+    );
+  }
+
+  return <SetupLeaderboardsInvitation />;
 };
 
 export default MlModelLeaderboard;
