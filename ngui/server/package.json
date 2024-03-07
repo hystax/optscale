@@ -26,6 +26,8 @@
     "@apollo/datasource-rest": "^6.2.2",
     "@apollo/server": "^4.9.5",
     "@apollo/utils.keyvaluecache": "^3.1.0",
+    "@graphql-tools/load-files": "^7.0.0",
+    "@graphql-tools/merge": "^9.0.3",
     "@types/node": "^20.10.5",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

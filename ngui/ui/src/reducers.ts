@@ -6,7 +6,6 @@ import AuthReducer, { AUTH } from "api/auth/reducer";
 import JiraBusReducer, { JIRA_BUS } from "api/jira_bus/reducer";
 import ApiReducer, { API } from "api/reducer";
 import RestapiReducer, { RESTAPI } from "api/restapi/reducer";
-import SlackerReducer, { SLACKER } from "api/slacker/reducer";
 import ResourcesSortGroupsByReducer, {
   RESOURCES_SORT_GROUPS_BY
 } from "components/CleanExpensesTableGroup/SortGroupsBySelector/reducer";
@@ -65,7 +64,6 @@ const appReducer = combineReducers({
   [API]: ApiReducer,
   [AUTH]: persistReducer(authPersistConfig, AuthReducer),
   [RESTAPI]: RestapiReducer,
-  [SLACKER]: SlackerReducer,
   [JIRA_BUS]: JiraBusReducer,
   [RESOURCES_SORT_GROUPS_BY]: ResourcesSortGroupsByReducer,
   [SCOPE_ID]: ScopeIdReducer,

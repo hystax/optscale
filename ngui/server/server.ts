@@ -1,4 +1,3 @@
-import { readFileSync } from "fs";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -10,7 +9,11 @@ import bodyParser from "body-parser";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import checkEnvironment from "./checkEnvironment.js";
 import KeeperClient from "./api/keeper/client.js";
-import resolvers from "./graphql/resolvers/keeper.js";
+import keeperResolvers from "./graphql/resolvers/keeper.js";
+import slackerResolvers from "./graphql/resolvers/slacker.js";
+import SlackerClient from "./api/slacker/client.js";
+import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
+import { loadFilesSync } from "@graphql-tools/load-files";
 
 checkEnvironment(["UI_BUILD_PATH", "PROXY_URL"]);
 
@@ -21,12 +24,18 @@ const httpServer = http.createServer(app);
 interface ContextValue {
   dataSources: {
     keeper: KeeperClient;
+    slacker: SlackerClient;
   };
 }
 
-const typeDefs = readFileSync("./graphql/schemas/keeper.graphql", {
-  encoding: "utf-8",
+const typesArray = loadFilesSync("./graphql/schemas", {
+  extensions: ["graphql"],
 });
+const typeDefs = mergeTypeDefs(typesArray);
+
+// loadFilesSync does not support yet ES modules under the hood:
+// https://github.com/ardatan/graphql-tools/issues/1750#issuecomment-716939594
+const resolvers = mergeResolvers([keeperResolvers, slackerResolvers]);
 
 // Same ApolloServer initialization as before, plus the drain plugin
 // for our httpServer.
@@ -57,6 +66,7 @@ app.use(
         // passing in our server's cache.
         dataSources: {
           keeper: new KeeperClient({ token, cache }),
+          slacker: new SlackerClient({ token, cache }),
         },
       };
     },
@@ -73,7 +83,6 @@ const proxyMiddleware = createProxyMiddleware({
 app.use("/auth", proxyMiddleware);
 app.use("/jira_bus", proxyMiddleware);
 app.use("/restapi", proxyMiddleware);
-app.use("/slacker", proxyMiddleware);
 
 const UI_BUILD_PATH = process.env.UI_BUILD_PATH;
 

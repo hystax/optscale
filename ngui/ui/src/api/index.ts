@@ -218,9 +218,6 @@ import {
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
-import { connectSlackUser, getSlackInstallationPath } from "./slacker";
-import { SLACKER } from "./slacker/reducer";
-
 export {
   apiSuccess,
   apiError,
@@ -297,7 +294,6 @@ export {
   getTtlAnalysis,
   applyAssignmentRules,
   updateResourceVisibility,
-  connectSlackUser,
   getResourceAllowedActions,
   getFinOpsChecklist,
   updateFinOpsChecklist,
@@ -321,7 +317,6 @@ export {
   deleteEnvironment,
   createExpensesExport,
   deleteExpensesExport,
-  getSlackInstallationPath,
   getDataSourceNodes,
   getResourceMetrics,
   getResourceCostModel,
@@ -441,6 +436,6 @@ export {
   getSavingPlansBreakdown
 };
 
-export { RESTAPI, AUTH, SLACKER, JIRA_BUS };
+export { RESTAPI, AUTH, JIRA_BUS };
 
 export { REST_API_URL, AUTH_API_URL };

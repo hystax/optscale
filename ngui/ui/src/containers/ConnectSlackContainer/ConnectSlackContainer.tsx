@@ -1,31 +1,24 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { connectSlackUser } from "api";
-import { CONNECT_SLACK_USER } from "api/slacker/actionTypes";
+import { useEffect } from "react";
+import { useMutation } from "@apollo/client";
 import ConnectSlack from "components/ConnectSlack";
-import { useApiState } from "hooks/useApiState";
-import { isError } from "utils/api";
+import { CONNECT_SLACK_USER } from "graphql/api/slacker/queries";
 
-const ConnectSlackContainer = ({ secret }) => {
-  const dispatch = useDispatch();
-  const [hasError, setHasError] = useState(false);
+type ConnectSlackContainerProps = {
+  secret: string;
+};
 
-  const { isLoading } = useApiState(CONNECT_SLACK_USER);
+const ConnectSlackContainer = ({ secret }: ConnectSlackContainerProps) => {
+  const [connectSlackUser, { loading, error }] = useMutation(CONNECT_SLACK_USER, {
+    variables: {
+      secret
+    }
+  });
 
   useEffect(() => {
-    dispatch((_, getState) => {
-      dispatch(connectSlackUser(secret))
-        .then(() => {
-          if (isError(CONNECT_SLACK_USER, getState())) {
-            return Promise.reject();
-          }
-          return undefined;
-        })
-        .catch(() => setHasError(true));
-    });
-  }, [dispatch, secret]);
+    connectSlackUser();
+  }, [connectSlackUser, secret]);
 
-  return <ConnectSlack isLoading={isLoading} isError={hasError} />;
+  return <ConnectSlack isLoading={loading} isError={!!error} />;
 };
 
 export default ConnectSlackContainer;
