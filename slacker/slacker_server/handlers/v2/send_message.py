@@ -1,5 +1,3 @@
-import json
-
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
 from slacker.slacker_server.controllers.send_message import SendMessageAsyncController
@@ -9,30 +7,30 @@ from slacker.slacker_server.handlers.v2.base import BaseHandler
 
 class SendMessageHandler(BaseHandler):
     async def validate_params(self, **kwargs):
-        type_ = kwargs.pop('type', None)
+        type_ = kwargs.pop("type", None)
         if type_ is None:
-            raise OptHTTPError(400, Err.OS0010, ['type'])
-        channel_id = kwargs.pop('channel_id', None)
-        team_id = kwargs.pop('team_id', None)
-        auth_user_id = kwargs.pop('auth_user_id', None)
-        warning = kwargs.pop('warning', None)
-        warning_params = kwargs.pop('warning_params', None)
+            raise OptHTTPError(400, Err.OS0010, ["type"])
+        channel_id = kwargs.pop("channel_id", None)
+        team_id = kwargs.pop("team_id", None)
+        auth_user_id = kwargs.pop("auth_user_id", None)
+        warning = kwargs.pop("warning", None)
         if channel_id is None and auth_user_id is None and team_id is None:
-            raise OptHTTPError(400, Err.OS0014, [
-                'channel_id with team_id', 'auth_user_id'])
+            raise OptHTTPError(
+                400, Err.OS0014, ["channel_id with team_id", "auth_user_id"]
+            )
         if channel_id and auth_user_id:
-            raise OptHTTPError(400, Err.OS0015, ['channel_id', 'auth_user_id'])
+            raise OptHTTPError(400, Err.OS0015, ["channel_id", "auth_user_id"])
         if team_id and auth_user_id:
-            raise OptHTTPError(400, Err.OS0015, ['team_id', 'auth_user_id'])
+            raise OptHTTPError(400, Err.OS0015, ["team_id", "auth_user_id"])
         if (team_id and not channel_id) or (channel_id and not team_id):
-            raise OptHTTPError(400, Err.OS0017, ['channel_id', 'team_id'])
-        if warning and warning not in ['is_archived']:
-            raise OptHTTPError(400, Err.OS0011, ['warning'])
-        parameters = kwargs.pop('parameters', None)
+            raise OptHTTPError(400, Err.OS0017, ["channel_id", "team_id"])
+        if warning and warning not in ["is_archived"]:
+            raise OptHTTPError(400, Err.OS0011, ["warning"])
+        parameters = kwargs.pop("parameters", None)
         if not parameters or parameters and not isinstance(parameters, dict):
-            raise OptHTTPError(400, Err.OS0011, ['parameters'])
+            raise OptHTTPError(400, Err.OS0011, ["parameters"])
         if kwargs:
-            raise OptHTTPError(400, Err.OS0007, [','.join(kwargs.keys())])
+            raise OptHTTPError(400, Err.OS0007, [",".join(kwargs.keys())])
 
     async def post(self, **kwargs):
         """
@@ -153,7 +151,7 @@ class SendMessageHandler(BaseHandler):
         data.update(kwargs)
         await self.validate_params(**data)
         await self.controller.send_message(**data)
-        self.write(json.dumps({}))
+        self.write_json({})
         self.set_status(201)
 
     def _get_controller_class(self):

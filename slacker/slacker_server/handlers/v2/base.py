@@ -21,20 +21,29 @@ LOG = logging.getLogger(__name__)
 
 
 class DefaultHandler(RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Content-Type", "application/json; charset=UTF-8")
+
     def write_error(self, status_code, **kwargs):
-        self.set_header('Content-Type', 'application/json')
         self.set_status(404)
-        self.finish(json.dumps({
-            'error': {
-                'status_code': 404,
-                'error_code': Err.OS0002.name,
-                'reason': self._reason,
-                'params': [],
-            }
-        }))
+        self.finish(
+            json.dumps(
+                {
+                    "error": {
+                        "status_code": 404,
+                        "error_code": Err.OS0002.name,
+                        "reason": self._reason,
+                        "params": [],
+                    }
+                }
+            )
+        )
 
 
 class BaseHandler(RequestHandler):
+    def set_default_headers(self):
+        self.set_header("Content-Type", "application/json; charset=UTF-8")
+
     def initialize(self, app, engine, config_cl):
         self.app = app
         self.engine = engine
@@ -45,7 +54,7 @@ class BaseHandler(RequestHandler):
 
     @property
     def token(self):
-        auth_header = self.request.headers.get('Authorization')
+        auth_header = self.request.headers.get("Authorization")
         if not auth_header:
             return None
         return auth_header[7:]
@@ -86,57 +95,57 @@ class BaseHandler(RequestHandler):
         try:
             if not self.token and not self.secret:
                 raise UnauthorizedException(Err.OS0006, [])
-            self.set_content_type()
-            if self.request.method == 'POST':
+            if self.request.method == "POST":
                 self._validate_post_parameters()
         except UnauthorizedException as exc:
             self.set_status(401)
-            self.finish({'error': str(exc)})
+            self.finish({"error": str(exc)})
 
     def _validate_post_parameters(self):
         if not self.request.body:
             return
         body = self._request_body()
         if isinstance(body, dict):
-            duplicated_params = list(filter(
-                lambda x: x in self.path_kwargs, body.keys()))
-            message = ', '.join(duplicated_params)
+            duplicated_params = list(
+                filter(lambda x: x in self.path_kwargs, body.keys())
+            )
+            message = ", ".join(duplicated_params)
             if duplicated_params:
                 raise OptHTTPError(400, Err.OS0012, [message])
 
-    def set_content_type(self,
-                         content_type='application/json; charset="utf-8"'):
-        self.set_header('Content-Type', content_type)
-
     def on_finish(self):
         self.session().close()
+
+    def write_json(self, response):
+        self.write(json.dumps(response, cls=ModelEncoder))
 
     @property
     def controller(self):
         if not self._controller:
             self._controller = self._get_controller_class()(
-                self.app, self.session(), self.config_cl, self.token, self.engine)
+                self.app, self.session(), self.config_cl, self.token, self.engine
+            )
         return self._controller
 
     def _get_controller_class(self):
         raise NotImplementedError
 
     def write_error(self, status_code, **kwargs):
-        exc = kwargs.get('exc_info')[1]
+        exc = kwargs.get("exc_info")[1]
         res = {
-            'error': {
-                'status_code': status_code,
-                'error_code': getattr(exc, 'error_code', 'U0%s' % status_code),
-                'reason': self._reason,
-                'params': getattr(exc, 'params', []),
+            "error": {
+                "status_code": status_code,
+                "error_code": getattr(exc, "error_code", "U0%s" % status_code),
+                "reason": self._reason,
+                "params": getattr(exc, "params", []),
             }
         }
-        self.set_content_type('application/json; charset="utf-8"')
+
         self.finish(json.dumps(res, cls=ModelEncoder))
 
     def _request_body(self):
         try:
-            return json.loads(self.request.body.decode('utf-8'))
+            return json.loads(self.request.body.decode("utf-8"))
         except JSONDecodeError:
             raise OptHTTPError(400, Err.OS0004, [])
 
@@ -148,17 +157,24 @@ class BaseHandler(RequestHandler):
         if isinstance(value, HTTPError):
             if value.log_message:
                 format = "%d %s: " + value.log_message + "\\n%s"
-                args = ([value.status_code, self._request_summary()] +
-                        list(value.args) + [repr(''.join(out_list))])
+                args = (
+                    [value.status_code, self._request_summary()]
+                    + list(value.args)
+                    + [repr("".join(out_list))]
+                )
             else:
                 format = "%d %s:\\n%s"
-                args = ([value.status_code, self._request_summary()] +
-                        [repr(''.join(out_list))])
+                args = [value.status_code, self._request_summary()] + [
+                    repr("".join(out_list))
+                ]
             LOG.warning(format, *args)
         else:
-            LOG.error("Uncaught exception %s\\n%r\\n %s",
-                      self._request_summary(), self.request,
-                      repr(''.join(out_list)))
+            LOG.error(
+                "Uncaught exception %s\\n%r\\n %s",
+                self._request_summary(),
+                self.request,
+                repr("".join(out_list)),
+            )
 
     def get_request_data(self):
         raise NotImplementedError
@@ -187,19 +203,21 @@ class BaseHandler(RequestHandler):
         return token_meta_dict
 
     def get_meta_by_token(self, token):
-        user_digest = list(map(
-            lambda x: hashlib.md5(x.encode('utf-8')).hexdigest(), [token]))[0]
+        user_digest = list(
+            map(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest(), [token])
+        )[0]
         token_meta = self.get_token_meta([user_digest]).get(user_digest, {})
         return token_meta
 
     async def check_self_auth(self):
         try:
             token_meta = await IOLoop.current().run_in_executor(
-                self.executor, self.get_meta_by_token, self.token)
+                self.executor, self.get_meta_by_token, self.token
+            )
         except AttributeError:
             self.raise401()
-        token_valid_until = token_meta.get('valid_until', 0)
-        token_user_id = token_meta.get('user_id', '')
+        token_valid_until = token_meta.get("valid_until", 0)
+        token_user_id = token_meta.get("user_id", "")
 
         if token_valid_until < time.time():
             self.raise401()
@@ -207,7 +225,7 @@ class BaseHandler(RequestHandler):
 
     @property
     def secret(self):
-        return self.request.headers.get('Secret')
+        return self.request.headers.get("Secret")
 
     def check_cluster_secret(self, **kwargs):
         cluster_secret = self.config_cl.cluster_secret()
