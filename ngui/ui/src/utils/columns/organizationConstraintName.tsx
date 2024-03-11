@@ -4,7 +4,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
 import IconLabel from "components/IconLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SlicedText from "components/SlicedText";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import Tooltip from "components/Tooltip";
@@ -55,7 +55,7 @@ const NameCell = ({ lastRun, limitHitsCount, id, type, name }: NameCellProps) =>
                 </Tooltip>
               )
             }
-            label={<KeyValueLabel variant="caption" messageId="lastCheck" value={timeAgo} />}
+            label={<KeyValueLabel keyMessageId="lastCheck" value={timeAgo} variant="caption" />}
             component={RouterLink}
           />
         ) : null

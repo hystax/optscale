@@ -6,7 +6,7 @@ import Button from "components/Button";
 import Circle from "components/Circle";
 import FormattedMoney from "components/FormattedMoney";
 import KeyValueChartTooltipBody from "components/KeyValueChartTooltipBody";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PieChart from "components/PieChart";
 import PoolExpenses from "components/PoolExpenses";
 import PoolForecast from "components/PoolForecast";
@@ -62,7 +62,7 @@ const Chart = ({ poolPurpose, poolCost, childPools }) => {
           <Circle color={colorScale("root")} mr={1} />
           <PoolTypeIcon type={poolPurpose} hasRightMargin />
           <KeyValueLabel
-            messageId="(thisPool)"
+            keyMessageId="(thisPool)"
             value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={thisPoolCost} />}
           />
         </Box>
@@ -71,7 +71,7 @@ const Chart = ({ poolPurpose, poolCost, childPools }) => {
             <Circle color={colorScale(id)} mr={1} />
             <KeyValueLabel
               key={id}
-              renderKey={() => <PoolLabel name={name} type={purpose} disableLink />}
+              keyText={<PoolLabel name={name} type={purpose} disableLink />}
               value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />}
             />
           </Box>
@@ -83,9 +83,9 @@ const Chart = ({ poolPurpose, poolCost, childPools }) => {
 
 const Summary = ({ name, purpose, limit, owner }) => (
   <>
-    <KeyValueLabel messageId="name" value={<PoolLabel name={name} type={purpose} disableLink />} />
-    <KeyValueLabel messageId="limit" value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={limit} />} />
-    <KeyValueLabel messageId="owner" value={owner} />
+    <KeyValueLabel keyMessageId="name" value={<PoolLabel name={name} type={purpose} disableLink />} />
+    <KeyValueLabel keyMessageId="limit" value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={limit} />} />
+    <KeyValueLabel keyMessageId="owner" value={owner} />
   </>
 );
 

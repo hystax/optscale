@@ -12,7 +12,7 @@ import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import Chip from "components/Chip";
 import DashedTypography from "components/DashedTypography";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Popover from "components/Popover";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { LINEAR_SELECTOR_ITEMS_TYPES } from "utils/constants";
@@ -210,7 +210,7 @@ const PickedItem = ({ name, dataTestId = name, value, type, onDelete, displayedN
 
     return [LINEAR_SELECTOR_ITEMS_TYPES.POPOVER, LINEAR_SELECTOR_ITEMS_TYPES.MULTISELECT_POPOVER].includes(type) ? (
       <KeyValueLabel
-        renderKey={() => nameDisplayed}
+        keyText={nameDisplayed}
         value={valueDisplayed}
         variant={typographyVariant}
         dataTestIds={{

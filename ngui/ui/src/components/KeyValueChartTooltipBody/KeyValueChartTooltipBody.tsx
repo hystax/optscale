@@ -2,9 +2,8 @@ import Typography from "@mui/material/Typography";
 import { withStyles } from "tss-react/mui";
 import FormattedMoney from "components/FormattedMoney";
 import IconLabelGrid from "components/IconLabelGrid";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
-import useStyles from "./KeyValueChartTooltipBody.styles";
 
 // TODO: Check the connection between this style and the styles in the style file (https://gitlab.com/hystax/ngui/-/merge_requests/2017#note_637241676)
 const TooltipTypography = withStyles(Typography, {
@@ -14,18 +13,8 @@ const TooltipTypography = withStyles(Typography, {
 });
 
 const KeyValueChartTooltipBody = ({ title, boldTitle = false, text, icon, value }) => {
-  const { classes } = useStyles();
-
   const renderLabel = () => (
-    <KeyValueLabel
-      value={<FormattedMoney value={value} type={FORMATTED_MONEY_TYPES.COMMON} />}
-      text={text}
-      typographyProps={{
-        classes: {
-          root: classes.keyValueLabelTypography
-        }
-      }}
-    />
+    <KeyValueLabel value={<FormattedMoney value={value} type={FORMATTED_MONEY_TYPES.COMMON} />} keyText={text} />
   );
 
   return (

@@ -1,7 +1,7 @@
 import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import ExecutorLabel from "components/ExecutorLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import TextWithDataTestId from "components/TextWithDataTestId";
 
 const executor = () => ({
@@ -26,15 +26,15 @@ const executor = () => ({
         caption={[
           {
             key: "name",
-            node: <KeyValueLabel messageId="name" value={resource?.name} />
+            node: <KeyValueLabel keyMessageId="name" value={resource?.name} />
           },
           {
             key: "region",
-            node: <KeyValueLabel messageId="region" value={instanceRegion} />
+            node: <KeyValueLabel keyMessageId="region" value={instanceRegion} />
           },
           {
             key: "size",
-            node: <KeyValueLabel messageId="size" value={instanceType} />
+            node: <KeyValueLabel keyMessageId="size" value={instanceType} />
           }
         ]}
       >

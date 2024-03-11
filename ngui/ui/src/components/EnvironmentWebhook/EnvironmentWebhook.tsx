@@ -8,7 +8,7 @@ import { FormattedMessage } from "react-intl";
 import DeleteWebhook from "components/DeleteWebhook";
 import IconButton from "components/IconButton";
 import InputLoader from "components/InputLoader";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import CreateEnvironmentWebhookFormContainer from "containers/CreateEnvironmentWebhookFormContainer";
 import DownloadEnvironmentWebhookAuditLogsContainer from "containers/DownloadEnvironmentWebhookAuditLogsContainer";
 import EditEnvironmentWebhookActivityContainer from "containers/EditEnvironmentWebhookActivityContainer";
@@ -43,8 +43,8 @@ const EnvironmentWebhook = ({ webhook, action, resourceId, isLoadingProps = {} }
     isEditMode ? (
       form
     ) : (
-      <Box display="flex">
-        <KeyValueLabel messageId="url" value={value} typographyProps={{ style: { marginRight: theme.spacing(1) } }} />
+      <Box display="flex" alignItems="center">
+        <KeyValueLabel keyMessageId="url" value={value} sx={{ marginRight: 1 }} />
         {canManageBookings && (
           <IconButton
             disabled={isDemo}

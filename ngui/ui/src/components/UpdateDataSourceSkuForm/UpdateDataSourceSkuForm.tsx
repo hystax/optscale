@@ -6,7 +6,7 @@ import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import Input from "components/Input";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
 import { MAX_INT_32 } from "utils/constants";
@@ -32,7 +32,7 @@ const UpdateDataSourceSkuForm = ({ sku, cost, onSubmit, onCancel, isLoading = fa
   return (
     <FormProvider {...methods}>
       <FormControl>
-        <KeyValueLabel messageId="sku" value={sku} />
+        <KeyValueLabel keyMessageId="sku" value={sku} />
       </FormControl>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Input

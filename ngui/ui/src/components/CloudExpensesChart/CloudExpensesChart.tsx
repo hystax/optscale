@@ -6,7 +6,7 @@ import { FormattedMessage } from "react-intl";
 import CloudExpensesChartMarker from "components/CloudExpensesChartMarker";
 import CloudLabel from "components/CloudLabel";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Tooltip from "components/Tooltip";
 import { isEmpty } from "utils/arrays";
 import { getColorScale } from "utils/charts";
@@ -36,8 +36,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
     <Tooltip
       title={
         <KeyValueLabel
-          component="div"
-          renderKey={() => (
+          keyText={
             <CloudLabel
               type={type}
               label={
@@ -49,7 +48,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
                 />
               }
             />
-          )}
+          }
           value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />}
         />
       }
@@ -69,8 +68,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
     <Tooltip
       title={
         <KeyValueLabel
-          component="div"
-          renderKey={() => (
+          keyText={
             <CloudLabel
               type={type}
               label={
@@ -82,7 +80,7 @@ const CloudExpensesChart = ({ cloudAccounts, limit, forecast, isLoading = false 
                 />
               }
             />
-          )}
+          }
           value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cloudAccountForecast} />}
         />
       }

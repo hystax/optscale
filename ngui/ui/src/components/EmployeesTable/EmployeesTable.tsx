@@ -2,13 +2,13 @@ import { useMemo } from "react";
 import CloudDownloadOutlinedIcon from "@mui/icons-material/CloudDownloadOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { FormattedMessage, useIntl } from "react-intl";
 import { REST_API_URL } from "api";
 import CaptionedCell from "components/CaptionedCell";
 import Icon from "components/Icon";
 import { JIRA } from "components/Integrations/Jira/Jira";
-import KeyValueLabel from "components/KeyValueLabel";
 import PoolLabel from "components/PoolLabel";
 import { DeleteEmployeeModal, SlackIntegrationModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
@@ -117,20 +117,16 @@ const renderRoles = ({ assignments = [], organizationName, rowId }, toStringsArr
         {isOrganizationScope ? (
           <FormattedMessage id={assignmentPurposeMessageId} />
         ) : (
-          <KeyValueLabel
-            renderKey={() => (
-              <FormattedMessage id="roleAt" values={{ role: <FormattedMessage id={assignmentPurposeMessageId} /> }} />
-            )}
-            value={
-              <PoolLabel
-                dataTestId={`link_pool_${rowId}_${assignmentIndex}`}
-                name={assignmentResourceName}
-                type={assignmentResourcePurpose}
-                id={assignmentResourceId}
-              />
-            }
-            separator="space"
-          />
+          <Typography display="flex" alignItems="center" flexWrap="wrap">
+            <FormattedMessage id="roleAt" values={{ role: <FormattedMessage id={assignmentPurposeMessageId} /> }} />
+            &nbsp;
+            <PoolLabel
+              dataTestId={`link_pool_${rowId}_${assignmentIndex}`}
+              name={assignmentResourceName}
+              type={assignmentResourcePurpose}
+              id={assignmentResourceId}
+            />
+          </Typography>
         )}
       </Box>
     );

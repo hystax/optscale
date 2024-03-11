@@ -2,7 +2,7 @@ import Typography from "@mui/material/Typography";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useIntl } from "react-intl";
 import CloudResourceId from "components/CloudResourceId";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PoolLabel from "components/PoolLabel";
 import ResourceLink from "components/ResourceLink";
 import { RESOURCE_PAGE_TABS } from "utils/constants";
@@ -58,9 +58,9 @@ const Event = ({ event }) => {
             <div>{linkedTitle ? renderLinkedTitle() : <strong>{getResourceDisplayedName(environment)}</strong>}</div>
             <div>{getTimeLabel()}</div>
           </Typography>
-          <KeyValueLabel value={employeeName} messageId="user" />
-          <KeyValueLabel value={resourceType} messageId="resourceType" />
-          <KeyValueLabel value={<PoolLabel id={poolId} name={poolName} type={poolPurpose} />} messageId="pool" />
+          <KeyValueLabel value={employeeName} keyMessageId="user" />
+          <KeyValueLabel value={resourceType} keyMessageId="resourceType" />
+          <KeyValueLabel value={<PoolLabel id={poolId} name={poolName} type={poolPurpose} />} keyMessageId="pool" />
         </div>
       }
     >

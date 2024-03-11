@@ -7,7 +7,7 @@ import { Link as RouterLink } from "react-router-dom";
 import CodeBlock from "components/CodeBlock";
 import CopyText from "components/CopyText";
 import HtmlSymbol from "components/HtmlSymbol";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import { ProfilingIntegrationModalContext } from "contexts/ProfilingIntegrationModalContext";
 import { ML_TASK_PARAMETERS, ML_TASKS, PYPI_OPTSCALE_ARCEE } from "urls";
@@ -96,16 +96,20 @@ arcee.error()
               <Skeleton />
             ) : (
               <KeyValueLabel
-                isBoldValue={false}
-                messageId="profilingToken"
+                keyMessageId="profilingToken"
                 value={<CopyText text={profilingToken}>{profilingToken}</CopyText>}
+                isBoldValue={false}
               />
             )}
           </li>
           <li>
             <Typography>
               {taskKey ? (
-                <KeyValueLabel isBoldValue={false} messageId="taskKey" value={<CopyText text={taskKey}>{taskKey}</CopyText>} />
+                <KeyValueLabel
+                  keyMessageId="taskKey"
+                  value={<CopyText text={taskKey}>{taskKey}</CopyText>}
+                  isBoldValue={false}
+                />
               ) : (
                 <FormattedMessage
                   id="mlProfilingIntegration.initDescription.taskKeyCanBeFound"

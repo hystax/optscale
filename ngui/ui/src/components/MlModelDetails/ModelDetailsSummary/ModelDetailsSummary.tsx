@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import CloudLabel from "components/CloudLabel";
 import ExecutorLabel from "components/ExecutorLabel";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import LastModelRunGoals from "components/LastModelRunGoals";
 import Markdown from "components/Markdown";
 import SummaryList from "components/SummaryList";
@@ -46,7 +46,7 @@ const LastRunExecutorSummary = ({ isLoading, lastRunExecutor }) => {
         ),
         <KeyValueLabel
           key="cloud"
-          messageId="cloud"
+          keyMessageId="cloud"
           value={
             resource && resource.cloud_account ? (
               <CloudLabel
@@ -58,9 +58,9 @@ const LastRunExecutorSummary = ({ isLoading, lastRunExecutor }) => {
             ) : undefined
           }
         />,
-        <KeyValueLabel key="name" messageId="name" value={resource?.name} />,
-        <KeyValueLabel key="region" messageId="region" value={instanceRegion} />,
-        <KeyValueLabel key="size" messageId="size" value={instanceType} />
+        <KeyValueLabel key="name" keyMessageId="name" value={resource?.name} />,
+        <KeyValueLabel key="region" keyMessageId="region" value={instanceRegion} />,
+        <KeyValueLabel key="size" keyMessageId="size" value={instanceType} />
       ]}
     />
   );
@@ -112,11 +112,11 @@ const SummaryInfo = ({
           titleMessage={<FormattedMessage id="summary" />}
           isLoading={isLoading}
           items={[
-            <KeyValueLabel key="key" messageId="key" value={taskKey} />,
-            <KeyValueLabel key="runs" messageId="runs" value={<FormattedNumber value={runsCount} />} />,
+            <KeyValueLabel key="key" keyMessageId="key" value={taskKey} />,
+            <KeyValueLabel key="runs" keyMessageId="runs" value={<FormattedNumber value={runsCount} />} />,
             <KeyValueLabel
               key="lastSuccessfulRun"
-              messageId="lastSuccessfulRun"
+              keyMessageId="lastSuccessfulRun"
               value={
                 <FormattedMessage
                   id={lastSuccessfulRunTimestamp === 0 ? "never" : "valueAgo"}
@@ -126,8 +126,8 @@ const SummaryInfo = ({
                 />
               }
             />,
-            <KeyValueLabel key="lastRunCost" messageId="lastRunCost" value={<FormattedMoney value={lastRunCost} />} />,
-            <KeyValueLabel key="owner" messageId="owner" value={ownerName} />
+            <KeyValueLabel key="lastRunCost" keyMessageId="lastRunCost" value={<FormattedMoney value={lastRunCost} />} />,
+            <KeyValueLabel key="owner" keyMessageId="owner" value={ownerName} />
           ]}
         />
       </Box>

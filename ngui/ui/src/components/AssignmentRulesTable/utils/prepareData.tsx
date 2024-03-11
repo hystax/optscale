@@ -1,4 +1,4 @@
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { intl } from "translations/react-intl-config";
 import { CONDITION_TYPES, TAG_IS, CLOUD_IS, TAG_VALUE_STARTS_WITH } from "utils/constants";
 
@@ -43,7 +43,7 @@ const prepareData = ({ assignmentRules, entities }) => {
             )}: ${value}`,
             conditionsRender: [
               ...resultObject.conditionsRender,
-              <KeyValueLabel key={id} messageId={CONDITION_TYPES[type]} value={value} />
+              <KeyValueLabel key={id} keyMessageId={CONDITION_TYPES[type]} value={value} />
             ]
           };
         },

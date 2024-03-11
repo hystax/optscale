@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import Link from "@mui/material/Link";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import useStyles from "./InfoArea.styles";
 
 const DisplayedLabel = ({ tableContext, rowsCount, totalNumber, dataTestIds }) => {
@@ -24,7 +24,7 @@ const DisplayedLabel = ({ tableContext, rowsCount, totalNumber, dataTestIds }) =
   return (
     <KeyValueLabel
       value={getDisplayedValue()}
-      messageId="displayed"
+      keyMessageId="displayed"
       variant="caption"
       dataTestIds={{
         typography: dataTestIds.displayed,
@@ -59,7 +59,7 @@ const InfoArea = ({
             {hideTotal ? null : (
               <KeyValueLabel
                 value={totalNumber}
-                messageId="total"
+                keyMessageId="total"
                 variant="caption"
                 dataTestIds={{ typography: dataTestIds.total, key: dataTestIds.totalKey, value: dataTestIds.totalValue }}
               />
@@ -75,7 +75,7 @@ const InfoArea = ({
             {selectedRowsCount !== 0 && (
               <KeyValueLabel
                 value={selectedRowsCount}
-                messageId="selected"
+                keyMessageId="selected"
                 variant="caption"
                 dataTestIds={{
                   typography: dataTestIds.selected,

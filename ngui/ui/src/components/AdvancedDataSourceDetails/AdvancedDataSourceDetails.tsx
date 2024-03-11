@@ -4,7 +4,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Grid } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import IconStatus from "components/IconStatus";
-import KeyValueLabelsList from "components/KeyValueLabelsList";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SlicedText from "components/SlicedText";
 import SubTitle from "components/SubTitle";
 import SummaryList from "components/SummaryList";
@@ -93,57 +93,50 @@ const AdvancedDataSourceDetails = ({
         <SummaryList
           titleMessage={<FormattedMessage id="billingImport" />}
           items={
-            <KeyValueLabelsList
-              items={[
-                {
-                  itemKey: "lastImportAt",
-                  messageId: "lastBillingReportProcessed",
-                  value: (
-                    <FormattedMessage
-                      id={!lastImportAt ? "never" : "valueAgo"}
-                      values={{
-                        value: lastImportAt ? getTimeDistance(lastImportAt) : null
-                      }}
-                    />
-                  ),
-                  dataTestIds: { key: "p_last_billing_report_processed", value: "value_last_billing_report_processed" }
-                },
-                {
-                  itemKey: "lastImportAttemptAt",
-                  messageId: "lastBillingReportAttempt",
-                  value: (
-                    <FormattedMessage
-                      id={!lastImportAttemptAt ? "never" : "valueAgo"}
-                      values={{
-                        value: lastImportAttemptAt ? getTimeDistance(lastImportAttemptAt) : null
-                      }}
-                    />
-                  ),
-                  dataTestIds: { key: "p_last_billing_report_attempt", value: "value_last_billing_report_attempt" }
-                },
-                {
-                  itemKey: "status",
-                  messageId: "status",
-                  value: (
-                    <Status timestamp={lastImportAt} attemptTimestamp={lastImportAttemptAt} error={lastImportAttemptError} />
-                  ),
-                  dataTestIds: { key: "p_last_billing_report_status", value: "value_last_billing_report_status" },
-                  typographyProps: {
-                    noWrap: false,
-                    sx: {
-                      wordBreak: "break-all"
-                    }
-                  }
-                },
-                {
-                  itemKey: "reason",
-                  messageId: "reason",
-                  value: <SlicedText limit={50} text={lastImportAttemptError} />,
-                  dataTestIds: { key: "p_last_billing_report_reason", value: "value_last_billing_report_reason" },
-                  show: lastImportAttemptError && lastImportAt < lastImportAttemptAt
+            <>
+              <KeyValueLabel
+                key="lastImportAt"
+                keyMessageId="lastBillingReportProcessed"
+                value={
+                  <FormattedMessage
+                    id={!lastImportAt ? "never" : "valueAgo"}
+                    values={{
+                      value: lastImportAt ? getTimeDistance(lastImportAt) : null
+                    }}
+                  />
                 }
-              ]}
-            />
+                dataTestIds={{ key: "p_last_billing_report_processed", value: "value_last_billing_report_processed" }}
+              />
+              <KeyValueLabel
+                key="lastImportAttemptAt"
+                keyMessageId="lastBillingReportAttempt"
+                value={
+                  <FormattedMessage
+                    id={!lastImportAttemptAt ? "never" : "valueAgo"}
+                    values={{
+                      value: lastImportAttemptAt ? getTimeDistance(lastImportAttemptAt) : null
+                    }}
+                  />
+                }
+                dataTestIds={{ key: "p_last_billing_report_attempt", value: "value_last_billing_report_attempt" }}
+              />
+              <KeyValueLabel
+                key="status"
+                keyMessageId="status"
+                value={
+                  <Status timestamp={lastImportAt} attemptTimestamp={lastImportAttemptAt} error={lastImportAttemptError} />
+                }
+                dataTestIds={{ key: "p_last_billing_report_status", value: "value_last_billing_report_status" }}
+              />
+              {lastImportAttemptError && lastImportAt < lastImportAttemptAt ? (
+                <KeyValueLabel
+                  key="reason"
+                  keyMessageId="reason"
+                  value={<SlicedText limit={50} text={lastImportAttemptError} />}
+                  dataTestIds={{ key: "p_last_billing_report_reason", value: "value_last_billing_report_reason" }}
+                />
+              ) : null}
+            </>
           }
         />
       </Grid>
@@ -151,61 +144,54 @@ const AdvancedDataSourceDetails = ({
         <SummaryList
           titleMessage={<FormattedMessage id="monitoringMetricsImport" />}
           items={
-            <KeyValueLabelsList
-              items={[
-                {
-                  itemKey: "lastMetricsRetrieval",
-                  messageId: "lastMetricsRetrieval",
-                  value: (
-                    <FormattedMessage
-                      id={!lastMetricsRetrieval ? "never" : "valueAgo"}
-                      values={{
-                        value: lastMetricsRetrieval ? getTimeDistance(lastMetricsRetrieval) : null
-                      }}
-                    />
-                  ),
-                  dataTestIds: { key: "p_last_getting_metrics_at", value: "value_last_getting_metrics_at" }
-                },
-                {
-                  itemKey: "lastMetricsRetrievalAttempt",
-                  messageId: "lastMetricsRetrievalAttempt",
-                  value: (
-                    <FormattedMessage
-                      id={!lastMetricsRetrievalAttempt ? "never" : "valueAgo"}
-                      values={{
-                        value: lastMetricsRetrievalAttempt ? getTimeDistance(lastMetricsRetrievalAttempt) : null
-                      }}
-                    />
-                  ),
-                  dataTestIds: { key: "p_last_getting_metrics_attempt_at", value: "value_last_getting_metrics_attempt_at" }
-                },
-                {
-                  itemKey: "status",
-                  messageId: "status",
-                  value: (
-                    <Status
-                      timestamp={lastMetricsRetrieval}
-                      attemptTimestamp={lastMetricsRetrievalAttempt}
-                      error={lastGettingMetricAttemptError}
-                    />
-                  ),
-                  dataTestIds: { key: "p_last_metrics_report_status", value: "value_last_metrics_report_status" },
-                  typographyProps: {
-                    noWrap: false,
-                    sx: {
-                      wordBreak: "break-all"
-                    }
-                  }
-                },
-                {
-                  itemKey: "reason",
-                  messageId: "reason",
-                  value: <SlicedText limit={50} text={lastGettingMetricAttemptError} />,
-                  dataTestIds: { key: "p_last_metrics_report_reason", value: "value_last_metrics_report_reason" },
-                  show: lastGettingMetricAttemptError && lastMetricsRetrieval < lastMetricsRetrievalAttempt
+            <>
+              <KeyValueLabel
+                key="lastMetricsRetrieval"
+                keyMessageId="lastMetricsRetrieval"
+                value={
+                  <FormattedMessage
+                    id={!lastMetricsRetrieval ? "never" : "valueAgo"}
+                    values={{
+                      value: lastMetricsRetrieval ? getTimeDistance(lastMetricsRetrieval) : null
+                    }}
+                  />
                 }
-              ]}
-            />
+                dataTestIds={{ key: "p_last_getting_metrics_at", value: "value_last_getting_metrics_at" }}
+              />
+              <KeyValueLabel
+                key="lastMetricsRetrievalAttempt"
+                keyMessageId="lastMetricsRetrievalAttempt"
+                value={
+                  <FormattedMessage
+                    id={!lastMetricsRetrievalAttempt ? "never" : "valueAgo"}
+                    values={{
+                      value: lastMetricsRetrievalAttempt ? getTimeDistance(lastMetricsRetrievalAttempt) : null
+                    }}
+                  />
+                }
+                dataTestIds={{ key: "p_last_getting_metrics_attempt_at", value: "value_last_getting_metrics_attempt_at" }}
+              />
+              <KeyValueLabel
+                key="status"
+                keyMessageId="status"
+                value={
+                  <Status
+                    timestamp={lastMetricsRetrieval}
+                    attemptTimestamp={lastMetricsRetrievalAttempt}
+                    error={lastGettingMetricAttemptError}
+                  />
+                }
+                dataTestIds={{ key: "p_last_metrics_report_status", value: "value_last_metrics_report_status" }}
+              />
+              {lastGettingMetricAttemptError && lastMetricsRetrieval < lastMetricsRetrievalAttempt ? (
+                <KeyValueLabel
+                  key="reason"
+                  keyMessageId="reason"
+                  value={<SlicedText limit={50} text={lastGettingMetricAttemptError} />}
+                  dataTestIds={{ key: "p_last_metrics_report_reason", value: "value_last_metrics_report_reason" }}
+                />
+              ) : null}
+            </>
           }
         />
       </Grid>

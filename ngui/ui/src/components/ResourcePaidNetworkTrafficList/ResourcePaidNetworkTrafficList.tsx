@@ -2,7 +2,7 @@ import { Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import DashedTypography from "components/DashedTypography";
 import FromToArrowLabel from "components/FromToArrowLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PaidNetworkTrafficLabel from "components/PaidNetworkTrafficLabel";
 import { useToggle } from "hooks/useToggle";
 import { sortObjects, isEmpty as isEmptyArray, splitIntoTwoChunks } from "utils/arrays";
@@ -59,7 +59,7 @@ const ResourcePaidNetworkTrafficList = ({ trafficExpenses = [] }) => {
         {(isExpanded ? [...expensesChunk1, ...expensesChunk2] : expensesChunk1).map(({ from, to, cost, usage }) => (
           <KeyValueLabel
             key={`${from}-${to}`}
-            text={<FromToArrowLabel from={from} to={to} />}
+            keyText={<FromToArrowLabel from={from} to={to} />}
             value={<PaidNetworkTrafficLabel cost={cost} usage={usage} />}
             isBoldValue={false}
           />

@@ -1,4 +1,4 @@
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { useFormatIntervalDuration } from "hooks/useFormatIntervalDuration";
 import { INFINITY_SIGN } from "utils/constants";
 import { INTERVAL_DURATION_VALUE_TYPES } from "utils/datetime";
@@ -8,8 +8,7 @@ const BookingTimeMeasure = ({ messageId, measure }) => {
 
   return (
     <KeyValueLabel
-      noWrap
-      messageId={messageId}
+      keyMessageId={messageId}
       value={
         measure === INFINITY_SIGN
           ? INFINITY_SIGN

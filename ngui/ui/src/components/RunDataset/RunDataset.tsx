@@ -2,23 +2,11 @@ import { Typography } from "@mui/material";
 import { FormattedMessage, useIntl } from "react-intl";
 import DatasetName from "components/DatasetName/DatasetName";
 import ExpandableList from "components/ExpandableList";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import LabelChip from "components/LabelChip";
 import SlicedText from "components/SlicedText";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { EN_FULL_FORMAT, formatUTC } from "utils/datetime";
-
-const NoData = () => <span>-</span>;
-
-const InfoLabel = ({ nameMessageId, text }) => (
-  <Typography sx={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
-    <Typography noWrap component="span">
-      <FormattedMessage id={nameMessageId} />
-      &#58;
-    </Typography>
-    &nbsp;
-    {text}
-  </Typography>
-);
 
 const DatasetTimespan = ({ timespanFrom, timespanTo }) => {
   const intl = useIntl();
@@ -41,7 +29,7 @@ const DatasetTimespan = ({ timespanFrom, timespanTo }) => {
   if (timespanTo) {
     return `${toLabel} ${formatTime(timespanTo)}`;
   }
-  return <NoData />;
+  return "-";
 };
 
 const RunDataset = ({ dataset }) => {
@@ -58,27 +46,11 @@ const RunDataset = ({ dataset }) => {
   return (
     <ExpandableList
       items={[
-        <InfoLabel
-          key="id"
-          nameMessageId="id"
-          text={
-            <strong>
-              <SlicedText limit={60} text={path} />
-            </strong>
-          }
-        />,
-        <InfoLabel
+        <KeyValueLabel key="id" keyMessageId="id" value={<SlicedText limit={60} text={path} />} />,
+        <KeyValueLabel
           key="name"
-          nameMessageId="name"
-          text={
-            name ? (
-              <strong>
-                <DatasetName name={<SlicedText limit={60} text={name} />} deleted={deleted} />
-              </strong>
-            ) : (
-              <NoData />
-            )
-          }
+          keyMessageId="name"
+          value={name ? <DatasetName name={<SlicedText limit={60} text={name} />} deleted={deleted} /> : undefined}
         />,
         <Typography
           key="labels"
@@ -96,33 +68,25 @@ const RunDataset = ({ dataset }) => {
           &#58;
           {!isEmptyArray(labels) ? labels.map((label) => <LabelChip key={label} label={label} />) : <span>-</span>}
         </Typography>,
-        <InfoLabel
+        <KeyValueLabel
           key="training"
-          nameMessageId="training"
-          text={<strong>{trainingSetPathId ? <SlicedText limit={60} text={trainingSetPathId} /> : <NoData />}</strong>}
+          keyMessageId="training"
+          value={trainingSetPathId ? <SlicedText limit={60} text={trainingSetPathId} /> : undefined}
         />,
-        <InfoLabel
+        <KeyValueLabel
           key="trainingTimespan"
-          nameMessageId="trainingTimespan"
-          text={
-            <strong>
-              <DatasetTimespan timespanFrom={trainingSetTimespanFrom} timespanTo={trainingSetTimespanTo} />
-            </strong>
-          }
+          keyMessageId="trainingTimespan"
+          value={<DatasetTimespan timespanFrom={trainingSetTimespanFrom} timespanTo={trainingSetTimespanTo} />}
         />,
-        <InfoLabel
+        <KeyValueLabel
           key="validation"
-          nameMessageId="validation"
-          text={<strong>{validationSetPathId ? <SlicedText limit={60} text={validationSetPathId} /> : <NoData />}</strong>}
+          keyMessageId="validation"
+          value={validationSetPathId ? <SlicedText limit={60} text={validationSetPathId} /> : undefined}
         />,
-        <InfoLabel
+        <KeyValueLabel
           key="validationTimespan"
-          nameMessageId="validationTimespan"
-          text={
-            <strong>
-              <DatasetTimespan timespanFrom={validationSetTimespanFrom} timespanTo={validationSetTimespanTo} />
-            </strong>
-          }
+          keyMessageId="validationTimespan"
+          value={<DatasetTimespan timespanFrom={validationSetTimespanFrom} timespanTo={validationSetTimespanTo} />}
         />
       ]}
       render={(item) => item}

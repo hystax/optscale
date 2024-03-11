@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import ResourceCell from "components/ResourceCell";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
@@ -11,7 +11,7 @@ import { RESOURCE_ID_COLUMN_CELL_STYLE } from "utils/tables";
 import CollapsableTableCell from "../CollapsableTableCell";
 
 const ClusterSubResourcesTable = ({ data = [] }) => {
-  const getCaptionText = (value, messageId) => <KeyValueLabel variant="caption" value={value} messageId={messageId} />;
+  const getCaptionText = (value, messageId) => <KeyValueLabel variant="caption" value={value} keyMessageId={messageId} />;
   const tableData = useMemo(
     () =>
       data.map((subResource) => {

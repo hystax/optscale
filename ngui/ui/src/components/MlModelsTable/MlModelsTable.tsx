@@ -6,7 +6,7 @@ import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import MlModelsFilters from "components/MlModelsFilters";
 import MlRunStatus from "components/MlRunStatus";
 import Table from "components/Table";
@@ -139,9 +139,9 @@ const MlModelsTable = ({ models, filterValues, appliedFilters, onFilterChange })
           }
         }) => (
           <>
-            <KeyValueLabel messageId="lastRun" value={<FormattedMoney value={lastRunCost} />} />
-            <KeyValueLabel messageId="total" value={<FormattedMoney value={total} />} />
-            <KeyValueLabel messageId="last30Days" value={<FormattedMoney value={last30DaysCost} />} />
+            <KeyValueLabel keyMessageId="lastRun" value={<FormattedMoney value={lastRunCost} />} />
+            <KeyValueLabel keyMessageId="total" value={<FormattedMoney value={total} />} />
+            <KeyValueLabel keyMessageId="last30Days" value={<FormattedMoney value={last30DaysCost} />} />
           </>
         )
       }

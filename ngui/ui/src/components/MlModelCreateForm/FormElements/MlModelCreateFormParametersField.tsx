@@ -13,7 +13,7 @@ import {
 import { Controller, useFormContext } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import AggregateFunctionFormattedMessage from "components/AggregateFunctionFormattedMessage";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import TendencyFormattedMessage from "components/TendencyFormattedMessage";
 import { ML_TASK_PARAMETERS } from "urls";
@@ -39,11 +39,11 @@ const Parameter = ({ name, goalKey, tendency, aggregateFunction, value, isSelect
         </FormGroup>
       </div>
       <div>
-        <KeyValueLabel messageId="key" value={goalKey} />
-        <KeyValueLabel messageId="goalValue" value={value} />
-        <KeyValueLabel messageId="tendency" value={<TendencyFormattedMessage tendency={tendency} />} />
+        <KeyValueLabel keyMessageId="key" value={goalKey} />
+        <KeyValueLabel keyMessageId="goalValue" value={value} />
+        <KeyValueLabel keyMessageId="tendency" value={<TendencyFormattedMessage tendency={tendency} />} />
         <KeyValueLabel
-          messageId="aggregateFunction"
+          keyMessageId="aggregateFunction"
           value={<AggregateFunctionFormattedMessage aggregateFunction={aggregateFunction} />}
         />
       </div>

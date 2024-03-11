@@ -5,7 +5,7 @@ import CloudLabel from "components/CloudLabel";
 import { SI_UNITS, formatDigitalUnit } from "components/FormattedDigitalUnit";
 import FormattedMoney from "components/FormattedMoney";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import QuestionMark from "components/QuestionMark";
 import { useAwsDataSources } from "hooks/useAwsDataSources";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -17,18 +17,16 @@ const Component = ({ bucket, onClose }) => {
 
   return (
     <>
-      <KeyValueLabel value={bucket.name} messageId="bucket" />
+      <KeyValueLabel value={bucket.name} keyMessageId="bucket" />
       <KeyValueLabel
         value={
           bucketDataSource ? (
             <CloudLabel type={bucketDataSource.type} id={bucketDataSource.id} name={bucketDataSource.name} />
-          ) : (
-            "-"
-          )
+          ) : undefined
         }
-        messageId="dataSource"
+        keyMessageId="dataSource"
       />
-      <Box display="flex">
+      <Box display="flex" alignItems="center">
         <KeyValueLabel
           value={
             <FormattedMessage
@@ -39,7 +37,7 @@ const Component = ({ bucket, onClose }) => {
               }}
             />
           }
-          messageId="totalObjectsWithDuplicates"
+          keyMessageId="totalObjectsWithDuplicates"
         />
         <QuestionMark
           messageId="totalObjectsWithDuplicatesDescription"
@@ -49,7 +47,7 @@ const Component = ({ bucket, onClose }) => {
           dataTestId="qmark_total_objects_with_duplicates_description`"
         />
       </Box>
-      <Box display="flex">
+      <Box display="flex" alignItems="center">
         <KeyValueLabel
           value={
             <>
@@ -68,7 +66,7 @@ const Component = ({ bucket, onClose }) => {
               />
             </>
           }
-          messageId="totalDuplicatesSize"
+          keyMessageId="totalDuplicatesSize"
         />
         <QuestionMark
           messageId="totalDuplicatesSizeDescription"
@@ -80,7 +78,7 @@ const Component = ({ bucket, onClose }) => {
       </Box>
       <KeyValueLabel
         value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={bucket.monthly_savings} />}
-        messageId="possibleMonthlySavings"
+        keyMessageId="possibleMonthlySavings"
       />
       <FormButtonsWrapper>
         <Button messageId="close" onClick={onClose} />

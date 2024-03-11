@@ -3,7 +3,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
@@ -124,8 +124,7 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
                 key: "timespanFrom",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="from"
+                    keyMessageId="from"
                     variant="caption"
                     value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
                   />
@@ -135,8 +134,7 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
                 key: "timespanTo",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="to"
+                    keyMessageId="to"
                     variant="caption"
                     value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
                   />
@@ -171,8 +169,7 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
                 key: "timespanFrom",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="from"
+                    keyMessageId="from"
                     variant="caption"
                     value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
                   />
@@ -182,8 +179,7 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
                 key: "timespanTo",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="to"
+                    keyMessageId="to"
                     variant="caption"
                     value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
                   />

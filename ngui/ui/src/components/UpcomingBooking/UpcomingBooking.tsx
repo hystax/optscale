@@ -1,4 +1,4 @@
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { INFINITY_SIGN } from "utils/constants";
 import { EN_FULL_FORMAT, format, secondsToMilliseconds, intervalToDuration } from "utils/datetime";
 import BookingTimeMeasure from "./BookingTimeMeasure";
@@ -42,9 +42,9 @@ const UpcomingBooking = ({ employeeName, acquiredSince, releasedAt }) => {
 
   return (
     <>
-      <KeyValueLabel noWrap messageId="user" value={employeeName} />
-      <KeyValueLabel noWrap messageId="since" value={bookedSince} />
-      <KeyValueLabel noWrap messageId="until" value={bookedUntil} />
+      <KeyValueLabel keyMessageId="user" value={employeeName} />
+      <KeyValueLabel keyMessageId="since" valueWhiteSpace="nowrap" value={bookedSince} />
+      <KeyValueLabel keyMessageId="until" valueWhiteSpace="nowrap" value={bookedUntil} />
       <BookingTimeMeasure messageId="duration" measure={duration} />
     </>
   );

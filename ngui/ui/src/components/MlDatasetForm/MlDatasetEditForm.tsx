@@ -3,7 +3,7 @@ import { FormLabel } from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import {
   FormButtons,
   NameField,
@@ -43,7 +43,7 @@ const MlDatasetEditForm = ({ dataset, onSubmit, onCancel, isLoadingProps = {} })
         onSubmit={handleSubmit((formData) => onSubmit(prepareFormSubmissionData(formData)))}
         noValidate
       >
-        {isGetDatasetLoading ? <Skeleton /> : <KeyValueLabel messageId="id" value={dataset.path} />}
+        {isGetDatasetLoading ? <Skeleton /> : <KeyValueLabel keyMessageId="id" value={dataset.path} />}
         <NameField isLoading={isGetDatasetLoading} />
         <FormLabel component="p">
           <FormattedMessage id="trainingSet" />

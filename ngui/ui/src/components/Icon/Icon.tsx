@@ -1,5 +1,5 @@
 import { FormattedMessage } from "react-intl";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Tooltip from "components/Tooltip";
 import useStyles from "./Icon.styles";
 
@@ -22,7 +22,7 @@ const Icon = ({
 
   return showTooltip ? (
     <Tooltip
-      title={body || (value ? <KeyValueLabel messageId={messageId} value={value} /> : <FormattedMessage id={messageId} />)}
+      title={body || (value ? <KeyValueLabel keyMessageId={messageId} value={value} /> : <FormattedMessage id={messageId} />)}
       placement={placement}
     >
       {icon}

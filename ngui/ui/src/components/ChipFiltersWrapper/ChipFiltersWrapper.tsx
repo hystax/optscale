@@ -1,5 +1,5 @@
 import Chip from "components/Chip";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { isEmpty } from "utils/arrays";
 import useStyles from "./ChipFiltersWrapper.styles";
 
@@ -15,7 +15,7 @@ const ChipFiltersWrapper = ({ chips, buttonsDefinition = [] }) => {
         <Chip
           key={messageId}
           color="info"
-          label={<KeyValueLabel key={messageId} value={filterValue} messageId={messageId} />}
+          label={<KeyValueLabel key={messageId} value={filterValue} keyMessageId={messageId} />}
           variant="outlined"
           size="medium"
         />

@@ -1,12 +1,12 @@
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import CodeBlock from "components/CodeBlock";
 import CopyText from "components/CopyText";
 import ExpandableList from "components/ExpandableList";
 import IconLabel from "components/IconLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import RunDataset from "components/RunDataset";
 import RunGoals from "components/RunGoals";
 import Skeleton from "components/Skeleton";
@@ -22,14 +22,6 @@ const GIT_CHANGES_STATUS = Object.freeze({
   CLEAN: "clean",
   DIRTY: "dirty"
 });
-
-const InfoLabel = ({ labelName, labelValue }) => (
-  <Typography sx={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
-    {labelName}
-    &#58;&nbsp;
-    {labelValue}
-  </Typography>
-);
 
 const Goals = ({ reachedGoals, isLoading }) => {
   if (isLoading) {
@@ -57,12 +49,12 @@ const Hyperparameters = ({ hyperparameters, isLoading }) => {
     <ExpandableList
       items={Object.entries(hyperparameters)}
       render={([hyperparameterKey, hyperparameterValue]) => (
-        <InfoLabel
+        <KeyValueLabel
           key={hyperparameterKey}
-          labelName={hyperparameterKey}
-          labelValue={
-            <CopyText copyIconType="animated" sx={{ display: "inline" }} text={hyperparameterValue}>
-              <strong>{hyperparameterValue}</strong>
+          keyText={hyperparameterKey}
+          value={
+            <CopyText copyIconType="animated" sx={{ fontWeight: "inherit" }} text={hyperparameterValue}>
+              {hyperparameterValue}
             </CopyText>
           }
         />
@@ -83,12 +75,12 @@ const Tags = ({ tags, isLoading }) => {
     <ExpandableList
       items={Object.entries(tags)}
       render={([tagKey, tagValue]) => (
-        <InfoLabel
+        <KeyValueLabel
           key={tagKey}
-          labelName={tagKey}
-          labelValue={
-            <CopyText copyIconType="animated" sx={{ display: "inline" }} text={tagValue}>
-              <strong>{tagValue}</strong>
+          keyText={tagKey}
+          value={
+            <CopyText copyIconType="animated" sx={{ fontWeight: "inherit" }} text={tagValue}>
+              {tagValue}
             </CopyText>
           }
         />
@@ -111,34 +103,33 @@ const GitStatus = ({ git, isLoading }) => {
 
   return (
     <>
-      <InfoLabel
-        labelName={<FormattedMessage id="remote" />}
-        labelValue={
-          <CopyText copyIconType="animated" sx={{ display: "inline" }} text={remote}>
-            <strong>{remote}</strong>
+      <KeyValueLabel
+        keyText={<FormattedMessage id="remote" />}
+        value={
+          <CopyText copyIconType="animated" sx={{ fontWeight: "inherit" }} text={remote}>
+            {remote}
           </CopyText>
         }
       />
-      <InfoLabel
-        labelName={<FormattedMessage id="branch" />}
-        labelValue={
-          <CopyText copyIconType="animated" sx={{ display: "inline" }} text={branch}>
-            <strong>{branch}</strong>
+      <KeyValueLabel
+        keyText={<FormattedMessage id="branch" />}
+        value={
+          <CopyText copyIconType="animated" sx={{ fontWeight: "inherit" }} text={remote}>
+            {branch}
           </CopyText>
         }
       />
-      <InfoLabel
-        labelName={<FormattedMessage id="commit" />}
-        labelValue={
-          <CopyText copyIconType="animated" sx={{ display: "inline" }} text={commitId}>
-            <strong>{commitId}</strong>
+      <KeyValueLabel
+        keyText={<FormattedMessage id="commit" />}
+        value={
+          <CopyText copyIconType="animated" sx={{ fontWeight: "inherit" }} text={remote}>
+            {commitId}
           </CopyText>
         }
       />
       {status === GIT_CHANGES_STATUS.CLEAN && (
         <KeyValueLabel
-          messageId="status"
-          isBoldValue={false}
+          keyMessageId="status"
           value={
             <IconLabel
               icon={
@@ -146,19 +137,14 @@ const GitStatus = ({ git, isLoading }) => {
                   <CheckCircleOutlinedIcon fontSize="inherit" color="success" />
                 </Tooltip>
               }
-              label={
-                <strong>
-                  <FormattedMessage id="clean" />
-                </strong>
-              }
+              label={<FormattedMessage id="clean" />}
             />
           }
         />
       )}
       {status === GIT_CHANGES_STATUS.DIRTY && (
         <KeyValueLabel
-          messageId="status"
-          isBoldValue={false}
+          keyMessageId="status"
           value={
             <IconLabel
               icon={
@@ -166,11 +152,7 @@ const GitStatus = ({ git, isLoading }) => {
                   <WarningAmberOutlinedIcon fontSize="inherit" color="warning" />
                 </Tooltip>
               }
-              label={
-                <strong>
-                  <FormattedMessage id="dirty" />
-                </strong>
-              }
+              label={<FormattedMessage id="dirty" />}
             />
           }
         />

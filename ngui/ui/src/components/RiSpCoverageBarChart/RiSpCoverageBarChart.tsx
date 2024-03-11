@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { FormattedMessage, FormattedNumber } from "react-intl";
 import CanvasBarChart from "components/CanvasBarChart";
 import CircleLabel from "components/CircleLabel";
-import KeyValueLabelsList from "components/KeyValueLabelsList";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { RI_SP_CHART_PALETTE } from "theme";
 import { AXIS_FORMATS } from "utils/charts";
 import { EN_FORMAT_SHORT_YEAR, formatUTC } from "utils/datetime";
@@ -55,7 +55,7 @@ const getChartData = (breakdown) =>
 
 const getTooltipItem = (id, paletteColorIndex, value) => ({
   itemKey: id,
-  renderKey: () => (
+  keyText: (
     <CircleLabel figureColor={RI_SP_CHART_PALETTE[paletteColorIndex]} label={<FormattedMessage id={id} />} textFirst={false} />
   ),
   value: <FormattedNumber value={value} format="percentage" />
@@ -82,7 +82,7 @@ const getRenderTooltipBody = (sectionData) => {
     getTooltipItem("spUsage", RI_SP_COVERAGE_COLOR_INDEXES.SP_USAGE, spUsagePercent)
   ];
 
-  return <KeyValueLabelsList items={items} />;
+  return items.map(({ key, keyText, value }) => <KeyValueLabel key={key} keyText={keyText} value={value} />);
 };
 
 const RiSpCoverageBarChart = ({ breakdown, isLoading = false }) => {

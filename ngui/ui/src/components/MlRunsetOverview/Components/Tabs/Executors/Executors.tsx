@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import ResourceLabel from "components/ResourceLabel";
 import ResourceName from "components/ResourceName";
 import Table from "components/Table";
@@ -96,10 +96,8 @@ const Executors = ({ executors, isLoading }) => {
                   key: "resource_name",
                   node: (
                     <KeyValueLabel
-                      typographyProps={{
-                        variant: "caption"
-                      }}
-                      messageId="name"
+                      variant="caption"
+                      keyMessageId="name"
                       value={name ? <ResourceName name={name} /> : undefined}
                     />
                   ),
@@ -109,25 +107,15 @@ const Executors = ({ executors, isLoading }) => {
                   key: "instance_size",
                   node: (
                     <KeyValueLabel
-                      typographyProps={{
-                        variant: "caption"
-                      }}
-                      messageId="size"
+                      variant="caption"
+                      keyMessageId="size"
                       value={<CloudLabel name={<strong>{instanceName}</strong>} type={instanceCloudType} disableLink />}
                     />
                   )
                 },
                 {
                   key: "ip",
-                  node: (
-                    <KeyValueLabel
-                      typographyProps={{
-                        variant: "caption"
-                      }}
-                      messageId="ip"
-                      value={ipAddress}
-                    />
-                  )
+                  node: <KeyValueLabel variant="caption" keyMessageId="ip" value={ipAddress} />
                 }
               ]}
             >

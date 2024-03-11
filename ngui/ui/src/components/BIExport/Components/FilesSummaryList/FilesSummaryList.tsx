@@ -1,6 +1,6 @@
 import { FormattedMessage } from "react-intl";
 import CopyText from "components/CopyText";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SummaryList from "components/SummaryList";
 import { isEmpty } from "utils/arrays";
 
@@ -32,18 +32,12 @@ const FilesSummaryList = ({ filePaths = [], isLoading }) => {
               return (
                 <KeyValueLabel
                   key={fileType}
-                  messageId={fileType}
+                  keyMessageId={fileType}
                   value={
-                    <CopyText text={filePath}>
-                      <strong>{filePath}</strong>
+                    <CopyText sx={{ fontWeight: "inherit" }} text={filePath}>
+                      {filePath}
                     </CopyText>
                   }
-                  typographyProps={{
-                    valueStyle: {
-                      whiteSpace: "normal",
-                      overflowWrap: "anywhere"
-                    }
-                  }}
                 />
               );
             })}

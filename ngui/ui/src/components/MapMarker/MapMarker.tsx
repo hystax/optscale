@@ -6,7 +6,7 @@ import { Link as RouterLink } from "react-router-dom";
 import Circle from "components/Circle";
 import CircleLabel from "components/CircleLabel";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { getResourcesExpensesUrl } from "urls";
 import { splitIntoTwoChunks } from "utils/arrays";
@@ -82,16 +82,16 @@ const getTooltipContent = ({ markers, startDateTimestamp, endDateTimestamp }) =>
       {top.map(({ id, type: cloudType, name: region, total: value, color }) => (
         <TooltipItem key={`tooltip-item-${id}-${region}`}>
           <KeyValueLabel
-            renderKey={() => (
+            keyText={
               <CircleLabel
                 textFirst={false}
                 figureColor={color}
                 label={<FormattedMessage id={CLOUD_ACCOUNT_TYPE[cloudType]} />}
               />
-            )}
+            }
             value={region}
           />
-          <KeyValueLabel messageId="expenses" value={<FormattedMoney value={value} />} />
+          <KeyValueLabel keyMessageId="expenses" value={<FormattedMoney value={value} />} />
           <Link
             to={getResourcesExpensesUrl({
               computedParams: `${REGION_FILTER}=${region}`,
@@ -105,9 +105,9 @@ const getTooltipContent = ({ markers, startDateTimestamp, endDateTimestamp }) =>
         </TooltipItem>
       ))}
       {showOther && (
-        <TooltipItem key={`tooltip-item-others`}>
+        <TooltipItem key="tooltip-item-others">
           <KeyValueLabel
-            text={<FormattedMessage id="otherRegions" />}
+            keyText={<FormattedMessage id="otherRegions" />}
             value={<FormattedMoney value={othersTotal} type={FORMATTED_MONEY_TYPES.COMMON} />}
           />
         </TooltipItem>

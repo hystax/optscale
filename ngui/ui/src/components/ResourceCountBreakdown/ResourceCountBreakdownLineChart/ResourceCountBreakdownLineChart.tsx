@@ -3,16 +3,12 @@ import Typography from "@mui/material/Typography";
 import { useIntl } from "react-intl";
 import BreakdownLabel from "components/BreakdownLabel";
 import CircleLabel from "components/CircleLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import LineChart from "components/LineChart";
 import { useIsOrganizationWeekend } from "hooks/useIsOrganizationWeekend";
 import { useShowWeekends } from "hooks/useShowWeekends";
 import { getLength } from "utils/arrays";
 import { useRenderWeekendsHighlightLayer } from "./Layer";
-
-const TYPOGRAPHY_PROPS = {
-  gutterBottom: true
-};
 
 const ChartTooltip = ({ points: allPoints, isOrganizationWeekend, breakdownBy }) => {
   const intl = useIntl();
@@ -38,9 +34,9 @@ const ChartTooltip = ({ points: allPoints, isOrganizationWeekend, breakdownBy })
 
   const renderTotalLabel = () =>
     getLength(allPoints) > 1 ? (
-      <KeyValueLabel text={titleText} value={totalCount} typographyProps={TYPOGRAPHY_PROPS} />
+      <KeyValueLabel keyText={titleText} value={totalCount} gutterBottom />
     ) : (
-      <Typography {...TYPOGRAPHY_PROPS}>{titleText}</Typography>
+      <Typography gutterBottom>{titleText}</Typography>
     );
 
   return (
@@ -49,16 +45,14 @@ const ChartTooltip = ({ points: allPoints, isOrganizationWeekend, breakdownBy })
       {allPoints.map(({ id: pointId, serieColor, data: pointData = {} }) => (
         <KeyValueLabel
           key={pointId}
-          typographyProps={{
-            gutterBottom: true
-          }}
-          renderKey={() => (
+          gutterBottom
+          keyText={
             <CircleLabel
               figureColor={serieColor}
               label={pointData.translatedSerieId ?? <BreakdownLabel breakdownBy={breakdownBy} details={pointData.details} />}
               textFirst={false}
             />
-          )}
+          }
           value={
             <>
               <span

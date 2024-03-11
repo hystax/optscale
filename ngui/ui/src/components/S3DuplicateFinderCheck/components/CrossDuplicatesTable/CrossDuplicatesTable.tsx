@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import { lighten, useTheme } from "@mui/material/styles";
 import { useParams } from "react-router-dom";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import QuestionMark from "components/QuestionMark";
 import { BucketDuplicatesModal, SelectedBucketsInfoModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
@@ -96,10 +96,8 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
                 )}
               </Box>
               <KeyValueLabel
-                messageId="possibleMonthlySavings"
-                flexWrap="nowrap"
+                keyMessageId="possibleMonthlySavings"
                 value={bucket.monthly_savings === undefined ? "-" : <FormattedMoney value={bucket.monthly_savings} />}
-                type={FORMATTED_MONEY_TYPES.TINY}
               />
             </>
           );

@@ -2,7 +2,7 @@ import { useState } from "react";
 import Link from "@mui/material/Link";
 import { FormattedMessage } from "react-intl";
 import DashedTypography from "components/DashedTypography";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { splitIntoTwoChunks, isEmpty as isEmptyArray } from "utils/arrays";
 import useStyles from "./JiraIssuesAttachments.styles";
 
@@ -27,7 +27,7 @@ const JiraIssuesListItems = ({ issues }) =>
 
 const LIMIT = 5;
 
-const JiraIssuesAttachments = ({ issues = [] }) => {
+const JiraIssuesAttachments = ({ issues }) => {
   const { classes } = useStyles();
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -46,7 +46,7 @@ const JiraIssuesAttachments = ({ issues = [] }) => {
 
   return (
     <div>
-      <KeyValueLabel messageId="jiraIssues" value={issues.length} />
+      <KeyValueLabel keyMessageId="jiraIssues" value={issues.length} />
       {!isEmptyArray(firstIssuesChunk) && (
         <ul className={classes.list}>
           <JiraIssuesListItems issues={firstIssuesChunk} />

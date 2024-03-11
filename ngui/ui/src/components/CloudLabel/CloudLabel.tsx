@@ -24,9 +24,10 @@ const CloudLabel = ({
   endAdornment = null,
   iconProps = {},
   disableLink = false,
-  whiteSpace = "nowrap"
+  whiteSpace = "nowrap",
+  display = "flex"
 }) => (
-  <Box display="flex" alignItems="center" whiteSpace={whiteSpace}>
+  <Box display={display} alignItems="center" whiteSpace={whiteSpace}>
     {startAdornment}
     <IconLabel
       icon={<CloudTypeIcon type={type} hasRightMargin {...iconProps} />}

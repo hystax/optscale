@@ -4,7 +4,7 @@ import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
 import { useFormatDynamicFractionDigitsValue } from "components/DynamicFractionDigitsValue";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
@@ -71,10 +71,8 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
                       {
                         node: (
                           <KeyValueLabel
-                            typographyProps={{
-                              variant: "caption"
-                            }}
-                            messageId="runset"
+                            variant="caption"
+                            keyMessageId="runset"
                             value={
                               <Link to={getMlRunsetDetailsUrl(runsetId)} component={RouterLink}>
                                 {runsetName}

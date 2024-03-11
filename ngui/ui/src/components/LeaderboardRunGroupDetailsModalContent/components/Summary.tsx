@@ -5,7 +5,7 @@ import CollapsableTableCell from "components/CollapsableTableCell";
 import DynamicFractionDigitsValue from "components/DynamicFractionDigitsValue";
 import ExpandableList from "components/ExpandableList";
 import IconLabel from "components/IconLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import ProgressBar from "components/ProgressBar";
 import SubTitle from "components/SubTitle";
 import SummaryList from "components/SummaryList";
@@ -28,7 +28,7 @@ const Summary = ({ tags, metrics, hyperparameters, coverage }) => {
               render={([name, value]) => (
                 <KeyValueLabel
                   key={name}
-                  text={name}
+                  keyText={name}
                   value={value !== null ? <DynamicFractionDigitsValue value={value} /> : undefined}
                 />
               )}

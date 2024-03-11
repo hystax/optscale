@@ -3,7 +3,7 @@ import { FormattedMessage } from "react-intl";
 import CanvasBarChart from "components/CanvasBarChart";
 import CircleLabel from "components/CircleLabel";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabelsList from "components/KeyValueLabelsList";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { RI_SP_CHART_PALETTE } from "theme";
 import { AXIS_FORMATS } from "utils/charts";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -71,7 +71,7 @@ const getChartData = (breakdown) =>
 
 const getTooltipItem = (id, paletteColorIndex, value) => ({
   itemKey: id,
-  renderKey: () =>
+  keyText:
     paletteColorIndex === null ? (
       <FormattedMessage id={id} />
     ) : (
@@ -110,7 +110,7 @@ const getRenderTooltipBody = (sectionData, showSavings) => {
     getTooltipItem("spExpenses", RI_SP_EXPENSES_COLOR_INDEXES.SP_EXPENSES, spCostWithOffer)
   ].filter(Boolean);
 
-  return <KeyValueLabelsList items={items} />;
+  return items.map(({ key, keyText, value }) => <KeyValueLabel key={key} keyText={keyText} value={value} />);
 };
 
 const RiSpExpensesBarChart = ({ breakdown, isLoading = false, showSavings = false }) => {

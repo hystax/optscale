@@ -1,7 +1,7 @@
 import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
 import FormattedMoney, { useMoneyFormatter } from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import LineChart from "components/LineChart";
 import RawExpensesTable from "components/RawExpensesTable";
 import ResourceGroupedExpensesTable from "components/ResourceGroupedExpensesTable";
@@ -22,7 +22,7 @@ const ResourceRawExpenses = ({ expenses, shownExpenses, startDate, endDate, isLo
           <Skeleton width={100} />
         ) : (
           <KeyValueLabel
-            messageId="expenses"
+            keyMessageId="expenses"
             value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={shownExpenses} />}
             dataTestIds={{
               value: "lbl_expenses_value",

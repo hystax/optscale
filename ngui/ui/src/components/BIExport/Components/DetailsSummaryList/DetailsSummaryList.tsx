@@ -2,7 +2,7 @@ import { FormattedMessage } from "react-intl";
 import BINextExportTimeLabel from "components/BINextExportTimeLabel";
 import CopyText from "components/CopyText";
 import IconStatus from "components/IconStatus";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SummaryList from "components/SummaryList";
 import { BI_EXPORT_STATUSES, getBIExportStatusIconSettings } from "utils/biExport";
 import { getTimeDistance, unixTimestampToDateTime } from "utils/datetime";
@@ -18,7 +18,7 @@ const StatusLabel = ({ status }) => {
     return <IconStatus icon={Icon} color={color} labelMessageId={messageId} />;
   };
 
-  return <KeyValueLabel key="status" messageId="status" value={getValue()} />;
+  return <KeyValueLabel key="status" keyMessageId="status" value={getValue()} />;
 };
 
 const DetailsSummaryList = ({
@@ -40,20 +40,24 @@ const DetailsSummaryList = ({
     items={[
       <KeyValueLabel
         key="id"
-        messageId="id"
-        isBoldValue={false}
+        keyMessageId="id"
         value={
-          <CopyText text={id}>
-            <strong>{id}</strong>
+          <CopyText
+            text={id}
+            sx={{
+              fontWeight: "inherit"
+            }}
+          >
+            {id}
           </CopyText>
         }
       />,
-      <KeyValueLabel key="name" messageId="name" value={name} />,
-      <KeyValueLabel key="exportedDays" messageId="exportedDays" value={days} />,
-      <KeyValueLabel key="createdAt" messageId="createdAt" value={unixTimestampToDateTime(createdAt)} />,
+      <KeyValueLabel key="name" keyMessageId="name" value={name} />,
+      <KeyValueLabel key="exportedDays" keyMessageId="exportedDays" value={days} />,
+      <KeyValueLabel key="createdAt" keyMessageId="createdAt" value={unixTimestampToDateTime(createdAt)} />,
       <KeyValueLabel
         key="lastExportAttempt"
-        messageId="lastExportAttempt"
+        keyMessageId="lastExportAttempt"
         value={
           lastRun === 0 ? (
             <FormattedMessage id="never" />
@@ -69,7 +73,7 @@ const DetailsSummaryList = ({
       />,
       <KeyValueLabel
         key="lastSuccessfulExport"
-        messageId="lastSuccessfulExport"
+        keyMessageId="lastSuccessfulExport"
         value={
           lastCompleted === 0 ? (
             <FormattedMessage id="never" />
@@ -85,27 +89,21 @@ const DetailsSummaryList = ({
       />,
       <KeyValueLabel
         key="nextExport"
-        messageId="nextExport"
+        keyMessageId="nextExport"
         value={<BINextExportTimeLabel nextRun={nextRun} activity={activity} />}
       />,
       <StatusLabel key="status" status={status} />,
       lastStatusError ? (
         <KeyValueLabel
           key="reason"
-          messageId="reason"
+          keyMessageId="reason"
           value={lastStatusError}
-          typographyProps={{
-            valueStyle: {
-              whiteSpace: "normal",
-              overflowWrap: "anywhere"
-            }
-          }}
           style={{
             maxWidth: "600px"
           }}
         />
       ) : undefined,
-      <KeyValueLabel key="activity" messageId="activity" value={<FormattedMessage id={activity} />} />
+      <KeyValueLabel key="activity" keyMessageId="activity" value={<FormattedMessage id={activity} />} />
     ].filter(Boolean)}
   />
 );

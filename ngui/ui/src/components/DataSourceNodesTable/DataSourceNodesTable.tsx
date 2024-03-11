@@ -3,7 +3,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
 import CostModelFormattedMoney from "components/CostModelFormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
@@ -37,13 +37,13 @@ const useDataSourceNodesTableData = (nodes) => {
             caption={[
               {
                 key: "cpu",
-                node: <KeyValueLabel text={cpuCapacityString} value={cpu} variant={capacityLabelVariant} />
+                node: <KeyValueLabel keyText={cpuCapacityString} value={cpu} variant={capacityLabelVariant} />
               },
               {
                 key: "memory",
                 node: (
                   <KeyValueLabel
-                    text={memoryCapacityString}
+                    keyText={memoryCapacityString}
                     value={`${memory} ${intl.formatMessage({ id: "GB" })}`}
                     variant={capacityLabelVariant}
                   />

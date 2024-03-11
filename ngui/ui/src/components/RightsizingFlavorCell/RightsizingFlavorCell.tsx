@@ -1,10 +1,10 @@
 import CaptionedCell from "components/CaptionedCell";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 
 const RightsizingFlavorCell = ({ flavorName, flavorCpu }) => (
   <CaptionedCell
     caption={{
-      node: <KeyValueLabel messageId="cpu" value={flavorCpu} isBoldValue={false} variant="caption" />
+      node: <KeyValueLabel keyMessageId="cpu" value={flavorCpu} isBoldValue={false} typographyProps={{ variant: "caption" }} />
     }}
   >
     {flavorName}

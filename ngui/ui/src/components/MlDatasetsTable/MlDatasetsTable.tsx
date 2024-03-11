@@ -6,7 +6,7 @@ import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Markdown from "components/Markdown";
 import { MlDeleteDatasetModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
@@ -56,8 +56,7 @@ const MlDatasetsTable = ({ datasets }) => {
                 key: "timespanFrom",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="from"
+                    keyMessageId="from"
                     variant="caption"
                     value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
                   />
@@ -67,8 +66,7 @@ const MlDatasetsTable = ({ datasets }) => {
                 key: "timespanTo",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="to"
+                    keyMessageId="to"
                     variant="caption"
                     value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
                   />
@@ -102,8 +100,7 @@ const MlDatasetsTable = ({ datasets }) => {
                 key: "timespanFrom",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="from"
+                    keyMessageId="from"
                     variant="caption"
                     value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
                   />
@@ -113,8 +110,7 @@ const MlDatasetsTable = ({ datasets }) => {
                 key: "timespanTo",
                 node: (
                   <KeyValueLabel
-                    flexWrap="nowrap"
-                    messageId="to"
+                    keyMessageId="to"
                     variant="caption"
                     value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
                   />

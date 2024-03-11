@@ -1,6 +1,6 @@
 import FormattedMoney from "components/FormattedMoney";
 import HeartLineChart from "components/HeartLineChart";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { EXPENSE_ANOMALY } from "utils/constants";
 import { CELL_EMPTY_VALUE } from "utils/tables";
 
@@ -19,8 +19,8 @@ const AnomalyRunChartCell = ({ breakdown, today, average, threshold, type, today
       height={40}
       tooltip={
         <>
-          <KeyValueLabel messageId="average" value={getFormattedValue(average)} />
-          <KeyValueLabel messageId={todayMessageId} value={getFormattedValue(today)} />
+          <KeyValueLabel keyMessageId="average" value={getFormattedValue(average)} />
+          <KeyValueLabel keyMessageId={todayMessageId} value={getFormattedValue(today)} />
         </>
       }
       thresholdArea={{

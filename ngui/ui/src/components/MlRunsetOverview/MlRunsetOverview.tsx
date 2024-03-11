@@ -7,7 +7,7 @@ import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import { GET_ML_RUNSET, GET_ML_RUNSETS_RUNS, GET_ML_RUNSET_EXECUTORS } from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PageContentWrapper from "components/PageContentWrapper";
 import Skeleton from "components/Skeleton";
 import TypographyLoader from "components/TypographyLoader";
@@ -104,11 +104,10 @@ const MlRunsetOverview = ({
               <TypographyLoader rowsCount={1} />
             ) : (
               <KeyValueLabel
-                messageId="task"
-                isBoldValue={false}
-                value={() =>
+                keyMessageId="task"
+                value={
                   isModelDeleted ? (
-                    <strong>{modelName}</strong>
+                    modelName
                   ) : (
                     <Link to={getMlModelDetailsUrl(taskId)} component={RouterLink}>
                       {modelName}

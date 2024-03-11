@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import CircleLabel from "components/CircleLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { unixTimestampToDateTime, EN_FULL_FORMAT } from "utils/datetime";
 
 const MetricChartTooltip = ({ slice }) => {
@@ -15,9 +15,9 @@ const MetricChartTooltip = ({ slice }) => {
       {slice.points.map((point) => (
         <KeyValueLabel
           key={point.id}
-          renderKey={() => (
+          keyText={
             <CircleLabel figureColor={point.serieColor} label={<FormattedMessage id={point.serieId} />} textFirst={false} />
-          )}
+          }
           value={point.data.yFormatted}
         />
       ))}

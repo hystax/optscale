@@ -2,7 +2,7 @@ import { useRef } from "react";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { useResizeObserver } from "hooks/useResizeObserver";
 
 const MARKER_WIDTH = "1px";
@@ -64,19 +64,9 @@ const CloudExpensesChartMarker = ({
           height: `calc(100% + ${markerVerticalShift})`
         }}
       />
-      <KeyValueLabel
-        style={
-          isRightSideMarker
-            ? {
-                paddingLeft: textSpacing
-              }
-            : {
-                paddingRight: textSpacing
-              }
-        }
-        messageId={valueMessageId}
-        value={<FormattedMoney value={value} />}
-      />
+      <Box ml={isRightSideMarker ? textSpacing : 0} mr={!isRightSideMarker ? textSpacing : 0}>
+        <KeyValueLabel keyMessageId={valueMessageId} value={<FormattedMoney value={value} />} />
+      </Box>
     </Box>
   );
 };

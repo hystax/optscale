@@ -2,11 +2,10 @@ import { useState } from "react";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import { Stack, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
 import CopyText from "components/CopyText";
 import IconButton from "components/IconButton";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import EditOrganizationFormContainer from "containers/EditOrganizationFormContainer";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -15,9 +14,15 @@ import OrganizationCurrency from "./OrganizationCurrency";
 
 const OrganizationId = ({ id }) => (
   <KeyValueLabel
-    messageId="id"
+    keyMessageId="id"
     value={
-      <CopyText variant="inherit" text={id}>
+      <CopyText
+        variant="inherit"
+        text={id}
+        sx={{
+          fontWeight: "inherit"
+        }}
+      >
         {id}
       </CopyText>
     }
@@ -25,8 +30,6 @@ const OrganizationId = ({ id }) => (
 );
 
 const OrganizationName = ({ name }) => {
-  const theme = useTheme();
-
   const [isEditMode, setIsEditMode] = useState(false);
   const enableEditMode = () => setIsEditMode(true);
   const disableEditMode = () => setIsEditMode(false);
@@ -36,8 +39,8 @@ const OrganizationName = ({ name }) => {
   return isEditMode ? (
     <EditOrganizationFormContainer onCancel={disableEditMode} onSuccess={disableEditMode} />
   ) : (
-    <Box display="flex">
-      <KeyValueLabel messageId="name" value={name} typographyProps={{ style: { marginRight: theme.spacing(1) } }} />
+    <Box display="flex" alignItems="center">
+      <KeyValueLabel keyMessageId="name" value={name} sx={{ marginRight: 1 }} />
       {isEditAllowed && (
         <IconButton
           icon={<CreateOutlinedIcon />}
