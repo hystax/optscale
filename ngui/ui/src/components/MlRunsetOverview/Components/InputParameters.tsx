@@ -5,7 +5,7 @@ import CloudLabel from "components/CloudLabel";
 import CodeEditor from "components/CodeEditor";
 import FormattedDuration from "components/FormattedDuration";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabelsList from "components/KeyValueLabelsList";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import QuestionMark from "components/QuestionMark";
 import SummaryList from "components/SummaryList";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -32,67 +32,56 @@ const InputParameters = ({ runset, isLoading }) => {
           titleMessage={<FormattedMessage id="details" />}
           isLoading={isLoading}
           items={
-            <KeyValueLabelsList
-              items={[
-                {
-                  itemKey: "dataSource",
-                  messageId: "dataSource",
-                  value: (
-                    <CloudLabel
-                      id={dataSourceId}
-                      name={dataSourceName}
-                      type={dataSourceType}
-                      disableLink={isDemo || isDataSourceDeleted}
-                    />
-                  ),
-                  dataTestIds: { key: "p_data_source_key", value: "p_data_source_value" }
-                },
-                {
-                  itemKey: "region",
-                  messageId: "region",
-                  value: <CloudLabel name={regionName} type={regionDataSourceType} disableLink />,
-                  dataTestIds: { key: "p_region_key", value: "p_region_value" }
-                },
-                {
-                  itemKey: "instanceSize",
-                  messageId: "instanceSize",
-                  value: <CloudLabel name={instanceSizeName} type={instanceSizeDataSourceType} disableLink />,
-                  dataTestIds: { key: "p_instance_size_key", value: "p_instance_size_value" }
-                },
-                {
-                  itemKey: "maximumParallelRuns",
-                  messageId: "maximumParallelRuns",
-                  value: maximumParallelRuns,
-                  dataTestIds: { key: "p_maximum_parallel_runs_key", value: "p_maximum_parallel_runs_value" }
-                },
-                spotSettings
-                  ? {
-                      itemKey: "usingSpotInstances",
-                      messageId: "spotInstances",
-                      isBoldValue: false,
-                      value: (
-                        <Box display="flex" alignItems="center">
-                          <span>
-                            <FormattedMessage
-                              id="xAttemptsBeforePayAsYouGo"
-                              values={{
-                                value: spotSettings.tries,
-                                strong: (chunks) => <strong>{chunks}</strong>
-                              }}
-                            />
-                          </span>
-                          <QuestionMark
-                            messageId="xAttemptsBeforePayAsYouGoDescription"
-                            fontSize="small"
-                            Icon={InfoOutlinedIcon}
-                          />
-                        </Box>
-                      ),
-                      dataTestIds: { key: "p_using_spot_instances_key", value: "p_using_spot_instances_value" }
-                    }
-                  : undefined
-              ].filter(Boolean)}
-            />
+            <>
+              <KeyValueLabel
+                keyMessageId="dataSource"
+                value={
+                  <CloudLabel
+                    id={dataSourceId}
+                    name={dataSourceName}
+                    type={dataSourceType}
+                    disableLink={isDemo || isDataSourceDeleted}
+                  />
+                }
+                dataTestIds={{ key: "p_data_source_key", value: "p_data_source_value" }}
+              />
+              <KeyValueLabel
+                keyMessageId="region"
+                value={<CloudLabel name={regionName} type={regionDataSourceType} disableLink />}
+                dataTestIds={{ key: "p_region_key", value: "p_region_value" }}
+              />
+              <KeyValueLabel
+                keyMessageId="instanceSize"
+                value={<CloudLabel name={instanceSizeName} type={instanceSizeDataSourceType} disableLink />}
+                dataTestIds={{ key: "p_instance_size_key", value: "p_instance_size_value" }}
+              />
+              <KeyValueLabel
+                keyMessageId="maximumParallelRuns"
+                value={maximumParallelRuns}
+                dataTestIds={{ key: "p_maximum_parallel_runs_key", value: "p_maximum_parallel_runs_value" }}
+              />
+              {spotSettings && (
+                <KeyValueLabel
+                  keyMessageId="spotInstances"
+                  value={
+                    <Box display="flex" alignItems="center">
+                      <span>
+                        <FormattedMessage
+                          id="xAttemptsBeforePayAsYouGo"
+                          values={{
+                            value: spotSettings.tries,
+                            strong: (chunks) => <strong>{chunks}</strong>
+                          }}
+                        />
+                      </span>
+                      <QuestionMark messageId="xAttemptsBeforePayAsYouGoDescription" fontSize="small" Icon={InfoOutlinedIcon} />
+                    </Box>
+                  }
+                  isBoldValue={false}
+                  dataTestIds={{ key: "p_using_spot_instances_key", value: "p_using_spot_instances_value" }}
+                />
+              )}
+            </>
           }
         />
       </Box>
@@ -100,31 +89,28 @@ const InputParameters = ({ runset, isLoading }) => {
         <SummaryList
           titleMessage={<FormattedMessage id="hyperparametersCount" />}
           isLoading={isLoading}
-          items={
-            <KeyValueLabelsList
-              items={Object.entries(hyperparameters).map(([hyperparameterName, hyperparameterValues]) => {
-                const values = hyperparameterValues.split(",");
+          items={Object.entries(hyperparameters).map(([hyperparameterName, hyperparameterValues]) => {
+            const values = hyperparameterValues.split(",");
 
-                return {
-                  itemKey: hyperparameterName,
-                  text: hyperparameterName,
-                  value: (
-                    <Box display="flex" alignItems="center">
-                      <span>{values.length}</span>
-                      <QuestionMark
-                        tooltipText={values.map((value) => (
-                          <div key={value}>{value}</div>
-                        ))}
-                        fontSize="small"
-                        Icon={InfoOutlinedIcon}
-                      />
-                    </Box>
-                  ),
-                  dataTestIds: { key: `p_${hyperparameterName}_key`, value: `p_${hyperparameterName}_value` }
-                };
-              })}
-            />
-          }
+            return (
+              <KeyValueLabel
+                key={hyperparameterName}
+                keyText={hyperparameterName}
+                value={
+                  <Box display="flex" alignItems="center">
+                    <span>{values.length}</span>
+                    <QuestionMark
+                      tooltipText={values.map((value) => (
+                        <div key={value}>{value}</div>
+                      ))}
+                      fontSize="small"
+                      Icon={InfoOutlinedIcon}
+                    />
+                  </Box>
+                }
+              />
+            );
+          })}
         />
       </Box>
       <Box>

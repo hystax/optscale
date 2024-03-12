@@ -1,7 +1,7 @@
 import { FormattedMessage } from "react-intl";
 import CircleLabel from "components/CircleLabel";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import ResourceUsageFormattedNumber from "components/ResourceUsageFormattedNumber";
 import { intl } from "translations/react-intl-config";
 import { getLength, isEmpty, splitIntoTwoChunks } from "utils/arrays";
@@ -17,17 +17,15 @@ const ResourceRawExpensesChartTooltipBody = ({ slice, stacked }) => {
     <>
       {stacked && getLength(allPoints) > 1 ? (
         <KeyValueLabel
-          text={intl.formatMessage({ id: "totalExpenses{date}" }, { date: allPoints[0]?.data?.x })}
+          keyText={intl.formatMessage({ id: "totalExpenses{date}" }, { date: allPoints[0]?.data?.x })}
           value={<FormattedMoney value={allPoints[0]?.data?.yStacked} type={FORMATTED_MONEY_TYPES.COMMON} />}
-          typographyProps={{
-            gutterBottom: true
-          }}
+          gutterBottom
         />
       ) : null}
       {points.map((point) => (
         <KeyValueLabel
           key={point.id}
-          renderKey={() => <CircleLabel figureColor={point.serieColor} label={point.serieId} textFirst={false} />}
+          keyText={<CircleLabel figureColor={point.serieColor} label={point.serieId} textFirst={false} />}
           value={
             <>
               <FormattedMoney value={point.data?.y} type={FORMATTED_MONEY_TYPES.COMMON} />
@@ -44,14 +42,12 @@ const ResourceRawExpensesChartTooltipBody = ({ slice, stacked }) => {
               )}
             </>
           }
-          typographyProps={{
-            gutterBottom: true
-          }}
+          gutterBottom
         />
       ))}
       {!isEmpty(limitExceededPoints) && (
         <KeyValueLabel
-          text={intl.formatMessage({ id: "otherCategories" })}
+          keyText={intl.formatMessage({ id: "otherCategories" })}
           value={
             <FormattedMoney
               value={limitExceededPoints.reduce((sum, point) => sum + (point.data?.y ?? 0), 0)}

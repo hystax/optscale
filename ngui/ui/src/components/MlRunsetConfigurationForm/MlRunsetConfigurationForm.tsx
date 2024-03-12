@@ -4,7 +4,7 @@ import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import CodeEditor from "components/CodeEditor";
 import DashedTypography from "components/DashedTypography";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import MlRunsetTagForCreatedResourcesChip from "components/MlRunsetTagForCreatedResourcesChip";
 import QuestionMark from "components/QuestionMark";
 import SubTitle from "components/SubTitle";
@@ -242,12 +242,12 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
             <TypographyLoader linesCount={2} />
           ) : (
             <>
-              <KeyValueLabel messageId="resourceNamePrefix" value={resourceNamePrefix} />
+              <KeyValueLabel keyMessageId="resourceNamePrefix" value={resourceNamePrefix} />
               <KeyValueLabel
-                messageId="tagForCreatedResources"
+                keyMessageId="tagForCreatedResources"
                 value={
                   isEmptyObject(tags)
-                    ? null
+                    ? undefined
                     : Object.entries(tags).map(([tagKey, tagValue], index, array) => (
                         <Fragment key={tagKey}>
                           <MlRunsetTagForCreatedResourcesChip tagKey={tagKey} tagValue={tagValue} />

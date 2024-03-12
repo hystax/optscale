@@ -8,7 +8,7 @@ import CaptionedCell from "components/CaptionedCell";
 import FormattedDuration from "components/FormattedDuration";
 import HeaderHelperCell from "components/HeaderHelperCell";
 import IconLabel from "components/IconLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { STATUS } from "components/S3DuplicateFinderCheck/utils";
 import SlicedText from "components/SlicedText";
 import { getS3DuplicateFinderCheck } from "urls";
@@ -18,9 +18,9 @@ const getCaption = ({ status, error, lastCompleted, lastRun }) => {
   if (status === STATUS.SUCCESS) {
     return (
       <KeyValueLabel
-        variant="caption"
-        messageId="duration"
+        keyMessageId="duration"
         value={<FormattedDuration durationInSeconds={lastCompleted - lastRun} />}
+        variant="caption"
       />
     );
   }
@@ -34,7 +34,7 @@ const getCaption = ({ status, error, lastCompleted, lastRun }) => {
       </Typography>
     );
   }
-  return <KeyValueLabel variant="caption" messageId="failed" value={<SlicedText limit={50} text={error} />} />;
+  return <KeyValueLabel keyMessageId="failed" value={<SlicedText limit={50} text={error} />} variant="caption" />;
 };
 
 const progress = () => ({

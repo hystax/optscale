@@ -1,6 +1,6 @@
 import { Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import { breakdowns } from "hooks/useBreakdownBy";
 import { isEmpty as isEmptyArray } from "utils/arrays";
@@ -18,7 +18,7 @@ const getGroupByRenderData = (groupBy) => ({
       return <FormattedMessage id="none" />;
     }
     if (groupBy.groupType === "tag") {
-      return <KeyValueLabel messageId={groupBy.groupType} value={groupBy.groupBy} />;
+      return <KeyValueLabel keyMessageId={groupBy.groupType} value={groupBy.groupBy} />;
     }
     return <FormattedMessage id={groupBy.groupType} />;
   }
@@ -32,7 +32,7 @@ const getBreakdownStateValueRenderer = (name) =>
 
 const ResourcesPerspectiveValuesDescription = ({ breakdownBy, breakdownData = {}, filters = [] }) => (
   <Stack spacing={SPACING_1}>
-    <KeyValueLabel messageId="breakdownBy" value={<FormattedMessage id={breakdownBy} />} />
+    <KeyValueLabel keyMessageId="breakdownBy" value={<FormattedMessage id={breakdownBy} />} />
     {Object.entries(breakdownData)
       .map(([name, value]) => {
         const renderer = getBreakdownStateValueRenderer(name);
@@ -41,18 +41,18 @@ const ResourcesPerspectiveValuesDescription = ({ breakdownBy, breakdownData = {}
       })
       .filter(Boolean)
       .map(({ controlName, renderValue }) => (
-        <KeyValueLabel key={controlName} messageId={controlName} value={renderValue()} />
+        <KeyValueLabel key={controlName} keyMessageId={controlName} value={renderValue()} />
       ))}
     <div>
       {isEmptyArray(filters) ? (
-        <KeyValueLabel messageId="filters" value="-" />
+        <KeyValueLabel keyMessageId="filters" value="-" />
       ) : (
         <>
           <SubTitle>
             <FormattedMessage id="filters" />
           </SubTitle>
           {filters.map(({ name, displayedName, displayedValue }) => (
-            <KeyValueLabel key={name} text={displayedName} value={displayedValue} />
+            <KeyValueLabel key={name} keyText={displayedName} value={displayedValue} />
           ))}
         </>
       )}

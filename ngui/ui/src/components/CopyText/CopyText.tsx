@@ -36,7 +36,7 @@ const CopyText = ({
       sx={{
         display,
         alignItems,
-        restSx
+        ...restSx
       }}
       className={cx(classes.wrapper, normalWhitespace ? classes.normalWhitespace : undefined)}
       data-test-id={textDataTestId}

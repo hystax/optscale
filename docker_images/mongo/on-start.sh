@@ -89,7 +89,7 @@ init_mongod_standalone() {
 
     local port="27018"
     log "Starting a MongoDB instance as standalone..."
-    mongod --config /data/configdb/mongod.conf --dbpath=/data/db "${auth_args[@]}" "${ssl_server_args[@]}" --port "${port}" --bind_ip=0.0.0.0 2>&1 | tee -a /work-dir/log.txt 1>&2 &
+    mongod --config /data/configdb/mongod.conf --noIndexBuildRetry --dbpath=/data/db "${auth_args[@]}" "${ssl_server_args[@]}" --port "${port}" --bind_ip=0.0.0.0 2>&1 | tee -a /work-dir/log.txt 1>&2 &
     export pid=$!
     trap shutdown_mongo EXIT
     log "Waiting for MongoDB to be ready..."
@@ -160,7 +160,7 @@ fi
 
 log "Peers: ${peers[*]}"
 log "Starting a MongoDB replica"
-mongod --config /data/configdb/mongod.conf --dbpath=/data/db --replSet="$replica_set" --port="${port}" "${auth_args[@]}" "${ssl_server_args[@]}" --bind_ip=0.0.0.0 2>&1 | tee -a /work-dir/log.txt 1>&2 &
+mongod --config /data/configdb/mongod.conf --dbpath=/data/db --noIndexBuildRetry --replSet="$replica_set" --port="${port}" "${auth_args[@]}" "${ssl_server_args[@]}" --bind_ip=0.0.0.0 2>&1 | tee -a /work-dir/log.txt 1>&2 &
 pid=$!
 trap shutdown_mongo EXIT
 

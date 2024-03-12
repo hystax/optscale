@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import CloudLabel from "components/CloudLabel";
 import CopyText from "components/CopyText";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PoolLabel from "components/PoolLabel";
 import ResourceLabel from "components/ResourceLabel";
 import ResourceLink from "components/ResourceLink";
@@ -19,7 +19,7 @@ import CollapsableTableCell from "../CollapsableTableCell";
 const renderKeyValueLabels = (options) => options.map((opt) => <KeyValueLabel key={opt.messageId} {...opt} />);
 
 const getIdLabelDefinition = ({ cloudResourceIdentifier, isActive }) => ({
-  value: () => (
+  value: (
     <CopyText variant="inherit" text={cloudResourceIdentifier} normalWhitespace dataTestIds={{ button: "btn_copy" }}>
       <ResourceLabel
         cloudResourceIdentifier={cloudResourceIdentifier}
@@ -29,23 +29,23 @@ const getIdLabelDefinition = ({ cloudResourceIdentifier, isActive }) => ({
       />
     </CopyText>
   ),
-  messageId: "id",
+  keyMessageId: "id",
   dataTestIds: {
     key: "lbl_id",
     value: "lbl_id_value"
   }
 });
 
-const getLabelDefinition = ({ value, messageId, dataTestIds }) => ({
+const getLabelDefinition = ({ value, keyMessageId, dataTestIds }) => ({
   value,
-  messageId,
+  keyMessageId,
   dataTestIds
 });
 
 const getNameLabelDefinition = (resourceName) =>
   getLabelDefinition({
     value: resourceName,
-    messageId: "name",
+    keyMessageId: "name",
     dataTestIds: {
       key: "lbl_name",
       value: "lbl_name_value"
@@ -55,7 +55,7 @@ const getNameLabelDefinition = (resourceName) =>
 const getSubResourcesLabelDefinition = (count) =>
   getLabelDefinition({
     value: count,
-    messageId: "subResources",
+    keyMessageId: "subResources",
     dataTestIds: {
       key: "lbl_sub_resources",
       value: "lbl_sub_resources_value"
@@ -64,8 +64,8 @@ const getSubResourcesLabelDefinition = (count) =>
 
 const getCloudNameLabelDefinition = (cloudName, cloudAccountId, cloudType) =>
   getLabelDefinition({
-    value: () => <CloudLabel id={cloudAccountId} name={cloudName} type={cloudType} />,
-    messageId: "dataSource",
+    value: <CloudLabel id={cloudAccountId} name={cloudName} type={cloudType} />,
+    keyMessageId: "dataSource",
     dataTestIds: {
       key: "lbl_cloud",
       value: "lbl_cloud_value"
@@ -75,7 +75,7 @@ const getCloudNameLabelDefinition = (cloudName, cloudAccountId, cloudType) =>
 const getResourceTypeLabelDefinition = (value) =>
   getLabelDefinition({
     value,
-    messageId: "type",
+    keyMessageId: "type",
     dataTestIds: {
       key: "lbl_type",
       value: "lbl_type_value"
@@ -85,7 +85,7 @@ const getResourceTypeLabelDefinition = (value) =>
 const getServiceNameLabelDefinition = (serviceName) =>
   getLabelDefinition({
     value: serviceName,
-    messageId: "service",
+    keyMessageId: "service",
     dataTestIds: {
       key: "lbl_service",
       value: "lbl_service_value"
@@ -95,7 +95,7 @@ const getServiceNameLabelDefinition = (serviceName) =>
 const getRegionLabelDefinition = (region) =>
   getLabelDefinition({
     value: region,
-    messageId: "region",
+    keyMessageId: "region",
     dataTestIds: {
       key: "lbl_region",
       value: "lbl_region_value"
@@ -105,7 +105,7 @@ const getRegionLabelDefinition = (region) =>
 const getK8sNodeLabelDefinition = (node) =>
   getLabelDefinition({
     value: node,
-    messageId: "node",
+    keyMessageId: "node",
     dataTestIds: {
       key: "lbl_k8s_node",
       value: "lbl_k8s_node_value"
@@ -115,7 +115,7 @@ const getK8sNodeLabelDefinition = (node) =>
 const getK8sNamespaceLabelDefinition = (namespace) =>
   getLabelDefinition({
     value: namespace,
-    messageId: "namespace",
+    keyMessageId: "namespace",
     dataTestIds: {
       key: "lbl_k8s_namespace",
       value: "lbl_k8s_namespace_value"
@@ -124,8 +124,8 @@ const getK8sNamespaceLabelDefinition = (namespace) =>
 
 const getPoolNameLabelDefinition = (poolId, poolName, poolType) =>
   getLabelDefinition({
-    value: poolName ? () => <PoolLabel id={poolId} name={poolName} type={poolType} /> : "",
-    messageId: "pool",
+    value: poolName ? <PoolLabel id={poolId} name={poolName} type={poolType} /> : "",
+    keyMessageId: "pool",
     dataTestIds: {
       key: "lbl_pool",
       value: "lbl_pool_value"
@@ -135,7 +135,7 @@ const getPoolNameLabelDefinition = (poolId, poolName, poolType) =>
 const getOwnerNameLabelDefinition = (ownerName) =>
   getLabelDefinition({
     value: ownerName,
-    messageId: "owner",
+    keyMessageId: "owner",
     dataTestIds: {
       key: "lbl_owner",
       value: "lbl_owner_value"
@@ -145,7 +145,7 @@ const getOwnerNameLabelDefinition = (ownerName) =>
 const getFirstSeenLabelDefinition = (firstSeen) =>
   getLabelDefinition({
     value: firstSeen ? `${formatUTC(firstSeen, EN_FULL_FORMAT)} UTC` : "",
-    messageId: "firstSeenOn",
+    keyMessageId: "firstSeenOn",
     dataTestIds: {
       key: "lbl_first_seen",
       value: "lbl_first_seen_value"
@@ -155,7 +155,7 @@ const getFirstSeenLabelDefinition = (firstSeen) =>
 const getLastSeenLabelDefinition = (lastSeen) =>
   getLabelDefinition({
     value: lastSeen ? `${formatUTC(lastSeen, EN_FULL_FORMAT)} UTC` : "",
-    messageId: "lastSeenOn",
+    keyMessageId: "lastSeenOn",
     dataTestIds: {
       key: "lbl_last_seen",
       value: "lbl_last_seen_value"

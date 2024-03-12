@@ -1,5 +1,5 @@
 import { FormattedMessage } from "react-intl";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import ResourceLocationCell from "components/ResourceLocationCell";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { intl } from "translations/react-intl-config";
@@ -31,15 +31,15 @@ const resourceLocation = ({
       caption={[
         {
           key: "region",
-          node: original[regionAccessor] ? <KeyValueLabel messageId="region" value={original[regionAccessor]} /> : null
+          node: original[regionAccessor] ? <KeyValueLabel keyMessageId="region" value={original[regionAccessor]} /> : null
         },
         {
           key: "folderId",
-          node: original[folderIdAccessor] ? <KeyValueLabel messageId="folderId" value={original[folderIdAccessor]} /> : null
+          node: original[folderIdAccessor] ? <KeyValueLabel keyMessageId="folderId" value={original[folderIdAccessor]} /> : null
         },
         {
           key: "zoneId",
-          node: original[zoneIdAccessor] ? <KeyValueLabel messageId="zoneId" value={original[zoneIdAccessor]} /> : null
+          node: original[zoneIdAccessor] ? <KeyValueLabel keyMessageId="zoneId" value={original[zoneIdAccessor]} /> : null
         }
       ].filter(({ node }) => node !== null)}
     />

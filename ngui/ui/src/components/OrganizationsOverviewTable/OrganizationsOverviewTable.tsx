@@ -3,7 +3,7 @@ import Link from "@mui/material/Link";
 import { alpha, useTheme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import OrganizationLabel from "components/OrganizationLabel";
 import PoolLabel from "components/PoolLabel";
 import Table from "components/Table";
@@ -20,7 +20,7 @@ const getExceedingLabel = (limitName, pool, rowData) => {
     return (
       <KeyValueLabel
         key={id}
-        text={<PoolLabel id={id} type={type} name={name} organizationId={rowData.id} />}
+        keyText={<PoolLabel id={id} type={type} name={name} organizationId={rowData.id} />}
         value={<FormattedMoney format={rowData.currency} type={FORMATTED_MONEY_TYPES.COMMON} value={limit} />}
       />
     );
@@ -66,15 +66,15 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
         }) => (
           <>
             <KeyValueLabel
-              messageId="lastMonth"
+              keyMessageId="lastMonth"
               value={<FormattedMoney format={currency} type={FORMATTED_MONEY_TYPES.COMMON} value={lastMonthCost} />}
             />
             <KeyValueLabel
-              messageId="thisMonth"
+              keyMessageId="thisMonth"
               value={<FormattedMoney format={currency} type={FORMATTED_MONEY_TYPES.COMMON} value={cost} />}
             />
             <KeyValueLabel
-              messageId="thisMonthForecast"
+              keyMessageId="thisMonthForecast"
               value={<FormattedMoney format={currency} type={FORMATTED_MONEY_TYPES.COMMON} value={forecast} />}
             />
           </>

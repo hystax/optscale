@@ -1,6 +1,6 @@
 import { FormattedMessage } from "react-intl";
 import CloudLabel from "components/CloudLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SummaryList from "components/SummaryList";
 import { BI_EXPORT_STORAGE_TYPE } from "utils/biExport";
 import { AWS_CNR, AZURE_CNR } from "utils/constants";
@@ -14,7 +14,7 @@ const TypeLabel = ({ type }) => {
       )
     })[type];
 
-  return <KeyValueLabel key="type" messageId="type" value={getValue()} />;
+  return <KeyValueLabel key="type" keyMessageId="type" value={getValue()} />;
 };
 
 const TargetStorageSummaryList = ({ type, meta, isLoading = false }) => (
@@ -22,17 +22,17 @@ const TargetStorageSummaryList = ({ type, meta, isLoading = false }) => (
     titleMessage={<FormattedMessage id="targetStorage" />}
     isLoading={isLoading}
     items={[
-      <TypeLabel key="type" type={type} />,
+      type && <TypeLabel key="type" type={type} />,
       ...(type === BI_EXPORT_STORAGE_TYPE.AWS_RAW_EXPORT
         ? [
-            <KeyValueLabel key="bucket" messageId="bucket" value={meta.bucket} />,
-            <KeyValueLabel key="s3Prefix" messageId="s3Prefix" value={meta.s3_prefix} />
+            <KeyValueLabel key="bucket" keyMessageId="bucket" value={meta.bucket} />,
+            <KeyValueLabel key="s3Prefix" keyMessageId="s3Prefix" value={meta.s3_prefix} />
           ]
         : []),
       ...(type === BI_EXPORT_STORAGE_TYPE.AZURE_RAW_EXPORT
         ? [
-            <KeyValueLabel key="container" messageId="container" value={meta.container} />,
-            <KeyValueLabel key="storageAccount" messageId="storageAccount" value={meta.storage_account} />
+            <KeyValueLabel key="container" keyMessageId="container" value={meta.container} />,
+            <KeyValueLabel key="storageAccount" keyMessageId="storageAccount" value={meta.storage_account} />
           ]
         : [])
     ]}

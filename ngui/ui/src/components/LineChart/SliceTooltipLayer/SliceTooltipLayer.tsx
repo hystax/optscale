@@ -27,6 +27,7 @@ const useMousePosition = () => {
 };
 
 export const SliceTooltipLayer = ({
+  wrapperDimensions,
   sliceTooltip,
   xFormat,
   yFormat,
@@ -176,7 +177,11 @@ export const SliceTooltipLayer = ({
       }}
     >
       {slice && (
-        <SliceTooltip position={tooltipSettings.position} anchor={tooltipSettings.anchor}>
+        <SliceTooltip
+          chartWrapperWidth={wrapperDimensions.width}
+          mousePosition={tooltipSettings.position}
+          anchor={tooltipSettings.anchor}
+        >
           {sliceTooltip({
             slice
           })}

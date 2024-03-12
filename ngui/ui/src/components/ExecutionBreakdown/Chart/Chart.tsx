@@ -3,7 +3,7 @@ import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import CircleLabel from "components/CircleLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import LineChart from "components/LineChart";
 import { createGroupsObjectFromArray, isEmpty as isEmptyArray } from "utils/arrays";
 import { formatSecondsToHHMMSS } from "utils/datetime";
@@ -94,11 +94,9 @@ const Chart = ({
               {data.map(({ id, serieColor, data: { formattedLineName, formattedY } }) => (
                 <KeyValueLabel
                   key={id}
-                  renderKey={() => <CircleLabel figureColor={serieColor} label={formattedLineName} textFirst={false} />}
+                  keyText={<CircleLabel figureColor={serieColor} label={formattedLineName} textFirst={false} />}
                   value={formattedY}
-                  typographyProps={{
-                    gutterBottom: true
-                  }}
+                  gutterBottom
                 />
               ))}
             </Fragment>

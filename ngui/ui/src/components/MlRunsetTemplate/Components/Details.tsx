@@ -1,14 +1,14 @@
 import { Fragment } from "react";
+import { Box } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
-import { makeStyles } from "tss-react/mui";
 import CloudLabel from "components/CloudLabel";
 import CopyText from "components/CopyText";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import MlRunsetTagForCreatedResourcesChip from "components/MlRunsetTagForCreatedResourcesChip";
 import SummaryList from "components/SummaryList";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -17,16 +17,6 @@ import { getMlModelDetailsUrl } from "urls";
 import { isEmpty as isEmptyArray, isLastItem } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
 import { isEmpty as isEmptyObject } from "utils/objects";
-
-const useStyles = makeStyles()(() => ({
-  keyValueListItems: {
-    display: "flex",
-    flexWrap: "wrap"
-  },
-  tags: {
-    rowGap: 2
-  }
-}));
 
 const Details = ({
   dataSources,
@@ -41,8 +31,6 @@ const Details = ({
 }) => {
   const { isDemo } = useOrganizationInfo();
 
-  const { classes, cx } = useStyles();
-
   return (
     <Grid container spacing={SPACING_1}>
       <Grid item xs={12} sm={6} lg={4}>
@@ -51,11 +39,10 @@ const Details = ({
           items={
             <>
               <KeyValueLabel
-                messageId="tasks"
-                isBoldValue
+                keyMessageId="tasks"
                 value={
                   isEmptyArray(models) ? null : (
-                    <div className={classes.keyValueListItems}>
+                    <span>
                       {models.map(({ id, name, deleted = false }, index, array) => (
                         <Fragment key={id}>
                           {deleted ? (
@@ -68,15 +55,15 @@ const Details = ({
                           {index < array.length - 1 ? <>&#44;&nbsp;</> : null}
                         </Fragment>
                       ))}
-                    </div>
+                    </span>
                   )
                 }
               />
               <KeyValueLabel
-                messageId="dataSources"
+                keyMessageId="dataSources"
                 value={
                   isEmptyArray(dataSources) ? null : (
-                    <div className={classes.keyValueListItems}>
+                    <Box display="flex" flexWrap="wrap">
                       {dataSources.map(
                         ({ id: dataSourceId, name: dataSourceName, type: dataSourceType, deleted = false }, index, array) => (
                           <Fragment key={dataSourceId}>
@@ -90,58 +77,57 @@ const Details = ({
                           </Fragment>
                         )
                       )}
-                    </div>
+                    </Box>
                   )
                 }
               />
               <KeyValueLabel
-                messageId="regions"
+                keyMessageId="regions"
                 value={
                   isEmptyArray(regions) ? null : (
-                    <div className={classes.keyValueListItems}>
+                    <Box display="flex" flexWrap="wrap">
                       {regions.map(({ name: regionName, type: dataSourceType }, index, array) => (
                         <Fragment key={regionName}>
                           <CloudLabel id={regionName} name={regionName} type={dataSourceType} disableLink />
                           {isLastItem(index, array.length) ? null : <>&#44;&nbsp;</>}
                         </Fragment>
                       ))}
-                    </div>
+                    </Box>
                   )
                 }
               />
               <KeyValueLabel
-                messageId="instanceTypes"
+                keyMessageId="instanceTypes"
                 value={
                   isEmptyArray(instanceTypes) ? null : (
-                    <div className={classes.keyValueListItems}>
+                    <Box display="flex" flexWrap="wrap">
                       {instanceTypes.map(({ name: instanceTypeName, type: dataSourceType }, index, array) => (
                         <Fragment key={instanceTypeName}>
                           <CloudLabel id={instanceTypeName} name={instanceTypeName} type={dataSourceType} disableLink />
                           {isLastItem(index, array.length) ? null : <>&#44;&nbsp;</>}
                         </Fragment>
                       ))}
-                    </div>
+                    </Box>
                   )
                 }
               />
               <KeyValueLabel
-                messageId="maximumRunsetBudget"
+                keyMessageId="maximumRunsetBudget"
                 value={maximumRunsetBudget === undefined ? null : <FormattedMoney value={maximumRunsetBudget} />}
               />
-              <KeyValueLabel messageId="resourceNamePrefix" value={resourceNamePrefix} />
+              <KeyValueLabel keyMessageId="resourceNamePrefix" value={resourceNamePrefix} />
               <KeyValueLabel
-                isBoldValue={false}
-                messageId="tagForCreatedResources"
+                keyMessageId="tagForCreatedResources"
                 value={
                   isEmptyObject(tags) ? null : (
-                    <div className={cx(classes.keyValueListItems, classes.tags)}>
+                    <Box display="flex" flexWrap="wrap" rowGap={2}>
                       {Object.entries(tags).map(([tagKey, tagValue], index, array) => (
                         <Fragment key={tagKey}>
                           <MlRunsetTagForCreatedResourcesChip tagKey={tagKey} tagValue={tagValue} />
                           {isLastItem(index, array.length) ? null : <>&nbsp;</>}
                         </Fragment>
                       ))}
-                    </div>
+                    </Box>
                   )
                 }
               />
@@ -181,10 +167,20 @@ const Details = ({
               <FormattedMessage id="noHyperparameters" />
             ) : (
               Object.entries(hyperparameters).map(([hyperparameterName, hyperparameterEnvironmentVariable]) => (
-                <div key={hyperparameterName} style={{ display: "flex" }}>
-                  <KeyValueLabel text={hyperparameterName} value={<code>{hyperparameterEnvironmentVariable}</code>} />
-                  <CopyText text={hyperparameterEnvironmentVariable} />
-                </div>
+                <KeyValueLabel
+                  key={hyperparameterName}
+                  keyText={hyperparameterName}
+                  value={
+                    <CopyText
+                      sx={{
+                        fontWeight: "inherit"
+                      }}
+                      text={hyperparameterEnvironmentVariable}
+                    >
+                      {hyperparameterEnvironmentVariable}
+                    </CopyText>
+                  }
+                />
               ))
             )
           }

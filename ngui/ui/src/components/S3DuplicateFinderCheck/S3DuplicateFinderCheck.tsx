@@ -1,10 +1,10 @@
-import { Link, Typography } from "@mui/material";
+import { Link } from "@mui/material";
 import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
 import FormattedDigitalUnit, { SI_UNITS } from "components/FormattedDigitalUnit";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PageContentWrapper from "components/PageContentWrapper";
 import TypographyLoader from "components/TypographyLoader";
 import { RECOMMENDATIONS, S3_DUPLICATE_FINDER } from "urls";
@@ -125,13 +125,12 @@ const S3DuplicateFinderCheck = ({ gemini: checkData, thresholds, isLoadingProps 
               <TypographyLoader linesCount={2} />
             ) : (
               <>
-                <Typography>
-                  <FormattedMessage id="selectedBuckets" />
-                  &#58;&nbsp;
-                  <strong>{filtersBuckets.map(({ name: bucketName }) => bucketName).join(", ")}</strong>
-                </Typography>
                 <KeyValueLabel
-                  messageId="minimumObjectSize"
+                  keyMessageId="selectedBuckets"
+                  value={filtersBuckets.map(({ name: bucketName }) => bucketName).join(", ")}
+                />
+                <KeyValueLabel
+                  keyMessageId="minimumObjectSize"
                   value={<FormattedDigitalUnit value={minSize / MB} baseUnit={SI_UNITS.MEGABYTE} />}
                 />
               </>

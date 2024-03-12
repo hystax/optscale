@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { getArchivedOptimizationDetails } from "api";
 import { GET_ARCHIVED_OPTIMIZATION_DETAILS } from "api/restapi/actionTypes";
 import Accordion from "components/Accordion";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import RecommendationAccordionTitle from "components/RecommendationAccordionTitle";
 import RecommendationDescription from "components/RecommendationDescription";
 import RecommendationLimitWarning from "components/RecommendationLimitWarning";
@@ -72,9 +72,9 @@ const ArchivedRecommendationAccordion = ({
         dataTestId={dataTestId}
         messages={[
           <FormattedMessage key={1} id={title} />,
-          <KeyValueLabel key={2} messageId="count" value={count} />,
+          <KeyValueLabel key={2} keyMessageId="count" value={count} />,
           <FormattedMessage key={3} id={ARCHIVATION_REASON_MESSAGE_ID[reason]} />,
-          <KeyValueLabel key={4} messageId="archivedAt" value={`${formatUTC(archivedAt, EN_FULL_FORMAT)} UTC`} />
+          <KeyValueLabel key={4} keyMessageId="archivedAt" value={`${formatUTC(archivedAt, EN_FULL_FORMAT)} UTC`} />
         ]}
       />
       <Stack spacing={SPACING_1}>

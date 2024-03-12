@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import CopyTextComponent from "components/CopyText";
 import ExpandableList from "components/ExpandableList";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Tooltip from "components/Tooltip";
 import { sliceByLimitWithEllipsis } from "utils/strings";
 
@@ -10,7 +10,13 @@ import { sliceByLimitWithEllipsis } from "utils/strings";
  * enable the icon appear on a "key: value" string hover
  */
 const CopyText = ({ children, textToCopy, dataTestId }) => (
-  <CopyTextComponent dataTestIds={{ text: dataTestId }} variant="inherit" copyIconType="animated" text={textToCopy}>
+  <CopyTextComponent
+    dataTestIds={{ text: dataTestId }}
+    variant="inherit"
+    copyIconType="animated"
+    text={textToCopy}
+    sx={{ fontWeight: "inherit", display: "inline-flex" }}
+  >
     {children}
   </CopyTextComponent>
 );
@@ -44,8 +50,8 @@ const renderItems =
           <KeyValueLabel
             dataTestIds={{ key: `lbl_tags_key_${dataTestIdIndex}`, value: `lbl_tags_value_${dataTestIdIndex}` }}
             key={displayedKey}
-            text={displayedKey}
-            value={() => <CopyText textToCopy={textToCopy}>{value}</CopyText>}
+            keyText={displayedKey}
+            value={<CopyText textToCopy={textToCopy}>{value}</CopyText>}
           />
         );
       }
@@ -57,8 +63,8 @@ const renderItems =
         return (
           <KeyValueLabel
             dataTestIds={{ key: `lbl_tags_key_${dataTestIdIndex}`, value: `lbl_tags_value_${dataTestIdIndex}` }}
-            text={key}
-            value={() => <CopyText textToCopy={textToCopy}>{cutValue}</CopyText>}
+            keyText={key}
+            value={<CopyText textToCopy={textToCopy}>{cutValue}</CopyText>}
           />
         );
       }
@@ -78,13 +84,7 @@ const renderItems =
         return undefined;
       }
 
-      return (
-        <KeyValueLabel
-          text={key}
-          value={value}
-          style={{ flexWrap: "wrap", wordBreak: "break-all", whiteSpace: "break-spaces" }}
-        />
-      );
+      return <KeyValueLabel keyText={key} value={value} />;
     };
 
     return (

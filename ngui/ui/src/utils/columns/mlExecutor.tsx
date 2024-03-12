@@ -5,7 +5,7 @@ import CloudResourceId from "components/CloudResourceId";
 import CloudTypeIcon from "components/CloudTypeIcon";
 import IconButton from "components/IconButton";
 import IconLabel from "components/IconLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import Tooltip from "components/Tooltip";
 import { useIntervalTimeAgo } from "hooks/useIntervalTimeAgo";
@@ -20,7 +20,7 @@ const ExecutorInfo = ({ info, showRunInspect }) => {
           key: "model",
           node: (
             <div style={{ display: "flex", flexDirection: "row" }}>
-              <KeyValueLabel style={{ flexWrap: "nowrap" }} messageId="model" value={run} />
+              <KeyValueLabel keyMessageId="model" value={run} />
               {showRunInspect && (
                 <Tooltip title={<FormattedMessage id="inspect" />}>
                   <IconButton icon={<LoupeIcon fontSize="inherit" />} />
@@ -31,7 +31,7 @@ const ExecutorInfo = ({ info, showRunInspect }) => {
         },
         {
           key: "time",
-          node: <KeyValueLabel style={{ flexWrap: "nowrap" }} messageId="lastRun" value={timeAgo} />
+          node: <KeyValueLabel keyMessageId="lastRun" value={timeAgo} />
         }
       ]
     : [];
@@ -41,7 +41,7 @@ const ExecutorInfo = ({ info, showRunInspect }) => {
       caption={[
         {
           key: "name",
-          node: <KeyValueLabel style={{ flexWrap: "nowrap" }} messageId="name" value={name} />
+          node: <KeyValueLabel keyMessageId="name" value={name} />
         },
         ...runInfo
       ]}

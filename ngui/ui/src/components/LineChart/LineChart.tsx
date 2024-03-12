@@ -259,6 +259,7 @@ const Line = ({
       }}
     >
       <SliceTooltipLayer
+        wrapperDimensions={wrapperDimensions}
         sliceTooltip={({ slice }) => <ChartTooltip body={renderTooltipBody({ slice, stacked: isStackedChart })} />}
         xFormat={xFormat}
         yFormat={yFormat}

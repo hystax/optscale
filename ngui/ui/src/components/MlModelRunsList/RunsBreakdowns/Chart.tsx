@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import CircleLabel from "components/CircleLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import LineChart from "components/LineChart";
 import { useMlBreakdownLines } from "hooks/useMlBreakdownLines";
 import { formatRunFullName, formatRunNumber } from "utils/ml";
@@ -33,13 +33,9 @@ const Chart = ({ runs = [], breakdownConfig = [], selectedBreakdowns = [], isLoa
             {points.map((point) => (
               <KeyValueLabel
                 key={point.id}
-                renderKey={() => (
-                  <CircleLabel figureColor={point.serieColor} label={point.data.formattedLineName} textFirst={false} />
-                )}
+                keyText={<CircleLabel figureColor={point.serieColor} label={point.data.formattedLineName} textFirst={false} />}
                 value={point.data.formattedY}
-                typographyProps={{
-                  gutterBottom: true
-                }}
+                gutterBottom
               />
             ))}
           </div>

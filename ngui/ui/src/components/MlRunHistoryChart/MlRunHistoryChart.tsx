@@ -1,6 +1,6 @@
 import DynamicFractionDigitsValue from "components/DynamicFractionDigitsValue";
 import HeartLineChart from "components/HeartLineChart";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { useGoalMetColors } from "hooks/useGoalMetColors";
 import { getAverage } from "utils/arrays";
 import { GOALS_FILTER_TYPES } from "utils/constants";
@@ -15,8 +15,8 @@ const MlRunHistoryChart = ({ history, targetValue, tendency, width = 100, height
       height={height}
       tooltip={
         <>
-          <KeyValueLabel messageId="last" value={<DynamicFractionDigitsValue value={history[history.length - 1]} />} />
-          <KeyValueLabel messageId="average" value={<DynamicFractionDigitsValue value={getAverage(history)} />} />
+          <KeyValueLabel keyMessageId="last" value={<DynamicFractionDigitsValue value={history[history.length - 1]} />} />
+          <KeyValueLabel keyMessageId="average" value={<DynamicFractionDigitsValue value={getAverage(history)} />} />
         </>
       }
       thresholdArea={{

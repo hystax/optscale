@@ -10,7 +10,7 @@ import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
 import ExpenseCell from "components/ExpenseCell";
 import ExpensesTableHeader from "components/ExpensesTableHeader";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import ResourceCell from "components/ResourceCell";
 import ResourcePaidNetworkTrafficList from "components/ResourcePaidNetworkTrafficList";
 import ResourceTypeLabel from "components/ResourceTypeLabel";
@@ -39,7 +39,7 @@ const LocationNodes = ({ region, service_name: serviceName, k8s_node: k8sNode, k
   const getNodes = () =>
     captionSettings.map(({ value, messageId }) => ({
       key: value,
-      node: <KeyValueLabel variant="caption" value={value} messageId={messageId} />
+      node: <KeyValueLabel variant="caption" value={value} keyMessageId={messageId} />
     }));
 
   return {

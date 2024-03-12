@@ -1,5 +1,5 @@
 import { FormattedMessage } from "react-intl";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { CONSTRAINT_MESSAGE_FORMAT } from "utils/constraints";
 import { format, secondsToMilliseconds, EN_FULL_FORMAT } from "utils/datetime";
 
@@ -16,7 +16,7 @@ const TtlMessage = ({ type, limit, formats = {} }) => {
     return (
       <KeyValueLabel
         isBoldValue={false}
-        messageId="expiresAt"
+        keyMessageId="expiresAt"
         value={format(secondsToMilliseconds(limit), EN_FULL_FORMAT)}
         dataTestIds={{
           key: `p_${type}_expires_at`,

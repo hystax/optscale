@@ -10,7 +10,7 @@ import CollapsableTableCell from "components/CollapsableTableCell";
 import DynamicFractionDigitsValue from "components/DynamicFractionDigitsValue";
 import ExpandableList from "components/ExpandableList";
 import IconLabel from "components/IconLabel";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { LeaderboardRunGroupDetailsModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
@@ -181,7 +181,7 @@ const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, lea
               render={({ name, value }) => (
                 <KeyValueLabel
                   key={name}
-                  text={name}
+                  keyText={name}
                   value={value === null ? undefined : <DynamicFractionDigitsValue value={value} />}
                 />
               )}

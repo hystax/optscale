@@ -1,5 +1,5 @@
 import { FormattedMessage } from "react-intl";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { POOL_TYPES } from "utils/constants";
 
 type PoolTypeIconTooltipContentProps = {
@@ -7,7 +7,7 @@ type PoolTypeIconTooltipContentProps = {
 };
 
 const PoolTypeIconTooltipContent = ({ type }: PoolTypeIconTooltipContentProps) => (
-  <KeyValueLabel messageId="type" value={<FormattedMessage id={POOL_TYPES[type]} />} />
+  <KeyValueLabel keyMessageId="type" value={<FormattedMessage id={POOL_TYPES[type]} />} />
 );
 
 export default PoolTypeIconTooltipContent;

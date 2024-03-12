@@ -1,11 +1,10 @@
 import { useState } from "react";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import Box from "@mui/material/Box";
-import { useTheme } from "@mui/material/styles";
 import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import FormattedOrganizationCurrency from "components/FormattedOrganizationCurrency";
 import IconButton from "components/IconButton";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import EditOrganizationCurrencyFormContainer from "containers/EditOrganizationCurrencyFormContainer";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useApiData } from "hooks/useApiData";
@@ -13,8 +12,6 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ENVIRONMENT } from "utils/constants";
 
 const OrganizationCurrency = () => {
-  const theme = useTheme();
-
   const { currency: currencyCode } = useOrganizationInfo();
 
   const {
@@ -30,11 +27,11 @@ const OrganizationCurrency = () => {
   return isEditMode ? (
     <EditOrganizationCurrencyFormContainer onCancel={disableEditMode} />
   ) : (
-    <Box display="flex">
+    <Box display="flex" alignItems="center">
       <KeyValueLabel
-        messageId="currency"
+        keyMessageId="currency"
         value={<FormattedOrganizationCurrency currencyCode={currencyCode} />}
-        typographyProps={{ style: { marginRight: theme.spacing(1) } }}
+        sx={{ marginRight: 1 }}
       />
       {isEditAllowed && cloudAccounts.filter(({ type }) => type !== ENVIRONMENT).length === 0 ? (
         <IconButton

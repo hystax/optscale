@@ -10,7 +10,7 @@ import FormattedDigitalUnit, { SI_UNITS } from "components/FormattedDigitalUnit"
 import FormattedMoney from "components/FormattedMoney";
 import FromToArrowLabel from "components/FromToArrowLabel";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import TrafficMapMarker from "components/TrafficMapMarker";
 import { isEmpty } from "utils/arrays";
 import { EXPENSES_MAP_OBJECT_TYPES, FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -58,7 +58,7 @@ function renderToExpenses(expenses) {
   return expenses.map((expense) => (
     <KeyValueLabel
       key={expense.to.name}
-      text={expense.to.name}
+      keyText={expense.to.name}
       value={<FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={expense.cost} />}
     />
   ));

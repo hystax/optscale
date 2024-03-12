@@ -1,98 +1,80 @@
-import { forwardRef } from "react";
-import Typography from "@mui/material/Typography";
+import { ReactNode, forwardRef } from "react";
+import { Box } from "@mui/material";
+import Typography, { TypographyOwnProps } from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
-import useStyles from "./KeyValueLabel.styles";
 
-const HYPHEN = "hyphen";
-const COLON = "colon";
-const SPACE = "space";
+type KeyValueLabelProps = {
+  value: ReactNode;
+  variant: TypographyOwnProps["variant"];
+  keyMessageId?: string;
+  keyText?: string;
+  isBoldValue?: boolean;
+  dataTestIds?: {
+    typography?: string;
+    key?: string;
+    value?: string;
+  };
+  gutterBottom?: boolean;
+  sx?: Record<string, unknown>;
+};
 
-const getPlaceholder = (type) =>
-  ({
-    [HYPHEN]: "-"
-  })[type];
-
-const getSeparator = (type) =>
-  ({
-    [HYPHEN]: <>&nbsp;-&nbsp;</>,
-    [COLON]: <>:&nbsp;</>,
-    [SPACE]: <>&nbsp;</>
-  })[type];
-
-const KeyValueLabel = forwardRef(
-  (
-    {
-      value,
-      messageId,
-      text,
-      renderKey,
-      separator = COLON,
-      variant,
-      placeholder = HYPHEN,
-      isBoldValue = true,
-      typographyProps = {},
-      dataTestIds = {},
-      flexWrap = "wrap",
-      ...rest
-    },
-    ref
-  ) => {
-    const { classes, cx } = useStyles({ flexWrap });
-
-    const renderNode = () => (value || value === 0 ? value : getPlaceholder(placeholder));
-
+const KeyValueLabel = forwardRef<HTMLDivElement, KeyValueLabelProps>(
+  ({ value, variant, keyMessageId, keyText, isBoldValue = true, dataTestIds = {}, sx = {}, gutterBottom = false }, ref) => {
     const renderValue = () => {
-      const valueElement = typeof value === "function" ? value() : renderNode();
-      if (isBoldValue) {
-        return <strong>{valueElement}</strong>;
+      if (value || value === 0) {
+        return value;
       }
-      return valueElement;
+
+      return <>&nbsp;-&nbsp;</>;
     };
 
-    const renderTextKey = () => (messageId ? <FormattedMessage key={messageId} id={messageId} /> : text);
+    const renderKey = () => {
+      if (keyMessageId) {
+        return <FormattedMessage id={keyMessageId} />;
+      }
 
-    const renderKeyComponent = () => (renderKey ? renderKey() : renderTextKey());
+      return keyText;
+    };
 
     const { typography: typographyDataTestId, key: keyDataTestId, value: valueDataTestId } = dataTestIds;
-
-    const keyRendered = keyDataTestId ? <span data-test-id={keyDataTestId}>{renderKeyComponent()}</span> : renderKeyComponent();
-    const valueRendered = valueDataTestId ? <span data-test-id={valueDataTestId}>{renderValue()}</span> : renderValue();
-
-    const { classes: typographyClasses, keyStyle = {}, valueStyle = {}, ...restTypographyProps } = typographyProps;
-
-    const mergedTypographyRootAndClasses = {
-      ...classes,
-      ...typographyClasses,
-      root: cx(typographyClasses?.root, classes.root)
-    };
 
     return (
       <Typography
         ref={ref}
-        classes={mergedTypographyRootAndClasses}
-        noWrap
         data-test-id={typographyDataTestId}
         component="div"
         variant={variant}
-        {...restTypographyProps}
-        {...rest}
+        gutterBottom={gutterBottom}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          ...sx
+        }}
       >
-        <div
-          style={{
+        <Box
+          sx={{
             display: "flex",
-            ...keyStyle
+            flexWrap: "nowrap",
+            whiteSpace: "normal",
+            overflowWrap: "anywhere"
           }}
+          data-test-id={keyDataTestId}
         >
-          {keyRendered}
-          {getSeparator(separator)}
-        </div>
-        <div
-          style={{
-            ...valueStyle
+          {renderKey()}
+          {<>:&nbsp;</>}
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            whiteSpace: "normal",
+            overflowWrap: "anywhere",
+            fontWeight: isBoldValue ? "bold" : undefined
           }}
+          data-test-id={valueDataTestId}
         >
-          {valueRendered}
-        </div>
+          {renderValue()}
+        </Box>
       </Typography>
     );
   }

@@ -11,7 +11,7 @@ import CloudTypeIcon from "components/CloudTypeIcon";
 import DashedTypography from "components/DashedTypography";
 import FormattedMoney from "components/FormattedMoney";
 import IconButton from "components/IconButton";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Popover from "components/Popover";
 import ResourceTypeLabel from "components/ResourceTypeLabel";
 import TableLoader from "components/TableLoader";
@@ -92,11 +92,11 @@ const TopResourcesView = ({ data }) => {
             {!!cloudType && (
               <KeyValueLabel
                 isBoldValue={false}
-                renderKey={() => (
-                  <strong>
+                keyText={
+                  <Typography fontWeight="bold">
                     <FormattedMessage id="location" />
-                  </strong>
-                )}
+                  </Typography>
+                }
                 value={
                   <CloudLabel dataTestId={`resource_location_${resourceId}`} id={cloudId} name={cloudName} type={cloudType} />
                 }

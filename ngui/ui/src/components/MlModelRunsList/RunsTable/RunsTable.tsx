@@ -6,7 +6,7 @@ import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
 import CollapsableTableCell from "components/CollapsableTableCell";
 import { useMoneyFormatter } from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import MlRunStatusCell from "components/MlRunStatusCell";
 import MlRunStatusHeaderCell from "components/MlRunStatusHeaderCell";
 import Table from "components/Table";
@@ -57,12 +57,10 @@ const RunsTable = ({ runs }) => {
                       {
                         node: (
                           <KeyValueLabel
-                            typographyProps={{
-                              variant: "caption"
-                            }}
-                            messageId="runset"
+                            variant="caption"
+                            keyMessageId="runset"
                             value={
-                              <Link to={getMlRunsetDetailsUrl(runset.id)} component={RouterLink}>
+                              <Link to={getMlRunsetDetailsUrl(runset?.id)} component={RouterLink}>
                                 {runset.name}
                               </Link>
                             }

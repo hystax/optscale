@@ -6,7 +6,7 @@ import { Link as RouterLink } from "react-router-dom";
 import CircleLabel from "components/CircleLabel";
 import ExecutorLabel from "components/ExecutorLabel";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import MlRunStatusCell from "components/MlRunStatusCell";
 import MlRunStatusHeaderCell from "components/MlRunStatusHeaderCell";
 import Table from "components/Table";
@@ -109,8 +109,8 @@ const RunsTable = ({ runs, isLoading = false }) => {
                 ({ instance_id: instanceId, platform_type: platformType, instance_type: instanceType, total_cost: cost }) => (
                   <Fragment key={instanceId}>
                     <ExecutorLabel instanceId={instanceId} platformType={platformType} />
-                    {instanceType && <KeyValueLabel messageId="size" value={instanceType} />}
-                    {cost && <KeyValueLabel messageId="expenses" value={<FormattedMoney value={cost} />} />}
+                    {instanceType && <KeyValueLabel keyMessageId="size" value={instanceType} />}
+                    {cost && <KeyValueLabel keyMessageId="expenses" value={<FormattedMoney value={cost} />} />}
                   </Fragment>
                 )
               )}

@@ -3,7 +3,7 @@ import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
 import FormattedDigitalUnit, { IEC_UNITS } from "components/FormattedDigitalUnit";
 import FormattedMoney from "components/FormattedMoney";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import NebiusMigrationModal from "components/SideModalManager/SideModals/recommendations/NebiusMigrationModal";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { ALIBABA_ECS, AWS_EC2, AWS_RDS, AZURE_COMPUTE, GCP_COMPUTE_ENGINE } from "hooks/useRecommendationServices";
@@ -23,15 +23,17 @@ const columns = [
         caption={[
           {
             key: "region",
-            node: <KeyValueLabel messageId="region" value={region} />
+            node: <KeyValueLabel keyMessageId="region" value={region} />
           },
           {
             key: "cpu",
-            node: <KeyValueLabel messageId="cpu" value={cpu} />
+            node: <KeyValueLabel keyMessageId="cpu" value={cpu} />
           },
           {
             key: "ram",
-            node: <KeyValueLabel messageId="ram" value={<FormattedDigitalUnit value={ram} baseUnit={IEC_UNITS.GIBIBYTE} />} />
+            node: (
+              <KeyValueLabel keyMessageId="ram" value={<FormattedDigitalUnit value={ram} baseUnit={IEC_UNITS.GIBIBYTE} />} />
+            )
           }
         ]}
       >
@@ -60,11 +62,13 @@ const columns = [
         caption={[
           {
             key: "cpu",
-            node: <KeyValueLabel messageId="cpu" value={cpu} />
+            node: <KeyValueLabel keyMessageId="cpu" value={cpu} />
           },
           {
             key: "ram",
-            node: <KeyValueLabel messageId="ram" value={<FormattedDigitalUnit value={ram} baseUnit={IEC_UNITS.GIBIBYTE} />} />
+            node: (
+              <KeyValueLabel keyMessageId="ram" value={<FormattedDigitalUnit value={ram} baseUnit={IEC_UNITS.GIBIBYTE} />} />
+            )
           }
         ]}
       >

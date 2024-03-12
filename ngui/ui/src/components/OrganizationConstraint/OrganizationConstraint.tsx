@@ -9,7 +9,7 @@ import AnomaliesFilters from "components/AnomaliesFilters";
 import DetectedConstraintsHistory from "components/DetectedConstraintsHistory";
 import FormattedMoney from "components/FormattedMoney";
 import IconButton from "components/IconButton";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import PageContentWrapper from "components/PageContentWrapper";
 import { DeleteOrganizationConstraintModal } from "components/SideModalManager/SideModals";
 import SubTitle from "components/SubTitle";
@@ -41,14 +41,12 @@ const ConstraintName = ({ id, name }) => {
   return isEditMode ? (
     <EditOrganizationConstraintNameFormContainer id={id} name={name} onSuccess={closeEditMode} onCancel={closeEditMode} />
   ) : (
-    <Box sx={{ display: "flex" }}>
+    <Box display="flex" alignItems="center">
       <KeyValueLabel
+        keyMessageId="name"
         value={<SlicedText limit={80} text={name} />}
-        messageId="name"
-        typographyProps={{
-          sx: {
-            marginRight: (theme) => theme.spacing(1)
-          }
+        sx={{
+          marginRight: 1
         }}
       />
       {id && name && isAllowed ? (
@@ -88,52 +86,40 @@ const ConstraintProperties = ({ id, name, type, definition = {} }) => {
       <ConstraintName id={id} name={name} />
       {!TAGGING_POLICY_TYPES[type] && (
         <KeyValueLabel
-          typographyProps={{ gutterBottom: true }}
+          keyMessageId="type"
           value={<FormattedMessage id={ANOMALY_TYPES[type] || QUOTAS_AND_BUDGETS_TYPES[type]} />}
-          messageId="type"
+          gutterBottom
         />
       )}
       {ANOMALY_TYPES[type] && (
         <KeyValueLabel
-          typographyProps={{ gutterBottom: true }}
+          keyMessageId="evaluationPeriod"
           value={<FormattedMessage id="xDays" values={{ x: evaluationPeriod }} />}
-          messageId="evaluationPeriod"
+          gutterBottom
         />
       )}
       {ANOMALY_TYPES[type] && (
         <KeyValueLabel
-          typographyProps={{ gutterBottom: true }}
+          keyMessageId="threshold"
           value={<FormattedNumber value={threshold / 100} format="percentage" />}
-          messageId="threshold"
+          gutterBottom
         />
       )}
       {type === QUOTA_POLICY && (
-        <KeyValueLabel
-          typographyProps={{ gutterBottom: true }}
-          value={<FormattedNumber value={maxValue} />}
-          messageId="quotaPolicyMaxValue"
-        />
+        <KeyValueLabel keyMessageId="quotaPolicyMaxValue" value={<FormattedNumber value={maxValue} />} gutterBottom />
       )}
       {type === RECURRING_BUDGET_POLICY && (
         <KeyValueLabel
-          typographyProps={{ gutterBottom: true }}
+          keyMessageId="recurringBudgetPolicyMonthlyBudget"
           value={<FormattedMoney value={monthlyBudget} />}
-          messageId="recurringBudgetPolicyMonthlyBudget"
+          gutterBottom
         />
       )}
       {(type === EXPIRING_BUDGET_POLICY || type === TAGGING_POLICY) && (
-        <KeyValueLabel
-          typographyProps={{ gutterBottom: true }}
-          value={format(secondsToMilliseconds(startDate), EN_FULL_FORMAT)}
-          messageId="startDate"
-        />
+        <KeyValueLabel keyMessageId="startDate" value={format(secondsToMilliseconds(startDate), EN_FULL_FORMAT)} gutterBottom />
       )}
       {type === EXPIRING_BUDGET_POLICY && (
-        <KeyValueLabel
-          typographyProps={{ gutterBottom: true }}
-          value={<FormattedMoney value={totalBudget} />}
-          messageId="budget"
-        />
+        <KeyValueLabel keyMessageId="budget" value={<FormattedMoney value={totalBudget} />} gutterBottom />
       )}
       {type === TAGGING_POLICY && (
         <Typography>

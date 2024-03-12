@@ -1,7 +1,7 @@
 import { FormattedMessage } from "react-intl";
 import CircleLabel from "components/CircleLabel";
 import DynamicFractionDigitsValue from "components/DynamicFractionDigitsValue";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SlicedText from "components/SlicedText";
 import { useGoalMetColors } from "hooks/useGoalMetColors";
 
@@ -12,7 +12,7 @@ const GoalLabel = ({ name, goalValue, targetGoalValue, reached }) => {
 
   return (
     <KeyValueLabel
-      text={<SlicedText limit={MAX_GOAL_NAME_LENGTH} text={name} />}
+      keyText={<SlicedText limit={MAX_GOAL_NAME_LENGTH} text={name} />}
       value={
         goalValue !== undefined ? (
           <span style={{ whiteSpace: "nowrap" }}>

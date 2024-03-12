@@ -7,7 +7,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <KeyValueLabel messageId="name" value="value" />
+      <KeyValueLabel keyMessageId="name" value="value" />
     </TestProvider>
   );
   root.unmount();

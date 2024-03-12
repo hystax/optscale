@@ -6,7 +6,7 @@ import Button from "components/Button";
 import { SI_UNITS, formatDigitalUnit } from "components/FormattedDigitalUnit";
 import { useMoneyFormatter } from "components/FormattedMoney";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import Table from "components/Table";
 import DownloadObjectsListContainer from "containers/DownloadObjectsListContainer";
@@ -60,17 +60,17 @@ const Duplicates = ({ crossBucketsStats }) => {
 
   return (
     <Box>
-      <KeyValueLabel value={crossBucketsStats.duplicated_objects} messageId="duplicatedObjects" />
+      <KeyValueLabel value={crossBucketsStats.duplicated_objects} keyMessageId="duplicatedObjects" />
       <KeyValueLabel
         value={formatDigitalUnit({
           value: crossBucketsStats.duplicates_size,
           baseUnit: SI_UNITS.BYTE
         })}
-        messageId="duplicatesSize"
+        keyMessageId="duplicatesSize"
       />
       <KeyValueLabel
         value={formatMoney(FORMATTED_MONEY_TYPES.COMMON, crossBucketsStats.monthly_savings)}
-        messageId="possibleMonthlySavings"
+        keyMessageId="possibleMonthlySavings"
       />
     </Box>
   );

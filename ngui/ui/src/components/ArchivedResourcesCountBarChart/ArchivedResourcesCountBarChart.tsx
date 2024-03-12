@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import CanvasBarChart from "components/CanvasBarChart";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { ARCHIVATION_REASON_MESSAGE_ID } from "utils/constants";
 import { EN_FORMAT_SHORT_YEAR, formatUTC, getEndOfDayInUTCinSeconds, secondsToMilliseconds } from "utils/datetime";
@@ -26,14 +26,16 @@ const ChartTooltip = ({ sectionData }) => {
             <Typography variant="body2">
               <FormattedMessage id={recommendationMessageId} />
             </Typography>
-            {Object.entries(counts).map(([archivationReason, count]) => (
-              <KeyValueLabel
-                key={archivationReason}
-                variant="caption"
-                messageId={ARCHIVATION_REASON_MESSAGE_ID[archivationReason]}
-                value={count}
-              />
-            ))}
+            <Stack>
+              {Object.entries(counts).map(([archivationReason, count]) => (
+                <KeyValueLabel
+                  key={archivationReason}
+                  variant="caption"
+                  keyMessageId={ARCHIVATION_REASON_MESSAGE_ID[archivationReason]}
+                  value={count}
+                />
+              ))}
+            </Stack>
           </div>
         );
       })}

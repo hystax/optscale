@@ -8,7 +8,7 @@ import Filters from "components/Filters";
 import { RESOURCE_FILTERS } from "components/Filters/constants";
 import IconLabel from "components/IconLabel";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
-import KeyValueLabel from "components/KeyValueLabel";
+import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import DeletePerspectiveSideModal from "components/SideModalManager/SideModals/DeletePerspectiveSideModal";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
@@ -104,7 +104,7 @@ const ResourcesPerspectives = () => {
             return <FormattedMessage id="none" />;
           }
           if (groupBy.groupType === "tag") {
-            return <KeyValueLabel messageId={groupBy.groupType} value={groupBy.groupBy} />;
+            return <KeyValueLabel keyMessageId={groupBy.groupType} value={groupBy.groupBy} />;
           }
           return <FormattedMessage id={groupBy.groupType} />;
         }
@@ -121,7 +121,7 @@ const ResourcesPerspectives = () => {
           return isEmptyArray(filters)
             ? "-"
             : filters.map(({ name: filterName, displayedName, displayedValue }) => (
-                <KeyValueLabel key={filterName} text={displayedName} value={displayedValue} />
+                <KeyValueLabel key={filterName} keyText={displayedName} value={displayedValue} />
               ));
         }
       },
