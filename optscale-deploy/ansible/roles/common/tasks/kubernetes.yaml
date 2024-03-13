@@ -7,14 +7,15 @@
 
 - name: Add kubernetes key
   apt_key:
-    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    keyserver: keyserver.ubuntu.com
+    id: B53DC80D13EDEF05
     state: present
   become: yes
 
 # xenial is always used, because bionic repo doesn't exist yet
 - name: Add kubernetes repo
   apt_repository:
-    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    repo: deb http://mirror.reenigne.net/apt.kubernetes.io/ kubernetes-xenial main
     state: present
     filename: kubernetes
   become: yes

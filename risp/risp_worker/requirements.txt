@@ -1,4 +1,4 @@
-cryptography==41.0.6
+cryptography==42.0.4
 pymongo==4.3.3
 boto3==1.18.9
 kombu==4.6.8

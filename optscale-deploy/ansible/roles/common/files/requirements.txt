@@ -1,4 +1,4 @@
 docker==3.5.1
 kubernetes==10.0.1
 pyyaml==5.4.1
-cryptography==41.0.6
+cryptography==42.0.4
