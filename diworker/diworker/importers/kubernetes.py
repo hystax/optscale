@@ -44,7 +44,17 @@ class Node:
     def provider(self):
         if self.provider_id is None:
             return None
-        return next(iter(self.provider_id.split(':///')), None)
+        cloud_mark = next(iter(self.provider_id.split('://')), None)
+        provider_cloud_types = {
+            'aws': 'aws',
+            'alicloud': 'alibaba',
+            'azure': 'azure',
+            'gce': None
+        }
+        cloud_type = provider_cloud_types.get(cloud_mark)
+        if cloud_type is None:
+            self.provider_id = None
+        return cloud_type
 
     @property
     def is_cloud_deployed(self):
