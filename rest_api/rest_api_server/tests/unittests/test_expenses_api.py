@@ -5450,3 +5450,42 @@ class TestExpensesApi(TestApiBase):
             }
         ]:
             self.assertTrue(e in resp['expenses']['regions'])
+
+    @patch('rest_api.rest_api_server.controllers.expense.ExpenseController.get_expenses')
+    def test_root_pool_several_accs(self, p_expenses):
+        p_expenses.return_value = [
+            {
+                'cost': 1,
+                '_id': {
+                    'date': self.prev_start,
+                    'cloud_account_id': self.cloud_acc1['id']
+                },
+            },
+            {
+                'cost': 2,
+                '_id': {
+                    'date': self.start_date,
+                    'cloud_account_id': self.cloud_acc1['id']
+                },
+            },
+            {
+                'cost': 3,
+                '_id': {
+                    'date': self.start_date,
+                    'cloud_account_id': self.cloud_acc2['id']
+                },
+            },
+            {
+                'cost': 0,
+                '_id': {
+                    'date': self.start_date,
+                    'cloud_account_id': self.cloud_acc3['id']
+                },
+            }
+        ]
+        code, r = self.client.pool_breakdown_expenses_get(
+            self.org['pool_id'], self.start_ts, self.end_ts)
+        self.assertEqual(code, 200)
+        self.assertEqual(r['expenses']['total'], 5)
+        self.assertEqual(
+            r['expenses']['breakdown'][str(int(self.start_date.timestamp()))], 5)
