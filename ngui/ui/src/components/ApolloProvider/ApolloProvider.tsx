@@ -4,6 +4,10 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { createClient } from "graphql-ws";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import { useApiData } from "hooks/useApiData";
+import { getEnvironmentVariable } from "utils/env";
+
+const httpBase = getEnvironmentVariable("VITE_APOLLO_HTTP_BASE");
+const wsBase = getEnvironmentVariable("VITE_APOLLO_WS_BASE");
 
 const ApolloClientProvider = ({ children }) => {
   const {
@@ -11,7 +15,7 @@ const ApolloClientProvider = ({ children }) => {
   } = useApiData(GET_TOKEN);
 
   const httpLink = new HttpLink({
-    uri: "/api",
+    uri: `${httpBase}/api`,
     headers: {
       "x-optscale-token": token
     }
@@ -19,7 +23,7 @@ const ApolloClientProvider = ({ children }) => {
 
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: "ws://localhost:4000/subscriptions"
+      url: `${wsBase}/subscriptions`
     })
   );
 
