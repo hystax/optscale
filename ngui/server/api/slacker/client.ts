@@ -1,19 +1,9 @@
-import { RESTDataSource, AugmentedRequest } from "@apollo/datasource-rest";
-import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
+import BaseClient from "../baseClient.js";
 
-class SlackerClient extends RESTDataSource {
-  private token: string;
-
-  override baseURL = "http://slacker/slacker/v2/";
-
-  constructor(options: { token: string; cache: KeyValueCache }) {
-    super(options);
-    this.token = options.token;
-  }
-
-  override willSendRequest(_path: string, request: AugmentedRequest) {
-    request.headers["authorization"] = `Bearer ${this.token}`;
-  }
+class SlackerClient extends BaseClient {
+  override baseURL = `${
+    process.env.SLACKER_ENDPOINT || this.endpoint
+  }/slacker/v2/`;
 
   async getInstallPath() {
     const installationPath = await this.get("install_path");

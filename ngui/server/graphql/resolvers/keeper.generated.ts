@@ -33,20 +33,9 @@ export type Event = {
   time?: Maybe<Scalars['Int']['output']>;
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  connect?: Maybe<SlackUser>;
-};
-
-
-export type MutationConnectArgs = {
-  secret: Scalars['String']['input'];
-};
-
 export type Query = {
   __typename?: 'Query';
   events?: Maybe<Array<Maybe<Event>>>;
-  url?: Maybe<Scalars['String']['output']>;
 };
 
 
@@ -63,11 +52,6 @@ export type RequestParam = {
   readOnGet?: InputMaybe<Scalars['Boolean']['input']>;
   timeEnd?: InputMaybe<Scalars['Int']['input']>;
   timeStart?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type SlackUser = {
-  __typename?: 'SlackUser';
-  slack_user_id: Scalars['String']['output'];
 };
 
 
@@ -145,10 +129,8 @@ export type ResolversTypes = {
   Event: ResolverTypeWrapper<Event>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
-  Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   RequestParam: RequestParam;
-  SlackUser: ResolverTypeWrapper<SlackUser>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 };
 
@@ -158,10 +140,8 @@ export type ResolversParentTypes = {
   Event: Event;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
-  Mutation: {};
   Query: {};
   RequestParam: RequestParam;
-  SlackUser: SlackUser;
   String: Scalars['String']['output'];
 };
 
@@ -182,24 +162,12 @@ export type EventResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  connect?: Resolver<Maybe<ResolversTypes['SlackUser']>, ParentType, ContextType, RequireFields<MutationConnectArgs, 'secret'>>;
-};
-
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   events?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType, RequireFields<QueryEventsArgs, 'organizationId'>>;
-  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-};
-
-export type SlackUserResolvers<ContextType = any, ParentType extends ResolversParentTypes['SlackUser'] = ResolversParentTypes['SlackUser']> = {
-  slack_user_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
   Event?: EventResolvers<ContextType>;
-  Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  SlackUser?: SlackUserResolvers<ContextType>;
 };
 

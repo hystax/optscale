@@ -1,4 +1,4 @@
-import { Resolvers } from "../__generated__/resolversTypes.js";
+import { Resolvers } from "./slacker.generated.js";
 
 const resolvers: Resolvers = {
   Query: {

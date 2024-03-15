@@ -1,1 +1,2 @@
-export const getEnvironmentVariable = (key) => window.optscale?.[key] || import.meta.env[key];
+export const getEnvironmentVariable = (key: string, fallback: string = "") =>
+  window.optscale?.[key] || import.meta.env[key] || fallback;

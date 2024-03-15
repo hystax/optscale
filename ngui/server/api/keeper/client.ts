@@ -1,20 +1,10 @@
-import { RESTDataSource, AugmentedRequest } from "@apollo/datasource-rest";
-import type { KeyValueCache } from "@apollo/utils.keyvaluecache";
-import { RequestParam } from "../../graphql/__generated__/resolversTypes.js";
+import BaseClient from "../baseClient.js";
+import { RequestParam } from "../../graphql/resolvers/keeper.generated.js";
 
-class KeeperClient extends RESTDataSource {
-  private token: string;
-
-  override baseURL = "http://keeper/report/v2/";
-
-  constructor(options: { token: string; cache: KeyValueCache }) {
-    super(options);
-    this.token = options.token;
-  }
-
-  override willSendRequest(_path: string, request: AugmentedRequest) {
-    request.headers["authorization"] = `Bearer ${this.token}`;
-  }
+class KeeperClient extends BaseClient {
+  override baseURL = `${
+    process.env.KEEPER_ENDPOINT || this.endpoint
+  }/report/v2/`;
 
   async getEvents(organizationId: string, requestParams: RequestParam) {
     const params = new URLSearchParams();
