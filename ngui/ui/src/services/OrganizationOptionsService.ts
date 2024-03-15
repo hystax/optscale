@@ -71,6 +71,27 @@ const useGetOption = () => {
   return { isGetOrganizationOptionLoading: isLoading, value: jsonValue, getOption };
 };
 
+// TODO - useGetOption return a dispatch function, which is unconvenoent to use, created not to break useGetOption, combine or rewrite.
+const useGetByName = (name) => {
+  const dispatch = useDispatch();
+  const { organizationId } = useOrganizationInfo();
+
+  const { apiData: option } = useApiData(GET_ORGANIZATION_OPTION, "{}");
+
+  const { isLoading, shouldInvoke } = useApiState(GET_ORGANIZATION_OPTION, { organizationId, name });
+
+  useEffect(() => {
+    if (shouldInvoke) {
+      dispatch(getOrganizationOption(organizationId, name));
+    }
+  }, [dispatch, organizationId, name, shouldInvoke]);
+
+  return {
+    isGetOrganizationOptionLoading: isLoading,
+    option: parseJSON(option)
+  };
+};
+
 const useDeleteOption = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
@@ -307,6 +328,7 @@ function OrganizationOptionsService() {
   return {
     useGet,
     useGetOption,
+    useGetByName,
     useUpdateOption,
     useCreateOption,
     useDeleteOption,
