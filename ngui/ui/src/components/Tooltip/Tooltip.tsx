@@ -11,8 +11,8 @@ const StyledTooltip = withStyles(MuiTooltip, (theme) => ({
   }
 }));
 
-const Tooltip = ({ enterTouchDelay = 0, children, ...rest }) => (
-  <StyledTooltip enterTouchDelay={enterTouchDelay} {...rest}>
+const Tooltip = ({ enterTouchDelay = 0, children, placement = "right", ...rest }) => (
+  <StyledTooltip enterTouchDelay={enterTouchDelay} placement={placement} {...rest}>
     {children}
   </StyledTooltip>
 );

@@ -54,7 +54,6 @@ const Tooltip = ({ coords, onBack, onNext, onSkip, stepIndex, size, stepContent:
         </CardContent>
         <CardActions>
           {/* title="" to remove default html tooltips */}
-
           <Button
             onClick={onSkip}
             dataTestId="btn_skip_tour"

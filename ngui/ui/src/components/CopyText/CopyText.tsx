@@ -15,7 +15,6 @@ const CopyText = ({
   variant,
   copyIconType = STATIC,
   dataTestIds = {},
-  normalWhitespace = false,
   Icon = FileCopyOutlinedIcon,
   copyMessageId = "copy",
   copiedMessageId = "copied",
@@ -38,7 +37,7 @@ const CopyText = ({
         alignItems,
         ...restSx
       }}
-      className={cx(classes.wrapper, normalWhitespace ? classes.normalWhitespace : undefined)}
+      className={classes.wrapper}
       data-test-id={textDataTestId}
     >
       {children}

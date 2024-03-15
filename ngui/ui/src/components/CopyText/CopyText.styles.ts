@@ -2,7 +2,6 @@ import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()((theme) => ({
   wrapper: {
-    wordBreak: "break-word",
     "& .animatedCopyIcon": {
       opacity: 0,
       transform: `translate(${theme.spacing(-1)}, 0px)`,
@@ -17,8 +16,7 @@ const useStyles = makeStyles()((theme) => ({
     display: "inline-flex",
     paddingLeft: theme.spacing(0.5),
     cursor: "pointer"
-  },
-  normalWhitespace: { whiteSpace: "normal" }
+  }
 }));
 
 export default useStyles;
