@@ -373,7 +373,7 @@ class FormattedExpenseController(BaseController):
                 'previous_range_start': prev_start_ts,
                 'id': obj.id,
                 'name': obj.name,
-                'breakdown': {},
+                'breakdown': defaultdict(float),
             }
         }
 
@@ -383,7 +383,7 @@ class FormattedExpenseController(BaseController):
             if group['_id']['date'] >= starting_time:
                 result['expenses']['total'] += group['cost']
                 date = str(int(group['_id']['date'].timestamp()))
-                result['expenses']['breakdown'][date] = group['cost']
+                result['expenses']['breakdown'][date] += group['cost']
             else:
                 result['expenses']['previous_total'] += group['cost']
         return result
