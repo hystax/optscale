@@ -533,7 +533,7 @@ class KubernetesReportImporter(BaseReportImporter):
                     '_id': '$resource_id',
                     'expenses': {'$push': '$$ROOT'}
                 }},
-            ])
+            ], allowDiskUse=True)
 
             chunk = {e['_id']: e['expenses'] for e in expenses}
             self.save_clean_expenses(self.cloud_acc_id, chunk)
