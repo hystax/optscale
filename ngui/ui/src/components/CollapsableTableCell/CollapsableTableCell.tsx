@@ -84,7 +84,11 @@ const renderItems =
         return undefined;
       }
 
-      return <KeyValueLabel keyText={key} value={value} />;
+      return (
+        <span style={{ overflowWrap: "anywhere" }}>
+          <KeyValueLabel keyText={key} value={value} />
+        </span>
+      );
     };
 
     return (

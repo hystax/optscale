@@ -933,3 +933,9 @@ export const LAYOUT_TYPES = Object.freeze({
   ML_RUN_CHARTS_DASHBOARD: "ml_run_charts_dashboard",
   RESOURCE_RAW_EXPENSES_COLUMNS: "resource_raw_expenses_columns"
 });
+
+export const OPTSCALE_MODE_OPTION = "optscale_mode";
+export const OPTSCALE_MODE = Object.freeze({
+  FINOPS: "finops",
+  MLOPS: "mlops"
+});

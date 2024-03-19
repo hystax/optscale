@@ -428,6 +428,7 @@ export const updateOrganizationOption = (organizationId, name, value) =>
     onSuccess: onUpdateOrganizationOption,
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
     label: UPDATE_ORGANIZATION_OPTION,
+    affectedRequests: [GET_ORGANIZATION_OPTIONS],
     params: {
       value: JSON.stringify(value)
     }

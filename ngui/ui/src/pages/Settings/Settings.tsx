@@ -3,6 +3,7 @@ import OrganizationSettings from "components/OrganizationSettings";
 import PageContentWrapper from "components/PageContentWrapper";
 import TabsWrapper from "components/TabsWrapper";
 import InvitationsContainer from "containers/InvitationsContainer";
+import ModeContainer from "containers/ModeContainer";
 import SshSettingsContainer from "containers/SshSettingsContainer";
 
 const actionBarDefinition = {
@@ -14,6 +15,7 @@ const actionBarDefinition = {
 export const SETTINGS_TABS = Object.freeze({
   ORGANIZATION: "organization",
   INVITATIONS: "invitations",
+  MODE: "mode",
   SSH: "sshKeys"
 });
 
@@ -27,6 +29,11 @@ const tabs = [
     title: SETTINGS_TABS.INVITATIONS,
     dataTestId: `tab_${SETTINGS_TABS.INVITATIONS}`,
     node: <InvitationsContainer />
+  },
+  {
+    title: SETTINGS_TABS.MODE,
+    dataTestId: `tab_${SETTINGS_TABS.MODE}`,
+    node: <ModeContainer />
   },
   {
     title: SETTINGS_TABS.SSH,

@@ -5,7 +5,7 @@ export const COLLAPSED_MENU_ITEMS = "collapsedMenuItems";
 export const MAIN_MENU_SECTION_IDS = Object.freeze({
   HOME: "home",
   FINOPS: "finops",
-  ML_OPS: "mlOps",
+  ML_OPS: "mlops",
   POLICIES: "policies",
   SANDBOX: "sandbox",
   SYSTEM: "system"

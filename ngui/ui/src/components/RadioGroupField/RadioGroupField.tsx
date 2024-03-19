@@ -28,7 +28,7 @@ const RadioGroupField = ({
       )}
       <>
         <RadioGroup className={classes.radioGroup} {...radioGroupProps}>
-          {radioButtons.map(({ value, dataTestId, disabled = false, label, isLoading = false, size = "small" }) => {
+          {radioButtons.map(({ value, dataTestId, onChange, disabled = false, label, isLoading = false, size = "small" }) => {
             const radioControl = (
               <FormControlLabel
                 key={value}
@@ -36,6 +36,7 @@ const RadioGroupField = ({
                 value={value}
                 control={<Radio data-test-id={dataTestId} size={size} />}
                 label={label}
+                onChange={onChange}
               />
             );
             return isLoading ? (

@@ -2,20 +2,22 @@ import { useEffect } from "react";
 import { List } from "@mui/material";
 import MenuGroupWrapper from "components/MenuGroupWrapper";
 import MenuItem from "components/MenuItem";
+import ModeWrapper from "components/ModeWrapper";
 import { PRODUCT_TOUR, useProductTour, PRODUCT_TOUR_IDS } from "components/Tour";
 
 const simpleItem = (menuItem) => (
-  <MenuItem
-    key={menuItem.key}
-    className={menuItem.className}
-    dataProductTourId={menuItem.dataProductTourId}
-    link={menuItem.route.link}
-    messageId={menuItem.messageId}
-    isRootPath={menuItem.isRootPath}
-    isActive={menuItem.isActive}
-    icon={menuItem.icon}
-    dataTestId={menuItem.dataTestId}
-  />
+  <ModeWrapper key={menuItem.key} mode={menuItem.mode}>
+    <MenuItem
+      className={menuItem.className}
+      dataProductTourId={menuItem.dataProductTourId}
+      link={menuItem.route.link}
+      messageId={menuItem.messageId}
+      isRootPath={menuItem.isRootPath}
+      isActive={menuItem.isActive}
+      icon={menuItem.icon}
+      dataTestId={menuItem.dataTestId}
+    />
+  </ModeWrapper>
 );
 
 const MainMenu = ({ menu }) => {
@@ -41,10 +43,12 @@ const MainMenu = ({ menu }) => {
   return (
     <>
       <List component="nav" sx={{ padding: 0 }}>
-        {menu.map(({ items, menuSectionTitle, id }) => (
-          <MenuGroupWrapper id={id} key={id} menuSectionTitle={menuSectionTitle} keepExpanded={isProductTourOpen}>
-            {items.map((item) => simpleItem(item))}
-          </MenuGroupWrapper>
+        {menu.map(({ items, menuSectionTitle, id, mode }) => (
+          <ModeWrapper key={id} mode={mode}>
+            <MenuGroupWrapper id={id} menuSectionTitle={menuSectionTitle} keepExpanded={isProductTourOpen}>
+              {items.map((item) => simpleItem(item))}
+            </MenuGroupWrapper>
+          </ModeWrapper>
         ))}
       </List>
     </>

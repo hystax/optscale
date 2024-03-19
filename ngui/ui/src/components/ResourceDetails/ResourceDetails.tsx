@@ -20,7 +20,7 @@ const renderKeyValueLabels = (options) => options.map((opt) => <KeyValueLabel ke
 
 const getIdLabelDefinition = ({ cloudResourceIdentifier, isActive }) => ({
   value: (
-    <CopyText variant="inherit" text={cloudResourceIdentifier} normalWhitespace dataTestIds={{ button: "btn_copy" }}>
+    <CopyText variant="inherit" text={cloudResourceIdentifier} dataTestIds={{ button: "btn_copy" }}>
       <ResourceLabel
         cloudResourceIdentifier={cloudResourceIdentifier}
         isActive={isActive}
