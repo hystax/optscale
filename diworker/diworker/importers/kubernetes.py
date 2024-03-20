@@ -105,7 +105,7 @@ class NodesProvider:
         }
 
     def load_data(self, period, dt):
-        node_metrics = {}
+        node_metrics = defaultdict(dict)
         node_names = self._get_node_names(period, dt)
         names_filter = '|'.join(node_names)
         node_labels = self._cloud_adapter.get_metric(
@@ -152,6 +152,8 @@ class NodesProvider:
 
         prices_cache = {}
         for name, metric in node_metrics.items():
+            if 'name' not in metric:
+                metric['name'] = name
             node = Node(**metric, cost_model=self.default_cost_model,
                         hourly_price=self.default_hourly_price)
             if node.is_cloud_deployed:
@@ -159,6 +161,7 @@ class NodesProvider:
                 prices = prices_cache.get(key)
                 if list(filter(lambda x: not x, key)):
                     node.flavor = None
+                    node.provider_id = None
                     self._nodes[name] = node
                     LOG.info('Changed cloud node %s to local' % node)
                     continue
@@ -533,7 +536,7 @@ class KubernetesReportImporter(BaseReportImporter):
                     '_id': '$resource_id',
                     'expenses': {'$push': '$$ROOT'}
                 }},
-            ])
+            ], allowDiskUse=True)
 
             chunk = {e['_id']: e['expenses'] for e in expenses}
             self.save_clean_expenses(self.cloud_acc_id, chunk)
