@@ -130,6 +130,7 @@
   "applicationsTitle": "Applications",
   "appliedFilters": "Applied filters",
   "apply": "Apply",
+  "applyOptscaleModeError": "At least one mode must be enabled",
   "approverName": "Approver name",
   "arcee": "Arcee",
   "archivationReason.dataSourceHasBeenDeleted": "Data source has been deleted",
