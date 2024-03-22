@@ -137,6 +137,10 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
         emptyMessageId: "noNodes"
       }}
       actionBar={actionBar}
+      counters={{
+        showCounters: true,
+        hideDisplayed: true
+      }}
     />
   );
 };
