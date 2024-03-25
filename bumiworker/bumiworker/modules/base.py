@@ -376,9 +376,11 @@ class ModuleBase(ServiceBase):
         except Exception as ex:
             error = str(ex) or str(type(ex))
             module_res = previous_module_res
+            ca_id = getattr(ex, 'cloud_account_id', None)
+            acc_str = '' if not ca_id else 'cloud account %s ' % ca_id
             LOG.exception(
-                'Error while processing %s (%s) for organization %s, failing back '
-                'to previous result. Reason - %s',
+                'Error while processing %s%s (%s) for organization %s, '
+                'failing back to previous result. Reason - %s', acc_str,
                 self.get_name(), self.get_type(), self.organization_id, error)
         return module_res, self.get_options(), error
 

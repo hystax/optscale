@@ -5,7 +5,6 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from requests import HTTPError
 
-from tools.cloud_adapter.cloud import Cloud
 from optscale_client.insider_client.client import Client as InsiderClient
 
 from bumiworker.bumiworker.modules.base import ModuleBase
@@ -43,12 +42,6 @@ class InstanceSubscription(ModuleBase):
                 secret=self.config_cl.cluster_secret(),
                 verify=False)
         return self._insider_cl
-
-    @staticmethod
-    def get_adapter(cloud_account):
-        config = cloud_account.copy()
-        config.update(cloud_account['config'])
-        return Cloud.get_adapter(config)
 
     def handle_account(self, cloud_account, instance_map, now, excluded_pools):
         raw_expenses = self.mongo_client.restapi.raw_expenses.aggregate([

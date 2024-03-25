@@ -75,12 +75,16 @@ class ObsoleteSnapshotsBase(ModuleBase):
         adapter = CloudAdapter.get_adapter(cloud_config)
         images = []
         snapshot_ids = set()
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = []
-            for func, params in adapter.image_discovery_calls():
-                futures.append(executor.submit(func, *params))
-            for f in futures:
-                images.extend(f.result())
+        try:
+            with ThreadPoolExecutor(max_workers=50) as executor:
+                futures = []
+                for func, params in adapter.image_discovery_calls():
+                    futures.append(executor.submit(func, *params))
+                for f in futures:
+                    images.extend(f.result())
+        except Exception as ex:
+            setattr(ex, 'cloud_account_id', cloud_config.get('id'))
+            raise ex
         for image in images:
             for mapping in image.block_device_mappings:
                 snapshot_id = mapping.get('snapshot_id')

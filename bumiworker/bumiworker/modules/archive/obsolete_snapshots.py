@@ -51,8 +51,8 @@ class ObsoleteSnapshots(ArchiveBase, ObsoleteSnapshotsRecommendation):
                     result.append(optimization)
                 continue
 
-            cloud_config = cloud_accounts_map[cloud_account_id]['config']
-            cloud_config['type'] = cloud_accounts_map[cloud_account_id]['type']
+            cloud_config = cloud_accounts_map[cloud_account_id]
+            cloud_config.update(cloud_config.get('config', {}))
 
             snapshots_used_by_images = {}
             if cloud_config.get('type') == AWS_CLOUD:

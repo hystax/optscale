@@ -1,18 +1,36 @@
 import Link from "@mui/material/Link";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
-import { GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR } from "urls";
+import { KubernetesIntegrationModal } from "components/SideModalManager/SideModals";
+import { useOpenSideModal } from "hooks/useOpenSideModal";
 
-const K8sHelp = () => (
-  <InlineSeverityAlert
-    messageId="connectKubernetesTip"
-    messageValues={{
-      kubernetesConnectGuide: (
-        <Link data-test-id="link_guide" href={GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR} target="_blank" rel="noopener">
-          {GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR}
-        </Link>
-      )
-    }}
-  />
-);
+type K8sHelpProps = {
+  dataSourceId: string;
+  user: string;
+};
+
+const K8sHelp = ({ dataSourceId, user }: K8sHelpProps) => {
+  const openSideModal = useOpenSideModal();
+
+  return (
+    <InlineSeverityAlert
+      messageId="connectKubernetesTip"
+      messageValues={{
+        instructionLinkButton: (chunks) => (
+          <Link
+            component="button"
+            onClick={() =>
+              openSideModal(KubernetesIntegrationModal, {
+                dataSourceId,
+                user
+              })
+            }
+          >
+            {chunks}
+          </Link>
+        )
+      }}
+    />
+  );
+};
 
 export default K8sHelp;
