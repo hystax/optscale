@@ -27,8 +27,8 @@ const DataSourceDetails = ({ id, accountId, parentId, type, config = {} }) => {
     [DATABRICKS]: DatabricksProperties
   }[type];
 
-  const Help = {
-    [KUBERNETES_CNR]: K8sHelp
+  const renderHelp = {
+    [KUBERNETES_CNR]: () => <K8sHelp dataSourceId={id} user={config.user} />
   }[type];
 
   const childrenList = {
@@ -45,11 +45,7 @@ const DataSourceDetails = ({ id, accountId, parentId, type, config = {} }) => {
           />
         </div>
       )}
-      {Help && (
-        <div>
-          <Help />
-        </div>
-      )}
+      {renderHelp && <div>{renderHelp()}</div>}
       {childrenList && (
         <div>
           <ChildrenList parentId={id} />

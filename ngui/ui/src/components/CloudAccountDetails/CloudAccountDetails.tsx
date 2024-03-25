@@ -12,7 +12,8 @@ import PageContentWrapper from "components/PageContentWrapper";
 import {
   DisconnectCloudAccountModal,
   UpdateDataSourceCredentialsModal,
-  RenameDataSourceModal
+  RenameDataSourceModal,
+  KubernetesIntegrationModal
 } from "components/SideModalManager/SideModals";
 import SummaryGrid from "components/SummaryGrid";
 import TabsWrapper from "components/TabsWrapper";
@@ -62,6 +63,22 @@ const PageActionBar = ({ id, type, parentId, name, config, isLoading }) => {
     }
 
     return [
+      {
+        show: type === KUBERNETES_CNR,
+        getItem: () => ({
+          key: "cloudAccountDetails-k8s-integration",
+          icon: <SettingsIcon fontSize="small" />,
+          messageId: "kubernetesIntegration",
+          dataTestId: "btn_kubernetes_integration_modal",
+          type: "button",
+          isLoading,
+          action: () =>
+            openSideModal(KubernetesIntegrationModal, {
+              dataSourceId: id,
+              user: config.user
+            })
+        })
+      },
       {
         show: true,
         getItem: () => ({

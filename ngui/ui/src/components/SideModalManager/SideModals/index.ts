@@ -37,6 +37,7 @@ import DisconnectGoogleCalendarModal from "./DisconnectGoogleCalendarModal";
 import EditLeaderboardDatasetModal from "./EditLeaderboardDatasetModal";
 import EnvironmentCostModelModal from "./EnvironmentCostModelModal";
 import ExcludePoolsFromRecommendationModal from "./ExcludePoolsFromRecommendationModal";
+import KubernetesIntegrationModal from "./KubernetesIntegrationModal";
 import LeaderboardRunGroupDetailsModal from "./LeaderboardRunGroupDetailsModal";
 import MlDeleteDatasetModal from "./MlDeleteDatasetModal";
 import MlDeleteModelModal from "./MlDeleteModelModal";
@@ -121,5 +122,6 @@ export {
   RenameMlRunChartModal,
   SaveMlChartsDashboard,
   DeleteMlChartsDashboard,
-  ColumnSetsModal
+  ColumnSetsModal,
+  KubernetesIntegrationModal
 };
