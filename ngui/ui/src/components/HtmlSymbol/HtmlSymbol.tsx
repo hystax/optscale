@@ -3,6 +3,10 @@ export const HTML_SYMBOL = Object.freeze({
   colon: <>&#58;</>
 });
 
-const HtmlSymbol = ({ symbol }) => HTML_SYMBOL[symbol] ?? null;
+type HtmlSymbolProps = {
+  symbol: keyof typeof HTML_SYMBOL;
+};
+
+const HtmlSymbol = ({ symbol }: HtmlSymbolProps) => HTML_SYMBOL[symbol];
 
 export default HtmlSymbol;
