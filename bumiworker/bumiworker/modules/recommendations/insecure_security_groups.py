@@ -78,8 +78,12 @@ class InsecureSecurityGroups(ModuleBase):
                 continue
             cloud_resources = list(filter(
                 lambda x: x['cloud_account_id'] == config['id'], resources))
-            security_groups = security_group_call(
-                config, cloud_resources, excluded_pools, insecure_ports)
+            try:
+                security_groups = security_group_call(
+                    config, cloud_resources, excluded_pools, insecure_ports)
+            except Exception as ex:
+                setattr(ex, 'cloud_account_id', config.get('id'))
+                raise ex
             result.extend(security_groups)
         return result
 

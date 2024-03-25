@@ -166,13 +166,16 @@ class ObsoleteImages(ModuleBase):
             for cloud_account in cloud_accounts:
                 cloud_account.update(cloud_account.get('config', {}))
                 cloud_adapter = CloudAdapter.get_adapter(cloud_account)
-
-                for func, params in cloud_adapter.image_discovery_calls():
-                    futures.append(executor.submit(func, *params))
-                results = []
-                for f in futures:
-                    results.append(executor.submit(
-                        process_images, cloud_account, f.result()))
+                try:
+                    for func, params in cloud_adapter.image_discovery_calls():
+                        futures.append(executor.submit(func, *params))
+                    results = []
+                    for f in futures:
+                        results.append(executor.submit(
+                            process_images, cloud_account, f.result()))
+                except Exception as ex:
+                    setattr(ex, 'cloud_account_id', cloud_account.get('id'))
+                    raise ex
 
         image_ids = list(images_map.keys())
         images = self.mongo_client.restapi.resources.aggregate([

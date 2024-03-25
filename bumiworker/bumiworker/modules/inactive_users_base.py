@@ -75,21 +75,25 @@ class InactiveUsersBase(ModuleBase):
         now = datetime.now(tz=timezone.utc)
 
         result = []
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = []
-            for user in self.list_users(adapter):
-                futures.append(
-                    executor.submit(self.handle_user, user=user,
-                                    now=now, cloud_adapter=adapter,
-                                    days_threshold=days_threshold))
-            for f in futures:
-                res = f.result()
-                if res:
-                    result.append({
-                        'cloud_account_id': config['id'],
-                        'cloud_type': config['type'],
-                        **res
-                    })
+        try:
+            with ThreadPoolExecutor(max_workers=50) as executor:
+                futures = []
+                for user in self.list_users(adapter):
+                    futures.append(
+                        executor.submit(self.handle_user, user=user,
+                                        now=now, cloud_adapter=adapter,
+                                        days_threshold=days_threshold))
+                for f in futures:
+                    res = f.result()
+                    if res:
+                        result.append({
+                            'cloud_account_id': config['id'],
+                            'cloud_type': config['type'],
+                            **res
+                        })
+        except Exception as ex:
+            setattr(ex, 'cloud_account_id', config.get('id'))
+            raise ex
         return result
 
 
