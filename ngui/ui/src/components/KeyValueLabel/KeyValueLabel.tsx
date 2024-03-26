@@ -52,7 +52,13 @@ const KeyValueLabel = forwardRef<HTMLDivElement, KeyValueLabelProps>(
           ...sx
         }}
       >
-        <Box data-test-id={keyDataTestId}>
+        <Box
+          data-test-id={keyDataTestId}
+          sx={{
+            display: "flex",
+            flexWrap: "nowrap"
+          }}
+        >
           {renderKey()}
           {<>:&nbsp;</>}
         </Box>
