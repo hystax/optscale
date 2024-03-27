@@ -1457,6 +1457,19 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 424)
         self.verify_error_code(cloud_acc, 'OE0476')
 
+    def test_environment_account_discovery_info(self):
+        ca_controller = self._make_controller(CloudAccountController)
+        patch(
+            'rest_api.rest_api_server.controllers.assignment.'
+            'AssignmentController._authorize_action_for_pool',
+            return_value=True).start()
+        created_ca = ca_controller.get_or_create_environment_cloud_account(
+            self.org_id)
+        code, cloud_acc_list = self.client.cloud_account_get(
+            created_ca.id, details=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(cloud_acc_list['details']['discovery_infos'], [])
+
     def test_delete_environment_account(self):
         ca_controller = self._make_controller(CloudAccountController)
         patch(
