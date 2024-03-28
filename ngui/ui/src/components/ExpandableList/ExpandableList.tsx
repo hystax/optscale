@@ -1,9 +1,15 @@
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 import DashedTypography from "components/DashedTypography";
 import { useToggle } from "hooks/useToggle";
 
-const ExpandableList = ({ items, render, maxRows = undefined }) => {
+type ExpandableListProps<T> = {
+  items: T[];
+  render: (item: T, index: number) => ReactNode;
+  maxRows?: number;
+};
+
+const ExpandableList = <T,>({ items, render, maxRows = undefined }: ExpandableListProps<T>) => {
   const [isExpanded, setIsExpanded] = useToggle(false);
 
   const content = useMemo(() => {
