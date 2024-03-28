@@ -131,6 +131,9 @@ const CleanExpensesTable = ({
           dataTestId: "btn_toggle_column_metadata"
         },
         accessorKey: "metadataString",
+        style: {
+          minWidth: "200px"
+        },
         cell: ({ row: { original } }) => {
           const metadataTags = MetadataNodes(original).getTags();
           return <CollapsableTableCell maxRows={5} tags={metadataTags} sorted={false} limit={33} />;
