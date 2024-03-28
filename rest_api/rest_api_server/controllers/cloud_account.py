@@ -572,7 +572,7 @@ class CloudAccountController(BaseController):
                 last_month_total['cost'] + month_expenses['cost'],
                 month_expenses['cost'], first_expenses.get(cloud_acc_id)),
             'resources': month_expenses['count'],
-            'discovery_infos': discovery_infos.get(cloud_acc_id, {})
+            'discovery_infos': discovery_infos.get(cloud_acc_id, [])
         }
         return details
 

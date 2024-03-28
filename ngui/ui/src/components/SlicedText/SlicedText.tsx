@@ -1,19 +1,22 @@
 import Tooltip from "components/Tooltip";
 import { sliceByLimitWithEllipsis, sliceFromEndByLimitWithEllipsis } from "utils/strings";
 
-const getText = (textToRender, externalRenderText) =>
-  typeof externalRenderText === "function" ? externalRenderText(textToRender) : textToRender;
+type SlicedTextProps = {
+  limit: number;
+  text: string;
+  sliceFromEnd?: boolean;
+};
 
-const SlicedText = ({ limit, text = "", externalRenderText, sliceFromEnd = false }) => {
+const SlicedText = ({ limit, text = "", sliceFromEnd = false }: SlicedTextProps) => {
   if (text && text.length > limit) {
     const shortText = sliceFromEnd ? sliceFromEndByLimitWithEllipsis(text, limit) : sliceByLimitWithEllipsis(text, limit);
     return (
       <Tooltip title={text} placement="top">
-        <span>{getText(shortText, externalRenderText)}</span>
+        <span>{shortText}</span>
       </Tooltip>
     );
   }
-  return getText(text, externalRenderText);
+  return text;
 };
 
 export default SlicedText;
