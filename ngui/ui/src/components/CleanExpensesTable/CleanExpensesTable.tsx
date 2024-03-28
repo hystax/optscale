@@ -20,10 +20,11 @@ import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
 import { getCreateAssignmentRuleUrl } from "urls";
+import { isEmpty as isEmptyArray } from "utils/arrays";
 import { resourcePoolOwner, tags } from "utils/columns";
 import { CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX, DOWNLOAD_FILE_FORMATS } from "utils/constants";
 import { MetadataNodes } from "utils/metadata";
-import { RESOURCE_ID_COLUMN_CELL_STYLE } from "utils/tables";
+import { CELL_EMPTY_VALUE, RESOURCE_ID_COLUMN_CELL_STYLE } from "utils/tables";
 import CollapsableTableCell from "../CollapsableTableCell";
 
 const LocationNodes = ({ region, service_name: serviceName, k8s_node: k8sNode, k8sNamespace }) => {
@@ -111,7 +112,12 @@ const CleanExpensesTable = ({
           row: {
             original: { traffic_expenses: trafficExpenses = [] }
           }
-        }) => <ResourcePaidNetworkTrafficList trafficExpenses={trafficExpenses} />
+        }) =>
+          isEmptyArray(trafficExpenses) ? (
+            CELL_EMPTY_VALUE
+          ) : (
+            <ResourcePaidNetworkTrafficList trafficExpenses={trafficExpenses} />
+          )
       },
       {
         header: (
