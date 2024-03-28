@@ -19,45 +19,70 @@ export const SI_UNITS = Object.freeze({
   PETABYTE: "petabyte"
 });
 
+type IecUnitType = (typeof IEC_UNITS)[keyof typeof IEC_UNITS];
+
+type SiUnitType = (typeof SI_UNITS)[keyof typeof SI_UNITS];
+
+type UnitType = IecUnitType | SiUnitType;
+
+type FormattedDigitalUnitProps = {
+  value: number;
+  baseUnit?: UnitType;
+  maximumFractionDigits?: number;
+};
+
 const IEC_SYSTEM_OF_UNITS = Object.freeze({
   BASE: 1024,
-  UNITS: Object.values(IEC_UNITS)
+  UNITS: Object.values(IEC_UNITS) as readonly IecUnitType[]
 });
 
 const SI_SYSTEM_OF_UNITS = Object.freeze({
   BASE: 1000,
-  UNITS: Object.values(SI_UNITS)
+  UNITS: Object.values(SI_UNITS) as readonly SiUnitType[]
 });
 
-const getSystemOfUnits = (unitName) => [IEC_SYSTEM_OF_UNITS, SI_SYSTEM_OF_UNITS].find(({ UNITS }) => UNITS.includes(unitName));
+const getSystemOfUnits = (unitName: UnitType) => {
+  if (Object.values(IEC_UNITS).includes(unitName as IecUnitType)) {
+    return IEC_SYSTEM_OF_UNITS;
+  }
 
-const getConvertedValueAndRelativeNextUnitIndex = (value, base) => {
-  const relativeNextUnitIndex = Math.floor(Math.log(value) / Math.log(base));
-  const convertedValue = parseFloat(value / base ** relativeNextUnitIndex);
+  if (Object.values(SI_UNITS).includes(unitName as SiUnitType)) {
+    return SI_SYSTEM_OF_UNITS;
+  }
 
-  return [convertedValue, relativeNextUnitIndex];
+  throw Error(`${unitName} is not supported`);
 };
 
-export const getConvertedValueAndUnitName = (value, baseUnit = SI_UNITS.BYTE) => {
+const getConvertedValueAndRelativeNextUnitIndex = (value: number, base: number) => {
+  const relativeNextUnitIndex = Math.floor(Math.log(value) / Math.log(base));
+  const convertedValue = parseFloat(String(value / base ** relativeNextUnitIndex));
+
+  return [convertedValue, relativeNextUnitIndex] as const;
+};
+
+export const getConvertedValueAndUnitName = (
+  value: FormattedDigitalUnitProps["value"],
+  baseUnit: FormattedDigitalUnitProps["baseUnit"] = SI_UNITS.BYTE
+) => {
   const { BASE, UNITS } = getSystemOfUnits(baseUnit);
 
   const isLastUnit = () => baseUnit === getLastElement(UNITS);
 
-  if (value < BASE || isLastUnit(baseUnit)) {
-    return [value, baseUnit];
+  if (value < BASE || isLastUnit()) {
+    return [value, baseUnit] as const;
   }
 
   const [convertedValue, relativeNextUnitIndex] = getConvertedValueAndRelativeNextUnitIndex(value, BASE);
 
-  const baseUnitIndex = UNITS.indexOf(baseUnit);
+  const baseUnitIndex = (UNITS as string[]).indexOf(baseUnit);
   const transformedValueUnit = UNITS[baseUnitIndex + relativeNextUnitIndex];
 
-  return [convertedValue, transformedValueUnit];
+  return [convertedValue, transformedValueUnit] as const;
 };
 
 const APPROXIMATE_ZERO_THRESHOLD = 0.01;
 
-export const formatDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }) => {
+export const formatDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }: FormattedDigitalUnitProps) => {
   const [convertedValue, unitName] = getConvertedValueAndUnitName(value, baseUnit);
 
   const formattedNumber =
@@ -70,7 +95,7 @@ export const formatDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFrac
   return `${formattedNumber} ${formattedUnit}`;
 };
 
-const FormattedDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }) =>
+const FormattedDigitalUnit = ({ value, baseUnit = SI_UNITS.BYTE, maximumFractionDigits }: FormattedDigitalUnitProps) =>
   formatDigitalUnit({ value, baseUnit, maximumFractionDigits });
 
 export default FormattedDigitalUnit;
