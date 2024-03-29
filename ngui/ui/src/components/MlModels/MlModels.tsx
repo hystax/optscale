@@ -1,212 +1,159 @@
-import { useEffect, useMemo, useState } from "react";
-import PlayCircleOutlineOutlinedIcon from "@mui/icons-material/PlayCircleOutlineOutlined";
-import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { Stack } from "@mui/system";
-import { GET_ML_MODELS } from "api/restapi/actionTypes";
-import ActionBar from "components/ActionBar";
-import { ML_MODELS_FILTERS_NAMES } from "components/Filters/constants";
-import InlineSeverityAlert from "components/InlineSeverityAlert";
-import MlModelsTable from "components/MlModelsTable";
-import PageContentWrapper from "components/PageContentWrapper";
-import { ProfilingIntegrationModal } from "components/SideModalManager/SideModals";
+import { useMemo } from "react";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { Box } from "@mui/material";
+import { FormattedMessage } from "react-intl";
+import ExpandableList from "components/ExpandableList";
+import LabelChip from "components/LabelChip";
+import Markdown from "components/Markdown";
+import Table from "components/Table";
 import TableLoader from "components/TableLoader";
-import { useOpenSideModal } from "hooks/useOpenSideModal";
-import { useRefetchApis } from "hooks/useRefetchApis";
-import { ML_TASK_PARAMETERS, ML_EXECUTORS } from "urls";
-import {
-  GOALS_BE_FILTER,
-  GOAL_STATUS,
-  OWNER_BE_FILTER,
-  STATUS_BE_FILTER,
-  GOALS_FILTER,
-  OWNER_ID_FILTER,
-  EMPTY_UUID
-} from "utils/constants";
-import { SPACING_2 } from "utils/layouts";
-import { getQueryParams, updateQueryParams } from "utils/network";
-import { isEmpty as isEmptyObject } from "utils/objects";
+import TextWithDataTestId from "components/TextWithDataTestId";
+import { ListModel } from "services/MlModelsService";
+import { ML_MODEL_CREATE } from "urls";
+import { isEmpty as isEmptyArray } from "utils/arrays";
+import { mlModelVersion, model, tags, text, utcTime } from "utils/columns";
+import { CELL_EMPTY_VALUE } from "utils/tables";
 
-const PageActionBar = () => {
-  const openSideModal = useOpenSideModal();
-
-  const refetch = useRefetchApis();
-
-  const actionBarDefinition = {
-    title: {
-      messageId: "tasks",
-      dataTestId: "lbl_ml_tasks"
-    },
-    items: [
-      {
-        key: "btn-refresh",
-        icon: <RefreshOutlinedIcon fontSize="small" />,
-        messageId: "refresh",
-        dataTestId: "btn_refresh",
-        type: "button",
-        action: () => refetch([GET_ML_MODELS])
-      },
-      {
-        key: "btn-profiling-integration",
-        icon: <SettingsIcon fontSize="small" />,
-        messageId: "profilingIntegration",
-        dataTestId: "btn_profiling_integration",
-        type: "button",
-        action: () => openSideModal(ProfilingIntegrationModal, {})
-      },
-      {
-        key: "btn-manage-metrics",
-        icon: <SettingsIcon fontSize="small" />,
-        messageId: "manageMetrics",
-        dataTestId: "btn_manage_metrics",
-        type: "button",
-        link: ML_TASK_PARAMETERS
-      },
-      {
-        key: "btn-executors",
-        icon: <PlayCircleOutlineOutlinedIcon fontSize="small" />,
-        messageId: "executors",
-        dataTestId: "btn_executors",
-        type: "button",
-        link: ML_EXECUTORS
-      }
-    ]
-  };
-
-  return <ActionBar data={actionBarDefinition} />;
+type MlModelsProps = {
+  models: ListModel[];
+  isLoading?: boolean;
 };
 
-const getFilterValues = ({ models }) => {
-  const owners = [
-    ...new Map(
-      models.map(({ owner }) => {
-        if (isEmptyObject(owner)) {
-          return [null, null];
-        }
-
-        const { id, name } = owner;
-
-        return [
-          id,
-          {
-            id,
-            name
-          }
-        ];
-      })
-    ).values()
-  ];
-
-  const statuses = [
-    ...new Map(
-      models.map(({ status }) => [
-        status,
-        {
-          name: status
-        }
-      ])
-    ).values()
-  ];
-
-  const goals = [
-    {
-      name: GOAL_STATUS.MET,
-      value: true
-    },
-    {
-      name: GOAL_STATUS.NOT_MET,
-      value: false
-    }
-  ];
-
-  return {
-    [OWNER_BE_FILTER]: owners,
-    [STATUS_BE_FILTER]: statuses,
-    [GOALS_BE_FILTER]: goals
-  };
+type ModelsTableProps = {
+  models: ListModel[];
 };
 
-const getRequestParams = () => {
-  const queryParams = getQueryParams();
+const ALIASED_VERSIONS_SHOW_MORE_LIMIT = 3;
 
-  const getFiltersRequestParams = () =>
-    ML_MODELS_FILTERS_NAMES.reduce(
-      (params, queryKey) => ({
-        ...params,
-        [queryKey]: queryParams[queryKey]
+const getAliasedVersionString = (version: string, alias: string) => `${alias}: ${version}` as const;
+
+const ModelsTable = ({ models }: ModelsTableProps) => {
+  const tableData = useMemo(() => models, [models]);
+
+  const columns = useMemo(
+    () => [
+      model({
+        id: "model",
+        getName: (rowOriginal) => rowOriginal.name,
+        getId: (rowOriginal) => rowOriginal.id,
+        headerMessageId: "name",
+        headerDataTestId: "lbl_model",
+        defaultSort: "asc"
       }),
-      {}
-    );
-  return getFiltersRequestParams();
-};
+      text({
+        headerMessageId: "key",
+        headerDataTestId: "lbl_key",
+        accessorKey: "key"
+      }),
+      mlModelVersion({
+        headerMessageId: "version",
+        headerDataTestId: "lbl_latest_versions",
+        id: "latestVersion",
+        accessorFn: (originalRow) => originalRow.last_version?.version
+      }),
+      {
+        header: (
+          <TextWithDataTestId dataTestId="lbl_used_aliases">
+            <FormattedMessage id="usedAliases" />
+          </TextWithDataTestId>
+        ),
+        id: "usedAliases",
+        enableSorting: false,
+        style: {
+          maxWidth: "350px"
+        },
+        accessorFn: ({ aliased_versions: aliasedVersions = [] }) =>
+          aliasedVersions.map(({ version, alias }) => getAliasedVersionString(version, alias)).join(" "),
+        cell: ({ row: { original } }) => {
+          const { aliased_versions: aliasedVersions } = original;
 
-const MlModels = ({ models, isLoading }) => {
-  const [selectedFilters, setSelectedFilters] = useState(() => getRequestParams());
-
-  useEffect(() => {
-    updateQueryParams(selectedFilters);
-  }, [selectedFilters]);
-
-  const filteredData = useMemo(() => {
-    const filters = Object.entries(selectedFilters).filter(([, filterValue]) => filterValue !== undefined);
-
-    if (filters.length === 0) return models;
-
-    return models.filter((model) =>
-      filters.every((filter) => {
-        const [filterType, filterValue] = filter;
-
-        if (filterType === GOALS_FILTER) {
-          if (!model.last_run_reached_goals || isEmptyObject(model.last_run_reached_goals)) {
-            return false;
+          if (isEmptyArray(aliasedVersions)) {
+            return CELL_EMPTY_VALUE;
           }
-          return Object.values(model.last_run_reached_goals).every(({ reached }) => reached) === filterValue;
-        }
 
-        if (filterType === OWNER_ID_FILTER) {
-          if (filterValue === EMPTY_UUID) {
-            return isEmptyObject(model.owner);
-          }
-          return model.owner.id === filterValue;
-        }
+          return (
+            <Box display="flex" flexWrap="wrap" gap={1}>
+              <ExpandableList
+                items={aliasedVersions}
+                render={(item) => {
+                  const versionAliasString = getAliasedVersionString(item.version, item.alias);
 
-        if (filterType === STATUS_BE_FILTER) {
-          return model.status === filterValue;
+                  return (
+                    <LabelChip
+                      key={versionAliasString}
+                      label={versionAliasString}
+                      colorizeBy={item.alias}
+                      labelSymbolsLimit={40}
+                    />
+                  );
+                }}
+                maxRows={ALIASED_VERSIONS_SHOW_MORE_LIMIT}
+              />
+            </Box>
+          );
         }
-
-        return false;
+      },
+      utcTime({
+        id: "createdAt",
+        accessorFn: (originalRow) => originalRow.created_at,
+        headerMessageId: "createdAt",
+        headerDataTestId: "lbl_created_at"
+      }),
+      {
+        header: (
+          <TextWithDataTestId dataTestId="lbl_description">
+            <FormattedMessage id="description" />
+          </TextWithDataTestId>
+        ),
+        accessorKey: "description",
+        cell: ({ cell }) => <Markdown>{cell.getValue()}</Markdown>
+      },
+      tags({
+        id: "tags",
+        accessorFn: (originalRow) =>
+          Object.entries(originalRow.tags ?? {})
+            .map(([key, val]) => `${key}: ${val}`)
+            .join(" "),
+        getTags: (rowOriginal) => rowOriginal.tags ?? {}
       })
-    );
-  }, [models, selectedFilters]);
+    ],
+    []
+  );
 
-  const onFilterChange = (newFilters) => setSelectedFilters(newFilters);
-
-  const filterValues = getFilterValues({ models });
+  const tableActionBarDefinition = {
+    show: true,
+    definition: {
+      items: [
+        {
+          key: "btn-create-model",
+          icon: <AddOutlinedIcon />,
+          messageId: "add",
+          color: "success",
+          variant: "contained",
+          type: "button",
+          dataTestId: "btn-create-model",
+          link: ML_MODEL_CREATE,
+          requiredActions: ["EDIT_PARTNER"]
+        }
+      ]
+    }
+  };
 
   return (
-    <>
-      <PageActionBar />
-      <PageContentWrapper>
-        <Stack spacing={SPACING_2}>
-          <div>
-            {isLoading ? (
-              <TableLoader columnsCounter={4} showHeader />
-            ) : (
-              <MlModelsTable
-                models={filteredData}
-                appliedFilters={selectedFilters}
-                filterValues={filterValues}
-                onFilterChange={onFilterChange}
-              />
-            )}
-          </div>
-          <div>
-            <InlineSeverityAlert messageId="mlTasksDescription" />
-          </div>
-        </Stack>
-      </PageContentWrapper>
-    </>
+    <Table
+      data={tableData}
+      columns={columns}
+      withSearch
+      actionBar={tableActionBarDefinition}
+      pageSize={50}
+      localization={{
+        emptyMessageId: "noModels"
+      }}
+    />
   );
 };
+
+const MlModels = ({ models, isLoading = false }: MlModelsProps) =>
+  isLoading ? <TableLoader /> : <ModelsTable models={models} />;
 
 export default MlModels;

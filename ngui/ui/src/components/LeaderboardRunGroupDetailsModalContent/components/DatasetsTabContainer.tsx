@@ -1,10 +1,10 @@
-import MlModelsService from "services/MlModelsService";
+import MlTasksService from "services/MlTasksService";
 import DatasetsTab from "./DatasetsTab";
 
 const DatasetsTabContainer = ({ taskId, qualifiedRunIds, leaderboardDataset }) => {
-  const { useGetModelRunsBulk } = MlModelsService();
+  const { useGetTaskRunsBulk } = MlTasksService();
 
-  const { isLoading: isGetRunsBulkLoading, runs } = useGetModelRunsBulk(taskId, qualifiedRunIds);
+  const { isLoading: isGetRunsBulkLoading, runs } = useGetTaskRunsBulk(taskId, qualifiedRunIds);
 
   return (
     <DatasetsTab

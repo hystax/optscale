@@ -22,7 +22,7 @@ class TemplatesAsyncCollectionHandler(BaseAsyncCollectionHandler,
     VALIDATION_MAP = {
         'tags': (check_dict_attribute, True),
         'hyperparameters': (check_dict_attribute, True),
-        'application_ids': (check_list_attribute, True),
+        'task_ids': (check_list_attribute, True),
         'cloud_account_ids': (check_list_attribute, True),
         'region_ids': (check_list_attribute, True),
         'instance_types': (check_list_attribute, True),
@@ -116,9 +116,9 @@ class TemplatesAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         example:
                         -   b65f85f8-d2cb-4ea6-88ab-4a9f2a82ba20
                         -   5c285343-274e-44c2-9b8b-c87359601fc4
-                    application_ids:
+                    task_ids:
                         type: array
-                        description: list of template applications ids
+                        description: list of template tasks ids
                         required: true
                         example:
                         -   b65f85f8-d2cb-4ea6-88ab-4a9f2a82ba20
@@ -157,7 +157,7 @@ class TemplatesAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         -   id: a3857500-32d2-4f4a-8cdb-d0c8d0171955
                             name: creds
                             type: aws_cnr
-                        applications:
+                        tasks:
                         -   id: 9b8a61c0-7ef4-4370-b28f-8d00e6a3a0a3
                             name: Test project
                         instance_types:
@@ -225,7 +225,7 @@ class TemplatesAsyncItemHandler(BaseAsyncItemHandler,
     VALIDATION_MAP = {
         'tags': (check_dict_attribute, False),
         'hyperparameters': (check_dict_attribute, False),
-        'application_ids': (check_list_attribute, False),
+        'task_ids': (check_list_attribute, False),
         'cloud_account_ids': (check_list_attribute, False),
         'region_ids': (check_list_attribute, False),
         'instance_types': (check_list_attribute, False),
@@ -320,18 +320,18 @@ class TemplatesAsyncItemHandler(BaseAsyncItemHandler,
                                 type:
                                     type: string
                                     description: Cloud type
-                        applications:
+                        tasks:
                             type: array
-                            description: list of template applications info
+                            description: list of template tasks info
                             items:
                                 type: object
                             properties:
                                 id:
                                     type: string
-                                    description: Application id
+                                    description: Task id
                                 name:
                                     type: string
-                                    description: Application name
+                                    description: Task name
                         instance_types:
                             type: array
                             description: list of template instance families info
@@ -441,9 +441,9 @@ class TemplatesAsyncItemHandler(BaseAsyncItemHandler,
                         example:
                         -   b65f85f8-d2cb-4ea6-88ab-4a9f2a82ba20
                         -   5c285343-274e-44c2-9b8b-c87359601fc4
-                    application_ids:
+                    task_ids:
                         type: array
-                        description: list of template applications ids
+                        description: list of template tasks ids
                         example:
                         -   b65f85f8-d2cb-4ea6-88ab-4a9f2a82ba20
                         -   5c285343-274e-44c2-9b8b-c87359601fc4
@@ -461,7 +461,7 @@ class TemplatesAsyncItemHandler(BaseAsyncItemHandler,
                         -   us-west-1
         responses:
             200:
-                description: New application object
+                description: New task object
                 schema:
                     type: object
                     example:
@@ -479,7 +479,7 @@ class TemplatesAsyncItemHandler(BaseAsyncItemHandler,
                         -   id: a3857500-32d2-4f4a-8cdb-d0c8d0171955
                             name: creds
                             type: aws_cnr
-                        applications:
+                        tasks:
                         -   id: 9b8a61c0-7ef4-4370-b28f-8d00e6a3a0a3
                             name: Test project
                         instance_types:
@@ -662,6 +662,7 @@ class TemplatesOverviewAsyncCollectionHandler(BaseAsyncCollectionHandler,
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_infrastructure_token(organization_id)
-        res = await run_task(self.controller.list_overview, organization_id, token)
-        applications_dict = {'templates': res}
-        self.write(json.dumps(applications_dict, cls=ModelEncoder))
+        res = await run_task(self.controller.list_overview, organization_id,
+                             token)
+        tasks_dict = {'templates': res}
+        self.write(json.dumps(tasks_dict, cls=ModelEncoder))

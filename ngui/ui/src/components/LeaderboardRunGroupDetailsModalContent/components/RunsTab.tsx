@@ -10,7 +10,7 @@ import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useFormatIntervalTimeAgo } from "hooks/useFormatIntervalTimeAgo";
-import { getMlModelRunUrl, getMlRunsetDetailsUrl } from "urls";
+import { getMlTaskRunUrl, getMlRunsetDetailsUrl } from "urls";
 import { dataset } from "utils/columns";
 import { SPACING_2 } from "utils/layouts";
 import { formatRunFullName } from "utils/ml";
@@ -57,7 +57,7 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
         },
         sortingFn: "alphanumeric",
         cell: ({ cell, row: { original } }) => {
-          const { application_id: taskId, id: runId, finish, runset_id: runsetId, runset_name: runsetName } = original;
+          const { task_id: taskId, id: runId, finish, runset_id: runsetId, runset_name: runsetName } = original;
 
           return (
             <CaptionedCell
@@ -86,7 +86,7 @@ const RunsTable = ({ runGroupPrimaryMetric, runGroupSecondaryMetrics, runsData }
                   : [])
               ]}
             >
-              <Link to={getMlModelRunUrl(taskId, runId)} component={RouterLink}>
+              <Link to={getMlTaskRunUrl(taskId, runId)} component={RouterLink}>
                 {cell.getValue()}
               </Link>
             </CaptionedCell>

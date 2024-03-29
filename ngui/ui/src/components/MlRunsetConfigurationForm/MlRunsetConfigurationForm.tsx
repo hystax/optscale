@@ -15,7 +15,7 @@ import { convertMinutesToSeconds, convertSecondsToMinutes } from "utils/datetime
 import { isEmpty as isEmptyObject } from "utils/objects";
 import {
   AbortConditionsFields,
-  ModelField,
+  TaskField,
   CommandToExecuteField,
   DataSourceField,
   FIELD_NAMES,
@@ -28,7 +28,7 @@ import {
 } from "./FormElements";
 
 const {
-  MODEL_FIELD_NAME,
+  TASK_FIELD_NAME,
   DATA_SOURCE_FIELD_NAME,
   REGION_FIELD_NAME,
   INSTANCE_TYPE_FIELD_NAME,
@@ -44,7 +44,7 @@ const {
   SPOT_INSTANCES_MAX_ATTEMPTS_FIELD_NAME
 } = FIELD_NAMES;
 
-const FillFromLastRun = ({ latestRunset, hyperparameters, dataSources, models, instanceTypes, regions, isLoading }) => {
+const FillFromLastRun = ({ latestRunset, hyperparameters, dataSources, tasks, instanceTypes, regions, isLoading }) => {
   const {
     setValue,
     trigger,
@@ -60,7 +60,7 @@ const FillFromLastRun = ({ latestRunset, hyperparameters, dataSources, models, i
   }
 
   const {
-    application: { id: latestRunsetModelId } = {},
+    task: { id: latestRunsetTaskId } = {},
     cloud_account: { id: latestRunsetDataSourceId } = {},
     region: { name: latestRunsetRegionName } = {},
     hyperparameters: latestRunsetHyperparameters = {},
@@ -70,7 +70,7 @@ const FillFromLastRun = ({ latestRunset, hyperparameters, dataSources, models, i
     spot_settings: spotSettings
   } = latestRunset;
 
-  const isKnownModel = () => models.find((model) => model.id === latestRunsetModelId);
+  const isKnownTask = () => tasks.find((task) => task.id === latestRunsetTaskId);
   const isKnownDataSource = () => dataSources.find((dataSource) => dataSource.id === latestRunsetDataSourceId);
   const isKnownRegion = () => regions.find((region) => region.name === latestRunsetRegionName);
   const isKnownInstanceType = () => instanceTypes.find((instanceType) => instanceType.name === latestRunsetInstanceType);
@@ -78,7 +78,7 @@ const FillFromLastRun = ({ latestRunset, hyperparameters, dataSources, models, i
   return (
     <DashedTypography
       onClick={() => {
-        setValue(MODEL_FIELD_NAME, isKnownModel() ? latestRunsetModelId : "");
+        setValue(TASK_FIELD_NAME, isKnownTask() ? latestRunsetTaskId : "");
         setValue(DATA_SOURCE_FIELD_NAME, isKnownDataSource() ? latestRunsetDataSourceId : "");
         setValue(REGION_FIELD_NAME, isKnownRegion() ? latestRunsetRegionName : "");
         setValue(INSTANCE_TYPE_FIELD_NAME, isKnownInstanceType() ? latestRunsetInstanceType : "");
@@ -141,18 +141,18 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
     tags = {},
     hyperparameters = {},
     cloud_accounts: dataSources = [],
-    applications: models = [],
+    tasks = [],
     instance_types: instanceTypes = [],
     regions = []
   } = runsetTemplate;
 
   const runsetDataSources = dataSources.filter(({ deleted }) => !deleted);
 
-  const runsetModels = models.filter(({ deleted }) => !deleted);
+  const runsetTasks = tasks.filter(({ deleted }) => !deleted);
 
   const methods = useForm({
     defaultValues: {
-      [MODEL_FIELD_NAME]: "",
+      [TASK_FIELD_NAME]: "",
       [DATA_SOURCE_FIELD_NAME]: "",
       [REGION_FIELD_NAME]: "",
       [INSTANCE_TYPE_FIELD_NAME]: "",
@@ -211,7 +211,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
           };
 
           const data = {
-            application_id: formData[MODEL_FIELD_NAME],
+            task_id: formData[TASK_FIELD_NAME],
             cloud_account_id: formData[DATA_SOURCE_FIELD_NAME],
             region_id: formData[REGION_FIELD_NAME],
             instance_type: formData[INSTANCE_TYPE_FIELD_NAME],
@@ -231,7 +231,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
         <FillFromLastRun
           latestRunset={latestRunset}
           dataSources={runsetDataSources}
-          models={runsetModels}
+          tasks={runsetTasks}
           hyperparameters={hyperparameters}
           instanceTypes={instanceTypes}
           regions={regions}
@@ -259,7 +259,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
             </>
           )}
         </FormControl>
-        <ModelField models={runsetModels} isLoading={isGetRunsetTemplateLoading} />
+        <TaskField tasks={runsetTasks} isLoading={isGetRunsetTemplateLoading} />
         <DataSourceField dataSources={runsetDataSources} isLoading={isGetRunsetTemplateLoading} />
         <RegionField regions={regions} isLoading={isGetRunsetTemplateLoading} />
         <InstanceTypeField instanceTypes={instanceTypes} isLoading={isGetRunsetTemplateLoading} />
@@ -286,7 +286,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
                   br: <br />,
                   example: (
                     <CodeEditor
-                      value={"pip install <imports>\nwget <path_to_your_model/model.py>\npython3 model.py"}
+                      value={"pip install <imports>\nwget <path_to_your_task/task.py>\npython3 task.py"}
                       language="bash"
                     />
                   )

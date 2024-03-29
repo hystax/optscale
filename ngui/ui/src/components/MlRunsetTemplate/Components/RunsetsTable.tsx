@@ -9,7 +9,7 @@ import SubTitle from "components/SubTitle";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { getMlModelDetailsUrl, getMlRunsetDetailsUrl } from "urls";
+import { getMlTaskDetailsUrl, getMlRunsetDetailsUrl } from "urls";
 import { duration, expenses, startedAt, text } from "utils/columns";
 import { ML_RUN_STATUS } from "utils/constants";
 import { formatRunFullName } from "utils/ml";
@@ -64,19 +64,19 @@ const RunsetsTable = ({ runsets, isLoading }) => {
           </TextWithDataTestId>
         ),
         id: "task",
-        accessorFn: ({ application: model = {} }) => model.name,
+        accessorFn: ({ task = {} }) => task.name,
         cell: ({
           cell,
           row: {
-            original: { application: model }
+            original: { task }
           }
         }) => {
-          const { id, deleted } = model;
+          const { id, deleted } = task;
 
           return deleted ? (
             cell.getValue()
           ) : (
-            <Link to={getMlModelDetailsUrl(id)} component={RouterLink}>
+            <Link to={getMlTaskDetailsUrl(id)} component={RouterLink}>
               {cell.getValue()}
             </Link>
           );

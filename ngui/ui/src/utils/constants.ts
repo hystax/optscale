@@ -768,15 +768,16 @@ export const BREAKDOWN_LINEAR_SELECTOR_ITEMS = [
   }
 ];
 
-export const ML_MODEL_DETAILS_TABS = Object.freeze({
+export const ML_TASK_DETAILS_TABS = Object.freeze({
   OVERVIEW: "overview",
   RUNS: "runs",
+  MODEL_VERSIONS: "modelVersions",
   LEADERBOARDS: "leaderboards",
   EXECUTORS: "executors",
   RECOMMENDATIONS: "recommendations"
 });
 
-export const ML_MODEL_DETAILS_TAB_NAME = "taskDetailsTab";
+export const ML_TASK_DETAILS_TAB_NAME = "taskDetailsTab";
 
 export const ML_RUN_STATUS = Object.freeze({
   STOPPED: "stopped",
@@ -786,7 +787,7 @@ export const ML_RUN_STATUS = Object.freeze({
   FAILED: "failed"
 });
 
-export const ML_MODEL_STATUS = Object.freeze({
+export const ML_TASK_STATUS = Object.freeze({
   CREATED: "created",
   ABORTED: "aborted",
   COMPLETED: "completed",

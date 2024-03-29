@@ -894,13 +894,13 @@ class Err(enum.Enum):
         ["invalid"]
     ]
     OE0534 = [
-        "Application with key \"%s\" is already exist",
-        ['Application key'],
-        ['test_key']
+        "%s with key \"%s\" already exists",
+        ['Object', 'key'],
+        ['Application', 'test_key']
     ]
     OE0535 = [
-        "Goal with key \"%s\" is already exist",
-        ['Goal key'],
+        "Metric with key \"%s\" is already exist",
+        ['Metric key'],
         ['test_key']
     ]
     OE0536 = [
@@ -994,8 +994,8 @@ class Err(enum.Enum):
         ['timezone']
     ]
     OE0554 = [
-        "Goal with id \"%s\" used in leaderboard(s)",
-        ['Goal id'],
+        "Metric with id \"%s\" used in leaderboard(s)",
+        ['Metric id'],
         []
     ]
     OE0555 = [
@@ -1004,7 +1004,12 @@ class Err(enum.Enum):
         []
     ]
     OE0556 = [
-        "Goal is used in application leaderboard(s)",
+        "Metric is used in application leaderboard(s)",
+        [],
+        []
+    ]
+    OE0557 = [
+        "Model version already exists",
         [],
         []
     ]

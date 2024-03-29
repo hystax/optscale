@@ -1,10 +1,10 @@
 import { Box, Typography } from "@mui/material";
 import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
-import CopyLeaderboardDatasetIconButton from "components/MlModelLeaderboard/components/CopyLeaderboardDatasetIconButton";
-import DeleteLeaderboardDatasetButton from "components/MlModelLeaderboard/components/DeleteLeaderboardDatasetButton";
-import EditLeaderboardDatasetIconButton from "components/MlModelLeaderboard/components/EditLeaderboardDatasetIconButton";
-import LeaderboardDatasetDetailsTable from "components/MlModelLeaderboard/components/LeaderboardDatasetDetailsTable";
+import CopyLeaderboardDatasetIconButton from "components/MlTaskLeaderboard/components/CopyLeaderboardDatasetIconButton";
+import DeleteLeaderboardDatasetButton from "components/MlTaskLeaderboard/components/DeleteLeaderboardDatasetButton";
+import EditLeaderboardDatasetIconButton from "components/MlTaskLeaderboard/components/EditLeaderboardDatasetIconButton";
+import LeaderboardDatasetDetailsTable from "components/MlTaskLeaderboard/components/LeaderboardDatasetDetailsTable";
 import SubTitle from "components/SubTitle";
 import TableLoader from "components/TableLoader";
 import TypographyLoader from "components/TypographyLoader";
@@ -48,7 +48,7 @@ const DetailsTable = ({ isLoading, leaderboardDataset, leaderboardDatasetDetails
     <LeaderboardDatasetDetailsTable
       leaderboardDataset={leaderboardDataset}
       leaderboardDatasetDetails={leaderboardDatasetDetails}
-      primaryMetric={leaderboard.primary_goal}
+      primaryMetric={leaderboard.primary_metric}
     />
   );
 

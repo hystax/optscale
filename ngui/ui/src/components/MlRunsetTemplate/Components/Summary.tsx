@@ -23,7 +23,7 @@ const Summary = ({ runsCount, lastRunsetExpenses, totalExpenses, isLoading = fal
         isLoading
       },
       {
-        key: "lastRunExpenses",
+        key: "lastRunsetExpenses",
         valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
         valueComponentProps: {
           value: lastRunsetExpenses

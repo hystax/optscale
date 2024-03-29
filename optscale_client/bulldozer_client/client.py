@@ -229,7 +229,7 @@ class Client:
     def template_create(
             self,
             name: str,
-            application_ids: Iterable[str],
+            task_ids: Iterable[str],
             cloud_account_ids: Iterable[str],
             region_ids: Iterable[str],
             instance_types: Iterable[str],
@@ -240,7 +240,7 @@ class Client:
     ):
         b = {
             "name": name,
-            "application_ids": application_ids,
+            "task_ids": task_ids,
             "cloud_account_ids": cloud_account_ids,
             "region_ids": region_ids,
             "instance_types": instance_types,
@@ -255,7 +255,7 @@ class Client:
             self,
             id_: str,
             name: Union[str, None] = None,
-            application_ids: Union[Iterable[str], None] = None,
+            task_ids: Union[Iterable[str], None] = None,
             cloud_account_ids: Union[Iterable[str], None] = None,
             region_ids: Union[Iterable[str], None] = None,
             instance_types: Union[Iterable[str], None] = None,
@@ -267,8 +267,8 @@ class Client:
         b = dict()
         if name is not None:
             b.update({"name": name})
-        if application_ids is not None:
-            b.update({"application_ids": application_ids})
+        if task_ids is not None:
+            b.update({"task_ids": task_ids})
         if cloud_account_ids is not None:
             b.update({"cloud_account_ids": cloud_account_ids})
         if region_ids is not None:
@@ -297,7 +297,7 @@ class Client:
     def runset_create(
             self,
             template_id: str,
-            application_id: str,
+            task_id: str,
             cloud_account_id: str,
             region_id: str,
             instance_type: str,
@@ -311,7 +311,7 @@ class Client:
             open_ingress: bool = False,
     ):
         b = {
-            "application_id": application_id,
+            "task_id": task_id,
             "cloud_account_id": cloud_account_id,
             "region_id": region_id,
             "instance_type": instance_type,

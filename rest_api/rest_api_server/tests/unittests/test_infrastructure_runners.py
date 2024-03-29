@@ -13,7 +13,7 @@ class TestRunnersApi(TestInfrastructureBase):
             self.organization_id, self.valid_template)
         self.template_id = template['id']
         self.valid_runset = {
-            'application_id': self.application_id,
+            'task_id': self.task_id,
             'cloud_account_id': self.cloud_account_id,
             'region_id': 'us-east-1',
             'instance_type': 'm5',
@@ -102,9 +102,8 @@ class TestRunnersApi(TestInfrastructureBase):
             if runner['cloud_account']['id'] == self.cloud_account_id:
                 self.assertTrue(runner['cloud_account']['deleted'])
 
-    def test_list_deleted_app(self):
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+    def test_list_deleted_task(self):
+        code, _ = self.client.task_delete(self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         code, runners = self.client.runners_list(
             self.organization_id, self.runset_id)

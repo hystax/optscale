@@ -23,7 +23,8 @@ import DeleteEnvironmentPropertyModal from "./DeleteEnvironmentPropertyModal";
 import DeleteGlobalResourceConstraintModal from "./DeleteGlobalResourceConstraintModal";
 import DeleteLeaderboardCriteriaModal from "./DeleteLeaderboardCriteriaModal";
 import DeleteMlChartsDashboard from "./DeleteMlChartsDashboard";
-import DeleteMlGlobalParameterModal from "./DeleteMlGlobalParameterModal";
+import DeleteMlGlobalMetricModal from "./DeleteMlGlobalMetricModal";
+import DeleteMlModelModal from "./DeleteMlModelModal";
 import DeleteMlRunsetTemplateModal from "./DeleteMlRunsetTemplateModal";
 import DeleteOrganizationConstraintModal from "./DeleteOrganizationConstraintModal";
 import DeleteOrganizationModal from "./DeleteOrganizationModal";
@@ -35,12 +36,15 @@ import DeleteWebhookModal from "./DeleteWebhookModal";
 import DisconnectCloudAccountModal from "./DisconnectCloudAccountModal";
 import DisconnectGoogleCalendarModal from "./DisconnectGoogleCalendarModal";
 import EditLeaderboardDatasetModal from "./EditLeaderboardDatasetModal";
+import EditModelPathModal from "./EditModelPathModal";
+import EditModelVersionAliasModal from "./EditModelVersionAliasModal";
+import EditModelVersionTagsModal from "./EditModelVersionTagsModal";
 import EnvironmentCostModelModal from "./EnvironmentCostModelModal";
 import ExcludePoolsFromRecommendationModal from "./ExcludePoolsFromRecommendationModal";
 import KubernetesIntegrationModal from "./KubernetesIntegrationModal";
 import LeaderboardRunGroupDetailsModal from "./LeaderboardRunGroupDetailsModal";
 import MlDeleteDatasetModal from "./MlDeleteDatasetModal";
-import MlDeleteModelModal from "./MlDeleteModelModal";
+import MlDeleteTaskModal from "./MlDeleteTaskModal";
 import PoolModal from "./PoolModal";
 import ProfilingIntegrationModal from "./ProfilingIntegrationModal";
 import ReapplyClusterTypesModal from "./ReapplyClusterTypesModal";
@@ -94,9 +98,9 @@ export {
   UpdateDataSourceCredentialsModal,
   RenameDataSourceModal,
   CreateOrganizationModal,
-  DeleteMlGlobalParameterModal,
+  DeleteMlGlobalMetricModal,
   ProfilingIntegrationModal,
-  MlDeleteModelModal,
+  MlDeleteTaskModal,
   RecommendationModal,
   ExcludePoolsFromRecommendationModal,
   DeleteMlRunsetTemplateModal,
@@ -123,5 +127,9 @@ export {
   SaveMlChartsDashboard,
   DeleteMlChartsDashboard,
   ColumnSetsModal,
-  KubernetesIntegrationModal
+  KubernetesIntegrationModal,
+  DeleteMlModelModal,
+  EditModelVersionAliasModal,
+  EditModelPathModal,
+  EditModelVersionTagsModal
 };

@@ -29,38 +29,38 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(code, 404)
         self.verify_error_code(resp, 'OE0002')
 
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        goal_2 = self._create_goal(self.org['id'], 'goal_2')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        metric_2 = self._create_metric(self.org['id'], 'metric_2')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id'], goal_2['id']]
+                'metrics': [metric_1['id'], metric_2['id']]
             })
         self.assertEqual(code, 201)
         run = self._create_run(self.org['id'],
-                               app['id'],
+                               task['id'],
                                ['i-1', 'i-2'],
                                's3://ml-bucket/dataset',
                                data={'step': 2000, 'loss': 55})
         code, resp = self.client.run_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['executors']), 2)
-        self.assertEqual(len(resp['goals']), 2)
+        self.assertEqual(len(resp['metrics']), 2)
         self.assertTrue(resp['dataset'])
 
     def test_get_run_git_data(self):
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        goal_2 = self._create_goal(self.org['id'], 'goal_2')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        metric_2 = self._create_metric(self.org['id'], 'metric_2')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id'], goal_2['id']]
+                'metrics': [metric_1['id'], metric_2['id']]
             })
         self.assertEqual(code, 201)
         run = self._create_run(self.org['id'],
-                               app['id'],
+                               task['id'],
                                ['i-1', 'i-2'],
                                's3://ml-bucket/dataset',
                                data={'step': 2000, 'loss': 55},
@@ -70,17 +70,17 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(resp['git'], self.git_data)
 
     def test_get_run_console_data(self):
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        goal_2 = self._create_goal(self.org['id'], 'goal_2')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        metric_2 = self._create_metric(self.org['id'], 'metric_2')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id'], goal_2['id']]
+                'metrics': [metric_1['id'], metric_2['id']]
             })
         self.assertEqual(code, 201)
         run = self._create_run(self.org['id'],
-                               app['id'],
+                               task['id'],
                                ['i-1', 'i-2'],
                                's3://ml-bucket/dataset',
                                data={'step': 2000, 'loss': 55},
@@ -99,17 +99,17 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(resp['console'], console_data)
 
     def test_get_run_no_datasets(self):
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        goal_2 = self._create_goal(self.org['id'], 'goal_2')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        metric_2 = self._create_metric(self.org['id'], 'metric_2')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id'], goal_2['id']]
+                'metrics': [metric_1['id'], metric_2['id']]
             })
         self.assertEqual(code, 201)
         run = self._create_run(self.org['id'],
-                               app['id'],
+                               task['id'],
                                ['i-1', 'i-2'],
                                data={'step': 2000, 'loss': 55})
         code, resp = self.client.run_get(self.org['id'], run['_id'])
@@ -117,17 +117,17 @@ class TestRunsApi(TestProfilingBase):
         self.assertIsNone(resp['dataset'])
 
     def test_get_run_deleted_dataset(self):
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        goal_2 = self._create_goal(self.org['id'], 'goal_2')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        metric_2 = self._create_metric(self.org['id'], 'metric_2')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id'], goal_2['id']]
+                'metrics': [metric_1['id'], metric_2['id']]
             })
         self.assertEqual(code, 201)
         run = self._create_run(self.org['id'],
-                               app['id'],
+                               task['id'],
                                ['i-1', 'i-2'],
                                's3://ml-bucket/dataset',
                                data={'step': 2000, 'loss': 55})
@@ -141,17 +141,17 @@ class TestRunsApi(TestProfilingBase):
         self.assertTrue(resp.get('dataset', {}).get('deleted'))
 
     def test_get_runset_run(self):
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        goal_2 = self._create_goal(self.org['id'], 'goal_2')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        metric_2 = self._create_metric(self.org['id'], 'metric_2')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id'], goal_2['id']]
+                'metrics': [metric_1['id'], metric_2['id']]
             })
         self.assertEqual(code, 201)
         run = self._create_run(self.org['id'],
-                               app['id'],
+                               task['id'],
                                ['i-1', 'i-2'],
                                data={'step': 2000, 'loss': 55},
                                runset_id=str(uuid.uuid4()),
@@ -167,13 +167,13 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(code, 404)
         self.verify_error_code(resp, 'OE0002')
 
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
         run = self._create_run(self.org['id'],
-                               app['id'], ['i-1', 'i-2'],
+                               task['id'], ['i-1', 'i-2'],
                                start=0.8, finish=9.8)
         code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
@@ -222,9 +222,9 @@ class TestRunsApi(TestProfilingBase):
             self.assertEqual(br['metrics'], {})
             self.assertEqual(br['data'], {})
 
-        goal_1 = self._create_goal(self.org['id'], 'loss', name='Model loss')
-        code, resp = self.client.application_update(
-            self.org['id'], app['id'], {'attach': [goal_1['id']]})
+        metric_1 = self._create_metric(self.org['id'], 'loss', name='Model loss')
+        code, resp = self.client.task_update(
+            self.org['id'], task['id'], {'attach': [metric_1['id']]})
         self.assertEqual(code, 200)
         code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
@@ -249,7 +249,7 @@ class TestRunsApi(TestProfilingBase):
             self.assertEqual(br['metrics'], {})
             self.assertEqual(br['data'], {})
 
-    def test_application_run_cost(self):
+    def test_task_run_cost(self):
         patch('rest_api.rest_api_server.controllers.cloud_account.'
               'CloudAccountController._configure_report').start()
         user_id = self.gen_id()
@@ -325,124 +325,124 @@ class TestRunsApi(TestProfilingBase):
                 'cloud_account_id': raw['cloud_account_id'],
                 'sign': 1
             })
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
         self._create_run(
-            self.org['id'], app['id'],
+            self.org['id'], task['id'],
             [res_1['cloud_resource_id'], res_2['cloud_resource_id']],
             start=int(datetime(
                 2022, 5, 15, 14, tzinfo=timezone.utc).timestamp()),
             finish=int(datetime(
                 2022, 5, 15, 15, tzinfo=timezone.utc).timestamp()))
-        code, resp = self.client.application_get(self.org['id'], app['id'])
+        code, resp = self.client.task_get(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['last_run_cost'], 185)
         self.assertEqual(resp['total_cost'], 185)
 
         dt_start = datetime.utcnow() - timedelta(days=15)
         self._create_run(
-            self.org['id'], app['id'],
+            self.org['id'], task['id'],
             [res_1['cloud_resource_id']],
             start=int(dt_start.timestamp()),
             finish=int((dt_start + timedelta(hours=1)).timestamp()))
-        code, resp = self.client.application_get(self.org['id'], app['id'])
+        code, resp = self.client.task_get(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['last_run_cost'], 5)
         self.assertEqual(resp['total_cost'], 190)
 
     def test_list_run_git_data(self):
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id']]
+                'metrics': [metric_1['id']]
             })
         self.assertEqual(code, 201)
         run_1 = self._create_run(self.org['id'],
-                                 app['id'], ['i-1'],
+                                 task['id'], ['i-1'],
                                  data={'step': 1500, 'loss': 55},
                                  start=int(datetime(2022, 5, 15).timestamp()),
                                  git=self.git_data)
         run_2 = self._create_run(self.org['id'],
-                                 app['id'], ['i-2'],
+                                 task['id'], ['i-2'],
                                  data={'step': 2000, 'loss': 70},
                                  start=int(datetime(2022, 5, 20).timestamp()),
                                  git=None)
-        code, resp = self.client.run_list(self.org['id'], app['id'])
+        code, resp = self.client.run_list(self.org['id'], task['id'])
         self.assertEqual(len(resp['runs']), 2)
         for run in resp['runs']:
             self.assertTrue('git' in run)
 
     def test_list_run(self):
-        goal_1 = self._create_goal(self.org['id'], 'loss')
-        code, app = self.client.application_create(
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': [goal_1['id']]
+                'metrics': [metric_1['id']]
             })
         self.assertEqual(code, 201)
-        code, resp = self.client.run_list(self.org['id'], app['id'])
+        code, resp = self.client.run_list(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['runs'], [])
         run_1 = self._create_run(self.org['id'],
-                                 app['id'], ['i-1'],
+                                 task['id'], ['i-1'],
                                  data={'step': 1500, 'loss': 55},
                                  start=int(datetime(2022, 5, 15).timestamp()))
         run_2 = self._create_run(self.org['id'],
-                                 app['id'], ['i-2'],
+                                 task['id'], ['i-2'],
                                  data={'step': 2000, 'loss': 70},
                                  start=int(datetime(2022, 5, 20).timestamp()))
-        code, resp = self.client.run_list(self.org['id'], app['id'])
+        code, resp = self.client.run_list(self.org['id'], task['id'])
         self.assertEqual(len(resp['runs']), 2)
 
         end_dt = int(datetime(2022, 5, 17).timestamp())
-        code, resp = self.client.run_list(self.org['id'], app['id'],
+        code, resp = self.client.run_list(self.org['id'], task['id'],
                                           end_date=end_dt)
         self.assertEqual(len(resp['runs']), 1)
         self.assertEqual(resp['runs'][0]['id'], run_1['_id'])
 
         start_dt = int(datetime(2022, 5, 17).timestamp())
-        code, resp = self.client.run_list(self.org['id'], app['id'],
+        code, resp = self.client.run_list(self.org['id'], task['id'],
                                           start_date=start_dt)
         self.assertEqual(len(resp['runs']), 1)
         self.assertEqual(resp['runs'][0]['id'], run_2['_id'])
 
     def test_run_without_executor(self):
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
         self.assertEqual(code, 201)
-        code, resp = self.client.run_list(self.org['id'], app['id'])
+        code, resp = self.client.run_list(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['runs'], [])
         run_1 = self._create_run(self.org['id'],
-                                 app['id'],
+                                 task['id'],
                                  data={'step': 2000, 'loss': 70},
                                  start=int(datetime(2022, 5, 20).timestamp()))
-        code, resp = self.client.run_list(self.org['id'], app['id'])
+        code, resp = self.client.run_list(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['runs']), 1)
         self.assertEqual(resp['runs'][0]['executors'], [])
 
-        code, resp = self.client.application_get(self.org['id'], app['id'])
+        code, resp = self.client.task_get(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['runs_count'], 1)
 
     def test_not_completed_run_breakdown(self):
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
         now = int(datetime(2022, 5, 10).timestamp())
-        run = self._create_run(self.org['id'], app['id'], [],
+        run = self._create_run(self.org['id'], task['id'], [],
                                start=now, finish=None)
         code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
@@ -452,13 +452,13 @@ class TestRunsApi(TestProfilingBase):
             })
 
     def test_run_breakdown_metrics(self):
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
         run = self._create_run(self.org['id'],
-                               app['id'], ['i-1', 'i-2'],
+                               task['id'], ['i-1', 'i-2'],
                                start=1001, finish=1005)
         self._create_log(run['_id'], 1001.77, data={'loss': 10})
         self._create_proc_stats(
@@ -484,7 +484,7 @@ class TestRunsApi(TestProfilingBase):
         self.assertEqual(breakdown['1004'], {'metrics': {}, 'data': {}})
         self.assertEqual(breakdown['1005'], {'metrics': {}, 'data': {}})
 
-    def test_not_completed_run_applications(self):
+    def test_not_completed_run_tasks(self):
         patch('rest_api.rest_api_server.controllers.cloud_account.'
               'CloudAccountController._configure_report').start()
         user_id = self.gen_id()
@@ -517,14 +517,14 @@ class TestRunsApi(TestProfilingBase):
             return_resources=True)
         now_dt = datetime(2022, 5, 10)
         now = int(now_dt.timestamp())
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
-        run1 = self._create_run(self.org['id'], app['id'], ['res_id_1'],
+        run1 = self._create_run(self.org['id'], task['id'], ['res_id_1'],
                                 start=now - 5, finish=now - 1)
-        run2 = self._create_run(self.org['id'], app['id'], ['res_id_1'],
+        run2 = self._create_run(self.org['id'], task['id'], ['res_id_1'],
                                 start=now, finish=None, state=1)
         with freeze_time(now_dt + timedelta(hours=1)):
             code, resp = self.client.run_get(self.org['id'], run1['_id'])
@@ -533,18 +533,18 @@ class TestRunsApi(TestProfilingBase):
             code, resp = self.client.run_get(self.org['id'], run2['_id'])
             self.assertEqual(code, 200)
             self.assertEqual(resp['duration'], 3600)
-            code, resp_get = self.client.application_get(self.org['id'], app['id'])
+            code, resp_get = self.client.task_get(self.org['id'], task['id'])
             self.assertEqual(code, 200)
             self.assertEqual(resp_get['runs_count'], 2)
             self.assertEqual(resp_get['last_run_duration'], 3600)
             self.assertEqual(resp_get['last_run'], now)
             self.assertEqual(resp_get['last_successful_run'], now - 5)
 
-            code, resp_list = self.client.application_list(self.org['id'])
+            code, resp_list = self.client.task_list(self.org['id'])
             self.assertEqual(code, 200)
-            applications = resp_list['applications']
-            self.assertEqual(len(applications), 1)
-            self.assertEqual(applications[0], resp_get)
+            tasks = resp_list['tasks']
+            self.assertEqual(len(tasks), 1)
+            self.assertEqual(tasks[0], resp_get)
 
     def test_not_completed_run_cost(self):
         patch('rest_api.rest_api_server.controllers.cloud_account.'
@@ -623,35 +623,35 @@ class TestRunsApi(TestProfilingBase):
                 'sign': 1
             })
 
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
         with freeze_time(datetime(2022, 5, 16)):
             self._create_run(
-                self.org['id'], app['id'],
+                self.org['id'], task['id'],
                 [res_2['cloud_resource_id']],
                 start=int(datetime(
                     2022, 5, 15, 14).timestamp()),
                 finish=None, state=3)
-            code, resp = self.client.application_get(self.org['id'], app['id'])
+            code, resp = self.client.task_get(self.org['id'], task['id'])
             self.assertEqual(code, 200)
             self.assertEqual(resp['last_run_cost'], 0)
             self.assertIsNone(resp['last_run_duration'])
 
             self._create_run(
-                self.org['id'], app['id'],
+                self.org['id'], task['id'],
                 [res_1['cloud_resource_id']],
                 start=int(datetime(
                     2022, 5, 15, 14).timestamp()),
                 finish=None, state=1)
-            code, resp = self.client.application_get(self.org['id'], app['id'])
+            code, resp = self.client.task_get(self.org['id'], task['id'])
             self.assertEqual(code, 200)
             self.assertEqual(resp['last_run_cost'], 50)
             self.assertEqual(resp['last_run_duration'], 10 * 3600)
         with freeze_time(datetime(2022, 5, 17)):
-            code, resp = self.client.application_get(self.org['id'], app['id'])
+            code, resp = self.client.task_get(self.org['id'], task['id'])
             self.assertEqual(code, 200)
             self.assertEqual(resp['last_run_cost'], 50 + 120)
             self.assertEqual(resp['last_run_duration'], (10 + 24) * 3600)
@@ -670,12 +670,12 @@ class TestRunsApi(TestProfilingBase):
             org2['id'], {'name': 'name2', 'auth_user_id': auth_user2})
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
               'get_user_id', return_value=auth_user2).start()
-        _, app = self.client.application_create(
+        _, task = self.client.task_create(
             org2['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
-        other_run = self._create_run(org2['id'], app['id'], ['res_id_1'])
+        other_run = self._create_run(org2['id'], task['id'], ['res_id_1'])
 
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
               'get_user_id', return_value=self.auth_user).start()
@@ -688,12 +688,12 @@ class TestRunsApi(TestProfilingBase):
         self.verify_error_code(resp, 'OE0234')
 
     def test_breakdown_zero_proc(self):
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
-        run = self._create_run(self.org['id'], app['id'], ['i-1'],
+        run = self._create_run(self.org['id'], task['id'], ['i-1'],
                                start=1, finish=3)
         code, resp = self.client.run_breakdown_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
@@ -724,22 +724,23 @@ class TestRunsApi(TestProfilingBase):
                 'ram': 0.0}
         })
 
-    def test_breakdown_goals_aggregate_func(self):
-        goal_1 = self._create_goal(self.org['id'], 'avg', func='avg')
-        goal_2 = self._create_goal(self.org['id'], 'sum', func='sum')
-        goal_3 = self._create_goal(self.org['id'], 'max', func='max')
-        goal_4 = self._create_goal(self.org['id'], 'last', func='last')
-        valid_application = {
+    def test_breakdown_metrics_aggregate_func(self):
+        metric_1 = self._create_metric(self.org['id'], 'avg', func='avg')
+        metric_2 = self._create_metric(self.org['id'], 'sum', func='sum')
+        metric_3 = self._create_metric(self.org['id'], 'max', func='max')
+        metric_4 = self._create_metric(self.org['id'], 'last', func='last')
+        valid_task = {
             'name': 'My test project',
             'key': 'test_project',
-            'goals': [goal_1['id'], goal_2['id'], goal_3['id'], goal_4['id']]
+            'metrics': [metric_1['id'], metric_2['id'],
+                        metric_3['id'], metric_4['id']]
         }
-        code, app = self.client.application_create(
-            self.org['id'], valid_application)
+        code, task = self.client.task_create(
+            self.org['id'], valid_task)
         self.assertEqual(code, 201)
-        self.assertEqual(len(app['goals']), 4)
+        self.assertEqual(len(task['metrics']), 4)
         now = int(datetime.utcnow().timestamp())
-        run = self._create_run(self.org['id'], app['id'], ['i-1'],
+        run = self._create_run(self.org['id'], task['id'], ['i-1'],
                                start=now - 2, finish=now)
         for dt, val in [
             (now - 2, 10), (now - 1, 20), (now - 1, 30), (now, 50), (now, 40)
@@ -758,12 +759,12 @@ class TestRunsApi(TestProfilingBase):
                          {'avg': 45.0, 'sum': 90, 'max': 50, 'last': 40})
 
     def test_delete_run(self):
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
             })
-        run = self._create_run(self.org['id'], app['id'], ['i-1'],
+        run = self._create_run(self.org['id'], task['id'], ['i-1'],
                                start=1, finish=3)
 
         _, org2 = self.client.organization_create({'name': "organization_2"})

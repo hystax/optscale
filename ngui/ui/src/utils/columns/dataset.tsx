@@ -19,7 +19,7 @@ const dataset = ({ id, accessorFn, accessorKey }) => ({
 
     const { dataset: rowDataset } = row.original;
 
-    const { name, path, labels = [] } = rowDataset;
+    const { name = "", path = "", labels = [] } = rowDataset ?? {};
 
     return [name, path, labels.join(" ")].some((str) => str.toLocaleLowerCase().includes(search));
   },

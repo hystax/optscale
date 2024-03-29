@@ -21,23 +21,23 @@ class RunBulkAsyncHandler(BaseAsyncCollectionHandler,
     def post(self, *args, **kwargs):
         self.raise405()
 
-    async def get(self, organization_id, application_id, **kwargs):
+    async def get(self, organization_id, task_id, **kwargs):
         """
         ---
         description: |
-            Get list of application runs bulk
+            Get list of task runs bulk
             Required permission: INFO_ORGANIZATION
         tags: [profiling_runs]
-        summary: List of application runs
+        summary: List of task runs
         parameters:
         -   name: organization_id
             in: path
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: path
-            description: Application id
+            description: Task id
             required: true
             type: string
         -   in: query
@@ -46,7 +46,7 @@ class RunBulkAsyncHandler(BaseAsyncCollectionHandler,
             required: false
         responses:
             200:
-                description: Application runs
+                description: Task runs
                 schema:
                     type: object
                     properties:
@@ -57,9 +57,9 @@ class RunBulkAsyncHandler(BaseAsyncCollectionHandler,
                                 id:
                                     type: string
                                     description: Run id
-                                application_id:
+                                task_id:
                                     type: string
-                                    description: App id
+                                    description: Task id
                                 start:
                                     type: integer
                                     description: Start time
@@ -118,7 +118,7 @@ class RunBulkAsyncHandler(BaseAsyncCollectionHandler,
         token = await self._get_profiling_token(organization_id)
         try:
             res = await run_task(
-                self.controller.bulk_runs_get, application_id, token, run_ids)
+                self.controller.bulk_runs_get, task_id, token, run_ids)
         except OptHTTPError as exc:
             if exc.status_code == 400:
                 res = []
@@ -156,23 +156,23 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
 
-    async def get(self, organization_id, application_id, **url_params):
+    async def get(self, organization_id, task_id, **url_params):
         """
         ---
         description: |
-            Get list of application runs
+            Get list of task runs
             Required permission: INFO_ORGANIZATION
         tags: [profiling_runs]
-        summary: List of application runs
+        summary: List of task runs
         parameters:
         -   name: organization_id
             in: path
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: path
-            description: Application id
+            description: Task id
             required: true
             type: string
         -   name: start_date
@@ -187,7 +187,7 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
             type: integer
         responses:
             200:
-                description: Application runs
+                description: Task runs
                 schema:
                     type: object
                     properties:
@@ -199,9 +199,9 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     id:
                                         type: string
                                         description: Run id
-                                    application_id:
+                                    task_id:
                                         type: string
-                                        description: App id
+                                        description: Task id
                                     start:
                                         type: integer
                                         description: Start time
@@ -262,10 +262,10 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
         self.check_date_arguments(dt_args)
         token = await self._get_profiling_token(organization_id)
         res = await run_task(
-            self.controller.list, organization_id, application_id, token,
+            self.controller.list, organization_id, task_id, token,
             **dt_args)
-        applications_dict = {'runs': res}
-        self.write(json.dumps(applications_dict, cls=ModelEncoder))
+        tasks_dict = {'runs': res}
+        self.write(json.dumps(tasks_dict, cls=ModelEncoder))
 
 
 class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
@@ -301,9 +301,9 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         id:
                             type: string
                             description: Run id
-                        application_id:
+                        task_id:
                             type: string
-                            description: App id
+                            description: Task id
                         start:
                             type: integer
                             description: Start time
@@ -327,9 +327,9 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                             description: List of executors
                             items:
                                 type: object
-                        goals:
+                        metrics:
                             type: array
-                            description: List of goals
+                            description: List of metrics
                             items:
                                 type: object
                         dataset:

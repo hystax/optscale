@@ -48,7 +48,7 @@ class TestProfilingBase(TestApiBase):
             '_id': str(uuid.uuid4()),
             'path': str(uuid.uuid4()),
             'name': f'Dataset {int(datetime.now(tz=timezone.utc).timestamp())}',
-            'description': 'Discovered in training <app_key> - <run_name>(<run_id>)',
+            'description': 'Discovered in training <task_key> - <run_name>(<run_id>)',
             'labels': ['test'],
             'created_at': int(datetime.now(tz=timezone.utc).timestamp()),
             'deleted_at': 0,
@@ -68,10 +68,10 @@ class TestProfilingBase(TestApiBase):
             dataset.update(kwargs)
         return dataset
 
-    def _gen_run(self, token, application_id, executor_ids, dataset_id, **kwargs):
+    def _gen_run(self, token, task_id, executor_ids, dataset_id, **kwargs):
         run = {
             '_id': str(uuid.uuid4()),
-            'application_id': application_id,
+            'task_id': task_id,
             'start': 1665523835,
             'finish': 1665527774,
             'state': 2,
@@ -88,21 +88,21 @@ class TestProfilingBase(TestApiBase):
             run.update(kwargs)
         return run
 
-    def _create_application(self, organization_id, owner_id, **kwargs):
-        app_obj = {
+    def _create_task(self, organization_id, owner_id, **kwargs):
+        task_obj = {
             'owner_id': owner_id,
-            'name': 'app_key',
-            'key': 'app_key',
-            'goals': []
+            'name': 'task_key',
+            'key': 'task_key',
+            'metrics': []
         }
         if kwargs:
-            app_obj.update(kwargs)
-        code, app = self.client.application_create(organization_id, app_obj)
+            task_obj.update(kwargs)
+        code, task = self.client.task_create(organization_id, task_obj)
         self.assertEqual(code, 201)
-        return app
+        return task
 
-    def _create_goal(self, organization_id, key, func='avg', **kwargs):
-        goal_obj = {
+    def _create_metric(self, organization_id, key, func='avg', **kwargs):
+        metric_obj = {
             'target_value': 0.7,
             'tendency': 'more',
             'name': key,
@@ -110,12 +110,12 @@ class TestProfilingBase(TestApiBase):
             'function': func
         }
         if kwargs:
-            goal_obj.update(kwargs)
-        code, goal = self.client.goal_create(organization_id, goal_obj)
+            metric_obj.update(kwargs)
+        code, metric = self.client.metric_create(organization_id, metric_obj)
         self.assertEqual(code, 201)
-        return goal
+        return metric
 
-    def _create_run(self, organization_id, application_id, executor_ids=None,
+    def _create_run(self, organization_id, task_id, executor_ids=None,
                     dataset_path=None, **kwargs):
         _, resp = self.client.profiling_token_get(organization_id)
         profiling_token = resp['token']
@@ -129,15 +129,15 @@ class TestProfilingBase(TestApiBase):
                 self._gen_dataset(profiling_token, path=dataset_path))
             dataset_id = res.inserted_id
         run = self._gen_run(
-            profiling_token, application_id, executor_ids, dataset_id, **kwargs)
+            profiling_token, task_id, executor_ids, dataset_id, **kwargs)
         self.mongo_client.arcee.runs.insert_one(run)
         return run
 
     def _create_log(self, run_id, time, data=None, **kwargs):
         r = {
             '_id': str(uuid.uuid4()),
-            'run': run_id,
-            'time': time,
+            'run_id': run_id,
+            'timestamp': time,
             'data': data
         }
         if kwargs:
@@ -211,8 +211,8 @@ class TestProfilingBase(TestApiBase):
 class ArceeMock:
     def __init__(self, mongo_cl, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.profiling_application = mongo_cl.arcee.applications
-        self.profiling_goals = mongo_cl.arcee.goals
+        self.profiling_task = mongo_cl.arcee.task
+        self.profiling_metrics = mongo_cl.arcee.metrics
         self.profiling_executors = mongo_cl.arcee.executors
         self.profiling_runs = mongo_cl.arcee.runs
         self.profiling_logs = mongo_cl.arcee.logs
@@ -223,6 +223,8 @@ class ArceeMock:
         self.profiling_leaderboard_datasets = mongo_cl.arcee.leaderboard_datasets
         self.profiling_datasets = mongo_cl.arcee.datasets
         self.profiling_consoles = mongo_cl.arcee.consoles
+        self.profiling_models = mongo_cl.arcee.models
+        self.profiling_model_versions = mongo_cl.arcee.model_versions
         self._token = None
 
     @staticmethod
@@ -239,22 +241,22 @@ class ArceeMock:
     def token(self, value):
         self._token = value
 
-    def _get_application_goals(self, goals):
-        db_goals = list(self.profiling_goals.find(
-            {'_id': {'$in': goals}, 'token': self.token}))
-        return db_goals
+    def _get_task_metrics(self, metrics):
+        db_metrics = list(self.profiling_metrics.find(
+            {'_id': {'$in': metrics}, 'token': self.token}))
+        return db_metrics
 
     def _get_run_executors(self, executors):
         db_executors = list(self.profiling_executors.find(
             {'instance_id': {'$in': executors}, 'token': self.token}))
         return db_executors
 
-    def _join_application_goals(self, app):
-        goals = app.get('goals')
-        application_goals = []
-        if isinstance(goals, list):
-            application_goals = self._get_application_goals(goals)
-        app['applicationGoals'] = application_goals
+    def _join_task_metrics(self, task):
+        metrics = task.get('metrics')
+        task_metrics = []
+        if isinstance(metrics, list):
+            task_metrics = self._get_task_metrics(metrics)
+        task['taskMetrics'] = task_metrics
 
     def _join_run_executors(self, run):
         executors = run.get('executors')
@@ -263,58 +265,58 @@ class ArceeMock:
             run_executors = self._get_run_executors(executors)
         run['runExecutors'] = run_executors
 
-    def application_create(self, application_key, owner_id, name=None,
-                           goals=None, description=None):
+    def task_create(self, task_key, owner_id, name=None,
+                    metrics=None, description=None):
         b = {
-            'key': application_key,
+            'key': task_key,
             'owner_id': owner_id,
             'name': name,
-            'goals': goals,
+            'metrics': metrics,
             'token': self.token,
             '_id': str(uuid.uuid4()),
             'deleted_at': 0,
             'description': description
         }
-        existing = list(self.profiling_application.find(
-            {'token': self.token, 'key': application_key, 'deleted_at': 0}))
+        existing = list(self.profiling_task.find(
+            {'token': self.token, 'key': task_key, 'deleted_at': 0}))
         if existing:
             self._raise_http_error(409)
-        inserted = self.profiling_application.insert_one(b)
-        result = list(self.profiling_application.find(
+        inserted = self.profiling_task.insert_one(b)
+        result = list(self.profiling_task.find(
             {'_id': inserted.inserted_id}))[0]
-        self._join_application_goals(result)
+        self._join_task_metrics(result)
         return 201, result
 
-    def applications_get(self):
-        applications = list(self.profiling_application.find(
+    def tasks_get(self):
+        tasks = list(self.profiling_task.find(
             {'token': self.token, 'deleted_at': 0}))
-        for a in applications:
-            self._join_application_goals(a)
-        return 200, applications
+        for a in tasks:
+            self._join_task_metrics(a)
+        return 200, tasks
 
-    def applications_bulk_get(self, application_ids, include_deleted=False):
+    def tasks_bulk_get(self, task_ids, include_deleted=False):
         q = {
             'token': self.token,
-            '_id': {'$in': application_ids},
+            '_id': {'$in': task_ids},
             'deleted_at': 0
         }
         if include_deleted:
             q.pop('deleted_at')
-        applications = list(self.profiling_application.find(q))
-        for a in applications:
-            self._join_application_goals(a)
-        return 200, applications
+        tasks = list(self.profiling_task.find(q))
+        for a in tasks:
+            self._join_task_metrics(a)
+        return 200, tasks
 
-    def application_get(self, id: str):
-        applications = list(self.profiling_application.find(
+    def task_get(self, id: str):
+        tasks = list(self.profiling_task.find(
             {'token': self.token, '_id': id, 'deleted_at': 0}))
-        if not applications:
+        if not tasks:
             self._raise_http_error(404)
-        self._join_application_goals(applications[0])
-        return 200, applications[0]
+        self._join_task_metrics(tasks[0])
+        return 200, tasks[0]
 
-    def application_update(self, application_id, owner_id=None, name=None,
-                           goals=None, **params):
+    def task_update(self, task_id, owner_id=None, name=None,
+                    metrics=None, **params):
         b = dict()
         if owner_id is not None:
             b.update({
@@ -324,15 +326,15 @@ class ArceeMock:
             b.update({
                 "name": name
             })
-        if goals is not None:
+        if metrics is not None:
             b.update({
-                "goals": goals
+                "metrics": metrics
             })
         b.update(params)
         if b:
-            self.profiling_application.update_one(
+            self.profiling_task.update_one(
                 filter={
-                    '_id': application_id,
+                    '_id': task_id,
                     'token': self.token,
                     'deleted_at': 0
                 },
@@ -340,8 +342,8 @@ class ArceeMock:
             )
         return 200, {'updated': bool(b)}
 
-    def application_delete(self, id):
-        res = self.profiling_application.update_one(
+    def task_delete(self, id):
+        res = self.profiling_task.update_one(
             {'token': self.token, '_id': id, 'deleted_at': 0},
             {'$set': {
                 'deleted_at': int(datetime.now(tz=timezone.utc).timestamp())
@@ -351,12 +353,12 @@ class ArceeMock:
             self._raise_http_error(404)
         return 204, None
 
-    def goals_get(self):
-        return 200, list(self.profiling_goals.find(
+    def metrics_get(self):
+        return 200, list(self.profiling_metrics.find(
             {'token': self.token}))
 
-    def goals_create(self, key, target_value, tendency, name, func):
-        existing = list(self.profiling_goals.find(
+    def metrics_create(self, key, target_value, tendency, name, func):
+        existing = list(self.profiling_metrics.find(
             {'token': self.token, 'key': key}))
         if existing:
             self._raise_http_error(409)
@@ -369,12 +371,12 @@ class ArceeMock:
             'token': self.token,
             '_id': str(uuid.uuid4())
         }
-        inserted = self.profiling_goals.insert_one(b)
-        return 201, list(self.profiling_goals.find(
+        inserted = self.profiling_metrics.insert_one(b)
+        return 201, list(self.profiling_metrics.find(
             {'_id': inserted.inserted_id}))[0]
 
-    def goals_update(self, goal_id, target_value=None, tendency=None,
-                     name=None, func=None):
+    def metrics_update(self, metric_id, target_value=None, tendency=None,
+                       name=None, func=None):
 
         b = dict()
         if target_value is not None:
@@ -393,37 +395,37 @@ class ArceeMock:
             b.update({
                 "func": func,
             })
-        self.profiling_goals.update_one(
+        self.profiling_metrics.update_one(
             filter={
-                '_id': goal_id,
+                '_id': metric_id,
                 'token': self.token
             },
             update={'$set': b}
         )
         return 200, {'updated': True}
 
-    def goal_get(self, goal_id):
-        goals = list(self.profiling_goals.find(
-            {'token': self.token, '_id': goal_id}))
-        if not goals:
+    def metric_get(self, metric_id):
+        metrics = list(self.profiling_metrics.find(
+            {'token': self.token, '_id': metric_id}))
+        if not metrics:
             self._raise_http_error(404)
-        return 200, goals[0]
+        return 200, metrics[0]
 
-    def goal_delete(self, goal_id):
-        res = self.profiling_goals.delete_one(
-            {'token': self.token, '_id': goal_id})
+    def metric_delete(self, metric_id):
+        res = self.profiling_metrics.delete_one(
+            {'token': self.token, '_id': metric_id})
         if res.deleted_count == 0:
             self._raise_http_error(404)
         return 204, None
 
     def executors_breakdown_get(self):
-        application_ids = self.profiling_application.distinct(
+        task_ids = self.profiling_task.distinct(
             "_id", {"token": self.token, "deleted_at": 0})
-        if not application_ids:
+        if not task_ids:
             return 200, {}
 
         pipeline = [
-            {"$match": {"application_id": {"$in": application_ids}}},
+            {"$match": {"task_id": {"$in": task_ids}}},
             {"$project": {
                 "_id": 0,
                 "timestamp": "$start",
@@ -447,8 +449,8 @@ class ArceeMock:
                 breakdown[ts] = len(set(ts_executors.get(ts, [])))
         return 200, breakdown
 
-    def executors_get(self, applications_ids=None, run_ids=None):
-        if not applications_ids and not run_ids:
+    def executors_get(self, tasks_ids=None, run_ids=None):
+        if not tasks_ids and not run_ids:
             self._raise_http_error(400)
         match = {
             '$or': [],
@@ -456,15 +458,15 @@ class ArceeMock:
         }
         if run_ids:
             match['$or'].append({'_id': {'$in': run_ids}})
-        if applications_ids:
+        if tasks_ids:
             match['$or'].append(
-                {'application_id': {'$in': applications_ids}})
+                {'task_id': {'$in': tasks_ids}})
         runs = self.profiling_runs.find(match)
-        app_runs_map = defaultdict(list)
+        task_runs_map = defaultdict(list)
         for r in runs:
-            app_runs_map[r['application_id']].append(r)
+            task_runs_map[r['task_id']].append(r)
         result = []
-        for app_id, runs in app_runs_map.items():
+        for task_id, runs in task_runs_map.items():
             executors = set()
             for r in runs:
                 executors.update(r.get('executors', []))
@@ -486,10 +488,10 @@ class ArceeMock:
                 self._raise_http_error(403)
         run = runs[0]
         self._join_run_executors(run)
-        application = list(self.profiling_application.find({
-            'token': self.token, '_id': run['application_id'], 'deleted_at': 0
+        task = list(self.profiling_task.find({
+            'token': self.token, '_id': run['task_id'], 'deleted_at': 0
         }))[0]
-        run['application'] = application
+        run['task'] = task
         return 200, run
 
     def runs_bulk_get(self, runset_ids=None):
@@ -499,11 +501,11 @@ class ArceeMock:
         runs = list(self.profiling_runs.find(runs_q))
         return 200, runs
 
-    def applications_runs_get(self, application_id):
-        _, app = self.application_get(application_id)
+    def tasks_runs_get(self, task_id):
+        _, task = self.task_get(task_id)
         runs = list(self.profiling_runs.find({
             'token': self.token,
-            'application_id': app['_id']
+            'task_id': task['_id']
         }))
         return 200, runs
 
@@ -515,7 +517,7 @@ class ArceeMock:
 
     def run_logs_get(self, run_id):
         logs = list(self.profiling_logs.find({
-            'run': run_id
+            'run_id': run_id
         }))
         return 200, logs
 
@@ -523,12 +525,12 @@ class ArceeMock:
         run = self.profiling_runs.find_one({"_id": run_id})
         if not run:
             self._raise_http_error(404)
-        app = self.profiling_application.find_one({
-            "_id": run["application_id"],
+        task = self.profiling_task.find_one({
+            "_id": run["task_id"],
             "token": self.token,
             "deleted_at": 0
         })
-        if not app:
+        if not task:
             self._raise_http_error(403)
         self.profiling_runs.delete_one({'_id': run_id})
         return 204, None
@@ -551,22 +553,22 @@ class ArceeMock:
         }))
         return 200, proc_data
 
-    def leaderboards_create(self, application_id, primary_goal, grouping_tags,
-                            other_goals=None,
+    def leaderboards_create(self, task_id, primary_metric, grouping_tags,
+                            other_metrics=None,
                             filters=None, group_by_hp=True):
         existing = list(self.profiling_leaderboards.find(
-            {'token': self.token, 'application_id': application_id,
+            {'token': self.token, 'task_id': task_id,
              'deleted_at': 0}))
         if existing:
             self._raise_http_error(409)
-        if other_goals is None:
-            other_goals = []
+        if other_metrics is None:
+            other_metrics = []
         if filters is None:
             filters = []
         leaderboard = {
-            "application_id": application_id,
-            "primary_goal": primary_goal,
-            "other_goals": other_goals,
+            "task_id": task_id,
+            "primary_metric": primary_metric,
+            "other_metrics": other_metrics,
             "filters": filters,
             "grouping_tags": grouping_tags,
             "group_by_hp": group_by_hp,
@@ -646,26 +648,26 @@ class ArceeMock:
         # just interface test
         return 200, []
 
-    def runs_bulk_get_by_ids(self, application_id, run_ids):
+    def runs_bulk_get_by_ids(self, task_id, run_ids):
         if not run_ids:
             self._raise_http_error(400)
-        runs_q = {'application_id': application_id,
+        runs_q = {'task_id': task_id,
                   '_id': {'$in': run_ids}}
         runs = list(self.profiling_runs.find(runs_q))
         return 200, runs
 
-    def leaderboard_update(self, application_id, primary_goal=None,
-                           grouping_tags=None, other_goals=None, filters=None,
+    def leaderboard_update(self, task_id, primary_metric=None,
+                           grouping_tags=None, other_metrics=None, filters=None,
                            group_by_hp=None):
         leaderboard = self.profiling_leaderboards.find_one(
-            {'token': self.token, 'application_id': application_id,
+            {'token': self.token, 'task_id': task_id,
              'deleted_at': 0})
         if not leaderboard:
             self._raise_http_error(404)
         for key, param in {
-            'primary_goal': primary_goal,
+            'primary_metric': primary_metric,
             'grouping_tags': grouping_tags,
-            'other_goals': other_goals,
+            'other_metrics': other_metrics,
             'filters': filters,
             'group_by_hp': group_by_hp
         }.items():
@@ -692,23 +694,23 @@ class ArceeMock:
         datasets = list(self.profiling_leaderboard_datasets.find(match_filter))
         return 200, datasets
 
-    def leaderboard_get(self, application_id):
+    def leaderboard_get(self, task_id):
         leaderboards = list(self.profiling_leaderboards.find(
-            {'token': self.token, 'application_id': application_id,
+            {'token': self.token, 'task_id': task_id,
              'deleted_at': 0}))
         if not leaderboards:
             return 200, {}
         return 200, leaderboards[0]
 
-    def leaderboard_delete(self, application_id):
+    def leaderboard_delete(self, task_id):
         res = self.profiling_leaderboards.delete_one(
-            {'token': self.token, 'application_id': application_id,
+            {'token': self.token, 'task_id': task_id,
              'deleted_at': 0})
         if res.deleted_count == 0:
             self._raise_http_error(404)
         return 204, None
 
-    def leaderboard_details_get(self, application_id):
+    def leaderboard_details_get(self, task_id):
         # TODO: implement leaderboard details
         return 200, {}
 
@@ -812,3 +814,150 @@ class ArceeMock:
         if not consoles:
             self._raise_http_error(404)
         return 200, consoles[0]
+
+    def model_create(self, key, name=None, tags=None, description=None):
+        b = {
+            'key': key,
+            'name': name,
+            'tags': tags,
+            'token': self.token,
+            '_id': str(uuid.uuid4()),
+            'description': description,
+            'created_at': int(datetime.now(tz=timezone.utc).timestamp())
+        }
+        existing = list(self.profiling_models.find(
+            {'token': self.token, 'key': key}))
+        if not existing:
+            inserted = self.profiling_models.insert_one(b)
+            id_ = inserted.inserted_id
+        else:
+            id_ = existing[0]['_id']
+        result = self.profiling_models.find_one(
+            {'_id': id_})
+        return 201, result
+
+    def models_get(self):
+        models = list(self.profiling_models.find({'token': self.token}))
+        for model in models:
+            model['last_version'] = {}
+            model['aliased_versions'] = []
+            last_version = list(self.profiling_model_versions.find(
+                {'model_id': model['_id'], 'deleted_at': 0}).sort(
+                [('created_at', -1)]).limit(1))
+            if last_version:
+                model['last_version'] = last_version[0]
+            aliased_versions = list(self.profiling_model_versions.find(
+                {'model_id': model['_id'],
+                 'deleted_at': 0,
+                 'aliases': {'$ne': []}}).sort([('created_at', -1)]).limit(5))
+            if aliased_versions:
+                aliased_versions_list = []
+                for version in aliased_versions:
+                    for alias in version['aliases']:
+                        if len(aliased_versions_list) < 5:
+                            n_version = version.copy()
+                            n_version['alias'] = alias
+                            aliased_versions_list.append(n_version)
+                model['aliased_versions'] = aliased_versions
+        return 200, models
+
+    def model_get(self, model_id: str):
+        models = list(self.profiling_models.find(
+            {'token': self.token, '_id': model_id}))
+        if not models:
+            self._raise_http_error(404)
+        versions = list(self.profiling_model_versions.find(
+            {'model_id': model_id}))
+        model = models[0]
+        model['versions'] = versions
+        return 200, model
+
+    def model_update(self, model_id, **params):
+        model = list(self.profiling_models.find(
+            {'token': self.token, '_id': model_id}))
+        if not model:
+            self._raise_http_error(404)
+        if params:
+            if 'key' in params:
+                key = params['key']
+                model = list(self.profiling_models.find(
+                    {'token': self.token,
+                     'key': key,
+                     '_id': {'$ne': model_id}}))
+                if model:
+                    self._raise_http_error(409)
+            self.profiling_models.update_one(
+                filter={
+                    '_id': model_id,
+                    'token': self.token
+                },
+                update={'$set': params}
+            )
+        model = self.profiling_models.find_one(
+            {'token': self.token, '_id': model_id})
+        return 200, model
+
+    def model_delete(self, model_id):
+        model = list(self.profiling_models.find(
+            {'token': self.token, '_id': model_id}))
+        if not model:
+            self._raise_http_error(404)
+        self.profiling_models.delete_one(
+            {'token': self.token, '_id': model_id})
+        return 204, None
+
+    def model_version_create(self, model_id, run_id, **params):
+        b = {
+            'model_id': model_id,
+            'run_id': run_id,
+            '_id': str(uuid.uuid4()),
+            'deleted_at': 0,
+            'created_at': int(datetime.now(tz=timezone.utc).timestamp())
+        }
+        b.update(params)
+        version = self.profiling_model_versions.find_one(
+            {'model_id': model_id, 'run_id': run_id})
+        if version:
+            self._raise_http_error(409)
+        inserted = self.profiling_model_versions.insert_one(b)
+        result = self.profiling_model_versions.find_one(
+            {'_id': inserted.inserted_id})
+        return 201, result
+
+    def model_version_update(self, model_id, run_id, **params):
+        version = self.profiling_model_versions.find_one(
+            {'model_id': model_id, 'run_id': run_id})
+        if not version:
+            self._raise_http_error(404)
+        self.profiling_model_versions.update_one(
+            filter={
+                '_id': version['_id']
+            },
+            update={'$set': params}
+        )
+        model = self.profiling_model_versions.find_one({'_id': version['_id']})
+        return 200, model
+
+    def model_version_delete(self, model_id, run_id):
+        model_version = list(self.profiling_model_versions.find(
+            {'model_id': model_id, 'run_id': run_id}))
+        if not model_version:
+            self._raise_http_error(404)
+        self.profiling_model_versions.delete_one(
+            {'token': self.token, '_id': model_version[0]['_id']})
+        return 204, None
+
+    def model_versions_by_task(self, task_id):
+        runs = [x for x in self.profiling_runs.find(
+                {'task_id': task_id},
+                {'_id': 1, 'name': 1, 'number': 1})]
+        runs_map = {x['_id']: x for x in runs}
+        if not runs_map:
+            return 200, []
+        versions = list(self.profiling_model_versions.find(
+            {'run_id': {'$in': list(runs_map.keys())}}))
+        for version in versions:
+            version['run'] = runs_map.get(version['run_id'], {})
+            version.pop('run_id', None)
+            version.pop('model_id', None)
+        return 200, versions

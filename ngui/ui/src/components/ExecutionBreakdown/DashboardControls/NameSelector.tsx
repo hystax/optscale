@@ -1,7 +1,7 @@
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import { FormattedMessage } from "react-intl";
 import Selector, { Item, ItemContent, Title } from "components/Selector";
-import { DEFAULT_DASHBOARD } from "hooks/useModelRunChartState";
+import { DEFAULT_DASHBOARD } from "hooks/useTaskRunChartState";
 
 export const DEFAULT_ID = "default";
 

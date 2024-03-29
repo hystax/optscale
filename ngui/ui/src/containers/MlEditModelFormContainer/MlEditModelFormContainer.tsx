@@ -1,43 +1,41 @@
 import { useNavigate, useParams } from "react-router-dom";
-import MlEditModelForm from "components/MlEditModelForm";
-import EmployeesService from "services/EmployeesService";
-import MlModelsService from "services/MlModelsService";
-import { getMlModelDetailsUrl } from "urls";
-import { ML_MODEL_DETAILS_TAB_NAME } from "utils/constants";
-import { getQueryParams } from "utils/network";
+import { MlEditModelForm } from "components/MlModelForm";
+import MlModelsService, { EditModelApiParams, ModelDetails } from "services/MlModelsService";
+import { getMlModelUrl } from "urls";
 
-const MlEditModelFormContainer = ({ model }) => {
-  const { taskId } = useParams();
+type MlUpdateModelFormContainerProps = {
+  model: ModelDetails;
+  isModelLoading: boolean;
+};
+
+const MlEditModelFormContainer = ({ model, isModelLoading }: MlUpdateModelFormContainerProps) => {
+  const { modelId } = useParams() as { modelId: string };
   const navigate = useNavigate();
 
-  const { useUpdateModel } = MlModelsService();
-  const { onUpdate, isLoading } = useUpdateModel();
+  const { useUpdate } = MlModelsService();
+  const { isLoading: isUpdateLoading, onUpdate } = useUpdate();
 
-  const { useGet: useGetEmployees } = EmployeesService();
-  const { isLoading: isGetEmployeesLoading, employees } = useGetEmployees();
+  const redirect = () => navigate(getMlModelUrl(modelId));
 
-  const redirectToModelDetails = () => {
-    const { [ML_MODEL_DETAILS_TAB_NAME]: taskDetailsTab } = getQueryParams();
-
-    return navigate(`${getMlModelDetailsUrl(taskId)}?${ML_MODEL_DETAILS_TAB_NAME}=${taskDetailsTab}`);
-  };
-
-  const onSubmit = (formData) => {
-    onUpdate(taskId, formData).then(() => {
-      redirectToModelDetails();
-    });
-  };
-
-  const onCancel = () => redirectToModelDetails();
+  const onCancel = () => redirect();
 
   return (
     <MlEditModelForm
-      model={model}
-      onSubmit={onSubmit}
+      onSubmit={(formData) => {
+        const params: EditModelApiParams = {
+          name: formData.name,
+          description: formData.description,
+          tags: Object.fromEntries(formData.tags.map(({ key, value }) => [key, value]))
+        };
+
+        return onUpdate(modelId, params).then(() => redirect());
+      }}
       onCancel={onCancel}
-      employees={employees}
-      isGetEmployeesLoading={isGetEmployeesLoading}
-      isSubmitLoading={isLoading}
+      model={model}
+      isLoadingProps={{
+        isGetDataLoading: isModelLoading,
+        isSubmitLoading: isUpdateLoading
+      }}
     />
   );
 };

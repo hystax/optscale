@@ -65,26 +65,26 @@ class TestInfrastructureBase(TestApiBase):
             self.organization_id, config, auth_user_id=auth_user)
         self.cloud_account_id = cloud_acc['id']
 
-        self.valid_goal = {
+        self.valid_metric = {
             'target_value': 0.7,
             'tendency': 'more',
             'name': 'loss',
             'key': 'loss',
             'function': 'avg'
         }
-        _, goal = self.client.goal_create(
-            self.organization_id, self.valid_goal)
-        self.valid_application = {
+        _, metric = self.client.metric_create(
+            self.organization_id, self.valid_metric)
+        self.valid_task = {
             'name': 'Test project',
             'key': 'test_project',
-            'goals': [goal['id']]
+            'metrics': [metric['id']]
         }
-        _, app = self.client.application_create(
-            self.organization_id, self.valid_application)
-        self.application_id = app['id']
+        _, task = self.client.task_create(
+            self.organization_id, self.valid_task)
+        self.task_id = task['id']
         self.valid_template = {
             'name': 'Test project template',
-            'application_ids': [self.application_id],
+            'task_ids': [self.task_id],
             'cloud_account_ids': [self.cloud_account_id],
             'region_ids': ['us-east-1', 'us-west-1'],
             'instance_types': ['p4', 'p3', 'p2', 'm5'],
@@ -100,7 +100,7 @@ class TestInfrastructureBase(TestApiBase):
             },
         }
         self.valid_runset = {
-            'application_id': self.application_id,
+            'task_id': self.task_id,
             'cloud_account_id': self.cloud_account_id,
             'region_id': 'us-east-1',
             'instance_type': 'm5',
@@ -151,7 +151,7 @@ class TestInfrastructureBase(TestApiBase):
             '_id': str(uuid.uuid4()),
             'path': str(uuid.uuid4()),
             'name': f'Dataset {datetime.datetime.utcnow().timestamp()}',
-            'description': 'Discovered in training <app_key> - <run_name>(<run_id>)',
+            'description': 'Discovered in training <task_key> - <run_name>(<run_id>)',
             'labels': ['test'],
             'created_at': int(datetime.datetime.utcnow().timestamp()),
             'deleted_at': 0,
@@ -171,11 +171,11 @@ class TestInfrastructureBase(TestApiBase):
             dataset.update(kwargs)
         return dataset
 
-    def _gen_run(self, token, application_id, runset_id,
+    def _gen_run(self, token, task_id, runset_id,
                  executor_ids, dataset_id, **kwargs):
         run = {
             '_id': str(uuid.uuid4()),
-            'application_id': application_id,
+            'task_id': task_id,
             'runset_id': runset_id,
             'start': 1665523835,
             'finish': 1665527774,
@@ -195,7 +195,7 @@ class TestInfrastructureBase(TestApiBase):
             run.update(kwargs)
         return run
 
-    def _create_run(self, organization_id, application_id, runset_id,
+    def _create_run(self, organization_id, task_id, runset_id,
                     executor_ids=None, dataset_path=None, **kwargs):
         _, resp = self.client.profiling_token_get(organization_id)
         profiling_token = resp['token']
@@ -209,7 +209,7 @@ class TestInfrastructureBase(TestApiBase):
                 self._gen_dataset(profiling_token, path=dataset_path))
             dataset_id = res.inserted_id
         run = self._gen_run(
-            profiling_token, application_id, runset_id,
+            profiling_token, task_id, runset_id,
             executor_ids, dataset_id, **kwargs)
         self.mongo_client.arcee.runs.insert_one(run)
         return run
@@ -281,12 +281,12 @@ class BulldozerMock:
     def token_create(self, token):
         return 200, {}
 
-    def template_create(self, name, application_ids, cloud_account_ids,
+    def template_create(self, name, task_ids, cloud_account_ids,
                         region_ids, instance_types, budget, name_prefix,
                         tags, hyperparameters):
         b = {
             "name": name,
-            "application_ids": application_ids,
+            "task_ids": task_ids,
             "cloud_account_ids": cloud_account_ids,
             "region_ids": region_ids,
             "instance_types": instance_types,
@@ -315,14 +315,14 @@ class BulldozerMock:
         return 200, templates[0]
 
     def template_update(
-            self, id_, name=None, application_ids=None, cloud_account_ids=None,
+            self, id_, name=None, task_ids=None, cloud_account_ids=None,
             region_ids=None, instance_types=None, budget=None,
             name_prefix=None, tags=None, hyperparameters=None):
         b = dict()
         if name is not None:
             b.update({"name": name})
-        if application_ids is not None:
-            b.update({"application_ids": application_ids})
+        if task_ids is not None:
+            b.update({"task_ids": task_ids})
         if cloud_account_ids is not None:
             b.update({"cloud_account_ids": cloud_account_ids})
         if region_ids is not None:
@@ -357,14 +357,14 @@ class BulldozerMock:
             self._raise_http_error(404)
         return 204, None
 
-    def runset_create(self, template_id, application_id, cloud_account_id,
+    def runset_create(self, template_id, task_id, cloud_account_id,
                       region_id, instance_type, name_prefix, owner_id,
                       hyperparameters, tags, destroy_conditions, commands,
                       open_ingress=False, spot_settings=None):
         now = int(datetime.datetime.utcnow().timestamp())
         b = {
             "template_id": template_id,
-            "application_id": application_id,
+            "task_id": task_id,
             "cloud_account_id": cloud_account_id,
             "region_id": region_id,
             "instance_type": instance_type,

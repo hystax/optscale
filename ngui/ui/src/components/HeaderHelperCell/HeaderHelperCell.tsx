@@ -8,7 +8,7 @@ type TitleType = { title: ReactNode; titleMessageId?: never } | { title?: never;
 type HeaderHelperCellProps = {
   helperMessageId: string;
   titleDataTestId?: string;
-  helperMessageValues?: { [key: string]: string };
+  helperMessageValues?: { [key: string]: ReactNode };
   onTooltipTitleClick?: () => void;
 } & TitleType;
 

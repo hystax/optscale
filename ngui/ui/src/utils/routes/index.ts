@@ -18,7 +18,7 @@ import createBIExportRoute from "./createBIExportRoute";
 import createClusterTypeRoute from "./createClusterTypeRoute";
 import createDataSourceRoute from "./createDataSourceRoute";
 import createEnvironmentRoute from "./createEnvironmentRoute";
-import createMlModelParameterRoute from "./createMlModelParameterRoute";
+import createMlTaskMetricRoute from "./createMlTaskMetricRoute";
 import createPoolPolicyRoute from "./createPoolPolicyRoute";
 import createPowerScheduleRoute from "./createPowerScheduleRoute";
 import createQuotaAndBudgetPolicyRoute from "./createQuotaAndBudgetPolicyRoute";
@@ -28,7 +28,7 @@ import dataSourceOverviewRoute from "./dataSourceOverviewRoute";
 import dataSourcesRoute from "./dataSourcesRoute";
 import editAssignmentRuleRoute from "./editAssignmentRuleRoute";
 import editBIExportRoute from "./editBIExportRoute";
-import editMlModelParameterRoute from "./editMlModelParameterRoute";
+import editMlTaskMetricRoute from "./editMlTaskMetricRoute";
 import editPowerScheduleRoute from "./editPowerScheduleRoute";
 import environmentsRoute from "./environmentsRoute";
 import eventsRoute from "./eventsRoute";
@@ -42,22 +42,26 @@ import inviteEmployeesRoute from "./inviteEmployeesRoute";
 import k8sRightsizingRoute from "./k8sRightsizingRoute";
 import liveDemoRoute from "./liveDemoRoute";
 import loginRoute from "./loginRoute";
+import mlModelCreateRoute from "./mlCreateModelRoute";
 import mlDatasetCreateRoute from "./mlDatasetCreateRoute";
 import mlDatasetEditRoute from "./mlDatasetEditRoute";
 import mlDatasetsRoute from "./mlDatasetsRoute";
 import mlEditModelRoute from "./mlEditModelRoute";
+import mlEditTaskRoute from "./mlEditTaskRoute";
 import mlExecutorsRoute from "./mlExecutorsRoute";
-import mlModelCreateRoute from "./mlModelCreateRoute";
-import mlModelDetailsRoute from "./mlModelDetailsRoute";
-import mlModelGlobalParametersRoute from "./mlModelGlobalParametersRoute";
+import mlModel from "./mlModel";
 import mlModelsRoute from "./mlModelsRoute";
-import mlModuleRunRoute from "./mlModuleRunRoute";
 import mlRunsetConfiguration from "./mlRunsetConfiguration";
 import mlRunsetOverview from "./mlRunsetOverview";
 import mlRunsetsRoute from "./mlRunsetsRoute";
 import mlRunsetTemplateCreateRoute from "./mlRunsetTemplateCreateRoute";
 import mlRunsetTemplateEditRoute from "./mlRunsetTemplateEditRoute";
 import mlRunsetTemplateRoute from "./mlRunsetTemplateRoute";
+import mlTaskCreateRoute from "./mlTaskCreateRoute";
+import mlTaskDetailsRoute from "./mlTaskDetailsRoute";
+import mlTaskGlobalMetricsRoute from "./mlTaskGlobalMetricsRoute";
+import mlTaskRunRoute from "./mlTaskRunRoute";
+import mlTasksRoute from "./mlTasksRoute";
 import notFoundRoute from "./notFoundRoute";
 import organizationOptionsRoute from "./organizationOptionsRoute";
 import organizationsOverviewRoute from "./organizationsOverviewRoute";
@@ -144,19 +148,19 @@ export const routes = [
   resourceLifecycleRoute,
   createPoolPolicyRoute,
   themeSettingsRoute,
-  createMlModelParameterRoute,
-  editMlModelParameterRoute,
-  mlEditModelRoute,
+  createMlTaskMetricRoute,
+  editMlTaskMetricRoute,
+  mlEditTaskRoute,
   mlExecutorsRoute,
   mlRunsetsRoute,
-  mlModelCreateRoute,
+  mlTaskCreateRoute,
   mlDatasetsRoute,
   mlDatasetCreateRoute,
   mlDatasetEditRoute,
-  mlModelDetailsRoute,
-  mlModuleRunRoute,
-  mlModelGlobalParametersRoute,
-  mlModelsRoute,
+  mlTaskDetailsRoute,
+  mlTaskRunRoute,
+  mlTaskGlobalMetricsRoute,
+  mlTasksRoute,
   mlRunsetTemplateCreateRoute,
   mlRunsetConfiguration,
   mlRunsetOverview,
@@ -174,6 +178,10 @@ export const routes = [
   powerScheduleDetailsRoute,
   setupLeaderboardRoute,
   editPowerScheduleRoute,
+  mlModelsRoute,
+  mlModelCreateRoute,
+  mlModel,
+  mlEditModelRoute,
   // React router 6.x does not require the not found route (*) to be at the end,
   // but the matchPath hook that is used in the DocsPanel component seems to honor the order.
   // Moving it to the bottom for "safety" reasons.

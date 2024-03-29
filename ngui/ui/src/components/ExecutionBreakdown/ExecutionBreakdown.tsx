@@ -18,8 +18,8 @@ import { RenameMlRunChartModal, SelectStageOrMilestoneModal } from "components/S
 import TypographyLoader from "components/TypographyLoader";
 import { ChartsTooltipContextProvider } from "contexts/ChartsTooltipContext";
 import { BREAKDOWN_LINE_UNIT } from "hooks/useMlBreakdownLines";
-import { GRID_TYPES, useModelRunChartState } from "hooks/useModelRunChartState";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
+import { GRID_TYPES, useTaskRunChartState } from "hooks/useTaskRunChartState";
 import { getColorsMap } from "utils/charts";
 import { SPACING_1, SPACING_2, SPACING_4 } from "utils/layouts";
 import ChartContainer from "./ChartContainer";
@@ -268,7 +268,7 @@ const ExecutionBreakdown = ({ breakdown, milestones, reachedGoals = {}, taskId }
     disableTooltipSync,
     updateGridType,
     isLoadingProps
-  } = useModelRunChartState({
+  } = useTaskRunChartState({
     taskId,
     implementedMetricsBreakdownNames,
     breakdownNames

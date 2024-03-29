@@ -6,7 +6,8 @@ from tools.optscale_exceptions.common_exc import (
 
 from rest_api.rest_api_server.controllers.profiling.base import (
     BaseProfilingController, format_dataset)
-from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
+from rest_api.rest_api_server.controllers.base_async import (
+    BaseAsyncControllerWrapper)
 from rest_api.rest_api_server.exceptions import Err
 
 
@@ -20,11 +21,13 @@ class LeaderboardDatasetController(BaseProfilingController):
 
     def create(self, leaderboard_id, profiling_token, **kwargs):
         try:
-            leaderboard_dataset = self.create_leaderboard_dataset(profiling_token, leaderboard_id, **kwargs)
+            leaderboard_dataset = self.create_leaderboard_dataset(
+                profiling_token, leaderboard_id, **kwargs)
             return leaderboard_dataset
         except HTTPError as ex:
             if ex.response.status_code == 404:
-                raise NotFoundException(Err.OE0002, ['Leaderboard', leaderboard_id])
+                raise NotFoundException(
+                    Err.OE0002, ['Leaderboard', leaderboard_id])
             raise
 
     def get(self, leaderboard_dataset_id, profiling_token, details=False):
@@ -47,12 +50,14 @@ class LeaderboardDatasetController(BaseProfilingController):
         return leaderboard_dataset
 
     def _get_details(self, leaderboard_dataset_id, profiling_token):
-        resp = self.get_leaderboard_dataset_details(profiling_token, leaderboard_dataset_id)
+        resp = self.get_leaderboard_dataset_details(
+            profiling_token, leaderboard_dataset_id)
         return resp
 
     def edit(self, leaderboard_dataset_id, profiling_token, **kwargs):
         try:
-            self.update_leaderboard_dataset(profiling_token, leaderboard_dataset_id, **kwargs)
+            self.update_leaderboard_dataset(
+                profiling_token, leaderboard_dataset_id, **kwargs)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name,
@@ -61,7 +66,8 @@ class LeaderboardDatasetController(BaseProfilingController):
 
     def delete(self, leaderboard_dataset_id, profiling_token):
         try:
-            self.delete_leaderboard_dataset(profiling_token, leaderboard_dataset_id)
+            self.delete_leaderboard_dataset(
+                profiling_token, leaderboard_dataset_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name, id])
@@ -69,7 +75,8 @@ class LeaderboardDatasetController(BaseProfilingController):
 
     def generate(self, leaderboard_dataset_id, profiling_token):
         try:
-            return self.generate_leaderboard(profiling_token, leaderboard_dataset_id)
+            return self.generate_leaderboard(
+                profiling_token, leaderboard_dataset_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name, id])
@@ -77,7 +84,8 @@ class LeaderboardDatasetController(BaseProfilingController):
 
     def list(self, leaderboard_id, profiling_token):
         try:
-            return self.list_leaderboard_dataset(profiling_token, leaderboard_id)
+            return self.list_leaderboard_dataset(
+                profiling_token, leaderboard_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name, id])

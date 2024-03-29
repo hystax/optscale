@@ -1,8 +1,7 @@
 import json
 import logging
-import os
 from abc import ABCMeta
-from typing import Optional, Any, List
+from typing import Optional, List
 from urllib.parse import urlencode
 
 import requests
@@ -71,7 +70,8 @@ class RequestsHttpProvider(AbstractHttpProvider):
     def request(self, path, method, data=None):
         full_url = self.url + path
         response = self.session.request(method, full_url, data=data,
-                                        headers=self.headers, verify=self.verify)
+                                        headers=self.headers,
+                                        verify=self.verify)
         response.raise_for_status()
         response_body = None
         if response.status_code != requests.codes.no_content:
@@ -83,7 +83,8 @@ class RequestsHttpProvider(AbstractHttpProvider):
 
 
 class FetchMethodHttpProvider(AbstractHttpProvider):
-    def __init__(self, fetch_method, rethrow=True, token='', secret='', ip=None):
+    def __init__(self, fetch_method, rethrow=True, token='', secret='',
+                 ip=None):
         self.fetch = fetch_method
         self._rethrow = rethrow
         super().__init__(token, secret, ip)
@@ -108,11 +109,13 @@ class FetchMethodHttpProvider(AbstractHttpProvider):
 
 class Client:
     def __init__(self, address="127.0.0.1", port="80", api_version="v2",
-                 url=None, http_provider=None, token='', secret='', verify=True, ip=None):
+                 url=None, http_provider=None, token='', secret='',
+                 verify=True, ip=None):
         if http_provider is None:
             if url is None:
                 url = "http://%s:%s" % (address, port)
-            http_provider = RequestsHttpProvider(url, token, secret, verify, ip)
+            http_provider = RequestsHttpProvider(url, token, secret, verify,
+                                                 ip)
         self._http_provider = http_provider
         self._api_version = api_version
 
@@ -162,15 +165,15 @@ class Client:
         return "?" + encoded_query
 
     @staticmethod
-    def applications_url(id=None):
-        url = 'applications'
+    def tasks_url(id=None):
+        url = 'tasks'
         if id is not None:
             url = '%s/%s' % (url, id)
         return url
 
     @staticmethod
-    def goals_url(id=None):
-        url = 'goals'
+    def metrics_url(id=None):
+        url = 'metrics'
         if id is not None:
             url = '%s/%s' % (url, id)
         return url
@@ -202,8 +205,8 @@ class Client:
         return "run/executors"
 
     @staticmethod
-    def leaderboards_url(application_id):
-        return '%s/leaderboards' % Client.applications_url(application_id)
+    def leaderboards_url(task_id):
+        return '%s/leaderboards' % Client.tasks_url(task_id)
 
     @staticmethod
     def datasets_url(id_=None):
@@ -238,16 +241,29 @@ class Client:
     def consoles_url(run_id):
         return '%s/consoles' % Client.run_url(run_id)
 
-    def goals_get(self):
+    @staticmethod
+    def models_url(model_id=None):
+        url = 'models'
+        if model_id:
+            url = '%s/%s' % (url, model_id)
+        return url
+
+    def model_runs_url(self, model_id, run_id):
+        return '%s/runs/%s' % (self.models_url(model_id), run_id)
+
+    def model_versions_url(self, task_id):
+        return '%s/model_versions' % (self.tasks_url(task_id))
+
+    def metrics_get(self):
         """
-        Get goals
+        Get metrics
         :return:
         """
-        return self.get(self.goals_url())
+        return self.get(self.metrics_url())
 
-    def goals_create(self, key, target_value, tendency, name, func):
+    def metrics_create(self, key, target_value, tendency, name, func):
         """
-        Creates goal
+        Creates metric
         """
         b = {
             "key": key,
@@ -256,9 +272,10 @@ class Client:
             "name": name,
             "func": func
         }
-        return self.post(self.goals_url(), b)
+        return self.post(self.metrics_url(), b)
 
-    def goals_update(self, goal_id, target_value=None, tendency=None, name=None, func=None):
+    def metrics_update(self, metric_id, target_value=None, tendency=None,
+                       name=None, func=None):
         b = dict()
         if target_value is not None:
             b.update({
@@ -276,56 +293,57 @@ class Client:
             b.update({
                 "func": func,
             })
-        return self.patch(self.goals_url(goal_id), b)
+        return self.patch(self.metrics_url(metric_id), b)
 
-    def goal_get(self, goal_id):
+    def metric_get(self, metric_id):
         """
-        Gets goal by id
-        :param goal_id:
+        Gets metric by id
+        :param metric_id:
         :return:
         """
-        return self.get(self.goals_url(goal_id))
+        return self.get(self.metrics_url(metric_id))
 
-    def goal_delete(self, goal_id):
+    def metric_delete(self, metric_id):
         """
-        Deketes goal by goal_id
-        :param goal_id:
+        Deketes metric by metric_id
+        :param metric_id:
         :return:
         """
-        return self.delete(self.goals_url(goal_id))
+        return self.delete(self.metrics_url(metric_id))
 
-    def applications_get(self):
-        return self.get(self.applications_url())
+    def tasks_get(self):
+        return self.get(self.tasks_url())
 
-    def applications_bulk_get(self, application_ids, include_deleted=False):
-        url = f'{self.applications_url()}/bulk'
+    def tasks_bulk_get(self, task_ids, include_deleted=False):
+        url = f'{self.tasks_url()}/bulk'
         url += self.query_url(
-            application_id=application_ids,
+            task_id=task_ids,
             include_deleted=include_deleted
         )
         return self.get(url)
 
-    def application_get(self, id: str):
-        return self.get(self.applications_url(id))
+    def task_get(self, id: str):
+        return self.get(self.tasks_url(id))
 
-    def application_create(self, application_key, owner_id, name=None, goals=None, description=None):
+    def task_create(self, task_key, owner_id, name=None, metrics=None,
+                    description=None):
         """
-        Creates application
-        :param application_key:
+        Creates task
+        :param task_key:
         :param owner_id:
         :param name:
-        :param goals:
+        :param metrics:
         :param description:
         :return:
         """
         b = {
-            'key': application_key,
+            'key': task_key,
             'owner_id': owner_id,
             'name': name,
-            'goals': goals,
+            'metrics': metrics,
             'description': description,
         }
-        return self.post(self.applications_url(), b)
+        return self.post(self.tasks_url(), b)
 
     def run_update(
             self,
@@ -373,16 +391,16 @@ class Client:
             })
         return self.patch(self.run_url(id_), b)
 
-    def application_update(
-            self, application_id, owner_id=None, name=None, goals=None, **params
+    def task_update(
+            self, task_id, owner_id=None, name=None, metrics=None, **params
     ):
         """
-        Updates application
-        :param application_id:
+        Updates task
+        :param task_id:
         :param owner_id:
         :param name:
-        :param goals: list(goal_id):
-        :param params: application optional parameters like *description*
+        :param metrics: list(metric_id):
+        :param params: task optional parameters like *description*
         :return:
         """
         b = dict()
@@ -394,28 +412,28 @@ class Client:
             b.update({
                 "name": name
             })
-        if goals is not None:
+        if metrics is not None:
             b.update({
-                "goals": goals
+                "metrics": metrics
             })
         b.update(params)
-        return self.patch(self.applications_url(application_id), b)
+        return self.patch(self.tasks_url(task_id), b)
 
-    def application_delete(self, id):
+    def task_delete(self, id):
         """
 
         :param id:
         :return:
         """
-        return self.delete(self.applications_url(id))
+        return self.delete(self.tasks_url(id))
 
-    def applications_runs_get(self, application_id):
+    def tasks_runs_get(self, task_id):
         """
-        Gets application runs
-        :param application_id:
+        Gets task runs
+        :param task_id:
         :return:
         """
-        return self.get("%s/run" % self.applications_url(application_id))
+        return self.get("%s/run" % self.tasks_url(task_id))
 
     def runs_bulk_get(self, runset_ids=None):
         """
@@ -460,30 +478,30 @@ class Client:
         """
         return self.delete(self.run_url(run_id))
 
-    def executors_get(self, applications_ids=None, run_ids=None):
+    def executors_get(self, tasks_ids=None, run_ids=None):
         """
         Gets executors
-        :param applications_ids: list (application_id: str)
+        :param tasks_ids: list (task_id: str)
         :param run_ids: list(run_id: str)
         :return:
         """
-        if applications_ids is None:
-            applications_ids = []
+        if tasks_ids is None:
+            tasks_ids = []
         if run_ids is None:
             run_ids = []
         url = self.executors_url() + self.query_url(
             run_id=run_ids,
-            application_id=applications_ids,
+            task_id=tasks_ids,
         )
         return self.get(url)
 
     def imports_get(self, app_id):
         """
-        Gets Imports for application
+        Gets Imports for task
         :param app_id:
         :return:
         """
-        return self.get("%s/imports" % self.applications_url(app_id))
+        return self.get("%s/imports" % self.tasks_url(app_id))
 
     def token_create(self, token: str):
         """
@@ -529,40 +547,39 @@ class Client:
     def executors_breakdown_get(self):
         return self.get("executors/breakdown")
 
-    def runs_by_executor(self, executor_id, applications_ids=None):
+    def runs_by_executor(self, executor_id, tasks_ids=None):
         """
         Gets runs by executor id
         """
-        if applications_ids is None:
-            applications_ids = []
+        if tasks_ids is None:
+            tasks_ids = []
         url = "%s/%s" % (self.executor_url(executor_id), "runs") + self.query_url(
-            application_id=applications_ids,
+            task_id=tasks_ids,
         )
         return self.get(url)
 
-    def leaderboards_create(self, application_id, primary_goal, grouping_tags,
-                            other_goals=None,
-                            filters=None, group_by_hp=True):
+    def leaderboards_create(self, task_id, primary_metric, grouping_tags,
+                            other_metrics=None, filters=None, group_by_hp=True):
         """
         Creates leaderboard
         """
         leaderboard = {
-            "primary_goal": primary_goal,
-            "other_goals": other_goals or [],
+            "primary_metric": primary_metric,
+            "other_metrics": other_metrics or [],
             "filters": filters or [],
             "grouping_tags": grouping_tags,
             "group_by_hp": group_by_hp,
         }
-        return self.post(self.leaderboards_url(application_id), leaderboard)
+        return self.post(self.leaderboards_url(task_id), leaderboard)
 
-    def leaderboard_update(self, application_id, primary_goal=None,
+    def leaderboard_update(self, task_id, primary_metric=None,
                            grouping_tags=None,
-                           other_goals=None, filters=None, group_by_hp=None):
+                           other_metrics=None, filters=None, group_by_hp=None):
         leaderboard = dict()
         for key, param in {
-            'primary_goal': primary_goal,
+            'primary_metric': primary_metric,
             'grouping_tags': grouping_tags,
-            'other_goals': other_goals,
+            'other_metrics': other_metrics,
             'filters': filters,
             'group_by_hp': group_by_hp
         }.items():
@@ -574,31 +591,31 @@ class Client:
             leaderboard.update({
                 "filters": filters,
             })
-        return self.patch(self.leaderboards_url(application_id), leaderboard)
+        return self.patch(self.leaderboards_url(task_id), leaderboard)
 
-    def leaderboard_get(self, application_id):
+    def leaderboard_get(self, task_id):
         """
-        Gets leaderboard by application_id
+        Gets leaderboard by task_id
         :param leaderboard_id:
         :return:
         """
-        return self.get(self.leaderboards_url(application_id))
+        return self.get(self.leaderboards_url(task_id))
 
-    def leaderboard_delete(self, application_id):
+    def leaderboard_delete(self, task_id):
         """
-        Deletes leaderboard by application_id
-        :param application_id:
+        Deletes leaderboard by task_id
+        :param task_id:
         :return:
         """
-        return self.delete(self.leaderboards_url(application_id))
+        return self.delete(self.leaderboards_url(task_id))
 
-    def leaderboard_details_get(self, application_id):
+    def leaderboard_details_get(self, task_id):
         """
         Gets leaderboard details by id
-        :param application_id:
+        :param task_id:
         :return:
         """
-        url = self.leaderboards_url(application_id) + '/details'
+        url = self.leaderboards_url(task_id) + '/details'
         return self.get(url)
 
     def dataset_create(
@@ -657,22 +674,28 @@ class Client:
     def console_get(self, run_id: str):
         return self.get(self.console_url(run_id))
 
-    def leaderboard_dataset_create(self, leaderboard_id: str, name: str, dataset_ids: list):
+    def leaderboard_dataset_create(self, leaderboard_id: str, name: str,
+                                   dataset_ids: list):
         b = {
             "name": name,
             "dataset_ids": dataset_ids
         }
-        return self.post("%s/%s" % (self.leaderboard_url(leaderboard_id), self.leaderboard_datasets_url()), b)
+        return self.post("%s/%s" % (self.leaderboard_url(leaderboard_id),
+                                    self.leaderboard_datasets_url()), b)
 
-    def leaderboard_dataset_update(self, leaderboard_dataset_id: str, name: str, dataset_ids: list):
+    def leaderboard_dataset_update(self, leaderboard_dataset_id: str,
+                                   name: str, dataset_ids: list):
         b = {
             "name": name,
             "dataset_ids": dataset_ids
         }
-        return self.patch(self.leaderboard_datasets_url(leaderboard_dataset_id), b)
+        return self.patch(
+            self.leaderboard_datasets_url(leaderboard_dataset_id), b)
 
-    def leaderboard_datasets_get(self, leaderboard_id: str, include_deleted=False):
-        url = "%s/%s" % (self.leaderboard_url(leaderboard_id), self.leaderboard_datasets_url())
+    def leaderboard_datasets_get(self, leaderboard_id: str,
+                                 include_deleted=False):
+        url = "%s/%s" % (self.leaderboard_url(leaderboard_id),
+                         self.leaderboard_datasets_url())
         url += self.query_url(
             include_deleted=include_deleted
         )
@@ -682,17 +705,77 @@ class Client:
         return self.get(self.leaderboard_datasets_url(leaderboard_dataset_id))
 
     def leaderboard_dataset_delete(self, leaderboard_dataset_id: str):
-        return self.delete(self.leaderboard_datasets_url(leaderboard_dataset_id))
+        return self.delete(self.leaderboard_datasets_url(
+            leaderboard_dataset_id))
 
     def leaderboard_dataset_details(self, leaderboard_dataset_id: str):
-        return self.get("%s/details" % self.leaderboard_datasets_url(leaderboard_dataset_id))
+        return self.get("%s/details" % self.leaderboard_datasets_url(
+            leaderboard_dataset_id))
 
     def leaderboard_generate(self, leaderboard_dataset_id: str):
-        return self.get("%s/generate" % self.leaderboard_datasets_url(leaderboard_dataset_id))
+        return self.get("%s/generate" % self.leaderboard_datasets_url(
+            leaderboard_dataset_id))
 
-    def runs_bulk_get_by_ids(self, application_id: str, run_ids: list):
-        url = "%s/%s" % (self.applications_url(application_id), 'runs/bulk')
+    def runs_bulk_get_by_ids(self, task_id: str, run_ids: list):
+        url = "%s/%s" % (self.tasks_url(task_id), 'runs/bulk')
         url += self.query_url(
             run_id=run_ids,
         )
         return self.get(url)
+
+    def model_create(
+            self,
+            key: str,
+            name: str = None,
+            description: str = None,
+            tags: dict = None):
+        body = {
+            "key": key
+        }
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+        if tags is not None:
+            body['tags'] = tags
+        return self.post(self.models_url(), body)
+
+    def model_update(self, model_id: str, **params):
+        return self.patch(self.models_url(model_id), params)
+
+    def models_get(self):
+        return self.get(self.models_url())
+
+    def model_get(self, model_id: str):
+        return self.get(self.models_url(model_id))
+
+    def model_delete(self, model_id: str):
+        return self.delete(self.models_url(model_id))
+
+    def model_version_create(
+            self,
+            model_id: str,
+            run_id: str,
+            version: str = None,
+            path: str = None,
+            aliases: list = None,
+            tags: dict = None):
+        body = {}
+        if version is not None:
+            body['version'] = version
+        if path is not None:
+            body['path'] = path
+        if aliases is not None:
+            body['aliases'] = aliases
+        if tags is not None:
+            body['tags'] = tags
+        return self.post(self.model_runs_url(model_id, run_id), body)
+
+    def model_version_update(self, model_id: str, run_id: str, **params):
+        return self.patch(self.model_runs_url(model_id, run_id), params)
+
+    def model_version_delete(self, model_id: str, run_id: str):
+        return self.delete(self.model_runs_url(model_id, run_id))
+
+    def model_versions_by_task(self, task_id: str):
+        return self.get(self.model_versions_url(task_id))

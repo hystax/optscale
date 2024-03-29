@@ -235,12 +235,12 @@ const data = {
   }
 };
 
-const getModelRecommendations = () => ({
+const getTaskRecommendations = () => ({
   ...data,
   total_count: Object.values(data.optimizations).reduce((acc, { count = 0 }) => acc + count, 0),
   total_saving: Object.values(data.optimizations).reduce((acc, { saving = 0 }) => acc + saving, 0)
 });
 
-const modelRecommendations = getModelRecommendations();
+const taskRecommendations = getTaskRecommendations();
 
-export { modelRecommendations };
+export { taskRecommendations };

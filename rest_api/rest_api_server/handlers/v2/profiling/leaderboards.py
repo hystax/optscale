@@ -6,8 +6,7 @@ from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncItemHandler
 from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
 from rest_api.rest_api_server.utils import (
     run_task, ModelEncoder, check_string_attribute,
-    check_dict_attribute, check_list_attribute, check_float_attribute,
-    check_bool_attribute, check_int_attribute)
+    check_list_attribute, check_float_attribute, check_bool_attribute)
 from tools.optscale_exceptions.http_exc import OptHTTPError
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from rest_api.rest_api_server.exceptions import Err
@@ -44,8 +43,8 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 raise WrongArgumentsException(Err.OE0541, ['min', 'max'])
 
     def _validate_params(self, create=False, **data):
-        req_params = ['primary_goal', 'grouping_tags']
-        opt_params = ['other_goals', 'filters', 'group_by_hp']
+        req_params = ['primary_metric', 'grouping_tags']
+        opt_params = ['other_metrics', 'filters', 'group_by_hp']
         allowed_args = req_params + opt_params
         unexpected_args = list(filter(lambda x: x not in allowed_args, data))
         if unexpected_args:
@@ -59,8 +58,8 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             # parameter: (check_function, allow_empty_parameter)
             attributes_check_map = {
                 'grouping_tags': (check_list_attribute, False),
-                'primary_goal': (check_string_attribute, None),
-                'other_goals': (check_list_attribute, True),
+                'primary_metric': (check_string_attribute, None),
+                'other_metrics': (check_list_attribute, True),
                 'filters': (check_list_attribute, True),
                 'group_by_hp': (check_bool_attribute, None)
             }
@@ -74,15 +73,16 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             if create or filters is not None:
                 self._validate_filters(filters)
             if create:
-                filters_goals_ids = [x['id'] for x in filters]
-                goals = data.get('other_goals', []) + [data['primary_goal']]
-                for goal_id in filters_goals_ids:
-                    if goal_id not in goals:
+                filters_metrics_ids = [x['id'] for x in filters]
+                metrics = data.get(
+                    'other_metrics', []) + [data['primary_metric']]
+                for metric_id in filters_metrics_ids:
+                    if metric_id not in metrics:
                         raise WrongArgumentsException(Err.OE0217, ['filters'])
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
 
-    async def post(self, organization_id, application_id, **url_params):
+    async def post(self, organization_id, task_id, **url_params):
         """
         ---
         description: |
@@ -96,9 +96,9 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: path
-            description: Application id
+            description: Task id
             required: true
             type: string
         -   in: body
@@ -113,14 +113,14 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         description: List of tags to filter runs
                         required: true
                         example: ['tag_1', 'tag_2']
-                    primary_goal:
+                    primary_metric:
                         type: string
-                        description: Goal id
+                        description: Metric id
                         required: true
                         example: "e788576e-e49a-4a9e-912b-51ad2efaad52"
-                    other_goals:
+                    other_metrics:
                         type: list
-                        description: Other goals to filter runs
+                        description: Other metrics to filter runs
                         required: false
                         example: ["d094f99a-4b1d-4f6b-8248-ef88a478f8a7"]
                     filters:
@@ -141,15 +141,15 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     type: object
                     example:
                         id: "a39fce0e-4768-4bfe-a3b0-2cbbe9bf3c7e"
-                        application_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
-                        primary_goal: {'name': 'goal1_key', 'target_value': 0.7,
-                          'tendency': 'more', 'key': 'goal1_key', 'func': 'avg',
+                        task_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
+                        primary_metric: {'name': 'metric1_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric1_key', 'func': 'avg',
                           'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}
-                        other_goals: [{'name': 'goal2_key', 'target_value': 0.7,
-                          'tendency': 'more', 'key': 'goal2_key', 'func': 'avg',
+                        other_metrics: [{'name': 'metric2_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric2_key', 'func': 'avg',
                           'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}]
                         filters: [{'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef',
-                          'min': 1, 'max': 100, 'name': 'goal1_key'}]
+                          'min': 1, 'max': 100, 'name': 'metric1_key'}]
                         grouping_tags: ['test_tag']
                         dataset_coverage_rules: {'users_count': 3}
                         group_by_hp: True
@@ -196,12 +196,12 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         data = self._request_body()
         self._validate_params(create=True, **data)
         token = await self._get_profiling_token(organization_id)
-        res = await run_task(self.controller.create, application_id, token,
+        res = await run_task(self.controller.create, task_id, token,
                              **data)
         self.set_status(201)
         self.write(json.dumps(res, cls=ModelEncoder))
 
-    async def get(self, organization_id, application_id, **kwargs):
+    async def get(self, organization_id, task_id, **kwargs):
         """
         ---
         description: |
@@ -215,9 +215,9 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: path
-            description: Application id
+            description: Task id
             required: true
             type: string
         -   name: details
@@ -232,15 +232,15 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     type: object
                     example:
                         id: "a39fce0e-4768-4bfe-a3b0-2cbbe9bf3c7e"
-                        application_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
-                        primary_goal: {'name': 'goal1_key', 'target_value': 0.7,
-                          'tendency': 'more', 'key': 'goal1_key', 'func': 'avg',
+                        task_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
+                        primary_metric: {'name': 'metric1_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric1_key', 'func': 'avg',
                           'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}
-                        other_goals: [{'name': 'goal2_key', 'target_value': 0.7,
-                          'tendency': 'more', 'key': 'goal2_key', 'func': 'avg',
+                        other_metrics: [{'name': 'metric2_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric2_key', 'func': 'avg',
                           'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}]
                         filters: [{'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef',
-                          'min': 1, 'max': 100, 'name': 'goal1_key'}]
+                          'min': 1, 'max': 100, 'name': 'metric1_key'}]
                         grouping_tags: ['test_tag']
                         group_by_hp: True
                         created_at: 123
@@ -265,10 +265,10 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
-        res = await run_task(self.controller.get, application_id, token, details)
+        res = await run_task(self.controller.get, task_id, token, details)
         self.write(json.dumps(res, cls=ModelEncoder))
 
-    async def patch(self, organization_id, application_id, **kwargs):
+    async def patch(self, organization_id, task_id, **kwargs):
         """
         ---
         description: |
@@ -282,9 +282,9 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: path
-            description: Application id
+            description: Task id
             required: true
             type: string
         -   in: body
@@ -304,14 +304,14 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         description: Dataset coverage rules
                         required: true
                         example: {"dataset_label": 3}
-                    primary_goal:
+                    primary_metric:
                         type: string
-                        description: Goal id
+                        description: Metric id
                         required: true
                         example: "e788576e-e49a-4a9e-912b-51ad2efaad52"
-                    other_goals:
+                    other_metrics:
                         type: list
-                        description: Other goals to filter runs
+                        description: Other metrics to filter runs
                         required: false
                         example: ["d094f99a-4b1d-4f6b-8248-ef88a478f8a7"]
                     filters:
@@ -332,15 +332,15 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     type: object
                     example:
                         id: "a39fce0e-4768-4bfe-a3b0-2cbbe9bf3c7e"
-                        application_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
-                        primary_goal: {'name': 'goal1_key', 'target_value': 0.7,
-                          'tendency': 'more', 'key': 'goal1_key', 'func': 'avg',
+                        task_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
+                        primary_metric: {'name': 'metric1_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric1_key', 'func': 'avg',
                           'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}
-                        other_goals: [{'name': 'goal2_key', 'target_value': 0.7,
-                          'tendency': 'more', 'key': 'goal2_key', 'func': 'avg',
+                        other_metrics: [{'name': 'metric2_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric2_key', 'func': 'avg',
                           'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}]
                         filters: [{'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef',
-                          'min': 1, 'max': 100, 'name': 'goal1_key'}]
+                          'min': 1, 'max': 100, 'name': 'metric1_key'}]
                         grouping_tags: ['test_tag']
                         group_by_hp: True
                         created_at: 123
@@ -380,10 +380,10 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         token = await self._get_profiling_token(organization_id)
         data = self._request_body()
         self._validate_params(**data)
-        res = await run_task(self.controller.edit, application_id, token, **data)
+        res = await run_task(self.controller.edit, task_id, token, **data)
         self.write(json.dumps(res, cls=ModelEncoder))
 
-    async def delete(self, organization_id, application_id, **kwargs):
+    async def delete(self, organization_id, task_id, **kwargs):
         """
         ---
         description: |
@@ -397,9 +397,9 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: path
-            description: Application id
+            description: Task id
             required: true
             type: string
         responses:
@@ -424,5 +424,5 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         await self.check_permissions(
             'EDIT_PARTNER', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
-        await run_task(self.controller.delete, application_id, token)
+        await run_task(self.controller.delete, task_id, token)
         self.set_status(204)

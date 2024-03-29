@@ -3,8 +3,8 @@ import SaveIcon from "@mui/icons-material/Save";
 import { Box } from "@mui/material";
 import IconButton from "components/IconButton";
 import { DeleteMlChartsDashboard, SaveMlChartsDashboard } from "components/SideModalManager/SideModals";
-import { isDefaultDashboard } from "hooks/useModelRunChartState";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
+import { isDefaultDashboard } from "hooks/useTaskRunChartState";
 import NameSelector from "./NameSelector";
 
 const DashboardControls = ({

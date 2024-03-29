@@ -252,6 +252,15 @@ BASIC_PRESET = {
             "date_offset": 5148934
         }
     ],
+    "average_metrics": [
+        {
+            "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
+            "resource_id": "14d75330-c111-482a-97d0-0fe4b3b7125c",
+            "value": 1159.5993548571,
+            "metric": "cpu",
+            "date_offset": 5148934
+        }
+    ],
     "organization_constraint": [
         {
             "deleted_at": 0,
@@ -359,13 +368,13 @@ BASIC_PRESET = {
             "date_offset": 229009
         }
     ],
-    "applications": [
+    "tasks": [
         {
             "_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
             "key": "k_near",
             "owner_id": "083298ff-6575-4adb-a82a-92cea7bc8ff0",
             "name": "K-Nearest Neighbors",
-            "goals": [
+            "metrics": [
                 "95fded0b-dfdf-4a10-a154-7b2f390739f0",
                 "ad50928e-1d4b-4575-8df6-6d27523b4f5e",
                 "804f6834-6c73-45d5-a34a-ea3b111855c3",
@@ -401,7 +410,7 @@ BASIC_PRESET = {
             "finish_offset": 493990
         }
     ],
-    "goals": [
+    "metrics": [
         {
             "_id": "41a13aa0-fcdf-4245-829b-b3ec64ba221a",
             "name": "Iter",
@@ -450,14 +459,14 @@ BASIC_PRESET = {
     "logs": [
         {
             "project": "k_near",
-            "run": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
             "data": {},
             "instance_id": "i-0503b887d4b3dba17",
             "time_offset": 494315.87966799736
         },
         {
             "project": "k_near",
-            "run": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
             "data": {
                 "loss": 2.2943787574768066,
                 "iter": 0,
@@ -554,7 +563,7 @@ BASIC_PRESET = {
         {
             "_id": "9d117f06-45ab-4eac-8f6a-27e4e27d8c78",
             "name": "AWS GPU Instances",
-            "application_ids": [
+            "task_ids": [
                 "c688402f-04a7-42ba-835d-5daf0d623a4b"
             ],
             "cloud_account_ids": [
@@ -586,7 +595,7 @@ BASIC_PRESET = {
             "name": "sleepy_gagarin",
             "number": 1,
             "template_id": "9d117f06-45ab-4eac-8f6a-27e4e27d8c78",
-            "application_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "task_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
             "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
             "region_id": "us-east-1",
             "instance_type": "t2.2xlarge",
@@ -628,7 +637,7 @@ BASIC_PRESET = {
             "region_id": "us-east-1",
             "instance_type": "t2.2xlarge",
             "name_prefix": "my-ml-run",
-            "application_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "task_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
             "tags": {
                 "ml_value": "ml_tag"
             },
@@ -1698,13 +1707,13 @@ BASIC_PRESET = {
     "leaderboards": [
         {
             "_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
-            "application_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
+            "task_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
             "grouping_tags": [
                 "Algorithm",
                 "code_commit"
             ],
-            "primary_goal": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
-            "other_goals": [
+            "primary_metric": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+            "other_metrics": [
                 "804f6834-6c73-45d5-a34a-ea3b111855c3"
             ],
             "filters": [
@@ -1754,6 +1763,26 @@ BASIC_PRESET = {
             "validation_set.timespan_from_offset": 7554600,
             "validation_set.timespan_to_offset": 1074600
         }
+    ],
+    "models": [
+        {
+            "_id": "100aed9a-eb0f-4a57-978b-e9476f604ca0",
+            "name": "name",
+            "key": "key",
+            "tags": {'tag': 'value'},
+            "description": "",
+            "created_at_offset": 143434
+        }
+    ],
+    "model_versions": [
+        {
+            "_id": "3a865cf5-2835-474a-9fa9-d0a40027256b",
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "model_id": "100aed9a-eb0f-4a57-978b-e9476f604ca0",
+            "version": "1",
+            "path": "/test_result",
+            "aliases": ["alias"]
+        }
     ]
 }
 
@@ -1785,6 +1814,22 @@ class TestLiveDemosApi(TestApiBase):
         patch('rest_api.rest_api_server.controllers.base.'
               'BaseProfilingTokenController.bulldozer_client',
               new_callable=PropertyMock).start()
+        self.metric_collection = self.mongo_client.arcee.metric
+        self.task_collection = self.mongo_client.arcee.task
+        self.run_collection = self.mongo_client.arcee.run
+        self.console_collection = self.mongo_client.arcee.console
+        self.dataset_collection = self.mongo_client.arcee.dataset
+        self.leaderboard_collection = self.mongo_client.arcee.leaderboard
+        self.lb_dataset_collection = self.mongo_client.arcee.leaderboard_dataset
+        self.stage_collection = self.mongo_client.arcee.stage
+        self.milestone_collection = self.mongo_client.arcee.milestone
+        self.proc_data_collection = self.mongo_client.arcee.proc_data
+        self.log_collection = self.mongo_client.arcee.log
+        self.model_collection = self.mongo_client.arcee.model
+        self.model_version_collection = self.mongo_client.arcee.model_version
+        self.template_collection = self.mongo_client.bulldozer.template
+        self.runner_collection = self.mongo_client.bulldozer.runner
+        self.runset_collection = self.mongo_client.bulldozer.runset
 
     def check_db(self, check_empty=True):
         session = self.init_db_session()
@@ -1803,7 +1848,15 @@ class TestLiveDemosApi(TestApiBase):
     def check_mongo(self, check_empty=True):
         for collection in [
             self.raw_expenses, self.resources_collection,
-            self.checklists_collection
+            self.checklists_collection, self.metric_collection,
+            self.task_collection, self.run_collection,
+            self.console_collection, self.dataset_collection,
+            self.leaderboard_collection, self.lb_dataset_collection,
+            self.stage_collection, self.milestone_collection,
+            self.log_collection, self.proc_data_collection,
+            self.model_collection, self.model_version_collection,
+            self.template_collection, self.runner_collection,
+            self.runset_collection
         ]:
             cnt = len(list(collection.find()))
             if check_empty:
@@ -1831,9 +1884,18 @@ class TestLiveDemosApi(TestApiBase):
             self.assertEqual(
                 exp['cost'], preset_expenses[i]['cost'] * self.multiplier)
 
+    def check_average_metrics(self, ch_mock_obj):
+        preset_expenses = BASIC_PRESET['average_metrics'].copy()
+        table, values = ch_mock_obj.call_args_list[2][0]
+        self.assertEqual(table, 'average_metrics')
+        self.assertEqual(len(values), len(preset_expenses))
+        for i, exp in enumerate(values):
+            self.assertEqual(exp['metric'], preset_expenses[i]['metric'])
+            self.assertEqual(exp['value'], preset_expenses[i]['value'])
+
     def check_ri_sp_usage(self, ch_mock_obj):
         preset_expenses = BASIC_PRESET['ri_sp_usage'].copy()
-        table, values = ch_mock_obj.call_args_list[2][0]
+        table, values = ch_mock_obj.call_args_list[3][0]
         self.assertEqual(table, 'ri_sp_usage')
         self.assertEqual(len(values), len(preset_expenses))
         for i, exp in enumerate(values):
@@ -1856,7 +1918,7 @@ class TestLiveDemosApi(TestApiBase):
 
     def check_uncovered_usage(self, ch_mock_obj):
         preset_expenses = BASIC_PRESET['uncovered_usage'].copy()
-        table, values = ch_mock_obj.call_args_list[3][0]
+        table, values = ch_mock_obj.call_args_list[4][0]
         self.assertEqual(table, 'uncovered_usage')
         self.assertEqual(len(values), len(preset_expenses))
         for i, exp in enumerate(values):
@@ -1868,8 +1930,9 @@ class TestLiveDemosApi(TestApiBase):
             self.assertEqual(exp['usage'], preset_expenses[i]['usage'])
 
     def check_clickhouse(self, ch_mock_obj):
-        self.assertEqual(ch_mock_obj.call_count, 4)
+        self.assertEqual(ch_mock_obj.call_count, 5)
         self.check_clean_expenses(ch_mock_obj)
+        self.check_average_metrics(ch_mock_obj)
         self.check_traffic_expenses(ch_mock_obj)
         self.check_ri_sp_usage(ch_mock_obj)
         self.check_uncovered_usage(ch_mock_obj)
@@ -2142,8 +2205,9 @@ class TestLiveDemosApi(TestApiBase):
                              preset_optimization_saving)
 
     def test_resources_from_top_10_not_duplicated(self):
-        with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController'
-                   '.load_preset', return_value=deepcopy(self.preset)):
+        with patch('rest_api.rest_api_server.controllers.live_demo.'
+                   'LiveDemoController.load_preset',
+                   return_value=deepcopy(self.preset)):
             code, response = self.client.live_demo_create()
             self.assertEqual(code, 201)
             raw_expenses = list(self.raw_expenses.find())

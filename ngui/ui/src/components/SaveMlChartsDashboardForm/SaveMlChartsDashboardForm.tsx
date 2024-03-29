@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { isDefaultDashboard } from "hooks/useModelRunChartState";
+import { isDefaultDashboard } from "hooks/useTaskRunChartState";
 import { FIELD_NAMES, SAVE_AS_VALUES } from "./constants";
 import { FormButtons, NameField, SaveAsRadioGroup, ShareSwitch } from "./FormElements";
 

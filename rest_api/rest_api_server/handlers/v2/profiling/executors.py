@@ -2,8 +2,6 @@ import json
 from rest_api.rest_api_server.utils import run_task, ModelEncoder
 from rest_api.rest_api_server.controllers.profiling.executor import ExecutorAsyncController
 from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncCollectionHandler
-from tools.optscale_exceptions.http_exc import OptHTTPError
-from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.handlers.v2.profiling.base import ProfilingHandler
 from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
 
@@ -20,19 +18,19 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
         """
         ---
         description: |
-            Get list of application executors
+            Get list of task executors
             Required permission: INFO_ORGANIZATION
         tags: [profiling_executors]
-        summary: List of application executors
+        summary: List of task executors
         parameters:
         -   name: organization_id
             in: path
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: query
-            description: Application id
+            description: Task id
             required: false
             type: array
             collectionFormat: multi
@@ -48,7 +46,7 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 type: string
         responses:
             200:
-                description: Application executors
+                description: Task executors
                 schema:
                     type: object
                     properties:
@@ -60,7 +58,7 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     id:
                                         type: string
                                         description: |
-                                            Unique organization application id
+                                            Unique organization task id
                                     platform_type:
                                         type: string
                                         description: |
@@ -133,14 +131,14 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
-        application_ids = self.get_arg('application_id', str, repeated=True)
+        task_ids = self.get_arg('task_id', str, repeated=True)
         run_ids = self.get_arg('run_id', str, repeated=True)
         res = await run_task(
-            self.controller.list, organization_id, application_ids, token,
+            self.controller.list, organization_id, task_ids, token,
             run_ids=run_ids
         )
-        applications_dict = {'executors': res}
-        self.write(json.dumps(applications_dict, cls=ModelEncoder))
+        tasks_dict = {'executors': res}
+        self.write(json.dumps(tasks_dict, cls=ModelEncoder))
 
 
 class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
@@ -149,10 +147,10 @@ class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
         """
         ---
         description: |
-            Breakdown of application executors
+            Breakdown of task executors
             Required permission: INFO_ORGANIZATION
         tags: [profiling_executors]
-        summary: Application executors breakdown
+        summary: Task executors breakdown
         parameters:
         -   name: organization_id
             in: path

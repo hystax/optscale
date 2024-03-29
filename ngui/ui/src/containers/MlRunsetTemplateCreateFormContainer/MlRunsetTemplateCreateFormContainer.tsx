@@ -3,12 +3,12 @@ import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import MlRunsetTemplateForm from "components/MlRunsetTemplateForm";
 import { FIELD_NAMES } from "components/MlRunsetTemplateForm/FormElements";
 import { useApiData } from "hooks/useApiData";
-import MlModelsService from "services/MlModelsService";
 import MlRunsetTemplatesService from "services/MlRunsetTemplatesService";
+import MlTasksService from "services/MlTasksService";
 import { ML_RUNSET_TEMPLATES } from "urls";
 
 const {
-  MODELS_FIELD_NAME,
+  TASK_FIELD_NAME,
   DATA_SOURCES_FIELD_NAME,
   REGIONS_FIELD_NAME,
   INSTANCE_TYPES_FIELD_NAME,
@@ -31,7 +31,7 @@ const defaultValues = {
   [HYPERPARAMETERS_ARRAY_FIELD_NAME]: [
     { [HYPERPARAMETER_NAME_FIELD_NAME]: "", [HYPERPARAMETER_ENVIRONMENT_VARIABLE_FIELD_NAME]: "" }
   ],
-  [MODELS_FIELD_NAME]: [],
+  [TASK_FIELD_NAME]: [],
   [DATA_SOURCES_FIELD_NAME]: [],
   [REGIONS_FIELD_NAME]: [],
   [INSTANCE_TYPES_FIELD_NAME]: []
@@ -42,8 +42,8 @@ const MlRunsetTemplateCreateFormContainer = () => {
 
   const redirect = () => navigate(ML_RUNSET_TEMPLATES);
 
-  const { useGetAll } = MlModelsService();
-  const { isLoading: isGetAllModelsLoading, models } = useGetAll();
+  const { useGetAll } = MlTasksService();
+  const { isLoading: isGetAllTasksLoading, tasks } = useGetAll();
 
   const {
     apiData: { cloudAccounts: dataSources = [] }
@@ -60,10 +60,10 @@ const MlRunsetTemplateCreateFormContainer = () => {
 
   return (
     <MlRunsetTemplateForm
-      models={models}
+      tasks={tasks}
       dataSources={dataSources}
       isLoading={{
-        isGetAllModelsLoading,
+        isGetAllTasksLoading,
         isSubmitLoading: isCreateMlRunsetTemplateLoading
       }}
       onSubmit={onSubmit}

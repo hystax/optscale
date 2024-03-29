@@ -1,0 +1,3 @@
+import EditModelVersionAliasFormContainer from "./EditModelVersionAliasFormContainer";
+
+export default EditModelVersionAliasFormContainer;

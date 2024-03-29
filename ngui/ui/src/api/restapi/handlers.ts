@@ -41,8 +41,8 @@ import {
   GET_ORGANIZATION_PERSPECTIVES,
   CREATE_ORGANIZATION,
   UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
-  GET_ML_MODEL,
-  SET_ML_MODEL,
+  GET_ML_TASK,
+  SET_ML_TASK,
   SET_OPTIMIZATIONS_OVERVIEW,
   GET_OPTIMIZATIONS_OVERVIEW,
   SET_OPTIMIZATION_DETAILS,
@@ -58,7 +58,9 @@ import {
   UPDATE_ML_LEADERBOARD_DATASET,
   GET_ML_LEADERBOARD_DATASET,
   SET_POWER_SCHEDULE,
-  GET_POWER_SCHEDULE
+  GET_POWER_SCHEDULE,
+  SET_ML_MODEL,
+  GET_ML_MODEL
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -236,6 +238,12 @@ export const onUpdateOrganizationPerspectives = (data) => ({
   type: UPDATE_ORGANIZATION_PERSPECTIVES,
   payload: data,
   label: GET_ORGANIZATION_PERSPECTIVES
+});
+
+export const onUpdateMlTask = (data) => ({
+  type: SET_ML_TASK,
+  payload: data,
+  label: GET_ML_TASK
 });
 
 export const onUpdateMlModel = (data) => ({

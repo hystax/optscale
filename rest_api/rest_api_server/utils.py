@@ -326,7 +326,9 @@ def check_string(name, value):
 
 
 def check_string_attribute(name, value, min_length=1, max_length=255,
-                           check_length=True):
+                           check_length=True, allow_empty=False):
+    if allow_empty and not value:
+        return
     check_string(name, value)
     if check_length and not min_length <= len(value) <= max_length:
         count = ('max %s' % max_length if min_length == 0

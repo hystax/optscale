@@ -10,26 +10,26 @@ class TestLeaderboardDatasetApi(TestProfilingBase):
         _, self.employee = self.client.employee_create(
             self.org['id'], {'name': 'employee',
                              'auth_user_id': self.auth_user})
-        self.goal1 = self._create_goal(self.org['id'], key='goal1_key')
-        self.goal2 = self._create_goal(self.org['id'], key='goal2_key')
-        self.app1 = self._create_application(
+        self.metric1 = self._create_metric(self.org['id'], key='metric1_key')
+        self.metric2 = self._create_metric(self.org['id'], key='metric2_key')
+        self.task1 = self._create_task(
             self.org['id'], self.employee['id'],
-            goals=[self.goal1['id']])
+            metrics=[self.metric1['id']])
         self.valid_leaderboard = {
-            'primary_goal': self.goal1['id'],
-            'other_goals': [],
+            'primary_metric': self.metric1['id'],
+            'other_metrics': [],
             'grouping_tags': ['test_tag'],
             'group_by_hp': True,
             'filters': [
                  {
-                    'id': self.goal1['id'],
+                    'id': self.metric1['id'],
                     'min': 1,
                     'max': 100
                  }
             ],
         }
         _, resp = self.client.leaderboard_create(
-            self.org['id'], self.app1['id'], self.valid_leaderboard)
+            self.org['id'], self.task1['id'], self.valid_leaderboard)
         self.leaderboard_id = resp["id"]
         self.organization_id = self.org['id']
         self.valid_dataset = {

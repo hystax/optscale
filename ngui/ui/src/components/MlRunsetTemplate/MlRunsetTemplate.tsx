@@ -31,7 +31,7 @@ const MlRunsetTemplate = ({
     tags = {},
     hyperparameters = {},
     cloud_accounts: dataSources = [],
-    applications: models = [],
+    tasks = [],
     instance_types: instanceTypes = [],
     regions = []
   } = runsetTemplate;
@@ -92,7 +92,7 @@ const MlRunsetTemplate = ({
           </div>
           <div>
             <Details
-              models={models}
+              tasks={tasks}
               dataSources={dataSources}
               regions={regions}
               instanceTypes={instanceTypes}

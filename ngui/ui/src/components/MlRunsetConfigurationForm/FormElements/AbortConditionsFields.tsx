@@ -124,7 +124,7 @@ const ReachedGoals = () => {
             )}
           />
         }
-        label={<FormattedMessage id="abortRunsetWhenOneOfRunsReachesModelGoals" />}
+        label={<FormattedMessage id="abortRunsetWhenOneOfRunsReachesTaskGoals" />}
       />
     </div>
   );
@@ -215,10 +215,7 @@ const MaxDuration = () => {
 const GoalsPlateau = () => (
   <div style={blockStyle}>
     <Tooltip title={<FormattedMessage id="comingSoon" />}>
-      <FormControlLabel
-        control={<Checkbox disabled />}
-        label={<FormattedMessage id="abortIndividualRunIfModelGoalPlateau" />}
-      />
+      <FormControlLabel control={<Checkbox disabled />} label={<FormattedMessage id="abortIndividualRunIfTaskGoalPlateau" />} />
     </Tooltip>
   </div>
 );

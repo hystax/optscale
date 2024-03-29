@@ -13,13 +13,13 @@ import InstanceTypesField, { FIELD_NAME as INSTANCE_TYPES_FIELD_NAME } from "./I
 import MaximumParallelRunsField from "./MaximumParallelRunsField";
 
 import MaximumRunsetBudgetField, { FIELD_NAME as MAXIMUM_RUNSET_BUDGET_FIELD_NAME } from "./MaximumRunsetBudgetField";
-import ModelsField, { FIELD_NAME as MODELS_FIELD_NAME } from "./ModelsField";
 import NameField, { FIELD_NAME as NAME_FIELD_NAME } from "./NameField";
 import PrefixField, { FIELD_NAME as RESOURCE_NAME_PREFIX_NAME } from "./PrefixField";
 import RegionsField, { FIELD_NAME as REGIONS_FIELD_NAME } from "./RegionsField";
+import TasksField, { FIELD_NAME as TASK_FIELD_NAME } from "./TasksField";
 
 const FIELD_NAMES = Object.freeze({
-  MODELS_FIELD_NAME,
+  TASK_FIELD_NAME,
   DATA_SOURCES_FIELD_NAME,
   REGIONS_FIELD_NAME,
   INSTANCE_TYPES_FIELD_NAME,
@@ -41,7 +41,7 @@ export {
   NameField,
   PrefixField,
   HyperparameterField,
-  ModelsField,
+  TasksField,
   DataSourcesField,
   RegionsField,
   InstanceTypesField,

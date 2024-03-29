@@ -14,7 +14,8 @@ import integrations from "./integrationsMenuItem";
 import k8sRightsizing from "./k8sRightsizingMenuItem";
 import mlDatasets from "./mlDatasetsMenuItem";
 import mlHypertuningMenuItem from "./mlHypertuningMenuItem";
-import mlModels from "./mlModelMenuItem";
+import mlModels from "./mlModelsMenuItem";
+import mlTasks from "./mlTasksMenuItem";
 import pools from "./poolsMenuItem";
 import powerSchedulesMenuItem from "./powerSchedulesMenuItem";
 import quotas from "./quotasMenuItem";
@@ -39,9 +40,8 @@ export default [
   },
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
-    menuSectionTitle: <MainMenuSectionTitle messageId="mlops" />,
-    items: [mlModels, mlDatasets, mlHypertuningMenuItem],
-    mode: OPTSCALE_MODE.MLOPS
+    menuSectionTitle: <MainMenuSectionTitle messageId="mlOps" />,
+    items: [mlTasks, mlModels, mlDatasets, mlHypertuningMenuItem]
   },
   {
     id: MAIN_MENU_SECTION_IDS.POLICIES,

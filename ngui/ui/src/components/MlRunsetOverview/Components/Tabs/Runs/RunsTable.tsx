@@ -12,19 +12,19 @@ import MlRunStatusHeaderCell from "components/MlRunStatusHeaderCell";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { getMlModelRunUrl } from "urls";
+import { getMlTaskRunUrl } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
-import { duration, goals, startedAt, dataset, hyperparameters } from "utils/columns";
-import { formatRunFullName, getFirstGoalEntryKey, getRunsGoalsKeyNameEntries } from "utils/ml";
+import { duration, startedAt, dataset, hyperparameters, metrics } from "utils/columns";
+import { formatRunFullName, getFirstMetricEntryKey, getRunsReachedGoalsKeyNameEntries } from "utils/ml";
 import { isEmpty as isEmptyObject } from "utils/objects";
 import { CELL_EMPTY_VALUE } from "utils/tables";
 
 const RunsTable = ({ runs, isLoading = false }) => {
   const theme = useTheme();
 
-  const goalsKeyNameEntries = getRunsGoalsKeyNameEntries(runs);
+  const metricsKeyNameEntries = getRunsReachedGoalsKeyNameEntries(runs);
 
-  const [sortByGoalKey, setSortByGoalKey] = useState(getFirstGoalEntryKey(goalsKeyNameEntries));
+  const [sortByMetricKey, setSortByMetricKey] = useState(getFirstMetricEntryKey(metricsKeyNameEntries));
 
   const columns = useMemo(
     () => [
@@ -37,14 +37,14 @@ const RunsTable = ({ runs, isLoading = false }) => {
         cell: ({
           cell,
           row: {
-            original: { id, color, application_id: applicationId }
+            original: { id, color, task_id: taskId }
           }
         }) => (
           <CircleLabel
             figureColor={color}
             textFirst={false}
             label={
-              <Link to={getMlModelRunUrl(applicationId, id)} component={RouterLink}>
+              <Link to={getMlTaskRunUrl(taskId, id)} component={RouterLink}>
                 {cell.getValue()}
               </Link>
             }
@@ -60,13 +60,11 @@ const RunsTable = ({ runs, isLoading = false }) => {
           }
         }) => <MlRunStatusCell reason={reason} status={status} />
       },
-      goals({
-        headerMessageId: "goals",
-        headerDataTestId: "lbl_goals",
+      metrics({
         accessorKey: "reached_goals",
-        onSortByGoalKeyChange: (newKey) => setSortByGoalKey(newKey),
-        goalsKeyNameEntries,
-        sortByGoalKey
+        onSortByMetricKeyChange: (newKey) => setSortByMetricKey(newKey),
+        metricsKeyNameEntries,
+        sortByMetricKey
       }),
       dataset({
         id: "dataset",
@@ -118,7 +116,7 @@ const RunsTable = ({ runs, isLoading = false }) => {
           )
       }
     ],
-    [goalsKeyNameEntries, sortByGoalKey]
+    [metricsKeyNameEntries, sortByMetricKey]
   );
 
   const tableData = useMemo(() => runs, [runs]);

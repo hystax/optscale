@@ -14,10 +14,10 @@ from tools.optscale_exceptions.common_exc import NotFoundException
 
 
 class RunController(BaseInfraController):
-    def format_goal(self, goal: dict) -> dict:
-        goal['id'] = goal.pop('_id')
-        goal.pop('token', None)
-        return goal
+    def format_metric(self, metric: dict) -> dict:
+        metric['id'] = metric.pop('_id')
+        metric.pop('token', None)
+        return metric
 
     def format_executor(self, executor: dict, cost: float) -> dict:
         executor['id'] = executor.pop('_id')
@@ -43,7 +43,7 @@ class RunController(BaseInfraController):
         }
 
     def format_run(
-            self, run: dict, application_goals: list[dict],
+            self, run: dict, task_metrics: list[dict],
             executors: dict[str, dict], datasets: dict[str, dict]
     ) -> dict:
         run['id'] = run.pop('_id')
@@ -59,7 +59,7 @@ class RunController(BaseInfraController):
         run['runset'] = self.format_runset(
             run.pop('runset_id'), run.pop('runset_name', None))
         run['duration'] = duration
-        run['goals'] = application_goals
+        run['metrics'] = task_metrics
         execs = []
         for e in run.get('executors', []):
             executor_object = executors.get(e)
@@ -128,15 +128,15 @@ class RunController(BaseInfraController):
         profiling_token = self.get_profiling_token(organization_id)
         return self.bulk_get_runs(profiling_token, [runset_id])
 
-    def _get_application_goals(
-            self, organization_id: str, application_id: str
+    def _get_task_metrics(
+            self, organization_id: str, task_id: str
     ) -> list[dict]:
-        applications = self._get_applications(
-            organization_id, [application_id])
-        if not applications:
+        tasks = self._get_tasks(
+            organization_id, [task_id])
+        if not tasks:
             raise NotFoundException(
-                Err.OE0002, ['Application', application_id])
-        return applications[application_id]['applicationGoals']
+                Err.OE0002, ['Task', task_id])
+        return tasks[task_id]['taskMetrics']
 
     def _get_executors(
             self, organization_id: str, run_ids: list[str]
@@ -169,8 +169,8 @@ class RunController(BaseInfraController):
                 dataset_ids.add(run['dataset_id'])
             for executor in run.get('executors', []):
                 runs_map[executor] = run
-        goals = self._get_application_goals(
-            organization_id, runset['application_id'])
+        metrics = self._get_task_metrics(
+            organization_id, runset['task_id'])
         executors = self._get_executors(organization_id, run_ids)
         cloud_accounts = self._get_cloud_accounts(
             organization_id, [runset.get('cloud_account_id')])
@@ -179,12 +179,12 @@ class RunController(BaseInfraController):
             runset, runs_map, executors, cloud_account)
         executors = {i_id: self.format_executor(e, costs.get(i_id))
                      for i_id, e in executors.items()}
-        goals = [self.format_goal(g) for g in goals]
+        metrics = [self.format_metric(g) for g in metrics]
         datasets = {d_id: self.format_dataset(d)
                     for d_id, d in self._get_datasets(
                 organization_id, dataset_ids).items()}
         return sorted([
-            self.format_run(run, goals, executors, datasets)
+            self.format_run(run, metrics, executors, datasets)
             for run in runs
         ], key=lambda d: d['start'])
 

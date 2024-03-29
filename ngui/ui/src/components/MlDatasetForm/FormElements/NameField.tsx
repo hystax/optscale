@@ -5,7 +5,7 @@ import InputLoader from "components/InputLoader";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
 import { FIELD_NAMES } from "../constants";
 
-const NameField = ({ name = FIELD_NAMES.NAME, isLoading = false }) => {
+const NameField = ({ name = FIELD_NAMES.NAME, isLoading = false, autoFocus = false }) => {
   const {
     register,
     formState: { errors }
@@ -21,6 +21,7 @@ const NameField = ({ name = FIELD_NAMES.NAME, isLoading = false }) => {
       label={<FormattedMessage id="name" />}
       error={!!errors[name]}
       helperText={errors[name] && errors[name].message}
+      autoFocus={autoFocus}
       {...register(name, {
         maxLength: {
           value: DEFAULT_MAX_INPUT_LENGTH,

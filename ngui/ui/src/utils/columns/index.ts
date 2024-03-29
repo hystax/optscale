@@ -9,20 +9,20 @@ import dataSource from "./dataSource";
 import detectedAt from "./detectedAt";
 import discoveryStatus from "./discoveryStatus";
 import duration from "./duration";
+import dynamicFractionDigitsValue from "./dynamicFractionDigitsValue";
 import estimatedExpenses from "./estimatedExpenses";
 import expenses from "./expenses";
 import firstSeen from "./firstSeen";
 import firstSeenOn from "./firstSeenOn";
 import formattedNumber from "./formattedNumber";
 import formattedTime from "./formattedTime";
-import goals from "./goals";
-import goalValue from "./goalValue";
 import hyperparameters from "./hyperparameters";
 import lastSeenUsed from "./lastSeenUsed";
 import lastTimeLocal from "./lastTimeLocal";
 import lastUsed from "./lastUsed";
 import leaderboardCriteriaDataset from "./leaderboardCriteriaDataset";
 import leaderboardCriteriaDatasetLabels from "./leaderboardCriteriaDatasetLabels";
+import metrics from "./metrics";
 import milestones from "./milestones";
 import mlAverageLifetime from "./mlAverageLifetime";
 import mlComputeLocation from "./mlComputeLocation";
@@ -33,7 +33,10 @@ import mlExecutorLocation from "./mlExecutorLocation";
 import mlGpuMemoryUsage from "./mlGpuMemoryUsage";
 import mlIOPSCap from "./mlIOPSCap";
 import mlLocalStorageBottleneckDuration from "./mlLocalStorageBottleneckDuration";
+import mlModelPath from "./mlModelPath";
+import mlModelVersion from "./mlModelVersion";
 import mlRunsCount from "./mlRunsCount";
+import model from "./model";
 import name from "./name";
 import openPorts from "./openPorts";
 import organizationConstraintName from "./organizationConstraintName";
@@ -53,6 +56,7 @@ import resourceLocation from "./resourceLocation";
 import resourcePoolOwner from "./resourcePoolOwner";
 import resourceType from "./resourceType";
 import rightsizingSize from "./rightsizingSize";
+import run from "./run";
 import savings from "./savings";
 import size from "./size";
 import startedAt from "./startedAt";
@@ -61,6 +65,7 @@ import tendency from "./tendency";
 import text from "./text";
 import usage from "./usage";
 import userLocation from "./userLocation";
+import utcTime from "./utcTime";
 
 export {
   poolOwner,
@@ -98,11 +103,11 @@ export {
   mlLocalStorageBottleneckDuration,
   mlGpuMemoryUsage,
   mlAverageLifetime,
-  goalValue,
+  dynamicFractionDigitsValue,
   expenses,
   duration,
   startedAt,
-  goals,
+  metrics,
   firstSeenOn,
   lastSeenUsed,
   biExportName,
@@ -125,5 +130,10 @@ export {
   leaderboardCriteriaDataset,
   leaderboardCriteriaDatasetLabels,
   organizationConstraintName,
-  organizationConstraintStatus
+  organizationConstraintStatus,
+  model,
+  run,
+  utcTime,
+  mlModelVersion,
+  mlModelPath
 };

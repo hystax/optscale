@@ -1,9 +1,16 @@
+import { Typography } from "@mui/material";
 import MuiChip from "@mui/material/Chip";
 import { useTheme } from "@mui/material/styles";
 import SlicedText from "components/SlicedText";
 import { getHash } from "utils/strings";
 
-function calculateColorFromString(inputString) {
+type LabelChipProps = {
+  label: string;
+  colorizeBy?: string;
+  labelSymbolsLimit?: number;
+};
+
+const calculateColorFromString = (inputString: string) => {
   const hash = getHash(inputString);
 
   // Use bitwise AND to ensure the values are between 0 and 255
@@ -12,24 +19,28 @@ function calculateColorFromString(inputString) {
   const b = hash & 0x0000ff;
 
   return { r, g, b };
-}
+};
 
-const LABEL_SYMBOLS_LIMIT = 20;
+const DEFAULT_LABEL_SYMBOLS_LIMIT = 20;
 
-const LabelChip = ({ label }) => {
+const LabelChip = ({ label, colorizeBy = label, labelSymbolsLimit = DEFAULT_LABEL_SYMBOLS_LIMIT }: LabelChipProps) => {
   const theme = useTheme();
   const {
     palette: { getContrastText }
   } = theme;
 
-  const { r, g, b } = calculateColorFromString(label);
+  const { r, g, b } = calculateColorFromString(colorizeBy);
 
   const rgbColor = `rgb(${r},${g},${b})`;
 
   return (
     <MuiChip
       variant="outlined"
-      label={<SlicedText limit={LABEL_SYMBOLS_LIMIT} text={label} />}
+      label={
+        <Typography>
+          <SlicedText limit={labelSymbolsLimit} text={label} />
+        </Typography>
+      }
       sx={{
         color: getContrastText(rgbColor),
         backgroundColor: rgbColor,

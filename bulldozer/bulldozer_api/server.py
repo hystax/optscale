@@ -212,11 +212,11 @@ async def create_template(request):
     if o:
         raise SanicException(
             f"Template with {template_name} exists", status_code=409)
-    application_ids = (doc.get("application_ids") or list())
+    task_ids = (doc.get("task_ids") or list())
     cloud_account_ids = (doc.get("cloud_account_ids") or list())
 
-    if len(application_ids) < 1:
-        raise SanicException("At least 1 application is required",
+    if len(task_ids) < 1:
+        raise SanicException("At least 1 task is required",
                              status_code=400)
     region_ids = (doc.get("region_ids") or list())
     if len(region_ids) < 1:
@@ -237,7 +237,7 @@ async def create_template(request):
     d = {
         "_id": str(uuid.uuid4()),
         "name": template_name,
-        "application_ids": application_ids,
+        "task_ids": task_ids,
         "cloud_account_ids": cloud_account_ids,
         "region_ids": region_ids,
         "instance_types": instance_types,
@@ -331,12 +331,12 @@ async def update_template(request, id_: str):
                     f"Template with {template_name} exists", status_code=409)
         d.update({"name": template_name})
 
-    application_ids = doc.get("application_ids")
-    if application_ids is not None:
-        if len(application_ids) < 1:
-            raise SanicException("At least 1 application is required",
+    task_ids = doc.get("task_ids")
+    if task_ids is not None:
+        if len(task_ids) < 1:
+            raise SanicException("At least 1 task is required",
                                  status_code=400)
-        d.update({"application_ids": application_ids})
+        d.update({"task_ids": task_ids})
 
     region_ids = doc.get("region_ids")
     if region_ids is not None:
@@ -416,7 +416,7 @@ async def _create_runner(
         region_id: str,
         instance_type: str,
         name_prefix: str,
-        application_id: str,
+        task_id: str,
         tags: dict,
         destroy_conditions: dict,
         commands: str,
@@ -434,7 +434,7 @@ async def _create_runner(
         "region_id": region_id,
         "instance_type": instance_type,
         "name_prefix": name_prefix,
-        "application_id": application_id,
+        "task_id": task_id,
         "tags": tags,
         "destroy_conditions": destroy_conditions,
         "commands": commands,
@@ -488,7 +488,7 @@ async def create_runset(request, template_id: str):
         raise SanicException(
             "Template not exists", status_code=404)
     # TODO: strict check args!
-    application_id = doc.get("application_id")
+    task_id = doc.get("task_id")
     cloud_account_id = doc.get("cloud_account_id")
     region_id = doc.get("region_id")
     instance_type = doc.get("instance_type")
@@ -508,7 +508,7 @@ async def create_runset(request, template_id: str):
         "name": NameGenerator.get_random_name(),
         "number": runset_cnt + 1,
         "template_id": template_id,
-        "application_id": application_id,
+        "task_id": task_id,
         "cloud_account_id": cloud_account_id,
         "region_id": region_id,
         "instance_type": instance_type,
@@ -540,7 +540,7 @@ async def create_runset(request, template_id: str):
             region_id,
             instance_type,
             name_prefix,
-            application_id,
+            task_id,
             tags,
             destroy_conditions,
             commands,

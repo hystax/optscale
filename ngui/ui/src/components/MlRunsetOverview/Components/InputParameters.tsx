@@ -125,7 +125,7 @@ const InputParameters = ({ runset, isLoading }) => {
                 );
               }
               if (conditionName === ML_RUNSET_ABORT_CONDITION_TYPES.REACHED_GOALS) {
-                return conditionValue === true ? <FormattedMessage id="abortRunsetWhenOneOfRunsReachesModelGoals" /> : null;
+                return conditionValue === true ? <FormattedMessage id="abortRunsetWhenOneOfRunsReachesTaskGoals" /> : null;
               }
               if (conditionName === ML_RUNSET_ABORT_CONDITION_TYPES.MAX_DURATION) {
                 return (

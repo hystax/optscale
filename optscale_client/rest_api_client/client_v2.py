@@ -1599,8 +1599,8 @@ class Client(Client_v1):
         return self.get(url)
 
     @staticmethod
-    def applications_url(organization_id, id=None):
-        url = '%s/applications' % Client.organization_url(organization_id)
+    def tasks_url(organization_id, id=None):
+        url = '%s/tasks' % Client.organization_url(organization_id)
         if id is not None:
             url += '/%s' % id
         return url
@@ -1614,8 +1614,8 @@ class Client(Client_v1):
         return 'infrastructure/%s/profiling_token' % infrastructure_token
 
     @staticmethod
-    def goals_url(organization_id, id=None):
-        url = '%s/goals' % Client.organization_url(organization_id)
+    def metrics_url(organization_id, id=None):
+        url = '%s/metrics' % Client.organization_url(organization_id)
         if id is not None:
             url += '/%s' % id
         return url
@@ -1630,10 +1630,10 @@ class Client(Client_v1):
             organization_id)
 
     @staticmethod
-    def runs_url(organization_id, id=None, application_id=None):
+    def runs_url(organization_id, id=None, task_id=None):
         base_url = Client.organization_url(organization_id)
-        if application_id:
-            base_url += '/applications/%s' % application_id
+        if task_id:
+            base_url += '/tasks/%s' % task_id
         base_url += '/runs'
         if id:
             base_url += '/%s' % id
@@ -1644,25 +1644,25 @@ class Client(Client_v1):
         return '%s/breakdown' % Client.runs_url(organization_id, id)
 
     @staticmethod
-    def runs_bulk_url(organization_id, application_id):
-        url = "%s/runs/bulk" % Client.applications_url(organization_id,
-                                                       application_id)
+    def runs_bulk_url(organization_id, task_id):
+        url = "%s/runs/bulk" % Client.tasks_url(organization_id,
+                                                       task_id)
         return url
 
     @staticmethod
-    def application_optimizations_url(organization_id, application_id):
-        return '%s/optimizations' % Client.applications_url(
-            organization_id, application_id)
+    def task_optimizations_url(organization_id, task_id):
+        return '%s/optimizations' % Client.tasks_url(
+            organization_id, task_id)
 
-    def application_create(self, organization_id, params):
-        return self.post(self.applications_url(organization_id), params)
+    def task_create(self, organization_id, params):
+        return self.post(self.tasks_url(organization_id), params)
 
-    def application_list(self, organization_id):
-        return self.get(self.applications_url(organization_id))
+    def task_list(self, organization_id):
+        return self.get(self.tasks_url(organization_id))
 
-    def application_get(self, organization_id, application_id,
-                        last_runs=None, last_leaderboards=None):
-        url = self.applications_url(organization_id, application_id)
+    def task_get(self, organization_id, task_id,
+                 last_runs=None, last_leaderboards=None):
+        url = self.tasks_url(organization_id, task_id)
         query_params = {}
         if last_runs is not None:
             query_params['last_runs'] = last_runs
@@ -1672,37 +1672,37 @@ class Client(Client_v1):
             url += self.query_url(**query_params)
         return self.get(url)
 
-    def application_update(self, organization_id, application_id, params):
+    def task_update(self, organization_id, task_id, params):
         return self.patch(
-            self.applications_url(organization_id, application_id), params)
+            self.tasks_url(organization_id, task_id), params)
 
-    def application_delete(self, organization_id, application_id):
-        return self.delete(self.applications_url(
-            organization_id, application_id))
+    def task_delete(self, organization_id, task_id):
+        return self.delete(self.tasks_url(
+            organization_id, task_id))
 
     def profiling_token_get(self, organization_id):
         return self.get(self.profiling_token_url(organization_id))
 
-    def goal_create(self, organization_id, params):
-        return self.post(self.goals_url(organization_id), params)
+    def metric_create(self, organization_id, params):
+        return self.post(self.metrics_url(organization_id), params)
 
-    def goal_list(self, organization_id):
-        return self.get(self.goals_url(organization_id))
+    def metric_list(self, organization_id):
+        return self.get(self.metrics_url(organization_id))
 
-    def goal_get(self, organization_id, goal_id):
-        return self.get(self.goals_url(organization_id, goal_id))
+    def metric_get(self, organization_id, metric_id):
+        return self.get(self.metrics_url(organization_id, metric_id))
 
-    def goal_update(self, organization_id, name, goal_id):
-        return self.patch(self.goals_url(organization_id, name), goal_id)
+    def metric_update(self, organization_id, name, metric_id):
+        return self.patch(self.metrics_url(organization_id, name), metric_id)
 
-    def goal_delete(self, organization_id, goal_id):
-        return self.delete(self.goals_url(
-            organization_id, goal_id))
+    def metric_delete(self, organization_id, metric_id):
+        return self.delete(self.metrics_url(
+            organization_id, metric_id))
 
-    def executor_list(self, organization_id, application_ids=None,
+    def executor_list(self, organization_id, task_ids=None,
                       run_ids=None):
         url = self.executors_url(organization_id) + self.query_url(
-            application_id=application_ids, run_id=run_ids)
+            task_id=task_ids, run_id=run_ids)
         return self.get(url)
 
     def executors_breakdown_get(self, organization_id):
@@ -1715,18 +1715,18 @@ class Client(Client_v1):
     def run_breakdown_get(self, organization_id, run_id):
         return self.get(self.runs_breakdown_url(organization_id, run_id))
 
-    def run_list(self, organization_id, application_id, **kwargs):
-        url = self.runs_url(organization_id, application_id=application_id
+    def run_list(self, organization_id, task_id, **kwargs):
+        url = self.runs_url(organization_id, task_id=task_id
                             ) + self.query_url(**kwargs)
         return self.get(url)
 
     def run_delete(self, organization_id, run_id):
         return self.delete(self.runs_url(organization_id, id=run_id))
 
-    def application_optimizations_get(self, organization_id, application_id,
-                                      types=None, status=None):
-        url = self.application_optimizations_url(
-            organization_id, application_id)
+    def task_optimizations_get(self, organization_id, task_id,
+                               types=None, status=None):
+        url = self.task_optimizations_url(
+            organization_id, task_id)
         query_params = {}
         if types is not None:
             query_params['type'] = types
@@ -1975,9 +1975,9 @@ class Client(Client_v1):
         url = self.power_schedules_actions_url(id_=id_)
         return self.post(url, params)
 
-    def leaderboard_url(self, organization_id, application_id):
-        return '%s/leaderboard' % Client.applications_url(
-            organization_id, application_id)
+    def leaderboard_url(self, organization_id, task_id):
+        return '%s/leaderboard' % Client.tasks_url(
+            organization_id, task_id)
 
     @staticmethod
     def leaderboard_dataset_url(organization_id, leaderboard_dataset_id):
@@ -1994,22 +1994,22 @@ class Client(Client_v1):
         return '%s/leaderboards/%s/leaderboard_datasets' % (
             Client.organization_url(organization_id), leaderboard_id)
 
-    def leaderboard_create(self, organization_id, application_id, params):
+    def leaderboard_create(self, organization_id, task_id, params):
         return self.post(
-            self.leaderboard_url(organization_id, application_id), params)
+            self.leaderboard_url(organization_id, task_id), params)
 
-    def leaderboard_get(self, organization_id, application_id, details=False):
+    def leaderboard_get(self, organization_id, task_id, details=False):
         url = self.leaderboard_url(
-            organization_id, application_id) + self.query_url(details=details)
+            organization_id, task_id) + self.query_url(details=details)
         return self.get(url)
 
-    def leaderboard_update(self, organization_id, application_id, params):
+    def leaderboard_update(self, organization_id, task_id, params):
         return self.patch(
-            self.leaderboard_url(organization_id, application_id), params)
+            self.leaderboard_url(organization_id, task_id), params)
 
-    def leaderboard_delete(self, organization_id, application_id):
+    def leaderboard_delete(self, organization_id, task_id):
         return self.delete(
-            self.leaderboard_url(organization_id, application_id))
+            self.leaderboard_url(organization_id, task_id))
 
     @staticmethod
     def datasets_url(organization_id, id=None):
@@ -2078,8 +2078,8 @@ class Client(Client_v1):
         return self.get(self.leaderboard_generate_url(organization_id,
                                                       leaderboard_dataset_id))
 
-    def runs_bulk_get(self, organization_id, application_id, run_ids):
-        url = Client.runs_bulk_url(organization_id, application_id)
+    def runs_bulk_get(self, organization_id, task_id, run_ids):
+        url = Client.runs_bulk_url(organization_id, task_id)
         url += self.query_url(
             run_id=run_ids,
         )
@@ -2136,3 +2136,45 @@ class Client(Client_v1):
         url = self.ri_group_breakdown_url(organization_id) + self.query_url(
             **kwargs)
         return self.get(url)
+
+    @staticmethod
+    def models_url(org_id, model_id=None):
+        url = '%s/models' % Client.organization_url(org_id)
+        if model_id is not None:
+            url = '%s/%s' % (url, model_id)
+        return url
+
+    def model_create(self, org_id, params):
+        return self.post(self.models_url(org_id), params)
+
+    def model_update(self, org_id, model_id, **params):
+        return self.patch(self.models_url(org_id, model_id), params)
+
+    def models_get(self, org_id):
+        return self.get(self.models_url(org_id))
+
+    def model_get(self, org_id, model_id):
+        return self.get(self.models_url(org_id, model_id))
+
+    def model_delete(self, org_id, model_id):
+        return self.delete(self.models_url(org_id, model_id))
+
+    def model_runs_url(self, org_id, model_id, run_id):
+        return '%s/runs/%s' % (self.models_url(org_id, model_id), run_id)
+
+    def model_version_create(self, org_id, model_id, run_id, params):
+        return self.post(self.model_runs_url(org_id, model_id, run_id), params)
+
+    def model_version_update(self, org_id, model_id, run_id, **params):
+        return self.patch(self.model_runs_url(org_id, model_id, run_id),
+                          params)
+
+    def model_version_delete(self, org_id, model_id, run_id):
+        return self.delete(self.model_runs_url(org_id, model_id, run_id))
+
+    def model_versions_url(self, org_id, task_id):
+        return '%s/model_versions' % (self.tasks_url(
+            org_id, task_id))
+
+    def model_versions_by_task(self, org_id, task_id):
+        return self.get(self.model_versions_url(org_id, task_id))

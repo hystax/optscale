@@ -8,7 +8,7 @@ import SetupLeaderboardsForm, {
   defaultValues as setupLeaderboardDefaultValues,
   FIELD_NAMES
 } from "components/SetupLeaderboardsForm";
-import { ML_TASKS, getMlModelDetailsUrl } from "urls";
+import { ML_TASKS, getMlTaskDetailsUrl } from "urls";
 
 const SetupLeaderboard = ({ task, runs, onSetup, isLoadingProps = {} }) => {
   const navigate = useNavigate();
@@ -16,14 +16,14 @@ const SetupLeaderboard = ({ task, runs, onSetup, isLoadingProps = {} }) => {
   const { id, name } = task;
   const { isGetTaskLoading = false, isGetRunsListLoading = false, isSetupLoading = false } = isLoadingProps;
 
-  const mlModelDetailsUrl = getMlModelDetailsUrl(id);
+  const mlTaskDetailsUrl = getMlTaskDetailsUrl(id);
 
   const actionBarDefinition = {
     breadcrumbs: [
       <Link key={1} to={ML_TASKS} component={RouterLink}>
         <FormattedMessage id="tasks" />
       </Link>,
-      <Link key={2} to={mlModelDetailsUrl} component={RouterLink}>
+      <Link key={2} to={mlTaskDetailsUrl} component={RouterLink}>
         {name}
       </Link>
     ],
@@ -54,7 +54,7 @@ const SetupLeaderboard = ({ task, runs, onSetup, isLoadingProps = {} }) => {
           }}
         >
           <SetupLeaderboardsForm
-            metrics={task.goals}
+            metrics={task.metrics}
             runTags={runTags}
             isLoadingProps={{
               isGetDataLoading: isGetTaskLoading || isGetRunsListLoading,
@@ -62,7 +62,7 @@ const SetupLeaderboard = ({ task, runs, onSetup, isLoadingProps = {} }) => {
             }}
             onSubmit={onSetup}
             defaultValues={defaultValues}
-            onCancel={() => navigate(mlModelDetailsUrl)}
+            onCancel={() => navigate(mlTaskDetailsUrl)}
           />
         </Box>
       </PageContentWrapper>

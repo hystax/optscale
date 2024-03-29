@@ -17,77 +17,77 @@ class LeaderboardController(BaseProfilingController):
     def model_name(self):
         return 'Leaderboard'
 
-    def get_goals(self, profiling_token, leaderboard, raise_exc=True):
-        goals_ids = [leaderboard['primary_goal']] + leaderboard.get(
-            'other_goals', [])
-        existing_goals = self.list_goals(profiling_token)
-        not_exist = set(goals_ids) - set(x['id'] for x in existing_goals)
+    def get_metrics(self, profiling_token, leaderboard, raise_exc=True):
+        metrics_ids = [leaderboard['primary_metric']] + leaderboard.get(
+            'other_metrics', [])
+        existing_metrics = self.list_metrics(profiling_token)
+        not_exist = set(metrics_ids) - set(x['id'] for x in existing_metrics)
         if not_exist and raise_exc:
             message = ', '.join(not_exist)
-            raise NotFoundException(Err.OE0002, ['Goal', message])
-        return {x['id']: x for x in existing_goals if x['id'] in goals_ids}
+            raise NotFoundException(Err.OE0002, ['Metric', message])
+        return {x['id']: x for x in existing_metrics if x['id'] in metrics_ids}
 
     @staticmethod
-    def format_leaderboard(leaderboard, goals_map):
+    def format_leaderboard(leaderboard, metrics_map):
         for filter_ in leaderboard['filters']:
-            filter_goal = goals_map.get(filter_['id'])
-            if filter_goal:
-                filter_['name'] = filter_goal.get('name')
-        primary_metric = goals_map.pop(
-            leaderboard['primary_goal'], None)
-        leaderboard['primary_goal'] = primary_metric
-        leaderboard['other_goals'] = list(goals_map.values())
+            filter_metric = metrics_map.get(filter_['id'])
+            if filter_metric:
+                filter_['name'] = filter_metric.get('name')
+        primary_metric = metrics_map.pop(
+            leaderboard['primary_metric'], None)
+        leaderboard['primary_metric'] = primary_metric
+        leaderboard['other_metrics'] = list(metrics_map.values())
         return leaderboard
 
-    def create(self, application_id, profiling_token, **kwargs):
-        self.check_application(application_id, profiling_token)
+    def create(self, task_id, profiling_token, **kwargs):
+        self.check_task(task_id, profiling_token)
         try:
-            goals_map = self.get_goals(profiling_token, kwargs)
+            metrics_map = self.get_metrics(profiling_token, kwargs)
             leaderboard = self.create_leaderboard(profiling_token,
-                                                  application_id, **kwargs)
+                                                  task_id, **kwargs)
         except HTTPError as ex:
             if ex.response.status_code == 409:
-                raise ConflictException(Err.OE0549, [application_id])
+                raise ConflictException(Err.OE0549, [task_id])
             raise
-        return self.format_leaderboard(leaderboard, goals_map)
+        return self.format_leaderboard(leaderboard, metrics_map)
 
-    def check_application(self, application_id, profiling_token):
+    def check_task(self, task_id, profiling_token):
         try:
-            self.get_application(profiling_token, application_id)
+            self.get_task(profiling_token, task_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002,
-                                        ['Application', application_id])
+                                        ['Task', task_id])
             raise
 
-    def get(self, application_id, profiling_token, details=False):
-        self.check_application(application_id, profiling_token)
-        leaderboard = self.get_leaderboard(profiling_token, application_id)
+    def get(self, task_id, profiling_token, details=False):
+        self.check_task(task_id, profiling_token)
+        leaderboard = self.get_leaderboard(profiling_token, task_id)
         if leaderboard:
-            goals_map = self.get_goals(profiling_token, leaderboard,
-                                       raise_exc=False)
-            leaderboard = self.format_leaderboard(leaderboard, goals_map)
+            metrics_map = self.get_metrics(profiling_token, leaderboard,
+                                           raise_exc=False)
+            leaderboard = self.format_leaderboard(leaderboard, metrics_map)
             if details:
                 leaderboard['details'] = self._get_details(
-                    application_id, profiling_token)
+                    task_id, profiling_token)
         return leaderboard or {}
 
-    def _get_details(self, application_id, profiling_token):
-        return self.get_leaderboard_details(profiling_token, application_id)
+    def _get_details(self, task_id, profiling_token):
+        return self.get_leaderboard_details(profiling_token, task_id)
 
-    def edit(self, application_id, profiling_token, **kwargs):
-        self.check_application(application_id, profiling_token)
+    def edit(self, task_id, profiling_token, **kwargs):
+        self.check_task(task_id, profiling_token)
         try:
-            self.update_leaderboard(profiling_token, application_id, **kwargs)
+            self.update_leaderboard(profiling_token, task_id, **kwargs)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name,
-                                                     application_id])
-        return self.get(application_id, profiling_token)
+                                                     task_id])
+        return self.get(task_id, profiling_token)
 
-    def delete(self, application_id, profiling_token):
+    def delete(self, task_id, profiling_token):
         try:
-            self.delete_leaderboard(profiling_token, application_id)
+            self.delete_leaderboard(profiling_token, task_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name, id])
