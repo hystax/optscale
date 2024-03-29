@@ -96,7 +96,7 @@ const Summary = ({ name = "", modelKey = "", createdAt = 0, tags = {}, isLoading
           ) : (
             <ExpandableList
               items={Object.entries(tags).sort(([nameA], [nameB]) => nameA.localeCompare(nameB))}
-              render={([tagName, tagValue]) => <KeyValueLabel key={tagName} text={tagName} value={tagValue} />}
+              render={([tagName, tagValue]) => <KeyValueLabel key={tagName} keyText={tagName} value={tagValue} />}
               maxRows={5}
             />
           )
@@ -198,6 +198,9 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
           </TextWithDataTestId>
         ),
         id: "tags",
+        style: {
+          minWidth: "200px"
+        },
         accessorFn: (originalRow) =>
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)

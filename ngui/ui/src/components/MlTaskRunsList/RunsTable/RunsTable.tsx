@@ -4,7 +4,6 @@ import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CaptionedCell from "components/CaptionedCell";
-import CollapsableTableCell from "components/CollapsableTableCell";
 import { useMoneyFormatter } from "components/FormattedMoney";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import MlRunStatusCell from "components/MlRunStatusCell";
@@ -12,11 +11,10 @@ import MlRunStatusHeaderCell from "components/MlRunStatusHeaderCell";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { getMlTaskRunUrl, getMlRunsetDetailsUrl } from "urls";
-import { duration, startedAt, hyperparameters, dataset, metrics } from "utils/columns";
+import { duration, startedAt, hyperparameters, dataset, metrics, tags } from "utils/columns";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 import { formatRunFullName, getFirstMetricEntryKey, getRunsReachedGoalsKeyNameEntries } from "utils/ml";
 import { isEmpty as isEmptyObject } from "utils/objects";
-import { CELL_EMPTY_VALUE } from "utils/tables";
 
 const RunsTable = ({ runs }) => {
   const theme = useTheme();
@@ -110,24 +108,14 @@ const RunsTable = ({ runs }) => {
         accessorFn: ({ cost }) => formatMoney(FORMATTED_MONEY_TYPES.COMMON, cost),
         cell: ({ cell }) => cell.getValue()
       },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_tags">
-            <FormattedMessage id="tags" />
-          </TextWithDataTestId>
-        ),
+      tags({
         id: "tags",
-        accessorFn: ({ tags }) =>
-          Object.entries(tags || {})
+        accessorFn: (originalRow) =>
+          Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
-        enableSorting: false,
-        cell: ({
-          row: {
-            original: { tags = {} }
-          }
-        }) => (isEmptyObject(tags) ? CELL_EMPTY_VALUE : <CollapsableTableCell maxRows={5} tags={tags} />)
-      },
+        getTags: (originalRow) => originalRow.tags
+      }),
       startedAt({
         headerMessageId: "startedAt",
         headerDataTestId: "lbl_started_at",

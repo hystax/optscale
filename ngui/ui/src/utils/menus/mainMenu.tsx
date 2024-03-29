@@ -40,7 +40,7 @@ export default [
   },
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
-    menuSectionTitle: <MainMenuSectionTitle messageId="mlOps" />,
+    menuSectionTitle: <MainMenuSectionTitle messageId="mlops" />,
     items: [mlTasks, mlModels, mlDatasets, mlHypertuningMenuItem]
   },
   {

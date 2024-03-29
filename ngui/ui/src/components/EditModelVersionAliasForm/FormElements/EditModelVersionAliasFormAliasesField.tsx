@@ -5,6 +5,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import Chip from "components/Chip";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import Input from "components/Input";
+import MlModelVersionLabel from "components/MlModelVersionLabel";
 import SlicedText from "components/SlicedText";
 import { ModelVersion } from "services/MlModelsService";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
@@ -133,7 +134,11 @@ const EditModelVersionAliasFormAliasesField = ({
                         {modelVersion.version === version ? (
                           <FormattedMessage id="thisVersion" />
                         ) : (
-                          `${intl.formatMessage({ id: "version" })} ${version}`
+                          <>
+                            {`${intl.formatMessage({ id: "version" })}`}
+                            &nbsp;
+                            <MlModelVersionLabel version={version} />
+                          </>
                         )}
                       </Box>
                     )}
