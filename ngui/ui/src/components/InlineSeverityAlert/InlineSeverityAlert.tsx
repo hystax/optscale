@@ -1,8 +1,23 @@
-import { Alert, Typography } from "@mui/material";
+import { ReactNode } from "react";
+import { Alert, AlertProps, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import useStyles from "./InlineSeverityAlert.styles";
 
-const InlineSeverityAlert = ({ messageId, messageDataTestId, messageValues, severity = "info", sx = {} }) => {
+type InlineSeverityAlertProps = {
+  messageId: string;
+  messageValues?: Record<string, ReactNode>;
+  messageDataTestId?: string;
+  severity?: AlertProps["severity"];
+  sx?: Record<string, unknown>;
+};
+
+const InlineSeverityAlert = ({
+  messageId,
+  messageValues,
+  messageDataTestId,
+  severity = "info",
+  sx = {}
+}: InlineSeverityAlertProps) => {
   const { classes } = useStyles();
 
   return (
