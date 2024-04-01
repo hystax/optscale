@@ -21,6 +21,9 @@ const tags = ({
   accessorKey,
   accessorFn,
   enableSorting,
+  style: {
+    minWidth: "200px"
+  },
   cell: ({ row: { original } }) => <CollapsableTableCell maxRows={5} tags={getTags(original)} />
 });
 
