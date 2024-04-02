@@ -12,7 +12,7 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
     def setUp(self, version='v2'):
         super().setUp(version)
         _, self.org = self.client.organization_create({'name': "organization"})
-        self.valid_application = {
+        self.valid_task = {
             'name': 'My test project',
             'key': 'test_project'
         }
@@ -47,34 +47,34 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
             'error': error,
         })
 
-    def test_application_optimizations_invalid_params(self):
-        code, app = self.client.application_create(
-            self.org['id'], self.valid_application)
+    def test_task_optimizations_invalid_params(self):
+        code, task = self.client.task_create(
+            self.org['id'], self.valid_task)
         self.assertEqual(code, 201)
-        code, resp = self.client.application_optimizations_get(
-            str(uuid.uuid4()), app['id'])
+        code, resp = self.client.task_optimizations_get(
+            str(uuid.uuid4()), task['id'])
         self.assertEqual(code, 404)
         self.verify_error_code(resp, 'OE0002')
 
-        code, resp = self.client.application_optimizations_get(
+        code, resp = self.client.task_optimizations_get(
             self.org['id'], str(uuid.uuid4()))
         self.assertEqual(code, 404)
         self.verify_error_code(resp, 'OE0002')
 
-    def test_application_optimizations_empty(self):
-        code, app = self.client.application_create(
-            self.org['id'], self.valid_application)
+    def test_task_optimizations_empty(self):
+        code, task = self.client.task_create(
+            self.org['id'], self.valid_task)
         self.assertEqual(code, 201)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp, {
             'total_saving': 0, 'optimizations': {}, 'total_count': 0,
             'dismissed_optimizations': {}, 'excluded_optimizations': {}})
 
-    def test_application_recommendations(self):
-        code, app = self.client.application_create(
-            self.org['id'], self.valid_application)
+    def test_task_recommendations(self):
+        code, task = self.client.task_create(
+            self.org['id'], self.valid_task)
         self.assertEqual(code, 201)
         dt = int(datetime.utcnow().timestamp())
         checklist = self.add_checklist(self.org['id'], dt)
@@ -93,10 +93,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         ]
         self.add_recommendations(checklist, 'second', data)
 
-        self._create_run(self.org['id'], app['id'], ['4'],
+        self._create_run(self.org['id'], task['id'], ['4'],
                          start=dt - 2, finish=dt)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp, {
             'total_saving': 0,
@@ -117,10 +117,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
             'excluded_optimizations': {},
             'total_count': 0})
 
-        self._create_run(self.org['id'], app['id'], ['1'],
+        self._create_run(self.org['id'], task['id'], ['1'],
                          start=dt - 2, finish=dt)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['total_saving'], 9)
         self.assertEqual(resp['total_count'], 2)
@@ -135,10 +135,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         self.assertEqual(optimizations['second']['options'], {})
         self.assertEqual(len(optimizations['second']['items']), 1)
 
-        self._create_run(self.org['id'], app['id'], ['3'],
+        self._create_run(self.org['id'], task['id'], ['3'],
                          start=dt - 2, finish=dt)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['total_saving'], 12)
         self.assertEqual(resp['total_count'], 3)
@@ -151,9 +151,9 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         self.assertEqual(optimizations['second']['saving'], 8)
         self.assertEqual(len(optimizations['second']['items']), 1)
 
-    def test_application_recommendations_dismissed(self):
-        code, app = self.client.application_create(
-            self.org['id'], self.valid_application)
+    def test_task_recommendations_dismissed(self):
+        code, task = self.client.task_create(
+            self.org['id'], self.valid_task)
         self.assertEqual(code, 201)
         dt = int(datetime.utcnow().timestamp())
         checklist = self.add_checklist(self.org['id'], dt)
@@ -172,10 +172,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         ]
         self.add_recommendations(checklist, 'second', data)
 
-        self._create_run(self.org['id'], app['id'], ['1'],
+        self._create_run(self.org['id'], task['id'], ['1'],
                          start=dt - 2, finish=dt)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['total_saving'], 0)
         self.assertEqual(resp['total_count'], 0)
@@ -196,8 +196,8 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         self.assertEqual(dismissed['second']['count'], 1)
         self.assertEqual(dismissed['second']['saving'], 8)
 
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'], status='dismissed', types=['first'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'], status='dismissed', types=['first'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['total_saving'], 0)
         self.assertEqual(resp['total_count'], 0)
@@ -207,9 +207,9 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         self.assertEqual(dismissed['first']['saving'], 1)
         self.assertEqual(len(dismissed['first']['items']), 1)
 
-    def test_application_optimizations_threshold(self):
-        code, app = self.client.application_create(
-            self.org['id'], self.valid_application)
+    def test_task_optimizations_threshold(self):
+        code, task = self.client.task_create(
+            self.org['id'], self.valid_task)
         self.assertEqual(code, 201)
         dt = int(datetime.utcnow().timestamp())
         checklist = self.add_checklist(self.org['id'], dt)
@@ -219,10 +219,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         ]
         self.add_recommendations(checklist, 'first', data)
         start = dt - 7 * 86400 - 1
-        self._create_run(self.org['id'], app['id'], ['1'],
+        self._create_run(self.org['id'], task['id'], ['1'],
                          start=start, finish=start + 1)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp, {
             'total_saving': 0,
@@ -235,10 +235,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         })
 
         start = dt - 7 * 86400 + 5
-        self._create_run(self.org['id'], app['id'], ['1'],
+        self._create_run(self.org['id'], task['id'], ['1'],
                          start=start, finish=start + 1)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['total_saving'], 1)
         self.assertEqual(resp['total_count'], 1)
@@ -248,9 +248,9 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         self.assertEqual(optimizations['first']['saving'], 1)
         self.assertEqual(len(optimizations['first']['items']), 1)
 
-    def test_application_optimizations_excluded_and_dismissed(self):
-        code, app = self.client.application_create(
-            self.org['id'], self.valid_application)
+    def test_task_optimizations_excluded_and_dismissed(self):
+        code, task = self.client.task_create(
+            self.org['id'], self.valid_task)
         self.assertEqual(code, 201)
         dt = int(datetime.utcnow().timestamp())
         checklist = self.add_checklist(self.org['id'], dt)
@@ -263,10 +263,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
              'is_dismissed': True},
         ]
         self.add_recommendations(checklist, 'first', data)
-        self._create_run(self.org['id'], app['id'], ['1'],
+        self._create_run(self.org['id'], task['id'], ['1'],
                          start=dt - 1, finish=dt)
-        code, resp = self.client.application_optimizations_get(
-            self.org['id'], app['id'])
+        code, resp = self.client.task_optimizations_get(
+            self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['total_saving'], 1)
         optimizations = resp['optimizations']

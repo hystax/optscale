@@ -13,7 +13,7 @@ import MlRunsetTagForCreatedResourcesChip from "components/MlRunsetTagForCreated
 import SummaryList from "components/SummaryList";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
-import { getMlModelDetailsUrl } from "urls";
+import { getMlTaskDetailsUrl } from "urls";
 import { isEmpty as isEmptyArray, isLastItem } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
 import { isEmpty as isEmptyObject } from "utils/objects";
@@ -22,7 +22,7 @@ const Details = ({
   dataSources,
   regions,
   instanceTypes,
-  models,
+  tasks,
   maximumRunsetBudget,
   resourceNamePrefix,
   tags,
@@ -41,14 +41,14 @@ const Details = ({
               <KeyValueLabel
                 keyMessageId="tasks"
                 value={
-                  isEmptyArray(models) ? null : (
+                  isEmptyArray(tasks) ? null : (
                     <span>
-                      {models.map(({ id, name, deleted = false }, index, array) => (
+                      {tasks.map(({ id, name, deleted = false }, index, array) => (
                         <Fragment key={id}>
                           {deleted ? (
                             name
                           ) : (
-                            <Link key={id} to={getMlModelDetailsUrl(id)} component={RouterLink}>
+                            <Link key={id} to={getMlTaskDetailsUrl(id)} component={RouterLink}>
                               {name}
                             </Link>
                           )}

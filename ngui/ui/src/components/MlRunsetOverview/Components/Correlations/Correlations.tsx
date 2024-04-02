@@ -13,7 +13,7 @@ import SubTitle from "components/SubTitle";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
 import { removeKey } from "utils/objects";
-import ParametersSelector from "../ParametersSelector";
+import GoalsSelector from "../GoalsSelector";
 import useStyles from "./Correlations.styles";
 import {
   DIMENSION_GROUPS,
@@ -172,7 +172,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
           withLeftMargin={false}
         />
         {[hyperparameterNames, goalKeys].every(isEmptyArray) ? null : (
-          <ParametersSelector
+          <GoalsSelector
             hyperparametersDimensionsNames={hyperparameterNames}
             goalDimensionsNames={goalKeys}
             getGoalDimensionName={(k) => getGoalNameByKey(k)}

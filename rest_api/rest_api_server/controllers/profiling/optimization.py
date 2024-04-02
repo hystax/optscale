@@ -11,8 +11,8 @@ from datetime import datetime
 LAST_RUNS_THRESHOLD = 7 * 86400  # 7 days
 
 
-class ApplicationOptimizationsController(BaseProfilingController,
-                                         OptimizationController):
+class TaskOptimizationsController(BaseProfilingController,
+                                  OptimizationController):
 
     @staticmethod
     def get_basic_response(checklist):
@@ -44,22 +44,22 @@ class ApplicationOptimizationsController(BaseProfilingController,
             optimization_data.append(r)
         return optimization_data
 
-    def get_last_application_runs(self, application_id, profiling_token):
+    def get_last_task_runs(self, task_id, profiling_token):
         try:
-            runs = self.list_application_runs(profiling_token, application_id)
+            runs = self.list_task_runs(profiling_token, task_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(
-                    Err.OE0002, ['Application', application_id])
+                    Err.OE0002, ['Task', task_id])
             raise
         now = int(datetime.utcnow().timestamp())
         return list(filter(
             lambda x: x['start'] >= now - LAST_RUNS_THRESHOLD, runs))
 
     def get_optimizations(
-            self, organization_id, application_id, profiling_token,
+            self, organization_id, task_id, profiling_token,
             types, status):
-        runs = self.get_last_application_runs(application_id, profiling_token)
+        runs = self.get_last_task_runs(task_id, profiling_token)
         executor_ids = self.collect_executor_ids(runs)
         checklist = ChecklistController(
             self.session, self._config).get_by_organization(organization_id)
@@ -77,6 +77,6 @@ class ApplicationOptimizationsController(BaseProfilingController,
         return res
 
 
-class ApplicationOptimizationAsyncController(BaseAsyncControllerWrapper):
+class TaskOptimizationAsyncController(BaseAsyncControllerWrapper):
     def _get_controller_class(self):
-        return ApplicationOptimizationsController
+        return TaskOptimizationsController

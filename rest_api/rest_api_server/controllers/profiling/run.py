@@ -12,8 +12,7 @@ from rest_api.rest_api_server.controllers.profiling.base import (
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import RunStates
 
-from tools.optscale_exceptions.common_exc import (
-    NotFoundException, WrongArgumentsException)
+from tools.optscale_exceptions.common_exc import NotFoundException
 
 DAY_IN_HOURS = 24
 BYTES_IN_MB = 1024 * 1024
@@ -21,9 +20,9 @@ BYTES_IN_MB = 1024 * 1024
 
 class RunBulkController(BaseProfilingController):
 
-    def bulk_runs_get(self, application_id, profiling_token, run_ids):
+    def bulk_runs_get(self, task_id, profiling_token, run_ids):
         try:
-            runs = self.bulk_gen_runs(profiling_token, application_id, run_ids)
+            runs = self.bulk_gen_runs(profiling_token, task_id, run_ids)
             for run in runs:
                 ArceeObject.format(run)
                 if 'dataset' in run:
@@ -32,13 +31,13 @@ class RunBulkController(BaseProfilingController):
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(
-                    Err.OE0002, ['Application', application_id])
+                    Err.OE0002, ['Task', task_id])
             raise
 
 
 class RunController(BaseProfilingController, RunCostsMixin):
     def formatted_run(
-            self, run, application_goals, datasets, run_costs, console=None,
+            self, run, task_metrics, datasets, run_costs, console=None,
             include_console=False
     ):
         state = run['state']
@@ -48,7 +47,7 @@ class RunController(BaseProfilingController, RunCostsMixin):
             finish = datetime.utcnow().timestamp()
         run['duration'] = finish - run.get('start') if finish else None
         run['cost'] = run_costs.get(run['id'], 0)
-        run['goals'] = application_goals
+        run['metrics'] = task_metrics
         if run.get('runset_id'):
             run['runset'] = {
                 'id': run.pop('runset_id'),
@@ -95,24 +94,24 @@ class RunController(BaseProfilingController, RunCostsMixin):
             raise
         cloud_accounts_ids = self.get_cloud_account_ids(organization_id)
         run_costs = self._get_run_costs(cloud_accounts_ids, [run])
-        goals = self.__get_application_goals(
-            run['application_id'], profiling_token)
+        metrics = self.__get_task_metrics(
+            run['task_id'], profiling_token)
         datasets = {}
         if run.get('dataset_id'):
             datasets = self._get_datasets({run['dataset_id']}, profiling_token)
         console = self.__get_console(run_id, profiling_token)
         return self.formatted_run(
-            run, goals, datasets, run_costs, console, include_console=True)
+            run, metrics, datasets, run_costs, console, include_console=True)
 
-    def list(self, organization_id, application_id, profiling_token, **kwargs):
+    def list(self, organization_id, task_id, profiling_token, **kwargs):
         start_date = kwargs.get('start_date')
         end_date = kwargs.get('end_date')
         try:
-            data = self.list_application_runs(profiling_token, application_id)
+            data = self.list_task_runs(profiling_token, task_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(
-                    Err.OE0002, ['Application', application_id])
+                    Err.OE0002, ['Task', task_id])
             raise
         runs = []
         dataset_ids = set()
@@ -127,20 +126,20 @@ class RunController(BaseProfilingController, RunCostsMixin):
                 dataset_ids.add(run['dataset_id'])
         cloud_accounts_ids = self.get_cloud_account_ids(organization_id)
         run_costs = self._get_run_costs(cloud_accounts_ids, runs)
-        goals = self.__get_application_goals(application_id, profiling_token)
+        metrics = self.__get_task_metrics(task_id, profiling_token)
         datasets = self._get_datasets(dataset_ids, profiling_token)
         return sorted([
-            self.formatted_run(run, goals, datasets, run_costs) for run in runs
+            self.formatted_run(run, metrics, datasets, run_costs) for run in runs
         ], key=lambda d: d['start'])
 
-    def __get_application_goals(self, app_id, profiling_token):
+    def __get_task_metrics(self, task_id, profiling_token):
         try:
-            application = self.get_application(profiling_token, app_id)
+            task = self.get_task(profiling_token, task_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
-                raise NotFoundException(Err.OE0002, ['Application', app_id])
+                raise NotFoundException(Err.OE0002, ['Task', task_id])
             raise
-        return application['goals']
+        return task['metrics']
 
     def get_cloud_account_ids(self, organization_id):
         return list(self._get_cloud_accounts(organization_id).keys())
@@ -165,13 +164,13 @@ class RunController(BaseProfilingController, RunCostsMixin):
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, ['Run', run_id])
             raise
-        goals = self.__get_application_goals(
-            run['application_id'], profiling_token)
+        metrics = self.__get_task_metrics(
+            run['task_id'], profiling_token)
         executors = run.get('executors', [])
-        log_times = list(map(lambda x: x['time'], logs)) or [run['start']]
+        log_times = list(map(lambda x: x['timestamp'], logs)) or [run['start']]
         min_time = math.ceil(min([min(log_times), run['start']]))
         max_time = math.ceil(max([max(log_times), run.get('finish') or 0]))
-        goal_function_map = {g['key']: g.get('func') for g in goals}
+        metric_function_map = {g['key']: g.get('func') for g in metrics}
         result = {}
         for p in proc_data:
             t = math.ceil(p['timestamp'])
@@ -207,11 +206,11 @@ class RunController(BaseProfilingController, RunCostsMixin):
                 result[t]['metrics']['process_ram'].append(
                     process_ram / BYTES_IN_MB)
         for log in logs:
-            t = math.ceil(log['time'])
+            t = math.ceil(log['timestamp'])
             if t not in result:
                 result[t] = defaultdict(lambda: defaultdict(list))
             for k, v in log.get('data', {}).items():
-                if k not in goal_function_map:
+                if k not in metric_function_map:
                     continue
                 if isinstance(v, str):
                     v = float(v)
@@ -227,7 +226,7 @@ class RunController(BaseProfilingController, RunCostsMixin):
                 for k in fields:
                     objects = result[i][key].get(k)
                     if objects:
-                        func = goal_function_map.get(k) or 'avg'
+                        func = metric_function_map.get(k) or 'avg'
                         result[i][key][k] = _aggregate(objects, func)
             result[i]['metrics']['executors_count'] = len(set(count))
         return {

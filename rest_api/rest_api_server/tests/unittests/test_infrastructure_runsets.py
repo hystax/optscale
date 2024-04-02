@@ -13,7 +13,7 @@ class TestRunsetsApi(TestInfrastructureBase):
             self.organization_id, self.valid_template)
         self.template_id = template['id']
         self.param_to_obj_map = {
-            'application_id': 'application',
+            'task_id': 'task',
             'cloud_account_id': 'cloud_account',
             'region_id': 'region',
             'instance_type': 'instance_size',
@@ -36,7 +36,8 @@ class TestRunsetsApi(TestInfrastructureBase):
             'display_name': 'default',
             'email': 'email@email.com',
         }
-        patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler._get_user_info',
+        patch('rest_api.rest_api_server.handlers.v1.base.'
+              'BaseAuthHandler._get_user_info',
               return_value=user).start()
 
     def test_create(self):
@@ -82,7 +83,7 @@ class TestRunsetsApi(TestInfrastructureBase):
         incorrect_updates = {
             'tags': 2,
             'hyperparameters': 3,
-            'application_id': [4],
+            'task_id': [4],
             'cloud_account_id': True,
             'region_id': '6',
             'instance_type': {7: 7},
@@ -169,7 +170,7 @@ class TestRunsetsApi(TestInfrastructureBase):
 
     def test_create_nonexisting_entities(self):
         nonexisting_updates = [
-            'application_id', 'cloud_account_id', 'instance_type', 'region_id'
+            'task_id', 'cloud_account_id', 'instance_type', 'region_id'
         ]
         for k in nonexisting_updates:
             valid_runset = self.valid_runset.copy()
@@ -187,9 +188,9 @@ class TestRunsetsApi(TestInfrastructureBase):
             self.organization_id, self.template_id, self.valid_runset)
         self.assertEqual(code, 404)
 
-    def test_create_deleted_app(self):
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+    def test_create_deleted_task(self):
+        code, _ = self.client.task_delete(
+            self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         code, _ = self.client.runset_create(
             self.organization_id, self.template_id, self.valid_runset)
@@ -249,12 +250,12 @@ class TestRunsetsApi(TestInfrastructureBase):
             self.organization_id, runset['id'], {'action': action})
         self.assertEqual(code, 200)
 
-    def test_update_deleted_app(self):
+    def test_update_deleted_task(self):
         code, runset = self.client.runset_create(
             self.organization_id, self.template_id, self.valid_runset)
         self.assertEqual(code, 201)
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+        code, _ = self.client.task_delete(
+            self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         action = 'stop'
         code, res = self.client.runset_update(
@@ -284,16 +285,16 @@ class TestRunsetsApi(TestInfrastructureBase):
         self.assertEqual(code, 200)
         self.assertEqual(res['cloud_account']['deleted'], True)
 
-    def test_get_deleted_app(self):
+    def test_get_deleted_task(self):
         code, runset = self.client.runset_create(
             self.organization_id, self.template_id, self.valid_runset)
         self.assertEqual(code, 201)
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+        code, _ = self.client.task_delete(
+            self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         code, res = self.client.runset_get(self.organization_id, runset['id'])
         self.assertEqual(code, 200)
-        self.assertEqual(res['application']['deleted'], True)
+        self.assertEqual(res['task']['deleted'], True)
 
     def test_get_deleted_owner(self):
         code, runset = self.client.runset_create(
@@ -348,12 +349,12 @@ class TestRunsetsApi(TestInfrastructureBase):
         for r in runsets:
             self.assertEqual(r['cloud_account']['deleted'], True)
 
-    def test_list_deleted_app(self):
+    def test_list_deleted_task(self):
         code, runset = self.client.runset_create(
             self.organization_id, self.template_id, self.valid_runset)
         self.assertEqual(code, 201)
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+        code, _ = self.client.task_delete(
+            self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         code, res = self.client.runset_list(
             self.organization_id, self.template_id)
@@ -361,7 +362,7 @@ class TestRunsetsApi(TestInfrastructureBase):
         runsets = res.get('runsets')
         self.assertTrue(runsets)
         for r in runsets:
-            self.assertEqual(r['application']['deleted'], True)
+            self.assertEqual(r['task']['deleted'], True)
 
     def test_list_deleted_owner(self):
         code, runset = self.client.runset_create(

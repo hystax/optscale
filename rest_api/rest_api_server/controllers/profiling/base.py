@@ -19,13 +19,13 @@ def format_cloud_account(cloud_account: CloudAccount) -> dict:
     }
 
 
-def format_application(application: dict):
-    if application is None:
+def format_task(task: dict):
+    if task is None:
         return {}
     return {
-        'id': application['_id'],
-        'name': application['name'],
-        'deleted': application['deleted_at'] != 0
+        'id': task['_id'],
+        'name': task['name'],
+        'deleted': task['deleted_at'] != 0
     }
 
 
@@ -67,12 +67,12 @@ class ArceeObject:
                     cl.format(v)
 
 
-class Application(ArceeObject):
+class Task(ArceeObject):
     REPLACE_KEYS = {
         **ArceeObject.REPLACE_KEYS,
-        'applicationGoals': 'goals'
+        'taskMetrics': 'metrics'
     }
-    INNER_OBJECTS = {'goals': ArceeObject}
+    INNER_OBJECTS = {'metrics': ArceeObject}
 
 
 class Run(ArceeObject):
@@ -81,7 +81,7 @@ class Run(ArceeObject):
         'runExecutors': 'executors'
     }
     INNER_OBJECTS = {
-        'application': Application,
+        'task': Task,
         'executors': ArceeObject
     }
 
@@ -233,51 +233,50 @@ class BaseProfilingController(BaseProfilingTokenController):
         return profiling_token.token
 
     @handle_http_exc
-    def create_application(self, profiling_token, application_key, **kwargs):
+    def create_task(self, profiling_token, task_key, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, app = arcee.application_create(
-            application_key=application_key, **kwargs)
-        Application.format(app)
-        return app
+        _, task = arcee.task_create(
+            task_key=task_key, **kwargs)
+        Task.format(task)
+        return task
 
     @handle_http_exc
-    def get_application(self, profiling_token, application_id):
+    def get_task(self, profiling_token, task_id):
         arcee = self.get_arcee_client(profiling_token)
-        _, application = arcee.application_get(application_id)
-        Application.format(application)
-        return application
+        _, task = arcee.task_get(task_id)
+        Task.format(task)
+        return task
 
     @handle_http_exc
-    def list_applications(self, profiling_token) -> list[dict]:
+    def list_tasks(self, profiling_token) -> list[dict]:
         arcee = self.get_arcee_client(profiling_token)
-        _, response = arcee.applications_get()
+        _, response = arcee.tasks_get()
         for r in response:
-            Application.format(r)
+            Task.format(r)
         return response
 
     @handle_http_exc
-    def bulk_get_applications(self, profiling_token, application_ids,
-                              include_deleted=False):
+    def bulk_get_tasks(self, profiling_token, task_ids, include_deleted=False):
         arcee = self.get_arcee_client(profiling_token)
-        _, applications = arcee.applications_bulk_get(
-            application_ids, include_deleted)
-        return applications
+        _, tasks = arcee.tasks_bulk_get(
+            task_ids, include_deleted)
+        return tasks
 
     @handle_http_exc
-    def update_application(self, profiling_token, application_id, **kwargs):
+    def update_task(self, profiling_token, task_id, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, updated_app = arcee.application_update(application_id, **kwargs)
-        return updated_app
+        _, updated_task = arcee.task_update(task_id, **kwargs)
+        return updated_task
 
     @handle_http_exc
-    def delete_application(self, profiling_token, application_id):
+    def delete_task(self, profiling_token, task_id):
         arcee = self.get_arcee_client(profiling_token)
-        arcee.application_delete(application_id)
+        arcee.task_delete(task_id)
 
     @handle_http_exc
-    def list_application_runs(self, profiling_token, application_id):
+    def list_task_runs(self, profiling_token, task_id):
         arcee = self.get_arcee_client(profiling_token)
-        _, runs = arcee.applications_runs_get(application_id)
+        _, runs = arcee.tasks_runs_get(task_id)
         for r in runs:
             Run.format(r)
         return runs
@@ -291,11 +290,11 @@ class BaseProfilingController(BaseProfilingTokenController):
         return runs
 
     @handle_http_exc
-    def get_executors(self, profiling_token, application_ids=None, run_ids=None):
-        if not application_ids and not run_ids:
+    def get_executors(self, profiling_token, task_ids=None, run_ids=None):
+        if not task_ids and not run_ids:
             return []
         arcee = self.get_arcee_client(profiling_token)
-        _, response = arcee.executors_get(application_ids, run_ids)
+        _, response = arcee.executors_get(task_ids, run_ids)
         for r in response:
             ArceeObject.format(r)
         return response
@@ -317,37 +316,37 @@ class BaseProfilingController(BaseProfilingTokenController):
         return proc_data
 
     @handle_http_exc
-    def get_goal(self, profiling_token, goal_id):
+    def get_metric(self, profiling_token, metric_id):
         arcee = self.get_arcee_client(profiling_token)
-        _, goal = arcee.goal_get(goal_id)
-        ArceeObject.format(goal)
-        return goal
+        _, metric = arcee.metric_get(metric_id)
+        ArceeObject.format(metric)
+        return metric
 
     @handle_http_exc
-    def list_goals(self, profiling_token):
+    def list_metrics(self, profiling_token):
         arcee = self.get_arcee_client(profiling_token)
-        _, response = arcee.goals_get()
+        _, response = arcee.metrics_get()
         for r in response:
             ArceeObject.format(r)
         return response
 
     @handle_http_exc
-    def create_goal(self, profiling_token, **kwargs):
+    def create_metric(self, profiling_token, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, goal = arcee.goals_create(**kwargs)
-        ArceeObject.format(goal)
-        return goal
+        _, metric = arcee.metrics_create(**kwargs)
+        ArceeObject.format(metric)
+        return metric
 
     @handle_http_exc
-    def update_goal(self, profiling_token, goal_id, **kwargs):
+    def update_metric(self, profiling_token, metric_id, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, updated = arcee.goals_update(goal_id, **kwargs)
+        _, updated = arcee.metrics_update(metric_id, **kwargs)
         return updated
 
     @handle_http_exc
-    def delete_goal(self, profiling_token, goal_id):
+    def delete_metric(self, profiling_token, metric_id):
         arcee = self.get_arcee_client(profiling_token)
-        arcee.goal_delete(goal_id)
+        arcee.metric_delete(metric_id)
 
     @handle_http_exc
     def get_run(self, profiling_token, run_id):
@@ -388,16 +387,16 @@ class BaseProfilingController(BaseProfilingTokenController):
         return stages_result
 
     @handle_http_exc
-    def get_leaderboard(self, profiling_token, application_id):
+    def get_leaderboard(self, profiling_token, task_id):
         arcee = self.get_arcee_client(profiling_token)
-        _, leaderboard = arcee.leaderboard_get(application_id)
+        _, leaderboard = arcee.leaderboard_get(task_id)
         ArceeObject.format(leaderboard)
         return leaderboard
 
     @handle_http_exc
-    def create_leaderboard(self, profiling_token, application_id, **kwargs):
+    def create_leaderboard(self, profiling_token, task_id, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, leaderboard = arcee.leaderboards_create(application_id, **kwargs)
+        _, leaderboard = arcee.leaderboards_create(task_id, **kwargs)
         ArceeObject.format(leaderboard)
         return leaderboard
 
@@ -426,30 +425,32 @@ class BaseProfilingController(BaseProfilingTokenController):
     @handle_http_exc
     def get_leaderboard_dataset(self, profiling_token, leaderboard_dataset_id):
         arcee = self.get_arcee_client(profiling_token)
-        _, leaderboard_dataset = arcee.leaderboard_dataset_get(leaderboard_dataset_id)
+        _, leaderboard_dataset = arcee.leaderboard_dataset_get(
+            leaderboard_dataset_id)
         ArceeObject.format(leaderboard_dataset)
         return leaderboard_dataset
 
     @handle_http_exc
-    def delete_leaderboard_dataset(self, profiling_token, leaderboard_dataset_id):
+    def delete_leaderboard_dataset(self, profiling_token,
+                                   leaderboard_dataset_id):
         arcee = self.get_arcee_client(profiling_token)
         arcee.leaderboard_dataset_delete(leaderboard_dataset_id)
 
     @handle_http_exc
-    def update_leaderboard(self, profiling_token, application_id, **kwargs):
+    def update_leaderboard(self, profiling_token, task_id, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, updated = arcee.leaderboard_update(application_id, **kwargs)
+        _, updated = arcee.leaderboard_update(task_id, **kwargs)
         return updated
 
     @handle_http_exc
-    def delete_leaderboard(self, profiling_token, application_id):
+    def delete_leaderboard(self, profiling_token, task_id):
         arcee = self.get_arcee_client(profiling_token)
-        arcee.leaderboard_delete(application_id)
+        arcee.leaderboard_delete(task_id)
 
     @handle_http_exc
-    def get_leaderboard_details(self, profiling_token, application_id):
+    def get_leaderboard_details(self, profiling_token, task_id):
         arcee = self.get_arcee_client(profiling_token)
-        _, leaderboard = arcee.leaderboard_details_get(application_id)
+        _, leaderboard = arcee.leaderboard_details_get(task_id)
         ArceeObject.format(leaderboard)
         return leaderboard
 
@@ -468,9 +469,9 @@ class BaseProfilingController(BaseProfilingTokenController):
         return leaderboard
 
     @handle_http_exc
-    def bulk_gen_runs(self, profiling_token, application_id, run_ids):
+    def bulk_gen_runs(self, profiling_token, task_id, run_ids):
         arcee = self.get_arcee_client(profiling_token)
-        _, runs = arcee.runs_bulk_get_by_ids(application_id, run_ids)
+        _, runs = arcee.runs_bulk_get_by_ids(task_id, run_ids)
         return runs
 
     @handle_http_exc
@@ -523,3 +524,76 @@ class BaseProfilingController(BaseProfilingTokenController):
         arcee = self.get_arcee_client(profiling_token)
         _, breakdown = arcee.executors_breakdown_get()
         return breakdown
+
+    @handle_http_exc
+    def create_model(self, profiling_token, key, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, model = arcee.model_create(key=key, **kwargs)
+        ArceeObject.format(model)
+        return model
+
+    @handle_http_exc
+    def list_models(self, profiling_token) -> list[dict]:
+        arcee = self.get_arcee_client(profiling_token)
+        _, response = arcee.models_get()
+        for r in response:
+            ArceeObject.format(r)
+            ArceeObject.format(r['last_version'])
+            for version in r['aliased_versions']:
+                ArceeObject.format(version)
+        return response
+
+    @handle_http_exc
+    def get_model(self, profiling_token, model_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, model = arcee.model_get(model_id)
+        ArceeObject.format(model)
+        for version in model['versions']:
+            ArceeObject.format(version)
+            ArceeObject.format(version.get('run', {}))
+        return model
+
+    @handle_http_exc
+    def update_model(self, profiling_token, model_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, updated_app = arcee.model_update(model_id, **kwargs)
+        ArceeObject.format(updated_app)
+        return updated_app
+
+    @handle_http_exc
+    def delete_model(self, profiling_token, model_id):
+        arcee = self.get_arcee_client(profiling_token)
+        arcee.model_delete(model_id)
+
+    @handle_http_exc
+    def create_model_version(self, profiling_token, model_id, run_id,
+                             **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, model_version = arcee.model_version_create(
+            model_id, run_id, **kwargs)
+        ArceeObject.format(model_version)
+        return model_version
+
+    @handle_http_exc
+    def update_model_version(self, profiling_token, model_id, run_id,
+                             **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, updated_version = arcee.model_version_update(
+            model_id, run_id, **kwargs)
+        ArceeObject.format(updated_version)
+        return updated_version
+
+    @handle_http_exc
+    def delete_model_version(self, profiling_token, model_id, run_id):
+        arcee = self.get_arcee_client(profiling_token)
+        arcee.model_version_delete(model_id, run_id)
+
+    @handle_http_exc
+    def get_model_version_by_task(self, profiling_token, task_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, model_versions = arcee.model_versions_by_task(task_id)
+        for model_version in model_versions:
+            ArceeObject.format(model_version)
+            ArceeObject.format(model_version.get('model', {}))
+            ArceeObject.format(model_version.get('run', {}))
+        return model_versions

@@ -4,7 +4,7 @@ import { RANGE_DATES } from "containers/RangePickerFormContainer/reducer";
 import { millisecondsToSeconds } from "utils/datetime";
 import { objectMap } from "utils/objects";
 
-export const CURRENT_VERSION = 12;
+export const CURRENT_VERSION = 13;
 
 // When we modify storage structure, we will need to properly use migrations:
 // https://github.com/rt2zz/redux-persist/blob/master/docs/migrations.md
@@ -82,7 +82,26 @@ const migrations = {
   10: (state) => ({
     ...state,
     [COLLAPSED_MENU_ITEMS]: [...new Set([...(state[COLLAPSED_MENU_ITEMS] || []), MAIN_MENU_SECTION_IDS.SANDBOX])]
-  })
+  }),
+  13: (state) => {
+    const { modelBreakdown, ...restState } = state;
+
+    const getTaskRunsBreakdown = () =>
+      Object.fromEntries(
+        Object.entries(modelBreakdown).map(([taskId, payload]) => [
+          taskId,
+          {
+            ...payload,
+            runs_breakdown: payload.model_runs
+          }
+        ])
+      );
+
+    return {
+      ...restState,
+      taskBreakdown: getTaskRunsBreakdown()
+    };
+  }
 };
 
 export default migrations;

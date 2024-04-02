@@ -315,15 +315,17 @@ export const getRiSpCoverageUrl = ({ secondsStartDate, secondsEndDate, dataSourc
 // ML profiling
 const ML_TASK_IDENTIFIER = ":taskId";
 const ML_TASK_RUN_IDENTIFIER = ":runId";
-const ML_TASK_PARAMETER_IDENTIFIER = ":metricId";
+const ML_TASK_METRIC_IDENTIFIER = ":metricId";
 const ML_RUNSET_TEMPLATE_IDENTIFIER = ":templateId";
 const ML_RUNSET_IDENTIFIER = ":runsetId";
 const ML_EXECUTORS_BASE = "executors";
 const ML_RUNSET_TEMPLATES_BASE = "runset-templates";
 const ML_TASKS_BASE = "tasks";
-const ML_TASK_PARAMETERS_BASE = "parameters";
+const ML_TASK_METRICS_BASE = "metrics";
 const ML_DATASETS_BASE = "datasets";
 const ML_DATASET_IDENTIFIER = ":datasetId";
+const ML_MODELS_BASE = "models";
+const ML_MODEL_IDENTIFIER = ":modelId";
 
 export const ML_RUNSETS_BASE = "runsets";
 export const ML_RUN_BASE = "run";
@@ -339,25 +341,29 @@ export const ML_DATASET_CREATE = concatenateUrl([ML_DATASETS_BASE, CREATE]);
 export const ML_DATASET_EDIT = concatenateUrl([ML_DATASETS_BASE, ML_DATASET_IDENTIFIER, EDIT]);
 export const getEditMlDatasetUrl = (id) => ML_DATASET_EDIT.replace(ML_DATASET_IDENTIFIER, id);
 
+export const ML_MODELS = concatenateUrl([ML_MODELS_BASE]);
+export const ML_MODEL_CREATE = concatenateUrl([ML_MODELS_BASE, CREATE]);
+
+export const ML_MODEL_EDIT = concatenateUrl([ML_MODELS_BASE, ML_MODEL_IDENTIFIER, EDIT]);
+export const getEditMlModelUrl = (modelId: string) => ML_MODEL_EDIT.replace(ML_MODEL_IDENTIFIER, modelId);
+
+export const ML_MODEL = concatenateUrl([ML_MODELS_BASE, ML_MODEL_IDENTIFIER]);
+export const getMlModelUrl = (modelId: string) => ML_MODEL.replace(ML_MODEL_IDENTIFIER, modelId);
+
 const ML_LAUNCH_BASE = "launch";
 
-export const ML_TASK_PARAMETERS = concatenateUrl([ML_TASKS_BASE, ML_TASK_PARAMETERS_BASE]);
-export const ML_TASK_PARAMETER_CREATE = concatenateUrl([ML_TASKS_BASE, ML_TASK_PARAMETERS_BASE, CREATE]);
-export const ML_TASK_PARAMETER_EDIT = concatenateUrl([
-  ML_TASKS_BASE,
-  ML_TASK_PARAMETERS_BASE,
-  ML_TASK_PARAMETER_IDENTIFIER,
-  EDIT
-]);
+export const ML_TASK_METRICS = concatenateUrl([ML_TASKS_BASE, ML_TASK_METRICS_BASE]);
+export const ML_TASK_METRIC_CREATE = concatenateUrl([ML_TASKS_BASE, ML_TASK_METRICS_BASE, CREATE]);
+export const ML_TASK_METRIC_EDIT = concatenateUrl([ML_TASKS_BASE, ML_TASK_METRICS_BASE, ML_TASK_METRIC_IDENTIFIER, EDIT]);
 
-export const getEditModelParameterUrl = (metricId) => ML_TASK_PARAMETER_EDIT.replace(ML_TASK_PARAMETER_IDENTIFIER, metricId);
+export const getEditTaskMetricUrl = (metricId) => ML_TASK_METRIC_EDIT.replace(ML_TASK_METRIC_IDENTIFIER, metricId);
 
 export const ML_TASK_DETAILS = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER]);
-export const getMlModelDetailsUrl = (taskId) => ML_TASK_DETAILS.replace(ML_TASK_IDENTIFIER, taskId);
+export const getMlTaskDetailsUrl = (taskId) => ML_TASK_DETAILS.replace(ML_TASK_IDENTIFIER, taskId);
 
 export const ML_TASK_EDIT = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER, EDIT]);
-export const getEditMlModelUrl = (mlId, params) => {
-  const base = ML_TASK_EDIT.replace(ML_TASK_IDENTIFIER, mlId);
+export const getEditMlTaskUrl = (taskId, params) => {
+  const base = ML_TASK_EDIT.replace(ML_TASK_IDENTIFIER, taskId);
 
   if (params) {
     return concatenateUrl(
@@ -401,7 +407,7 @@ export const getMlRunsetDetailsUrl = (runsetId) => ML_RUNSET_DETAILS.replace(ML_
 
 export const ML_TASK_RUN = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER, ML_RUN_BASE, ML_TASK_RUN_IDENTIFIER]);
 
-export const getMlModelRunUrl = (taskId, runId) =>
+export const getMlTaskRunUrl = (taskId, runId) =>
   ML_TASK_RUN.replace(ML_TASK_IDENTIFIER, taskId).replace(ML_TASK_RUN_IDENTIFIER, runId);
 
 // Live demo

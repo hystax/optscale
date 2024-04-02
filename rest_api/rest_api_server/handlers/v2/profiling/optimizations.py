@@ -1,6 +1,6 @@
 import json
 from rest_api.rest_api_server.controllers.profiling.optimization import (
-    ApplicationOptimizationAsyncController)
+    TaskOptimizationAsyncController)
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.handlers.v2.profiling.base import ProfilingHandler
 from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncItemHandler
@@ -11,28 +11,28 @@ from tools.optscale_exceptions.common_exc import (NotFoundException,
                                                   WrongArgumentsException)
 
 
-class ApplicationOptimizationsAsyncHandler(BaseAsyncItemHandler,
-                                           BaseAuthHandler, ProfilingHandler):
+class TaskOptimizationsAsyncHandler(BaseAsyncItemHandler,
+                                    BaseAuthHandler, ProfilingHandler):
     def _get_controller_class(self):
-        return ApplicationOptimizationAsyncController
+        return TaskOptimizationAsyncController
 
-    async def get(self, organization_id, application_id, **kwargs):
+    async def get(self, organization_id, task_id, **kwargs):
         """
         ---
         description: |
-            Get application optimizations info by application id
+            Get task optimizations info by task id
             Required permission: INFO_ORGANIZATION
         tags: [profiling_optimizations]
-        summary: Get application recommendations
+        summary: Get task recommendations
         parameters:
         -   name: organization_id
             in: path
             description: Organization id
             required: true
             type: string
-        -   name: application_id
+        -   name: task_id
             in: path
-            description: Application id
+            description: Task id
             required: true
             type: string
         -   name: type
@@ -54,7 +54,7 @@ class ApplicationOptimizationsAsyncHandler(BaseAsyncItemHandler,
             enum: [active, dismissed, excluded]
         responses:
             200:
-                description: Application optimizations list
+                description: Task optimizations list
                 schema:
                     type: object
                     properties:
@@ -162,12 +162,12 @@ class ApplicationOptimizationsAsyncHandler(BaseAsyncItemHandler,
             raise OptHTTPError(400, Err.OE0212, ['status'])
         token = await self._get_profiling_token(organization_id)
         res = await run_task(self.controller.get_optimizations,
-                             organization_id, application_id, token,
+                             organization_id, task_id, token,
                              types, status)
         self.write(json.dumps(res, cls=ModelEncoder))
 
-    def patch(self, organization_id, application_id, **kwargs):
+    def patch(self, organization_id, task_id, **kwargs):
         self.raise405()
 
-    def delete(self, organization_id, application_id, **kwargs):
+    def delete(self, organization_id, task_id, **kwargs):
         self.raise405()

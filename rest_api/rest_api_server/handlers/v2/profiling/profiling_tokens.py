@@ -10,7 +10,7 @@ class ProfilingTokenAsyncCollectionHandler(BaseAsyncCollectionHandler,
     def _get_controller_class(self):
         return ProfilingTokenAsyncController
 
-    async def post(self, organization_id, **url_params):
+    async def post(self, _organization_id, **_url_params):
         self.raise405()
 
     async def get(self, organization_id, **url_params):

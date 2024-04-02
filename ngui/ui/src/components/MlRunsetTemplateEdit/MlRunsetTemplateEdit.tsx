@@ -10,7 +10,7 @@ import { ML_RUNSET_TEMPLATES, getMlRunsetTemplateUrl } from "urls";
 import { RUNSET_TEMPLATE_INSTANCE_TYPES, RUNSET_TEMPLATE_REGIONS } from "utils/constants";
 
 const {
-  MODELS_FIELD_NAME,
+  TASK_FIELD_NAME,
   DATA_SOURCES_FIELD_NAME,
   REGIONS_FIELD_NAME,
   INSTANCE_TYPES_FIELD_NAME,
@@ -24,10 +24,10 @@ const {
   HYPERPARAMETER_ENVIRONMENT_VARIABLE_FIELD_NAME
 } = FIELD_NAMES;
 
-const MlRunsetTemplateEdit = ({ runsetTemplate, models, dataSources, onSubmit, onCancel, isLoading = {} }) => {
+const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, onCancel, isLoading = {} }) => {
   const {
     isUpdateMlRunsetTemplateLoading = false,
-    isGetAllModelsLoading = false,
+    isGetAllTasksLoading = false,
     isGetRunsetTemplateLoading = false
   } = isLoading;
 
@@ -39,7 +39,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, models, dataSources, onSubmit, o
       tags = {},
       hyperparameters = {},
       cloud_accounts: runsetTemplateDataSources = [],
-      applications: runsetTemplateModels = [],
+      tasks: runsetTemplateTasks = [],
       instance_types: runsetTemplateInstanceTypes = [],
       regions: runsetTemplateRegions = []
     } = runsetTemplate;
@@ -58,8 +58,8 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, models, dataSources, onSubmit, o
           [HYPERPARAMETER_ENVIRONMENT_VARIABLE_FIELD_NAME]: hyperparameterEnvironmentVariable
         })
       ),
-      [MODELS_FIELD_NAME]: runsetTemplateModels.filter(
-        (runsetTemplateModel) => models.find((knownModel) => knownModel.id === runsetTemplateModel.id) !== undefined
+      [TASK_FIELD_NAME]: runsetTemplateTasks.filter(
+        (runsetTemplateTask) => tasks.find((knownTask) => knownTask.id === runsetTemplateTask.id) !== undefined
       ),
       [DATA_SOURCES_FIELD_NAME]: runsetTemplateDataSources.filter(
         (runsetTemplateDataSource) =>
@@ -75,7 +75,7 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, models, dataSources, onSubmit, o
           ) !== undefined
       )
     };
-  }, [models, dataSources, runsetTemplate]);
+  }, [tasks, dataSources, runsetTemplate]);
 
   const actionBarDefinition = {
     breadcrumbs: [
@@ -103,11 +103,11 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, models, dataSources, onSubmit, o
           }}
         >
           <MlRunsetTemplateForm
-            models={models}
+            tasks={tasks}
             dataSources={dataSources}
             isLoading={{
               isGetRunsetTemplateLoading,
-              isGetAllModelsLoading,
+              isGetAllTasksLoading,
               isSubmitLoading: isUpdateMlRunsetTemplateLoading
             }}
             onSubmit={onSubmit}

@@ -25,7 +25,7 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         'tags': (check_dict_attribute, True),
         'hyperparameters': (check_dict_attribute, True),
         'destroy_conditions': (check_dict_attribute, False),
-        'application_id': (check_string_attribute, True),
+        'task_id': (check_string_attribute, True),
         'cloud_account_id': (check_string_attribute, True),
         'region_id': (check_string_attribute, True),
         'instance_type': (check_string_attribute, True),
@@ -152,9 +152,9 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         description: One of template cloud accounts ids
                         required: true
                         example: b65f85f8-d2cb-4ea6-88ab-4a9f2a82ba20
-                    application_id:
+                    task_id:
                         type: string
-                        description: One of template applications ids
+                        description: One of template tasks ids
                         required: true
                         example: b65f85f8-d2cb-4ea6-88ab-4a9f2a82ba20
                     instance_type:
@@ -216,7 +216,7 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                             id: 7b03ca22-8d71-4005-aa09-2937c7ee7289
                             name: creds
                             type: aws_cnr
-                        application:
+                        task:
                             id: 6e6f696e-218a-4718-8051-0da96168b360
                             name: Test project
                         owner:
@@ -359,16 +359,16 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                             type:
                                                 type: string
                                                 description: Cloud type
-                                    application:
+                                    task:
                                         type: object
-                                        description: Runset application info
+                                        description: Runset task info
                                         properties:
                                             id:
                                                 type: string
-                                                description: Application id
+                                                description: Task id
                                             name:
                                                 type: string
-                                                description: Application name
+                                                description: Task name
                                     instance_type:
                                         type: object
                                         description: Runset instance family info
@@ -570,16 +570,16 @@ class RunsetsAsyncItemHandler(BaseAsyncItemHandler,
                                 type:
                                     type: string
                                     description: Cloud type
-                        application:
+                        task:
                             type: object
-                            description: Runset application info
+                            description: Runset task info
                             properties:
                                 id:
                                     type: string
-                                    description: Application id
+                                    description: Task id
                                 name:
                                     type: string
-                                    description: Application name
+                                    description: Task name
                         instance_type:
                             type: object
                             description: Runset instance family info
@@ -766,16 +766,16 @@ class RunsetsAsyncItemHandler(BaseAsyncItemHandler,
                                 type:
                                     type: string
                                     description: Cloud type
-                        application:
+                        task:
                             type: object
-                            description: Runset application info
+                            description: Runset task info
                             properties:
                                 id:
                                     type: string
-                                    description: Application id
+                                    description: Task id
                                 name:
                                     type: string
-                                    description: Application name
+                                    description: Task name
                         instance_type:
                             type: object
                             description: Runset instance family info

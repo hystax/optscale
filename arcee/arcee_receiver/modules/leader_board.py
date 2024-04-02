@@ -34,21 +34,21 @@ async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
         {"$match": {"_id": leaderboard_id}},
         {
             "$lookup": {
-                "from": "goal",
-                "localField": "primary_goal",
+                "from": "metric",
+                "localField": "primary_metric",
                 "foreignField": "_id",
-                "as": "primary_goal",
+                "as": "primary_metric",
             },
         },
         {
             "$lookup": {
-                "from": "goal",
-                "localField": "other_goals",
+                "from": "metric",
+                "localField": "other_metrics",
                 "foreignField": "_id",
-                "as": "other_goals",
+                "as": "other_metrics",
             },
         },
-        {"$unwind": "$primary_goal"},
+        {"$unwind": "$primary_metric"},
     ]
     ri = None
     cur = db.leaderboard.aggregate(pipeline)
@@ -57,19 +57,19 @@ async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
     except StopAsyncIteration:
         pass
     tags = ri.get("grouping_tags", [])
-    application_id = ri["application_id"]
+    task_id = ri["task_id"]
     hyperparams = []
     if ri.get("group_by_hp", False):
-        hyperparams = await get_available_hps(db, application_id)
+        hyperparams = await get_available_hps(db, task_id)
 
-    primary_goal = ri["primary_goal"]
-    all_goals = ri.get("other_goals", []) + [primary_goal]
-    key_goal_map = {}
+    primary_metric = ri["primary_metric"]
+    all_metrics = ri.get("other_metrics", []) + [primary_metric]
+    key_metric_map = {}
     id_key_map = {}
-    for goal in all_goals:
-        key = goal['key']
-        key_goal_map[key] = goal
-        id_key_map[goal['_id']] = key
+    for metric in all_metrics:
+        key = metric['key']
+        key_metric_map[key] = metric
+        id_key_map[metric['_id']] = key
 
     filters = {}
     for f in ri.get("filters", []):
@@ -77,8 +77,8 @@ async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
         min_ = f.get("min")
         max_ = f.get("max")
         filters[key] = (min_, max_)
-    return (application_id, dataset_ids, primary_goal,
-            key_goal_map, tags, hyperparams, filters)
+    return (task_id, dataset_ids, primary_metric,
+            key_metric_map, tags, hyperparams, filters)
 
 
 async def qualification_datasets(db, token: str, ids: list):
@@ -119,7 +119,7 @@ async def qualification_datasets(db, token: str, ids: list):
     return [i async for i in cur]
 
 
-async def get_available_hps(db, application_id: str):
+async def get_available_hps(db, task_id: str):
     """
     Gets available hyperparameters for grouping
     """
@@ -128,7 +128,7 @@ async def get_available_hps(db, application_id: str):
     pipeline = [
         {
             "$match": {
-                "application_id": application_id,
+                "task_id": task_id,
             }
         },
         {"$project": {"hpkeys": {"$objectToArray": "$hyperparameters"}}},
@@ -182,10 +182,10 @@ def update_metrics_pipeline(metrics, group_block, project_block,
 
 
 async def generate_candidates_template(
-    application_id: str,
+    task_id: str,
     qual_proto: dict,  # {key: (min, max)}
     group: tuple,  # (tags, hyperparameters)
-    metrics: list,  # [(goal key, func), ...]
+    metrics: list,  # [(metric key, func), ...]
     primary_metric_key: str
 ):
     """
@@ -195,7 +195,7 @@ async def generate_candidates_template(
     match = {
         "$match": {
             "state": 2,
-            "application_id": "%s" % application_id,
+            "task_id": "%s" % task_id,
         },
     }
 
@@ -233,8 +233,8 @@ async def generate_candidates_template(
     group = {
         "$group": {
             "_id": group_id,
-            "application_id": {
-                "$last": "$application_id",
+            "task_id": {
+                "$last": "$task_id",
             },
             "dataset_ids": {
                 "$addToSet": "$dataset_id",
@@ -317,19 +317,19 @@ async def update_candidate_template(runs, datasets, tags: list, hp: list,
 
 async def leaderboard_candidates(
         db,
-        application_id: str,
+        task_id: str,
         qual_proto: dict,  # {key: (min, max)}
         group: tuple,  # (tags, hyperparameters)
-        metrics: list,  # [(goal key, func), ...]
+        metrics: list,  # [(metric key, func), ...]
         primary_metric_key: str):
     """
     Gets leaderboard candidates
     """
-    #  We skip token verification here because - move to application map
+    #  We skip token verification here because - move to task map
     # defines metrics priority
 
     pipeline = await generate_candidates_template(
-        application_id, qual_proto, group, metrics, primary_metric_key
+        task_id, qual_proto, group, metrics, primary_metric_key
     )
 
     cur = db.run.aggregate(pipeline)
@@ -343,7 +343,7 @@ async def rank_by_datasets(
         grp: tuple,
         pri_metric_key: str,
         metrics: list,
-        key_goals_map: dict
+        key_metrics_map: dict
 ):
     """
     Calculates candidates ranked (qualified) by datasets
@@ -353,9 +353,9 @@ async def rank_by_datasets(
     # use closure to replace metrics
     def update_metrics(m: dict):
         for k, v in m.items():
-            # try to get name and func from goals
-            metric_name = key_goals_map.get(k, {}).get("name")
-            func_name = key_goals_map.get(k, {}).get("func")
+            # try to get name and func from metrics
+            metric_name = key_metrics_map.get(k, {}).get("name")
+            func_name = key_metrics_map.get(k, {}).get("func")
             m[k] = {
                 "name": metric_name,
                 "value": v,
@@ -416,37 +416,37 @@ async def sort_candidates(candidates: list, primary_metric_key: str,
     return res
 
 
-async def get_goals(db, application_id: str):
+async def get_metrics(db, task_id: str):
     pipeline = [
-        {"$match": {"_id": "%s" % application_id}},
+        {"$match": {"_id": "%s" % task_id}},
         {
             "$lookup": {
-                "from": "goal",
-                "localField": "goals",
+                "from": "metric",
+                "localField": "metrics",
                 "foreignField": "_id",
-                "as": "application_goals",
+                "as": "task_metrics",
             }
         },
-        {"$project": {"_id": 0, "application_goals": 1}},
+        {"$project": {"_id": 0, "task_metrics": 1}},
     ]
-    cur = db.application.aggregate(pipeline)
-    goals = await cur.next()
+    cur = db.task.aggregate(pipeline)
+    metrics = await cur.next()
     result = {}
-    for g in goals["application_goals"]:
+    for g in metrics["task_metrics"]:
         result[g["key"]] = g
     return result
 
 
-async def get_aggregation_list(key_goal_map: dict):
+async def get_aggregation_list(key_metric_map: dict):
     """
-    converts goals map to
-    following structure - [(goal key, func), ...]
-    :param key_goal_map:
+    converts metrics map to
+    following structure - [(metric key, func), ...]
+    :param key_metric_map:
     :return:
     """
     mtr = []
-    for metric_key, goal in key_goal_map.items():
-        f = aggregate_func_map.get(goal.get("func"))
+    for metric_key, metric in key_metric_map.items():
+        f = aggregate_func_map.get(metric.get("func"))
         mtr.append((metric_key, f))
     return mtr
 
@@ -454,11 +454,11 @@ async def get_aggregation_list(key_goal_map: dict):
 async def generate_leaderboard(
     db,
     token: str,
-    application_id: str,
+    task_id: str,
     tags: list,
     hyperparameters: list,
-    primary_goal: dict,
-    key_goal_map: dict,
+    primary_metric: dict,
+    key_metric_map: dict,
     dataset_ids: list,
     qualification_protocol: dict,  # leaderboard filters : {key: (min, max)}
 ):
@@ -476,16 +476,16 @@ async def generate_leaderboard(
     # token
     # token = "6bd6106c-ff94-440d-acae-8c721555f00d"
 
-    # application id
-    # application_id = "9acd90c0-22f3-4c11-b3d2-dc38fc21e5be"
+    # task id
+    # task_id = "9acd90c0-22f3-4c11-b3d2-dc38fc21e5be"
 
     # first iterable - tags, second - hyperparameters
 
     # tags = ["code_commit",]
     # hyperparameters = ["EPOCHS",]
 
-    # primary goal
-    # primary_goal = {
+    # primary metric
+    # primary_metric = {
     #     "key": "accuracy",
     #     "func": "sum",
     #     "target_value": 0,
@@ -493,8 +493,8 @@ async def generate_leaderboard(
     #     "_id": "ebbd10fd-6732-411d-b232-a63e4a83aa23"
     # }
 
-    # map of goal keys and goals
-    # key_goal_map = {
+    # map of metric keys and metrics
+    # key_metric_map = {
     #     "accuracy": {
     #         "key": "accuracy",
     #         "func": "sum",
@@ -516,7 +516,7 @@ async def generate_leaderboard(
 
     group = (tags, hyperparameters)
 
-    aggr_list = await get_aggregation_list(key_goal_map)
+    aggr_list = await get_aggregation_list(key_metric_map)
 
     dss = await qualification_datasets(
         db,
@@ -524,23 +524,24 @@ async def generate_leaderboard(
         dataset_ids,
     )
     cand = await leaderboard_candidates(
-        db, application_id, qualification_protocol, group, aggr_list,
-        primary_goal['key'])
-    ranked = await rank_by_datasets(db, dss, cand, group, primary_goal['key'],
-                                    aggr_list, key_goal_map)
-    order = primary_goal.get("tendency",
-                             Tendencies.MORE.value) == Tendencies.MORE.value
+        db, task_id, qualification_protocol, group, aggr_list,
+        primary_metric['key'])
+    ranked = await rank_by_datasets(db, dss, cand, group,
+                                    primary_metric['key'], aggr_list,
+                                    key_metric_map)
+    order = primary_metric.get("tendency",
+                               Tendencies.MORE.value) == Tendencies.MORE.value
     # finally, leader board
-    return await sort_candidates(ranked, primary_goal['key'], order)
+    return await sort_candidates(ranked, primary_metric['key'], order)
 
 
 async def get_calculated_leaderboard(db, token: str,
                                      leaderboard_dataset_id: str):
     (
-        application_id,
+        task_id,
         dataset_ids,
-        primary_goal,
-        key_goal_map,
+        primary_metric,
+        key_metric_map,
         tags,
         hyperparams,
         qualification_protocol,
@@ -548,11 +549,11 @@ async def get_calculated_leaderboard(db, token: str,
     leaderboard = await generate_leaderboard(
         db,
         token,
-        application_id,
+        task_id,
         tags,
         hyperparams,
-        primary_goal,
-        key_goal_map,
+        primary_metric,
+        key_metric_map,
         dataset_ids,
         qualification_protocol
     )

@@ -1,4 +1,4 @@
-import PlaylistPlayOutlinedIcon from "@mui/icons-material/PlaylistPlayOutlined";
+import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
 import { ML_RUNSETS_BASE } from "urls";
 import mlRunsetsRoute from "utils/routes/mlRunsetsRoute";
 import BaseMenuItem from "./baseMenuItem";
@@ -10,7 +10,7 @@ class HypertuningMenuItem extends BaseMenuItem {
 
   dataTestId = "btn_ml_runsets";
 
-  icon = PlaylistPlayOutlinedIcon;
+  icon = TuneOutlinedIcon;
 
   isActive = (currentPath) => currentPath.startsWith(this.route.link) || currentPath.startsWith(`/${ML_RUNSETS_BASE}`);
 }

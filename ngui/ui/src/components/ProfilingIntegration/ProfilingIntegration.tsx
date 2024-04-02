@@ -10,7 +10,7 @@ import HtmlSymbol from "components/HtmlSymbol";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import { ProfilingIntegrationModalContext } from "contexts/ProfilingIntegrationModalContext";
-import { ML_TASK_PARAMETERS, ML_TASKS, PYPI_OPTSCALE_ARCEE } from "urls";
+import { ML_TASK_METRICS, ML_TASKS, PYPI_OPTSCALE_ARCEE } from "urls";
 
 const Pre = ({ children }) => {
   const theme = useTheme();
@@ -117,7 +117,7 @@ arcee.error()
                     link: (chunks) => (
                       <Link
                         to={ML_TASKS}
-                        // Explicitly close the modal to cover cases where it was opened on the "/models" page
+                        // Explicitly close the modal to cover cases where it was opened on the "/tasks" page
                         onClick={onClose}
                         component={RouterLink}
                       >
@@ -175,7 +175,7 @@ const SendingMetrics = () => (
         values={{
           ...preFormatMessageValues,
           link: (chunks) => (
-            <Link to={ML_TASK_PARAMETERS} component={RouterLink}>
+            <Link to={ML_TASK_METRICS} component={RouterLink}>
               {chunks}
             </Link>
           )
@@ -201,7 +201,7 @@ const SendingMetrics = () => (
   </>
 );
 
-const TaggingModelRun = () => (
+const TaggingTaskRun = () => (
   <>
     <SubTitle fontWeight="bold">
       <FormattedMessage id="mlProfilingIntegration.taggingTaskRun" />
@@ -321,10 +321,70 @@ const LoggingDatasets = () => (
   </>
 );
 
+const CreatingModels = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.creatingModelsTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.creatingModels" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.creatingModelsKeyDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.creatingModelsPathDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock text={`arcee.model("my_model", "/home/user/my_model")`} />
+  </>
+);
+
+const SettingModelVersion = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.settingModelVersionTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.settingModelVersion" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.settingModelVersionVersionDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock text={`arcee.set_model_version("1.2.3-release")`} />
+  </>
+);
+
 const AddHyperparameters = () => (
   <>
     <SubTitle fontWeight="bold">
-      <FormattedMessage id="mlProfilingIntegration.addHyperparametersTitle" />
+      <FormattedMessage id="mlProfilingIntegration.addingHyperparametersTitle" />
     </SubTitle>
     <Typography gutterBottom>
       <FormattedMessage id="mlProfilingIntegration.addHyperparameters" values={{ ...preFormatMessageValues }} />
@@ -359,7 +419,7 @@ const AddHyperparameters = () => (
   </>
 );
 
-const FinishModelRun = () => (
+const FinishTaskRun = () => (
   <>
     <SubTitle fontWeight="bold">
       <FormattedMessage id="mlProfilingIntegration.finishTaskRunTitle" />
@@ -376,7 +436,7 @@ const FinishModelRun = () => (
   </>
 );
 
-const FailModelRun = () => (
+const FailTaskRun = () => (
   <>
     <Typography gutterBottom>
       <SubTitle fontWeight="bold">
@@ -422,7 +482,10 @@ const ProfilingIntegration = ({ profilingToken, taskKey, isLoading }) => (
       <SendingMetrics />
     </div>
     <div>
-      <TaggingModelRun />
+      <AddHyperparameters />
+    </div>
+    <div>
+      <TaggingTaskRun />
     </div>
     <div>
       <AddingMilestone />
@@ -434,13 +497,16 @@ const ProfilingIntegration = ({ profilingToken, taskKey, isLoading }) => (
       <LoggingDatasets />
     </div>
     <div>
-      <AddHyperparameters />
+      <CreatingModels />
     </div>
     <div>
-      <FinishModelRun />
+      <SettingModelVersion />
     </div>
     <div>
-      <FailModelRun />
+      <FinishTaskRun />
+    </div>
+    <div>
+      <FailTaskRun />
     </div>
   </Stack>
 );

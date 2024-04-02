@@ -25,13 +25,13 @@ HOUR_IN_SEC = 3600
 LOG = logging.getLogger(__name__)
 
 
-def format_application(application: dict):
-    if application is None:
+def format_task(task: dict):
+    if task is None:
         return {}
     return {
-        'id': application['_id'],
-        'name': application['name'],
-        'deleted': application['deleted_at'] != 0
+        'id': task['_id'],
+        'name': task['name'],
+        'deleted': task['deleted_at'] != 0
     }
 
 
@@ -172,22 +172,22 @@ class BaseInfraController(BaseProfilingTokenController, MongoMixin):
                 Err.OE0002, [CloudAccount.__name__, ', '.join(not_found)])
         return cloud_accounts_dict
 
-    def _get_applications(
+    def _get_tasks(
             self, organization_id: str,
-            application_ids: list[str],
+            task_ids: list[str],
             exclude_deleted: bool = False
     ) -> dict[str, dict]:
         profiling_token = self.get_profiling_token(organization_id)
-        applications = self.bulk_get_applications(
-            profiling_token, application_ids, not exclude_deleted)
-        applications_dict = {a['_id']: a for a in filter(
-            lambda x: x['_id'] in application_ids, applications)}
-        if len(application_ids) != len(applications_dict):
+        tasks = self.bulk_get_tasks(
+            profiling_token, task_ids, not exclude_deleted)
+        tasks_dict = {a['_id']: a for a in filter(
+            lambda x: x['_id'] in task_ids, tasks)}
+        if len(task_ids) != len(tasks_dict):
             not_found = list(filter(
-                lambda x: x not in applications_dict.keys(), application_ids))
+                lambda x: x not in tasks_dict.keys(), task_ids))
             raise NotFoundException(
-                Err.OE0002, ['Application', ', '.join(not_found)])
-        return applications_dict
+                Err.OE0002, ['Task', ', '.join(not_found)])
+        return tasks_dict
 
     def _bulk_get_runs(self, organization_id: str,
                        runset_ids: list[str]) -> dict[str, list[dict]]:
@@ -263,12 +263,10 @@ class BaseInfraController(BaseProfilingTokenController, MongoMixin):
 
     # TODO: (am) possibly move methods below to appropriate providers
     @handle_http_exc
-    def bulk_get_applications(self, profiling_token, application_ids,
-                              include_deleted=False):
+    def bulk_get_tasks(self, profiling_token, task_ids, include_deleted=False):
         arcee = self.get_arcee_client(profiling_token)
-        _, applications = arcee.applications_bulk_get(
-            application_ids, include_deleted)
-        return applications
+        _, tasks = arcee.tasks_bulk_get(task_ids, include_deleted)
+        return tasks
 
     @handle_http_exc
     def bulk_get_runs(self, profiling_token, runset_ids):

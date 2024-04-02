@@ -50,9 +50,9 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     id:
                                         type: string
                                         description: Run id
-                                    application_id:
+                                    task_id:
                                         type: string
-                                        description: Application id
+                                        description: Task id
                                     name:
                                         type: string
                                         description: Run name
@@ -111,21 +111,21 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     hyperparameters:
                                         type: object
                                         description: Run hyperparameters
-                                    goals:
+                                    metrics:
                                         type: array
-                                        description: List of application goals
+                                        description: List of task metrics
                                         items:
                                             type: object
                                             properties:
                                                 id:
                                                     type: string
-                                                    description: Goal id
+                                                    description: Metric id
                                                 name:
                                                     type: string
-                                                    description: Goal name
+                                                    description: Metric name
                                                 key:
                                                     type: string
-                                                    description: Goal key
+                                                    description: Metric key
                                                 tendency:
                                                     type: string
                                                     description: Tendency
@@ -134,7 +134,7 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                                     description: Func
                                                 target_value:
                                                     type: number
-                                                    description: Goal target value
+                                                    description: Metric target value
                                     runset:
                                         type: object
                                         description: Runset object

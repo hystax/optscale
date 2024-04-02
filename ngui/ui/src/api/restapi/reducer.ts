@@ -81,21 +81,21 @@ import {
   UPDATE_ORGANIZATION_PERSPECTIVES,
   CREATE_ORGANIZATION,
   UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
-  SET_ML_MODELS,
+  SET_ML_TASKS,
   SET_ML_LEADERBOARD,
   SET_ML_LEADERBOARD_DATASET_DETAILS,
   SET_ML_DATASETS,
   SET_ML_DATASET,
-  SET_ML_GLOBAL_PARAMETERS,
-  SET_ML_GLOBAL_PARAMETER,
+  SET_ML_GLOBAL_METRICS,
+  SET_ML_GLOBAL_METRIC,
   SET_PROFILING_TOKEN,
   SET_ML_EXECUTORS,
   SET_ML_EXECUTORS_BREAKDOWN,
-  SET_ML_MODEL,
-  SET_ML_MODEL_RUNS,
+  SET_ML_TASK,
+  SET_ML_TASK_RUNS,
   SET_ML_RUN_DETAILS,
   SET_ML_RUN_DETAILS_BREAKDOWN,
-  SET_ML_MODEL_RECOMMENDATIONS,
+  SET_ML_TASK_RECOMMENDATIONS,
   SET_OPTIMIZATIONS_OVERVIEW,
   SET_OPTIMIZATION_DETAILS,
   SET_ML_OPTIMIZATION_DETAILS,
@@ -114,7 +114,7 @@ import {
   SET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   SET_POWER_SCHEDULES,
   SET_POWER_SCHEDULE,
-  SET_ML_MODEL_RUNS_BULK,
+  SET_ML_TASK_RUNS_BULK,
   SET_ML_LEADERBOARD_DATASETS,
   SET_ML_LEADERBOARD_DATASET,
   UPDATE_ML_LEADERBOARD_DATASET,
@@ -123,7 +123,9 @@ import {
   SET_LAYOUT,
   CREATE_LAYOUT,
   SET_RESERVED_INSTANCES_BREAKDOWN,
-  SET_SAVING_PLANS_BREAKDOWN
+  SET_SAVING_PLANS_BREAKDOWN,
+  SET_ML_MODEL,
+  SET_ML_TASK_MODEL_VERSIONS
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -719,7 +721,7 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_MODELS: {
+    case SET_ML_TASKS: {
       return {
         ...state,
         [action.label]: action.payload
@@ -749,13 +751,13 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_GLOBAL_PARAMETERS: {
+    case SET_ML_GLOBAL_METRICS: {
       return {
         ...state,
         [action.label]: action.payload
       };
     }
-    case SET_ML_GLOBAL_PARAMETER: {
+    case SET_ML_GLOBAL_METRIC: {
       return {
         ...state,
         [action.label]: action.payload
@@ -779,13 +781,13 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_MODEL: {
+    case SET_ML_TASK: {
       return {
         ...state,
         [action.label]: action.payload
       };
     }
-    case SET_ML_MODEL_RUNS: {
+    case SET_ML_TASK_RUNS: {
       return {
         ...state,
         [action.label]: action.payload
@@ -803,7 +805,7 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_MODEL_RECOMMENDATIONS: {
+    case SET_ML_TASK_RECOMMENDATIONS: {
       return {
         ...state,
         [action.label]: action.payload
@@ -893,7 +895,7 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_MODEL_RUNS_BULK: {
+    case SET_ML_TASK_RUNS_BULK: {
       return {
         ...state,
         [action.label]: action.payload
@@ -963,6 +965,20 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_SAVING_PLANS_BREAKDOWN: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_MODEL: {
+      return {
+        ...state,
+        [action.label]: {
+          ...action.payload
+        }
+      };
+    }
+    case SET_ML_TASK_MODEL_VERSIONS: {
       return {
         ...state,
         [action.label]: action.payload

@@ -46,7 +46,7 @@ class TestProfilingTokensApi(TestApiBase):
     def test_create_on_another_api(self):
         tokens = self._get_db_profiling_tokens(self.org['id'])
         self.assertEqual(len(tokens), 0)
-        self.client.application_list(self.org['id'])
+        self.client.task_list(self.org['id'])
         tokens = self._get_db_profiling_tokens(self.org['id'])
         self.assertEqual(len(tokens), 1)
 

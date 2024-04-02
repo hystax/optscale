@@ -35,14 +35,16 @@ class CleanMongoDB(object):
             self.mongo_client.arcee.milestone: ROWS_LIMIT,
             self.mongo_client.arcee.proc_data: ROWS_LIMIT,
             self.mongo_client.arcee.stage: ROWS_LIMIT,
-            # linked to application_id
+            self.mongo_client.arcee.model_version: ROWS_LIMIT,
+            # linked to task_id
             self.mongo_client.arcee.run: ROWS_LIMIT,
             # linked to profiling_token.token
-            self.mongo_client.arcee.application: ROWS_LIMIT,
+            self.mongo_client.arcee.task: ROWS_LIMIT,
             self.mongo_client.arcee.dataset: ROWS_LIMIT,
             self.mongo_client.arcee.goal: ROWS_LIMIT,
             self.mongo_client.arcee.leaderboard: ROWS_LIMIT,
             self.mongo_client.arcee.leaderboard_dataset: ROWS_LIMIT,
+            self.mongo_client.arcee.model: ROWS_LIMIT,
             # linked to profiling_token.infrastructure_token
             self.mongo_client.bulldozer.template: ROWS_LIMIT,
             self.mongo_client.bulldozer.runset: ROWS_LIMIT,
@@ -176,7 +178,8 @@ class CleanMongoDB(object):
                            self.mongo_client.arcee.log,
                            self.mongo_client.arcee.milestone,
                            self.mongo_client.arcee.stage,
-                           self.mongo_client.arcee.proc_data]
+                           self.mongo_client.arcee.proc_data,
+                           self.mongo_client.arcee.model_version]
         if all(self.limits.get(x) == 0 for x in run_collections):
             # maximum number of entities related to runs have already
             # been deleted
@@ -196,32 +199,32 @@ class CleanMongoDB(object):
             return True
         return False
 
-    def _delete_by_application(self, token):
-        all_applications_deleted = False
-        rows_limit = self.limits.get(self.mongo_client.arcee.application)
-        applications = list(self.mongo_client.arcee.application.find(
+    def _delete_by_task(self, token):
+        all_tasks_deleted = False
+        rows_limit = self.limits.get(self.mongo_client.arcee.task)
+        tasks = list(self.mongo_client.arcee.task.find(
             {'token': token}, ['_id']).limit(rows_limit))
         are_runs_deleted = []
-        for i in range(0, len(applications), CHUNK_SIZE):
-            apps_chunk = [
-                row['_id'] for row in applications[i:i + CHUNK_SIZE]]
+        for i in range(0, len(tasks), CHUNK_SIZE):
+            tasks_chunk = [
+                row['_id'] for row in tasks[i:i + CHUNK_SIZE]]
             runs_limit = self.limits.get(self.mongo_client.arcee.run)
             runs = list(self.mongo_client.arcee.run.find(
-                {'application_id': {'$in': apps_chunk}}, ['_id']
+                {'task_id': {'$in': tasks_chunk}}, ['_id']
             ).limit(runs_limit))
             for j in range(0, len(runs), CHUNK_SIZE):
                 runs_chunk = [row['_id'] for row in runs[i:i + CHUNK_SIZE]]
                 are_runs_deleted.append(self._delete_runs(runs_chunk))
             if all(are_runs_deleted):
                 self.limits[
-                    self.mongo_client.arcee.application] = self.delete_in_chunks(
-                    self.mongo_client.arcee.application, '_id', apps_chunk)
+                    self.mongo_client.arcee.task] = self.delete_in_chunks(
+                    self.mongo_client.arcee.task, '_id', tasks_chunk)
             else:
-                # can't delete more applications as can't delete more runs
+                # can't delete more tasks as can't delete more runs
                 break
         else:
-            all_applications_deleted = True
-        return all_applications_deleted
+            all_tasks_deleted = True
+        return all_tasks_deleted
 
     def get_deleted_cloud_account(self):
         result = (None, None)
@@ -315,7 +318,8 @@ class CleanMongoDB(object):
         arcee_collections = [self.mongo_client.arcee.dataset,
                              self.mongo_client.arcee.goal,
                              self.mongo_client.arcee.leaderboard,
-                             self.mongo_client.arcee.leaderboard_dataset]
+                             self.mongo_client.arcee.leaderboard_dataset,
+                             self.mongo_client.arcee.model]
         bulldozer_collections = [self.mongo_client.bulldozer.template,
                                  self.mongo_client.bulldozer.runset,
                                  self.mongo_client.bulldozer.runner]
@@ -326,15 +330,15 @@ class CleanMongoDB(object):
         for collection in bulldozer_collections:
             self.limits[collection] = self.delete_in_chunks(
                 collection, 'token', infra_token)
-        apps_deleted = self._delete_by_application(token)
+        tasks_deleted = self._delete_by_task(token)
 
-        if apps_deleted and all(
+        if tasks_deleted and all(
                 limit > 0 for collection, limit in self.limits.items()
                 if collection in arcee_collections + bulldozer_collections):
             self.update_cleaned_at(organization_id=org_id)
 
     def organization_limits(self):
-        collections = [self.mongo_client.arcee.application,
+        collections = [self.mongo_client.arcee.task,
                        self.mongo_client.arcee.dataset,
                        self.mongo_client.arcee.goal,
                        self.mongo_client.arcee.leaderboard,
@@ -345,6 +349,8 @@ class CleanMongoDB(object):
                        self.mongo_client.arcee.milestone,
                        self.mongo_client.arcee.stage,
                        self.mongo_client.arcee.proc_data,
+                       self.mongo_client.arcee.model,
+                       self.mongo_client.arcee.model_version,
                        self.mongo_client.bulldozer.template,
                        self.mongo_client.bulldozer.runset,
                        self.mongo_client.bulldozer.runner]

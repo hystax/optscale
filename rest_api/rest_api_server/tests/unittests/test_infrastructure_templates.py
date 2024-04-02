@@ -10,7 +10,7 @@ class TestTemplateApi(TestInfrastructureBase):
     def setUp(self, version='v2'):
         super().setUp(version)
         self.param_to_obj_map = {
-            'application_ids': 'applications',
+            'task_ids': 'tasks',
             'cloud_account_ids': 'cloud_accounts',
             'region_ids': 'regions',
             'instance_types': 'instance_types'
@@ -34,7 +34,7 @@ class TestTemplateApi(TestInfrastructureBase):
             'name': 1,
             'tags': 2,
             'hyperparameters': 3,
-            'application_ids': [4],
+            'task_ids': [4],
             'cloud_account_ids': True,
             'region_ids': '6',
             'instance_types': {7: 7},
@@ -66,7 +66,7 @@ class TestTemplateApi(TestInfrastructureBase):
             self.assertEqual(res.get('error', {}).get('error_code'), 'OE0216')
 
     def test_create_nonexisting_entities(self):
-        nonexisting_updates = ['application_ids', 'cloud_account_ids']
+        nonexisting_updates = ['task_ids', 'cloud_account_ids']
         for k in nonexisting_updates:
             valid_template = self.valid_template.copy()
             valid_template[k] = [str(uuid.uuid4())]
@@ -102,9 +102,8 @@ class TestTemplateApi(TestInfrastructureBase):
             self.organization_id, self.valid_template)
         self.assertEqual(code, 404)
 
-    def test_create_deleted_app(self):
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+    def test_create_deleted_task(self):
+        code, _ = self.client.task_delete(self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         code, template = self.client.template_create(
             self.organization_id, self.valid_template)
@@ -135,17 +134,16 @@ class TestTemplateApi(TestInfrastructureBase):
         self.assertEqual(code, 200)
         self.assertTrue(resp['cloud_accounts'][0].get('deleted'))
 
-    def test_get_deleted_app(self):
+    def test_get_deleted_task(self):
         code, template = self.client.template_create(
             self.organization_id, self.valid_template)
         self.assertEqual(code, 201)
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+        code, _ = self.client.task_delete(self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         code, resp = self.client.template_get(
             self.organization_id, template['id'])
         self.assertEqual(code, 200)
-        self.assertTrue(resp['applications'][0].get('deleted'))
+        self.assertTrue(resp['tasks'][0].get('deleted'))
 
     def test_delete(self):
         code, template = self.client.template_create(
@@ -218,7 +216,7 @@ class TestTemplateApi(TestInfrastructureBase):
             'name': 1,
             'tags': 2,
             'hyperparameters': 3,
-            'application_ids': [4],
+            'task_ids': [4],
             'cloud_account_ids': True,
             'region_ids': '6',
             'instance_types': {7: 7},
@@ -244,7 +242,7 @@ class TestTemplateApi(TestInfrastructureBase):
         code, template = self.client.template_create(
             self.organization_id, self.valid_template)
         self.assertEqual(code, 201)
-        nonexisting_updates = ['application_ids', 'cloud_account_ids']
+        nonexisting_updates = ['task_ids', 'cloud_account_ids']
         for k in nonexisting_updates:
             code, res = self.client.template_update(
                 self.organization_id, template['id'], {k: [str(uuid.uuid4())]})
@@ -279,15 +277,14 @@ class TestTemplateApi(TestInfrastructureBase):
             self.assertEqual(code, 409)
             self.assertEqual(res.get('error', {}).get('error_code'), 'OE0149')
 
-    def test_update_deleted_app(self):
+    def test_update_deleted_task(self):
         code, template = self.client.template_create(
             self.organization_id, self.valid_template)
         self.assertEqual(code, 201)
-        code, _ = self.client.application_delete(
-            self.organization_id, self.application_id)
+        code, _ = self.client.task_delete(self.organization_id, self.task_id)
         self.assertEqual(code, 204)
         updates = {
-            'application_ids': [self.application_id]
+            'task_ids': [self.task_id]
         }
         code, _ = self.client.template_update(
             self.organization_id, template['id'], updates)
@@ -363,7 +360,7 @@ class TestTemplateApi(TestInfrastructureBase):
         self.assertEqual(code, 200)
         self.assertTrue(overview.get('templates', []))
 
-    def test_overview_deleted_app(self):
+    def test_overview_deleted_task(self):
         code, template = self.client.template_create(
             self.organization_id, self.valid_template)
         self.assertEqual(code, 201)
@@ -373,9 +370,9 @@ class TestTemplateApi(TestInfrastructureBase):
         self.assertEqual(code, 201)
         code, _ = self.client.runset_get(self.organization_id, runset['id'])
         self.assertEqual(code, 200)
-        for app_id in self.valid_template['application_ids']:
-            code, _ = self.client.application_delete(
-                self.organization_id, app_id)
+        for task_id in self.valid_template['task_ids']:
+            code, _ = self.client.task_delete(
+                self.organization_id, task_id)
             self.assertEqual(code, 204)
         code, overview = self.client.templates_overview(self.organization_id)
         self.assertEqual(code, 200)

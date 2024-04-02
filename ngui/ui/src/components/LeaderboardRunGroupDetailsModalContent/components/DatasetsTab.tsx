@@ -7,7 +7,7 @@ import { Link as RouterLink } from "react-router-dom";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { getMlModelRunUrl } from "urls";
+import { getMlTaskRunUrl } from "urls";
 import { formatRunFullName } from "utils/ml";
 
 const DatasetsTable = ({ datasets }) => {
@@ -49,14 +49,14 @@ const DatasetsTable = ({ datasets }) => {
           }
         }) => {
           if (coveredBy) {
-            const { application_id: taskId, id: runId, number: runNumber, name: runName } = coveredBy;
+            const { task_id: taskId, id: runId, number: runNumber, name: runName } = coveredBy;
 
             return (
               <Box display="inline-flex" flexWrap="wrap" alignItems="center">
                 <CheckCircleIcon fontSize="small" color="success" />
                 <FormattedMessage id="coveredBy" />
                 &nbsp;
-                <Link to={getMlModelRunUrl(taskId, runId)} component={RouterLink}>
+                <Link to={getMlTaskRunUrl(taskId, runId)} component={RouterLink}>
                   {formatRunFullName(runNumber, runName)}
                 </Link>
               </Box>

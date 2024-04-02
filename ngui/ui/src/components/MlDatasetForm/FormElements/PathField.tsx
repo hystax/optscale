@@ -5,7 +5,7 @@ import InputLoader from "components/InputLoader";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
 import { FIELD_NAMES } from "../constants";
 
-const IdField = ({ name = FIELD_NAMES.PATH, isLoading = false }) => {
+const IdField = ({ name = FIELD_NAMES.PATH, isLoading = false, autoFocus = false }) => {
   const {
     register,
     formState: { errors }
@@ -20,9 +20,9 @@ const IdField = ({ name = FIELD_NAMES.PATH, isLoading = false }) => {
       dataTestId="input_id"
       label={<FormattedMessage id="id" />}
       required
-      autoFocus
       error={!!errors[name]}
       helperText={errors[name] && errors[name].message}
+      autoFocus={autoFocus}
       {...register(name, {
         required: {
           value: true,

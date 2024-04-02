@@ -12,7 +12,7 @@ import PageContentWrapper from "components/PageContentWrapper";
 import Skeleton from "components/Skeleton";
 import TypographyLoader from "components/TypographyLoader";
 import { useRefetchApis } from "hooks/useRefetchApis";
-import { ML_RUNSET_TEMPLATES, getMlModelDetailsUrl, getMlRunsetTemplateUrl } from "urls";
+import { ML_RUNSET_TEMPLATES, getMlTaskDetailsUrl, getMlRunsetTemplateUrl } from "urls";
 import { getColorScale } from "utils/charts";
 import { SPACING_1 } from "utils/layouts";
 import { formatRunFullName } from "utils/ml";
@@ -34,7 +34,7 @@ const MlRunsetOverview = ({
     name: runsetName,
     template: { name: runsetTemplateName, id: runsetTemplateId } = {},
     number: runsetNumber,
-    application: { id: taskId, name: modelName, deleted: isModelDeleted = false } = {},
+    task: { id: taskId, name: taskName, deleted: isTaskDeleted = false } = {},
     runs_count: runsCount = 0,
     succeeded_runs: completedRuns = 0,
     cost = 0,
@@ -106,11 +106,11 @@ const MlRunsetOverview = ({
               <KeyValueLabel
                 keyMessageId="task"
                 value={
-                  isModelDeleted ? (
-                    modelName
+                  isTaskDeleted ? (
+                    taskName
                   ) : (
-                    <Link to={getMlModelDetailsUrl(taskId)} component={RouterLink}>
-                      {modelName}
+                    <Link to={getMlTaskDetailsUrl(taskId)} component={RouterLink}>
+                      {taskName}
                     </Link>
                   )
                 }

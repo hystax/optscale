@@ -1,6 +1,8 @@
 import { FormattedMessage } from "react-intl";
 import CollapsableTableCell from "components/CollapsableTableCell";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { isEmpty as isEmptyObject } from "utils/objects";
+import { CELL_EMPTY_VALUE } from "utils/tables";
 
 const tags = ({
   headerDataTestId = "lbl_tags",
@@ -24,7 +26,15 @@ const tags = ({
   style: {
     minWidth: "200px"
   },
-  cell: ({ row: { original } }) => <CollapsableTableCell maxRows={5} tags={getTags(original)} />
+  cell: ({ row: { original } }) => {
+    const tagsValue = getTags(original);
+
+    if (isEmptyObject(tagsValue)) {
+      return CELL_EMPTY_VALUE;
+    }
+
+    return <CollapsableTableCell maxRows={5} tags={tagsValue} />;
+  }
 });
 
 export default tags;

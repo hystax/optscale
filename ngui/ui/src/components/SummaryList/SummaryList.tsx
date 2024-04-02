@@ -1,22 +1,17 @@
+import { Box } from "@mui/material";
 import IconButton from "components/IconButton";
 import SubTitle from "components/SubTitle";
 import TypographyLoader from "components/TypographyLoader";
 import { isEmpty as isEmptyObject } from "utils/objects";
 
 const SummaryList = ({ titleMessage, titleIconButton = {}, isLoading = false, items = [] }) => (
-  <div>
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        height: "30px"
-      }}
-    >
+  <Box minWidth={isLoading ? "200px" : undefined}>
+    <Box display="flex" alignItems="center" height="30px">
       <SubTitle>{titleMessage}</SubTitle>
       {isEmptyObject(titleIconButton) ? null : <IconButton {...titleIconButton} />}
-    </div>
+    </Box>
     {isLoading ? <TypographyLoader linesCount={4} /> : <>{items}</>}
-  </div>
+  </Box>
 );
 
 export default SummaryList;

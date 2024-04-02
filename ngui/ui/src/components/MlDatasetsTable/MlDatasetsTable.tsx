@@ -137,7 +137,8 @@ const MlDatasetsTable = ({ datasets }) => {
         cell: ({ cell }) => <Markdown>{cell.getValue()}</Markdown>
       },
       datasetLabels({
-        accessorKey: "labels",
+        id: "labels",
+        accessorFn: (originalRow) => originalRow.labels,
         style: {
           maxWidth: "400px"
         }

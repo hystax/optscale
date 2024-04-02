@@ -5,7 +5,7 @@ from typing import Iterable
 
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.controllers.infrastructure.base import (
-    BaseInfraController, format_cloud_account, format_application,
+    BaseInfraController, format_cloud_account, format_task,
     format_instance_type, format_region)
 from rest_api.rest_api_server.exceptions import Err
 
@@ -22,16 +22,16 @@ def permutation(p):
 class TemplateController(BaseInfraController):
     @staticmethod
     def format_template(
-            template: dict, cloud_accounts: dict, applications: dict
+            template: dict, cloud_accounts: dict, tasks: dict
     ) -> dict:
         template.pop('token', None)
         template['id'] = template.pop('_id')
         template['cloud_accounts'] = [
             format_cloud_account(cloud_accounts[id_])
             for id_ in template.pop('cloud_account_ids')]
-        template['applications'] = [
-            format_application(applications[id_])
-            for id_ in template.pop('application_ids')]
+        template['tasks'] = [
+            format_task(tasks[id_])
+            for id_ in template.pop('task_ids')]
         template['instance_types'] = [
             format_instance_type(id_)
             for id_ in template.pop('instance_types')
@@ -64,16 +64,14 @@ class TemplateController(BaseInfraController):
         cloud_accounts = self._get_cloud_accounts(
             organization_id, kwargs['cloud_account_ids'],
             exclude_deleted=True)
-        applications = self._get_applications(
-            organization_id, kwargs['application_ids'],
-            exclude_deleted=True)
+        tasks = self._get_tasks(
+            organization_id, kwargs['task_ids'], exclude_deleted=True)
         self._check_instance_types(
             cloud_accounts.values(), kwargs['instance_types'],
             kwargs['region_ids'])
         template = self.__create(
             infrastructure_token, **kwargs)
-        return self.format_template(
-            template, cloud_accounts, applications)
+        return self.format_template(template, cloud_accounts, tasks)
 
     def __create(self, infrastructure_token, **kwargs) -> dict:
         try:
@@ -113,10 +111,9 @@ class TemplateController(BaseInfraController):
         template = self.__get(infrastructure_token, template_id)
         cloud_accounts = self._get_cloud_accounts(
             organization_id, template.get('cloud_account_ids'))
-        applications = self._get_applications(
-            organization_id, template.get('application_ids'))
+        tasks = self._get_tasks(organization_id, template.get('task_ids'))
         return self.format_template(
-            template, cloud_accounts, applications)
+            template, cloud_accounts, tasks)
 
     def edit(self, organization_id, template_id,
              infrastructure_token, **kwargs):
@@ -125,10 +122,10 @@ class TemplateController(BaseInfraController):
             organization_id,
             kwargs.get('cloud_account_ids') or template['cloud_account_ids'],
             exclude_deleted=len(kwargs.get('cloud_account_ids', [])) > 0)
-        applications = self._get_applications(
+        tasks = self._get_tasks(
             organization_id,
-            kwargs.get('application_ids') or template['application_ids'],
-            exclude_deleted=len(kwargs.get('application_ids', [])) > 0)
+            kwargs.get('task_ids') or template['task_ids'],
+            exclude_deleted=len(kwargs.get('task_ids', [])) > 0)
         if any(map(lambda x: x in kwargs, ['instance_types', 'region_ids'])):
             self._check_instance_types(
                 cloud_accounts.values(),
@@ -137,7 +134,7 @@ class TemplateController(BaseInfraController):
         template = self.__edit(
             infrastructure_token, template_id, **kwargs)
         return self.format_template(
-            template, cloud_accounts, applications)
+            template, cloud_accounts, tasks)
 
     def delete(self, template_id, infrastructure_token):
         try:

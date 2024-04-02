@@ -89,7 +89,7 @@ class ObjectGroups(enum.Enum):
     AuthUsers = 'auth_users'
     PoolRelations = 'pool_relations'
     Nodes = 'nodes'
-    Metrics = 'metrics'
+    AverageMetrics = 'average_metrics'
     K8sMetrics = 'k8s_metrics'
     ShareableBookings = 'shareable_bookings'
     OrganizationOptions = 'organization_options'
@@ -97,8 +97,8 @@ class ObjectGroups(enum.Enum):
     OrganizationLimitHit = 'organization_limit_hit'
     RiSpUsages = 'ri_sp_usage'
     UncoveredUsages = 'uncovered_usage'
-    Goals = 'goals'
-    Applications = 'applications'
+    Metrics = 'metrics'
+    Tasks = 'tasks'
     Templates = 'templates'
     Runsets = 'runsets'
     Datasets = 'datasets'
@@ -113,6 +113,8 @@ class ObjectGroups(enum.Enum):
     Leaderboards = 'leaderboards'
     LeaderboardDatasets = 'leaderboard_datasets'
     OrganizationGeminis = 'organization_geminis'
+    Models = 'models'
+    ModelVersions = 'model_versions'
 
     @classmethod
     def rest_objects(cls):
@@ -144,7 +146,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.DiscoveryInfo: self.build_discovery_info,
             ObjectGroups.Nodes: self.build_node,
             ObjectGroups.CostModels: self.build_cost_model,
-            ObjectGroups.Metrics: self.build_metric,
+            ObjectGroups.AverageMetrics: self.build_average_metric,
             ObjectGroups.K8sMetrics: self.build_k8s_metric,
             ObjectGroups.ShareableBookings: self.build_shareable_booking,
             ObjectGroups.OrganizationOptions: self.build_organization_option,
@@ -156,14 +158,16 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 self.build_archived_recommendations,
             ObjectGroups.RiSpUsages: self.build_ri_sp_usage,
             ObjectGroups.UncoveredUsages: self.build_uncovered_usage,
-            ObjectGroups.Goals: self.build_goal,
-            ObjectGroups.Applications: self.build_application,
+            ObjectGroups.Metrics: self.build_metric,
+            ObjectGroups.Tasks: self.build_task,
             ObjectGroups.Runs: self.build_run,
             ObjectGroups.Platforms: self.build_platform,
             ObjectGroups.Logs: self.build_log,
             ObjectGroups.Milestones: self.build_milestone,
             ObjectGroups.Stages: self.build_stage,
             ObjectGroups.ProcData: self.build_proc_data,
+            ObjectGroups.Models: self.build_model,
+            ObjectGroups.ModelVersions: self.build_model_version,
             ObjectGroups.Templates: self.build_template,
             ObjectGroups.Runsets: self.build_runset,
             ObjectGroups.Runners: self.build_runner,
@@ -180,14 +184,16 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.Optimizations: self.checklists_collection,
             ObjectGroups.ArchivedRecommendations:
                 self.archived_recommendations_collection,
-            ObjectGroups.Applications: self.applications_collection,
+            ObjectGroups.Tasks: self.tasks_collection,
             ObjectGroups.Runs: self.runs_collection,
-            ObjectGroups.Goals: self.goals_collection,
+            ObjectGroups.Metrics: self.metrics_collection,
             ObjectGroups.Platforms: self.platforms_collection,
             ObjectGroups.Logs: self.logs_collection,
             ObjectGroups.Milestones: self.milestones_collection,
             ObjectGroups.Stages: self.stages_collection,
             ObjectGroups.ProcData: self.proc_data_collection,
+            ObjectGroups.Models: self.model_collection,
+            ObjectGroups.ModelVersions: self.model_version_collection,
             ObjectGroups.Templates: self.templates_collection,
             ObjectGroups.Runsets: self.runsets_collection,
             ObjectGroups.Runners: self.runners_collection,
@@ -198,7 +204,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 self.leaderboard_datasets_collection,
         }
         self._clickhouse_table_map = {
-            ObjectGroups.Metrics: 'average_metrics',
+            ObjectGroups.AverageMetrics: 'average_metrics',
             ObjectGroups.K8sMetrics: 'k8s_metrics',
             ObjectGroups.CleanExpenses: 'expenses',
             ObjectGroups.TrafficExpenses: 'traffic_expenses',
@@ -220,19 +226,19 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'acquired_by_id': ObjectGroups.Employees.value,
             'constraint_id': ObjectGroups.OrganizationConstraint.value,
             'offer_id': ObjectGroups.Resources.value,
-            'goals': ObjectGroups.Goals.value,
-            'application_id': ObjectGroups.Applications.value,
-            'application_ids': ObjectGroups.Applications.value,
-            'run': ObjectGroups.Runs.value,  # thanks to arcee.log
+            'metrics': ObjectGroups.Metrics.value,
+            'task_id': ObjectGroups.Tasks.value,
+            'task_ids': ObjectGroups.Tasks.value,
             'run_id': ObjectGroups.Runs.value,
+            'model_id': ObjectGroups.Models.value,
             'template_id': ObjectGroups.Templates.value,
             'runset_id': ObjectGroups.Runsets.value,
             'leaderboard_id': ObjectGroups.Leaderboards.value,
             'dataset_id': ObjectGroups.Datasets.value,
             'dataset_ids': ObjectGroups.Datasets.value,
-            'primary_goal': ObjectGroups.Goals.value,
-            'other_goals': ObjectGroups.Goals.value,
-            'filters': ObjectGroups.Goals.value,
+            'primary_metric': ObjectGroups.Metrics.value,
+            'other_metrics': ObjectGroups.Metrics.value,
+            'filters': ObjectGroups.Metrics.value,
             'power_schedule': ObjectGroups.PowerSchedules.value
         }
         self._multiplier = None
@@ -247,21 +253,21 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.LimitHits: self.duplicate_res_id_depended,
             ObjectGroups.CostModels: self.duplicate_res_id_depended,
             ObjectGroups.ShareableBookings: self.duplicate_res_id_depended,
-            ObjectGroups.Metrics: self.duplicate_res_id_depended
+            ObjectGroups.AverageMetrics: self.duplicate_res_id_depended
         }
         self._org_constraint_type_map = {}
 
     @property
-    def applications_collection(self):
-        return self.mongo_client.arcee.application
+    def tasks_collection(self):
+        return self.mongo_client.arcee.task
 
     @property
     def runs_collection(self):
         return self.mongo_client.arcee.run
 
     @property
-    def goals_collection(self):
-        return self.mongo_client.arcee.goal
+    def metrics_collection(self):
+        return self.mongo_client.arcee.metric
 
     @property
     def platforms_collection(self):
@@ -282,6 +288,14 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
     @property
     def proc_data_collection(self):
         return self.mongo_client.arcee.proc_data
+
+    @property
+    def model_collection(self):
+        return self.mongo_client.arcee.model
+
+    @property
+    def model_version_collection(self):
+        return self.mongo_client.arcee.model_version
 
     @property
     def templates_collection(self):
@@ -818,7 +832,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.refresh_relations(['rule_id'], obj)
         return Condition(**obj)
 
-    def build_metric(self, obj, now, **kwargs):
+    def build_average_metric(self, obj, now, **kwargs):
         obj = self.offsets_to_datetimes(['date'], now, obj)
         obj = self.refresh_relations(['cloud_account_id', 'resource_id'], obj)
         return obj
@@ -906,20 +920,20 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['cost'] = multipliered_cost
         return obj
 
-    def build_goal(self, obj, objects_group, profiling_token, **kwargs):
+    def build_metric(self, obj, objects_group, profiling_token, **kwargs):
         new_id = gen_id()
         self._recovery_map[objects_group.value][obj['_id']] = new_id
         obj['_id'] = new_id
         obj['token'] = profiling_token
         return obj
 
-    def build_application(self, obj, objects_group, profiling_token, **kwargs):
+    def build_task(self, obj, objects_group, profiling_token, **kwargs):
         new_id = gen_id()
         self._recovery_map[objects_group.value][obj['_id']] = new_id
         obj['_id'] = new_id
         obj['token'] = profiling_token
         obj['deleted_at'] = 0
-        obj = self.refresh_relations(['owner_id', 'goals'], obj)
+        obj = self.refresh_relations(['owner_id', 'metrics'], obj)
         return obj
 
     def build_dataset(self, obj, now, objects_group, profiling_token, **kwargs):
@@ -950,7 +964,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['token'] = profiling_token
         obj['deleted_at'] = 0
         obj = self.refresh_relations(
-            ['application_id', 'primary_goal', 'other_goals', 'filters'], obj)
+            ['task_id', 'primary_metric', 'other_metrics', 'filters'], obj)
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         return obj
 
@@ -971,7 +985,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             obj = self.refresh_relations(['runset_id'], obj)
         if obj.get('dataset_id'):
             obj = self.refresh_relations(['dataset_id'], obj)
-        obj = self.refresh_relations(['application_id'], obj)
+        obj = self.refresh_relations(['task_id'], obj)
         obj = self.offsets_to_timestamps(['start', 'finish'], now, obj)
         return obj
 
@@ -982,8 +996,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
 
     def build_log(self, obj, now, **kwargs):
         obj['_id'] = gen_id()
-        obj = self.refresh_relations(['run'], obj)
-        obj = self.offsets_to_timestamps(['time'], now, obj)
+        obj = self.refresh_relations(['run_id'], obj)
+        obj = self.offsets_to_timestamps(['timestamp'], now, obj)
         return obj
 
     def build_milestone(self, obj, now, **kwargs):
@@ -1004,6 +1018,27 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.offsets_to_timestamps(['timestamp'], now, obj)
         return obj
 
+    def build_model(
+            self, obj, objects_group, now, profiling_token, **kwargs
+    ):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = profiling_token
+        obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        return obj
+
+    def build_model_version(
+            self, obj, objects_group, now, profiling_token, **kwargs
+    ):
+        new_id = gen_id()
+        obj['_id'] = new_id
+        obj['deleted_at'] = 0
+        obj = self.refresh_relations(
+            ['model_id', 'run_id'], obj)
+        obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        return obj
+
     def build_template(
             self, obj, objects_group, now, infrastructure_token, **kwargs
     ):
@@ -1013,7 +1048,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['token'] = infrastructure_token
         obj['deleted_at'] = 0
         obj = self.refresh_relations(
-            ['application_ids', 'cloud_account_ids'], obj)
+            ['task_ids', 'cloud_account_ids'], obj)
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         return obj
 
@@ -1026,7 +1061,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['token'] = infrastructure_token
         obj['deleted_at'] = 0
         obj = self.refresh_relations(
-            ['template_id', 'application_id', 'cloud_account_id', 'owner_id'],
+            ['template_id', 'task_id', 'cloud_account_id', 'owner_id'],
             obj)
         obj = self.offsets_to_timestamps(
             ['created_at', 'started_at', 'destroyed_at'], now, obj)
@@ -1036,7 +1071,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['_id'] = gen_id()
         obj['token'] = infrastructure_token
         obj = self.refresh_relations(
-            ['runset_id', 'cloud_account_id', 'application_id', 'run_id'],
+            ['runset_id', 'cloud_account_id', 'task_id', 'run_id'],
             obj)
         obj = self.offsets_to_timestamps(
             ['created_at', 'started_at', 'destroyed_at'], now, obj)
@@ -1131,7 +1166,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 assignment_type = InviteAssignmentScopeTypes.POOL.value
 
             self.assign_role_to_user(
-                auth_user['id'], scope, auth_user_data['role_purpose'], assignment_type)
+                auth_user['id'], scope, auth_user_data['role_purpose'],
+                assignment_type)
 
         return employee_user_bindings
 

@@ -46,7 +46,8 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
         deletedAccessor: "deleted"
       }),
       datasetLabels({
-        accessorKey: "labels"
+        id: "labels",
+        accessorFn: (originalRow) => originalRow.labels
       }),
       {
         header: (

@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider>
       <MlRunsetTemplateEdit
-        models={[]}
+        tasks={[]}
         dataSources={[]}
         runsetTemplate={{}}
         onSubmit={vi.fn}

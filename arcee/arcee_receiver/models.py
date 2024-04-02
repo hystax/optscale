@@ -86,7 +86,7 @@ class RunPostIn(BaseClass):
 
 class Run(RunPostIn, RunPatchIn):
     id: str = id_
-    application_id: str
+    task_id: str
     start: int = now
     number: int
     deleted_at: int = 0
@@ -97,15 +97,15 @@ class Run(RunPostIn, RunPatchIn):
     finish: Optional[int] = None
 
 
-class ApplicationPatchIn(BaseClass):
-    goals: Optional[List[str]] = []
+class TaskPatchIn(BaseClass):
+    metrics: Optional[List[str]] = []
     name: Optional[str] = None
     description: Optional[str] = None
     owner_id: Optional[str] = None
 
 
 class LeaderboardFilter(BaseClass):
-    id: str = Field(description='goal id to filter by')
+    id: str = Field(description='metric id to filter by')
     min: Optional[float] = None
     max: Optional[float] = None
 
@@ -119,38 +119,38 @@ class LeaderboardFilter(BaseClass):
 
 
 class LeaderboardPostIn(BaseClass):
-    primary_goal: str
+    primary_metric: str
     group_by_hp: bool
     grouping_tags: List[str] = []
-    other_goals: List[str] = []
+    other_metrics: List[str] = []
     filters: List[LeaderboardFilter] = []
-    goals: List[str] = Field(
+    metrics: List[str] = Field(
         [],
-        description='list of goals from primary_goal and other_goals',
+        description='list of metrics from primary_metric and other_metrics',
         exclude=True)
 
     @model_validator(mode='after')
     def validate_filters_values(self):
-        goals_ids = self.other_goals + [self.primary_goal]
+        metrics_ids = self.other_metrics + [self.primary_metric]
         filters_ids = [x.id for x in self.filters]
-        if any(x not in goals_ids for x in filters_ids):
+        if any(x not in metrics_ids for x in filters_ids):
             raise ValueError('Invalid filters')
         return self
 
     @model_validator(mode='after')
-    def set_goals(self):
-        self.goals = list(set(self.other_goals + [self.primary_goal]))
+    def set_metrics(self):
+        self.metrics = list(set(self.other_metrics + [self.primary_metric]))
         return self
 
 
 class LeaderboardPatchIn(LeaderboardPostIn):
-    primary_goal: Optional[str] = None
+    primary_metric: Optional[str] = None
     group_by_hp: Optional[bool] = None
 
 
 class Leaderboard(LeaderboardPostIn):
     id: str = id_
-    application_id: str
+    task_id: str
     token: str
     created_at: int = now
     deleted_at: int = 0
@@ -235,3 +235,78 @@ class Log(BaseClass):
     instance_id: Optional[str]
     id: str = id_
     time: float = now_ms
+
+
+class ModelPatchIn(BaseClass):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[dict] = {}
+
+
+class ModelPostIn(ModelPatchIn):
+    key: str
+
+    @model_validator(mode='after')
+    def set_name(self):
+        if not self.name:
+            self.name = self.key
+        return self
+
+
+class Model(ModelPostIn):
+    id: str = id_
+    token: str
+    created_at: int = now
+
+
+class ModelVersionIn(BaseClass):
+    path: Optional[str] = None
+    aliases: Optional[List[str]] = []
+    version: Optional[str] = None
+    tags: Optional[dict] = {}
+
+    @model_validator(mode='after')
+    def set_aliases(self):
+        if self.aliases:
+            self.aliases = list(set(self.aliases))
+        return self
+
+
+class ModelVersion(ModelVersionIn):
+    id: str = id_
+    deleted_at: int = 0
+    run_id: str
+    model_id: str
+    created_at: int = now
+
+
+class MetricFunc(str, Enum):
+    avg = "avg"
+    last = "last"
+    max = "max"
+    sum = "sum"
+
+
+class MetricTendency(str, Enum):
+    less = "less"
+    more = "more"
+
+
+class MetricPostIn(BaseClass):
+    name: Optional[str] = None
+    key: str
+    target_value: float
+    func: MetricFunc
+    tendency: MetricTendency
+
+
+class MetricPatchIn(MetricPostIn):
+    key: Optional[str] = None
+    target_value: Optional[float] = None
+    func: Optional[MetricFunc] = None
+    tendency: Optional[MetricTendency] = None
+
+
+class Metric(MetricPatchIn):
+    id: str = id_
+    token: str

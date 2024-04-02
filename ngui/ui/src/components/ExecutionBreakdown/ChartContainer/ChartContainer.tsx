@@ -40,6 +40,7 @@ const ChartContainer = ({
     breakdownConfig,
     selectedBreakdowns
   });
+
   return (
     <>
       <Box

@@ -14,11 +14,11 @@ import {
   DataSourcesField,
   RegionsField,
   InstanceTypesField,
-  ModelsField
+  TasksField
 } from "./FormElements";
 
 const {
-  MODELS_FIELD_NAME,
+  TASK_FIELD_NAME,
   DATA_SOURCES_FIELD_NAME,
   REGIONS_FIELD_NAME,
   INSTANCE_TYPES_FIELD_NAME,
@@ -32,8 +32,8 @@ const {
   HYPERPARAMETER_ENVIRONMENT_VARIABLE_FIELD_NAME
 } = FIELD_NAMES;
 
-const MlRunsetTemplateForm = ({ models, dataSources, onSubmit, onCancel, isLoading = {}, defaultValues, isEdit }) => {
-  const { isGetAllModelsLoading = false, isGetRunsetTemplateLoading = false, isSubmitLoading = false } = isLoading;
+const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoading = {}, defaultValues, isEdit }) => {
+  const { isGetAllTasksLoading = false, isGetRunsetTemplateLoading = false, isSubmitLoading = false } = isLoading;
 
   const methods = useForm({
     defaultValues
@@ -53,7 +53,7 @@ const MlRunsetTemplateForm = ({ models, dataSources, onSubmit, onCancel, isLoadi
         onSubmit={handleSubmit((formData) => {
           const data = {
             name: formData[NAME_FIELD_NAME],
-            application_ids: formData[MODELS_FIELD_NAME].map(({ id }) => id),
+            task_ids: formData[TASK_FIELD_NAME].map(({ id }) => id),
             cloud_account_ids: formData[DATA_SOURCES_FIELD_NAME].map(({ id }) => id),
             region_ids: formData[REGIONS_FIELD_NAME].map(({ id }) => id),
             instance_types: formData[INSTANCE_TYPES_FIELD_NAME].map(({ name }) => name),
@@ -80,7 +80,7 @@ const MlRunsetTemplateForm = ({ models, dataSources, onSubmit, onCancel, isLoadi
           <FormattedMessage id="templateInformation" />
         </FormLabel>
         <NameField isLoading={isGetRunsetTemplateLoading} />
-        <ModelsField models={models} isLoading={isGetAllModelsLoading || isGetRunsetTemplateLoading} />
+        <TasksField tasks={tasks} isLoading={isGetAllTasksLoading || isGetRunsetTemplateLoading} />
         <FormLabel component="p">
           <FormattedMessage id="runsetSettings" />
         </FormLabel>
@@ -95,7 +95,7 @@ const MlRunsetTemplateForm = ({ models, dataSources, onSubmit, onCancel, isLoadi
         <FormButtons
           onCancel={onCancel}
           isEdit={isEdit}
-          isLoading={isGetRunsetTemplateLoading || isGetAllModelsLoading || isSubmitLoading}
+          isLoading={isGetRunsetTemplateLoading || isGetAllTasksLoading || isSubmitLoading}
         />
       </form>
     </FormProvider>

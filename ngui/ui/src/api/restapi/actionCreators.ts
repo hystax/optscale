@@ -196,8 +196,8 @@ import {
   GET_ORGANIZATION_PERSPECTIVES,
   UPDATE_ORGANIZATION_PERSPECTIVES,
   UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
-  GET_ML_MODELS,
-  SET_ML_MODELS,
+  GET_ML_TASKS,
+  SET_ML_TASKS,
   GET_ML_LEADERBOARD,
   SET_ML_LEADERBOARD,
   CREATE_ML_LEADERBOARD,
@@ -211,32 +211,32 @@ import {
   SET_ML_DATASET,
   UPDATE_ML_DATASET,
   DELETE_ML_DATASET,
-  GET_ML_GLOBAL_PARAMETERS,
-  SET_ML_GLOBAL_PARAMETERS,
-  GET_ML_GLOBAL_PARAMETER,
-  SET_ML_GLOBAL_PARAMETER,
-  CREATE_GLOBAL_PARAMETER,
-  UPDATE_GLOBAL_PARAMETER,
-  DELETE_GLOBAL_PARAMETER,
-  CREATE_ML_MODEL,
+  GET_ML_GLOBAL_METRICS,
+  SET_ML_GLOBAL_METRICS,
+  GET_ML_GLOBAL_METRIC,
+  SET_ML_GLOBAL_METRIC,
+  CREATE_GLOBAL_METRIC,
+  UPDATE_GLOBAL_METRIC,
+  DELETE_GLOBAL_METRIC,
+  CREATE_ML_TASK,
   GET_PROFILING_TOKEN,
   SET_PROFILING_TOKEN,
   GET_ML_EXECUTORS,
   SET_ML_EXECUTORS,
   GET_ML_EXECUTORS_BREAKDOWN,
   SET_ML_EXECUTORS_BREAKDOWN,
-  SET_ML_MODEL,
-  GET_ML_MODEL,
-  UPDATE_ML_MODEL,
-  DELETE_ML_MODEL,
-  SET_ML_MODEL_RUNS,
-  GET_ML_MODEL_RUNS,
+  SET_ML_TASK,
+  GET_ML_TASK,
+  UPDATE_ML_TASK,
+  DELETE_ML_TASK,
+  SET_ML_TASK_RUNS,
+  GET_ML_TASK_RUNS,
   SET_ML_RUN_DETAILS,
   GET_ML_RUN_DETAILS,
   SET_ML_RUN_DETAILS_BREAKDOWN,
   GET_ML_RUN_DETAILS_BREAKDOWN,
-  SET_ML_MODEL_RECOMMENDATIONS,
-  GET_ML_MODEL_RECOMMENDATIONS,
+  SET_ML_TASK_RECOMMENDATIONS,
+  GET_ML_TASK_RECOMMENDATIONS,
   GET_OPTIMIZATIONS_OVERVIEW,
   GET_OPTIMIZATION_DETAILS,
   GET_ML_OPTIMIZATION_DETAILS,
@@ -288,8 +288,8 @@ import {
   UPDATE_POWER_SCHEDULE,
   ATTACH_INSTANCES_TO_SCHEDULE,
   REMOVE_INSTANCES_FROM_SCHEDULE,
-  SET_ML_MODEL_RUNS_BULK,
-  GET_ML_MODEL_RUNS_BULK,
+  SET_ML_TASK_RUNS_BULK,
+  GET_ML_TASK_RUNS_BULK,
   GET_ML_LEADERBOARD_DATASETS,
   SET_ML_LEADERBOARD_DATASETS,
   CREATE_ML_LEADERBOARD_DATASET,
@@ -307,7 +307,17 @@ import {
   SET_RESERVED_INSTANCES_BREAKDOWN,
   GET_RESERVED_INSTANCES_BREAKDOWN,
   SET_SAVING_PLANS_BREAKDOWN,
-  GET_SAVING_PLANS_BREAKDOWN
+  GET_SAVING_PLANS_BREAKDOWN,
+  SET_ML_MODELS,
+  GET_ML_MODELS,
+  CREATE_ML_MODEL,
+  GET_ML_MODEL,
+  SET_ML_MODEL,
+  UPDATE_ML_MODEL,
+  DELETE_ML_MODEL,
+  GET_ML_TASK_MODEL_VERSIONS,
+  UPDATE_ML_MODEL_VERSION,
+  SET_ML_TASK_MODEL_VERSIONS
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -336,7 +346,7 @@ import {
   onUpdateOrganizationPerspectives,
   onSuccessCreateOrganization,
   onSuccessUpdateEnvironmentSshRequirement,
-  onUpdateMlModel,
+  onUpdateMlTask,
   onSuccessGetOptimizationsOverview,
   onSuccessGetOptimizationDetails,
   onSuccessGetMLOptimizationDetails,
@@ -344,7 +354,8 @@ import {
   onUpdateBIExport,
   onUpdateS3DuplicatesOrganizationSettings,
   onUpdateMlLeaderboardDataset,
-  onUpdatePowerSchedule
+  onUpdatePowerSchedule,
+  onUpdateMlModel
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -1463,7 +1474,7 @@ export const updateResourceVisibility = (resourceId, params = {}) =>
     affectedRequests: [
       GET_RESOURCE,
       GET_ML_OPTIMIZATION_DETAILS,
-      GET_ML_MODEL_RECOMMENDATIONS,
+      GET_ML_TASK_RECOMMENDATIONS,
       GET_OPTIMIZATION_DETAILS,
       GET_OPTIMIZATIONS_OVERVIEW
     ],
@@ -1981,19 +1992,19 @@ export const getArchivedOptimizationDetails = (organizationId, params) =>
     }
   });
 
-export const getMlModels = (organizationId) =>
+export const getMlTasks = (organizationId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications`,
+    url: `${API_URL}/organizations/${organizationId}/tasks`,
     method: "GET",
     ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_MODELS),
+    onSuccess: handleSuccess(SET_ML_TASKS),
     hash: hashParams(organizationId),
-    label: GET_ML_MODELS
+    label: GET_ML_TASKS
   });
 
 export const getMlLeaderboards = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/leaderboard`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
     method: "GET",
     ttl: 30 * MINUTE,
     onSuccess: handleSuccess(SET_ML_LEADERBOARD),
@@ -2003,7 +2014,7 @@ export const getMlLeaderboards = (organizationId, taskId) =>
 
 export const createMlLeaderboard = (organizationId, taskId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/leaderboard`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
     method: "POST",
     label: CREATE_ML_LEADERBOARD,
     params,
@@ -2012,7 +2023,7 @@ export const createMlLeaderboard = (organizationId, taskId, params) =>
 
 export const updateMlLeaderboard = (organizationId, taskId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/leaderboard`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
     method: "PATCH",
     label: UPDATE_ML_LEADERBOARD,
     params,
@@ -2128,19 +2139,19 @@ export const deleteMlDataset = (organizationId, datasetId) =>
     affectedRequests: [GET_ML_DATASETS]
   });
 
-export const getMlModelRecommendations = (organizationId, taskId) =>
+export const getMlTaskRecommendations = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/optimizations`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/optimizations`,
     method: "GET",
     ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_MODEL_RECOMMENDATIONS),
+    onSuccess: handleSuccess(SET_ML_TASK_RECOMMENDATIONS),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_MODEL_RECOMMENDATIONS
+    label: GET_ML_TASK_RECOMMENDATIONS
   });
 
-export const getMlModelRecommendationDetails = (organizationId, taskId, params = {}) =>
+export const getMlTaskRecommendationDetails = (organizationId, taskId, params = {}) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/optimizations`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/optimizations`,
     method: "GET",
     onSuccess: onSuccessGetMLOptimizationDetails,
     label: GET_ML_OPTIMIZATION_DETAILS,
@@ -2152,34 +2163,34 @@ export const getMlModelRecommendationDetails = (organizationId, taskId, params =
     }
   });
 
-export const getMlModel = (organizationId, taskId) =>
+export const getMlTask = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}`,
     method: "GET",
     ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_MODEL),
+    onSuccess: handleSuccess(SET_ML_TASK),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_MODEL
+    label: GET_ML_TASK
   });
 
-export const getMlModelRuns = (organizationId, taskId) =>
+export const getMlTaskRuns = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/runs`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/runs`,
     method: "GET",
     ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_MODEL_RUNS),
+    onSuccess: handleSuccess(SET_ML_TASK_RUNS),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_MODEL_RUNS
+    label: GET_ML_TASK_RUNS
   });
 
-export const getMlModelRunsBulk = (organizationId, taskId, runIds) =>
+export const getMlTaskRunsBulk = (organizationId, taskId, runIds) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}/runs/bulk`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/runs/bulk`,
     method: "GET",
     ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_MODEL_RUNS_BULK),
+    onSuccess: handleSuccess(SET_ML_TASK_RUNS_BULK),
     hash: hashParams({ organizationId, taskId, runIds }),
-    label: GET_ML_MODEL_RUNS_BULK,
+    label: GET_ML_TASK_RUNS_BULK,
     params: {
       run_id: runIds
     }
@@ -2205,18 +2216,74 @@ export const getMlRunDetailsBreakdown = (organizationId, runId) =>
     label: GET_ML_RUN_DETAILS_BREAKDOWN
   });
 
+export const createMlTask = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/tasks`,
+    method: "POST",
+    label: CREATE_ML_TASK,
+    params,
+    affectedRequests: [GET_ML_TASKS]
+  });
+
+export const updateMlTask = (organizationId, taskId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}`,
+    method: "PATCH",
+    label: UPDATE_ML_TASK,
+    onSuccess: onUpdateMlTask,
+    params,
+    affectedRequests: [GET_ML_TASKS]
+  });
+
+export const deleteMlTask = (organizationId, taskId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}`,
+    method: "DELETE",
+    label: DELETE_ML_TASK,
+    affectedRequests: [GET_ML_TASKS]
+  });
+
+export const getMlTaskModelVersions = (organizationId, taskId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/model_versions`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_TASK_MODEL_VERSIONS),
+    label: GET_ML_TASK_MODEL_VERSIONS
+  });
+
+export const getMlModels = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/models`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_MODELS),
+    hash: hashParams(organizationId),
+    label: GET_ML_MODELS
+  });
+
+export const getMlModel = (organizationId, modelId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/models/${modelId}`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_MODEL),
+    hash: hashParams({ organizationId, modelId }),
+    label: GET_ML_MODEL
+  });
+
 export const createMlModel = (organizationId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications`,
+    url: `${API_URL}/organizations/${organizationId}/models`,
     method: "POST",
     label: CREATE_ML_MODEL,
     params,
     affectedRequests: [GET_ML_MODELS]
   });
 
-export const updateMlModel = (organizationId, taskId, params) =>
+export const updateMlModel = (organizationId, modelId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}`,
+    url: `${API_URL}/organizations/${organizationId}/models/${modelId}`,
     method: "PATCH",
     label: UPDATE_ML_MODEL,
     onSuccess: onUpdateMlModel,
@@ -2224,59 +2291,69 @@ export const updateMlModel = (organizationId, taskId, params) =>
     affectedRequests: [GET_ML_MODELS]
   });
 
-export const deleteMlModel = (organizationId, taskId) =>
+export const deleteMlModel = (organizationId, modelId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/applications/${taskId}`,
+    url: `${API_URL}/organizations/${organizationId}/models/${modelId}`,
     method: "DELETE",
     label: DELETE_ML_MODEL,
     affectedRequests: [GET_ML_MODELS]
   });
 
-export const getMlGlobalParameters = (organizationId) =>
+// eslint-disable-next-line max-params
+export const updateMlModelVersion = (organizationId, modelId, runId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals`,
+    url: `${API_URL}/organizations/${organizationId}/models/${modelId}/runs/${runId}`,
+    method: "PATCH",
+    label: UPDATE_ML_MODEL_VERSION,
+    params,
+    affectedRequests: [GET_ML_MODEL, GET_ML_MODELS]
+  });
+
+export const getMlGlobalMetrics = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/metrics`,
     method: "GET",
-    label: GET_ML_GLOBAL_PARAMETERS,
+    label: GET_ML_GLOBAL_METRICS,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId }),
     errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
-    onSuccess: handleSuccess(SET_ML_GLOBAL_PARAMETERS)
+    onSuccess: handleSuccess(SET_ML_GLOBAL_METRICS)
   });
 
-export const getMlGlobalParameter = (organizationId, metricId) =>
+export const getMlGlobalMetric = (organizationId, metricId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals/${metricId}`,
+    url: `${API_URL}/organizations/${organizationId}/metrics/${metricId}`,
     method: "GET",
-    label: GET_ML_GLOBAL_PARAMETER,
+    label: GET_ML_GLOBAL_METRIC,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, metricId }),
-    onSuccess: handleSuccess(SET_ML_GLOBAL_PARAMETER)
+    onSuccess: handleSuccess(SET_ML_GLOBAL_METRIC)
   });
 
-export const createGlobalParameter = (organizationId, params) =>
+export const createGlobalMetric = (organizationId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals`,
+    url: `${API_URL}/organizations/${organizationId}/metrics`,
     method: "POST",
-    label: CREATE_GLOBAL_PARAMETER,
+    label: CREATE_GLOBAL_METRIC,
     params,
-    affectedRequests: [GET_ML_GLOBAL_PARAMETERS]
+    affectedRequests: [GET_ML_GLOBAL_METRICS]
   });
 
-export const updateGlobalParameter = (organizationId, metricId, params) =>
+export const updateGlobalMetric = (organizationId, metricId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals/${metricId}`,
+    url: `${API_URL}/organizations/${organizationId}/metrics/${metricId}`,
     method: "PATCH",
-    label: UPDATE_GLOBAL_PARAMETER,
-    affectedRequests: [GET_ML_GLOBAL_PARAMETERS],
+    label: UPDATE_GLOBAL_METRIC,
+    affectedRequests: [GET_ML_GLOBAL_METRICS],
     params
   });
 
-export const deleteGlobalParameter = (organizationId, metricId) =>
+export const deleteGlobalMetric = (organizationId, metricId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/goals/${metricId}`,
+    url: `${API_URL}/organizations/${organizationId}/metrics/${metricId}`,
     method: "DELETE",
-    label: DELETE_GLOBAL_PARAMETER,
-    affectedRequests: [GET_ML_GLOBAL_PARAMETERS]
+    label: DELETE_GLOBAL_METRIC,
+    affectedRequests: [GET_ML_GLOBAL_METRICS]
   });
 
 export const getProfilingToken = (organizationId) =>
@@ -2298,7 +2375,7 @@ export const getMlExecutors = (organizationId, params) =>
     hash: hashParams({ organizationId, ...params }),
     onSuccess: handleSuccess(SET_ML_EXECUTORS),
     params: {
-      application_id: params.modelIds,
+      task_id: params.taskIds,
       run_id: params.runIds
     }
   });

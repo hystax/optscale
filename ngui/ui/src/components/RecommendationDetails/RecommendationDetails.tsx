@@ -3,7 +3,7 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import TabsWrapper from "components/TabsWrapper";
 import { ACTIVE, DISMISSED, EXCLUDED } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
-import MlModelsService from "services/MlModelsService";
+import MlTasksService from "services/MlTasksService";
 import { removeQueryParam } from "utils/network";
 import Details from "./Details";
 import RecommendationDetailsService from "./RecommendationDetailsService";
@@ -43,8 +43,8 @@ const RecommendationsContainer = ({ type, limit, status, dataSourceIds }) => {
 };
 
 const MlRecommendationsContainer = ({ taskId, type, limit, status }) => {
-  const { useGetModelRecommendation } = MlModelsService();
-  const { isLoading, data } = useGetModelRecommendation({ taskId, type, status });
+  const { useGetTaskRecommendation } = MlTasksService();
+  const { isLoading, data } = useGetTaskRecommendation({ taskId, type, status });
 
   return <Recommendations type={type} limit={limit} data={data} status={status} isLoading={isLoading} />;
 };
@@ -53,7 +53,7 @@ const RecommendationDetails = ({
   type,
   dataSourceIds = [],
   limit = 100,
-  mlModelId,
+  mlTaskId,
   dismissable = false,
   withExclusions = false
 }) => {
@@ -66,8 +66,8 @@ const RecommendationDetails = ({
 
   const tabs = [ACTIVE, dismissable ? DISMISSED : false, withExclusions ? EXCLUDED : false].filter(Boolean).map((name) => ({
     title: name,
-    node: mlModelId ? (
-      <MlRecommendationsContainer type={type} limit={limit} status={name} taskId={mlModelId} />
+    node: mlTaskId ? (
+      <MlRecommendationsContainer type={type} limit={limit} status={name} taskId={mlTaskId} />
     ) : (
       <RecommendationsContainer type={type} dataSourceIds={dataSourceIds} limit={limit} status={name} />
     )

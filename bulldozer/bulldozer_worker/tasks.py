@@ -436,7 +436,7 @@ class WaitArcee(ContinueWithDestroyConditions):
         _, runner = self.bulldozer_cl.get_runner(runner_id)
         LOG.info("got runner from bulldozer API: %s", runner)
         instance_id = runner["instance_id"]
-        application_id = runner["application_id"]
+        task_id = runner["task_id"]
         hp = runner["hyperparameters"]
         runset_id = runner["runset_id"]
         _, runset = self.bulldozer_cl.runset_get(runset_id)
@@ -444,7 +444,7 @@ class WaitArcee(ContinueWithDestroyConditions):
 
         LOG.info("checking for arcee runs for executor: %s", instance_id)
         # try to get run id from Arcee
-        _, runs = self.arcee_cl.runs_by_executor(instance_id, [application_id])
+        _, runs = self.arcee_cl.runs_by_executor(instance_id, [task_id])
         LOG.info("runs info: %s", str(runs))
 
         if not runs:

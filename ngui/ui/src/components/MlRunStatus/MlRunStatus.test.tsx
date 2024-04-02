@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import TestProvider from "tests/TestProvider";
-import { ML_MODEL_STATUS } from "utils/constants";
+import { ML_TASK_STATUS } from "utils/constants";
 import MlRunStatus from "./MlRunStatus";
 
 it("renders without crashing", () => {
@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <MlRunStatus status={ML_MODEL_STATUS.CREATED} />
+      <MlRunStatus status={ML_TASK_STATUS.CREATED} />
     </TestProvider>
   );
   root.unmount();

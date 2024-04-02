@@ -1,7 +1,7 @@
 import { getMilestoneTuplesGroupedByTime } from "components/ExecutionBreakdown/utils";
 import StagesAndMilestones from "components/StagesAndMilestones";
 import { getData } from "containers/ExecutionBreakdownContainer/utils";
-import MlModelsService from "services/MlModelsService";
+import MlTasksService from "services/MlTasksService";
 
 const StagesAndMilestonesContainer = ({
   runId,
@@ -11,7 +11,7 @@ const StagesAndMilestonesContainer = ({
   setSelectedSegment,
   secondsTimeRange
 }) => {
-  const { useGetRunBreakdown } = MlModelsService();
+  const { useGetRunBreakdown } = MlTasksService();
 
   const { breakdown = {}, milestones: milestonesApi = [], stages: stagesApi = [] } = useGetRunBreakdown(runId);
 

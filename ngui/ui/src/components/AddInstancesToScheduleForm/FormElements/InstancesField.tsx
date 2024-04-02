@@ -2,12 +2,10 @@ import { useMemo } from "react";
 import { FormControl, FormHelperText, Stack } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
-import CollapsableTableCell from "components/CollapsableTableCell";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
-import TextWithDataTestId from "components/TextWithDataTestId";
-import { powerScheduleInstance, resourceLocation, resourcePoolOwner, size } from "utils/columns";
+import { powerScheduleInstance, resourceLocation, resourcePoolOwner, size, tags } from "utils/columns";
 import { SPACING_1 } from "utils/layouts";
 import { isEmpty as isEmptyObject } from "utils/objects";
 
@@ -65,23 +63,14 @@ const TableField = ({ instances, value, onChange }) => {
         accessorFn: (originalRow) => originalRow.meta?.flavor,
         headerDataTestId: "lbl_size"
       }),
-      {
+      tags({
         id: "tags",
-        header: (
-          <TextWithDataTestId dataTestId="lbl_tags">
-            <FormattedMessage id="tags" />
-          </TextWithDataTestId>
-        ),
-        cell: ({
-          row: {
-            original: { tags = {} }
-          }
-        }) => <CollapsableTableCell maxRows={5} tags={tags} />,
         accessorFn: (originalRow) =>
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
-            .join(" ")
-      }
+            .join(" "),
+        getTags: (originalRow) => originalRow.tags
+      })
     ],
     []
   );

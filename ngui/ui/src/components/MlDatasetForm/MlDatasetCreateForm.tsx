@@ -28,11 +28,11 @@ const MlDatasetCreateForm = ({ onSubmit, onCancel, isLoading = {} }) => {
   return (
     <FormProvider {...methods}>
       <form
-        data-test-id="create_model_form"
+        data-test-id="create_task_form"
         onSubmit={handleSubmit((formData) => onSubmit(prepareFormSubmissionData(formData)))}
         noValidate
       >
-        <IdField />
+        <IdField autoFocus />
         <NameField />
         <FormLabel component="p">
           <FormattedMessage id="trainingSet" />

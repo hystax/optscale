@@ -1,13 +1,13 @@
 import { useMemo } from "react";
-import MlModelsService from "services/MlModelsService";
+import MlTasksService from "services/MlTasksService";
 import RunsTab from "./RunsTab";
 
 const RunsTabContainer = ({ taskId, groupDetails, qualifiedRunIds, otherDatasetRunIds }) => {
   const runIds = useMemo(() => [...qualifiedRunIds, ...otherDatasetRunIds], [otherDatasetRunIds, qualifiedRunIds]);
 
-  const { useGetModelRunsBulk } = MlModelsService();
+  const { useGetTaskRunsBulk } = MlTasksService();
 
-  const { isLoading, runs } = useGetModelRunsBulk(taskId, runIds);
+  const { isLoading, runs } = useGetTaskRunsBulk(taskId, runIds);
 
   const qualifiedRuns = runs.filter(({ id }) => qualifiedRunIds.includes(id));
   const otherDatasetRuns = runs.filter(({ id }) => otherDatasetRunIds.includes(id));

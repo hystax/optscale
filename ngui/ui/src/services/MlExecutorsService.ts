@@ -6,25 +6,25 @@ import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 
-const useGet = ({ modelIds, runIds } = {}) => {
+const useGet = ({ taskIds, runIds } = {}) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
   const {
     apiData: { executors = [] }
   } = useApiData(GET_ML_EXECUTORS);
 
-  const { isLoading, shouldInvoke } = useApiState(GET_ML_EXECUTORS, { organizationId, modelIds, runIds });
+  const { isLoading, shouldInvoke } = useApiState(GET_ML_EXECUTORS, { organizationId, taskIds, runIds });
 
   useEffect(() => {
     if (shouldInvoke) {
       dispatch(
         getMlExecutors(organizationId, {
-          modelIds,
+          taskIds,
           runIds
         })
       );
     }
-  }, [modelIds, dispatch, organizationId, runIds, shouldInvoke]);
+  }, [taskIds, dispatch, organizationId, runIds, shouldInvoke]);
 
   return { isLoading, executors };
 };

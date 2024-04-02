@@ -33,8 +33,8 @@ import CloudCostComparisonSelectedSizes, {
   CLOUD_COST_COMPARISON_SELECTED_SIZES
 } from "reducers/cloudCostComparisonSelectedSizes/reducer";
 import ColumnsReducer, { COLUMNS } from "reducers/columns/reducer";
-import ModelBreakdown, { MODEL_BREAKDOWN } from "reducers/modelBreakdown/reducer";
 import { RESET } from "reducers/route/actionTypes";
+import TaskBreakdown, { TASK_BREAKDOWN } from "reducers/taskBreakdown/reducer";
 import taskRunsDashboard, { TASK_RUNS_DASHBOARD } from "reducers/taskRunsDashboard/reducer";
 
 const ROOT = "root";
@@ -79,7 +79,7 @@ const appReducer = combineReducers({
   [COLLAPSED_MENU_ITEMS]: CollapsedMenuItemsReducer,
   [PINNED_RECOMMENDATIONS]: PinnedRecommendationsReducer,
   [MAIN_MENU_EXPANDED]: MainMenuExpandedReducer,
-  [MODEL_BREAKDOWN]: ModelBreakdown,
+  [TASK_BREAKDOWN]: TaskBreakdown,
   [CLOUD_COST_COMPARISON_SELECTED_SIZES]: CloudCostComparisonSelectedSizes,
   [RECOMMENDATIONS_CONTROLS_STATE]: RecommendationsControlsStateReducer,
   [TASK_RUNS_DASHBOARD]: taskRunsDashboard

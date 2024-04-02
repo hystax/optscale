@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
 import ExecutionBreakdown, { ExecutionBreakdownLoader } from "components/ExecutionBreakdown";
-import MlModelsService from "services/MlModelsService";
+import MlTasksService from "services/MlTasksService";
 import { getData } from "./utils";
 
 const ExecutionBreakdownContainer = ({ reachedGoals, ...rest }) => {
-  const { useGetRunBreakdown, useGetModelRun } = MlModelsService();
+  const { useGetRunBreakdown, useGetTaskRun } = MlTasksService();
 
   const { taskId, runId } = useParams();
 
@@ -16,9 +16,9 @@ const ExecutionBreakdownContainer = ({ reachedGoals, ...rest }) => {
     stages = []
   } = useGetRunBreakdown(runId);
 
-  const { isLoading: isModelRunLoading, isDataReady: isModelRunDataReady } = useGetModelRun(runId);
+  const { isLoading: isTaskRunLoading, isDataReady: isTaskRunDataReady } = useGetTaskRun(runId);
 
-  return isGetRunBreakdownLoading || !isGetRunBreakdownDataReady || isModelRunLoading || !isModelRunDataReady ? (
+  return isGetRunBreakdownLoading || !isGetRunBreakdownDataReady || isTaskRunLoading || !isTaskRunDataReady ? (
     <ExecutionBreakdownLoader />
   ) : (
     <ExecutionBreakdown {...getData({ breakdown, milestones, stages })} reachedGoals={reachedGoals} taskId={taskId} {...rest} />

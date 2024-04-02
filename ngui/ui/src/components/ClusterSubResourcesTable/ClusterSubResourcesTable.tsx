@@ -7,8 +7,8 @@ import ResourceCell from "components/ResourceCell";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useIsAllowed } from "hooks/useAllowedActions";
+import { tags } from "utils/columns";
 import { RESOURCE_ID_COLUMN_CELL_STYLE } from "utils/tables";
-import CollapsableTableCell from "../CollapsableTableCell";
 
 const ClusterSubResourcesTable = ({ data = [] }) => {
   const getCaptionText = (value, messageId) => <KeyValueLabel variant="caption" value={value} keyMessageId={messageId} />;
@@ -32,9 +32,6 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
           ...subResource,
           resource: [subResource.cloud_resource_id, subResource.cloud_resource_hash, subResource.name]
             .filter(Boolean)
-            .join(" "),
-          tagsString: Object.entries(subResource.tags || {})
-            .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
           locationString: `${subResource.details?.cloud_name} ${subResource.region} ${subResource.details?.cloud_type} ${subResource.details?.service_name} ${subResource.details?.k8s_node} ${subResource.details?.k8s_namespace}`,
           locationCaptionNodes: getLocationCaptionNodes()
@@ -96,16 +93,14 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
           </CaptionedCell>
         )
       },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_tb_tags">
-            <FormattedMessage id="tags" />
-          </TextWithDataTestId>
-        ),
-        accessorKey: "tagsString",
-        enableSorting: false,
-        cell: ({ row: { original } }) => <CollapsableTableCell maxRows={5} tags={original.tags} />
-      }
+      tags({
+        id: "tags",
+        accessorFn: (originalRow) =>
+          Object.entries(originalRow.tags ?? {})
+            .map(([key, val]) => `${key}: ${val}`)
+            .join(" "),
+        getTags: (originalRow) => originalRow.tags
+      })
     ],
     [isManageCloudCredentialsAllowed]
   );

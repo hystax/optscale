@@ -30,7 +30,7 @@ class TestExecutorsApi(TestProfilingBase):
             self.org['id'], config, auth_user_id=self.user_id)
 
     def test_list_executors(self):
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project'
@@ -50,12 +50,12 @@ class TestExecutorsApi(TestProfilingBase):
             self.cloud_acc['id'], body, behavior='skip_existing',
             return_resources=True)
         self.assertEqual(code, 200)
-        code, resp = self.client.executor_list(self.org['id'], app['id'])
+        code, resp = self.client.executor_list(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['executors'], [])
-        self._create_run(self.org['id'], app['id'],
+        self._create_run(self.org['id'], task['id'],
                          [valid_resource['cloud_resource_id']])
-        code, resp = self.client.executor_list(self.org['id'], app['id'])
+        code, resp = self.client.executor_list(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['executors']), 1)
         executor = resp['executors'][0]
@@ -66,9 +66,9 @@ class TestExecutorsApi(TestProfilingBase):
             'name': self.cloud_acc['name'], 'type': self.cloud_acc['type'],
             'id': self.cloud_acc['id']
         })
-        self._create_run(self.org['id'], app['id'],
+        self._create_run(self.org['id'], task['id'],
                          ['i-2', 'i-3'])
-        code, resp = self.client.executor_list(self.org['id'], app['id'])
+        code, resp = self.client.executor_list(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['executors']), 3)
 
@@ -77,26 +77,26 @@ class TestExecutorsApi(TestProfilingBase):
         self.assertEqual(code, 200)
         self.assertEqual(resp['breakdown'], {})
 
-        code, app1 = self.client.application_create(
+        code, task1 = self.client.task_create(
             self.org['id'], {'name': 'pr_1', 'key': 'k_1'})
         self.assertEqual(code, 201)
-        code, app2 = self.client.application_create(
+        code, task2 = self.client.task_create(
             self.org['id'], {'name': 'pr_2', 'key': 'k_2'})
         self.assertEqual(code, 201)
         run_1_start_ts = int(datetime.utcnow().timestamp())
         run_2_start_ts = run_1_start_ts - 24 * 3600
         run_3_start_ts = run_1_start_ts - 2 * 24 * 3600
         self._create_run(
-            self.org['id'], app1['id'], ['i-1'],
+            self.org['id'], task1['id'], ['i-1'],
             start=run_1_start_ts)
         self._create_run(
-            self.org['id'], app1['id'], ['i-1'],
+            self.org['id'], task1['id'], ['i-1'],
             start=run_1_start_ts)
         self._create_run(
-            self.org['id'], app1['id'], ['i-2'],
+            self.org['id'], task1['id'], ['i-2'],
             start=run_2_start_ts)
         self._create_run(
-            self.org['id'], app2['id'], ['i-4'],
+            self.org['id'], task2['id'], ['i-4'],
             start=run_3_start_ts)
 
         code, resp = self.client.executors_breakdown_get(
@@ -106,12 +106,12 @@ class TestExecutorsApi(TestProfilingBase):
         for v in resp['breakdown'].values():
             self.assertEqual(v, 1)
 
-    def test_list_executors_multi_app(self):
+    def test_list_executors_multi_task(self):
         code, resp = self.client.executor_list(self.org['id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp, {'executors': []})
 
-        code, app_1 = self.client.application_create(
+        code, task_1 = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project'
@@ -127,10 +127,10 @@ class TestExecutorsApi(TestProfilingBase):
             self.cloud_acc['id'], body, behavior='skip_existing',
             return_resources=True)
         self.assertEqual(code, 200)
-        self._create_run(self.org['id'], app_1['id'],
+        self._create_run(self.org['id'], task_1['id'],
                          [valid_resource_1['cloud_resource_id']])
 
-        code, app_2 = self.client.application_create(
+        code, task_2 = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project 2',
                 'key': 'test_project_2'
@@ -145,25 +145,25 @@ class TestExecutorsApi(TestProfilingBase):
             self.cloud_acc['id'], body, behavior='skip_existing',
             return_resources=True)
         self.assertEqual(code, 200)
-        self._create_run(self.org['id'], app_2['id'],
+        self._create_run(self.org['id'], task_2['id'],
                          [valid_resource_2['cloud_resource_id']])
 
-        code, resp = self.client.executor_list(self.org['id'], app_1['id'])
+        code, resp = self.client.executor_list(self.org['id'], task_1['id'])
         self.assertEqual(len(resp['executors']), 1)
         executor = resp['executors'][0]
         self.assertEqual(executor['instance_id'],
                          valid_resource_1['cloud_resource_id'])
 
-        code, resp = self.client.executor_list(self.org['id'], app_2['id'])
+        code, resp = self.client.executor_list(self.org['id'], task_2['id'])
         self.assertEqual(len(resp['executors']), 1)
         executor = resp['executors'][0]
         self.assertEqual(executor['instance_id'],
                          valid_resource_2['cloud_resource_id'])
-        for app_ids in [
-            [app_1['id'], app_2['id']],
+        for task_ids in [
+            [task_1['id'], task_2['id']],
             None
         ]:
-            code, resp = self.client.executor_list(self.org['id'], app_ids)
+            code, resp = self.client.executor_list(self.org['id'], task_ids)
             self.assertEqual(len(resp['executors']), 2)
             cloud_resource_ids = set(map(
                 lambda x: x['instance_id'], resp['executors']))
@@ -175,7 +175,7 @@ class TestExecutorsApi(TestProfilingBase):
                 ])
 
     def test_list_executors_run_id(self):
-        code, app = self.client.application_create(
+        code, task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project'
@@ -195,12 +195,12 @@ class TestExecutorsApi(TestProfilingBase):
             self.cloud_acc['id'], body, behavior='skip_existing',
             return_resources=True)
         self.assertEqual(code, 200)
-        r1 = self._create_run(self.org['id'], app['id'],
+        r1 = self._create_run(self.org['id'], task['id'],
                               [valid_resource['cloud_resource_id']],
                               start=1000, finish=1001)
-        r2 = self._create_run(self.org['id'], app['id'], ['i-2', 'i-3'],
+        r2 = self._create_run(self.org['id'], task['id'], ['i-2', 'i-3'],
                               start=1002, finish=1005)
-        code, resp = self.client.executor_list(self.org['id'], app['id'])
+        code, resp = self.client.executor_list(self.org['id'], task['id'])
         self.assertEqual(len(resp['executors']), 3)
         expected_last_seen_map = {'res_id_1': 1001, 'i-2': 1005, 'i-3': 1005}
         for e in resp['executors']:
@@ -220,7 +220,7 @@ class TestExecutorsApi(TestProfilingBase):
         self.assertEqual(len(resp['executors']), 2)
 
         code, resp = self.client.executor_list(
-            self.org['id'], application_ids=['some'],
+            self.org['id'], task_ids=['some'],
             run_ids=[r1['_id'], r2['_id']])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['executors']), 3)

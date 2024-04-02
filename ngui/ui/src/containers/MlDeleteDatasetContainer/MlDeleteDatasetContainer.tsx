@@ -8,7 +8,7 @@ const MlDeleteDatasetContainer = ({ path, id, closeSideModal }) => {
   const { useDelete } = MlDatasetsService();
   const { onDelete, isLoading } = useDelete();
 
-  const onModelDelete = () => {
+  const onDatasetDelete = () => {
     onDelete(id).then(() => {
       closeSideModal();
     });
@@ -19,7 +19,7 @@ const MlDeleteDatasetContainer = ({ path, id, closeSideModal }) => {
       onCancel={closeSideModal}
       isLoading={isLoading}
       deleteButtonProps={{
-        onDelete: onModelDelete,
+        onDelete: onDatasetDelete,
         disabled: isDemo,
         tooltip: { show: isDemo, messageId: "notAvailableInLiveDemo" }
       }}

@@ -1,5 +1,4 @@
 from collections import defaultdict
-from datetime import datetime, timezone
 
 from rest_api.rest_api_server.controllers.base import MongoMixin
 from rest_api.rest_api_server.controllers.profiling.base import BaseProfilingController
@@ -11,16 +10,16 @@ BYTES_IN_MB = 1024 * 1024
 
 class ExecutorController(BaseProfilingController, MongoMixin):
 
-    def list(self, organization_id, application_ids, profiling_token, **kwargs):
+    def list(self, organization_id, task_ids, profiling_token, **kwargs):
         run_ids = kwargs.get('run_ids')
-        if not application_ids and not run_ids:
-            applications = self.list_applications(profiling_token)
-            application_ids = list(map(lambda x: x['id'], applications))
+        if not task_ids and not run_ids:
+            tasks = self.list_tasks(profiling_token)
+            task_ids = list(map(lambda x: x['id'], tasks))
         response = self.get_executors(
-            profiling_token, application_ids, run_ids)
+            profiling_token, task_ids, run_ids)
         if response:
             last_used_map = self._get_last_used_map(
-                profiling_token, application_ids, run_ids)
+                profiling_token, task_ids, run_ids)
             cloud_resource_ids = list(map(
                 lambda x: x['instance_id'], response))
             resources = self.get_executor_info(
@@ -34,7 +33,7 @@ class ExecutorController(BaseProfilingController, MongoMixin):
                 })
         return response
 
-    def _get_last_used_map(self, profiling_token, application_ids, run_ids):
+    def _get_last_used_map(self, profiling_token, task_ids, run_ids):
         def _extend_last_seen(r, executor_id):
             last_used_map[executor_id].extend([
                 r.get('start') or 0, r.get('finish') or 0
@@ -42,9 +41,9 @@ class ExecutorController(BaseProfilingController, MongoMixin):
 
         last_used_map = defaultdict(list)
         processed_run_ids = []
-        for app_id in application_ids:
+        for task_id in task_ids:
             try:
-                runs = self.list_application_runs(profiling_token, app_id)
+                runs = self.list_task_runs(profiling_token, task_id)
                 for r in runs:
                     for e_id in r.get('executors', []):
                         _extend_last_seen(r, e_id)

@@ -7,7 +7,7 @@ from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerW
 from rest_api.rest_api_server.controllers.employee import EmployeeController
 from rest_api.rest_api_server.controllers.infrastructure.base import (
     BaseInfraController, is_run_succeeded, format_cloud_account,
-    format_application, format_instance_size, format_region, format_owner)
+    format_task, format_instance_size, format_region, format_owner)
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.models import Employee
 
@@ -65,7 +65,7 @@ def get_runners_duration(runners: list[dict]) -> int:
 class RunsetController(BaseInfraController):
     def format_runset(
             self, runset, template: dict, runners: list[dict],
-            runs: list[dict], cloud_accounts: dict, applications: dict,
+            runs: list[dict], cloud_accounts: dict, tasks: dict,
             owners: dict
     ) -> dict:
         runset.pop('token', None)
@@ -75,8 +75,7 @@ class RunsetController(BaseInfraController):
         costs, _ = self._get_usage(runners, cloud_account)
         duration = get_runners_duration(runners)
         runset['cloud_account'] = format_cloud_account(cloud_account)
-        runset['application'] = format_application(
-            applications[runset.pop('application_id')])
+        runset['task'] = format_task(tasks[runset.pop('task_id')])
         runset['owner'] = format_owner(owners[runset.pop('owner_id')])
         runset['instance_size'] = format_instance_size(
             runset.pop('instance_type'))
@@ -113,7 +112,7 @@ class RunsetController(BaseInfraController):
             ('cloud_account_ids', 'cloud_account_id'),
             ('region_ids', 'region_id'),
             ('instance_types', 'instance_type'),
-            ('application_ids', 'application_id')
+            ('task_ids', 'task_id')
         ]:
             if data.get(runset_k) not in template.get(template_k):
                 raise WrongArgumentsException(Err.OE0538, [runset_k, ', '.join(
@@ -190,8 +189,8 @@ class RunsetController(BaseInfraController):
         cloud_accounts = self._get_cloud_accounts(
             organization_id, [kwargs.get('cloud_account_id')],
             exclude_deleted=True)
-        applications = self._get_applications(
-            organization_id, [kwargs.get('application_id')],
+        tasks = self._get_tasks(
+            organization_id, [kwargs.get('task_id')],
             exclude_deleted=True)
         owner = self._get_employee(organization_id, kwargs.pop('user_id'))
         owners = {owner.id: owner}
@@ -210,7 +209,7 @@ class RunsetController(BaseInfraController):
         runset = self.__create(
             infrastructure_token, template_id=template_id, **kwargs)
         return self.format_runset(
-            runset, template, list(), list(), cloud_accounts, applications,
+            runset, template, list(), list(), cloud_accounts, tasks,
             owners)
 
     def __edit(self, infrastructure_token, runset_id, **kwargs) -> dict:
@@ -238,13 +237,12 @@ class RunsetController(BaseInfraController):
             infrastructure_token, runset['template_id'])
         cloud_accounts = self._get_cloud_accounts(
             organization_id, [runset.get('cloud_account_id')])
-        applications = self._get_applications(
-            organization_id, [runset.get('application_id')])
+        tasks = self._get_tasks(organization_id, [runset.get('task_id')])
         owners = self._get_owners(organization_id, [runset.get('owner_id')])
         runners = self.__list_runners(infrastructure_token, runset_id)
         runs = self.__list_runs(organization_id, runset_id)
         return self.format_runset(
-            runset, template, runners, runs, cloud_accounts, applications,
+            runset, template, runners, runs, cloud_accounts, tasks,
             owners)
 
     def __get(self, infrastructure_token, runset_id) -> dict:
@@ -293,13 +291,12 @@ class RunsetController(BaseInfraController):
             infrastructure_token, runset['template_id'])
         cloud_accounts = self._get_cloud_accounts(
             organization_id, [runset.get('cloud_account_id')])
-        applications = self._get_applications(
-            organization_id, [runset.get('application_id')])
+        tasks = self._get_tasks(organization_id, [runset.get('task_id')])
         owners = self._get_owners(organization_id, [runset.get('owner_id')])
         runners = self.__list_runners(infrastructure_token, runset_id)
         runs = self.__list_runs(organization_id, runset_id)
         return self.format_runset(
-            runset, template, runners, runs, cloud_accounts, applications,
+            runset, template, runners, runs, cloud_accounts, tasks,
             owners)
 
     def list(self, organization_id, template_id, infrastructure_token):
@@ -307,21 +304,20 @@ class RunsetController(BaseInfraController):
         runsets = self.__list(infrastructure_token, template_id)
         if not runsets:
             return []
-        application_ids = set()
+        task_ids = set()
         cloud_account_ids = set()
         owner_ids = set()
         runset_ids = list()
         instance_types = set()
         region_ids = set()
         for runset in runsets:
-            application_ids.add(runset['application_id'])
+            task_ids.add(runset['task_id'])
             cloud_account_ids.add(runset['cloud_account_id'])
             owner_ids.add(runset['owner_id'])
             instance_types.add(runset['instance_type'])
             region_ids.add(runset['region_id'])
             runset_ids.append(runset['_id'])
-        applications = self._get_applications(
-            organization_id, list(application_ids))
+        tasks = self._get_tasks(organization_id, list(task_ids))
         cloud_accounts = self._get_cloud_accounts(
             organization_id, list(cloud_account_ids))
         owners = self._get_owners(organization_id, list(owner_ids))
@@ -333,7 +329,7 @@ class RunsetController(BaseInfraController):
         for runset in runsets:
             formatted_runset = self.format_runset(
                 runset, template, runners.get(runset['_id'], []),
-                runs.get(runset['_id'], []), cloud_accounts, applications,
+                runs.get(runset['_id'], []), cloud_accounts, tasks,
                 owners)
             total_runs += formatted_runset['runs_count']
             total_cost += formatted_runset['cost']

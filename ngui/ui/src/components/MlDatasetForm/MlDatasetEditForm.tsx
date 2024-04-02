@@ -44,7 +44,7 @@ const MlDatasetEditForm = ({ dataset, onSubmit, onCancel, isLoadingProps = {} })
         noValidate
       >
         {isGetDatasetLoading ? <Skeleton /> : <KeyValueLabel keyMessageId="id" value={dataset.path} />}
-        <NameField isLoading={isGetDatasetLoading} />
+        <NameField isLoading={isGetDatasetLoading} autoFocus />
         <FormLabel component="p">
           <FormattedMessage id="trainingSet" />
         </FormLabel>

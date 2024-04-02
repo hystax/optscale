@@ -6,7 +6,7 @@ import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import { FIELD_NAMES } from "../constants";
 
-const LabelsField = ({ name = FIELD_NAMES.LABELS, labels = [], isLoading }) => {
+const LabelsField = ({ name = FIELD_NAMES.LABELS, labels = [], isLoading = false }) => {
   const {
     control,
     formState: { errors }

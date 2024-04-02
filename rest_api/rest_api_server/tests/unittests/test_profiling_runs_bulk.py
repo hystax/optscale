@@ -13,35 +13,35 @@ class TestRunsBulkApi(TestProfilingBase):
             self.org['id'], {'name': 'name1', 'auth_user_id': self.auth_user})
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
               'get_user_id', return_value=self.auth_user).start()
-        _, self.app = self.client.application_create(
+        _, self.task = self.client.task_create(
             self.org['id'], {
                 'name': 'My test project',
                 'key': 'test_project',
-                'goals': []
+                'metrics': []
             })
 
     def test_get_run_bulk(self):
         run1 = self._create_run(
             self.org['id'],
-            self.app['id'],
+            self.task['id'],
             ['i-1', 'i-2'],
             's3://ml-bucket/dataset',
             data={'step': 1, 'loss': 0})
         run2 = self._create_run(
             self.org['id'],
-            self.app['id'],
+            self.task['id'],
             ['i-1', 'i-2'],
             's3://ml-bucket/dataset',
             data={'step': 1, 'loss': 0})
         run3 = self._create_run(
             self.org['id'],
-            self.app['id'],
+            self.task['id'],
             ['i-1', 'i-2'],
             's3://ml-bucket/dataset',
             data={'step': 1, 'loss': 0})
         code, runs = self.client.runs_bulk_get(
             self.org['id'],
-            self.app['id'], [
+            self.task['id'], [
                 run1['_id'],
                 run2['_id'],
                 run3['_id']
@@ -55,6 +55,6 @@ class TestRunsBulkApi(TestProfilingBase):
     def test_runs_not_provided(self):
         code, resp = self.client.runs_bulk_get(
             self.org['id'],
-            self.app['id'], [])
+            self.task['id'], [])
         self.assertEqual(code, 200)
         self.assertEqual(resp, [])
