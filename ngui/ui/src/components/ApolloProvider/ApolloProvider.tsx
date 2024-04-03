@@ -1,13 +1,25 @@
-import { ApolloClient, ApolloProvider, InMemoryCache, split, HttpLink } from "@apollo/client";
+import { ApolloClient, ApolloProvider, InMemoryCache, split, HttpLink, from, type DefaultContext } from "@apollo/client";
+import { onError, type ErrorResponse } from "@apollo/client/link/error";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
+import { type GraphQLError } from "graphql";
 import { createClient } from "graphql-ws";
 import { GET_TOKEN } from "api/auth/actionTypes";
+import { GET_ERROR } from "graphql/api/common";
 import { useApiData } from "hooks/useApiData";
 import { getEnvironmentVariable } from "utils/env";
 
 const httpBase = getEnvironmentVariable("VITE_APOLLO_HTTP_BASE");
 const wsBase = getEnvironmentVariable("VITE_APOLLO_WS_BASE");
+
+const writeErrorToCache = (cache: DefaultContext, graphQLError: GraphQLError) => {
+  const { extensions: { response: { url, body: { error } = {} } = {} } = {} } = graphQLError;
+
+  cache.writeQuery({
+    query: GET_ERROR,
+    data: { error: { __typename: "Error", ...error, url } }
+  });
+};
 
 const ApolloClientProvider = ({ children }) => {
   const {
@@ -27,11 +39,23 @@ const ApolloClientProvider = ({ children }) => {
     })
   );
 
-  /* 
-   @param A function that's called for each operation to execute
-   @param The Link to use for an operation if the function returns a "truthy" value
-   @param The Link to use for an operation if the function returns a "falsy" value
-  */
+  const errorLink = onError(({ graphQLErrors, networkError, operation }: ErrorResponse) => {
+    if (graphQLErrors) {
+      graphQLErrors.forEach(({ message, path }) => console.log(`[GraphQL error]: Message: ${message}, Path: ${path}`));
+
+      const { cache } = operation.getContext();
+      writeErrorToCache(cache, graphQLErrors[0]);
+    }
+
+    /* Just log network errors for now. 
+       We rely on custom error codes that are returned in graphQLErrors. 
+       It might be usefult to cache networkError errors to display alerts as well. 
+    */
+    if (networkError) {
+      console.error(`[Network error]: ${networkError}`);
+    }
+  });
+
   const splitLink = split(
     ({ query }) => {
       const definition = getMainDefinition(query);
@@ -42,7 +66,7 @@ const ApolloClientProvider = ({ children }) => {
   );
 
   const client = new ApolloClient({
-    link: splitLink,
+    link: from([errorLink, splitLink]),
     cache: new InMemoryCache()
   });
 

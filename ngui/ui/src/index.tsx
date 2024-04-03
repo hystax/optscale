@@ -11,6 +11,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import ActivityListener from "components/ActivityListener";
 import ApiErrorAlert from "components/ApiErrorAlert";
 import ApiSuccessAlert from "components/ApiSuccessAlert";
+import ApolloApiErrorAlert from "components/ApolloApiErrorAlert";
 import ApolloProvider from "components/ApolloProvider";
 import App from "components/App";
 import SideModalManager from "components/SideModalManager";
@@ -42,6 +43,7 @@ root.render(
                   <App />
                 </SideModalManager>
                 <Tour />
+                <ApolloApiErrorAlert />
                 <ApiErrorAlert />
                 <ApiSuccessAlert />
               </ThemeProviderWrapper>
