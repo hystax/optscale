@@ -7,17 +7,29 @@ import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 import MenuList from "@mui/material/MenuList";
 import Skeleton from "@mui/material/Skeleton";
-import Typography from "@mui/material/Typography";
+import Typography, { TypographyOwnProps } from "@mui/material/Typography";
 import MenuItem from "components/MenuItem";
 import Tooltip from "components/Tooltip";
 import { useSignOut } from "hooks/useSignOut";
-import { getInitialsFromName, isEllipsisActive } from "utils/strings";
+import { getInitials, isEllipsisActive } from "utils/strings";
 import useStyles from "./ProfileMenu.styles";
 
-const ProfileItemLabel = ({ dataTestId, variant, label }) => {
+type ProfileMenuProps = {
+  name: string;
+  email: string;
+  isLoading?: boolean;
+};
+
+type ProfileItemLabelProps = {
+  variant: TypographyOwnProps["variant"];
+  label: string;
+  dataTestId: string;
+};
+
+const ProfileItemLabel = ({ variant, label, dataTestId }: ProfileItemLabelProps) => {
   const [isOverflow, setIsOverflow] = useState(false);
 
-  const ref = useCallback((node) => {
+  const ref = useCallback((node: HTMLSpanElement | null) => {
     if (node !== null) {
       setIsOverflow(isEllipsisActive(node));
     }
@@ -32,19 +44,14 @@ const ProfileItemLabel = ({ dataTestId, variant, label }) => {
   return isOverflow ? <Tooltip title={label}>{getLabel}</Tooltip> : getLabel;
 };
 
-const ProfileMenu = ({ name, email, isLoading }) => {
+const ProfileMenu = ({ name, email, isLoading = false }: ProfileMenuProps) => {
   const { classes } = useStyles();
 
-  const getProfileIcon = (nameString) => getInitialsFromName(nameString) || <AccountCircleOutlinedIcon />;
+  const getProfileIcon = () => (name ? getInitials(name) : <AccountCircleOutlinedIcon />);
 
   const signOut = useSignOut();
 
   const menuItems = [
-    // {
-    //   messageId: "settings",
-    //   icon: SettingsOutlinedIcon,
-    //   key: "settingsKey"
-    // },
     {
       messageId: "signOut",
       icon: ExitToAppOutlinedIcon,
@@ -64,7 +71,7 @@ const ProfileMenu = ({ name, email, isLoading }) => {
             <Skeleton variant="circular" width={40} height={40} />
           ) : (
             <Avatar data-test-id="img_avatar" aria-label="recipe">
-              {getProfileIcon(name)}
+              {getProfileIcon()}
             </Avatar>
           )
         }

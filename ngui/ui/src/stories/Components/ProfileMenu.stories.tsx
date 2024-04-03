@@ -8,4 +8,4 @@ export default {
   }
 };
 
-export const withKnobs = (args) => <ProfileMenu email={args.email} name={args.name} isLoading={false} signOut={() => {}} />;
+export const withKnobs = (args) => <ProfileMenu email={args.email} name={args.name} isLoading={false} />;

@@ -11,7 +11,7 @@ const ProfileMenuContainer = () => {
   const { useGet } = UserService();
   const {
     isDataReady,
-    user: { name, email }
+    user: { name = "", email = "" }
   } = useGet(userId);
 
   return <ProfileMenu name={name} email={email} isLoading={!isDataReady} />;

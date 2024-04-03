@@ -11,15 +11,11 @@ export const splitInvites = (emails) => emails.split(emailsListSeparatorRegex).f
 
 export const isString = (s) => typeof s === "string" || s instanceof String;
 
-export const getInitialsFromName = (initials) => {
-  if (!isString(initials)) {
-    return "";
-  }
-  return initials
+export const getInitials = (str: string) =>
+  str
     .split(" ")
-    .map((str) => str.charAt(0).toUpperCase())
+    .map((subStr) => subStr.charAt(0).toUpperCase())
     .join("");
-};
 
 export const isEllipsisActive = (node) =>
   node ? node.offsetHeight < node.scrollHeight || node.offsetWidth < node.scrollWidth : false;
