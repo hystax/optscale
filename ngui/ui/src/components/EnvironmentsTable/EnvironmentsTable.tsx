@@ -429,6 +429,9 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
         accessorKey: "shareable_bookings",
         enableHiding: false,
         enableSorting: false,
+        style: {
+          minWidth: "200px"
+        },
         cell: ({
           cell,
           row: {
