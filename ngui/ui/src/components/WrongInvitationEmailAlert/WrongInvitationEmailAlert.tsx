@@ -5,7 +5,19 @@ import { FormattedMessage } from "react-intl";
 import useStyles from "components/AcceptInvitations/AcceptInvitations.styles";
 import Button from "components/Button";
 
-const WrongInvitationEmailAlert = ({ invitationEmail, currentEmail, onGoToDashboard, onSignOut }) => {
+type WrongInvitationEmailAlertProps = {
+  invitationEmail: string;
+  currentEmail: string;
+  onGoToDashboard: () => void;
+  onSignOut: () => void;
+};
+
+const WrongInvitationEmailAlert = ({
+  invitationEmail,
+  currentEmail,
+  onGoToDashboard,
+  onSignOut
+}: WrongInvitationEmailAlertProps) => {
   const { classes } = useStyles();
   return (
     <>
