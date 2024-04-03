@@ -10,6 +10,7 @@ import SlicedText from "components/SlicedText";
 import { ModelVersion } from "services/MlModelsService";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
+import { notOnlyWhiteSpaces } from "utils/validation";
 
 export const FIELD_NAME = "aliases";
 
@@ -54,7 +55,13 @@ const ConflictingAliasesWarning = ({ modelVersion, aliasesFieldName, aliasToVers
   ));
 };
 
-export const isAliasValid = (alias: string) => alias.length <= DEFAULT_MAX_INPUT_LENGTH;
+export const isAliasValid = (alias: string) => {
+  const isLengthValid = alias.length <= DEFAULT_MAX_INPUT_LENGTH;
+
+  const containsNotOnlyWhiteSpaces = notOnlyWhiteSpaces(alias) === true;
+
+  return isLengthValid && containsNotOnlyWhiteSpaces;
+};
 
 const EditModelVersionAliasFormAliasesField = ({
   name = FIELD_NAME,

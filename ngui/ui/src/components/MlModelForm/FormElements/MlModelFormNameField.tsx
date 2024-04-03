@@ -3,6 +3,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
+import { notOnlyWhiteSpaces } from "utils/validation";
 
 export const FIELD_NAME = "name";
 
@@ -35,6 +36,9 @@ const MlModelFormNameField = ({ name = FIELD_NAME, isLoading = false }) => {
             { id: "maxLength" },
             { inputName: intl.formatMessage({ id: "name" }), max: DEFAULT_MAX_INPUT_LENGTH }
           )
+        },
+        validate: {
+          notOnlyWhiteSpaces
         }
       })}
     />

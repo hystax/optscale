@@ -140,6 +140,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
           </TextWithDataTestId>
         ),
         id: "aliases",
+        enableSorting: false,
         accessorFn: ({ aliases }) => aliases.join(", "),
         cell: ({ row: { original } }) => {
           const { aliases } = original;
@@ -201,6 +202,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
         style: {
           minWidth: "200px"
         },
+        enableSorting: false,
         accessorFn: (originalRow) =>
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
