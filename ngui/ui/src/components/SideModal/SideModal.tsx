@@ -1,17 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Drawer from "@mui/material/Drawer";
 import SideModalHeader from "components/SideModalHeader";
 import useStyles from "./SideModal.styles";
 
-const SideModal = ({ isOpen, closeHandler, dataTestId, headerProps = {}, onClose, children }) => {
+const DrawerContent = ({ headerProps, handleClose, children }) => {
+  const { showExpand, ...sideModalHeaderProps } = headerProps;
+
+  const [isExpanded, setIsExpanded] = useState(showExpand);
+
   const { classes, cx } = useStyles();
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  return (
+    <div className={cx(classes.sideModal, isExpanded && classes.sideModalExpanded)}>
+      <SideModalHeader
+        {...sideModalHeaderProps}
+        onClose={handleClose}
+        isExpanded={isExpanded}
+        onExpandChange={() => setIsExpanded(!isExpanded)}
+      />
+      {children}
+    </div>
+  );
+};
 
-  useEffect(() => {
-    setIsExpanded(headerProps.showExpand);
-  }, [headerProps.showExpand]);
-
+const SideModal = ({ isOpen, closeHandler, dataTestId, headerProps = {}, onClose, children }) => {
   const handleClose = (event) => {
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
       return;
@@ -34,15 +46,9 @@ const SideModal = ({ isOpen, closeHandler, dataTestId, headerProps = {}, onClose
       onClose={handleClose}
       style={{ wordBreak: "break-word" }}
     >
-      <div className={cx(classes.sideModal, isExpanded && classes.sideModalExpanded)}>
-        <SideModalHeader
-          {...headerProps}
-          onClose={handleClose}
-          isExpanded={isExpanded}
-          onExpandChange={() => setIsExpanded(!isExpanded)}
-        />
+      <DrawerContent headerProps={headerProps} handleClose={handleClose}>
         {children}
-      </div>
+      </DrawerContent>
     </Drawer>
   );
 };
