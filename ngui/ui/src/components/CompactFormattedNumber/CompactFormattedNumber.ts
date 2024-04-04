@@ -1,8 +1,16 @@
-import { useIntl } from "react-intl";
+import { FormatNumberOptions, useIntl } from "react-intl";
+
+type FormatterFunctionType = (value: number, options: FormatNumberOptions) => string;
+
+type CompactFormattedNumberProps = {
+  value: number;
+  format?: string;
+  maximumFractionDigits?: number;
+};
 
 export const formatCompactNumber =
-  (formatter) =>
-  ({ value, format, maximumFractionDigits }) => {
+  (formatter: FormatterFunctionType) =>
+  ({ value, format, maximumFractionDigits }: CompactFormattedNumberProps) => {
     const formattedNumber = formatter(value, { notation: "compact", format, maximumFractionDigits });
     return formattedNumber.endsWith("K")
       ? `${formattedNumber.slice(0, formattedNumber.length - 1)}${formattedNumber
@@ -11,7 +19,7 @@ export const formatCompactNumber =
       : formattedNumber;
   };
 
-const CompactFormattedNumber = ({ value, format, maximumFractionDigits }) => {
+const CompactFormattedNumber = ({ value, format, maximumFractionDigits }: CompactFormattedNumberProps) => {
   const intl = useIntl();
 
   return formatCompactNumber(intl.formatNumber)({ value, format, maximumFractionDigits });

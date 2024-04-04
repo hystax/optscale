@@ -2,7 +2,15 @@ import { useCallback } from "react";
 import { useIntl } from "react-intl";
 import { formatCompactNumber } from "components/CompactFormattedNumber";
 
-export const useFormatDynamicFractionDigitsValue = () => {
+type DynamicFractionDigitsValueProps = {
+  value: number;
+  maximumFractionDigits?: number;
+  notation?: "compact";
+};
+
+type FormatFunctionType = (props: DynamicFractionDigitsValueProps) => string;
+
+export const useFormatDynamicFractionDigitsValue = (): FormatFunctionType => {
   const intl = useIntl();
 
   return useCallback(
@@ -24,7 +32,7 @@ export const useFormatDynamicFractionDigitsValue = () => {
   );
 };
 
-const DynamicFractionDigitsValue = ({ value, maximumFractionDigits = 2, notation }) => {
+const DynamicFractionDigitsValue = ({ value, maximumFractionDigits = 2, notation }: DynamicFractionDigitsValueProps) => {
   const format = useFormatDynamicFractionDigitsValue();
 
   return format({ value, maximumFractionDigits, notation });
