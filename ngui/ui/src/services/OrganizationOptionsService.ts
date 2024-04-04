@@ -34,6 +34,7 @@ import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { isError, checkError } from "utils/api";
+import { OPTSCALE_MODE_OPTION } from "utils/constants";
 import { parseJSON } from "utils/strings";
 
 const useGet = (withValues) => {
@@ -71,20 +72,23 @@ const useGetOption = () => {
   return { isGetOrganizationOptionLoading: isLoading, value: jsonValue, getOption };
 };
 
-// TODO - useGetOption return a dispatch function, which is unconvenoent to use, created not to break useGetOption, combine or rewrite.
-const useGetByName = (name) => {
+// OptScale mode is a special option, it is "global", meaning that other components visibility might rely on it
+// They are wrapped with ModeWrapper, which might cause side effects. One that is known is a conflict between optscale_mode and other options.
+// This is a "quick" fix, the implementation will most likely to be changed once we migrate to Apollo and implement a new initialization process.
+// Note that there is no name passed to useApiState intentionally.
+const useGetOptscaleMode = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
   const { apiData: option } = useApiData(GET_ORGANIZATION_OPTION, "{}");
 
-  const { isLoading, shouldInvoke } = useApiState(GET_ORGANIZATION_OPTION, { organizationId, name });
+  const { isLoading, shouldInvoke } = useApiState(GET_ORGANIZATION_OPTION, { organizationId });
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getOrganizationOption(organizationId, name));
+      dispatch(getOrganizationOption(organizationId, OPTSCALE_MODE_OPTION));
     }
-  }, [dispatch, organizationId, name, shouldInvoke]);
+  }, [dispatch, organizationId, shouldInvoke]);
 
   return {
     isGetOrganizationOptionLoading: isLoading,
@@ -328,7 +332,7 @@ function OrganizationOptionsService() {
   return {
     useGet,
     useGetOption,
-    useGetByName,
+    useGetOptscaleMode,
     useUpdateOption,
     useCreateOption,
     useDeleteOption,

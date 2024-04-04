@@ -10,12 +10,12 @@ type ModeWrapperProps = {
 const ModeWrapper = ({ children, mode }: ModeWrapperProps) => {
   const [shouldShowChildren, setShouldShowChildren] = useState(false);
 
-  const { useGetByName } = OrganizationOptionsService();
+  const { useGetOptscaleMode } = OrganizationOptionsService();
 
   const {
     // Intentionally ignore loading state to update the menu 'silently'
     option: { value }
-  } = useGetByName(OPTSCALE_MODE_OPTION);
+  } = useGetOptscaleMode(OPTSCALE_MODE_OPTION);
 
   useEffect(() => {
     // This handles 2 cases, in both of them we need to display children.

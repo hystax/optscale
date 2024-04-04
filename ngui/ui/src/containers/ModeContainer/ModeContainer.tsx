@@ -3,12 +3,12 @@ import OrganizationOptionsService from "services/OrganizationOptionsService";
 import { OPTSCALE_MODE_OPTION } from "utils/constants";
 
 const ModeContainer = () => {
-  const { useGetByName, useUpdateOption } = OrganizationOptionsService();
+  const { useGetOptscaleMode, useUpdateOption } = OrganizationOptionsService();
 
   const {
     isGetOrganizationOptionLoading,
     option: { value }
-  } = useGetByName(OPTSCALE_MODE_OPTION);
+  } = useGetOptscaleMode(OPTSCALE_MODE_OPTION);
   const { isUpdateOrganizationOptionLoading, updateOption } = useUpdateOption();
 
   const onApply = (option) => {

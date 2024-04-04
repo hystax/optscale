@@ -72,7 +72,7 @@ const Initialization = ({ profilingToken, taskKey, isLoading }) => {
   );
   const arceeInitUsingFunctionCall = (
     <CodeBlock
-      text={`arcee.init("${profilingToken}", "${taskKey ?? "task_key"}"):
+      text={`arcee.init("${profilingToken}", "${taskKey ?? "task_key"}")
 # ${intl.formatMessage({ id: "mlProfilingIntegration.someCode" })}
 arcee.finish()
 # ${intl.formatMessage({ id: "mlProfilingIntegration.orInCaseOfError" })}
