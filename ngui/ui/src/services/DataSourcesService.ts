@@ -1,11 +1,5 @@
-import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import {
-  getDataSources,
-  updateDataSource,
-  disconnectDataSource as disconnectDataSourceApi,
-  createSurvey as createSurveyApi
-} from "api";
+import { updateDataSource, disconnectDataSource as disconnectDataSourceApi, createSurvey as createSurveyApi } from "api";
 import { DELETE_DATA_SOURCE, GET_DATA_SOURCES, UPDATE_DATA_SOURCE, CREATE_SURVEY } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -16,25 +10,6 @@ import { ENVIRONMENT } from "utils/constants";
 export const DATASOURCE_SURVEY_TYPES = Object.freeze({
   DISCONNECT_LAST_DATA_SOURCE: "disconnect_last_account"
 });
-
-export const useGetDataSources = () => {
-  const dispatch = useDispatch();
-  const { organizationId } = useOrganizationInfo();
-
-  const {
-    apiData: { cloudAccounts = [] }
-  } = useApiData(GET_DATA_SOURCES);
-
-  const { isLoading, shouldInvoke } = useApiState(GET_DATA_SOURCES, organizationId);
-
-  useEffect(() => {
-    if (shouldInvoke) {
-      dispatch(getDataSources(organizationId));
-    }
-  }, [dispatch, organizationId, shouldInvoke]);
-
-  return { isGetDataSourceLoading: isLoading, dataSources: cloudAccounts };
-};
 
 const useUpdateDataSource = () => {
   const dispatch = useDispatch();
@@ -100,7 +75,12 @@ const useCreateSurvey = () => {
 };
 
 function DataSourcesService() {
-  return { useGetDataSources, useUpdateDataSource, useDisconnectDataSource, useIsLastDataSource, useCreateSurvey };
+  return {
+    useUpdateDataSource,
+    useDisconnectDataSource,
+    useIsLastDataSource,
+    useCreateSurvey
+  };
 }
 
 export default DataSourcesService;

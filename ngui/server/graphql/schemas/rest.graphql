@@ -1,0 +1,272 @@
+# use enum to get types for the "dataSource.type" field in revolver
+enum DataSourceType {
+  aws_cnr
+  azure_tenant
+  azure_cnr
+  gcp_cnr
+  alibaba_cnr
+  nebius
+  databricks
+  kubernetes_cnr
+  environment
+}
+
+type DataSourceDiscoveryInfos {
+  cloud_account_id: String!
+  created_at: Int!
+  deleted_at: Int!
+  enabled: Boolean
+  id: String!
+  last_discovery_at: Int!
+  last_error: String
+  last_error_at: Int!
+  observe_time: Int!
+  resource_type: String
+}
+
+type DataSourceDetails {
+  cost: Float!
+  discovery_infos: [DataSourceDiscoveryInfos]
+  forecast: Float!
+  last_month_cost: Float!
+  resources: Int!
+}
+
+interface DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+}
+
+# AWS data source
+type AwsConfig {
+  access_key_id: String!
+  linked: Boolean!
+  bucket_name: String
+  bucket_prefix: String
+  config_scheme: String
+  region_name: String
+  report_name: String
+}
+
+type AwsDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: AwsConfig
+}
+
+# Azure tenant data source
+type AzureTenantConfig {
+  client_id: String!
+  tenant: String!
+}
+
+type AzureTenantDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: AzureTenantConfig
+}
+
+# Azure subscription data source
+type AzureSubscriptionConfig {
+  client_id: String!
+  expense_import_scheme: String!
+  subscription_id: String!
+  tenant: String!
+}
+
+type AzureSubscriptionDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: AzureSubscriptionConfig
+}
+
+# GCP data source
+type GcpBillingDataConfig {
+  dataset_name: String!
+  table_name: String!
+}
+
+type GcpConfig {
+  billing_data: GcpBillingDataConfig!
+}
+
+type GcpDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: GcpConfig
+}
+
+# Alibaba data source
+type AlibabaConfig {
+  access_key_id: String!
+}
+
+type AlibabaDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: AlibabaConfig
+}
+
+# Nebius data source
+type NebiusConfig {
+  cloud_name: String!
+  service_account_id: String!
+  key_id: String!
+  access_key_id: String!
+  # Make bucket name and prefix optional to fix conflicting types
+  # to make it compatible with the AwsConfig type
+  bucket_name: String
+  bucket_prefix: String
+}
+
+type NebiusDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: NebiusConfig
+}
+
+# Databricks data source
+type DatabricksConfig {
+  account_id: String!
+  client_id: String!
+}
+
+type DatabricksDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: DatabricksConfig
+}
+
+# K8s data source
+type K8CostModelConfig {
+  cpu_hourly_cost: Float!
+  memory_hourly_cost: Float!
+}
+
+type K8sConfig {
+  cost_model: K8CostModelConfig
+  user: String!
+}
+
+type K8sDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+  config: K8sConfig
+}
+
+# Environment data source
+type EnvironmentDataSource implements DataSourceInterface {
+  id: String!
+  name: String!
+  type: DataSourceType!
+  parent_id: String
+  account_id: String!
+  last_import_at: Int!
+  last_import_attempt_at: Int!
+  last_import_attempt_error: String
+  last_getting_metrics_at: Int!
+  last_getting_metric_attempt_at: Int!
+  last_getting_metric_attempt_error: String
+  details: DataSourceDetails
+}
+
+input DataSourceRequestParams {
+  details: Boolean
+}
+
+type Query {
+  dataSource(
+    dataSourceId: ID!
+    requestParams: DataSourceRequestParams
+  ): DataSourceInterface
+}
