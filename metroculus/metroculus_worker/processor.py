@@ -537,12 +537,14 @@ class MetricsProcessor(object):
             "cpu": "compute.googleapis.com/instance/cpu/utilization",
             "network_in_io": "compute.googleapis.com/instance/network/received_bytes_count",
             "network_out_io": "compute.googleapis.com/instance/network/sent_bytes_count",
+            "ram_percent": "agent.googleapis.com/memory/percent_used",
             "ram_size": "compute.googleapis.com/instance/memory/balloon/ram_size",
             "ram": "compute.googleapis.com/instance/memory/balloon/ram_used",
             "disk_read_io": "compute.googleapis.com/instance/disk/read_ops_count",
             "disk_write_io": "compute.googleapis.com/instance/disk/write_ops_count",
         }
         ram_sizes = {}
+        ram_percents = set()
         for metric_name, cloud_metric_name in metric_cloud_names_map.items():
             response = adapter.get_metric(
                 cloud_metric_name,
@@ -579,17 +581,28 @@ class MetricsProcessor(object):
                             'disk_write_io']:
                         # change values per min to values per second
                         value = value / 60
+                    # RAM value in % is returned on instances with Ops agent
+                    elif metric_name == "ram_percent":
+                        if record.metric.labels.get('state') != 'used':
+                            continue
+                        key = (resource_id, date)
+                        ram_percents.add(key)
                     # to determine RAM value in % instead of absolute values,
-                    # we need to know values of 2 metrics - ram_used and ram_size - for the same time
-                    # so we store ram_size in a map and pop values from it later when processing ram_used.
-                    # we rely on the fact that the metrics API returns metrics in the same order
-                    # as they were requested.
+                    # on instances without Ops agent, we need to know values
+                    # of 2 metrics - ram_used and ram_size - for the same time
+                    # so we store ram_size in a map and pop values from it
+                    # later when processing ram_used.
+                    # we rely on the fact that the metrics API returns metrics
+                    # in the same order as they were requested.
                     elif metric_name == "ram_size":
                         key = (resource_id, date)
                         ram_sizes[key] = value
                         continue
                     elif metric_name == "ram":
                         key = (resource_id, date)
+                        if key in ram_percents:
+                            # not calculate ram value, as agent's value exists
+                            continue
                         ram_size = ram_sizes.pop(key, None)
                         if ram_size is None:
                             LOG.warn(
@@ -609,7 +622,7 @@ class MetricsProcessor(object):
                         'cloud_account_id': cloud_account_id,
                         'resource_id': resource_id,
                         'date': date,
-                        'metric': metric_name,
+                        'metric': 'ram' if 'ram' in metric_name else metric_name,
                         'value': value
                     })
         return result

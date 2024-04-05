@@ -9,6 +9,9 @@ def retry_if_connection_error(exception):
     if isinstance(exception, requests.HTTPError):
         if exception.response.status_code in (503,):
             return True
+        # retry too many requests
+        elif exception.response.status_code in (429,):
+            return True
     return False
 
 

@@ -8,6 +8,7 @@ import IconButton from "components/IconButton";
 import Input from "components/Input";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
+import { notOnlyWhiteSpaces } from "utils/validation";
 
 export const ARRAY_FIELD_NAME = "tags";
 export const KEY_FIELD_NAME = "key";
@@ -52,7 +53,8 @@ const KeyInput = ({ index }: { index: number }) => {
             const isPropertyUnique = tagsWithSameKey.length === 1;
 
             return isPropertyUnique || intl.formatMessage({ id: "thisFieldShouldBeUnique" });
-          }
+          },
+          notOnlyWhiteSpaces
         }
       })}
       dataTestId={`tag_name_${index}`}
@@ -88,6 +90,9 @@ const ValueInput = ({ index }: { index: number }) => {
               max: DEFAULT_MAX_INPUT_LENGTH
             }
           )
+        },
+        validate: {
+          notOnlyWhiteSpaces
         }
       }}
       render={({ field }) => (

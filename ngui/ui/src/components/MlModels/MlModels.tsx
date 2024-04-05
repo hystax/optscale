@@ -105,8 +105,13 @@ const ModelsTable = ({ models }: ModelsTableProps) => {
             <FormattedMessage id="description" />
           </TextWithDataTestId>
         ),
-        accessorKey: "description",
-        cell: ({ cell }) => <Markdown>{cell.getValue()}</Markdown>
+        id: "description",
+        accessorFn: (originalRow) => originalRow.description ?? "",
+        cell: ({ cell }) => {
+          const description = cell.getValue();
+
+          return description ? <Markdown>{description}</Markdown> : CELL_EMPTY_VALUE;
+        }
       },
       tags({
         id: "tags",
