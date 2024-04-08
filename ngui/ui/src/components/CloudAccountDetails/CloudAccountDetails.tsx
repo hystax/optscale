@@ -295,14 +295,14 @@ const Tabs = ({
       isLoading={isLoading}
       tabsProps={{
         tabs,
-        defaultTab: type === ENVIRONMENT ? ADVANCED_TAB : DETAILS_TAB,
-        name: "cloud-account"
+        name: "cloud-account",
+        defaultTab: type === ENVIRONMENT ? ADVANCED_TAB : DETAILS_TAB
       }}
     />
   );
 };
 
-const CloudAccountDetails = ({ data, isLoading }) => {
+const CloudAccountDetails = ({ data = {}, isLoading = false }) => {
   const {
     id,
     name = "",
@@ -316,7 +316,7 @@ const CloudAccountDetails = ({ data, isLoading }) => {
     last_getting_metric_attempt_at: lastMetricsRetrievalAttempt,
     last_getting_metric_attempt_error: lastGettingMetricAttemptError,
     details = {},
-    config
+    config = {}
   } = data;
 
   const {

@@ -13,6 +13,10 @@ const config: CodegenConfig = {
       schema: "./graphql/schemas/slacker.graphql",
       plugins: commonPlugins,
     },
+    "./graphql/resolvers/rest.generated.ts": {
+      schema: "./graphql/schemas/rest.graphql",
+      plugins: commonPlugins,
+    },
   },
 };
 

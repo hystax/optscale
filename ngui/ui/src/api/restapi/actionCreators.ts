@@ -16,11 +16,9 @@ import {
   SET_ORGANIZATION_OPTION,
   CREATE_DATA_SOURCE,
   GET_POOL,
-  GET_DATA_SOURCE_DETAILS,
   DELETE_DATA_SOURCE,
   UPDATE_DATA_SOURCE,
   SET_POOL,
-  SET_DATA_SOURCE_DETAILS,
   UPDATE_POOL,
   DELETE_POOL,
   GET_ORGANIZATIONS,
@@ -529,19 +527,6 @@ export const getDataSources = (organizationId) =>
     }
   });
 
-export const getDataSourceDetails = (dataSourceId, details = false) =>
-  apiAction({
-    url: `${API_URL}/cloud_accounts/${dataSourceId}`,
-    method: "GET",
-    onSuccess: handleSuccess(SET_DATA_SOURCE_DETAILS),
-    label: GET_DATA_SOURCE_DETAILS,
-    ttl: MINUTE,
-    hash: hashParams(dataSourceId),
-    params: {
-      details
-    }
-  });
-
 export const createDataSource = (organizationId, params) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/cloud_accounts`,
@@ -595,7 +580,7 @@ export const updateDataSource = (id, params) =>
     url: `${API_URL}/cloud_accounts/${id}`,
     method: "PATCH",
     label: UPDATE_DATA_SOURCE,
-    affectedRequests: [GET_DATA_SOURCE_DETAILS, GET_DATA_SOURCE_NODES],
+    affectedRequests: [GET_DATA_SOURCE_NODES],
     params
   });
 
@@ -1706,8 +1691,7 @@ export const updateDataSourceSku = (dataSourceId, value) =>
     url: `${API_URL}/sku_cost_models/${dataSourceId}`,
     method: "PATCH",
     label: UPDATE_DATASOURCE_SKU,
-    // GET_DATA_SOURCE_DETAILS must be updated to get a cost model from a data source config
-    affectedRequests: [GET_DATASOURCE_SKUS, GET_DATA_SOURCE_DETAILS],
+    affectedRequests: [GET_DATASOURCE_SKUS],
     params: {
       value
     }

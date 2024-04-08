@@ -7,7 +7,6 @@ import {
   SET_ORGANIZATION_CONSTRAINTS,
   SET_POOL,
   SET_DATA_SOURCES,
-  SET_DATA_SOURCE_DETAILS,
   SET_ORGANIZATIONS,
   SET_ORGANIZATIONS_OVERVIEW,
   SET_POOL_EXPENSES_BREAKDOWN,
@@ -187,13 +186,6 @@ const reducer = (state = {}, action) => {
             ...state[action.label].pool,
             children: state[action.label].pool.children?.filter(({ id: childId }) => childId !== action.payload.id)
           }
-        }
-      };
-    case SET_DATA_SOURCE_DETAILS:
-      return {
-        ...state,
-        [action.label]: {
-          cloudAccountDetails: action.payload
         }
       };
     case SET_SPLIT_RESOURCES: {

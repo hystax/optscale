@@ -39,18 +39,18 @@ const SideModalManager = ({ children }) => {
   useEffect(close, [close, pathname]);
 
   // rendering its content
-  const { content, headerProps, dataTestId, contentPadding } = currentSideModalInstance ?? {};
+  const { content = null, headerProps = {}, dataTestId, contentPadding } = currentSideModalInstance ?? {};
+
+  const isSideModalOpen = isOpen && !!currentSideModalInstance;
 
   return (
     <SideModalManagerContextProvider openSideModal={openSideModal}>
       {children}
-      {currentSideModalInstance && (
-        <SideModal isOpen={isOpen} headerProps={headerProps} onClose={close} dataTestId={dataTestId}>
-          <Box pl={contentPadding} pr={contentPadding}>
-            <ErrorBoundary>{content}</ErrorBoundary>
-          </Box>
-        </SideModal>
-      )}
+      <SideModal isOpen={isSideModalOpen} headerProps={headerProps} onClose={close} dataTestId={dataTestId}>
+        <Box pl={contentPadding} pr={contentPadding}>
+          <ErrorBoundary>{content}</ErrorBoundary>
+        </Box>
+      </SideModal>
     </SideModalManagerContextProvider>
   );
 };
