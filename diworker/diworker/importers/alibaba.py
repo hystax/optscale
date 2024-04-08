@@ -167,7 +167,7 @@ class AlibabaReportImporter(BaseReportImporter):
                     self._process_system_disk_item(
                         chunk, current_day, billing_item, system_disk_ids)
                 elif (billing_item['ProductCode'] == 'snapshot' and
-                      billing_item['BillingItem'] == 'Size'):
+                      billing_item['BillingItemCode'] == 'Size'):
                     self._process_snapshot_item(
                         chunk, current_day, billing_item, snap_chain_size,
                         snap_total_size)
@@ -191,7 +191,11 @@ class AlibabaReportImporter(BaseReportImporter):
         cloud_fields = [
             'PretaxGrossAmount',
             'PretaxAmount',
-            'Usage'
+            'Usage',
+            'NickName',
+            'Zone',
+            'InstanceSpec',
+            'InstanceConfig'
         ] + self._get_discount_fields()
         optscale_fields = ['cost']
         if optscale_f_incl:
@@ -216,6 +220,7 @@ class AlibabaReportImporter(BaseReportImporter):
     def _get_resource_type(self, expense):
         product_code = expense['ProductCode']
         billing_item = expense.get('BillingItem')
+        billing_item_code = expense.get('BillingItemCode')
         product_detail = expense['ProductDetail']
         if (product_code == 'yundisk' or
                 billing_item in SYSTEM_DISK_BILLING_ITEMS):
@@ -224,7 +229,7 @@ class AlibabaReportImporter(BaseReportImporter):
             return 'Round Down Discount'
         elif product_code == 'ecs':
             return 'Instance'
-        elif product_code == 'snapshot' and billing_item == 'Size':
+        elif product_code == 'snapshot' and billing_item_code == 'Size':
             return 'Snapshot Chain'
         elif product_code == 'snapshot':
             return 'Snapshot Storage'
