@@ -712,7 +712,7 @@ async def collect(request, body: StatsPostIn):
     await check_run_state(run)
 
     log = Log(instance_id=instance_id, project=body.project,
-              run=body.run, data=body.data)
+              run_id=body.run, data=body.data)
     await db.log.insert_one(log.model_dump(by_alias=True))
 
     executors = run.get("executors", [])

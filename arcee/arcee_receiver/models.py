@@ -230,11 +230,11 @@ class Platform(PlatformPostIn):
 
 class Log(BaseClass):
     project: str
-    run: str
+    run_id: str
     data: StatsData
     instance_id: Optional[str]
     id: str = id_
-    time: float = now_ms
+    timestamp: float = now_ms
 
 
 class ModelPatchIn(BaseClass):
