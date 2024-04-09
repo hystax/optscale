@@ -16,7 +16,7 @@ COPY optscale_client/arcee_client optscale_client/arcee_client
 COPY optscale_client/insider_client optscale_client/insider_client
 COPY optscale_client/bulldozer_client optscale_client/bulldozer_client
 
-COPY rest_api/live_demo.json rest_api/live_demo.json
+COPY rest_api/live_demo.tar.xz rest_api/live_demo.tar.xz
 COPY rest_api/google_calendar_client rest_api/google_calendar_client
 COPY rest_api/rest_api_server/alembic rest_api/rest_api_server/alembic
 COPY rest_api/rest_api_server/controllers rest_api/rest_api_server/controllers

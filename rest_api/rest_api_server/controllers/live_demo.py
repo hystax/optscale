@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import uuid
+import tarfile
 from collections import defaultdict
 from json.decoder import JSONDecodeError
 from kombu.pools import producers
@@ -44,6 +45,7 @@ DEMO_ORG_TEMPLATE = 'Sunflower Inc'
 DEMO_USER_NAME = 'Demo User'
 EMAIL_TEMPLATE = '%s@sunflower.demo'
 PRESET_FILENAME = 'rest_api/live_demo.json'
+PRESET_TAR_XZ = 'rest_api/live_demo.tar.xz'
 DUPLICATION_MODULE_NAMES = {'abandoned_instances', 'rightsizing_instances'}
 DUPLICATION_COUNT = 3
 TOP_NO_DUPLICATE_RESOURCES = 10
@@ -359,13 +361,21 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         return org, name, email, passwd
 
     @staticmethod
-    def load_preset(path=None):
-        if not os.path.exists(path):
+    def load_preset(path=None, tar_path=None):
+        if not os.path.exists(path) and not os.path.exists(tar_path):
             raise InternalServerError(Err.OE0452, [])
+        if not os.path.exists(path):
+            try:
+                with tarfile.open(tar_path, 'r:xz') as f:
+                    f.extract(
+                        os.path.basename(PRESET_FILENAME),
+                        path=os.path.dirname(PRESET_FILENAME))
+            except FileNotFoundError:
+                raise InternalServerError(Err.OE0452, [])
         try:
             with open(path, 'r') as f:
                 return json.load(f)
-        except JSONDecodeError:
+        except (JSONDecodeError, FileNotFoundError):
             raise InternalServerError(Err.OE0450, [])
 
     def duplicate_resource(self, preset_object, duplication_resource_info_map):
@@ -1358,7 +1368,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             self.session, self._config, self.token
         ).get_or_create_profiling_token(organization.id)
 
-        preset = self.load_preset(PRESET_FILENAME)
+        preset = self.load_preset(PRESET_FILENAME, PRESET_TAR_XZ)
         employee_id_to_replace = self.get_replacement_employee(preset)
         self.init_duplication_resources(preset)
         try:
