@@ -37,7 +37,7 @@ class AlibabaReportImporter(BaseReportImporter):
         return {
             item['AttachedInstanceId']: item['InstanceId']
             for item in self.cloud_adapter.get_raw_usage(
-                'YunDisk', 'Day', start_time, end_time)
+                'YunDisk', 'Hour', start_time, end_time)
             if item['Portable'] == '0'
         }
 
