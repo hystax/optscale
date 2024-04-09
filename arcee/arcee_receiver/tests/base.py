@@ -31,6 +31,7 @@ class Urls:
     run = '/arcee/v2/run/{}'
     metrics = '/arcee/v2/metrics'
     metric = '/arcee/v2/metrics/{}'
+    collect = '/arcee/v2/collect'
 
 
 async def prepare_token():
