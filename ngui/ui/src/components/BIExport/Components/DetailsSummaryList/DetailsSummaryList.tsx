@@ -98,7 +98,7 @@ const DetailsSummaryList = ({
           key="reason"
           keyMessageId="reason"
           value={lastStatusError}
-          style={{
+          sx={{
             maxWidth: "600px"
           }}
         />

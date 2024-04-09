@@ -3,11 +3,19 @@ import { Box } from "@mui/material";
 import Typography, { TypographyOwnProps } from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 
-type KeyValueLabelProps = {
+type KeyType =
+  | {
+      keyMessageId: string;
+      keyText?: never;
+    }
+  | {
+      keyMessageId?: never;
+      keyText: string;
+    };
+
+type KeyValueLabelProps = KeyType & {
   value: ReactNode;
-  variant: TypographyOwnProps["variant"];
-  keyMessageId?: string;
-  keyText?: string;
+  variant?: TypographyOwnProps["variant"];
   isBoldValue?: boolean;
   dataTestIds?: {
     typography?: string;
