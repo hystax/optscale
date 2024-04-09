@@ -29,10 +29,10 @@ class LayoutCleaner(object):
         return self._rest_cl
 
     @staticmethod
-    def is_outdated(layout, employees_ids, applications_ids):
+    def is_outdated(layout, employees_ids, tasks_ids):
         if (layout['owner_id'] not in employees_ids or (
                 layout['type'] == 'ml_run_charts_dashboard' and
-                layout['entity_id'] not in applications_ids)):
+                layout['entity_id'] not in tasks_ids)):
             return True
         return False
 
@@ -42,13 +42,13 @@ class LayoutCleaner(object):
         organizations_ids = [x['id'] for x in organizations['organizations']]
         for organization_id in organizations_ids:
             LOG.info('Start processing for organization %s', organization_id)
-            _, applications = self.rest_cl.application_list(organization_id)
-            applications_ids = [x['id'] for x in applications['applications']]
+            _, tasks = self.rest_cl.task_list(organization_id)
+            tasks_ids = [x['id'] for x in tasks['tasks']]
             _, employees = self.rest_cl.employee_list(organization_id)
             employees_ids = [x['id'] for x in employees['employees']]
             _, layouts = self.rest_cl.layouts_list(organization_id)
             for layout in layouts['layouts']:
-                if self.is_outdated(layout, employees_ids, applications_ids):
+                if self.is_outdated(layout, employees_ids, tasks_ids):
                     LOG.info('Deleting layout %s', layout['id'])
                     self.rest_cl.layout_delete(organization_id, layout['id'])
         LOG.info('Processing completed')
