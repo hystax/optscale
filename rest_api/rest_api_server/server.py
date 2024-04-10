@@ -1,6 +1,7 @@
 import os
 import logging
 import argparse
+import tarfile
 import tornado.ioloop
 import pydevd_pycharm
 from etcd import Lock as EtcdLock
@@ -28,6 +29,9 @@ SWAGGER_PATH = os.path.join(BASEDIR_PATH, 'swagger')
 
 BASE_URL_PREFIX = "/restapi"
 URL_PREFIX_v2 = "/restapi/v2"
+
+PRESET_FILENAME = 'rest_api/live_demo.json'
+PRESET_TAR_XZ = 'rest_api/live_demo.tar.xz'
 
 
 def get_handlers(handler_kwargs, version=None):
@@ -584,6 +588,13 @@ def main():
     args = parser.parse_args()
 
     app = make_app(DBType.MySQL, args.etcdhost, args.etcdport, wait=True)
+    try:
+        with tarfile.open(PRESET_TAR_XZ, 'r:xz') as f:
+            f.extract(
+                os.path.basename(PRESET_FILENAME),
+                path=os.path.dirname(PRESET_FILENAME))
+    except Exception as exc:
+        LOG.exception(exc)
     LOG.info("start listening on port %d", DEFAULT_PORT)
     app.listen(DEFAULT_PORT, decompress_request=True)
     tornado.ioloop.IOLoop.instance().start()
