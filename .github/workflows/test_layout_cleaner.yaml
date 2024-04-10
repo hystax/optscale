@@ -22,4 +22,4 @@ jobs:
       - name: Build image
         run: bash -x build.sh layout_cleaner build
       - name: Build test image and run tests
-        run: bash -x docker_images/layout_cleaner/run_test.sh
+        run: bash -x docker_images/run_test.sh layout_cleaner

@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
@@ -21,7 +22,17 @@ import { useIsDownMediaQuery, useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { HYSTAX, LIVE_DEMO } from "urls";
 import { tag as tagHotjar } from "utils/hotjar";
 import { SPACING_4, SPACING_2, SPACING_6 } from "utils/layouts";
+import { isEven } from "utils/math";
 import useStyles from "./Greeter.styles";
+
+type LiveDemoButtonProps = {
+  onClick: () => void;
+};
+
+type GreeterProps = {
+  form: ReactNode;
+  oAuthForm: ReactNode;
+};
 
 const OptScaleLink = () => {
   const { classes, cx } = useStyles();
@@ -82,7 +93,7 @@ const ImagesWithCaptions = () => {
   );
 };
 
-const LiveDemoButton = ({ onClick }) => (
+const LiveDemoButton = ({ onClick }: LiveDemoButtonProps) => (
   <Button
     dataTestId="btn_live_demo"
     color="lightYellow"
@@ -93,17 +104,22 @@ const LiveDemoButton = ({ onClick }) => (
   />
 );
 
-const defaultOrder = [0, 1, 2, 3, 4, 5];
+const defaultOrder = [0, 1, 2, 3, 4, 5] as const;
 
 const getVerticalOrder = () => {
   const [evenNumbers, oddNumbers] = defaultOrder.reduce(
-    ([even, odd], curr) => (curr % 2 === 0 ? [[...even, curr], [...odd]] : [[...even], [...odd, curr]]),
+    ([even, odd]: [number[], number[]], curr) => {
+      if (isEven(curr)) {
+        return [[...even, curr], [...odd]];
+      }
+      return [[...even], [...odd, curr]];
+    },
     [[], []]
   );
   return [...evenNumbers, ...oddNumbers];
 };
 
-const Greeter = ({ form, oAuthForm }) => {
+const Greeter = ({ form, oAuthForm }: GreeterProps) => {
   const { classes, cx } = useStyles();
   const theme = useTheme();
   const navigate = useNavigate();

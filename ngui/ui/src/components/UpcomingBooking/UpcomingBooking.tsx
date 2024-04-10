@@ -43,8 +43,8 @@ const UpcomingBooking = ({ employeeName, acquiredSince, releasedAt }) => {
   return (
     <>
       <KeyValueLabel keyMessageId="user" value={employeeName} />
-      <KeyValueLabel keyMessageId="since" valueWhiteSpace="nowrap" value={bookedSince} />
-      <KeyValueLabel keyMessageId="until" valueWhiteSpace="nowrap" value={bookedUntil} />
+      <KeyValueLabel keyMessageId="since" value={bookedSince} />
+      <KeyValueLabel keyMessageId="until" value={bookedUntil} />
       <BookingTimeMeasure messageId="duration" measure={duration} />
     </>
   );

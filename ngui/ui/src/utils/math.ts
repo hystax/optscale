@@ -51,3 +51,5 @@ export const denormalize = (normalizedValue, domain, range) => {
 
   return denormalized;
 };
+
+export const isEven = (value: number) => value % 2 === 0;
