@@ -512,6 +512,7 @@ class Gcp(CloudBase):
             type=dict,
             required=True,
             dependencies=[
+                CloudParameter(name="project_id", type=str, required=False),
                 CloudParameter(name="dataset_name", type=str, required=True),
                 CloudParameter(name="table_name", type=str, required=True),
             ],
@@ -521,6 +522,7 @@ class Gcp(CloudBase):
             type=dict,
             required=False,
             dependencies=[
+                CloudParameter(name="project_id", type=str, required=False),
                 CloudParameter(name="dataset_name", type=str, required=True),
                 CloudParameter(name="table_name", type=str, required=True),
             ],
@@ -570,6 +572,10 @@ class Gcp(CloudBase):
         return self.billing_data.get("table_name", "")
 
     @property
+    def billing_project_id(self) -> str:
+        return self.billing_data.get("project_id", self.project_id)
+
+    @property
     def pricing_data(self):
         return self.config.get("pricing_data", {})
 
@@ -580,6 +586,10 @@ class Gcp(CloudBase):
     @property
     def pricing_table(self) -> str:
         return self.pricing_data.get("table_name", "")
+
+    @property
+    def pricing_project_id(self) -> str:
+        return self.pricing_data.get("project_id", self.project_id)
 
     @cached_property
     def bigquery_client(self):
@@ -647,7 +657,7 @@ class Gcp(CloudBase):
         )
 
     def _billing_table_full_name(self):
-        return f"{self.project_id}.{self.billing_dataset}.{self.billing_table}"
+        return f"{self.billing_project_id}.{self.billing_dataset}.{self.billing_table}"
 
     def _test_bigquery_connection(self):
         query = f"select currency from `{self._billing_table_full_name()}` limit 1"
@@ -987,7 +997,7 @@ class Gcp(CloudBase):
     # some premium for the additional Cpu and Ram.
 
     def _pricing_table_full_name(self) -> str:
-        return f"{self.project_id}.{self.pricing_dataset}.{self.pricing_table}"
+        return f"{self.pricing_project_id}.{self.pricing_dataset}.{self.pricing_table}"
 
     @cached_property
     def _resource_priced_machine_series_descriptions(self) -> dict:
