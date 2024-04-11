@@ -196,7 +196,11 @@ const CredentialInputs = ({ type }) => {
     case GCP_CNR:
       return (
         <GcpCredentials
-          hidden={[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET, GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE]}
+          hidden={[
+            GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET,
+            GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE,
+            GCP_CREDENTIALS_FIELD_NAMES.PROJECT_ID
+          ]}
         />
       );
     case NEBIUS:
