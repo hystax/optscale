@@ -1,5 +1,5 @@
 cryptography==42.0.4
-pymongo==4.3.3
+pymongo==4.6.3
 boto3==1.18.9
 kombu==4.6.8
 clickhouse-driver==0.2.2
