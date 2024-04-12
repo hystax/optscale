@@ -1,4 +1,4 @@
-pymongo==4.3.3
+pymongo==4.6.3
 kombu==4.6.8
 boto3==1.18.9
 clickhouse-driver==0.2.2

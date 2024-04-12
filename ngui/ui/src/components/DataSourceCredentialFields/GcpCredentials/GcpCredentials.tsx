@@ -5,10 +5,12 @@ import { DropzoneArea } from "components/Dropzone";
 import Input from "components/Input";
 import QuestionMark from "components/QuestionMark";
 import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
+import { notOnlyWhiteSpaces } from "utils/validation";
 
 export const FIELD_NAMES = Object.freeze({
   BILLING_DATA_DATASET: "billingDataDatasetName",
   BILLING_DATA_TABLE: "billingDataTableName",
+  PROJECT_ID: "projectId",
   CREDENTIALS: "credentials"
 });
 
@@ -82,6 +84,31 @@ const GcpCredentials = ({ hidden = [] }) => {
                 { id: "maxLength" },
                 { inputName: intl.formatMessage({ id: "billingDataTableName" }), max: DEFAULT_MAX_INPUT_LENGTH }
               )
+            }
+          })}
+        />
+      )}
+      {!isHidden(FIELD_NAMES.PROJECT_ID) && (
+        <Input
+          dataTestId="input_billing_data_project_id"
+          name={FIELD_NAMES.PROJECT_ID}
+          error={!!errors[FIELD_NAMES.PROJECT_ID]}
+          helperText={errors[FIELD_NAMES.PROJECT_ID] && errors[FIELD_NAMES.PROJECT_ID].message}
+          InputProps={{
+            endAdornment: <QuestionMark messageId="billingDataProjectIdTooltip" dataTestId="qmark_billing_data_project_id" />
+          }}
+          label={<FormattedMessage id="billingDataProjectId" />}
+          autoComplete="off"
+          {...register(FIELD_NAMES.PROJECT_ID, {
+            maxLength: {
+              value: DEFAULT_MAX_INPUT_LENGTH,
+              message: intl.formatMessage(
+                { id: "maxLength" },
+                { inputName: intl.formatMessage({ id: "billingDataProjectId" }), max: DEFAULT_MAX_INPUT_LENGTH }
+              )
+            },
+            validate: {
+              notOnlyWhiteSpaces
             }
           })}
         />

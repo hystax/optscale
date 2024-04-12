@@ -210,6 +210,7 @@ export type EnvironmentDataSource = DataSourceInterface & {
 export type GcpBillingDataConfig = {
   __typename?: 'GcpBillingDataConfig';
   dataset_name: Scalars['String']['output'];
+  project_id?: Maybe<Scalars['String']['output']>;
   table_name: Scalars['String']['output'];
 };
 
@@ -620,6 +621,7 @@ export type EnvironmentDataSourceResolvers<ContextType = any, ParentType extends
 
 export type GcpBillingDataConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['GcpBillingDataConfig'] = ResolversParentTypes['GcpBillingDataConfig']> = {
   dataset_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  project_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   table_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

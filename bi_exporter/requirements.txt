@@ -2,7 +2,7 @@ kombu==4.6.8
 boto3==1.18.9
 azure-storage-blob==12.16.0
 clickhouse-driver==0.2.2
-pymongo==4.3.3
+pymongo==4.6.3
 
 # OptScale packages
 -e optscale_client/config_client

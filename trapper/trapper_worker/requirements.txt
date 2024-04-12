@@ -1,6 +1,6 @@
 kombu==4.6.8
 clickhouse-driver==0.2.2
-pymongo==4.3.3
+pymongo==4.6.3
 urllib3==1.26.18
 # OptScale packages
 -e optscale_client/rest_api_client

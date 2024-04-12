@@ -2,7 +2,7 @@ kombu==4.6.8
 requests==2.31.0
 clickhouse-driver==0.2.1
 clickhouse-migrator==1.0.2
-pymongo==4.3.3
+pymongo==4.6.3
 # OptScale packages
 -e optscale_client/config_client
 -e optscale_client/rest_api_client
