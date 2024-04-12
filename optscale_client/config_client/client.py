@@ -518,6 +518,17 @@ class Client(etcd.Client):
         return self.read_list("/{0}/{1}".format(blacklist_branch,
                                                 blacklist_key))
 
+    def domains_whitelist(self, whitelist_key='registration'):
+        """
+        Get list of email domains from /domains_whitelists/{whitelist_key}
+        branch
+        :param whitelist_key: whitelist etcd key name
+        :return: list
+        """
+        whitelist_branch = 'domains_whitelists'
+        return self.read_list("/{0}/{1}".format(whitelist_branch,
+                                                whitelist_key))
+
     def thanos_remote_write_url(self):
         """
         Url to send prometheus metrics

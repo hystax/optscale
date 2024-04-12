@@ -135,6 +135,9 @@ class TestUser(TestAuthBase):
                                            self.user_customer_password)
         patch('auth.auth_server.controllers.user.'
               'UserController.domain_blacklist').start()
+        patch('auth.auth_server.controllers.user.UserController.'
+              'domain_whitelist', new_callable=PropertyMock,
+              return_value=[]).start()
 
     def test_create_user(self):
         code, response = self._create_user()
@@ -829,3 +832,28 @@ class TestUser(TestAuthBase):
             user['id'], **{'jira_connected': True})
         self.assertEqual(code, 200)
         self.assertEqual(user['jira_connected'], True)
+
+    def test_create_email_domain_whitelist(self):
+        patch('auth.auth_server.controllers.user.'
+              'UserController.domain_blacklist',
+              new_callable=PropertyMock, return_value=['@example.my']).start()
+        patch('auth.auth_server.controllers.user.'
+              'UserController.domain_whitelist',
+              new_callable=PropertyMock, return_value=['@example.com']).start()
+
+        wl_email = 'user@example.com'
+        code, response = self._create_user(email=wl_email)
+        self.assertEqual(code, 201)
+
+        wl_email = 'user@example.ru'
+        code, response = self._create_user(email=wl_email)
+        self.assertEqual(code, 400)
+        self.assertEqual(response['error']['error_code'], 'OA0070')
+        self.assertEqual(response['error']['params'], ['example.ru'])
+
+        patch('auth.auth_server.controllers.user.'
+              'UserController.domain_whitelist',
+              new_callable=PropertyMock, return_value=['@example.my']).start()
+        wl_email = 'user@example.com'
+        code, response = self._create_user(email=wl_email)
+        self.assertEqual(code, 400)

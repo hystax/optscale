@@ -61,19 +61,36 @@ class UserController(BaseController):
         except etcd.EtcdKeyNotFound:
             return []
 
+    @property
+    def domain_whitelist(self):
+        try:
+            return self._config.domains_whitelist(whitelist_key='registration')
+        except etcd.EtcdKeyNotFound:
+            return []
+
     def _check_input(self, email, display_name, is_active, password,
                      type_id, scope_id):
+        def is_match(domain_exp, email_str):
+            if domain_exp.startswith('@'):
+                domain_regex = f'{re.escape(domain_exp)}$'
+            elif domain_exp.startswith('/'):
+                domain_regex = domain_exp[1:]
+            else:
+                domain_regex = f'@{re.escape(domain_exp)}$'
+            return re.search(domain_regex, email_str.lower())
+
         if email is None or password is None:
             raise WrongArgumentsException(Err.OA0039, [])
+        domain_whitelist = self.domain_whitelist
         for domain in self.domain_blacklist:
-            if domain.startswith('@'):
-                domain_regex = f'{re.escape(domain)}$'
-            elif domain.startswith('/'):
-                domain_regex = domain[1:]
-            else:
-                domain_regex = f'@{re.escape(domain)}$'
-            if re.search(domain_regex, email.lower()):
+            if is_match(domain, email):
                 raise WrongArgumentsException(Err.OA0070, [domain])
+        if domain_whitelist:
+            in_whitelist = any(filter(
+                lambda x: is_match(x, email), domain_whitelist))
+            if not in_whitelist:
+                raise WrongArgumentsException(
+                    Err.OA0070, [email.split('@')[-1]])
         if type_id is None:
             raise WrongArgumentsException(Err.OA0031, ['type_id'])
         if not isinstance(type_id, int):

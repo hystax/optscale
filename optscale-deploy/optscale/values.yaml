@@ -1028,6 +1028,13 @@ domains_blacklists:
   failed_import_email:
 
 # filled from optscale overlay
+# Optscale email domains whitelists
+domains_whitelists:
+  registration:
+  new_employee_email:
+  failed_import_email:
+
+# filled from optscale overlay
 # Service account to work with Google calendars
 google_calendar_service:
   access_key:

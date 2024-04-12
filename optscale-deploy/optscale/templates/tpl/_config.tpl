@@ -52,6 +52,10 @@ etcd:
     new_employee_email: {{ .Values.domains_blacklists.new_employee_email }}
     registration: {{ .Values.domains_blacklists.registration }}
     failed_import_email: {{ .Values.domains_blacklists.failed_import_email }}
+  domains_whitelists:
+    new_employee_email: {{ .Values.domains_whitelists.new_employee_email }}
+    registration: {{ .Values.domains_whitelists.registration }}
+    failed_import_email: {{ .Values.domains_whitelists.failed_import_email }}
   secret:
     cluster: {{ .Values.secrets.cluster }}
     agent: {{ .Values.secrets.agent }}
