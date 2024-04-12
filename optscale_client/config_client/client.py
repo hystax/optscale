@@ -93,7 +93,9 @@ class Client(etcd.Client):
         :return: list of objects
         """
         etcd_result = self.read(branch, recursive=True)
-        return [child.value for child in etcd_result.children]
+        return list(filter(None, [
+            child.value for child in etcd_result.children
+        ]))
 
     def write_branch(self, branch, structure, overwrite_lists=False):
         """
