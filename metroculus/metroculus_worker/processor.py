@@ -12,7 +12,8 @@ LOG = get_logger(__name__)
 K8S_RESOURCE_TYPE = 'K8s Pod'
 SUPPORTED_RESOURCE_TYPES = ['Instance', 'RDS Instance', K8S_RESOURCE_TYPE]
 METRIC_INTERVAL = 900
-METRIC_BULK_SIZE = 25
+METRIC_RES_BULK_SIZE = 25
+CH_BULK_SIZE = 20000
 POD_LIMIT_KEY = 'pod_limits'
 NAMESPACE_RESOURCE_QUOTAS_KEY = 'namespace_resource_quotas'
 NEBIUS_CLOUD_TYPE = 'nebius'
@@ -276,16 +277,17 @@ class MetricsProcessor(object):
             if cloud_type == KUBERNETES_CLOUD_TYPE:
                 all_bulk_ids = [cloud_resource_ids]
             else:
-                for i in range(0, len(cloud_resource_ids), METRIC_BULK_SIZE):
+                for i in range(0, len(cloud_resource_ids),
+                               METRIC_RES_BULK_SIZE):
                     all_bulk_ids.append(
-                        cloud_resource_ids[i:i + METRIC_BULK_SIZE])
+                        cloud_resource_ids[i:i + METRIC_RES_BULK_SIZE])
             for bulk_ids in all_bulk_ids:
                 metrics = cloud_func(
                     cloud_account['id'], bulk_ids, resource_ids_map,
                     r_type, adapter, region, start_date, end_date)
                 metric_chunk.extend(metrics)
-            for i in range(0, len(metric_chunk), METRIC_BULK_SIZE):
-                chunk = metric_chunk[i:i + METRIC_BULK_SIZE]
+            for i in range(0, len(metric_chunk), CH_BULK_SIZE):
+                chunk = metric_chunk[i:i + CH_BULK_SIZE]
                 self.clickhouse_client.execute(
                     'INSERT INTO %s VALUES' % metric_table_name, chunk)
                 resource_ids.update(r['resource_id'] for r in chunk)
