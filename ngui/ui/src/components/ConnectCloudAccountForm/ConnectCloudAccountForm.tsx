@@ -385,7 +385,7 @@ const getGoogleParameters = async (formData) => {
       billing_data: {
         dataset_name: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET],
         table_name: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE],
-        project_id: formData[GCP_CREDENTIALS_FIELD_NAMES.PROJECT_ID]
+        project_id: formData[GCP_CREDENTIALS_FIELD_NAMES.PROJECT_ID] || undefined
       }
     }
   };

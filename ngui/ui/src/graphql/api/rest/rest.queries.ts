@@ -62,6 +62,7 @@ const GET_DATA_SOURCE = gql`
           billing_data {
             dataset_name
             table_name
+            project_id
           }
         }
       }

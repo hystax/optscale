@@ -124,6 +124,7 @@ type AzureSubscriptionDataSource implements DataSourceInterface {
 type GcpBillingDataConfig {
   dataset_name: String!
   table_name: String!
+  project_id: String
 }
 
 type GcpConfig {
