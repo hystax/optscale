@@ -4,9 +4,8 @@ The how-to article below will show how OptScale enhances RI/SP utilization by ML
 
 # How to use OptScale to optimize RI/SP usage for ML/AI teams
 
-
 <p align="center">
-<img src="How-to-use-OptScale-to-optimize-RI-SP-usage-for-ML-teams.png" width="40%" align="middle">
+<img src="/documentation/ri-sp-usage/How-to-use-OptScale-to-optimize-RI-SP-usage-for-ML-teams.png" width="40%" align="middle">
 </p>
 Hystax is excited to announce Databricks cost management within the OptScale MLOps platform.
 <br>
