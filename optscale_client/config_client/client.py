@@ -93,7 +93,9 @@ class Client(etcd.Client):
         :return: list of objects
         """
         etcd_result = self.read(branch, recursive=True)
-        return [child.value for child in etcd_result.children]
+        return list(filter(None, [
+            child.value for child in etcd_result.children
+        ]))
 
     def write_branch(self, branch, structure, overwrite_lists=False):
         """
@@ -517,6 +519,17 @@ class Client(etcd.Client):
         blacklist_branch = 'domains_blacklists'
         return self.read_list("/{0}/{1}".format(blacklist_branch,
                                                 blacklist_key))
+
+    def domains_whitelist(self, whitelist_key='registration'):
+        """
+        Get list of email domains from /domains_whitelists/{whitelist_key}
+        branch
+        :param whitelist_key: whitelist etcd key name
+        :return: list
+        """
+        whitelist_branch = 'domains_whitelists'
+        return self.read_list("/{0}/{1}".format(whitelist_branch,
+                                                whitelist_key))
 
     def thanos_remote_write_url(self):
         """

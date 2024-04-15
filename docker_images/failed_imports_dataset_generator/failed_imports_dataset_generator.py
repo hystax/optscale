@@ -154,9 +154,12 @@ def _get_last_employee_info(auth_db, organization_ids, config_client):
     query_result = auth_db.execute(query)
     result = {}
     blacklist = domain_blacklist(config_client)
+    whitelist = domain_whitelist(config_client)
     for r in query_result:
         r_id, dt, email = r
         if any(filter(lambda x: x in email, blacklist)):
+            continue
+        if whitelist and not any(filter(lambda x: x in email, whitelist)):
             continue
         if not result.get(r_id) or dt > result[r_id][0]:
             result[r_id] = [dt, email]
@@ -168,6 +171,13 @@ def _get_last_employee_info(auth_db, organization_ids, config_client):
 def domain_blacklist(_config):
     try:
         return _config.domains_blacklist(blacklist_key='failed_import_email')
+    except Exception:
+        return []
+
+
+def domain_whitelist(_config):
+    try:
+        return _config.domains_whitelist(whitelist_key='failed_import_email')
     except Exception:
         return []
 
