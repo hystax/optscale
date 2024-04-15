@@ -353,26 +353,6 @@ class Client(etcd.Client):
             LOG.warning("Detected external change of %s key, retrying", key)
             raise ConcurrencyException(key)
 
-    def get_new_cow_port(self):
-        """
-        Locks etcd, finds first port not in use, acquires it
-        port key has 10s ttl for fatcow to start refreshing it
-        :return: key name for acquired port, port value
-        """
-        port_branch = '/fatcow_ports'
-        with etcd.Lock(self, 'fatcow_ports'):
-            ports = sorted([int(x) for x in self.read_list(port_branch)])
-            port_value = ports[-1] + 1
-            for i, port in enumerate(ports):
-                try:
-                    if ports[i + 1] - ports[i] > 1:
-                        port_value = ports[i] + 1
-                        break
-                except IndexError:
-                    break
-            return self.write(
-                key=port_branch, value=port_value, append=True, ttl=180)
-
     def mongo_params(self):
         """
         Get tuple with access args for mongo db (report service)

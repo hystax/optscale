@@ -202,11 +202,7 @@ class Runkube:
 
         base_overlay['public_ip'] = self.master_ip
         base_overlay['docker_registry'] = self.dregistry
-        base_overlay['storage_ip'] = self.master_ip
         base_overlay['release'] = self.name
-        base_overlay['cluster_capabilities'] = {
-            'common': {'optscale_version': self.version}
-        }
         if self.overlays:
             base_overlay['overlay_list'] = ','.join(self.overlays)
 
