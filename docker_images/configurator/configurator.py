@@ -89,10 +89,7 @@ class Configurator(object):
         config = self.config.get('etcd')
         if self.config.get('skip_config_update', False):
             LOG.info('Only making structure updates')
-            self.etcd_cl.update_structure('/', config, always_update=[
-                '/cluster_capabilities/supported_clouds',
-                '/cluster_capabilities/common/optscale_version',
-            ])
+            self.etcd_cl.update_structure('/', config)
             self.commit_config()
             return
         LOG.info("Writing default etcd keys")
