@@ -49,7 +49,7 @@ class Node:
             'aws': 'aws',
             'alicloud': 'alibaba',
             'azure': 'azure',
-            'gce': None
+            'gce': 'gcp'
         }
         cloud_type = provider_cloud_types.get(cloud_mark)
         if cloud_type is None:
