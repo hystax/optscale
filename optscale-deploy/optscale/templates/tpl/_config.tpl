@@ -48,13 +48,31 @@ etcd:
         {{ $key }}: {{ $value | quote }}
     {{- end }}
   domains_blacklists:
-    new_employee_email: {{ .Values.domains_blacklists.new_employee_email }}
-    registration: {{ .Values.domains_blacklists.registration }}
-    failed_import_email: {{ .Values.domains_blacklists.failed_import_email }}
+    new_employee_email:
+      {{- range .Values.domains_blacklists.new_employee_email }}
+        - {{ . | quote }}
+      {{- end}}
+    registration:
+      {{- range .Values.domains_blacklists.registration }}
+        - {{ . | quote }}
+      {{- end}}
+    failed_import_email:
+      {{- range .Values.domains_blacklists.failed_import_email }}
+        - {{ . | quote }}
+      {{- end}}
   domains_whitelists:
-    new_employee_email: {{ .Values.domains_whitelists.new_employee_email }}
-    registration: {{ .Values.domains_whitelists.registration }}
-    failed_import_email: {{ .Values.domains_whitelists.failed_import_email }}
+    new_employee_email:
+      {{- range .Values.domains_whitelists.new_employee_email }}
+        - {{ . | quote }}
+      {{- end}}
+    registration:
+      {{- range .Values.domains_whitelists.registration }}
+        - {{ . | quote }}
+      {{- end}}
+    failed_import_email:
+      {{- range .Values.domains_whitelists.failed_import_email }}
+        - {{ . | quote }}
+      {{- end}}
   secret:
     cluster: {{ .Values.secrets.cluster }}
     agent: {{ .Values.secrets.agent }}

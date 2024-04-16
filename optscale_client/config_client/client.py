@@ -109,7 +109,8 @@ class Client(etcd.Client):
         for key, value in structure.items():
             full_key = os.path.join(branch, key)
             if isinstance(value, dict):
-                self.write_branch(branch=full_key, structure=value)
+                self.write_branch(branch=full_key, structure=value,
+                                  overwrite_lists=overwrite_lists)
             elif isinstance(value, list):
                 if overwrite_lists:
                     try:
