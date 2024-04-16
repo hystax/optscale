@@ -4,5 +4,8 @@
 
 # HOW-TOs library for cloud and MLOps teams
 <p align="center">
-<a href="documentation/images/cover-GitHub.png"><img src="documentation/images/cover-GitHub.png" width="60%" align="middle"></a>
+<img src="documentation/images/OptScale-how-tos-library.png" width="40%" align="middle">
 </p>
+
+<br>
+1. <a href = 'https://hystax.com/how-to-use-optscale-to-optimize-ri-sp-usage-for-ml-ai-teams/'>How to use OptScale to optimize RI/SP usage for ML/AI teams </a>
