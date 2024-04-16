@@ -3,8 +3,9 @@
 </p>
 
 # HOW-TOs library for cloud and MLOps teams
+<br>
 <p align="center">
-<img src="documentation/images/OptScale-how-tos-library.png" width="40%" align="middle">
+<img src="documentation/images/OptScale-how-tos-library.png" width="35%" align="middle">
 </p>
 
 <br>
