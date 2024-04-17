@@ -412,10 +412,67 @@ const AddHyperparameters = () => (
         </Typography>
       </li>
     </ul>
-    <CodeBlock
-      text={`arcee.hyperparam("hyperparam_key", hyperparam_value)
-`}
-    />
+    <CodeBlock text={`arcee.hyperparam("hyperparam_key", hyperparam_value)`} />
+  </>
+);
+
+const SettingModelVersionAlias = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.settingModelVersionAliasTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.settingModelVersionAlias" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.settingModelVersionVersionAliasDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock text={`arcee.set_model_version_alias("winner")`} />
+  </>
+);
+
+const SettingModelVersionTag = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.settingModelVersionTagTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.settingModelVersionTag" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.settingModelVersionTagKeyDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.settingModelVersionTagValueDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock text={`arcee.set_model_version_tag("env", "staging demo")`} />
   </>
 );
 
@@ -501,6 +558,12 @@ const ProfilingIntegration = ({ profilingToken, taskKey, isLoading }) => (
     </div>
     <div>
       <SettingModelVersion />
+    </div>
+    <div>
+      <SettingModelVersionAlias />
+    </div>
+    <div>
+      <SettingModelVersionTag />
     </div>
     <div>
       <FinishTaskRun />
