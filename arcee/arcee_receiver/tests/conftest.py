@@ -22,11 +22,13 @@ async def clean_env():
     await DB_MOCK['metric'].drop()
     await DB_MOCK['task'].drop()
     await DB_MOCK['leaderboard'].drop()
+    await DB_MOCK['leaderboard_dataset'].drop()
     await DB_MOCK['run'].drop()
     await DB_MOCK['model'].drop()
     await DB_MOCK['model_version'].drop()
     await DB_MOCK['log'].drop()
     await DB_MOCK['platform'].drop()
+    await DB_MOCK['dataset'].drop()
 
 
 @pytest.fixture(autouse=True)

@@ -684,11 +684,12 @@ class Client:
                                     self.leaderboard_datasets_url()), b)
 
     def leaderboard_dataset_update(self, leaderboard_dataset_id: str,
-                                   name: str, dataset_ids: list):
-        b = {
-            "name": name,
-            "dataset_ids": dataset_ids
-        }
+                                   name: str=None, dataset_ids: list=None):
+        b = {}
+        if name is not None:
+            b['name'] = name
+        if dataset_ids is not None:
+            b['dataset_ids'] = dataset_ids
         return self.patch(
             self.leaderboard_datasets_url(leaderboard_dataset_id), b)
 

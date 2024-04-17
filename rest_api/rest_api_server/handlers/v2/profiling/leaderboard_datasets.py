@@ -186,8 +186,7 @@ class LeaderboardsDatasetAsyncCollectionHandler(LeaderboardDatasetBase):
                         id: "a39fce0e-4768-4bfe-a3b0-2cbbe9bf3c7e"
                         leaderboard_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
                         name: my lbds
-                        grouping_tags: ['43faf829-78c2-4fb2-b61d-2c07c33da3ef']
-                        group_by_hp: True
+                        dataset_ids: ['43faf829-78c2-4fb2-b61d-2c07c33da3ef']
                         created_at: 123
                         deleted_at: 0
             400:

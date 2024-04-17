@@ -106,19 +106,24 @@ class Client(etcd.Client):
         :param structure: dict, list or value
         """
 
+        def remove_key(r_key):
+            try:
+                self.delete(r_key, recursive=True)
+            except etcd.EtcdKeyNotFound:
+                pass
         for key, value in structure.items():
             full_key = os.path.join(branch, key)
             if isinstance(value, dict):
-                self.write_branch(branch=full_key, structure=value)
+                self.write_branch(branch=full_key, structure=value,
+                                  overwrite_lists=overwrite_lists)
             elif isinstance(value, list):
                 if overwrite_lists:
-                    try:
-                        self.delete(full_key, recursive=True)
-                    except etcd.EtcdKeyNotFound:
-                        pass
+                    remove_key(full_key)
                 for val in value:
                     self.write(key=full_key, value=val, append=True)
             else:
+                if value is None:
+                    remove_key(full_key)
                 LOG.debug("%s = %s", full_key, value)
                 self.write(key=full_key, value=value)
 

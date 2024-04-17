@@ -896,7 +896,7 @@ class Err(enum.Enum):
     OE0534 = [
         "%s with key \"%s\" already exists",
         ['Object', 'key'],
-        ['Application', 'test_key']
+        ['Task', 'test_key']
     ]
     OE0535 = [
         "Metric with key \"%s\" is already exist",
@@ -969,8 +969,8 @@ class Err(enum.Enum):
         []
     ]
     OE0549 = [
-        "Leaderboard is already exist for application %s",
-        ["application_id"],
+        "Leaderboard already exists for task %s",
+        ["task_id"],
         ["a3706242-47a9-4e55-b7ab-b9f58fa9ec31"]
     ]
     OE0550 = [
@@ -1004,7 +1004,7 @@ class Err(enum.Enum):
         []
     ]
     OE0556 = [
-        "Metric is used in application leaderboard(s)",
+        "Metric is used in task leaderboard(s)",
         [],
         []
     ]
