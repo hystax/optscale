@@ -120,6 +120,33 @@ class Base:
     def update_task_state(self):
         raise NotImplementedError
 
+    def get_run_by_runner(self, runner):
+        instance_id = runner["instance_id"]
+        task_id = runner["task_id"]
+        _, runs = self.arcee_cl.runs_by_executor(instance_id, [task_id])
+        LOG.info("runs info: %s", str(runs))
+        if runs:
+            run_id = runs[0]
+            LOG.info("run found! run id: %s", run_id)
+        else:
+            run_id = None
+        return run_id
+
+    def update_run_info(self, run_id, runner):
+        runset_id = runner["runset_id"]
+        _, runset = self.bulldozer_cl.runset_get(runset_id)
+        runset_name = runset.get("name", "")
+        hp = runner["hyperparameters"]
+        _, run = self.arcee_cl.run_get(run_id)
+        existing_hp = run.get("hyperparameters", dict())
+        existing_hp.update(hp)
+        self.arcee_cl.run_update(
+            run_id,
+            runset_id=runset_id,
+            runset_name=runset_name,
+            hyperparameters=existing_hp
+        )
+
     def process_infra_tries(self):
         retry = False
         # check is it spot runner type
@@ -248,13 +275,17 @@ class SetFinished(Base):
         reason = self.body.get("reason")
         runner_id = self.body.get('runner_id')
         _, runner = self.bulldozer_cl.get_runner(runner_id)
-        run_id = runner.get("run_id")
         reason = str(reason)
+
+        run_id = runner.get("run_id")
+        if not run_id:
+            run_id = self.get_run_by_runner(runner)
 
         # update runner reason
         LOG.info("updating reason for runner %s, reason: %s",
                  runner_id, reason)
-        self.bulldozer_cl.update_runner(runner_id, reason=f"{reason}")
+        self.bulldozer_cl.update_runner(runner_id, reason=f"{reason}",
+                                        run_id=run_id)
 
         # if runner knows about arcee run, need to update it also
         if run_id:
@@ -262,6 +293,7 @@ class SetFinished(Base):
                      runner_id, run_id)
             # update arcee run reason
             try:
+                self.update_run_info(run_id, runner)
                 _, run = self.arcee_cl.run_get(run_id)
                 run_state = run["state"]
                 # In case of stared run need to abort it
@@ -436,18 +468,12 @@ class WaitArcee(ContinueWithDestroyConditions):
         _, runner = self.bulldozer_cl.get_runner(runner_id)
         LOG.info("got runner from bulldozer API: %s", runner)
         instance_id = runner["instance_id"]
-        task_id = runner["task_id"]
-        hp = runner["hyperparameters"]
-        runset_id = runner["runset_id"]
-        _, runset = self.bulldozer_cl.runset_get(runset_id)
-        runset_name = runset.get("name", "")
 
         LOG.info("checking for arcee runs for executor: %s", instance_id)
         # try to get run id from Arcee
-        _, runs = self.arcee_cl.runs_by_executor(instance_id, [task_id])
-        LOG.info("runs info: %s", str(runs))
+        run_id = self.get_run_by_runner(runner)
 
-        if not runs:
+        if not run_id:
             # check timeout
             last_updated = int(self.body.get("updated"))
             current_time = int(datetime.datetime.utcnow().timestamp())
@@ -458,20 +484,7 @@ class WaitArcee(ContinueWithDestroyConditions):
                 # TODO: Do we need automatically destroy env?
                 raise ArceeWaitException("Arcee wait exceeded")
         else:
-            run_id = runs[0]
-            LOG.info("run found! run id: %s", run_id)
-            LOG.info("updating run %s with runset id %s", run_id, runset_id)
-            # get run info
-            _, run = self.arcee_cl.run_get(run_id)
-            existing_hp = run.get("hyperparameters", dict())
-            existing_hp.update(hp)
-            # update run
-            self.arcee_cl.run_update(
-                run_id,
-                runset_id=runset_id,
-                runset_name=runset_name,
-                hyperparameters=existing_hp,
-            )
+            self.update_run_info(run_id, runner)
             self.bulldozer_cl.update_runner(
                 runner_id,
                 run_id=run_id,

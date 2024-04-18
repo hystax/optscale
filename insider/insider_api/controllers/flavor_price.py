@@ -10,6 +10,7 @@ from insider.insider_api.exceptions import Err
 from tools.cloud_adapter.clouds.alibaba import Alibaba
 from tools.cloud_adapter.clouds.aws import Aws
 from tools.cloud_adapter.clouds.azure import Azure
+from tools.cloud_adapter.clouds.gcp import Gcp
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from botocore.exceptions import ClientError as AwsClientError
 from insider.insider_api.utils import handle_credentials_error
@@ -370,11 +371,66 @@ class AlibabaProvider(BaseProvider):
         return result
 
 
+class GcpProvider(BaseProvider):
+    @property
+    def prices_collection(self):
+        return self.mongo_client.insider.gcp_prices
+
+    @property
+    def cloud_adapter(self):
+        config = self._config_cl.read_branch('/service_credentials/gcp')
+        self._cloud_adapter = Gcp(config)
+        return self._cloud_adapter
+
+    def _load_flavor_prices(self, region, flavor, os_type='linux',
+                            preinstalled=None, billing_method=None,
+                            quantity=None, currency='USD'):
+        now = datetime.utcnow()
+        query = {
+            'region': region,
+            'flavor': flavor,
+            'updated_at': {'$gte': now - timedelta(days=60)}
+        }
+        price_infos = list(self.prices_collection.find(query))
+        if not price_infos:
+            prices = self.cloud_adapter.get_instance_types_priced(region)
+            updates = []
+            for flavor_name, price_info in prices.items():
+                price_info['updated_at'] = now
+                price_info['flavor'] = flavor_name
+                price_info['region'] = region
+                updates.append(UpdateOne(
+                    filter={'flavor': flavor_name, 'region': region},
+                    update={'$set': price_info},
+                    upsert=True,
+                ))
+                price_infos.append(price_info)
+            if updates:
+                self.prices_collection.bulk_write(updates)
+        return list(filter(lambda x: x['flavor'] == flavor, price_infos))
+
+    def _flavor_format(self, price_infos, region, os_type):
+        result = []
+        currency = 'USD'
+        price_unit = '1 hour'
+        for price_info in price_infos:
+            result.append({
+                'price': price_info['price'],
+                'region': region,
+                'flavor': price_info['flavor'],
+                'operating_system': os_type,
+                'price_unit': price_unit,
+                'currency': currency
+            })
+        return result
+
+
 class PricesProvider:
     __modules__ = {
         'azure': AzureProvider,
         'aws': AwsProvider,
-        'alibaba': AlibabaProvider
+        'alibaba': AlibabaProvider,
+        'gcp': GcpProvider
     }
 
     @staticmethod
@@ -391,7 +447,7 @@ class FlavorPriceController(BaseController):
 
     @property
     def supported_cloud_types(self):
-        return ['alibaba', 'azure', 'aws']
+        return ['alibaba', 'azure', 'aws', 'gcp']
 
     @property
     def required_params(self):
