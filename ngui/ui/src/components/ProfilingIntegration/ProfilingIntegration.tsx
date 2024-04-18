@@ -377,7 +377,7 @@ const SettingModelVersion = () => (
         </Typography>
       </li>
     </ul>
-    <CodeBlock text={`arcee.set_model_version("1.2.3-release")`} />
+    <CodeBlock text={`arcee.model_version("1.2.3-release")`} />
   </>
 );
 
@@ -437,7 +437,7 @@ const SettingModelVersionAlias = () => (
         </Typography>
       </li>
     </ul>
-    <CodeBlock text={`arcee.set_model_version_alias("winner")`} />
+    <CodeBlock text={`arcee.model_version_alias("winner")`} />
   </>
 );
 
@@ -472,7 +472,7 @@ const SettingModelVersionTag = () => (
         </Typography>
       </li>
     </ul>
-    <CodeBlock text={`arcee.set_model_version_tag("env", "staging demo")`} />
+    <CodeBlock text={`arcee.model_version_tag("env", "staging demo")`} />
   </>
 );
 
