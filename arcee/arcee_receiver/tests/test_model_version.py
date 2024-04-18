@@ -451,35 +451,6 @@ async def test_patch_not_existing_model(app):
 
 
 @pytest.mark.asyncio
-async def test_get_model_version(app):
-    client = app.asgi_client
-    await prepare_token()
-    model = await prepare_model(TOKEN1)
-    model_id = model['_id']
-    run = await prepare_run('task_id', 0, 1, 1, {})
-    run_id = run['_id']
-    version = await prepare_model_version(model_id, run_id)
-    _, response = await client.get(
-        Urls.model_version.format(model_id, run_id),
-        headers={"x-api-key": TOKEN1})
-    assert response.status == 200
-    assert response.json['_id'] == version['_id']
-
-
-@pytest.mark.asyncio
-async def test_get_not_existing_model(app):
-    client = app.asgi_client
-    await prepare_token()
-    await prepare_model(TOKEN1)
-    run = await prepare_run('task_id', 0, 1, 1, {})
-    _, response = await client.get(
-        Urls.model_version.format('model_id', run['_id']),
-        headers={"x-api-key": TOKEN1})
-    assert response.status == 404
-    assert "Model not found" in response.text
-
-
-@pytest.mark.asyncio
 async def test_delete_model_version(app):
     client = app.asgi_client
     await prepare_token()

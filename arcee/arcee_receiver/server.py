@@ -2226,21 +2226,6 @@ async def update_model_version(request, body: ModelVersionIn,
     return json(ModelVersion(**obj).model_dump(by_alias=True))
 
 
-@app.route('/arcee/v2/models/<model_id>/runs/<run_id>', methods=["GET", ],
-           ctx_label='token')
-async def get_model_version(request, model_id: str, run_id: str):
-    await _get_model(request.ctx.token, model_id)
-    model_version = await db.model_version.find_one(
-        {"$and": [
-            {"model_id": model_id},
-            {"run_id": run_id},
-            {"deleted_at": 0}
-        ]})
-    if not model_version:
-        raise SanicException("Model version not found", status_code=404)
-    return json(ModelVersion(**model_version).model_dump(by_alias=True))
-
-
 @app.route('/arcee/v2/models/<model_id>/runs/<run_id>', methods=["DELETE", ],
            ctx_label='token')
 async def delete_model_version(request, model_id: str, run_id: str):
