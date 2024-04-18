@@ -84,12 +84,12 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 |                                  ML Tasks                                  |                          ML Leaderboards                         |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|     <img src="documentation/images/ML-Tasks.png" width="500">              |<img src="documentation/images/ML-Leaderboards.png" width="500">  |
+|     <img src="documentation/images/ML-Tasks-OptScale.png" width="500">     |<img src="documentation/images/ML-Leaderboards-OptScale.png" width="500">  |
 
 
 |                             Experiment tracking                            |                  ML model profiling integration                  |
 | :------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-|     <img src="documentation/images/Experiment-tracking.png" width="500">   |     <img src="documentation/images/Arcee.png" width="500">       |
+|<img src="documentation/images/Experiment-tracking-OptScale.png" width="500">   |     <img src="documentation/images/Arcee.png" width="500">   |
                                                                                                                       
 
 |                                  Datasets                                  |                             Hypertuning                          |
