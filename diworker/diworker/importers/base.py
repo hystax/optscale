@@ -386,7 +386,8 @@ class BaseReportImporter:
                  resource_count)
 
     def generate_clean_records(self, regeneration=False):
-        resource_ids = self.get_resource_ids(self.cloud_acc_id, self.period_start)
+        resource_ids = self.get_resource_ids(self.cloud_acc_id,
+                                             self.period_start)
         self._generate_clean_records(resource_ids, self.cloud_acc_id,
                                      self.period_start)
 
