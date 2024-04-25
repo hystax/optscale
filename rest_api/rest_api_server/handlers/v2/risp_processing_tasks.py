@@ -32,16 +32,16 @@ class RispProcessingTaskAsyncCollectionHandler(BaseAsyncCollectionHandler,
             schema:
                 type: object
                 properties:
-                    -   name: start_date
-                        in: query
+                    start_date:
                         description: Start date (timestamp in seconds)
                         required: true
                         type: integer
-                    -   name: end_date
-                        in: query
+                        example: 0
+                    end_date:
                         description: End date (timestamp in seconds)
                         required: true
                         type: integer
+                        example: 1713503045
         responses:
             201:
                 description: Created (returns created task object)

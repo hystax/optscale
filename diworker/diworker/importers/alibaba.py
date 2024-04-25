@@ -2,10 +2,11 @@
 import logging
 import re
 from calendar import monthrange
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from pymongo import UpdateOne
 
 from diworker.diworker.importers.base import BaseReportImporter
-from diworker.diworker.utils import bytes_to_gb
+from diworker.diworker.utils import bytes_to_gb, retry_mongo_upsert
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
 LOG = logging.getLogger(__name__)
@@ -157,6 +158,7 @@ class AlibabaReportImporter(BaseReportImporter):
             if self.cloud_acc['config'].get('skip_refunds'):
                 skip_refunds = True
             for billing_item in billing_items_merged:
+                billing_item['report_identity'] = self.report_identity
                 if skip_refunds and billing_item['Item'] == 'Refund':
                     LOG.info('Found refund for resource %s, billing item %s. '
                              'Skipping it!' % (
@@ -180,6 +182,7 @@ class AlibabaReportImporter(BaseReportImporter):
             current_day += timedelta(days=1)
         self._flush_raw_chunk(chunk)
         self.generate_rdd_records(self.cloud_acc_id)
+        self.clear_rudiments()
 
     def _get_discount_fields(self):
         return [
@@ -365,6 +368,7 @@ class AlibabaReportImporter(BaseReportImporter):
                 rdd['NickName'] = res_id
                 rdd['Region'] = ''
                 rdd['Tag'] = ''
+                rdd['report_identity'] = self.report_identity
                 chunk.append(rdd)
                 if len(chunk) >= CHUNK_SIZE:
                     self.update_raw_records(chunk)
@@ -425,8 +429,134 @@ class AlibabaReportImporter(BaseReportImporter):
                 self.cloud_acc, billing_date.strftime('%Y-%m'),
                 round(expenses['total_cost'], 2), total_cloud_bill)
 
+    def update_regional_sc_resource_expense_info(self, last_expense_info):
+        resource_info = self.get_common_resource_expense_info(
+            self.cloud_acc_id, last_expense_info.keys())
+        bulk = []
+        for r_id, info in resource_info.items():
+            max_date, total_cost = info
+            last_expense_date, last_expense_cost = last_expense_info[r_id]
+            last_expense_date_ts = int(last_expense_date.timestamp())
+            updates = {
+                'total_cost': total_cost,
+                'last_expense': {
+                    'date': last_expense_date_ts,
+                    'cost': last_expense_cost
+                },
+                'last_seen': last_expense_date_ts,
+                '_last_seen_date': last_expense_date
+            }
+            bulk.append(
+                UpdateOne(
+                    filter={
+                        'cloud_account_id': self.cloud_acc_id,
+                        '_id': r_id
+                    },
+                    update={'$set': updates}
+                )
+            )
+        if bulk:
+            r = retry_mongo_upsert(self.mongo_resources.bulk_write, bulk)
+            LOG.debug(
+                'Updated resources with expense info: %s' % r.bulk_api_result)
+
+    def fix_snapshot_chain_expenses(self):
+        """Diworker calculates snapshot chains cost by getting snapshot chains
+        regional expenses costs which includes all snapshot chains and
+        getting usage in bytes for this date split by snapshot chain.
+        Alibaba's apis sometimes doesn't return snapshot chains usage data,
+        but may return this data later (for example it doesn't return usage
+        for the current hour). In this case diworker creates a 'regional'
+        snapshot chain resource with expenses not split by existing snapshot
+        chains in this region.
+        These 'regional' snapshot chains resources and expenses should be
+        deleted as soon as diworker got snapshot chains usage and calculated
+        personal costs for every snapshot chain in the region.
+
+        This func removes clean expenses for snapshot chains without raw
+        expenses, updates last_seen and last_expense for snapshot chain
+        resources or deletes 'regional' snapshot chains resources if it hasn't
+        raw expenses"""
+
+        sc_ids_map = {
+            x['cloud_resource_id']: x['_id']
+            for x in self.mongo_resources.find({
+                'cloud_account_id': self.cloud_acc_id,
+                '_last_seen_date': {'$gte': self.period_start},
+                'resource_type': 'Snapshot Chain',
+                'active': {'$exists': False}},
+                {'_id': 1, 'cloud_resource_id': 1})}
+        sc_cloud_res_ids = list(sc_ids_map.keys())
+        sc_cloud_without_expenses = set()
+        for i in range(0, len(sc_cloud_res_ids), CHUNK_SIZE):
+            sc_cloud_chunk = sc_cloud_res_ids[i:i + CHUNK_SIZE]
+            sc_cloud_with_expenses = set(self.mongo_raw.distinct(
+                    'resource_id', {'cloud_account_id': self.cloud_acc_id,
+                                    'start_date': {'$gte': self.period_start},
+                                    'resource_id': {'$in': sc_cloud_chunk}}))
+            sc_cloud_without_expenses.update(
+                set(sc_cloud_chunk) - sc_cloud_with_expenses)
+        if sc_cloud_without_expenses:
+            LOG.info('Removing clean expenses for snapshot chains: %s',
+                     sc_cloud_without_expenses)
+            sc_without_expenses = [
+                sc_ids_map[x] for x in sc_cloud_without_expenses
+            ]
+            existing_expenses = self.clickhouse_cl.execute(
+                """SELECT resource_id, date, SUM(cost * sign) AS total_cost
+                   FROM expenses
+                   WHERE cloud_account_id = %(cloud_account_id)s
+                       AND date >= %(from_dt)s
+                       AND date <= %(to_dt)s
+                       AND resource_id in %(resource_ids)s
+                   GROUP BY resource_id, date
+                   HAVING SUM(sign) > 0""",
+                params={
+                    'cloud_account_id': self.cloud_acc_id,
+                    'from_dt': self.period_start,
+                    'to_dt': datetime.now(tz=timezone.utc).replace(tzinfo=None),
+                    'resource_ids': sc_without_expenses
+                })
+            clickhouse_expenses = []
+            for resource_id, date, total_cost in existing_expenses:
+                clickhouse_expenses.append({
+                    'cloud_account_id': self.cloud_acc_id,
+                    'resource_id': resource_id,
+                    'date': date,
+                    'cost': total_cost,
+                    'sign': -1
+                })
+            self.update_clickhouse_expenses(clickhouse_expenses)
+            LOG.info('Updating last_seen and last_expense for snapshot chains')
+            last_expense_info = {}
+            raw_expenses = self.mongo_raw.aggregate([
+                {'$match': {
+                    'cloud_account_id': self.cloud_acc_id,
+                    'start_date': {'$lt': self.period_start},
+                    'resource_id': {'$in': list(sc_cloud_without_expenses)}}},
+                {'$sort': {'start_date': -1}},
+                {'$group': {
+                    '_id': '$resource_id',
+                    'start_date': {'$first': '$start_date'},
+                    'cost': {'$first': '$cost'}
+                }}
+            ])
+            for expense in raw_expenses:
+                last_expense_info[sc_ids_map[expense['_id']]] = (
+                    expense['start_date'], expense['cost'])
+            # update last_expense, last_seen for snapshot chains with expenses
+            self.update_regional_sc_resource_expense_info(last_expense_info)
+            # delete snapshot chain resources without expenses
+            if len(last_expense_info) < len(sc_cloud_without_expenses):
+                for cloud_resource_id in sc_cloud_without_expenses:
+                    resource_id = sc_ids_map[cloud_resource_id]
+                    if resource_id not in last_expense_info:
+                        self.mongo_resources.delete_one({'_id': resource_id})
+
     def generate_clean_records(self, regeneration=False):
         super().generate_clean_records(regeneration=regeneration)
+        if self.cloud_acc['last_import_at'] != 0:
+            self.fix_snapshot_chain_expenses()
         now = datetime.utcnow()
         if (self.period_start.month != now.month or
                 self.period_start.year != now.year):
