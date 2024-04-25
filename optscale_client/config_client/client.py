@@ -93,7 +93,9 @@ class Client(etcd.Client):
         :return: list of objects
         """
         etcd_result = self.read(branch, recursive=True)
-        return [child.value for child in etcd_result.children]
+        return list(filter(None, [
+            child.value for child in etcd_result.children
+        ]))
 
     def write_branch(self, branch, structure, overwrite_lists=False):
         """
@@ -104,19 +106,24 @@ class Client(etcd.Client):
         :param structure: dict, list or value
         """
 
+        def remove_key(r_key):
+            try:
+                self.delete(r_key, recursive=True)
+            except etcd.EtcdKeyNotFound:
+                pass
         for key, value in structure.items():
             full_key = os.path.join(branch, key)
             if isinstance(value, dict):
-                self.write_branch(branch=full_key, structure=value)
+                self.write_branch(branch=full_key, structure=value,
+                                  overwrite_lists=overwrite_lists)
             elif isinstance(value, list):
                 if overwrite_lists:
-                    try:
-                        self.delete(full_key, recursive=True)
-                    except etcd.EtcdKeyNotFound:
-                        pass
+                    remove_key(full_key)
                 for val in value:
                     self.write(key=full_key, value=val, append=True)
             else:
+                if value is None:
+                    remove_key(full_key)
                 LOG.debug("%s = %s", full_key, value)
                 self.write(key=full_key, value=value)
 
@@ -351,26 +358,6 @@ class Client(etcd.Client):
             LOG.warning("Detected external change of %s key, retrying", key)
             raise ConcurrencyException(key)
 
-    def get_new_cow_port(self):
-        """
-        Locks etcd, finds first port not in use, acquires it
-        port key has 10s ttl for fatcow to start refreshing it
-        :return: key name for acquired port, port value
-        """
-        port_branch = '/fatcow_ports'
-        with etcd.Lock(self, 'fatcow_ports'):
-            ports = sorted([int(x) for x in self.read_list(port_branch)])
-            port_value = ports[-1] + 1
-            for i, port in enumerate(ports):
-                try:
-                    if ports[i + 1] - ports[i] > 1:
-                        port_value = ports[i] + 1
-                        break
-                except IndexError:
-                    break
-            return self.write(
-                key=port_branch, value=port_value, append=True, ttl=180)
-
     def mongo_params(self):
         """
         Get tuple with access args for mongo db (report service)
@@ -517,6 +504,17 @@ class Client(etcd.Client):
         blacklist_branch = 'domains_blacklists'
         return self.read_list("/{0}/{1}".format(blacklist_branch,
                                                 blacklist_key))
+
+    def domains_whitelist(self, whitelist_key='registration'):
+        """
+        Get list of email domains from /domains_whitelists/{whitelist_key}
+        branch
+        :param whitelist_key: whitelist etcd key name
+        :return: list
+        """
+        whitelist_branch = 'domains_whitelists'
+        return self.read_list("/{0}/{1}".format(whitelist_branch,
+                                                whitelist_key))
 
     def thanos_remote_write_url(self):
         """

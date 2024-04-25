@@ -9,8 +9,8 @@ type KeyType =
       keyText?: never;
     }
   | {
-      keyMessageId?: never;
       keyText: string;
+      keyMessageId?: never;
     };
 
 type KeyValueLabelProps = KeyType & {

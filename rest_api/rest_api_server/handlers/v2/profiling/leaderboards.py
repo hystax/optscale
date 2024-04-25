@@ -169,7 +169,6 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     - OE0344: Argument should be dict
                     - OE0466: Argument should be float
                     - OE0541: min should be less than max
-                    - OE0549: leaderboard is already exist
             401:
                 description: |
                     Unauthorized:
@@ -187,7 +186,7 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             409:
                 description: |
                     Conflict:
-                    - OE0149: Leaderboard is already exist
+                    - OE0549: Leaderboard already exists for task
         security:
         - token: []
         """

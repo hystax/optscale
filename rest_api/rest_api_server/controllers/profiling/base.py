@@ -401,23 +401,29 @@ class BaseProfilingController(BaseProfilingTokenController):
         return leaderboard
 
     @handle_http_exc
-    def create_leaderboard_dataset(self, profiling_token, leaderboard_id, **kwargs):
+    def create_leaderboard_dataset(self, profiling_token, leaderboard_id,
+                                   **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, leaderboard = arcee.leaderboard_dataset_create(leaderboard_id, **kwargs)
+        _, leaderboard = arcee.leaderboard_dataset_create(leaderboard_id,
+                                                          **kwargs)
         ArceeObject.format(leaderboard)
         return leaderboard
 
     @handle_http_exc
-    def update_leaderboard_dataset(self, profiling_token, leaderboard_dataset_id, **kwargs):
+    def update_leaderboard_dataset(self, profiling_token,
+                                   leaderboard_dataset_id, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, leaderboard_dataset = arcee.leaderboard_dataset_update(leaderboard_dataset_id, **kwargs)
+        _, leaderboard_dataset = arcee.leaderboard_dataset_update(
+            leaderboard_dataset_id, **kwargs)
         ArceeObject.format(leaderboard_dataset)
         return leaderboard_dataset
 
     @handle_http_exc
-    def list_leaderboard_dataset(self, profiling_token, leaderboard_id, **kwargs):
+    def list_leaderboard_dataset(self, profiling_token, leaderboard_id,
+                                 **kwargs):
         arcee = self.get_arcee_client(profiling_token)
-        _, leaderboard_datasets = arcee.leaderboard_datasets_get(leaderboard_id, **kwargs)
+        _, leaderboard_datasets = arcee.leaderboard_datasets_get(
+            leaderboard_id, **kwargs)
         for leaderboard_dataset in leaderboard_datasets:
             ArceeObject.format(leaderboard_dataset)
         return leaderboard_datasets

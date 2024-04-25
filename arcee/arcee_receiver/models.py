@@ -147,6 +147,13 @@ class LeaderboardPatchIn(LeaderboardPostIn):
     primary_metric: Optional[str] = None
     group_by_hp: Optional[bool] = None
 
+    @model_validator(mode='after')
+    def set_metrics(self):
+        self.metrics = list(set(self.other_metrics))
+        if self.primary_metric:
+            self.metrics = list(set(self.metrics + [self.primary_metric]))
+        return self
+
 
 class Leaderboard(LeaderboardPostIn):
     id: str = id_
@@ -160,8 +167,8 @@ class Leaderboard(LeaderboardPostIn):
 
 
 class LeaderboardDatasetPatchIn(BaseModel):
-    dataset_ids: Optional[list]
-    name: Optional[str]
+    dataset_ids: Optional[list] = []
+    name: Optional[str] = None
 
     @staticmethod
     def remove_dup_ds_ids(kwargs):

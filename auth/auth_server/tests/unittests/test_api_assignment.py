@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 from auth.auth_server.models.models import (Type, User, Action, Role,
                                             Assignment, ActionGroup)
@@ -117,6 +117,9 @@ class TestAssignment(TestAuthBase):
                                            self.user_partner_password)
         patch('auth.auth_server.controllers.user.UserController.'
               'domain_blacklist').start()
+        patch('auth.auth_server.controllers.user.UserController.'
+              'domain_whitelist', new_callable=PropertyMock,
+              return_value=[]).start()
 
     def _create_role(self, name, lvl_id, type_id, scope_id=None,
                      is_active=True, shared=False, description=None):

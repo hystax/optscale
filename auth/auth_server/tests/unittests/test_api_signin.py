@@ -1,5 +1,5 @@
 import os
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 from auth.auth_server.models.models import (Type, User, Role, Assignment,
                                             Action, ActionGroup)
@@ -11,6 +11,9 @@ from auth.auth_server.utils import hash_password
 class TestSignIn(TestAuthBase):
     def setUp(self, version="v2"):
         super().setUp(version=version)
+        patch('auth.auth_server.controllers.user.UserController.'
+              'domain_whitelist', new_callable=PropertyMock,
+              return_value=[]).start()
         self.partner_scope_id = 'a5cb80ad-891d-4ec2-99de-ba4f20ba2c5d'
         self.customer1_scope_id = '19a00828-fbff-4318-8291-4b6c14a8066d'
         self.group11_scope_id = 'be7b4d5e-33b6-40aa-bc6a-00c7d822606f'

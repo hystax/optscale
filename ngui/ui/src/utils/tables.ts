@@ -6,10 +6,10 @@ export const RESOURCE_ID_COLUMN_CELL_STYLE = Object.freeze({
   minWidth: 250
 });
 
-export const getDefaultTableData = (sourceArray, field, sortType = "desc") =>
+export const getDefaultTableData = <T, K extends keyof T>(sourceArray: T[], field: K, sortType: "desc" | "asc" = "desc") =>
   sortObjects({ array: sourceArray, field, type: sortType });
 
-export const getPaginationQueryKey = (label) => (label ? `${label}Page` : DEFAULT_PAGE_KEY);
-export const getSearchQueryKey = (label) => (label ? `${label}Search` : DEFAULT_SEARCH_KEY);
+export const getPaginationQueryKey = (label: string) => (label ? `${label}Page` : DEFAULT_PAGE_KEY);
+export const getSearchQueryKey = (label: string) => (label ? `${label}Search` : DEFAULT_SEARCH_KEY);
 
 export const CELL_EMPTY_VALUE = "-";
