@@ -66,7 +66,9 @@ class Publisher:
 
     def setup_queue(self, queue_name):
         LOG.info("Declaring queue %s", queue_name)
-        self._channel.queue_declare(self.on_queue_declareok, queue_name, durable=True)
+        self._channel.queue_declare(queue_name,
+                                    callback=self.on_queue_declareok,
+                                    durable=True)
 
     def on_queue_declareok(self, method_frame):
         LOG.info("Queue declared successfully")

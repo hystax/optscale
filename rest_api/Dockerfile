@@ -1,4 +1,4 @@
-FROM python:3.9.16-slim
+FROM python:3.12.3-slim
 
 WORKDIR /usr/src/app/
 ENV PYTHONPATH /usr/src/app/
@@ -27,7 +27,6 @@ COPY rest_api/rest_api_server/alembic.template rest_api/rest_api_server/alembic.
 COPY rest_api/rest_api_server/swagger rest_api/rest_api_server/swagger
 COPY rest_api/rest_api_server/recommendation_cleanup_scripts rest_api/rest_api_server/recommendation_cleanup_scripts
 
-COPY rest_api/*.py rest_api/
 COPY rest_api/requirements.txt rest_api/requirements.txt
 
 RUN pip install --use-deprecated=legacy-resolver --no-cache-dir \

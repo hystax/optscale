@@ -21,9 +21,10 @@ do
     echo "<<<Pylint tests"
 
     if [[ "${SERVICE}" == "insider_api" ]]; then
-        echo "Nose tests>>>"
-        docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG}  bash -c "nosetests --config insider/.noserc"
-        echo "<<Nose tests"
+        echo "Unit tests>>>"
+        docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG}  bash -c \
+            "python3 -m unittest discover ./insider/insider_api/tests"
+        echo "<<Unit tests"
     fi
 
     docker rmi ${TEST_IMAGE}:${BUILD_TAG}

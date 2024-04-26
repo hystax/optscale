@@ -3,7 +3,7 @@ FROM keeper:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
 COPY keeper/test-requirements.txt ./
-COPY keeper/.pylintrc keeper/.noserc keeper/.coveragerc ./
+COPY keeper/.pylintrc keeper/.coveragerc ./
 
 COPY optscale_client/report_client optscale_client/report_client
 

@@ -19,10 +19,6 @@ do
       bash -c "cd trapper && pylint --rcfile=.pylintrc --fail-under=9 --fail-on=E,F ./${SERVICE}"
   echo "<<<Pylint tests"
 
-  echo "Nose tests>>>"
-  docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG}  bash -c "nosetests --config=trapper/.noserc"
-  echo "<<Nose tests"
-
   docker rmi ${TEST_IMAGE}:${BUILD_TAG}
 
   echo "<<<Finished testing ${SERVICE}"

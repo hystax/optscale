@@ -913,7 +913,7 @@ class Aws(S3CloudMixin):
             try:
                 # AWS shows prefix in console as '<prefix>/<report_name>', let's
                 # try to connect cloud removing report_name from prefix
-                pattern = '^(.*)(\/.*)$'
+                pattern = '^(.*)(\\/.*)$'
                 match = re.match(pattern, prefix)
                 if match:
                     prefix = match.group(1)

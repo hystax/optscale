@@ -2,11 +2,10 @@ ARG BUILDTAG=build
 FROM rest_api:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
-COPY rest_api/test-requirements.txt rest_api/.pylintrc rest_api/.noserc rest_api/.coveragerc ./rest_api/
+COPY rest_api/test-requirements.txt rest_api/.pylintrc rest_api/.coveragerc ./rest_api/
 COPY tools/check_alembic_down_revisions tools/check_alembic_down_revisions
 COPY tools/cloud_adapter tools/cloud_adapter
 COPY optscale_client/rest_api_client optscale_client/rest_api_client
 RUN pip install --no-cache-dir -r rest_api/test-requirements.txt
-COPY rest_api/run_tests.py rest_api/run_tests.py
 COPY rest_api/rest_api_server/tests rest_api/rest_api_server/tests
 COPY rest_api/prepare_clickhouse_local.sh rest_api/prepare_clickhouse_local.sh

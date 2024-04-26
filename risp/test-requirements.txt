@@ -1,4 +1,4 @@
 concurrencytest==0.1.2
 pycodestyle==2.11.1
 pylint==3.0.2
-pyyaml==5.4.1
+pyyaml==6.0.1

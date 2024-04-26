@@ -4,6 +4,6 @@ FROM ${IMAGE}:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
 COPY optscale_client/insider_client optscale_client/insider_client
-COPY insider/test-requirements.txt insider/.pylintrc insider/.noserc insider/.coveragerc ./insider/
+COPY insider/test-requirements.txt insider/.pylintrc insider/.coveragerc ./insider/
 RUN pip install --no-cache-dir -r insider/test-requirements.txt
 COPY insider/insider_api/tests insider/insider_api/tests

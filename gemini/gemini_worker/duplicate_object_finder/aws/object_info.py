@@ -67,4 +67,4 @@ class ObjectInfo:
         return self._tag, self._bucket, self._key, self._size
 
     def __str__(self):
-        return f"|{self._tag: <38}| {self._bucket : <32}| {self._key: <32}| {self._size: >16} bytes|"
+        return f"|{self._tag: <38}| {self._bucket: <32}| {self._key: <32}| {self._size: >16} bytes|"

@@ -52,7 +52,7 @@ class BaseController(object):
         def flatten_dict(nested_dict, sep=".", prefix=""):
             flat_dict = {}
             for k, v in nested_dict.items():
-                new_key = "{}{}{}".format(prefix, sep, k) if prefix else str(k)
+                new_key = f'{prefix}{sep}{k}' if prefix else str(k)
                 if isinstance(v, dict):
                     flat_dict.update(flatten_dict(v, sep, new_key))
                 else:
@@ -60,5 +60,7 @@ class BaseController(object):
             return flat_dict
 
         errors_dict = flatten_dict(exc.to_dict())
-        error_str = ", ".join(("{} ({})".format(k, v) for k, v in errors_dict.items()))
-        raise WrongArgumentsException(Err.OK0044, [error_str])
+        error_str = ', '.join(
+            (f'{k} ({v})' for k, v in errors_dict.items()))
+        raise WrongArgumentsException(
+            Err.OK0044, [error_str])

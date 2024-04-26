@@ -1,7 +1,7 @@
 tornado==6.3.3
 pymongo==4.6.3
-apispec==0.39.0
-pyyaml==5.4.1
+apispec==6.3.1
+pyyaml==6.0.1
 # OptScale packages
 -e optscale_client/config_client
 -e optscale_client/rest_api_client

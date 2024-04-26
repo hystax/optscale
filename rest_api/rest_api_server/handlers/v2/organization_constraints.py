@@ -114,48 +114,42 @@ class OrganizationConstraintsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         type: object
                         required: True
                         properties:
-                            -   name: cloud_account_id
-                                in: query
+                            cloud_account_id:
                                 description: cloud account id
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: pool_id
-                                in: query
+                            pool_id:
                                 description: pool id
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: owner_id
-                                in: query
+                            owner_id:
                                 description: resource owner id
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: region
-                                in: query
+                            region:
                                 description: region
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: service_name
-                                in: query
+                            service_name:
                                 description: service_name
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: resource_type
-                                in: query
+                            resource_type:
                                 description: >
                                     resource_type in format resource_type:identity.
                                     Supported identity values - [regular, cluster, environment]
@@ -164,87 +158,75 @@ class OrganizationConstraintsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: active
-                                in: query
+                            active:
                                 description: Active
                                 required: false
                                 type: boolean
-                            -   name: recommendations
-                                in: query
+                            recommendations:
                                 description: Recommendations
                                 required: false
                                 type: boolean
-                            -   name: constraint_violated
-                                in: query
+                            constraint_violated:
                                 description: constraint_violated
                                 required: false
                                 type: boolean
-                            -   name: created_by_kind (for kubernetes only)
-                                in: query
-                                description: created_by_kind
+                            created_by_kind:
+                                description: created_by_kind  (for kubernetes only)
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: created_by_name (for kubernetes only)
-                                in: query
-                                description: created_by_name
+                            created_by_name:
+                                description: created_by_name (for kubernetes only)
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: k8s_namespace (for kubernetes only)
-                                in: query
-                                description: k8s_namespace
+                            k8s_namespace:
+                                description: k8s_namespace (for kubernetes only)
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: k8s_node (for kubernetes only)
-                                in: query
-                                description: k8s_node
+                            k8s_node:
+                                description: k8s_node (for kubernetes only)
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: k8s_service (for kubernetes only)
-                                in: query
-                                description: k8s_service
+                            k8s_service:
+                                description: k8s_service (for kubernetes only)
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: tag
-                                in: query
+                            tag:
                                 description: tag name
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: without_tag
-                                in: query
+                            without_tag:
                                 description: tag name
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: traffic_from
-                                in: query
+                            traffic_from:
                                 description: <region_name>:<cloud_type>
                                 required: false
                                 type: array
                                 collectionFormat: multi
                                 items:
                                     type: string
-                            -   name: traffic_to
-                                in: query
+                            traffic_to:
                                 description: <region_name>:<cloud_type>
                                 required: false
                                 type: array

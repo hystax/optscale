@@ -4,6 +4,6 @@ FROM ${IMAGE}:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
 COPY optscale_client/metroculus_client optscale_client/metroculus_client
-COPY metroculus/test-requirements.txt metroculus/.pylintrc metroculus/.noserc metroculus/.coveragerc ./metroculus/
+COPY metroculus/test-requirements.txt metroculus/.pylintrc metroculus/.coveragerc ./metroculus/
 RUN pip install --no-cache-dir -r metroculus/test-requirements.txt
 COPY metroculus/metroculus_api/tests metroculus/metroculus_api/tests

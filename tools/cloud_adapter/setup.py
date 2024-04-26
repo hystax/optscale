@@ -3,11 +3,11 @@ from setuptools import setup
 
 requirements = [
     # AWS
-    'boto3==1.18.9',
+    'boto3==1.34.7',
 
     # Alibaba Cloud
     'aliyun-python-sdk-ecs==4.24.1',
-    'aliyun-python-sdk-core-v3==2.13.32',
+    'aliyun-python-sdk-core==2.15.0',
     'aliyun-python-sdk-ram==3.2.0',
     'aliyun-python-sdk-sts==3.0.2',
     'aliyun-python-sdk-bssopenapi==1.6.8',

@@ -15,9 +15,9 @@ docker run -i --rm ${TEST_IMAGE} bash -c \
     "pylint --rcfile=bumischeduler/.pylintrc --fail-under=9 --fail-on=E,F ./bumischeduler"
 echo "<<Pylint tests"
 
-echo "Nose tests>>>"
+echo "Unit tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "nosetests --config .noserc"
-echo "<<Nose tests"
+    bash -c "python3 -m unittest discover ./bumischeduler/bumischeduler/tests"
+echo "<<Unit tests"
 
 docker rmi ${TEST_IMAGE}

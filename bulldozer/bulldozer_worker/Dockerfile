@@ -1,4 +1,4 @@
-FROM python:3.9.16-slim
+FROM python:3.12.3-slim
 LABEL org.opencontainers.image.authors="Hystax"
 
 RUN mkdir -p /var/lib/bulldozer

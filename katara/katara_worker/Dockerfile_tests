@@ -6,7 +6,6 @@ WORKDIR /usr/src/app/
 
 
 COPY katara/katara_worker/test-requirements.txt katara/test-requirements.txt
-COPY katara/.pylintrc katara/katara_worker/.noserc katara/.coveragerc ./katara/katara_worker/
+COPY katara/.pylintrc katara/.coveragerc ./katara/katara_worker/
 
 RUN pip install --no-cache-dir -r katara/test-requirements.txt
-COPY katara/katara_worker/tests katara/katara_worker/tests

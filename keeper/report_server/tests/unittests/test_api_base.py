@@ -1,8 +1,8 @@
 import uuid
 
-import mongomock
 import tornado.testing
 from unittest.mock import patch
+import mongomock
 
 from keeper.report_server.server import make_app
 

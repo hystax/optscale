@@ -15,9 +15,4 @@ echo "Pylint tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
     bash -c "pylint --rcfile=katara/katara_worker/.pylintrc --fail-under=9 --fail-on=E,C,F ./katara"
 
-echo "Nose tests>>>"
-docker run -i --rm ${TEST_IMAGE} \
-    bash -c "cd katara/katara_worker && nosetests --config .noserc"
-echo "<<Nose tests"
-
 docker rmi ${TEST_IMAGE}

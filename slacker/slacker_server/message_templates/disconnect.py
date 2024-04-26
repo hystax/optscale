@@ -30,8 +30,7 @@ def get_disconnected_message(user_email, public_ip):
                     "text": "Say me anything if you want to connect back. "
                             "I'll be waiting right here. :wave:"
                 }
-            }
-        ],
+            }],
         "unfurl_links": False
     }
 
@@ -79,7 +78,6 @@ def get_disconnect_confirmation_message(user_email, public_ip):
                         "action_id": "account_disconnect",
                     }
                 ]
-            }
-        ],
+            }],
         "unfurl_links": False
     }

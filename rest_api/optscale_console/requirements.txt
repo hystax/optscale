@@ -1,4 +1,4 @@
-PyYAML==5.4.1
+pyyaml==6.0.1
 restapi-client==1.0.373
 auth-client==0.0.65
 herald-client==0.0.7

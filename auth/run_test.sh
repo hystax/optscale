@@ -21,9 +21,9 @@ docker run -i --rm ${TEST_IMAGE} bash -c \
     "tools/check_alembic_down_revisions/check_alembic_down_revisions.py --alembic_versions_path auth/auth_server/alembic/versions"
 echo "<<Alembic down revision tests"
 
-echo "Nose tests>>>"
+echo "Unit tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "cd auth && nosetests --config .noserc"
-echo "<<Nose tests"
+    bash -c "python3 -m unittest discover ./auth/auth_server/tests"
+echo "<<Unit tests"
 
 docker rmi ${TEST_IMAGE}

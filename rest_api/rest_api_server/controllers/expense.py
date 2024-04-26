@@ -974,11 +974,12 @@ class CleanExpenseController(BaseController, MongoMixin, ClickHouseMixin,
             ],
         )
         totals = result.pop(-1)
+        total = next(filter(lambda k: k, totals), 0)
         return [{
             'cloud_account_id': x[0],
             'resource_id': x[1],
             'cost': x[2]
-        } for x in result], totals[2]
+        } for x in result], total
 
     def _get_object_entities(self, organization_id, model):
         objects = self.session.query(model).filter(
