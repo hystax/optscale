@@ -6,7 +6,7 @@ import requests
 import yaml
 import sys
 import inspect
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
 
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
 from optscale_client.auth_client.client_v2 import Client as AuthClient
@@ -200,12 +200,12 @@ class OptscaleConsole:
 
 
 def yaml2js(input):
-    loaded = yaml.load(input)
+    loaded = yaml.safe_load(input)
     return json.dumps(loaded)
 
 
 def yaml2dict(input):
-    loaded = yaml.load(input)
+    loaded = yaml.safe_load(input)
     return loaded
 
 
@@ -246,7 +246,7 @@ def parse_args():
 
 
 def main():
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    urllib3.disable_warnings(category=urllib3.exceptions.InsecureRequestWarning)
     console = OptscaleConsole('optscale_console.cfg')
 
     if len(sys.argv) == 1:

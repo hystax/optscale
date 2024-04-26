@@ -79,7 +79,7 @@ def edit_cluster_spec_unpause(spec):
 
 def main(input_path, file_type, cluster_id=None):
     with open(input_path) as f:
-        input_dict = yaml.load(f)
+        input_dict = yaml.safe_load(f)
 
     if file_type == 'pod':
         if not cluster_id:

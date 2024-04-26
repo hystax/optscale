@@ -38,7 +38,7 @@ class ClusterInfo(object):
     def get_cluster_info(self):
         version_map_data = self.core_api.read_namespaced_config_map(
             name=CONFIGMAP_NAME, namespace=NAMESPACE).data
-        version_map = yaml.load(version_map_data['component_versions.yaml'])
+        version_map = yaml.safe_load(version_map_data['component_versions.yaml'])
         if self.no_urls:
             return version_map
 
