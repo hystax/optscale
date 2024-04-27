@@ -137,26 +137,26 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                 schema:
                     type: object
                     properties:
-                    - status:
-                        type: string
-                        description: Status of gemini run
-                        required: False
-                        example: RUNNING
-                        enum: [CREATED, RUNNING, FAILED, SUCCESS]
-                    - last_run:
-                        type: int
-                        description: Timestamp of the last run
-                        required: False
-                        example: 3456543
-                    - last_completed:
-                        type: int
-                        description: Timestamp for the last successful run
-                        required: False
-                        example: 3456543
-                    - last_error:
-                        type: string
-                        description: Error for the last failed run, must be empty if the last run was successful
-                        required: False
+                        status:
+                            type: string
+                            description: Status of gemini run
+                            required: False
+                            example: RUNNING
+                            enum: [CREATED, RUNNING, FAILED, SUCCESS]
+                        last_run:
+                            type: int
+                            description: Timestamp of the last run
+                            required: False
+                            example: 3456543
+                        last_completed:
+                            type: int
+                            description: Timestamp for the last successful run
+                            required: False
+                            example: 3456543
+                        last_error:
+                            type: string
+                            description: Error for the last failed run, must be empty if the last run was successful
+                            required: False
             responses:
                 200:
                     description: Gemini

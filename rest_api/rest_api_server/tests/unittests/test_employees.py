@@ -738,10 +738,10 @@ class TestEmployeeApi(TestApiBase):
                      x['auth_user_id'] == auth_user_id]
         self.assertEqual(len(employees), 1)
         employee = employees[0]
-        self.assertEquals(len(employee['assignments']), 1)
+        self.assertEqual(len(employee['assignments']), 1)
         manager_employee_assignment = employee['assignments'][0]
-        self.assertEquals(manager_employee_assignment['role_name'], 'Manager')
-        self.assertEquals(manager_employee_assignment['purpose'], 'optscale_manager')
+        self.assertEqual(manager_employee_assignment['role_name'], 'Manager')
+        self.assertEqual(manager_employee_assignment['purpose'], 'optscale_manager')
 
     def test_list_current_only(self):
         users = []

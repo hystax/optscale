@@ -170,35 +170,35 @@ class OrganizationsOverviewAsyncHandler(OrganizationAsyncCollectionHandler_v1,
                                                             policies:
                                                                 type: array
                                                                 items:
-                                                                type: object
-                                                                properties:
-                                                                    id:
-                                                                        type: string
-                                                                        description: Unique policy id
-                                                                    pool_id:
-                                                                        type: string
-                                                                        description: Unique pool id
-                                                                    type:
-                                                                        type: string
-                                                                        enum: |
-                                                                         [ttl,total_expense_limit,daily_expense_limit]
-                                                                        description: Policy type
-                                                                    active:
-                                                                        type: boolean
-                                                                        description: |
-                                                                         Policy active or not
-                                                                    limit:
-                                                                        type: integer
-                                                                        description: |
-                                                                         Policy limit (expense value or timestamp)
-                                                                    created_at:
-                                                                        type: integer
-                                                                        description: |
-                                                                         Created timestamp (service field)
-                                                                    deleted_at:
-                                                                        type: integer
-                                                                        description: |
-                                                                         Deleted timestamp (service field)
+                                                                    type: object
+                                                                    properties:
+                                                                        id:
+                                                                            type: string
+                                                                            description: Unique policy id
+                                                                        pool_id:
+                                                                            type: string
+                                                                            description: Unique pool id
+                                                                        type:
+                                                                            type: string
+                                                                            enum: |
+                                                                             [ttl,total_expense_limit,daily_expense_limit]
+                                                                            description: Policy type
+                                                                        active:
+                                                                            type: boolean
+                                                                            description: |
+                                                                             Policy active or not
+                                                                        limit:
+                                                                            type: integer
+                                                                            description: |
+                                                                             Policy limit (expense value or timestamp)
+                                                                        created_at:
+                                                                            type: integer
+                                                                            description: |
+                                                                             Created timestamp (service field)
+                                                                        deleted_at:
+                                                                            type: integer
+                                                                            description: |
+                                                                             Deleted timestamp (service field)
                                                 policies:
                                                     type: array
                                                     description: Pool policies (only when details=True)

@@ -16,9 +16,9 @@ docker run -i --rm ${TEST_IMAGE} bash -c \
     "pylint --rcfile=.pylintrc --fail-under=8 --fail-on=E,F ./keeper"
 echo "<<<Pylint tests"
 
-echo "Nose tests>>>"
-docker run -i --rm ${TEST_IMAGE} \
-    bash -c "cd keeper/report_server && nosetests --config .noserc"
-echo "<<Nose tests"
+echo "Unit tests>>>"
+docker run -i --rm ${TEST_IMAGE} bash -c \
+    "python3 -m unittest discover ./keeper/report_server/tests"
+echo "<<Unit tests"
 
 docker rmi ${TEST_IMAGE}

@@ -5,7 +5,7 @@ LABEL org.opencontainers.image.authors="Hystax"
 WORKDIR /usr/src/app/
 
 COPY katara/katara_service/test-requirements.txt katara/test-requirements.txt
-COPY katara/.pylintrc katara/katara_service/.noserc katara/.coveragerc ./katara/katara_service/
+COPY katara/.pylintrc katara/.coveragerc ./katara/katara_service/
 
 COPY tools/check_alembic_down_revisions tools/check_alembic_down_revisions
 COPY optscale_client/katara_client optscale_client/katara_client

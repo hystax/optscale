@@ -15,8 +15,9 @@ docker run -i --rm ${TEST_IMAGE} bash -c \
     "pylint --rcfile=diproxy/.pylintrc --fail-under=9 --fail-on=E,F ./diproxy"
 echo "<<Pylint tests"
 
-echo "Nose tests>>>"
-docker run -i --rm ${TEST_IMAGE}  bash -c "nosetests --config diproxy/.noserc"
-echo "<<Nose tests"
+echo "Unit tests>>>"
+docker run -i --rm ${TEST_IMAGE}  bash -c \
+    "python3 -m unittest discover ./diproxy/diproxy/tests"
+echo "<<Unit tests"
 
 docker rmi ${TEST_IMAGE}

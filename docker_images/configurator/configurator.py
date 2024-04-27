@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import time
+from retrying import retry
 
 import pika
 import pika.exceptions
@@ -9,11 +10,10 @@ import yaml
 import etcd
 import boto3
 from boto3.session import Config as BotoConfig
-from optscale_client.config_client.client import Client as EtcdClient
-from retrying import retry
 from sqlalchemy import create_engine
 from pymongo import MongoClient
 from influxdb import InfluxDBClient
+from optscale_client.config_client.client import Client as EtcdClient
 
 LOG = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ RABBIT_PRECONDIFITON_FAILED_CODE = 406
 
 class Configurator(object):
     def __init__(self, config_path='config.yml', host='etcd', port=2379):
-        self.config = yaml.load(open(config_path, 'r'))
+        self.config = yaml.safe_load(open(config_path, 'r'))
         self.etcd_cl = EtcdClient(host=host, port=port)
         config = self.config['etcd']
 

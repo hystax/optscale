@@ -1,9 +1,0 @@
-[nosetests]
-with-coverage=1
-cover-package=metroculus/metroculus_api
-cover-inclusive=1
-cover-erase=1
-verbosity=2
-cover-xml=1
-cover-xml-file=reports/coverage.xml
-testmatch=(?:^|[\b_\./-]|(unit))[Tt]est

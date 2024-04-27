@@ -32,16 +32,16 @@ class TrafficProcessingTaskAsyncCollectionHandler(BaseAsyncCollectionHandler,
             schema:
                 type: object
                 properties:
-                    -   name: start_date
-                        in: query
+                    start_date:
+                        type: integer
                         description: Start date (timestamp in seconds)
-                        required: true
+                        required: True
+                        example: 1700991895
+                    end_date:
                         type: integer
-                    -   name: end_date
-                        in: query
                         description: End date (timestamp in seconds)
-                        required: true
-                        type: integer
+                        required: True
+                        example: 1703583930
         responses:
             201:
                 description: Created (returns created task object)

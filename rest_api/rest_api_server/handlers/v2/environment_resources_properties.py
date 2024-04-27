@@ -243,6 +243,7 @@ class EnvironmentResourcePropertiesCollectorAsyncItemHandler(BaseHandler):
             required: true
             type: string
         -   in: body
+            name: body
             description: new values of resource properties
             required: true
             type: object

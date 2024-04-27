@@ -1,6 +1,0 @@
-[nosetests]
-with-coverage=1
-cover-package=slacker_server
-cover-inclusive=1
-cover-erase=1
-verbosity=3

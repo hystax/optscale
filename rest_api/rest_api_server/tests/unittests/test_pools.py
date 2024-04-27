@@ -464,48 +464,48 @@ class TestPoolApi(TestApiBase):
         code, root = self.client.pool_update(self.org['pool_id'], {
             'limit': 1000,
         })
-        self.assertEquals(code, 200)
+        self.assertEqual(code, 200)
 
         code, child1 = self.client.pool_create(self.org_id, {
             'name': "child_test1",
             'parent_id': root['id'],
             'limit': 200,
         })
-        self.assertEquals(code, 201)
+        self.assertEqual(code, 201)
 
         code, child2 = self.client.pool_create(self.org_id, {
             'name': "child_test2",
             'parent_id': root['id'],
             'limit': 300,
         })
-        self.assertEquals(code, 201)
+        self.assertEqual(code, 201)
 
         code, child3 = self.client.pool_create(self.org_id, {
             'name': "child_test3",
             'parent_id': root['id'],
             'limit': 400,
         })
-        self.assertEquals(code, 201)
+        self.assertEqual(code, 201)
 
         code, child1_child = self.client.pool_create(self.org_id, {
             'name': "child_test4",
             'parent_id': child1['id'],
             'limit': 100,
         })
-        self.assertEquals(code, 201)
+        self.assertEqual(code, 201)
 
         code, organization_root_get = self.client.pool_get(root['id'])
-        self.assertEquals(code, 200)
-        self.assertEquals(organization_root_get['limit'], 1000)
-        self.assertEquals(organization_root_get['unallocated_limit'], 100)
+        self.assertEqual(code, 200)
+        self.assertEqual(organization_root_get['limit'], 1000)
+        self.assertEqual(organization_root_get['unallocated_limit'], 100)
 
         code, _ = self.client.pool_delete(child3['id'])
-        self.assertEquals(code, 204)
+        self.assertEqual(code, 204)
 
         code, organization_root_get = self.client.pool_get(root['id'])
-        self.assertEquals(code, 200)
-        self.assertEquals(organization_root_get['limit'], 1000)
-        self.assertEquals(organization_root_get['unallocated_limit'], 500)
+        self.assertEqual(code, 200)
+        self.assertEqual(organization_root_get['limit'], 1000)
+        self.assertEqual(organization_root_get['unallocated_limit'], 500)
 
     def test_get_organization_children(self):
         _, org = self.client.organization_create({'name': 'org name'})

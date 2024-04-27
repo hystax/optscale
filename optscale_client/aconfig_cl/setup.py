@@ -9,6 +9,6 @@ setup(name='aconfig-cl',
       url='http://hystax.com',
       author_email='info@hystax.com',
       package_dir={'aconfig_cl': ''},
-      install_requires=['aiohttp==3.8.6'],
+      install_requires=['aiohttp==3.9.3'],
       packages=['aconfig_cl']
       )

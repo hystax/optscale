@@ -2,9 +2,9 @@ import json
 import logging
 import functools
 import traceback
+from json.decoder import JSONDecodeError
 import tornado.web
 import requests
-from json.decoder import JSONDecodeError
 from tornado.ioloop import IOLoop
 
 from keeper.report_server.exceptions import Err
@@ -174,7 +174,7 @@ class BaseAuthHandler(BaseHandler):
     def _check_permissions(self, action, type, resource_id):
         client = AuthClient(url=Config().auth_url)
         client.token = self.token
-        LOG.info("Given Auth token is %s:" % self.token)
+        LOG.info('Given Auth token is: %s', self.token)
         try:
             code, response = client.authorize(action, type, resource_id)
             LOG.info("Auth code %s, response: %s", code, response)

@@ -1,8 +1,8 @@
 tornado==6.3.3
 sqlalchemy==1.4.23
-alembic==1.7.1
+alembic==1.13.1
 mysql-connector==2.2.9
-apispec[yaml]==5.1.0
+apispec[yaml]==6.3.1
 PyJWT[crypto]==2.4.0
 atlassian_jwt==1.9.0
 requests==2.31.0

@@ -1,7 +1,7 @@
 import re
 import os.path
 import yaml
-from apispec import APISpec, utils
+from apispec import APISpec, yaml_utils
 
 
 import katara.katara_service.main as server
@@ -29,7 +29,7 @@ securityDefinitions:
 
 
 def main():
-    settings = yaml.load(OPENAPI_SPEC)
+    settings = yaml.safe_load(OPENAPI_SPEC)
     title = settings['info'].pop('title')
     spec_version = settings['info'].pop('version')
     openapi_version = settings.pop('swagger')
@@ -44,13 +44,14 @@ def main():
     for urlspec in server.get_handlers(dict()):
         path = re.sub(r"\(.*?<(.*?)>.*?\)", r"{\1}", urlspec[0])
         operations = dict()
-        for method_name in utils.PATH_KEYS:
+        for method_name in yaml_utils.PATH_KEYS:
             method = getattr(urlspec[1], method_name)
-            operation_data = utils.load_yaml_from_docstring(method.__doc__)
+            operation_data = yaml_utils.load_yaml_from_docstring(
+                method.__doc__)
             if operation_data:
                 operations[method_name] = operation_data
         if len(operations) > 0:
-            spec.add_path(path=path, operations=operations)
+            spec.path(path=path, operations=operations)
         else:
             print("Warning: docstrings for '" + urlspec[0] + "' are not found")
 

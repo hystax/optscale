@@ -21,9 +21,9 @@ docker run -i --rm ${TEST_IMAGE} bash -c \
     "tools/check_alembic_down_revisions/check_alembic_down_revisions.py --alembic_versions_path jira_bus/jira_bus_server/alembic/versions"
 echo "<<Alembic down revision tests"
 
-echo "Nose tests>>>"
+echo "Unit tests>>>"
 docker run -i --rm ${TEST_IMAGE} \
-    bash -c "nosetests --config jira_bus/.noserc jira_bus"
-echo "<<Nose tests"
+    bash -c "python3 -m unittest discover ./jira_bus/jira_bus_server/tests"
+echo "<<<Unit tests"
 
 docker rmi ${TEST_IMAGE}

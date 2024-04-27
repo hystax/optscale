@@ -1,5 +1,5 @@
-kombu==4.6.8
-boto3==1.18.9
+kombu==5.3.4
+boto3==1.34.7
 # OptScale packages
 -e optscale_client/config_client
 -e optscale_client/rest_api_client

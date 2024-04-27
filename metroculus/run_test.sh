@@ -21,10 +21,10 @@ do
     echo "<<<Pylint tests"
 
     if [[ "${SERVICE}" == "metroculus_api" ]]; then
-        echo "Nose tests>>>"
+        echo "Unit tests>>>"
         docker run -i --rm ${TEST_IMAGE}:${BUILD_TAG} bash -c \
-            "nosetests --config metroculus/.noserc ./metroculus/${SERVICE}"
-        echo "<<Nose tests"
+            "python3 -m unittest discover ./metroculus/${SERVICE}/tests"
+        echo "<<Unit tests"
     fi
 
     docker rmi ${TEST_IMAGE}:${BUILD_TAG}
