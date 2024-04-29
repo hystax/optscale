@@ -9,6 +9,7 @@ NEBIUS_MIN_CPU = 2
 HOUR_IN_SECONDS = 3600
 SPOT_SAVING_COEFFICIENT = 0.72
 BULK_SIZE = 1000
+SUPPORTED_CLOUD_TYPES = ['aws_cnr', 'alibaba_cnr', 'azure_cnr', 'nebius']
 
 
 class ShortLivingInstances(ModuleBase):
@@ -62,6 +63,7 @@ class ShortLivingInstances(ModuleBase):
         (days_threshold, excluded_pools,
          skip_cloud_accounts) = self.get_options_values()
         cloud_account_map = self.get_cloud_accounts(
+            supported_cloud_types=SUPPORTED_CLOUD_TYPES,
             skip_cloud_accounts=skip_cloud_accounts)
         now = datetime.utcnow()
         start_datetime = datetime.utcfromtimestamp(0)
