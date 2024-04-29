@@ -100,7 +100,7 @@ const BucketsField = ({ buckets, dataSources, isLoading }) => {
         rules={{
           validate: {
             atLeastOneSelected: (value) =>
-              isEmptyObject(value) ? <FormattedMessage id="atLeastOneBucketsShouldBeSelected" /> : true,
+              isEmptyObject(value) ? <FormattedMessage id="atLeastOneBucketShouldBeSelected" /> : true,
             maxBuckets: (value) => {
               const bucketsCount = Object.keys(value).length;
               return bucketsCount > MAX_SELECTED_BUCKETS ? (

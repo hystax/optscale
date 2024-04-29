@@ -162,7 +162,7 @@
   "assignmentRulesTabDescription": "Here you can see assignment rules that have this pool as a target. <assignmentRulesLink>See all assignment rules.</assignmentRulesLink>",
   "assignmentRulesTitle": "Assignment Rules",
   "atLeastOneBreakdownMustBeSelected": "At least one breakdown must be selected",
-  "atLeastOneBucketsShouldBeSelected": "At least one buckets should be selected",
+  "atLeastOneBucketShouldBeSelected": "At least one bucket should be selected",
   "atLeastOneDatasetShouldBeSelected": "At least one dataset should be selected",
   "atLeastOneInstanceShouldBeSelected": "At least one instance should be selected",
   "audit": "Audit",
