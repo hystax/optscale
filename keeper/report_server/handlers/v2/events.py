@@ -109,13 +109,14 @@ class EventAsyncHandler(ReceiveHandler):
                 example:
                   id: 59bb70044926aa000174131f
                   time: 1502975432
-                  level: warning
-                  class: ERR_CS
+                  level: INFO
+                  evt_class: ORGANIZATION_CREATED
                   object_id: 340e6f8b-6f9b-4af5-83c4-317938d6da6e
-                  object_type: cloudsite
-                  object_name: My Awesome Cloudsite
+                  object_type: organization
+                  object_name: My Test organization
                   organization_id: d3af8fba-9ef4-46c3-bab0-50835d54daad
-                  description: Cloudsite has failed to start Event description
+                  description: Organization My Test organization
+                    (d3af8fba-9ef4-46c3-bab0-50835d54daad) created
                   ack: true
                   acknowledged: 1502975555
                   acknowledged_by: 2af23d9fd3fb34693c3a95bbc21afb9f
@@ -421,13 +422,14 @@ class EventAckAsyncHandler(AuthHandler):
               example:
                 id: 59bb70044926aa000174131f
                 time: 1502975432
-                level: warning
-                class: ERR_CS
+                level: INFO
+                evt_class: ORGANIZATION_CREATED
                 object_id: 340e6f8b-6f9b-4af5-83c4-317938d6da6e
-                object_type: cloudsite
-                object_name: My Awesome Cloudsite
+                object_type: organization
+                object_name: My Test organization
                 organization_id: d3af8fba-9ef4-46c3-bab0-50835d54daad
-                description: Cloudsite has failed to start Event description
+                description: Organization My Test organization
+                  (d3af8fba-9ef4-46c3-bab0-50835d54daad) created
                 ack: true
                 acknowledged: 1502975555
                 acknowledged_by: 2af23d9fd3fb34693c3a95bbc21afb9f
