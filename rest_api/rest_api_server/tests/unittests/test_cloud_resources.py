@@ -7,13 +7,15 @@ from unittest.mock import patch, ANY
 from rest_api.rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api.rest_api_server.models.db_base import BaseDB
 from rest_api.rest_api_server.models.models import Checklist
-from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
+    TestProfilingBase
+)
 from rest_api.rest_api_server.utils import encoded_tags
 
 DEFAULT_CACHE_TIME = 900
 
 
-class TestCloudResourceApi(TestApiBase):
+class TestCloudResourceApi(TestProfilingBase):
 
     def setUp(self, version='v2'):
         super().setUp(version)
