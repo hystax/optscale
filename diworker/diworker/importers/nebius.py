@@ -93,6 +93,7 @@ class NebiusReportImporter(CSVBaseReportImporter):
 
     def load_csv_report(self, report_path, account_id_ca_id_map,
                         billing_period, skipped_accounts):
+        date_start = datetime.utcnow()
         with open(report_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             chunk = []
@@ -105,6 +106,11 @@ class NebiusReportImporter(CSVBaseReportImporter):
                 if len(chunk) == CHUNK_SIZE:
                     self.update_raw_records(chunk)
                     chunk = []
+                    now = datetime.utcnow()
+                    if (now - date_start).total_seconds() > 60:
+                        LOG.info('report %s: processed %s rows',
+                                 report_path, record_number)
+                        date_start = now
 
                 cloud_account_id = account_id_ca_id_map.get(
                     row['cloud_id'])

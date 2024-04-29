@@ -271,6 +271,7 @@ class AWSReportImporter(CSVBaseReportImporter):
 
     def load_csv_report(self, report_path, account_id_ca_id_map,
                         billing_period, skipped_accounts):
+        date_start = datetime.utcnow()
         with open(report_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             chunk = []
@@ -284,6 +285,11 @@ class AWSReportImporter(CSVBaseReportImporter):
                 if len(chunk) == CHUNK_SIZE:
                     self.update_raw_records(chunk)
                     chunk = []
+                    now = datetime.utcnow()
+                    if (now - date_start).total_seconds() > 60:
+                        LOG.info('report %s: processed %s rows',
+                                 report_path, record_number)
+                        date_start = now
 
                 cloud_account_id = account_id_ca_id_map.get(
                     row['lineItem/UsageAccountId'])
@@ -325,6 +331,7 @@ class AWSReportImporter(CSVBaseReportImporter):
 
     def load_parquet_report(self, report_path, account_id_ca_id_map,
                             billing_period, skipped_accounts):
+        date_start = datetime.utcnow()
         dataframe = pq.read_pandas(report_path).to_pandas()
         dataframe.rename(columns=AWS_PARQUET_CSV_MAP, inplace=True)
         for i in range(0, dataframe.shape[0], CHUNK_SIZE):
@@ -382,6 +389,10 @@ class AWSReportImporter(CSVBaseReportImporter):
                 self._set_resource_id(expense)
             if expenses:
                 self.update_raw_records(expenses)
+                now = datetime.utcnow()
+                if (now - date_start).total_seconds() > 60:
+                    LOG.info('report %s: processed %s rows', report_path, i)
+                    date_start = now
         return billing_period, skipped_accounts
 
     def collect_tags(self, expense):
