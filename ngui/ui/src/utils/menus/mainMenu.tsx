@@ -41,7 +41,8 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="mlops" />,
-    items: [mlTasks, mlModels, mlDatasets, mlHypertuningMenuItem]
+    items: [mlTasks, mlModels, mlDatasets, mlHypertuningMenuItem],
+    mode: OPTSCALE_MODE.MLOPS
   },
   {
     id: MAIN_MENU_SECTION_IDS.POLICIES,
