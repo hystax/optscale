@@ -12,7 +12,7 @@ export const HEIGHT = 350;
 export const MARGIN = Object.freeze({
   TOP: 50,
   BOTTOM: 40,
-  LEFT: 160,
+  LEFT: 200,
   RIGHT: 60
 });
 
