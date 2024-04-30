@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import CanvasBarChart from "components/CanvasBarChart";
 import CircleLabel from "components/CircleLabel";
@@ -94,6 +95,7 @@ export const RI_SP_EXPENSES_COLOR_INDEXES = {
 const getRenderTooltipBody = (sectionData, showSavings) => {
   const {
     data: {
+      date,
       sp_cost_with_offer: spCostWithOffer = 0,
       ri_cost_with_offer: riCostWithOffer = 0,
       total_cost_with_offer: totalCostWithOffer = 0,
@@ -110,7 +112,14 @@ const getRenderTooltipBody = (sectionData, showSavings) => {
     getTooltipItem("spExpenses", RI_SP_EXPENSES_COLOR_INDEXES.SP_EXPENSES, spCostWithOffer)
   ].filter(Boolean);
 
-  return items.map(({ key, keyText, value }) => <KeyValueLabel key={key} keyText={keyText} value={value} />);
+  return (
+    <div>
+      <Typography gutterBottom>{date}</Typography>
+      {items.map(({ key, keyText, value }) => (
+        <KeyValueLabel key={key} keyText={keyText} value={value} />
+      ))}
+    </div>
+  );
 };
 
 const RiSpExpensesBarChart = ({ breakdown, isLoading = false, showSavings = false }) => {
@@ -128,7 +137,7 @@ const RiSpExpensesBarChart = ({ breakdown, isLoading = false, showSavings = fals
       keys={chartKeys}
       emptyMessageId="noExpenses"
       renderTooltipBody={(sectionData) => getRenderTooltipBody(sectionData, showSavings)}
-      margin={{ top: 30, right: 0, bottom: 30, left: 40 }}
+      margin={{ top: 30, right: 10, bottom: 30, left: 40 }}
       axisFormat={AXIS_FORMATS.MONEY}
       isLoading={isLoading}
       palette={RI_SP_CHART_PALETTE}

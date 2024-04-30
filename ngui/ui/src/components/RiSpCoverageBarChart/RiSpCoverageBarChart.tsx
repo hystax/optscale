@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Typography } from "@mui/material";
 import { FormattedMessage, FormattedNumber } from "react-intl";
 import CanvasBarChart from "components/CanvasBarChart";
 import CircleLabel from "components/CircleLabel";
@@ -70,6 +71,7 @@ export const RI_SP_COVERAGE_COLOR_INDEXES = {
 const getRenderTooltipBody = (sectionData) => {
   const {
     data: {
+      date,
       sp_usage_percent: spUsagePercent = 0,
       ri_usage_percent: riUsagePercent = 0,
       uncovered_usage_percent: uncoveredUsagePercent = 0
@@ -82,7 +84,14 @@ const getRenderTooltipBody = (sectionData) => {
     getTooltipItem("spUsage", RI_SP_COVERAGE_COLOR_INDEXES.SP_USAGE, spUsagePercent)
   ];
 
-  return items.map(({ key, keyText, value }) => <KeyValueLabel key={key} keyText={keyText} value={value} />);
+  return (
+    <div>
+      <Typography gutterBottom>{date}</Typography>
+      {items.map(({ key, keyText, value }) => (
+        <KeyValueLabel key={key} keyText={keyText} value={value} />
+      ))}
+    </div>
+  );
 };
 
 const RiSpCoverageBarChart = ({ breakdown, isLoading = false }) => {
@@ -99,7 +108,7 @@ const RiSpCoverageBarChart = ({ breakdown, isLoading = false }) => {
       keys={["sp_usage_percent", "ri_usage_percent", "uncovered_usage_percent"]}
       renderTooltipBody={getRenderTooltipBody}
       minMaxTicksEqualToMinMaxValues
-      margin={{ top: 30, right: 0, bottom: 30, left: 40 }}
+      margin={{ top: 30, right: 10, bottom: 30, left: 40 }}
       axisFormat={AXIS_FORMATS.PERCENTAGE}
       isLoading={isLoading}
       palette={RI_SP_CHART_PALETTE}
