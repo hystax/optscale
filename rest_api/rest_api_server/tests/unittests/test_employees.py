@@ -1,7 +1,8 @@
 import uuid
 from unittest.mock import patch
 from datetime import datetime, timedelta
-from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
+    TestProfilingBase)
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api.rest_api_server.models.db_base import BaseDB
@@ -10,7 +11,7 @@ from sqlalchemy import and_
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
-class TestEmployeeApi(TestApiBase):
+class TestEmployeeApi(TestProfilingBase):
 
     def setUp(self, version='v2'):
         super().setUp(version)
@@ -970,3 +971,34 @@ class TestEmployeeApi(TestApiBase):
         _, employee_list = self.client.employee_list(self.org_id)
         for e in employee_list['employees']:
             self.assertIsNone(e.get('last_login'))
+
+    @patch('optscale_client.auth_client.client_v2.Client.assignment_list')
+    def test_update_task_on_employee_deleting(self, p_assignment_list):
+        patch('rest_api.rest_api_server.controllers.employee.'
+              'EmployeeController.auth_client').start()
+        code, root_emp = self.client.employee_create(
+            self.org_id, {'name': 'root_emp', 'auth_user_id': self.user_id})
+        self.assertEqual(code, 201)
+        code, emp = self.client.employee_create(
+            self.org_id, {'name': 'emp', 'auth_user_id': self.gen_id()})
+        self.assertEqual(code, 201)
+        self.update_default_owner_for_pool(self.org['pool_id'], root_emp['id'])
+        p_assignment_list.return_value = (200, [])
+        self._mock_auth()
+        patch('rest_api.rest_api_server.controllers.employee.'
+              'EmployeeController.auth_client.user_roles_get',
+              return_value=(200,
+                            [{'user_id': emp['auth_user_id']},
+                             {'user_id': root_emp['auth_user_id']}])).start()
+
+        code, task = self.client.task_create(
+            self.org_id, {'name': 'My test project',
+                          'key': 'test_project',
+                          'description': 'Test description',
+                          'owner_id': emp['id']})
+
+        code, resp = self.client.employee_delete(emp['id'])
+        self.assertEqual(code, 204)
+        code, resp = self.client.task_get(self.org_id, task['id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['owner_id'], root_emp['id'])
