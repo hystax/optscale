@@ -835,6 +835,11 @@ class Azure(CloudBase):
         :param limit: result limit
         :return: an iterator with usage objects
         """
+        def get_values(_req):
+            result = self.raw_client.send(_req)
+            deserialized = DESERIALIZER.deserialize_data(
+                result.json(), "UsageDetailsListResult")
+            return deserialized.value or [], deserialized.next_link
         date_format = '%Y-%m-%d'
         start_str = start_date.strftime(date_format)
         end_str = range_end.strftime(date_format)
@@ -850,19 +855,13 @@ class Azure(CloudBase):
         token = self.raw_client.config.credentials.token['access_token']
         headers = {'Authorization': f'Bearer {token}'}
         request = Request(method='GET', url=url, headers=headers)
-        result = self.raw_client.send(request)
-        deserialized = DESERIALIZER.deserialize_data(
-            result.json(), "UsageDetailsListResult")
-        next_link = deserialized.next_link
-        for v in deserialized.value:
+        values, next_link = get_values(request)
+        for v in values:
             yield v
         while next_link:
             request.url = next_link
-            result = self.raw_client.send(request)
-            deserialized = DESERIALIZER.deserialize_data(
-                result.json(), "UsageDetailsListResult")
-            next_link = deserialized.next_link
-            for v in deserialized.value:
+            values, next_link = get_values(request)
+            for v in values:
                 yield v
 
     def get_raw_usage(self, start_date, range_end, granularity='Daily'):
