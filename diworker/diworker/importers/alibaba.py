@@ -190,16 +190,20 @@ class AlibabaReportImporter(BaseReportImporter):
             'DeductedByCoupons',
         ]
 
-    def get_update_fields(self, optscale_f_incl=True):
-        cloud_fields = [
+    def get_cost_related_fields(self):
+        return [
             'PretaxGrossAmount',
             'PretaxAmount',
-            'Usage',
+            'Usage'
+        ] + self._get_discount_fields()
+
+    def get_update_fields(self, optscale_f_incl=True):
+        cloud_fields = [
             'NickName',
             'Zone',
             'InstanceSpec',
             'InstanceConfig'
-        ] + self._get_discount_fields()
+        ] + self.get_cost_related_fields()
         optscale_fields = ['cost']
         if optscale_f_incl:
             return cloud_fields + optscale_fields
@@ -296,6 +300,7 @@ class AlibabaReportImporter(BaseReportImporter):
         unique_fields = self.get_unique_field_list(optscale_f_incl=False,
                                                    inst_id_incl=True)
         update_fields = self.get_update_fields(optscale_f_incl=False)
+        cost_related_fields = self.get_cost_related_fields()
 
         b_item_map = {}
         for b_item in items:
@@ -310,8 +315,15 @@ class AlibabaReportImporter(BaseReportImporter):
                 common_item = {k: v for k, v in items_list[0].items()
                                if k not in update_fields}
                 for field in update_fields:
-                    common_item[field] = sum(
-                        float(i[field]) for i in items_list if i[field])
+                    if field in cost_related_fields:
+                        common_item[field] = sum(
+                            float(i[field]) for i in items_list if i[field])
+                    else:
+                        for item in items_list:
+                            value = item[field]
+                            common_item[field] = value
+                            if value and value != '-':
+                                break
                 b_item_map[k] = [common_item]
         updated_billing_items = [v[0] for v in b_item_map.values()]
         return updated_billing_items
