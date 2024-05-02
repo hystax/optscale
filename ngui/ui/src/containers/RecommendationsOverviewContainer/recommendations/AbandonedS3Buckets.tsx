@@ -4,7 +4,7 @@ import HeaderHelperCell from "components/HeaderHelperCell";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
 import AbandonedS3BucketsModal from "components/SideModalManager/SideModals/recommendations/AbandonedS3BucketsModal";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { AWS_S3, NEBIUS_SERVICE } from "hooks/useRecommendationServices";
+import { AWS_S3 } from "hooks/useRecommendationServices";
 import { detectedAt, poolOwner, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import averageDataSize from "utils/columns/averageDataSize";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -73,7 +73,7 @@ class AbandonedS3Buckets extends BaseRecommendation {
 
   emptyMessageId = "noAbandonedS3Buckets";
 
-  services = [AWS_S3, NEBIUS_SERVICE];
+  services = [AWS_S3];
 
   categories = [CATEGORY_COST];
 
