@@ -1374,3 +1374,47 @@ class TestOptimizationDataApi(TestApiBase):
         p_publish_activities.assert_has_calls([
             call(*activity_param_tuples_1, add_token=True)
         ])
+
+    @patch(GET_OPTIMIZATIONS_DATA)
+    def test_optimization_cloud_accounts(self, p_get_optimizations_data):
+        _, res = self.client.optimizations_get(self.org_id)
+        checklist_id = res['id']
+        completed_at = int(datetime.utcnow().timestamp())
+        self.instance2.update({
+            'cloud_account_id': self.cloud_acc2['id'],
+            'cloud_type': self.cloud_acc2['type'],
+        })
+        p_get_optimizations_data.return_value = [
+            {
+                'created_at': completed_at,
+                'module': 'module1',
+                'organization_id': self.org_id,
+                'data': [self.instance],
+                'options': {}
+            },
+            {
+                'created_at': completed_at,
+                'module': 'module2',
+                'organization_id': self.org_id,
+                'data': [self.instance, self.instance2],
+                'options': {}
+            }
+        ]
+        self.client.checklist_update(
+            checklist_id, {'last_completed': completed_at,
+                           'last_run': completed_at})
+        code, res = self.client.optimizations_get(
+            self.org_id, overview=True)
+        self.assertEqual(code, 200)
+        optimizations = res['optimizations']
+        self.assertEqual(len(optimizations['module1']['items']), 1)
+        self.assertEqual(len(optimizations['module1']['cloud_accounts']), 1)
+        self.assertEqual(len(optimizations['module2']['items']), 2)
+        self.assertEqual(len(optimizations['module2']['cloud_accounts']), 2)
+
+        code, res = self.client.optimizations_get(
+            self.org_id, overview=True, limit=1)
+        optimizations = res['optimizations']
+        self.assertEqual(code, 200)
+        self.assertEqual(len(optimizations['module2']['items']), 1)
+        self.assertEqual(len(optimizations['module2']['cloud_accounts']), 2)

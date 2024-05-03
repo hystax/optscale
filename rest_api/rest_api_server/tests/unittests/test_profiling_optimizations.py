@@ -105,12 +105,15 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
                     'count': 0,
                     'items': [],
                     'options': {'days': 7, 'excl': []},
-                    'saving': 0},
+                    'saving': 0,
+                    'cloud_accounts': []
+                },
                 'second': {
                     'count': 0,
                     'items': [],
                     'options': {},
-                    'saving': 0
+                    'saving': 0,
+                    'cloud_accounts': []
                 }
             },
             'dismissed_optimizations': {},
@@ -227,7 +230,10 @@ class TestProfilingOptimizationsApi(TestProfilingBase):
         self.assertEqual(resp, {
             'total_saving': 0,
             'optimizations': {
-                'first': {'count': 0, 'items': [], 'options': {}, 'saving': 0}
+                'first': {
+                    'count': 0, 'items': [], 'options': {}, 'saving': 0,
+                    'cloud_accounts': []
+                }
             },
             'dismissed_optimizations': {},
             'excluded_optimizations': {},

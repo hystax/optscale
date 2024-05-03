@@ -86,7 +86,7 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
         def get_group_base(status_=None):
             res = {
                 'count': 0,
-                'saving': 0,
+                'saving': 0
             }
             error = group.get('error') or group.get('timeout_error')
             if error:
@@ -94,6 +94,7 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
             if detailed and status_ == status:
                 res['options'] = group.get('options') or {}
                 res['items'] = []
+                res['cloud_accounts'] = []
             return res
 
         res_map = {
@@ -105,6 +106,7 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
         data_filter_func = self._get_cloud_account_data_filter(
             cloud_account_ids)
         data = group.get('data', []) or []
+        cloud_accounts_map = {}
         for item in data:
             if not data_filter_func(item['cloud_account_id']):
                 continue
@@ -121,8 +123,19 @@ class OptimizationController(BaseController, MongoMixin, ResourceFormatMixin):
                 res_group['saving'] += item.get('saving', 0)
 
             if detailed and status == item_status:
-                cloud_account = self._get_cloud_account(item.get('cloud_account_id'))
-                item['cloud_account_name'] = getattr(cloud_account, 'name', None)
+                ca_id = item.get('cloud_account_id')
+                cloud_account = cloud_accounts_map.get(ca_id)
+                if not cloud_account:
+                    ca_obj = self._get_cloud_account(ca_id)
+                    cloud_account = {
+                        'id': ca_id,
+                        'name': ca_obj.name if ca_obj else None,
+                        'type': ca_obj.type.value if ca_obj else None
+                    }
+                    cloud_accounts_map[ca_id] = cloud_account
+                item['cloud_account_name'] = cloud_account['name']
+                if cloud_account not in res_group['cloud_accounts']:
+                    res_group['cloud_accounts'].append(cloud_account)
                 res_group['items'].append(item)
 
         if detailed and limit:
