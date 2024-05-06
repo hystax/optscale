@@ -381,3 +381,17 @@ class TestRunsetsApi(TestInfrastructureBase):
             self.assertTrue(runsets)
             for r in runsets:
                 self.assertEqual(r['owner']['deleted'], True)
+
+    def test_legacy_runset_without_owner(self):
+        code, runset = self.client.runset_create(
+            self.organization_id, self.template_id, self.valid_runset)
+        self.assertEqual(code, 201)
+        self.mongo_client.bulldozer.runsets.update_many(
+            filter={},
+            update={'$set': {'owner_id': None}}
+        )
+        code, res = self.client.runset_list(
+            self.organization_id, self.template_id)
+        self.assertEqual(code, 200)
+        for r in res['runsets']:
+            self.assertNotIn('owner', r)

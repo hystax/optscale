@@ -76,7 +76,9 @@ class RunsetController(BaseInfraController):
         duration = get_runners_duration(runners)
         runset['cloud_account'] = format_cloud_account(cloud_account)
         runset['task'] = format_task(tasks[runset.pop('task_id')])
-        runset['owner'] = format_owner(owners[runset.pop('owner_id')])
+        owner_id = runset.pop('owner_id', None)
+        if owner_id:
+            runset['owner'] = format_owner(owners[owner_id])
         runset['instance_size'] = format_instance_size(
             runset.pop('instance_type'))
         runset['region'] = format_region(runset.pop('region_id'))
@@ -272,6 +274,7 @@ class RunsetController(BaseInfraController):
             owner_ids: list[str]
     ) -> dict[str, Employee]:
         # is used only in display purposes. No need to filter deleted entities
+        owner_ids = list(filter(None, owner_ids))
         owners_q = self.session.query(Employee).filter(and_(
             Employee.organization_id == organization_id,
             Employee.id.in_(owner_ids),
