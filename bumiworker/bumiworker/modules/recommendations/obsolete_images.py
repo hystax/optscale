@@ -140,15 +140,8 @@ class ObsoleteImages(ModuleBase):
             }
         return snapshot_info_map
 
-    def _get(self):
-        (days_threshold, skip_cloud_accounts) = self.get_options_values()
-        cloud_account_map = self.get_cloud_accounts(
-            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
-        cloud_accounts = list(cloud_account_map.values())
-
-        account_id_type_map = {x['id']: x['type'] for x in cloud_accounts}
+    def _get_images_map(self, cloud_accounts, starting_point):
         images_map = {}
-        starting_point = datetime.utcnow() - timedelta(days=days_threshold)
 
         def process_images(cloud_account, generator):
             for image in generator:
@@ -176,6 +169,17 @@ class ObsoleteImages(ModuleBase):
                 except Exception as ex:
                     setattr(ex, 'cloud_account_id', cloud_account.get('id'))
                     raise ex
+        return images_map
+
+    def _get(self):
+        (days_threshold, skip_cloud_accounts) = self.get_options_values()
+        cloud_account_map = self.get_cloud_accounts(
+            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
+        cloud_accounts = list(cloud_account_map.values())
+
+        account_id_type_map = {x['id']: x['type'] for x in cloud_accounts}
+        starting_point = datetime.utcnow() - timedelta(days=days_threshold)
+        images_map = self._get_images_map(cloud_accounts, starting_point)
 
         image_ids = list(images_map.keys())
         images = self.mongo_client.restapi.resources.aggregate([
