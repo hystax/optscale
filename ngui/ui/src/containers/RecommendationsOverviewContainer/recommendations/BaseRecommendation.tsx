@@ -55,7 +55,7 @@ class BaseRecommendation {
   }
 
   get recommendation() {
-    return this.apiResponse[this.statusCategory]?.[this.type] || {};
+    return this.apiResponse[this.statusCategory]?.[this.type] ?? {};
   }
 
   get error() {
@@ -68,6 +68,10 @@ class BaseRecommendation {
 
   get items() {
     return this.recommendation.items || [];
+  }
+
+  get allDataSources() {
+    return this.apiResponse[this.statusCategory]?.[this.type]?.cloud_accounts ?? [];
   }
 
   get options() {
