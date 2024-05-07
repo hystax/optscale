@@ -51,23 +51,19 @@ export const useSettingItems = (recommendation) => {
 };
 
 export const useDownloadCleanupScripts = (recommendation) => {
-  const { items, type, hasItems } = recommendation;
+  const { type, hasItems, allDataSources } = recommendation;
 
   const { download, isLoading } = useDownloadCleanupScript({
     type
   });
 
   if (hasItems) {
-    const recommendationDataSources = [...new Map(items.map((item) => [item.cloud_account_name, item])).values()];
-
-    return recommendationDataSources.map(
-      ({ cloud_account_name: dataSourceName, cloud_type: dataSourceType, cloud_account_id: dataSourceId }) => ({
-        key: dataSourceId,
-        isLoading,
-        body: <CloudLabel disableLink name={dataSourceName} type={dataSourceType} />,
-        onClick: () => download(dataSourceId)
-      })
-    );
+    return allDataSources.map(({ name, type: dataSourceType, id }) => ({
+      key: id,
+      isLoading,
+      body: <CloudLabel disableLink name={name} type={dataSourceType} />,
+      onClick: () => download(id)
+    }));
   }
 
   return [];
