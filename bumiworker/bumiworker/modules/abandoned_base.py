@@ -1,5 +1,8 @@
-from datetime import datetime, timedelta
-from bumiworker.bumiworker.modules.base import ModuleBase, DAYS_IN_MONTH
+from collections import defaultdict
+from datetime import datetime, timedelta, timezone
+from bumiworker.bumiworker.modules.base import (
+    ArchiveBase, ArchiveReason, ModuleBase, DAYS_IN_MONTH
+)
 
 
 class AbandonedBase(ModuleBase):
@@ -152,6 +155,71 @@ class S3AbandonedBucketsBase(AbandonedBase):
                                 'pool_id') in self.excluded_pools,
                             'saving': saving
                         }
-                        base_result_dict.update(self.metrics_result(data_req_map))
+                        base_result_dict.update(
+                            self.metrics_result(data_req_map))
                         result.append(base_result_dict)
+        return result
+
+
+class S3AbandonedBucketsArchiveBase(ArchiveBase, S3AbandonedBucketsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reason_description_map[ArchiveReason.RECOMMENDATION_APPLIED] = (
+            'bucket deleted')
+
+    @property
+    def supported_cloud_types(self):
+        return list(self.SUPPORTED_CLOUD_TYPES)
+
+    def get_previous_metric_threshold_map(self, previous_options):
+        raise NotImplementedError
+
+    def get_buckets_below_thresholds(self, cloud_account_id, start_date,
+                                     previous_options, buckets):
+        res_data_request_map = self._get_data_size_request_metrics(
+            cloud_account_id, buckets,
+            start_date, self.days_threshold)
+        metric_threshold_map = self.get_previous_metric_threshold_map(
+            previous_options)
+        return self._are_below_thresholds(
+            res_data_request_map, metric_threshold_map)
+
+    def _get(self, previous_options, optimizations, cloud_accounts_map,
+             **kwargs):
+        now = datetime.now(tz=timezone.utc)
+        days_threshold = previous_options['days_threshold']
+        start_date = now - timedelta(days_threshold)
+
+        account_optimizations_map = defaultdict(list)
+        for optimization in optimizations:
+            account_optimizations_map[optimization['cloud_account_id']].append(
+                optimization)
+
+        buckets_by_account = self.get_active_resources(
+            list(cloud_accounts_map.keys()), start_date, 'Bucket')
+
+        result = []
+        for cloud_account_id, optimizations_ in account_optimizations_map.items():
+            if cloud_account_id not in cloud_accounts_map:
+                for optimization in optimizations_:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.CLOUD_ACCOUNT_DELETED)
+                    result.append(optimization)
+                continue
+
+            buckets = buckets_by_account.get(cloud_account_id, [])
+            bucket_ids = [x['cloud_resource_id'] for x in buckets]
+            buckets_below_thresholds = self.get_buckets_below_thresholds(
+                cloud_account_id, start_date, previous_options, bucket_ids)
+
+            for optimization in optimizations_:
+                if optimization['cloud_resource_id'] not in bucket_ids:
+                    reason = ArchiveReason.RECOMMENDATION_APPLIED
+                elif optimization[
+                        'cloud_resource_id'] not in buckets_below_thresholds:
+                    reason = ArchiveReason.RECOMMENDATION_IRRELEVANT
+                else:
+                    reason = ArchiveReason.OPTIONS_CHANGED
+                self._set_reason_properties(optimization, reason)
+                result.append(optimization)
         return result
