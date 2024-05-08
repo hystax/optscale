@@ -49,7 +49,7 @@ const columns = [
 
       return snapshots.map((snapshot) => (
         <div key={snapshot.cloud_resource_id} style={{ whiteSpace: "nowrap" }}>
-          <CloudResourceId resourceId={snapshot.cloud_resource_id} cloudResourceIdentifier={snapshot.cloud_cloud_resource_id} />
+          <CloudResourceId resourceId={snapshot.resource_id} cloudResourceIdentifier={snapshot.cloud_resource_id} />
         </div>
       ));
     }

@@ -128,14 +128,18 @@ class MetricsProcessor(object):
 
     def get_metrics_dates(self, table_name, cloud_account_id, resource_ids):
         metric_dates = self.clickhouse_client.execute(
-            '''
-            SELECT resource_id, max(date)
-            FROM %s
-            WHERE cloud_account_id='%s'
-            AND resource_id IN %s
-            GROUP BY resource_id
-            ''' % (table_name, cloud_account_id, list(resource_ids))
-        )
+            """SELECT resource_id, max(date)
+               FROM %s
+               WHERE cloud_account_id='%s'
+               AND resource_id IN resources
+               GROUP BY resource_id""" % (table_name, cloud_account_id),
+            external_tables=[
+                {
+                    'name': 'resources',
+                    'structure': [('id', 'String')],
+                    'data': [{'id': r_id} for r_id in resource_ids]
+                }
+            ])
         return {k: v for k, v in metric_dates}
 
     def update_metrics_flag(self, cloud_account_id, resource_ids):
