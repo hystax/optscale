@@ -143,6 +143,9 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
             self.check_entity_exists(kwargs['employee_id'], Employee)
         if kwargs.get('pool_id'):
             self.check_entity_exists(kwargs['pool_id'], Pool)
+        if 'last_seen' in kwargs:
+            kwargs['_last_seen_date'] = timestamp_to_day_start(
+                kwargs['last_seen'])
         resource = self.get(item_id)
         is_shareable = resource.get('shareable', False)
         old_properties = {}
