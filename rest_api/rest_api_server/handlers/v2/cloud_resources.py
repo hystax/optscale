@@ -602,6 +602,8 @@ class CloudResourceAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         description: "Cloud resource region"}
                     shareable: {type: bool, enum: [false],
                         description: "Make resource not shareable"}
+                    last_seen: {type: int,
+                        description: "Last seen timestamp"}
         responses:
             200: {description: Success (returns modified object)}
             400:
@@ -613,6 +615,7 @@ class CloudResourceAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     - OE0214: Argument should be a string
                     - OE0215: Wrong number of characters
                     - OE0219: Argument should be a string with valid JSON
+                    - OE0223: Argument should be integer
                     - OE0479: shareable should be False
             401:
                 description: |

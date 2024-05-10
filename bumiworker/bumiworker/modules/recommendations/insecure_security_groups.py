@@ -57,6 +57,13 @@ class InsecureSecurityGroups(ModuleBase):
     def unique_record_keys(self):
         return 'cloud_account_id', 'cloud_resource_id', 'security_group_id',
 
+    def get_cloud_func_map(self):
+        return {
+            'aws_cnr': self._get_aws_insecure,
+            'azure_cnr': self._get_azure_insecure,
+            'nebius': self._get_nebius_insecure
+        }
+
     def _get(self):
         (excluded_pools, insecure_ports,
          skip_cloud_accounts) = self.get_options_values()
@@ -68,11 +75,7 @@ class InsecureSecurityGroups(ModuleBase):
         result = []
         for config in list(cloud_acc_map.values()):
             config.update(config.get('config', {}))
-            cloud_func_map = {
-                'aws_cnr': self._get_aws_insecure,
-                'azure_cnr': self._get_azure_insecure,
-                'nebius': self._get_nebius_insecure
-            }
+            cloud_func_map = self.get_cloud_func_map()
             security_group_call = cloud_func_map.get(config['type'])
             if not security_group_call:
                 continue
@@ -130,7 +133,8 @@ class InsecureSecurityGroups(ModuleBase):
                 security_group['insecure_ports'] = insecure_ports_js
         return {region: res}
 
-    def _get_aws_insecure(self, config, resources, excluded_pools, insecure_ports):
+    def _get_aws_insecure(self, config, resources, excluded_pools,
+                          insecure_ports):
         region_sg_map = {}
         for instance in resources:
             region = instance['region']

@@ -441,37 +441,6 @@ class AlibabaReportImporter(BaseReportImporter):
                 self.cloud_acc, billing_date.strftime('%Y-%m'),
                 round(expenses['total_cost'], 2), total_cloud_bill)
 
-    def update_regional_sc_resource_expense_info(self, last_expense_info):
-        resource_info = self.get_common_resource_expense_info(
-            self.cloud_acc_id, last_expense_info.keys())
-        bulk = []
-        for r_id, info in resource_info.items():
-            max_date, total_cost = info
-            last_expense_date, last_expense_cost = last_expense_info[r_id]
-            last_expense_date_ts = int(last_expense_date.timestamp())
-            updates = {
-                'total_cost': total_cost,
-                'last_expense': {
-                    'date': last_expense_date_ts,
-                    'cost': last_expense_cost
-                },
-                'last_seen': last_expense_date_ts,
-                '_last_seen_date': last_expense_date
-            }
-            bulk.append(
-                UpdateOne(
-                    filter={
-                        'cloud_account_id': self.cloud_acc_id,
-                        '_id': r_id
-                    },
-                    update={'$set': updates}
-                )
-            )
-        if bulk:
-            r = retry_mongo_upsert(self.mongo_resources.bulk_write, bulk)
-            LOG.debug(
-                'Updated resources with expense info: %s' % r.bulk_api_result)
-
     def fix_snapshot_chain_expenses(self):
         """Diworker calculates snapshot chains cost by getting snapshot chains
         regional expenses costs which includes all snapshot chains and
@@ -557,7 +526,12 @@ class AlibabaReportImporter(BaseReportImporter):
                 last_expense_info[sc_ids_map[expense['_id']]] = (
                     expense['start_date'], expense['cost'])
             # update last_expense, last_seen for snapshot chains with expenses
-            self.update_regional_sc_resource_expense_info(last_expense_info)
+            self.update_resource_expense_info(
+                self.cloud_acc_id, last_expense_info)
+            for resource_id, last_expense in last_expense_info.items():
+                self.rest_cl.cloud_resource_update(
+                    resource_id,
+                    {'last_seen': int(last_expense[0].timestamp())})
             # delete snapshot chain resources without expenses
             if len(last_expense_info) < len(sc_cloud_without_expenses):
                 for cloud_resource_id in sc_cloud_without_expenses:

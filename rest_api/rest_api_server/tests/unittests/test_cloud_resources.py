@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from freezegun import freeze_time
 from pymongo import UpdateOne
 from unittest.mock import patch, ANY
@@ -294,6 +294,20 @@ class TestCloudResourceApi(TestProfilingBase):
         code, resp = self.client.cloud_resource_update(resource['id'], params)
         self.assertEqual(code, 400)
         self.verify_error_code(resp, 'OE0226')
+
+    def test_patch_last_seen(self):
+        code, resource = self.cloud_resource_create(self.cloud_acc_id,
+                                                    self.valid_resource)
+        self.assertEqual(code, 201)
+
+        last_seen = datetime(2024, 1, 1, 9)
+        last_seen_ts = int(last_seen.timestamp())
+        params = {'last_seen': last_seen_ts}
+        code, resp = self.client.cloud_resource_update(resource['id'], params)
+        self.assertEqual(code, 200)
+        self.assertEqual(resp['last_seen'], last_seen_ts)
+        res = self.resources_collection.find_one({'_id': resource['id']})
+        self.assertEqual(res['_last_seen_date'], last_seen.replace(hour=0))
 
     def test_patch_environment(self):
         env_resource = {
