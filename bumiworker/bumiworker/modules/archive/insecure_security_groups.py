@@ -38,11 +38,11 @@ class InsecureSecurityGroups(ArchiveBase,
                 optimization)
             opt_instances_ids.add(optimization['resource_id'])
 
-        active_instances = self.mongo_client.restapi.resources.find(
-            {'_id': {'$in': list(opt_instances_ids)}, 'active': True})
+        _, active_instances = self.rest_client.cloud_resources_discover(
+            self.organization_id, 'instance')
 
         active_instances_map = {x['cloud_resource_id']: x
-                                for x in active_instances}
+                                for x in active_instances['data']}
 
         result = []
         for cloud_account_id, optimizations_ in account_optimizations_map.items():
@@ -84,24 +84,19 @@ class InsecureSecurityGroups(ArchiveBase,
 
                 curr_sgs_list = cloud_res_id_sgs[inst_cloud_res_id]
                 opt_sg_id = optimization['security_group_id']
-                curr_sg = [x for x in curr_sgs_list
-                           if x['security_group_id'] == opt_sg_id]
-                if not curr_sg:
-                    self._set_reason_properties(
-                        optimization, ArchiveReason.FAILED_DEPENDENCY)
-                    result.append(optimization)
-                    continue
-
-                prev_ports = [frozenset(
-                    x.items()) for x in optimization['insecure_ports']]
-                curr_ports = [frozenset(
-                    x.items()) for x in curr_sg[0]['insecure_ports']]
-                if set(prev_ports) != set(curr_ports):
-                    self._set_reason_properties(
-                        optimization, ArchiveReason.RECOMMENDATION_APPLIED)
+                curr_insecure_sg = [x for x in curr_sgs_list
+                                    if x['security_group_id'] == opt_sg_id]
+                instance = active_instances_map[inst_cloud_res_id]
+                if not curr_insecure_sg and opt_sg_id not in instance.get(
+                        'meta', {}).get('security_groups'):
+                    # security group is detached from instance
+                    reason = ArchiveReason.FAILED_DEPENDENCY
+                elif not curr_insecure_sg:
+                    # all security group's ports become secure
+                    reason = ArchiveReason.RECOMMENDATION_APPLIED
                 else:
-                    self._set_reason_properties(
-                        optimization, ArchiveReason.OPTIONS_CHANGED)
+                    reason = ArchiveReason.OPTIONS_CHANGED
+                self._set_reason_properties(optimization, reason)
                 result.append(optimization)
         return result
 
