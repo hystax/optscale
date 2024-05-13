@@ -595,16 +595,30 @@ class Azure(CloudBase):
         vnets = self.network.virtual_networks.list_all()
         return {vnet.id: vnet.name for vnet in vnets}
 
+    def _get_nics_by_instance(self, vm, return_all=True):
+        nics = []
+        if not vm.network_profile or not vm.network_profile.network_interfaces:
+            return nics
+        for network_interface in vm.network_profile.network_interfaces:
+            nw_intf_id_components = network_interface.id.split('/')
+            nic_name = nw_intf_id_components[-1]
+            nic_group = nw_intf_id_components[-5]
+            nics.append(self.network.network_interfaces.get(
+                nic_group, nic_name))
+            if not return_all:
+                return nics
+        return nics
+
+    def _get_sgs_by_instance(self, vm):
+        nics = self._get_nics_by_instance(vm, return_all=True)
+        sgs_ids = set(nic.network_security_group.id for nic in nics)
+        return list(sgs_ids)
+
     def _get_vnet_id_by_instance(self, vm):
-        if not vm.network_profile:
+        nics = self._get_nics_by_instance(vm, return_all=False)
+        if not nics:
             return None
-        if not vm.network_profile.network_interfaces:
-            return None
-        nw_intf_id_components = vm.network_profile.network_interfaces[0].id.split('/')
-        nic_name = nw_intf_id_components[-1]
-        nic_group = nw_intf_id_components[-5]
-        nic = self.network.network_interfaces.get(nic_group, nic_name)
-        return '/'.join(nic.ip_configurations[0].subnet.id.split('/')[:-2])
+        return '/'.join(nics[0].ip_configurations[0].subnet.id.split('/')[:-2])
 
     def discover_instance_resources(self):
         """
@@ -623,6 +637,7 @@ class Azure(CloudBase):
             stopped_allocated = status if status is None else status == 'stopped'
             cloud_console_link = self._generate_cloud_link(vm.id)
             vnet_id = self._get_vnet_id_by_instance(vm)
+            sgs_ids = self._get_sgs_by_instance(vm)
             instance_resource = InstanceResource(
                 cloud_resource_id=vm.id.lower(),
                 cloud_account_id=self.cloud_account_id,
@@ -637,6 +652,7 @@ class Azure(CloudBase):
                 os=os_type,
                 vpc_id=vnet_id,
                 vpc_name=vnet_id_to_name.get(vnet_id),
+                security_groups=sgs_ids
             )
             yield instance_resource
 
