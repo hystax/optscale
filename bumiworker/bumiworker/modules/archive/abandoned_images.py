@@ -55,7 +55,7 @@ class AbandonedImages(ArchiveBase, AbandonedImagesRecommendation):
                 last_used = last_used_map.get(cloud_resource_id)
                 if not image:
                     reason = ArchiveReason.RECOMMENDATION_APPLIED
-                elif last_used >= int(start_date.timestamp()):
+                elif last_used and last_used >= int(start_date.timestamp()):
                     reason = ArchiveReason.RECOMMENDATION_IRRELEVANT
                 else:
                     reason = ArchiveReason.OPTIONS_CHANGED
