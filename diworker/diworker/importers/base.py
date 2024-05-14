@@ -202,12 +202,15 @@ class BaseReportImporter:
             'resource_ids': list(resource_ids)
         })
 
-    def save_clean_expenses(self, cloud_account_id, chunk,
-                            unique_id_field='resource_id'):
-        info_map = {
+    def get_resource_info_map(self, chunk):
+        return {
             r_id: self.get_resource_info_from_expenses(expenses)
             for r_id, expenses in chunk.items()
         }
+
+    def save_clean_expenses(self, cloud_account_id, chunk,
+                            unique_id_field='resource_id'):
+        info_map = self.get_resource_info_map(chunk)
         cloud_unique_id_field = 'cloud_%s' % unique_id_field
 
         resources_map = {

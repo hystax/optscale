@@ -24,6 +24,13 @@ class InsecureSecurityGroups(ArchiveBase,
     def supported_cloud_types(self):
         return list(self.get_cloud_func_map().keys())
 
+    def _is_in_instance_sgs(self, instance, sg_id, cloud_type):
+        sgs_ids = instance.get('meta', {}).get('security_groups', [])
+        if cloud_type == 'aws_cnr':
+            sgs_ids = [x['GroupId'] for x in sgs_ids]
+        if sg_id in sgs_ids:
+            return True
+
     def _get(self, previous_options, optimizations, cloud_accounts_map,
              **kwargs):
 
@@ -87,8 +94,8 @@ class InsecureSecurityGroups(ArchiveBase,
                 curr_insecure_sg = [x for x in curr_sgs_list
                                     if x['security_group_id'] == opt_sg_id]
                 instance = active_instances_map[inst_cloud_res_id]
-                if not curr_insecure_sg and opt_sg_id not in instance.get(
-                        'meta', {}).get('security_groups'):
+                if not curr_insecure_sg and not self._is_in_instance_sgs(
+                        instance, opt_sg_id, cloud_config['type']):
                     # security group is detached from instance
                     reason = ArchiveReason.FAILED_DEPENDENCY
                 elif not curr_insecure_sg:

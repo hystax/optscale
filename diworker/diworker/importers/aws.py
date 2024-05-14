@@ -437,13 +437,13 @@ class AWSReportImporter(CSVBaseReportImporter):
         return datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ'
                                  ).replace(tzinfo=timezone.utc)
 
-    def get_resource_info_from_expenses(self, expenses):
+    def get_resource_info_from_expenses(self, expenses, resource_type=None):
         name = None
-        resource_type = None
+        resource_type = resource_type
         region = None
         last_region = None
         service_name = None
-        first_seen = datetime.utcnow().replace(tzinfo=timezone.utc)
+        first_seen = datetime.now(tz=timezone.utc)
         tags = {}
         family_region_map = {}
         fake_cad_extras = {}
@@ -627,6 +627,10 @@ class AWSReportImporter(CSVBaseReportImporter):
         def extract_type_by_product_type(res_type):
             return product_family and res_type in product_family
 
+        def extract_data_transfer():
+            return (resource_id and 'natgateway' not in resource_id and
+                    product_family and 'Data Transfer' in product_family)
+
         resource_type_map = OrderedDict()
         if tax_type:
             resource_type_map[tax_type] = item_type == 'Tax'
@@ -634,9 +638,10 @@ class AWSReportImporter(CSVBaseReportImporter):
             nat_gateway_type: extract_type_by_product_type(nat_gateway_type),
             instance_type: (usage_type and operation and
                             'SavingsPlan' not in item_type and
-                            extract_type_by_product_type(instance_type) and (
-                                    'BoxUsage' in usage_type or instance_type in
-                                    operation)),
+                            (extract_type_by_product_type(instance_type) or
+                             extract_data_transfer()) and
+                            ('BoxUsage' in usage_type or instance_type in
+                             operation)),
             snapshot_type: usage_type and operation and (
                     snapshot_type in usage_type or snapshot_type in operation),
             volume_type: usage_type and volume_type in usage_type,
@@ -652,6 +657,30 @@ class AWSReportImporter(CSVBaseReportImporter):
                               if v is True]
         return (resource_type_keys[0] if resource_type_keys else
                 resource_type_map.get('Other'))
+
+    def get_resource_info_map(self, chunk):
+        regular_res_info_map = {}
+        sp_covered_chunk = defaultdict(list)
+        for r_id, expenses in chunk.items():
+            # collect regular resources infos
+            regular_res_info_map[r_id] = self.get_resource_info_from_expenses(
+                expenses)
+
+            # collect instances covered by SP info map to create them due to
+            # these instances may not have own raw expenses as their expenses
+            # are related to SP resource
+            for exp in expenses:
+                if exp['lineItem/LineItemType'] == 'SavingsPlanCoveredUsage':
+                    sp_covered_chunk[exp['lineItem/ResourceId']].append(exp)
+
+        # use predefined resource type to avoid detecting SP fields
+        info_map = {
+            r_id: self.get_resource_info_from_expenses(
+                expenses, resource_type='Instance')
+            for r_id, expenses in sp_covered_chunk.items()
+        }
+        info_map.update(regular_res_info_map)
+        return info_map
 
     def clean_expenses_for_resource(self, resource_id, expenses):
         clean_expenses = {}
