@@ -385,6 +385,20 @@ class TestPoolApi(TestApiBase):
         self.assertEqual(code, 201)
         self.assertEqual(pool1['name'], pool2['name'])
 
+    @patch('rest_api.rest_api_server.controllers.pool.'
+           'PoolController.get_user_id')
+    @patch('rest_api.rest_api_server.controllers.pool.'
+           'PoolController._get_assignments_actions_by_token')
+    def test_pool_auto_extension_with_no_limit(
+            self, _p_actions_by_token, _p_user_id):
+        code, resp = self.client.pool_create(self.org_id, {
+            'name': 'pool_1',
+            'parent_id': self.org['pool_id'],
+            'auto_extension': True
+        })
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0216')
+
     def test_delete_pool_with_children(self):
         _, parent_pool = self.client.pool_create(self.org_id, {
             'name': 'parent'

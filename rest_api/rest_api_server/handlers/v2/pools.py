@@ -196,6 +196,7 @@ class PoolAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 description: |
                     Wrong arguments:
                     - OE0003: Database error
+                    - OE0216: Argument is not provided
                     - OE0217: Invalid query parameter
                     - OE0226: Should be True or False
                     - OE0407: Child pool limit value exceeds parent limit
@@ -235,6 +236,8 @@ class PoolAsyncCollectionHandler(BaseAsyncCollectionHandler,
             check_bool_attribute('auto_extension', auto_extension)
         except WrongArgumentsException as ex:
             raise OptHTTPError.from_opt_exception(400, ex)
+        if auto_extension and 'limit' not in data:
+            raise OptHTTPError(400, Err.OE0216, ['limit'])
         res = await run_task(self.controller.create,
                              organization_id=organization_id,
                              auto_extension=auto_extension, **data)
