@@ -158,6 +158,7 @@ class EnvironmentResourceAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     - OE0214: Argument should be a string
                     - OE0215: Wrong number of characters
                     - OE0219: Argument should be a string with valid JSON
+                    - OE0344: Argument should be a dictionary
                     - OE0456: Duplicate path parameters in the request body
             401:
                 description: |

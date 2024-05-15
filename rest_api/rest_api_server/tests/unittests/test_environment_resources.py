@@ -191,6 +191,14 @@ class TestEnvironmentResourceApi(TestApiBase):
         self.assertEqual(code, 201)
         self.assertNotEqual(res['tags'], {})
 
+    def test_create_invalid_tags(self):
+        self.valid_resource.pop('cloud_resource_id')
+        self.valid_resource['tags'] = 'test'
+        code, res = self.environment_resource_create(
+            self.org_id, self.valid_resource)
+        self.assertEqual(code, 400)
+        self.assertEqual(res['error']['error_code'], 'OE0344')
+
     def test_create_with_employee(self):
         code, employee = self.client.employee_create(
             self.org_id, {'name': 'John Smith'})
