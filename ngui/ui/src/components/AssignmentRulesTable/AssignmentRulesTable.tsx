@@ -15,13 +15,17 @@ import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { getCreateAssignmentRuleUrl, getEditAssignmentRuleUrl } from "urls";
+import { isEmpty as isEmptyArray } from "utils/arrays";
 import { conditions, name, poolOwner, priority } from "./columns";
 import prepareData from "./utils/prepareData";
 
 const isPriorityActionDisabled = (rulePriority, condition) => rulePriority === condition;
 
-const AssignmentRulesTable = ({ rules, isLoading, onUpdatePriority }) => {
+const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpdatePriority }) => {
+  const { isGetAssignmentRulesLoading, isGetManagedPoolsLoading } = isLoadingProps;
+
   const navigate = useNavigate();
+
   const openSideModal = useOpenSideModal();
 
   const { rules: assignmentRules = [], entities = {} } = rules || {};
@@ -142,13 +146,15 @@ const AssignmentRulesTable = ({ rules, isLoading, onUpdatePriority }) => {
         icon: <RepeatOutlinedIcon fontSize="small" />,
         messageId: "reapplyRuleset",
         type: "button",
-        action: () => openSideModal(ReapplyRulesetModal),
-        dataTestId: "btn_re_apply"
+        action: () => openSideModal(ReapplyRulesetModal, { managedPools }),
+        dataTestId: "btn_re_apply",
+        show: !isEmptyArray(managedPools),
+        isLoading: isGetManagedPoolsLoading
       }
     ]
   };
 
-  return isLoading ? (
+  return isGetAssignmentRulesLoading ? (
     <TableLoader columnsCounter={4} showHeader />
   ) : (
     <>
