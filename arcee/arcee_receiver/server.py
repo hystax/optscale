@@ -2171,11 +2171,11 @@ async def _remove_used_aliases(aliases, model_id):
                 {'_id': alias['_id']}, {'$set': {'aliases': new_aliases}})
 
 
-@app.route('/arcee/v2/models/<model_id>/runs/<run_id>', methods=["POST", ],
-           ctx_label='token')
+@app.route('/arcee/v2/runs/<run_id>/models/<model_id>/version',
+           methods=["POST", ], ctx_label='token')
 @validate(json=ModelVersionIn)
 async def create_model_version(request, body: ModelVersionIn,
-                               model_id: str, run_id: str):
+                               run_id: str, model_id: str):
     token = request.ctx.token
     await _get_model(token, model_id)
     run = await db.run.find_one({
@@ -2199,11 +2199,11 @@ async def create_model_version(request, body: ModelVersionIn,
     return json(model, status=201)
 
 
-@app.route('/arcee/v2/models/<model_id>/runs/<run_id>', methods=["PATCH", ],
-           ctx_label='token')
+@app.route('/arcee/v2/runs/<run_id>/models/<model_id>/version',
+           methods=["PATCH", ], ctx_label='token')
 @validate(json=ModelVersionIn)
 async def update_model_version(request, body: ModelVersionIn,
-                               model_id: str, run_id: str):
+                               run_id: str, model_id: str):
     await _get_model(request.ctx.token, model_id)
     model_version = await db.model_version.find_one(
         {"$and": [
@@ -2226,9 +2226,9 @@ async def update_model_version(request, body: ModelVersionIn,
     return json(ModelVersion(**obj).model_dump(by_alias=True))
 
 
-@app.route('/arcee/v2/models/<model_id>/runs/<run_id>', methods=["DELETE", ],
-           ctx_label='token')
-async def delete_model_version(request, model_id: str, run_id: str):
+@app.route('/arcee/v2/runs/<run_id>/models/<model_id>/version',
+           methods=["DELETE", ], ctx_label='token')
+async def delete_model_version(request, run_id: str, model_id: str):
     await _get_model(request.ctx.token, model_id)
     model_version = await db.model_version.find_one(
         {"$and": [

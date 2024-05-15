@@ -27,7 +27,7 @@ class Urls:
     task = '/arcee/v2/tasks/{}'
     models = '/arcee/v2/models'
     model = '/arcee/v2/models/{}'
-    model_version = '/arcee/v2/models/{0}/runs/{1}'
+    model_version = '/arcee/v2/runs/{0}/models/{1}/version'
     task_model_version = '/arcee/v2/tasks/{}/model_versions'
     runs = '/arcee/v2/tasks/{}/run'
     run = '/arcee/v2/run/{}'

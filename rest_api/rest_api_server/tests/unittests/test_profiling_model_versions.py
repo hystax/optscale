@@ -22,24 +22,24 @@ class TestModelVersionApi(TestProfilingBase):
 
     def test_create_model_version(self):
         code, resp = self.client.model_version_create(
-            self.org['id'], 'model_id', 'run_id', self.valid_model_version)
+            self.org['id'], 'run_id', 'model_id', self.valid_model_version)
         self.assertEqual(code, 201)
         for k, v in self.valid_model_version.items():
             self.assertEqual(v, resp[k])
 
         code, resp = self.client.model_version_create(
-            self.org['id'], 'model_id1', 'run_id1', {})
+            self.org['id'], 'run_id1', 'model_id1', {})
         self.assertEqual(code, 201)
 
     def test_create_model_version_duplicate(self):
         code, resp = self.client.model_version_create(
-            self.org['id'], 'model_id', 'run_id', self.valid_model_version)
+            self.org['id'], 'run_id', 'model_id', self.valid_model_version)
         self.assertEqual(code, 201)
         for k, v in self.valid_model_version.items():
             self.assertEqual(v, resp[k])
 
         code, resp = self.client.model_version_create(
-            self.org['id'], 'model_id', 'run_id', {})
+            self.org['id'], 'run_id', 'model_id', {})
         self.assertEqual(code, 409)
         self.assertEqual(resp['error']['error_code'], 'OE0557')
 
@@ -50,7 +50,7 @@ class TestModelVersionApi(TestProfilingBase):
                     param: value
                 }
                 code, resp = self.client.model_version_create(
-                    self.org['id'], 'model_id', 'run_id', body)
+                    self.org['id'], 'run_id', 'model_id', body)
                 self.assertEqual(code, 400)
                 self.assertEqual(resp['error']['error_code'], 'OE0214')
 
@@ -59,7 +59,7 @@ class TestModelVersionApi(TestProfilingBase):
                 'aliases': value
             }
             code, resp = self.client.model_version_create(
-                self.org['id'], 'model_id', 'run_id', body)
+                self.org['id'], 'run_id', 'model_id', body)
             self.assertEqual(code, 400)
             self.assertEqual(resp['error']['error_code'], 'OE0385')
 
@@ -68,7 +68,7 @@ class TestModelVersionApi(TestProfilingBase):
                 'tags': value
             }
             code, resp = self.client.model_version_update(
-                self.org['id'], 'model_id', 'run_id', **body)
+                self.org['id'], 'run_id', 'model_id', **body)
             self.assertEqual(code, 400)
             self.assertEqual(resp['error']['error_code'], 'OE0344')
 
@@ -78,23 +78,23 @@ class TestModelVersionApi(TestProfilingBase):
                 param: 'test'
             }
             code, resp = self.client.model_version_create(
-                self.org['id'], 'model_id', 'run_id', body)
+                self.org['id'], 'run_id', 'model_id', body)
             self.assertEqual(code, 400)
             self.assertEqual(resp['error']['error_code'], 'OE0212')
 
     def test_patch_model_version(self):
         code, _ = self.client.model_version_create(
-            self.org['id'], 'model_id', 'run_id', self.valid_model_version)
+            self.org['id'], 'run_id', 'model_id', self.valid_model_version)
         self.assertEqual(code, 201)
         body = {'path': 'new'}
         code, resp = self.client.model_version_update(
-            self.org['id'], 'model_id', 'run_id', **body)
+            self.org['id'], 'run_id', 'model_id', **body)
         self.assertEqual(code, 200)
         self.assertEqual(resp['path'], body['path'])
 
     def test_patch_invalid_params(self):
         code, model = self.client.model_version_create(
-            self.org['id'], 'model_id', 'run_id', self.valid_model_version)
+            self.org['id'], 'run_id', 'model_id', self.valid_model_version)
         self.assertEqual(code, 201)
         for param in ['path', 'version']:
             for value in [1, {'test': 1}, ['test']]:
@@ -102,7 +102,7 @@ class TestModelVersionApi(TestProfilingBase):
                     param: value
                 }
                 code, resp = self.client.model_version_update(
-                    self.org['id'], 'model_id', 'run_id', **body)
+                    self.org['id'], 'run_id', 'model_id', **body)
                 self.assertEqual(code, 400)
                 self.assertEqual(resp['error']['error_code'], 'OE0214')
 
@@ -111,7 +111,7 @@ class TestModelVersionApi(TestProfilingBase):
                 'aliases': value
             }
             code, resp = self.client.model_version_update(
-                self.org['id'], 'model_id', 'run_id', **body)
+                self.org['id'], 'run_id', 'model_id', **body)
             self.assertEqual(code, 400)
             self.assertEqual(resp['error']['error_code'], 'OE0385')
 
@@ -120,48 +120,49 @@ class TestModelVersionApi(TestProfilingBase):
                 'tags': value
             }
             code, resp = self.client.model_version_update(
-                self.org['id'], 'model_id', 'run_id', **body)
+                self.org['id'], 'run_id', 'model_id', **body)
             self.assertEqual(code, 400)
             self.assertEqual(resp['error']['error_code'], 'OE0344')
 
     def test_patch_unexpected(self):
         code, model_version = self.client.model_version_create(
-            self.org['id'], 'model_id', 'run_id', self.valid_model_version)
+            self.org['id'], 'run_id', 'model_id', self.valid_model_version)
         self.assertEqual(code, 201)
         for param in ['deleted_at', '_id', 'unexpected']:
             body = {
                 param: 'test'
             }
             code, resp = self.client.model_version_update(
-                self.org['id'], model_version['model_id'],
-                model_version['run_id'], **body)
+                self.org['id'], model_version['run_id'],
+                model_version['model_id'], **body)
             self.assertEqual(code, 400)
             self.assertEqual(resp['error']['error_code'], 'OE0212')
 
     def test_patch_not_existing(self):
         body = {'version': '1'}
         code, resp = self.client.model_version_update(
-            self.org['id'], 'model_id', 'run_id', **body)
+            self.org['id'], 'run_id', 'model_id', **body)
         self.assertEqual(code, 404)
         self.assertEqual(resp['error']['error_code'], 'OE0002')
 
     def test_delete(self):
         code, model_version = self.client.model_version_create(
-            self.org['id'], 'model_id', 'run_id', self.valid_model_version)
+            self.org['id'], 'run_id', 'model_id', self.valid_model_version)
         self.assertEqual(code, 201)
         code, resp = self.client.model_version_delete(
-            self.org['id'], model_version['model_id'],
-            model_version['run_id'])
+            self.org['id'], model_version['run_id'],
+            model_version['model_id'])
         self.assertEqual(code, 204)
 
     def test_get(self):
         code, model_version = self.client.get(
-            self.client.model_runs_url(self.org['id'], 'model_id', 'run_id'))
+            self.client.run_model_version_url(
+                self.org['id'], 'run_id', 'model_id'))
         self.assertEqual(code, 405)
 
     def test_delete_not_existing(self):
         code, resp = self.client.model_version_delete(
-            self.org['id'], 'model_id', 'run_id')
+            self.org['id'], 'run_id', 'model_id')
         self.assertEqual(code, 404)
         self.assertEqual(resp['error']['error_code'], 'OE0002')
 
@@ -178,7 +179,7 @@ class TestModelVersionApi(TestProfilingBase):
         run = self._create_run(self.org['id'], task['id'])
         code, model = self.client.model_create(self.org['id'], {'key': 'key'})
         code, model_version = self.client.model_version_create(
-            self.org['id'], model['id'], run['_id'], self.valid_model_version)
+            self.org['id'], run['_id'], model['id'], self.valid_model_version)
         self.assertEqual(code, 201)
 
         code, resp = self.client.model_versions_by_task(

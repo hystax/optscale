@@ -248,8 +248,9 @@ class Client:
             url = '%s/%s' % (url, model_id)
         return url
 
-    def model_runs_url(self, model_id, run_id):
-        return '%s/runs/%s' % (self.models_url(model_id), run_id)
+    @staticmethod
+    def run_model_version_url(run_id, model_id):
+        return 'runs/%s/models/%s/version' % (run_id, model_id)
 
     def model_versions_url(self, task_id):
         return '%s/model_versions' % (self.tasks_url(task_id))
@@ -755,8 +756,8 @@ class Client:
 
     def model_version_create(
             self,
-            model_id: str,
             run_id: str,
+            model_id: str,
             version: str = None,
             path: str = None,
             aliases: list = None,
@@ -770,13 +771,14 @@ class Client:
             body['aliases'] = aliases
         if tags is not None:
             body['tags'] = tags
-        return self.post(self.model_runs_url(model_id, run_id), body)
+        return self.post(self.run_model_version_url(run_id, model_id), body)
 
-    def model_version_update(self, model_id: str, run_id: str, **params):
-        return self.patch(self.model_runs_url(model_id, run_id), params)
+    def model_version_update(self, run_id: str, model_id: str, **params):
+        return self.patch(
+            self.run_model_version_url(run_id, model_id), params)
 
-    def model_version_delete(self, model_id: str, run_id: str):
-        return self.delete(self.model_runs_url(model_id, run_id))
+    def model_version_delete(self, run_id: str, model_id: str):
+        return self.delete(self.run_model_version_url(run_id, model_id))
 
     def model_versions_by_task(self, task_id: str):
         return self.get(self.model_versions_url(task_id))
