@@ -1,6 +1,7 @@
 import { FormattedMessage } from "react-intl";
 import FormattedMoney from "components/FormattedMoney";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
+import ShortLivingInstancesModal from "components/SideModalManager/SideModals/recommendations/ShortLivingInstancesModal";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { ALIBABA_ECS, AWS_EC2, AZURE_COMPUTE, NEBIUS_SERVICE } from "hooks/useRecommendationServices";
 import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
@@ -57,6 +58,10 @@ class ShortLivingInstances extends BaseRecommendation {
   withExclusions = true;
 
   dismissable = false;
+
+  hasSettings = true;
+
+  settingsSidemodalClass = ShortLivingInstancesModal;
 
   static resourceDescriptionMessageId = "shortLivingInstancesResourceRecommendation";
 

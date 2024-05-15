@@ -3,6 +3,7 @@ import { Link as RouterLink } from "react-router-dom";
 import FormattedMoney from "components/FormattedMoney";
 import HeaderHelperCell from "components/HeaderHelperCell";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
+import ReservedInstancesModal from "components/SideModalManager/SideModals/recommendations/ReservedInstancesModal";
 import { AWS_EC2 } from "hooks/useRecommendationServices";
 import { RI_SP_COVERAGE } from "urls";
 import { detectedAt, resource, resourceLocation, size } from "utils/columns";
@@ -81,6 +82,10 @@ class ReservedInstances extends BaseRecommendation {
   emptyMessageId = "noReservedInstances";
 
   withExclusions = true;
+
+  hasSettings = true;
+
+  settingsSidemodalClass = ReservedInstancesModal;
 
   static resourceDescriptionMessageId = "reservedInstancesResourceRecommendation";
 
