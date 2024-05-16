@@ -11,6 +11,7 @@ import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import PoolLabel from "components/PoolLabel";
 import Selector, { Item, ItemContentWithPoolIcon } from "components/Selector";
+import { useIsAllowed } from "hooks/useAllowedActions";
 import { EMPTY_UUID } from "utils/constants";
 
 const POOL_ID = "poolId";
@@ -23,7 +24,7 @@ const getChildren = (array, parentId) => {
   return children.length !== 0 ? [...children, ...children.flatMap((child) => getChildren(array, child.id))] : children;
 };
 
-const ReapplyRulesetForm = ({ onSubmit, pools, closeSideModal, isFormLoading, isSubmitLoading }) => {
+const ReapplyRulesetForm = ({ onSubmit, managedPools, closeSideModal, isSubmitLoading }) => {
   const {
     handleSubmit,
     control,
@@ -35,27 +36,41 @@ const ReapplyRulesetForm = ({ onSubmit, pools, closeSideModal, isFormLoading, is
       [INCLUDE_CHILDREN]: false
     }
   });
+
+  const rootPoolId = managedPools.find((i) => i.parent_id === null)?.id;
+
+  const isOrganizationManager = useIsAllowed({ requiredActions: ["MANAGE_POOLS"] });
+  const isRootPoolManager = !!rootPoolId;
+
   const intl = useIntl();
-  const [isSpecificPool, setIsSpecificPool] = useState(false);
+
+  const canReapplyForWholeOrganization = isOrganizationManager || isRootPoolManager;
+
+  const [isSpecificPool, setIsSpecificPool] = useState(!canReapplyForWholeOrganization);
+
   const [poolId, includeChildren] = watch([POOL_ID, INCLUDE_CHILDREN]);
+
   const submit = (formData) => {
     if (isSpecificPool) {
       onSubmit(formData[POOL_ID] === EMPTY_UUID ? undefined : formData[POOL_ID], formData[INCLUDE_CHILDREN]);
     } else {
-      const rootPoolId = pools.find((i) => i.parent_id === null)?.id;
       onSubmit(rootPoolId, true);
     }
   };
 
   const buttonsGroup = [
-    {
-      id: WHOLE_ORGANIZATION_ID,
-      messageId: "wholeOrganization",
-      dataTestId: "btn_apply_rule_type_whole_organization",
-      action: () => {
-        setIsSpecificPool(false);
-      }
-    },
+    ...(canReapplyForWholeOrganization
+      ? [
+          {
+            id: WHOLE_ORGANIZATION_ID,
+            messageId: "wholeOrganization",
+            dataTestId: "btn_apply_rule_type_whole_organization",
+            action: () => {
+              setIsSpecificPool(false);
+            }
+          }
+        ]
+      : []),
     {
       id: SPECIFIC_POOL_ID,
       messageId: "specificPool",
@@ -76,7 +91,7 @@ const ReapplyRulesetForm = ({ onSubmit, pools, closeSideModal, isFormLoading, is
           <Typography component="span">
             <FormattedMessage id="reapplyRulesetTo" />{" "}
           </Typography>
-          <ButtonGroup buttons={buttonsGroup} activeButtonIndex={isSpecificPool ? SPECIFIC_POOL_ID : WHOLE_ORGANIZATION_ID} />
+          <ButtonGroup buttons={buttonsGroup} activeButtonId={isSpecificPool ? SPECIFIC_POOL_ID : WHOLE_ORGANIZATION_ID} />
         </FormButtonsWrapper>
         {isSpecificPool && (
           <Controller
@@ -95,10 +110,9 @@ const ReapplyRulesetForm = ({ onSubmit, pools, closeSideModal, isFormLoading, is
                 labelMessageId="pools"
                 error={!!errors[POOL_ID]}
                 helperText={errors?.[POOL_ID]?.message}
-                isLoading={isFormLoading}
                 {...field}
               >
-                {pools.map(({ id, name, pool_purpose: poolPurpose }) => (
+                {managedPools.map(({ id, name, pool_purpose: poolPurpose }) => (
                   <Item key={id} value={id}>
                     <ItemContentWithPoolIcon poolType={poolPurpose}>{name}</ItemContentWithPoolIcon>
                   </Item>
@@ -132,7 +146,7 @@ const ReapplyRulesetForm = ({ onSubmit, pools, closeSideModal, isFormLoading, is
         )}
         {includeChildren && isSpecificPool && (
           <Box display="flex" flexWrap="wrap">
-            {getChildren(pools, poolId).map((pool, index) => (
+            {getChildren(managedPools, poolId).map((pool, index) => (
               <Box mr={1} key={pool.id}>
                 <PoolLabel
                   iconProps={{ dataTestId: `pool_icon_${index}` }}

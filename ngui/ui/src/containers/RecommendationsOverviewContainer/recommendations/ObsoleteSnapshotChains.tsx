@@ -1,5 +1,6 @@
 import FormattedMoney from "components/FormattedMoney";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
+import ObsoleteSnapshotChainsModal from "components/SideModalManager/SideModals/recommendations/ObsoleteSnapshotChainsModal";
 import { ALIBABA_ECS } from "hooks/useRecommendationServices";
 import { detectedAt, firstSeenOn, lastSeenUsed, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
@@ -49,6 +50,10 @@ class ObsoleteSnapshotChains extends BaseRecommendation {
   withExclusions = true;
 
   withCleanupScripts = true;
+
+  hasSettings = true;
+
+  settingsSidemodalClass = ObsoleteSnapshotChainsModal;
 
   static resourceDescriptionMessageId = "obsoleteSnapshotChainsResourceRecommendation";
 

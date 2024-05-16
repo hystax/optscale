@@ -13,7 +13,7 @@ class ReapplyRulesetModal extends BaseSideModal {
   dataTestId = "smodal_reapply_ruleset";
 
   get content() {
-    return <ReapplyRulesetFormContainer closeSideModal={this.closeSideModal} />;
+    return <ReapplyRulesetFormContainer managedPools={this.payload?.managedPools} closeSideModal={this.closeSideModal} />;
   }
 }
 

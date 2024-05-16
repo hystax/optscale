@@ -1,6 +1,7 @@
 import { FormattedMessage } from "react-intl";
 import FormattedMoney from "components/FormattedMoney";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
+import InstancesSubscriptionModal from "components/SideModalManager/SideModals/recommendations/InstancesSubscriptionModal";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { ALIBABA_ECS } from "hooks/useRecommendationServices";
 import { detectedAt, size, resource, resourceLocation } from "utils/columns";
@@ -55,6 +56,10 @@ class InstanceSubscription extends BaseRecommendation {
   categories = [CATEGORY_COST];
 
   withExclusions = true;
+
+  hasSettings = true;
+
+  settingsSidemodalClass = InstancesSubscriptionModal;
 
   static resourceDescriptionMessageId = "instanceSubscriptionResourceRecommendation";
 

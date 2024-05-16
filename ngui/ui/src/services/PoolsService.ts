@@ -167,7 +167,7 @@ export const dataMocked = {
   ]
 };
 
-export const useGetAvailablePools = () => {
+export const useGetAvailablePools = (params) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
 
@@ -179,9 +179,9 @@ export const useGetAvailablePools = () => {
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getAvailablePools(organizationId));
+      dispatch(getAvailablePools(organizationId, params));
     }
-  }, [dispatch, organizationId, shouldInvoke]);
+  }, [dispatch, organizationId, shouldInvoke, params]);
 
   return { data: pools, isLoading, isDataReady };
 };

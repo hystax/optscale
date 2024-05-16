@@ -292,7 +292,10 @@ class ClusterTypeController(BaseController, MongoMixin, PriorityMixin):
     @staticmethod
     def get_resource_cluster_type(resource, tag_cluster_type_map):
         cluster_type = None
-        for k, v in resource.get('tags', {}).items():
+        tags = resource.get('tags', {})
+        if not isinstance(tags, dict):
+            return
+        for k, v in tags.items():
             c_type_candidate = tag_cluster_type_map.get(k)
             if not c_type_candidate:
                 continue

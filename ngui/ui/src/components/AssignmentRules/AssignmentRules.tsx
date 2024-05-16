@@ -21,14 +21,19 @@ const actionBarDefinition = {
   }
 };
 
-const AssignmentRules = ({ rules, onUpdatePriority, isLoading = false, isUpdateLoading = false }) => (
+const AssignmentRules = ({ rules, managedPools, onUpdatePriority, isLoadingProps = {}, isUpdateLoading = false }) => (
   <>
     <ActionBar data={actionBarDefinition} />
     <PageContentWrapper>
       <ContentBackdropLoader isLoading={isUpdateLoading}>
         <Stack spacing={SPACING_2}>
           <div>
-            <AssignmentRulesTable rules={rules} isLoading={isLoading} onUpdatePriority={onUpdatePriority} />
+            <AssignmentRulesTable
+              rules={rules}
+              managedPools={managedPools}
+              isLoadingProps={isLoadingProps}
+              onUpdatePriority={onUpdatePriority}
+            />
           </div>
           <div>
             <InlineSeverityAlert messageId="assignmentRulesPageDescription" messageDataTestId="p_environments_list" />

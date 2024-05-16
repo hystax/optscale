@@ -1,6 +1,7 @@
 import { FormattedMessage } from "react-intl";
 import FormattedMoney from "components/FormattedMoney";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
+import ObsoleteIpsModal from "components/SideModalManager/SideModals/recommendations/ObsoleteIpsModal";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { ALIBABA_ECS_VPC, AWS_EC2_VPC, AZURE_NETWORK, NEBIUS_SERVICE } from "hooks/useRecommendationServices";
 import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
@@ -69,6 +70,10 @@ class ObsoleteIps extends BaseRecommendation {
   emptyMessageId = "noObsoleteIps";
 
   withExclusions = true;
+
+  hasSettings = true;
+
+  settingsSidemodalClass = ObsoleteIpsModal;
 
   static resourceDescriptionMessageId = "obsoleteIpsResourceRecommendation";
 
