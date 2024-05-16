@@ -2286,7 +2286,7 @@ export const deleteMlModel = (organizationId, modelId) =>
 // eslint-disable-next-line max-params
 export const updateMlModelVersion = (organizationId, modelId, runId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/models/${modelId}/runs/${runId}`,
+    url: `${API_URL}/organizations/${organizationId}/runs/${runId}/models/${modelId}/version`,
     method: "PATCH",
     label: UPDATE_ML_MODEL_VERSION,
     params,
