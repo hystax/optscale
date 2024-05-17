@@ -37,7 +37,7 @@ class ModelVersionsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
 
-    async def post(self, organization_id, model_id, run_id, **url_params):
+    async def post(self, organization_id, run_id, model_id, **url_params):
         """
         ---
         description: |
@@ -136,11 +136,11 @@ class ModelVersionsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         self._validate_params(**data)
         token = await self._get_profiling_token(organization_id)
         res = await run_task(
-            self.controller.create, model_id, run_id, token, **data)
+            self.controller.create, run_id, model_id, token, **data)
         self.set_status(201)
         self.write(json.dumps(res, cls=ModelEncoder))
 
-    async def patch(self, organization_id, model_id, run_id, **kwargs):
+    async def patch(self, organization_id, run_id, model_id, **kwargs):
         """
         ---
         description: |
@@ -236,10 +236,10 @@ class ModelVersionsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         data = self._request_body()
         self._validate_params(**data)
         res = await run_task(
-            self.controller.edit, model_id, run_id, token, **data)
+            self.controller.edit, run_id, model_id, token, **data)
         self.write(json.dumps(res, cls=ModelEncoder))
 
-    async def delete(self, organization_id, model_id, run_id, **kwargs):
+    async def delete(self, organization_id, run_id, model_id, **kwargs):
         """
         ---
         description: |
@@ -286,10 +286,10 @@ class ModelVersionsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         await self.check_permissions(
             'EDIT_PARTNER', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
-        await run_task(self.controller.delete, model_id, run_id, token)
+        await run_task(self.controller.delete, run_id, model_id, token)
         self.set_status(204)
 
-    async def get(self, organization_id, model_id, run_id, **kwargs):
+    async def get(self, organization_id, run_id, model_id, **kwargs):
         self.raise405()
 
 

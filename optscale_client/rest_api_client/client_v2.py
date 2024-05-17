@@ -2159,22 +2159,25 @@ class Client(Client_v1):
     def model_delete(self, org_id, model_id):
         return self.delete(self.models_url(org_id, model_id))
 
-    def model_runs_url(self, org_id, model_id, run_id):
-        return '%s/runs/%s' % (self.models_url(org_id, model_id), run_id)
+    def run_model_version_url(self, org_id, run_id, model_id):
+        return '%s/runs/%s/models/%s/version' % (self.organization_url(org_id),
+                                                 run_id, model_id)
 
-    def model_version_create(self, org_id, model_id, run_id, params):
-        return self.post(self.model_runs_url(org_id, model_id, run_id), params)
+    def model_version_create(self, org_id, run_id, model_id, params):
+        return self.post(self.run_model_version_url(org_id, run_id, model_id),
+                         params)
 
-    def model_version_update(self, org_id, model_id, run_id, **params):
-        return self.patch(self.model_runs_url(org_id, model_id, run_id),
+    def model_version_update(self, org_id, run_id, model_id, **params):
+        return self.patch(self.run_model_version_url(org_id, run_id, model_id),
                           params)
 
-    def model_version_delete(self, org_id, model_id, run_id):
-        return self.delete(self.model_runs_url(org_id, model_id, run_id))
+    def model_version_delete(self, org_id, run_id, model_id):
+        return self.delete(self.run_model_version_url(
+            org_id, run_id, model_id))
 
-    def model_versions_url(self, org_id, task_id):
+    def task_model_versions_url(self, org_id, task_id):
         return '%s/model_versions' % (self.tasks_url(
             org_id, task_id))
 
     def model_versions_by_task(self, org_id, task_id):
-        return self.get(self.model_versions_url(org_id, task_id))
+        return self.get(self.task_model_versions_url(org_id, task_id))

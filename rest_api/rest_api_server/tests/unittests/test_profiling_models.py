@@ -79,7 +79,7 @@ class TestModelApi(TestProfilingBase):
             self.org['id'], self.valid_model)
         self.assertEqual(code, 201)
         code, version = self.client.model_version_create(
-            self.org['id'], model['id'], 'run_id', {'aliases': ['test']})
+            self.org['id'], 'run_id', model['id'], {'aliases': ['test']})
         code, resp = self.client.models_get(self.org['id'])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['models']), 1)
@@ -161,7 +161,7 @@ class TestModelApi(TestProfilingBase):
             self.org['id'], self.valid_model)
         self.assertEqual(code, 201)
         code, _ = self.client.model_version_create(
-            self.org['id'], model['id'], 'run_id', {})
+            self.org['id'], 'run_id', model['id'], {})
         self.assertEqual(code, 201)
 
         code, resp = self.client.model_get(self.org['id'], model['id'])

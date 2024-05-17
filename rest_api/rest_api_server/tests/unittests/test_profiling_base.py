@@ -906,7 +906,7 @@ class ArceeMock:
             {'token': self.token, '_id': model_id})
         return 204, None
 
-    def model_version_create(self, model_id, run_id, **params):
+    def model_version_create(self, run_id, model_id, **params):
         b = {
             'model_id': model_id,
             'run_id': run_id,
@@ -924,7 +924,7 @@ class ArceeMock:
             {'_id': inserted.inserted_id})
         return 201, result
 
-    def model_version_update(self, model_id, run_id, **params):
+    def model_version_update(self, run_id, model_id, **params):
         version = self.profiling_model_versions.find_one(
             {'model_id': model_id, 'run_id': run_id})
         if not version:
@@ -938,7 +938,7 @@ class ArceeMock:
         model = self.profiling_model_versions.find_one({'_id': version['_id']})
         return 200, model
 
-    def model_version_delete(self, model_id, run_id):
+    def model_version_delete(self, run_id, model_id):
         model_version = list(self.profiling_model_versions.find(
             {'model_id': model_id, 'run_id': run_id}))
         if not model_version:

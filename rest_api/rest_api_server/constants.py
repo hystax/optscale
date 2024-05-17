@@ -215,7 +215,7 @@ class UrlsV2(Urls):
             r"models/(?P<model_id>[^/]+)",
         'models_versions':
             r"%s/organizations/(?P<organization_id>[^/]+)/"
-            r"models/(?P<model_id>[^/]+)/runs/(?P<run_id>[^/]+)",
+            r"runs/(?P<run_id>[^/]+)/models/(?P<model_id>[^/]+)/version",
         'models_versions_by_task':
             r"%s/organizations/(?P<organization_id>[^/]+)/"
             r"tasks/(?P<task_id>[^/]+)/model_versions",

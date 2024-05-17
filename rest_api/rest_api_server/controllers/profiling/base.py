@@ -572,27 +572,27 @@ class BaseProfilingController(BaseProfilingTokenController):
         arcee.model_delete(model_id)
 
     @handle_http_exc
-    def create_model_version(self, profiling_token, model_id, run_id,
+    def create_model_version(self, profiling_token, run_id, model_id,
                              **kwargs):
         arcee = self.get_arcee_client(profiling_token)
         _, model_version = arcee.model_version_create(
-            model_id, run_id, **kwargs)
+            run_id, model_id, **kwargs)
         ArceeObject.format(model_version)
         return model_version
 
     @handle_http_exc
-    def update_model_version(self, profiling_token, model_id, run_id,
+    def update_model_version(self, profiling_token, run_id, model_id,
                              **kwargs):
         arcee = self.get_arcee_client(profiling_token)
         _, updated_version = arcee.model_version_update(
-            model_id, run_id, **kwargs)
+            run_id, model_id, **kwargs)
         ArceeObject.format(updated_version)
         return updated_version
 
     @handle_http_exc
-    def delete_model_version(self, profiling_token, model_id, run_id):
+    def delete_model_version(self, profiling_token, run_id, model_id):
         arcee = self.get_arcee_client(profiling_token)
-        arcee.model_version_delete(model_id, run_id)
+        arcee.model_version_delete(run_id, model_id)
 
     @handle_http_exc
     def get_model_version_by_task(self, profiling_token, task_id):

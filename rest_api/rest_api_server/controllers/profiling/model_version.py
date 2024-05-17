@@ -12,10 +12,10 @@ from tools.optscale_exceptions.common_exc import (
 
 class ModelVersionController(BaseProfilingController):
 
-    def create(self, model_id, run_id, profiling_token, **kwargs):
+    def create(self, run_id, model_id, profiling_token, **kwargs):
         try:
             model_version = self.create_model_version(
-                profiling_token, model_id, run_id,  **kwargs)
+                profiling_token, run_id, model_id,  **kwargs)
         except HTTPError as exc:
             if exc.response.status_code == 409:
                 raise ConflictException(Err.OE0557, [])
@@ -25,10 +25,10 @@ class ModelVersionController(BaseProfilingController):
             raise
         return model_version
 
-    def edit(self, model_id, run_id, profiling_token, **kwargs):
+    def edit(self, run_id, model_id, profiling_token, **kwargs):
         try:
             model_version = self.update_model_version(
-                profiling_token, model_id, run_id, **kwargs)
+                profiling_token, run_id, model_id, **kwargs)
         except HTTPError as exc:
             if exc.response.status_code == 409:
                 raise ConflictException(
@@ -39,9 +39,9 @@ class ModelVersionController(BaseProfilingController):
             raise
         return model_version
 
-    def delete(self, model_id, run_id, profiling_token):
+    def delete(self, run_id, model_id, profiling_token):
         try:
-            self.delete_model_version(profiling_token, model_id, run_id)
+            self.delete_model_version(profiling_token, run_id, model_id)
         except HTTPError as ex:
             if ex.response.status_code == 404:
                 raise NotFoundException(

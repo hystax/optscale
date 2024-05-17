@@ -41,7 +41,7 @@ async def test_create_model_version(app):
         "tags": {"my": "tag"}
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 201
     for key, value in model_version.items():
@@ -61,7 +61,7 @@ async def test_create_model_without_version(app):
         "path": "/my/path"
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 201
     for key, value in model_version.items():
@@ -84,7 +84,7 @@ async def test_create_model_switch_version(app):
         "path": "/my/path"
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 201
     for key, value in model_version.items():
@@ -98,7 +98,7 @@ async def test_create_model_switch_version(app):
         "version": "1"
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 201
     assert response.json['version'] == '3'
@@ -116,7 +116,7 @@ async def test_create_aliases(app):
         "aliases": ["best_run"]
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], run1['_id']),
+        Urls.model_version.format(run1['_id'], model['_id']),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 201
     for key, value in model_version.items():
@@ -127,11 +127,12 @@ async def test_create_aliases(app):
         "aliases": ["best_run", "winner", "best_run"]
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], run2['_id']),
+        Urls.model_version.format(run2['_id'], model['_id']),
         data=json.dumps(model_version2), headers={"x-api-key": TOKEN1})
     assert response.status == 201
     assert response.json['version'] == model_version2['version']
-    assert response.json['aliases'] == list(set(model_version2['aliases']))
+    assert len(response.json['aliases']) == len(set(model_version2['aliases']))
+    assert set(response.json['aliases']) == set(model_version2['aliases'])
     version = await DB_MOCK['model_version'].find_one({"run_id": run1['_id']})
     assert version['aliases'] == []
 
@@ -140,7 +141,7 @@ async def test_create_aliases(app):
         "version": "12"
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], run3['_id']),
+        Urls.model_version.format(run3['_id'], model['_id']),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 201
     assert version['aliases'] == []
@@ -157,7 +158,7 @@ async def test_create_invalid_model(app):
         "path": "/my/path"
     }
     _, response = await client.post(
-        Urls.model_version.format(model['_id'], 'run_id'),
+        Urls.model_version.format('run_id', model['_id']),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 404
     assert "Run not found" in response.text
@@ -174,7 +175,7 @@ async def test_create_invalid_run(app):
         "path": "/my/path"
     }
     _, response = await client.post(
-        Urls.model_version.format("model_id", run['_id']),
+        Urls.model_version.format(run['_id'], 'model_id'),
         data=json.dumps(model_version), headers={"x-api-key": TOKEN1})
     assert response.status == 404
     assert "Model not found" in response.text
@@ -190,7 +191,7 @@ async def test_create_invalid_params(app):
         for value in [1, ["1"], {"1": "1"}]:
             params = {param: value}
             _, response = await client.post(
-                Urls.model_version.format(model['_id'], run['_id']),
+                Urls.model_version.format(run['_id'], model['_id']),
                 data=json.dumps(params), headers={"x-api-key": TOKEN1})
             assert response.status == 400
             assert 'Input should be a valid string' in response.text
@@ -198,7 +199,7 @@ async def test_create_invalid_params(app):
     for value in [1, "1", {"1": "1"}]:
         params = {'aliases': value}
         _, response = await client.post(
-            Urls.model_version.format(model['_id'], run['_id']),
+            Urls.model_version.format(run['_id'], model['_id']),
             data=json.dumps(params), headers={"x-api-key": TOKEN1})
         assert response.status == 400
         assert 'Input should be a valid list' in response.text
@@ -206,7 +207,7 @@ async def test_create_invalid_params(app):
     for value in [1, "1", ["1"]]:
         params = {'tags': value}
         _, response = await client.post(
-            Urls.model_version.format(model['_id'], run['_id']),
+            Urls.model_version.format(run['_id'], model['_id']),
             data=json.dumps(params), headers={"x-api-key": TOKEN1})
         assert response.status == 400
         assert 'Input should be a valid dictionary' in response.text
@@ -227,7 +228,7 @@ async def test_create_unexpected(app):
         data = model_version.copy()
         data[param] = 'test'
         _, response = await client.post(
-            Urls.model_version.format(model['_id'], run['_id']),
+            Urls.model_version.format(run['_id'], model['_id']),
             data=json.dumps(data),
             headers={"x-api-key": TOKEN1})
         assert response.status == 400
@@ -242,7 +243,7 @@ async def test_patch_empty(app):
     run = await prepare_run('task_id', 0, 1, 1, {})
     await prepare_model_version(model['_id'], run['_id'])
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps({}),
         headers={"x-api-key": TOKEN1})
     assert response.status == 200
@@ -254,12 +255,12 @@ async def test_patch_invalid_params_types(app):
     await prepare_token()
     model = await prepare_model(TOKEN1)
     run = await prepare_run('task_id', 0, 1, 1, {})
-    await prepare_model_version(model['_id'], run['_id'])
+    await prepare_model_version(run['_id'], model['_id'])
     for param in ['version', 'path']:
         for value in [1, ["1"], {"1": "1"}]:
             params = {param: value}
             _, response = await client.post(
-                Urls.model_version.format(model['_id'], run['_id']),
+                Urls.model_version.format(run['_id'], model['_id']),
                 data=json.dumps(params), headers={"x-api-key": TOKEN1})
             assert response.status == 400
             assert 'Input should be a valid string' in response.text
@@ -267,7 +268,7 @@ async def test_patch_invalid_params_types(app):
     for value in [1, "1", {"1": "1"}]:
         params = {'aliases': value}
         _, response = await client.post(
-            Urls.model_version.format(model['_id'], run['_id']),
+            Urls.model_version.format(run['_id'], model['_id']),
             data=json.dumps(params), headers={"x-api-key": TOKEN1})
         assert response.status == 400
         assert 'Input should be a valid list' in response.text
@@ -275,7 +276,7 @@ async def test_patch_invalid_params_types(app):
     for value in [1, "1", ["1"]]:
         params = {'tags': value}
         _, response = await client.post(
-            Urls.model_version.format(model['_id'], run['_id']),
+            Urls.model_version.format(run['_id'], model['_id']),
             data=json.dumps(params), headers={"x-api-key": TOKEN1})
         assert response.status == 400
         assert 'Input should be a valid dictionary' in response.text
@@ -287,11 +288,11 @@ async def test_patch_unexpected(app):
     await prepare_token()
     model = await prepare_model(TOKEN1)
     run = await prepare_run('task_id', 0, 1, 1, {})
-    await prepare_model_version(model['_id'], run['_id'])
+    await prepare_model_version(run['_id'], model['_id'])
     for param in ['_id', 'deleted_at', 'run_id', 'model_id', 'test']:
         updates = {param: 'test'}
         _, response = await client.patch(
-            Urls.model_version.format(model['_id'], run['_id']),
+            Urls.model_version.format(run['_id'], model['_id']),
             data=json.dumps(updates),
             headers={"x-api-key": TOKEN1})
         assert response.status == 400
@@ -311,7 +312,7 @@ async def test_patch_model(app):
         "path": "/my/path"
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 200
     new = {
@@ -334,7 +335,7 @@ async def test_patch_tags(app):
         "tags": {"test": "test"}
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert response.json['tags'] == updates['tags']
@@ -353,7 +354,7 @@ async def test_patch_empty_aliases(app):
         "aliases": []
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert response.json['aliases'] == []
@@ -370,7 +371,7 @@ async def test_patch_version(app):
         "version": "1"
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert response.json['version'] == '1'
@@ -379,7 +380,7 @@ async def test_patch_version(app):
         "version": "2"
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert response.json['version'] == '2'
@@ -388,7 +389,7 @@ async def test_patch_version(app):
         "path": "new path"
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert response.json['version'] == '2'
@@ -409,7 +410,7 @@ async def test_patch_version_with_alias(app):
         "aliases": ["alias"]
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run2['_id']),
+        Urls.model_version.format(run2['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert response.json['aliases'] == ["alias"]
@@ -428,7 +429,7 @@ async def test_patch_not_existing(app):
         "aliases": ["my_run"],
     }
     _, response = await client.patch(
-        Urls.model_version.format(model['_id'], run['_id']),
+        Urls.model_version.format(run['_id'], model['_id']),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 404
     assert "Model version not found" in response.text
@@ -444,7 +445,7 @@ async def test_patch_not_existing_model(app):
         "aliases": ["best_run"],
     }
     _, response = await client.patch(
-        Urls.model_version.format('test', run['_id']),
+        Urls.model_version.format(run['_id'], 'test'),
         data=json.dumps(updates), headers={"x-api-key": TOKEN1})
     assert response.status == 404
     assert "Model not found" in response.text
@@ -460,7 +461,7 @@ async def test_delete_model_version(app):
     run_id = run['_id']
     await prepare_model_version(model_id, run_id)
     _, response = await client.delete(
-        Urls.model_version.format(model_id, run_id),
+        Urls.model_version.format(run_id, model_id),
         headers={"x-api-key": TOKEN1})
     assert response.status == 204
     assert DB_MOCK['model_version'].find({"run_id": run_id,
@@ -474,7 +475,7 @@ async def test_delete_not_existing_model(app):
     await prepare_model(TOKEN1)
     run = await prepare_run('task_id', 0, 1, 1, {})
     _, response = await client.delete(
-        Urls.model_version.format('model_id', run['_id']),
+        Urls.model_version.format(run['_id'], 'model_id'),
         headers={"x-api-key": TOKEN1})
     assert response.status == 404
     assert "Model not found" in response.text
