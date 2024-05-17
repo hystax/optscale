@@ -13,3 +13,5 @@
 
 - Recommendations are configurable. Open a menu by clicking the ellipsis (cards view) or the cog (table view) icon.
 - You can force recommendations check by clicking the "Force check" button from the page toolbar.
+
+Want to learn more about the utilization of recommendation cards? Check out this post - [How to use recommendation cards in OptScale](https://hystax.com/how-to-use-recommendation-cards-in-optscale/)
