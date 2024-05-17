@@ -1,5 +1,5 @@
-from datetime import datetime
 import json
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, Integer, String, UniqueConstraint
 from sqlalchemy import inspect
@@ -10,7 +10,7 @@ from slacker.slacker_server.utils import ModelEncoder, gen_id
 
 
 def get_current_timestamp():
-    return int(datetime.utcnow().timestamp())
+    return int(datetime.now(tz=timezone.utc).timestamp())
 
 
 class Base(object):
