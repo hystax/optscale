@@ -135,6 +135,7 @@ class InstanceSubscription(ModuleBase):
                 'resource_id': instance['_id'],
                 'cloud_account_id': cloud_account['id'],
                 'cloud_type': cloud_account['type'],
+                'cloud_account_name': cloud_account['name'],
                 'is_excluded': instance.get('pool_id') in excluded_pools,
             })
         return result

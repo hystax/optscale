@@ -24,8 +24,8 @@ class S3PublicBuckets(ModuleBase):
 
     def _get(self):
         (excluded_pools, skip_cloud_accounts) = self.get_options_values()
-        ca_type_map = self.get_cloud_accounts(
-            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts, True)
+        ca_map = self.get_cloud_accounts(
+            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
         _, response = self.rest_client.cloud_resources_discover(
             self.organization_id, 'bucket')
         employees = self.get_employees()
@@ -36,8 +36,10 @@ class S3PublicBuckets(ModuleBase):
                 'resource_name': bucket.get('name'),
                 'resource_id': bucket['resource_id'],
                 'cloud_account_id': bucket['cloud_account_id'],
-                'cloud_type': ca_type_map.get(
-                    bucket['cloud_account_id']),
+                'cloud_type': ca_map.get(
+                    bucket['cloud_account_id'], {}).get('type'),
+                'cloud_account_name': ca_map.get(
+                    bucket['cloud_account_id'], {}).get('name'),
                 'region': bucket['region'],
                 'owner': self._extract_owner(
                     bucket.get('owner_id'), employees),
@@ -49,7 +51,7 @@ class S3PublicBuckets(ModuleBase):
                 'is_public_acls': bucket.get('meta', {}).get(
                     'is_public_acls', False),
             } for bucket in response['data']
-            if (bucket['cloud_account_id'] in list(ca_type_map.keys()) and (
+            if (bucket['cloud_account_id'] in list(ca_map.keys()) and (
                     bucket.get('meta', {}).get('is_public_policy') or
                     bucket.get('meta', {}).get('is_public_acls')
             ))

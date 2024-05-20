@@ -89,6 +89,7 @@ class InactiveUsersBase(ModuleBase):
                         result.append({
                             'cloud_account_id': config['id'],
                             'cloud_type': config['type'],
+                            'cloud_account_name': config['name'],
                             **res
                         })
         except Exception as ex:

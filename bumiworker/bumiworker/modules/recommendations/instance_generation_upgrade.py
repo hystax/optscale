@@ -128,6 +128,7 @@ class InstanceGenerationUpgrade(ModuleBase):
                     "resource_id": instance['_id'],
                     "cloud_account_id": instance['cloud_account_id'],
                     "cloud_type": cloud_type,
+                    "cloud_account_name": ca['name'],
                     "region": instance['region'],
                     "owner": self._extract_owner(instance.get('employee_id'),
                                                  employees),

@@ -308,6 +308,7 @@ class RightsizingBase(ModuleBase):
                         'resource_id': instance['_id'],
                         'cloud_account_id': instance['cloud_account_id'],
                         'cloud_type': cloud_account['type'],
+                        'cloud_account_name': cloud_account['name'],
                         'region': region,
                         'flavor': flavor or platform_name,
                         'recommended_flavor': recommended_flavor['flavor'],

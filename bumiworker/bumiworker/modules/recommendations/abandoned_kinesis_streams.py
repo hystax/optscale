@@ -134,6 +134,7 @@ class AbandonedKinesisStreams(ModuleBase):
                         "resource_id": resource['_id'],
                         "cloud_account_id": ca_id,
                         "cloud_type": cloud_accounts_map[ca_id]['type'],
+                        'cloud_account_name': cloud_accounts_map[ca_id]['name'],
                         "region": resource['region'],
                         "owner": self._extract_owner(
                             resource.get('employee_id'), employees),

@@ -27,16 +27,16 @@ class VolumesNotAttachedForALongTime(ModuleBase):
     def _get(self):
         (days_threshold, excluded_pools,
          skip_cloud_accounts) = self.get_options_values()
-        ca_type_map = self.get_cloud_accounts(
+        ca_map = self.get_cloud_accounts(
             supported_cloud_types=SUPPORTED_CLOUD_TYPES,
-            skip_cloud_accounts=skip_cloud_accounts, only_type=True)
+            skip_cloud_accounts=skip_cloud_accounts)
         date_field_name = 'last_attached'
         detached_volumes = self.get_resources_stuck_in_state(
             resource_type='volume',
             status_field_name='attached',
             date_field_name=date_field_name,
             resource_stuck_condition=False,
-            cloud_account_ids=list(ca_type_map.keys()),
+            cloud_account_ids=list(ca_map.keys()),
             delta_days=days_threshold,
         )
         result = [
@@ -45,7 +45,10 @@ class VolumesNotAttachedForALongTime(ModuleBase):
                 'resource_name': volume.get('name'),
                 'resource_id': volume['resource_id'],
                 'cloud_account_id': volume['cloud_account_id'],
-                'cloud_type': ca_type_map.get(volume['cloud_account_id']),
+                'cloud_type': ca_map.get(
+                    volume['cloud_account_id'], {}).get('type'),
+                'cloud_account_name': ca_map.get(
+                    volume['cloud_account_id'], {}).get('name'),
                 'cost_in_detached_state': volume['cost_in_resource_state'],
                 'saving': volume['savings'],
                 'last_seen_in_attached_state': volume['meta'][date_field_name],

@@ -219,6 +219,8 @@ class InstanceMigration(ModuleBase):
                 'resource_id': instance_info['resource_id'],
                 'cloud_account_id': cloud_account_id,
                 'cloud_type': cloud_account_map[cloud_account_id].get('type'),
+                'cloud_account_name':
+                    cloud_account_map[cloud_account_id].get('name'),
                 'is_excluded': instance_info.get('pool_id') in excluded_pools,
             })
         return result
@@ -296,6 +298,8 @@ class InstanceMigration(ModuleBase):
                         'cloud_account_id': resource['cloud_account_id'],
                         'cloud_type': cloud_account_map[
                             resource['cloud_account_id']].get('type'),
+                        'cloud_account_name': cloud_account_map[
+                            resource['cloud_account_id']].get('name'),
                         'is_excluded': resource.get(
                             'pool_id') in excluded_pools,
                     })

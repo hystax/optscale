@@ -433,7 +433,8 @@ class ArchiveBase(ModuleBase):
                 if not record.get('is_excluded', False) and not record.get(
                         'is_dismissed', False):
                     record['cloud_account_name'] = cloud_accounts_map.get(
-                        record['cloud_account_id'], {}).get('name')
+                        record['cloud_account_id'], {}
+                    ).get('name') or record.get('cloud_account_name')
                     result.append(record)
         return result
 

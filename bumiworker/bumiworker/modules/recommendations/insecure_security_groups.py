@@ -179,6 +179,7 @@ class InsecureSecurityGroups(ModuleBase):
                             'resource_id': instance.get(
                                 'resource_id'),
                             'cloud_type': config['type'],
+                            'cloud_account_name': config['name'],
                             'security_group_name': insecure_sg.get(
                                 'GroupName'),
                             'security_group_id': insecure_sg.get('GroupId'),
@@ -269,6 +270,7 @@ class InsecureSecurityGroups(ModuleBase):
                     'cloud_account_id': config.get('id'),
                     'resource_id': cloud_resource.get('resource_id'),
                     'cloud_type': config.get('type'),
+                    'cloud_account_name': config.get('name'),
                     'security_group_name': sg.name,
                     'security_group_id': sg.id,
                     'region': cloud_resource.get('region'),
@@ -357,6 +359,7 @@ class InsecureSecurityGroups(ModuleBase):
                         'cloud_account_id': config.get('id'),
                         'resource_id': instance.get('resource_id'),
                         'cloud_type': config.get('type'),
+                        'cloud_account_name': config.get('name'),
                         'security_group_name': sg['name'],
                         'security_group_id': sg.get('id'),
                         'region': region,

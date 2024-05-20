@@ -178,6 +178,7 @@ class InstancesForShutdown(AbandonedBase):
                     'region': region,
                     'cloud_account_id': account['id'],
                     'cloud_type': account['type'],
+                    'cloud_account_name': account['name'],
                     'owner': self._extract_owner(
                         instance.get('employee_id'), employees),
                     'pool': self._extract_pool(
