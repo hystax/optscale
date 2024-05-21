@@ -1700,12 +1700,13 @@ async def change_leaderboard(request, body: LeaderboardPatchIn,
         ]})
     if not o:
         raise SanicException("Leaderboard not found", status_code=404)
+    lb_id = o['_id']
     await check_metrics(body.metrics)
     lb = body.model_dump(exclude_unset=True)
     if lb:
         await db.leaderboard.update_one(
-            {"task_id": task_id}, {'$set': lb})
-    o = await db.leaderboard.find_one({"task_id": task_id})
+            {"_id": lb_id}, {'$set': lb})
+    o = await db.leaderboard.find_one({"_id": lb_id})
     return json(Leaderboard(**o).model_dump(by_alias=True))
 
 
