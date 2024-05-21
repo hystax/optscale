@@ -146,6 +146,7 @@ class S3AbandonedBucketsBase(AbandonedBase):
                             'resource_id': bucket_id,
                             'cloud_account_id': bucket['cloud_account_id'],
                             'cloud_type': cloud_type,
+                            'cloud_account_name': account['name'],
                             'region': bucket.get('region'),
                             'owner': self._extract_owner(
                                 bucket.get('employee_id'), employees),

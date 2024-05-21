@@ -151,6 +151,7 @@ class ObsoleteImages(ModuleBase):
                 i.update({
                     'cloud_account_id': cloud_account['id'],
                     'cloud_type': cloud_account['type'],
+                    'cloud_account_name': cloud_account['name']
                 })
                 images_map.update({i['cloud_resource_id']: i})
 
@@ -219,6 +220,7 @@ class ObsoleteImages(ModuleBase):
                 'resource_name': image['name'],
                 'cloud_account_id': image['cloud_account_id'],
                 'cloud_type': image['cloud_type'],
+                'cloud_account_name': image['cloud_account_name'],
                 'first_seen': image['cloud_created_at'],
                 'region': image['region'],
                 'last_used': last_used

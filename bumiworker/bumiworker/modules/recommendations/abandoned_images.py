@@ -87,6 +87,7 @@ class AbandonedImages(AbandonedBase):
                             'resource_name': image.get('name'),
                             'resource_id': image_id,
                             'cloud_account_id': image['cloud_account_id'],
+                            'cloud_account_name': account['name'],
                             'cloud_type': account['type'],
                             'folder_id': image['meta']['folder_id'],
                             'last_used': last_used_map.get(

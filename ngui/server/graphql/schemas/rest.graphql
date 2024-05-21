@@ -50,7 +50,7 @@ interface DataSourceInterface {
 # AWS data source
 type AwsConfig {
   access_key_id: String!
-  linked: Boolean!
+  linked: Boolean
   bucket_name: String
   bucket_prefix: String
   config_scheme: String

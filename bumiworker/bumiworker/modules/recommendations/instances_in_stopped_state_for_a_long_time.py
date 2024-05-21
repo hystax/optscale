@@ -24,15 +24,15 @@ class InstancesInStoppedStateForALongTime(ModuleBase):
     def _get(self):
         (days_threshold, excluded_pools,
          skip_cloud_accounts) = self.get_options_values()
-        ca_type_map = self.get_cloud_accounts(
-            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts, True)
+        ca_map = self.get_cloud_accounts(
+            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
         date_field_name = 'last_seen_not_stopped'
         stopped_instances = self.get_resources_stuck_in_state(
             resource_type='instance',
             status_field_name='stopped_allocated',
             date_field_name=date_field_name,
             resource_stuck_condition=True,
-            cloud_account_ids=list(ca_type_map.keys()),
+            cloud_account_ids=list(ca_map.keys()),
             delta_days=days_threshold,
         )
         result = [
@@ -41,7 +41,10 @@ class InstancesInStoppedStateForALongTime(ModuleBase):
                 'resource_name': instance.get('name'),
                 'resource_id': instance['resource_id'],
                 'cloud_account_id': instance['cloud_account_id'],
-                'cloud_type': ca_type_map.get(instance['cloud_account_id']),
+                'cloud_type': ca_map.get(
+                    instance['cloud_account_id'], {}).get('type'),
+                'cloud_account_name': ca_map.get(
+                    instance['cloud_account_id'], {}).get('name'),
                 'cost_in_stopped_state': instance['cost_in_resource_state'],
                 'saving': instance['savings'],
                 'last_seen_active': instance['meta'][date_field_name],

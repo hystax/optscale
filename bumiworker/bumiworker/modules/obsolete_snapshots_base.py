@@ -191,6 +191,7 @@ class ObsoleteSnapshotsBase(ModuleBase):
                         'resource_id': resource.get('_id'),
                         'cloud_account_id': cloud_account.get('id'),
                         'cloud_type': cloud_account.get('type'),
+                        'cloud_account_name': cloud_account.get('name'),
                         'first_seen': int(start_date.timestamp()),
                         'last_seen': int(end_date.timestamp()),
                         'saving': saving,

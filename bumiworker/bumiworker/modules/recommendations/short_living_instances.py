@@ -176,6 +176,7 @@ class ShortLivingInstances(ModuleBase):
                     'resource_id': resource.get('id'),
                     'cloud_account_id': cloud_account_id,
                     'cloud_type': cloud_account.get('type'),
+                    'cloud_account_name': cloud_account.get('name'),
                     'total_cost': flavor_cost + other_cost,
                     'first_seen': int(resource_exp.get('start_date').timestamp()),
                     'last_seen': int(resource_exp.get('end_date').timestamp()),

@@ -44,7 +44,7 @@ export type AwsConfig = {
   bucket_name?: Maybe<Scalars['String']['output']>;
   bucket_prefix?: Maybe<Scalars['String']['output']>;
   config_scheme?: Maybe<Scalars['String']['output']>;
-  linked: Scalars['Boolean']['output'];
+  linked?: Maybe<Scalars['Boolean']['output']>;
   region_name?: Maybe<Scalars['String']['output']>;
   report_name?: Maybe<Scalars['String']['output']>;
 };
@@ -470,7 +470,7 @@ export type AwsConfigResolvers<ContextType = any, ParentType extends ResolversPa
   bucket_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   config_scheme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  linked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  linked?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   region_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   report_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
