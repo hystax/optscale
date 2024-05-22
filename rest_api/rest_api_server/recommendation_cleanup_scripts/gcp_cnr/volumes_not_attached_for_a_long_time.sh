@@ -43,8 +43,8 @@ jq -r -c '.[]' "$1" |
         row_account_id=$(echo "${row}" | jq -r '.cloud_account_id')
         if [[ "$row_account_id" == "$CLOUD_ACCOUNT_ID" ]]; then
             name=$(echo "${row}" | jq -r '.resource_name')
-            region=$(echo "${row}" | jq -r '.region')
-            output=$(yes Y | gcloud compute disks delete "$name" --zone="$region" 2>&1)
+            zone=$(echo "${row}" | jq -r '.zone_id')
+            output=$(yes Y | gcloud compute disks delete "$name" --zone="$zone" 2>&1)
             if [[ $? -ne 0 ]]; then
                 failed_to_delete+=("$name\n$output")
             else

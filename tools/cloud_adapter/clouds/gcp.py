@@ -346,6 +346,9 @@ class GcpVolume(tools.cloud_adapter.model.VolumeResource, GcpResource):
             f"/zones/{zone}/disks/{name}?project_id={project_id}"
         )
 
+    def _extract_zone_id(self):
+        return self._last_path_element(self._cloud_object.zone)
+
     def _extract_disk_attached(self):
         last_attach = self._cloud_object.last_attach_timestamp
         last_detach = self._cloud_object.last_detach_timestamp
@@ -360,11 +363,13 @@ class GcpVolume(tools.cloud_adapter.model.VolumeResource, GcpResource):
         GcpResource.__init__(self, cloud_volume, cloud_adapter)
         attached = self._extract_disk_attached()
         type_ = self._extract_disk_type()
+        zone_id = self._extract_zone_id()
         super().__init__(
             **self._common_fields,
             size=gbs_to_bytes(cloud_volume.size_gb),
             volume_type=type_,
             attached=attached,
+            zone_id=zone_id
         )
 
     def _new_labels_request(self, key, value):
