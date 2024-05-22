@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #-------------------------------------------------------------------
 # Hystax
-# Copyright 2016-2024 Hystax
+# Copyright 2016-###YEAR### Hystax
 # All Rights Reserved
 #
 # NOTICE:  Hystax permits you to use this file in accordance
