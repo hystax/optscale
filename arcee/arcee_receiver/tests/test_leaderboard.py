@@ -395,6 +395,42 @@ async def test_patch_leaderboard_group_by_hp(app):
 
 
 @pytest.mark.asyncio
+async def test_patch_not_deleted_lb(app):
+    client = app.asgi_client
+    await prepare_token()
+    metrics = await prepare_metrics()
+    tasks = await prepare_tasks()
+    now = int(datetime.now(tz=timezone.utc).timestamp())
+    lb = {
+        "_id": str(uuid.uuid4()),
+        "primary_metric": metrics[0]['_id'],
+        "task_id": tasks[0]['_id'],
+        "other_metrics": [metrics[1]['_id']],
+        "filters": [{"id": metrics[1]['_id'], "min": 0, "max": 100}],
+        "group_by_hp": True,
+        "grouping_tags": [],
+        "deleted_at": now,
+        "created_at": now - 1,
+        "token": TOKEN1
+    }
+    await DB_MOCK['leaderboard'].insert_one(lb)
+
+    lb2 = lb.copy()
+    lb2['_id'] = str(uuid.uuid4())
+    lb2['deleted_at'] = 0
+    await DB_MOCK['leaderboard'].insert_one(lb2)
+
+    lb_update = {
+        "group_by_hp": False
+    }
+    _, response = await client.patch(Urls.leaderboards.format(tasks[0]['_id']),
+                                     headers={"x-api-key": TOKEN1},
+                                     data=json.dumps(lb_update))
+    assert response.status == 200
+    assert response.json['_id'] == lb2['_id']
+
+
+@pytest.mark.asyncio
 async def test_patch_invalid_params(app):
     client = app.asgi_client
     await prepare_token()

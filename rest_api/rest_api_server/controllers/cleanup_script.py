@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime, timezone
 
 from tools.optscale_exceptions.common_exc import NotFoundException
 from rest_api.rest_api_server.controllers.base import BaseController
@@ -30,7 +31,8 @@ class CleanupScriptController(BaseController):
                     '###CLOUD_ACCOUNT_ID###': cloud_account_id,
                     '###CLOUD_ACCOUNT_NAME###': ca.name,
                     '###CLOUD_ACCOUNT_ACCOUNT_ID###': ca.account_id,
-                    '###CLOUD_ACCOUNT_TYPE###': 'subscription_id' if ca.type.value == 'azure_cnr' else 'account_id'
+                    '###CLOUD_ACCOUNT_TYPE###': 'subscription_id' if ca.type.value == 'azure_cnr' else 'account_id',
+                    '###YEAR###': datetime.now(tz=timezone.utc).year
                 }
                 for replacement_key, replacement_value in script_user_dict.items():
                     data = data.replace(replacement_key, str(replacement_value))
