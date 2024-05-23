@@ -21,8 +21,11 @@ import ConnectForm from "components/ConnectForm";
 import {
   AlibabaCredentials,
   ALIBABA_CREDENTIALS_FIELD_NAMES,
-  AwsCredentials,
-  AWS_CREDENTIALS_FIELD_NAMES,
+  AwsRootCredentials,
+  AWS_ROOT_CREDENTIALS_FIELD_NAMES,
+  AwsRootBillingBucket,
+  AwsLinkedCredentials,
+  AWS_LINKED_CREDENTIALS_FIELD_NAMES,
   AzureTenantCredentials,
   AZURE_TENANT_CREDENTIALS_FIELD_NAMES,
   AzureSubscriptionCredentials,
@@ -37,7 +40,6 @@ import {
 } from "components/DataSourceCredentialFields";
 import { DataSourceNameField, DATA_SOURCE_NAME_FIELD_NAME } from "components/DataSourceNameField";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import Input from "components/Input";
 import QuestionMark from "components/QuestionMark";
 import RadioGroupField from "components/RadioGroupField";
 import SwitchField from "components/SwitchField";
@@ -51,7 +53,6 @@ import DatabricksLogoIcon from "icons/DatabricksLogoIcon";
 import GcpLogoIcon from "icons/GcpLogoIcon";
 import K8sLogoIcon from "icons/K8sLogoIcon";
 import NebiusLogoIcon from "icons/NebiusLogoIcon";
-import { intl } from "translations/react-intl-config";
 import {
   DOCS_HYSTAX_AUTO_BILLING_AWS,
   DOCS_HYSTAX_CONNECT_AZURE_ACCOUNT,
@@ -78,7 +79,6 @@ import {
   ALIBABA_ACCOUNT,
   GCP_CNR,
   GCP_ACCOUNT,
-  DEFAULT_MAX_INPUT_LENGTH,
   NEBIUS_ACCOUNT,
   NEBIUS,
   DATABRICKS,
@@ -89,24 +89,21 @@ import { SPACING_2 } from "utils/layouts";
 import { getQueryParams } from "utils/network";
 import useStyles from "./ConnectCloudAccountForm.styles";
 
-const BUCKET_NAME = "bucketName";
-const BUCKET_PREFIX = "bucketPrefix";
-const REPORT_NAME = "reportName";
 const IS_FIND_REPORT = "isFindReport";
-const DEFAULT_PATH_PREFIX = "reports";
+
 const CONFIG_SCHEME = "configScheme";
 
 const TILE_DIMENSION = 110;
 
 const AwsRootInputs = () => (
   <ConnectForm>
-    {({ register, formState: { errors }, control, watch }) => {
+    {({ control, watch }) => {
       const isFindReportWatch = watch(IS_FIND_REPORT, true);
       const configScheme =
         watch(CONFIG_SCHEME, AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT) || AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT;
       return (
         <>
-          <AwsCredentials />
+          <AwsRootCredentials />
           <SwitchField
             name={IS_FIND_REPORT}
             defaultValue={isFindReportWatch}
@@ -159,79 +156,7 @@ const AwsRootInputs = () => (
                   }
                 />
               </Typography>
-              <Input
-                required
-                dataTestId="input_report_name"
-                key={REPORT_NAME}
-                error={!!errors[REPORT_NAME]}
-                helperText={errors[REPORT_NAME] && errors[REPORT_NAME].message}
-                InputProps={{
-                  endAdornment: <QuestionMark messageId="reportNameTooltip" dataTestId="qmark_report_name" />
-                }}
-                label={<FormattedMessage id="reportName" />}
-                {...register(REPORT_NAME, {
-                  required: {
-                    value: true,
-                    message: intl.formatMessage({ id: "thisFieldIsRequired" })
-                  },
-                  maxLength: {
-                    value: DEFAULT_MAX_INPUT_LENGTH,
-                    message: intl.formatMessage(
-                      { id: "maxLength" },
-                      { inputName: intl.formatMessage({ id: "reportName" }), max: DEFAULT_MAX_INPUT_LENGTH }
-                    )
-                  }
-                })}
-              />
-              <Input
-                required
-                dataTestId="input_s3_bucket_name"
-                key={BUCKET_NAME}
-                error={!!errors[BUCKET_NAME]}
-                helperText={errors[BUCKET_NAME] && errors[BUCKET_NAME].message}
-                InputProps={{
-                  endAdornment: <QuestionMark messageId="reportS3BucketNameTooltip" dataTestId="qmark_bucket_name" />
-                }}
-                label={<FormattedMessage id="reportS3BucketName" />}
-                {...register(BUCKET_NAME, {
-                  required: {
-                    value: true,
-                    message: intl.formatMessage({ id: "thisFieldIsRequired" })
-                  },
-                  maxLength: {
-                    value: DEFAULT_MAX_INPUT_LENGTH,
-                    message: intl.formatMessage(
-                      { id: "maxLength" },
-                      { inputName: intl.formatMessage({ id: "reportS3BucketName" }), max: DEFAULT_MAX_INPUT_LENGTH }
-                    )
-                  }
-                })}
-              />
-              <Input
-                required
-                dataTestId="input_report_path_prefix"
-                key={BUCKET_PREFIX}
-                defaultValue={DEFAULT_PATH_PREFIX}
-                error={!!errors[BUCKET_PREFIX]}
-                helperText={errors[BUCKET_PREFIX] && errors[BUCKET_PREFIX].message}
-                InputProps={{
-                  endAdornment: <QuestionMark messageId="reportPathPrefixTooltip" dataTestId="qmark_prefix" />
-                }}
-                label={<FormattedMessage id="reportPathPrefix" />}
-                {...register(BUCKET_PREFIX, {
-                  required: {
-                    value: true,
-                    message: intl.formatMessage({ id: "thisFieldIsRequired" })
-                  },
-                  maxLength: {
-                    value: DEFAULT_MAX_INPUT_LENGTH,
-                    message: intl.formatMessage(
-                      { id: "maxLength" },
-                      { inputName: intl.formatMessage({ id: "reportPathPrefix" }), max: DEFAULT_MAX_INPUT_LENGTH }
-                    )
-                  }
-                })}
-              />
+              <AwsRootBillingBucket required />
             </>
           )}
         </>
@@ -280,7 +205,7 @@ const ConnectionInputs = ({ connectionType }) => {
     case AWS_ROOT_ACCOUNT:
       return <AwsRootInputs />;
     case AWS_LINKED_ACCOUNT:
-      return <AwsCredentials />;
+      return <AwsLinkedCredentials />;
     case AZURE_TENANT_ACCOUNT:
       return <AzureTenantCredentials />;
     case AZURE_SUBSCRIPTION:
@@ -316,8 +241,8 @@ const getAwsParameters = (formData) => {
     name: formData.name,
     type: AWS_CNR,
     config: {
-      access_key_id: formData[AWS_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
-      secret_access_key: formData[AWS_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
+      access_key_id: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
+      secret_access_key: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
       linked: false,
       ...getConfigSchemeParameters()
     }
@@ -328,8 +253,8 @@ const getAwsLinkedParameters = (formData) => ({
   name: formData[DATA_SOURCE_NAME_FIELD_NAME],
   type: AWS_CNR,
   config: {
-    access_key_id: formData[AWS_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
-    secret_access_key: formData[AWS_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
+    access_key_id: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
+    secret_access_key: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
     linked: true
   }
 });
