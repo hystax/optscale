@@ -54,7 +54,7 @@ const Initialization = ({ profilingToken, taskKey, isLoading }) => {
   const intl = useIntl();
 
   const { onClose } = useContext(ProfilingIntegrationModalContext);
-  const endpointUrlParameter = isProduction() ? "" : ', endpoint_url="https://user-url:443/arcee/v2"';
+  const endpointUrlParameter = isProduction() ? "" : `, endpoint_url="https://${window.location.host}/arcee/v2"`;
 
   const arceeInitUsingContextManager = (
     <CodeBlock
