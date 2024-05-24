@@ -1,6 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Switch, FormControlLabel, Stack } from "@mui/material";
 import Link from "@mui/material/Link";
-import { Stack } from "@mui/system";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
@@ -36,6 +35,7 @@ import {
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
+import { useToggle } from "hooks/useToggle";
 import {
   DOCS_HYSTAX_AUTO_BILLING_AWS,
   DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD,
@@ -58,6 +58,27 @@ import {
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
 import { SPACING_1 } from "utils/layouts";
+
+const CostAndUsageReport = () => {
+  const [checked, toggleChecked] = useToggle(false);
+
+  return (
+    <>
+      <FormControlLabel
+        control={<Switch checked={checked} onChange={toggleChecked} inputProps={{ "aria-label": "switch" }} />}
+        label={
+          <Box display="flex" alignItems="center">
+            <Typography>
+              <FormattedMessage id="updateCostAndUsageReportParameters" />
+            </Typography>
+          </Box>
+        }
+        labelPlacement="end"
+      />
+      {checked && <AwsRootBillingBucket />}
+    </>
+  );
+};
 
 const Description = ({ type, config }) => {
   switch (type) {
@@ -186,7 +207,7 @@ const CredentialInputs = ({ type, config }) => {
       ) : (
         <>
           <AwsRootCredentials />
-          <AwsRootBillingBucket />
+          <CostAndUsageReport />
         </>
       );
     case AZURE_TENANT:

@@ -12,9 +12,7 @@ export const FIELD_NAMES = Object.freeze({
 
 const DEFAULT_PATH_PREFIX = "reports";
 
-type AwsRootBillingBucketType = { required?: boolean };
-
-const AwsRootBillingBucket = ({ required = false }: AwsRootBillingBucketType) => {
+const AwsRootBillingBucket = () => {
   const intl = useIntl();
 
   const {
@@ -25,7 +23,7 @@ const AwsRootBillingBucket = ({ required = false }: AwsRootBillingBucketType) =>
   return (
     <>
       <Input
-        required={required}
+        required
         dataTestId="input_report_name"
         key={FIELD_NAMES.REPORT_NAME}
         error={!!errors[FIELD_NAMES.REPORT_NAME]}
@@ -36,7 +34,7 @@ const AwsRootBillingBucket = ({ required = false }: AwsRootBillingBucketType) =>
         label={<FormattedMessage id="reportName" />}
         {...register(FIELD_NAMES.REPORT_NAME, {
           required: {
-            value: required,
+            value: true,
             message: intl.formatMessage({ id: "thisFieldIsRequired" })
           },
           maxLength: {
@@ -49,7 +47,7 @@ const AwsRootBillingBucket = ({ required = false }: AwsRootBillingBucketType) =>
         })}
       />
       <Input
-        required={required}
+        required
         dataTestId="input_s3_bucket_name"
         key={FIELD_NAMES.BUCKET_NAME}
         error={!!errors[FIELD_NAMES.BUCKET_NAME]}
@@ -60,7 +58,7 @@ const AwsRootBillingBucket = ({ required = false }: AwsRootBillingBucketType) =>
         label={<FormattedMessage id="reportS3BucketName" />}
         {...register(FIELD_NAMES.BUCKET_NAME, {
           required: {
-            value: required,
+            value: true,
             message: intl.formatMessage({ id: "thisFieldIsRequired" })
           },
           maxLength: {
@@ -73,7 +71,7 @@ const AwsRootBillingBucket = ({ required = false }: AwsRootBillingBucketType) =>
         })}
       />
       <Input
-        required={required}
+        required
         dataTestId="input_report_path_prefix"
         key={FIELD_NAMES.BUCKET_PREFIX}
         defaultValue={DEFAULT_PATH_PREFIX}
@@ -85,7 +83,7 @@ const AwsRootBillingBucket = ({ required = false }: AwsRootBillingBucketType) =>
         label={<FormattedMessage id="reportPathPrefix" />}
         {...register(FIELD_NAMES.BUCKET_PREFIX, {
           required: {
-            value: required,
+            value: true,
             message: intl.formatMessage({ id: "thisFieldIsRequired" })
           },
           maxLength: {

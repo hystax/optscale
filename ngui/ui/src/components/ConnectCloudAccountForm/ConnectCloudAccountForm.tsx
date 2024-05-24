@@ -156,7 +156,7 @@ const AwsRootInputs = () => (
                   }
                 />
               </Typography>
-              <AwsRootBillingBucket required />
+              <AwsRootBillingBucket />
             </>
           )}
         </>
