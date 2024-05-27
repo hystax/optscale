@@ -1,6 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Switch, FormControlLabel, Stack } from "@mui/material";
 import Link from "@mui/material/Link";
-import { Stack } from "@mui/system";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
@@ -16,8 +15,12 @@ import UpdateServiceAccountCredentialsDescription from "components/CluidilConfig
 import {
   AlibabaCredentials,
   ALIBABA_CREDENTIALS_FIELD_NAMES,
-  AwsCredentials,
-  AWS_CREDENTIALS_FIELD_NAMES,
+  AwsRootCredentials,
+  AWS_ROOT_CREDENTIALS_FIELD_NAMES,
+  AwsRootBillingBucket,
+  AWS_ROOT_BILLING_BUCKET_FIELD_NAMES,
+  AwsLinkedCredentials,
+  AWS_LINKED_CREDENTIALS_FIELD_NAMES,
   AzureTenantCredentials,
   AzureSubscriptionCredentials,
   AZURE_TENANT_CREDENTIALS_FIELD_NAMES,
@@ -32,6 +35,7 @@ import {
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
+import { useToggle } from "hooks/useToggle";
 import {
   DOCS_HYSTAX_AUTO_BILLING_AWS,
   DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD,
@@ -54,6 +58,27 @@ import {
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
 import { SPACING_1 } from "utils/layouts";
+
+const CostAndUsageReport = () => {
+  const [checked, toggleChecked] = useToggle(false);
+
+  return (
+    <>
+      <FormControlLabel
+        control={<Switch checked={checked} onChange={toggleChecked} inputProps={{ "aria-label": "switch" }} />}
+        label={
+          <Box display="flex" alignItems="center">
+            <Typography>
+              <FormattedMessage id="updateCostAndUsageReportParameters" />
+            </Typography>
+          </Box>
+        }
+        labelPlacement="end"
+      />
+      {checked && <AwsRootBillingBucket />}
+    </>
+  );
+};
 
 const Description = ({ type, config }) => {
   switch (type) {
@@ -174,10 +199,17 @@ const Description = ({ type, config }) => {
   }
 };
 
-const CredentialInputs = ({ type }) => {
+const CredentialInputs = ({ type, config }) => {
   switch (type) {
     case AWS_CNR:
-      return <AwsCredentials />;
+      return config.linked ? (
+        <AwsLinkedCredentials />
+      ) : (
+        <>
+          <AwsRootCredentials />
+          <CostAndUsageReport />
+        </>
+      );
     case AZURE_TENANT:
       return <AzureTenantCredentials readOnlyFields={[AZURE_TENANT_CREDENTIALS_FIELD_NAMES.TENANT]} />;
     case AZURE_CNR:
@@ -260,23 +292,34 @@ const getConfig = (type, config) => {
   switch (type) {
     case AWS_CNR:
       return {
-        getDefaultFormValues: () => ({
-          [AWS_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
-          [AWS_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: ""
-        }),
+        getDefaultFormValues: () =>
+          config.linked
+            ? {
+                [AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
+                [AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: ""
+              }
+            : {
+                [AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
+                [AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: "",
+                [AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME]: config.bucket_name,
+                [AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.REPORT_NAME]: config.report_name,
+                [AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]: config.bucket_prefix
+              },
         parseFormDataToApiParams: (formData) => ({
           config: {
-            access_key_id: formData[AWS_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
-            secret_access_key: formData[AWS_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
             ...(config.linked
               ? {
+                  access_key_id: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
+                  secret_access_key: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
                   linked: true
                 }
               : {
+                  access_key_id: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
+                  secret_access_key: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
                   config_scheme: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY,
-                  bucket_name: config.bucket_name,
-                  report_name: config.report_name,
-                  bucket_prefix: config.bucket_prefix
+                  bucket_name: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME],
+                  report_name: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.REPORT_NAME],
+                  bucket_prefix: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]
                 })
           }
         })
@@ -427,7 +470,7 @@ const UpdateDataSourceCredentialsForm = ({ id, type, config, onSubmit, onCancel,
         <Stack spacing={SPACING_1}>
           <div>
             <Description type={type} config={config} />
-            <CredentialInputs type={type} />
+            <CredentialInputs type={type} config={config} />
           </div>
           <div>
             <UpdateCredentialsWarning type={type} />

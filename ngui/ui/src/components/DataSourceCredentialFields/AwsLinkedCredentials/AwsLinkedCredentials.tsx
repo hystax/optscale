@@ -9,7 +9,7 @@ export const FIELD_NAMES = Object.freeze({
   SECRET_ACCESS_KEY: "awsSecretAccessKey"
 });
 
-const AwsCredentials = () => {
+const AwsLinkedCredentials = () => {
   const intl = useIntl();
 
   const {
@@ -88,4 +88,4 @@ const AwsCredentials = () => {
   );
 };
 
-export default AwsCredentials;
+export default AwsLinkedCredentials;

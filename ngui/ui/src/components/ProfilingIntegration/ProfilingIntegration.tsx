@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { Box, Skeleton, Stack, Typography } from "@mui/material";
 import Link from "@mui/material/Link";
-import { useTheme } from "@mui/material/styles";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import CodeBlock from "components/CodeBlock";
@@ -10,27 +9,19 @@ import HtmlSymbol from "components/HtmlSymbol";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import { ProfilingIntegrationModalContext } from "contexts/ProfilingIntegrationModalContext";
-import { ML_TASK_METRICS, ML_TASKS, PYPI_OPTSCALE_ARCEE } from "urls";
-
-const Pre = ({ children }) => {
-  const theme = useTheme();
-
-  return (
-    <pre
-      style={{
-        backgroundColor: theme.palette.background.default,
-        borderRadius: theme.spacing(0.5),
-        margin: 0,
-        display: "inline"
-      }}
-    >
-      {children}
-    </pre>
-  );
-};
+import { ML_TASK_METRICS, ML_TASKS, PYPI_OPTSCALE_ARCEE, isProduction } from "urls";
 
 const preFormatMessageValues = {
-  pre: (chunks) => <Pre>{chunks}</Pre>
+  code: (chunks) => (
+    <Box
+      sx={(theme) => ({
+        backgroundColor: theme.palette.background.default,
+        display: "inline"
+      })}
+    >
+      <samp>{chunks}</samp>
+    </Box>
+  )
 };
 
 const Installation = () => (
@@ -63,16 +54,17 @@ const Initialization = ({ profilingToken, taskKey, isLoading }) => {
   const intl = useIntl();
 
   const { onClose } = useContext(ProfilingIntegrationModalContext);
+  const endpointUrlParameter = isProduction() ? "" : `, endpoint_url="https://${window.location.host}/arcee/v2"`;
 
   const arceeInitUsingContextManager = (
     <CodeBlock
-      text={`with arcee.init("${profilingToken}", "${taskKey ?? "task_key"}"):
+      text={`with arcee.init("${profilingToken}", "${taskKey ?? "task_key"}"${endpointUrlParameter}):
     # ${intl.formatMessage({ id: "mlProfilingIntegration.someCode" })}`}
     />
   );
   const arceeInitUsingFunctionCall = (
     <CodeBlock
-      text={`arcee.init("${profilingToken}", "${taskKey ?? "task_key"}")
+      text={`arcee.init("${profilingToken}", "${taskKey ?? "task_key"}"${endpointUrlParameter})
 # ${intl.formatMessage({ id: "mlProfilingIntegration.someCode" })}
 arcee.finish()
 # ${intl.formatMessage({ id: "mlProfilingIntegration.orInCaseOfError" })}
@@ -495,10 +487,10 @@ const FinishTaskRun = () => (
 
 const FailTaskRun = () => (
   <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.failTaskRunTitle" />
+    </SubTitle>
     <Typography gutterBottom>
-      <SubTitle fontWeight="bold">
-        <FormattedMessage id="mlProfilingIntegration.failTaskRunTitle" />
-      </SubTitle>
       <FormattedMessage
         id="mlProfilingIntegration.failTaskRun"
         values={{
