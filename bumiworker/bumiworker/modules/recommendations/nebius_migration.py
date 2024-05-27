@@ -202,16 +202,19 @@ class NebiusMigration(ModuleBase):
         feature_options = json.loads(response['value'])
         return feature_options.get('nebius_connection_enabled', 0)
 
-    def _get(self):
-        if not self._is_nebius_option_enabled():
-            return []
-        (days_threshold, skip_cloud_accounts) = self.get_options_values()
-        cloud_func_map = {
+    def get_cloud_funcs_map(self):
+        return {
             'aws_cnr': self._get_aws_usages,
             'azure_cnr': self._get_azure_usages,
             'alibaba_cnr': self._get_alibaba_usages,
             'gcp_cnr': self._get_gcp_usages
         }
+
+    def _get(self):
+        if not self._is_nebius_option_enabled():
+            return []
+        (days_threshold, skip_cloud_accounts) = self.get_options_values()
+        cloud_func_map = self.get_cloud_funcs_map()
         cloud_account_map = self.get_cloud_accounts(
             supported_cloud_types=list(cloud_func_map.keys()),
             skip_cloud_accounts=skip_cloud_accounts)
