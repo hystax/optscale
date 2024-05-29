@@ -120,7 +120,6 @@ class RiBreakdownController(CleanExpenseController):
                 'start_date': {
                     '$gte': datetime.fromtimestamp(self.start_date),
                     '$lte': datetime.fromtimestamp(self.end_date)},
-                'box_usage': True,
                 'lineItem/LineItemType': 'DiscountedUsage'
             }
         )

@@ -25,7 +25,7 @@ class TtlAnalysisController(BaseController, MongoMixin, ClickHouseMixin):
 
     def _get_resource_expenses(self, pool_id, start_date, end_date):
         resources = list(self.resources_collection.find(
-            {'pool_id': pool_id}, []))
+            {'pool_id': pool_id}, ['_id']))
         query = """
             SELECT resource_id, SUM(sign * cost)
             FROM expenses

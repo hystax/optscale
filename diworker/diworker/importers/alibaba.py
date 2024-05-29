@@ -39,7 +39,8 @@ class AlibabaReportImporter(BaseReportImporter):
             item['AttachedInstanceId']: item['InstanceId']
             for item in self.cloud_adapter.get_raw_usage(
                 'YunDisk', 'Hour', start_time, end_time)
-            if item['Portable'] == '0'
+            if (item['Portable'] == '0' and 'AttachedInstanceId' in item
+                and 'InstanceId' in item)
         }
 
     def _get_snapshot_chain_usage(self, current_day):

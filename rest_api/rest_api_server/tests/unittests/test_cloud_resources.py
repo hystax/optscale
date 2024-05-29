@@ -329,7 +329,7 @@ class TestCloudResourceApi(TestProfilingBase):
         params = {'env_properties': {'field': 'value'}}
         code, response = self.client.cloud_resource_update(resource['id'], params)
         self.assertEqual(code, 200)
-        history_len = self.property_history_collection.count()
+        history_len = self.property_history_collection.count_documents({})
         self.assertEqual(history_len, 1)
 
     def test_properties_with_dots(self):
@@ -347,7 +347,7 @@ class TestCloudResourceApi(TestProfilingBase):
         params = {'env_properties': {'field.1': 'value'}}
         code, response = self.client.cloud_resource_update(resource['id'], params)
         self.assertEqual(code, 200)
-        history_len = self.property_history_collection.count()
+        history_len = self.property_history_collection.count_documents({})
         self.assertEqual(history_len, 1)
 
     def test_patch_shareable_with_bookings(self):

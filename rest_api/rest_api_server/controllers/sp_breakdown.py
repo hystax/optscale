@@ -38,18 +38,28 @@ class SpBreakdownController(RiBreakdownController):
 
     def get_flavors(self, cloud_account_ids):
         flavor_rate_map = defaultdict(float)
-        expenses = self.raw_expenses_collection.find({
-                    'cloud_account_id': {'$in': cloud_account_ids},
-                    'start_date': {
-                        '$gte': datetime.fromtimestamp(self.start_date),
-                        '$lt': datetime.fromtimestamp(self.end_date)},
-                    'box_usage': True,
-                    'lineItem/LineItemType': 'SavingsPlanCoveredUsage'
-                })
+        expenses = self.raw_expenses_collection.aggregate([
+            {'$match': {
+                'cloud_account_id': {'$in': cloud_account_ids},
+                'start_date': {
+                    '$gte': datetime.fromtimestamp(self.start_date),
+                    '$lt': datetime.fromtimestamp(self.end_date)
+                },
+                'lineItem/LineItemType': 'SavingsPlanCoveredUsage'
+            }},
+            {'$group': {
+                '_id': {
+                    'instance_type': '$product/instanceType',
+                    'description': '$lineItem/LineItemDescription'
+                },
+                'rate': {'$last': '$savingsPlan/SavingsPlanRate'}
+            }}
+        ])
+        # todo: it could be two different rates for flavor
         for expense in expenses:
-            flavor_name = (expense.get('product/instanceType') or
-                           expense['lineItem/LineItemDescription'])
-            sp_rate = float(expense.get('savingsPlan/SavingsPlanRate', 0))
+            _id = expense['_id']
+            flavor_name = _id.get('instance_type') or _id.get('description')
+            sp_rate = float(expense.get('rate', 0))
             if sp_rate:
                 flavor_rate_map[flavor_name] = sp_rate
         return flavor_rate_map

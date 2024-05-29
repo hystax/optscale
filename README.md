@@ -128,7 +128,7 @@ _The current installation process does not work on Ubuntu 22.04_
 Run the following commands:
 
 ```
-sudo apt update; sudo apt install git python3-venv python3-dev sshpass python3.9
+sudo apt update; sudo apt install python3-pip sshpass git python3-virtualenv python3.9
 ```
 
 #### Pulling optscale-deploy scripts
@@ -150,8 +150,8 @@ cd optscale/optscale-deploy
 Run the following commands:
 
 ```
-python3 -m venv .venv
-source .venv/bin/activate
+virtualenv -p python3.9 venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
