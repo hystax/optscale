@@ -611,7 +611,8 @@ class Azure(CloudBase):
 
     def _get_sgs_by_instance(self, vm):
         nics = self._get_nics_by_instance(vm, return_all=True)
-        sgs_ids = set(nic.network_security_group.id for nic in nics)
+        sgs_ids = set(nic.network_security_group.id for nic in nics
+                      if hasattr(nic.network_security_group, 'id'))
         return list(sgs_ids)
 
     def _get_vnet_id_by_instance(self, vm):
