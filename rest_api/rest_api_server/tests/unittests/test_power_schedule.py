@@ -188,6 +188,14 @@ class TestPowerSchedule(TestApiBase):
         self.assertEqual(code, 400)
         self.assertEqual(res['error']['error_code'], 'OE0212')
 
+        for length in [0, 256]:
+            name = ''.join('x' for _ in range(length))
+            params = self.valid_ps.copy()
+            params['name'] = name
+            code, res = self.client.power_schedule_create(self.org_id_1, params)
+            self.assertEqual(code, 400)
+            self.assertEqual(res['error']['error_code'], 'OE0215')
+
     def test_create_required(self):
         for param in ['name', 'power_on', 'power_off', 'timezone']:
             params = self.valid_ps.copy()
@@ -324,6 +332,14 @@ class TestPowerSchedule(TestApiBase):
             ps['id'], params)
         self.assertEqual(code, 400)
         self.assertEqual(res['error']['error_code'], 'OE0212')
+
+        for length in [0, 256]:
+            name = ''.join('x' for _ in range(length))
+            params = updates.copy()
+            params['name'] = name
+            code, res = self.client.power_schedule_update(ps['id'], params)
+            self.assertEqual(code, 400)
+            self.assertEqual(res['error']['error_code'], 'OE0215')
 
     def test_update_outdated(self):
         end_date = datetime.now(timezone.utc) - timedelta(days=1)
