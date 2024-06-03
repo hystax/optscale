@@ -47,6 +47,13 @@ BUCKET_ACCEPTED_URIS = [
 # maximum value for MaxResults (AWS limitation)
 MAX_RESULTS = 1000
 
+REGEX_AWS_REPORT_FORMAT = 'data/BILLING_PERIOD=[0-9]{{4}}-[0-9]{{2}}'
+REGEX_AWS_REPORT_GROUP = 'BILLING_PERIOD=[0-9]{4}-[0-9]{2}'
+REGEX_AWS_REPORT_FORMAT_CSV_LEGACY = '[0-9]{{8}}-[0-9]{{8}}(/[0-9]{{8}}T[0-9]{{6}}Z)?'
+REGEX_AWS_REPORT_GROUP_CSV_LEGACY = '[0-9]{8}-[0-9]{8}'
+REGEX_AWS_REPORT_FORMAT_PARQUET_LEGACY = '{1}/year=[0-9]{{4}}/month=([1-9]|1[0-2])'
+REGEX_AWS_REPORT_GROUP_PARQUET_LEGACY = 'year=[0-9]{4}/month=([1-9]|1[0-2])/'
+
 
 def _retry_on_error(exc):
     if isinstance(exc, ResponseParserError):
@@ -566,30 +573,38 @@ class Aws(S3CloudMixin):
 
     def find_parquet_reports(self, s3_objects, prefix, report_name):
         reports = {}
+        parquet_regex_parts = [
+            (REGEX_AWS_REPORT_FORMAT,
+             REGEX_AWS_REPORT_GROUP),  # parquet reports
+            (REGEX_AWS_REPORT_FORMAT_PARQUET_LEGACY,
+             REGEX_AWS_REPORT_GROUP_PARQUET_LEGACY)  # legacy parquet reports
+        ]
         try:
-            report_regex_fmt = '^{0}/{1}/{1}/year=[0-9]{{4}}/' \
-                               'month=([1-9]|1[0-2])/{1}-[0-9]{{5}}' \
-                               '.snappy.parquet$'
-            report_regex = re.compile(
-                report_regex_fmt.format(re.escape(prefix),
-                                        re.escape(report_name)))
-            for report in [f for f in s3_objects['Contents']
-                           if re.match(report_regex, f['Key'])]:
-                group = re.search(r'year=[0-9]{4}/month=([1-9]|1[0-2])/',
-                                  report['Key']).group(0)
-                common_group = self._group_to_daterange(group)
-
-                if common_group not in reports:
-                    reports[common_group] = []
-                reports[common_group].append(report)
+            for format_part, group_part in parquet_regex_parts:
+                report_regex_fmt = r'^{0}/{1}/%s/{1}-[0-9]{{5}}.snappy.parquet$' \
+                                   % format_part
+                report_regex = re.compile(
+                    report_regex_fmt.format(re.escape(prefix),
+                                            re.escape(report_name)))
+                for report in [f for f in s3_objects['Contents']
+                               if re.match(report_regex, f['Key'])]:
+                    group = re.search(group_part, report['Key']).group(0)
+                    common_group = self._group_to_daterange(group)
+                    if common_group not in reports:
+                        reports[common_group] = []
+                    reports[common_group].append(report)
         except KeyError:
             reports = {}
         return reports
 
     @staticmethod
     def _group_to_daterange(group):
-        year = int(group[5:].split('/')[0])
-        month = int(group.split('month=')[1].split('/')[0])
+        if 'BILLING_PERIOD' in group:
+            year = int(group[-7:-3])
+            month = int(group[-2:])
+        else:
+            year = int(group[5:].split('/')[0])
+            month = int(group.split('month=')[1].split('/')[0])
         if month == 12:
             next_year = year + 1
             next_month = 1
@@ -602,18 +617,24 @@ class Aws(S3CloudMixin):
     def find_csv_reports(self, s3_objects, prefix, report_name):
         reports = {}
         try:
-            report_regex_fmt = '^{0}/{1}/[0-9]{{8}}-[0-9]{{8}}(/[0-9]{{8}}' \
-                               'T[0-9]{{6}}Z)?/{1}-[0-9]{{5}}.csv.(gz|zip)$'
-            report_regex = re.compile(
-                report_regex_fmt.format(re.escape(prefix),
-                                        re.escape(report_name)))
-            for report in [f for f in s3_objects['Contents']
-                           if re.match(report_regex, f['Key'])]:
-                group = re.search(r'[0-9]{8}-[0-9]{8}',
-                                  report['Key']).group(0)
-                if group not in reports:
-                    reports[group] = []
-                reports[group].append(report)
+            csv_regex_parts = [
+                (REGEX_AWS_REPORT_FORMAT,
+                 REGEX_AWS_REPORT_GROUP),  # csv reports
+                (REGEX_AWS_REPORT_FORMAT_CSV_LEGACY,
+                 REGEX_AWS_REPORT_GROUP_CSV_LEGACY)  # legacy csv reports
+            ]
+            for format_part, group_part in csv_regex_parts:
+                report_regex_fmt = '^{0}/{1}/%s/{1}-[0-9]{{5}}.csv.(gz|zip)$' \
+                                   % format_part
+                report_regex = re.compile(
+                    report_regex_fmt.format(re.escape(prefix),
+                                            re.escape(report_name)))
+                for report in [f for f in s3_objects['Contents']
+                               if re.match(report_regex, f['Key'])]:
+                    group = re.search(group_part, report['Key']).group(0)
+                    if group not in reports:
+                        reports[group] = []
+                    reports[group].append(report)
         except KeyError:
             reports = {}
         return reports

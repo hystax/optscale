@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from threading import Thread
 
 import os
+import re
 import time
 import logging
 import urllib3
@@ -65,6 +66,13 @@ class RISPWorker(ConsumerMixin):
             self._clickhouse_client = ClickHouseClient(
                 host=host, password=password, database=CH_DB_NAME, user=user)
         return self._clickhouse_client
+
+    @staticmethod
+    def _datetime_from_value(value):
+        dt_format = '%Y-%m-%dT%H:%M:%SZ'
+        if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z", value):
+            dt_format = '%Y-%m-%dT%H:%M:%S.%fZ'
+        return datetime.strptime(value, dt_format).replace(tzinfo=timezone.utc)
 
     def get_consumers(self, consumer, channel):
         return [consumer(queues=[TASK_QUEUE], accept=['json'],
@@ -297,9 +305,8 @@ class RISPWorker(ConsumerMixin):
                     date] = HRS_IN_DAY * norm_factor * cost_per_n_hr
             # the first RIFee expense not includes hours from start of the
             # month to RI purchasing time
-            period_start = datetime.strptime(
-                expense['lineItem/UsageStartDate'], '%Y-%m-%dT%H:%M:%SZ'
-            ).replace(tzinfo=timezone.utc)
+            period_start = self._datetime_from_value(
+                expense['lineItem/UsageStartDate'])
             if period_start > exp_start_date:
                 not_used_hrs = (period_start - exp_start_date
                                 ).total_seconds() / SECONDS_IN_HOUR
