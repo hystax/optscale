@@ -246,7 +246,7 @@ class PowerSchedulesAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
         ---
         description: |
             Get power schedule
-            Required permission: CLUSTER_SECRET or EDIT_PARTNER
+            Required permission: CLUSTER_SECRET or INFO_ORGANIZATION
         tags: [power_schedules]
         summary: Get power schedule
         parameters:
