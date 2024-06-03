@@ -3,14 +3,15 @@ import csv
 import gzip
 import logging
 import os
+import re
 import pyarrow
 import shutil
 import uuid
 import zipfile
+import json
 from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
 
-from diworker.diworker.constants import AWS_PARQUET_CSV_MAP
 from diworker.diworker.importers.base import CSVBaseReportImporter
 
 import pyarrow.parquet as pq
@@ -32,7 +33,28 @@ RI_PLATFORMS = [
     'Windows with SQL Server Web',
     'Windows with SQL Server Enterprise',
 ]
-tag_prefixes = ['resource_tags_aws_', 'resource_tags_user_']
+SERVICE_TAGS_MAP = {
+    'user_name': 'user:Name',
+    'aws_cloudformation_stack_id': 'aws:cloudformation:stack-id',
+    'aws_cloudformation_logical_id': 'aws:cloudformation:logical-id',
+    'aws_cloudformation_stack_name': 'aws:cloudformation:stack-name',
+    'aws_created_by': 'aws:createdBy',
+}
+SERVICE_TAG_PREFIXES = ['aws', 'user', 'cloudformation']
+# This map is needed for proper extraction of nested objects
+# format: {field_name_prefix: (is_lowercase, [case exceptions])}
+AWS_CUR_PREFIX_MAP = {
+    'identity': (False, []),
+    'bill': (False, []),
+    'line_item': (False, []),
+    'product': (True, ['product_name', 'purchase_option', 'size_flex']),
+    'pricing': (True, ['rate_code', 'rate_id', 'purchase_option',
+                       'offering_class', 'lease_contract_length']),
+    'reservation': (False, []),
+    'savings_plan': (False, []),
+    'resource_tags': (False, []),
+    'cost_category': (False, []),
+}
 
 
 class AWSReportImporter(CSVBaseReportImporter):
@@ -90,6 +112,14 @@ class AWSReportImporter(CSVBaseReportImporter):
             return
 
         return new_report_path
+
+    @staticmethod
+    def to_camel_case(snake_str):
+        return "".join(x.capitalize() for x in snake_str.split("_"))
+
+    @staticmethod
+    def to_lower_case(snake_str):
+        return snake_str[0].lower() + snake_str[1:]
 
     def unpack_report(self, report_file, date):
         dest_dir = self.get_new_report_path(date)
@@ -269,14 +299,85 @@ class AWSReportImporter(CSVBaseReportImporter):
             if res_id:
                 expense['resource_id'] = res_id
 
+    def _to_csv_tag(self, prefix, tag, root=True):
+        if root and tag in SERVICE_TAGS_MAP:
+            return f'{prefix}{SERVICE_TAGS_MAP[tag]}'
+        subprefix = next((
+            s for s in SERVICE_TAG_PREFIXES if tag.startswith(s)
+        ), None)
+        if not subprefix:
+            return f'{prefix}{tag}'
+        subkey = f'{tag[len(subprefix) + 1:]}'
+        return self._to_csv_tag(f'{prefix}{subprefix}:', subkey, False)
+
+    def _get_legacy_csv_key(self, old_key):
+        key = next((
+            s for s in AWS_CUR_PREFIX_MAP.keys() if old_key.startswith(f'{s}_')
+        ), None)
+        if not key:
+            return old_key
+        prefix = self.to_lower_case(self.to_camel_case(key))
+        subkey = old_key[len(key) + 1:]
+        if not subkey:
+            return prefix
+        if key == 'resource_tags':
+            return self._to_csv_tag(f'{prefix}/', subkey)
+        else:
+            to_lower, exceptions = AWS_CUR_PREFIX_MAP[key]
+            new_key = self.to_camel_case(subkey)
+            if subkey in exceptions:
+                to_lower = not to_lower
+            if to_lower:
+                new_key = self.to_lower_case(new_key)
+        return f'{prefix}/{new_key}'
+
+    def _extract_nested_objects(self, obj, parquet=False):
+        updates = defaultdict(dict)
+        removed_keys = set()
+        # extract nested objects
+        for k in AWS_CUR_PREFIX_MAP.keys():
+            values = obj.get(k)
+            if not values:
+                continue
+            if parquet:
+                for n, vals in values.items():
+                    if isinstance(vals, list):
+                        for postfix, value in vals:
+                            snake_key = f'{k}_{postfix}'
+                            csv_key = self._get_legacy_csv_key(snake_key)
+                            updates[csv_key][n] = value
+                        removed_keys.add(k)
+            else:
+                try:
+                    nested_objects = json.loads(values)
+                except Exception:
+                    continue
+                for new_key, new_value in nested_objects.items():
+                    snake_key = f'{k}_{new_key}'
+                    csv_key = self._get_legacy_csv_key(snake_key)
+                    updates[csv_key] = new_value
+                removed_keys.add(k)
+        for k in removed_keys:
+            obj.pop(k)
+        obj.update(updates)
+        return obj
+
+    def _convert_to_legacy_csv_columns(self, columns, dict_format=False):
+        if not dict_format:
+            return [self._get_legacy_csv_key(col) for col in columns]
+        return {col: self._get_legacy_csv_key(col) for col in columns}
+
     def load_csv_report(self, report_path, account_id_ca_id_map,
                         billing_period, skipped_accounts):
         date_start = datetime.utcnow()
         with open(report_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
+            reader.fieldnames = self._convert_to_legacy_csv_columns(
+                reader.fieldnames)
             chunk = []
             record_number = 0
             for row in reader:
+                row = self._extract_nested_objects(row)
                 if billing_period is None:
                     billing_period = row['bill/BillingPeriodStartDate']
                     LOG.info('detected billing period: %s', billing_period)
@@ -333,9 +434,12 @@ class AWSReportImporter(CSVBaseReportImporter):
                             billing_period, skipped_accounts):
         date_start = datetime.utcnow()
         dataframe = pq.read_pandas(report_path).to_pandas()
-        dataframe.rename(columns=AWS_PARQUET_CSV_MAP, inplace=True)
+        new_columns = self._convert_to_legacy_csv_columns(
+            dataframe.columns, dict_format=True)
+        dataframe.rename(columns=new_columns, inplace=True)
         for i in range(0, dataframe.shape[0], CHUNK_SIZE):
-            expense_chunk = dataframe.iloc[i:i + CHUNK_SIZE, :].to_dict()
+            expense_chunk = self._extract_nested_objects(
+                dataframe.iloc[i:i + CHUNK_SIZE, :].to_dict(), parquet=True)
             chunk = [{} for _ in range(0, CHUNK_SIZE)]
             skipped_rows = set()
             for field_name, values_dict in expense_chunk.items():
@@ -359,7 +463,7 @@ class AWSReportImporter(CSVBaseReportImporter):
                             continue
                         chunk[expense_num]['cloud_account_id'] = cloud_account_id
                         self.detected_cloud_accounts.add(cloud_account_id)
-                    elif field_name == 'lineItem/ResourceId' and value != '':
+                    elif field_name == 'lineItem/ResourceId' and value:
                         chunk[expense_num]['resource_id'] = value[value.find('/') + 1:]
                     elif field_name == 'lineItem/UsageStartDate':
                         start_date = self._datetime_from_value(value).replace(
@@ -373,7 +477,7 @@ class AWSReportImporter(CSVBaseReportImporter):
                     elif field_name == 'lineItem/UsageType':
                         if 'BoxUsage' in value:
                             chunk[expense_num]['box_usage'] = True
-                    if value != '':
+                    if value:
                         chunk[expense_num][field_name] = value
 
             expenses = [x for x in chunk if x and
@@ -402,13 +506,6 @@ class AWSReportImporter(CSVBaseReportImporter):
             prefix_len = tag_key.find(prefix_symbol) + 1
             return tag_key[prefix_len:]
 
-        def _extract_parquet_tag_name(tag_key):
-            prefix = 'resource_tags_'
-            for prefix_ in tag_prefixes:
-                if tag_key.startswith(prefix_):
-                    prefix = prefix_
-            return tag_key[len(prefix):]
-
         for k, v in expense.items():
             if (not k.startswith('resourceTags') and
                     not k.startswith('resource_tags')):
@@ -416,10 +513,8 @@ class AWSReportImporter(CSVBaseReportImporter):
             if k != 'resourceTags/user:Name':
                 if k.startswith('resourceTags/aws'):
                     name = _extract_tag_name(k, '/')
-                elif k.startswith('resourceTags/'):
-                    name = _extract_tag_name(k, ':')
                 else:
-                    name = _extract_parquet_tag_name(k)
+                    name = _extract_tag_name(k, ':')
                 raw_tags[name] = v
         tags = self.extract_tags(raw_tags)
         return tags
@@ -428,14 +523,15 @@ class AWSReportImporter(CSVBaseReportImporter):
     def _datetime_from_expense(expense, key):
         value = expense[key]
         if isinstance(value, str):
-            return datetime.strptime(expense[key], '%Y-%m-%dT%H:%M:%SZ'
-                                     ).replace(tzinfo=timezone.utc)
+            return AWSReportImporter._datetime_from_value(expense[key])
         return value.replace(tzinfo=timezone.utc)
 
     @staticmethod
     def _datetime_from_value(value):
-        return datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ'
-                                 ).replace(tzinfo=timezone.utc)
+        dt_format = '%Y-%m-%dT%H:%M:%SZ'
+        if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z", value):
+            dt_format = '%Y-%m-%dT%H:%M:%S.%fZ'
+        return datetime.strptime(value, dt_format).replace(tzinfo=timezone.utc)
 
     def get_resource_info_from_expenses(self, expenses, resource_type=None):
         name = None
@@ -518,19 +614,15 @@ class AWSReportImporter(CSVBaseReportImporter):
                     meta_dict['applied_region'] = applied_region
                 if not start and 'savingsPlan/StartTime' in e:
                     try:
-                        start = int(datetime.strptime(
-                            e.get('savingsPlan/StartTime'),
-                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
-                                tzinfo=timezone.utc).timestamp())
+                        start = int(self._datetime_from_value(
+                            e['savingsPlan/StartTime']).timestamp())
                         meta_dict['start'] = start
                     except (TypeError, ValueError):
                         pass
                 if not end and 'savingsPlan/EndTime' in e:
                     try:
-                        end = int(datetime.strptime(
-                            e.get('savingsPlan/EndTime'),
-                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
-                                tzinfo=timezone.utc).timestamp())
+                        end = int(self._datetime_from_value(
+                            e['savingsPlan/EndTime']).timestamp())
                         meta_dict['end'] = end
                     except (TypeError, ValueError):
                         pass
@@ -546,19 +638,15 @@ class AWSReportImporter(CSVBaseReportImporter):
                     meta_dict['purchase_term'] = purchase_term
                 if not start and 'reservation/StartTime' in e:
                     try:
-                        start = int(datetime.strptime(
-                            e.get('reservation/StartTime'),
-                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
-                                tzinfo=timezone.utc).timestamp())
+                        start = int(self._datetime_from_value(
+                            e['reservation/StartTime']).timestamp())
                         meta_dict['start'] = start
                     except (TypeError, ValueError):
                         pass
                 if not end and 'reservation/EndTime' in e:
                     try:
-                        end = int(datetime.strptime(
-                            e.get('reservation/EndTime'),
-                            '%Y-%m-%dT%H:%M:%S.%fZ').replace(
-                                tzinfo=timezone.utc).timestamp())
+                        end = int(self._datetime_from_value(
+                            e['reservation/EndTime']).timestamp())
                         meta_dict['end'] = end
                     except (TypeError, ValueError):
                         pass

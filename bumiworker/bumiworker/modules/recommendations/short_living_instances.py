@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
@@ -59,6 +60,13 @@ class ShortLivingInstances(ModuleBase):
             return float(exp['pricing_quantity']) / cpu_count
         return 0
 
+    @staticmethod
+    def _datetime_from_value(value):
+        dt_format = '%Y-%m-%dT%H:%M:%SZ'
+        if re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z", value):
+            dt_format = '%Y-%m-%dT%H:%M:%S.%fZ'
+        return datetime.strptime(value, dt_format)
+
     def _get(self):
         (days_threshold, excluded_pools,
          skip_cloud_accounts) = self.get_options_values()
@@ -111,8 +119,8 @@ class ShortLivingInstances(ModuleBase):
                 if r_id in inst_to_remove:
                     continue
                 if exp.get('lineItem/UsageStartDate'):
-                    exp_start_date = datetime.strptime(
-                        exp['lineItem/UsageStartDate'], '%Y-%m-%dT%H:%M:%SZ')
+                    exp_start_date = self._datetime_from_value(
+                        exp['lineItem/UsageStartDate'])
                 else:
                     exp_start_date = exp['start_date']
                 if exp_start_date < start_date:
