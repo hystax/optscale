@@ -15,3 +15,7 @@
 - You can force recommendations check by clicking the "Force check" button from the page toolbar.
 
 Want to learn more about the utilization of recommendation cards? Check out this post - [How to use recommendation cards in OptScale](https://hystax.com/how-to-use-recommendation-cards-in-optscale/)
+
+OptScale helps identify and clean up unused volumes and obsolete snapshots across various cloud providers, offering automated scripts and recommendations to optimize costs and improve efficiency in cloud resource management.
+
+To learn more about this capability, check out the post - [How to get rid of unused volumes and snapshots using OptScale](https://hystax.com/how-to-get-rid-of-unused-volumes-and-snapshots-using-optscale/)
