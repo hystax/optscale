@@ -69,18 +69,28 @@ class RegionPriceSumsController(BaseController):
                         {'isPrimaryMeterRegion': True}
                     ]
                 }
+            },
+            {
+                '$group': {
+                    '_id': {
+                        'meterName': '$meterName',
+                        'type': '$type',
+                        'productName': '$productName'
+                    }
+                }
             }
         ])
         scores = dict()
         excluded_regions = set()
         for r in rr:
+            _id = r['_id']
             pricings = self.azure_prices_collection.aggregate([
                 {
                     '$match': {
                         '$and': [
-                            {'meterName': r['meterName']},
-                            {'type': r['type']},
-                            {'productName': r['productName']},
+                            {'meterName': _id['meterName']},
+                            {'type': _id['type']},
+                            {'productName': _id['productName']},
                             {'last_seen': {'$gte': discovery_time}}
                         ]
                     }
