@@ -21,9 +21,9 @@ docker run -i --rm ${TEST_IMAGE} bash -c \
     "tools/check_alembic_down_revisions/check_alembic_down_revisions.py --alembic_versions_path auth/auth_server/alembic/versions"
 echo "<<Alembic down revision tests"
 
-echo "Unit tests>>>"
-docker run -i --rm ${TEST_IMAGE} \
-    bash -c "python3 -m unittest discover ./auth/auth_server/tests"
-echo "<<Unit tests"
+echo "Unit tests with coverage>>>"
+docker run -i --rm -v $(pwd)/coverage_html:/coverage_html ${TEST_IMAGE} \
+    bash -c "coverage run --source=auth -m unittest discover ./auth/auth_server/tests && coverage html -d /coverage_html"
+echo "<<Unit tests with coverage"
 
 docker rmi ${TEST_IMAGE}
