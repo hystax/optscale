@@ -121,16 +121,15 @@ class CleanMongoDB(object):
     def get_deleted_organization_info(self):
         result = None
         session = self.get_session()
-        stmt = """SELECT org_t.id, profiling_token.token,
-                    profiling_token.infrastructure_token
-                  FROM (
-                    SELECT id FROM organization
-                    WHERE organization.deleted_at != 0 AND
-                      organization.cleaned_at = 0
-                    LIMIT 1
-                  ) as org_t
-                  JOIN profiling_token
-                  ON org_t.id = profiling_token.organization_id"""
+        stmt = """
+            SELECT organization.id, p_token.token, p_token.infrastructure_token
+            FROM organization
+            LEFT JOIN profiling_token as p_token
+            ON organization.id = p_token.organization_id
+            WHERE organization.deleted_at != 0 AND
+                organization.cleaned_at = 0
+            LIMIT 1
+        """
         try:
             result = next(session.execute(stmt))
         except StopIteration:
@@ -315,6 +314,9 @@ class CleanMongoDB(object):
         return result
 
     def _delete_by_organization(self, org_id, token, infra_token):
+        if not token:
+            self.update_cleaned_at(organization_id=org_id)
+            return
         arcee_collections = [self.mongo_client.arcee.dataset,
                              self.mongo_client.arcee.goal,
                              self.mongo_client.arcee.leaderboard,
