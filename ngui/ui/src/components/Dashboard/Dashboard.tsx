@@ -10,6 +10,7 @@ import { PRODUCT_TOUR, useProductTour, useStartTour } from "components/Tour";
 import OrganizationConstraintsCardContainer from "containers/OrganizationConstraintsCardContainer";
 import OrganizationExpensesContainer from "containers/OrganizationExpensesContainer";
 import PoolsRequiringAttentionCardContainer from "containers/PoolsRequiringAttentionCardContainer";
+import RecentTasksCardContainer from "containers/RecentTasksCardContainer";
 import RecommendationsCardContainer from "containers/RecommendationsCardContainer";
 import TopResourcesExpensesCardContainer from "containers/TopResourcesExpensesCardContainer";
 import { useApiData } from "hooks/useApiData";
@@ -48,7 +49,8 @@ const Dashboard = () => {
     policiesCard: <OrganizationConstraintsCardContainer />,
     organizationExpenses: thereAreOnlyEnvironmentDataSources ? null : <OrganizationExpensesContainer />,
     recommendationsCard: <RecommendationsCardContainer />,
-    poolsRequiringAttentionCard: <PoolsRequiringAttentionCardContainer />
+    poolsRequiringAttentionCard: <PoolsRequiringAttentionCardContainer />,
+    recentTasksCard: <RecentTasksCardContainer />
   };
 
   return (
