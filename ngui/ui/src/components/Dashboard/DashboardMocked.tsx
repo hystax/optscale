@@ -2,10 +2,11 @@ import DashboardGridLayout from "components/DashboardGridLayout";
 import OrganizationConstraintsCard from "components/OrganizationConstraintsCard";
 import OrganizationExpenses from "components/OrganizationExpenses";
 import PageContentWrapper from "components/PageContentWrapper";
+import RecentTasksCard from "components/RecentTasksCard";
 import RecommendationsCard from "components/RecommendationsCard";
 import TopResourcesExpensesCard from "components/TopResourcesExpensesCard";
 import { MOCKED_ORGANIZATION_POOL_ID } from "stories";
-import { getLastMonthRange, millisecondsToSeconds } from "utils/datetime";
+import { getLastMonthRange, millisecondsToSeconds, subMinutes } from "utils/datetime";
 
 const cleanExpenses = [
   {
@@ -454,6 +455,113 @@ const constraints = [
   }
 ];
 
+const tasks = [
+  {
+    name: "Digit Recognizer",
+    id: "6569a65e-17bc-49e3-8439-44eb9e5f38b6",
+    status: "completed",
+    last_run: millisecondsToSeconds(+subMinutes(new Date(), 25)),
+    last_run_reached_goals: {
+      iter: {
+        id: "4254aa87-0095-45bc-84e7-139a560d5729",
+        tendency: "more",
+        target_value: 3,
+        name: "Iter",
+        value: 57600,
+        reached: true
+      },
+      loss: {
+        id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
+        tendency: "less",
+        target_value: 1.1,
+        name: "Data Loss",
+        value: 0.7866795659065247,
+        reached: true
+      },
+      epoch: {
+        id: "ba8b5cbb-2e77-4326-91ea-756db9b43270",
+        tendency: "less",
+        target_value: 9,
+        name: "Epochs",
+        value: 10,
+        reached: false
+      }
+    }
+  },
+  {
+    name: "House Prices",
+    id: "16a17169-7dbc-4557-9101-dbcba713b1d4",
+    status: "completed",
+    last_run: millisecondsToSeconds(+subMinutes(new Date(), 36)),
+    last_run_reached_goals: {
+      accuracy: {
+        id: "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+        tendency: "more",
+        target_value: 60,
+        name: "Accuracy",
+        value: 70.67,
+        reached: true
+      },
+      loss: {
+        id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
+        tendency: "less",
+        target_value: 1.1,
+        name: "Data Loss",
+        value: 0.7786335945129395,
+        reached: true
+      },
+      iter: {
+        id: "4254aa87-0095-45bc-84e7-139a560d5729",
+        tendency: "more",
+        target_value: 3,
+        name: "Iter",
+        value: 57600,
+        reached: true
+      }
+    }
+  },
+  {
+    name: "Flower Classification",
+    id: "77d078a6-3381-40a0-8fd3-e6dc4c1b0448",
+    status: "completed",
+    last_run: millisecondsToSeconds(+subMinutes(new Date(), 42)),
+    last_run_reached_goals: {
+      iter: {
+        id: "4254aa87-0095-45bc-84e7-139a560d5729",
+        tendency: "more",
+        target_value: 3,
+        name: "Iter",
+        value: 57600,
+        reached: true
+      },
+      loss: {
+        id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
+        tendency: "less",
+        target_value: 1.1,
+        name: "Data Loss",
+        value: 0.7814914584159851,
+        reached: true
+      },
+      accuracy: {
+        id: "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+        tendency: "more",
+        target_value: 60,
+        name: "Accuracy",
+        value: 70.74000000000001,
+        reached: true
+      },
+      epoch: {
+        id: "ba8b5cbb-2e77-4326-91ea-756db9b43270",
+        tendency: "less",
+        target_value: 9,
+        name: "Epochs",
+        value: 10,
+        reached: false
+      }
+    }
+  }
+];
+
 const DashboardMocked = () => (
   <PageContentWrapper>
     <DashboardGridLayout
@@ -467,6 +575,7 @@ const DashboardMocked = () => (
           securityRecommendationsCount={21}
         />
       }
+      recentTasksCard={<RecentTasksCard tasks={tasks} />}
     />
   </PageContentWrapper>
 );

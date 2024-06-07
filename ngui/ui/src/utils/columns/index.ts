@@ -36,6 +36,8 @@ import mlLocalStorageBottleneckDuration from "./mlLocalStorageBottleneckDuration
 import mlModelPath from "./mlModelPath";
 import mlModelVersion from "./mlModelVersion";
 import mlRunsCount from "./mlRunsCount";
+import mlTaskLastRun from "./mlTaskLastRun";
+import mlTaskName from "./mlTaskName";
 import model from "./model";
 import name from "./name";
 import openPorts from "./openPorts";
@@ -135,5 +137,7 @@ export {
   run,
   utcTime,
   mlModelVersion,
-  mlModelPath
+  mlModelPath,
+  mlTaskName,
+  mlTaskLastRun
 };
