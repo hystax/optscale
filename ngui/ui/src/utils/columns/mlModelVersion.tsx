@@ -3,7 +3,7 @@ import MlModelVersionLabel from "components/MlModelVersionLabel";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { CELL_EMPTY_VALUE } from "utils/tables";
 
-const mlModelVersion = ({ id, accessorKey, accessorFn, headerMessageId, headerDataTestId }) => ({
+const mlModelVersion = ({ id, accessorKey, accessorFn, headerMessageId, headerDataTestId, enableSorting = true }) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
       <FormattedMessage id={headerMessageId} />
@@ -12,6 +12,7 @@ const mlModelVersion = ({ id, accessorKey, accessorFn, headerMessageId, headerDa
   id,
   accessorKey,
   accessorFn,
+  enableSorting,
   cell: ({ cell }) => {
     const version = cell.getValue();
 

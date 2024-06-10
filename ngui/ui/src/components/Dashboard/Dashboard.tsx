@@ -10,6 +10,7 @@ import { PRODUCT_TOUR, useProductTour, useStartTour } from "components/Tour";
 import OrganizationConstraintsCardContainer from "containers/OrganizationConstraintsCardContainer";
 import OrganizationExpensesContainer from "containers/OrganizationExpensesContainer";
 import PoolsRequiringAttentionCardContainer from "containers/PoolsRequiringAttentionCardContainer";
+import RecentModelsCardContainer from "containers/RecentModelsCardContainer";
 import RecentTasksCardContainer from "containers/RecentTasksCardContainer";
 import RecommendationsCardContainer from "containers/RecommendationsCardContainer";
 import TopResourcesExpensesCardContainer from "containers/TopResourcesExpensesCardContainer";
@@ -50,7 +51,8 @@ const Dashboard = () => {
     organizationExpenses: thereAreOnlyEnvironmentDataSources ? null : <OrganizationExpensesContainer />,
     recommendationsCard: <RecommendationsCardContainer />,
     poolsRequiringAttentionCard: <PoolsRequiringAttentionCardContainer />,
-    recentTasksCard: <RecentTasksCardContainer />
+    recentTasksCard: <RecentTasksCardContainer />,
+    recentModelsCard: <RecentModelsCardContainer />
   };
 
   return (

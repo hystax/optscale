@@ -20,6 +20,7 @@ type Version = {
   aliases: string[];
   version: string;
   tags: { [key: string]: string };
+  created_at: number;
 };
 
 type Model = {
@@ -32,7 +33,8 @@ type Model = {
 };
 
 export type ListModel = Model & {
-  last_version: Version;
+  // Last version can be an empty object
+  last_version: Partial<Version>;
   aliased_versions: (Omit<Version, "aliases"> & { alias: string })[];
 };
 
