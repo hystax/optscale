@@ -11,6 +11,7 @@ type DashboardGridLayoutProps = {
   recommendationsCard: ReactNode;
   poolsRequiringAttentionCard: ReactNode;
   recentTasksCard: ReactNode;
+  recentModelsCard: ReactNode;
 };
 
 const DashboardGridLayout = ({
@@ -19,7 +20,8 @@ const DashboardGridLayout = ({
   organizationExpenses,
   recommendationsCard,
   poolsRequiringAttentionCard,
-  recentTasksCard
+  recentTasksCard,
+  recentModelsCard
 }: DashboardGridLayoutProps) => {
   const squareNodes = [
     { key: "organizationExpenses", node: organizationExpenses },
@@ -42,6 +44,11 @@ const DashboardGridLayout = ({
     {
       key: "recentTasksCard",
       node: recentTasksCard,
+      mode: OPTSCALE_MODE.MLOPS
+    },
+    {
+      key: "recentModelsCard",
+      node: recentModelsCard,
       mode: OPTSCALE_MODE.MLOPS
     }
   ].filter(({ node }) => Boolean(node));

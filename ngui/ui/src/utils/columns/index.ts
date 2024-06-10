@@ -34,6 +34,7 @@ import mlGpuMemoryUsage from "./mlGpuMemoryUsage";
 import mlIOPSCap from "./mlIOPSCap";
 import mlLocalStorageBottleneckDuration from "./mlLocalStorageBottleneckDuration";
 import mlModelPath from "./mlModelPath";
+import mlModelUsedAliases from "./mlModelUsedAliases";
 import mlModelVersion from "./mlModelVersion";
 import mlRunsCount from "./mlRunsCount";
 import mlTaskLastRun from "./mlTaskLastRun";
@@ -139,5 +140,6 @@ export {
   mlModelVersion,
   mlModelPath,
   mlTaskName,
-  mlTaskLastRun
+  mlTaskLastRun,
+  mlModelUsedAliases
 };
