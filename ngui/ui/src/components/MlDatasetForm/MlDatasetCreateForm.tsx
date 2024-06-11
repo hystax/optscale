@@ -1,18 +1,12 @@
-import { FormLabel } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
-import { FormattedMessage } from "react-intl";
 import {
   FormButtons,
   IdField,
   NameField,
   DescriptionField,
   LabelsField,
-  TrainingSetIdField,
-  ValidationSetIdField,
-  TrainingSetTimespanFromField,
-  TrainingSetTimespanToField,
-  ValidationSetTimespanFromField,
-  ValidationSetTimespanToField
+  TimespanFromField,
+  TimespanToField
 } from "./FormElements";
 import { getDefaultValues, prepareFormSubmissionData } from "./utils";
 
@@ -34,18 +28,8 @@ const MlDatasetCreateForm = ({ onSubmit, onCancel, isLoading = {} }) => {
       >
         <IdField autoFocus />
         <NameField />
-        <FormLabel component="p">
-          <FormattedMessage id="trainingSet" />
-        </FormLabel>
-        <TrainingSetIdField />
-        <TrainingSetTimespanFromField />
-        <TrainingSetTimespanToField />
-        <FormLabel component="p">
-          <FormattedMessage id="validationSet" />
-        </FormLabel>
-        <ValidationSetIdField />
-        <ValidationSetTimespanFromField />
-        <ValidationSetTimespanToField />
+        <TimespanFromField />
+        <TimespanToField />
         <DescriptionField />
         <LabelsField />
         <FormButtons onCancel={onCancel} isLoading={isCreateDatasetLoading} />

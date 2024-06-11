@@ -1750,18 +1750,10 @@ BASIC_PRESET = {
             "labels": [
                 "flowers"
             ],
-            "training_set": {
-                "path": "https://s3.amazonaws.com/ml-bucket/training.csv"
-            },
-            "validation_set": {
-                "path": "https://s3.amazonaws.com/ml-bucket/validation.csv"
-            },
+            "timespan_from_offset": 7554600,
+            "timespan_to_offset": 1074600,
             "path": "https://s3.amazonaws.com/ml-bucket/flowers_231021.csv",
-            "created_at_offset": 146220,
-            "training_set.timespan_from_offset": 7554600,
-            "training_set.timespan_to_offset": 1074600,
-            "validation_set.timespan_from_offset": 7554600,
-            "validation_set.timespan_to_offset": 1074600
+            "created_at_offset": 146220
         }
     ],
     "models": [

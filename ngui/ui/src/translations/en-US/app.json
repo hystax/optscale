@@ -2141,6 +2141,7 @@
   "timeExceeded": "Time  Exceeded",
   "timeZone": "Time zone",
   "timerange": "Timerange {from} — {to}",
+  "timespan": "Timespan",
   "timespanFrom": "Timespan from",
   "timespanTo": "Timespan to",
   "to": "To",

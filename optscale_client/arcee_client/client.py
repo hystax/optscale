@@ -625,16 +625,16 @@ class Client:
             labels: List[str] = None,
             name: Optional[str] = None,
             description: Optional[str] = None,
-            training_set: Optional[dict] = None,
-            validation_set: Optional[dict] = None
+            timespan_from: Optional[int] = None,
+            timespan_to: Optional[int] = None,
     ):
         b = {
             "path": path,
             "name": name,
             "description": description,
             "labels": labels or [],
-            "training_set": training_set,
-            "validation_set": validation_set,
+            "timespan_from": timespan_from,
+            "timespan_to": timespan_to,
         }
         return self.post(self.datasets_url(), b)
 
@@ -644,7 +644,7 @@ class Client:
 
         :param id_:
         :param params: dataset optional parameters like *labels*, *name*,
-            *description*, *training_set*, *validation_set*
+            *description*, *timespan_from*, *timespan_to*
         :return:
         '''
         return self.patch(self.datasets_url(id_), params)

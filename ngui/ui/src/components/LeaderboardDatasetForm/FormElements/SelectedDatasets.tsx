@@ -2,16 +2,12 @@ import { useEffect, useMemo } from "react";
 import RemoveOutlinedIcon from "@mui/icons-material/RemoveOutlined";
 import { FormHelperText } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
-import { FormattedMessage, useIntl } from "react-intl";
-import CaptionedCell from "components/CaptionedCell";
-import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
+import { useIntl } from "react-intl";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
-import TextWithDataTestId from "components/TextWithDataTestId";
 import { isEmpty as isEmptyArray } from "utils/arrays";
-import { datasetLabels, leaderboardCriteriaDataset } from "utils/columns";
-import { EN_FULL_FORMAT, formatUTC } from "utils/datetime";
+import { datasetLabels, datasetTimespan, leaderboardCriteriaDataset } from "utils/columns";
 import { FIELD_NAMES } from "../constants";
 
 const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
@@ -49,96 +45,7 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
         id: "labels",
         accessorFn: (originalRow) => originalRow.labels
       }),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_training_set">
-            <FormattedMessage id="trainingSet" />
-          </TextWithDataTestId>
-        ),
-        id: "trainingSet",
-        accessorFn: (originalRow) => originalRow.training_set?.path,
-        enableSorting: false,
-        cell: ({
-          cell,
-          row: {
-            original: {
-              training_set: { timespan_from: timespanFrom, timespan_to: timespanTo }
-            }
-          }
-        }) => (
-          <CaptionedCell
-            caption={[
-              {
-                key: "timespanFrom",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="from"
-                    value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
-                    variant="caption"
-                  />
-                )
-              },
-              {
-                key: "timespanTo",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="to"
-                    value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
-                    variant="caption"
-                  />
-                )
-              }
-            ]}
-          >
-            {cell.getValue()}
-          </CaptionedCell>
-        )
-      },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_validation_set">
-            <FormattedMessage id="validationSet" />
-          </TextWithDataTestId>
-        ),
-        id: "validationSet",
-        accessorFn: (originalRow) => originalRow.validation_set?.path,
-        enableSorting: false,
-        cell: ({
-          cell,
-          row: {
-            original: {
-              validation_set: { timespan_from: timespanFrom, timespan_to: timespanTo }
-            }
-          }
-        }) => (
-          <CaptionedCell
-            caption={[
-              {
-                key: "timespanFrom",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="from"
-                    value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
-                    variant="caption"
-                  />
-                )
-              },
-              {
-                key: "timespanTo",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="to"
-                    value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
-                    variant="caption"
-                  />
-                )
-              }
-            ]}
-          >
-            {cell.getValue()}
-          </CaptionedCell>
-        )
-      }
+      datasetTimespan()
     ],
     [onDatasetRemove, selectedDatasets]
   );

@@ -944,10 +944,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['deleted_at'] = 0
         obj = self.offsets_to_timestamps([
             'created_at',
-            'training_set.timespan_from',
-            'training_set.timespan_to',
-            'validation_set.timespan_from',
-            'validation_set.timespan_to'
+            'timespan_from',
+            'timespan_to',
         ], now, obj)
         return obj
 
