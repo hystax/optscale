@@ -5,6 +5,7 @@ import biExportNextExport from "./biExportNextExport";
 import biExportTargetStorage from "./biExportTargetStorage";
 import dataset from "./dataset";
 import datasetLabels from "./datasetLabels";
+import datasetTimespan from "./datasetTimespan";
 import dataSource from "./dataSource";
 import detectedAt from "./detectedAt";
 import discoveryStatus from "./discoveryStatus";
@@ -141,5 +142,6 @@ export {
   mlModelPath,
   mlTaskName,
   mlTaskLastRun,
-  mlModelUsedAliases
+  mlModelUsedAliases,
+  datasetTimespan
 };

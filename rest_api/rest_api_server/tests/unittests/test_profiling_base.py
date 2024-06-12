@@ -53,16 +53,8 @@ class TestProfilingBase(TestApiBase):
             'created_at': int(datetime.now(tz=timezone.utc).timestamp()),
             'deleted_at': 0,
             'token': token,
-            'training_set': {
-                'path': str(uuid.uuid4()),
-                'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
-                'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
-            },
-            'validation_set': {
-                'path': str(uuid.uuid4()),
-                'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
-                'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
-            }
+            'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
+            'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
         }
         if kwargs:
             dataset.update(kwargs)
@@ -720,8 +712,8 @@ class ArceeMock:
             labels: List[str] = None,
             name: Optional[str] = None,
             description: Optional[str] = None,
-            training_set: Optional[dict] = None,
-            validation_set: Optional[dict] = None
+            timespan_from: Optional[int] = None,
+            timespan_to: Optional[int] = None,
     ):
         d = {
             "_id": str(uuid.uuid4()),
@@ -732,8 +724,8 @@ class ArceeMock:
             "token": self.token,
             "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
             "deleted_at": 0,
-            "training_set": training_set,
-            "validation_set": validation_set,
+            "timespan_from": timespan_from,
+            "timespan_to": timespan_to,
         }
         inserted = self.profiling_datasets.insert_one(d)
         dataset = list(self.profiling_datasets.find(

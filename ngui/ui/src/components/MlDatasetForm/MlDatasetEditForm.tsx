@@ -1,21 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { FormLabel } from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 import { FormProvider, useForm } from "react-hook-form";
-import { FormattedMessage } from "react-intl";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
-import {
-  FormButtons,
-  NameField,
-  DescriptionField,
-  LabelsField,
-  TrainingSetIdField,
-  ValidationSetIdField,
-  TrainingSetTimespanFromField,
-  TrainingSetTimespanToField,
-  ValidationSetTimespanFromField,
-  ValidationSetTimespanToField
-} from "./FormElements";
+import { FormButtons, NameField, DescriptionField, LabelsField, TimespanFromField, TimespanToField } from "./FormElements";
 import { getDefaultValues, prepareFormSubmissionData } from "./utils";
 
 const MlDatasetEditForm = ({ dataset, onSubmit, onCancel, isLoadingProps = {} }) => {
@@ -45,18 +32,8 @@ const MlDatasetEditForm = ({ dataset, onSubmit, onCancel, isLoadingProps = {} })
       >
         {isGetDatasetLoading ? <Skeleton /> : <KeyValueLabel keyMessageId="id" value={dataset.path} />}
         <NameField isLoading={isGetDatasetLoading} autoFocus />
-        <FormLabel component="p">
-          <FormattedMessage id="trainingSet" />
-        </FormLabel>
-        <TrainingSetIdField isLoading={isGetDatasetLoading} />
-        <TrainingSetTimespanFromField isLoading={isGetDatasetLoading} />
-        <TrainingSetTimespanToField isLoading={isGetDatasetLoading} />
-        <FormLabel component="p">
-          <FormattedMessage id="validationSet" />
-        </FormLabel>
-        <ValidationSetIdField isLoading={isGetDatasetLoading} />
-        <ValidationSetTimespanFromField isLoading={isGetDatasetLoading} />
-        <ValidationSetTimespanToField isLoading={isGetDatasetLoading} />
+        <TimespanFromField isLoading={isGetDatasetLoading} />
+        <TimespanToField isLoading={isGetDatasetLoading} />
         <DescriptionField isLoading={isGetDatasetLoading} />
         <LabelsField isLoading={isGetDatasetLoading} labels={dataset.labels} />
         <FormButtons onCancel={onCancel} isLoading={isGetDatasetLoading || isUpdateDatasetLoading} />

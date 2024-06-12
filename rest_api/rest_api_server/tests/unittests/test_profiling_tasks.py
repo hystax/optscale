@@ -469,16 +469,8 @@ class TestTaskApi(TestProfilingBase):
             'name': 'Test',
             'description': 'Test ML dataset',
             'labels': ['test', 'demo'],
-            'training_set': {
-                'path': 's3://ml-bucket/training_set',
-                'timespan_from': 1698740386,
-                'timespan_to': 1698741386
-            },
-            'validation_set': {
-                'path': 's3://ml-bucket/validation_set',
-                'timespan_from': 1698740386,
-                'timespan_to': 1698741386
-            }
+            'timespan_from': 1698740386,
+            'timespan_to': 1698741386
         }
         _, dataset = self.client.dataset_create(self.org['id'], valid_dataset)
         dt = datetime(2023, 10, 10, tzinfo=timezone.utc)

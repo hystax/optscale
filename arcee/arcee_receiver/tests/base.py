@@ -146,8 +146,7 @@ async def prepare_leaderboard_dataset(leaderboard_id, name=None,
         {'_id': leaderboard_dataset['_id']})
 
 
-async def prepare_dataset(name=None, description=None, labels=None, path=None,
-                          training_set=None, validation_set=None):
+async def prepare_dataset(name=None, description=None, labels=None, path=None):
     if labels is None:
         labels = []
     dataset = {
@@ -156,8 +155,6 @@ async def prepare_dataset(name=None, description=None, labels=None, path=None,
         "description": description or 'test',
         "labels": labels,
         "path": path or 'test',
-        "training_set": training_set,
-        "validation_set": validation_set,
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
         "deleted_at": 0
     }

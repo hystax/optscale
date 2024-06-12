@@ -35,18 +35,12 @@ class Console(ConsolePostIn):
     run_id: str
 
 
-class SubDataset(BaseModel):
-    path: str
-    timespan_from: Optional[int] = None
-    timespan_to: Optional[int] = None
-
-
 class DatasetPatchIn(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     labels: List[str] = []
-    training_set: Optional[SubDataset] = None
-    validation_set: Optional[SubDataset] = None
+    timespan_from: Optional[int] = None
+    timespan_to: Optional[int] = None
 
 
 class DatasetPostIn(DatasetPatchIn):

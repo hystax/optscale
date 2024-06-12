@@ -36,8 +36,8 @@ def format_dataset(dataset: dict) -> dict:
         'deleted': dataset['deleted_at'] != 0,
         'path': dataset['path'],
         'labels': dataset['labels'],
-        'training_set': dataset['training_set'],
-        'validation_set': dataset['validation_set'],
+        'timespan_from': dataset['timespan_from'],
+        'timespan_to': dataset['timespan_to'],
         'description': dataset.get('description')
     }
 

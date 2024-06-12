@@ -1750,18 +1750,21 @@ BASIC_PRESET = {
             "labels": [
                 "flowers"
             ],
-            "training_set": {
-                "path": "https://s3.amazonaws.com/ml-bucket/training.csv"
-            },
-            "validation_set": {
-                "path": "https://s3.amazonaws.com/ml-bucket/validation.csv"
-            },
+            "timespan_from_offset": 7554600,
+            "timespan_to_offset": 1074600,
             "path": "https://s3.amazonaws.com/ml-bucket/flowers_231021.csv",
-            "created_at_offset": 146220,
-            "training_set.timespan_from_offset": 7554600,
-            "training_set.timespan_to_offset": 1074600,
-            "validation_set.timespan_from_offset": 7554600,
-            "validation_set.timespan_to_offset": 1074600
+            "created_at_offset": 146220
+        },
+        {
+            "_id": "38766d9c-e20e-4cae-a3d1-1e19a58abc59",
+            "name": "100 flowers",
+            "description": "Dataset without timespan_to_offset",
+            "labels": [
+                "flowers"
+            ],
+            "timespan_from_offset": 7554600,
+            "path": "https://s3.amazonaws.com/ml-bucket/flowers.csv",
+            "created_at_offset": 146220
         }
     ],
     "models": [
@@ -1972,6 +1975,10 @@ class TestLiveDemosApi(TestApiBase):
                         self.assertIn('start', resource.get('meta', {}))
                         self.assertIn('end', resource.get('meta', {}))
                         self.assertIn('instance_type', resource.get('meta', {}))
+                datasets = list(self.dataset_collection.find())
+                for dataset in datasets:
+                    self.assertIn('timespan_from', dataset)
+                    self.assertIn('timespan_to', dataset)
 
     def test_live_demo_org_constraint_create(self):
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController'

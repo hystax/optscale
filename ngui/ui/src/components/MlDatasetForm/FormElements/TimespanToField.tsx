@@ -1,3 +1,4 @@
+import { FormControl } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { useIntl } from "react-intl";
 import InputLoader from "components/InputLoader";
@@ -5,7 +6,7 @@ import IntervalTimePicker from "components/IntervalTimePicker";
 import { getNYearsFromToday } from "utils/datetime";
 import { FIELD_NAMES } from "../constants";
 
-const TrainingSetTimespanToField = ({ name = FIELD_NAMES.TRAINING_SET_TIMESPAN_TO, isLoading = false }) => {
+const TimespanToField = ({ name = FIELD_NAMES.TIMESPAN_TO, isLoading = false }) => {
   const {
     formState: { errors, isSubmitted },
     control,
@@ -23,7 +24,7 @@ const TrainingSetTimespanToField = ({ name = FIELD_NAMES.TRAINING_SET_TIMESPAN_T
       rules={{
         validate: {
           lessThanOrEqualToTimespanTo: (timespanTo, formValues) => {
-            const timespanFrom = formValues[FIELD_NAMES.TRAINING_SET_TIMESPAN_FROM];
+            const timespanFrom = formValues[FIELD_NAMES.TIMESPAN_FROM];
 
             if (!timespanTo || !timespanFrom) {
               return true;
@@ -42,34 +43,41 @@ const TrainingSetTimespanToField = ({ name = FIELD_NAMES.TRAINING_SET_TIMESPAN_T
         }
       }}
       render={({ field: { value, onChange } }) => (
-        <IntervalTimePicker
-          value={value}
-          labelMessageId="timespanTo"
-          notSetMessageId="timespanTo"
-          onApply={(date) => {
-            onChange(+date);
-            if (isSubmitted) {
-              trigger(FIELD_NAMES.TRAINING_SET_TIMESPAN_FROM);
-            }
-          }}
-          fullWidth
-          margin="dense"
-          maxDate={getNYearsFromToday(1)}
-          validation={{
-            dataTestId: `input_${name}`,
-            error: !!errors[name],
-            helperText: errors[name]?.message
-          }}
-          dataTestIds={{
-            field: {
-              input: `input_${name}`,
-              iconButton: `btn_${name}select_date`
-            }
-          }}
-        />
+        <FormControl fullWidth>
+          <IntervalTimePicker
+            value={value}
+            labelMessageId="timespanTo"
+            notSetMessageId="timespanTo"
+            onApply={(date) => {
+              onChange(+date);
+              if (isSubmitted) {
+                trigger(FIELD_NAMES.TIMESPAN_FROM);
+              }
+            }}
+            fullWidth
+            margin="dense"
+            maxDate={getNYearsFromToday(1)}
+            validation={{
+              dataTestId: `input_${name}`,
+              error: !!errors[name],
+              helperText: errors[name]?.message
+            }}
+            withTimePicker
+            quickValues={{
+              values: ["3h", "1d", "3d"],
+              orValues: ["noLimit"]
+            }}
+            dataTestIds={{
+              field: {
+                input: `input_${name}`,
+                iconButton: `btn_${name}select_date`
+              }
+            }}
+          />
+        </FormControl>
       )}
     />
   );
 };
 
-export default TrainingSetTimespanToField;
+export default TimespanToField;

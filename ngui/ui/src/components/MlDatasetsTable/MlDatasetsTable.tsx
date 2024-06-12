@@ -5,8 +5,6 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
-import CaptionedCell from "components/CaptionedCell";
-import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Markdown from "components/Markdown";
 import { MlDeleteDatasetModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
@@ -14,8 +12,7 @@ import TableCellActions from "components/TableCellActions";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { ML_DATASET_CREATE, getEditMlDatasetUrl } from "urls";
-import { datasetLabels, text } from "utils/columns";
-import { EN_FULL_FORMAT, formatUTC } from "utils/datetime";
+import { datasetLabels, datasetTimespan, text } from "utils/columns";
 import { SPACING_1 } from "utils/layouts";
 
 const MlDatasetsTable = ({ datasets }) => {
@@ -34,94 +31,7 @@ const MlDatasetsTable = ({ datasets }) => {
         headerMessageId: "id",
         accessorKey: "path"
       }),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_training_set">
-            <FormattedMessage id="trainingSet" />
-          </TextWithDataTestId>
-        ),
-        id: "trainingSet",
-        accessorFn: (originalRow) => originalRow.training_set?.path,
-        cell: ({
-          cell,
-          row: {
-            original: {
-              training_set: { timespan_from: timespanFrom, timespan_to: timespanTo }
-            }
-          }
-        }) => (
-          <CaptionedCell
-            caption={[
-              {
-                key: "timespanFrom",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="from"
-                    variant="caption"
-                    value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              },
-              {
-                key: "timespanTo",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="to"
-                    variant="caption"
-                    value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              }
-            ]}
-          >
-            {cell.getValue()}
-          </CaptionedCell>
-        )
-      },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_validation_set">
-            <FormattedMessage id="validationSet" />
-          </TextWithDataTestId>
-        ),
-        id: "validationSet",
-        accessorFn: (originalRow) => originalRow.validation_set?.path,
-        cell: ({
-          cell,
-          row: {
-            original: {
-              validation_set: { timespan_from: timespanFrom, timespan_to: timespanTo }
-            }
-          }
-        }) => (
-          <CaptionedCell
-            caption={[
-              {
-                key: "timespanFrom",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="from"
-                    variant="caption"
-                    value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              },
-              {
-                key: "timespanTo",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="to"
-                    variant="caption"
-                    value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              }
-            ]}
-          >
-            {cell.getValue()}
-          </CaptionedCell>
-        )
-      },
+      datasetTimespan(),
       {
         header: (
           <TextWithDataTestId dataTestId="lbl_description">
