@@ -947,6 +947,9 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'timespan_from',
             'timespan_to',
         ], now, obj)
+        for param in ['timespan_from', 'timespan_to']:
+            if param not in obj:
+                obj[param] = None
         return obj
 
     def build_console(self, obj, objects_group, **kwargs):
