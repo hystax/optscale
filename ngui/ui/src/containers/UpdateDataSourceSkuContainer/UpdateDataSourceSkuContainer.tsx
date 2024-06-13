@@ -1,4 +1,4 @@
-import UpdateDataSourceSkuForm from "components/UpdateDataSourceSkuForm";
+import UpdateDataSourceSkuForm from "components/forms/UpdateDataSourceSkuForm";
 import DataSourceSkusService from "services/DataSourceSkusService";
 
 const UpdateDataSourceSkuContainer = ({ sku, cost, costModel, dataSourceId, closeSideModal }) => {

@@ -1,4 +1,4 @@
-import UpdateDataSourceCredentialsForm from "components/UpdateDataSourceCredentialsForm";
+import UpdateDataSourceCredentialsForm from "components/forms/UpdateDataSourceCredentialsForm";
 import DataSourcesService from "services/DataSourcesService";
 
 const UpdateDataSourceCredentialsContainer = ({ id, type, config, closeSideModal }) => {

@@ -1,4 +1,4 @@
-import OrganizationOptionForm from "components/OrganizationOptionForm";
+import OrganizationOptionForm from "components/forms/OrganizationOptionForm";
 import OrganizationOptionsService from "services/OrganizationOptionsService";
 
 const CreateOrganizationOptionContainer = ({ onCancel }) => {

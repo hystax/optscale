@@ -1,4 +1,5 @@
-import S3DuplicateFinderSettingsForm from "components/S3DuplicateFinderSettingsForm";
+import S3DuplicateFinderSettingsForm from "components/forms/S3DuplicateFinderSettingsForm";
+import { FormValues } from "components/forms/S3DuplicateFinderSettingsForm/types";
 import { useS3DuplicatesSettings } from "hooks/useS3DuplicatesSettings";
 import OrganizationOptionsService from "services/OrganizationOptionsService";
 
@@ -14,8 +15,13 @@ const S3DuplicateFinderSettingsFormContainer = ({ closeSideModal }) => {
 
   const { onUpdate, isLoading: isUpdateLoading } = useUpdateS3DuplicatedOrganizationSettings();
 
-  const onSubmit = (params) => {
-    onUpdate(params).then(closeSideModal);
+  const onSubmit = (formData: FormValues) => {
+    onUpdate({
+      thresholds: {
+        requiring_attention: Number(formData.requiringAttention),
+        critical: Number(formData.critical)
+      }
+    }).then(closeSideModal);
   };
 
   return (

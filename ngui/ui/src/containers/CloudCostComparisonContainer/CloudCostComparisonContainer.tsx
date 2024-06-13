@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CloudCostComparison from "components/CloudCostComparison";
-import { FIELD_NAMES, SUPPORTED_CLOUD_TYPES } from "components/CloudCostComparisonFiltersForm/FormElements";
-import { REGIONS } from "components/CloudCostComparisonFiltersForm/FormElements/RegionField";
+import { FIELD_NAMES, REGIONS, SUPPORTED_CLOUD_TYPES } from "components/forms/CloudCostComparisonFiltersForm/constants";
 import { useIsNebiusConnectionEnabled } from "hooks/useIsNebiusConnectionEnabled";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import CloudCostComparisonService from "services/CloudCostComparisonService";
@@ -20,7 +19,7 @@ const CloudCostComparisonContainer = () => {
     const queryParams = getQueryParams();
 
     const getCloudTypeValue = () => {
-      const value = queryParams[FIELD_NAMES.CLOUD_TYPE_FIELD_NAME];
+      const value = queryParams[FIELD_NAMES.CLOUD_PROVIDER];
 
       if (value === undefined) {
         return [];
@@ -30,22 +29,22 @@ const CloudCostComparisonContainer = () => {
     };
 
     return {
-      [FIELD_NAMES.CLOUD_TYPE_FIELD_NAME]: getCloudTypeValue(),
-      [FIELD_NAMES.REGION_FIELD_NAME]: queryParams[FIELD_NAMES.REGION_FIELD_NAME] ?? REGIONS.EU,
-      [FIELD_NAMES.CURRENCY_CODE_FIELD_NAME]: queryParams[FIELD_NAMES.CURRENCY_CODE_FIELD_NAME] ?? currency,
-      [FIELD_NAMES.MIN_CPU_FIELD_NAME]: queryParams[FIELD_NAMES.MIN_CPU_FIELD_NAME] ?? "1",
-      [FIELD_NAMES.MAX_CPU_FIELD_NAME]: queryParams[FIELD_NAMES.MAX_CPU_FIELD_NAME] ?? "416",
-      [FIELD_NAMES.MIN_RAM_FIELD_NAME]: queryParams[FIELD_NAMES.MIN_RAM_FIELD_NAME] ?? "0",
-      [FIELD_NAMES.MAX_RAM_FIELD_NAME]: queryParams[FIELD_NAMES.MAX_RAM_FIELD_NAME] ?? "18432"
+      [FIELD_NAMES.CLOUD_PROVIDER]: getCloudTypeValue(),
+      [FIELD_NAMES.REGION]: queryParams[FIELD_NAMES.REGION] ?? REGIONS.EU,
+      [FIELD_NAMES.CURRENCY_CODE]: queryParams[FIELD_NAMES.CURRENCY_CODE] ?? currency,
+      [FIELD_NAMES.MIN_CPU]: queryParams[FIELD_NAMES.MIN_CPU] ?? "1",
+      [FIELD_NAMES.MAX_CPU]: queryParams[FIELD_NAMES.MAX_CPU] ?? "416",
+      [FIELD_NAMES.MIN_RAM]: queryParams[FIELD_NAMES.MIN_RAM] ?? "0",
+      [FIELD_NAMES.MAX_RAM]: queryParams[FIELD_NAMES.MAX_RAM] ?? "18432"
     };
   };
 
   const getApiParams = useCallback(
     (params) => {
-      const minCpu = params[FIELD_NAMES.MIN_CPU_FIELD_NAME] === "" ? undefined : params[FIELD_NAMES.MIN_CPU_FIELD_NAME].trim();
-      const maxCpu = params[FIELD_NAMES.MAX_CPU_FIELD_NAME] === "" ? undefined : params[FIELD_NAMES.MAX_CPU_FIELD_NAME].trim();
-      const minRam = params[FIELD_NAMES.MIN_RAM_FIELD_NAME] === "" ? undefined : params[FIELD_NAMES.MIN_RAM_FIELD_NAME].trim();
-      const maxRam = params[FIELD_NAMES.MAX_RAM_FIELD_NAME] === "" ? undefined : params[FIELD_NAMES.MAX_RAM_FIELD_NAME].trim();
+      const minCpu = params[FIELD_NAMES.MIN_CPU] === "" ? undefined : params[FIELD_NAMES.MIN_CPU].trim();
+      const maxCpu = params[FIELD_NAMES.MAX_CPU] === "" ? undefined : params[FIELD_NAMES.MAX_CPU].trim();
+      const minRam = params[FIELD_NAMES.MIN_RAM] === "" ? undefined : params[FIELD_NAMES.MIN_RAM].trim();
+      const maxRam = params[FIELD_NAMES.MIN_CPU] === "" ? undefined : params[FIELD_NAMES.MAX_RAM].trim();
 
       const getCloudType = () => {
         const cloudTypes = SUPPORTED_CLOUD_TYPES.map(({ type }) => type);
@@ -57,10 +56,10 @@ const CloudCostComparisonContainer = () => {
           return true;
         });
 
-        if (isEmpty(params[FIELD_NAMES.CLOUD_TYPE_FIELD_NAME])) {
+        if (isEmpty(params[FIELD_NAMES.CLOUD_PROVIDER])) {
           return allowedTypes;
         }
-        return allowedTypes.filter((type) => params[FIELD_NAMES.CLOUD_TYPE_FIELD_NAME].includes(type));
+        return allowedTypes.filter((type) => params[FIELD_NAMES.CLOUD_PROVIDER].includes(type));
       };
 
       return {
@@ -69,8 +68,8 @@ const CloudCostComparisonContainer = () => {
         max_cpu: maxCpu,
         min_ram: minRam,
         max_ram: maxRam,
-        region: params[FIELD_NAMES.REGION_FIELD_NAME],
-        preferred_currency: params[FIELD_NAMES.CURRENCY_CODE_FIELD_NAME]
+        region: params[FIELD_NAMES.REGION],
+        preferred_currency: params[FIELD_NAMES.CURRENCY_CODE]
       };
     },
     [isNebiusConnectionEnabled]

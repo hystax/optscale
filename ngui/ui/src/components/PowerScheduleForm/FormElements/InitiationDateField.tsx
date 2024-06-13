@@ -32,7 +32,7 @@ const InitiationDateField = ({ name = FIELD_NAMES.INITIATION_DATE, isLoading = f
             return (
               value <= expirationDate ||
               intl.formatMessage(
-                { id: "xShouldBeLessThanOrEqualToY" },
+                { id: "xMustBeLessThanOrEqualToY" },
                 {
                   x: intl.formatMessage({ id: "initiationDate" }),
                   y: intl.formatMessage({ id: "expirationDate" })

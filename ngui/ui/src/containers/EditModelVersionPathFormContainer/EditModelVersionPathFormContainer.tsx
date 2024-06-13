@@ -1,4 +1,4 @@
-import EditModelVersionPathForm from "components/EditModelVersionPathForm";
+import EditModelVersionPathForm from "components/forms/EditModelVersionPathForm";
 import MlModelsService, { ModelVersion } from "services/MlModelsService";
 
 type EditModelVersionAliasFormContainerProps = {

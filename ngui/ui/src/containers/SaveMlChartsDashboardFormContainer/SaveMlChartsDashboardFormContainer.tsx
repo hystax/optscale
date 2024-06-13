@@ -1,4 +1,4 @@
-import SaveMlChartsDashboardForm from "components/SaveMlChartsDashboardForm";
+import SaveMlChartsDashboardForm from "components/forms/SaveMlChartsDashboardForm";
 import LayoutsService from "services/LayoutsService";
 
 const SaveMlChartsDashboardFormContainer = ({

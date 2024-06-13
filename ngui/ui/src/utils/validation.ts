@@ -4,6 +4,8 @@ import { intl } from "translations/react-intl-config";
 import { COST_MODEL_MONEY_MAXIMUM_FRACTION_DIGITS } from "./constants";
 import { isWhitespaceString } from "./strings";
 
+export const isNumber = (value) => typeof value === "number" && !Number.isNaN(Number(value));
+
 export const isPositiveNumberOrZero = (number) => !Number.isNaN(number) && number >= 0;
 
 export const isWholeNumber = (value) => value % 1 !== 0 || value < 0;
@@ -65,7 +67,7 @@ export const isRunsetTemplateEnvironmentVariable = (inputName) => (value) =>
     ? true
     : intl.formatMessage(
         {
-          id: "inputShouldContainOnlyUppercaseLatinLettersNumberOrUnderscore"
+          id: "inputMustContainOnlyUppercaseLatinLettersNumberOrUnderscore"
         },
         {
           inputName
@@ -73,4 +75,4 @@ export const isRunsetTemplateEnvironmentVariable = (inputName) => (value) =>
       );
 
 export const doNotBeginWithNumber = (inputName) => (value) =>
-  /^[^0-9]/.test(value) ? true : intl.formatMessage({ id: "inputShouldNotBeginWithNumbers" }, { inputName });
+  /^[^0-9]/.test(value) ? true : intl.formatMessage({ id: "inputMustNotBeginWithNumbers" }, { inputName });

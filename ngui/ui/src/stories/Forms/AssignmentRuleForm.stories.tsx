@@ -1,4 +1,4 @@
-import AssignmentRuleForm from "components/AssignmentRuleForm";
+import AssignmentRuleForm from "components/forms/AssignmentRuleForm";
 
 export default {
   component: AssignmentRuleForm,

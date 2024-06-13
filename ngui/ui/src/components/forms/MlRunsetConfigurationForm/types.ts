@@ -1,0 +1,17 @@
+import { FIELD_NAMES } from "./constants";
+
+export type FormValues = {
+  [FIELD_NAMES.TASK]: string;
+  [FIELD_NAMES.DATA_SOURCE]: string;
+  [FIELD_NAMES.REGION]: string;
+  [FIELD_NAMES.INSTANCE_TYPE]: string;
+  [FIELD_NAMES.HYPERPARAMETERS]: Record<string, string>;
+  [FIELD_NAMES.CODE_TO_EXECUTE]: string;
+  [FIELD_NAMES.MAX_BUDGET_CHECKBOX]: boolean;
+  [FIELD_NAMES.MAX_BUDGET_VALUE]: string;
+  [FIELD_NAMES.REACHED_GOALS_CHECKBOX]: boolean;
+  [FIELD_NAMES.MAX_DURATION_CHECKBOX]: boolean;
+  [FIELD_NAMES.MAX_DURATION_VALUE]: string;
+  [FIELD_NAMES.USE_SPOT_INSTANCES]: boolean;
+  [FIELD_NAMES.MAX_ATTEMPTS]: string;
+};

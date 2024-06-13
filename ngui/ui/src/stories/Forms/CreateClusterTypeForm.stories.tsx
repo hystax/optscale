@@ -1,4 +1,4 @@
-import CreateClusterTypeForm from "components/CreateClusterTypeForm";
+import CreateClusterTypeForm from "components/forms/CreateClusterTypeForm";
 
 export default {
   component: CreateClusterTypeForm,

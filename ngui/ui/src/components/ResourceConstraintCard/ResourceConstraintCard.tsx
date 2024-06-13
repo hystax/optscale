@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import { ConstraintLimitMessage } from "components/ConstraintMessage";
-import EditResourceConstraintForm from "components/EditResourceConstraintForm";
+import EditResourceConstraintForm from "components/forms/EditResourceConstraintForm";
 import Icon from "components/Icon";
 import IconButton from "components/IconButton";
 import WidgetTitle from "components/WidgetTitle";

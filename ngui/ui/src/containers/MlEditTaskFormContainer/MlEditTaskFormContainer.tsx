@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import MlEditTaskForm from "components/MlEditTaskForm";
+import MlEditTaskForm from "components/forms/MlEditTaskForm";
 import EmployeesService from "services/EmployeesService";
 import MlTasksService from "services/MlTasksService";
 import { getMlTaskDetailsUrl } from "urls";

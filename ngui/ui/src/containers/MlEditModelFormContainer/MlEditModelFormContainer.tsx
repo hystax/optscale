@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { MlEditModelForm } from "components/MlModelForm";
+import { MlEditModelForm } from "components/forms/MlModelForm";
 import MlModelsService, { EditModelApiParams, ModelDetails } from "services/MlModelsService";
 import { getMlModelUrl } from "urls";
 

@@ -53,7 +53,7 @@
     "react-big-calendar": "^1.5.2",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.42.1",
+    "react-hook-form": "^7.51.3",
     "react-intl": "^6.5.5",
     "react-json-editor-ajrm": "^2.5.13",
     "react-markdown": "^8.0.5",

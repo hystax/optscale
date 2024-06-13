@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import { calendarSynchronization } from "api";
 import { CALENDAR_SYNCHRONIZATION } from "api/restapi/actionTypes";
-import ConnectGoogleCalendarForm from "components/ConnectGoogleCalendarForm";
+import ConnectGoogleCalendarForm from "components/forms/ConnectGoogleCalendarForm";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { isError } from "utils/api";

@@ -30,7 +30,7 @@ const ExpirationDateField = ({ name = FIELD_NAMES.EXPIRATION_DATE, isLoading = f
             return (
               value >= initiationDate ||
               intl.formatMessage(
-                { id: "xShouldBeGreaterThanOrEqualToY" },
+                { id: "xMustBeGreaterThanOrEqualToY" },
                 {
                   x: intl.formatMessage({ id: "expirationDate" }),
                   y: intl.formatMessage({ id: "initiationDate" })

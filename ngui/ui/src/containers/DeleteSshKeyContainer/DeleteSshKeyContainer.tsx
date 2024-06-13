@@ -1,7 +1,8 @@
 import { useDispatch } from "react-redux";
 import { deleteSshKey, updateSshKey } from "api";
 import { DELETE_SSH_KEY, UPDATE_SSH_KEY } from "api/restapi/actionTypes";
-import DeleteSshKeyForm, { NEW_DEFAULT_KEY } from "components/DeleteSshKeyForm";
+import DeleteSshKeyForm from "components/forms/DeleteSshKeyForm";
+import { FormValues } from "components/forms/DeleteSshKeyForm/types";
 import { useApiState } from "hooks/useApiState";
 import { isError } from "utils/api";
 
@@ -22,12 +23,12 @@ const DeleteSshKeyContainer = ({ keys, currentKeyId, closeSideModal, isDefault }
       });
     });
 
-  const onSubmit = (formData) => {
-    const { [NEW_DEFAULT_KEY]: newKey } = formData;
+  const onSubmit = (formData: FormValues) => {
+    const { newDefaultKey } = formData;
 
-    if (isDefault && newKey) {
+    if (isDefault && newDefaultKey) {
       dispatch((_, getState) => {
-        dispatch(updateSshKey(newKey, { default: true })).then(() => {
+        dispatch(updateSshKey(newDefaultKey, { default: true })).then(() => {
           if (!isError(UPDATE_SSH_KEY, getState())) {
             doRemove();
           }

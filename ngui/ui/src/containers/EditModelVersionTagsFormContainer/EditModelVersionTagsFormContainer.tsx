@@ -1,4 +1,4 @@
-import EditModelVersionTagsForm from "components/EditModelVersionTagsForm";
+import EditModelVersionTagsForm from "components/forms/EditModelVersionTagsForm";
 import MlModelsService, { ModelVersion } from "services/MlModelsService";
 
 type EditModelVersionAliasFormContainerProps = {

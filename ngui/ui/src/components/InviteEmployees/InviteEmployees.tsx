@@ -2,7 +2,7 @@ import { Box, Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
-import InviteEmployeesForm from "components/InviteEmployeesForm";
+import InviteEmployeesForm from "components/forms/InviteEmployeesForm";
 import PageContentWrapper from "components/PageContentWrapper";
 import { USER_MANAGEMENT } from "urls";
 

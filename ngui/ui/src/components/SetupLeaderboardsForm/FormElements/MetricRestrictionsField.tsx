@@ -5,8 +5,8 @@ import FormControl from "@mui/material/FormControl";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Button from "components/Button";
+import { NumberInput } from "components/forms/common/fields";
 import IconButton from "components/IconButton";
-import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import Selector, { Item, ItemContent } from "components/Selector";
 import { isEmpty as isEmptyArray } from "utils/arrays";
@@ -24,52 +24,43 @@ const MinInput = ({ index }) => {
   const intl = useIntl();
 
   const {
-    register,
-    formState: { errors, isSubmitted },
+    formState: { isSubmitted },
     trigger
   } = useFormContext();
 
-  const { onChange, ...restRegister } = register(`${FIELD_NAME}.${index}.${METRIC_MIN}`, {
-    valueAsNumber: true,
-    validate: {
-      maxOrMinShouldBeDefined: (value, formValues) => {
-        const max = formValues[FIELD_NAME]?.[index]?.[METRIC_MAX];
-
-        return Number.isNaN(max) && Number.isNaN(value) ? intl.formatMessage({ id: "eitherMinOrMaxShouldBeDefined" }) : true;
-      },
-      lessThanOrEqualToMax: (value, formValues) => {
-        const max = formValues[FIELD_NAME]?.[index]?.[METRIC_MAX];
-
-        if (Number.isNaN(max) || Number.isNaN(value)) {
-          return true;
-        }
-
-        return value <= max
-          ? true
-          : intl.formatMessage(
-              { id: "fieldLessThanOrEqualToField" },
-              {
-                fieldName1: intl.formatMessage({ id: "min" }),
-                fieldName2: intl.formatMessage({ id: "max" })
-              }
-            );
-      }
-    }
-  });
-
   return (
-    <Input
+    <NumberInput
+      name={`${FIELD_NAME}.${index}.${METRIC_MIN}`}
       label={<FormattedMessage id="min" />}
-      type="number"
-      error={!!errors[FIELD_NAME]?.[index]?.[METRIC_MIN]}
-      helperText={errors[FIELD_NAME]?.[index]?.[METRIC_MIN] && errors[FIELD_NAME]?.[index]?.[METRIC_MIN]?.message}
-      onChange={(event) => {
-        onChange(event);
+      onChange={() => {
         if (isSubmitted) {
           trigger(`${FIELD_NAME}.${index}.${METRIC_MAX}`);
         }
       }}
-      {...restRegister}
+      validate={{
+        maxOrMinShouldBeDefined: (value, formValues) => {
+          const max = formValues[FIELD_NAME]?.[index]?.[METRIC_MAX];
+
+          return !max && !value ? intl.formatMessage({ id: "eitherMinOrMaxMustBeDefined" }) : true;
+        },
+        lessThanOrEqualToMax: (value, formValues) => {
+          const max = formValues[FIELD_NAME]?.[index]?.[METRIC_MAX];
+
+          if (!max || !value) {
+            return true;
+          }
+
+          return Number(value) <= Number(max)
+            ? true
+            : intl.formatMessage(
+                { id: "fieldLessThanOrEqualToField" },
+                {
+                  fieldName1: intl.formatMessage({ id: "min" }),
+                  fieldName2: intl.formatMessage({ id: "max" })
+                }
+              );
+        }
+      }}
       dataTestId={`restriction_min_${index}`}
     />
   );
@@ -79,52 +70,43 @@ const MaxInput = ({ index }) => {
   const intl = useIntl();
 
   const {
-    register,
-    formState: { errors, isSubmitted },
+    formState: { isSubmitted },
     trigger
   } = useFormContext();
 
-  const { onChange, ...restRegister } = register(`${FIELD_NAME}.${index}.${METRIC_MAX}`, {
-    valueAsNumber: true,
-    validate: {
-      maxOrMinShouldBeDefined: (value, formValues) => {
-        const min = formValues[FIELD_NAME]?.[index]?.[METRIC_MIN];
-
-        return Number.isNaN(min) && Number.isNaN(value) ? intl.formatMessage({ id: "eitherMinOrMaxShouldBeDefined" }) : true;
-      },
-      moreThatOrEqualToMin: (value, formValues) => {
-        const min = formValues[FIELD_NAME]?.[index]?.[METRIC_MIN];
-
-        if (Number.isNaN(min) || Number.isNaN(value)) {
-          return true;
-        }
-
-        return value >= min
-          ? true
-          : intl.formatMessage(
-              { id: "fieldMoreThanOrEqualToField" },
-              {
-                fieldName1: intl.formatMessage({ id: "max" }),
-                fieldName2: intl.formatMessage({ id: "min" })
-              }
-            );
-      }
-    }
-  });
-
   return (
-    <Input
+    <NumberInput
+      name={`${FIELD_NAME}.${index}.${METRIC_MAX}`}
       label={<FormattedMessage id="max" />}
-      type="number"
-      error={!!errors[FIELD_NAME]?.[index]?.[METRIC_MAX]}
-      helperText={errors[FIELD_NAME]?.[index]?.[METRIC_MAX] && errors[FIELD_NAME]?.[index]?.[METRIC_MAX]?.message}
-      onChange={(event) => {
-        onChange(event);
+      onChange={() => {
         if (isSubmitted) {
           trigger(`${FIELD_NAME}.${index}.${METRIC_MIN}`);
         }
       }}
-      {...restRegister}
+      validate={{
+        maxOrMinShouldBeDefined: (value, formValues) => {
+          const min = formValues[FIELD_NAME]?.[index]?.[METRIC_MIN];
+
+          return !min && !value ? intl.formatMessage({ id: "eitherMinOrMaxMustBeDefined" }) : true;
+        },
+        moreThatOrEqualToMin: (value, formValues) => {
+          const min = formValues[FIELD_NAME]?.[index]?.[METRIC_MIN];
+
+          if (!min || !value) {
+            return true;
+          }
+
+          return Number(value) >= Number(min)
+            ? true
+            : intl.formatMessage(
+                { id: "fieldMoreThanOrEqualToField" },
+                {
+                  fieldName1: intl.formatMessage({ id: "max" }),
+                  fieldName2: intl.formatMessage({ id: "min" })
+                }
+              );
+        }
+      }}
       dataTestId={`restriction_max_${index}`}
     />
   );
@@ -153,7 +135,7 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
 
             return selectedMetrics.filter((metricName) => metricName === value).length <= 1
               ? true
-              : intl.formatMessage({ id: "entitiesShouldBeUnique" }, { name: intl.formatMessage({ id: "metrics" }) });
+              : intl.formatMessage({ id: "entitiesMustBeUnique" }, { name: intl.formatMessage({ id: "metrics" }) });
           }
         }
       }}

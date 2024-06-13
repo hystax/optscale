@@ -1,5 +1,5 @@
 import { UPDATE_DATA_SOURCE } from "api/restapi/actionTypes";
-import CostModelForm from "components/CostModelForm";
+import CostModelForm from "components/forms/CostModelForm";
 import { useApiState } from "hooks/useApiState";
 import DataSourcesService from "services/DataSourcesService";
 
@@ -10,19 +10,18 @@ const CostModelFormContainer = ({ cloudAccountId, costModel = {}, onSuccess, onC
 
   const { onUpdate } = useUpdateDataSource();
 
-  const onSubmit = (formData) =>
-    onUpdate(cloudAccountId, {
-      config: {
-        cost_model: {
-          cpu_hourly_cost: formData.cpuHour,
-          memory_hourly_cost: formData.memoryMbHour
-        }
-      }
-    }).then(() => onSuccess());
-
   return (
     <CostModelForm
-      onSubmit={onSubmit}
+      onSubmit={(formData) =>
+        onUpdate(cloudAccountId, {
+          config: {
+            cost_model: {
+              cpu_hourly_cost: Number(formData.cpuPerHour),
+              memory_hourly_cost: Number(formData.memoryPerHour)
+            }
+          }
+        }).then(() => onSuccess())
+      }
       onCancel={onCancel}
       cpuHour={costModel.cpu_hourly_cost}
       memoryMbHour={costModel.memory_hourly_cost}

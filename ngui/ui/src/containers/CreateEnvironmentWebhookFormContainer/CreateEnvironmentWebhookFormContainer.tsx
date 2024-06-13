@@ -1,4 +1,4 @@
-import EnvironmentWebhookForm from "components/EnvironmentWebhookForm";
+import EnvironmentWebhookForm from "components/forms/EnvironmentWebhookForm";
 import WebhooksService from "services/WebhooksService";
 import { ENVIRONMENT } from "utils/constants";
 

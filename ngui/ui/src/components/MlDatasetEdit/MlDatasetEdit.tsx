@@ -2,7 +2,7 @@ import { Box, Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
-import { MlDatasetEditForm } from "components/MlDatasetForm";
+import { MlDatasetEditForm } from "components/forms/MlDatasetForm";
 import PageContentWrapper from "components/PageContentWrapper";
 import { ML_DATASETS } from "urls";
 

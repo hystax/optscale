@@ -2,7 +2,7 @@ import { Box, Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
-import MlRunsetConfigurationForm from "components/MlRunsetConfigurationForm";
+import MlRunsetConfigurationForm from "components/forms/MlRunsetConfigurationForm";
 import PageContentWrapper from "components/PageContentWrapper";
 import { ML_RUNSET_TEMPLATES, getMlRunsetTemplateUrl } from "urls";
 

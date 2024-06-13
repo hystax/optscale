@@ -2,17 +2,12 @@ import { Box, Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
-import BIExportForm from "components/BIExportForm";
-import { FIELD_NAMES } from "components/BIExportForm/FormElements";
+import BIExportForm from "components/forms/BIExportForm";
+import { getDefaultValues } from "components/forms/BIExportForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { BI_EXPORTS, INTEGRATIONS } from "urls";
-import { BI_EXPORT_STORAGE_TYPE } from "utils/biExport";
 
-const { STORAGE_TYPE_FIELD_NAME } = FIELD_NAMES;
-
-const defaultValues = {
-  [STORAGE_TYPE_FIELD_NAME]: BI_EXPORT_STORAGE_TYPE.AWS_RAW_EXPORT
-};
+const defaultValues = getDefaultValues();
 
 const CreateBIExport = ({ onSubmit, onCancel, isLoadingProps }) => (
   <>

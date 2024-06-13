@@ -26,7 +26,7 @@ const EnvironmentCiCdIntegration = ({ text }) => (
     <Box mb={2}>
       <Typography>
         <FormattedMessage
-          id="requestBodyShouldContainPlainJSON"
+          id="requestBodyMustContainPlainJSON"
           values={{
             break: <br />,
             strong: (chunks) => <strong>{chunks}</strong>

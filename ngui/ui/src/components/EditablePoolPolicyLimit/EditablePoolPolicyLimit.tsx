@@ -4,7 +4,7 @@ import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import { ConstraintLimitMessage } from "components/ConstraintMessage";
-import EditPoolPolicyLimitForm from "components/EditPoolPolicyLimitForm";
+import EditPoolPolicyLimitForm from "components/forms/EditPoolPolicyLimitForm";
 import IconButton from "components/IconButton";
 import { CONSTRAINT_MESSAGE_FORMAT } from "utils/constraints";
 
