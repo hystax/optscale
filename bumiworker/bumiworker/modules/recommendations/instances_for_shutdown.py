@@ -1,6 +1,6 @@
 import logging
 from collections import OrderedDict, defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from optscale_client.metroculus_client.client import Client as MetroculusClient
 from bumiworker.bumiworker.modules.abandoned_base import AbandonedBase
 from bumiworker.bumiworker.modules.base import DAYS_IN_MONTH
@@ -77,7 +77,7 @@ class InstancesForShutdown(AbandonedBase):
     @staticmethod
     def _merge_intervals(intervals):
         # transform a list of interval numbers into ranges
-        # e.g. transofrm [0,1,2,3,4,5,9,10] into [(0, 5), (9,10)]
+        # e.g. transform [0,1,2,3,4,5,9,10] into [(0, 5), (9,10)]
         result = []
         if not intervals:
             return result
@@ -88,7 +88,8 @@ class InstancesForShutdown(AbandonedBase):
         for interval in intervals[1:] + [1000000000]:
             if interval != last_interval + 1:
                 result.append(
-                    InstancesForShutdown._interval_range_to_json(current_range_start, last_interval))
+                    InstancesForShutdown._interval_range_to_json(
+                        current_range_start, last_interval))
                 current_range_start = interval
             last_interval = interval
         return result
@@ -134,7 +135,7 @@ class InstancesForShutdown(AbandonedBase):
         (days_threshold, cpu_percent_threshold, network_bps_threshold,
          excluded_pools, skip_cloud_accounts) = self.get_options_values()
 
-        today = datetime.utcnow().replace(
+        today = datetime.now(tz=timezone.utc).replace(
             hour=0, minute=0, second=0, microsecond=0)
         start_date = today - timedelta(days=days_threshold)
         end_date = today
