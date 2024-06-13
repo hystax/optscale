@@ -30,8 +30,8 @@ const SetupLeaderboardContainer = () => {
               [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MIN]: min
             }) => ({
               id,
-              max,
-              min
+              max: max ? Number(max) : undefined,
+              min: min ? Number(min) : undefined
             })
           ),
           group_by_hp: formData[FIELD_NAMES.GROUP_BY_HYPERPARAMETERS_FIELD_NAME],

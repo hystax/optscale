@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MlDatasetCreateForm } from "components/MlDatasetForm";
+import { MlDatasetCreateForm } from "components/forms/MlDatasetForm";
 import MlDatasetsService from "services/MlDatasetsService";
 import { ML_DATASETS } from "urls";
 

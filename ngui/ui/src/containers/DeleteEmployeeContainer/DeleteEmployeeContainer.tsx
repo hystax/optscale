@@ -1,7 +1,8 @@
 import { useDispatch } from "react-redux";
 import { deleteEmployee } from "api";
 import { GET_CURRENT_EMPLOYEE, DELETE_EMPLOYEE } from "api/restapi/actionTypes";
-import DeleteEmployeeForm from "components/DeleteEmployeeForm";
+import DeleteEmployeeForm from "components/forms/DeleteEmployeeForm";
+import { FormValues } from "components/forms/DeleteEmployeeForm/types";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -37,9 +38,9 @@ const DeleteEmployeeContainer = ({ employees, closeSideModal, entityToBeDeleted 
 
   const organizationManagers = getOrganizationManagers(employees);
 
-  const onSubmit = (formData) => {
+  const onSubmit = (formData: FormValues) => {
     dispatch((_, getState) => {
-      dispatch(deleteEmployee(entityToBeDeleted.employeeId, { newOwnerId: formData.organizationManagerId })).then(() => {
+      dispatch(deleteEmployee(entityToBeDeleted.employeeId, { newOwnerId: formData.organizationManager })).then(() => {
         if (!isError(DELETE_EMPLOYEE, getState())) {
           closeSideModal();
         }

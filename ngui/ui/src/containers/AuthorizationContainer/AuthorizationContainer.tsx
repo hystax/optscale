@@ -1,12 +1,12 @@
 import { useLocation } from "react-router-dom";
 import { GET_TOKEN } from "api/auth/actionTypes";
+import LoginForm from "components/forms/LoginForm";
+import RegistrationForm from "components/forms/RegistrationForm";
 import GoogleAuthButton from "components/GoogleAuthButton";
 import Greeter from "components/Greeter";
-import LoginForm from "components/LoginForm";
 import MicrosoftSignInButton from "components/MicrosoftSignInButton";
 import OAuthSignIn from "components/OAuthSignIn";
 import Redirector from "components/Redirector";
-import RegistrationForm from "components/RegistrationForm";
 import TopAlertWrapper from "components/TopAlertWrapper";
 import { ALERT_TYPES } from "components/TopAlertWrapper/TopAlertWrapper";
 import { useApiData } from "hooks/useApiData";

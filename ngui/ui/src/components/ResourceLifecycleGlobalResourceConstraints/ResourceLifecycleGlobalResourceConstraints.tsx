@@ -10,7 +10,7 @@ import { updateGlobalResourceConstraintLimit } from "api";
 import { UPDATE_GLOBAL_RESOURCE_CONSTRAINT_LIMIT } from "api/restapi/actionTypes";
 import CaptionedCell from "components/CaptionedCell";
 import { useFormatConstraintLimitMessage } from "components/ConstraintMessage/ConstraintLimitMessage";
-import EditResourceConstraintForm from "components/EditResourceConstraintForm";
+import EditResourceConstraintForm from "components/forms/EditResourceConstraintForm";
 import IconButton from "components/IconButton";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PoolLabel from "components/PoolLabel";

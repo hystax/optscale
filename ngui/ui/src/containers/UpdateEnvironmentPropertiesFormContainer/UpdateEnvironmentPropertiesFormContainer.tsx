@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateEnvironmentProperty } from "api";
 import { UPDATE_ENVIRONMENT_PROPERTY } from "api/restapi/actionTypes";
-import EnvironmentPropertyForm from "components/EnvironmentPropertyForm";
+import EnvironmentPropertyForm from "components/forms/EnvironmentPropertyForm";
+import { FormValues } from "components/forms/EnvironmentPropertyForm/types";
 import { checkError } from "utils/api";
 
 /**
@@ -53,7 +54,7 @@ const UpdateEnvironmentPropertiesFormContainer = ({
 
   const shouldHandleSuccessRef = useIsAllowedToHandleSuccessRef();
 
-  const onSubmit = (formData) => {
+  const onSubmit = (formData: FormValues) => {
     setIsLoading(true);
     dispatch((_, getState) => {
       dispatch(updateEnvironmentProperty(environmentId, formData))

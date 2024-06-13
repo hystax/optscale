@@ -1,4 +1,4 @@
-import CreateSshKey from "components/CreateSshKey";
+import CreateSshKeyForm from "components/forms/CreateSshKeyForm";
 import SshKeysTable from "components/SshKeysTable";
 
 const SshSettings = ({
@@ -8,7 +8,7 @@ const SshSettings = ({
   onMakeDefault
 }) => (
   <>
-    <CreateSshKey onSubmit={onCreateKeySubmit} isSubmitLoading={isCreateKeyLoading} />
+    <CreateSshKeyForm onSubmit={onCreateKeySubmit} isSubmitLoading={isCreateKeyLoading} />
     <SshKeysTable
       sshKeys={sshKeys}
       isLoading={isGetSshKeysLoading}

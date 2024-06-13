@@ -1,4 +1,5 @@
-import RenameDataSourceForm from "components/RenameDataSourceForm";
+import RenameDataSourceForm from "components/forms/RenameDataSourceForm";
+import { FormValues } from "components/forms/RenameDataSourceForm/types";
 import DataSourcesService from "services/DataSourcesService";
 
 const RenameDataSourceContainer = ({ id, name, closeSideModal }) => {
@@ -6,8 +7,8 @@ const RenameDataSourceContainer = ({ id, name, closeSideModal }) => {
 
   const { isLoading, onUpdate } = useUpdateDataSource();
 
-  const onSubmit = (newName) => {
-    onUpdate(id, { name: newName }).then(() => closeSideModal());
+  const onSubmit = (formData: FormValues) => {
+    onUpdate(id, { name: formData.name }).then(() => closeSideModal());
   };
 
   return <RenameDataSourceForm name={name} onSubmit={onSubmit} onCancel={closeSideModal} isLoading={isLoading} />;

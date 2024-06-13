@@ -61,7 +61,7 @@ export const thresholdValidationRules = Object.freeze({
     const isInteger = Number.isInteger(daysThreshold);
     const isInRange = isNumberInRange(Number(daysThreshold), THRESHOLD_DAYS_RANGE.min, THRESHOLD_DAYS_RANGE.max);
 
-    return isInteger && isInRange ? true : rawIntl.formatMessage({ id: "daysParameterShouldBeInRange" }, THRESHOLD_DAYS_RANGE);
+    return isInteger && isInRange ? true : rawIntl.formatMessage({ id: "daysParameterMustBeInRange" }, THRESHOLD_DAYS_RANGE);
   }
 });
 
@@ -176,7 +176,11 @@ const RightsizingStrategy = ({
                     style={{ margin: 0, maxWidth: "40px" }}
                     inputProps={{ style: { padding: "0", textAlign: "center" } }}
                     value={daysThreshold}
-                    onChange={(event) => onDaysThresholdChange(Number(event.target.value))}
+                    onChange={(event) => {
+                      console.log("event.target.value", event.target.value);
+
+                      return onDaysThresholdChange(Number(event.target.value));
+                    }}
                   />
                 )
               }}

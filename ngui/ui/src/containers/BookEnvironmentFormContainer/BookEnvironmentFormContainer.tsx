@@ -1,11 +1,10 @@
 import { useEffect, useMemo } from "react";
+import { millisecondsToSeconds } from "date-fns";
 import { useDispatch } from "react-redux";
-import { bookEnvironment, getSshKeys, createSshKey, RESTAPI } from "api";
+import { RESTAPI, bookEnvironment, createSshKey, getSshKeys } from "api";
 import { BOOK_ENVIRONMENT, GET_CURRENT_EMPLOYEE, GET_SSH_KEYS, CREATE_SSH_KEY } from "api/restapi/actionTypes";
-import BookEnvironmentForm from "components/BookEnvironmentForm";
-import { KEY_NAME_FIELD_ID } from "components/CreateSshKeyNameField";
-import { KEY_VALUE_FIELD_ID } from "components/CreateSshKeyValueField";
-import { SELECTED_KEY_FIELD_ID } from "components/EnvironmentSshKey";
+import BookEnvironmentForm from "components/forms/BookEnvironmentForm";
+import { FormValues } from "components/forms/BookEnvironmentForm/types";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -71,14 +70,14 @@ const BookEnvironmentFormContainer = ({
       });
     });
 
-  const onSubmit = ({
-    bookingOwnerId,
-    bookSince,
-    bookUntil,
-    [SELECTED_KEY_FIELD_ID]: selectedSshKey,
-    [KEY_NAME_FIELD_ID]: newSshKeyTitle,
-    [KEY_VALUE_FIELD_ID]: newSshKeyValue
-  }) => {
+  const onSubmit = (formData: FormValues) => {
+    const { bookingOwnerId } = formData;
+    const bookSince = formData.bookSince ? millisecondsToSeconds(formData.bookSince) : undefined;
+    const bookUntil = formData.bookUntil ? millisecondsToSeconds(formData.bookUntil) : undefined;
+    const selectedSshKey = formData.selectedKeyId;
+    const newSshKeyTitle = formData.name;
+    const newSshKeyValue = formData.key;
+
     const bookedBy = canSetBookingOwner ? bookingOwnerId : currentEmployee?.id;
 
     const dispatchBookEnvironmentWithKey = (sshKeyId) =>
@@ -108,9 +107,7 @@ const BookEnvironmentFormContainer = ({
 
     // user entered new key: we should create it and only after that book environment
     return dispatch((_, getState) => {
-      dispatch(
-        createSshKey(currentEmployee?.id, { [KEY_NAME_FIELD_ID]: newSshKeyTitle, [KEY_VALUE_FIELD_ID]: newSshKeyValue })
-      ).then(() => {
+      dispatch(createSshKey(currentEmployee?.id, { name: newSshKeyTitle, key: newSshKeyValue })).then(() => {
         if (!isError(CREATE_SSH_KEY, getState())) {
           // last element from keys array is the key just created by user
           const allSshKeys = getState()?.[RESTAPI]?.[GET_SSH_KEYS] || [];

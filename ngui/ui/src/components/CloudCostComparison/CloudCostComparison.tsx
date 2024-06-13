@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 import ActionBar from "components/ActionBar";
-import CloudCostComparisonFiltersForm from "components/CloudCostComparisonFiltersForm";
 import CloudCostComparisonTable from "components/CloudCostComparisonTable";
+import CloudCostComparisonFiltersForm from "components/forms/CloudCostComparisonFiltersForm";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PageContentWrapper from "components/PageContentWrapper";
 import TableLoader from "components/TableLoader";

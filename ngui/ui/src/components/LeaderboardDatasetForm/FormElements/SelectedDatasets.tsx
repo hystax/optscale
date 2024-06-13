@@ -62,7 +62,7 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
   );
 };
 
-const SelectedDatasets = ({ isLoading }) => {
+const SelectedDatasets = ({ isLoading = false }) => {
   const {
     control,
     formState: { errors, isSubmitted },
@@ -85,7 +85,7 @@ const SelectedDatasets = ({ isLoading }) => {
       control={control}
       rules={{
         validate: {
-          required: (value) => (isEmptyArray(value) ? intl.formatMessage({ id: "atLeastOneDatasetShouldBeSelected" }) : true)
+          required: (value) => (isEmptyArray(value) ? intl.formatMessage({ id: "atLeastOneDatasetMustBeSelected" }) : true)
         }
       }}
       render={({ field: { value, onChange } }) =>

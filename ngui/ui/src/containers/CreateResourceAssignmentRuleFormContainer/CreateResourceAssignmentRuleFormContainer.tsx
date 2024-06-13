@@ -13,26 +13,16 @@ import {
 } from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
 import ActionBarResourceNameTitleText from "components/ActionBarResourceNameTitleText";
-import AssignmentRuleForm from "components/AssignmentRuleForm";
+import AssignmentRuleForm from "components/forms/AssignmentRuleForm";
+import { FIELD_NAMES } from "components/forms/AssignmentRuleForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { RESOURCES, getResourceUrl } from "urls";
 import { isError } from "utils/api";
-import {
-  TAG_IS,
-  CLOUD_IS,
-  NAME_ID_IS,
-  DEFAULT_CONDITIONS,
-  CONDITION,
-  CLOUD_IS_CONDITION_VALUE,
-  TAG_CONDITION
-} from "utils/constants";
+import { TAG_IS, CLOUD_IS, NAME_ID_IS, DEFAULT_CONDITIONS } from "utils/constants";
 import { getResourceDisplayedName } from "utils/resources";
-
-const { META_INFO, TYPE } = CONDITION;
-const { KEY: TAG_KEY, VALUE: TAG_VALUE } = TAG_CONDITION;
 
 const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
   const dispatch = useDispatch();
@@ -100,23 +90,23 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             // Some resources (clusters) don't belong to any cloud accounts
             if (cloudAccountId) {
               conditions.push({
-                [TYPE]: CLOUD_IS,
-                [`${META_INFO}_${CLOUD_IS_CONDITION_VALUE}`]: cloudAccountId
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: CLOUD_IS,
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: cloudAccountId
               });
             }
             // resource can be unnamed
             if (resourceName) {
               conditions.push({
-                [TYPE]: NAME_ID_IS,
-                [META_INFO]: resourceName
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: NAME_ID_IS,
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: resourceName
               });
             }
             return [
               ...conditions,
               ...Object.entries(tags).map(([key, value]) => ({
-                [TYPE]: TAG_IS,
-                [`${META_INFO}_${TAG_KEY}`]: key,
-                [`${META_INFO}_${TAG_VALUE}`]: value
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: TAG_IS,
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: key,
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value
               }))
             ];
           };

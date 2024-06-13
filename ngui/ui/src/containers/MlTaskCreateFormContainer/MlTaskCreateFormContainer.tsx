@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import MlTaskCreateForm from "components/MlTaskCreateForm";
+import MlTaskCreateForm from "components/forms/MlTaskCreateForm";
 import EmployeesService from "services/EmployeesService";
 import MlTasksService from "services/MlTasksService";
 import { ML_TASKS } from "urls";

@@ -1,4 +1,4 @@
-import { CreatePoolForm } from "components/PoolForm";
+import { CreatePoolForm } from "components/forms/PoolForm";
 import BaseSideModal from "./BaseSideModal";
 
 class AddPoolModal extends BaseSideModal {

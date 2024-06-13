@@ -2,17 +2,14 @@ import { useEffect } from "react";
 import { Typography } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
-import CreateS3DuplicateFinderCheckForm, { FIELD_NAMES } from "components/CreateS3DuplicateFinderCheckForm";
+import CreateS3DuplicateFinderCheckForm from "components/forms/CreateS3DuplicateFinderCheckForm";
+import { FIELD_NAMES } from "components/forms/CreateS3DuplicateFinderCheckForm/constants";
+import { FormValues } from "components/forms/CreateS3DuplicateFinderCheckForm/types";
+import { getDefaultValues } from "components/forms/CreateS3DuplicateFinderCheckForm/utils";
 import CloudResourcesService from "services/CloudResourcesService";
 import S3DuplicatesService from "services/S3DuplicatesService";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { AWS_CNR } from "utils/constants";
-
-const defaultValues = {
-  [FIELD_NAMES.DATA_SOURCES_FIELD_NAME]: [],
-  [FIELD_NAMES.BUCKETS_FIELD_NAME]: {},
-  [FIELD_NAMES.SIZE_FIELD_NAME]: 0
-};
 
 const useGetBuckets = (dataSourceIds) => {
   const { useGetOnDemandOrganizationCloudResources } = CloudResourcesService();
@@ -41,30 +38,30 @@ const CreateS3DuplicateFinderCheckContainer = ({ handleClose }) => {
   const { useCreate } = S3DuplicatesService();
   const { onCreate, isLoading: isCreateLoading } = useCreate();
 
-  const methods = useForm({
-    defaultValues
+  const methods = useForm<FormValues>({
+    defaultValues: getDefaultValues()
   });
 
   const { handleSubmit, watch } = methods;
 
-  const selectedDataSources = watch(FIELD_NAMES.DATA_SOURCES_FIELD_NAME);
+  const selectedDataSources = watch(FIELD_NAMES.DATA_SOURCES);
 
   const { buckets, isLoading: isGetBucketsLoading } = useGetBuckets(selectedDataSources);
 
-  const onSubmit = (formData) => {
-    const selectedBucketNames = Object.keys(formData[FIELD_NAMES.BUCKETS_FIELD_NAME]);
+  const onSubmit = handleSubmit((formData) => {
+    const selectedBucketNames = Object.keys(formData.buckets);
     const selectedBuckets = buckets.filter(({ name }) => selectedBucketNames.includes(name));
 
     onCreate({
       filters: {
-        min_size: Number(formData[FIELD_NAMES.SIZE_FIELD_NAME]) * 1024 * 1024,
+        min_size: Number(formData.size) * 1024 * 1024,
         buckets: selectedBuckets.map(({ name, cloud_account_id: cloudAccountId }) => ({
           name,
           cloud_account_id: cloudAccountId
         }))
       }
     }).then(handleClose);
-  };
+  });
 
   return (
     <>
@@ -79,7 +76,7 @@ const CreateS3DuplicateFinderCheckContainer = ({ handleClose }) => {
             isSubmitLoading: isCreateLoading,
             isGetBucketsLoading
           }}
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={onSubmit}
         />
       </FormProvider>
     </>

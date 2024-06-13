@@ -1,9 +1,9 @@
 import { Grid } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import ChartPaletteSettingsForm from "components/ChartPaletteSettingsForm";
-import PaletteSettingsForm from "components/PaletteSettingsForm";
+import ChartPaletteSettingsForm from "components/forms/ChartPaletteSettingsForm";
+import PaletteSettingsForm from "components/forms/PaletteSettingsForm";
+import TypographySettingsForm from "components/forms/TypographySettingsForm";
 import TabsWrapper from "components/TabsWrapper";
-import TypographySettingsForm from "components/TypographySettingsForm";
 import WrapperCard from "components/WrapperCard";
 import OrganizationThemeSettingsContainer from "containers/OrganizationThemeSettingsContainer";
 

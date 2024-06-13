@@ -1,4 +1,4 @@
-import EditModelVersionAliasForm from "components/EditModelVersionAliasForm";
+import EditModelVersionAliasForm from "components/forms/EditModelVersionAliasForm";
 import MlModelsService, { ModelVersion } from "services/MlModelsService";
 
 type EditModelVersionAliasFormContainerProps = {

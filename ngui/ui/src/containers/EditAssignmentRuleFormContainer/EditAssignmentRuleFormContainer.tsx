@@ -12,37 +12,38 @@ import {
   GET_AVAILABLE_POOLS
 } from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
-import AssignmentRuleForm from "components/AssignmentRuleForm";
+import AssignmentRuleForm from "components/forms/AssignmentRuleForm";
+import { FIELD_NAMES } from "components/forms/AssignmentRuleForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ASSIGNMENT_RULES, POOLS } from "urls";
 import { isError } from "utils/api";
-import { TAG_IS, CLOUD_IS, TAG_CONDITION, TAG_VALUE_STARTS_WITH, CONDITION, CLOUD_IS_CONDITION_VALUE } from "utils/constants";
-
-const { KEY: TAG_KEY, VALUE: TAG_VALUE } = TAG_CONDITION;
-const { META_INFO, TYPE } = CONDITION;
+import { TAG_IS, CLOUD_IS, TAG_VALUE_STARTS_WITH } from "utils/constants";
 
 const getConditions = (conditions = []) =>
   conditions.map((condition) => {
+    const { TYPE, META_INFO, TAG_KEY_FIELD_NAME, TAG_VALUE_FIELD_NAME, CLOUD_IS_FIELD_NAME } =
+      FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
+
     if ([TAG_IS, TAG_VALUE_STARTS_WITH].includes(condition[TYPE])) {
       const { key, value } = JSON.parse(condition[META_INFO]);
       return {
-        [`${META_INFO}_${TAG_KEY}`]: key,
-        [`${META_INFO}_${TAG_VALUE}`]: value,
-        [TYPE]: condition[TYPE]
+        [TYPE]: condition[TYPE],
+        [TAG_KEY_FIELD_NAME]: key,
+        [TAG_VALUE_FIELD_NAME]: value
       };
     }
     if (condition[TYPE] === CLOUD_IS) {
       return {
-        [`${META_INFO}_${CLOUD_IS_CONDITION_VALUE}`]: condition[META_INFO],
-        [TYPE]: condition[TYPE]
+        [TYPE]: condition[TYPE],
+        [CLOUD_IS_FIELD_NAME]: condition[META_INFO]
       };
     }
     return {
-      [META_INFO]: condition[META_INFO],
-      [TYPE]: condition[TYPE]
+      [TYPE]: condition[TYPE],
+      [META_INFO]: condition[META_INFO]
     };
   });
 

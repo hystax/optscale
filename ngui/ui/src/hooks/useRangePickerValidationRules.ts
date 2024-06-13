@@ -31,7 +31,7 @@ export const useRangePickerValidationRules = ({
       valid: (value) => (!isValid(secondsToMilliseconds(value)) ? intl.formatMessage({ id: "invalidDateFormat" }) : true),
       minDate: (value) =>
         isAfter(getMinPickerDateSec(isUtc), value)
-          ? intl.formatMessage({ id: "startDateShouldBeGreaterThanOrEqualToFirstJan2000" })
+          ? intl.formatMessage({ id: "startDateMustBeGreaterThanOrEqualToFirstJan2000" })
           : true,
       isLessThanEndDate: (value) => {
         const { [endDatePickerName]: end } = formValuesGetter();
@@ -42,13 +42,13 @@ export const useRangePickerValidationRules = ({
           performDateTimeFunction(startOfDay, isUtc, endMS)
         );
         if (!isSameDay && isAfter(valueMS, endMS)) {
-          return intl.formatMessage({ id: "startDateShouldNotBeGreaterThanEndTime" });
+          return intl.formatMessage({ id: "startDateMustNotBeGreaterThanEndTime" });
         }
         // We can't use cached value for the max picker date value because in some cases
         // validation may fail for the valid date
         // (for more info see: https://datatrendstech.atlassian.net/browse/NGUI-915)
         if (isAfter(value, getMaxPickerDateSec(isUtc))) {
-          return intl.formatMessage({ id: "startDateShouldNotBeInTheFuture" });
+          return intl.formatMessage({ id: "startDateMustNotBeInTheFuture" });
         }
         return true;
       }
@@ -64,7 +64,7 @@ export const useRangePickerValidationRules = ({
         // We can't use cached value for the max picker date value because in some cases
         // validation may fail for the valid date
         // (for more info see: https://datatrendstech.atlassian.net/browse/NGUI-915)
-        isAfter(value, getMaxPickerDateSec(isUtc)) ? intl.formatMessage({ id: "endDateShouldNotBeInTheFuture" }) : true,
+        isAfter(value, getMaxPickerDateSec(isUtc)) ? intl.formatMessage({ id: "endDateMustNotBeInTheFuture" }) : true,
       isGreaterThanStartDate: (value) => {
         const { [startDatePickerName]: start } = formValuesGetter();
         const valueMS = secondsToMilliseconds(value);
@@ -74,7 +74,7 @@ export const useRangePickerValidationRules = ({
           performDateTimeFunction(startOfDay, isUtc, startMS)
         );
         if (!isSameDay && isAfter(startMS, valueMS)) {
-          return intl.formatMessage({ id: "endDateShouldBeGreaterThanStartTime" });
+          return intl.formatMessage({ id: "endDateMustBeGreaterThanStartTime" });
         }
         return true;
       }

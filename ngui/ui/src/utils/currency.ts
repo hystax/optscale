@@ -186,4 +186,4 @@ export const currencyCodes = [
   "ZAR",
   "ZMW",
   "ZWL"
-];
+] as const;
