@@ -286,7 +286,7 @@ const getConfig = (type, config) => {
         }),
         parseFormDataToApiParams: (formData) => ({
           config: {
-            // account_id is readonly
+            account_id: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.ACCOUNT_ID],
             client_id: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_ID],
             client_secret: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET]
           }
