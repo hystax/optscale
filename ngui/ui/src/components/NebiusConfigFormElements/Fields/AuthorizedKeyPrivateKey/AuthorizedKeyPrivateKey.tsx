@@ -22,6 +22,7 @@ const AuthorizedKeyPrivateKey = () => (
     }}
     multiline
     minRows={4}
+    maxLength={null}
     label={<FormattedMessage id="privateKey" />}
     autoComplete="off"
     sx={{
