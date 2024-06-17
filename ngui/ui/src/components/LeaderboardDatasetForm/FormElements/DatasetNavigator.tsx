@@ -40,11 +40,11 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
         }
 
         if (timespanFrom && !timespanTo) {
-          return timespanFrom >= range[0] && timespanFrom <= range[1];
+          return timespanFrom <= range[1];
         }
 
         if (timespanTo && !timespanFrom) {
-          return timespanTo >= range[0] && timespanTo <= range[1];
+          return timespanTo >= range[0];
         }
 
         return range[1] >= timespanFrom && timespanTo >= range[0];
