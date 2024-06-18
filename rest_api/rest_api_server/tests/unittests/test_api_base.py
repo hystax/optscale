@@ -130,6 +130,9 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         patch(
             'rest_api.rest_api_server.controllers.expense.ExpenseController.'
             'delete_cloud_expenses').start()
+        patch(
+            'rest_api.rest_api_server.controllers.cloud_account.'
+            'CloudAccountController.clean_clickhouse').start()
         patch('rest_api.rest_api_server.controllers.base.'
               'BaseController.publish_activities_task').start()
         self.p_get_meta_by_token = patch(
