@@ -13,4 +13,4 @@ jobs:
       with:
         repo-token: " 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 "
         issue-message: "Message that will be displayed on users' first issue"
-        pr-message: "Message that will be displayed on users' first pull request"
+        pr-message: "successfully merege and contribite the code"
