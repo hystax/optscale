@@ -474,7 +474,8 @@ class TestCloudAccountApi(TestApiBase):
         code, _ = self.client.cloud_account_delete(cloud_acc['id'])
         self.assertEqual(code, 204)
         mock_delete_expenses.assert_called_once_with(cloud_acc['id'])
-        mock_clean_ch.assert_called_once_with(cloud_acc['id'])
+        mock_clean_ch.assert_called_once_with(
+            cloud_acc['id'], CloudTypes.AWS_CNR)
         code, _ = self.client.cloud_account_get(cloud_acc['id'])
         self.assertEqual(code, 404)
 

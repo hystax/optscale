@@ -527,7 +527,7 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                 updated_cloud_account, 'cloud_account_updated')
         return updated_cloud_account
 
-    def clean_clickhouse(self, cloud_account_id):
+    def clean_clickhouse(self, cloud_account_id, cloud_type):
         self.execute_clickhouse(
             """ALTER TABLE traffic_expenses DELETE
                WHERE cloud_account_id=%(cloud_account_id)s""",
@@ -538,21 +538,23 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                WHERE cloud_account_id=%(cloud_account_id)s""",
             params={'cloud_account_id': cloud_account_id}
         )
-        self.execute_clickhouse(
-            """ALTER TABLE k8s_metrics DELETE
-               WHERE cloud_account_id=%(cloud_account_id)s""",
-            params={'cloud_account_id': cloud_account_id}
-        )
-        self.execute_clickhouse(
-            """ALTER TABLE risp.ri_sp_usage DELETE
-               WHERE cloud_account_id=%(cloud_account_id)s""",
-            params={'cloud_account_id': cloud_account_id}
-        )
-        self.execute_clickhouse(
-            """ALTER TABLE risp.uncovered_usage DELETE
-               WHERE cloud_account_id=%(cloud_account_id)s""",
-            params={'cloud_account_id': cloud_account_id}
-        )
+        if cloud_type == CloudTypes.KUBERNETES_CNR:
+            self.execute_clickhouse(
+                """ALTER TABLE k8s_metrics DELETE
+                   WHERE cloud_account_id=%(cloud_account_id)s""",
+                params={'cloud_account_id': cloud_account_id}
+            )
+        elif cloud_type == CloudTypes.AWS_CNR:
+            self.execute_clickhouse(
+                """ALTER TABLE risp.ri_sp_usage DELETE
+                   WHERE cloud_account_id=%(cloud_account_id)s""",
+                params={'cloud_account_id': cloud_account_id}
+            )
+            self.execute_clickhouse(
+                """ALTER TABLE risp.uncovered_usage DELETE
+                   WHERE cloud_account_id=%(cloud_account_id)s""",
+                params={'cloud_account_id': cloud_account_id}
+            )
 
     def delete(self, item_id):
         cloud_account = self.get(item_id)
@@ -571,7 +573,7 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         expense_ctrl.delete_cloud_expenses(item_id)
         resource_ctrl = CloudResourceController(self._config)
         resource_ctrl.delete_cloud_resources(item_id)
-        self.clean_clickhouse(cloud_account.id)
+        self.clean_clickhouse(cloud_account.id, cloud_account.type)
         OrganizationConstraintController(
             self.session, self._config, self.token).delete_constraints_with_hits(
             cloud_account.organization_id,
