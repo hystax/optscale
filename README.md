@@ -20,7 +20,7 @@ OptScale is an open source FinOps and cloud cost management platform that provid
 [![License](https://img.shields.io/badge/License-Apache_2.0-orange.svg)](https://opensource.org/licenses/Apache-2.0)
 ![Clouds](https://img.shields.io/badge/Clouds-gray)
 <img src="documentation/images/cloud icons/aws-cloud.svg" height="20" />
-<img src="documentation/images/cloud icons/azure.svg" height="20" /> <img src="documentation/images/cloud icons/google.svg" height="20" /> <img src="documentation/images/cloud icons/alibaba.svg" height="20" /> <img src="documentation/images/cloud icons/k8s.svg" height="20" />
+<img src="documentation/images/cloud icons/ms-azure.svg" height="20" /> <img src="documentation/images/cloud icons/google.svg" height="20" /> <img src="documentation/images/cloud icons/alibaba.svg" height="20" /> <img src="documentation/images/cloud icons/k8s.svg" height="20" />
 ![Supported technologies](https://img.shields.io/badge/Technologies-gray)
 <img src="documentation/images/cloud icons/databricks.svg" height="20" />
 <img src="documentation/images/cloud icons/mlflow.svg" height="20" /> <img src="documentation/images/cloud icons/pytorch.svg" height="20" /> <img src="documentation/images/cloud icons/tensorflow.svg" height="20" /> <img src="documentation/images/cloud icons/spark.svg" height="20" /> <img src="documentation/images/cloud icons/kubeflow.svg" height="20" />
