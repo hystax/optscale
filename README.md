@@ -7,7 +7,7 @@
 <p align="center">
 <a href="documentation/images/cover-GitHub.png"><img src="documentation/images/FinOps-platform.png" width="40%" align="middle"></a>
 </p>
-OptScale is an open source FinOps and cloud cost management platform that provides cloud cost optimization for all types of organizations and regular workloads
+OptScale is an open source FinOps platform that optimizes cloud costs and performance for any workload, providing effective cloud cost management for all types of organizations.
 <br>
 <br>
 <p align="center">
@@ -57,7 +57,7 @@ OptScale is an open source FinOps and cloud cost management platform that provid
 
 |                            Pools of resources                               |                          Shared Environments                     |
 | :-------------------------------------------------------------------------: | :--------------------------------------------------------------: |
-| <img src="documentation/images/Databricks-connection-page.png" width="500"> | <img src="documentation/images/Recommendations.png" width="500"> |
+| <img src="documentation/images/Pools.png" width="500"> | <img src="documentation/images/Shared-environments.png" width="500"> |
 
 |                       Cost geo map                        |                        VM Power Schedules                        |
 | :-------------------------------------------------------: | :--------------------------------------------------------------: |
