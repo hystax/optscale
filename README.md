@@ -2,12 +2,12 @@
 ⭐ Drop a star to support OptScale ⭐
 </p>
 
-# FinOps and MLOps platform to run ML/AI and regular cloud workloads with optimal performance and cost
+# FinOps and cloud cost management platform to run any cloud workloads with optimal performance and cost
 
 <p align="center">
 <a href="documentation/images/cover-GitHub.png"><img src="documentation/images/cover-GitHub.png" width="60%" align="middle"></a>
 </p>
-OptScale is an open source FinOps and MLOps platform that provides cloud cost optimization for all types of organizations and MLOps capabilities like experiment tracking, model versioning, ML leaderboards.
+OptScale is an open source FinOps and cloud cost management platform that provides cloud cost optimization for all types of organizations and regular workloads
 <br>
 <br>
 <p align="center">
@@ -26,60 +26,27 @@ OptScale is an open source FinOps and MLOps platform that provides cloud cost op
 <img src="documentation/images/cloud icons/mlflow.svg" height="20" /> <img src="documentation/images/cloud icons/pytorch.svg" height="20" /> <img src="documentation/images/cloud icons/tensorflow.svg" height="20" /> <img src="documentation/images/cloud icons/spark.svg" height="20" /> <img src="documentation/images/cloud icons/kubeflow.svg" height="20" />
 
 ![Customers](https://img.shields.io/badge/Organizations-183-orange)
-![ML Teams](https://img.shields.io/badge/ML_teams-516-blue)
-![ML/AI models](https://img.shields.io/badge/ML/AI_models-5K-purple)
 ![Average cloud cost savings](https://img.shields.io/badge/Average_cloud_cost_savings-38%25-yellow)
 
 </div>
 <br>
 
-## OptScale schema
+## OptScale FinOps and cloud cost optimization capabilities
 
-<div align="center">
-  <img src="documentation/images/OptScale-schema.png" height="400" />
-<br>
-  <br>
-</div>
+<li>Optimal utilization of Reserved Instances, Savings Plans, and Spot Instances</li>
+<li>Unused resource detection</li>
+<li>R&D resource power management and rightsizing</li>
+<li>S3 duplicate object finder</li>
+<li>Resource bottleneck identification</li>
+<li>Optimal instance type and family selection</li>
+<li>Databricks support</li>
+<li>S3 and Redshift instrumentation</li>
+<li>VM Power Schedules</li>
 
-<div align="left">
-  <table border="1px">
-    <tbody>
-      <tr>
-        <th>MLOps capabilities</th>
-        <th>FinOps and cloud cost optimization</th>
-      </tr>
-      <tr>
-        <td>
-          <ul>
-            <li>ML Leaderboards with candidates and qualifications</li>
-            <li>Dataset and model tracking and versioning</li>
-            <li>Run metrics and experiment tracker</li>
-            <li>Hypertuning integrated with Optuna</li>
-            <li>Training launcher</li>
-            <li>ML Model training profiler</li>
-            </ul>
-          </td>
-        <td>
-          <ul>
-            <li>Optimal utilization of Reserved Instances, Savings Plans, and Spot Instances</li>
-            <li>Unused resource detection</li>
-            <li>R&D resource power management and rightsizing</li>
-            <li>S3 duplicate object finder</li>
-            <li>Resource bottleneck identification</li>
-            <li>Optimal instance type and family selection</li>
-            <li>Databricks support</li>
-            <li>S3 and Redshift instrumentation</li>
-            <li>VM Power Schedules</li>
-          </ul>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
   
-You can check OptScale [live demo](https://my.optscale.com/live-demo) to explore product features on a pre-generated demo organization.
+<br>You can check OptScale [live demo](https://my.optscale.com/live-demo) to explore product features on a pre-generated demo organization.
+<br>Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com).
 
-Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com).
 
 ## Demos
 
@@ -117,7 +84,7 @@ Learn more about the Hystax OptScale platform and its capabilities at [our websi
 
 ## Getting started
 
-Minimum hardware requirements for OptScale cluster: CPU: 8+ cores, RAM: 16Gb, SSD: 150+ Gb.
+The minimum hardware requirements for OptScale cluster: CPU: 8+ cores, RAM: 16Gb, SSD: 150+ Gb.
 
 NVMe SSD is recommended.  
 **OS Required**: [Ubuntu 20.04](https://releases.ubuntu.com/focal/).  
@@ -261,13 +228,6 @@ sudo systemctl daemon-reload
 sudo service docker restart
 ```
 
-## Roadmap
-
-- Cost plugin for MLflow, WanDB, and neptune.ai
-- Integration with Optuna to optimize Reserved Instance and other hardware parameter usage
-- Model versioning
-- Better hardware selection recommendations based on usage patterns and algorithms
-
 ## Documentation
 
 Read the [full OptScale documentation](https://hystax.com/documentation/optscale/) 📖
@@ -278,9 +238,9 @@ Please read and accept our [Contribution Agreement](CONTRIBUTING.md) before subm
 
 ## Community
 
-Hystax drives FinOps & MLOps methodology and has crafted a community of FinOps-related people. The community discusses FinOps & MLOps best practices, our experts offer users how-tos and technical recommendations, and provide ongoing details and updates regarding the open-source OptScale solution.
+Hystax drives FinOps methodology and has crafted a community of FinOps-related people. The community discusses FinOps & cloud cost management best practices; our experts offer users how-tos and technical recommendations and provide ongoing details and updates regarding the open-source OptScale solution.
 
-You can check it out on [FinOps and MLOps in practice website](https://finopsinpractice.org/)
+You can check it out on [FinOps in practice website](https://finopsinpractice.org/)
 
 ## Contacts
 
