@@ -2,7 +2,7 @@
 ⭐ Drop a star to support OptScale ⭐
 </p>
 
-# FinOps and cloud cost management platform to run any cloud workloads with optimal performance and cost
+# FinOps and cloud cost management platform to run any cloud workload with optimal performance and cost
 
 <p align="center">
 <a href="documentation/images/cover-GitHub.png"><img src="documentation/images/FinOps-platform.png" width="40%" align="middle"></a>
