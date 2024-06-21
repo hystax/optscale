@@ -7,13 +7,10 @@ on:
       - "ngui/**"
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build_image:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     concurrency:
       group: build-ngui
     steps:
