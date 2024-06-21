@@ -72,7 +72,7 @@ class RelevantFlaforsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         summary: List of relevant flavors
         description: |
             List of relevant flavors with prices
-            Required permission: cluster secret
+            Required permission: CLUSTER_SECRET or INFO_ORGANIZATION
         parameters:
         -   in: query
             name: cloud_type
@@ -107,8 +107,9 @@ class RelevantFlaforsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         -   in: query
             name: preferred_currency
             description: preferred flavor currency
-            required: true
+            required: false
             type: string
+            default: USD
         responses:
             200:
                 description: list of relevant flavors
