@@ -5,7 +5,7 @@
 # FinOps and cloud cost management platform to run any cloud workloads with optimal performance and cost
 
 <p align="center">
-<a href="documentation/images/cover-GitHub.png"><img src="documentation/images/cover-GitHub.png" width="60%" align="middle"></a>
+<a href="documentation/images/cover-GitHub.png"><img src="documentation/images/FinOps-platform.png" width="40%" align="middle"></a>
 </p>
 OptScale is an open source FinOps and cloud cost management platform that provides cloud cost optimization for all types of organizations and regular workloads
 <br>
@@ -50,19 +50,12 @@ OptScale is an open source FinOps and cloud cost management platform that provid
 
 ## Demos
 
-|                              ML Tasks                              |                              ML Leaderboards                              |
-| :----------------------------------------------------------------: | :-----------------------------------------------------------------------: |
-| <img src="documentation/images/ML-Tasks-OptScale.png" width="500"> | <img src="documentation/images/ML-Leaderboards-OptScale.png" width="500"> |
 
-|                              Experiment tracking                              |             ML model profiling integration             |
-| :---------------------------------------------------------------------------: | :----------------------------------------------------: |
-| <img src="documentation/images/Experiment-tracking-OptScale.png" width="500"> | <img src="documentation/images/Arcee.png" width="500"> |
-
-|                            Datasets                            |                            Hypertuning                            |
+|                    Databricks connection                       |                            Cost and performance recommendations               |
 | :------------------------------------------------------------: | :---------------------------------------------------------------: |
-| <img src="documentation/images/Datasets-page.png" width="500"> | <img src="documentation/images/Hypertuning-page.png" width="500"> |
+| <img src="documentation/images/Databricks-connection-page.png" width="500"> | <img src="documentation/images/Recommendations.png" width="500"> |
 
-|                            Databricks connection                            |               Cost and performance recommendations               |
+|                            Pools of resources                               |                          Shared Environments                     |
 | :-------------------------------------------------------------------------: | :--------------------------------------------------------------: |
 | <img src="documentation/images/Databricks-connection-page.png" width="500"> | <img src="documentation/images/Recommendations.png" width="500"> |
 
