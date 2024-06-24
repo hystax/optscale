@@ -98,8 +98,9 @@ class RelevantFlavorCollectionHandler(SecretHandler):
         -   in: query
             name: preferred_currency
             description: preferred flavor currency
-            required: true
+            required: false
             type: string
+            default: USD
         responses:
             200:
                 description: list of relevant flavors
