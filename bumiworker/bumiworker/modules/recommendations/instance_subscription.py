@@ -43,15 +43,17 @@ class InstanceSubscription(ModuleBase):
                 verify=False)
         return self._insider_cl
 
-    def handle_account(self, cloud_account, instance_map, now, excluded_pools):
-        raw_expenses = self.mongo_client.restapi.raw_expenses.aggregate([
+    def get_raw_expenses(self, cloud_account_id, now, cloud_resource_ids):
+        return self.mongo_client.restapi.raw_expenses.aggregate([
             {
                 '$match': {
                     '$and': [
-                        {'resource_id': {'$in': list(instance_map.keys())}},
-                        {'start_date': {'$gte': now - timedelta(days=DAYS_IN_MONTH)}},
-                        {'cloud_account_id': cloud_account['id']},
-                        {'BillingItem': {'$in': [PAY_AS_YOU_GO_ITEM, SUBSCRIPTION_ITEM]}}
+                        {'resource_id': {'$in': cloud_resource_ids}},
+                        {'start_date': {
+                            '$gte': now - timedelta(days=DAYS_IN_MONTH)}},
+                        {'cloud_account_id': cloud_account_id},
+                        {'BillingItem': {
+                            '$in': [PAY_AS_YOU_GO_ITEM, SUBSCRIPTION_ITEM]}}
                     ]
                 }
             },
@@ -60,15 +62,42 @@ class InstanceSubscription(ModuleBase):
                     '_id': '$resource_id',
                     "cost": {'$sum': '$cost'},
                     'billing_item': {'$addToSet': '$BillingItem'},
-                    'daily_cost_without_discount': {'$max': '$PretaxGrossAmount'},
+                    'daily_cost_without_discount': {
+                        '$max': '$PretaxGrossAmount'
+                    },
                     'invoice_discount': {'$max': '$InvoiceDiscount'},
                     'coupons_discount': {'$last': '$DeductedByCoupons'},
-                    'resource_package_discount': {'$last': '$DeductedByResourcePackage'}
+                    'resource_package_discount': {
+                        '$last': '$DeductedByResourcePackage'
+                    }
                 },
             }
         ])
+
+    def get_subscriptions_costs(self, cloud_resource_id, flavor, region):
+        try:
+            _, monthly_flavor_prices = self.insider_cl.get_flavor_prices(
+                ALIBABA_CLOUD_TYPE, flavor, region, os_type='linux',
+                billing_method='subscription', quantity=1)
+            _, yearly_flavor_prices = self.insider_cl.get_flavor_prices(
+                ALIBABA_CLOUD_TYPE, flavor, region, os_type='linux',
+                billing_method='subscription', quantity=MONTHS_IN_YEAR)
+            monthly_subscription_cost = monthly_flavor_prices['prices'][0].get(
+                'price')
+            yearly_subscription_cost = yearly_flavor_prices['prices'][0].get(
+                'price')
+        except (HTTPError, KeyError) as ex:
+            LOG.info('Instance %s skipped due to inability to get '
+                     'subscription price - %s', cloud_resource_id, str(ex))
+            return None, None
+        return monthly_subscription_cost, yearly_subscription_cost
+
+    def handle_account(self, cloud_account, instance_map, now, excluded_pools):
+        raw_expenses = self.get_raw_expenses(cloud_account['id'], now,
+                                             list(instance_map.keys()))
         result = []
         for raw_info in raw_expenses:
+            cloud_resource_id = raw_info['_id']
             if SUBSCRIPTION_ITEM in raw_info['billing_item']:
                 LOG.warning('Instance %s skipped due to detected '
                             'subscription costs', raw_info['_id'])
@@ -76,40 +105,25 @@ class InstanceSubscription(ModuleBase):
             if raw_info['coupons_discount'] and float(
                     raw_info['coupons_discount']):
                 LOG.info('Instance %s skipped due to coupons discounts',
-                         raw_info['_id'])
+                         cloud_resource_id)
                 continue
             if raw_info['resource_package_discount'] and float(
                     raw_info['resource_package_discount']):
                 LOG.info('Instance %s skipped due to package discounts',
-                         raw_info['_id'])
+                         cloud_resource_id)
                 continue
             if raw_info['cost'] == 0:
                 LOG.info('Instance %s skipped due to saving plan',
-                         raw_info['_id'])
+                         cloud_resource_id)
                 continue
 
-            instance = instance_map.get(raw_info['_id'])
+            instance = instance_map.get(cloud_resource_id)
             flavor = instance['meta']['flavor']
             region = instance['region']
-            try:
-                _, monthly_flavor_prices = self.insider_cl.get_flavor_prices(
-                    ALIBABA_CLOUD_TYPE, flavor, region, os_type='linux',
-                    billing_method='subscription', quantity=1)
-                _, yearly_flavor_prices = self.insider_cl.get_flavor_prices(
-                    ALIBABA_CLOUD_TYPE, flavor, region, os_type='linux',
-                    billing_method='subscription', quantity=MONTHS_IN_YEAR)
-            except HTTPError as ex:
-                LOG.info('Instance %s skipped due to inability to get '
-                         'subscription price - %s', raw_info['_id'], str(ex))
-                continue
-            # both prices are discounted
-            monthly_subscription_cost = monthly_flavor_prices['prices'][0].get(
-                'price')
-            yearly_subscription_cost = yearly_flavor_prices['prices'][0].get(
-                'price')
+            (monthly_subscription_cost,
+             yearly_subscription_cost) = self.get_subscriptions_costs(
+                cloud_resource_id, flavor, region)
             if not monthly_subscription_cost or not yearly_subscription_cost:
-                LOG.info('Instance %s skipped due to inability to get '
-                         'subscription price', raw_info['_id'])
                 continue
             raw_cost = float(raw_info['daily_cost_without_discount'])
             discount = float(raw_info['invoice_discount']) / raw_cost
@@ -121,7 +135,7 @@ class InstanceSubscription(ModuleBase):
                     discounted_monthly_cost - yearly_subscription_cost_per_month)
             if saving_per_month <= 0 or yearly_saving_per_month <= 0:
                 LOG.warning('Instance %s skipped due non-positive savings',
-                            raw_info['_id'])
+                            cloud_resource_id)
                 continue
             result.append({
                 'monthly_saving': saving_per_month,
@@ -140,16 +154,7 @@ class InstanceSubscription(ModuleBase):
             })
         return result
 
-    def _get(self):
-        (days_threshold, excluded_pools,
-         skip_cloud_accounts) = self.get_options_values()
-
-        cloud_account_map = self.get_cloud_accounts(
-            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
-        cloud_account_ids = list(cloud_account_map.keys())
-        now = datetime.utcnow()
-        range_start_ts = int((now - timedelta(days=days_threshold)).timestamp())
-
+    def get_cloud_acc_instances_map(self, cloud_account_ids, range_start_ts):
         instances = list(self.mongo_client.restapi.resources.find({
             '$and': [
                 {'resource_type': 'Instance'},
@@ -166,6 +171,21 @@ class InstanceSubscription(ModuleBase):
             cloud_acc_instance_map[
                 instance['cloud_account_id']][
                 instance['cloud_resource_id']] = instance
+        return cloud_acc_instance_map
+
+    def _get(self):
+        (days_threshold, excluded_pools,
+         skip_cloud_accounts) = self.get_options_values()
+
+        cloud_account_map = self.get_cloud_accounts(
+            SUPPORTED_CLOUD_TYPES, skip_cloud_accounts)
+        cloud_account_ids = list(cloud_account_map.keys())
+        now = datetime.utcnow()
+        range_start_ts = int(
+            (now - timedelta(days=days_threshold)).timestamp())
+        cloud_acc_instance_map = self.get_cloud_acc_instances_map(
+            cloud_account_ids, range_start_ts
+        )
 
         result = []
         futures = []
