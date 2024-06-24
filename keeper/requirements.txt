@@ -1,4 +1,4 @@
-tornado==6.3.3
+tornado==6.4.1
 pymongo==4.6.3
 mongoengine==0.27.0
 requests==2.31.0
