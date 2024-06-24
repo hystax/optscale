@@ -1,4 +1,4 @@
-name: build
+name: act test build
 on:
   push:
     branches:
@@ -9,6 +9,11 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: heeddatalabs
+          password: "CloudMonk@123"
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.20.0
         with:
