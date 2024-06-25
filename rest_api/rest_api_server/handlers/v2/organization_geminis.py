@@ -227,6 +227,10 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                             last_completed: {type: int,
                                 description: "Timestamp of the last run
                                 successful run"}
+                400:
+                    description: |
+                        Wrong arguments:
+                        - OE0223: Argument should be integer
                 401:
                     description: |
                         Unauthorized:
@@ -246,11 +250,9 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
             - secret: []
         """
         if not self.check_cluster_secret(raises=False):
-            await self.check_permissions('EDIT_PARTNER', 'organization_gemini', gemini_id)
+            await self.check_permissions(
+                'EDIT_PARTNER', 'organization_gemini', gemini_id)
         data = self._request_body()
-        stats = data.pop("stats", None)
-        if stats:
-            data.update({"stats": json.dumps(stats)})
         res = await run_task(self.controller.edit, gemini_id, **data)
         self.write(res.to_json())
 
@@ -526,7 +528,9 @@ class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, Base
             400:
                 description: |
                     Wrong arguments
+                    - OE0214: Argument should be a string
                     - OE0217: Invalid query parameter
+                    - OE0223: min_size should be integer
             401:
                 description: |
                     Unauthorized

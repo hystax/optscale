@@ -1610,8 +1610,10 @@ class OrganizationGemini(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     status = Column(GeminiStatus,
                     default=GeminiStatuses.CREATED,
                     nullable=False, info=ColumnPermissions.update_only)
-    filters = Column(NullableText("filters"), nullable=True, info=ColumnPermissions.full, default="{}")
-    stats = Column(NullableText("stats"), nullable=True, info=ColumnPermissions.full, default="{}")
+    filters = Column(NullableText("filters"), nullable=True,
+                     info=ColumnPermissions.create_only, default="{}")
+    stats = Column(NullableText("stats"), nullable=True,
+                   info=ColumnPermissions.full, default="{}")
 
     @hybrid_property
     def unique_fields(self):
