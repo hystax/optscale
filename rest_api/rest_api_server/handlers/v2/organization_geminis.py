@@ -21,7 +21,7 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
             description: |
                 Gets gemini by id.
                 Required permission: CLUSTER_SECRET or INFO_ORGANIZATION
-            tags: [organization_gemini]
+            tags: [gemini]
             summary: Gets gemini by id
             parameters:
             -   name: gemini_id
@@ -52,22 +52,22 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                                 description: "Statistics of gemini check"
                                 properties:
                                     total_objects:
-                                        type: int
+                                        type: integer
                                         description: Total object count
                                     filtered_objects:
-                                        type: int
+                                        type: integer
                                         description: Filtered object count
                                     total_size:
-                                        type: int
+                                        type: integer
                                         description: Total size
                                     duplicates_size:
-                                        type: int
+                                        type: integer
                                         description: Duplicates size
                                     duplicated_objects:
-                                        type: int
+                                        type: integer
                                         description: Duplicated objects count
                                     monthly_savings:
-                                        type: int
+                                        type: integer
                                         description: Monthly savings for deleting duplicates
                                     buckets:
                                         type: object
@@ -77,16 +77,16 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                                                 description: Bucket name
                                                 properties:
                                                     total_objects:
-                                                        type: int
+                                                        type: integer
                                                         description: Total object count
                                                     filtered_objects:
-                                                        type: int
+                                                        type: integer
                                                         description: Filtered object count
                                                     size:
-                                                        type: int
+                                                        type: integer
                                                         description: Bucket size
                                                     monthly_cost:
-                                                        type: float
+                                                        type: number
                                                         description: Bucket storage monthly cost
                                     matrix:
                                         type: object
@@ -94,9 +94,9 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                             last_error: {type: string,
                                 description: "Error message. Must be null in case
                                 if 'status' is not FAILED"}
-                            last_run: {type: int,
+                            last_run: {type: integer,
                                 description: "Timestamp of the last run"}
-                            last_completed: {type: int,
+                            last_completed: {type: integer,
                                 description: "Timestamp of the last run
                                 successful run"}
                 401:
@@ -113,7 +113,8 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
             - secret: []
         """
         if not self.check_cluster_secret(raises=False):
-            await self.check_permissions('INFO_ORGANIZATION', 'organization_gemini', gemini_id)
+            await self.check_permissions(
+                'INFO_ORGANIZATION', 'organization_gemini', gemini_id)
         await super().get(gemini_id)
 
     async def patch(self, gemini_id, **kwargs):
@@ -122,7 +123,7 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
             description: |
                 Updates Gemini of the organizations.
                 Required permission: CLUSTER_SECRET or EDIT_PARTNER
-            tags: [organization_gemini]
+            tags: [gemini]
             summary: Updates organization gemini
             parameters:
             -   name: gemini_id
@@ -144,12 +145,12 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                             example: RUNNING
                             enum: [CREATED, RUNNING, FAILED, SUCCESS]
                         last_run:
-                            type: int
+                            type: integer
                             description: Timestamp of the last run
                             required: False
                             example: 3456543
                         last_completed:
-                            type: int
+                            type: integer
                             description: Timestamp for the last successful run
                             required: False
                             example: 3456543
@@ -180,22 +181,22 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                                 description: "Statistics of gemini check"
                                 properties:
                                     total_objects:
-                                        type: int
+                                        type: integer
                                         description: Total object count
                                     filtered_objects:
-                                        type: int
+                                        type: integer
                                         description: Filtered object count
                                     total_size:
-                                        type: int
+                                        type: integer
                                         description: Total size
                                     duplicates_size:
-                                        type: int
+                                        type: integer
                                         description: Duplicates size
                                     duplicated_objects:
-                                        type: int
+                                        type: integer
                                         description: Duplicated objects count
                                     monthly_savings:
-                                        type: int
+                                        type: integer
                                         description: Monthly savings for deleting duplicates
                                     buckets:
                                         type: object
@@ -205,16 +206,16 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                                                 description: Bucket name
                                                 properties:
                                                     total_objects:
-                                                        type: int
+                                                        type: integer
                                                         description: Total object count
                                                     filtered_objects:
-                                                        type: int
+                                                        type: integer
                                                         description: Filtered object count
                                                     size:
-                                                        type: int
+                                                        type: integer
                                                         description: Bucket size
                                                     monthly_cost:
-                                                        type: float
+                                                        type: number
                                                         description: Bucket storage monthly cost
                                     matrix:
                                         type: object
@@ -222,9 +223,9 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                             last_error: {type: string,
                                 description: "Error message. Must be null in case
                                 if 'status' is not FAILED"}
-                            last_run: {type: int,
+                            last_run: {type: integer,
                                 description: "Timestamp of the last run"}
-                            last_completed: {type: int,
+                            last_completed: {type: integer,
                                 description: "Timestamp of the last run
                                 successful run"}
                 400:
@@ -288,12 +289,14 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
             security:
             - token: []
         """
-        await self.check_permissions('EDIT_PARTNER', 'organization_gemini', gemini_id)
+        await self.check_permissions(
+            'EDIT_PARTNER', 'organization_gemini', gemini_id)
         await run_task(self.controller.delete, gemini_id, **kwargs)
         self.set_status(204)
 
 
-class GeminisDataAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
+class GeminisDataAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
+                                  BaseHandler):
     def _get_controller_class(self):
         return GeminiDataAsyncController
 
@@ -303,7 +306,7 @@ class GeminisDataAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHan
             description: |
                 Gets gemini data by id as XLSX file
                 Required permission: INFO_ORGANIZATION
-            tags: [organization_gemini]
+            tags: [gemini]
             summary: Gets gemini by id
             parameters:
             -   name: gemini_id
@@ -332,7 +335,8 @@ class GeminisDataAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHan
             security:
             - token: []
         """
-        await self.check_permissions('INFO_ORGANIZATION', 'organization_gemini', gemini_id)
+        await self.check_permissions(
+            'INFO_ORGANIZATION', 'organization_gemini', gemini_id)
         try:
             buckets = self.get_arg(
                 'bucket', str, [], repeated=True)
@@ -355,9 +359,9 @@ class GeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler)
         """
             ---
             description: |
-                Gets a list of all non-deleted organization geminis (internal usage).
+                Gets a list of all non-deleted geminis (internal usage).
                 Required permission: CLUSTER_SECRET
-            tags: [organization_gemini]
+            tags: [gemini]
             summary: List of geminis
             responses:
                 200:
@@ -387,22 +391,22 @@ class GeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler)
                                             description: "Statistics of gemini check"
                                             properties:
                                                 total_objects:
-                                                    type: int
+                                                    type: integer
                                                     description: Total object count
                                                 filtered_objects:
-                                                    type: int
+                                                    type: integer
                                                     description: Filtered object count
                                                 total_size:
-                                                    type: int
+                                                    type: integer
                                                     description: Total size
                                                 duplicates_size:
-                                                    type: int
+                                                    type: integer
                                                     description: Duplicates size
                                                 duplicated_objects:
-                                                    type: int
+                                                    type: integer
                                                     description: Duplicated objects count
                                                 monthly_savings:
-                                                    type: int
+                                                    type: integer
                                                     description: Monthly savings for deleting duplicates
                                                 buckets:
                                                     type: object
@@ -412,16 +416,16 @@ class GeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler)
                                                             description: Bucket name
                                                             properties:
                                                                 total_objects:
-                                                                    type: int
+                                                                    type: integer
                                                                     description: Total object count
                                                                 filtered_objects:
-                                                                    type: int
+                                                                    type: integer
                                                                     description: Filtered object count
                                                                 size:
-                                                                    type: int
+                                                                    type: integer
                                                                     description: Bucket size
                                                                 monthly_cost:
-                                                                    type: float
+                                                                    type: number
                                                                     description: Bucket storage monthly cost
                                                 matrix:
                                                     type: object
@@ -429,9 +433,9 @@ class GeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler)
                                         last_error: {type: string,
                                             description: "Error message. Must be null in case
                                             if 'status' is not FAILED"}
-                                        last_run: {type: int,
+                                        last_run: {type: integer,
                                             description: "Timestamp of the last run"}
-                                        last_completed: {type: int,
+                                        last_completed: {type: integer,
                                             description: "Timestamp of the last run
                                             successful run"}
                 401:
@@ -453,7 +457,8 @@ class GeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler)
         self.write(json.dumps(geminis, cls=ModelEncoder))
 
 
-class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, BaseAuthHandler):
+class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler,
+                                                BaseAuthHandler):
     def _get_controller_class(self):
         return OrganizationGeminiAsyncController
 
@@ -464,9 +469,9 @@ class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, Base
             Creates new organization gemini
             Required permission: EDIT_PARTNER
         summary: Creates organization gemini
-        tags: [organization_gemini]
+        tags: [gemini]
         parameters:
-        -   name: organization_gemini
+        -   name: organization_id
             in: path
             description: Organization id
             required: true
@@ -479,7 +484,7 @@ class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, Base
                 type: object
                 properties:
                     filters:
-                        type: object,
+                        type: object
                         description: "Specific filters for checking duplicates"
         responses:
             201:
@@ -504,9 +509,9 @@ class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, Base
                         last_error: {type: string,
                             description: "Error message. Must be null in case
                             if 'status' is not FAILED"}
-                        last_run: {type: int,
+                        last_run: {type: integer,
                             description: "Timestamp of the last run"}
-                        last_completed: {type: int,
+                        last_completed: {type: integer,
                             description: "Timestamp of the last run
                             successful run"}
                     example:
@@ -559,8 +564,8 @@ class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, Base
             description: |
                 Gets a list of all non-deleted organization geminis.
                 Required permission: CLUSTER_SECRET or INFO_ORGANIZATION
-            tags: [organization_gemini]
-            summary: List of geminis
+            tags: [gemini]
+            summary: List of organization geminis
             parameters:
             -   name: organization_id
                 in: path
@@ -595,9 +600,9 @@ class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler, Base
                                         last_error: {type: string,
                                             description: "Error message. Must be null in case
                                             if 'status' is not FAILED"}
-                                        last_run: {type: int,
+                                        last_run: {type: integer,
                                             description: "Timestamp of the last run"}
-                                        last_completed: {type: int,
+                                        last_completed: {type: integer,
                                             description: "Timestamp of the last run
                                             successful run"}
                 401:
