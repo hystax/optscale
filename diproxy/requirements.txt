@@ -1,4 +1,4 @@
-tornado==6.3.3
+tornado==6.4.1
 requests==2.31.0
 async_lru==1.0.3
 apispec==6.3.1
