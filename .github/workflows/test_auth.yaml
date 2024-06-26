@@ -1,12 +1,7 @@
 name: Build auth test image and run tests on it
 run-name: Build auth test image and run tests on it - started by ${{ github.actor }}
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-    - 'auth/**'
   workflow_dispatch:
-
 
 jobs:
   build_image:
