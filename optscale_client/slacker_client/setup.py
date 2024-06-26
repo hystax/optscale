@@ -3,7 +3,7 @@ import sys
 from setuptools import setup
 
 requirements = [
-      "requests==2.31.0",
+      "requests==2.32.3",
       "retrying>=1.3.3"
 ]
 

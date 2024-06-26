@@ -1,7 +1,7 @@
 tornado==6.4.1
 pymongo==4.6.3
 mongoengine==0.27.0
-requests==2.31.0
+requests==2.32.3
 pika==1.1.0
 apispec==6.3.1
 pyyaml==6.0.1

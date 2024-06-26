@@ -1,5 +1,5 @@
 kombu==5.3.4
-requests==2.31.0
+requests==2.32.3
 clickhouse-driver==0.2.6
 pymongo==4.6.3
 # OptScale packages
