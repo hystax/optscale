@@ -27,8 +27,6 @@ def get_handlers(handler_kwargs):
     return [
         (urls_v2.similar_pricings,
          handlers.similar_pricings.SimilarPricingsHandler, handler_kwargs),
-        (urls_v2.region_price_sums,
-         handlers.region_price_sums.RegionPriceSumsHandler, handler_kwargs),
         (urls_v2.flavors, handlers.flavors.FlavorsHandler, handler_kwargs),
         (urls_v2.flavors_generation,
          handlers.flavors_generation.FlavorsGenerationHandler, handler_kwargs),
