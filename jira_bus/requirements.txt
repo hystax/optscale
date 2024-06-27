@@ -5,7 +5,7 @@ mysql-connector==2.2.9
 apispec[yaml]==6.3.1
 PyJWT[crypto]==2.4.0
 atlassian_jwt==1.9.0
-requests==2.31.0
+requests==2.32.3
 pydevd-pycharm==201.5616.27
 
 # OptScale packages

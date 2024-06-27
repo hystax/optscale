@@ -301,19 +301,21 @@ class LimitHitsController(BaseController):
                     limit_type == ConstraintTypes.TTL) else None
                 expense_value = limit_val if (
                     limit_type != ConstraintTypes.TTL) else None
-                new_green_limit_hits.append(
-                    ConstraintLimitHit(
-                        resource_id=resource_id,
-                        pool_id=limit.pool_id,
-                        type=limit_type,
-                        constraint_limit=limit.constraint_limit,
-                        ttl_value=ttl_value,
-                        expense_value=expense_value,
-                        time=now,
-                        organization_id=organization_id,
-                        state=ConstraintLimitStates.GREEN
+                if (limit_type != ConstraintTypes.DAILY_EXPENSE_LIMIT
+                        or expense_value != 0):
+                    new_green_limit_hits.append(
+                        ConstraintLimitHit(
+                            resource_id=resource_id,
+                            pool_id=limit.pool_id,
+                            type=limit_type,
+                            constraint_limit=limit.constraint_limit,
+                            ttl_value=ttl_value,
+                            expense_value=expense_value,
+                            time=now,
+                            organization_id=organization_id,
+                            state=ConstraintLimitStates.GREEN
+                        )
                     )
-                )
         if new_green_limit_hits:
             self.session.add_all(new_green_limit_hits)
         self.session.commit()

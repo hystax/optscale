@@ -2,7 +2,7 @@
 from setuptools import setup
 
 
-requirements = ["requests==2.31.0", "retrying==1.3.3"]
+requirements = ["requests==2.32.3", "retrying==1.3.3"]
 
 setup(name='metroculus-client',
       description='Hystax Metroculus Client',

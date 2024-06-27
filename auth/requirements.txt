@@ -6,7 +6,7 @@ pymacaroons==0.9.2
 ordered-set==4.1.0
 apispec==6.3.1
 google-auth==1.23.0
-requests==2.31.0
+requests==2.32.3
 PyJWT>=2.4.0
 cryptography==42.0.4
 pyyaml==6.0.1
