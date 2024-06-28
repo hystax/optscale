@@ -40,6 +40,10 @@ class GoalReached(DestroyConditionException):
     pass
 
 
+class TaskInErrorState(Exception):
+    pass
+
+
 class TaskState:
 
     STARTING_PREPARING = 1
@@ -269,6 +273,16 @@ class ContinueWithDestroyConditions(Continue):
 
 
 class SetFinished(Base):
+
+    def _handle_error(self, err):
+        if self.body["try"] < MAX_RETRIES:
+            self.body["try"] += 1
+        elif self.body["state"] == TaskState.ERROR:
+            raise TaskInErrorState('Task is already in ERROR state')
+        else:
+            self.body["state"] = TaskState.ERROR
+            self.body["reason"] = f"{str(err)}" or None
+        self.on_continue(self.body, self.delayed)
 
     def update_reason(self):
 
