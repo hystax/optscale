@@ -79,7 +79,9 @@
   },
   "pnpm": {
     "overrides": {
-      "d3-color": "^3.1.0"
+      "d3-color": "^3.1.0",
+      "braces@<3.0.3": ">=3.0.3",
+      "ws@>=8.0.0 <8.17.1": ">=8.17.1"
     }
   },
   "scripts": {
@@ -116,13 +118,13 @@
     ]
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^7.6.5",
-    "@storybook/addon-backgrounds": "^7.6.5",
-    "@storybook/addon-controls": "^7.6.5",
-    "@storybook/addon-links": "^7.6.5",
-    "@storybook/addons": "^7.6.5",
-    "@storybook/react": "^7.6.5",
-    "@storybook/react-vite": "^7.6.6",
+    "@storybook/addon-actions": "^7.6.20",
+    "@storybook/addon-backgrounds": "^7.6.20",
+    "@storybook/addon-controls": "^7.6.20",
+    "@storybook/addon-links": "^7.6.20",
+    "@storybook/addons": "^7.6.17",
+    "@storybook/react": "^7.6.20",
+    "@storybook/react-vite": "^7.6.20",
     "@storybook/theming": "^7.6.5",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",
@@ -139,7 +141,7 @@
     "jsdom": "^22.1.0",
     "prettier": "^3.1.1",
     "redux-immutable-state-invariant": "^2.1.0",
-    "storybook": "^7.6.3",
+    "storybook": "^7.6.20",
     "vitest": "^0.34.5"
   }
 }

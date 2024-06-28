@@ -1,4 +1,4 @@
-tornado==6.3.3
+tornado==6.4.1
 slack_bolt==1.18.1
 slack_sdk==3.27.1
 sqlalchemy==1.4.52

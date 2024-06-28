@@ -1,5 +1,5 @@
 boto3==1.34.7
-tornado==6.3.3
+tornado==6.4.1
 kombu==5.3.4
 
 # OptScale packages

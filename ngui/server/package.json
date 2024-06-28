@@ -23,22 +23,27 @@
   },
   "homepage": "https://gitlab.com/hystax/ngui_server#readme",
   "dependencies": {
-    "@apollo/datasource-rest": "^6.2.2",
-    "@apollo/server": "^4.9.5",
+    "@apollo/datasource-rest": "^6.3.0",
+    "@apollo/server": "^4.10.4",
     "@apollo/utils.keyvaluecache": "^3.1.0",
     "@graphql-tools/load-files": "^7.0.0",
-    "@graphql-tools/merge": "^9.0.3",
-    "@types/node": "^20.10.5",
+    "@graphql-tools/merge": "^9.0.4",
+    "@types/node": "^20.14.9",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "graphql": "^16.8.1",
+    "graphql": "^16.9.0",
     "http-proxy-middleware": "^2.0.6",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.2"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.0",
-    "@graphql-codegen/typescript": "^4.0.1",
-    "@graphql-codegen/typescript-resolvers": "^4.0.1"
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/typescript": "^4.0.7",
+    "@graphql-codegen/typescript-resolvers": "^4.1.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "braces@<3.0.3": ">=3.0.3"
+    }
   }
 }

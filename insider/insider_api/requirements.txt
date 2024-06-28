@@ -1,4 +1,4 @@
-tornado==6.3.3
+tornado==6.4.1
 pymongo==4.6.3
 apispec==6.3.1
 pyyaml==6.0.1
