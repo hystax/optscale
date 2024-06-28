@@ -42,38 +42,6 @@ class TestSpBreakdownApi(TestApiBase):
             self.org_id, cloud_acc2, auth_user_id=self.auth_user_id_1)
         self.start = datetime(2023, 1, 1, 0, 0, 0)
         self.start_ts = int(self.start.timestamp())
-        self.insert_mongo_raw_expenses()
-
-    def insert_mongo_raw_expenses(self, date=None):
-        if not date:
-            date = self.start
-        self.raw_expenses.insert_many([
-            {
-                'box_usage': True,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'start_date': date,
-                'lineItem/LineItemType': 'SavingsPlanCoveredUsage',
-                'savingsPlan/SavingsPlanRate': 0.5,
-                'product/instanceType': 't2.large',
-            },
-            {
-                'box_usage': True,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'start_date': date,
-                'lineItem/LineItemType': 'SavingsPlanNegation',
-                'savingsPlan/SavingsPlanRate': -0.5,
-                'product/instanceType': 't2.large',
-            },
-            {
-                # box_usage for second account
-                'box_usage': True,
-                'cloud_account_id': self.cloud_acc2['id'],
-                'start_date': date,
-                'lineItem/LineItemType': 'SavingsPlanCoveredUsage',
-                'savingsPlan/SavingsPlanRate': 1,
-                'product/instanceType': 't2.small',
-            }
-        ])
 
     @staticmethod
     def _empty_stats(cloud_account_id, cloud_account_name):
@@ -97,12 +65,14 @@ class TestSpBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'instance_type': 't2.large',
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
                 'offer_cost': 10,
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 10,
                 'sign': 1
             }
@@ -125,8 +95,7 @@ class TestSpBreakdownApi(TestApiBase):
                     'cost_without_offer': 11,
                     'sp_usage_hrs': 2,
                     'sp_overprovision_hrs': {
-                        't2.large': 0,
-                        't2.small': 0
+                        't2.large': 0
                     },
                     'sp_overprovision': 0,  # 10 - 10
                     'sp_cost_with_offer': 10,
@@ -141,8 +110,7 @@ class TestSpBreakdownApi(TestApiBase):
                     'sp_usage_hrs': 0,
                     'sp_overprovision': 0,
                     'sp_overprovision_hrs': {
-                        't2.large': 0,
-                        't2.small': 0
+                        't2.large': 0
                     },
                     'sp_cost_with_offer': 0,
                     'sp_cost_without_offer': 0
@@ -157,12 +125,14 @@ class TestSpBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': datetime.fromtimestamp(self.start_ts),
                 'resource_id': self.gen_id(),
+                'instance_type': 't2.large',
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
                 'offer_cost': 10,
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 11,
                 'sign': 1
             }
@@ -211,12 +181,14 @@ class TestSpBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': datetime.fromtimestamp(self.start_ts),
                 'resource_id': self.gen_id(),
+                'instance_type': 't2.large',
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
                 'offer_cost': 10,
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 11,
                 'sign': 1
             }
@@ -240,7 +212,6 @@ class TestSpBreakdownApi(TestApiBase):
                 'sp_usage_hrs': 2,
                 'sp_overprovision_hrs': {
                     't2.large': 2,  # 1 / 0.5
-                    't2.small': 1  # 1 / 1
                 },
                 'sp_overprovision': 1,  # 11 - 10
                 'sp_cost_with_offer': 10,
@@ -255,8 +226,7 @@ class TestSpBreakdownApi(TestApiBase):
                 'sp_usage_hrs': 0,
                 'sp_overprovision': 0,
                 'sp_overprovision_hrs': {
-                    't2.large': 0,
-                    't2.small': 0
+                    't2.large': 0
                 },
                 'sp_cost_with_offer': 0,
                 'sp_cost_without_offer': 0
@@ -350,9 +320,8 @@ class TestSpBreakdownApi(TestApiBase):
         code, response = self.client.sp_breakdown_get(self.org_id, **params)
         self.assertEqual(code, 200)
         self.assertEqual(len(response['breakdown']), 1)
-        empty_stats = self._empty_stats(cloud_acc['id'], cloud_acc['name'])
-        empty_stats['sp_overprovision_hrs'] = {'t2.large': 0, 't2.small': 0}
-        self.assertIn(empty_stats, response['breakdown'][str(self.start_ts)])
+        self.assertIn(result[str(self.start_ts)][0],
+                      response['breakdown'][str(self.start_ts)])
 
     def test_required_filters(self):
         params = {
@@ -446,6 +415,7 @@ class TestSpBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
@@ -453,12 +423,14 @@ class TestSpBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 1,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
@@ -466,6 +438,7 @@ class TestSpBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 1,
                 'sign': -1
             }
@@ -534,18 +507,21 @@ class TestSpBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'instance_type': 't2.large',
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
                 'offer_cost': 1,
                 'on_demand_cost': 2,
                 'usage': 0.1,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 2,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': day1,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
@@ -553,12 +529,14 @@ class TestSpBreakdownApi(TestApiBase):
                 'on_demand_cost': 4,
                 'usage': 0.2,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 4,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': day1,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -566,12 +544,14 @@ class TestSpBreakdownApi(TestApiBase):
                 'on_demand_cost': 8,
                 'usage': 0.3,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 7,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': day2,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -579,6 +559,7 @@ class TestSpBreakdownApi(TestApiBase):
                 'on_demand_cost': 10,
                 'usage': 0.5,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 10,
                 'sign': 1
             }
@@ -677,12 +658,14 @@ class TestSpBreakdownApi(TestApiBase):
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
                 'resource_id': self.gen_id(),
+                'instance_type': 't2.large',
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
                 'offer_cost': 22,
                 'on_demand_cost': 22,
                 'usage': 1,
                 'ri_norm_factor': 1,
+                'sp_rate': 0.5,
                 'expected_cost': 24,
                 'sign': 1
             }

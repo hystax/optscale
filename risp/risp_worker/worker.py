@@ -81,7 +81,8 @@ class RISPWorker(ConsumerMixin):
     def get_ri_sp_usage_expenses(self, cloud_account_id, resource_ids,
                                  offer_type, start_date, end_date):
         return self.clickhouse_client.execute(
-            """SELECT resource_id, date, offer_id, any(ri_norm_factor),
+            """SELECT resource_id, date, instance_type, offer_id,
+                    any(ri_norm_factor), any(sp_rate),
                     any(expected_cost), sum(offer_cost * sign),
                     sum(on_demand_cost * sign), sum(usage * sign)
                 FROM ri_sp_usage
@@ -90,7 +91,7 @@ class RISPWorker(ConsumerMixin):
                     AND date >= %(start_date)s
                     AND date <= %(end_date)s
                     AND resource_id in %(resource_ids)s
-                GROUP BY resource_id, date, offer_id
+                GROUP BY resource_id, date, instance_type, offer_id
                 HAVING sum(sign) > 0""",
             params={
                 'cloud_account_id': cloud_account_id,
@@ -151,6 +152,8 @@ class RISPWorker(ConsumerMixin):
                         },
                         'cloud_resource_id': '$lineItem/ResourceId',
                         'cloud_offer_id': offer_type_id_field_map[offer_type],
+                        'instance_type': '$product/instanceType',
+                        'description': '$lineItem/LineItemDescription'
                     },
                     'usage_hours': {'$push': {
                         '$cond': [{'$eq': ['$pricing/unit', 'Second']},
@@ -164,6 +167,9 @@ class RISPWorker(ConsumerMixin):
                     },
                     'ri_norm_factor': {
                         '$first': '$lineItem/NormalizationFactor'
+                    },
+                    'sp_rate': {
+                        '$first': '$savingsPlan/SavingsPlanRate'
                     }
                 }
             }]
@@ -178,7 +184,8 @@ class RISPWorker(ConsumerMixin):
     def process_ri_sp_expenses(self, offer_type, cloud_account_id, start_date,
                                end_date):
         cloud_resource_ids = set()
-        new_expenses_map = defaultdict(lambda: defaultdict(dict))
+        new_expenses_map = defaultdict(lambda: defaultdict(
+            lambda: defaultdict(dict)))
         offer_expenses = self.get_offers_expenses_by_type(
             offer_type, cloud_account_id, start_date, end_date)
         if offer_type == 'ri':
@@ -207,24 +214,31 @@ class RISPWorker(ConsumerMixin):
                 float(x) / SECONDS_IN_HOUR for x in expense['usage_seconds'])
             ri_norm_factor = float(
                 expense.get('ri_norm_factor') or default_ri_norm_factor)
-            new_expenses_map[cloud_resource_id][exp_start][cloud_offer_id] = (
-                offer_cost, on_demand_cost, usage, ri_norm_factor)
+            sp_rate = float(expense.get('sp_rate') or 0)
+            instance_type = expense['_id'].get(
+                'instance_type') or expense['_id'].get('description')
+            new_expenses_map[cloud_resource_id][exp_start][cloud_offer_id][
+                instance_type] = (offer_cost, on_demand_cost, usage,
+                                  ri_norm_factor, sp_rate)
         return new_expenses_map, cloud_resource_ids
 
     @staticmethod
-    def ri_sp_usage_expense(cloud_account_id, resource_id, date, offer_id,
-                            offer_type, on_demand_cost, offer_cost, usage,
-                            ri_norm_factor, expected_cost, sign=1):
+    def ri_sp_usage_expense(cloud_account_id, resource_id, date, instance_type,
+                            offer_id, offer_type, on_demand_cost, offer_cost,
+                            usage, ri_norm_factor, sp_rate, expected_cost,
+                            sign=1):
         return {
             'cloud_account_id': cloud_account_id,
             'resource_id': resource_id,
             'date': date,
+            'instance_type': instance_type,
             'offer_id': offer_id,
             'offer_type': offer_type,
             'on_demand_cost': on_demand_cost,
             'offer_cost': offer_cost,
             'usage': usage,
             'ri_norm_factor': ri_norm_factor,
+            'sp_rate': sp_rate,
             'expected_cost': expected_cost,
             'sign': sign
         }
@@ -347,8 +361,8 @@ class RISPWorker(ConsumerMixin):
                     LOG.info('Will add empty expense for offer %s, date: %s',
                              offer_id, date)
                     ch_expenses.append(self.ri_sp_usage_expense(
-                        cloud_account_id, '', date, offer_id, offer_type, 0,
-                        0, 0, 0, cost, sign=1))
+                        cloud_account_id, '', date, '', offer_id, offer_type,
+                        0, 0, 0, 0, 0, cost, sign=1))
         LOG.info('Will add %s empty expense', len(ch_expenses))
         if ch_expenses:
             self.insert_clickhouse_expenses(ch_expenses)
@@ -372,15 +386,15 @@ class RISPWorker(ConsumerMixin):
                 cloud_account_id, cloud_resource_ids_chunk, offer_type,
                 start_date, end_date)
             for existing_expense in existing_expenses:
-                (cloud_resource_id, date, offer_cloud_res_id, ri_norm_factor,
-                 expected_cost, offer_cost, on_demand_cost, usage
-                 ) = existing_expense
+                (cloud_resource_id, date, instance_type, offer_cloud_res_id,
+                 ri_norm_factor, sp_rate, expected_cost, offer_cost,
+                 on_demand_cost, usage) = existing_expense
                 date = date.replace(tzinfo=timezone.utc)
                 existing_expense_values = (offer_cost, on_demand_cost, usage,
-                                           ri_norm_factor)
+                                           ri_norm_factor, sp_rate)
                 new_expense_values = new_expenses_map.get(
                     cloud_resource_id, {}).get(date, {}).get(
-                    offer_cloud_res_id)
+                    offer_cloud_res_id, {}).get(instance_type)
                 if not new_expense_values:
                     continue
                 elif new_expense_values == existing_expense_values:
@@ -392,22 +406,24 @@ class RISPWorker(ConsumerMixin):
                 ch_expenses_list.append(
                     self.ri_sp_usage_expense(
                         cloud_account_id, cloud_resource_id, date,
-                        offer_cloud_res_id, offer_type, on_demand_cost,
-                        offer_cost, usage, ri_norm_factor, expected_cost,
-                        sign=-1))
+                        instance_type, offer_cloud_res_id, offer_type,
+                        on_demand_cost, offer_cost, usage, ri_norm_factor,
+                        sp_rate, expected_cost, sign=-1))
 
         for cloud_resource_id, data in new_expenses_map.items():
             for date, offer_data in data.items():
-                for cloud_offer_id, (offer_cost, on_demand_cost, usage,
-                                     ri_norm_factor) in offer_data.items():
-                    expected_cost = offer_exp_cost_per_day.get(
-                        cloud_offer_id, {}).get(date, 0)
-                    ch_expenses_list.append(
-                        self.ri_sp_usage_expense(
-                            cloud_account_id, cloud_resource_id, date,
-                            cloud_offer_id, offer_type, on_demand_cost,
-                            offer_cost, usage, ri_norm_factor,
-                            expected_cost, 1))
+                for cloud_offer_id, instance_type_data in offer_data.items():
+                    for instance_type, (offer_cost, on_demand_cost, usage,
+                                        ri_norm_factor, sp_rate
+                                        ) in instance_type_data.items():
+                        expected_cost = offer_exp_cost_per_day.get(
+                            cloud_offer_id, {}).get(date, 0)
+                        ch_expenses_list.append(
+                            self.ri_sp_usage_expense(
+                                cloud_account_id, cloud_resource_id, date,
+                                instance_type, cloud_offer_id, offer_type,
+                                on_demand_cost, offer_cost, usage,
+                                ri_norm_factor, sp_rate, expected_cost, 1))
         LOG.info('Will add %s expenses to ri_sp_usage', len(ch_expenses_list))
         if ch_expenses_list:
             self.insert_clickhouse_expenses(ch_expenses_list)

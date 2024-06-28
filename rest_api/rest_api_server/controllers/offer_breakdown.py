@@ -1,8 +1,6 @@
 import logging
-import json
 from clickhouse_driver import Client as ClickHouseClient
 from collections import defaultdict
-from datetime import datetime, timedelta
 from rest_api.rest_api_server.controllers.ri_breakdown import (
     RiBreakdownController)
 from rest_api.rest_api_server.controllers.base_async import (
