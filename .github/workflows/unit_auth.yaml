@@ -13,9 +13,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-          repository: heeddata/heeddata_mvp
-          token: ${{ secrets.GH_TOKEN_ADMIN }}
-          ref: develop
+          repository: saisahoo01/optscale
+          token: "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"
+          ref: integration
 
     - name: Login to Docker Hub
       uses: docker/login-action@v2
