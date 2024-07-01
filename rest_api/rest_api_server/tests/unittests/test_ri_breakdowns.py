@@ -42,44 +42,6 @@ class TestRiBreakdownApi(TestApiBase):
             self.org_id, cloud_acc2, auth_user_id=self.auth_user_id_1)
         self.start = datetime(2023, 1, 1, 0, 0, 0)
         self.start_ts = int(self.start.timestamp())
-        self.insert_mongo_raw_expenses()
-
-    def insert_mongo_raw_expenses(self, date=None):
-        if not date:
-            date = self.start
-        self.raw_expenses.insert_many([
-            {
-                # LineItemType = Usage
-                'box_usage': True,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'start_date': date,
-                'lineItem/LineItemType': 'Usage',
-                'product/instanceType': 't2.large',
-            },
-            {
-                # LineItemType = DiscountedUsage
-                'box_usage': True,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'start_date': date,
-                'lineItem/LineItemType': 'DiscountedUsage',
-                'product/instanceType': 't2.large',
-            },
-            {
-                # not box_usage
-                'box_usage': False,
-                'cloud_account_id': self.cloud_acc1['id'],
-                'start_date': date,
-                'lineItem/LineItemType': 'DiscountedUsage',
-            },
-            {
-                # second account
-                'box_usage': True,
-                'cloud_account_id': self.cloud_acc2['id'],
-                'start_date': date,
-                'lineItem/LineItemType': 'DiscountedUsage',
-                'product/instanceType': 't2.large',
-            }
-        ])
 
     @staticmethod
     def _empty_stats(cloud_account_id, cloud_account_name):
@@ -104,6 +66,7 @@ class TestRiBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -111,6 +74,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 0.3,
                 'ri_norm_factor': 2,
+                'sp_rate': 1.1,
                 'expected_cost': 10,
                 'sign': 1
             }
@@ -147,6 +111,7 @@ class TestRiBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -154,6 +119,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 0.3,
                 'ri_norm_factor': 2,
+                'sp_rate': 1,
                 'expected_cost': 10,
                 'sign': 1
             }
@@ -189,6 +155,7 @@ class TestRiBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -196,6 +163,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 0.2222222222,
                 'ri_norm_factor': 2,
+                'sp_rate': 123,
                 'expected_cost': 11,
                 'sign': 1
             }
@@ -315,8 +283,7 @@ class TestRiBreakdownApi(TestApiBase):
         code, response = self.client.ri_breakdown_get(self.org_id, **params)
         self.assertEqual(code, 200)
         self.assertEqual(len(response['breakdown']), 1)
-        self.assertIn(self._empty_stats(cloud_acc['id'], cloud_acc['name']),
-                      response['breakdown'][str(self.start_ts)])
+        self.assertIn(stats, response['breakdown'][str(self.start_ts)])
 
     def test_required_filters(self):
         params = {
@@ -410,6 +377,7 @@ class TestRiBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -417,12 +385,14 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 1,
+                'sp_rate': 123,
                 'expected_cost': 12,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -430,6 +400,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 1,
+                'sp_rate': 123,
                 'expected_cost': 12,
                 'sign': -1
             }
@@ -497,6 +468,7 @@ class TestRiBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -504,12 +476,14 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 2,
                 'usage': 0.1,
                 'ri_norm_factor': 1,
+                'sp_rate': 123,
                 'expected_cost': 2,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': day1,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -517,12 +491,14 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 4,
                 'usage': 0.2,
                 'ri_norm_factor': 1,
+                'sp_rate': 123,
                 'expected_cost': 4,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': day1,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
@@ -530,12 +506,14 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 8,
                 'usage': 0.3,
                 'ri_norm_factor': 1,
+                'sp_rate': 123,
                 'expected_cost': 7,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': day2,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'sp',
@@ -543,6 +521,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 10,
                 'usage': 0.5,
                 'ri_norm_factor': 1,
+                'sp_rate': 123,
                 'expected_cost': 9,
                 'sign': 1
             }
@@ -642,6 +621,7 @@ class TestRiBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': self.gen_id(),
                 'offer_type': 'ri',
@@ -649,6 +629,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 11,
                 'usage': 2,
                 'ri_norm_factor': 2,
+                'sp_rate': 123,
                 'expected_cost': 11,
                 'sign': 1
             }
@@ -688,6 +669,7 @@ class TestRiBreakdownApi(TestApiBase):
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': 'offer',
                 'offer_type': 'ri',
@@ -695,12 +677,14 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 22,
                 'usage': 1,
                 'ri_norm_factor': 1,
+                'sp_rate': 123,
                 'expected_cost': 56,
                 'sign': 1
             },
             {
                 'cloud_account_id': self.cloud_acc1['id'],
                 'date': self.start,
+                'instance_type': 't2.large',
                 'resource_id': self.gen_id(),
                 'offer_id': 'offer',
                 'offer_type': 'ri',
@@ -708,6 +692,7 @@ class TestRiBreakdownApi(TestApiBase):
                 'on_demand_cost': 22,
                 'usage': 1,
                 'ri_norm_factor': 2,
+                'sp_rate': 123,
                 'expected_cost': 56,
                 'sign': 1
             }

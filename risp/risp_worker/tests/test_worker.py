@@ -176,12 +176,14 @@ class TestRISPWorker(unittest.TestCase):
                     },
                     'cloud_resource_id': 'cloud_resource_id_1',
                     'cloud_offer_id': 'cloud_ri_id',
+                    'instance_type': 't2.small',
                 },
                 'usage_hours': ['1', '2'],
                 'usage_seconds': ['1800', '900'],
                 'on_demand_cost': ['5', '6'],
                 'offer_cost': ['7', '8'],
                 'ri_norm_factor': '9',
+                'sp_rate': '123'
             }]
         self.ri_exp_cost_raw_expenses = [{
             'start_date': datetime(2023, 1, 1),
@@ -199,12 +201,14 @@ class TestRISPWorker(unittest.TestCase):
             'cloud_account_id': 'cloud_account_id',
             'resource_id': 'cloud_resource_id_1',
             'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+            'instance_type': 't2.small',
             'offer_id': 'cloud_ri_id',
             'offer_type': 'ri',
             'on_demand_cost': 11.0,
             'offer_cost': 15.0,
             'usage': 3.75,  # 1 + 2 + 1800/3600 + 900/3600
             'ri_norm_factor': 9.0,
+            'sp_rate': 123,
             'expected_cost': 120,  # 12 * 5 * ((732 + 732) / 732)
             'sign': 1
         }])
@@ -225,24 +229,28 @@ class TestRISPWorker(unittest.TestCase):
                     },
                     'cloud_resource_id': 'cloud_resource_id_1',
                     'cloud_offer_id': 'cloud_ri_id',
+                    'instance_type': 't2.small'
                 },
                 'usage_hours': ['1', '2'],
                 'usage_seconds': ['1800', '900'],
                 'on_demand_cost': ['5', '6'],
                 'offer_cost': ['7', '8'],
-                'ri_norm_factor': '9'
+                'ri_norm_factor': '9',
+                'sp_rate': '123'
             }]
         self.worker.process_task(self.task_body, self.rabbit_message)
         self.worker.insert_clickhouse_expenses.assert_called_once_with([{
             'cloud_account_id': 'cloud_account_id',
             'resource_id': 'cloud_resource_id_1',
             'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+            'instance_type': 't2.small',
             'offer_id': 'cloud_ri_id',
             'offer_type': 'ri',
             'on_demand_cost': 11.0,
             'offer_cost': 15.0,
             'usage': 3.75,  # 1 + 2 + 1800/3600 + 900/3600
             'ri_norm_factor': 9.0,
+            'sp_rate': 123,
             'expected_cost': 0,
             'sign': 1
         }])
@@ -263,11 +271,13 @@ class TestRISPWorker(unittest.TestCase):
                 },
                 'cloud_resource_id': 'cloud_resource_id_1',
                 'cloud_offer_id': 'cloud_sp_id',
+                'instance_type': 't2.small',
             },
             'usage_hours': ['1', '2'],
             'usage_seconds': ['1800', '900'],
             'on_demand_cost': ['5', '6'],
             'offer_cost': ['7', '8'],
+            'sp_rate': '123'
         }]
         self.sp_exp_cost_raw_expenses = [{
             'start_date': datetime(2023, 1, 1),
@@ -280,12 +290,14 @@ class TestRISPWorker(unittest.TestCase):
             'cloud_account_id': 'cloud_account_id',
             'resource_id': 'cloud_resource_id_1',
             'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+            'instance_type': 't2.small',
             'offer_id': 'cloud_sp_id',
             'offer_type': 'sp',
             'on_demand_cost': 11.0,
             'offer_cost': 15.0,
             'usage': 3.75,  # 1 + 2 + 1800/3600 + 900/3600
             'ri_norm_factor': 0.0,
+            'sp_rate': 123,
             'expected_cost': 100,
             'sign': 1
         }])
@@ -306,15 +318,17 @@ class TestRISPWorker(unittest.TestCase):
                 },
                 'cloud_resource_id': 'cloud_resource_id_1',
                 'cloud_offer_id': 'cloud_sp_id',
+                'instance_type': 't2.small'
             },
             'usage_hours': ['1', '2'],
             'usage_seconds': ['1800', '900'],
             'on_demand_cost': ['5', '6'],
             'offer_cost': ['7', '8'],
+            'sp_rate': 123
         }]
         date = datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc)
-        ch_expense = ('cloud_resource_id_1', date, 'cloud_sp_id',
-                      123, 123, 123, 123, 1)
+        ch_expense = ('cloud_resource_id_1', date, 't2.small', 'cloud_sp_id',
+                      123, 123, 123, 123, 123, 1)
         self.sp_exp_cost_raw_expenses = [
             {
                 'start_date': date,
@@ -330,12 +344,14 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'resource_id': 'cloud_resource_id_1',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    'instance_type': 't2.small',
                     'offer_id': 'cloud_sp_id',
                     'offer_type': 'sp',
                     'on_demand_cost': 123,
                     'offer_cost': 123,
                     'usage': 1,
                     'ri_norm_factor': 123,
+                    'sp_rate': 123,
                     'expected_cost': 123,
                     'sign': -1
                 },
@@ -343,12 +359,14 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'resource_id': 'cloud_resource_id_1',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    'instance_type': 't2.small',
                     'offer_id': 'cloud_sp_id',
                     'offer_type': 'sp',
                     'on_demand_cost': 11.0,
                     'offer_cost': 15.0,
                     'usage': 3.75,  # 1 + 2 + 1800/3600 + 900/3600
                     'ri_norm_factor': 0.0,
+                    'sp_rate': 123,
                     'expected_cost': 111,
                     'sign': 1
                 }
@@ -371,11 +389,13 @@ class TestRISPWorker(unittest.TestCase):
                 },
                 'cloud_resource_id': 'cloud_resource_id_1',
                 'cloud_offer_id': 'cloud_sp_id',
+                'instance_type': 't2.small'
             },
             'usage_hours': ['1', '2'],
             'usage_seconds': ['1800', '900'],
             'on_demand_cost': ['5', '6'],
             'offer_cost': ['7', '8'],
+            'sp_rate': '123',
         }, {
             '_id': {
                 'start_date': {
@@ -390,11 +410,13 @@ class TestRISPWorker(unittest.TestCase):
                 },
                 'cloud_resource_id': 'cloud_resource_id_1',
                 'cloud_offer_id': 'cloud_sp_id_1',
+                'instance_type': 't2.small'
             },
             'usage_hours': ['1', '2'],
             'usage_seconds': ['1800', '900'],
             'on_demand_cost': ['5', '6'],
             'offer_cost': ['7', '8'],
+            'sp_rate': '123'
         }]
         date = datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc)
         self.sp_exp_cost_raw_expenses = [
@@ -409,8 +431,8 @@ class TestRISPWorker(unittest.TestCase):
                 'resource_id': 'cloud_sp_id_1'
             }
         ]
-        ch_expense = ('cloud_resource_id_1', date, 'cloud_sp_id',
-                      123, 123, 123, 123, 1)
+        ch_expense = ('cloud_resource_id_1', date, 't2.small', 'cloud_sp_id',
+                      123, 123, 123, 123, 123, 1)
         self.mock_ri_sp_ch_expenses([ch_expense])
         self.worker.process_task(self.task_body, self.rabbit_message)
         call_args = self.worker.insert_clickhouse_expenses.call_args_list[0][0]
@@ -419,12 +441,14 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'resource_id': 'cloud_resource_id_1',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    'instance_type': 't2.small',
                     'offer_id': 'cloud_sp_id',
                     'offer_type': 'sp',
                     'on_demand_cost': 123,
                     'offer_cost': 123,
                     'usage': 1,
                     'ri_norm_factor': 123,
+                    'sp_rate': 123,
                     'expected_cost': 123,
                     'sign': -1
                 },
@@ -432,12 +456,14 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'resource_id': 'cloud_resource_id_1',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    'instance_type': 't2.small',
                     'offer_id': 'cloud_sp_id',
                     'offer_type': 'sp',
                     'on_demand_cost': 11.0,
                     'offer_cost': 15.0,
                     'usage': 3.75,
                     'ri_norm_factor': 0.0,
+                    'sp_rate': 123,
                     'expected_cost': 111,
                     'sign': 1
                 },
@@ -445,12 +471,14 @@ class TestRISPWorker(unittest.TestCase):
                     'cloud_account_id': 'cloud_account_id',
                     'resource_id': 'cloud_resource_id_1',
                     'date': datetime(2023, 1, 1, 0, 0, tzinfo=timezone.utc),
+                    'instance_type': 't2.small',
                     'offer_id': 'cloud_sp_id_1',
                     'offer_type': 'sp',
                     'on_demand_cost': 11.0,
                     'offer_cost': 15.0,
                     'usage': 3.75,
                     'ri_norm_factor': 0.0,
+                    'sp_rate': 123,
                     'expected_cost': 99,
                     'sign': 1
                 }
@@ -551,12 +579,14 @@ class TestRISPWorker(unittest.TestCase):
             'cloud_account_id': 'cloud_account_id',
             'resource_id': '',
             'date': datetime(2023, 1, 2, 0, 0, tzinfo=timezone.utc),
+            'instance_type': '',
             'offer_id': 'cloud_sp',
             'offer_type': 'sp',
             'on_demand_cost': 0,
             'offer_cost': 0,
             'usage': 0,
             'ri_norm_factor': 0.0,
+            'sp_rate': 0,
             'expected_cost': 22,
             'sign': 1
         }])

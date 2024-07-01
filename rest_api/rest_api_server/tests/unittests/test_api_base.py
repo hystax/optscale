@@ -609,12 +609,14 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
                     ('cloud_account_id', 'String', 'default'),
                     ('resource_id', 'String', 'default'),
                     ('date', 'DateTime', datetime.utcnow()),
+                    ('instance_type', 'String', ''),
                     ('offer_id', 'String', 'default'),
                     ('offer_type', "Enum8('ri' = 1, 'sp' = 2)", 1),
                     ('offer_cost', 'Float64', 0),
                     ('on_demand_cost', 'Float64', 0),
                     ('usage', 'Float64', 0),
                     ('ri_norm_factor', 'Float32', 0),
+                    ('sp_rate', 'Float32', 0),
                     ('expected_cost', 'Float64', 0),
                     ('sign', 'Int8', 1)
                 ], self.ri_sp_usage

@@ -38,28 +38,24 @@ class SpBreakdownController(RiBreakdownController):
 
     def get_flavors(self, cloud_account_ids):
         flavor_rate_map = defaultdict(float)
-        expenses = self.raw_expenses_collection.aggregate([
-            {'$match': {
-                'cloud_account_id': {'$in': cloud_account_ids},
-                'start_date': {
-                    '$gte': datetime.fromtimestamp(self.start_date),
-                    '$lt': datetime.fromtimestamp(self.end_date)
-                },
-                'lineItem/LineItemType': 'SavingsPlanCoveredUsage'
-            }},
-            {'$group': {
-                '_id': {
-                    'instance_type': '$product/instanceType',
-                    'description': '$lineItem/LineItemDescription'
-                },
-                'rate': {'$last': '$savingsPlan/SavingsPlanRate'}
-            }}
-        ])
+        flavors = self.execute_clickhouse(
+            """SELECT DISTINCT instance_type, sp_rate
+               FROM ri_sp_usage
+               WHERE cloud_account_id IN cloud_account_ids AND
+                 date >= %(start_date)s AND date <= %(end_date)s AND
+                 offer_type='sp' and sp_rate!=0
+               """,
+            params={
+                'start_date': datetime.fromtimestamp(self.start_date),
+                'end_date': datetime.fromtimestamp(self.end_date)
+            },
+            external_tables=[{'name': 'cloud_account_ids',
+                              'structure': [('id', 'String')],
+                              'data': [{'id': r_id} for r_id in
+                                       cloud_account_ids]}])
         # todo: it could be two different rates for flavor
-        for expense in expenses:
-            _id = expense['_id']
-            flavor_name = _id.get('instance_type') or _id.get('description')
-            sp_rate = float(expense.get('rate', 0))
+        for flavor in flavors:
+            flavor_name, sp_rate = flavor
             if sp_rate:
                 flavor_rate_map[flavor_name] = sp_rate
         return flavor_rate_map
@@ -123,7 +119,6 @@ class SpBreakdownController(RiBreakdownController):
             sp_acc_date_exp[cloud_account_id][date] += overprov_exp
         for cloud_acc_id, date_exp in cloud_account_usage.items():
             for date, data in date_exp.items():
-                date_ts = int(date.timestamp())
                 sp_overprov_exp = sp_acc_date_exp[cloud_acc_id].get(date, 0)
                 data['overprovision'] = sp_overprov_exp
                 if 'overprovision_hrs' not in data:
