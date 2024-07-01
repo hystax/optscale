@@ -27,8 +27,8 @@ class TestOrganizationGemini(TestApiBase):
             self.organization_id, cloud_acc, auth_user_id=self.auth_user_id)
         self.filters = {
             "filters": {
-                "cloud_account_id": self.cloud_acc['id'],
-                "buckets": "bucket1,bucket2",
+                "buckets": [{'name': 'test',
+                             'cloud_account_id': self.cloud_acc['id']}],
                 "min_size": 1
             }
         }
@@ -70,16 +70,7 @@ class TestOrganizationGemini(TestApiBase):
             self.organization_id, filters
         )
         self.assertEqual(code, 400)
-        self.assertEqual(resp['error']['error_code'], 'OE0214')
-
-    def test_create_invalid_cloud_acc(self):
-        filters = self.filters.copy()
-        filters['filters']['cloud_account_id'] = 'test'
-        code, resp = self.client.gemini_create(
-            self.organization_id, filters
-        )
-        self.assertEqual(code, 400)
-        self.assertEqual(resp['error']['error_code'], 'OE0217')
+        self.assertEqual(resp['error']['error_code'], 'OE0385')
 
     def test_list_geminis(self):
         code, result = self.client.gemini_list(self.organization_id)

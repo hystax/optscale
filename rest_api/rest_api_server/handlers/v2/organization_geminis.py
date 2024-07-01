@@ -536,6 +536,7 @@ class OrganizationGeminisAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     - OE0214: Argument should be a string
                     - OE0217: Invalid query parameter
                     - OE0223: min_size should be integer
+                    - OE0385: buckets should be a list
             401:
                 description: |
                     Unauthorized

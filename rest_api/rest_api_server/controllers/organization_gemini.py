@@ -14,7 +14,9 @@ from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.models import (
     OrganizationGemini, CloudAccount)
 from rest_api.rest_api_server.utils import (
-    check_string_attribute, check_int_attribute, check_dict_attribute)
+    check_string_attribute, check_int_attribute, check_dict_attribute,
+    check_list_attribute
+)
 
 
 LOG = logging.getLogger(__name__)
@@ -135,31 +137,16 @@ class OrganizationGeminiController(BaseController):
         else:
             return super().list()
 
-    def _validate_filters(self, organization_id, filters):
+    def _validate_filters(self, filters):
         check_dict_attribute('filters', filters, allow_empty=True)
         if filters:
             if 'buckets' in filters:
-                check_string_attribute('buckets', filters['buckets'])
+                check_list_attribute('buckets', filters['buckets'])
             if 'min_size' in filters:
                 check_int_attribute('min_size', filters['min_size'])
-            if 'cloud_account_id' in filters:
-                cloud_account_id = filters['cloud_account_id']
-                check_string_attribute('cloud_account_id', cloud_account_id)
-                cloud_account_exist = self.session.query(
-                    exists().where(
-                        and_(
-                            CloudAccount.deleted.is_(False),
-                            CloudAccount.organization_id == organization_id,
-                            CloudAccount.id == cloud_account_id
-                        )
-                    )
-                ).scalar()
-                if not cloud_account_exist:
-                    raise WrongArgumentsException(
-                        Err.OE0217, ['cloud_account_id'])
 
     def create(self, organization_id: str, filters: dict) -> OrganizationGemini:
-        self._validate_filters(organization_id, filters)
+        self._validate_filters(filters)
         return super().create(organization_id=organization_id,
                               filters=json.dumps(filters))
 
