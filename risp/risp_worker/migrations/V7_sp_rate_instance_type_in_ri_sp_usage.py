@@ -34,7 +34,6 @@ class Migration(MigrationBase):
                 'start_date': {'$in': dates},
                 'box_usage': True,
                 'lineItem/LineItemType': 'DiscountedUsage'},
-                # todo: check fields
                 {'start_date': 1, 'product/instanceType': 1,
                  'lineItem/LineItemDescription': 1,
                  'reservation/ReservationARN': 1,
@@ -132,8 +131,8 @@ class Migration(MigrationBase):
                             'expected_cost': expected_cost,
                             'sign': -1
                         })
-                        instance_type = offer_data.get('instance_type', '')
-                        sp_rate = offer_data.get('sp_rate', 0)
+                        instance_type = changes.get('instance_type', '')
+                        sp_rate = changes.get('sp_rate', 0)
                         # new record
                         ch_inserts.append({
                             'cloud_account_id': cloud_account_id,
