@@ -3,19 +3,15 @@ import logging
 from typing import List
 
 from clickhouse_driver import Client as ClickHouseClient
-from sqlalchemy.sql import and_, exists
-
-from tools.optscale_exceptions.common_exc import WrongArgumentsException
 
 from rest_api.rest_api_server.controllers.base import (
     BaseController, ClickHouseMixin)
-from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
-from rest_api.rest_api_server.exceptions import Err
-from rest_api.rest_api_server.models.models import (
-    OrganizationGemini, CloudAccount)
+from rest_api.rest_api_server.controllers.base_async import (
+    BaseAsyncControllerWrapper)
+from rest_api.rest_api_server.models.models import OrganizationGemini
 from rest_api.rest_api_server.utils import (
-    check_string_attribute, check_int_attribute, check_dict_attribute,
-    check_list_attribute
+    check_int_attribute, check_dict_attribute, check_list_attribute,
+    check_float_attribute
 )
 
 
@@ -35,11 +31,15 @@ class GeminiController(BaseController):
         stats = kwargs.get('stats')
         check_dict_attribute('stats', stats, allow_empty=True)
         if stats:
-            for param in ['total_objects', 'considered_objects', 'total_size',
-                          'might_deleted']:
+            for param in ['total_objects', 'filtered_objects',
+                          'duplicated_objects']:
                 value = stats.get(param)
                 if value is not None:
                     check_int_attribute(param, value)
+            for param in ['total_size', 'duplicates_size', 'monthly_savings']:
+                value = stats.get(param)
+                if value is not None:
+                    check_float_attribute(param, value)
 
     def edit(self, item_id, **kwargs):
         self._validate_stats(**kwargs)

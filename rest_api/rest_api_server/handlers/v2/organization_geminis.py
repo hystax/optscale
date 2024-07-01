@@ -232,6 +232,7 @@ class GeminisAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                     description: |
                         Wrong arguments:
                         - OE0223: Argument should be integer
+                        - OE0466: Argument should be float
                 401:
                     description: |
                         Unauthorized:

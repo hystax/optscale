@@ -158,14 +158,13 @@ class TestOrganizationGemini(TestApiBase):
         self.assertEqual(resp['error']['error_code'], 'OE0211')
 
     def test_patch_stats(self):
-        for param in ['total_objects', 'considered_objects', 'total_size',
-                      'might_deleted']:
+        for param in ['total_objects', 'filtered_objects',
+                      'duplicated_objects']:
             params = {
                 'stats': {
                     'total_objects': 1,
-                    'considered_objects': 1,
-                    'total_size': 1,
-                    'might_deleted': 1,
+                    'filtered_objects': 1,
+                    'duplicated_objects': 1
                 }
             }
             params['stats'][param] = 'test'
@@ -173,6 +172,20 @@ class TestOrganizationGemini(TestApiBase):
                 self.gemini_1["id"], params)
             self.assertEqual(code, 400)
             self.assertEqual(resp["error"]["error_code"], "OE0223")
+
+        for param in ['total_size', 'duplicates_size', 'monthly_savings']:
+            params = {
+                'stats': {
+                    'total_size': 1.0,
+                    'duplicates_size': 1.0,
+                    'monthly_savings': 1.0
+                }
+            }
+            params['stats'][param] = 'test'
+            code, resp = self.client.gemini_update(
+                self.gemini_1["id"], params)
+            self.assertEqual(code, 400)
+            self.assertEqual(resp["error"]["error_code"], "OE0466")
 
     def test_patch_invalid_stats_type(self):
         code, resp = self.client.gemini_update(
