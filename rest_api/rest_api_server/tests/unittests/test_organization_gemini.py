@@ -173,6 +173,11 @@ class TestOrganizationGemini(TestApiBase):
             self.assertEqual(code, 400)
             self.assertEqual(resp["error"]["error_code"], "OE0223")
 
+            params['stats'][param] = 2 ** 65
+            code, resp = self.client.gemini_update(
+                self.gemini_1["id"], params)
+            self.assertEqual(code, 200)
+
         for param in ['total_size', 'duplicates_size', 'monthly_savings']:
             params = {
                 'stats': {
@@ -186,6 +191,11 @@ class TestOrganizationGemini(TestApiBase):
                 self.gemini_1["id"], params)
             self.assertEqual(code, 400)
             self.assertEqual(resp["error"]["error_code"], "OE0466")
+
+            params['stats'][param] = 2 ** 65
+            code, resp = self.client.gemini_update(
+                self.gemini_1["id"], params)
+            self.assertEqual(code, 200)
 
     def test_patch_invalid_stats_type(self):
         code, resp = self.client.gemini_update(

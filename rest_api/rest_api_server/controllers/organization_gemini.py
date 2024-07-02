@@ -35,11 +35,11 @@ class GeminiController(BaseController):
                           'duplicated_objects']:
                 value = stats.get(param)
                 if value is not None:
-                    check_int_attribute(param, value)
+                    check_int_attribute(param, value, check_length=False)
             for param in ['total_size', 'duplicates_size', 'monthly_savings']:
                 value = stats.get(param)
                 if value is not None:
-                    check_float_attribute(param, value)
+                    check_float_attribute(param, value, check_length=False)
 
     def edit(self, item_id, **kwargs):
         self._validate_stats(**kwargs)
