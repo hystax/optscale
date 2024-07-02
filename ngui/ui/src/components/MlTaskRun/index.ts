@@ -1,3 +1,4 @@
-import MlTaskRun from "./MlTaskRun";
+import MlTaskRun, { TABS } from "./MlTaskRun";
 
+export { TABS };
 export default MlTaskRun;

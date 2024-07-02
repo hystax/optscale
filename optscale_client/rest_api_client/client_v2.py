@@ -2181,3 +2181,25 @@ class Client(Client_v1):
 
     def model_versions_by_task(self, org_id, task_id):
         return self.get(self.task_model_versions_url(org_id, task_id))
+
+    @staticmethod
+    def artifacts_url(org_id, artifact_id=None):
+        url = '%s/artifacts' % Client.organization_url(org_id)
+        if artifact_id is not None:
+            url = '%s/%s' % (url, artifact_id)
+        return url
+
+    def artifact_create(self, org_id, params):
+        return self.post(self.artifacts_url(org_id), params)
+
+    def artifact_update(self, org_id, artifact_id, **params):
+        return self.patch(self.artifacts_url(org_id, artifact_id), params)
+
+    def artifacts_get(self, org_id, **params):
+        return self.get(self.artifacts_url(org_id) + self.query_url(**params))
+
+    def artifact_get(self, org_id, artifact_id):
+        return self.get(self.artifacts_url(org_id, artifact_id))
+
+    def artifact_delete(self, org_id, artifact_id):
+        return self.delete(self.artifacts_url(org_id, artifact_id))

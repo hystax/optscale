@@ -36,6 +36,7 @@ class CleanMongoDB(object):
             self.mongo_client.arcee.proc_data: ROWS_LIMIT,
             self.mongo_client.arcee.stage: ROWS_LIMIT,
             self.mongo_client.arcee.model_version: ROWS_LIMIT,
+            self.mongo_client.arcee.artifact: ROWS_LIMIT,
             # linked to task_id
             self.mongo_client.arcee.run: ROWS_LIMIT,
             # linked to profiling_token.token
@@ -178,7 +179,8 @@ class CleanMongoDB(object):
                            self.mongo_client.arcee.milestone,
                            self.mongo_client.arcee.stage,
                            self.mongo_client.arcee.proc_data,
-                           self.mongo_client.arcee.model_version]
+                           self.mongo_client.arcee.model_version,
+                           self.mongo_client.arcee.artifact]
         if all(self.limits.get(x) == 0 for x in run_collections):
             # maximum number of entities related to runs have already
             # been deleted
@@ -353,6 +355,7 @@ class CleanMongoDB(object):
                        self.mongo_client.arcee.proc_data,
                        self.mongo_client.arcee.model,
                        self.mongo_client.arcee.model_version,
+                       self.mongo_client.arcee.artifact,
                        self.mongo_client.bulldozer.template,
                        self.mongo_client.bulldozer.runset,
                        self.mongo_client.bulldozer.runner]

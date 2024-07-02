@@ -220,7 +220,12 @@ import {
   updateMlModel,
   deleteMlModel,
   getMlTaskModelVersions,
-  updateMlModelVersion
+  updateMlModelVersion,
+  getMlArtifacts,
+  getMlArtifact,
+  updateMlArtifact,
+  createMlArtifact,
+  deleteMlArtifact
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
@@ -445,7 +450,12 @@ export {
   updateMlModel,
   deleteMlModel,
   getMlTaskModelVersions,
-  updateMlModelVersion
+  updateMlModelVersion,
+  getMlArtifacts,
+  getMlArtifact,
+  updateMlArtifact,
+  createMlArtifact,
+  deleteMlArtifact
 };
 
 export { RESTAPI, AUTH, JIRA_BUS };

@@ -29,6 +29,7 @@ async def clean_env():
     await DB_MOCK['log'].drop()
     await DB_MOCK['platform'].drop()
     await DB_MOCK['dataset'].drop()
+    await DB_MOCK['artifact'].drop()
 
 
 @pytest.fixture(autouse=True)

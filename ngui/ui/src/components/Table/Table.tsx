@@ -87,7 +87,9 @@ const Table = ({
   disableBottomBorderForLastRow = false,
   tableLayout = "auto",
   enableSearchQueryParam,
-  enablePaginationQueryParam
+  enablePaginationQueryParam,
+  manualPagination,
+  manualGlobalFiltering
 }) => {
   const { showCounters = false, hideTotal = false, hideDisplayed = false } = counters;
 
@@ -164,9 +166,12 @@ const Table = ({
 
   const initialSortingState = useInitialSortingState(columns);
 
+  const isManualPagination = !!manualPagination;
+  const isManualFiltering = !!manualGlobalFiltering;
+
   const tableState = {
-    ...globalFilterState,
-    ...paginationState,
+    ...(isManualFiltering ? {} : globalFilterState),
+    ...(isManualPagination ? {} : paginationState),
     ...expandedState,
     ...columnOrderState,
     ...rowSelectionState,
@@ -174,8 +179,8 @@ const Table = ({
   };
 
   const tableOptions = {
-    ...globalFilterTableOptions,
-    ...paginationTableOptions,
+    ...(isManualFiltering ? {} : globalFilterTableOptions),
+    ...(isManualPagination ? {} : paginationTableOptions),
     ...expandedTableOptions,
     ...columnsVisibilityTableOptions,
     ...columnOrderTableOptions,
@@ -208,17 +213,56 @@ const Table = ({
 
   const { rows } = table.getRowModel();
 
+  const getPaginationSettings = () => {
+    if (isManualPagination) {
+      return {
+        pageCount: manualPagination.pageCount,
+        pageIndex: manualPagination.pageIndex,
+        pageSize: manualPagination.pageSize,
+        onPageIndexChange: manualPagination.onPageIndexChange,
+        totalRows: manualPagination.totalRows
+      };
+    }
+
+    return {
+      pageCount: table.getPageCount(),
+      pageIndex: table.getState().pagination.pageIndex,
+      pageSize: table.getState().pagination.pageSize,
+      onPageIndexChange: table.setPageIndex,
+      totalRows: data.length
+    };
+  };
+
+  const paginationSettings = getPaginationSettings();
+
+  const getFilterOptions = () => {
+    if (isManualFiltering) {
+      return {
+        withSearch,
+        onSearchChange: withSearch ? manualGlobalFiltering.search.onChange : undefined,
+        searchValue: withSearch ? manualGlobalFiltering.search.value : undefined,
+        rangeFilter,
+        rangeValue: rangeFilter ? manualGlobalFiltering.rangeFilter.range : undefined,
+        onRangeChange: rangeFilter ? manualGlobalFiltering.rangeFilter.onChange : undefined
+      };
+    }
+
+    return {
+      withSearch,
+      searchValue: withSearch ? globalFilterState.globalFilter.search : undefined,
+      onSearchChange: withSearch ? (newSearchValue) => onSearchChange(newSearchValue, { tableContext: table }) : null,
+      rangeFilter,
+      rangeValue: rangeFilter ? globalFilterState.globalFilter.range : undefined,
+      onRangeChange: rangeFilter ? (newRangeValue) => onRangeChange(newRangeValue, { tableContext: table }) : null
+    };
+  };
+
   return (
     <div data-test-id={dataTestIds.container}>
       <TableActions
         actionBar={actionBar}
         selectedRowsCount={selectedRowsCounts}
-        withSearch={withSearch}
-        onSearchChange={withSearch ? (newSearchValue) => onSearchChange(newSearchValue, { tableContext: table }) : null}
-        searchValue={withSearch ? globalFilterState.globalFilter.search : undefined}
-        onRangeChange={rangeFilter ? (newRangeValue) => onRangeChange(newRangeValue, { tableContext: table }) : null}
-        rangeValue={rangeFilter ? globalFilterState.globalFilter.range : undefined}
-        rangeFilter={rangeFilter}
+        {...getFilterOptions()}
         tableContext={table}
         columnsSelectorUID={columnsSelectorUID}
         columnSetsSelectorId={columnSetsSelectorId}
@@ -348,18 +392,18 @@ const Table = ({
           showCounters={showCounters}
           hideTotal={hideTotal}
           hideDisplayed={hideDisplayed}
-          totalNumber={counters.total || data.length}
+          totalNumber={counters.total || paginationSettings.totalRows}
           rowsCount={rows.length}
           selectedRowsCount={selectedRowsCounts}
           dataTestIds={dataTestIds.infoAreaTestIds}
           showAllLink={showAllLink}
-          tableContext={table}
+          pagination={paginationSettings}
         />
-        {table.getPageCount() > 1 && (
+        {paginationSettings.pageCount > 1 && (
           <Pagination
-            count={table.getPageCount()}
-            page={table.getState().pagination.pageIndex + 1}
-            paginationHandler={(newPageIndex) => table.setPageIndex(newPageIndex)}
+            count={paginationSettings.pageCount}
+            page={paginationSettings.pageIndex + 1}
+            paginationHandler={paginationSettings.onPageIndexChange}
           />
         )}
       </Box>

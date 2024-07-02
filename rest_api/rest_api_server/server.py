@@ -129,6 +129,12 @@ def get_handlers(handler_kwargs, version=None):
             (urls_v2.models_versions_by_task,
              h_v2.profiling.model_versions.TaskModelVersionsAsyncItemHandler,
              handler_kwargs),
+            (urls_v2.artifacts,
+             h_v2.profiling.artifacts.ArtifactsAsyncItemHandler,
+             handler_kwargs),
+            (urls_v2.artifacts_collection,
+             h_v2.profiling.artifacts.ArtifactsAsyncCollectionHandler,
+             handler_kwargs),
         ]
         infrastructure_urls = [
             (urls_v2.infra_profiling_token,

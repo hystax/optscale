@@ -5,13 +5,13 @@ import { Link as RouterLink } from "react-router-dom";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import useStyles from "./InfoArea.styles";
 
-const DisplayedLabel = ({ tableContext, rowsCount, totalNumber, dataTestIds }) => {
+const DisplayedLabel = ({ rowsCount, totalNumber, pagination, dataTestIds }) => {
   const getDisplayedValue = () => {
-    if (tableContext.getPageCount() <= 1) {
+    const { pageCount, pageIndex, pageSize } = pagination;
+
+    if (pageCount <= 1 || pageIndex + 1 > pageCount) {
       return rowsCount;
     }
-
-    const { pageIndex, pageSize } = tableContext.getState().pagination;
 
     const from = pageIndex * pageSize + 1;
 
@@ -44,7 +44,7 @@ const InfoArea = ({
   selectedRowsCount = 0,
   dataTestIds = {},
   showAllLink,
-  tableContext
+  pagination
 }) => {
   const { classes } = useStyles();
   const { showAll: showAllDataTestId = null } = dataTestIds;
@@ -66,10 +66,10 @@ const InfoArea = ({
             )}
             {hideDisplayed ? null : (
               <DisplayedLabel
-                tableContext={tableContext}
                 rowsCount={rowsCount}
                 totalNumber={totalNumber}
                 dataTestIds={dataTestIds}
+                pagination={pagination}
               />
             )}
             {selectedRowsCount !== 0 && (

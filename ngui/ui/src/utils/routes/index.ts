@@ -42,11 +42,15 @@ import inviteEmployeesRoute from "./inviteEmployeesRoute";
 import k8sRightsizingRoute from "./k8sRightsizingRoute";
 import liveDemoRoute from "./liveDemoRoute";
 import loginRoute from "./loginRoute";
+import mlArtifactsRoute from "./mlArtifactsRoute";
 import mlModelCreateRoute from "./mlCreateModelRoute";
+import mlCreateRunArtifactRoute from "./mlCreateRunArtifactRoute";
 import mlDatasetCreateRoute from "./mlDatasetCreateRoute";
 import mlDatasetEditRoute from "./mlDatasetEditRoute";
 import mlDatasetsRoute from "./mlDatasetsRoute";
+import mlEditArtifactRoute from "./mlEditArtifactRoute";
 import mlEditModelRoute from "./mlEditModelRoute";
+import mlEditRunArtifactRoute from "./mlEditRunArtifactRoute";
 import mlEditTaskRoute from "./mlEditTaskRoute";
 import mlExecutorsRoute from "./mlExecutorsRoute";
 import mlModel from "./mlModel";
@@ -182,6 +186,10 @@ export const routes = [
   mlModelCreateRoute,
   mlModel,
   mlEditModelRoute,
+  mlArtifactsRoute,
+  mlEditRunArtifactRoute,
+  mlCreateRunArtifactRoute,
+  mlEditArtifactRoute,
   // React router 6.x does not require the not found route (*) to be at the end,
   // but the matchPath hook that is used in the DocsPanel component seems to honor the order.
   // Moving it to the bottom for "safety" reasons.

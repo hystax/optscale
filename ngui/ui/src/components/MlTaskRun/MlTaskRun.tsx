@@ -3,11 +3,12 @@ import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import { Link, Stack, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
-import { GET_ML_EXECUTORS, GET_ML_RUN_DETAILS, GET_ML_RUN_DETAILS_BREAKDOWN } from "api/restapi/actionTypes";
+import { GET_ML_ARTIFACTS, GET_ML_EXECUTORS, GET_ML_RUN_DETAILS, GET_ML_RUN_DETAILS_BREAKDOWN } from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
 import PageContentWrapper from "components/PageContentWrapper";
 import TabsWrapper from "components/TabsWrapper";
 import ExecutionBreakdownContainer from "containers/ExecutionBreakdownContainer";
+import RunArtifactsContainer from "containers/RunArtifactsContainer";
 import { useRefetchApis } from "hooks/useRefetchApis";
 import { ML_TASKS, getMlTaskDetailsUrl } from "urls";
 import { SPACING_2 } from "utils/layouts";
@@ -15,8 +16,9 @@ import { formatRunFullName } from "utils/ml";
 import { Executors, Overview } from "./Components";
 import Status from "./Components/Status";
 
-const TABS = Object.freeze({
+export const TABS = Object.freeze({
   OVERVIEW: "overview",
+  ARTIFACTS: "artifacts",
   CHARTS: "charts",
   EXECUTORS: "executors"
 });
@@ -48,6 +50,11 @@ const Tabs = ({ run, isLoading = false }) => {
       title: TABS.CHARTS,
       dataTestId: "tab_charts",
       node: <ExecutionBreakdownContainer reachedGoals={run.reached_goals} />
+    },
+    {
+      title: TABS.ARTIFACTS,
+      dataTestId: "tab_artifact",
+      node: <RunArtifactsContainer />
     },
     {
       title: TABS.EXECUTORS,
@@ -97,7 +104,7 @@ const MlTaskRun = ({ run, isLoading = false }) => {
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_RUN_DETAILS, GET_ML_EXECUTORS, GET_ML_RUN_DETAILS_BREAKDOWN])
+        action: () => refetch([GET_ML_RUN_DETAILS, GET_ML_EXECUTORS, GET_ML_RUN_DETAILS_BREAKDOWN, GET_ML_ARTIFACTS])
       }
     ]
   };

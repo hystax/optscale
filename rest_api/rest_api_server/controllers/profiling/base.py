@@ -603,3 +603,45 @@ class BaseProfilingController(BaseProfilingTokenController):
             ArceeObject.format(model_version.get('model', {}))
             ArceeObject.format(model_version.get('run', {}))
         return model_versions
+
+    @handle_http_exc
+    def create_artifact(self, profiling_token, run_id, path, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, artifact = arcee.artifact_create(
+            run_id=run_id, path=path, **kwargs)
+        ArceeObject.format(artifact)
+        ArceeObject.format(artifact['run'])
+        return artifact
+
+    @handle_http_exc
+    def list_artifacts(self, profiling_token, **kwargs) -> list[dict]:
+        arcee = self.get_arcee_client(profiling_token)
+        _, response = arcee.artifacts_get(**kwargs)
+        for r in response['artifacts']:
+            r.pop('_created_at_dt', None)
+            ArceeObject.format(r)
+            ArceeObject.format(r['run'])
+        return response
+
+    @handle_http_exc
+    def get_artifact(self, profiling_token, artifact_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, artifact = arcee.artifact_get(artifact_id)
+        artifact.pop('_created_at_dt', None)
+        ArceeObject.format(artifact)
+        ArceeObject.format(artifact['run'])
+        return artifact
+
+    @handle_http_exc
+    def update_artifact(self, profiling_token, artifact_id, **kwargs):
+        arcee = self.get_arcee_client(profiling_token)
+        _, updated_artifact = arcee.artifact_update(artifact_id, **kwargs)
+        updated_artifact.pop('_created_at_dt', None)
+        ArceeObject.format(updated_artifact)
+        ArceeObject.format(updated_artifact['run'])
+        return updated_artifact
+
+    @handle_http_exc
+    def delete_artifact(self, profiling_token, artifact_id):
+        arcee = self.get_arcee_client(profiling_token)
+        arcee.artifact_delete(artifact_id)

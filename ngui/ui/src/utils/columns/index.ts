@@ -23,6 +23,7 @@ import lastTimeLocal from "./lastTimeLocal";
 import lastUsed from "./lastUsed";
 import leaderboardCriteriaDataset from "./leaderboardCriteriaDataset";
 import leaderboardCriteriaDatasetLabels from "./leaderboardCriteriaDatasetLabels";
+import markdown from "./markdown";
 import metrics from "./metrics";
 import milestones from "./milestones";
 import mlAverageLifetime from "./mlAverageLifetime";
@@ -63,6 +64,7 @@ import rightsizingSize from "./rightsizingSize";
 import run from "./run";
 import savings from "./savings";
 import size from "./size";
+import slicedText from "./slicedText";
 import startedAt from "./startedAt";
 import tags from "./tags";
 import tendency from "./tendency";
@@ -143,5 +145,7 @@ export {
   mlTaskName,
   mlTaskLastRun,
   mlModelUsedAliases,
-  datasetTimespan
+  datasetTimespan,
+  markdown,
+  slicedText
 };

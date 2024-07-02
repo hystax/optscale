@@ -12,6 +12,7 @@ import finOpsPortal from "./finOpsPortalMenuItem";
 import home from "./homeMenuItem";
 import integrations from "./integrationsMenuItem";
 import k8sRightsizing from "./k8sRightsizingMenuItem";
+import mlArtifactsMenuItem from "./mlArtifactsMenuItem";
 import mlDatasets from "./mlDatasetsMenuItem";
 import mlHypertuningMenuItem from "./mlHypertuningMenuItem";
 import mlModels from "./mlModelsMenuItem";
@@ -41,7 +42,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="mlops" />,
-    items: [mlTasks, mlModels, mlDatasets, mlHypertuningMenuItem],
+    items: [mlTasks, mlModels, mlDatasets, mlHypertuningMenuItem, mlArtifactsMenuItem],
     mode: OPTSCALE_MODE.MLOPS
   },
   {

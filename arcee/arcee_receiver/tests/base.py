@@ -34,6 +34,8 @@ class Urls:
     metrics = '/arcee/v2/metrics'
     metric = '/arcee/v2/metrics/{}'
     collect = '/arcee/v2/collect'
+    artifacts = '/arcee/v2/artifacts'
+    artifact = '/arcee/v2/artifacts/{}'
 
 
 async def prepare_token():
@@ -198,3 +200,32 @@ async def prepare_model_version(model_id, run_id, version='1', aliases=None,
     await DB_MOCK['model_version'].insert_one(model_version)
     return await DB_MOCK['model_version'].find_one({
         "run_id": run_id, "model_id": model_id})
+
+
+async def prepare_artifact(run_id, name=None, description=None,
+                           path=None, tags=None, created_at=None):
+    now = datetime.now(tz=timezone.utc)
+    if not created_at:
+        created_at = int(now.timestamp())
+    if not name:
+        name = "my artifact"
+    if not description:
+        description = "my artifact"
+    if not path:
+        path = "/my/path"
+    if not tags:
+        tags = {"key": "value"}
+    artifact = {
+        "_id": str(uuid.uuid4()),
+        "path": path,
+        "name": name,
+        "description": description,
+        "tags": tags,
+        "run_id": run_id,
+        "created_at": created_at,
+        "token": TOKEN1,
+        '_created_at_dt': int(now.replace(hour=0, minute=0, second=0,
+                                          microsecond=0).timestamp())
+    }
+    await DB_MOCK['artifact'].insert_one(artifact)
+    return await DB_MOCK['artifact'].find_one({'_id': artifact['_id']})

@@ -227,7 +227,7 @@ const Overview = ({ reachedGoals, dataset, git, tags, hyperparameters, command, 
       <SubTitle>
         <FormattedMessage id="gitStatus" />
       </SubTitle>
-      <GitStatus git={git} isLoading={isLoading} s />
+      <GitStatus git={git} isLoading={isLoading} />
     </Grid>
     <Grid item xs={12}>
       <SubTitle>

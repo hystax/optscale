@@ -124,7 +124,9 @@ import {
   SET_RESERVED_INSTANCES_BREAKDOWN,
   SET_SAVING_PLANS_BREAKDOWN,
   SET_ML_MODEL,
-  SET_ML_TASK_MODEL_VERSIONS
+  SET_ML_TASK_MODEL_VERSIONS,
+  SET_ML_ARTIFACTS,
+  SET_ML_ARTIFACT
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -834,6 +836,18 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_ML_RUNSET_EXECUTORS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_ARTIFACTS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case SET_ML_ARTIFACT: {
       return {
         ...state,
         [action.label]: action.payload

@@ -60,7 +60,9 @@ import {
   SET_POWER_SCHEDULE,
   GET_POWER_SCHEDULE,
   SET_ML_MODEL,
-  GET_ML_MODEL
+  GET_ML_MODEL,
+  SET_ML_ARTIFACT,
+  GET_ML_ARTIFACT
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -244,6 +246,12 @@ export const onUpdateMlTask = (data) => ({
   type: SET_ML_TASK,
   payload: data,
   label: GET_ML_TASK
+});
+
+export const onUpdateMlArtifact = (data) => ({
+  type: SET_ML_ARTIFACT,
+  payload: data,
+  label: GET_ML_ARTIFACT
 });
 
 export const onUpdateMlModel = (data) => ({

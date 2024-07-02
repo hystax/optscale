@@ -1,6 +1,6 @@
 import time
 from collections import OrderedDict, defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import asyncio
 
 from etcd import Lock as EtcdLock, Client as EtcdClient
@@ -10,6 +10,7 @@ import uuid
 
 from mongodb_migrations.cli import MigrationManager
 from mongodb_migrations.config import Configuration
+from pydantic import ValidationError
 from sanic import Sanic
 from sanic.log import logger
 from sanic.response import json
@@ -23,7 +24,8 @@ from arcee.arcee_receiver.models import (
     LeaderboardDatasetPatchIn, LeaderboardDatasetPostIn,
     Leaderboard, LeaderboardPostIn, LeaderboardPatchIn, Log, Platform,
     StatsPostIn, ModelPatchIn, ModelPostIn, Model, ModelVersionIn,
-    ModelVersion, Metric, MetricPostIn, MetricPatchIn
+    ModelVersion, Metric, MetricPostIn, MetricPatchIn,
+    ArtifactPostIn, ArtifactPatchIn, Artifact, ArtifactSearchParams,
 )
 from arcee.arcee_receiver.modules.leader_board import (
     get_calculated_leaderboard, Tendencies)
@@ -360,15 +362,17 @@ async def delete_task(request, id_: str):
             db.proc_data.delete_many({'run_id': {'$in': runs}}),
             db.log.delete_many({'run_id': {'$in': runs}}),
             db.run.delete_many({"task_id": id_}),
-            db.console.delete_many({'run_id': {'$in': runs}})
+            db.console.delete_many({'run_id': {'$in': runs}}),
+            db.artifact.delete_many({'run_id': {'$in': runs}}),
         )
-        dm, ds, dpd, dl, dr, dc = results
+        dm, ds, dpd, dl, dr, dc, da = results
         deleted_milestones = dm.deleted_count
         deleted_stages = ds.deleted_count
         deleted_logs = dl.deleted_count
         deleted_runs = dr.deleted_count
         deleted_proc_data = dpd.deleted_count
         deleted_consoles = dc.deleted_count
+        deleted_artifacts = da.deleted_count
     leaderboard = await db.leaderboard.find_one(
         {"token": token, "task_id": id_, "deleted_at": 0})
     now = int(datetime.now(tz=timezone.utc).timestamp())
@@ -396,7 +400,8 @@ async def delete_task(request, id_: str):
         "deleted_runs": deleted_runs,
         "deleted_stages": deleted_stages,
         "deleted_proc_data": deleted_proc_data,
-        "deleted_console_output": deleted_consoles
+        "deleted_console_output": deleted_consoles,
+        "deleted_artifacts": deleted_artifacts
     })
 
 
@@ -903,6 +908,7 @@ async def delete_run(request, run_id: str):
     await db.stage.delete_many({'run_id': run['_id']})
     await db.milestone.delete_many({'run_id': run['_id']})
     await db.proc_data.delete_many({'run_id': run['_id']})
+    await db.artifact.delete_many({'run_id': run['_id']})
     await db.model_version.update_many({'run_id': run['_id'], 'deleted_at': 0},
                                        {'$set': {'deleted_at': now}})
     await db.run.delete_one({'_id': run_id})
@@ -2285,6 +2291,165 @@ async def get_model_versions_for_task(request, task_id: str):
         version.pop('run_id', None)
         version.pop('model_id', None)
     return json(versions)
+
+
+def _format_artifact(artifact: dict, run: dict) -> dict:
+    artifact.pop('run_id', None)
+    artifact['run'] = {
+        '_id': run['_id'],
+        'task_id': run['task_id'],
+        'name': run['name'],
+        'number': run['number']
+    }
+    return artifact
+
+
+async def _create_artifact(**kwargs) -> dict:
+    artifact = Artifact(**kwargs).model_dump(by_alias=True)
+    await db.artifact.insert_one(artifact)
+    return artifact
+
+
+@app.route('/arcee/v2/artifacts', methods=["POST", ], ctx_label='token')
+@validate(json=ArtifactPostIn)
+async def create_artifact(request, body: ArtifactPostIn):
+    token = request.ctx.token
+    run = await db.run.find_one({"_id": body.run_id, 'deleted_at': 0})
+    if not run:
+        raise SanicException("Run not found", status_code=404)
+    artifact = await _create_artifact(
+            token=token, **body.model_dump(exclude_unset=True))
+    artifact = _format_artifact(artifact, run)
+    return json(artifact, status=201)
+
+
+def _build_artifact_filter_pipeline(run_ids: list,
+                                    query: ArtifactSearchParams):
+    filters = defaultdict(dict)
+    filters['run_id'] = {'$in': run_ids}
+    if query.created_at_lt:
+        created_at_dt = int((datetime.fromtimestamp(
+            query.created_at_lt) + timedelta(days=1)).replace(
+            hour=0, minute=0, second=0, microsecond=0).timestamp())
+        filters['_created_at_dt'].update({'$lt': created_at_dt})
+        filters['created_at'].update({'$lt': query.created_at_lt})
+    if query.created_at_gt:
+        created_at_dt = int(datetime.fromtimestamp(
+            query.created_at_gt).replace(hour=0, minute=0, second=0,
+                                         microsecond=0).timestamp())
+        filters['_created_at_dt'].update({'$gte': created_at_dt})
+        filters['created_at'].update({'$gt': query.created_at_gt})
+    pipeline = [{'$match': filters}]
+    if query.text_like:
+        pipeline += [
+            {'$addFields': {'tags_array': {'$objectToArray': '$tags'}}},
+            {'$match': {'$or': [
+                {'name': {'$regex': f'(.*){query.text_like}(.*)'}},
+                {'description': {'$regex': f'(.*){query.text_like}(.*)'}},
+                {'path': {'$regex': f'(.*){query.text_like}(.*)'}},
+                {'tags_array.k': {'$regex': f'(.*){query.text_like}(.*)'}},
+                {'tags_array.v': {'$regex': f'(.*){query.text_like}(.*)'}},
+            ]}}
+        ]
+    return pipeline
+
+
+@app.route('/arcee/v2/artifacts', methods=["GET", ], ctx_label='token')
+async def list_artifacts(request):
+    token = request.ctx.token
+    try:
+        query = ArtifactSearchParams(**request.args)
+    except ValidationError as e:
+        raise SanicException(f'Invalid query params: {str(e)}',
+                             status_code=400)
+    result = {
+        'artifacts': [],
+        'limit': query.limit,
+        'start_from': query.start_from,
+        'total_count': 0
+    }
+    tasks = [x['_id'] async for x in db.task.find({'token': token},
+                                                  {'_id': 1})]
+    run_query = {'task_id': {'$in': tasks}, 'deleted_at': 0}
+    if query.run_id:
+        run_query['_id'] = {'$in': query.run_id}
+    runs_map = {run['_id']: run async for run in db.run.find(run_query)}
+    runs_ids = list(runs_map.keys())
+
+    pipeline = _build_artifact_filter_pipeline(runs_ids, query)
+    pipeline.append({'$sort': {'created_at': -1, '_id': 1}})
+
+    paginate_pipeline = [{'$skip': query.start_from}]
+    if query.limit:
+        paginate_pipeline.append({'$limit': query.limit})
+    pipeline.extend(paginate_pipeline)
+    async for artifact in db.artifact.aggregate(pipeline, allowDiskUse=True):
+        artifact.pop('tags_array', None)
+        res = Artifact(**artifact).model_dump(by_alias=True)
+        res.pop('run_id', None)
+        res = _format_artifact(artifact, runs_map[artifact['run_id']])
+        result['artifacts'].append(res)
+    if len(result['artifacts']) != 0 and not query.limit:
+        result['total_count'] = len(result['artifacts']) + query.start_from
+    else:
+        pipeline = _build_artifact_filter_pipeline(runs_ids, query)
+        pipeline.append({'$count': 'count'})
+        res = db.artifact.aggregate(pipeline)
+        try:
+            count = await res.next()
+            result['total_count'] = count['count']
+        except StopAsyncIteration:
+            pass
+    return json(result)
+
+
+async def _get_artifact(token, artifact_id):
+    artifact = await db.artifact.find_one(
+        {"$and": [
+            {"token": token},
+            {"_id": artifact_id}
+        ]})
+    if not artifact:
+        raise SanicException("Artifact not found", status_code=404)
+    return artifact
+
+
+@app.route('/arcee/v2/artifacts/<id_>', methods=["GET", ], ctx_label='token')
+async def get_artifact(request, id_: str):
+    artifact = await _get_artifact(request.ctx.token, id_)
+    artifact_dict = Artifact(**artifact).model_dump(by_alias=True)
+    run = await db.run.find_one({"_id": artifact['run_id'], 'deleted_at': 0})
+    if not run:
+        raise SanicException("Run not found", status_code=404)
+    artifact_dict = _format_artifact(artifact_dict, run)
+    return json(artifact_dict)
+
+
+@app.route('/arcee/v2/artifacts/<id_>', methods=["PATCH", ], ctx_label='token')
+@validate(json=ArtifactPatchIn)
+async def update_artifact(request, body: ArtifactPatchIn, id_: str):
+    token = request.ctx.token
+    artifact = await _get_artifact(token, id_)
+    run = await db.run.find_one(
+        {"_id": artifact['run_id'], 'deleted_at': 0})
+    if not run:
+        raise SanicException("Run not found", status_code=404)
+    updates = body.model_dump(exclude_unset=True)
+    if updates:
+        await db.artifact.update_one(
+            {"_id": id_}, {'$set': updates})
+    obj = await db.artifact.find_one({"_id": id_})
+    artifact = Artifact(**obj).model_dump(by_alias=True)
+    artifact = _format_artifact(artifact, run)
+    return json(artifact)
+
+
+@app.route('/arcee/v2/artifacts/<id_>', methods=["DELETE", ],
+           ctx_label='token')
+async def delete_artifact(request, id_: str):
+    await _get_artifact(request.ctx.token, id_)
+    await db.artifact.delete_one({"_id": id_})
+    return json({'deleted': True, '_id': id_}, status=204)
 
 
 if __name__ == '__main__':
