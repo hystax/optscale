@@ -255,6 +255,13 @@ class Client:
     def model_versions_url(self, task_id):
         return '%s/model_versions' % (self.tasks_url(task_id))
 
+    @staticmethod
+    def artifacts_url(artifact_id=None):
+        url = 'artifacts'
+        if artifact_id:
+            url = '%s/%s' % (url, artifact_id)
+        return url
+
     def metrics_get(self):
         """
         Get metrics
@@ -782,3 +789,34 @@ class Client:
 
     def model_versions_by_task(self, task_id: str):
         return self.get(self.model_versions_url(task_id))
+
+    def artifact_create(
+            self,
+            run_id: str,
+            path: str,
+            name: str = None,
+            description: str = None,
+            tags: dict = None):
+        body = {
+            "run_id": run_id,
+            "path": path
+        }
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+        if tags is not None:
+            body['tags'] = tags
+        return self.post(self.artifacts_url(), body)
+
+    def artifact_update(self, artifact_id: str, **params):
+        return self.patch(self.artifacts_url(artifact_id), params)
+
+    def artifacts_get(self, **params):
+        return self.get(self.artifacts_url() + self.query_url(**params))
+
+    def artifact_get(self, artifact_id: str):
+        return self.get(self.artifacts_url(artifact_id))
+
+    def artifact_delete(self, artifact_id: str):
+        return self.delete(self.artifacts_url(artifact_id))

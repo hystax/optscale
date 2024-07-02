@@ -315,7 +315,14 @@ import {
   DELETE_ML_MODEL,
   GET_ML_TASK_MODEL_VERSIONS,
   UPDATE_ML_MODEL_VERSION,
-  SET_ML_TASK_MODEL_VERSIONS
+  SET_ML_TASK_MODEL_VERSIONS,
+  GET_ML_ARTIFACTS,
+  SET_ML_ARTIFACTS,
+  SET_ML_ARTIFACT,
+  GET_ML_ARTIFACT,
+  UPDATE_ML_ARTIFACT,
+  CREATE_ML_ARTIFACT,
+  DELETE_ML_ARTIFACT
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -353,7 +360,8 @@ import {
   onUpdateS3DuplicatesOrganizationSettings,
   onUpdateMlLeaderboardDataset,
   onUpdatePowerSchedule,
-  onUpdateMlModel
+  onUpdateMlModel,
+  onUpdateMlArtifact
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -2372,6 +2380,67 @@ export const getMlExecutorsBreakdown = (organizationId) =>
     label: GET_ML_EXECUTORS_BREAKDOWN,
     ttl: 5 * MINUTE,
     hash: hashParams(organizationId)
+  });
+
+export const getMlArtifacts = (organizationId, params = {}) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/artifacts`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_ARTIFACTS),
+    hash: hashParams({ organizationId, ...params }),
+    label: GET_ML_ARTIFACTS,
+    params: {
+      limit: params.limit,
+      run_id: params.runId,
+      start_from: params.startFrom,
+      text_like: params.textLike,
+      created_at_gt: params.createdAtGt,
+      created_at_lt: params.createdAtLt
+    }
+  });
+
+export const getMlArtifact = (organizationId, artifactId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/artifacts/${artifactId}`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_ARTIFACT),
+    hash: hashParams({ organizationId, artifactId }),
+    label: GET_ML_ARTIFACT
+  });
+
+export const updateMlArtifact = (organizationId, artifactId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/artifacts/${artifactId}`,
+    method: "PATCH",
+    label: UPDATE_ML_ARTIFACT,
+    onSuccess: onUpdateMlArtifact,
+    params,
+    affectedRequests: [GET_ML_ARTIFACTS]
+  });
+
+export const createMlArtifact = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/artifacts`,
+    method: "POST",
+    label: CREATE_ML_ARTIFACT,
+    params: {
+      name: params.name,
+      path: params.path,
+      description: params.description,
+      tags: params.tags,
+      run_id: params.runId
+    },
+    affectedRequests: [GET_ML_ARTIFACTS]
+  });
+
+export const deleteMlArtifact = (organizationId, artifactId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/artifacts/${artifactId}`,
+    method: "DELETE",
+    label: DELETE_ML_ARTIFACT,
+    affectedRequests: [GET_ML_ARTIFACTS]
   });
 
 export const getReservedInstancesBreakdown = (organizationId, params) =>

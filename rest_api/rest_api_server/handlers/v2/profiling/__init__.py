@@ -10,3 +10,4 @@ import rest_api.rest_api_server.handlers.v2.profiling.labels
 import rest_api.rest_api_server.handlers.v2.profiling.leaderboard_datasets
 import rest_api.rest_api_server.handlers.v2.profiling.models
 import rest_api.rest_api_server.handlers.v2.profiling.model_versions
+import rest_api.rest_api_server.handlers.v2.profiling.artifacts

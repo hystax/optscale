@@ -4,6 +4,7 @@ import {
   addMonths,
   addHours,
   addYears,
+  subYears,
   differenceInCalendarMonths,
   getDate,
   subDays,
@@ -71,6 +72,7 @@ const MILLISECONDS_IN_WEEK = 7 * MILLISECONDS_IN_DAY;
 const SECOND = 1;
 export const SECONDS_IN_MINUTE = 60 * SECOND;
 const SECONDS_IN_HOUR = 60 * SECONDS_IN_MINUTE;
+export const SECONDS_IN_DAY = 24 * 60 * SECONDS_IN_MINUTE;
 
 export const MAX_UTC_DATE_TIMESTAMP = +new Date("01/01/2071 GMT+0");
 
@@ -734,6 +736,7 @@ export {
   addMinutes,
   startOfDay,
   addYears,
+  subYears,
   subDays,
   isEqual,
   isValid,

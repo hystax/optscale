@@ -43,6 +43,7 @@ import EnvironmentCostModelModal from "./EnvironmentCostModelModal";
 import ExcludePoolsFromRecommendationModal from "./ExcludePoolsFromRecommendationModal";
 import KubernetesIntegrationModal from "./KubernetesIntegrationModal";
 import LeaderboardRunGroupDetailsModal from "./LeaderboardRunGroupDetailsModal";
+import MlDeleteArtifactModal from "./MlDeleteArtifactModal";
 import MlDeleteDatasetModal from "./MlDeleteDatasetModal";
 import MlDeleteTaskModal from "./MlDeleteTaskModal";
 import PoolModal from "./PoolModal";
@@ -131,5 +132,6 @@ export {
   DeleteMlModelModal,
   EditModelVersionAliasModal,
   EditModelPathModal,
-  EditModelVersionTagsModal
+  EditModelVersionTagsModal,
+  MlDeleteArtifactModal
 };

@@ -468,6 +468,116 @@ const SettingModelVersionTag = () => (
   </>
 );
 
+const CreatingArtifact = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.creatingArtifactsTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.creatingArtifacts" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.creatingArtifactPathDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.creatingArtifactNameDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.creatingArtifactDescriptionDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.creatingArtifactTagsDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>,
+              i: (chunks) => <i>{chunks}</i>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock
+      text={`arcee.artifact("https://s3/ml-bucket/artifacts/AccuracyChart.png",
+               name="Accuracy line chart",
+               description="The dependence of accuracy on the time",
+               tags={"env": "staging"})
+`}
+    />
+  </>
+);
+
+const SettingArtifactTag = () => (
+  <>
+    <SubTitle fontWeight="bold">
+      <FormattedMessage id="mlProfilingIntegration.settingArtifactTagTitle" />
+    </SubTitle>
+    <Typography gutterBottom>
+      <FormattedMessage id="mlProfilingIntegration.settingArtifactTag" values={{ ...preFormatMessageValues }} />
+      <HtmlSymbol symbol="colon" />
+    </Typography>
+    <ul>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.settingArtifactTagPathDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.settingArtifactTagKeyDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.settingArtifactTagValueDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+    </ul>
+    <CodeBlock
+      text={`arcee.artifact_tag("https://s3/ml-bucket/artifacts/AccuracyChart.png",
+                   "env", "staging demo")`}
+    />
+  </>
+);
+
 const FinishTaskRun = () => (
   <>
     <SubTitle fontWeight="bold">
@@ -556,6 +666,12 @@ const ProfilingIntegration = ({ profilingToken, taskKey, isLoading }) => (
     </div>
     <div>
       <SettingModelVersionTag />
+    </div>
+    <div>
+      <CreatingArtifact />
+    </div>
+    <div>
+      <SettingArtifactTag />
     </div>
     <div>
       <FinishTaskRun />

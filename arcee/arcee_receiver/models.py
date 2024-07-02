@@ -2,7 +2,8 @@ import uuid
 from enum import Enum
 from datetime import datetime, timezone
 from pydantic import (
-    BaseModel, BeforeValidator, ConfigDict, Field, model_validator)
+    BaseModel, BeforeValidator, ConfigDict, Field, NonNegativeInt,
+    model_validator)
 from typing import List, Optional, Union
 from typing_extensions import Annotated
 
@@ -23,6 +24,10 @@ now = Field(
         default_factory=lambda: int(datetime.now(tz=timezone.utc).timestamp()))
 now_ms = Field(
         default_factory=lambda: datetime.now(tz=timezone.utc).timestamp())
+date_start = Field(
+        default_factory=lambda: int(datetime.now(tz=timezone.utc).replace(
+            hour=0, minute=0, second=0, microsecond=0).timestamp()),
+        alias='_created_at_dt')
 
 
 class ConsolePostIn(BaseClass):
@@ -311,3 +316,77 @@ class MetricPatchIn(MetricPostIn):
 class Metric(MetricPatchIn):
     id: str = id_
     token: str
+
+
+class ArtifactPatchIn(BaseClass):
+    path: str = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[dict] = {}
+
+
+class ArtifactPostIn(ArtifactPatchIn):
+    run_id: str
+    path: str
+
+    @model_validator(mode='after')
+    def set_name(self):
+        if not self.name:
+            self.name = self.path
+        return self
+
+
+class Artifact(ArtifactPostIn):
+    id: str = id_
+    token: str
+    created_at: int = now
+    created_at_dt: int = date_start
+
+
+timestamp = Field(None, ge=0, le=2**31-1)
+max_mongo_int = Field(0, ge=0, le=2**63-1)
+
+
+class ArtifactSearchParams(BaseModel):
+    created_at_lt: Optional[NonNegativeInt] = timestamp
+    created_at_gt: Optional[NonNegativeInt] = timestamp
+    limit: Optional[NonNegativeInt] = max_mongo_int
+    start_from: Optional[NonNegativeInt] = max_mongo_int
+    run_id: Optional[Union[list, str]] = []
+    text_like: Optional[str] = None
+
+    @model_validator(mode='before')
+    def convert_to_expected_types(self):
+        """
+        Converts a dict of request.args passed as query parameters to a dict
+        suitable for further model validation.
+
+        Example:
+          request.args: {"limit": ["1"], "text_like": ["test"]}
+          return: {"limit": "1", "text_like": "test"}
+        """
+        numeric_fields = ['created_at_lt', 'created_at_gt',
+                          'limit', 'start_from']
+        for k, v in self.items():
+            if isinstance(v, list) and len(v) == 1:
+                v = v[0]
+                self[k] = v
+            if k in numeric_fields:
+                try:
+                    self[k] = int(v)
+                except (TypeError, ValueError):
+                    continue
+        return self
+
+    @model_validator(mode='after')
+    def validate_run_id(self):
+        if isinstance(self.run_id, str):
+            self.run_id = [self.run_id]
+        return self
+
+    @model_validator(mode='after')
+    def validate_created_at(self):
+        if (self.created_at_gt is not None and self.created_at_lt is not None
+                and self.created_at_lt <= self.created_at_gt):
+            raise ValueError('Invalid created_at filter values')
+        return self

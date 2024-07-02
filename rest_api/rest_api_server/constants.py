@@ -219,6 +219,11 @@ class UrlsV2(Urls):
         'models_versions_by_task':
             r"%s/organizations/(?P<organization_id>[^/]+)/"
             r"tasks/(?P<task_id>[^/]+)/model_versions",
+        'artifacts_collection':
+            r"%s/organizations/(?P<organization_id>[^/]+)/artifacts",
+        'artifacts':
+            r"%s/organizations/(?P<organization_id>[^/]+)/"
+            r"artifacts/(?P<artifact_id>[^/]+)",
     })
 
 

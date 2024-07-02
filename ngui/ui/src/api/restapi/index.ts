@@ -207,7 +207,12 @@ import {
   updateMlModel,
   deleteMlModel,
   getMlTaskModelVersions,
-  updateMlModelVersion
+  updateMlModelVersion,
+  getMlArtifacts,
+  getMlArtifact,
+  updateMlArtifact,
+  createMlArtifact,
+  deleteMlArtifact
 } from "./actionCreators";
 
 export {
@@ -419,5 +424,10 @@ export {
   updateMlModel,
   deleteMlModel,
   getMlTaskModelVersions,
-  updateMlModelVersion
+  updateMlModelVersion,
+  getMlArtifacts,
+  getMlArtifact,
+  updateMlArtifact,
+  createMlArtifact,
+  deleteMlArtifact
 };

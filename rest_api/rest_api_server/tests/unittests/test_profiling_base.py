@@ -217,6 +217,7 @@ class ArceeMock:
         self.profiling_consoles = mongo_cl.arcee.consoles
         self.profiling_models = mongo_cl.arcee.models
         self.profiling_model_versions = mongo_cl.arcee.model_versions
+        self.profiling_artifacts = mongo_cl.arcee.artifacts
         self._token = None
 
     @staticmethod
@@ -953,3 +954,123 @@ class ArceeMock:
             version.pop('run_id', None)
             version.pop('model_id', None)
         return 200, versions
+
+    def artifact_create(self, run_id, path, name=None, tags=None,
+                        description=None):
+        now = datetime.now(tz=timezone.utc)
+        b = {
+            'run_id': run_id,
+            'path': path,
+            'name': name,
+            'tags': tags,
+            'token': self.token,
+            '_id': str(uuid.uuid4()),
+            '_created_at_dt': int(now.replace(
+                hour=0, minute=0, second=0, microsecond=0).timestamp()),
+            'description': description,
+            'created_at': int(now.timestamp())
+        }
+        inserted = self.profiling_artifacts.insert_one(b)
+        id_ = inserted.inserted_id
+        result = self.profiling_artifacts.find_one({'_id': id_})
+        result['run'] = {
+            '_id': 'run_id',
+            'task_id': 'task_id',
+            'name': 'name',
+            'number': 'number'
+        }
+        return 201, result
+
+    def artifacts_get(self, **kwargs):
+        filters = defaultdict(dict)
+        result = {
+            'artifacts': [],
+            'limit': kwargs.get('limit', 0),
+            'start_from': kwargs.get('start_from', 0),
+            'total_count': 0
+        }
+        if 'run_id' in kwargs:
+            filters['run_id'] = {'$in': kwargs['run_id']}
+        else:
+            filters['token'] = self.token
+        if 'created_at_lt' in kwargs:
+            filters['created_at'].update({'$lt': kwargs['created_at_lt']})
+        if 'created_at_gt' in kwargs:
+            filters['created_at'].update({'$gt': kwargs['created_at_gt']})
+        pipeline = [{'$match': filters}]
+        if 'text_like' in kwargs:
+            pipeline += [
+                {'$addFields': {'tags_array': {'$objectToArray': '$tags'}}},
+                {'$match': {'$or': [
+                    {'name': {'$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'description': {
+                        '$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'path': {'$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'tags_array.k': {
+                        '$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'tags_array.v': {
+                        '$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                ]}}
+            ]
+        pipeline.append({'$sort': {'created_at': -1}})
+        if 'start_from' in kwargs:
+            pipeline.append({'$skip': kwargs['start_from']})
+        if 'limit' in kwargs:
+            pipeline.append({'$limit': kwargs['limit']})
+        artifacts = list(self.profiling_artifacts.aggregate(pipeline))
+        for artifact in artifacts:
+            artifact['run'] = {
+                '_id': 'run_id',
+                'task_id': 'task_id',
+                'name': 'name',
+                'number': 'number'
+            }
+            result['artifacts'] .append(artifact)
+        result['total_count'] = len(artifacts)
+        return 200, result
+
+    def artifact_get(self, artifact_id: str):
+        artifacts = list(self.profiling_artifacts.find(
+            {'token': self.token, '_id': artifact_id}))
+        if not artifacts:
+            self._raise_http_error(404)
+        artifact = artifacts[0]
+        artifact['run'] = {
+            '_id': 'run_id',
+            'task_id': 'task_id',
+            'name': 'name',
+            'number': 'number'
+        }
+        return 200, artifact
+
+    def artifact_update(self, artifact_id, **params):
+        artifact = list(self.profiling_artifacts.find(
+            {'token': self.token, '_id': artifact_id}))
+        if not artifact:
+            self._raise_http_error(404)
+        if params:
+            self.profiling_artifacts.update_one(
+                filter={
+                    '_id': artifact_id,
+                    'token': self.token
+                },
+                update={'$set': params}
+            )
+        artifact = self.profiling_artifacts.find_one(
+            {'token': self.token, '_id': artifact_id})
+        artifact['run'] = {
+            '_id': 'run_id',
+            'task_id': 'task_id',
+            'name': 'name',
+            'number': 'number'
+        }
+        return 200, artifact
+
+    def artifact_delete(self, artifact_id):
+        artifact = list(self.profiling_artifacts.find(
+            {'token': self.token, '_id': artifact_id}))
+        if not artifact:
+            self._raise_http_error(404)
+        self.profiling_artifacts.delete_one(
+            {'token': self.token, '_id': artifact_id})
+        return 204, None
