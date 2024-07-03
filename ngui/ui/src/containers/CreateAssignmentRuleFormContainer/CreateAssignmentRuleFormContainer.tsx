@@ -15,7 +15,14 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ASSIGNMENT_RULES, POOLS } from "urls";
 import { isError } from "utils/api";
 import { isEmpty as isEmptyArray } from "utils/arrays";
-import { DEFAULT_CONDITIONS, CONDITION_TYPES, TAG_IS, ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER } from "utils/constants";
+import {
+  DEFAULT_CONDITIONS,
+  CONDITION_TYPES,
+  TAG_IS,
+  ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER,
+  CLOUD_IS,
+  TAG_VALUE_STARTS_WITH
+} from "utils/constants";
 import { getQueryParams } from "utils/network";
 import { parseJSON } from "utils/strings";
 
@@ -66,6 +73,22 @@ const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue
           };
         }
+
+        if (type === TAG_VALUE_STARTS_WITH) {
+          return {
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: value?.tagKey,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue
+          };
+        }
+
+        if (type === CLOUD_IS) {
+          return {
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: value
+          };
+        }
+
         return {
           [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
           [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: value
