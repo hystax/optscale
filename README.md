@@ -53,7 +53,7 @@ OptScale is an open source FinOps platform that optimizes cloud costs and perfor
 
 |                    Databricks connection                       |                            Cost and performance recommendations               |
 | :------------------------------------------------------------: | :---------------------------------------------------------------: |
-| <img src="documentation/images/Databricks-connection-page.png" width="500"> | <img src="documentation/images/Recommendations.png" width="500"> |
+| <img src="documentation/images/Databricks-connection.png" width="500"> | <img src="documentation/images/Cost-and-performance-recommendations.png" width="500"> |
 
 |                            Pools of resources                               |                          Shared Environments                     |
 | :-------------------------------------------------------------------------: | :--------------------------------------------------------------: |
