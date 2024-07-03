@@ -12,7 +12,6 @@ const DescriptionField = ({ isLoading = false }) => {
     <TextInput
       name={FIELD_NAME}
       label={<FormattedMessage id="description" />}
-      required
       minRows={6}
       maxRows={16}
       multiline
