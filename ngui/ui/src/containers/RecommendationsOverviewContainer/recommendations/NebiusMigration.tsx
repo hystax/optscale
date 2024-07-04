@@ -52,6 +52,7 @@ const columns = [
     headerMessageId: "projectedMonthlyUsage"
   }),
   {
+    id: "recommendedSize",
     header: (
       <TextWithDataTestId dataTestId="lbl_recommended_size">
         <FormattedMessage id="recommendedSize" />
@@ -75,12 +76,13 @@ const columns = [
         <CloudLabel type={NEBIUS} label={cell.getValue()} />
       </CaptionedCell>
     ),
-    accessorKey: "recommended_flavor.flavor"
+    accessorFn: (originalRow) => originalRow?.recommended_flavor?.flavor
   },
   expenses({
     headerDataTestId: "lbl_projected_monthly_cost",
     headerMessageId: "projectedMonthlyCost",
-    accessorKey: "recommended_flavor.cost"
+    id: "recommendedCost",
+    accessorFn: (originalRow) => originalRow?.recommended_flavor?.cost
   }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_nm_savings",
