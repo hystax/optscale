@@ -349,6 +349,7 @@ async def delete_task(request, id_: str):
     deleted_stages = 0
     deleted_proc_data = 0
     deleted_consoles = 0
+    deleted_artifacts = 0
     token = request.ctx.token
     o = await db.task.find_one(
         {"token": token, "_id": id_, "deleted_at": 0})

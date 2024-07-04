@@ -3,7 +3,7 @@ import uuid
 import pytest
 from arcee.arcee_receiver.tests.base import (
     DB_MOCK, TOKEN1, Urls, prepare_tasks, prepare_metrics, prepare_token,
-    prepare_run, prepare_model_version)
+    prepare_run, prepare_model_version, prepare_artifact)
 
 
 @pytest.mark.asyncio
@@ -209,6 +209,17 @@ async def test_delete_task(app):
     version = await DB_MOCK['model_version'].find_one(
         {'_id': model_version['_id']})
     assert version['deleted_at'] != 0
+
+
+@pytest.mark.asyncio
+async def test_delete_task_without_run(app):
+    client = app.asgi_client
+    await prepare_token()
+    tasks = await prepare_tasks()
+    _, response = await client.delete(
+        Urls.task.format(tasks[0]['_id']),
+        headers={"x-api-key": TOKEN1})
+    assert response.status == 200
 
 
 @pytest.mark.asyncio
