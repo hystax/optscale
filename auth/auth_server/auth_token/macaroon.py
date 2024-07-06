@@ -4,6 +4,8 @@ from pymacaroons import Macaroon, Verifier
 
 LOG = logging.getLogger(__name__)
 
+print("helloworld")
+
 
 class MacaroonToken(object):
 
