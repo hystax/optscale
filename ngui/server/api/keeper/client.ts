@@ -1,8 +1,4 @@
 import BaseClient from "../baseClient.js";
-
-import { RequestParam } from "../../graphql/resolvers/keeper.generated.js";
-import { RequestParam } from "../../graphql/resolvers/keeper.generated.js";
-
 class KeeperClient extends BaseClient {
   override baseURL = `${
     process.env.KEEPER_ENDPOINT || this.endpoint
