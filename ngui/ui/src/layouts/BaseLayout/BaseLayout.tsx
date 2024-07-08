@@ -112,7 +112,7 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
     <>
       <TopAlertWrapper />
       <Box className={cx(classes.wrapper, isCommunityDocsOpened ? classes.wrapperWithDocsOpened : "")}>
-        <Box className={classes.layoutWrapper}>
+        <Box className={cx(classes.layoutWrapper, isCommunityDocsOpened ? classes.hideableLayoutWrapper : "")}>
           <PendingInvitationsAlert />
           <AppBar position="static" className={classes.appBar}>
             <AppToolbar
