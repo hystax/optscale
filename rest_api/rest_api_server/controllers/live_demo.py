@@ -115,6 +115,7 @@ class ObjectGroups(enum.Enum):
     OrganizationGeminis = 'organization_geminis'
     Models = 'models'
     ModelVersions = 'model_versions'
+    Artifacts = 'artifacts'
 
     @classmethod
     def rest_objects(cls):
@@ -168,6 +169,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.ProcData: self.build_proc_data,
             ObjectGroups.Models: self.build_model,
             ObjectGroups.ModelVersions: self.build_model_version,
+            ObjectGroups.Artifacts: self.build_artifact,
             ObjectGroups.Templates: self.build_template,
             ObjectGroups.Runsets: self.build_runset,
             ObjectGroups.Runners: self.build_runner,
@@ -202,6 +204,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.Leaderboards: self.leaderboards_collection,
             ObjectGroups.LeaderboardDatasets:
                 self.leaderboard_datasets_collection,
+            ObjectGroups.Artifacts: self.artifact_collection,
         }
         self._clickhouse_table_map = {
             ObjectGroups.AverageMetrics: 'average_metrics',
@@ -296,6 +299,10 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
     @property
     def model_version_collection(self):
         return self.mongo_client.arcee.model_version
+
+    @property
+    def artifact_collection(self):
+        return self.mongo_client.arcee.artifact
 
     @property
     def templates_collection(self):
@@ -1038,6 +1045,17 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.refresh_relations(
             ['model_id', 'run_id'], obj)
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        return obj
+
+    def build_artifact(self, obj, objects_group, now, profiling_token,
+                       **kwargs):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = profiling_token
+        obj = self.offsets_to_timestamps(
+            ['created_at', '_created_at_dt'], now, obj)
+        obj = self.refresh_relations(['run_id'], obj)
         return obj
 
     def build_template(

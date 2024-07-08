@@ -1786,6 +1786,18 @@ BASIC_PRESET = {
             "path": "/test_result",
             "aliases": ["alias"]
         }
+    ],
+    "artifacts": [
+        {
+            "_id": str(uuid.uuid4()),
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "path": "/test_result",
+            "description": "",
+            "token": str(uuid.uuid4()),
+            "tags": {},
+            "created_at_offset": 0,
+            "_created_at_dt_offset": 0
+        }
     ]
 }
 
@@ -1830,6 +1842,7 @@ class TestLiveDemosApi(TestApiBase):
         self.log_collection = self.mongo_client.arcee.log
         self.model_collection = self.mongo_client.arcee.model
         self.model_version_collection = self.mongo_client.arcee.model_version
+        self.artifact_collection = self.mongo_client.arcee.artifact
         self.template_collection = self.mongo_client.bulldozer.template
         self.runner_collection = self.mongo_client.bulldozer.runner
         self.runset_collection = self.mongo_client.bulldozer.runset
@@ -1858,8 +1871,8 @@ class TestLiveDemosApi(TestApiBase):
             self.stage_collection, self.milestone_collection,
             self.log_collection, self.proc_data_collection,
             self.model_collection, self.model_version_collection,
-            self.template_collection, self.runner_collection,
-            self.runset_collection
+            self.artifact_collection, self.template_collection,
+            self.runner_collection, self.runset_collection
         ]:
             cnt = len(list(collection.find()))
             if check_empty:
