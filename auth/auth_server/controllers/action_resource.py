@@ -1,5 +1,6 @@
 import logging
 import copy
+import logging
 
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import Type
