@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Box } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { type PowerScheduleResponse } from "services/PowerScheduleService";
-import { MERIDIEM_NAMES, formatTimeString, secondsToMilliseconds } from "utils/datetime";
+import { MERIDIEM_NAMES, formatTimeString, moveDateToUTC, secondsToMilliseconds } from "utils/datetime";
 import { FIELD_NAMES } from "./constants";
 import {
   ExpirationDateField,
@@ -52,9 +52,11 @@ const getDefaultFormValues = (powerSchedule: EditPowerScheduleFormProps["powerSc
     },
     [FIELD_NAMES.TIME_ZONE]: powerSchedule.timezone ?? "",
     [FIELD_NAMES.INITIATION_DATE]: powerSchedule.start_date
-      ? new Date(secondsToMilliseconds(powerSchedule.start_date))
+      ? new Date(moveDateToUTC(secondsToMilliseconds(powerSchedule.start_date)))
       : undefined,
-    [FIELD_NAMES.EXPIRATION_DATE]: powerSchedule.end_date ? new Date(secondsToMilliseconds(powerSchedule.end_date)) : undefined
+    [FIELD_NAMES.EXPIRATION_DATE]: powerSchedule.end_date
+      ? new Date(moveDateToUTC(secondsToMilliseconds(powerSchedule.end_date)))
+      : undefined
   };
 };
 

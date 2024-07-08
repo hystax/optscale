@@ -13,7 +13,8 @@ import {
   setHours,
   getMinutes,
   setMinutes,
-  roundTimeToInterval
+  roundTimeToInterval,
+  subMinutes
 } from "utils/datetime";
 import IntervalTimeSelectors from "./IntervalTimeSelectors";
 
@@ -30,8 +31,15 @@ const IntervalTimePopoverContent = ({
   const { classes, cx } = useStyles();
   const today = new Date();
 
-  // working with rounded to interval time
-  const initialDateRounded = roundTimeToInterval(initialDate, intervalMinutes);
+  const initialDateRounded =
+    /**
+     * Round to the farthest minute to prevent date jumping to the next day
+     * E.g if the initial datetime is equal to "23:59" and intervalMinutes is set to "30"
+     * it should be rounded to 23:30, not to 00:00 of the next day
+     */
+    getHours(initialDate) === 23
+      ? roundTimeToInterval(subMinutes(initialDate, intervalMinutes), intervalMinutes)
+      : roundTimeToInterval(initialDate, intervalMinutes);
 
   const minDateValid = parseOptionalDate(minDate, MIN_PICKER_DATE);
   const maxDateValid = parseOptionalDate(maxDate, today);
