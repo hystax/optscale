@@ -1,11 +1,13 @@
 from concurrent.futures.thread import ThreadPoolExecutor
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from kombu.log import get_logger
 from pymongo import UpdateOne
 
 from tools.cloud_adapter.cloud import Cloud as CloudAdapter
 
-from bumiworker.bumiworker.modules.base import ModuleBase
+from bumiworker.bumiworker.consts import ArchiveReason
+from bumiworker.bumiworker.modules.base import ArchiveBase, ModuleBase
 
 BULK_SIZE = 2000
 DAYS_IN_MONTH = 30
@@ -205,3 +207,70 @@ class ObsoleteSnapshotsBase(ModuleBase):
                             'snapshots')
                     })
         return res
+
+
+class ObsoleteSnapshotsArchiveBase(ArchiveBase):
+
+    @property
+    def resource_type(self):
+        return None
+
+    def _get_active_resources(self, cloud_account_id):
+        return self.mongo_client.restapi.resources.distinct(
+            'cloud_resource_id', {'$and': [
+                {'active': True},
+                {'deleted_at': 0},
+                {'resource_type': self.resource_type},
+                {'cloud_account_id': cloud_account_id},
+            ]})
+
+    def get_used_resources(self, now, cloud_account_id, cloud_config,
+                           obsolete_threshold):
+        raise NotImplementedError
+
+    def _get(self, previous_options, optimizations, cloud_accounts_map,
+             **kwargs):
+        now = datetime.utcnow()
+        days_threshold = previous_options['days_threshold']
+        obsolete_threshold = timedelta(days_threshold)
+
+        account_optimizations_map = defaultdict(list)
+        for optimization in optimizations:
+            account_optimizations_map[optimization['cloud_account_id']].append(
+                optimization)
+
+        result = []
+        for cloud_account_id, optimizations_ in account_optimizations_map.items():
+            if cloud_account_id not in cloud_accounts_map:
+                for optimization in optimizations_:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.CLOUD_ACCOUNT_DELETED)
+                    result.append(optimization)
+                continue
+
+            cloud_config = cloud_accounts_map[cloud_account_id]
+            cloud_config.update(cloud_config.get('config', {}))
+
+            (res_used_by_images, res_using_volumes,
+             res_used_by_volumes) = self.get_used_resources(
+                now, cloud_account_id, cloud_config, obsolete_threshold)
+
+            not_deleted_res = set(self._get_active_resources(cloud_account_id))
+            for optimization in optimizations_:
+                if optimization['cloud_resource_id'] in res_used_by_images:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.RECOMMENDATION_IRRELEVANT,
+                        'used by AMI source')
+                elif (optimization['cloud_resource_id'] in res_using_volumes or
+                      optimization['cloud_resource_id'] in res_used_by_volumes):
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.RECOMMENDATION_IRRELEVANT,
+                        'used by volume')
+                elif optimization['cloud_resource_id'] not in not_deleted_res:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.RECOMMENDATION_APPLIED)
+                else:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.OPTIONS_CHANGED)
+                result.append(optimization)
+        return result
