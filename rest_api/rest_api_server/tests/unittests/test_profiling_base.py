@@ -989,10 +989,19 @@ class ArceeMock:
             'start_from': kwargs.get('start_from', 0),
             'total_count': 0
         }
+        task_query = {'token': self.token}
+        if 'task_id' in kwargs:
+            task_query['_id'] = {'$in': kwargs['task_id']}
+        tasks = {x['_id']: x['name'] for x in self.profiling_task.find(
+            task_query, {'_id': 1, 'name': 1})}
+        tasks_ids = list(tasks.keys())
+
+        run_query = {'task_id': {'$in': tasks_ids}}
         if 'run_id' in kwargs:
-            filters['run_id'] = {'$in': kwargs['run_id']}
-        else:
-            filters['token'] = self.token
+            run_query['_id'] = {'$in': kwargs['run_id']}
+        runs_map = {run['_id']: run
+                    for run in self.profiling_runs.find(run_query)}
+        filters['run_id'] = {'$in': list(runs_map.keys())}
         if 'created_at_lt' in kwargs:
             filters['created_at'].update({'$lt': kwargs['created_at_lt']})
         if 'created_at_gt' in kwargs:
@@ -1019,11 +1028,13 @@ class ArceeMock:
             pipeline.append({'$limit': kwargs['limit']})
         artifacts = list(self.profiling_artifacts.aggregate(pipeline))
         for artifact in artifacts:
+            run = runs_map[artifact['run_id']]
             artifact['run'] = {
-                '_id': 'run_id',
-                'task_id': 'task_id',
-                'name': 'name',
-                'number': 'number'
+                '_id': run['_id'],
+                'task_id': run['task_id'],
+                'task_name': tasks[run['task_id']],
+                'name': run['name'],
+                'number': run['number']
             }
             result['artifacts'] .append(artifact)
         result['total_count'] = len(artifacts)

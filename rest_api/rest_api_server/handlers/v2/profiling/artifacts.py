@@ -155,9 +155,10 @@ class ArtifactsAsyncCollectionHandler(BaseAsyncCollectionHandler,
             'start_from': MAX_MONGO_INT
         }
         try:
-            run_ids = self.get_arg('run_id', str, [], repeated=True)
-            if run_ids:
-                params['run_id'] = run_ids
+            for param in ['run_id', 'task_id']:
+                values = self.get_arg(param, str, [], repeated=True)
+                if values:
+                    params[param] = values
             for param in max_values.keys():
                 value = self.get_arg(param, int, None)
                 if value:
@@ -186,7 +187,15 @@ class ArtifactsAsyncCollectionHandler(BaseAsyncCollectionHandler,
             required: true
             type: string
         -   name: run_id
-            description: Id of runs that generated artifacts
+            description: Ids of runs that generated artifacts
+            required: false
+            type: array
+            in: query
+            items:
+                type: string
+            collectionFormat: multi
+        -   name: task_id
+            description: Ids of tasks that generated artifacts
             required: false
             type: array
             in: query

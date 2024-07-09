@@ -353,6 +353,7 @@ class ArtifactSearchParams(BaseModel):
     limit: Optional[NonNegativeInt] = max_mongo_int
     start_from: Optional[NonNegativeInt] = max_mongo_int
     run_id: Optional[Union[list, str]] = []
+    task_id: Optional[Union[list, str]] = []
     text_like: Optional[str] = None
 
     @model_validator(mode='before')
@@ -389,4 +390,10 @@ class ArtifactSearchParams(BaseModel):
         if (self.created_at_gt is not None and self.created_at_lt is not None
                 and self.created_at_lt <= self.created_at_gt):
             raise ValueError('Invalid created_at filter values')
+        return self
+
+    @model_validator(mode='after')
+    def validate_task_id(self):
+        if isinstance(self.task_id, str):
+            self.task_id = [self.task_id]
         return self

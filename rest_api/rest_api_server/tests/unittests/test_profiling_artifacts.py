@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
     TestProfilingBase)
 
@@ -8,8 +9,23 @@ class TestArtifactsApi(TestProfilingBase):
     def setUp(self, version='v2'):
         super().setUp(version)
         _, self.org = self.client.organization_create({'name': "organization"})
+        auth_user = str(uuid.uuid4())
+        _, self.employee = self.client.employee_create(
+            self.org['id'], {'name': 'name1', 'auth_user_id': auth_user})
+        patch('rest_api.rest_api_server.controllers.base.BaseController.'
+              'get_user_id', return_value=auth_user).start()
+        _, self.task = self.client.task_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'metrics': []
+            })
+        self.run = self._create_run(self.org['id'], self.task['id'],
+                                    ['i-1', 'i-2'], 's3://ml-bucket/dataset',
+                                    data={'step': 2000, 'loss': 55},
+                                    name='test run')
         self.valid_artifact = {
-            'run_id': str(uuid.uuid4()),
+            'run_id': self.run['_id'],
             'name': 'My test project',
             'path': 'test/path',
             'description': 'Test description',
@@ -83,8 +99,8 @@ class TestArtifactsApi(TestProfilingBase):
         self.assertEqual(code, 201)
         code, resp = self.client.artifacts_get(
             self.org['id'], run_id=[self.valid_artifact['run_id']],
-            created_at_gt=0, created_at_lt=artifact['created_at'] + 1, limit=1,
-            start_from=0
+            task_id=[self.task['id']], created_at_gt=0,
+            created_at_lt=artifact['created_at'] + 1, limit=1, start_from=0
         )
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['artifacts']), 1)

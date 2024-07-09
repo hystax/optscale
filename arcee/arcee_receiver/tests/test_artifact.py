@@ -295,6 +295,30 @@ async def test_list_artifacts_run_id(app):
 
 
 @pytest.mark.asyncio
+async def test_list_artifacts_task_id(app):
+    client = app.asgi_client
+    await prepare_token()
+    task = await prepare_tasks()
+    run1 = await prepare_run(task[0]['_id'], 99, 1, 1, {})
+    run2 = await prepare_run(task[0]['_id'], 99, 1, 1, {})
+    run3 = await prepare_run(task[1]['_id'], 99, 1, 1, {})
+    artifact1 = await prepare_artifact(run1['_id'])
+    artifact2 = await prepare_artifact(run2['_id'])
+    await prepare_artifact(run3['_id'])
+    _, response = await client.get(
+        Urls.artifacts + f'?task_id={task[0]["_id"]}',
+        headers={"x-api-key": TOKEN1})
+    assert response.status == 200
+    assert len(response.json['artifacts']) == 2
+    assert response.json['total_count'] == 2
+    assert response.json['limit'] == 0
+    assert response.json['start_from'] == 0
+    for artifact in response.json['artifacts']:
+        assert artifact['_id'] in [artifact1['_id'], artifact2['_id']]
+        assert artifact['run']['task_name'] == task[0]['name']
+
+
+@pytest.mark.asyncio
 async def test_list_artifacts_text_like(app):
     client = app.asgi_client
     await prepare_token()
