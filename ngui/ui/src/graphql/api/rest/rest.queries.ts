@@ -100,4 +100,12 @@ const GET_DATA_SOURCE = gql`
   }
 `;
 
-export { GET_DATA_SOURCE };
+const UPDATE_DATA_SOURCE = gql`
+  mutation UpdateDataSource($dataSourceId: ID!, $params: UpdateDataSourceInput!) {
+    updateDataSource(dataSourceId: $dataSourceId, params: $params) {
+      name
+    }
+  }
+`;
+
+export { GET_DATA_SOURCE, UPDATE_DATA_SOURCE };

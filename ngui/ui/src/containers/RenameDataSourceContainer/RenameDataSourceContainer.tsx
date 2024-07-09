@@ -1,17 +1,24 @@
+import { useMutation } from "@apollo/client";
 import RenameDataSourceForm from "components/forms/RenameDataSourceForm";
 import { FormValues } from "components/forms/RenameDataSourceForm/types";
-import DataSourcesService from "services/DataSourcesService";
+import { GET_DATA_SOURCE, UPDATE_DATA_SOURCE } from "graphql/api/rest/rest.queries";
 
 const RenameDataSourceContainer = ({ id, name, closeSideModal }) => {
-  const { useUpdateDataSource } = DataSourcesService();
-
-  const { isLoading, onUpdate } = useUpdateDataSource();
+  const [updateDataSource, { loading }] = useMutation(UPDATE_DATA_SOURCE);
 
   const onSubmit = (formData: FormValues) => {
-    onUpdate(id, { name: formData.name }).then(() => closeSideModal());
+    updateDataSource({
+      variables: {
+        dataSourceId: id,
+        params: {
+          name: formData.name
+        }
+      },
+      refetchQueries: [GET_DATA_SOURCE]
+    }).then(() => closeSideModal());
   };
 
-  return <RenameDataSourceForm name={name} onSubmit={onSubmit} onCancel={closeSideModal} isLoading={isLoading} />;
+  return <RenameDataSourceForm name={name} onSubmit={onSubmit} onCancel={closeSideModal} isLoading={loading} />;
 };
 
 export default RenameDataSourceContainer;

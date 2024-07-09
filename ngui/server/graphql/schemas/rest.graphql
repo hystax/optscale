@@ -1,3 +1,5 @@
+scalar JSONObject
+
 # use enum to get types for the "dataSource.type" field in revolver
 enum DataSourceType {
   aws_cnr
@@ -265,9 +267,94 @@ input DataSourceRequestParams {
   details: Boolean
 }
 
+input AwsRootConfigInput {
+  access_key_id: String!
+  secret_access_key: String!
+  bucket_name: String
+  bucket_prefix: String
+  config_scheme: String
+  report_name: String
+}
+
+input AwsLinkedConfigInput {
+  access_key_id: String!
+  secret_access_key: String!
+  linked: Boolean!
+}
+
+input AzureSubscriptionConfigInput {
+  client_id: String!
+  secret: String!
+  subscription_id: String!
+  tenant: String!
+}
+
+input AzureTenantConfigInput {
+  client_id: String!
+  secret: String!
+  tenant: String!
+}
+
+input GcpBillingDataConfigInput {
+  dataset_name: String!
+  table_name: String!
+}
+
+input GcpConfigInput {
+  billing_data: GcpBillingDataConfigInput!
+  credentials: JSONObject!
+}
+
+input AlibabaConfigInput {
+  access_key_id: String!
+  secret_access_key: String!
+}
+
+input NebiusConfigInput {
+  cloud_name: String!
+  service_account_id: String!
+  key_id: String!
+  private_key: String!
+  access_key_id: String!
+  secret_access_key: String!
+  bucket_name: String!
+  bucket_prefix: String
+}
+
+input K8sConfigInput {
+  password: String!
+  user: String!
+}
+
+input DatabricksConfigInput {
+  account_id: String!
+  client_id: String!
+  client_secret: String!
+}
+
+input UpdateDataSourceInput {
+  name: String
+  awsRootConfig: AwsRootConfigInput
+  awsLinkedConfig: AwsLinkedConfigInput
+  azureSubscriptionConfig: AzureSubscriptionConfigInput
+  azureTenantConfig: AzureTenantConfigInput
+  gcpConfig: GcpConfigInput
+  alibabaConfig: AlibabaConfigInput
+  nebiusConfig: NebiusConfigInput
+  databricksConfig: DatabricksConfigInput
+  k8sConfig: K8sConfigInput
+}
+
 type Query {
   dataSource(
     dataSourceId: ID!
     requestParams: DataSourceRequestParams
+  ): DataSourceInterface
+}
+
+type Mutation {
+  updateDataSource(
+    dataSourceId: ID!
+    params: UpdateDataSourceInput!
   ): DataSourceInterface
 }
