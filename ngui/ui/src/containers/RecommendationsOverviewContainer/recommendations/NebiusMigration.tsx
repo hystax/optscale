@@ -1,8 +1,10 @@
 import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import CloudLabel from "components/CloudLabel";
+import CloudTypeIcon from "components/CloudTypeIcon";
 import FormattedDigitalUnit, { IEC_UNITS } from "components/FormattedDigitalUnit";
 import FormattedMoney from "components/FormattedMoney";
+import IconLabel from "components/IconLabel";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import NebiusMigrationModal from "components/SideModalManager/SideModals/recommendations/NebiusMigrationModal";
 import TextWithDataTestId from "components/TextWithDataTestId";
@@ -115,7 +117,7 @@ class NebiusMigration extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.flavor}-flavor`,
-        value: item.flavor
+        value: <IconLabel icon={<CloudTypeIcon fontSize="small" type={item.cloud_type} />} label={item.flavor} />
       },
       {
         key: `${item.flavor}-recommended_flavor`,
