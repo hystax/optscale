@@ -1,13 +1,32 @@
+import { useMutation } from "@apollo/client";
 import UpdateDataSourceCredentialsForm from "components/forms/UpdateDataSourceCredentialsForm";
-import DataSourcesService from "services/DataSourcesService";
+import { GET_DATA_SOURCE, UPDATE_DATA_SOURCE } from "graphql/api/rest/rest.queries";
+import { ALIBABA_CNR, AWS_CNR, AZURE_CNR, AZURE_TENANT, DATABRICKS, GCP_CNR, KUBERNETES_CNR, NEBIUS } from "utils/constants";
 
 const UpdateDataSourceCredentialsContainer = ({ id, type, config, closeSideModal }) => {
-  const { useUpdateDataSource } = DataSourcesService();
+  const [updateDataSource, { loading }] = useMutation(UPDATE_DATA_SOURCE);
 
-  const { isLoading, onUpdate } = useUpdateDataSource();
+  const onSubmit = (dataSourceId, { config: newConfig }) => {
+    const configName = {
+      [AWS_CNR]: newConfig.linked ? "awsLinkedConfig" : "awsRootConfig",
+      [AZURE_TENANT]: "azureTenantConfig",
+      [AZURE_CNR]: "azureSubscriptionConfig",
+      [GCP_CNR]: "gcpConfig",
+      [ALIBABA_CNR]: "alibabaConfig",
+      [NEBIUS]: "nebiusConfig",
+      [DATABRICKS]: "databricksConfig",
+      [KUBERNETES_CNR]: "k8sConfig"
+    }[type];
 
-  const onSubmit = (...params) => {
-    onUpdate(...params).then(() => closeSideModal());
+    updateDataSource({
+      variables: {
+        dataSourceId,
+        params: {
+          [configName]: newConfig
+        }
+      },
+      refetchQueries: [GET_DATA_SOURCE]
+    }).then(() => closeSideModal());
   };
 
   return (
@@ -17,7 +36,7 @@ const UpdateDataSourceCredentialsContainer = ({ id, type, config, closeSideModal
       config={config}
       onSubmit={onSubmit}
       onCancel={closeSideModal}
-      isLoading={isLoading}
+      isLoading={loading}
     />
   );
 };

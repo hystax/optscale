@@ -2294,7 +2294,7 @@ async def get_model_versions_for_task(request, task_id: str):
     return json(versions)
 
 
-def _format_artifact(artifact: dict, run: dict) -> dict:
+def _format_artifact(artifact: dict, run: dict, tasks: dict = None) -> dict:
     artifact.pop('run_id', None)
     artifact['run'] = {
         '_id': run['_id'],
@@ -2302,6 +2302,8 @@ def _format_artifact(artifact: dict, run: dict) -> dict:
         'name': run['name'],
         'number': run['number']
     }
+    if tasks:
+        artifact['run']['task_name'] = tasks[run['task_id']]
     return artifact
 
 
@@ -2369,9 +2371,14 @@ async def list_artifacts(request):
         'start_from': query.start_from,
         'total_count': 0
     }
-    tasks = [x['_id'] async for x in db.task.find({'token': token},
-                                                  {'_id': 1})]
-    run_query = {'task_id': {'$in': tasks}, 'deleted_at': 0}
+    task_query = {'token': token}
+    if query.task_id:
+        task_query['_id'] = {'$in': query.task_id}
+    tasks = {x['_id']: x['name'] async for x in db.task.find(
+        task_query, {'_id': 1, 'name': 1})}
+    tasks_ids = list(tasks.keys())
+
+    run_query = {'task_id': {'$in': tasks_ids}, 'deleted_at': 0}
     if query.run_id:
         run_query['_id'] = {'$in': query.run_id}
     runs_map = {run['_id']: run async for run in db.run.find(run_query)}
@@ -2388,7 +2395,7 @@ async def list_artifacts(request):
         artifact.pop('tags_array', None)
         res = Artifact(**artifact).model_dump(by_alias=True)
         res.pop('run_id', None)
-        res = _format_artifact(artifact, runs_map[artifact['run_id']])
+        res = _format_artifact(artifact, runs_map[artifact['run_id']], tasks)
         result['artifacts'].append(res)
     if len(result['artifacts']) != 0 and not query.limit:
         result['total_count'] = len(result['artifacts']) + query.start_from

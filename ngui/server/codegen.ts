@@ -1,4 +1,5 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+import { JSONObjectResolver } from "graphql-scalars";
 
 const commonPlugins = ["typescript", "typescript-resolvers"];
 
@@ -16,6 +17,11 @@ const config: CodegenConfig = {
     "./graphql/resolvers/rest.generated.ts": {
       schema: "./graphql/schemas/rest.graphql",
       plugins: commonPlugins,
+      config: {
+        scalars: {
+          JSONObject: JSONObjectResolver.extensions.codegenScalarType,
+        },
+      },
     },
   },
 };
