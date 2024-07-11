@@ -2108,9 +2108,22 @@ async def get_model(request, id_: str):
     runs_map = {}
     for i in range(0, len(runs_ids), CHUNK_SIZE):
         runs_chunk = runs_ids[i:i+CHUNK_SIZE]
-        runs_map.update({x['_id']: x async for x in db.run.find(
-            {'_id': {'$in': runs_chunk}},
-            {'_id': 1, 'name': 1, 'number': 1, 'task_id': 1})})
+        runs_map.update({x['_id']: x async for x in db.run.aggregate([
+            {'$match': {'_id': {'$in': runs_chunk}}},
+            {'$lookup': {
+                'from': 'task',
+                'localField': 'task_id',
+                'foreignField': '_id',
+                'as': 'task_name'}},
+            {'$unwind': '$task_name'},
+            {'$project': {
+                '_id': 1,
+                'name': 1,
+                'number': 1,
+                'task_id': 1,
+                'task_name': '$task_name.name'
+            }}
+        ])})
     model_dict['versions'] = []
     for version in versions_list:
         version_dict = version.model_dump(
