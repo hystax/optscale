@@ -10,7 +10,7 @@ import {
   MaximumParallelRunsField,
   NameField,
   PrefixField,
-  HyperparameterField,
+  HyperparametersFieldArray,
   DataSourcesField,
   RegionsField,
   InstanceTypesField,
@@ -77,7 +77,7 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
         <MaximumRunsetBudgetField isLoading={isGetRunsetTemplateLoading} />
         <PrefixField isLoading={isGetRunsetTemplateLoading} />
         <CustomTagField isLoading={isGetRunsetTemplateLoading} />
-        <HyperparameterField isLoading={isGetRunsetTemplateLoading} />
+        <HyperparametersFieldArray isLoading={isGetRunsetTemplateLoading} />
         <FormButtons
           onCancel={onCancel}
           isEdit={isEdit}

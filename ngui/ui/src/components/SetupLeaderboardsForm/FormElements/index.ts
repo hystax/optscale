@@ -1,6 +1,6 @@
 import FormButtons from "./FormButtons";
 import GroupByHyperparametersSwitch from "./GroupByHyperparametersSwitch";
-import MetricRestrictionsField from "./MetricRestrictionsField";
+import MetricRestrictionsFieldArray from "./MetricRestrictionsFieldArray";
 import PrimaryMetricSelector from "./PrimaryMetricSelector";
 import RunTagsField from "./RunTagsField";
 import SecondaryMetricsSelector from "./SecondaryMetricsSelector";
@@ -10,6 +10,6 @@ export {
   GroupByHyperparametersSwitch,
   PrimaryMetricSelector,
   SecondaryMetricsSelector,
-  MetricRestrictionsField,
+  MetricRestrictionsFieldArray,
   FormButtons
 };

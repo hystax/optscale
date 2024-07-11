@@ -10,6 +10,7 @@ import IconButton from "components/IconButton";
 import InputLoader from "components/InputLoader";
 import Selector, { Item, ItemContent } from "components/Selector";
 import { isEmpty as isEmptyArray } from "utils/arrays";
+import { ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { FIELD_NAMES } from "../constants";
 
@@ -168,7 +169,7 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
   );
 };
 
-const MetricRestrictionsField = ({ isLoading, metrics = [] }) => {
+const FieldArray = ({ metrics }) => {
   const { control } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
@@ -183,9 +184,7 @@ const MetricRestrictionsField = ({ isLoading, metrics = [] }) => {
       [METRIC_MAX]: ""
     });
 
-  return isLoading ? (
-    <InputLoader fullWidth />
-  ) : (
+  return (
     <>
       {isEmptyArray(fields) ? (
         <Typography>
@@ -194,20 +193,10 @@ const MetricRestrictionsField = ({ isLoading, metrics = [] }) => {
       ) : (
         fields.map((item, index) => (
           <Box key={item.id} display="flex" gap={SPACING_1} flexWrap="wrap">
-            <Box
-              flexGrow={1}
-              // TODO: Replace with ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.MEDIUM
-              flexBasis="150px"
-            >
+            <Box flexGrow={1} flexBasis={ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.MEDIUM}>
               <MetricSelect index={index} metrics={metrics} selectorsCount={fields.length} />
             </Box>
-            <Box
-              flexGrow={2}
-              display="flex"
-              // TODO: Replace with ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.LARGE
-              flexBasis="300px"
-              gap={SPACING_1}
-            >
+            <Box flexGrow={2} display="flex" flexBasis={ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.LARGE} gap={SPACING_1}>
               <Box flexGrow={1} display="flex" gap={SPACING_1}>
                 <MinInput index={index} />
                 <MaxInput index={index} />
@@ -247,4 +236,7 @@ const MetricRestrictionsField = ({ isLoading, metrics = [] }) => {
   );
 };
 
-export default MetricRestrictionsField;
+const MetricRestrictionsFieldArray = ({ metrics = [], isLoading = false }) =>
+  isLoading ? <InputLoader fullWidth /> : <FieldArray metrics={metrics} />;
+
+export default MetricRestrictionsFieldArray;

@@ -8,7 +8,7 @@ import {
   GroupByHyperparametersSwitch,
   PrimaryMetricSelector,
   SecondaryMetricsSelector,
-  MetricRestrictionsField,
+  MetricRestrictionsFieldArray,
   FormButtons
 } from "./FormElements";
 
@@ -47,7 +47,7 @@ const SetupLeaderboardsForm = ({
             <FormattedMessage id="leaderboardQualificationProtocol.metricRestrictions" />
           </Typography>
         </FormControl>
-        <MetricRestrictionsField metrics={metrics} isLoading={isGetDataLoading} />
+        <MetricRestrictionsFieldArray metrics={metrics} isLoading={isGetDataLoading} />
         <FormButtons isLoading={isGetDataLoading || isSubmitDataLoading} onCancel={onCancel} />
       </form>
     </FormProvider>

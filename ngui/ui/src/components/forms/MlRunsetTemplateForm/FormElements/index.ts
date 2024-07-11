@@ -4,11 +4,11 @@ import CustomTagField, {
 } from "./CustomTagField";
 import DataSourcesField, { FIELD_NAME as DATA_SOURCES_FIELD_NAME } from "./DataSourcesField";
 import FormButtons from "./FormButtons";
-import HyperparameterField, {
+import HyperparametersFieldArray, {
   ARRAY_FIELD_NAME as HYPERPARAMETERS_ARRAY_FIELD_NAME,
   NAME_FIELD_NAME as HYPERPARAMETER_NAME_FIELD_NAME,
   ENVIRONMENT_VARIABLE_FIELD as HYPERPARAMETER_ENVIRONMENT_VARIABLE_FIELD_NAME
-} from "./HyperparameterField";
+} from "./HyperparametersFieldArray";
 import InstanceTypesField, { FIELD_NAME as INSTANCE_TYPES_FIELD_NAME } from "./InstanceTypesField";
 import MaximumParallelRunsField from "./MaximumParallelRunsField";
 
@@ -40,7 +40,7 @@ export {
   MaximumParallelRunsField,
   NameField,
   PrefixField,
-  HyperparameterField,
+  HyperparametersFieldArray,
   TasksField,
   DataSourcesField,
   RegionsField,

@@ -14,10 +14,11 @@ import { DEFAULT_MAX_INPUT_LENGTH } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { doNotBeginWithNumber, isRunsetTemplateEnvironmentVariable } from "utils/validation";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
 
-export const ARRAY_FIELD_NAME = FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.FIELD_NAME; // "parameters";
-export const NAME_FIELD_NAME = FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.HYPERPARAMETER_NAME; // "parameterName";
-export const ENVIRONMENT_VARIABLE_FIELD = FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.ENVIRONMENT_VARIABLE; // "environmentVariable";
+export const ARRAY_FIELD_NAME = FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.FIELD_NAME;
+export const NAME_FIELD_NAME = FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.HYPERPARAMETER_NAME;
+export const ENVIRONMENT_VARIABLE_FIELD = FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.ENVIRONMENT_VARIABLE;
 
 const NameInput = ({ index }) => {
   const intl = useIntl();
@@ -47,7 +48,7 @@ const EnvironmentName = ({ index }) => {
   const {
     formState: { errors },
     control
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
   const intl = useIntl();
 
@@ -104,10 +105,10 @@ const EnvironmentName = ({ index }) => {
   );
 };
 
-const HyperparameterField = ({ isLoading }) => {
-  const { control } = useFormContext();
+const FieldArray = () => {
+  const { control } = useFormContext<FormValues>();
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray<FormValues>({
     control,
     name: ARRAY_FIELD_NAME
   });
@@ -120,54 +121,54 @@ const HyperparameterField = ({ isLoading }) => {
 
   return (
     <>
-      <FormLabel component="p">
-        <FormattedMessage id="hyperparameters" />
-      </FormLabel>
-      {isLoading ? (
-        <InputLoader fullWidth />
-      ) : (
-        <>
-          {fields.map((item, index) => (
-            <Box key={item.id} display="flex" gap={SPACING_1} flexWrap="wrap">
-              <Box flexGrow={1} flexBasis="150px">
-                <NameInput index={index} />
-              </Box>
-              <Box display="flex" flexBasis="200px" flexGrow={2} gap={SPACING_1}>
-                <Box flexGrow={1}>
-                  <EnvironmentName index={index} />
-                </Box>
-                <Box>
-                  <FormControl sx={{ alignItems: "flex-end", width: "100%" }}>
-                    <IconButton
-                      color="error"
-                      icon={<DeleteOutlinedIcon />}
-                      onClick={() => remove(index)}
-                      tooltip={{
-                        show: true,
-                        value: <FormattedMessage id="delete" />
-                      }}
-                      dataTestId={`btn_delete_hyperparameter_${index}`}
-                    />
-                  </FormControl>
-                </Box>
-              </Box>
+      {fields.map((item, index) => (
+        <Box key={item.id} display="flex" gap={SPACING_1} flexWrap="wrap">
+          <Box flexGrow={1} flexBasis="150px">
+            <NameInput index={index} />
+          </Box>
+          <Box display="flex" flexBasis="200px" flexGrow={2} gap={SPACING_1}>
+            <Box flexGrow={1}>
+              <EnvironmentName index={index} />
             </Box>
-          ))}
-          <FormControl fullWidth>
-            <Button
-              dashedBorder
-              startIcon={<AddOutlinedIcon />}
-              messageId="addHyperparameter"
-              size="large"
-              color="primary"
-              onClick={onAppend}
-              dataTestId="btn_add_hyperparameter"
-            />
-          </FormControl>
-        </>
-      )}
+            <Box>
+              <FormControl sx={{ alignItems: "flex-end", width: "100%" }}>
+                <IconButton
+                  color="error"
+                  icon={<DeleteOutlinedIcon />}
+                  onClick={() => remove(index)}
+                  tooltip={{
+                    show: true,
+                    value: <FormattedMessage id="delete" />
+                  }}
+                  dataTestId={`btn_delete_hyperparameter_${index}`}
+                />
+              </FormControl>
+            </Box>
+          </Box>
+        </Box>
+      ))}
+      <FormControl fullWidth>
+        <Button
+          dashedBorder
+          startIcon={<AddOutlinedIcon />}
+          messageId="addHyperparameter"
+          size="large"
+          color="primary"
+          onClick={onAppend}
+          dataTestId="btn_add_hyperparameter"
+        />
+      </FormControl>
     </>
   );
 };
 
-export default HyperparameterField;
+const HyperparametersFieldArray = ({ isLoading = false }) => (
+  <>
+    <FormLabel component="p">
+      <FormattedMessage id="hyperparameters" />
+    </FormLabel>
+    {isLoading ? <InputLoader fullWidth /> : <FieldArray />}
+  </>
+);
+
+export default HyperparametersFieldArray;
