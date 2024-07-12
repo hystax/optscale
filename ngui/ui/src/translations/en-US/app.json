@@ -1150,6 +1150,7 @@
   "mlProfilingIntegration.creatingArtifactTagsDescription": "<strong>tags</strong> (str): the tags of the artifact in format '{\"key\": \"value\" }'",
   "mlProfilingIntegration.creatingArtifacts": "To create an artifact, use the <code>artifact</code> method with the following parameters",
   "mlProfilingIntegration.creatingArtifactsTitle": "Creating artifacts",
+  "mlProfilingIntegration.creatingModels": "To create a model, use the <code>model</code> method with the following parameters",
   "mlProfilingIntegration.creatingModelsKeyDescription": "<strong>key</strong> (str): the unique key of the model",
   "mlProfilingIntegration.creatingModelsPathDescription": "<strong>path</strong> (str): the path of the run model",
   "mlProfilingIntegration.creatingModelsTitle": "Creating models",

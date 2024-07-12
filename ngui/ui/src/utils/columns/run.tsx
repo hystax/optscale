@@ -1,8 +1,9 @@
-import { Link } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
+import CaptionedCell from "components/CaptionedCell";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { getMlTaskRunUrl } from "urls";
+import { getMlTaskDetailsUrl, getMlTaskRunUrl } from "urls";
 import { formatRunFullName } from "utils/ml";
 
 const run = ({
@@ -11,6 +12,7 @@ const run = ({
   getRunName,
   getRunId,
   getTaskId,
+  getTaskName,
   headerMessageId,
   headerDataTestId,
   enableSorting,
@@ -31,12 +33,33 @@ const run = ({
   cell: ({ row: { original }, cell }) => {
     const runId = getRunId(original);
     const taskId = getTaskId(original);
+    const taskName = getTaskName?.(original);
 
-    return (
+    const runLink = (
       <Link to={getMlTaskRunUrl(taskId, runId, runDetailsUrlOptions)} component={RouterLink}>
         {cell.getValue()}
       </Link>
     );
+
+    if (taskName) {
+      return (
+        <CaptionedCell
+          caption={{
+            node: (
+              <Typography variant="caption">
+                <Link to={getMlTaskDetailsUrl(taskId)} component={RouterLink}>
+                  {taskName}
+                </Link>
+              </Typography>
+            )
+          }}
+        >
+          {runLink}
+        </CaptionedCell>
+      );
+    }
+
+    return runLink;
   }
 });
 

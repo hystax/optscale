@@ -112,6 +112,7 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter }: Artifact
         getRunName: ({ run: { name } }) => name,
         getRunId: ({ run: { id } }) => id,
         getTaskId: ({ run: { task_id: taskId } }) => taskId,
+        getTaskName: ({ run: { task_name: taskName } }) => taskName,
         headerMessageId: "run",
         headerDataTestId: "lbl_run",
         enableSorting: false,
