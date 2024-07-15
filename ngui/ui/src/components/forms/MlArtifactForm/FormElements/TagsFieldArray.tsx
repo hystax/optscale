@@ -45,7 +45,7 @@ const ValueInput = ({ index }: { index: number }) => {
   return <TextInput name={fieldName} label={<FormattedMessage id="value" />} required dataTestId={`tag_value_${index}`} />;
 };
 
-const TagsFieldArray = ({ isLoading = false }) => {
+const FieldArray = () => {
   const { control } = useFormContext<FormValues>();
 
   const { fields, append, remove } = useFieldArray<FormValues>({
@@ -61,54 +61,54 @@ const TagsFieldArray = ({ isLoading = false }) => {
 
   return (
     <>
-      <FormLabel component="p">
-        <FormattedMessage id="tags" />
-      </FormLabel>
-      {isLoading ? (
-        <InputLoader fullWidth />
-      ) : (
-        <>
-          {fields.map((item, index) => (
-            <Box key={item.id} display="flex" gap={SPACING_1} flexWrap="wrap">
-              <Box flexGrow={1} flexBasis="150px">
-                <KeyInput index={index} />
-              </Box>
-              <Box display="flex" flexBasis="200px" flexGrow={2} gap={SPACING_1}>
-                <Box flexGrow={1}>
-                  <ValueInput index={index} />
-                </Box>
-                <Box>
-                  <FormControl sx={{ alignItems: "flex-end", width: "100%" }}>
-                    <IconButton
-                      color="error"
-                      icon={<DeleteOutlinedIcon />}
-                      onClick={() => remove(index)}
-                      tooltip={{
-                        show: true,
-                        value: <FormattedMessage id="delete" />
-                      }}
-                      dataTestId={`btn_delete_hyperparameter_${index}`}
-                    />
-                  </FormControl>
-                </Box>
-              </Box>
+      {fields.map((item, index) => (
+        <Box key={item.id} display="flex" gap={SPACING_1} flexWrap="wrap">
+          <Box flexGrow={1} flexBasis="150px">
+            <KeyInput index={index} />
+          </Box>
+          <Box display="flex" flexBasis="200px" flexGrow={2} gap={SPACING_1}>
+            <Box flexGrow={1}>
+              <ValueInput index={index} />
             </Box>
-          ))}
-          <FormControl fullWidth>
-            <Button
-              dashedBorder
-              startIcon={<AddOutlinedIcon />}
-              messageId="addTag"
-              size="large"
-              color="primary"
-              onClick={onAppend}
-              dataTestId="btn_add_tag"
-            />
-          </FormControl>
-        </>
-      )}
+            <Box>
+              <FormControl sx={{ alignItems: "flex-end", width: "100%" }}>
+                <IconButton
+                  color="error"
+                  icon={<DeleteOutlinedIcon />}
+                  onClick={() => remove(index)}
+                  tooltip={{
+                    show: true,
+                    value: <FormattedMessage id="delete" />
+                  }}
+                  dataTestId={`btn_delete_hyperparameter_${index}`}
+                />
+              </FormControl>
+            </Box>
+          </Box>
+        </Box>
+      ))}
+      <FormControl fullWidth>
+        <Button
+          dashedBorder
+          startIcon={<AddOutlinedIcon />}
+          messageId="addTag"
+          size="large"
+          color="primary"
+          onClick={onAppend}
+          dataTestId="btn_add_tag"
+        />
+      </FormControl>
     </>
   );
 };
+
+const TagsFieldArray = ({ isLoading = false }) => (
+  <>
+    <FormLabel component="p">
+      <FormattedMessage id="tags" />
+    </FormLabel>
+    {isLoading ? <InputLoader fullWidth /> : <FieldArray />}
+  </>
+);
 
 export default TagsFieldArray;

@@ -8,13 +8,13 @@ import { GET_ERROR } from "graphql/api/common";
 const ApolloApiErrorAlert = () => {
   const { data = {} } = useQuery(GET_ERROR);
 
-  const { error: { error_code: errorCode, reason: errorReason, url, params } = {} } = data;
+  const { error: { id, error_code: errorCode, reason: errorReason, url, params } = {} } = data;
 
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setOpen(!!errorCode);
-  }, [errorCode]);
+    setOpen(!!id);
+  }, [id]);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {

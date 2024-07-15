@@ -50,7 +50,7 @@ async def prepare_tasks(metrics=None):
         "_id": str(uuid.uuid4()),
         "owner_id": str(uuid.uuid4()),
         "key": "key",
-        "name": "model1",
+        "name": "task",
         "metrics": [],
         "token": TOKEN1,
         "deleted_at": 0

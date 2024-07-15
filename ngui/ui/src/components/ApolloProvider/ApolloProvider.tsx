@@ -4,6 +4,7 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { type GraphQLError } from "graphql";
 import { createClient } from "graphql-ws";
+import { v4 as uuidv4 } from "uuid";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import { GET_ERROR } from "graphql/api/common";
 import { useApiData } from "hooks/useApiData";
@@ -17,7 +18,7 @@ const writeErrorToCache = (cache: DefaultContext, graphQLError: GraphQLError) =>
 
   cache.writeQuery({
     query: GET_ERROR,
-    data: { error: { __typename: "Error", ...error, url } }
+    data: { error: { __typename: "Error", id: uuidv4(), ...error, url } }
   });
 };
 

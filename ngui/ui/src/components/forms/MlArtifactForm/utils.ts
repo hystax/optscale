@@ -1,7 +1,8 @@
+import { Artifact } from "services/MlArtifactsService";
 import { FIELD_NAMES } from "./constants";
-import { Artifact, FormSubmitValues, FormValues } from "./types";
+import { FormSubmitValues, FormValues } from "./types";
 
-export const getDefaultValues = (artifact: Artifact = {}): FormValues => ({
+export const getDefaultValues = (artifact: Partial<Artifact> = {}): FormValues => ({
   [FIELD_NAMES.PATH]: artifact?.path ?? "",
   [FIELD_NAMES.NAME]: artifact?.name ?? "",
   [FIELD_NAMES.DESCRIPTION]: artifact?.description ?? "",
