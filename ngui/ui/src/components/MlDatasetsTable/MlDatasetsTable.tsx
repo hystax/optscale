@@ -10,26 +10,67 @@ import { MlDeleteDatasetModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { ML_DATASET_CREATE, getEditMlDatasetUrl } from "urls";
-import { datasetLabels, datasetTimespan, text } from "utils/columns";
+import { datasetLabels, datasetTimespan, slicedText } from "utils/columns";
 import { SPACING_1 } from "utils/layouts";
 
 const MlDatasetsTable = ({ datasets }) => {
   const openSideModal = useOpenSideModal();
   const navigate = useNavigate();
 
-  const columns = useMemo(
-    () => [
-      text({
-        headerDataTestId: "lbl_name",
+  const isManageDatasetsAllowed = useIsAllowed({
+    requiredActions: ["EDIT_PARTNER"]
+  });
+
+  const columns = useMemo(() => {
+    const getActionsColumn = () => ({
+      header: (
+        <TextWithDataTestId dataTestId="lbl_actions">
+          <FormattedMessage id="actions" />
+        </TextWithDataTestId>
+      ),
+      enableSorting: false,
+      id: "actions",
+      cell: ({ row: { original: { id, path } = {}, index } }) => (
+        <TableCellActions
+          items={[
+            {
+              key: "adit",
+              messageId: "edit",
+              icon: <EditOutlinedIcon />,
+              requiredActions: ["EDIT_PARTNER"],
+              dataTestId: `btn_edit_${index}`,
+              action: () => navigate(getEditMlDatasetUrl(id))
+            },
+            {
+              key: "delete",
+              messageId: "delete",
+              icon: <DeleteOutlinedIcon />,
+              color: "error",
+              requiredActions: ["EDIT_PARTNER"],
+              dataTestId: `btn_delete_${index}`,
+              action: () => openSideModal(MlDeleteDatasetModal, { id, path })
+            }
+          ]}
+        />
+      )
+    });
+
+    return [
+      slicedText({
         headerMessageId: "name",
-        accessorKey: "name"
+        headerDataTestId: "lbl_name",
+        accessorKey: "name",
+        maxTextLength: 70
       }),
-      text({
-        headerDataTestId: "lbl_id",
-        headerMessageId: "id",
-        accessorKey: "path"
+      slicedText({
+        headerMessageId: "path",
+        headerDataTestId: "lbl_path",
+        accessorKey: "path",
+        maxTextLength: 70,
+        copy: true
       }),
       datasetTimespan(),
       {
@@ -53,41 +94,9 @@ const MlDatasetsTable = ({ datasets }) => {
           maxWidth: "400px"
         }
       }),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_actions">
-            <FormattedMessage id="actions" />
-          </TextWithDataTestId>
-        ),
-        enableSorting: false,
-        id: "actions",
-        cell: ({ row: { original: { id, path } = {}, index } }) => (
-          <TableCellActions
-            items={[
-              {
-                key: "adit",
-                messageId: "edit",
-                icon: <EditOutlinedIcon />,
-                requiredActions: ["EDIT_PARTNER"],
-                dataTestId: `btn_edit_${index}`,
-                action: () => navigate(getEditMlDatasetUrl(id))
-              },
-              {
-                key: "delete",
-                messageId: "delete",
-                icon: <DeleteOutlinedIcon />,
-                color: "error",
-                requiredActions: ["EDIT_PARTNER"],
-                dataTestId: `btn_delete_${index}`,
-                action: () => openSideModal(MlDeleteDatasetModal, { id, path })
-              }
-            ]}
-          />
-        )
-      }
-    ],
-    [openSideModal, navigate]
-  );
+      ...(isManageDatasetsAllowed ? [getActionsColumn()] : [])
+    ];
+  }, [isManageDatasetsAllowed, navigate, openSideModal]);
 
   const data = useMemo(() => datasets, [datasets]);
 

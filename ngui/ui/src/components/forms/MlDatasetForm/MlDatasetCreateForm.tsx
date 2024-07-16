@@ -1,7 +1,7 @@
 import { FormProvider, useForm } from "react-hook-form";
 import {
   FormButtons,
-  IdField,
+  PathField,
   NameField,
   DescriptionField,
   LabelsField,
@@ -27,8 +27,8 @@ const MlDatasetCreateForm = ({ onSubmit, onCancel, isLoading = {} }: MlDatasetCr
         onSubmit={handleSubmit((formData) => onSubmit(prepareFormSubmissionData(formData)))}
         noValidate
       >
-        <IdField autoFocus />
         <NameField />
+        <PathField />
         <TimespanFromField />
         <TimespanToField />
         <DescriptionField />

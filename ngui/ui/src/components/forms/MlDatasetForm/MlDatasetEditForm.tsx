@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from "react";
-import Skeleton from "@mui/material/Skeleton";
 import { FormProvider, useForm } from "react-hook-form";
-import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { FormButtons, NameField, DescriptionField, LabelsField, TimespanFromField, TimespanToField } from "./FormElements";
 import { FormValues, MlDatasetEditFormProps } from "./types";
 import { getDefaultValues, prepareFormSubmissionData } from "./utils";
@@ -31,8 +29,7 @@ const MlDatasetEditForm = ({ dataset, onSubmit, onCancel, isLoadingProps = {} }:
         onSubmit={handleSubmit((formData) => onSubmit(prepareFormSubmissionData(formData)))}
         noValidate
       >
-        {isGetDatasetLoading ? <Skeleton /> : <KeyValueLabel keyMessageId="id" value={dataset.path} />}
-        <NameField isLoading={isGetDatasetLoading} autoFocus />
+        <NameField isLoading={isGetDatasetLoading} />
         <TimespanFromField isLoading={isGetDatasetLoading} />
         <TimespanToField isLoading={isGetDatasetLoading} />
         <DescriptionField isLoading={isGetDatasetLoading} />
