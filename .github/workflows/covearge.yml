@@ -38,7 +38,17 @@ jobs:
         git config --global user.email 'sailokeshbasava123@gmail.com'
         git add coverage/coverage.xml
         git commit -m 'Add coverage report'
-        git push origin integration
+        git push origin add-coverage-report
       continue-on-error: true
       env:
         GITHUB_TOKEN: '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'
+    
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: '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'
+        commit-message: 'Add coverage report'
+        branch: add-coverage-report
+        title: 'Add coverage report'
+        body: 'This PR adds the latest coverage report.'
+        base: integration
