@@ -1,17 +1,17 @@
 ### Summary
 
 Use the Datasets Page to keep track of Your machine learning datasets.
-Add your datasets, ensuring you include relevant metadata such as the dataset name, description, source path, labels, and validity period. To log a specific dataset for our training code, include the Dataset ID in your code like this: `arcee.dataset("ID")`. Any datasets you register within your training code will automatically appear on this page.
+Add your datasets, ensuring you include relevant metadata such as the dataset name, description, source path, labels, and validity period. To log a specific dataset for our training code, include the Dataset path in your code like this: `arcee.dataset("dataset_path")`. Any datasets you register within your training code will automatically appear on this page.
 
 ### View
 
-- Details: Find the path to source (ID) of the dataset and implement into Your code.
+- Details: Find the path to source of the dataset and implement into Your code.
 
 ### Actions
 
 - Update the Content: Click the Refresh button to view the latest information.
 
-- Add a New Dataset: Easily create a new dataset by clicking the green "Add" button. Specify the ID (path to source) and other properties.
+- Add a New Dataset: Easily create a new dataset by clicking the green "Add" button. Specify the path to source and other properties.
 
 - Manage Datasets: Use the "Actions" column icons to edit/delete the dataset.
 
