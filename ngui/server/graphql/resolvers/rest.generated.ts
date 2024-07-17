@@ -19,7 +19,7 @@ export type Scalars = {
 
 export type AlibabaConfig = {
   __typename?: 'AlibabaConfig';
-  access_key_id: Scalars['String']['output'];
+  access_key_id?: Maybe<Scalars['String']['output']>;
 };
 
 export type AlibabaConfigInput = {
@@ -46,7 +46,7 @@ export type AlibabaDataSource = DataSourceInterface & {
 
 export type AwsConfig = {
   __typename?: 'AwsConfig';
-  access_key_id: Scalars['String']['output'];
+  access_key_id?: Maybe<Scalars['String']['output']>;
   bucket_name?: Maybe<Scalars['String']['output']>;
   bucket_prefix?: Maybe<Scalars['String']['output']>;
   config_scheme?: Maybe<Scalars['String']['output']>;
@@ -89,10 +89,10 @@ export type AwsRootConfigInput = {
 
 export type AzureSubscriptionConfig = {
   __typename?: 'AzureSubscriptionConfig';
-  client_id: Scalars['String']['output'];
-  expense_import_scheme: Scalars['String']['output'];
-  subscription_id: Scalars['String']['output'];
-  tenant: Scalars['String']['output'];
+  client_id?: Maybe<Scalars['String']['output']>;
+  expense_import_scheme?: Maybe<Scalars['String']['output']>;
+  subscription_id?: Maybe<Scalars['String']['output']>;
+  tenant?: Maybe<Scalars['String']['output']>;
 };
 
 export type AzureSubscriptionConfigInput = {
@@ -121,8 +121,8 @@ export type AzureSubscriptionDataSource = DataSourceInterface & {
 
 export type AzureTenantConfig = {
   __typename?: 'AzureTenantConfig';
-  client_id: Scalars['String']['output'];
-  tenant: Scalars['String']['output'];
+  client_id?: Maybe<Scalars['String']['output']>;
+  tenant?: Maybe<Scalars['String']['output']>;
 };
 
 export type AzureTenantConfigInput = {
@@ -204,8 +204,8 @@ export enum DataSourceType {
 
 export type DatabricksConfig = {
   __typename?: 'DatabricksConfig';
-  account_id: Scalars['String']['output'];
-  client_id: Scalars['String']['output'];
+  account_id?: Maybe<Scalars['String']['output']>;
+  client_id?: Maybe<Scalars['String']['output']>;
 };
 
 export type DatabricksConfigInput = {
@@ -249,9 +249,9 @@ export type EnvironmentDataSource = DataSourceInterface & {
 
 export type GcpBillingDataConfig = {
   __typename?: 'GcpBillingDataConfig';
-  dataset_name: Scalars['String']['output'];
+  dataset_name?: Maybe<Scalars['String']['output']>;
   project_id?: Maybe<Scalars['String']['output']>;
-  table_name: Scalars['String']['output'];
+  table_name?: Maybe<Scalars['String']['output']>;
 };
 
 export type GcpBillingDataConfigInput = {
@@ -261,7 +261,7 @@ export type GcpBillingDataConfigInput = {
 
 export type GcpConfig = {
   __typename?: 'GcpConfig';
-  billing_data: GcpBillingDataConfig;
+  billing_data?: Maybe<GcpBillingDataConfig>;
 };
 
 export type GcpConfigInput = {
@@ -333,12 +333,12 @@ export type MutationUpdateDataSourceArgs = {
 
 export type NebiusConfig = {
   __typename?: 'NebiusConfig';
-  access_key_id: Scalars['String']['output'];
+  access_key_id?: Maybe<Scalars['String']['output']>;
   bucket_name?: Maybe<Scalars['String']['output']>;
   bucket_prefix?: Maybe<Scalars['String']['output']>;
-  cloud_name: Scalars['String']['output'];
-  key_id: Scalars['String']['output'];
-  service_account_id: Scalars['String']['output'];
+  cloud_name?: Maybe<Scalars['String']['output']>;
+  key_id?: Maybe<Scalars['String']['output']>;
+  service_account_id?: Maybe<Scalars['String']['output']>;
 };
 
 export type NebiusConfigInput = {
@@ -560,7 +560,7 @@ export type ResolversParentTypes = {
 };
 
 export type AlibabaConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AlibabaConfig'] = ResolversParentTypes['AlibabaConfig']> = {
-  access_key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  access_key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -582,7 +582,7 @@ export type AlibabaDataSourceResolvers<ContextType = any, ParentType extends Res
 };
 
 export type AwsConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AwsConfig'] = ResolversParentTypes['AwsConfig']> = {
-  access_key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  access_key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   config_scheme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -610,10 +610,10 @@ export type AwsDataSourceResolvers<ContextType = any, ParentType extends Resolve
 };
 
 export type AzureSubscriptionConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AzureSubscriptionConfig'] = ResolversParentTypes['AzureSubscriptionConfig']> = {
-  client_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  expense_import_scheme?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subscription_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  tenant?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  client_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  expense_import_scheme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subscription_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tenant?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -635,8 +635,8 @@ export type AzureSubscriptionDataSourceResolvers<ContextType = any, ParentType e
 };
 
 export type AzureTenantConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AzureTenantConfig'] = ResolversParentTypes['AzureTenantConfig']> = {
-  client_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  tenant?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  client_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tenant?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -697,8 +697,8 @@ export type DataSourceInterfaceResolvers<ContextType = any, ParentType extends R
 };
 
 export type DatabricksConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['DatabricksConfig'] = ResolversParentTypes['DatabricksConfig']> = {
-  account_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  client_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  account_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  client_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -736,14 +736,14 @@ export type EnvironmentDataSourceResolvers<ContextType = any, ParentType extends
 };
 
 export type GcpBillingDataConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['GcpBillingDataConfig'] = ResolversParentTypes['GcpBillingDataConfig']> = {
-  dataset_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dataset_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   project_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  table_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  table_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type GcpConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['GcpConfig'] = ResolversParentTypes['GcpConfig']> = {
-  billing_data?: Resolver<ResolversTypes['GcpBillingDataConfig'], ParentType, ContextType>;
+  billing_data?: Resolver<Maybe<ResolversTypes['GcpBillingDataConfig']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -802,12 +802,12 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type NebiusConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['NebiusConfig'] = ResolversParentTypes['NebiusConfig']> = {
-  access_key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  access_key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  cloud_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  service_account_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  cloud_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  service_account_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

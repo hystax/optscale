@@ -2,7 +2,8 @@ import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import { GCP_CNR } from "utils/constants";
 
 const GcpProperties = ({ accountId, config }) => {
-  const { billing_data: { dataset_name: datasetName, table_name: tableName, project_id: projectId } = {} } = config;
+  const { billing_data: billingData } = config;
+  const { dataset_name: datasetName, table_name: tableName, project_id: projectId } = billingData ?? {};
 
   return (
     <>
