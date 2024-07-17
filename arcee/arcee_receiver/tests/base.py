@@ -36,6 +36,10 @@ class Urls:
     collect = '/arcee/v2/collect'
     artifacts = '/arcee/v2/artifacts'
     artifact = '/arcee/v2/artifacts/{}'
+    datasets = '/arcee/v2/datasets'
+    dataset_register = '/arcee/v2/run/{}/dataset_register'
+    dataset = '/arcee/v2/datasets/{}'
+    labels = '/arcee/v2/labels'
 
 
 async def prepare_token():
@@ -88,7 +92,9 @@ async def prepare_metrics():
     return [x async for x in DB_MOCK['metric'].find()]
 
 
-async def prepare_run(task_id, start, state, number, data):
+async def prepare_run(task_id, start=1, state=1, number=1, data=None):
+    if not data:
+        data = {}
     run = {
         "_id": str(uuid.uuid4()),
         "task_id": task_id,
@@ -158,6 +164,7 @@ async def prepare_dataset(name=None, description=None, labels=None, path=None):
         "labels": labels,
         "path": path or 'test',
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
+        "token": TOKEN1,
         "deleted_at": 0
     }
     await DB_MOCK['dataset'].insert_one(dataset)
