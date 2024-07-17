@@ -25,9 +25,14 @@ jobs:
       run: |
         coverage run -m pytest
       continue-on-error: true
+ 
+    - name: Generate coverage report
+      run: |
+        coverage xml -o auth/coverage.xml
+      continue-on-error: true
 
     - name: Upload coverage report as artifact
       uses: actions/upload-artifact@v2
       with:
         name: coverage-report
-        path: coverage/coverage.xml
+        path: auth/coverage.xml
