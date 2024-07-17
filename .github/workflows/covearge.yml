@@ -28,11 +28,17 @@ jobs:
  
     - name: Generate coverage report
       run: |
-        coverage xml -o auth/coverage.xml
+         mkdir -p coverage
+         coverage xml -o coverage/coverage.xml
       continue-on-error: true
 
-    - name: Upload coverage report as artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-report
-        path: auth/coverage.xml
+    - name: Commit and push coverage report
+      run: |
+        git config --global user.name 'saisahoo01'
+        git config --global user.email 'sailokeshbasava123@gmail.com'
+        git add coverage/coverage.xml
+        git commit -m 'Add coverage report'
+        git push origin integration
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: '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'
