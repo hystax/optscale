@@ -11,7 +11,7 @@ and ensure continuous monitoring and analysis to mitigate risks.
 - Details: Monitor the Status of each policy. In the Filter see the list of selected resource attribute values that are participating in the sample. 
 
 - Status: Pay attention to the red areas of the graphs: they highlight the violation of threshold values. See the thresholds in the Description.
-- 
+
 - Email Notification: Once an anomaly has been detected, organization manager will be alerted via email.
 
 ### Actions
