@@ -36,6 +36,7 @@ jobs:
       run: |
         git config --global user.name 'saisahoo01'
         git config --global user.email 'sailokeshbasava123@gmail.com'
+        git checkout -b add-coverage-report
         git add coverage/coverage.xml
         git commit -m 'Add coverage report'
         git push origin add-coverage-report
