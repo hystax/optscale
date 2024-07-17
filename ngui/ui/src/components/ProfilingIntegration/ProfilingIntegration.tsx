@@ -301,7 +301,37 @@ const LoggingDatasets = () => (
       <li>
         <Typography>
           <FormattedMessage
-            id="mlProfilingIntegration.loggingDatasetDescription"
+            id="mlProfilingIntegration.loggingDatasetPathDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.loggingDatasetNameDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.loggingDatasetDescriptionDescription"
+            values={{
+              strong: (chunks) => <strong>{chunks}</strong>
+            }}
+          />
+        </Typography>
+      </li>
+      <li>
+        <Typography>
+          <FormattedMessage
+            id="mlProfilingIntegration.loggingDatasetLabelsDescription"
             values={{
               strong: (chunks) => <strong>{chunks}</strong>
             }}
@@ -309,7 +339,12 @@ const LoggingDatasets = () => (
         </Typography>
       </li>
     </ul>
-    <CodeBlock text={`arcee.dataset("dataset_path")`} />
+    <CodeBlock
+      text={`arcee.dataset("https://s3/ml-bucket/datasets/training_dataset.csv",
+              name="Training dataset",
+              description="Training dataset (100k rows)",
+              labels=["training", "100k"])`}
+    />
   </>
 );
 

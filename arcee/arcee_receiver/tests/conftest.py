@@ -11,6 +11,17 @@ def mock_base(mocker):
     mocker.patch('arcee.arcee_receiver.server.db', DB_MOCK)
 
 
+async def return_false(*_args):
+    return False
+
+
+@pytest.fixture
+def mock_dataset(mock_base, mocker):
+    mocker.patch(
+        'arcee.arcee_receiver.server._dataset_used_in_leaderboard',
+        return_false)
+
+
 @pytest.fixture
 def app(mock_base):
     arcee_app = importlib.import_module('arcee.arcee_receiver.server')

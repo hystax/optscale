@@ -3,7 +3,6 @@ import json
 import uuid
 import pytest
 import sys
-from datetime import datetime, timezone
 from arcee.arcee_receiver.tests.base import (
     DB_MOCK, TOKEN1, Urls, prepare_tasks, prepare_metrics, prepare_token,
     prepare_leaderboard, prepare_dataset, prepare_leaderboard_dataset

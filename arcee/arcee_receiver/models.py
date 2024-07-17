@@ -43,13 +43,25 @@ class Console(ConsolePostIn):
 class DatasetPatchIn(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    labels: List[str] = []
+    labels: Optional[List[str]] = []
     timespan_from: Optional[int] = None
     timespan_to: Optional[int] = None
+
+    @model_validator(mode='after')
+    def set_labels(self):
+        if self.labels:
+            self.labels = list(set(self.labels))
+        return self
 
 
 class DatasetPostIn(DatasetPatchIn):
     path: str
+
+    @model_validator(mode='after')
+    def set_name(self):
+        if not self.name:
+            self.name = self.path
+        return self
 
 
 class Dataset(DatasetPostIn):
