@@ -493,6 +493,7 @@ class TestRISPWorker(unittest.TestCase):
             'pricing/unit': 'Second',
             'lineItem/UsageAmount': 1800,
             'pricing/publicOnDemandCost': 10,
+            'lineItem/UnblendedCost': 1,
             'product/operatingSystem': 'Linux',
             'product/instanceType': 't2',
             'product/region': 'us-west-1'
@@ -502,6 +503,7 @@ class TestRISPWorker(unittest.TestCase):
             'pricing/unit': 'hrs',
             'lineItem/UsageAmount': 3,
             'pricing/publicOnDemandCost': 30,
+            'lineItem/UnblendedCost': 1,
             'product/operatingSystem': 'Linux',
             'product/instanceType': 't2',
             'product/region': 'us-west-1'
@@ -511,6 +513,7 @@ class TestRISPWorker(unittest.TestCase):
             'pricing/unit': 'hrs',
             'lineItem/UsageAmount': 2.5,
             'pricing/publicOnDemandCost': 25,
+            'lineItem/UnblendedCost': 1,
             'product/operatingSystem': 'Linux',
             'product/instanceType': 't2',
             'product/region': 'us-west-1'

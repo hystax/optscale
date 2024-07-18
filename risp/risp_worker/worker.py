@@ -307,8 +307,8 @@ class RISPWorker(ConsumerMixin):
                 'reservation/TotalReservedNormalizedUnits') or expense.get(
                 'reservation/TotalReservedUnits'))
             total_cost_per_month = float(
-                expense['lineItem/UnblendedCost']) + float(
-                    expense['reservation/AmortizedUpfrontFeeForBillingPeriod'])
+                expense['lineItem/UnblendedCost']) + float(expense.get(
+                    'reservation/AmortizedUpfrontFeeForBillingPeriod', 0))
             cost_per_n_hr = total_cost_per_month / total_norm_hours
             norm_factor = float(expense.get('lineItem/NormalizationFactor', 1))
             exp_start_date = expense['start_date'].replace(tzinfo=timezone.utc)
@@ -479,6 +479,7 @@ class RISPWorker(ConsumerMixin):
                 'resource_id': 1,
                 'pricing/unit': 1,
                 'lineItem/UsageAmount': 1,
+                'lineItem/UnblendedCost': 1,
                 'pricing/publicOnDemandCost': 1,
                 'product/operatingSystem': 1,
                 'product/instanceType': 1,
@@ -495,7 +496,9 @@ class RISPWorker(ConsumerMixin):
         raw_expenses = self.get_uncovered_raw_expenses(
             cloud_account_id, start_date, end_date)
         for expense in raw_expenses:
-            cost = float(expense['pricing/publicOnDemandCost'])
+            # pricing/publicOnDemandCost may be missing for Fargate expenses
+            cost = float(expense.get('pricing/publicOnDemandCost',
+                         expense['lineItem/UnblendedCost']))
             usage_hrs = float(expense['lineItem/UsageAmount'])
             if 'second' in expense['pricing/unit'].lower():
                 usage_hrs = usage_hrs / SECONDS_IN_HOUR
