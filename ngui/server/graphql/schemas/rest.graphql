@@ -51,7 +51,7 @@ interface DataSourceInterface {
 
 # AWS data source
 type AwsConfig {
-  access_key_id: String!
+  access_key_id: String
   linked: Boolean
   bucket_name: String
   bucket_prefix: String
@@ -78,8 +78,8 @@ type AwsDataSource implements DataSourceInterface {
 
 # Azure tenant data source
 type AzureTenantConfig {
-  client_id: String!
-  tenant: String!
+  client_id: String
+  tenant: String
 }
 
 type AzureTenantDataSource implements DataSourceInterface {
@@ -100,10 +100,10 @@ type AzureTenantDataSource implements DataSourceInterface {
 
 # Azure subscription data source
 type AzureSubscriptionConfig {
-  client_id: String!
-  expense_import_scheme: String!
-  subscription_id: String!
-  tenant: String!
+  client_id: String
+  expense_import_scheme: String
+  subscription_id: String
+  tenant: String
 }
 
 type AzureSubscriptionDataSource implements DataSourceInterface {
@@ -124,13 +124,13 @@ type AzureSubscriptionDataSource implements DataSourceInterface {
 
 # GCP data source
 type GcpBillingDataConfig {
-  dataset_name: String!
-  table_name: String!
+  dataset_name: String
+  table_name: String
   project_id: String
 }
 
 type GcpConfig {
-  billing_data: GcpBillingDataConfig!
+  billing_data: GcpBillingDataConfig
 }
 
 type GcpDataSource implements DataSourceInterface {
@@ -151,7 +151,7 @@ type GcpDataSource implements DataSourceInterface {
 
 # Alibaba data source
 type AlibabaConfig {
-  access_key_id: String!
+  access_key_id: String
 }
 
 type AlibabaDataSource implements DataSourceInterface {
@@ -172,10 +172,10 @@ type AlibabaDataSource implements DataSourceInterface {
 
 # Nebius data source
 type NebiusConfig {
-  cloud_name: String!
-  service_account_id: String!
-  key_id: String!
-  access_key_id: String!
+  cloud_name: String
+  service_account_id: String
+  key_id: String
+  access_key_id: String
   # Make bucket name and prefix optional to fix conflicting types
   # to make it compatible with the AwsConfig type
   bucket_name: String
@@ -200,8 +200,8 @@ type NebiusDataSource implements DataSourceInterface {
 
 # Databricks data source
 type DatabricksConfig {
-  account_id: String!
-  client_id: String!
+  account_id: String
+  client_id: String
 }
 
 type DatabricksDataSource implements DataSourceInterface {
