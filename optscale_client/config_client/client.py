@@ -318,22 +318,6 @@ class Client(etcd.Client):
         LOG.info('Waiting until cluster initialization completed')
         self.wait_until_exist('/configured')
 
-    def install_certificates(self):
-        """
-        takes all certificates from /certificates branch
-        adds them to /usr/local/share/ca-certificates/ folder
-        runs update-ca-certificates
-        """
-        try:
-            certificates = self.read_branch('/certificates')
-        except KeyError:
-            return
-        for cert_name, cert in certificates.items():
-            with open(os.path.join(CERTIFICATE_FOLDER,
-                                   '{0}.crt'.format(cert_name)), 'w') as f_cert:
-                f_cert.write(cert)
-        subprocess.run(['update-ca-certificates'], check=True)
-
     def cluster_secret(self):
         return self.get("/secret/cluster").value
 
