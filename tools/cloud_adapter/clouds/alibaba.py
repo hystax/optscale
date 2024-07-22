@@ -741,7 +741,7 @@ class Alibaba(CloudBase):
                 'name': 'Indonesia (Jakarta)',
                 'longitude': 106.7593066, 'latitude': -6.2297419},
             'ap-south-1': {
-                'name': 'India (Mumbai)',
+                'name': 'India (Mumbai) Closing Down',
                 'longitude': 72.74076, 'latitude': 19.0821976},
             'us-east-1': {
                 'name': 'US (Virginia)',
@@ -764,8 +764,21 @@ class Alibaba(CloudBase):
         }
         # endregion
 
+    @staticmethod
+    def _get_outdated_regions():
+        # "India (Mumbai)" region was renamed to "India (Mumbai) Closing Down",
+        # but it still remains in old expenses. Let's create a fake region with
+        # the outdated name, as optscale uses regions names instead of ids for
+        # Alibaba cloud
+        return {
+            'ap-south-1-fake': {
+                'name': 'India (Mumbai)',
+                'longitude': 72.74076, 'latitude': 19.0821976},
+        }
+
     def get_regions_coordinates(self):
         coordinates_map = self._get_coordinates_map()
+        coordinates_map.update(self._get_outdated_regions())
         try:
             for region_details in self._list_region_details():
                 region_id = region_details['RegionId']
