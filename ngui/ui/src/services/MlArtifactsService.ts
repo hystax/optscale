@@ -33,8 +33,9 @@ type GetApiParams = {
   limit?: number;
   startFrom?: number;
   textLike?: string;
-  createdAtGt: number;
-  createdAtLt: number;
+  createdAtGt?: number;
+  createdAtLt?: number;
+  taskId?: string | string[];
 };
 
 type EditApplicationApiParams = {

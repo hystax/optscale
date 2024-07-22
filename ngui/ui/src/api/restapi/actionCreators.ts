@@ -2396,7 +2396,8 @@ export const getMlArtifacts = (organizationId, params = {}) =>
       start_from: params.startFrom,
       text_like: params.textLike,
       created_at_gt: params.createdAtGt,
-      created_at_lt: params.createdAtLt
+      created_at_lt: params.createdAtLt,
+      task_id: params.taskId
     }
   });
 

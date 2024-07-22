@@ -14,6 +14,7 @@ import ResourceTypeFilter from "./ResourceTypeFilter";
 import ServiceFilter from "./ServiceType";
 import StatusFilter from "./StatusFilter";
 import TagFilter from "./TagFilter";
+import TasksFilter from "./TasksFilter";
 import WithAvailableSavingsFilter from "./WithAvailableSavingsFilter";
 import WithoutTagFilter from "./WithoutTagFilter";
 import WithViolatedConstraintsFilter from "./WithViolatedConstraintsFilter";
@@ -61,6 +62,8 @@ export const POWER_SCHEDULE_INSTANCES_FILTERS = [PoolFilter, OwnerFilter, Region
 export const ML_TASKS_FILTERS = [OwnerFilter, StatusFilter, GoalsFilter];
 export const ML_RUNS_FILTERS = [StatusFilter, GoalsFilter];
 export const ML_TASK_RUNS_FILTERS = [StatusFilter, GoalsFilter];
+export const ML_ARTIFACTS_FILTERS = [TasksFilter];
 
 export const ML_TASKS_FILTERS_NAMES = ML_TASKS_FILTERS.map((ResourceFilter) => ResourceFilter.filterName);
 export const ML_RUNS_FILTERS_NAMES = ML_RUNS_FILTERS.map((ResourceFilter) => ResourceFilter.filterName);
+export const ML_ARTIFACTS_FILTERS_NAMES = ML_ARTIFACTS_FILTERS.map((ResourceFilter) => ResourceFilter.filterName);

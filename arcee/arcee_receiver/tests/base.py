@@ -8,6 +8,7 @@ DB_MOCK = AsyncMongoMockClient()['arcee']
 
 TOKEN1 = "token_value1"
 TOKEN2 = "token_value2"
+SECRET = "secret"
 
 
 class AConfigClMock(AConfigCl):
@@ -16,7 +17,7 @@ class AConfigClMock(AConfigCl):
         return 'name', 'password', '127.0.0.1', 80, 'arcee'
 
     async def cluster_secret(self):
-        return 'secret'
+        return SECRET
 
 
 class Urls:
@@ -40,6 +41,8 @@ class Urls:
     dataset_register = '/arcee/v2/run/{}/dataset_register'
     dataset = '/arcee/v2/datasets/{}'
     labels = '/arcee/v2/labels'
+    tokens = '/arcee/v2/tokens'
+    token = '/arcee/v2/tokens/{}'
 
 
 async def prepare_token():
@@ -47,6 +50,7 @@ async def prepare_token():
         {"_id": str(uuid.uuid4()), "token": TOKEN1, "deleted_at": 0})
     await DB_MOCK['token'].insert_one(
         {"_id": str(uuid.uuid4()), "token": TOKEN2, "deleted_at": 0})
+    return [x async for x in DB_MOCK['token'].find({})]
 
 
 async def prepare_tasks(metrics=None):
