@@ -1432,6 +1432,7 @@
   "ok": "Ok",
   "onSchedule": "On schedule",
   "onlyAccessibleByMe": "Only accessible by me",
+  "onlyAwsLinkedAccountsConnectedWarningWithPermissions": "AWS Root Account is missing. AWS Linked Account relies on billing data from its AWS Root Account. {hasPermissionsToConnectDataSources, select,\n true {Please connect the appropriate AWS Root Account}\n false {Please contact your organization manager to connect the appropriate AWS Root Account}\n other {Please connect the appropriate AWS Root Account}}.",
   "onlyManagersCanCreateNewPoolPolicy": "Only organization and pool managers can create a new pool policy.",
   "onlyOrganizationManagersCanDisconnectThis": "Only organization managers can disconnect this.",
   "onlyOrganizationManagersCanSetThisUp": "Only organization managers can set this up.",
