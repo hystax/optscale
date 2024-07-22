@@ -1,8 +1,11 @@
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { FormattedMessage } from "react-intl";
+import Filters from "components/Filters";
+import { ML_ARTIFACTS_FILTERS, ML_ARTIFACTS_FILTERS_NAMES } from "components/Filters/constants";
 import TableLoader from "components/TableLoader";
 import { useDebouncedValue } from "hooks/useDebouncedValue";
 import MlArtifactsService, { Artifact } from "services/MlArtifactsService";
+import { TASKS_BE_FILTER, TASKS_FILTER } from "utils/constants";
 import {
   EN_FULL_FORMAT,
   SECONDS_IN_DAY,
@@ -15,9 +18,6 @@ import {
   subYears
 } from "utils/datetime";
 import { getQueryParams, updateQueryParams } from "utils/network";
-
-const PAGE_SIZE = 50;
-const DEFAULT_PAGE_INDEX = 0;
 
 export type Pagination = {
   pageCount: number;
@@ -46,16 +46,28 @@ export type RangeFilter = {
   };
 };
 
+export type TasksFilter = {
+  definition: Filters;
+  onChange: (filter: { name: string; value: string[] }) => void;
+  onFilterDelete: (filter: { filterName: string; filterValue: string }) => void;
+  onFiltersDelete: () => void;
+};
+
 type MlArtifactsContainerProps = {
   runId?: string | string[];
-  renderTable: (props: {
+  tasks?: { id: string; name: string }[];
+  isLoading?: boolean;
+  render: (props: {
     artifacts: Artifact[];
     pagination: Pagination;
     search: Search;
     rangeFilter: RangeFilter;
+    tasksFilter: TasksFilter;
   }) => ReactNode;
 };
 
+const PAGE_SIZE = 50;
+const DEFAULT_PAGE_INDEX = 0;
 const SEARCH_QUERY_PARAM_NAME = "search";
 const PAGE_QUERY_PARAM_NAME = "page";
 const START_DATE_QUERY_PARAM_NAME = "startDate";
@@ -87,7 +99,7 @@ const getRangeQueryParams = (minRange: number, maxRange: number) => {
   return [minRange, maxRange] as const;
 };
 
-const MlArtifactsContainer = ({ runId, renderTable }: MlArtifactsContainerProps) => {
+const MlArtifactsContainer = ({ runId, tasks = [], isLoading = false, render }: MlArtifactsContainerProps) => {
   const { useGet } = MlArtifactsService();
 
   const [pageIndex, setPageIndex] = useState(getDefaultPageIndexValue());
@@ -105,6 +117,30 @@ const MlArtifactsContainer = ({ runId, renderTable }: MlArtifactsContainerProps)
     onDebouncedValueChange: onDebouncedRangeChange
   });
 
+  const filterValues = {
+    [TASKS_BE_FILTER]: tasks.map(({ id, name }) => ({
+      value: id,
+      name
+    }))
+  };
+
+  const [appliedFilters, setAppliedFilters] = useState<Record<string, string | string[] | undefined>>(() => {
+    const queryParams = getQueryParams();
+
+    return ML_ARTIFACTS_FILTERS_NAMES.reduce(
+      (params, queryKey) => ({
+        ...params,
+        [queryKey]: queryParams[queryKey]
+      }),
+      {}
+    );
+  });
+
+  const onAppliedFiltersChange = (newAppliedFiltersValue) => {
+    setPageIndex(DEFAULT_PAGE_INDEX);
+    setAppliedFilters(newAppliedFiltersValue);
+  };
+
   const params = useMemo(
     () => ({
       limit: PAGE_SIZE,
@@ -112,9 +148,10 @@ const MlArtifactsContainer = ({ runId, renderTable }: MlArtifactsContainerProps)
       runId,
       textLike: searchValue,
       createdAtGt: debouncedRange[0],
-      createdAtLt: debouncedRange[1]
+      createdAtLt: debouncedRange[1],
+      taskId: appliedFilters[TASKS_FILTER]
     }),
-    [pageIndex, debouncedRange, runId, searchValue]
+    [pageIndex, runId, searchValue, debouncedRange, appliedFilters]
   );
 
   const onSearchChange = (newSearch: string) => {
@@ -135,20 +172,21 @@ const MlArtifactsContainer = ({ runId, renderTable }: MlArtifactsContainerProps)
       [SEARCH_QUERY_PARAM_NAME]: searchValue,
       [PAGE_QUERY_PARAM_NAME]: pageIndex + 1,
       [START_DATE_QUERY_PARAM_NAME]: debouncedRange[0],
-      [END_DATE_QUERY_PARAM_NAME]: debouncedRange[1]
+      [END_DATE_QUERY_PARAM_NAME]: debouncedRange[1],
+      [TASKS_FILTER]: appliedFilters[TASKS_FILTER]
     });
-  }, [pageIndex, debouncedRange, searchValue]);
+  }, [pageIndex, debouncedRange, searchValue, appliedFilters]);
 
-  const { isLoading, data } = useGet(params);
+  const { isLoading: isGetArtifactsLoading, data } = useGet(params);
 
   const totalArtifactsCount = data?.total_count ?? 0;
 
   const pageCount = totalArtifactsCount ? Math.ceil(totalArtifactsCount / PAGE_SIZE) : 1;
 
-  return isLoading ? (
+  return isLoading || isGetArtifactsLoading ? (
     <TableLoader columnsCounter={4} showHeader />
   ) : (
-    renderTable({
+    render({
       artifacts: data?.artifacts ?? [],
       pagination: {
         pageCount,
@@ -180,6 +218,40 @@ const MlArtifactsContainer = ({ runId, renderTable }: MlArtifactsContainerProps)
         manualFilterDefinition: {
           onChange: onRangeChange,
           range
+        }
+      },
+      tasksFilter: {
+        definition: new Filters({
+          filters: ML_ARTIFACTS_FILTERS,
+          filterValues,
+          appliedFilters
+        }),
+        onChange: ({ name, value }) => {
+          onAppliedFiltersChange((currentlyAppliedFilters) => ({ ...currentlyAppliedFilters, [name]: value }));
+        },
+        onFilterDelete: (filterToDelete) => {
+          onAppliedFiltersChange((currentlyAppliedFilters) => {
+            const currentFilterValues = currentlyAppliedFilters[filterToDelete.filterName];
+            const isArrayFilterValues = currentFilterValues;
+
+            return {
+              ...currentlyAppliedFilters,
+              [filterToDelete.filterName]: isArrayFilterValues
+                ? currentFilterValues.filter((val) => val !== filterToDelete.filterValue)
+                : undefined
+            };
+          });
+        },
+        onFiltersDelete: () => {
+          onAppliedFiltersChange((currentlyAppliedFilters) =>
+            Object.entries(currentlyAppliedFilters).reduce(
+              (newRequestParams, [filterName]) => ({
+                ...newRequestParams,
+                [filterName]: undefined
+              }),
+              {}
+            )
+          );
         }
       }
     })

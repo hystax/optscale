@@ -1,5 +1,5 @@
-import MlArtifactsComponent from "components/MlArtifacts";
+import MlArtifactsPageContainer from "containers/MlArtifactsPageContainer";
 
-const MlArtifacts = () => <MlArtifactsComponent />;
+const MlArtifacts = () => <MlArtifactsPageContainer />;
 
 export default MlArtifacts;

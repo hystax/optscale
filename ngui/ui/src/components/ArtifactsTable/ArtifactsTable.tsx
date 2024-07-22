@@ -1,29 +1,33 @@
 import { useMemo } from "react";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
+import LinearSelector from "components/LinearSelector";
 import { TABS } from "components/MlTaskRun";
 import { MlDeleteArtifactModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { Pagination, RangeFilter, Search } from "containers/MlArtifactsContainer/MlArtifactsContainer";
+import { Pagination, RangeFilter, Search, TasksFilter } from "containers/MlArtifactsContainer/MlArtifactsContainer";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { Artifact } from "services/MlArtifactsService";
 import { getEditMlArtifactUrl } from "urls";
 import { markdown, run, slicedText, tags, utcTime } from "utils/columns";
 import { TAB_QUERY_PARAM_NAME } from "utils/constants";
+import { SPACING_1 } from "utils/layouts";
 
 type ArtifactsTableProps = {
   artifacts: Artifact[];
   pagination: Pagination;
-  search?: Search;
-  rangeFilter?: RangeFilter;
+  search: Search;
+  rangeFilter: RangeFilter;
+  tasksFilter: TasksFilter;
 };
 
-const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter }: ArtifactsTableProps) => {
+const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilter }: ArtifactsTableProps) => {
   const openSideModal = useOpenSideModal();
 
   const tableData = useMemo(() => artifacts, [artifacts]);
@@ -141,21 +145,36 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter }: Artifact
   }, [artifacts.length, isManageArtifactsAllowed, navigate, openSideModal, pagination]);
 
   return (
-    <Table
-      data={tableData}
-      columns={columns}
-      localization={{ emptyMessageId: "noArtifacts" }}
-      manualPagination={pagination}
-      withSearch
-      rangeFilter={rangeFilter?.filterComponentProps}
-      manualGlobalFiltering={{
-        search,
-        rangeFilter: rangeFilter?.manualFilterDefinition
-      }}
-      counters={{
-        showCounters: true
-      }}
-    />
+    <Stack spacing={SPACING_1}>
+      <div>
+        <LinearSelector
+          label={<FormattedMessage id="filters" />}
+          value={tasksFilter.definition.getAppliedValues()}
+          items={tasksFilter.definition.getFilterSelectors()}
+          onClear={tasksFilter.onFilterDelete}
+          onChange={tasksFilter.onChange}
+          onApply={tasksFilter.onChange}
+          onClearAll={tasksFilter.onFiltersDelete}
+        />
+      </div>
+      <div>
+        <Table
+          data={tableData}
+          columns={columns}
+          localization={{ emptyMessageId: "noArtifacts" }}
+          manualPagination={pagination}
+          withSearch
+          rangeFilter={rangeFilter?.filterComponentProps}
+          manualGlobalFiltering={{
+            search,
+            rangeFilter: rangeFilter?.manualFilterDefinition
+          }}
+          counters={{
+            showCounters: true
+          }}
+        />
+      </div>
+    </Stack>
   );
 };
 

@@ -8,7 +8,7 @@ const RunArtifactsContainer = () => {
   return (
     <MlArtifactsContainer
       runId={runId}
-      renderTable={({ artifacts, pagination, search }) => (
+      render={({ artifacts, pagination, search }) => (
         <RunArtifactsTable artifacts={artifacts} pagination={pagination} search={search} />
       )}
     />

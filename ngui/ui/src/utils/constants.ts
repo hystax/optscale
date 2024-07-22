@@ -236,6 +236,9 @@ export const STATUS_FILTER = "status";
 export const GOALS_BE_FILTER = "goals";
 export const GOALS_FILTER = "goals";
 
+export const TASKS_BE_FILTER = "task_id";
+export const TASKS_FILTER = "task";
+
 export const RESOURCE_TYPE_BE_FILTER = "resource_type";
 export const RESOURCE_TYPE_FILTER = "resourceType";
 
