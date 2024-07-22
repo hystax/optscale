@@ -130,7 +130,7 @@ async def handle_auth(request):
         request.ctx.token = token
     elif request.route.ctx.label == 'secret':
         secret = await extract_secret(request, raise_on=True)
-        await check_secret(secret, raise_on=False)
+        await check_secret(secret, raise_on=True)
     elif request.route.ctx.label == 'secret_or_token':
         secret = await extract_secret(request, raise_on=False)
         is_valid_secret = await check_secret(secret, raise_on=False)
