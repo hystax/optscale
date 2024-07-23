@@ -27,7 +27,7 @@ maximizing the efficiency and availability of cloud resources.
 
 ### Tips
 
-- Optimize Costs: Set budgets to keep Your costs under control and avoid overspending.
+- Optimize Costs: Set budgets to keep your costs under control and avoid overspending.
 
 - Optimize Resource Usage: Allocate quotas to ensure optimal usage and prevent overconsumption.
 
