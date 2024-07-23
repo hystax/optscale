@@ -2041,6 +2041,13 @@ class Client(Client_v1):
     def labels_list(self, organization_id):
         return self.get(self.labels_url(organization_id))
 
+    @staticmethod
+    def tags_url(organization_id, task_id):
+        return '%s/tags' % Client.tasks_url(organization_id, task_id)
+
+    def tags_list(self, organization_id, task_id):
+        return self.get(self.tags_url(organization_id, task_id))
+
     def leaderboard_dataset_get(self, organization_id, leaderboard_dataset_id,
                                 details=False):
         url = self.leaderboard_dataset_url(

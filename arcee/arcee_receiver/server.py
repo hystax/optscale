@@ -1940,6 +1940,30 @@ async def get_labels(request):
     return json(labels)
 
 
+@app.route('/arcee/v2/tasks/<task_id>/tags', methods=["GET", ],
+           ctx_label='token')
+async def get_tags(request, task_id: str):
+    token = request.ctx.token
+    task = await db.task.find_one(
+        {'_id': task_id, 'token': token, 'deleted_at': 0})
+    if not task:
+        raise SanicException("Task not found", status_code=404)
+    pipeline = [
+        {"$match": {"task_id": task_id, "deleted_at": 0}},
+        {"$project": {"tags": {"$objectToArray": "$tags"}}},
+        {"$unwind": "$tags"},
+        {"$group": {"_id": None, "tags": {"$addToSet": "$tags.k"}}},
+    ]
+    tags = []
+    cur = db.run.aggregate(pipeline)
+    try:
+        res = await cur.next()
+        tags = list(res['tags'])
+    except StopAsyncIteration:
+        pass
+    return json(tags)
+
+
 @app.route('/arcee/v2/run/<run_id>/consoles', methods=["POST", ],
            ctx_label='token')
 @validate(json=ConsolePostIn)

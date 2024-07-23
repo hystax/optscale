@@ -71,6 +71,7 @@ class TestProfilingBase(TestApiBase):
             'tags': {'key': 'value', 'project': 'regression'},
             'data': {'step': 2000, 'loss': 0.153899},
             'token': token,
+            'deleted_at': 0
         }
         if executor_ids:
             run['executors'] = executor_ids
@@ -789,6 +790,27 @@ class ArceeMock:
             # keep insertion order
             labels.extend(OrderedDict.fromkeys(res.get('labels', [])).keys())
         return 200, labels
+
+    def tags_list(self, task_id):
+        task = self.profiling_task.find_one({'_id': task_id, 'deleted_at': 0,
+                                             'token': self.token})
+        if not task:
+            self._raise_http_error(404)
+        pipeline = [
+            {"$match": {"task_id": task_id,
+                        "deleted_at": 0}},
+            {"$project": {"tags": {"$objectToArray": "$tags"}}},
+            {"$unwind": "$tags"},
+            {"$group": {"_id": None, "tags": {"$addToSet": "$tags.k"}}},
+        ]
+        tags = []
+        cur = self.profiling_runs.aggregate(pipeline)
+        try:
+            res = cur.next()
+            tags = res['tags']
+        except StopAsyncIteration:
+            pass
+        return 200, tags
 
     def console_create(self, run_id: str, output: str, error: str):
         d = {

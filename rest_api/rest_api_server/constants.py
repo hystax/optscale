@@ -224,6 +224,8 @@ class UrlsV2(Urls):
         'artifacts':
             r"%s/organizations/(?P<organization_id>[^/]+)/"
             r"artifacts/(?P<artifact_id>[^/]+)",
+        'tags_collection': r"%s/organizations/(?P<organization_id>[^/]+)/"
+                           r"tasks/(?P<task_id>[^/]+)/tags",
     })
 
 
