@@ -6,6 +6,7 @@ const CloudAccountsOverviewMocked = () => (
     organizationLimit={180000}
     cloudAccounts={[
       {
+        config: {},
         details: {
           tracked: 16,
           last_month_cost: 18560.75036486765,
@@ -17,6 +18,7 @@ const CloudAccountsOverviewMocked = () => (
         type: "azure_cnr"
       },
       {
+        config: {},
         details: {
           tracked: 610,
           last_month_cost: 40120.98,
@@ -28,6 +30,7 @@ const CloudAccountsOverviewMocked = () => (
         type: "aws_cnr"
       },
       {
+        config: {},
         details: {
           tracked: 5,
           last_month_cost: 11750,
@@ -39,6 +42,7 @@ const CloudAccountsOverviewMocked = () => (
         type: "aws_cnr"
       },
       {
+        config: {},
         details: {
           tracked: 5,
           last_month_cost: 6500.5523346274,
@@ -50,6 +54,7 @@ const CloudAccountsOverviewMocked = () => (
         type: "azure_cnr"
       },
       {
+        config: {},
         details: {
           tracked: 12,
           last_month_cost: 5900.5523346274,
@@ -61,6 +66,7 @@ const CloudAccountsOverviewMocked = () => (
         type: "kubernetes_cnr"
       },
       {
+        config: {},
         details: {
           tracked: 125,
           last_month_cost: 0,

@@ -62,12 +62,21 @@ class AbandonedKinesisStreams(ModuleBase):
                     }
             }
         ]
-        return self.mongo_client.restapi.raw_expenses.aggregate(pipeline, hint="AwsServiceName")
+        return self.mongo_client.restapi.raw_expenses.aggregate(
+            pipeline, hint="AwsServiceName")
 
     def _get_resources_info(self, resource_ids, start_date):
         return self.mongo_client.restapi.resources.find({
             '$or': resource_ids, 'first_seen': {'$lte': start_date}
         }) if resource_ids else []
+
+    @staticmethod
+    def get_active_date(last_import):
+        return last_import - timedelta(days=2)
+
+    @staticmethod
+    def get_start_date_raw_expenses(last_import, days_threshold):
+        return last_import - timedelta(days=days_threshold)
 
     def _get(self):
         (days_threshold, excluded_pools,
