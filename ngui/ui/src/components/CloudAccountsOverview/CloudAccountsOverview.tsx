@@ -106,7 +106,7 @@ const AwsLinkedAccountsWarning = () => {
 
   return (
     <InlineSeverityAlert
-      messageId="onlyAwsLinkedAccountsConnectedWarningWithPermissions"
+      messageId="onlyAwsLinkedAccountsConnectedWarning"
       messageValues={{
         hasPermissionsToConnectDataSources: isManageCloudCredentialsAllowed
       }}
@@ -120,8 +120,8 @@ const CloudAccountsOverview = ({ cloudAccounts, organizationLimit, isLoading = f
   const totalForecast = getSumByNestedObjectKey(cloudAccounts, "details", "forecast");
   const lastMonthCost = getSumByNestedObjectKey(cloudAccounts, "details", "last_month_cost");
 
-  const onlyAwsLinkedAccountsConnected =
-    !isEmptyArray(cloudAccounts) && cloudAccounts.every(({ type, config }) => type === AWS_CNR && config.linked);
+  const awsDataSources = cloudAccounts.filter(({ type }) => type === AWS_CNR);
+  const onlyAwsLinkedAccountsConnected = !isEmptyArray(awsDataSources) && awsDataSources.every(({ config }) => config.linked);
 
   return (
     <>
