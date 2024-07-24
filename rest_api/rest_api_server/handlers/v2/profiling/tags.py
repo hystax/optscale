@@ -38,7 +38,7 @@ class TagsAsyncCollectionHandler(LabelsAsyncCollectionHandler):
                 schema:
                     type: object
                     properties:
-                        labels:
+                        tags:
                             type: array
                             items:
                                 type: string
