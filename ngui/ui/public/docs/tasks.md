@@ -21,7 +21,7 @@ By grouping several runs into one entity, a task allows one to conveniently view
  
 - Manage Your Metrics: Use "Manage Metrics" to add, edit, or delete metrics.
  
-- View Compute Resources: Click the Executors button to see the compute resources list used to run Your ML activities.
+- View Compute Resources: Click the Executors button to see the compute resources list used to run your ML activities.
   
 - Manage Your Tasks: Click on a table row to edit, delete, or view detailed information about a task, including runs history and model versions. Adding leaderboards is available with a click either.
 

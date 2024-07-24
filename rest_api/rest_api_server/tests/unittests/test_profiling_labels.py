@@ -25,7 +25,8 @@ class TestLabelApi(TestProfilingBase):
             'display_name': 'default',
             'email': 'email@email.com',
         }
-        patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler._get_user_info',
+        patch('rest_api.rest_api_server.handlers.v1.base.'
+              'BaseAuthHandler._get_user_info',
               return_value=user).start()
         self.valid_dataset = {
             'path': 's3://ml-bucket/dataset',
@@ -68,7 +69,8 @@ class TestLabelApi(TestProfilingBase):
             self.assertEqual(code, 201)
         code, res = self.client.labels_list(self.organization_id)
         self.assertEqual(code, 200)
-        self.assertListEqual(res.get('labels', []), self.valid_dataset['labels'])
+        self.assertListEqual(res.get('labels', []),
+                             self.valid_dataset['labels'])
 
     def test_list_order(self):
         labels_string = 'abcde'

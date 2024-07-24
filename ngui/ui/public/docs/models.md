@@ -1,6 +1,6 @@
 ## Summary
 
-Use the Models Page to register and keep track of Your machine learning models.
+Use the Models Page to register and keep track of your machine learning models.
 
 ### View
 

@@ -234,6 +234,10 @@ class Client:
         return 'labels'
 
     @staticmethod
+    def tags_url(task_id):
+        return '%s/tags' % Client.tasks_url(task_id)
+
+    @staticmethod
     def console_url(run_id):
         return '%s/console' % Client.run_url(run_id)
 
@@ -671,6 +675,9 @@ class Client:
 
     def labels_list(self):
         return self.get(self.labels_url())
+
+    def tags_list(self, task_id):
+        return self.get(self.tags_url(task_id))
 
     def console_create(self, run_id: str, output: str, error: str):
         data = {

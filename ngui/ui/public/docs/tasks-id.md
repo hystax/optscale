@@ -1,7 +1,7 @@
 ### Summary
 
 The metrics library provides information about tendency, target values, and aggregate metric functions.
-Use this page to add, edit, or delete metrics. To use metrics in Your training code, utilize the send method, such as `arcee.send({ "key_field": value })`.
+Use this page to add, edit, or delete metrics. To use metrics in your training code, utilize the send method, such as `arcee.send({ "key_field": value })`.
 
 ### View
 

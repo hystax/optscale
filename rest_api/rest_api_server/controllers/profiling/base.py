@@ -520,6 +520,12 @@ class BaseProfilingController(BaseProfilingTokenController):
         return labels
 
     @handle_http_exc
+    def list_tags(self, profiling_token, task_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, tags = arcee.tags_list(task_id)
+        return tags
+
+    @handle_http_exc
     def get_console(self, profiling_token, run_id):
         arcee = self.get_arcee_client(profiling_token)
         _, console = arcee.console_get(run_id)
