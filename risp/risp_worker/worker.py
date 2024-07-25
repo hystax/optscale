@@ -496,9 +496,17 @@ class RISPWorker(ConsumerMixin):
         raw_expenses = self.get_uncovered_raw_expenses(
             cloud_account_id, start_date, end_date)
         for expense in raw_expenses:
-            # pricing/publicOnDemandCost may be missing for Fargate expenses
-            cost = float(expense.get('pricing/publicOnDemandCost',
-                         expense['lineItem/UnblendedCost']))
+            # pricing/publicOnDemandCost may be missing for Fargate expenses and
+            # lineItem/UnblendedCost may be missing for Lambda
+            cost = expense.get('pricing/publicOnDemandCost') or expense.get(
+                'lineItem/UnblendedCost')
+            if cost is None:
+                raise Exception('Unsupported expense for resource %s, '
+                                'cloud account: %s, date: %s' % (
+                                    expense['resource_id'],
+                                    expense['cloud_account_id'],
+                                    expense['start_date']))
+            cost = float(cost)
             usage_hrs = float(expense['lineItem/UsageAmount'])
             if 'second' in expense['pricing/unit'].lower():
                 usage_hrs = usage_hrs / SECONDS_IN_HOUR

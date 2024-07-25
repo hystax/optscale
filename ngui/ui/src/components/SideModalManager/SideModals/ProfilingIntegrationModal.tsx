@@ -5,6 +5,7 @@ import BaseSideModal from "./BaseSideModal";
 class ProfilingIntegrationModal extends BaseSideModal {
   headerProps = {
     messageId: "profilingIntegrationTitle",
+    showExpand: true,
     dataTestIds: {
       title: "lbl_profiling_integration",
       closeButton: "btn_close"
