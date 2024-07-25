@@ -1,7 +1,7 @@
 import logging
 
 from collections import OrderedDict, defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from optscale_client.insider_client.client import Client as InsiderClient
 
 from bumiworker.bumiworker.modules.base import ModuleBase
@@ -41,48 +41,63 @@ class InstanceGenerationUpgrade(ModuleBase):
             self.organization_id)
         return organization.get('currency', 'USD')
 
-    def _get(self):
-        (excluded_pools, skip_cloud_accounts) = self.get_options_values()
-        cloud_account_map = self.get_cloud_accounts(
-            supported_cloud_types=SUPPORTED_CLOUD_TYPES,
-            skip_cloud_accounts=skip_cloud_accounts)
-        cloud_account_ids = list(cloud_account_map.keys())
-        now = datetime.utcnow()
+    def get_instances_map(self, cloud_account_ids):
         instances = self.mongo_client.restapi.resources.find({
             '$and': [
                 {'resource_type': {'$in': ['Instance', 'RDS Instance']}},
                 {'active': True},
                 {'cloud_account_id': {'$in': cloud_account_ids}}
             ]})
+        return {ins['cloud_resource_id']: ins for ins in instances}
+
+    def get_raw_expenses(self, now, cloud_account_ids, resource_ids):
+        return self.mongo_client.restapi.raw_expenses.aggregate([
+            {'$match': {
+                '$and': [
+                    {'box_usage': True},
+                    {'resource_id': {'$in': resource_ids}},
+                    {'start_date': {'$gte': now - timedelta(days=7)}},
+                    {'cloud_account_id': {'$in': cloud_account_ids}},
+                ]
+            }},
+            {'$group': {
+                '_id': '$resource_id',
+                'os': {'$last': '$product/operatingSystem'},
+                'software': {'$last': '$product/preInstalledSw'},
+                'daily_costs': {'$push': {
+                    "date": "$start_date",
+                    "cost": '$cost'
+                }},
+                'meter_id': {'$last': '$meter_id'},
+            }},
+        ])
+
+    @staticmethod
+    def get_current_daily_cost(raw_info):
+        daily_cost_map = defaultdict(int)
+        for daily_cost in raw_info.get('daily_costs', []):
+            raw_date = daily_cost['date']
+            daily_cost_map[raw_date] += daily_cost.get('cost', 0)
+        return max(daily_cost_map.values())
+
+    def _get(self):
+        (excluded_pools, skip_cloud_accounts) = self.get_options_values()
+        cloud_account_map = self.get_cloud_accounts(
+            supported_cloud_types=SUPPORTED_CLOUD_TYPES,
+            skip_cloud_accounts=skip_cloud_accounts)
+        cloud_account_ids = list(cloud_account_map.keys())
+        now = datetime.now(tz=timezone.utc)
         employees = self.get_employees()
         pools = self.get_pools()
-        instance_map = {ins['cloud_resource_id']: ins for ins in instances}
+        instance_map = self.get_instances_map(cloud_account_ids)
         cloud_resource_ids = list(instance_map.keys())
         result = []
         stats_map = {}
         currency = self.get_organization_currency()
         for i in range(0, len(cloud_resource_ids), BULK_SIZE):
             bulk_ids = cloud_resource_ids[i:i + BULK_SIZE]
-            raw_expenses = self.mongo_client.restapi.raw_expenses.aggregate([
-                {'$match': {
-                    '$and': [
-                        {'box_usage': True},
-                        {'resource_id': {'$in': bulk_ids}},
-                        {'start_date': {'$gte': now - timedelta(days=7)}},
-                        {'cloud_account_id': {'$in': cloud_account_ids}},
-                    ]
-                }},
-                {'$group': {
-                    '_id': '$resource_id',
-                    'os': {'$last': '$product/operatingSystem'},
-                    'software': {'$last': '$product/preInstalledSw'},
-                    'daily_costs': {'$push': {
-                        "date": "$start_date",
-                        "cost": '$cost'
-                    }},
-                    'meter_id': {'$last': '$meter_id'},
-                }},
-            ])
+            raw_expenses = self.get_raw_expenses(now, cloud_account_ids,
+                                                 bulk_ids)
             for raw_info in raw_expenses:
                 instance = instance_map.get(raw_info['_id'])
                 cloud_account_id = instance['cloud_account_id']
@@ -97,11 +112,7 @@ class InstanceGenerationUpgrade(ModuleBase):
                 meter_id = raw_info.get('meter_id')
                 os_type = instance['meta'].get('os') or raw_info.get('os')
                 preinstalled = raw_info.get('software')
-                daily_cost_map = defaultdict(int)
-                for daily_cost in raw_info.get('daily_costs', []):
-                    raw_date = daily_cost['date']
-                    daily_cost_map[raw_date] += daily_cost.get('cost', 0)
-                current_daily_cost = max(daily_cost_map.values())
+                current_daily_cost = self.get_current_daily_cost(raw_info)
                 generation_params = {
                     'cloud_type': cloud_type,
                     'region': instance['region'],
