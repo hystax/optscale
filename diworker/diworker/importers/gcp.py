@@ -190,7 +190,7 @@ class GcpReportImporter(BaseReportImporter):
         r_type, r_name = self._get_resource_type_and_name(
             expenses[-1])
         service = expenses[-1].get('service')
-        region = expenses[-1].get('region')
+        region = self.cloud_adapter._fix_region(expenses[-1].get('region'))
         first_seen = datetime.utcnow()
         last_seen = datetime.utcfromtimestamp(0).replace()
         tags = {}
