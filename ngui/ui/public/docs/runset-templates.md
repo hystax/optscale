@@ -1,4 +1,4 @@
-### Summary
+### **Summary**
 
 Hypertuning allows you to define a set of hyperparameters 
 and automatically run your training code in parallel 
@@ -11,12 +11,12 @@ configurations for running hyperparameter tuning experiments.
 These templates can include various combinations of hyperparameters 
 that you want to test.
 
-### Requirements
+### **Requirements**
 
 ```AmazonEC2FullAccess``` policy is required for 
 the user specified on AWS data source connecting to use Hypertuning.
 
-### Actions
+### **Actions**
 
 - Update the Content: Click the Refresh button to view the latest information.
 
@@ -32,7 +32,7 @@ the user specified on AWS data source connecting to use Hypertuning.
 
 - Manage Runset Templates: Click on a table row to launch a new runset or view detailed information about a template, including comprehensive information on tasks, infrastructure, and hyperparameters. 
 
-### Tips
+### **Tips**
 
 - Automation: Simplifies the hyperparameter tuning process by automatically launching multiple experiments.
 

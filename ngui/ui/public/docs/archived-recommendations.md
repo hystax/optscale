@@ -1,8 +1,8 @@
-### Overview
+### **Overview**
 
 An Archive page provides information about irrelevant or applied recommendations.
 
-### View
+### **View**
  
 - Define a period: Specify a Date Range.
 
@@ -10,7 +10,7 @@ An Archive page provides information about irrelevant or applied recommendations
 
 - Table: See the data shown on the chart in tabular form. Each row of the table is a dropdown panel with detailed information.
 
-### Actions
+### **Actions**
 
 - A Tooltip: Get tooltip on hover on chart column.
 

@@ -1,9 +1,9 @@
-### Overview
+### **Overview**
 
 Use this page to visualize, search for, and access task data for analysis. 
 By grouping several runs into one entity, a task allows one to conveniently view and manage multiple runs simultaneously.
 
-### View
+### **View**
 
 - Execution Details: Monitor the latest run information of profiled tasks. Also, review metrics and expenses.
 
@@ -11,7 +11,7 @@ By grouping several runs into one entity, a task allows one to conveniently view
 
 - Performance Management Toolbar: Use the Page toolbar with the "Refresh", "Profiling Integration", "Manage Metrics", and "Executors" buttons.
 
-### Actions
+### **Actions**
 
 - Add a Task: Easily create a new task by clicking the green "Add" button. Specify the description, key, and owner, and select the metrics.
 
@@ -25,7 +25,7 @@ By grouping several runs into one entity, a task allows one to conveniently view
   
 - Manage Your Tasks: Click on a table row to edit, delete, or view detailed information about a task, including runs history and model versions. Adding leaderboards is available with a click either.
 
-### Tips
+### **Tips**
 
 - Monitor Model Performance and Drift: Continuously monitor model performance to detect and address any declines in accuracy or changes in data patterns, maintaining the model's reliability over time.
 

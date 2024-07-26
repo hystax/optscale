@@ -1,8 +1,8 @@
-### Overview
+### **Overview**
 
 A Cost Map page provides a visual or analytical representation of the costs associated with various cloud services and resources. Use it to analyze regional spending patterns, identify cost disparities, and make informed decisions related to resource allocation, budgeting, or strategies tailored to specific regions.
 
-### View
+### **View**
 
 - A Map Type selector: Switch between the Region and Network Traffic Expenses map.
 
@@ -20,7 +20,7 @@ A Cost Map page provides a visual or analytical representation of the costs asso
 
 - Table: See the data shown on the map in tabular form. 
 
-### Actions
+### **Actions**
 
 - A Tooltip: Get a tooltip on hover on a colored marker of the Region Cost Map.
 
@@ -28,7 +28,7 @@ A Cost Map page provides a visual or analytical representation of the costs asso
 
 - Filter the data in the Network Traffic map: Click on the row of the table to filter the data shown on the Network Traffic map.
 
-### Tips
+### **Tips**
 
 - Identify High-Cost Areas: Pinpoint regions with higher costs for targeted analysis and strategic planning.
 

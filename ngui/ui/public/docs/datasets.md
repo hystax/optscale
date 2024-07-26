@@ -1,4 +1,4 @@
-### Summary
+### **Summary**
 
 Use the Datasets Page to keep track of your machine learning datasets.
 Add your datasets, ensuring you include relevant metadata such as the dataset name, description, source path, labels, and validity period. 
@@ -7,11 +7,11 @@ To log a specific dataset for your training code, include the dataset path in yo
 
 Any datasets you register within your training code will automatically appear on this page.
 
-### View
+### **View**
 
 - Details: Find the path to source of the dataset and implement into your code.
 
-### Actions
+### **Actions**
 
 - Update the Content: Click the Refresh button to view the latest information.
 
@@ -19,7 +19,7 @@ Any datasets you register within your training code will automatically appear on
 
 - Manage Datasets: Use the "Actions" column icons to edit/delete the dataset.
 
-### Tips
+### **Tips**
 
 - Data Cleaning: Regularly clean and preprocess your data to remove noise, handle missing values, and normalize data formats. Consistent preprocessing ensures that models are trained on high-quality data, leading to better performance and reliability.
 
