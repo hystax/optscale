@@ -3,6 +3,10 @@ import uuid
 from typing import Optional, List
 
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.models.db_factory import DBFactory, DBType
+from rest_api.rest_api_server.models.db_base import BaseDB
+from rest_api.rest_api_server.models.models import ProfilingToken
+
 from unittest.mock import patch, PropertyMock
 from requests.exceptions import HTTPError
 from requests.models import Response
@@ -21,6 +25,16 @@ class TestProfilingBase(TestApiBase):
               new_callable=PropertyMock).start()
         patch('rest_api.rest_api_server.controllers.base.'
               'BaseProfilingTokenController.get_secret').start()
+
+    @staticmethod
+    def get_profiling_token(organization_id):
+        db = DBFactory(DBType.Test, None).db
+        engine = db.engine
+        session = BaseDB.session(engine)()
+        token = session.query(ProfilingToken).filter(
+            ProfilingToken.organization_id == organization_id).one_or_none()
+        if token:
+            return token.token
 
     def _gen_executor(self, token, **kwargs):
         executor_id = kwargs.pop('_id', None)

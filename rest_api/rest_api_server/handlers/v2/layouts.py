@@ -2,14 +2,18 @@ import json
 
 from rest_api.rest_api_server.controllers.layout import LayoutsAsyncController
 from rest_api.rest_api_server.handlers.v2.base import BaseHandler
+from rest_api.rest_api_server.handlers.v2.profiling.base import (
+    ProfilingHandler)
 from rest_api.rest_api_server.handlers.v1.base_async import (
     BaseAsyncItemHandler, BaseAsyncCollectionHandler)
-from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
+from rest_api.rest_api_server.handlers.v1.base import (
+    BaseAuthHandler, BaseAuthQueryTokenHandler)
 from rest_api.rest_api_server.utils import (run_task, ModelEncoder)
 
 
 class LayoutsAsyncCollectionHandler(
-        BaseAsyncCollectionHandler, BaseAuthHandler, BaseHandler):
+        BaseAsyncCollectionHandler, BaseAuthQueryTokenHandler,
+        ProfilingHandler):
     def _get_controller_class(self):
         return LayoutsAsyncController
 
@@ -40,6 +44,13 @@ class LayoutsAsyncCollectionHandler(
         -   name: entity_id
             in: query
             description: Entity id to filter by
+            required: false
+            type: string
+        -   name: token
+            in: query
+            description: |
+                Unique token related to organization profiling token (only with
+                layout_type=ml_run_charts_dashboard)
             required: false
             type: string
         responses:
@@ -87,17 +98,27 @@ class LayoutsAsyncCollectionHandler(
             - secret: []
             - token: []
         """
-        if not self.check_cluster_secret(raises=False):
+        token = self.get_arg('token', str, None)
+        layout_type = self.get_arg('layout_type', str, None)
+        secret = False
+        # return all layouts
+        if self.check_cluster_secret(raises=False):
+            user_id = None
+            secret = True
+        # return shared layouts with 'ml_run_charts_dashboard' type or []
+        elif (await self.check_md5_profiling_token(
+                organization_id, token, raises=False) and
+              layout_type == 'ml_run_charts_dashboard'):
+            user_id = None
+        else:
+            # return layouts available for user
             await self.check_permissions(
                 'INFO_ORGANIZATION', 'organization', organization_id)
             user_id = await self.check_self_auth()
-        else:
-            user_id = None
-        layout_type = self.get_arg('layout_type', str, None)
         include_shared = self.get_arg('include_shared', bool, False)
         entity_id = self.get_arg('entity_id', str, None)
         res = await run_task(self.controller.list, user_id, organization_id,
-                             layout_type, include_shared, entity_id)
+                             layout_type, include_shared, entity_id, secret)
         self.write(json.dumps(res, cls=ModelEncoder))
 
     async def post(self, organization_id, **_url_params):
@@ -404,12 +425,15 @@ class LayoutsAsyncItemHandler(
         - token: []
         - secret: []
         """
+        secret = False
         if not self.check_cluster_secret(raises=False):
             await self.check_permissions(
                 'INFO_ORGANIZATION', 'organization', organization_id)
             user_id = await self.check_self_auth()
         else:
             user_id = None
+            secret = True
         await run_task(
-            self.controller.delete, user_id, organization_id, layout_id)
+            self.controller.delete, user_id, organization_id, layout_id,
+            secret=secret)
         self.set_status(204)

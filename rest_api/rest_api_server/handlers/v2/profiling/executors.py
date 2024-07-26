@@ -1,13 +1,17 @@
 import json
 from rest_api.rest_api_server.utils import run_task, ModelEncoder
-from rest_api.rest_api_server.controllers.profiling.executor import ExecutorAsyncController
+from rest_api.rest_api_server.controllers.profiling.executor import (
+    ExecutorAsyncController)
 from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncCollectionHandler
 from rest_api.rest_api_server.handlers.v2.profiling.base import ProfilingHandler
-from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
+from rest_api.rest_api_server.handlers.v1.base import (
+    BaseAuthHandler, BaseAuthQueryTokenHandler)
 
 
-class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
-                                     BaseAuthHandler, ProfilingHandler):
+class ExecutorAsyncCollectionHandler(
+        BaseAsyncCollectionHandler, BaseAuthQueryTokenHandler,
+        ProfilingHandler):
+
     def _get_controller_class(self):
         return ExecutorAsyncController
 
@@ -44,6 +48,13 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
             collectionFormat: multi
             items:
                 type: string
+        -   name: token
+            in: query
+            description: |
+                Unique token related to organization profiling token (only
+                with run_id)
+            required: false
+            type: string
         responses:
             200:
                 description: Task executors
@@ -128,11 +139,14 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
         security:
         - token: []
         """
-        await self.check_permissions(
-            'INFO_ORGANIZATION', 'organization', organization_id)
+        token = self.get_arg('token', str)
+        run_ids = self.get_arg('run_id', str, repeated=True)
+        if not await self.check_md5_profiling_token(
+                organization_id, token, raises=False) or not run_ids:
+            await self.check_permissions(
+                'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
         task_ids = self.get_arg('task_id', str, repeated=True)
-        run_ids = self.get_arg('run_id', str, repeated=True)
         res = await run_task(
             self.controller.list, organization_id, task_ids, token,
             run_ids=run_ids
@@ -141,8 +155,15 @@ class ExecutorAsyncCollectionHandler(BaseAsyncCollectionHandler,
         self.write(json.dumps(tasks_dict, cls=ModelEncoder))
 
 
-class ExecutorBreakdownAsyncCollectionHandler(ExecutorAsyncCollectionHandler,
-                                              ProfilingHandler):
+class ExecutorBreakdownAsyncCollectionHandler(
+        BaseAsyncCollectionHandler, BaseAuthHandler, ProfilingHandler):
+
+    def _get_controller_class(self):
+        return ExecutorAsyncController
+
+    def post(self, *args, **kwargs):
+        self.raise405()
+
     async def get(self, organization_id, **url_params):
         """
         ---
