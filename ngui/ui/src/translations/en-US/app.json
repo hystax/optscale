@@ -1818,6 +1818,7 @@
   "runsetConfiguration": "Runset configuration",
   "runsetSettings": "Runset settings",
   "runsetTemplate": "Runset template",
+  "runsetTemplateDescription": "The runset template allows you to use a predefined configuration for running hyperparameter tuning experiments.",
   "runsetTemplateInstanceGroupType.accelerated_computing": "Accelerated Computing",
   "runsetTemplateInstanceGroupType.compute_optimized": "Compute Optimized",
   "runsetTemplateInstanceGroupType.general_purpose": "General Purpose",
