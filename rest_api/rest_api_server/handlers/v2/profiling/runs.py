@@ -5,7 +5,8 @@ from rest_api.rest_api_server.controllers.profiling.run import (
 from rest_api.rest_api_server.utils import run_task, ModelEncoder, check_int_attribute
 from rest_api.rest_api_server.handlers.v1.base_async import (
     BaseAsyncItemHandler, BaseAsyncCollectionHandler)
-from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
+from rest_api.rest_api_server.handlers.v1.base import (
+    BaseAuthHandler, BaseAuthQueryTokenHandler)
 from rest_api.rest_api_server.handlers.v2.profiling.base import ProfilingHandler
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from rest_api.rest_api_server.exceptions import Err
@@ -268,7 +269,7 @@ class RunAsyncCollectionHandler(BaseAsyncCollectionHandler,
         self.write(json.dumps(tasks_dict, cls=ModelEncoder))
 
 
-class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
+class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthQueryTokenHandler,
                           ProfilingHandler):
     def _get_controller_class(self):
         return RunAsyncController
@@ -291,6 +292,11 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
             in: path
             description: Run ID
             required: true
+            type: string
+        -   name: token
+            in: query
+            description: Unique token related to organization profiling token
+            required: false
             type: string
         responses:
             200:
@@ -371,8 +377,11 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
         security:
         - token: []
         """
-        await self.check_permissions(
-            'INFO_ORGANIZATION', 'organization', organization_id)
+        token = self.get_arg('token', str, None)
+        if not await self.check_md5_profiling_token(
+                organization_id, token, raises=False):
+            await self.check_permissions(
+                'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
         res = await run_task(self.controller.get, organization_id, id, token)
         self.write(json.dumps(res, cls=ModelEncoder))
@@ -443,6 +452,11 @@ class RunBreakdownItemHandler(RunAsyncItemHandler, ProfilingHandler):
             description: Run ID
             required: true
             type: string
+        -   name: token
+            in: query
+            description: Unique token related to organization profiling token
+            required: false
+            type: string
         responses:
             200:
                 description: Run breakdown
@@ -501,8 +515,11 @@ class RunBreakdownItemHandler(RunAsyncItemHandler, ProfilingHandler):
         security:
         - token: []
         """
-        await self.check_permissions(
-            'INFO_ORGANIZATION', 'organization', organization_id)
+        token = self.get_arg('token', str, None)
+        if not await self.check_md5_profiling_token(
+                organization_id, token, raises=False):
+            await self.check_permissions(
+                'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
         res = await run_task(self.controller.breakdown_get,
                              organization_id, id, token)

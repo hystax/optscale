@@ -4,9 +4,10 @@ import json
 from unittest.mock import patch, ANY, call
 from freezegun import freeze_time
 
+from tools.optscale_exceptions.http_exc import OptHTTPError
+
 from rest_api.google_calendar_client.client import CalendarException
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
-from tools.optscale_exceptions.http_exc import OptHTTPError
 from rest_api.rest_api_server.exceptions import Err
 
 DAY_SECONDS = 24 * 60 * 60

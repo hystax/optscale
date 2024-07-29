@@ -1,11 +1,11 @@
-### Overview
+### **Overview**
 
 Budgets and quotas help organizations control costs and manage resources efficiently. 
 Budgets refer to the financial limits set by an organization. Quotas limit the amount 
 of storage resources. Use this page to keep cloud storage costs under control while 
 maximizing the efficiency and availability of cloud resources.
 
-### View
+### **View**
 
 - Details: Monitor the Status of each quota. In the Filter see the list of selected resource attribute values that are participating in the sample. 
 
@@ -19,13 +19,13 @@ maximizing the efficiency and availability of cloud resources.
 
 - Email Notification: if the restriction is violated, the manager of the organization will receive an email.
 
-### Actions
+### **Actions**
 
 - Add a New Quota and Budget Policy: Easily create a new policy by clicking the green "Add" button. Specify the name, type, and filters.
 
 - Manage Policies: Click on a table row to edit, delete, or view detailed information about a policy, including policy violation history.
 
-### Tips
+### **Tips**
 
 - Optimize Costs: Set budgets to keep your costs under control and avoid overspending.
 

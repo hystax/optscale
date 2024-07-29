@@ -1700,20 +1700,26 @@ class Client(Client_v1):
             organization_id, metric_id))
 
     def executor_list(self, organization_id, task_ids=None,
-                      run_ids=None):
+                      run_ids=None, token=None):
         url = self.executors_url(organization_id) + self.query_url(
-            task_id=task_ids, run_id=run_ids)
+            task_id=task_ids, run_id=run_ids, token=token)
         return self.get(url)
 
     def executors_breakdown_get(self, organization_id):
         url = self.executors_breakdown_url(organization_id)
         return self.get(url)
 
-    def run_get(self, organization_id, run_id):
-        return self.get(self.runs_url(organization_id, run_id))
+    def run_get(self, organization_id, run_id, token=None):
+        url = self.runs_url(organization_id, run_id)
+        if token:
+            url += self.query_url(token=token)
+        return self.get(url)
 
-    def run_breakdown_get(self, organization_id, run_id):
-        return self.get(self.runs_breakdown_url(organization_id, run_id))
+    def run_breakdown_get(self, organization_id, run_id, token=None):
+        url = self.runs_breakdown_url(organization_id, run_id)
+        if token:
+            url += self.query_url(token=token)
+        return self.get(url)
 
     def run_list(self, organization_id, task_id, **kwargs):
         url = self.runs_url(organization_id, task_id=task_id
@@ -2108,10 +2114,10 @@ class Client(Client_v1):
         return self.post(self.layouts_url(organization_id), params)
 
     def layouts_list(self, org_id, layout_type=None, include_shared=False,
-                     entity_id=None):
+                     entity_id=None, token=None):
         url = self.layouts_url(org_id) + self.query_url(
             layout_type=layout_type, include_shared=include_shared,
-            entity_id=entity_id)
+            entity_id=entity_id, token=token)
         return self.get(url)
 
     def layout_get(self, org_id, layout_id):

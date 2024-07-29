@@ -1,7 +1,11 @@
-import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from unittest.mock import patch
-from rest_api.rest_api_server.tests.unittests.test_profiling_base import TestProfilingBase
+
+from tools.optscale_exceptions.http_exc import OptHTTPError
+
+from rest_api.rest_api_server.exceptions import Err
+from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
+    TestProfilingBase)
 
 BYTES_IN_MB = 1024 * 1024
 
@@ -224,3 +228,46 @@ class TestExecutorsApi(TestProfilingBase):
             run_ids=[r1['_id'], r2['_id']])
         self.assertEqual(code, 200)
         self.assertEqual(len(resp['executors']), 3)
+
+    def test_list_executors_run_id_with_token(self):
+        code, task = self.client.task_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project'
+            })
+        self.assertEqual(code, 201)
+        valid_resource = {
+            'cloud_resource_id': 'res_id_1',
+            'name': 'resource_1',
+            'resource_type': 'testo',
+            'region': 'test_region',
+            'service_name': 'test_service',
+        }
+        body = {
+            'resources': [valid_resource],
+        }
+        code, result = self.cloud_resource_create_bulk(
+            self.cloud_acc['id'], body, behavior='skip_existing',
+            return_resources=True)
+        self.assertEqual(code, 200)
+        r1 = self._create_run(self.org['id'], task['id'],
+                              [valid_resource['cloud_resource_id']],
+                              start=1000, finish=1001)
+        code, resp = self.client.executor_list(
+            self.org['id'], run_ids=r1['_id'])
+        self.assertEqual(code, 200)
+        self.assertEqual(len(resp['executors']), 1)
+        self.assertEqual(resp['executors'][0]['instance_id'],
+                         valid_resource['cloud_resource_id'])
+
+        def side_eff(_action, *_args, **_kwargs):
+            raise OptHTTPError(403, Err.OE0234, [])
+
+        patch(
+            'rest_api.rest_api_server.handlers.v1.base.'
+            'BaseAuthHandler.check_permissions',
+            side_effect=side_eff).start()
+        code, resp = self.client.executor_list(
+            self.org['id'], task['id'], token='123')
+        self.assertEqual(code, 403)
+        self.assertEqual(resp['error']['error_code'], 'OE0234')

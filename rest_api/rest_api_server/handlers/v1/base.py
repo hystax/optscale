@@ -347,6 +347,16 @@ class BaseAuthHandler(BaseHandler):
         return response
 
 
+class BaseAuthQueryTokenHandler(BaseAuthHandler):
+    def prepare(self):
+        if (not self.token and not self.secret and not self.get_argument(
+                'token')):
+            raise OptHTTPError(401, Err.OE0237, [])
+        self.set_content_type()
+        if self.request.method == 'POST':
+            self._validate_post_parameters()
+
+
 class BaseHierarchicalHandler(BaseHandler):
     def _validate_params(self, **kwargs):
         self.check_owner(**kwargs)

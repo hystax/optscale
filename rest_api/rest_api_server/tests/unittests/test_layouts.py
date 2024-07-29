@@ -3,10 +3,11 @@ from unittest.mock import patch
 from rest_api.rest_api_server.models.db_base import BaseDB
 from rest_api.rest_api_server.models.db_factory import DBType, DBFactory
 from rest_api.rest_api_server.models.models import Layout
-from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
+    TestProfilingBase)
 
 
-class TestLayouts(TestApiBase):
+class TestLayouts(TestProfilingBase):
     def setUp(self, version="v2"):
         super().setUp(version)
         patch('rest_api.rest_api_server.handlers.v1.base.'
@@ -119,11 +120,11 @@ class TestLayouts(TestApiBase):
         layout3 = self.create_layout(
             type_=type_, owner_id=self.employee['id'], entity_id=self.user_id)
         layout4 = self.create_layout(
-            type_=type_, owner_id=self.employee2['id'], entity_id=self.user_id,
-            shared=True)
+            owner_id=self.employee2['id'], entity_id=self.user_id,
+            shared=True, type_='ml_run_charts_dashboard')
         layout5 = self.create_layout(
-            type_=type_, owner_id=self.employee2['id'], entity_id=self.user_id,
-            shared=False)
+            owner_id=self.employee2['id'], entity_id=self.user_id,
+            shared=False, type_='ml_run_charts_dashboard')
         layout6 = self.create_layout(
             type_=type_, owner_id=self.employee2['id'], shared=True)
 
@@ -151,11 +152,10 @@ class TestLayouts(TestApiBase):
         code, res = self.client.layouts_list(
             self.org_id, layout_type=type_, include_shared=True)
         self.assertEqual(code, 200)
-        self.assertEqual(len(res['layouts']), 4)
+        self.assertEqual(len(res['layouts']), 3)
         res_layouts_ids = [x['id'] for x in res['layouts']]
         self.assertIn(layout2['id'], res_layouts_ids)
         self.assertIn(layout3['id'], res_layouts_ids)
-        self.assertIn(layout4['id'], res_layouts_ids)
         self.assertIn(layout6['id'], res_layouts_ids)
 
         # shared, entity_id
@@ -163,14 +163,13 @@ class TestLayouts(TestApiBase):
             self.org_id, layout_type=type_, include_shared=True,
             entity_id=self.user_id)
         self.assertEqual(code, 200)
-        self.assertEqual(len(res['layouts']), 2)
+        self.assertEqual(len(res['layouts']), 1)
         self.assertIn(layout3['id'], res_layouts_ids)
-        self.assertIn(layout4['id'], res_layouts_ids)
 
         # cluster_secret
-        patch('rest_api.rest_api_server.handlers.v1.base.'
-              'BaseAuthHandler.check_cluster_secret',
-              return_value=True).start()
+        secret_p = patch('rest_api.rest_api_server.handlers.v1.base.'
+                         'BaseAuthHandler.check_cluster_secret',
+                         return_value=True).start()
         code, res = self.client.layouts_list(
             self.org_id)
         self.assertEqual(code, 200)
@@ -178,6 +177,22 @@ class TestLayouts(TestApiBase):
         res_layouts_ids = [x['id'] for x in res['layouts']]
         self.assertNotIn(layout0['id'], res_layouts_ids)
         self.assertEqual(res['current_employee_id'], None)
+
+        # arcee token in query
+        secret_p.return_value = False
+        code, res = self.client.layouts_list(
+            self.org_id, token=self.get_profiling_token(self.org_id),
+            layout_type='ml_run_charts_dashboard', include_shared=True)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res['layouts']), 1)
+        self.assertEqual(res['layouts'][0]['id'], layout4['id'])
+
+        code, res = self.client.layouts_list(
+            self.org_id, layout_type='ml_run_charts_dashboard',
+            token=self.get_profiling_token(self.org_id),
+            include_shared=False)
+        self.assertEqual(code, 200)
+        self.assertEqual(len(res['layouts']), 0)
 
     def test_update_layout(self):
         layout1 = self.create_layout(owner_id=self.employee['id'])
@@ -273,8 +288,8 @@ class TestLayouts(TestApiBase):
                                      shared=True)
         code, res = self.client.layout_delete(
             self.org_id, layout3['id'])
-        self.assertIsNone(res)
         self.assertEqual(code, 204)
+        self.assertIsNone(res)
         res = self.session.query(Layout).filter(
             Layout.id == layout3['id']).one_or_none()
         self.assertIsNone(res)
