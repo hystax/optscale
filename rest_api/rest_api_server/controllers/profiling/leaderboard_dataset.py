@@ -4,8 +4,9 @@ from requests.exceptions import HTTPError
 from tools.optscale_exceptions.common_exc import (
     NotFoundException)
 
-from rest_api.rest_api_server.controllers.profiling.base import (
-    BaseProfilingController, format_dataset)
+from rest_api.rest_api_server.controllers.profiling.base import format_dataset
+from rest_api.rest_api_server.controllers.profiling.leaderboard import (
+    LeaderboardController)
 from rest_api.rest_api_server.controllers.base_async import (
     BaseAsyncControllerWrapper)
 from rest_api.rest_api_server.exceptions import Err
@@ -14,7 +15,7 @@ from rest_api.rest_api_server.exceptions import Err
 LOG = logging.getLogger(__name__)
 
 
-class LeaderboardDatasetController(BaseProfilingController):
+class LeaderboardDatasetController(LeaderboardController):
     @property
     def model_name(self):
         return 'LeaderboardDataset'
@@ -47,7 +48,9 @@ class LeaderboardDatasetController(BaseProfilingController):
             leaderboard_dataset_details = self._get_details(
                 leaderboard_dataset_id, profiling_token)
             leaderboard_dataset['details'] = leaderboard_dataset_details
-        return leaderboard_dataset
+        metrics_map = self.get_metrics(profiling_token, leaderboard_dataset,
+                                       raise_exc=False)
+        return self.format_leaderboard(leaderboard_dataset, metrics_map)
 
     def _get_details(self, leaderboard_dataset_id, profiling_token):
         resp = self.get_leaderboard_dataset_details(
@@ -62,6 +65,7 @@ class LeaderboardDatasetController(BaseProfilingController):
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name,
                                                      leaderboard_dataset_id])
+            raise
         return self.get(leaderboard_dataset_id, profiling_token)
 
     def delete(self, leaderboard_dataset_id, profiling_token):

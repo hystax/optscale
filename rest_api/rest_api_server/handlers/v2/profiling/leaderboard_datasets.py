@@ -1,18 +1,22 @@
 import json
-from rest_api.rest_api_server.handlers.v2.profiling.base import ProfilingHandler
 from rest_api.rest_api_server.controllers.profiling.leaderboard_dataset import (
     LeaderboardDatasetAsyncController)
-from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncItemHandler
-from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
+from rest_api.rest_api_server.handlers.v2.profiling.leaderboards import (
+    LeaderboardBaseHandler)
+from rest_api.rest_api_server.controllers.profiling.leaderboard import (
+    LeaderboardAsyncController)
 from rest_api.rest_api_server.utils import (
     run_task, ModelEncoder, check_string_attribute, check_list_attribute)
 from tools.optscale_exceptions.http_exc import OptHTTPError
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
-from rest_api.rest_api_server.exceptions import Err
 
 
-class LeaderboardDatasetBase(BaseAsyncItemHandler, BaseAuthHandler,
-                             ProfilingHandler):
+class LeaderboardDatasetBase(LeaderboardBaseHandler):
+
+    @staticmethod
+    def get_required_params():
+        return LeaderboardBaseHandler.get_required_params() + [
+            'dataset_ids', 'name']
 
     def _get_controller_class(self):
         return LeaderboardDatasetAsyncController
@@ -23,17 +27,21 @@ class LeaderboardDatasetBase(BaseAsyncItemHandler, BaseAuthHandler,
         for dataset_id in dataset_ids:
             check_string_attribute('dataset_ids', dataset_id)
 
+    async def _update_params(self, body, leaderboard_id, token):
+        leaderboard_ctrl = LeaderboardAsyncController(
+            self.session(), self._config, self.token)
+        leaderboard = await run_task(leaderboard_ctrl.get_by_id,
+                                     leaderboard_id, token)
+        lb_params = self.get_optional_params() + self.get_required_params()
+        for opt in lb_params:
+            param = leaderboard.get(opt)
+            if opt not in body and param is not None:
+                body[opt] = param
+        return body
+
     def _validate_params(self, create=False, **data):
+        super()._validate_params(create=create, **data)
         try:
-            params = ['dataset_ids', 'name']
-            unexpected_args = list(filter(lambda x: x not in params, data))
-            if unexpected_args:
-                message = ', '.join(unexpected_args)
-                raise OptHTTPError(400, Err.OE0212, [message])
-            missing_args = list(filter(lambda x: x not in data, params))
-            if missing_args and create:
-                message = ', '.join(missing_args)
-                raise OptHTTPError(400, Err.OE0216, [message])
             ds_ids = data.get('dataset_ids')
             if ds_ids:
                 self._validate_dataset_ids(ds_ids)
@@ -177,6 +185,37 @@ class LeaderboardsDatasetAsyncCollectionHandler(LeaderboardDatasetBase):
                         description: Name
                         required: true
                         example: "Experiment just-a-test"
+                    dataset_coverage_rules:
+                        type: object
+                        description: Dataset coverage rules
+                        required: false
+                        example: {"dataset_label": 3}
+                    grouping_tags:
+                        type: list
+                        description: List of tags to filter runs
+                        required: true
+                        example: ['tag_1', 'tag_2']
+                    primary_metric:
+                        type: string
+                        description: Metric id
+                        required: true
+                        example: "e788576e-e49a-4a9e-912b-51ad2efaad52"
+                    other_metrics:
+                        type: list
+                        description: Other metrics to filter runs
+                        required: false
+                        example: ["d094f99a-4b1d-4f6b-8248-ef88a478f8a7"]
+                    filters:
+                        type: list
+                        description: List of filters
+                        required: false
+                        example: [{"id": "d094f99a-4b1d-4f6b-8248-ef88a478f8a7",
+                          "min": 0, "max": 1}]
+                    group_by_hp:
+                        type: boolean
+                        description: Flag for grouping by hyperparameters
+                        required: False
+                        example: true
         responses:
             201:
                 description: Returns created leaderboard dataset
@@ -189,6 +228,17 @@ class LeaderboardsDatasetAsyncCollectionHandler(LeaderboardDatasetBase):
                         dataset_ids: ['43faf829-78c2-4fb2-b61d-2c07c33da3ef']
                         created_at: 123
                         deleted_at: 0
+                        primary_metric: {'name': 'metric1_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric1_key', 'func': 'avg',
+                          'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}
+                        other_metrics: [{'name': 'metric2_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric2_key', 'func': 'avg',
+                          'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}]
+                        filters: [{'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef',
+                          'min': 1, 'max': 100, 'name': 'metric1_key'}]
+                        grouping_tags: ['test_tag']
+                        group_by_hp: True
+                        dataset_coverage_rules: {"dataset_label": 3}
             400:
                 description: |
                     Wrong arguments:
@@ -215,9 +265,10 @@ class LeaderboardsDatasetAsyncCollectionHandler(LeaderboardDatasetBase):
         """
         await self.check_permissions(
             'EDIT_PARTNER', 'organization', organization_id)
-        data = self._request_body()
-        self._validate_params(create=True, **data)
         token = await self._get_profiling_token(organization_id)
+        data = await self._update_params(self._request_body(),
+                                         leaderboard_id, token)
+        self._validate_params(create=True, **data)
         res = await run_task(self.controller.create, leaderboard_id, token,
                              **data)
         self.set_status(201)
@@ -271,25 +322,30 @@ class LeaderboardsDatasetAsyncCollectionHandler(LeaderboardDatasetBase):
                                 example:
                                 - 3656f89b-6b1e-421f-b709-3d0c164d9c33
                             primary_metric:
+                                type: string
+                                description: Metric id
+                                example: "e788576e-e49a-4a9e-912b-51ad2efaad52"
+                            other_metrics:
+                                type: list
+                                description: Other metrics to filter runs
+                                example: ["d094f99a-4b1d-4f6b-8248-ef88a478f8a7"]
+                            filters:
+                                type: list
+                                description: List of filters
+                                example: [{"id": "d094f99a-4b1d-4f6b-8248-ef88a478f8a7",
+                                  "min": 0, "max": 1}]
+                            grouping_tags:
+                                type: list
+                                description: List of tags to filter runs
+                                example: ['tag_1', 'tag_2']
+                            group_by_hp:
+                                type: boolean
+                                description: Flag for grouping by hyperparameters
+                                example: true
+                            dataset_coverage_rules:
                                 type: object
-                                properties:
-                                    name:
-                                        type: string
-                                        description: Goal name
-                                    key:
-                                        type: string
-                                        description: Goal key
-                                    tendency:
-                                        type: string
-                                        description: Tendency
-                                        example: more
-                                    func:
-                                        type: string
-                                        description: Func
-                                        example: sum
-                                    target_value:
-                                        type: number
-                                        description: Goal target value
+                                description: Dataset coverage rules
+                                example: {"dataset_label": 3}
             401:
                 description: |
                     Unauthorized:
@@ -348,10 +404,19 @@ class LeaderboardsDatasetAsyncItemHandler(LeaderboardDatasetBase):
                         id: "a39fce0e-4768-4bfe-a3b0-2cbbe9bf3c7e"
                         leaderboard_id: 05c1f12e-588b-4108-8b74-f48590fd23b9
                         name: my lbds
-                        grouping_tags: ['43faf829-78c2-4fb2-b61d-2c07c33da3ef']
-                        group_by_hp: True
                         created_at: 123
                         deleted_at: 0
+                        dataset_coverage_rules: {"dataset_label": 3}
+                        primary_metric: {'name': 'metric1_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric1_key', 'func': 'avg',
+                          'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}
+                        other_metrics: [{'name': 'metric2_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric2_key', 'func': 'avg',
+                          'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}]
+                        filters: [{'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef',
+                          'min': 1, 'max': 100, 'name': 'metric1_key'}]
+                        grouping_tags: ['test_tag']
+                        group_by_hp: True
             401:
                 description: |
                     Unauthorized:
@@ -405,13 +470,18 @@ class LeaderboardsDatasetAsyncItemHandler(LeaderboardDatasetBase):
                     dataset_ids:
                         type: list
                         description: List of dataset ids
-                        required: true
+                        required: false
                         example: ['583694e5-65f9-4bf9-9eae-51de804bb624']
                     name:
                         type: string
                         description: name
-                        required: true
+                        required: false
                         example: "Test Leaderboard Dataset"
+                    dataset_coverage_rules:
+                        type: object
+                        description: Dataset coverage rules
+                        required: false
+                        example: {"dataset_label": 3}
         responses:
             200:
                 description: Updated leaderboard dataset object
@@ -425,6 +495,17 @@ class LeaderboardsDatasetAsyncItemHandler(LeaderboardDatasetBase):
                         group_by_hp: True
                         created_at: 123
                         deleted_at: 0
+                        dataset_coverage_rules: {"dataset_label": 3}
+                        primary_metric: {'name': 'metric1_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric1_key', 'func': 'avg',
+                          'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}
+                        other_metrics: [{'name': 'metric2_key', 'target_value': 0.7,
+                          'tendency': 'more', 'key': 'metric2_key', 'func': 'avg',
+                          'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef'}]
+                        filters: [{'id': '43faf829-78c2-4fb2-b61d-2c07c33da3ef',
+                          'min': 1, 'max': 100, 'name': 'metric1_key'}]
+                        grouping_tags: ['test_tag']
+                        group_by_hp: True
             400:
                 description: |
                     Wrong arguments:

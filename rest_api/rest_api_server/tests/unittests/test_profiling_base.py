@@ -563,7 +563,8 @@ class ArceeMock:
 
     def leaderboards_create(self, task_id, primary_metric, grouping_tags,
                             other_metrics=None,
-                            filters=None, group_by_hp=True):
+                            filters=None, group_by_hp=True,
+                            dataset_coverage_rules=None):
         existing = list(self.profiling_leaderboards.find(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0}))
@@ -580,6 +581,7 @@ class ArceeMock:
             "filters": filters,
             "grouping_tags": grouping_tags,
             "group_by_hp": group_by_hp,
+            "dataset_coverage_rules": dataset_coverage_rules,
             "token": self.token,
             "_id": str(uuid.uuid4()),
             "deleted_at": 0,
@@ -589,41 +591,32 @@ class ArceeMock:
         return 201, list(self.profiling_leaderboards.find(
             {'_id': inserted.inserted_id}))[0]
 
-    def leaderboard_dataset_create(self, leaderboard_id, name, dataset_ids):
+    def leaderboard_dataset_create(self, leaderboard_id, **params):
         leaderboard_dataset = {
             "leaderboard_id": leaderboard_id,
-            "dataset_ids": dataset_ids,
-            "name": name,
             "token": self.token,
             "_id": str(uuid.uuid4()),
             "deleted_at": 0,
-            "created_at": int(datetime.now(tz=timezone.utc).timestamp())
+            "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
         }
+        leaderboard_dataset.update(params)
         inserted = self.profiling_leaderboard_datasets.insert_one(leaderboard_dataset)
         return 201, list(self.profiling_leaderboard_datasets.find(
             {'_id': inserted.inserted_id}))[0]
 
-    def leaderboard_dataset_update(self, leaderboard_dataset_id, name, dataset_ids):
+    def leaderboard_dataset_update(self, leaderboard_dataset_id, **params):
         leaderboard_dataset = self.profiling_leaderboard_datasets.find_one(
             {'token': self.token, '_id': leaderboard_dataset_id,
              'deleted_at': 0})
         if not leaderboard_dataset:
             self._raise_http_error(404)
-        if name:
-            leaderboard_dataset.update({
-                'name': name
-            })
-        if dataset_ids:
-            leaderboard_dataset.update({
-                'dataset_ids': dataset_ids
-            })
         self.profiling_leaderboard_datasets.update_one(
             filter={
                 '_id': leaderboard_dataset['_id'],
                 'token': self.token,
                 'deleted_at': 0
             },
-            update={'$set': leaderboard_dataset}
+            update={'$set': params}
         )
         return 200, list(self.profiling_leaderboard_datasets.find(
             {'_id': leaderboard_dataset_id}))[0]
@@ -666,7 +659,7 @@ class ArceeMock:
 
     def leaderboard_update(self, task_id, primary_metric=None,
                            grouping_tags=None, other_metrics=None, filters=None,
-                           group_by_hp=None):
+                           group_by_hp=None, dataset_coverage_rules=None):
         leaderboard = self.profiling_leaderboards.find_one(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0})
@@ -677,7 +670,8 @@ class ArceeMock:
             'grouping_tags': grouping_tags,
             'other_metrics': other_metrics,
             'filters': filters,
-            'group_by_hp': group_by_hp
+            'group_by_hp': group_by_hp,
+            'dataset_coverage_rules': dataset_coverage_rules
         }.items():
             if param is not None:
                 leaderboard.update({
@@ -705,6 +699,14 @@ class ArceeMock:
     def leaderboard_get(self, task_id):
         leaderboards = list(self.profiling_leaderboards.find(
             {'token': self.token, 'task_id': task_id,
+             'deleted_at': 0}))
+        if not leaderboards:
+            return 200, {}
+        return 200, leaderboards[0]
+
+    def leaderboard_get_by_id(self, leaderboard_id):
+        leaderboards = list(self.profiling_leaderboards.find(
+            {'token': self.token, '_id': leaderboard_id,
              'deleted_at': 0}))
         if not leaderboards:
             return 200, {}
@@ -748,11 +750,13 @@ class ArceeMock:
             {'_id': inserted.inserted_id}))[0]
         return 201, dataset
 
-    def dataset_list(self, include_deleted=False):
+    def dataset_list(self, include_deleted=False, dataset_ids=None):
         match_filter = {
             'token': self.token,
             'deleted_at': 0
         }
+        if dataset_ids:
+            match_filter.update({'_id': {'$in': dataset_ids}})
         if include_deleted:
             match_filter.pop('deleted_at')
         datasets = list(self.profiling_datasets.find(match_filter))

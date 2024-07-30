@@ -41,7 +41,12 @@ async def test_create_leaderboard_dataset(app):
     ds = await prepare_dataset()
     lb_dataset = {
         'name': 'name',
-        'dataset_ids': [ds['_id']]
+        'dataset_ids': [ds['_id']],
+        "primary_metric": metrics[0]['_id'],
+        "other_metrics": [metrics[1]['_id']],
+        "filters": [{"id": metrics[1]['_id'], "min": 0, "max": 100}],
+        "group_by_hp": True,
+        "grouping_tags": ['tag']
     }
     _, response = await client.post(
         Urls.leaderboard_datasets.format(lb['_id']),
@@ -66,9 +71,15 @@ async def test_create_invalid_lb(app):
     client = app.asgi_client
     await prepare_token()
     ds = await prepare_dataset()
+    metrics = await prepare_metrics()
     lb_dataset = {
         'name': 'name',
-        'dataset_ids': [ds['_id']]
+        'dataset_ids': [ds['_id']],
+        "primary_metric": metrics[0]['_id'],
+        "other_metrics": [metrics[1]['_id']],
+        "filters": [{"id": metrics[1]['_id'], "min": 0, "max": 100}],
+        "group_by_hp": True,
+        "grouping_tags": ['tag']
     }
     _, response = await client.post(
         Urls.leaderboard_datasets.format('test'),
@@ -88,7 +99,12 @@ async def test_create_invalid_params(app):
     ds = await prepare_dataset()
     lb_dataset = {
         'name': 'name',
-        'dataset_ids': [ds['_id']]
+        'dataset_ids': [ds['_id']],
+        "primary_metric": metrics[0]['_id'],
+        "other_metrics": [metrics[1]['_id']],
+        "filters": [{"id": metrics[1]['_id'], "min": 0, "max": 100}],
+        "group_by_hp": True,
+        "grouping_tags": ['tag']
     }
     for value in [123, [123], {'test': 123}]:
         params = lb_dataset.copy()
@@ -121,7 +137,12 @@ async def test_create_missing_params(app):
     ds = await prepare_dataset()
     lb_dataset = {
         'name': 'name',
-        'dataset_ids': [ds['_id']]
+        'dataset_ids': [ds['_id']],
+        "primary_metric": metrics[0]['_id'],
+        "other_metrics": [metrics[1]['_id']],
+        "filters": [{"id": metrics[1]['_id'], "min": 0, "max": 100}],
+        "group_by_hp": True,
+        "grouping_tags": ['tag']
     }
     for param in ['name', 'dataset_ids']:
         params = lb_dataset.copy()
@@ -218,9 +239,14 @@ async def test_patch_missing_params(app):
     lb_dataset = await prepare_leaderboard_dataset(lb['_id'])
     updates = {
         'name': 'name',
-        'dataset_ids': [ds['_id']]
+        'dataset_ids': [ds['_id']],
+        "primary_metric": metrics[0]['_id'],
+        "other_metrics": [],
+        "filters": [],
+        "group_by_hp": True,
+        "grouping_tags": [],
     }
-    for param in ['name', 'dataset_ids']:
+    for param in updates.keys():
         params = updates.copy()
         params.pop(param, None)
         _, response = await client.patch(
@@ -241,7 +267,12 @@ async def test_patch_leaderboard_dataset(app):
     lb_dataset = await prepare_leaderboard_dataset(lb['_id'])
     updates = {
         'name': 'name',
-        'dataset_ids': [ds['_id']]
+        'dataset_ids': [ds['_id']],
+        "primary_metric": metrics[0]['_id'],
+        "other_metrics": [metrics[1]['_id']],
+        "filters": [{"id": metrics[1]['_id'], "min": 0, "max": 100}],
+        "group_by_hp": True,
+        "grouping_tags": ['tag']
     }
     _, response = await client.patch(
         Urls.leaderboard_dataset.format(lb_dataset['_id']),

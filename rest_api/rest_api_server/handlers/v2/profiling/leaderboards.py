@@ -5,17 +5,25 @@ from rest_api.rest_api_server.controllers.profiling.leaderboard import (
 from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncItemHandler
 from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
 from rest_api.rest_api_server.utils import (
-    run_task, ModelEncoder, check_string_attribute,
-    check_list_attribute, check_float_attribute, check_bool_attribute)
+    run_task, ModelEncoder, check_string_attribute, check_dict_attribute,
+    check_list_attribute, check_float_attribute, check_bool_attribute,
+    check_int_attribute)
 from tools.optscale_exceptions.http_exc import OptHTTPError
 from tools.optscale_exceptions.common_exc import WrongArgumentsException
 from rest_api.rest_api_server.exceptions import Err
 
 
-class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
-                                   ProfilingHandler):
-    def _get_controller_class(self):
-        return LeaderboardAsyncController
+class LeaderboardBaseHandler(BaseAsyncItemHandler, BaseAuthHandler,
+                             ProfilingHandler):
+    @staticmethod
+    def get_required_params():
+        return ['primary_metric', 'grouping_tags']
+
+    @staticmethod
+    def get_optional_params():
+        return [
+            'other_metrics', 'filters', 'group_by_hp', 'dataset_coverage_rules'
+        ]
 
     @staticmethod
     def _validate_filters(filters):
@@ -43,8 +51,8 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 raise WrongArgumentsException(Err.OE0541, ['min', 'max'])
 
     def _validate_params(self, create=False, **data):
-        req_params = ['primary_metric', 'grouping_tags']
-        opt_params = ['other_metrics', 'filters', 'group_by_hp']
+        req_params = self.get_required_params()
+        opt_params = self.get_optional_params()
         allowed_args = req_params + opt_params
         unexpected_args = list(filter(lambda x: x not in allowed_args, data))
         if unexpected_args:
@@ -61,7 +69,8 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 'primary_metric': (check_string_attribute, None),
                 'other_metrics': (check_list_attribute, True),
                 'filters': (check_list_attribute, True),
-                'group_by_hp': (check_bool_attribute, None)
+                'group_by_hp': (check_bool_attribute, None),
+                'dataset_coverage_rules': (check_dict_attribute, True)
             }
             for param, (check_func, allow_empty) in attributes_check_map.items():
                 if create or data.get(param) is not None:
@@ -79,8 +88,19 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                 for metric_id in filters_metrics_ids:
                     if metric_id not in metrics:
                         raise WrongArgumentsException(Err.OE0217, ['filters'])
+            dataset_coverage_rules = data.get('dataset_coverage_rules', {})
+            if dataset_coverage_rules is not None:
+                check_dict_attribute('dataset_coverage_rules',
+                                     dataset_coverage_rules, allow_empty=True)
+                for k, v in dataset_coverage_rules.items():
+                    check_int_attribute(k, v, min_length=1, max_length=100)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
+
+
+class LeaderboardsAsyncItemHandler(LeaderboardBaseHandler):
+    def _get_controller_class(self):
+        return LeaderboardAsyncController
 
     async def post(self, organization_id, task_id, **url_params):
         """
@@ -134,6 +154,11 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                         description: Flag for grouping by hyperparameters
                         required: False
                         example: true
+                    dataset_coverage_rules:
+                        type: object
+                        description: Dataset coverage rules
+                        required: false
+                        example: {"dataset_label": 3}
         responses:
             201:
                 description: Returns created leaderboard
@@ -301,7 +326,7 @@ class LeaderboardsAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                     dataset_coverage_rules:
                         type: object
                         description: Dataset coverage rules
-                        required: true
+                        required: false
                         example: {"dataset_label": 3}
                     primary_metric:
                         type: string

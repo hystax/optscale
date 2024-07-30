@@ -45,15 +45,20 @@ class TestLeaderboardDatasetApi(TestProfilingBase):
         self.dataset_ids = [dataset['id']]
         self.leaderboard_dataset = self.client.leaderboard_dataset_create(
             self.organization_id,
-            "test", self.leaderboard_id,
-            self.dataset_ids)
+            self.leaderboard_id,
+            params={
+                'name': 'test',
+                'dataset_ids': self.dataset_ids
+            })
         _, self.lds = self.leaderboard_dataset
 
     def test_update_leaderboard_dataset(self):
         code, _ = self.client.leaderboard_dataset_update(
             self.organization_id,
             self.lds["id"],
-            name="new name"
+            params={
+                'name': 'new_name'
+            }
         )
         self.assertEqual(code, 200)
 
@@ -62,11 +67,16 @@ class TestLeaderboardDatasetApi(TestProfilingBase):
         self.assertEqual(code, 201)
 
     def test_get_leaderboard_dataset(self):
-        code, _ = self.client.leaderboard_dataset_get(
+        code, resp = self.client.leaderboard_dataset_get(
             self.organization_id,
             self.lds["id"],
         )
         self.assertEqual(code, 200)
+        expected_result = self.valid_leaderboard.copy()
+        expected_result['primary_metric'] = self.metric1
+        expected_result['filters'][0]['name'] = self.metric1['name']
+        for k, v in expected_result.items():
+            self.assertEqual(resp.get(k), v)
 
     def test_get_leaderboard_dataset_details(self):
         code, dslb = self.client.leaderboard_dataset_get(
@@ -81,8 +91,12 @@ class TestLeaderboardDatasetApi(TestProfilingBase):
     def test_delete_leaderboard_dataset(self):
         _, lbds = self.leaderboard_dataset = self.client.leaderboard_dataset_create(
             self.organization_id,
-            "test1", self.leaderboard_id,
-            self.dataset_ids)
+            self.leaderboard_id,
+            params={
+                'name': 'test1',
+                'dataset_ids': self.dataset_ids
+            }
+        )
 
         code, _ = self.client.leaderboard_dataset_delete(
             self.organization_id,
@@ -101,20 +115,29 @@ class TestLeaderboardDatasetApi(TestProfilingBase):
     def test_create_lbds_invalid_ds(self):
         code, resp = self.client.leaderboard_dataset_create(
             self.organization_id,
-            "test", self.leaderboard_id,
-            'test')
+            self.leaderboard_id,
+            params={
+                'name': 'test',
+                'dataset_ids': 'test'
+            })
         self.assertEqual(code, 400)
         self.verify_error_code(resp, "OE0385")
         code, resp = self.client.leaderboard_dataset_create(
             self.organization_id,
-            "test", self.leaderboard_id,
-            [9, ])
+            self.leaderboard_id,
+            params={
+                'name': 'test',
+                'dataset_ids': [9, ]
+            })
         self.assertEqual(code, 400)
         self.verify_error_code(resp, "OE0214")
         code, resp = self.client.leaderboard_dataset_create(
             self.organization_id,
-            9, self.leaderboard_id,
-            ["t"])
+            self.leaderboard_id,
+            params={
+                'name': 9,
+                'dataset_ids': ["t"]
+            })
         self.assertEqual(code, 400)
         self.verify_error_code(resp, "OE0214")
 
@@ -125,3 +148,78 @@ class TestLeaderboardDatasetApi(TestProfilingBase):
         )
         self.assertEqual(code, 200)
         self.assertEqual(len(resp), 1)
+
+    def test_invalid_dataset_coverage_rules(self):
+        for cr in ['test', 123, ['some']]:
+            code, resp = self.client.leaderboard_dataset_create(
+                self.organization_id,
+                self.leaderboard_id,
+                params={
+                    'name': 'test',
+                    'dataset_ids': self.dataset_ids,
+                    'dataset_coverage_rules': cr
+                })
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0344')
+
+            self.client.leaderboard_dataset_update(
+                self.organization_id,
+                self.lds["id"],
+                params={
+                    'dataset_coverage_rules': cr
+                }
+            )
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0344')
+        for invalid in [0, -1, 1000]:
+            code, resp = self.client.leaderboard_dataset_create(
+                self.organization_id,
+                self.leaderboard_id,
+                params={
+                    'name': 'test',
+                    'dataset_ids': self.dataset_ids,
+                    'dataset_coverage_rules': {
+                        'some': invalid
+                    }
+                })
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0224')
+        code, resp = self.client.leaderboard_dataset_create(
+            self.organization_id,
+            self.leaderboard_id,
+            params={
+                'name': 'test',
+                'dataset_ids': self.dataset_ids,
+                'dataset_coverage_rules': {
+                    'some': 'test'
+                }
+            })
+        self.assertEqual(code, 400)
+        self.verify_error_code(resp, 'OE0223')
+
+    def test_dataset_coverage_rules(self):
+        rules = {'some': 1, 'another': 2}
+        code, leaderboard_dataset = self.client.leaderboard_dataset_create(
+            self.organization_id,
+            self.leaderboard_id,
+            params={
+                'name': 'test',
+                'dataset_ids': self.dataset_ids,
+                'dataset_coverage_rules': rules
+            })
+        self.assertEqual(code, 201)
+        self.assertEqual(leaderboard_dataset['dataset_coverage_rules'], rules)
+        for upd_value, expected in [
+            (None, None),
+            ({}, {}),
+            ({'another': 1}, {'another': 1})
+        ]:
+            code, resp = self.client.leaderboard_dataset_update(
+                self.organization_id,
+                leaderboard_dataset["id"],
+                params={
+                    'dataset_coverage_rules': upd_value
+                }
+            )
+            self.assertEqual(code, 200)
+            self.assertEqual(resp['dataset_coverage_rules'], expected)

@@ -2037,8 +2037,9 @@ class Client(Client_v1):
     def dataset_get(self, organization_id, dataset_id):
         return self.get(self.datasets_url(organization_id, dataset_id))
 
-    def dataset_list(self, organization_id):
-        return self.get(self.datasets_url(organization_id))
+    def dataset_list(self, organization_id, dataset_ids=None):
+        return self.get(self.datasets_url(organization_id) + self.query_url(
+            dataset_id=dataset_ids))
 
     @staticmethod
     def labels_url(organization_id):
@@ -2061,22 +2062,13 @@ class Client(Client_v1):
             details=details)
         return self.get(url)
 
-    def leaderboard_dataset_create(self, organization_id, name, leaderboard_id,
-                                   dataset_ids):
-        params = {
-            "name": name,
-            "dataset_ids": dataset_ids
-        }
+    def leaderboard_dataset_create(self, organization_id, leaderboard_id,
+                                   params):
         url = self.leaderboard_datasets_url(organization_id, leaderboard_id)
         return self.post(url, params)
 
     def leaderboard_dataset_update(self, organization_id,
-                                   leaderboard_dataset_id,  name=None,
-                                   dataset_ids=None):
-        params = {
-            "name": name,
-            "dataset_ids": dataset_ids
-        }
+                                   leaderboard_dataset_id, params):
         url = self.leaderboard_dataset_url(organization_id,
                                            leaderboard_dataset_id)
         return self.patch(url, params)

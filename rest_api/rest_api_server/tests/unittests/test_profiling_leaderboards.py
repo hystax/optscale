@@ -76,6 +76,14 @@ class TestLeaderboardsApi(TestProfilingBase):
                     self.org['id'], self.task1['id'], params)
                 self.assertEqual(code, 400)
                 self.verify_error_code(resp, 'OE0226')
+        for param in ['dataset_coverage_rules']:
+            params = self.valid_leaderboard.copy()
+            for value in ['test', 123, ['some']]:
+                params[param] = value
+                code, resp = self.client.leaderboard_create(
+                    self.org['id'], self.task1['id'], params)
+                self.assertEqual(code, 400)
+                self.verify_error_code(resp, 'OE0344')
 
     def test_create_unexpected(self):
         for k in ['id', 'deleted_at', 'created_at', 'token', 'impostor']:
@@ -215,6 +223,14 @@ class TestLeaderboardsApi(TestProfilingBase):
                     self.org['id'], self.task1['id'], params)
                 self.assertEqual(code, 400)
                 self.verify_error_code(resp, 'OE0226')
+        for param in ['dataset_coverage_rules']:
+            params = self.valid_leaderboard.copy()
+            for value in ['test', 123, ['test']]:
+                params[param] = value
+                code, resp = self.client.leaderboard_update(
+                    self.org['id'], self.task1['id'], params)
+                self.assertEqual(code, 400)
+                self.verify_error_code(resp, 'OE0344')
 
     def test_update(self):
         updates = {
@@ -287,3 +303,21 @@ class TestLeaderboardsApi(TestProfilingBase):
             self.org['id'], task2['id'], params)
         self.assertEqual(code, 201)
         self.assertEqual(leaderboard['filters'][0]['max'], 0)
+
+    def test_dataset_coverage_rules(self):
+        rules = {'some': 1, 'another': 2}
+        self.valid_leaderboard['dataset_coverage_rules'] = rules
+        code, leaderboard = self.client.leaderboard_create(
+            self.org['id'], self.task1['id'], self.valid_leaderboard)
+        self.assertEqual(code, 201)
+        self.assertEqual(leaderboard['dataset_coverage_rules'], rules)
+        for upd_value, expected in [
+            (None, rules),
+            ({}, {}),
+            ({'another': 1}, {'another': 1})
+        ]:
+            update = {'dataset_coverage_rules': upd_value}
+            code, resp = self.client.leaderboard_update(
+                self.org['id'], self.task1['id'], update)
+            self.assertEqual(code, 200)
+            self.assertEqual(resp['dataset_coverage_rules'], expected)

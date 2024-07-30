@@ -476,10 +476,16 @@ class TestTaskApi(TestProfilingBase):
         dt = datetime(2023, 10, 10, tzinfo=timezone.utc)
         with freeze_time(dt + timedelta(days=1)):
             self.client.leaderboard_dataset_create(
-                self.org['id'], "test", leaderboard['id'], [dataset['id']])
+                self.org['id'], leaderboard['id'], {
+                    'name': "test",
+                    'dataset_ids': [dataset['id']]
+                })
         with freeze_time(dt):
             self.client.leaderboard_dataset_create(
-                self.org['id'], "test2", leaderboard['id'], [dataset['id']])
+                self.org['id'], leaderboard['id'], {
+                    'name': "test2",
+                    'dataset_ids': [dataset['id']]
+                })
         code, resp = self.client.task_get(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertIsNone(resp.get('last_leaderboards'))

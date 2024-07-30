@@ -571,7 +571,8 @@ class Client:
         return self.get(url)
 
     def leaderboards_create(self, task_id, primary_metric, grouping_tags,
-                            other_metrics=None, filters=None, group_by_hp=True):
+                            other_metrics=None, filters=None,
+                            group_by_hp=True, dataset_coverage_rules=None):
         """
         Creates leaderboard
         """
@@ -581,19 +582,21 @@ class Client:
             "filters": filters or [],
             "grouping_tags": grouping_tags,
             "group_by_hp": group_by_hp,
+            "dataset_coverage_rules": dataset_coverage_rules
         }
         return self.post(self.leaderboards_url(task_id), leaderboard)
 
     def leaderboard_update(self, task_id, primary_metric=None,
-                           grouping_tags=None,
-                           other_metrics=None, filters=None, group_by_hp=None):
+                           grouping_tags=None, other_metrics=None, filters=None,
+                           group_by_hp=None, dataset_coverage_rules=None):
         leaderboard = dict()
         for key, param in {
             'primary_metric': primary_metric,
             'grouping_tags': grouping_tags,
             'other_metrics': other_metrics,
             'filters': filters,
-            'group_by_hp': group_by_hp
+            'group_by_hp': group_by_hp,
+            'dataset_coverage_rules': dataset_coverage_rules
         }.items():
             if param is not None:
                 leaderboard.update({
@@ -612,6 +615,14 @@ class Client:
         :return:
         """
         return self.get(self.leaderboards_url(task_id))
+
+    def leaderboard_get_by_id(self, task_id):
+        """
+        Gets leaderboard by task_id
+        :param leaderboard_id:
+        :return:
+        """
+        return self.get(self.leaderboard_url(task_id))
 
     def leaderboard_delete(self, task_id):
         """
@@ -660,10 +671,11 @@ class Client:
         '''
         return self.patch(self.datasets_url(id_), params)
 
-    def dataset_list(self, include_deleted=False):
+    def dataset_list(self, include_deleted=False, dataset_ids=None):
         url = self.datasets_url()
         url += self.query_url(
-            include_deleted=include_deleted
+            include_deleted=include_deleted,
+            dataset_id=dataset_ids
         )
         return self.get(url)
 
@@ -689,24 +701,13 @@ class Client:
     def console_get(self, run_id: str):
         return self.get(self.console_url(run_id))
 
-    def leaderboard_dataset_create(self, leaderboard_id: str, name: str,
-                                   dataset_ids: list):
-        b = {
-            "name": name,
-            "dataset_ids": dataset_ids
-        }
+    def leaderboard_dataset_create(self, leaderboard_id: str, **params):
         return self.post("%s/%s" % (self.leaderboard_url(leaderboard_id),
-                                    self.leaderboard_datasets_url()), b)
+                                    self.leaderboard_datasets_url()), params)
 
-    def leaderboard_dataset_update(self, leaderboard_dataset_id: str,
-                                   name: str=None, dataset_ids: list=None):
-        b = {}
-        if name is not None:
-            b['name'] = name
-        if dataset_ids is not None:
-            b['dataset_ids'] = dataset_ids
+    def leaderboard_dataset_update(self, leaderboard_dataset_id: str, **params):
         return self.patch(
-            self.leaderboard_datasets_url(leaderboard_dataset_id), b)
+            self.leaderboard_datasets_url(leaderboard_dataset_id), params)
 
     def leaderboard_datasets_get(self, leaderboard_id: str,
                                  include_deleted=False):
