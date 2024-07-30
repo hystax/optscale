@@ -28,7 +28,12 @@ const SetupLeaderboardsInvitation = () => {
       </Box>
       <Box>
         {isLeaderboardSetupEnabled ? (
-          <Button messageId="setupLeaderboards" color="primary" variant="contained" link={getMlSetupLeaderboards(taskId)} />
+          <Button
+            messageId="setupLeaderboardTemplate"
+            color="primary"
+            variant="contained"
+            link={getMlSetupLeaderboards(taskId)}
+          />
         ) : (
           <FormattedMessage id="leaderboardContactManagerMessage" />
         )}

@@ -3,7 +3,7 @@ import IconButton from "components/IconButton";
 import { EditLeaderboardDatasetModal } from "components/SideModalManager/SideModals";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 
-const EditLeaderboardDatasetIconButton = ({ leaderboardDataset }) => {
+const EditLeaderboardDatasetIconButton = ({ task, leaderboardDataset }) => {
   const openSideModal = useOpenSideModal();
 
   return (
@@ -13,7 +13,7 @@ const EditLeaderboardDatasetIconButton = ({ leaderboardDataset }) => {
         show: true,
         messageId: "edit"
       }}
-      onClick={() => openSideModal(EditLeaderboardDatasetModal, { leaderboardDataset })}
+      onClick={() => openSideModal(EditLeaderboardDatasetModal, { task, leaderboardDataset })}
     />
   );
 };

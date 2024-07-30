@@ -3,11 +3,12 @@ import { Controller, useFormContext } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import InputLoader from "components/InputLoader";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
 
 const FIELD_NAME = FIELD_NAMES.GROUP_BY_HYPERPARAMETERS_FIELD_NAME;
 
-const GroupByHyperparametersSwitch = ({ isLoading }) => {
-  const { control } = useFormContext();
+const GroupByHyperparametersSwitch = ({ isLoading = false }) => {
+  const { control } = useFormContext<FormValues>();
 
   return isLoading ? (
     <InputLoader fullWidth />

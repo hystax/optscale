@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { getMlDatasets, createMlDataset, getMlDataset, updateMlDataset, deleteMlDataset } from "api";
+import { getMlDatasets, createMlDataset, getMlDataset, updateMlDataset, deleteMlDataset, getMlDatasetLabels } from "api";
 import {
   GET_ML_DATASETS,
   CREATE_ML_DATASET,
   GET_ML_DATASET,
   UPDATE_ML_DATASET,
-  DELETE_ML_DATASET
+  DELETE_ML_DATASET,
+  GET_ML_DATASET_LABELS
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -114,13 +115,34 @@ const useDelete = () => {
   return { onDelete, isLoading };
 };
 
+const useGetLabels = () => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+
+  const {
+    apiData: { labels = [] }
+  } = useApiData(GET_ML_DATASET_LABELS);
+
+  const { isLoading, shouldInvoke } = useApiState(GET_ML_DATASET_LABELS, organizationId);
+
+  useEffect(() => {
+    if (shouldInvoke) {
+      dispatch(getMlDatasetLabels(organizationId));
+    }
+  }, [dispatch, organizationId, shouldInvoke]);
+
+  return { isLoading, labels };
+};
+
 function MlDatasetsService() {
   return {
     useGetAll,
     useGet,
     useCreate,
     useUpdate,
-    useDelete
+    useDelete,
+    useGetLabels
   };
 }
 

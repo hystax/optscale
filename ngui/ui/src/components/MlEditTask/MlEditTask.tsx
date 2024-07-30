@@ -13,7 +13,7 @@ import { isEmpty as isEmptyObject } from "utils/objects";
 const SETTING_TABS = Object.freeze({
   COMMON: "common",
   METRICS: "metrics",
-  LEADERBOARDS: "leaderboards"
+  LEADERBOARD_TEMPLATE: "leaderboardTemplate"
 });
 
 const MlEditTask = ({ leaderboard, task, isLoading = false }) => {
@@ -49,7 +49,7 @@ const MlEditTask = ({ leaderboard, task, isLoading = false }) => {
     ...(!isEmptyObject(leaderboard)
       ? [
           {
-            title: SETTING_TABS.LEADERBOARDS,
+            title: SETTING_TABS.LEADERBOARD_TEMPLATE,
             dataTestId: "tab_leaderboard",
             node: <MlEditTaskLeaderboardContainer leaderboard={leaderboard} task={task} />
           }

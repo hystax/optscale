@@ -93,6 +93,10 @@ const NumberInput = ({
           isNumber: (value) => (isNumber(Number(value)) ? true : intl.formatMessage({ id: "fieldMustBeANumber" })),
           ...validate
         },
+        /**
+         * valueAsNumber converts a string containing only white spaces to 0,
+         * so the notOnlyWhiteSpaces validation will not work when valueAsNumber is set to true.
+         */
         valueAsNumber,
         onChange
       })}

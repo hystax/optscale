@@ -7,16 +7,22 @@ import InputLoader from "components/InputLoader";
 import QuestionMark from "components/QuestionMark";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
+
+type RunTagsFieldProps = {
+  runTags?: string[];
+  isLoading?: boolean;
+};
 
 const FIELD_NAME = FIELD_NAMES.RUN_TAGS_FIELD_NAME;
 
-const RunTagsField = ({ runTags = [], isLoading }) => {
+const RunTagsField = ({ runTags = [], isLoading = false }: RunTagsFieldProps) => {
   const intl = useIntl();
 
   const {
     control,
     formState: { errors }
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
   return (
     <Controller

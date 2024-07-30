@@ -3,7 +3,7 @@ import Button from "components/Button";
 import { CreateLeaderboardDatasetModal } from "components/SideModalManager/SideModals";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 
-const AddLeaderboardCriteriaButton = ({ leaderboardId, sx }) => {
+const AddLeaderboardCriteriaButton = ({ leaderboard, task, sx }) => {
   const openSideModal = useOpenSideModal();
 
   return (
@@ -11,7 +11,7 @@ const AddLeaderboardCriteriaButton = ({ leaderboardId, sx }) => {
       messageId="add"
       startIcon={<AddOutlinedIcon />}
       sx={sx}
-      onClick={() => openSideModal(CreateLeaderboardDatasetModal, { leaderboardId })}
+      onClick={() => openSideModal(CreateLeaderboardDatasetModal, { leaderboard, task })}
     />
   );
 };

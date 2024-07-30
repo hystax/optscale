@@ -3,7 +3,7 @@ import BaseSideModal from "./BaseSideModal";
 
 class CreateLeaderboardDatasetModal extends BaseSideModal {
   headerProps = {
-    messageId: "defineLeaderboardCriteria",
+    messageId: "defineLeaderboardTitle",
     showExpand: true,
     dataTestIds: {
       title: "lbl_create_leaderboard_dataset",
@@ -16,7 +16,8 @@ class CreateLeaderboardDatasetModal extends BaseSideModal {
   get content() {
     return (
       <CreateLeaderboardDatasetFormContainer
-        leaderboardId={this.payload?.leaderboardId}
+        task={this.payload?.task}
+        leaderboard={this.payload?.leaderboard}
         onCancel={this.closeSideModal}
         onSuccess={this.closeSideModal}
       />

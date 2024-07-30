@@ -6,7 +6,7 @@ import { isEmpty as isEmptyArray } from "utils/arrays";
 import AddLeaderboardCriteriaButton from "./AddLeaderboardCriteriaButton";
 import LeaderboardDatasetCard from "./LeaderboardDatasetCard";
 
-const NoLeaderboards = ({ leaderboardId }) => {
+const NoLeaderboards = ({ leaderboard, task }) => {
   const isAddLeaderboardCriteriaAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
 
   return (
@@ -14,12 +14,13 @@ const NoLeaderboards = ({ leaderboardId }) => {
       <Typography gutterBottom>
         <FormattedMessage id="noLeaderboards" />
       </Typography>
-      {isAddLeaderboardCriteriaAllowed && <AddLeaderboardCriteriaButton leaderboardId={leaderboardId} />}
+      {isAddLeaderboardCriteriaAllowed && <AddLeaderboardCriteriaButton leaderboard={leaderboard} task={task} />}
     </Box>
   );
 };
 
 const LeaderboardDatasetsListSection = ({
+  task,
   leaderboard,
   leaderboardDatasets,
   leaderboardDataset,
@@ -46,7 +47,8 @@ const LeaderboardDatasetsListSection = ({
     >
       {isAddLeaderboardCriteriaAllowed && (
         <AddLeaderboardCriteriaButton
-          leaderboardId={leaderboard.id}
+          leaderboard={leaderboard}
+          task={task}
           sx={{
             width: {
               md: "100%"
@@ -87,6 +89,7 @@ const LeaderboardDatasetsListSection = ({
 };
 
 const LeaderboardDatasets = ({
+  task,
   leaderboard,
   leaderboardDatasets = [],
   leaderboardDataset,
@@ -108,10 +111,11 @@ const LeaderboardDatasets = ({
     }}
   >
     {isEmptyArray(leaderboardDatasets) ? (
-      <NoLeaderboards leaderboardId={leaderboard.id} />
+      <NoLeaderboards leaderboard={leaderboard} task={task} />
     ) : (
       <>
         <LeaderboardDatasetsListSection
+          task={task}
           leaderboard={leaderboard}
           leaderboardDatasets={leaderboardDatasets}
           leaderboardDataset={leaderboardDataset}
@@ -119,6 +123,7 @@ const LeaderboardDatasets = ({
           onSelectedLeaderboardDatasetIdChange={onSelectedLeaderboardDatasetIdChange}
         />
         <LeaderboardDatasetDetails
+          task={task}
           leaderboard={leaderboard}
           leaderboardDataset={leaderboardDataset}
           leaderboardDatasetDetails={leaderboardDatasetDetails}

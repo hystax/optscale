@@ -11,7 +11,9 @@ import DynamicFractionDigitsValue from "components/DynamicFractionDigitsValue";
 import ExpandableList from "components/ExpandableList";
 import IconLabel from "components/IconLabel";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
+import LeaderboardDatasetsCoverageRules from "components/LeaderboardDatasetsCoverageRules";
 import { LeaderboardRunGroupDetailsModal } from "components/SideModalManager/SideModals";
+import SlicedText from "components/SlicedText";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
@@ -19,6 +21,8 @@ import { getIntersection, isEmpty as isEmptyArray } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
 import { isEmpty as isEmptyObject } from "utils/objects";
 import { CELL_EMPTY_VALUE } from "utils/tables";
+
+const METRIC_NAME_LENGTH_LIMIT = 15;
 
 const RANKINGS = Object.freeze({
   TOP_ONE: 1,
@@ -28,7 +32,37 @@ const RANKINGS = Object.freeze({
 
 const RANKING_ICON_SIZE = "1.5rem";
 
-const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, leaderboardDatasetDetails }) => {
+const QUALIFICATION_TABLE_DIVIDER_SPACING = 3;
+
+const QualificationTableDivider = () => {
+  const theme = useTheme();
+
+  return (
+    <Box position="sticky" left={0} pt={QUALIFICATION_TABLE_DIVIDER_SPACING}>
+      <Box
+        position="absolute"
+        // Empiric spacing formula to align the text vertically centered with the divider
+        top={`${-10 + QUALIFICATION_TABLE_DIVIDER_SPACING * 8}px`}
+        left="50%"
+        width="90px"
+        textAlign="center"
+        sx={{
+          backgroundColor: () => theme.palette.background.paper,
+          left: "calc(50% - 45px)"
+        }}
+      >
+        <FormattedMessage id="qualification" />
+      </Box>
+      <Divider
+        sx={{
+          borderStyle: "dashed"
+        }}
+      />
+    </Box>
+  );
+};
+
+const LeaderboardDatasetDetailsTable = ({ leaderboardDataset, leaderboardDatasetDetails }) => {
   const theme = useTheme();
   const { taskId } = useParams();
 
@@ -47,31 +81,54 @@ const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, lea
 
   const runGroups = useMemo(
     () =>
-      leaderboardDatasetDetails.map((datum, index) => ({
-        ...datum,
-        id: uuidv4(),
-        /**
-         * Backend guaranties that data is sorted by ranking in descending order
-         * so we can use index to defined ui ranking
-         */
-        ranking:
-          getIntersection(datum.qualification, leaderboardDataset.dataset_ids).length === leaderboardDataset.dataset_ids.length
-            ? index + 1
-            : undefined,
-        coverage: {
-          covered: datum.qualification.length,
-          all: leaderboardDataset.dataset_ids.length
-        }
-      })),
-    [leaderboardDataset.dataset_ids, leaderboardDatasetDetails]
+      leaderboardDatasetDetails.map((datum, index) => {
+        const getRanking = () => {
+          const allDatasetsCovered =
+            getIntersection(datum.qualification, leaderboardDataset.dataset_ids).length ===
+            leaderboardDataset.dataset_ids.length;
+
+          const allCoverageRulesSatisfy = Object.entries(leaderboardDataset.dataset_coverage_rules ?? {}).every(
+            ([label, datasetsCount]) => datasetsCount === (datum.dataset_coverage[label]?.length ?? 0)
+          );
+
+          if (allDatasetsCovered && allCoverageRulesSatisfy) {
+            return index + 1;
+          }
+          return undefined;
+        };
+
+        return {
+          ...datum,
+          id: uuidv4(),
+          /**
+           * Backend guaranties that data is sorted by ranking in descending order
+           * so we can use index to define ui ranking
+           */
+          ranking: getRanking(),
+          coverage: {
+            datasets: {
+              covered: getIntersection(datum.qualification, leaderboardDataset.dataset_ids).length,
+              all: leaderboardDataset.dataset_ids.length
+            },
+            coverageRules: Object.entries(leaderboardDataset.dataset_coverage_rules ?? {}).map(([label, datasetsCount]) => ({
+              label,
+              all: datasetsCount,
+              covered: datum.dataset_coverage[label]?.length ?? 0
+            }))
+          }
+        };
+      }),
+    [leaderboardDataset.dataset_coverage_rules, leaderboardDataset.dataset_ids, leaderboardDatasetDetails]
   );
 
   const qualifiedTableData = useMemo(() => runGroups.filter(({ ranking }) => !!ranking), [runGroups]);
 
   const notQualifiedTableData = useMemo(() => runGroups.filter(({ ranking }) => !ranking), [runGroups]);
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const { primary_metric: primaryMetric = {} } = leaderboardDataset;
+
+    return [
       {
         header: (
           <TextWithDataTestId dataTestId="lbl_ranking">
@@ -120,18 +177,18 @@ const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, lea
         id: "coverage",
         enableSorting: false,
         style: {
-          width: "150px"
+          width: "320px"
         },
         cell: ({
           row: {
-            original: { coverage: { covered, all } = {} }
+            original: { coverage: { datasets, coverageRules } = {} }
           }
         }) => (
-          <FormattedMessage
-            id="value / value"
-            values={{
-              value1: covered,
-              value2: all
+          <LeaderboardDatasetsCoverageRules
+            datasets={datasets}
+            coverageRules={coverageRules}
+            noDatasetsCoverageRulesMessage={{
+              text: "-"
             }}
           />
         )
@@ -139,7 +196,9 @@ const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, lea
       {
         header: (
           <Box>
-            <TextWithDataTestId dataTestId={`lbl_metric_${primaryMetric.key}`}>{primaryMetric.name}</TextWithDataTestId>
+            <TextWithDataTestId dataTestId={`lbl_metric_${primaryMetric.key}`}>
+              <SlicedText text={primaryMetric.name} limit={METRIC_NAME_LENGTH_LIMIT} />
+            </TextWithDataTestId>
             <Typography>
               {AGGREGATE_FUNCTION_MESSAGE_ID[primaryMetric.func] ? (
                 <FormattedMessage id={AGGREGATE_FUNCTION_MESSAGE_ID[primaryMetric.func]} />
@@ -181,7 +240,7 @@ const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, lea
               render={({ name, value }) => (
                 <KeyValueLabel
                   key={name}
-                  keyText={name}
+                  keyText={<SlicedText text={name} limit={METRIC_NAME_LENGTH_LIMIT} />}
                   value={value === null ? undefined : <DynamicFractionDigitsValue value={value} />}
                 />
               )}
@@ -231,9 +290,8 @@ const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, lea
             />
           )
       }
-    ],
-    [primaryMetric.key, primaryMetric.name, primaryMetric.func, RANKING_COLORS]
-  );
+    ];
+  }, [leaderboardDataset, RANKING_COLORS]);
 
   return (
     <Stack spacing={SPACING_1} overflow="auto">
@@ -260,26 +318,7 @@ const LeaderboardDatasetDetailsTable = ({ primaryMetric, leaderboardDataset, lea
       </div>
       {!isEmptyArray(notQualifiedTableData) && (
         <>
-          <Box position="sticky" p={1} left={0}>
-            <Box
-              position="absolute"
-              top="-2px"
-              left="50%"
-              width="90px"
-              textAlign="center"
-              sx={{
-                backgroundColor: () => theme.palette.background.paper,
-                left: "calc(50% - 45px)"
-              }}
-            >
-              <FormattedMessage id="qualification" />
-            </Box>
-            <Divider
-              sx={{
-                borderStyle: "dashed"
-              }}
-            />
-          </Box>
+          <QualificationTableDivider />
           <div>
             <Table
               withHeader={false}

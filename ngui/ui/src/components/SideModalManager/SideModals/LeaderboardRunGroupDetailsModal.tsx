@@ -5,7 +5,7 @@ import BaseSideModal from "./BaseSideModal";
 class LeaderboardRunGroupDetailsModal extends BaseSideModal {
   get headerProps() {
     return {
-      text: this.payload?.groupDetails?.note ?? <FormattedMessage id="details" />,
+      text: this.payload?.groupDetails?.note ?? <FormattedMessage id="candidateDetails" />,
       color: "primary",
       showExpand: true,
       dataTestIds: {

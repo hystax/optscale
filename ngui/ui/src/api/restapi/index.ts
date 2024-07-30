@@ -212,7 +212,8 @@ import {
   getMlArtifact,
   updateMlArtifact,
   createMlArtifact,
-  deleteMlArtifact
+  deleteMlArtifact,
+  getMlDatasetLabels
 } from "./actionCreators";
 
 export {
@@ -429,5 +430,6 @@ export {
   getMlArtifact,
   updateMlArtifact,
   createMlArtifact,
-  deleteMlArtifact
+  deleteMlArtifact,
+  getMlDatasetLabels
 };

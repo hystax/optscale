@@ -35,7 +35,7 @@ const Tabs = ({ task, isLoading = false }) => {
     {
       title: ML_TASK_DETAILS_TABS.LEADERBOARDS,
       dataTestId: "tab_leaderboards",
-      node: <MlTaskLeaderboardContainer />
+      node: <MlTaskLeaderboardContainer task={task} />
     },
     {
       title: ML_TASK_DETAILS_TABS.RECOMMENDATIONS,

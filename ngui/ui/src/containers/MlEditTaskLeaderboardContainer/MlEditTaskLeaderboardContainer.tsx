@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 import { Box } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import SetupLeaderboardsForm, { FIELD_NAMES } from "components/SetupLeaderboardsForm";
+import LeaderboardForm from "components/LeaderboardForm";
+import { getDefaultValues } from "components/LeaderboardForm/utils";
+import MlDatasetsService from "services/MlDatasetsService";
 import MlLeaderboardsService from "services/MlLeaderboardsService";
 import MlTasksService from "services/MlTasksService";
 import { getMlTaskDetailsUrl } from "urls";
@@ -19,6 +21,9 @@ const MlEditTaskLeaderboardContainer = ({ leaderboard, task }) => {
   const { useGetTaskRunsList } = MlTasksService();
   const { isLoading: isGetRunsListLoading, runs } = useGetTaskRunsList(taskId);
 
+  const { useGetLabels: useGetDatasetLabels } = MlDatasetsService();
+  const { isLoading: isGetDatasetLabelsLoading, labels: datasetLabels } = useGetDatasetLabels();
+
   const { useUpdateLeaderboard, useCreateLeaderboard } = MlLeaderboardsService();
   const { isLoading: isUpdateLeaderboardLoading, onUpdate } = useUpdateLeaderboard();
   const { isLoading: isCreateLeaderboardLoading, onCreate } = useCreateLeaderboard();
@@ -26,30 +31,17 @@ const MlEditTaskLeaderboardContainer = ({ leaderboard, task }) => {
   const runTags = useMemo(() => Array.from(new Set(runs.flatMap((run) => Object.keys(run.tags)))), [runs]);
 
   const defaultValues = useMemo(
-    () => ({
-      [FIELD_NAMES.RUN_TAGS_FIELD_NAME]: leaderboard.grouping_tags ?? [],
-      [FIELD_NAMES.GROUP_BY_HYPERPARAMETERS_FIELD_NAME]: leaderboard.group_by_hp ?? false,
-      [FIELD_NAMES.PRIMARY_METRIC_FIELD_NAME]: leaderboard?.primary_metric
-        ? {
-            id: leaderboard.primary_metric?.id,
-            name: leaderboard.primary_metric?.name
-          }
-        : null,
-      [FIELD_NAMES.SECONDARY_METRICS_FIELD_NAME]:
-        leaderboard.other_metrics?.map(({ id, name }) => ({
-          id,
-          name
-        })) ?? [],
-      [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.NAME]:
-        leaderboard.filters
-          ?.map(({ max, min, id }) => ({
-            [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MIN]: min ?? "",
-            [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MAX]: max ?? "",
-            [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC]: id
-          }))
-          .filter(Boolean) ?? []
-    }),
+    () =>
+      getDefaultValues({
+        tags: leaderboard.grouping_tags,
+        groupByHyperparameters: leaderboard.group_by_hp,
+        primaryMetric: leaderboard.primary_metric,
+        secondaryMetrics: leaderboard.other_metrics,
+        metricRestrictions: leaderboard.filters,
+        datasetCoverageRules: leaderboard.dataset_coverage_rules
+      }),
     [
+      leaderboard.dataset_coverage_rules,
       leaderboard.filters,
       leaderboard.group_by_hp,
       leaderboard.grouping_tags,
@@ -70,37 +62,21 @@ const MlEditTaskLeaderboardContainer = ({ leaderboard, task }) => {
         width: { md: "50%" }
       }}
     >
-      <SetupLeaderboardsForm
-        metrics={metrics}
-        runTags={runTags}
+      <LeaderboardForm
         defaultValues={defaultValues}
-        isLoadingProps={{
-          isGetDataLoading: isGetRunsListLoading,
-          isSubmitDataLoading: isUpdateLeaderboardLoading || isCreateLeaderboardLoading
-        }}
         onSubmit={(formData) => {
-          const params = {
-            filters: formData[FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.NAME].map(
-              ({
-                [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC]: id,
-                [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MAX]: max,
-                [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MIN]: min
-              }) => ({
-                id,
-                max: max ? Number(max) : undefined,
-                min: min ? Number(min) : undefined
-              })
-            ),
-            group_by_hp: formData[FIELD_NAMES.GROUP_BY_HYPERPARAMETERS_FIELD_NAME],
-            grouping_tags: formData[FIELD_NAMES.RUN_TAGS_FIELD_NAME],
-            other_metrics: formData[FIELD_NAMES.SECONDARY_METRICS_FIELD_NAME].map(({ id }) => id),
-            primary_metric: formData[FIELD_NAMES.PRIMARY_METRIC_FIELD_NAME].id
-          };
-
           const apiHandler = isEmptyObject(leaderboard) ? onCreate : onUpdate;
-          apiHandler(taskId, params).then(redirectToTaskDetails);
+          apiHandler(taskId, formData).then(redirectToTaskDetails);
         }}
         onCancel={redirectToTaskDetails}
+        runTags={runTags}
+        metrics={metrics}
+        datasetLabels={datasetLabels}
+        isTemplate
+        isLoadingProps={{
+          isGetDataLoading: isGetRunsListLoading || isGetDatasetLabelsLoading,
+          isSubmitDataLoading: isUpdateLeaderboardLoading || isCreateLeaderboardLoading
+        }}
       />
     </Box>
   );

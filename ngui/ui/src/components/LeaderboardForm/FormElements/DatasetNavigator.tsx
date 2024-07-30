@@ -6,14 +6,15 @@ import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
 import { isEmpty } from "utils/arrays";
-import { datasetTimespan, leaderboardCriteriaDataset, leaderboardCriteriaDatasetLabels } from "utils/columns";
+import { datasetTimespan, leaderboardCriteriaDataset, leaderboardCriteriaDatasetLabels, localTime } from "utils/columns";
 import { EN_FULL_FORMAT, format, secondsToMilliseconds } from "utils/datetime";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
 
 const DatasetNavigator = ({ datasets, isLoading = false }) => {
   const intl = useIntl();
 
-  const { setValue, watch } = useFormContext();
+  const { setValue, watch } = useFormContext<FormValues>();
   const selectedDatasets = watch(FIELD_NAMES.SELECTED_DATASETS);
 
   const getRangeFilterDefinition = () => {
@@ -87,10 +88,18 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
           />
         )
       },
+
       leaderboardCriteriaDataset({
         nameAccessor: "name",
         pathAccessor: "path",
         deletedAccessor: "deleted"
+      }),
+      localTime({
+        id: "created_at",
+        accessorFn: (originalRow) => secondsToMilliseconds(originalRow.created_at),
+        headerDataTestId: "lbl_updated_at",
+        headerMessageId: "createdAt",
+        defaultSort: "desc"
       }),
       leaderboardCriteriaDatasetLabels(),
       datasetTimespan()

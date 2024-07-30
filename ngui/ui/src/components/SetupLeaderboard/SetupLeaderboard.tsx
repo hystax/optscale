@@ -3,18 +3,21 @@ import { Box, Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import ActionBar from "components/ActionBar";
+import LeaderboardForm from "components/LeaderboardForm";
+import { getDefaultValues } from "components/LeaderboardForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
-import SetupLeaderboardsForm, {
-  defaultValues as setupLeaderboardDefaultValues,
-  FIELD_NAMES
-} from "components/SetupLeaderboardsForm";
 import { ML_TASKS, getMlTaskDetailsUrl } from "urls";
 
-const SetupLeaderboard = ({ task, runs, onSetup, isLoadingProps = {} }) => {
+const SetupLeaderboard = ({ task, runs, datasetLabels, onSetup, isLoadingProps = {} }) => {
   const navigate = useNavigate();
 
   const { id, name } = task;
-  const { isGetTaskLoading = false, isGetRunsListLoading = false, isSetupLoading = false } = isLoadingProps;
+  const {
+    isGetTaskLoading = false,
+    isGetRunsListLoading = false,
+    isSetupLoading = false,
+    isGetDatasetLabelsLoading = false
+  } = isLoadingProps;
 
   const mlTaskDetailsUrl = getMlTaskDetailsUrl(id);
 
@@ -28,19 +31,30 @@ const SetupLeaderboard = ({ task, runs, onSetup, isLoadingProps = {} }) => {
       </Link>
     ],
     title: {
-      text: <FormattedMessage id="setupLeaderboards" />,
+      text: <FormattedMessage id="setupLeaderboardTemplateTitle" />,
       dataTestId: "lbl_setup_leaderboard",
-      isLoading: isGetTaskLoading || isGetRunsListLoading
+      isLoading: isGetTaskLoading
     }
   };
 
   const runTags = useMemo(() => Array.from(new Set(runs.flatMap((run) => Object.keys(run.tags)))), [runs]);
 
   const defaultValues = useMemo(
-    () => ({
-      ...setupLeaderboardDefaultValues,
-      [FIELD_NAMES.RUN_TAGS_FIELD_NAME]: runTags
-    }),
+    () =>
+      getDefaultValues({
+        tags: runTags,
+        groupByHyperparameters: true,
+        metricRestrictions: [
+          {
+            max: "",
+            min: "",
+            id: ""
+          }
+        ],
+        datasetCoverageRules: {
+          "": ""
+        }
+      }),
     [runTags]
   );
 
@@ -53,16 +67,18 @@ const SetupLeaderboard = ({ task, runs, onSetup, isLoadingProps = {} }) => {
             width: { md: "50%" }
           }}
         >
-          <SetupLeaderboardsForm
-            metrics={task.metrics}
+          <LeaderboardForm
+            defaultValues={defaultValues}
+            onSubmit={onSetup}
+            onCancel={() => navigate(mlTaskDetailsUrl)}
             runTags={runTags}
+            metrics={task.metrics}
+            datasetLabels={datasetLabels}
+            isTemplate
             isLoadingProps={{
-              isGetDataLoading: isGetTaskLoading || isGetRunsListLoading,
+              isGetDataLoading: isGetTaskLoading || isGetRunsListLoading || isGetDatasetLabelsLoading,
               isSubmitDataLoading: isSetupLoading
             }}
-            onSubmit={onSetup}
-            defaultValues={defaultValues}
-            onCancel={() => navigate(mlTaskDetailsUrl)}
           />
         </Box>
       </PageContentWrapper>

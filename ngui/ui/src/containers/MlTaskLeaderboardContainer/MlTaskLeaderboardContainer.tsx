@@ -13,7 +13,7 @@ import {
 import MlLeaderboardsService from "services/MlLeaderboardsService";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 
-const MlTaskLeaderboardContainer = () => {
+const MlTaskLeaderboardContainer = ({ task }) => {
   const { taskId } = useParams() as { taskId: string };
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
@@ -83,6 +83,7 @@ const MlTaskLeaderboardContainer = () => {
 
   return (
     <MlTaskLeaderboard
+      task={task}
       leaderboard={leaderboard}
       leaderboardDatasets={leaderboardDatasets}
       leaderboardDataset={leaderboardDataset}

@@ -943,3 +943,6 @@ export const OPTSCALE_MODE = Object.freeze({
   FINOPS: "finops",
   MLOPS: "mlops"
 });
+
+export const DATASET_NAME_LENGTH_LIMIT = 70;
+export const DATASET_PATH_LENGTH_LIMIT = 70;

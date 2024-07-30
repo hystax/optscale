@@ -3,7 +3,7 @@ import BaseSideModal from "./BaseSideModal";
 
 class EditLeaderboardDatasetModal extends BaseSideModal {
   headerProps = {
-    messageId: "editLeaderboardCriteria",
+    messageId: "editLeaderboardTitle",
     showExpand: true,
     dataTestIds: {
       title: "lbl_edit_leaderboard_dataset",
@@ -18,6 +18,7 @@ class EditLeaderboardDatasetModal extends BaseSideModal {
       <EditLeaderboardDatasetFormContainer
         onCancel={this.closeSideModal}
         onSuccess={this.closeSideModal}
+        task={this.payload?.task}
         leaderboardDataset={this.payload?.leaderboardDataset}
       />
     );

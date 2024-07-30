@@ -2,6 +2,7 @@ import TableLoader from "components/TableLoader";
 import { LeaderboardDatasets, SetupLeaderboardsInvitation } from "./components";
 
 const MlTaskLeaderboard = ({
+  task,
   leaderboard,
   leaderboardDatasets,
   leaderboardDataset,
@@ -17,6 +18,7 @@ const MlTaskLeaderboard = ({
   if (leaderboard?.id) {
     return (
       <LeaderboardDatasets
+        task={task}
         leaderboard={leaderboard}
         leaderboardDatasets={leaderboardDatasets}
         leaderboardDataset={leaderboardDataset}

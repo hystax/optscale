@@ -23,6 +23,7 @@ import lastTimeLocal from "./lastTimeLocal";
 import lastUsed from "./lastUsed";
 import leaderboardCriteriaDataset from "./leaderboardCriteriaDataset";
 import leaderboardCriteriaDatasetLabels from "./leaderboardCriteriaDatasetLabels";
+import localTime from "./localTime";
 import markdown from "./markdown";
 import metrics from "./metrics";
 import milestones from "./milestones";
@@ -147,5 +148,6 @@ export {
   mlModelUsedAliases,
   datasetTimespan,
   markdown,
-  slicedText
+  slicedText,
+  localTime
 };

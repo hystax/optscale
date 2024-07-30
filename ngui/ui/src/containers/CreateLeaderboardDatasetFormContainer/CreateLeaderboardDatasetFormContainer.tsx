@@ -1,36 +1,53 @@
 import { useMemo } from "react";
-import LeaderboardDatasetForm, { FIELD_NAMES } from "components/LeaderboardDatasetForm";
-import MlDatasetsService from "services/MlDatasetsService";
+import LeaderboardForm from "components/LeaderboardForm";
+import { getDefaultValues } from "components/LeaderboardForm/utils";
+import { useLeaderboardDatasetFormContainerData } from "hooks/useLeaderboardDatasetFormContainerData";
 import MlLeaderboardsService from "services/MlLeaderboardsService";
 
-const CreateLeaderboardDatasetFormContainer = ({ leaderboardId, onSuccess, onCancel }) => {
-  const { useGetAll } = MlDatasetsService();
-  const { isLoading: isDatasetsLoading, datasets } = useGetAll();
+const CreateLeaderboardDatasetFormContainer = ({ task, leaderboard, onSuccess, onCancel }) => {
+  const {
+    data: { datasets, datasetLabels, runTags },
+    isLoading: isGetDataLoading
+  } = useLeaderboardDatasetFormContainerData({
+    taskId: task.id
+  });
 
   const { useCreateLeaderboardDataset } = MlLeaderboardsService();
   const { isLoading: isCreateLeaderboardDatasetLoading, onCreate } = useCreateLeaderboardDataset();
 
   const defaultValues = useMemo(
-    () => ({
-      [FIELD_NAMES.NAME]: "",
-      [FIELD_NAMES.SELECTED_DATASETS]: []
-    }),
-    []
+    () =>
+      getDefaultValues({
+        name: "",
+        selectedDatasets: [],
+        tags: leaderboard.grouping_tags,
+        groupByHyperparameters: leaderboard.group_by_hp,
+        primaryMetric: leaderboard.primary_metric,
+        secondaryMetrics: leaderboard.other_metrics,
+        metricRestrictions: leaderboard.filters,
+        datasetCoverageRules: leaderboard.dataset_coverage_rules
+      }),
+    [
+      leaderboard.dataset_coverage_rules,
+      leaderboard.filters,
+      leaderboard.group_by_hp,
+      leaderboard.grouping_tags,
+      leaderboard.other_metrics,
+      leaderboard.primary_metric
+    ]
   );
 
   return (
-    <LeaderboardDatasetForm
-      onCancel={onCancel}
-      onSubmit={(formData) => {
-        onCreate(leaderboardId, {
-          datasetIds: formData[FIELD_NAMES.SELECTED_DATASETS].map(({ id }) => id),
-          name: formData[FIELD_NAMES.NAME]
-        }).then(onSuccess);
-      }}
-      datasets={datasets}
+    <LeaderboardForm
       defaultValues={defaultValues}
+      onSubmit={(submitData) => onCreate(leaderboard.id, submitData).then(onSuccess)}
+      onCancel={onCancel}
+      datasets={datasets}
+      runTags={runTags}
+      metrics={task.metrics}
+      datasetLabels={datasetLabels}
       isLoadingProps={{
-        isGetDataLoading: isDatasetsLoading,
+        isGetDataLoading,
         isSubmitDataLoading: isCreateLeaderboardDatasetLoading
       }}
     />

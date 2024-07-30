@@ -13,7 +13,9 @@ import TextWithDataTestId from "components/TextWithDataTestId";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { ML_DATASET_CREATE, getEditMlDatasetUrl } from "urls";
-import { datasetLabels, datasetTimespan, slicedText } from "utils/columns";
+import { datasetLabels, datasetTimespan, localTime, slicedText } from "utils/columns";
+import { DATASET_NAME_LENGTH_LIMIT, DATASET_PATH_LENGTH_LIMIT } from "utils/constants";
+import { secondsToMilliseconds } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
 
 const MlDatasetsTable = ({ datasets }) => {
@@ -63,14 +65,21 @@ const MlDatasetsTable = ({ datasets }) => {
         headerMessageId: "name",
         headerDataTestId: "lbl_name",
         accessorKey: "name",
-        maxTextLength: 70
+        maxTextLength: DATASET_NAME_LENGTH_LIMIT
       }),
       slicedText({
         headerMessageId: "path",
         headerDataTestId: "lbl_path",
         accessorKey: "path",
-        maxTextLength: 70,
+        maxTextLength: DATASET_PATH_LENGTH_LIMIT,
         copy: true
+      }),
+      localTime({
+        id: "created_at",
+        accessorFn: (originalRow) => secondsToMilliseconds(originalRow.created_at),
+        headerDataTestId: "lbl_updated_at",
+        headerMessageId: "createdAt",
+        defaultSort: "desc"
       }),
       datasetTimespan(),
       {

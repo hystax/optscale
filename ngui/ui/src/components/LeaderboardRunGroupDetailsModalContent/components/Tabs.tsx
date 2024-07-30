@@ -1,13 +1,13 @@
 import { useMemo } from "react";
 import TabsWrapper from "components/TabsWrapper";
 import { getDifference } from "utils/arrays";
-import DatasetsTabContainer from "./DatasetsTabContainer";
+import CoverageTabContainer from "./CoverageTabContainer";
 import DiscussionTab from "./DiscussionTab";
 import RunsTabContainer from "./RunsTabContainer";
 
 const TABS = Object.freeze({
   RUNS: "runs",
-  DATASETS: "datasets",
+  COVERAGE: "coverage",
   DISCUSSION: "discussion"
 });
 
@@ -32,9 +32,16 @@ const Tabs = ({ taskId, groupDetails, leaderboardDataset }) => {
       )
     },
     {
-      title: TABS.DATASETS,
-      dataTestId: "tab_datasets",
-      node: <DatasetsTabContainer taskId={taskId} qualifiedRunIds={qualifiedRunIds} leaderboardDataset={leaderboardDataset} />
+      title: TABS.COVERAGE,
+      dataTestId: "tab_coverage",
+      node: (
+        <CoverageTabContainer
+          taskId={taskId}
+          qualifiedRunIds={qualifiedRunIds}
+          leaderboardDataset={leaderboardDataset}
+          groupDetails={groupDetails}
+        />
+      )
     },
     {
       title: TABS.DISCUSSION,

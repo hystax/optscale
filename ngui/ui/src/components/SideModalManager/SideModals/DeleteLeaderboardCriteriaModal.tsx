@@ -3,7 +3,7 @@ import BaseSideModal from "./BaseSideModal";
 
 class DeleteLeaderboardCriteriaModal extends BaseSideModal {
   headerProps = {
-    messageId: "deleteLeaderboardCriteria",
+    messageId: "deleteLeaderboardTitle",
     color: "error",
     dataTestIds: {
       title: "lbl_delete_leaderboard_dataset",
