@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import FormLabel from "@mui/material/FormLabel";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import { FIELD_NAMES } from "./constants";
 import {
   FormButtons,
@@ -34,6 +35,12 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
 
   return (
     <FormProvider {...methods}>
+      <InlineSeverityAlert
+        messageId="runsetTemplateDescription"
+        sx={{
+          width: "100%"
+        }}
+      />
       <form
         data-test-id="runset_template_form"
         onSubmit={handleSubmit((formData) => {
