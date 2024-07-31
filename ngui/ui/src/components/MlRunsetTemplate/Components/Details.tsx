@@ -1,6 +1,5 @@
 import { Fragment } from "react";
 import { Box } from "@mui/material";
-import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
@@ -15,7 +14,6 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
 import { getMlTaskDetailsUrl } from "urls";
 import { isEmpty as isEmptyArray, isLastItem } from "utils/arrays";
-import { SPACING_1 } from "utils/layouts";
 import { isEmpty as isEmptyObject } from "utils/objects";
 
 const Details = ({
@@ -32,8 +30,8 @@ const Details = ({
   const { isDemo } = useOrganizationInfo();
 
   return (
-    <Grid container spacing={SPACING_1}>
-      <Grid item xs={12} sm={6} lg={4}>
+    <Box display="flex" flexWrap="wrap" rowGap={1} columnGap={16}>
+      <Box>
         <SummaryList
           titleMessage={<FormattedMessage id="details" />}
           items={
@@ -135,8 +133,8 @@ const Details = ({
           }
           isLoading={isLoading}
         />
-      </Grid>
-      <Grid item xs={12} sm={6} lg={4}>
+      </Box>
+      <Box>
         <SummaryList
           titleMessage={
             <>
@@ -185,8 +183,8 @@ const Details = ({
             )
           }
         />
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 

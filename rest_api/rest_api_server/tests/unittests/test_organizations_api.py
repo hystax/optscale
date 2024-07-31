@@ -5,7 +5,7 @@ from unittest.mock import patch, ANY, call, PropertyMock
 from rest_api.rest_api_server.models.db_base import BaseDB
 from rest_api.rest_api_server.models.db_factory import DBType, DBFactory
 from rest_api.rest_api_server.models.models import (
-    OrganizationConstraint, OrganizationLimitHit, OrganizationBI)
+    CloudTypes, OrganizationConstraint, OrganizationLimitHit, OrganizationBI)
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
 from sqlalchemy import and_
 
@@ -17,11 +17,11 @@ class TestOrganizationApi(TestApiBase):
 
         code, self.root = self.create_organization("root_name")
         self.code, self.organization = self.create_organization("test_name")
-        patch('rest_api.rest_api_server.controllers.employee.EmployeeController.'
-              'notification_domain_blacklist').start()
-        patch('rest_api.rest_api_server.controllers.employee.EmployeeController.'
-              'notification_domain_whitelist', new_callable=PropertyMock,
-              return_value=[]).start()
+        patch('rest_api.rest_api_server.controllers.employee.'
+              'EmployeeController.notification_domain_blacklist').start()
+        patch('rest_api.rest_api_server.controllers.employee.'
+              'EmployeeController.notification_domain_whitelist',
+              new_callable=PropertyMock, return_value=[]).start()
         self.auth_user = self.gen_id()
         _, self.employee = self.client.employee_create(
             self.organization['id'], {'name': 'employee',
@@ -32,7 +32,8 @@ class TestOrganizationApi(TestApiBase):
             "role_purpose": 'optscale_manager'
         }]
         self.p_get_roles_info = patch(
-            'rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler.get_roles_info',
+            'rest_api.rest_api_server.handlers.v1.base.'
+            'BaseAuthHandler.get_roles_info',
             return_value=user_roles).start()
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
               'get_user_id',
@@ -42,7 +43,8 @@ class TestOrganizationApi(TestApiBase):
 
     def mock_user_info(self, user_id, email, name='default'):
         patch(
-            'rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler._get_user_info',
+            'rest_api.rest_api_server.handlers.v1.base.'
+            'BaseAuthHandler._get_user_info',
             return_value={
                 'id': user_id,
                 'display_name': name,
@@ -245,8 +247,8 @@ class TestOrganizationApi(TestApiBase):
         _, another_root = self.create_organization('another root')
         p_check_secret.return_value = False
         self.assertEqual(len(organization_list['organizations']), 1)
-        patch('rest_api.rest_api_server.controllers.organization.OrganizationController.'
-              '_get_assignments_by_token',
+        patch('rest_api.rest_api_server.controllers.organization.'
+              'OrganizationController._get_assignments_by_token',
               return_value=[
                   {'assignment_resource': self.root['id']},
                   {'assignment_resource': pool['id']},
@@ -472,7 +474,8 @@ class TestOrganizationApi(TestApiBase):
         self.assertEqual(code, 200)
         self.assertEqual(organization['currency'], 'RUB')
 
-    @patch('rest_api.rest_api_server.controllers.report_import.ReportImportBaseController.publish_task')
+    @patch('rest_api.rest_api_server.controllers.report_import.'
+           'ReportImportBaseController.publish_task')
     def test_get_orgs_with_shareables(self, m_publish_task):
         org_id = self.organization['id']
         code, new_org = self.client.organization_create({'name': 'new_org'})
@@ -615,6 +618,34 @@ class TestOrganizationApi(TestApiBase):
             OrganizationBI.deleted.is_(False)
         )).one_or_none()
         self.assertEqual(bi, None)
+
+    def test_delete_org_clean_ch(self):
+        ch_del_mock = patch(
+            'rest_api.rest_api_server.controllers.organization.'
+            'OrganizationController.clean_clickhouse').start()
+        code, org = self.client.organization_create({'name': 'org_name'})
+        cloud_acc_dict = {
+            'name': 'my cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'access_key_id': 'key',
+                'secret_access_key': 'secret',
+                'bucket_name': 'name',
+                'config_scheme': 'create_report'
+            }
+        }
+        auth_user = self.gen_id()
+        code, employee = self.client.employee_create(
+            org['id'], {'name': 'employee', 'auth_user_id': auth_user})
+        self.assertEqual(code, 201)
+        patch('rest_api.rest_api_server.controllers.cloud_account.'
+              'CloudAccountController._configure_report').start()
+        _, ca = self.create_cloud_account(
+            org['id'], cloud_acc_dict, auth_user_id=auth_user)
+        self.assertEqual(code, 201)
+
+        self.delete_organization(org['id'])
+        ch_del_mock.assert_called_once_with({ca['id']: CloudTypes.AWS_CNR}, [])
 
     @patch('rest_api.rest_api_server.controllers.pool.PoolController.'
            '_authorize_action_for_user', return_value=True)

@@ -3,7 +3,8 @@ import logging
 import requests
 from sqlalchemy import and_, true, false
 from sqlalchemy.exc import IntegrityError
-from rest_api.rest_api_server.controllers.base import BaseController
+from rest_api.rest_api_server.controllers.base import (
+    BaseController, ClickHouseMixin)
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.controllers.employee import EmployeeController
 from rest_api.rest_api_server.controllers.organization_bi import OrganizationBIController
@@ -47,7 +48,7 @@ DEFAULT_CONSTRAINT_SETTINGS = {
 }
 
 
-class OrganizationController(BaseController):
+class OrganizationController(BaseController, ClickHouseMixin):
 
     def __init__(self, db_session, config=None, token=None, engine=None):
         super().__init__(db_session, config, token, engine)
@@ -238,6 +239,49 @@ class OrganizationController(BaseController):
             raise
         return result
 
+    def clean_clickhouse(self, cloud_accounts_map=None, gemini_ids=None):
+        if cloud_accounts_map:
+            cloud_account_ids = list(cloud_accounts_map.keys())
+            self.execute_clickhouse(
+                """ALTER TABLE expenses DELETE
+                   WHERE cloud_account_id IN %s""" % cloud_account_ids
+            )
+            self.execute_clickhouse(
+                """ALTER TABLE traffic_expenses DELETE
+                   WHERE cloud_account_id IN %s""" % cloud_account_ids
+            )
+            self.execute_clickhouse(
+                """ALTER TABLE average_metrics DELETE
+                   WHERE cloud_account_id IN %s""" % cloud_account_ids
+            )
+            k8s_accs = [
+                id_ for id_, type_ in cloud_accounts_map.items()
+                if type_ == CloudTypes.KUBERNETES_CNR
+            ]
+            if k8s_accs:
+                self.execute_clickhouse(
+                    """ALTER TABLE k8s_metrics DELETE
+                       WHERE cloud_account_id IN %s""" % k8s_accs
+                )
+            aws_accs = [
+                id_ for id_, type_ in cloud_accounts_map.items()
+                if type_ == CloudTypes.AWS_CNR
+            ]
+            if aws_accs:
+                self.execute_clickhouse(
+                    """ALTER TABLE risp.ri_sp_usage DELETE
+                       WHERE cloud_account_id IN %s""" % aws_accs
+                )
+                self.execute_clickhouse(
+                    """ALTER TABLE risp.uncovered_usage DELETE
+                       WHERE cloud_account_id IN %s""" % aws_accs
+                )
+        if gemini_ids:
+            self.execute_clickhouse(
+                """ALTER TABLE gemini.gemini DELETE
+                   WHERE id IN %s""" % gemini_ids
+            )
+
     def delete(self, item_id):
         organization = self.get(item_id)
         if organization.pool_id:
@@ -260,8 +304,13 @@ class OrganizationController(BaseController):
                                          ).delete_constraints_with_hits(item_id)
         OrganizationBIController(
             self.session, self._config).delete_bis_for_org(item_id)
-        OrganizationGeminiController(
-            self.session, self._config).delete_for_org(item_id)
+        gemini_ctrl = OrganizationGeminiController(self.session, self._config)
+        geminis_ids = [x.id for x in gemini_ctrl.list(item_id)]
+        gemini_ctrl.delete_for_org(item_id)
+        cloud_accounts = {
+            x.id: x.type for x in self.get_cloud_accounts(item_id)
+        }
+        self.clean_clickhouse(cloud_accounts, geminis_ids)
         super().delete(item_id)
         if organization.pool_id:
             self._publish_organization_activity(

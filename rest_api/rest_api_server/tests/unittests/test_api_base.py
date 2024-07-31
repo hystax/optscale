@@ -121,8 +121,8 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
               'BreakdownExpenseController._aggregate_resource_data',
               wraps=self.patched_aggregate_breakdown_expenses).start()
         patch(
-            'rest_api.rest_api_server.controllers.resource_count.ResourceCountController.'
-            '_get_resources_breakdowns',
+            'rest_api.rest_api_server.controllers.resource_count.'
+            'ResourceCountController._get_resources_breakdowns',
             wraps=self.patched_get_resources_breakdowns_pipeline).start()
         patch('rest_api.rest_api_server.controllers.base.ClickHouseMixin.'
               'execute_clickhouse',
@@ -133,6 +133,9 @@ class TestApiBase(tornado.testing.AsyncHTTPTestCase):
         patch(
             'rest_api.rest_api_server.controllers.cloud_account.'
             'CloudAccountController.clean_clickhouse').start()
+        patch(
+            'rest_api.rest_api_server.controllers.organization.'
+            'OrganizationController.clean_clickhouse').start()
         patch('rest_api.rest_api_server.controllers.base.'
               'BaseController.publish_activities_task').start()
         self.p_get_meta_by_token = patch(
