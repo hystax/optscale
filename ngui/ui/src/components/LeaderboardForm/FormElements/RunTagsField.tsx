@@ -10,13 +10,13 @@ import { FIELD_NAMES } from "../constants";
 import { FormValues } from "../types";
 
 type RunTagsFieldProps = {
-  runTags?: string[];
+  groupingTags?: string[];
   isLoading?: boolean;
 };
 
 const FIELD_NAME = FIELD_NAMES.RUN_TAGS_FIELD_NAME;
 
-const RunTagsField = ({ runTags = [], isLoading = false }: RunTagsFieldProps) => {
+const RunTagsField = ({ groupingTags = [], isLoading = false }: RunTagsFieldProps) => {
   const intl = useIntl();
 
   const {
@@ -49,7 +49,7 @@ const RunTagsField = ({ runTags = [], isLoading = false }: RunTagsFieldProps) =>
             disableClearable
             clearOnBlur
             isOptionEqualToValue={(option, value) => option === value}
-            options={runTags}
+            options={groupingTags}
             getOptionLabel={(option) => option}
             renderTags={(autocompleteValue, getTagProps) =>
               autocompleteValue.map((option, index) => (

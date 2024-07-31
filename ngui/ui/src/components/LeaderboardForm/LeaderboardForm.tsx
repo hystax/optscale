@@ -24,7 +24,7 @@ const LeaderboardForm = ({
   onSubmit,
   onCancel,
   datasets,
-  runTags,
+  groupingTags,
   metrics,
   datasetLabels,
   isTemplate = false,
@@ -43,7 +43,7 @@ const LeaderboardForm = ({
       ...formValues,
       ...defaultValues
     }));
-  }, [defaultValues, reset, runTags]);
+  }, [defaultValues, reset, groupingTags]);
 
   return (
     <FormProvider {...methods}>
@@ -83,7 +83,7 @@ const LeaderboardForm = ({
         noValidate
       >
         {!isTemplate && <NameField isLoading={isGetDataLoading} />}
-        <RunTagsField runTags={runTags} isLoading={isGetDataLoading} />
+        <RunTagsField groupingTags={groupingTags} isLoading={isGetDataLoading} />
         <GroupByHyperparametersSwitch isLoading={isGetDataLoading} />
         <PrimaryMetricSelector metrics={metrics} isLoading={isGetDataLoading} />
         <SecondaryMetricsSelector metrics={metrics} isLoading={isGetDataLoading} />

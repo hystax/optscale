@@ -8,13 +8,13 @@ import { getDefaultValues } from "components/LeaderboardForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { ML_TASKS, getMlTaskDetailsUrl } from "urls";
 
-const SetupLeaderboard = ({ task, runs, datasetLabels, onSetup, isLoadingProps = {} }) => {
+const SetupLeaderboard = ({ task, datasetLabels, groupingTags, onSetup, isLoadingProps = {} }) => {
   const navigate = useNavigate();
 
   const { id, name } = task;
   const {
     isGetTaskLoading = false,
-    isGetRunsListLoading = false,
+    isGetTaskTagsLoading = false,
     isSetupLoading = false,
     isGetDatasetLabelsLoading = false
   } = isLoadingProps;
@@ -37,12 +37,10 @@ const SetupLeaderboard = ({ task, runs, datasetLabels, onSetup, isLoadingProps =
     }
   };
 
-  const runTags = useMemo(() => Array.from(new Set(runs.flatMap((run) => Object.keys(run.tags)))), [runs]);
-
   const defaultValues = useMemo(
     () =>
       getDefaultValues({
-        tags: runTags,
+        tags: groupingTags,
         groupByHyperparameters: true,
         metricRestrictions: [
           {
@@ -55,7 +53,7 @@ const SetupLeaderboard = ({ task, runs, datasetLabels, onSetup, isLoadingProps =
           "": ""
         }
       }),
-    [runTags]
+    [groupingTags]
   );
 
   return (
@@ -71,12 +69,12 @@ const SetupLeaderboard = ({ task, runs, datasetLabels, onSetup, isLoadingProps =
             defaultValues={defaultValues}
             onSubmit={onSetup}
             onCancel={() => navigate(mlTaskDetailsUrl)}
-            runTags={runTags}
+            groupingTags={groupingTags}
             metrics={task.metrics}
             datasetLabels={datasetLabels}
             isTemplate
             isLoadingProps={{
-              isGetDataLoading: isGetTaskLoading || isGetRunsListLoading || isGetDatasetLabelsLoading,
+              isGetDataLoading: isGetTaskLoading || isGetTaskTagsLoading || isGetDatasetLabelsLoading,
               isSubmitDataLoading: isSetupLoading
             }}
           />

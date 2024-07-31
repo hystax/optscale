@@ -18,8 +18,8 @@ const MlEditTaskLeaderboardContainer = ({ leaderboard, task }) => {
 
   const { metrics = [] } = task;
 
-  const { useGetTaskRunsList } = MlTasksService();
-  const { isLoading: isGetRunsListLoading, runs } = useGetTaskRunsList(taskId);
+  const { useGetTaskTags } = MlTasksService();
+  const { isLoading: isGetTaskTagsLoading, tags } = useGetTaskTags(taskId);
 
   const { useGetLabels: useGetDatasetLabels } = MlDatasetsService();
   const { isLoading: isGetDatasetLabelsLoading, labels: datasetLabels } = useGetDatasetLabels();
@@ -27,8 +27,6 @@ const MlEditTaskLeaderboardContainer = ({ leaderboard, task }) => {
   const { useUpdateLeaderboard, useCreateLeaderboard } = MlLeaderboardsService();
   const { isLoading: isUpdateLeaderboardLoading, onUpdate } = useUpdateLeaderboard();
   const { isLoading: isCreateLeaderboardLoading, onCreate } = useCreateLeaderboard();
-
-  const runTags = useMemo(() => Array.from(new Set(runs.flatMap((run) => Object.keys(run.tags)))), [runs]);
 
   const defaultValues = useMemo(
     () =>
@@ -69,12 +67,12 @@ const MlEditTaskLeaderboardContainer = ({ leaderboard, task }) => {
           apiHandler(taskId, formData).then(redirectToTaskDetails);
         }}
         onCancel={redirectToTaskDetails}
-        runTags={runTags}
+        groupingTags={tags}
         metrics={metrics}
         datasetLabels={datasetLabels}
         isTemplate
         isLoadingProps={{
-          isGetDataLoading: isGetRunsListLoading || isGetDatasetLabelsLoading,
+          isGetDataLoading: isGetTaskTagsLoading || isGetDatasetLabelsLoading,
           isSubmitDataLoading: isUpdateLeaderboardLoading || isCreateLeaderboardLoading
         }}
       />

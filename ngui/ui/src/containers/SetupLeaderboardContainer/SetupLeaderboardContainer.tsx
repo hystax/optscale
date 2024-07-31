@@ -11,13 +11,12 @@ const SetupLeaderboardContainer = () => {
 
   const mlTaskDetailsUrl = getMlTaskDetailsUrl(taskId);
 
-  const { useGetOne, useGetTaskRunsList } = MlTasksService();
+  const { useGetOne, useGetTaskTags } = MlTasksService();
+  const { isLoading: isGetTaskLoading, task } = useGetOne(taskId);
+  const { isLoading: isGetTaskTagsLoading, tags } = useGetTaskTags(taskId);
 
   const { useGetLabels: useGetDatasetLabels } = MlDatasetsService();
   const { isLoading: isGetDatasetLabelsLoading, labels: datasetLabels } = useGetDatasetLabels();
-
-  const { isLoading: isGetTaskLoading, task } = useGetOne(taskId);
-  const { isLoading: isGetRunsListLoading, runs } = useGetTaskRunsList(taskId);
 
   const { useCreateLeaderboard } = MlLeaderboardsService();
   const { isLoading: isCreateLeaderboardLoading, onCreate } = useCreateLeaderboard();
@@ -28,11 +27,11 @@ const SetupLeaderboardContainer = () => {
         onCreate(taskId, formData).then(() => navigate(mlTaskDetailsUrl));
       }}
       task={task}
-      runs={runs}
+      groupingTags={tags}
       datasetLabels={datasetLabels}
       isLoadingProps={{
         isGetTaskLoading,
-        isGetRunsListLoading,
+        isGetTaskTagsLoading,
         isGetDatasetLabelsLoading,
         isSetupLoading: isCreateLeaderboardLoading
       }}
