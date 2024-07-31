@@ -237,6 +237,10 @@ async def generate_candidates_template(
             }
         )
 
+    primary_metric_field = "data.%s" % primary_metric_key
+    if primary_metric_field not in match["$match"]:
+        match["$match"][primary_metric_field] = {"$exists": True}
+
     sort = {
         "$sort": {
             "updated_at": -1,
