@@ -257,10 +257,18 @@ class Alibaba(CloudBase):
                 raise ValueError('Unexpected response format: {}'.format(
                     response))
 
+    @staticmethod
+    def _exclude_closed_regions(regions):
+        # 'ap-south-1' region is closed, but it still remains in regions list,
+        # let's exclude it
+        closed_regions = ['ap-south-1']
+        return [x for x in regions if x['RegionId'] not in closed_regions]
+
     def _list_region_details(self):
         request = DescribeRegionsRequest.DescribeRegionsRequest()
         request.set_AcceptLanguage('en-US')  # The default is Chinese
-        return self._send_request(request)['Regions']['Region']
+        regions = self._send_request(request)['Regions']['Region']
+        return self._exclude_closed_regions(regions)
 
     def _find_region(self, id_or_name):
         if id_or_name not in self._regions_map:
