@@ -2,13 +2,13 @@ import { useEffect, useMemo } from "react";
 import RemoveOutlinedIcon from "@mui/icons-material/RemoveOutlined";
 import { FormHelperText } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
-import { useIntl } from "react-intl";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
-import { isEmpty as isEmptyArray } from "utils/arrays";
-import { datasetLabels, datasetTimespan, leaderboardCriteriaDataset } from "utils/columns";
+import { datasetLabels, datasetTimespan, leaderboardCriteriaDataset, localTime } from "utils/columns";
+import { secondsToMilliseconds } from "utils/datetime";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
 
 const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
   const tableData = useMemo(() => selectedDatasets, [selectedDatasets]);
@@ -41,6 +41,13 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
         pathAccessor: "path",
         deletedAccessor: "deleted"
       }),
+      localTime({
+        id: "created_at",
+        accessorFn: (originalRow) => secondsToMilliseconds(originalRow.created_at),
+        headerDataTestId: "lbl_updated_at",
+        headerMessageId: "createdAt",
+        defaultSort: "desc"
+      }),
       datasetLabels({
         id: "labels",
         accessorFn: (originalRow) => originalRow.labels
@@ -68,8 +75,7 @@ const SelectedDatasets = ({ isLoading = false }) => {
     formState: { errors, isSubmitted },
     watch,
     trigger
-  } = useFormContext();
-  const intl = useIntl();
+  } = useFormContext<FormValues>();
 
   const selectedDatasets = watch(FIELD_NAMES.SELECTED_DATASETS);
 
@@ -83,11 +89,6 @@ const SelectedDatasets = ({ isLoading = false }) => {
     <Controller
       name={FIELD_NAMES.SELECTED_DATASETS}
       control={control}
-      rules={{
-        validate: {
-          required: (value) => (isEmptyArray(value) ? intl.formatMessage({ id: "atLeastOneDatasetMustBeSelected" }) : true)
-        }
-      }}
       render={({ field: { value, onChange } }) =>
         isLoading ? (
           <TableLoader />
@@ -95,7 +96,7 @@ const SelectedDatasets = ({ isLoading = false }) => {
           <>
             <ControlledTable selectedDatasets={value} onDatasetRemove={onChange} />
             {!!errors[FIELD_NAMES.SELECTED_DATASETS] && (
-              <FormHelperText error>{errors[FIELD_NAMES.SELECTED_DATASETS].message}</FormHelperText>
+              <FormHelperText error>{errors[FIELD_NAMES.SELECTED_DATASETS]?.message}</FormHelperText>
             )}
           </>
         )

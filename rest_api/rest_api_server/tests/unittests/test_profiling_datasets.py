@@ -221,6 +221,31 @@ class TestDatasetApi(TestProfilingBase):
             self.assertEqual(dataset['description'], d['description'])
             self.assertEqual(dataset['labels'], d['labels'])
 
+    def test_list_bulk(self):
+        code, dataset_1 = self.client.dataset_create(
+            self.organization_id, self.valid_dataset)
+        self.assertEqual(code, 201)
+        code, dataset_2 = self.client.dataset_create(
+            self.organization_id, self.valid_dataset)
+        self.assertEqual(code, 201)
+        code, dataset_3 = self.client.dataset_create(
+            self.organization_id, self.valid_dataset)
+        self.assertEqual(code, 201)
+        code, res = self.client.dataset_list(self.organization_id)
+        self.assertEqual(len(res['datasets']), 3)
+
+        code, res = self.client.dataset_list(self.organization_id,
+                                             dataset_ids=[dataset_2['id']])
+        self.assertEqual(len(res['datasets']), 1)
+        self.assertEqual(res['datasets'][0]['id'], dataset_2['id'])
+
+        dataset_ids = [dataset_1['id'], dataset_3['id']]
+        code, res = self.client.dataset_list(self.organization_id,
+                                             dataset_ids=dataset_ids)
+        self.assertEqual(len(res['datasets']), 2)
+        for d in res['datasets']:
+            self.assertTrue(d['id'] in dataset_ids)
+
     def test_list_deleted(self):
         code, dataset = self.client.dataset_create(
             self.organization_id, self.valid_dataset)

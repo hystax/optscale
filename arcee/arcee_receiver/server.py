@@ -192,6 +192,18 @@ async def check_metrics(metrics):
         raise SanicException(msg, status_code=400)
 
 
+async def check_leaderboard_filters(leaderboard, updates):
+    filters = updates.get('filters') or leaderboard.get('filters', {})
+    primary_metric = updates.get('primary_metric') or leaderboard.get(
+        'primary_metric')
+    other_metrics = updates.get('other_metrics') or leaderboard.get(
+        'other_metrics', [])
+    metrics_ids = other_metrics + [primary_metric]
+    filter_ids = [x['id'] for x in filters]
+    if any(x not in metrics_ids for x in filter_ids):
+        raise SanicException('Invalid filters', status_code=400)
+
+
 @app.route('/arcee/v2/tasks', methods=["POST", ], ctx_label='token')
 async def create_task(request):
     token = request.ctx.token
@@ -1486,19 +1498,8 @@ async def get_leaderboard_datasets(request, leaderboard_id: str):
         },
         {
             "$lookup": {
-                "from": "leaderboard",
-                "localField": "leaderboard_id",
-                "foreignField": "_id",
-                "as": "leaderboard"
-            }
-        },
-        {
-            "$unwind": "$leaderboard"
-        },
-        {
-            "$lookup": {
                 "from": "metric",
-                "localField": "leaderboard.primary_metric",
+                "localField": "primary_metric",
                 "foreignField": "_id",
                 "as": "primary_metric"
             }
@@ -1592,6 +1593,7 @@ async def update_leaderboard_dataset(request, body: LeaderboardDatasetPatchIn,
         raise SanicException("LeaderboardDataset not found", status_code=404)
     d = body.model_dump(exclude_unset=True)
     if d:
+        await check_leaderboard_filters(o, d)
         LeaderboardDatasetPatchIn.remove_dup_ds_ids(d)
         await db.leaderboard_dataset.update_one(
             {"_id": id_}, {'$set': d})
@@ -1682,6 +1684,24 @@ async def get_leaderboard(request, task_id: str):
     return json(response)
 
 
+@app.route('/arcee/v2/leaderboards/<leaderboard_id>',
+           methods=["GET", ], ctx_label='token')
+async def get_leaderboard_by_id(request, leaderboard_id: str):
+    """
+    get leaderboard
+    :param request:
+    :param leaderboard_id: str
+    :return:
+    """
+    response = {}
+    token = request.ctx.token
+    leaderboard = await db.leaderboard.find_one(
+        {"token": token, "_id": leaderboard_id, "deleted_at": 0})
+    if leaderboard:
+        response = leaderboard
+    return json(response)
+
+
 @app.route('/arcee/v2/tasks/<task_id>/leaderboards',
            methods=["PATCH", ], ctx_label='token')
 @validate(json=LeaderboardPatchIn)
@@ -1711,6 +1731,7 @@ async def change_leaderboard(request, body: LeaderboardPatchIn,
     await check_metrics(body.metrics)
     lb = body.model_dump(exclude_unset=True)
     if lb:
+        await check_leaderboard_filters(o, lb)
         await db.leaderboard.update_one(
             {"_id": lb_id}, {'$set': lb})
     o = await db.leaderboard.find_one({"_id": lb_id})
@@ -1805,10 +1826,13 @@ async def register_dataset(request, body: DatasetPostIn, run_id: str):
 @app.route('/arcee/v2/datasets', methods=["GET", ], ctx_label='token')
 async def get_datasets(request):
     token = request.ctx.token
+    dataset_ids = request.args.getlist("dataset_id")
     match_filter = {
         "token": token,
         "deleted_at": 0
     }
+    if dataset_ids:
+        match_filter.update({'_id': {'$in': dataset_ids}})
     # TODO: possibly move to bulk_get API with ability to get deleted objects
     include_deleted = "include_deleted"
     if (include_deleted in request.args.keys() and

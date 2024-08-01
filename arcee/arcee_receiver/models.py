@@ -139,6 +139,7 @@ class LeaderboardPostIn(BaseClass):
         [],
         description='list of metrics from primary_metric and other_metrics',
         exclude=True)
+    dataset_coverage_rules: Optional[dict] = {}
 
     @model_validator(mode='after')
     def validate_filters_values(self):
@@ -153,6 +154,14 @@ class LeaderboardPostIn(BaseClass):
         self.metrics = list(set(self.other_metrics + [self.primary_metric]))
         return self
 
+    @model_validator(mode='after')
+    def validate_dataset_coverage_rules(self):
+        if self.dataset_coverage_rules and not all(
+                isinstance(x, int) and 0 < x <= 100 for x in
+                self.dataset_coverage_rules.values()):
+            raise ValueError('value of dataset_coverage_rules should be int '
+                             'between 1 and 100')
+
 
 class LeaderboardPatchIn(LeaderboardPostIn):
     primary_metric: Optional[str] = None
@@ -163,6 +172,10 @@ class LeaderboardPatchIn(LeaderboardPostIn):
         self.metrics = list(set(self.other_metrics))
         if self.primary_metric:
             self.metrics = list(set(self.metrics + [self.primary_metric]))
+        return self
+
+    @model_validator(mode='after')
+    def validate_filters_values(self):
         return self
 
 
@@ -177,7 +190,7 @@ class Leaderboard(LeaderboardPostIn):
         allow_population_by_field_name = True
 
 
-class LeaderboardDatasetPatchIn(BaseModel):
+class LeaderboardDatasetPatchIn(LeaderboardPatchIn):
     dataset_ids: Optional[list] = []
     name: Optional[str] = None
 

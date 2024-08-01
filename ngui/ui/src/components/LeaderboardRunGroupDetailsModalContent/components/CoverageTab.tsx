@@ -1,13 +1,16 @@
 import { useMemo } from "react";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { Link, Box, Typography } from "@mui/material";
+import { Link, Box, Typography, Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
+import LabelChip from "components/LabelChip";
+import SubTitle from "components/SubTitle";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { getMlTaskRunUrl } from "urls";
+import { SPACING_2 } from "utils/layouts";
 import { formatRunFullName } from "utils/ml";
 
 const DatasetsTable = ({ datasets }) => {
@@ -74,9 +77,47 @@ const DatasetsTable = ({ datasets }) => {
     []
   );
 
-  return <Table data={tableData} columns={columns} />;
+  return (
+    <Table
+      data={tableData}
+      columns={columns}
+      localization={{
+        emptyMessageId: "noDataset"
+      }}
+    />
+  );
 };
 
-const DatasetsTab = ({ datasets, isLoading }) => (isLoading ? <TableLoader /> : <DatasetsTable datasets={datasets} />);
+const CoverageTab = ({ datasets, datasetCoverage, isLoading = false }) => (
+  <Stack spacing={SPACING_2}>
+    {isLoading ? (
+      <div>
+        <TableLoader />
+      </div>
+    ) : (
+      <>
+        <div>
+          <SubTitle>
+            <FormattedMessage id="datasets" />
+          </SubTitle>
+          <DatasetsTable datasets={datasets} />
+        </div>
+        {Object.entries(datasetCoverage).map(([label, coverageDatasets]) => (
+          <div key={label}>
+            <LabelChip
+              label={label}
+              colorizeBy={label}
+              labelTypographyProps={{
+                variant: "subtitle1",
+                component: "h4"
+              }}
+            />
+            <DatasetsTable datasets={coverageDatasets} />
+          </div>
+        ))}
+      </>
+    )}
+  </Stack>
+);
 
-export default DatasetsTab;
+export default CoverageTab;

@@ -2,7 +2,7 @@ import logging
 from requests.exceptions import HTTPError
 
 from tools.optscale_exceptions.common_exc import (
-    NotFoundException, ConflictException)
+    NotFoundException, ConflictException, WrongArgumentsException)
 
 from rest_api.rest_api_server.controllers.profiling.base import (
     BaseProfilingController)
@@ -72,6 +72,11 @@ class LeaderboardController(BaseProfilingController):
                     task_id, profiling_token)
         return leaderboard or {}
 
+    def get_by_id(self, leaderboard_id, profiling_token):
+        leaderboard = self.get_leaderboard_by_id(
+            profiling_token, leaderboard_id)
+        return leaderboard or {}
+
     def _get_details(self, task_id, profiling_token):
         return self.get_leaderboard_details(profiling_token, task_id)
 
@@ -83,6 +88,7 @@ class LeaderboardController(BaseProfilingController):
             if ex.response.status_code == 404:
                 raise NotFoundException(Err.OE0002, [self.model_name,
                                                      task_id])
+            raise
         return self.get(task_id, profiling_token)
 
     def delete(self, task_id, profiling_token):

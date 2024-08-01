@@ -1,6 +1,8 @@
 // https://www.w3.org/MarkUp/html-spec/html-spec_13.html
 export const HTML_SYMBOL = Object.freeze({
-  colon: <>&#58;</>
+  colon: <>&#58;</>,
+  comma: <>&#44;</>,
+  period: <>&#46;</>
 });
 
 type HtmlSymbolProps = {

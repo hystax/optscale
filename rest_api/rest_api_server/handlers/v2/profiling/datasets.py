@@ -190,6 +190,10 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
             description: Organization id
             required: true
             type: string
+        -   name: dataset id
+            in: query
+            description: dataset id
+            required: false
         responses:
             200:
                 description: Datasets list
@@ -252,7 +256,8 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
-        res = await run_task(self.controller.list, token)
+        dataset_ids = self.get_arg('dataset_id', str, repeated=True)
+        res = await run_task(self.controller.list, token, dataset_ids)
         datasets_dict = {'datasets': res}
         self.write(json.dumps(datasets_dict, cls=ModelEncoder))
 

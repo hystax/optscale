@@ -322,7 +322,9 @@ import {
   GET_ML_ARTIFACT,
   UPDATE_ML_ARTIFACT,
   CREATE_ML_ARTIFACT,
-  DELETE_ML_ARTIFACT
+  DELETE_ML_ARTIFACT,
+  SET_ML_DATASET_LABELS,
+  GET_ML_DATASET_LABELS
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -2009,8 +2011,15 @@ export const createMlLeaderboard = (organizationId, taskId, params) =>
     url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
     method: "POST",
     label: CREATE_ML_LEADERBOARD,
-    params,
-    affectedRequests: [GET_ML_LEADERBOARD]
+    affectedRequests: [GET_ML_LEADERBOARD],
+    params: {
+      filters: params.filters,
+      group_by_hp: params.groupByHyperparameters,
+      grouping_tags: params.groupingTags,
+      other_metrics: params.otherMetrics,
+      primary_metric: params.primaryMetric,
+      dataset_coverage_rules: params.datasetCoverageRules
+    }
   });
 
 export const updateMlLeaderboard = (organizationId, taskId, params) =>
@@ -2018,8 +2027,15 @@ export const updateMlLeaderboard = (organizationId, taskId, params) =>
     url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
     method: "PATCH",
     label: UPDATE_ML_LEADERBOARD,
-    params,
-    affectedRequests: [GET_ML_LEADERBOARD_DATASET_DETAILS, GET_ML_LEADERBOARD]
+    affectedRequests: [GET_ML_LEADERBOARD_DATASET_DETAILS, GET_ML_LEADERBOARD],
+    params: {
+      filters: params.filters,
+      group_by_hp: params.groupByHyperparameters,
+      grouping_tags: params.groupingTags,
+      other_metrics: params.otherMetrics,
+      primary_metric: params.primaryMetric,
+      dataset_coverage_rules: params.datasetCoverageRules
+    }
   });
 
 export const getMlLeaderboardDatasets = (organizationId, leaderboardId) =>
@@ -2047,10 +2063,16 @@ export const createMlLeaderboardDataset = (organizationId, leaderboardId, params
     url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}/leaderboard_datasets`,
     method: "POST",
     label: CREATE_ML_LEADERBOARD_DATASET,
-    affectedRequests: [GET_ML_LEADERBOARD_DATASETS],
+    affectedRequests: [GET_ML_LEADERBOARD],
     params: {
+      name: params.name,
       dataset_ids: params.datasetIds,
-      name: params.name
+      filters: params.filters,
+      group_by_hp: params.groupByHyperparameters,
+      grouping_tags: params.groupingTags,
+      other_metrics: params.otherMetrics,
+      primary_metric: params.primaryMetric,
+      dataset_coverage_rules: params.datasetCoverageRules
     }
   });
 
@@ -2060,10 +2082,16 @@ export const updateMlLeaderboardDataset = (organizationId, leaderboardDatasetId,
     method: "PATCH",
     label: UPDATE_ML_LEADERBOARD_DATASET,
     onSuccess: onUpdateMlLeaderboardDataset,
-    affectedRequests: [GET_ML_LEADERBOARD_DATASET_DETAILS],
+    affectedRequests: [GET_ML_LEADERBOARD],
     params: {
+      name: params.name,
       dataset_ids: params.datasetIds,
-      name: params.name
+      filters: params.filters,
+      group_by_hp: params.groupByHyperparameters,
+      grouping_tags: params.groupingTags,
+      other_metrics: params.otherMetrics,
+      primary_metric: params.primaryMetric,
+      dataset_coverage_rules: params.datasetCoverageRules
     }
   });
 
@@ -2072,7 +2100,7 @@ export const deleteMlLeaderboardDataset = (organizationId, leaderboardDatasetId)
     url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}`,
     method: "DELETE",
     label: DELETE_ML_LEADERBOARD_DATASET,
-    affectedRequests: [GET_ML_LEADERBOARD_DATASETS]
+    affectedRequests: [GET_ML_LEADERBOARD]
   });
 
 export const getMlLeaderboardDatasetInfo = (organizationId, leaderboardDatasetId) =>
@@ -2103,6 +2131,16 @@ export const getMlDataset = (organizationId, datasetId) =>
     onSuccess: handleSuccess(SET_ML_DATASET),
     hash: hashParams(organizationId, datasetId),
     label: GET_ML_DATASET
+  });
+
+export const getMlDatasetLabels = (organizationId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/labels`,
+    method: "GET",
+    ttl: 30 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_DATASET_LABELS),
+    hash: hashParams(organizationId),
+    label: GET_ML_DATASET_LABELS
   });
 
 export const createMlDataset = (organizationId, params) =>

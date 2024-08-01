@@ -99,7 +99,7 @@ const AliasesField = ({ aliasToVersionMap, modelVersion }: AliasesFieldProps) =>
 
               const { inputValue } = params;
 
-              // Suggest the creation of a new value
+              // Suggest creation of a new value
               const isExisting = filterOptions.some((option) => inputValue === option.title);
               if (inputValue !== "" && !isExisting) {
                 filtered.push({

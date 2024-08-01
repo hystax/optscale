@@ -6,6 +6,7 @@ import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import QuestionMark from "components/QuestionMark";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
 
 export const FIELD_NAME = FIELD_NAMES.SECONDARY_METRICS_FIELD_NAME;
 
@@ -14,7 +15,7 @@ const SecondaryMetricsSelector = ({ metrics = [], isLoading = false }) => {
     control,
     formState: { errors },
     watch
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
   const primaryMetric = watch(FIELD_NAMES.PRIMARY_METRIC_FIELD_NAME);
 

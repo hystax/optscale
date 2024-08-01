@@ -394,6 +394,13 @@ class BaseProfilingController(BaseProfilingTokenController):
         return leaderboard
 
     @handle_http_exc
+    def get_leaderboard_by_id(self, profiling_token, leaderboard_id):
+        arcee = self.get_arcee_client(profiling_token)
+        _, leaderboard = arcee.leaderboard_get_by_id(leaderboard_id)
+        ArceeObject.format(leaderboard)
+        return leaderboard
+
+    @handle_http_exc
     def create_leaderboard(self, profiling_token, task_id, **kwargs):
         arcee = self.get_arcee_client(profiling_token)
         _, leaderboard = arcee.leaderboards_create(task_id, **kwargs)
@@ -488,9 +495,11 @@ class BaseProfilingController(BaseProfilingTokenController):
         return dataset
 
     @handle_http_exc
-    def list_datasets(self, profiling_token, include_deleted=False):
+    def list_datasets(self, profiling_token, include_deleted=False,
+                      dataset_ids=None):
         arcee = self.get_arcee_client(profiling_token)
-        _, response = arcee.dataset_list(include_deleted)
+        _, response = arcee.dataset_list(include_deleted,
+                                         dataset_ids=dataset_ids)
         for r in response:
             ArceeObject.format(r)
         return response

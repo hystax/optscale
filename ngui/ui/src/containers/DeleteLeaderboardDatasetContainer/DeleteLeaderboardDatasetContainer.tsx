@@ -26,7 +26,7 @@ const DeleteLeaderboardDatasetContainer = ({ leaderboardDataset, onSuccess, onCa
         cancelButton: "btn_cancel"
       }}
       message={{
-        messageId: "deleteLeaderboardCriteriaQuestion",
+        messageId: "deleteLeaderboardQuestion",
         values: {
           name: leaderboardDataset.name
         }

@@ -6,6 +6,7 @@ import Input from "components/Input";
 import InputLoader from "components/InputLoader";
 import QuestionMark from "components/QuestionMark";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
 
 export const FIELD_NAME = FIELD_NAMES.PRIMARY_METRIC_FIELD_NAME;
 
@@ -15,7 +16,7 @@ const PrimaryMetricSelector = ({ metrics = [], isLoading = false }) => {
     formState: { errors },
     setValue,
     getValues
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
   const intl = useIntl();
 

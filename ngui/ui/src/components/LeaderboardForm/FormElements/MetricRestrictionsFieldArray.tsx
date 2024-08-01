@@ -13,6 +13,7 @@ import { isEmpty as isEmptyArray } from "utils/arrays";
 import { ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { FIELD_NAMES } from "../constants";
+import { FormValues } from "../types";
 
 const {
   METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES: {
@@ -27,7 +28,7 @@ const MinInput = ({ index }) => {
   const {
     formState: { isSubmitted },
     trigger
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
   return (
     <NumberInput
@@ -73,7 +74,7 @@ const MaxInput = ({ index }) => {
   const {
     formState: { isSubmitted },
     trigger
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
   return (
     <NumberInput
@@ -120,7 +121,7 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
     control,
     formState: { errors, isSubmitted },
     trigger
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
   const fieldName = `${FIELD_NAME}.${index}.${METRIC}`;
 
@@ -170,7 +171,7 @@ const MetricSelect = ({ index, metrics, selectorsCount }) => {
 };
 
 const FieldArray = ({ metrics }) => {
-  const { control } = useFormContext();
+  const { control } = useFormContext<FormValues>();
 
   const { fields, append, remove } = useFieldArray({
     control,

@@ -3,7 +3,7 @@ import BaseSideModal from "./BaseSideModal";
 
 class CloneLeaderboardDatasetModal extends BaseSideModal {
   headerProps = {
-    messageId: "cloneLeaderboardCriteria",
+    messageId: "cloneLeaderboardTitle",
     showExpand: true,
     dataTestIds: {
       title: "lbl_clone_leaderboard_dataset",
@@ -18,6 +18,7 @@ class CloneLeaderboardDatasetModal extends BaseSideModal {
       <CloneLeaderboardDatasetFormContainer
         onCancel={this.closeSideModal}
         onSuccess={this.closeSideModal}
+        task={this.payload?.task}
         leaderboard={this.payload?.leaderboard}
         leaderboardDataset={this.payload?.leaderboardDataset}
       />

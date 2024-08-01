@@ -747,6 +747,13 @@ class SupportedFiltersMixin(object):
         self.int_filters = []
 
 
+def _get_http_error_message(ex):
+    try:
+        return json.loads(ex.response.text)['message']
+    except Exception:
+        return str(ex)
+
+
 def handle_http_exc(func):
     def inner(*args, **kwargs):
         try:
@@ -756,11 +763,11 @@ def handle_http_exc(func):
             if ex.response.status_code == 400:
                 # track possible difference in validation
                 raise WrongArgumentsException(
-                    Err.OE0287, [str(ex)])
+                    Err.OE0287, [_get_http_error_message(ex)])
             elif ex.response.status_code == 401:
                 # track possible token related problems
                 raise UnauthorizedException(
-                    Err.OE0543, [str(ex)])
+                    Err.OE0543, [_get_http_error_message(ex)])
             elif ex.response.status_code == 403:
                 raise ForbiddenException(Err.OE0234, [])
             raise

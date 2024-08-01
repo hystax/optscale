@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Typography, type TypographyProps } from "@mui/material";
 import MuiChip from "@mui/material/Chip";
 import { useTheme } from "@mui/material/styles";
 import SlicedText from "components/SlicedText";
@@ -8,6 +8,7 @@ type LabelChipProps = {
   label: string;
   colorizeBy?: string;
   labelSymbolsLimit?: number;
+  labelTypographyProps?: TypographyProps;
 };
 
 const calculateColorFromString = (inputString: string) => {
@@ -23,7 +24,12 @@ const calculateColorFromString = (inputString: string) => {
 
 const DEFAULT_LABEL_SYMBOLS_LIMIT = 20;
 
-const LabelChip = ({ label, colorizeBy = label, labelSymbolsLimit = DEFAULT_LABEL_SYMBOLS_LIMIT }: LabelChipProps) => {
+const LabelChip = ({
+  label,
+  colorizeBy = label,
+  labelSymbolsLimit = DEFAULT_LABEL_SYMBOLS_LIMIT,
+  labelTypographyProps
+}: LabelChipProps) => {
   const theme = useTheme();
   const {
     palette: { getContrastText }
@@ -37,7 +43,7 @@ const LabelChip = ({ label, colorizeBy = label, labelSymbolsLimit = DEFAULT_LABE
     <MuiChip
       variant="outlined"
       label={
-        <Typography>
+        <Typography {...labelTypographyProps}>
           <SlicedText limit={labelSymbolsLimit} text={label} />
         </Typography>
       }

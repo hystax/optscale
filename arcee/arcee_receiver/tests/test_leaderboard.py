@@ -17,9 +17,9 @@ async def test_invalid_token(app):
     for path, method in [
         (Urls.leaderboards.format(str(uuid.uuid4())), client.get),
         (Urls.leaderboards.format(str(uuid.uuid4())), client.post),
-        (Urls.leaderboards.format(str(uuid.uuid4())), client.get),
         (Urls.leaderboards.format(str(uuid.uuid4())), client.patch),
         (Urls.leaderboards.format(str(uuid.uuid4())), client.delete),
+        (Urls.leaderboard.format(str(uuid.uuid4())), client.get),
     ]:
         _, response = await method(path, headers={"x-api-key": "wrong"})
         assert response.status == 401
@@ -255,6 +255,11 @@ async def test_get_deleted(app):
     assert response.status == 200
     assert "{}" in response.text
 
+    _, response = await client.get(Urls.leaderboard.format(lb['_id']),
+                                   headers={"x-api-key": TOKEN1})
+    assert response.status == 200
+    assert "{}" in response.text
+
 
 @pytest.mark.asyncio
 async def test_get_leaderboard(app):
@@ -276,6 +281,11 @@ async def test_get_leaderboard(app):
     }
     await DB_MOCK['leaderboard'].insert_one(lb)
     _, response = await client.get(Urls.leaderboards.format(tasks[0]['_id']),
+                                   headers={"x-api-key": TOKEN1})
+    assert response.status == 200
+    assert response.json == lb
+
+    _, response = await client.get(Urls.leaderboard.format(lb['_id']),
                                    headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert response.json == lb
@@ -347,7 +357,8 @@ async def test_patch_leaderboard(app):
         "grouping_tags": [],
         "deleted_at": 0,
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
-        "token": TOKEN1
+        "token": TOKEN1,
+        "dataset_coverage_rules": {}
     }
     await DB_MOCK['leaderboard'].insert_one(lb)
     lb_update = {

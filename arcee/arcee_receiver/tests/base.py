@@ -22,6 +22,7 @@ class AConfigClMock(AConfigCl):
 
 class Urls:
     leaderboards = '/arcee/v2/tasks/{}/leaderboards'
+    leaderboard = '/arcee/v2/leaderboards/{}'
     leaderboard_datasets = '/arcee/v2/leaderboards/{}/leaderboard_datasets'
     leaderboard_dataset = '/arcee/v2/leaderboard_datasets/{}'
     tasks = '/arcee/v2/tasks'
