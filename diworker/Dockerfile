@@ -17,3 +17,6 @@ COPY diworker/diworker diworker/diworker
 VOLUME ["/src/reports"]
 
 CMD ["/src/diworker/diworker/main.py"]
+
+
+#let  me add the content
