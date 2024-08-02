@@ -6,7 +6,7 @@ import MlLeaderboardsService from "services/MlLeaderboardsService";
 
 const CreateLeaderboardDatasetFormContainer = ({ task, leaderboard, onSuccess, onCancel }) => {
   const {
-    data: { datasets, datasetLabels, runTags },
+    data: { datasets, datasetLabels, groupingTags },
     isLoading: isGetDataLoading
   } = useLeaderboardDatasetFormContainerData({
     taskId: task.id
@@ -43,7 +43,7 @@ const CreateLeaderboardDatasetFormContainer = ({ task, leaderboard, onSuccess, o
       onSubmit={(submitData) => onCreate(leaderboard.id, submitData).then(onSuccess)}
       onCancel={onCancel}
       datasets={datasets}
-      runTags={runTags}
+      groupingTags={groupingTags}
       metrics={task.metrics}
       datasetLabels={datasetLabels}
       isLoadingProps={{

@@ -324,7 +324,9 @@ import {
   CREATE_ML_ARTIFACT,
   DELETE_ML_ARTIFACT,
   SET_ML_DATASET_LABELS,
-  GET_ML_DATASET_LABELS
+  GET_ML_DATASET_LABELS,
+  SET_ML_TASK_TAGS,
+  GET_ML_TASK_TAGS
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -2211,6 +2213,16 @@ export const getMlTaskRuns = (organizationId, taskId) =>
     onSuccess: handleSuccess(SET_ML_TASK_RUNS),
     hash: hashParams({ organizationId, taskId }),
     label: GET_ML_TASK_RUNS
+  });
+
+export const getMlTaskTags = (organizationId, taskId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/tags`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_TASK_TAGS),
+    hash: hashParams({ organizationId, taskId }),
+    label: GET_ML_TASK_TAGS
   });
 
 export const getMlTaskRunsBulk = (organizationId, taskId, runIds) =>

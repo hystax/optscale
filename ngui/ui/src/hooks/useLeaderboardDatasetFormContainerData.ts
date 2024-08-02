@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import MlDatasetsService from "services/MlDatasetsService";
 import MlTasksService from "services/MlTasksService";
 
@@ -11,17 +10,15 @@ export const useLeaderboardDatasetFormContainerData = ({ taskId }: UseLeaderboar
   const { isLoading: isDatasetsLoading, datasets } = useGetAll();
   const { isLoading: isDatasetLabelsLoading, labels: datasetLabels } = useGetLabels();
 
-  const { useGetTaskRunsList } = MlTasksService();
-  const { isLoading: isGetRunsListLoading, runs } = useGetTaskRunsList(taskId);
-
-  const runTags = useMemo(() => Array.from(new Set(runs.flatMap((run) => Object.keys(run.tags)))), [runs]);
+  const { useGetTaskTags } = MlTasksService();
+  const { isLoading: isGetTaskTagsLoading, tags } = useGetTaskTags(taskId);
 
   return {
     data: {
       datasets,
       datasetLabels,
-      runTags
+      groupingTags: tags
     },
-    isLoading: isDatasetsLoading || isDatasetLabelsLoading || isGetRunsListLoading
+    isLoading: isDatasetsLoading || isDatasetLabelsLoading || isGetTaskTagsLoading
   };
 };
