@@ -1,10 +1,11 @@
 import logging
-from collections import OrderedDict
-from datetime import datetime, timedelta
+from collections import OrderedDict, defaultdict
+from datetime import datetime, timedelta, timezone
 from requests import HTTPError
 from optscale_client.insider_client.client import Client as InsiderClient
 
-from bumiworker.bumiworker.modules.base import ModuleBase
+from bumiworker.bumiworker.consts import ArchiveReason
+from bumiworker.bumiworker.modules.base import ArchiveBase, ModuleBase
 
 DEFAULT_DAYS_THRESHOLD = 90
 LOG = logging.getLogger(__name__)
@@ -152,4 +153,59 @@ class ReservedInstancesBase(ModuleBase):
             resource_result = self.format_result(saving_1, saving_2, raw_info,
                                                  instance, excluded_pools)
             result.append(resource_result)
+        return result
+
+
+class ReservedInstancesArchiveBase(ArchiveBase, ReservedInstancesBase):
+
+    def _get(self, previous_options, optimizations, cloud_accounts_map,
+             **kwargs):
+        now = datetime.now(tz=timezone.utc)
+        days_threshold = previous_options['days_threshold']
+        start_date = int((now - timedelta(days_threshold)).timestamp())
+
+        account_optimizations_map = defaultdict(list)
+        resource_ids = []
+        for optimization in optimizations:
+            account_optimizations_map[optimization['cloud_account_id']].append(
+                optimization)
+            resource_ids.append(optimization['cloud_resource_id'])
+        cloud_account_ids = list(account_optimizations_map.keys())
+        instance_map = self.get_instances_map(cloud_account_ids, start_date)
+        cloud_resource_ids = list(instance_map.keys())
+        raw_expenses = self.get_raw_expenses(cloud_account_ids,
+                                             cloud_resource_ids, now)
+        raw_expenses_map = {x['_id']: x for x in raw_expenses}
+
+        result = []
+        for cloud_account_id, optimizations_ in account_optimizations_map.items():
+            if cloud_account_id not in cloud_accounts_map:
+                for optimization in optimizations_:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.CLOUD_ACCOUNT_DELETED)
+                    result.append(optimization)
+                continue
+
+            for optimization in optimizations_:
+                cloud_resource_id = optimization['cloud_resource_id']
+                raw_info = raw_expenses_map.get(cloud_resource_id)
+                instance = instance_map.get(cloud_resource_id)
+                if not instance:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.RESOURCE_DELETED)
+                elif self._is_instance_reserved(raw_info):
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.RECOMMENDATION_APPLIED)
+                else:
+                    offer_key = self.get_offer_key(raw_info, instance)
+                    params = self._offer_key_to_insider_params(offer_key)
+                    try:
+                        _, offerings = self.insider_cl.find_reserved_instances_offerings(
+                            **params)
+                        self._set_reason_properties(
+                            optimization, ArchiveReason.OPTIONS_CHANGED)
+                    except HTTPError:
+                        self._set_reason_properties(
+                            optimization, ArchiveReason.FAILED_DEPENDENCY)
+                result.append(optimization)
         return result
