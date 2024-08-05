@@ -992,8 +992,9 @@ async def _metric_used_in_lb(db_, metric_id: str, task_id: str = None):
                 ]
             }
         }]
+    lb_match_block = match_block.copy()
     if task_id:
-        match_block.append({'task_id': task_id})
+        lb_match_block.append({'task_id': task_id})
     pipeline = [
         {
             "$match": {
@@ -1007,7 +1008,7 @@ async def _metric_used_in_lb(db_, metric_id: str, task_id: str = None):
                 "pipeline": [
                     {
                         "$match": {
-                            "$and": match_block
+                            "$and": lb_match_block
                         }
                     },
                     {
@@ -1018,8 +1019,27 @@ async def _metric_used_in_lb(db_, metric_id: str, task_id: str = None):
             }
         },
         {
+            "$lookup": {
+                "from": "leaderboard_dataset",
+                "let": {"metricId": "$_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$and": match_block
+                        }
+                    },
+                    {
+                        "$project": {"_id": 1}
+                    }
+                ],
+                "as": "used_in_leaderboard_dataset"
+            }
+        },
+        {
             "$project": {
-                "metric_used": {"$gt": [{"$size": "$used_in_leaderboard"}, 0]}
+                "metric_used": {
+                    "$sum": [{"$size": "$used_in_leaderboard"},
+                             {"$size": "$used_in_leaderboard_dataset"}]}
             }
         }
     ]
@@ -1028,7 +1048,7 @@ async def _metric_used_in_lb(db_, metric_id: str, task_id: str = None):
         ri = await cur.next()
     except StopAsyncIteration:
         return False
-    return ri.get("metric_used", False)
+    return bool(ri.get("metric_used", 0))
 
 
 @app.route('/arcee/v2/metrics/<metric_id>', methods=["DELETE", ],
