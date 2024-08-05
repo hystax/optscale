@@ -981,7 +981,9 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['_id'] = gen_id()
         obj['token'] = profiling_token
         obj['deleted_at'] = 0
-        obj = self.refresh_relations(['leaderboard_id', 'dataset_ids'], obj)
+        obj = self.refresh_relations(['leaderboard_id', 'dataset_ids',
+                                      'primary_metric', 'other_metrics',
+                                      'filters'], obj)
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         return obj
 

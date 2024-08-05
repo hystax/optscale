@@ -1739,6 +1739,27 @@ BASIC_PRESET = {
             ],
             "name": "Leaderboard",
             "leaderboard_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
+            "primary_metric": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+            "other_metrics": [
+                "804f6834-6c73-45d5-a34a-ea3b111855c3"
+            ],
+            "filters": [
+                {
+                    "id": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+                    "max": 100,
+                    "min": 1
+                },
+                {
+                    "id": "804f6834-6c73-45d5-a34a-ea3b111855c3",
+                    "max": 33,
+                    "min": 3
+                }
+            ],
+            "group_by_hp": True,
+            "grouping_tags": [
+                "Algorithm",
+                "code_commit"
+            ],
             "created_at_offset": 143434
         }
     ],
