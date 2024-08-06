@@ -1292,12 +1292,14 @@ PARAMETER_DUMPS = {
         'template_type': 'report_imports_passed_for_org',
         'template_params': {
             'texts': {
-                'title': 'Expenses initial processing completed',
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                     'currency_code': '$'
-                }}}},
+                }
+            }
+        }
+    },
     'insider_prices_sslerror': {
         "email": ["optscale-staging-notifications@hystax.com"],
         "subject": "[172.22.20.6] Insider faced Azure SSLError",
