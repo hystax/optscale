@@ -975,8 +975,7 @@ PARAMETER_DUMPS = {
                     'type': 'alibaba_cnr',
                     'last_import_at': '09/03/2021 10:37:57 UTC'
                 },
-                'reason': 'Because',
-                'title': 'Report import failed'
+                'reason': 'Because'
             },
         }
     },

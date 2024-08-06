@@ -210,8 +210,7 @@ class DIWorker(ConsumerMixin):
                     'last_import_at': datetime.fromtimestamp(
                         last_import_at).strftime('%m/%d/%Y %H:%M:%S UTC')
                 },
-                'reason': reason,
-                'title': title
+                'reason': reason
             }}
         HeraldClient(url=self.config_cl.herald_url(),
                      secret=self.config_cl.cluster_secret()).email_send(
