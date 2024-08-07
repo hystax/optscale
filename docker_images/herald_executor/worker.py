@@ -451,11 +451,7 @@ class HeraldExecutorWorker(ConsumerMixin):
         for user_id, user_info in all_user_info.items():
             template_params = {
                 'texts': {
-                    'title': 'Environment changes',
                     'organization': self._get_organization_params(organization),
-                    'user': {
-                        'user_display_name': user_info.get('display_name')
-                    },
                     'environments_infos': {
                         'resource_name': (resource.get('name') or
                                           resource.get('cloud_resource_id')),
