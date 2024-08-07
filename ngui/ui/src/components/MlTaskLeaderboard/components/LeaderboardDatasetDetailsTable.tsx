@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography, lighten } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
 import { useParams } from "react-router-dom";
@@ -212,7 +212,8 @@ const LeaderboardDatasetDetailsTable = ({ leaderboardDataset, leaderboardDataset
         enableSorting: false,
         accessorFn: (originalRow) => originalRow.primary_metric?.[primaryMetric.key]?.value,
         style: {
-          width: "150px"
+          width: "150px",
+          backgroundColor: lighten(theme.palette.success.main, 0.95)
         },
         cell: ({ cell }) => <DynamicFractionDigitsValue value={cell.getValue()} />
       },
@@ -291,7 +292,7 @@ const LeaderboardDatasetDetailsTable = ({ leaderboardDataset, leaderboardDataset
           )
       }
     ];
-  }, [leaderboardDataset, RANKING_COLORS]);
+  }, [leaderboardDataset, theme.palette.success.main, RANKING_COLORS]);
 
   return (
     <Stack spacing={SPACING_1} overflow="auto">

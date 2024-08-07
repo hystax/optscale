@@ -27,6 +27,7 @@ type SelectorProps = {
   onOpen?: () => void;
   onClose?: () => void;
   endAdornment?: ReactNode;
+  renderValue?: (value: unknown) => ReactNode;
 };
 
 const APPROXIMATE_LABEL_SYMBOL_WIDTH = 11;
@@ -55,7 +56,8 @@ const Selector = forwardRef(
       open,
       onOpen,
       onClose,
-      endAdornment
+      endAdornment,
+      renderValue
     }: SelectorProps,
     ref
   ) => {
@@ -112,6 +114,7 @@ const Selector = forwardRef(
           onOpen={onOpen}
           onClose={onClose}
           endAdornment={endAdornment}
+          renderValue={renderValue}
         >
           {children}
         </Select>
