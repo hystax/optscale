@@ -877,7 +877,6 @@ class HeraldExecutorWorker(ConsumerMixin):
         template_params = {
             'texts': {
                 'organization': self._get_organization_params(organization),
-                'title': subject
             }
         }
         self.herald_cl.email_send(
