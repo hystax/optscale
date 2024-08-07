@@ -274,6 +274,7 @@
   "closeFilter": "Close filter",
   "cloud": "Cloud",
   "cloudConnectionBackdropMessage": "Connection will not take more than several minutes.",
+  "cloudConnections": "Cloud connections",
   "cloudCostComparisonCurrencyDescription": "The expenses will be calculated in USD when the cloud provider does not support the selected currency.",
   "cloudCostComparisonDescription": "Here you can overview the specifications and pricing of sizes across different cloud providers.{br}Please note that the data is obtained from a cloud provider APIs and may not be entirely accurate due to potential delays or discrepancies.",
   "cloudCostComparisonTitle": "Cloud Cost Comparison",

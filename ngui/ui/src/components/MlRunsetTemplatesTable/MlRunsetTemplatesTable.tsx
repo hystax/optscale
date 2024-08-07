@@ -7,69 +7,74 @@ import FormattedMoney from "components/FormattedMoney";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
 import { getMlRunsetTemplateUrl, ML_RUNSET_TEMPLATE_CREATE } from "urls";
 import { mlRunsCount } from "utils/columns";
-
-const getColumns = () => {
-  const columns = [
-    {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_name">
-          <FormattedMessage id="name" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "name",
-      cell: ({
-        cell,
-        row: {
-          original: { id }
-        }
-      }) => {
-        const name = cell.getValue();
-
-        return (
-          <Link to={getMlRunsetTemplateUrl(id)} component={RouterLink}>
-            {name}
-          </Link>
-        );
-      }
-    },
-    mlRunsCount({
-      accessorKey: "total_runs"
-    }),
-    {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_last_runset_expenses">
-          <FormattedMessage id="lastRunsetExpenses" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "last_runset_cost",
-      cell: ({
-        row: {
-          original: { last_runset_cost: lastRunsetExpenses }
-        }
-      }) => <FormattedMoney value={lastRunsetExpenses} />
-    },
-    {
-      header: (
-        <TextWithDataTestId dataTestId="lbl_expenses">
-          <FormattedMessage id="totalExpenses" />
-        </TextWithDataTestId>
-      ),
-      accessorKey: "total_cost",
-      cell: ({
-        row: {
-          original: { total_cost: total }
-        }
-      }) => <FormattedMoney value={total} />
-    }
-  ];
-
-  return columns;
-};
+import { OPTSCALE_MODE } from "utils/constants";
 
 const MlRunsetTemplatesTable = ({ data, isLoading }) => {
-  const columns = useMemo(() => getColumns(), []);
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
+
+  const columns = useMemo(
+    () => [
+      {
+        header: (
+          <TextWithDataTestId dataTestId="lbl_name">
+            <FormattedMessage id="name" />
+          </TextWithDataTestId>
+        ),
+        accessorKey: "name",
+        cell: ({
+          cell,
+          row: {
+            original: { id }
+          }
+        }) => {
+          const name = cell.getValue();
+
+          return (
+            <Link to={getMlRunsetTemplateUrl(id)} component={RouterLink}>
+              {name}
+            </Link>
+          );
+        }
+      },
+      mlRunsCount({
+        accessorKey: "total_runs"
+      }),
+      ...(isFinOpsEnabled
+        ? [
+            {
+              header: (
+                <TextWithDataTestId dataTestId="lbl_last_runset_expenses">
+                  <FormattedMessage id="lastRunsetExpenses" />
+                </TextWithDataTestId>
+              ),
+              accessorKey: "last_runset_cost",
+              cell: ({
+                row: {
+                  original: { last_runset_cost: lastRunsetExpenses }
+                }
+              }) => <FormattedMoney value={lastRunsetExpenses} />
+            },
+            {
+              header: (
+                <TextWithDataTestId dataTestId="lbl_expenses">
+                  <FormattedMessage id="totalExpenses" />
+                </TextWithDataTestId>
+              ),
+              accessorKey: "total_cost",
+              cell: ({
+                row: {
+                  original: { total_cost: total }
+                }
+              }) => <FormattedMoney value={total} />
+            }
+          ]
+        : [])
+    ],
+    [isFinOpsEnabled]
+  );
 
   const tableActionBarDefinition = {
     show: true,

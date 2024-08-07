@@ -8,10 +8,13 @@ import FormattedMoney from "components/FormattedMoney";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import QuestionMark from "components/QuestionMark";
 import SummaryList from "components/SummaryList";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { ML_RUNSET_ABORT_CONDITION_TYPES } from "utils/constants";
+import { ML_RUNSET_ABORT_CONDITION_TYPES, OPTSCALE_MODE } from "utils/constants";
 
 const InputParameters = ({ runset, isLoading }) => {
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
+
   const { isDemo } = useOrganizationInfo();
 
   const {
@@ -119,7 +122,7 @@ const InputParameters = ({ runset, isLoading }) => {
           isLoading={isLoading}
           items={Object.entries(abortConditions).map(([conditionName, conditionValue]) => {
             const getConditionLabel = () => {
-              if (conditionName === ML_RUNSET_ABORT_CONDITION_TYPES.MAX_BUDGET) {
+              if (isFinOpsEnabled && conditionName === ML_RUNSET_ABORT_CONDITION_TYPES.MAX_BUDGET) {
                 return (
                   <FormattedMessage id="maxBudgetStopCondition" values={{ value: <FormattedMoney value={conditionValue} /> }} />
                 );

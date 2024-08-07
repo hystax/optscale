@@ -10,14 +10,17 @@ import MlRunStatusCell from "components/MlRunStatusCell";
 import MlRunStatusHeaderCell from "components/MlRunStatusHeaderCell";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
 import { getMlTaskRunUrl, getMlRunsetDetailsUrl } from "urls";
 import { duration, startedAt, hyperparameters, dataset, metrics, tags } from "utils/columns";
-import { FORMATTED_MONEY_TYPES } from "utils/constants";
+import { FORMATTED_MONEY_TYPES, OPTSCALE_MODE } from "utils/constants";
 import { formatRunFullName, getFirstMetricEntryKey, getRunsReachedGoalsKeyNameEntries } from "utils/ml";
 import { isEmpty as isEmptyObject } from "utils/objects";
 
 const RunsTable = ({ runs }) => {
   const theme = useTheme();
+
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
 
   const formatMoney = useMoneyFormatter();
 
@@ -98,16 +101,20 @@ const RunsTable = ({ runs }) => {
         accessorFn: (originalRow) => originalRow.dataset?.name
       }),
       hyperparameters(),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_expenses">
-            <FormattedMessage id="expenses" />
-          </TextWithDataTestId>
-        ),
-        accessorKey: "cost",
-        accessorFn: ({ cost }) => formatMoney(FORMATTED_MONEY_TYPES.COMMON, cost),
-        cell: ({ cell }) => cell.getValue()
-      },
+      ...(isFinOpsEnabled
+        ? [
+            {
+              header: (
+                <TextWithDataTestId dataTestId="lbl_expenses">
+                  <FormattedMessage id="expenses" />
+                </TextWithDataTestId>
+              ),
+              accessorKey: "cost",
+              accessorFn: ({ cost }) => formatMoney(FORMATTED_MONEY_TYPES.COMMON, cost),
+              cell: ({ cell }) => cell.getValue()
+            }
+          ]
+        : []),
       tags({
         id: "tags",
         accessorFn: (originalRow) =>
@@ -133,7 +140,7 @@ const RunsTable = ({ runs }) => {
         }
       })
     ];
-  }, [formatMoney, metricsKeyNameEntries, sortByMetricKey]);
+  }, [formatMoney, isFinOpsEnabled, metricsKeyNameEntries, sortByMetricKey]);
 
   const tableData = useMemo(() => runs, [runs]);
 

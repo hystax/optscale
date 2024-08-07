@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
@@ -19,10 +19,11 @@ import {
   AWS_LINKED_CREDENTIALS_FIELD_NAMES
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
+import ModeWrapper from "components/ModeWrapper";
 import { FIELD_NAMES as NEBIUS_FIELD_NAMES } from "components/NebiusConfigFormElements";
-import { useBoundingClientRect } from "hooks/useBoundingClientRect";
 import { useIsDataSourceTypeConnectionEnabled } from "hooks/useIsDataSourceTypeConnectionEnabled";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
+import { useResizeObserver } from "hooks/useResizeObserver";
 import AlibabaLogoIcon from "icons/AlibabaLogoIcon";
 import AwsLogoIcon from "icons/AwsLogoIcon";
 import AzureLogoIcon from "icons/AzureLogoIcon";
@@ -59,7 +60,8 @@ import {
   NEBIUS_ACCOUNT,
   NEBIUS,
   DATABRICKS,
-  DATABRICKS_ACCOUNT
+  DATABRICKS_ACCOUNT,
+  OPTSCALE_MODE
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
 import { SPACING_2 } from "utils/layouts";
@@ -372,7 +374,9 @@ const renderConnectionTypeInfoMessage = ({ connectionType }) =>
 const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading, showCancel = true }) => {
   const methods = useForm();
 
-  const [{ width }, ref] = useBoundingClientRect();
+  const ref = useRef();
+
+  const { width } = useResizeObserver(ref);
 
   const { type } = getQueryParams();
 
@@ -413,49 +417,56 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading, showCancel = t
       icon: AzureLogoIcon,
       messageId: AZURE_TENANT_ACCOUNT,
       dataTestId: "btn_azure_tenant",
-      action: () => defaultTileAction(AZURE_TENANT_ACCOUNT, AZURE_TENANT)
+      action: () => defaultTileAction(AZURE_TENANT_ACCOUNT, AZURE_TENANT),
+      mode: OPTSCALE_MODE.FINOPS
     },
     {
       id: AZURE_SUBSCRIPTION,
       icon: AzureLogoIcon,
       messageId: AZURE_SUBSCRIPTION,
       dataTestId: "btn_azure_subscription",
-      action: () => defaultTileAction(AZURE_SUBSCRIPTION, AZURE_CNR)
+      action: () => defaultTileAction(AZURE_SUBSCRIPTION, AZURE_CNR),
+      mode: OPTSCALE_MODE.FINOPS
     },
     {
       id: GCP_ACCOUNT,
       icon: GcpLogoIcon,
       messageId: GCP_ACCOUNT,
       dataTestId: "btn_gcp_account",
-      action: () => defaultTileAction(GCP_ACCOUNT, GCP_CNR)
+      action: () => defaultTileAction(GCP_ACCOUNT, GCP_CNR),
+      mode: OPTSCALE_MODE.FINOPS
     },
     {
       id: ALIBABA_ACCOUNT,
       icon: AlibabaLogoIcon,
       messageId: ALIBABA_ACCOUNT,
       dataTestId: "btn_alibaba_account",
-      action: () => defaultTileAction(ALIBABA_ACCOUNT, ALIBABA_CNR)
+      action: () => defaultTileAction(ALIBABA_ACCOUNT, ALIBABA_CNR),
+      mode: OPTSCALE_MODE.FINOPS
     },
     {
       id: NEBIUS_ACCOUNT,
       icon: NebiusLogoIcon,
       messageId: NEBIUS_ACCOUNT,
       dataTestId: "btn_nebius_account",
-      action: () => defaultTileAction(NEBIUS_ACCOUNT, NEBIUS)
+      action: () => defaultTileAction(NEBIUS_ACCOUNT, NEBIUS),
+      mode: OPTSCALE_MODE.FINOPS
     },
     {
       id: DATABRICKS_ACCOUNT,
       icon: DatabricksLogoIcon,
       messageId: DATABRICKS_ACCOUNT,
       dataTestId: "btn_databricks_account",
-      action: () => defaultTileAction(DATABRICKS_ACCOUNT, DATABRICKS)
+      action: () => defaultTileAction(DATABRICKS_ACCOUNT, DATABRICKS),
+      mode: OPTSCALE_MODE.FINOPS
     },
     {
       id: KUBERNETES,
       icon: K8sLogoIcon,
       messageId: KUBERNETES,
       dataTestId: "btn_kubernetes",
-      action: () => defaultTileAction(KUBERNETES, KUBERNETES_CNR)
+      action: () => defaultTileAction(KUBERNETES, KUBERNETES_CNR),
+      mode: OPTSCALE_MODE.FINOPS
     }
   ].filter(({ id }) => isDataSourceTypeConnectionEnabled(id));
 
@@ -463,34 +474,35 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading, showCancel = t
     <FormProvider {...methods}>
       <Stack>
         <div style={{ display: "flex", flexWrap: "wrap", width: "fit-content" }} ref={ref}>
-          {tiles.map(({ id, icon: Icon, messageId, dataTestId, action }, index) => (
-            <Paper
-              key={id}
-              className={cx(classes.tile, connectionType !== id && classes.inactiveTile)}
-              variant="outlined"
-              sx={(theme) => ({
-                width: TILE_DIMENSION,
-                height: TILE_DIMENSION,
-                marginRight: index + 1 === tiles.length ? 0 : SPACING_2,
-                display: "flex",
-                marginBottom: SPACING_2,
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                fontSize: theme.typography.pxToRem(48),
-                cursor: "pointer"
-              })}
-              onClick={action}
-              data-test-id={dataTestId}
-            >
-              <Icon fontSize="inherit" />
-              <Typography>
-                <FormattedMessage id={messageId} />
-              </Typography>
-            </Paper>
+          {tiles.map(({ id, icon: Icon, messageId, dataTestId, action, mode }, index) => (
+            <ModeWrapper mode={mode} key={id}>
+              <Paper
+                className={cx(classes.tile, connectionType !== id && classes.inactiveTile)}
+                variant="outlined"
+                sx={(theme) => ({
+                  width: TILE_DIMENSION,
+                  height: TILE_DIMENSION,
+                  marginRight: index + 1 === tiles.length ? 0 : SPACING_2,
+                  display: "flex",
+                  marginBottom: SPACING_2,
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontSize: theme.typography.pxToRem(48),
+                  cursor: "pointer"
+                })}
+                onClick={action}
+                data-test-id={dataTestId}
+              >
+                <Icon fontSize="inherit" />
+                <Typography>
+                  <FormattedMessage id={messageId} />
+                </Typography>
+              </Paper>
+            </ModeWrapper>
           ))}
         </div>
-        <Box sx={{ maxWidth: width }}>
+        <Box sx={{ width: { md: `max(50%, ${width}px)` } }}>
           <Box sx={{ marginBottom: SPACING_2 }}>{renderConnectionTypeInfoMessage({ connectionType })}</Box>
           <form
             onSubmit={

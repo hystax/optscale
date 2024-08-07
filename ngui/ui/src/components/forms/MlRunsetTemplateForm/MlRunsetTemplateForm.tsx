@@ -3,6 +3,8 @@ import FormLabel from "@mui/material/FormLabel";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
+import { OPTSCALE_MODE } from "utils/constants";
 import { FIELD_NAMES } from "./constants";
 import {
   FormButtons,
@@ -19,7 +21,11 @@ import {
 } from "./FormElements";
 import { FormValues } from "./types";
 
+const UNLIMITED_BUDGET = 999999;
+
 const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoading = {}, defaultValues, isEdit }) => {
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
+
   const { isGetAllTasksLoading = false, isGetRunsetTemplateLoading = false, isSubmitLoading = false } = isLoading;
 
   const methods = useForm<FormValues>({
@@ -50,7 +56,7 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
             cloud_account_ids: formData[FIELD_NAMES.DATA_SOURCES].map(({ id }) => id),
             region_ids: formData[FIELD_NAMES.REGIONS].map(({ id }) => id),
             instance_types: formData[FIELD_NAMES.INSTANCE_TYPES].map(({ name }) => name),
-            budget: Number(formData[FIELD_NAMES.BUDGET]),
+            budget: isFinOpsEnabled ? Number(formData[FIELD_NAMES.BUDGET]) : UNLIMITED_BUDGET,
             name_prefix: formData[FIELD_NAMES.RESOURCE_NAME_PREFIX],
             tags: {
               [formData[FIELD_NAMES.TAG_KEY]]: formData[FIELD_NAMES.TAG_VALUE]
@@ -81,7 +87,7 @@ const MlRunsetTemplateForm = ({ tasks, dataSources, onSubmit, onCancel, isLoadin
         <RegionsField isLoading={isGetRunsetTemplateLoading} />
         <InstanceTypesField isLoading={isGetRunsetTemplateLoading} />
         <MaximumParallelRunsField />
-        <MaximumRunsetBudgetField isLoading={isGetRunsetTemplateLoading} />
+        {isFinOpsEnabled && <MaximumRunsetBudgetField isLoading={isGetRunsetTemplateLoading} />}
         <PrefixField isLoading={isGetRunsetTemplateLoading} />
         <CustomTagField isLoading={isGetRunsetTemplateLoading} />
         <HyperparametersFieldArray isLoading={isGetRunsetTemplateLoading} />

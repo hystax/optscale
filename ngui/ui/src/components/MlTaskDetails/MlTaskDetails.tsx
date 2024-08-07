@@ -8,13 +8,16 @@ import MlTaskModelVersionsContainer from "containers/MlTaskModelVersionsContaine
 import MlTaskRecommendationsContainer from "containers/MlTaskRecommendationsContainer";
 import MlTaskRunsListContainer from "containers/MlTaskRunsListContainer";
 import MlTaskSummaryCardsContainer from "containers/MlTaskSummaryCardsContainer";
-import { ML_TASK_DETAILS_TABS, ML_TASK_DETAILS_TAB_NAME } from "utils/constants";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
+import { ML_TASK_DETAILS_TABS, ML_TASK_DETAILS_TAB_NAME, OPTSCALE_MODE } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import TaskActionBar from "./TaskActionBar";
 import TaskDetailsSummary from "./TaskDetailsSummary";
 
 const Tabs = ({ task, isLoading = false }) => {
   const [activeTab, setActiveTab] = useState();
+
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
 
   const tabs = [
     {
@@ -37,11 +40,15 @@ const Tabs = ({ task, isLoading = false }) => {
       dataTestId: "tab_leaderboards",
       node: <MlTaskLeaderboardContainer task={task} />
     },
-    {
-      title: ML_TASK_DETAILS_TABS.RECOMMENDATIONS,
-      dataTestId: "tab_recommendations",
-      node: <MlTaskRecommendationsContainer />
-    },
+    ...(isFinOpsEnabled
+      ? [
+          {
+            title: ML_TASK_DETAILS_TABS.RECOMMENDATIONS,
+            dataTestId: "tab_recommendations",
+            node: <MlTaskRecommendationsContainer />
+          }
+        ]
+      : []),
     {
       title: ML_TASK_DETAILS_TABS.EXECUTORS,
       dataTestId: "tab_executors",

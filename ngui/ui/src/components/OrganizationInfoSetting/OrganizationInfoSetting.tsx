@@ -6,9 +6,11 @@ import { FormattedMessage } from "react-intl";
 import CopyText from "components/CopyText";
 import IconButton from "components/IconButton";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
+import ModeWrapper from "components/ModeWrapper";
 import EditOrganizationFormContainer from "containers/EditOrganizationFormContainer";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
+import { OPTSCALE_MODE } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import OrganizationCurrency from "./OrganizationCurrency";
 
@@ -66,14 +68,16 @@ const OrganizationInfoSetting = () => {
       <Box display="flex">
         <OrganizationName name={organizationName} />
       </Box>
-      <Box>
-        <Typography>
-          <FormattedMessage id="organizationCurrencyDescription" />
-        </Typography>
-      </Box>
-      <Box>
-        <OrganizationCurrency currencyCode={currency} />
-      </Box>
+      <ModeWrapper mode={OPTSCALE_MODE.FINOPS}>
+        <Box>
+          <Typography>
+            <FormattedMessage id="organizationCurrencyDescription" />
+          </Typography>
+        </Box>
+        <Box>
+          <OrganizationCurrency currencyCode={currency} />
+        </Box>
+      </ModeWrapper>
     </Stack>
   );
 };

@@ -4,21 +4,32 @@ import MenuGroupWrapper from "components/MenuGroupWrapper";
 import MenuItem from "components/MenuItem";
 import ModeWrapper from "components/ModeWrapper";
 import { PRODUCT_TOUR, useProductTour, PRODUCT_TOUR_IDS } from "components/Tour";
+import { useOptScaleMode } from "hooks/useOptScaleMode";
 
-const simpleItem = (menuItem) => (
-  <ModeWrapper key={menuItem.key} mode={menuItem.mode}>
-    <MenuItem
-      className={menuItem.className}
-      dataProductTourId={menuItem.dataProductTourId}
-      link={menuItem.route.link}
-      messageId={menuItem.messageId}
-      isRootPath={menuItem.isRootPath}
-      isActive={menuItem.isActive}
-      icon={menuItem.icon}
-      dataTestId={menuItem.dataTestId}
-    />
-  </ModeWrapper>
-);
+const SimpleItem = ({ menuItem }) => {
+  const optScaleMode = useOptScaleMode();
+
+  return (
+    <ModeWrapper mode={menuItem.mode}>
+      <MenuItem
+        className={menuItem.className}
+        dataProductTourId={menuItem.dataProductTourId}
+        link={menuItem.route.link}
+        messageId={
+          typeof menuItem.messageId === "function"
+            ? menuItem.messageId({
+                mode: optScaleMode
+              })
+            : menuItem.messageId
+        }
+        isRootPath={menuItem.isRootPath}
+        isActive={menuItem.isActive}
+        icon={menuItem.icon}
+        dataTestId={menuItem.dataTestId}
+      />
+    </ModeWrapper>
+  );
+};
 
 const MainMenu = ({ menu }) => {
   const { isOpen: isProductTourOpen, stepId: productTourStepId } = useProductTour(PRODUCT_TOUR);
@@ -46,7 +57,9 @@ const MainMenu = ({ menu }) => {
         {menu.map(({ items, menuSectionTitle, id, mode }) => (
           <ModeWrapper key={id} mode={mode}>
             <MenuGroupWrapper id={id} menuSectionTitle={menuSectionTitle} keepExpanded={isProductTourOpen}>
-              {items.map((item) => simpleItem(item))}
+              {items.map((item) => (
+                <SimpleItem key={item.route.link} menuItem={item} />
+              ))}
             </MenuGroupWrapper>
           </ModeWrapper>
         ))}
