@@ -215,14 +215,13 @@ class TestShareableResourcesApi(TestApiBase):
             self.org_id, resource_ids=[self.instance_resource['id']])
         self.assertEqual(code, 201)
         p_email_send.assert_called_once_with(
-            [ANY], 'OptScale shareable resources notification',
+            [ANY], 'OptScale shareable environments notification',
             template_type='first_shareable_resources',
             template_params={
                 'texts': {'organization': {
                     'id': self.org['id'],
                     'name': self.org['name'],
                     'currency_code': '$'},
-                    'title': 'First shareable resource',
                     'shareable_resource_count': 1}}
         )
 

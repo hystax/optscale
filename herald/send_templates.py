@@ -947,15 +947,14 @@ PARAMETER_DUMPS = {
             }}},
     'first_shareable_resources': {
         "email": ["azaza@ma.il"],
-        "subject": "OptScale shareable resources notification",
+        "subject": "OptScale shareable environments notification",
         "template_type": "first_shareable_resources",
         "template_params": {
             "texts": {
                 "organization": {
                     "id": "5d3d4501-0de8-40dc-a9ed-df2fb1396141",
                     "name": "am2"
-                },
-                "title": "First shareable resource"
+                }
             },
         }
     },
