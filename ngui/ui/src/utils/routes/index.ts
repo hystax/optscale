@@ -197,6 +197,4 @@ export const routes = [
   notFoundRoute
 ];
 
-export const ALL_ROUTES_PATTERNS = Object.freeze(routes.map(({ link }) => link));
-
 export default BaseRoute;
