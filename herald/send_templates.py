@@ -129,7 +129,7 @@ PARAMETER_DUMPS = {
         "email": ["optscale-staging-notifications@hystax.com"],
         "subject": "[172.22.20.8] New user joined organization",
         "template_type": "new_employee",
-        "reply_to_email": "me2@1.ru",
+        "reply_to_email": "me2@1.com",
         "template_params": {
             "texts": {
                 "organization": {
@@ -139,11 +139,10 @@ PARAMETER_DUMPS = {
                 },
                 "user": {
                     "id": "63b4c37e-ce9b-47fb-be38-413a23168ae3",
-                    "email": "me2@1.ru",
+                    "email": "me2@1.com",
                     "authentication_type": "password"
                 },
                 "users_count": 2,
-                "title": "New user joined organization"
             }
         }
     },

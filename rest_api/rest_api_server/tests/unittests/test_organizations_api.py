@@ -164,8 +164,7 @@ class TestOrganizationApi(TestApiBase):
                             'email': email,
                             'authentication_type': 'google'
                         },
-                        'users_count': 1,
-                        'title': 'New user joined organization'
+                        'users_count': 1
                     }
                 })
         ], any_order=True)
