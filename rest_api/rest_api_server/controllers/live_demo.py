@@ -1406,7 +1406,6 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                     'email': email,
                     'subscribe': subscribe
                 },
-                'title': "New live demo subscriber"
             }
         }
         HeraldClient(
