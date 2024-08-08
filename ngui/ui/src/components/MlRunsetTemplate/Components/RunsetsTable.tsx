@@ -9,9 +9,10 @@ import SubTitle from "components/SubTitle";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
 import { getMlTaskDetailsUrl, getMlRunsetDetailsUrl } from "urls";
 import { duration, expenses, startedAt, text } from "utils/columns";
-import { ML_RUN_STATUS } from "utils/constants";
+import { ML_RUN_STATUS, OPTSCALE_MODE } from "utils/constants";
 import { formatRunFullName } from "utils/ml";
 
 const RunsetNameCell = ({
@@ -47,6 +48,8 @@ const RunsetNameCell = ({
 );
 
 const RunsetsTable = ({ runsets, isLoading }) => {
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
+
   const columns = useMemo(
     () => [
       {
@@ -112,13 +115,17 @@ const RunsetsTable = ({ runsets, isLoading }) => {
         headerDataTestId: "lbl_completed_runs",
         accessorKey: "succeeded_runs"
       }),
-      expenses({
-        headerDataTestId: "lbl_expenses",
-        headerMessageId: "expenses",
-        accessorKey: "cost"
-      })
+      ...(isFinOpsEnabled
+        ? [
+            expenses({
+              headerDataTestId: "lbl_expenses",
+              headerMessageId: "expenses",
+              accessorKey: "cost"
+            })
+          ]
+        : [])
     ],
-    []
+    [isFinOpsEnabled]
   );
 
   const data = useMemo(() => runsets, [runsets]);

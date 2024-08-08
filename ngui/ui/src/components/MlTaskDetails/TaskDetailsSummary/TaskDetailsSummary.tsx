@@ -8,11 +8,12 @@ import FormattedMoney from "components/FormattedMoney";
 import KeyValueLabel from "components/KeyValueLabel";
 import LastTaskRunGoals from "components/LastTaskRunGoals";
 import Markdown from "components/Markdown";
+import ModeWrapper from "components/ModeWrapper";
 import SummaryList from "components/SummaryList";
 import TypographyLoader from "components/TypographyLoader";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { getEditMlTaskUrl } from "urls";
-import { ML_TASK_DETAILS_TAB_NAME } from "utils/constants";
+import { ML_TASK_DETAILS_TAB_NAME, OPTSCALE_MODE } from "utils/constants";
 import { getTimeDistance } from "utils/datetime";
 import { SPACING_2 } from "utils/layouts";
 import { getQueryParams } from "utils/network";
@@ -126,7 +127,9 @@ const SummaryInfo = ({
                 />
               }
             />,
-            <KeyValueLabel key="lastRunCost" keyMessageId="lastRunCost" value={<FormattedMoney value={lastRunCost} />} />,
+            <ModeWrapper key="lastRunCost" mode={OPTSCALE_MODE.FINOPS}>
+              <KeyValueLabel keyMessageId="lastRunCost" value={<FormattedMoney value={lastRunCost} />} />
+            </ModeWrapper>,
             <KeyValueLabel key="owner" keyMessageId="owner" value={ownerName} />
           ]}
         />

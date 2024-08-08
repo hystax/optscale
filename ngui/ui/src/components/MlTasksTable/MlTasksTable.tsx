@@ -7,12 +7,16 @@ import KeyValueLabel from "components/KeyValueLabel";
 import MlTasksFilters from "components/MlTasksFilters";
 import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
 import { ML_TASK_CREATE } from "urls";
 import { duration, metrics, mlTaskLastRun, mlTaskName } from "utils/columns";
+import { OPTSCALE_MODE } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { getTasksMetricsKeyNameEntries, getFirstMetricEntryKey } from "utils/ml";
 
 const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) => {
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
+
   const metricsKeyNameEntries = getTasksMetricsKeyNameEntries(tasks);
 
   const [sortByMetricKey, setSortByMetricKey] = useState(getFirstMetricEntryKey(metricsKeyNameEntries));
@@ -76,32 +80,36 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
           dataTestId: "btn_toggle_column_metrics"
         }
       }),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_expenses">
-            <FormattedMessage id="expenses" />
-          </TextWithDataTestId>
-        ),
-        id: "total_cost",
-        columnSelector: {
-          accessor: "expenses",
-          messageId: "expenses",
-          dataTestId: "btn_toggle_column_expenses"
-        },
-        cell: ({
-          row: {
-            original: { total_cost: total, last_30_days_cost: last30DaysCost, last_run_cost: lastRunCost }
-          }
-        }) => (
-          <>
-            <KeyValueLabel keyMessageId="lastRun" value={<FormattedMoney value={lastRunCost} />} />
-            <KeyValueLabel keyMessageId="total" value={<FormattedMoney value={total} />} />
-            <KeyValueLabel keyMessageId="last30Days" value={<FormattedMoney value={last30DaysCost} />} />
-          </>
-        )
-      }
+      ...(isFinOpsEnabled
+        ? [
+            {
+              header: (
+                <TextWithDataTestId dataTestId="lbl_expenses">
+                  <FormattedMessage id="expenses" />
+                </TextWithDataTestId>
+              ),
+              id: "total_cost",
+              columnSelector: {
+                accessor: "expenses",
+                messageId: "expenses",
+                dataTestId: "btn_toggle_column_expenses"
+              },
+              cell: ({
+                row: {
+                  original: { total_cost: total, last_30_days_cost: last30DaysCost, last_run_cost: lastRunCost }
+                }
+              }) => (
+                <>
+                  <KeyValueLabel keyMessageId="lastRun" value={<FormattedMoney value={lastRunCost} />} />
+                  <KeyValueLabel keyMessageId="total" value={<FormattedMoney value={total} />} />
+                  <KeyValueLabel keyMessageId="last30Days" value={<FormattedMoney value={last30DaysCost} />} />
+                </>
+              )
+            }
+          ]
+        : [])
     ],
-    [metricsKeyNameEntries, sortByMetricKey]
+    [isFinOpsEnabled, metricsKeyNameEntries, sortByMetricKey]
   );
 
   const data = useMemo(() => tasks, [tasks]);

@@ -5,8 +5,9 @@ import { FormattedMessage, useIntl } from "react-intl";
 import CheckboxComponent from "components/Checkbox";
 import { Checkbox as CheckboxField, NumberInput } from "components/forms/common/fields";
 import Tooltip from "components/Tooltip";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { MAX_INT_32 } from "utils/constants";
+import { MAX_INT_32, OPTSCALE_MODE } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { positiveInteger } from "utils/validation";
 import { FIELD_NAMES } from "../constants";
@@ -140,13 +141,17 @@ const GoalsPlateau = () => (
   </div>
 );
 
-const AbortConditionsFields = () => (
-  <Stack spacing={SPACING_1}>
-    <MaxBudget />
-    <MaxDuration />
-    <ReachedGoals />
-    <GoalsPlateau />
-  </Stack>
-);
+const AbortConditionsFields = () => {
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
+
+  return (
+    <Stack spacing={SPACING_1}>
+      {isFinOpsEnabled && <MaxBudget />}
+      <MaxDuration />
+      <ReachedGoals />
+      <GoalsPlateau />
+    </Stack>
+  );
+};
 
 export default AbortConditionsFields;

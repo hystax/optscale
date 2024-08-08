@@ -9,11 +9,13 @@ import CopyText from "components/CopyText";
 import FormattedMoney from "components/FormattedMoney";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import MlRunsetTagForCreatedResourcesChip from "components/MlRunsetTagForCreatedResourcesChip";
+import ModeWrapper from "components/ModeWrapper";
 import SummaryList from "components/SummaryList";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { intl } from "translations/react-intl-config";
 import { getMlTaskDetailsUrl } from "urls";
 import { isEmpty as isEmptyArray, isLastItem } from "utils/arrays";
+import { OPTSCALE_MODE } from "utils/constants";
 import { isEmpty as isEmptyObject } from "utils/objects";
 
 const Details = ({
@@ -109,10 +111,12 @@ const Details = ({
                   )
                 }
               />
-              <KeyValueLabel
-                keyMessageId="maximumRunsetBudget"
-                value={maximumRunsetBudget === undefined ? null : <FormattedMoney value={maximumRunsetBudget} />}
-              />
+              <ModeWrapper mode={OPTSCALE_MODE.FINOPS}>
+                <KeyValueLabel
+                  keyMessageId="maximumRunsetBudget"
+                  value={maximumRunsetBudget === undefined ? null : <FormattedMoney value={maximumRunsetBudget} />}
+                />
+              </ModeWrapper>
               <KeyValueLabel keyMessageId="resourceNamePrefix" value={resourceNamePrefix} />
               <KeyValueLabel
                 keyMessageId="tagForCreatedResources"

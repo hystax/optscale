@@ -8,7 +8,9 @@ import ResourceName from "components/ResourceName";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsOptScaleModeEnabled } from "hooks/useIsOptScaleModeEnabled";
 import { expenses, resourceLocation } from "utils/columns";
+import { OPTSCALE_MODE } from "utils/constants";
 import { getCloudResourceIdentifier } from "utils/resources";
 import { CELL_EMPTY_VALUE } from "utils/tables";
 
@@ -26,6 +28,8 @@ const STATUSES = Object.freeze({
 });
 
 const Executors = ({ executors, isLoading }) => {
+  const isFinOpsEnabled = useIsOptScaleModeEnabled(OPTSCALE_MODE.FINOPS);
+
   const columns = useMemo(
     () => [
       {
@@ -133,14 +137,18 @@ const Executors = ({ executors, isLoading }) => {
         },
         accessorKey: "cloud_name"
       }),
-      expenses({
-        id: "expenses",
-        headerDataTestId: "lbl_expenses",
-        headerMessageId: "expenses",
-        accessorKey: "cost"
-      })
+      ...(isFinOpsEnabled
+        ? [
+            expenses({
+              id: "expenses",
+              headerDataTestId: "lbl_expenses",
+              headerMessageId: "expenses",
+              accessorKey: "cost"
+            })
+          ]
+        : [])
     ],
-    []
+    [isFinOpsEnabled]
   );
 
   const tableData = useMemo(
