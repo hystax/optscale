@@ -947,15 +947,14 @@ PARAMETER_DUMPS = {
             }}},
     'first_shareable_resources': {
         "email": ["azaza@ma.il"],
-        "subject": "OptScale shareable resources notification",
+        "subject": "OptScale shareable environments notification",
         "template_type": "first_shareable_resources",
         "template_params": {
             "texts": {
                 "organization": {
                     "id": "5d3d4501-0de8-40dc-a9ed-df2fb1396141",
                     "name": "am2"
-                },
-                "title": "First shareable resource"
+                }
             },
         }
     },
@@ -981,43 +980,107 @@ PARAMETER_DUMPS = {
     },
     'environment_changes': {
         "email": ["azaza@ma.il"],
-        "subject": "OptScale environment changes notification",
+        "subject": "Environment changed",
         "template_type": "environment_changes",
         "template_params": {
             "texts": {
                 "organization": {
-                        "name": "AS_Test_ORG",
-                        "id": "7e23e036-87b9-460f-aa3e-10f2a5b63f54",
-                        "currency_code": "$"
-                    },
-                    "user": {
-                        "user_display_name": "ASBalmah_Engineer"
-                    },
+                    "name": "AS_Test_ORG",
+                    "id": "7e23e036-87b9-460f-aa3e-10f2a5b63f54",
+                    "currency_code": "$"
+                },
+                "user": {
+                    "user_display_name": "ASBalmah_Engineer"
+                },
+                "environment_status_changed": {
                     "changed_environment": {
                         "name": "Test_Environment",
-                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf"
-                    },
-                "environments_infos": [{
-                        "cloud_resource_id": "environment_f09696910bdd874a99cd74c8f05b5c44",
-                        "resource_name": "Test_Environment",
-                        "cloud_account_id": "07b66570-ad21-4cae-93f7-b079b548daae",
-                        "cloud_account_name": "Environment",
-                        "type": "Test_Type",
-                        "resource_id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
-                        "jira_tickets": [{
+                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                        "status": "released"
+                    }
+                },
+                "environment_prop_changed": {
+                    "changed_environment": {
+                        "property_info": [
+                            {
+                                "name": "Purpose",
+                                "previous_value": "Staging",
+                                "new_value": "Production"
+                            },
+                            {
+                                "name": "Purpose2",
+                                "previous_value": "Staging2",
+                                "new_value": "Production2"
+                            }
+                        ],
+                        "name": "Test_Environment",
+                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                    }
+                },
+                "environments_infos": {
+                    "cloud_resource_id": "environment_f09696910bdd874a99cd74c8f05b5c44",
+                    "resource_name": "Test_Environment",
+                    "cloud_account_id": "07b66570-ad21-4cae-93f7-b079b548daae",
+                    "cloud_account_name": "Environment",
+                    "type": "Test_Type",
+                    "resource_id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                    "pool": "Environment",
+                    "resource_type": "environment",
+                    "jira_tickets": [
+                        {
                             "url": "https://jira.com.example/NGUI-1242",
                             "name": "NGUI-1242"
-                        }, {
+                        }, 
+                        {
                             "url": "https://jira.com.example/NGUI-3214",
                             "name": "NGUI-3214"
-                        }],
-                        "software": "software_example",
-                        "status": {'Status': 'Available'},
-                        "upcoming_bookings": {'status_info': {'Status': "-"}}
-                    }],
-                    "name": "Vasya2",
-                    "changed_status_text": "released",
-                    "title": "Environment changes",
+                        }
+                    ],
+                    "software": "software_example",
+                    "status": {
+                        "Status": "IN USE",
+                        "details": {
+                            "User": "John Doe",
+                            "Since": "2024-08-01 06:44:49 UTC",
+                            "Until": "2024-08-01 10:00:00 UTC",
+                            "Remained": "3 hours"
+                        }
+                    },
+                    "upcoming_bookings": [
+                        {
+                            "details": {
+                                "User": "John Doe",
+                                "Since": "2024-08-02 07:00:00 UTC",
+                                "Until": "2024-08-04 07:00:00 UTC",
+                                "Duration": "48 hours"
+                            },
+                            "status_info": {
+                                "Status": "<upcoming booking status>"
+                            }
+                        }
+                    ],
+                    "contains_envs": True,
+                    "env_properties": [
+                        {
+                            "env_key": "Purpose",
+                            "env_value": "Production"
+                        },
+                        {
+                            "env_key": "Software version",
+                            "env_value": "v1.2.32141"
+                        }
+
+                    ]
+                },
+                "environment_state_changed": {
+                    "changed_environment": {
+                        "name": "Test_Environment",
+                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                        "previous_value": "Active",
+                        "new_value": "Not Active",
+                    }
+                },
+                "name": "John Doe",
             },
         }
     },

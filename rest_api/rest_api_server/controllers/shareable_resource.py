@@ -183,7 +183,6 @@ class ShareableBookingController(BaseController, MongoMixin,
                     'name': organization.name,
                     'currency_code': CURRENCY_MAP.get(organization.currency, '$')
                 },
-                'title': "First shareable resource",
                 'shareable_resource_count': count
             }
         }
@@ -191,7 +190,7 @@ class ShareableBookingController(BaseController, MongoMixin,
             url=self._config.herald_url(),
             secret=self._config.cluster_secret()
         ).email_send(
-            [recipient], 'OptScale shareable resources notification',
+            [recipient], 'OptScale shareable environments notification',
             template_type="first_shareable_resources",
             template_params=template_params)
 

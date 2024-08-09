@@ -6,40 +6,17 @@ import ExpandableList from "components/ExpandableList";
 import HtmlSymbol from "components/HtmlSymbol";
 import KeyValueLabel from "components/KeyValueLabel";
 import LabelChip from "components/LabelChip";
-import CopyLeaderboardDatasetIconButton from "components/MlTaskLeaderboard/components/CopyLeaderboardDatasetIconButton";
-import DeleteLeaderboardDatasetButton from "components/MlTaskLeaderboard/components/DeleteLeaderboardDatasetButton";
-import EditLeaderboardDatasetIconButton from "components/MlTaskLeaderboard/components/EditLeaderboardDatasetIconButton";
 import LeaderboardDatasetDetailsTable from "components/MlTaskLeaderboard/components/LeaderboardDatasetDetailsTable";
 import QuestionMark from "components/QuestionMark";
 import SlicedText from "components/SlicedText";
-import SubTitle from "components/SubTitle";
 import SummaryList from "components/SummaryList";
 import TableLoader from "components/TableLoader";
-import TypographyLoader from "components/TypographyLoader";
-import { useIsAllowed } from "hooks/useAllowedActions";
 import { isEmpty as isEmptyArray, isLastItem } from "utils/arrays";
 import { DATASET_NAME_LENGTH_LIMIT } from "utils/constants";
 import { isEmpty as isEmptyObject } from "utils/objects";
 
 const METRIC_NAME_LENGTH_LIMIT = 50;
 const TAG_NAME_LENGTH_LIMIT = 50;
-
-const Title = ({ task, leaderboard, leaderboardDataset }) => {
-  const isManageLeaderboardDatasetAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
-
-  return (
-    <Box display="flex" alignItems="center" flexWrap="wrap">
-      <SubTitle sx={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{leaderboardDataset.name}</SubTitle>
-      {isManageLeaderboardDatasetAllowed && (
-        <Box>
-          <EditLeaderboardDatasetIconButton task={task} leaderboardDataset={leaderboardDataset} />
-          <CopyLeaderboardDatasetIconButton task={task} leaderboard={leaderboard} leaderboardDataset={leaderboardDataset} />
-          <DeleteLeaderboardDatasetButton leaderboardDataset={leaderboardDataset} />
-        </Box>
-      )}
-    </Box>
-  );
-};
 
 const Summary = ({
   groupingTags = [],
@@ -93,13 +70,19 @@ const Summary = ({
 const QualificationProtocol = ({ qualificationProtocol = [], isLoading = false }) => (
   <SummaryList
     titleMessage={<FormattedMessage id="qualificationProtocol" />}
-    items={qualificationProtocol.map(({ name, min, max }) => (
-      <KeyValueLabel
-        key={name}
-        keyText={<SlicedText text={name} limit={METRIC_NAME_LENGTH_LIMIT} />}
-        value={`min: ${min ?? "-"}, max: ${max ?? "-"}`}
-      />
-    ))}
+    items={
+      isEmptyArray(qualificationProtocol) ? (
+        <FormattedMessage id="noRestrictions" />
+      ) : (
+        qualificationProtocol.map(({ name, min, max }) => (
+          <KeyValueLabel
+            key={name}
+            keyText={<SlicedText text={name} limit={METRIC_NAME_LENGTH_LIMIT} />}
+            value={`min: ${min ?? "-"}, max: ${max ?? "-"}`}
+          />
+        ))
+      )
+    }
     isLoading={isLoading}
   />
 );
@@ -214,13 +197,7 @@ const DetailsTable = ({ leaderboardDataset, leaderboardDatasetDetails, isLoading
     />
   );
 
-const LeaderboardDatasetDetails = ({
-  task,
-  leaderboard,
-  leaderboardDataset,
-  leaderboardDatasetDetails,
-  isLoadingProps = {}
-}) => {
+const LeaderboardDatasetDetails = ({ leaderboardDataset, leaderboardDatasetDetails, isLoadingProps = {} }) => {
   const { isGetLeaderboardDatasetLoading, isGetLeaderboardDatasetDetailsLoading } = isLoadingProps;
 
   const {
@@ -233,14 +210,7 @@ const LeaderboardDatasetDetails = ({
 
   return (
     <>
-      <Stack overflow="auto" flexGrow={1} spacing={2}>
-        <Box mb={2}>
-          {isGetLeaderboardDatasetLoading ? (
-            <TypographyLoader />
-          ) : (
-            <Title task={task} leaderboard={leaderboard} leaderboardDataset={leaderboardDataset} />
-          )}
-        </Box>
+      <Stack overflow="auto" flexGrow={1} spacing={1}>
         <Box>
           <Box display="flex" flexWrap="wrap" rowGap={2} columnGap={16}>
             <Box>
