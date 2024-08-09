@@ -88,11 +88,10 @@ PARAMETER_DUMPS = {
     },
     'cloud_account_deleted': {
         "email": ["optscale-staging-notifications@hystax.com"],
-        "subject": "[172.22.20.8] Cloud account has been deleted",
+        "subject": "[172.22.20.8] Data source has been deleted",
         "template_type": "cloud_account_deleted",
         "template_params": {
             "texts": {
-                "title": "Cloud account has been deleted",
                 "cloud_account_id": "cb40fab5-3247-4064-b416-c3632786707a",
                 "cloud_account_name": "aws",
                 "cloud_account_type": "aws_cnr",
