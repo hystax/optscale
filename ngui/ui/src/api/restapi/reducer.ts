@@ -128,7 +128,8 @@ import {
   SET_ML_ARTIFACTS,
   SET_ML_ARTIFACT,
   SET_ML_DATASET_LABELS,
-  SET_ML_TASK_TAGS
+  SET_ML_TASK_TAGS,
+  CREATE_ML_LEADERBOARD_DATASET
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -999,6 +1000,12 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_ML_TASK_TAGS: {
+      return {
+        ...state,
+        [action.label]: action.payload
+      };
+    }
+    case CREATE_ML_LEADERBOARD_DATASET: {
       return {
         ...state,
         [action.label]: action.payload

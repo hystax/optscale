@@ -17,7 +17,10 @@ class EditLeaderboardDatasetModal extends BaseSideModal {
     return (
       <EditLeaderboardDatasetFormContainer
         onCancel={this.closeSideModal}
-        onSuccess={this.closeSideModal}
+        onSuccess={(newLeaderboardDataset) => {
+          this.payload?.onSuccess?.(newLeaderboardDataset);
+          this.closeSideModal();
+        }}
         task={this.payload?.task}
         leaderboardDataset={this.payload?.leaderboardDataset}
       />

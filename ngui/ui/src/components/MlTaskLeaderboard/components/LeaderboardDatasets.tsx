@@ -6,12 +6,12 @@ import LeaderboardDatasetDetails from "components/LeaderboardDatasetDetails";
 import SlicedText from "components/SlicedText";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { isEmpty as isEmptyArray } from "utils/arrays";
-import AddLeaderboardCriteriaButton from "./AddLeaderboardCriteriaButton";
+import AddLeaderboardCriteriaIconButton from "./AddLeaderboardCriteriaIconButton";
 import CopyLeaderboardDatasetIconButton from "./CopyLeaderboardDatasetIconButton";
 import DeleteLeaderboardDatasetButton from "./DeleteLeaderboardDatasetButton";
 import EditLeaderboardDatasetIconButton from "./EditLeaderboardDatasetIconButton";
 
-const NoLeaderboards = ({ leaderboard, task }) => {
+const NoLeaderboards = ({ leaderboard, task, onCreateLeaderboardDataset }) => {
   const isAddLeaderboardCriteriaAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
 
   return (
@@ -19,7 +19,9 @@ const NoLeaderboards = ({ leaderboard, task }) => {
       <Typography>
         <FormattedMessage id="noLeaderboards" />
       </Typography>
-      {isAddLeaderboardCriteriaAllowed && <AddLeaderboardCriteriaButton leaderboard={leaderboard} task={task} />}
+      {isAddLeaderboardCriteriaAllowed && (
+        <AddLeaderboardCriteriaIconButton leaderboard={leaderboard} task={task} onSuccess={onCreateLeaderboardDataset} />
+      )}
     </Box>
   );
 };
@@ -30,7 +32,9 @@ const LeaderboardDatasetsListSection = ({
   leaderboardDatasets,
   leaderboardDataset,
   selectedLeaderboardDatasetId,
-  onSelectedLeaderboardDatasetIdChange
+  onSelectedLeaderboardDatasetIdChange,
+  onCreateLeaderboardDataset,
+  onUpdateLeaderboardDataset
 }) => {
   const isAddLeaderboardCriteriaAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
 
@@ -74,9 +78,18 @@ const LeaderboardDatasetsListSection = ({
       />
       {isAddLeaderboardCriteriaAllowed && (
         <Box>
-          <AddLeaderboardCriteriaButton leaderboard={leaderboard} task={task} />
-          <EditLeaderboardDatasetIconButton task={task} leaderboardDataset={leaderboardDataset} />
-          <CopyLeaderboardDatasetIconButton task={task} leaderboard={leaderboard} leaderboardDataset={leaderboardDataset} />
+          <AddLeaderboardCriteriaIconButton leaderboard={leaderboard} task={task} onSuccess={onCreateLeaderboardDataset} />
+          <EditLeaderboardDatasetIconButton
+            task={task}
+            leaderboardDataset={leaderboardDataset}
+            onSuccess={onUpdateLeaderboardDataset}
+          />
+          <CopyLeaderboardDatasetIconButton
+            task={task}
+            leaderboard={leaderboard}
+            leaderboardDataset={leaderboardDataset}
+            onSuccess={onCreateLeaderboardDataset}
+          />
           <DeleteLeaderboardDatasetButton leaderboardDataset={leaderboardDataset} />
         </Box>
       )}
@@ -92,11 +105,13 @@ const LeaderboardDatasets = ({
   selectedLeaderboardDatasetId,
   leaderboardDatasetDetails,
   onSelectedLeaderboardDatasetIdChange,
+  onCreateLeaderboardDataset,
+  onUpdateLeaderboardDataset,
   isLoadingProps = {}
 }) => (
   <Box>
     {isEmptyArray(leaderboardDatasets) ? (
-      <NoLeaderboards leaderboard={leaderboard} task={task} />
+      <NoLeaderboards leaderboard={leaderboard} task={task} onCreateLeaderboardDataset={onCreateLeaderboardDataset} />
     ) : (
       <Stack spacing={1}>
         <div>
@@ -107,6 +122,8 @@ const LeaderboardDatasets = ({
             leaderboardDataset={leaderboardDataset}
             selectedLeaderboardDatasetId={selectedLeaderboardDatasetId}
             onSelectedLeaderboardDatasetIdChange={onSelectedLeaderboardDatasetIdChange}
+            onCreateLeaderboardDataset={onCreateLeaderboardDataset}
+            onUpdateLeaderboardDataset={onUpdateLeaderboardDataset}
           />
         </div>
         <div>

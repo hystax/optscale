@@ -19,7 +19,10 @@ class CreateLeaderboardDatasetModal extends BaseSideModal {
         task={this.payload?.task}
         leaderboard={this.payload?.leaderboard}
         onCancel={this.closeSideModal}
-        onSuccess={this.closeSideModal}
+        onSuccess={(newLeaderboardDataset) => {
+          this.payload?.onSuccess?.(newLeaderboardDataset);
+          this.closeSideModal();
+        }}
       />
     );
   }

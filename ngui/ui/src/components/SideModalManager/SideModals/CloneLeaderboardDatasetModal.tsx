@@ -17,7 +17,10 @@ class CloneLeaderboardDatasetModal extends BaseSideModal {
     return (
       <CloneLeaderboardDatasetFormContainer
         onCancel={this.closeSideModal}
-        onSuccess={this.closeSideModal}
+        onSuccess={(newLeaderboardDataset) => {
+          this.payload?.onSuccess?.(newLeaderboardDataset);
+          this.closeSideModal();
+        }}
         task={this.payload?.task}
         leaderboard={this.payload?.leaderboard}
         leaderboardDataset={this.payload?.leaderboardDataset}

@@ -91,7 +91,20 @@ const MlTaskLeaderboardContainer = ({ task }) => {
       leaderboardDatasetDetails={leaderboardDatasetDetails}
       onSelectedLeaderboardDatasetIdChange={(leaderboardDatasetId: string) => {
         onSelectionChange(leaderboardDatasetId);
-        getLeaderboardDatasetData(leaderboardDatasetId).then(() => {});
+        getLeaderboardDatasetData(leaderboardDatasetId);
+      }}
+      onCreateLeaderboardDataset={(newLeaderboardDataset) => {
+        getLeaderboardDatasets(leaderboard.id).then(() => {
+          onSelectionChange(newLeaderboardDataset.id);
+          getLeaderboardDatasetData(newLeaderboardDataset.id);
+        });
+      }}
+      onUpdateLeaderboardDataset={(updatedLeaderboardDataset) => {
+        console.log("updatedLeaderboardDataset", updatedLeaderboardDataset);
+        getLeaderboardDatasets(leaderboard.id).then(() => {
+          onSelectionChange(updatedLeaderboardDataset.id);
+          getLeaderboardDatasetData(updatedLeaderboardDataset.id);
+        });
       }}
       isLoadingProps={{
         isGetLeaderboardLoading,

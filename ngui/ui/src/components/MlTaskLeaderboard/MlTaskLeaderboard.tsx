@@ -9,6 +9,8 @@ const MlTaskLeaderboard = ({
   selectedLeaderboardDatasetId,
   leaderboardDatasetDetails,
   onSelectedLeaderboardDatasetIdChange,
+  onCreateLeaderboardDataset,
+  onUpdateLeaderboardDataset,
   isLoadingProps = {}
 }) => {
   if (isLoadingProps.isGetLeaderboardLoading || isLoadingProps.isGetLeaderboardDatasetsLoading) {
@@ -25,6 +27,8 @@ const MlTaskLeaderboard = ({
         selectedLeaderboardDatasetId={selectedLeaderboardDatasetId}
         leaderboardDatasetDetails={leaderboardDatasetDetails}
         onSelectedLeaderboardDatasetIdChange={onSelectedLeaderboardDatasetIdChange}
+        onCreateLeaderboardDataset={onCreateLeaderboardDataset}
+        onUpdateLeaderboardDataset={onUpdateLeaderboardDataset}
         isLoadingProps={{
           isGetLeaderboardDatasetLoading: isLoadingProps.isGetLeaderboardDatasetLoading,
           isGetLeaderboardDatasetDetailsLoading: isLoadingProps.isGetLeaderboardDatasetDetailsLoading
