@@ -537,8 +537,10 @@ class Gcp(CloudBase):
 
     @staticmethod
     def fix_region(region: str) -> str:
-        region = region.lower()
-        return REGION_REPLACEMENTS.get(region, region)
+        if region:
+            region_lower = region.lower()
+            region = REGION_REPLACEMENTS.get(region_lower, region_lower)
+        return region
 
     def discovery_calls_map(self):
         return {
