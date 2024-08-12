@@ -2,12 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { AppBar, Box, CircularProgress, Link, Paper, Toolbar } from "@mui/material";
 import { FormattedMessage } from "react-intl";
-import { matchPath, useLocation } from "react-router-dom";
 import IconButton from "components/IconButton";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
 import Markdown from "components/Markdown";
 import SideModalTitle from "components/SideModalTitle";
 import CommunityDocsContext from "contexts/CommunityDocsContext/CommunityDocsContext";
+import { useRoutePath } from "hooks/useRoutePath";
 import { intl } from "translations/react-intl-config";
 import { GITHUB_HYSTAX_OPTSCALE_REPO, getDocsFileUrl } from "urls";
 import { SPACING_2 } from "utils/layouts";
@@ -30,16 +30,15 @@ const DocumentationUrl = ({ url }: { url: string }) => <strong>ngui/ui/public{ur
 
 const DocsPanel = () => {
   const { classes } = useStyles();
-  const { isCommunityDocsOpened, setIsCommunityDocsOpened, allRoutesPatterns } = useContext(CommunityDocsContext);
+  const { isCommunityDocsOpened, setIsCommunityDocsOpened } = useContext(CommunityDocsContext);
 
   const [status, setStatus] = useState(STATUSES.LOADING);
 
   const [markdown, setMarkdown] = useState("");
 
-  const { pathname } = useLocation();
-  const [currentMatch] = allRoutesPatterns.filter((pattern) => matchPath(pattern, pathname));
+  const path = useRoutePath();
 
-  const documentationUrl = getDocsFileUrl(currentMatch);
+  const documentationUrl = getDocsFileUrl(path);
 
   useEffect(() => {
     if (!isCommunityDocsOpened) {

@@ -456,8 +456,7 @@ class EmployeeController(BaseController, MongoMixin):
                     'email': user_email,
                     'authentication_type': authentication_type
                 },
-                'users_count': employees_count,
-                'title': "New user joined organization"
+                'users_count': employees_count
             }
         }
         HeraldClient(
