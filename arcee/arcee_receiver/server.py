@@ -1537,26 +1537,13 @@ async def get_leaderboard_datasets(request, leaderboard_id: str):
     ]
     cur = db.leaderboard_dataset.aggregate(pipeline)
     result = []
-    leaderboard = None
-    tendency = None
-    key = None
-    func = None
     async for leaderboard_dataset in cur:
-        # candidates (1-st level groups) are basically the same for all
-        # leaderboard datasets, so generate leaderboard once to use it as
-        # a list of candidates
-        if not leaderboard:
-            leaderboard = await get_calculated_leaderboard(
-                db, token, leaderboard_dataset['_id'])
+        leaderboard = await get_calculated_leaderboard(
+            db, token, leaderboard_dataset['_id'])
 
-        # primary_metric is the same for all leaderboard datasets
-        if not tendency:
-            tendency = leaderboard_dataset['primary_metric']['tendency']
-        if not key:
-            key = leaderboard_dataset['primary_metric']['key']
-        if not func:
-            func = leaderboard_dataset['primary_metric']['func']
-
+        tendency = leaderboard_dataset['primary_metric']['tendency']
+        key = leaderboard_dataset['primary_metric']['key']
+        func = leaderboard_dataset['primary_metric']['func']
         lb_dataset_ids = leaderboard_dataset['dataset_ids']
 
         best_score = None

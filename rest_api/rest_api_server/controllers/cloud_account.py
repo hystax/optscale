@@ -232,7 +232,7 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         action_params_map = {
             'created': ('Cloud has been connected',
                         'new_cloud_account'),
-            'deleted': ('Cloud account has been deleted',
+            'deleted': ('Data source has been deleted',
                         'cloud_account_deleted')
         }
         title, template = action_params_map.get(action, (None, None))
@@ -245,7 +245,6 @@ class CloudAccountController(BaseController, ClickHouseMixin):
             return
         template_params = {
             'texts': {
-                'title': title,
                 'organization': {
                     'id': cloud_account.organization_id,
                     'name': cloud_account.organization.name,
