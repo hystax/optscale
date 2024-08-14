@@ -1391,10 +1391,13 @@ PARAMETER_DUMPS = {
             'texts': {
                 'user': 'Eliot Alderson',
                 'email': 'ealderson@fsociety.com',
-                'data': {
-                    'k1': 'v1',
-                    'k2': 'v2',
-                },
+                'data': [{
+                    'k': 'key1',
+                    'v': 'value1',
+                }, {
+                    'k': 'key2',
+                    'v': 'value2',
+                }],
                 'organization': {
                     'id': 'd7092814-2b12-4e60-89c5-67919c9b17d6',
                     'name': 'Funny company',
