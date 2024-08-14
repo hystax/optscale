@@ -68,11 +68,10 @@ PARAMETER_DUMPS = {
     },
     'new_cloud_account': {
         "email": ["optscale-staging-notifications@hystax.com"],
-        "subject": "[172.22.20.8] Cloud has been connected",
+        "subject": "[172.22.20.8] Data source has been connected",
         "template_type": "new_cloud_account",
         "template_params": {
             "texts": {
-                "title": "Cloud has been connected",
                 "cloud_account_id": "cb40fab5-3247-4064-b416-c3632786707a",
                 "cloud_account_name": "aws",
                 "cloud_account_type": "aws_cnr",
@@ -81,7 +80,7 @@ PARAMETER_DUMPS = {
                     "name": "Twister Inc.",
                     "currency_code": "$"
                 },
-                "user_email": "me2@1.ru",
+                "user_email": "me2@1.com",
                 "user_name": "Mr Twister"
             }
         }

@@ -230,7 +230,7 @@ class CloudAccountController(BaseController, ClickHouseMixin):
             return
         control_panel_name = self._config.public_ip()
         action_params_map = {
-            'created': ('Cloud has been connected',
+            'created': ('Data source has been connected',
                         'new_cloud_account'),
             'deleted': ('Data source has been deleted',
                         'cloud_account_deleted')
