@@ -365,7 +365,8 @@ import {
   onUpdateMlLeaderboardDataset,
   onUpdatePowerSchedule,
   onUpdateMlModel,
-  onUpdateMlArtifact
+  onUpdateMlArtifact,
+  onSuccessCreateMlLeaderboardDataset
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -2065,7 +2066,7 @@ export const createMlLeaderboardDataset = (organizationId, leaderboardId, params
     url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}/leaderboard_datasets`,
     method: "POST",
     label: CREATE_ML_LEADERBOARD_DATASET,
-    affectedRequests: [GET_ML_LEADERBOARD],
+    onSuccess: onSuccessCreateMlLeaderboardDataset,
     params: {
       name: params.name,
       dataset_ids: params.datasetIds,
@@ -2084,7 +2085,6 @@ export const updateMlLeaderboardDataset = (organizationId, leaderboardDatasetId,
     method: "PATCH",
     label: UPDATE_ML_LEADERBOARD_DATASET,
     onSuccess: onUpdateMlLeaderboardDataset,
-    affectedRequests: [GET_ML_LEADERBOARD],
     params: {
       name: params.name,
       dataset_ids: params.datasetIds,

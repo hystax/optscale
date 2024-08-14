@@ -62,7 +62,8 @@ import {
   SET_ML_MODEL,
   GET_ML_MODEL,
   SET_ML_ARTIFACT,
-  GET_ML_ARTIFACT
+  GET_ML_ARTIFACT,
+  CREATE_ML_LEADERBOARD_DATASET
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -288,4 +289,10 @@ export const onUpdatePowerSchedule = (data) => ({
   type: SET_POWER_SCHEDULE,
   payload: data,
   label: GET_POWER_SCHEDULE
+});
+
+export const onSuccessCreateMlLeaderboardDataset = (data) => ({
+  type: CREATE_ML_LEADERBOARD_DATASET,
+  payload: data,
+  label: CREATE_ML_LEADERBOARD_DATASET
 });

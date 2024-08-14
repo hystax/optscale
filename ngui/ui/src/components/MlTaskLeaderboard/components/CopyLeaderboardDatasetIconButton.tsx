@@ -3,7 +3,7 @@ import IconButton from "components/IconButton";
 import { CloneLeaderboardDatasetModal } from "components/SideModalManager/SideModals";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 
-const CopyLeaderboardDatasetIconButton = ({ task, leaderboard, leaderboardDataset }) => {
+const CopyLeaderboardDatasetIconButton = ({ task, leaderboard, leaderboardDataset, onSuccess }) => {
   const openSideModal = useOpenSideModal();
 
   return (
@@ -13,7 +13,7 @@ const CopyLeaderboardDatasetIconButton = ({ task, leaderboard, leaderboardDatase
         show: true,
         messageId: "clone"
       }}
-      onClick={() => openSideModal(CloneLeaderboardDatasetModal, { task, leaderboard, leaderboardDataset })}
+      onClick={() => openSideModal(CloneLeaderboardDatasetModal, { task, leaderboard, leaderboardDataset, onSuccess })}
     />
   );
 };
