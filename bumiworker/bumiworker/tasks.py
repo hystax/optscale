@@ -561,13 +561,15 @@ class SetFailed(CompleteBase):
 class SetFailedNotifiable(SetFailed):
     def send_failure_service_email(self, organization_id, reason,
                                    failed_modules):
+        _, org = self.rest_cl.organization_get(organization_id)
         recipient = self.config_cl.optscale_error_email_recipient()
         if not recipient:
             return
         subject = '[%s] Bumi task execution failed' % self.config_cl.public_ip()
         template_params = {
             'texts': {
-                'organization': {'id': organization_id},
+                'organization': {'id': organization_id,
+                                 'name': org['name']},
                 'reason': reason,
                 'failed_modules': failed_modules
             }}
