@@ -918,8 +918,10 @@ PARAMETER_DUMPS = {
         'template_params': {
             'texts': {
                 'organization': {
-                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415'
+                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
+                    'name': 'Czar Pictures'
                 },
+                "reason": "Timeout error while process task 1639638582 (organization_id b74f3ca6-c392-4bcb-96b3-2ffaa0281810)",
                 'failed_modules': [{
                     'module': 'instance_migration',
                     'error': 'Timeout error while process task 1639638582 '
