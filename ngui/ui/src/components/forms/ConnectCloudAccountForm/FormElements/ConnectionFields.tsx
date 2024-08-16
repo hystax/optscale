@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { Controller } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import ConnectForm from "components/ConnectForm";
 import {
@@ -13,8 +12,10 @@ import {
   GcpCredentials,
   KubernetesCredentials,
   DatabricksCredentials,
-  AwsRootBillingBucket
+  AwsRootBillingBucket,
+  AwsRootExportType
 } from "components/DataSourceCredentialFields";
+import { RadioGroup } from "components/forms/common/fields";
 import {
   BillingReportBucketDescription,
   BillingReportBucketTitle,
@@ -24,7 +25,6 @@ import {
   ServiceAccountCredentialsDescription
 } from "components/NebiusConfigFormElements";
 import QuestionMark from "components/QuestionMark";
-import RadioGroupField from "components/RadioGroupField";
 import SwitchField from "components/SwitchField";
 import {
   AWS_ROOT_CONNECT_CONFIG_SCHEMES,
@@ -39,30 +39,34 @@ import {
   DATABRICKS_ACCOUNT
 } from "utils/constants";
 
-const IS_FIND_REPORT = "isFindReport";
-const CONFIG_SCHEME = "configScheme";
+export const AWS_ROOT_INPUTS_FIELD_NAMES = {
+  IS_FIND_REPORT: "isFindReport",
+  CONFIG_SCHEME: "configScheme"
+};
 
 const AwsRootInputs = () => (
   <ConnectForm>
     {({ control, watch }) => {
-      const isFindReportWatch = watch(IS_FIND_REPORT, true);
+      const isFindReportWatch = watch(AWS_ROOT_INPUTS_FIELD_NAMES.IS_FIND_REPORT, true);
       const configScheme =
-        watch(CONFIG_SCHEME, AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT) || AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT;
+        watch(AWS_ROOT_INPUTS_FIELD_NAMES.CONFIG_SCHEME, AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT) ||
+        AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT;
       return (
         <>
           <AwsRootCredentials />
+          <AwsRootExportType />
           <SwitchField
-            name={IS_FIND_REPORT}
+            name={AWS_ROOT_INPUTS_FIELD_NAMES.IS_FIND_REPORT}
             defaultValue={isFindReportWatch}
             control={control}
             dataTestIds={{
-              labelText: "lbl_use_report",
-              input: "checkbox_user_report"
+              labelText: "lbl_data_export_detection",
+              input: "switch_data_export_detection"
             }}
-            labelMessageId="costAndUsageReportDetection"
+            labelMessageId="dataExportDetection"
             endAdornment={
               <QuestionMark
-                messageId="costAndUsageReportDetectionTooltip"
+                messageId="dataExportDetectionTooltip"
                 messageValues={{
                   break: <br />
                 }}
@@ -72,34 +76,26 @@ const AwsRootInputs = () => (
           />
           {!isFindReportWatch && (
             <>
-              <Controller
-                control={control}
-                name={CONFIG_SCHEME}
+              <RadioGroup
+                name={AWS_ROOT_INPUTS_FIELD_NAMES.CONFIG_SCHEME}
                 defaultValue={configScheme}
-                render={({ field }) => (
-                  <RadioGroupField
-                    required
-                    fullWidth
-                    radioGroupProps={field}
-                    radioButtons={[
-                      {
-                        value: AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT,
-                        label: <FormattedMessage id="createNewCostUsageReport" />
-                      },
-                      {
-                        value: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY,
-                        label: <FormattedMessage id="connectOnlyToDataInBucket" />
-                      }
-                    ]}
-                  />
-                )}
+                radioButtons={[
+                  {
+                    value: AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT,
+                    label: <FormattedMessage id="createNewCostUsageReport" />
+                  },
+                  {
+                    value: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY,
+                    label: <FormattedMessage id="connectOnlyToDataInBucket" />
+                  }
+                ]}
               />
-              <Typography gutterBottom data-test-id="p_report_params">
+              <Typography gutterBottom data-test-id="p_data_export_detection_description">
                 <FormattedMessage
                   id={
                     configScheme === AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT
-                      ? "costAndUsageReportDetectionDescription1"
-                      : "costAndUsageReportDetectionDescription2"
+                      ? "dataExportDetectionDescription1"
+                      : "dataExportDetectionDescription2"
                   }
                 />
               </Typography>

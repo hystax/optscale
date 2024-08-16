@@ -53,6 +53,7 @@ interface DataSourceInterface {
 type AwsConfig {
   access_key_id: String
   linked: Boolean
+  cur_version: Int
   bucket_name: String
   bucket_prefix: String
   config_scheme: String
@@ -270,6 +271,7 @@ input DataSourceRequestParams {
 input AwsRootConfigInput {
   access_key_id: String!
   secret_access_key: String!
+  cur_version: Int
   bucket_name: String
   bucket_prefix: String
   config_scheme: String

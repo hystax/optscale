@@ -285,6 +285,16 @@ export const AWS_ROOT_CONNECT_CONFIG_SCHEMES = Object.freeze({
   BUCKET_ONLY: "bucket_only"
 });
 
+export const AWS_ROOT_CONNECT_CUR_VERSION = Object.freeze({
+  CUR_1: 1,
+  CUR_2: 2
+});
+
+export const AWS_ROOT_CONNECT_CUR_VERSION_MESSAGE_ID = Object.freeze({
+  [AWS_ROOT_CONNECT_CUR_VERSION.CUR_1]: "legacyCurExport",
+  [AWS_ROOT_CONNECT_CUR_VERSION.CUR_2]: "standardDataExport"
+});
+
 export const SUMMARY_VALUE_COMPONENT_TYPES = Object.freeze({
   FormattedNumber: "FormattedNumber",
   FormattedMoney: "FormattedMoney",

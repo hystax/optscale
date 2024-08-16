@@ -6,9 +6,10 @@ type RadioGroupProps = {
   name: string;
   labelMessageId?: string;
   radioButtons: { label: ReactNode; value: string; disabled?: boolean; dataTestId?: string }[];
+  defaultValue?: string;
 };
 
-const RadioGroup = ({ name, labelMessageId, radioButtons }: RadioGroupProps) => {
+const RadioGroup = ({ name, labelMessageId, radioButtons, defaultValue }: RadioGroupProps) => {
   const {
     control,
     formState: { errors }
@@ -18,6 +19,7 @@ const RadioGroup = ({ name, labelMessageId, radioButtons }: RadioGroupProps) => 
     <Controller
       control={control}
       name={name}
+      defaultValue={defaultValue}
       render={({ field }) => (
         <RadioGroupField
           fullWidth
