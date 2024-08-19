@@ -16,6 +16,8 @@ import {
   KUBERNETES_CREDENTIALS_FIELD_NAMES,
   DATABRICKS_CREDENTIALS_FIELD_NAMES,
   AWS_ROOT_CREDENTIALS_FIELD_NAMES,
+  AWS_ROOT_BILLING_BUCKET_FIELD_NAMES,
+  AWS_ROOT_EXPORT_TYPE_FIELD_NAMES,
   AWS_LINKED_CREDENTIALS_FIELD_NAMES
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
@@ -68,6 +70,7 @@ import { SPACING_2 } from "utils/layouts";
 import { getQueryParams } from "utils/network";
 import useStyles from "./ConnectCloudAccountForm.styles";
 import { ConnectionInputs, DataSourceNameField } from "./FormElements";
+import { AWS_ROOT_INPUTS_FIELD_NAMES } from "./FormElements/ConnectionFields";
 import { FIELD_NAME as DATA_SOURCE_NAME_FIELD_NAME } from "./FormElements/DataSourceNameField";
 
 const TILE_DIMENSION = 110;
@@ -98,10 +101,10 @@ const getAwsParameters = (formData) => {
           config_scheme: AWS_ROOT_CONNECT_CONFIG_SCHEMES.FIND_REPORT
         }
       : {
-          bucket_name: formData.bucketName,
-          bucket_prefix: formData.bucketPrefix,
-          report_name: formData.reportName,
-          config_scheme: formData.configScheme
+          bucket_name: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME],
+          bucket_prefix: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX],
+          report_name: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME],
+          config_scheme: formData[AWS_ROOT_INPUTS_FIELD_NAMES.CONFIG_SCHEME]
         };
   return {
     name: formData.name,
@@ -110,6 +113,7 @@ const getAwsParameters = (formData) => {
       access_key_id: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
       secret_access_key: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
       linked: false,
+      cur_version: Number(formData[AWS_ROOT_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
       ...getConfigSchemeParameters()
     }
   };

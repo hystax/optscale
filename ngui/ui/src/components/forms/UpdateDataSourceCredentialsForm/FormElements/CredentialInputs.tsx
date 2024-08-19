@@ -1,4 +1,5 @@
-import { Box, FormControlLabel, Switch, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { useFormContext } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import {
   AlibabaCredentials,
@@ -14,8 +15,10 @@ import {
   KubernetesCredentials,
   AwsLinkedCredentials,
   AwsRootCredentials,
-  AwsRootBillingBucket
+  AwsRootBillingBucket,
+  AwsRootExportType
 } from "components/DataSourceCredentialFields";
+import { Switch } from "components/forms/common/fields";
 import {
   BillingReportBucketTitle,
   CloudName,
@@ -23,26 +26,31 @@ import {
   ReportBucketPathPrefix
 } from "components/NebiusConfigFormElements";
 import UpdateServiceAccountCredentialsDescription from "components/NebiusConfigFormElements/UpdateServiceAccountCredentialsDescription";
-import { useToggle } from "hooks/useToggle";
 import { ALIBABA_CNR, AZURE_TENANT, AWS_CNR, AZURE_CNR, NEBIUS, GCP_CNR, DATABRICKS, KUBERNETES_CNR } from "utils/constants";
 
+export const AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS = "updateDataExportParameters";
+
 const CostAndUsageReport = () => {
-  const [checked, toggleChecked] = useToggle(false);
+  const { watch } = useFormContext();
+
+  const checked = watch(AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS);
 
   return (
     <>
-      <FormControlLabel
-        control={<Switch checked={checked} onChange={toggleChecked} inputProps={{ "aria-label": "switch" }} />}
+      <Switch
+        name={AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS}
         label={
-          <Box display="flex" alignItems="center">
-            <Typography>
-              <FormattedMessage id="updateCostAndUsageReportParameters" />
-            </Typography>
-          </Box>
+          <Typography>
+            <FormattedMessage id="updateDataExportParameters" />
+          </Typography>
         }
-        labelPlacement="end"
       />
-      {checked && <AwsRootBillingBucket />}
+      {checked && (
+        <>
+          <AwsRootExportType />
+          <AwsRootBillingBucket />
+        </>
+      )}
     </>
   );
 };

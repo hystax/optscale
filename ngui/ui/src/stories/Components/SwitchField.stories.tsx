@@ -29,7 +29,7 @@ export const withKnobs = (args) => (
     endAdornment={
       args.withEndAdornment ? (
         <QuestionMark
-          messageId="costAndUsageReportDetectionTooltip"
+          messageId="dataExportDetectionTooltip"
           messageValues={{
             break: <br />
           }}

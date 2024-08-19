@@ -50,6 +50,7 @@ export type AwsConfig = {
   bucket_name?: Maybe<Scalars['String']['output']>;
   bucket_prefix?: Maybe<Scalars['String']['output']>;
   config_scheme?: Maybe<Scalars['String']['output']>;
+  cur_version?: Maybe<Scalars['Int']['output']>;
   linked?: Maybe<Scalars['Boolean']['output']>;
   region_name?: Maybe<Scalars['String']['output']>;
   report_name?: Maybe<Scalars['String']['output']>;
@@ -83,6 +84,7 @@ export type AwsRootConfigInput = {
   bucket_name?: InputMaybe<Scalars['String']['input']>;
   bucket_prefix?: InputMaybe<Scalars['String']['input']>;
   config_scheme?: InputMaybe<Scalars['String']['input']>;
+  cur_version?: InputMaybe<Scalars['Int']['input']>;
   report_name?: InputMaybe<Scalars['String']['input']>;
   secret_access_key: Scalars['String']['input'];
 };
@@ -586,6 +588,7 @@ export type AwsConfigResolvers<ContextType = any, ParentType extends ResolversPa
   bucket_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   config_scheme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  cur_version?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   linked?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   region_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   report_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
