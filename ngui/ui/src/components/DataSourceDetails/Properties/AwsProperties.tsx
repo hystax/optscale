@@ -54,21 +54,25 @@ const AwsProperties = ({ accountId, config }: AwsPropertiesProps) => {
           dataTestIds={{ key: "p_cur_version_key", value: "p_cur_version_value" }}
         />
       ) : null}
-      <KeyValueLabel
-        keyMessageId="exportName"
-        value={reportName}
-        dataTestIds={{ key: "p_report_name_key", value: "p_report_name_value" }}
-      />
-      <KeyValueLabel
-        keyMessageId="exportS3BucketName"
-        value={bucketName}
-        dataTestIds={{ key: "p_bucket_name_key", value: "p_bucket_name_value" }}
-      />
-      <KeyValueLabel
-        keyMessageId="exportPathPrefix"
-        value={buckerPrefix}
-        dataTestIds={{ key: "p_bucket_prefix_key", value: "p_bucket_prefix_value" }}
-      />
+      {!linked && (
+        <>
+          <KeyValueLabel
+            keyMessageId="exportName"
+            value={reportName}
+            dataTestIds={{ key: "p_export_name_key", value: "p_export_name_value" }}
+          />
+          <KeyValueLabel
+            keyMessageId="exportS3BucketName"
+            value={bucketName}
+            dataTestIds={{ key: "p_bucket_name_key", value: "p_bucket_name_value" }}
+          />
+          <KeyValueLabel
+            keyMessageId="exportPathPrefix"
+            value={buckerPrefix}
+            dataTestIds={{ key: "p_bucket_prefix_key", value: "p_bucket_prefix_value" }}
+          />
+        </>
+      )}
     </>
   );
 };
