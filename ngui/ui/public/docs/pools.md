@@ -1,14 +1,27 @@
+### **Overview**
+
+View pools with limits or projected expenses that require your attention. Manage pools using the available features on this page.
+
 ### **View**
 
-- See pools with exceeded limit or forecasted expenses require your attention. Expand them by clicking the "Expand requiring attention" link above the table.
-- Download a list of resources in JSON/XLSX format.
+- Summary Cards: Get an overview of limits, expenses, monthly forecast, and possible savings.
 
-### **Settings**
-
-- Configure assignment rules by clicking the "Configure assignment rule" button from the page toolbar.
+- Details: Monitor the limits and expenses for each pool. 
 
 ### **Actions**
 
-- Edit a pool by clicking a table row. In the modal window you can update the information, adjust constraints and assignment rules, and setup sharing by going between the tabs.
-- The table contains available actions based on your permissions: you can create or delete a sub-pool.
-- Navigate to the resources page or the cost explorer by clicking the action buttons.
+- Address Exceeded Limits: View pools with exceeded limits or forecasted expenses needing attention by clicking the "Expand requiring attention" link above the table to get detailed information and take appropriate action.
+
+- Explore Potential Savings: Click on the "Possible Monthly Savings" summary card to view detailed insights and opportunities for reducing costs.
+
+- Export Resource Data: Download a list of resources in JSON or XLSX format to analyze and manage your data offline.
+
+- Set Up Assignment Rules: Click the "Configure assignment rule" button in the page toolbar to set up and manage your assignment rules effectively.
+
+- Manage Pools: Use the table to access available actions based on your permissions.
+
+### **Tips**
+
+- Monitor Usage Regularly: Review the usage statistics of your pools to ensure they are within budget and not exceeding limits. 
+
+- Optimize Resource Allocation: Regularly analyze and adjust the resources within your pools to ensure optimal performance and cost-efficiency. 

@@ -1,7 +1,21 @@
+### **Overview**
+
+The Home page displays your organization’s current spending and projected expenses for the upcoming month. It highlights the top 6 resources by cost, shows resource policy violations, identifies potential monthly savings, and lists pools that have exceeded their budget limits.
+
 ### **View**
 
-- See how much your organization is spending and the projected expenses for the upcoming month. A red dashed line indicates the organization budget limit. Navigate to the organization detailed expenses by clicking the icon link in the title area.
-- See the top 6 resources based on how much they cost you. See all discovered organization resources by clicking the icon link in the title area. Perspectives allow you to create a memorized view of the resources page. You can also go to the most expensive resources details.
-- See resource policy violations. Navigate to a specific policy type or a particular violation.
-- See possible monthly savings that you can get if you follow OptScale recommendations. The recommendations are grouped, navigate to them by clicking the card titles.
-- See pools with an exceeded budget limit or the ones with forecasted overspend. Navigate to a list of resources assigned to a particular pool or check the cost explorer by clicking the icons in the actions column. Navigate to the pools page with detailed information by clicking the icon link in the title area.
+- Quick Access: Quickly reach the most essential components.
+
+### **Actions**
+
+- Get Detailed Insights: Click on resource expenses, policy violations, tasks, and models to access detailed information and gain deeper insights into each area.
+
+- Explore Key Pages: Visit the organization expenses, resources, recommendations, pools, tasks, and models pages to get comprehensive insights and manage different aspects of your cloud operations effectively.
+
+- Monitoring Usage: Check the resource and pool lists for values ​​that require attention, or visit the Cost Explorer page to view a detailed graph of your costs.
+
+### **Tips**
+
+- Track ML Experiments: Use the task section to track and manage your machine learning experiments. Tasks let you visualize, search for, and compare ML runs and access run metadata for analysis.
+
+- Analyze Models for Insights: Examine the models section to keep track of your machine learning models. Models are used to make predictions or decisions based on data. This can help you make informed decisions about resource allocation and identify opportunities for optimization.
