@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 An Archive page provides information about irrelevant or applied recommendations.
 
@@ -17,3 +17,11 @@ An Archive page provides information about irrelevant or applied recommendations
 - Filter the data in the table: Click on a chart column to see the archived recommendations for the selected day (click again to deselect).
 
 - Get archive reason: Click on the table row to see why resources are no longer included in the recommendation.
+
+### **Tips**
+
+- Historical Analysis: Track changes in optimization recommendations over time to better understand shifts in resource needs and usage patterns.
+
+- Audit and Compliance: Conduct audits of past actions and decisions related to cloud resource optimization, supporting both internal and external compliance checks.
+
+- Performance Evaluation: Analyze the effectiveness of implemented recommendations and assess the results achieved.

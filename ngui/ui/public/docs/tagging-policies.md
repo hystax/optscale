@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 Implementing robust tagging policies helps streamline resource identification, enhances automation, and improves governance and compliance. Use the Tag Policies page to monitor the tagging of cloud resources.
 

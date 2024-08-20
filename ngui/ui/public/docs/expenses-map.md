@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 A Cost Map page provides a visual or analytical representation of the costs associated with various cloud services and resources. Use it to analyze regional spending patterns, identify cost disparities, and make informed decisions related to resource allocation, budgeting, or strategies tailored to specific regions.
 

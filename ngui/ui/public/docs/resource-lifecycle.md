@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 Use this page to manage the resource lifecycle effectively, ensuring that the cloud 
 infrastructure remains efficient, cost-effective, and aligned with business objectives.
