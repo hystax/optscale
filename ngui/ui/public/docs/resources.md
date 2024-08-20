@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 Observe the expenses for all resources across all connected clouds within the organization for the selected period.
 Organize and categorize resources based on your specific requirements.

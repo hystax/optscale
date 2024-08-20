@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 Shared environments allow multiple users or applications to access and use the same underlying infrastructure. This feature enables you to focus more on application logic rather than infrastructure management. Use this page to book cloud environments for specific periods.
 

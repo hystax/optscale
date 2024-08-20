@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 The Home page displays your organization’s current spending and projected expenses for the upcoming month. It highlights the top 6 resources by cost, shows resource policy violations, identifies potential monthly savings, and lists pools that have exceeded their budget limits.
 

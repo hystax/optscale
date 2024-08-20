@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 Get familiar with the concepts of FinOps and MLOps. For more information, visit FinOps in Practice. Explore best practices for FinOps and MLOps by clicking the "How-Tos" tab.
 

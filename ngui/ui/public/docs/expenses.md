@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 The Cost Explorer page features a breakdown chart that visualizes your expenses over time, allowing you to track spending trends day by day. By clicking on individual bars in the chart, you can access detailed data for each day’s expenses. This feature helps you monitor and manage your finances with greater precision.
 

@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 The S3 Duplicate Finder page provides an overview of a duplicate check and a detailed report for the selected item from the presented table. The available data includes the check's status, overall savings, the number of scanned objects, the total number of duplicated objects across all buckets, and the duration of the check.
 

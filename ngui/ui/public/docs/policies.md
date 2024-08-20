@@ -1,4 +1,4 @@
-### **Overview**
+### **Summary**
 
 Budgets and quotas help organizations control costs and manage resources efficiently. 
 Budgets refer to the financial limits set by an organization. Quotas limit the amount 
