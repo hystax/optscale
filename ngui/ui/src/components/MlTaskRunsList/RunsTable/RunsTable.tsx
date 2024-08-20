@@ -159,6 +159,7 @@ const RunsTable = ({ runs }) => {
       localization={{
         emptyMessageId: "noRuns"
       }}
+      counters={{ showCounters: true }}
     />
   );
 };
