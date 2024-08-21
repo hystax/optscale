@@ -12,11 +12,6 @@ export const isWholeNumber = (value) => value % 1 !== 0 || value < 0;
 
 export const isNumberInRange = (value, from, to) => from <= value && value <= to;
 
-export const getMaxLengthValidationDefinition = (inputName, maxLength) => ({
-  value: maxLength,
-  message: intl.formatMessage({ id: "maxLength" }, { inputName: intl.formatMessage({ id: inputName }), max: maxLength })
-});
-
 export const costModelValueMaxFractionDigitsValidation = (value) => {
   const [, fractionDigits = ""] = value.split(".");
   return fractionDigits.length > COST_MODEL_MONEY_MAXIMUM_FRACTION_DIGITS
