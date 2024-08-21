@@ -132,7 +132,16 @@ const MlDatasetsTable = ({ datasets }) => {
     <>
       <Stack spacing={SPACING_1}>
         <div>
-          <Table data={data} columns={columns} actionBar={tableActionBarDefinition} withSearch pageSize={50} />
+          <Table
+            data={data}
+            columns={columns}
+            actionBar={tableActionBarDefinition}
+            withSearch
+            pageSize={50}
+            counters={{
+              showCounters: true
+            }}
+          />
         </div>
       </Stack>
     </>

@@ -107,6 +107,9 @@ const MlRunsetTemplatesTable = ({ data, isLoading }) => {
           withSearch
           pageSize={50}
           localization={{ emptyMessageId: "noRunsetTemplates" }}
+          counters={{
+            showCounters: true
+          }}
         />
       )}
     </>
