@@ -7,7 +7,7 @@ const PropertyLayout = ({ propertyName, propertyValue, iconButtons }) => (
     <Box flexGrow={1} flexBasis={ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.MEDIUM}>
       {propertyName}
     </Box>
-    <Box flexGrow={2} flexBasis={ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.LARGE} display="flex" gap={SPACING_1}>
+    <Box flexGrow={2} flexBasis={ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH.LARGE} display="flex" gap={SPACING_1} overflow="auto">
       <Box flexGrow={1} overflow="auto">
         {propertyValue}
       </Box>
