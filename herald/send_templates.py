@@ -47,13 +47,11 @@ PARAMETER_DUMPS = {
                     'currency_code': '$'
                 }}}},
     'invite': {
-        "email": ["me@1.ru"],
+        "email": ["me@1.com"],
         "subject": "OptScale invitation notification",
         "template_type": "invite",
         "template_params": {
             "texts": {
-                "login_button": "Go to Optscale",
-                "title": "User Invitation",
                 "organization": {
                     'id': "95a42273-2e87-4749-aa11-e60a61dcc0b8",
                     'name': "ishorg",
