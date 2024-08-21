@@ -20,9 +20,9 @@ from sanic_ext import validate
 
 from arcee.arcee_receiver.models import (
     TaskPatchIn, Console, ConsolePostIn, Dataset, DatasetPatchIn,
-    DatasetPostIn, Run, RunPatchIn, RunPostIn, LeaderboardDataset,
-    LeaderboardDatasetPatchIn, LeaderboardDatasetPostIn,
-    Leaderboard, LeaderboardPostIn, LeaderboardPatchIn, Log, Platform,
+    DatasetPostIn, Run, RunPatchIn, RunPostIn, Leaderboard, LeaderboardPatchIn,
+    LeaderboardPostIn, LeaderboardTemplate, LeaderboardTemplatePostIn,
+    LeaderboardTemplatePatchIn, Log, Platform,
     StatsPostIn, ModelPatchIn, ModelPostIn, Model, ModelVersionIn,
     ModelVersion, Metric, MetricPostIn, MetricPatchIn,
     ArtifactPostIn, ArtifactPatchIn, Artifact, ArtifactSearchParams,
@@ -386,19 +386,19 @@ async def delete_task(request, id_: str):
         deleted_proc_data = dpd.deleted_count
         deleted_consoles = dc.deleted_count
         deleted_artifacts = da.deleted_count
-    leaderboard = await db.leaderboard.find_one(
+    lb_template = await db.leaderboard_template.find_one(
         {"token": token, "task_id": id_, "deleted_at": 0})
     now = int(datetime.now(tz=timezone.utc).timestamp())
-    if leaderboard:
-        datasets = [doc async for doc in db.leaderboard_dataset.find(
-            {'leaderboard_id': leaderboard['_id'], 'deleted_at': 0},
+    if lb_template:
+        datasets = [doc async for doc in db.leaderboard.find(
+            {'leaderboard_template_id': lb_template['_id'], 'deleted_at': 0},
             {'_id': 1})]
-        await db.leaderboard_dataset.update_many(
+        await db.leaderboard.update_many(
             {"_id": {'$in': [x['_id'] for x in datasets]},
              'deleted_at': 0},
             {'$set': {"deleted_at": now}})
-        await db.leaderboard.update_one(
-            {"_id": leaderboard['_id']},
+        await db.leaderboard_template.update_one(
+            {"_id": lb_template['_id']},
             {'$set': {"deleted_at": now}})
     await db.model_version.update_many(
         {"run_id": {'$in': runs}, 'deleted_at': 0},
@@ -1003,7 +1003,7 @@ async def _metric_used_in_lb(db_, metric_id: str, task_id: str = None):
         },
         {
             "$lookup": {
-                "from": "leaderboard",
+                "from": "leaderboard_template",
                 "let": {"metricId": "$_id"},
                 "pipeline": [
                     {
@@ -1015,12 +1015,12 @@ async def _metric_used_in_lb(db_, metric_id: str, task_id: str = None):
                         "$project": {"_id": 1}
                     }
                 ],
-                "as": "used_in_leaderboard"
+                "as": "used_in_leaderboard_template"
             }
         },
         {
             "$lookup": {
-                "from": "leaderboard_dataset",
+                "from": "leaderboard",
                 "let": {"metricId": "$_id"},
                 "pipeline": [
                     {
@@ -1032,14 +1032,14 @@ async def _metric_used_in_lb(db_, metric_id: str, task_id: str = None):
                         "$project": {"_id": 1}
                     }
                 ],
-                "as": "used_in_leaderboard_dataset"
+                "as": "used_in_leaderboard"
             }
         },
         {
             "$project": {
                 "metric_used": {
-                    "$sum": [{"$size": "$used_in_leaderboard"},
-                             {"$size": "$used_in_leaderboard_dataset"}]}
+                    "$sum": [{"$size": "$used_in_leaderboard_template"},
+                             {"$size": "$used_in_leaderboard"}]}
             }
         }
     ]
@@ -1065,7 +1065,8 @@ async def delete_metric(request, metric_id: str):
     if not o:
         raise SanicException("Not found", status_code=404)
     if await _metric_used_in_lb(db, metric_id):
-        raise SanicException("Metric used in leaderboard", status_code=409)
+        raise SanicException("Metric used in leaderboard template",
+                             status_code=409)
     await db.metric.delete_one({'_id': metric_id})
     return json({"deleted": True, "_id": metric_id})
 
@@ -1405,19 +1406,19 @@ async def get_run_ids_by_executor(request, executor_id: str):
     return json(run_ids)
 
 
-async def _create_leaderboard(**kwargs):
-    lb = Leaderboard(**kwargs).model_dump(by_alias=True)
-    await db.leaderboard.insert_one(lb)
+async def _create_leaderboard_template(**kwargs):
+    lb = LeaderboardTemplate(**kwargs).model_dump(by_alias=True)
+    await db.leaderboard_template.insert_one(lb)
     return lb
 
 
-@app.route('/arcee/v2/tasks/<task_id>/leaderboards',
+@app.route('/arcee/v2/tasks/<task_id>/leaderboard_templates',
            methods=["POST", ], ctx_label='token')
-@validate(json=LeaderboardPostIn)
-async def create_leaderboard(request, body: LeaderboardPostIn,
-                             task_id: str):
+@validate(json=LeaderboardTemplatePostIn)
+async def create_leaderboard_template(request, body: LeaderboardTemplatePostIn,
+                                      task_id: str):
     """
-    create leaderboard
+    create leaderboard template
     :param request:
     :param body:
     :param task_id: str
@@ -1428,53 +1429,55 @@ async def create_leaderboard(request, body: LeaderboardPostIn,
         '_id': task_id, 'token': token, 'deleted_at': 0})
     if not task:
         raise SanicException("Task not found", status_code=404)
-    lb = await db.leaderboard.find_one({
+    lb = await db.leaderboard_template.find_one({
         'task_id': task_id, 'token': token, 'deleted_at': 0
     })
     if lb:
         raise SanicException("Conflict", status_code=409)
     await check_metrics(body.metrics)
-    leaderboard = await _create_leaderboard(
+    leaderboard_template = await _create_leaderboard_template(
         token=token, task_id=task_id,
         **body.model_dump(exclude_unset=True))
-    return json(leaderboard, status=201)
+    return json(leaderboard_template, status=201)
 
 
-async def _create_leaderboard_dataset(**kwargs) -> dict:
-    LeaderboardDataset.remove_dup_ds_ids(kwargs)
-    d = LeaderboardDataset(**kwargs).model_dump(by_alias=True)
-    await db.leaderboard_dataset.insert_one(d)
+async def _create_leaderboard(**kwargs) -> dict:
+    Leaderboard.remove_dup_ds_ids(kwargs)
+    d = Leaderboard(**kwargs).model_dump(by_alias=True)
+    await db.leaderboard.insert_one(d)
     return d
 
 
-@app.route('/arcee/v2/leaderboards/<leaderboard_id>/leaderboard_datasets',
+@app.route('/arcee/v2/leaderboard_templates/<leaderboard_template_id>/'
+           'leaderboards',
            methods=["POST", ], ctx_label='token')
-@validate(json=LeaderboardDatasetPostIn)
-async def create_leaderboard_dataset(request, body: LeaderboardDatasetPostIn,
-                                     leaderboard_id: str):
+@validate(json=LeaderboardPostIn)
+async def create_leaderboard(request, body: LeaderboardPostIn,
+                             leaderboard_template_id: str):
     token = request.ctx.token
 
-    leaderboard = await db.leaderboard.find_one(
-        {"token": token, "_id": leaderboard_id, "deleted_at": 0})
-    if not leaderboard:
-        raise SanicException("Leaderboard not found", status_code=404)
-    d = await _create_leaderboard_dataset(
-        token=token, leaderboard_id=leaderboard_id, **body.model_dump())
+    leaderboard_template = await db.leaderboard_template.find_one(
+        {"token": token, "_id": leaderboard_template_id, "deleted_at": 0})
+    if not leaderboard_template:
+        raise SanicException("Leaderboard template not found", status_code=404)
+    d = await _create_leaderboard(
+        token=token, leaderboard_template_id=leaderboard_template_id,
+        **body.model_dump())
     return json(d, status=201)
 
 
-@app.route('/arcee/v2/leaderboard_datasets/<id_>', methods=["GET", ],
+@app.route('/arcee/v2/leaderboards/<id_>', methods=["GET", ],
            ctx_label='token')
-async def get_leaderboard_dataset(request, id_: str):
+async def get_leaderboard(request, id_: str):
     token = request.ctx.token
-    d = await db.leaderboard_dataset.find_one(
+    d = await db.leaderboard.find_one(
         {"$and": [
             {"token": token},
             {"_id": id_},
             {"deleted_at": 0}
         ]})
     if not d:
-        raise SanicException("LeaderboardDataset not found", status_code=404)
+        raise SanicException("Leaderboard not found", status_code=404)
     pipeline = [
         {
             "$match":
@@ -1495,16 +1498,17 @@ async def get_leaderboard_dataset(request, id_: str):
             }
         },
     ]
-    cur = db.leaderboard_dataset.aggregate(pipeline)
+    cur = db.leaderboard.aggregate(pipeline)
     return json(await cur.next())
 
 
-@app.route('/arcee/v2/leaderboards/<leaderboard_id>/leaderboard_datasets',
+@app.route('/arcee/v2/leaderboard_templates/<leaderboard_template_id>/'
+           'leaderboards',
            methods=["GET", ], ctx_label='token')
-async def get_leaderboard_datasets(request, leaderboard_id: str):
+async def get_leaderboards(request, leaderboard_template_id: str):
     token = request.ctx.token
     match_filter = {
-        "leaderboard_id": leaderboard_id,
+        "leaderboard_template_id": leaderboard_template_id,
         "token": token,
         "deleted_at": 0
     }
@@ -1529,25 +1533,25 @@ async def get_leaderboard_datasets(request, leaderboard_id: str):
         },
         {
             "$project": {
-                "leaderboard": 0,
+                "leaderboard_template": 0,
                 "primary_metric._id": 0,
                 "primary_metric.token": 0
             }
         },
     ]
-    cur = db.leaderboard_dataset.aggregate(pipeline)
+    cur = db.leaderboard.aggregate(pipeline)
     result = []
-    async for leaderboard_dataset in cur:
-        leaderboard = await get_calculated_leaderboard(
-            db, token, leaderboard_dataset['_id'])
+    async for leaderboard in cur:
+        calc_leaderboard = await get_calculated_leaderboard(
+            db, token, leaderboard['_id'])
 
-        tendency = leaderboard_dataset['primary_metric']['tendency']
-        key = leaderboard_dataset['primary_metric']['key']
-        func = leaderboard_dataset['primary_metric']['func']
-        lb_dataset_ids = leaderboard_dataset['dataset_ids']
+        tendency = leaderboard['primary_metric']['tendency']
+        key = leaderboard['primary_metric']['key']
+        func = leaderboard['primary_metric']['func']
+        lb_dataset_ids = leaderboard['dataset_ids']
 
         best_score = None
-        for cand in leaderboard:
+        for cand in calc_leaderboard:
             # get primary metric value for group according to datasets ids
             cand_score = None
             qualification = set(cand['dataset_ids']) & set(lb_dataset_ids)
@@ -1579,60 +1583,59 @@ async def get_leaderboard_datasets(request, leaderboard_id: str):
                     tendency == Tendencies.LESS.value and
                     best_score > cand_score)):
                 best_score = cand_score
-        leaderboard_dataset['primary_metric']['value'] = best_score
-        result.append(leaderboard_dataset)
+        leaderboard['primary_metric']['value'] = best_score
+        result.append(leaderboard)
     return json(result)
 
 
-@app.route('/arcee/v2/leaderboard_datasets/<id_>', methods=["PATCH", ],
+@app.route('/arcee/v2/leaderboards/<id_>', methods=["PATCH", ],
            ctx_label='token')
-@validate(json=LeaderboardDatasetPatchIn)
-async def update_leaderboard_dataset(request, body: LeaderboardDatasetPatchIn,
-                                     id_: str):
+@validate(json=LeaderboardPatchIn)
+async def update_leaderboard(request, body: LeaderboardPatchIn, id_: str):
     token = request.ctx.token
-    o = await db.leaderboard_dataset.find_one(
+    o = await db.leaderboard.find_one(
         {"$and": [
             {"token": token},
             {"_id": id_},
             {"deleted_at": 0}
         ]})
     if not o:
-        raise SanicException("LeaderboardDataset not found", status_code=404)
+        raise SanicException("Leaderboard not found", status_code=404)
     d = body.model_dump(exclude_unset=True)
     if d:
         await check_leaderboard_filters(o, d)
-        LeaderboardDatasetPatchIn.remove_dup_ds_ids(d)
-        await db.leaderboard_dataset.update_one(
+        LeaderboardPatchIn.remove_dup_ds_ids(d)
+        await db.leaderboard.update_one(
             {"_id": id_}, {'$set': d})
-    o = await db.leaderboard_dataset.find_one({"_id": id_})
+    o = await db.leaderboard.find_one({"_id": id_})
     return json(o)
 
 
-@app.route('/arcee/v2/leaderboard_datasets/<id_>', methods=["DELETE", ],
+@app.route('/arcee/v2/leaderboards/<id_>', methods=["DELETE", ],
            ctx_label='token')
-async def delete_leaderboard_dataset(request, id_: str):
+async def delete_leaderboard(request, id_: str):
     token = request.ctx.token
-    o = await db.leaderboard_dataset.find_one({"token": token, "_id": id_})
+    o = await db.leaderboard.find_one({"token": token, "_id": id_})
     if not o:
-        raise SanicException("LeaderboardDataset not found", status_code=404)
-    await db.leaderboard_dataset.update_one({"_id": id_}, {'$set': {
+        raise SanicException("Leaderboard not found", status_code=404)
+    await db.leaderboard.update_one({"_id": id_}, {'$set': {
         "deleted_at": int(datetime.utcnow().timestamp())
     }})
     return json('', status=204)
 
 
-@app.route('/arcee/v2/leaderboard_datasets/<id_>/details', methods=["GET", ],
+@app.route('/arcee/v2/leaderboards/<id_>/details', methods=["GET", ],
            ctx_label='token')
-async def get_leaderboard_dataset_details(request, id_: str):
+async def get_leaderboard_details(request, id_: str):
     token = request.ctx.token
-    o = await db.leaderboard_dataset.find_one(
+    o = await db.leaderboard.find_one(
         {"$and": [
             {"token": token},
             {"_id": id_},
             {"deleted_at": 0}
         ]})
     if not o:
-        raise SanicException("LeaderboardDataset not found", status_code=404)
+        raise SanicException("Leaderboard not found", status_code=404)
     # get coverage
     ids = o['dataset_ids']
     pipeline = [
@@ -1673,49 +1676,50 @@ async def get_leaderboard_dataset_details(request, id_: str):
     return json(res)
 
 
-@app.route('/arcee/v2/tasks/<task_id>/leaderboards',
+@app.route('/arcee/v2/tasks/<task_id>/leaderboard_templates',
            methods=["GET", ], ctx_label='token')
-async def get_leaderboard(request, task_id: str):
+async def get_leaderboard_template(request, task_id: str):
     """
-    get leaderboard
+    get leaderboard template
     :param request:
     :param task_id: str
     :return:
     """
     response = {}
     token = request.ctx.token
-    leaderboard = await db.leaderboard.find_one(
+    leaderboard_template = await db.leaderboard_template.find_one(
         {"token": token, "task_id": task_id, "deleted_at": 0})
-    if leaderboard:
-        response = leaderboard
+    if leaderboard_template:
+        response = leaderboard_template
     return json(response)
 
 
-@app.route('/arcee/v2/leaderboards/<leaderboard_id>',
+@app.route('/arcee/v2/leaderboard_templates/<leaderboard_template_id>',
            methods=["GET", ], ctx_label='token')
-async def get_leaderboard_by_id(request, leaderboard_id: str):
+async def get_leaderboard_template_by_id(
+        request, leaderboard_template_id: str):
     """
-    get leaderboard
+    get leaderboard template
     :param request:
-    :param leaderboard_id: str
+    :param leaderboard_template_id: str
     :return:
     """
     response = {}
     token = request.ctx.token
-    leaderboard = await db.leaderboard.find_one(
-        {"token": token, "_id": leaderboard_id, "deleted_at": 0})
-    if leaderboard:
-        response = leaderboard
+    leaderboard_template = await db.leaderboard_template.find_one(
+        {"token": token, "_id": leaderboard_template_id, "deleted_at": 0})
+    if leaderboard_template:
+        response = leaderboard_template
     return json(response)
 
 
-@app.route('/arcee/v2/tasks/<task_id>/leaderboards',
+@app.route('/arcee/v2/tasks/<task_id>/leaderboard_templates',
            methods=["PATCH", ], ctx_label='token')
-@validate(json=LeaderboardPatchIn)
-async def change_leaderboard(request, body: LeaderboardPatchIn,
-                             task_id: str):
+@validate(json=LeaderboardTemplatePatchIn)
+async def change_leaderboard_template(
+        request, body: LeaderboardTemplatePatchIn, task_id: str):
     """
-    update leaderboard
+    update leaderboard template
     :param request:
     :param body:
     :param task_id: str
@@ -1726,62 +1730,62 @@ async def change_leaderboard(request, body: LeaderboardPatchIn,
         '_id': task_id, 'token': token, 'deleted_at': 0})
     if not task:
         raise SanicException("Task not found", status_code=404)
-    o = await db.leaderboard.find_one(
+    o = await db.leaderboard_template.find_one(
         {"$and": [
             {"token": token},
             {"task_id": task_id},
             {"deleted_at": 0}
         ]})
     if not o:
-        raise SanicException("Leaderboard not found", status_code=404)
+        raise SanicException("Leaderboard template not found", status_code=404)
     lb_id = o['_id']
     await check_metrics(body.metrics)
     lb = body.model_dump(exclude_unset=True)
     if lb:
         await check_leaderboard_filters(o, lb)
-        await db.leaderboard.update_one(
+        await db.leaderboard_template.update_one(
             {"_id": lb_id}, {'$set': lb})
-    o = await db.leaderboard.find_one({"_id": lb_id})
-    return json(Leaderboard(**o).model_dump(by_alias=True))
+    o = await db.leaderboard_template.find_one({"_id": lb_id})
+    return json(LeaderboardTemplate(**o).model_dump(by_alias=True))
 
 
-@app.route('/arcee/v2/tasks/<task_id>/leaderboards',
+@app.route('/arcee/v2/tasks/<task_id>/leaderboard_templates',
            methods=["DELETE", ], ctx_label='token')
-async def delete_leaderboard(request, task_id: str):
+async def delete_leaderboard_template(request, task_id: str):
     """
-    deletes leaderboard
+    deletes leaderboard template
     :param request:
     :param task_id: str
     :return:
     """
     token = request.ctx.token
-    leaderboard = await db.leaderboard.find_one(
+    leaderboard_template = await db.leaderboard_template.find_one(
         {"token": token, "task_id": task_id, "deleted_at": 0})
-    if not leaderboard:
+    if not leaderboard_template:
         raise SanicException("Not found", status_code=404)
     deleted_at = int(datetime.now(tz=timezone.utc).timestamp())
-    await db.leaderboard_dataset.update_many(
-        {"leaderboard_id": leaderboard["_id"]},
+    await db.leaderboard.update_many(
+        {"leaderboard_template_id": leaderboard_template["_id"]},
         {'$set': {'deleted_at': deleted_at}}
     )
-    await db.leaderboard.update_one(
-        {"_id": leaderboard['_id']},
+    await db.leaderboard_template.update_one(
+        {"_id": leaderboard_template['_id']},
         {'$set': {'deleted_at': deleted_at}}
     )
-    return json({"deleted": True, "_id": leaderboard['_id']})
+    return json({"deleted": True, "_id": leaderboard_template['_id']})
 
 
-@app.route('/arcee/v2/leaderboard_datasets/<leaderboard_dataset_id>/generate',
+@app.route('/arcee/v2/leaderboards/<leaderboard_id>/generate',
            methods=["GET", ], ctx_label='token')
-async def leaderboard_details(request, leaderboard_dataset_id: str):
+async def leaderboard_details(request, leaderboard_id: str):
     """
     Calculate leaderboard
     :param request:
-    :param leaderboard_dataset_id: str
+    :param leaderboard_id: str
     :return:
     """
     token = request.ctx.token
-    lb = await get_calculated_leaderboard(db, token, leaderboard_dataset_id)
+    lb = await get_calculated_leaderboard(db, token, leaderboard_id)
     return json(lb)
 
 
@@ -1893,13 +1897,14 @@ async def _dataset_used_in_leaderboard(db_, dataset_id: str):
         },
         {
             "$lookup": {
-                "from": "leaderboard_dataset",
+                "from": "leaderboard",
                 "let": {"dataset_id": "$_id"},
                 "pipeline": [
                     {
                         "$match": {
                             "$expr": {
                                 "$and": [
+                                    {"$isArray": "$dataset_ids"},
                                     {"$in": ["$$dataset_id", "$dataset_ids"]},
                                     {"$eq": ["$deleted_at", 0]}
                                 ]

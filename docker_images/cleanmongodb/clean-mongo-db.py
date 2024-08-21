@@ -43,8 +43,8 @@ class CleanMongoDB(object):
             self.mongo_client.arcee.task: ROWS_LIMIT,
             self.mongo_client.arcee.dataset: ROWS_LIMIT,
             self.mongo_client.arcee.metric: ROWS_LIMIT,
+            self.mongo_client.arcee.leaderboard_template: ROWS_LIMIT,
             self.mongo_client.arcee.leaderboard: ROWS_LIMIT,
-            self.mongo_client.arcee.leaderboard_dataset: ROWS_LIMIT,
             self.mongo_client.arcee.model: ROWS_LIMIT,
             # linked to profiling_token.infrastructure_token
             self.mongo_client.bulldozer.template: ROWS_LIMIT,
@@ -321,8 +321,8 @@ class CleanMongoDB(object):
             return
         arcee_collections = [self.mongo_client.arcee.dataset,
                              self.mongo_client.arcee.metric,
+                             self.mongo_client.arcee.leaderboard_template,
                              self.mongo_client.arcee.leaderboard,
-                             self.mongo_client.arcee.leaderboard_dataset,
                              self.mongo_client.arcee.model]
         bulldozer_collections = [self.mongo_client.bulldozer.template,
                                  self.mongo_client.bulldozer.runset,
@@ -345,8 +345,8 @@ class CleanMongoDB(object):
         collections = [self.mongo_client.arcee.task,
                        self.mongo_client.arcee.dataset,
                        self.mongo_client.arcee.metric,
+                       self.mongo_client.arcee.leaderboard_template,
                        self.mongo_client.arcee.leaderboard,
-                       self.mongo_client.arcee.leaderboard_dataset,
                        self.mongo_client.arcee.run,
                        self.mongo_client.arcee.console,
                        self.mongo_client.arcee.log,

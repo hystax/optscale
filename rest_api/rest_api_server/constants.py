@@ -187,17 +187,17 @@ class UrlsV2(Urls):
             r"%s/power_schedules/(?P<power_schedule_id>["r"^/]+)",
         'power_schedules_actions':
             r"%s/power_schedules/(?P<power_schedule_id>["r"^/]+)/actions",
-        'leaderboards': r"%s/organizations/(?P<organization_id>[^/]+)/tasks/"
-                        r"(?P<task_id>[^/]+)/leaderboard",
+        'leaderboard_templates': r"%s/organizations/(?P<organization_id>[^/]+)/tasks/"
+                                 r"(?P<task_id>[^/]+)/leaderboard_template",
         'datasets_collection': r"%s/organizations/(?P<organization_id>[^/]+)/datasets",
         'datasets': r"%s/organizations/(?P<organization_id>[^/]+)/datasets/(?P<dataset_id>[^/]+)",
         'labels_collection': r"%s/organizations/(?P<organization_id>[^/]+)/labels",
-        'leaderboard_dataset': r"%s/organizations/(?P<organization_id>[^/]+)/leaderboard_datasets/"
-                        r"(?P<leaderboard_dataset_id>[^/]+)",
-        'leaderboard_dataset_collection': r"%s/organizations/(?P<organization_id>[^/]+)/leaderboards/"
-                        r"(?P<leaderboard_id>[^/]+)/leaderboard_datasets",
-        'leaderboard_dataset_generate': r"%s/organizations/(?P<organization_id>[^/]+)/leaderboard_datasets/"
-                        r"(?P<leaderboard_dataset_id>[^/]+)/generate",
+        'leaderboard': r"%s/organizations/(?P<organization_id>[^/]+)/leaderboards/"
+                       r"(?P<leaderboard_id>[^/]+)",
+        'leaderboard_collection': r"%s/organizations/(?P<organization_id>[^/]+)/leaderboard_templates/"
+                                  r"(?P<leaderboard_template_id>[^/]+)/leaderboards",
+        'leaderboard_generate': r"%s/organizations/(?P<organization_id>[^/]+)/leaderboards/"
+                                r"(?P<leaderboard_id>[^/]+)/generate",
         'runs_bulk': r"%s/organizations/(?P<organization_id>[^/]+)/tasks/"
                      r"(?P<task_id>[^/]+)/runs/bulk",
         'layouts_collection':

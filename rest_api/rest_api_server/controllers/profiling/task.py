@@ -10,10 +10,10 @@ from rest_api.rest_api_server.controllers.base_async import (
 from rest_api.rest_api_server.controllers.employee import EmployeeController
 from rest_api.rest_api_server.controllers.profiling.base import (
     BaseProfilingController, RunCostsMixin)
-from rest_api.rest_api_server.controllers.profiling.leaderboard_dataset import (
-    LeaderboardDatasetController)
 from rest_api.rest_api_server.controllers.profiling.leaderboard import (
     LeaderboardController)
+from rest_api.rest_api_server.controllers.profiling.leaderboard_template import (
+    LeaderboardTemplateController)
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import RunStates
 from rest_api.rest_api_server.models.models import Employee
@@ -177,19 +177,19 @@ class TaskController(BaseProfilingController, RunCostsMixin):
                     runs, key=lambda x: x['start'], reverse=True)[:last_runs]
             })
         if last_leaderboards:
-            leaderboard = LeaderboardController(
+            lb_template = LeaderboardTemplateController(
                 self.session, self._config, self.token
             ).get(task_id, profiling_token)
-            leaderboards_datasets = []
-            if leaderboard:
-                leaderboards_datasets = sorted(
-                    LeaderboardDatasetController(
+            leaderboards = []
+            if lb_template:
+                leaderboards = sorted(
+                    LeaderboardController(
                         self.session, self._config, self.token
                     ).list(
-                        leaderboard['id'], profiling_token
+                        lb_template['id'], profiling_token
                     ), key=lambda x: x['created_at'], reverse=True
                 )[:last_leaderboards]
-            task.update({'last_leaderboards': leaderboards_datasets})
+            task.update({'last_leaderboards': leaderboards})
         return self.format_task(
             task, employees.get(task.get('owner_id')),
             runs, run_costs, executors)
