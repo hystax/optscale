@@ -42,7 +42,7 @@ class CleanMongoDB(object):
             # linked to profiling_token.token
             self.mongo_client.arcee.task: ROWS_LIMIT,
             self.mongo_client.arcee.dataset: ROWS_LIMIT,
-            self.mongo_client.arcee.goal: ROWS_LIMIT,
+            self.mongo_client.arcee.metric: ROWS_LIMIT,
             self.mongo_client.arcee.leaderboard: ROWS_LIMIT,
             self.mongo_client.arcee.leaderboard_dataset: ROWS_LIMIT,
             self.mongo_client.arcee.model: ROWS_LIMIT,
@@ -320,7 +320,7 @@ class CleanMongoDB(object):
             self.update_cleaned_at(organization_id=org_id)
             return
         arcee_collections = [self.mongo_client.arcee.dataset,
-                             self.mongo_client.arcee.goal,
+                             self.mongo_client.arcee.metric,
                              self.mongo_client.arcee.leaderboard,
                              self.mongo_client.arcee.leaderboard_dataset,
                              self.mongo_client.arcee.model]
@@ -344,7 +344,7 @@ class CleanMongoDB(object):
     def organization_limits(self):
         collections = [self.mongo_client.arcee.task,
                        self.mongo_client.arcee.dataset,
-                       self.mongo_client.arcee.goal,
+                       self.mongo_client.arcee.metric,
                        self.mongo_client.arcee.leaderboard,
                        self.mongo_client.arcee.leaderboard_dataset,
                        self.mongo_client.arcee.run,
