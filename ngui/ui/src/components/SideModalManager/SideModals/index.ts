@@ -4,11 +4,11 @@ import ApplyResourcePerspectiveModal from "./ApplyResourcePerspectiveModal";
 import BookEnvironmentModal from "./BookEnvironmentModal";
 import BucketDuplicatesModal from "./BucketDuplicatesModal";
 import CiCdIntegrationModal from "./CiCdIntegrationModal";
-import CloneLeaderboardDatasetModal from "./CloneLeaderboardDatasetModal";
+import CloneLeaderboardModal from "./CloneLeaderboardModal";
 import CloudCostComparisonModal from "./CloudCostComparisonModal";
 import ColumnSetsModal from "./ColumnSetsModal";
 import ConnectGoogleCalendarModal from "./ConnectGoogleCalendarModal";
-import CreateLeaderboardDatasetModal from "./CreateLeaderboardDatasetModal";
+import CreateLeaderboardModal from "./CreateLeaderboardModal";
 import CreateOrganizationModal from "./CreateOrganizationModal";
 import CreateOrganizationOptionModal from "./CreateOrganizationOptionModal";
 import CreateResourcePerspectiveModal from "./CreateResourcePerspectiveModal";
@@ -21,7 +21,7 @@ import DeleteEnvironmentBookingModal from "./DeleteEnvironmentBookingModal";
 import DeleteEnvironmentModal from "./DeleteEnvironmentModal";
 import DeleteEnvironmentPropertyModal from "./DeleteEnvironmentPropertyModal";
 import DeleteGlobalResourceConstraintModal from "./DeleteGlobalResourceConstraintModal";
-import DeleteLeaderboardCriteriaModal from "./DeleteLeaderboardCriteriaModal";
+import DeleteLeaderboardModal from "./DeleteLeaderboardModal";
 import DeleteMlChartsDashboard from "./DeleteMlChartsDashboard";
 import DeleteMlGlobalMetricModal from "./DeleteMlGlobalMetricModal";
 import DeleteMlModelModal from "./DeleteMlModelModal";
@@ -35,14 +35,14 @@ import DeleteSshKeyModal from "./DeleteSshKeyModal";
 import DeleteWebhookModal from "./DeleteWebhookModal";
 import DisconnectCloudAccountModal from "./DisconnectCloudAccountModal";
 import DisconnectGoogleCalendarModal from "./DisconnectGoogleCalendarModal";
-import EditLeaderboardDatasetModal from "./EditLeaderboardDatasetModal";
+import EditLeaderboardModal from "./EditLeaderboardModal";
 import EditModelPathModal from "./EditModelPathModal";
 import EditModelVersionAliasModal from "./EditModelVersionAliasModal";
 import EditModelVersionTagsModal from "./EditModelVersionTagsModal";
 import EnvironmentCostModelModal from "./EnvironmentCostModelModal";
 import ExcludePoolsFromRecommendationModal from "./ExcludePoolsFromRecommendationModal";
 import KubernetesIntegrationModal from "./KubernetesIntegrationModal";
-import LeaderboardRunGroupDetailsModal from "./LeaderboardRunGroupDetailsModal";
+import LeaderboardCandidateDetailsModal from "./LeaderboardCandidateDetailsModal";
 import MlDeleteArtifactModal from "./MlDeleteArtifactModal";
 import MlDeleteDatasetModal from "./MlDeleteDatasetModal";
 import MlDeleteTaskModal from "./MlDeleteTaskModal";
@@ -118,12 +118,12 @@ export {
   RemoveInstancesFromScheduleModal,
   DeletePowerScheduleModal,
   MlDeleteDatasetModal,
-  LeaderboardRunGroupDetailsModal,
+  LeaderboardCandidateDetailsModal,
   SelectStageOrMilestoneModal,
-  CreateLeaderboardDatasetModal,
-  EditLeaderboardDatasetModal,
-  CloneLeaderboardDatasetModal,
-  DeleteLeaderboardCriteriaModal,
+  CreateLeaderboardModal,
+  EditLeaderboardModal,
+  CloneLeaderboardModal,
+  DeleteLeaderboardModal,
   RenameMlRunChartModal,
   SaveMlChartsDashboard,
   DeleteMlChartsDashboard,

@@ -81,8 +81,8 @@ import {
   CREATE_ORGANIZATION,
   UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
   SET_ML_TASKS,
-  SET_ML_LEADERBOARD,
-  SET_ML_LEADERBOARD_DATASET_DETAILS,
+  SET_ML_LEADERBOARD_TEMPLATE,
+  SET_ML_LEADERBOARD_CANDIDATES,
   SET_ML_DATASETS,
   SET_ML_DATASET,
   SET_ML_GLOBAL_METRICS,
@@ -114,10 +114,10 @@ import {
   SET_POWER_SCHEDULES,
   SET_POWER_SCHEDULE,
   SET_ML_TASK_RUNS_BULK,
-  SET_ML_LEADERBOARD_DATASETS,
-  SET_ML_LEADERBOARD_DATASET,
-  UPDATE_ML_LEADERBOARD_DATASET,
-  GET_ML_LEADERBOARD_DATASETS,
+  SET_ML_LEADERBOARDS,
+  SET_ML_LEADERBOARD,
+  UPDATE_ML_LEADERBOARD,
+  GET_ML_LEADERBOARDS,
   SET_LAYOUTS,
   SET_LAYOUT,
   CREATE_LAYOUT,
@@ -129,7 +129,7 @@ import {
   SET_ML_ARTIFACT,
   SET_ML_DATASET_LABELS,
   SET_ML_TASK_TAGS,
-  CREATE_ML_LEADERBOARD_DATASET
+  CREATE_ML_LEADERBOARD
 } from "./actionTypes";
 
 export const RESTAPI = "restapi";
@@ -724,13 +724,13 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_LEADERBOARD: {
+    case SET_ML_LEADERBOARD_TEMPLATE: {
       return {
         ...state,
         [action.label]: action.payload
       };
     }
-    case SET_ML_LEADERBOARD_DATASET_DETAILS: {
+    case SET_ML_LEADERBOARD_CANDIDATES: {
       return {
         ...state,
         [action.label]: action.payload
@@ -922,21 +922,21 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_LEADERBOARD_DATASETS: {
+    case SET_ML_LEADERBOARDS: {
       return {
         ...state,
         [action.label]: action.payload
       };
     }
-    case SET_ML_LEADERBOARD_DATASET: {
+    case SET_ML_LEADERBOARD: {
       return {
         ...state,
         [action.label]: action.payload
       };
     }
-    case UPDATE_ML_LEADERBOARD_DATASET: {
-      const updatedLeaderboardDatasets =
-        state[GET_ML_LEADERBOARD_DATASETS]?.map((datum) =>
+    case UPDATE_ML_LEADERBOARD: {
+      const updatedLeaderboards =
+        state[GET_ML_LEADERBOARDS]?.map((datum) =>
           datum.id === action.payload.id
             ? {
                 ...datum,
@@ -947,7 +947,7 @@ const reducer = (state = {}, action) => {
 
       return {
         ...state,
-        [GET_ML_LEADERBOARD_DATASETS]: updatedLeaderboardDatasets,
+        [GET_ML_LEADERBOARDS]: updatedLeaderboards,
         [action.label]: action.payload
       };
     }
@@ -1005,7 +1005,7 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case CREATE_ML_LEADERBOARD_DATASET: {
+    case CREATE_ML_LEADERBOARD: {
       return {
         ...state,
         [action.label]: action.payload

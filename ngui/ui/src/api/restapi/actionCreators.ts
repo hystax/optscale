@@ -196,12 +196,12 @@ import {
   UPDATE_ENVIRONMENT_SSH_REQUIREMENT,
   GET_ML_TASKS,
   SET_ML_TASKS,
-  GET_ML_LEADERBOARD,
-  SET_ML_LEADERBOARD,
-  CREATE_ML_LEADERBOARD,
-  GET_ML_LEADERBOARD_DATASET_DETAILS,
-  SET_ML_LEADERBOARD_DATASET_DETAILS,
-  UPDATE_ML_LEADERBOARD,
+  GET_ML_LEADERBOARD_TEMPLATE,
+  SET_ML_LEADERBOARD_TEMPLATE,
+  CREATE_ML_LEADERBOARD_TEMPLATE,
+  GET_ML_LEADERBOARD_CANDIDATES,
+  SET_ML_LEADERBOARD_CANDIDATES,
+  UPDATE_ML_LEADERBOARD_TEMPLATE,
   GET_ML_DATASETS,
   SET_ML_DATASETS,
   CREATE_ML_DATASET,
@@ -288,13 +288,13 @@ import {
   REMOVE_INSTANCES_FROM_SCHEDULE,
   SET_ML_TASK_RUNS_BULK,
   GET_ML_TASK_RUNS_BULK,
-  GET_ML_LEADERBOARD_DATASETS,
-  SET_ML_LEADERBOARD_DATASETS,
-  CREATE_ML_LEADERBOARD_DATASET,
-  UPDATE_ML_LEADERBOARD_DATASET,
-  DELETE_ML_LEADERBOARD_DATASET,
-  SET_ML_LEADERBOARD_DATASET,
-  GET_ML_LEADERBOARD_DATASET,
+  GET_ML_LEADERBOARDS,
+  SET_ML_LEADERBOARDS,
+  CREATE_ML_LEADERBOARD,
+  UPDATE_ML_LEADERBOARD,
+  DELETE_ML_LEADERBOARD,
+  SET_ML_LEADERBOARD,
+  GET_ML_LEADERBOARD,
   SET_LAYOUTS,
   GET_LAYOUTS,
   SET_LAYOUT,
@@ -362,11 +362,11 @@ import {
   onUpdateMlRunsetTemplate,
   onUpdateBIExport,
   onUpdateS3DuplicatesOrganizationSettings,
-  onUpdateMlLeaderboardDataset,
+  onUpdateMlLeaderboard,
   onUpdatePowerSchedule,
   onUpdateMlModel,
   onUpdateMlArtifact,
-  onSuccessCreateMlLeaderboardDataset
+  onSuccessCreateMlLeaderboard
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -1999,23 +1999,77 @@ export const getMlTasks = (organizationId) =>
     label: GET_ML_TASKS
   });
 
-export const getMlLeaderboards = (organizationId, taskId) =>
+export const getMlLeaderboardTemplate = (organizationId, taskId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard_template`,
     method: "GET",
     ttl: 30 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_LEADERBOARD),
+    onSuccess: handleSuccess(SET_ML_LEADERBOARD_TEMPLATE),
     hash: hashParams({ organizationId, taskId }),
+    label: GET_ML_LEADERBOARD_TEMPLATE
+  });
+
+export const createMlLeaderboardTemplate = (organizationId, taskId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard_template`,
+    method: "POST",
+    label: CREATE_ML_LEADERBOARD_TEMPLATE,
+    affectedRequests: [GET_ML_LEADERBOARD_TEMPLATE],
+    params: {
+      filters: params.filters,
+      group_by_hp: params.groupByHyperparameters,
+      grouping_tags: params.groupingTags,
+      other_metrics: params.otherMetrics,
+      primary_metric: params.primaryMetric,
+      dataset_coverage_rules: params.datasetCoverageRules
+    }
+  });
+
+export const updateMlLeaderboardTemplate = (organizationId, taskId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard_template`,
+    method: "PATCH",
+    label: UPDATE_ML_LEADERBOARD_TEMPLATE,
+    affectedRequests: [GET_ML_LEADERBOARD_CANDIDATES, GET_ML_LEADERBOARD_TEMPLATE],
+    params: {
+      filters: params.filters,
+      group_by_hp: params.groupByHyperparameters,
+      grouping_tags: params.groupingTags,
+      other_metrics: params.otherMetrics,
+      primary_metric: params.primaryMetric,
+      dataset_coverage_rules: params.datasetCoverageRules
+    }
+  });
+
+export const getMlLeaderboards = (organizationId, leaderboardTemplateId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboard_templates/${leaderboardTemplateId}/leaderboards`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_LEADERBOARDS),
+    hash: hashParams({ organizationId, leaderboardTemplateId }),
+    label: GET_ML_LEADERBOARDS
+  });
+
+export const getMlLeaderboard = (organizationId, leaderboardId) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}`,
+    method: "GET",
+    ttl: 5 * MINUTE,
+    onSuccess: handleSuccess(SET_ML_LEADERBOARD),
+    hash: hashParams({ organizationId, leaderboardId }),
     label: GET_ML_LEADERBOARD
   });
 
-export const createMlLeaderboard = (organizationId, taskId, params) =>
+export const createMlLeaderboard = (organizationId, leaderboardTemplateId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
+    url: `${API_URL}/organizations/${organizationId}/leaderboard_templates/${leaderboardTemplateId}/leaderboards`,
     method: "POST",
     label: CREATE_ML_LEADERBOARD,
-    affectedRequests: [GET_ML_LEADERBOARD],
+    onSuccess: onSuccessCreateMlLeaderboard,
     params: {
+      name: params.name,
+      dataset_ids: params.datasetIds,
       filters: params.filters,
       group_by_hp: params.groupByHyperparameters,
       grouping_tags: params.groupingTags,
@@ -2025,48 +2079,12 @@ export const createMlLeaderboard = (organizationId, taskId, params) =>
     }
   });
 
-export const updateMlLeaderboard = (organizationId, taskId, params) =>
+export const updateMlLeaderboard = (organizationId, leaderboardId, params) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}/leaderboard`,
+    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}`,
     method: "PATCH",
     label: UPDATE_ML_LEADERBOARD,
-    affectedRequests: [GET_ML_LEADERBOARD_DATASET_DETAILS, GET_ML_LEADERBOARD],
-    params: {
-      filters: params.filters,
-      group_by_hp: params.groupByHyperparameters,
-      grouping_tags: params.groupingTags,
-      other_metrics: params.otherMetrics,
-      primary_metric: params.primaryMetric,
-      dataset_coverage_rules: params.datasetCoverageRules
-    }
-  });
-
-export const getMlLeaderboardDatasets = (organizationId, leaderboardId) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}/leaderboard_datasets`,
-    method: "GET",
-    ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_LEADERBOARD_DATASETS),
-    hash: hashParams({ organizationId, leaderboardId }),
-    label: GET_ML_LEADERBOARD_DATASETS
-  });
-
-export const getMlLeaderboardDataset = (organizationId, leaderboardDatasetId) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}`,
-    method: "GET",
-    ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_LEADERBOARD_DATASET),
-    hash: hashParams({ organizationId, leaderboardDatasetId }),
-    label: GET_ML_LEADERBOARD_DATASET
-  });
-
-export const createMlLeaderboardDataset = (organizationId, leaderboardId, params) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}/leaderboard_datasets`,
-    method: "POST",
-    label: CREATE_ML_LEADERBOARD_DATASET,
-    onSuccess: onSuccessCreateMlLeaderboardDataset,
+    onSuccess: onUpdateMlLeaderboard,
     params: {
       name: params.name,
       dataset_ids: params.datasetIds,
@@ -2079,40 +2097,22 @@ export const createMlLeaderboardDataset = (organizationId, leaderboardId, params
     }
   });
 
-export const updateMlLeaderboardDataset = (organizationId, leaderboardDatasetId, params) =>
+export const deleteMlLeaderboard = (organizationId, leaderboardId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}`,
-    method: "PATCH",
-    label: UPDATE_ML_LEADERBOARD_DATASET,
-    onSuccess: onUpdateMlLeaderboardDataset,
-    params: {
-      name: params.name,
-      dataset_ids: params.datasetIds,
-      filters: params.filters,
-      group_by_hp: params.groupByHyperparameters,
-      grouping_tags: params.groupingTags,
-      other_metrics: params.otherMetrics,
-      primary_metric: params.primaryMetric,
-      dataset_coverage_rules: params.datasetCoverageRules
-    }
-  });
-
-export const deleteMlLeaderboardDataset = (organizationId, leaderboardDatasetId) =>
-  apiAction({
-    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}`,
+    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}`,
     method: "DELETE",
-    label: DELETE_ML_LEADERBOARD_DATASET,
-    affectedRequests: [GET_ML_LEADERBOARD]
+    label: DELETE_ML_LEADERBOARD,
+    affectedRequests: [GET_ML_LEADERBOARD_TEMPLATE]
   });
 
-export const getMlLeaderboardDatasetInfo = (organizationId, leaderboardDatasetId) =>
+export const getMlLeaderboardCandidates = (organizationId, leaderboardId) =>
   apiAction({
-    url: `${API_URL}/organizations/${organizationId}/leaderboard_datasets/${leaderboardDatasetId}/generate`,
+    url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}/generate`,
     method: "GET",
     ttl: 5 * MINUTE,
-    onSuccess: handleSuccess(SET_ML_LEADERBOARD_DATASET_DETAILS),
-    hash: hashParams({ organizationId, leaderboardDatasetId }),
-    label: GET_ML_LEADERBOARD_DATASET_DETAILS
+    onSuccess: handleSuccess(SET_ML_LEADERBOARD_CANDIDATES),
+    hash: hashParams({ organizationId, leaderboardId }),
+    label: GET_ML_LEADERBOARD_CANDIDATES
   });
 
 export const getMlDatasets = (organizationId) =>

@@ -335,13 +335,14 @@ export const ML_RUN_BASE = "run";
 export const ML_TASKS = concatenateUrl([ML_TASKS_BASE]);
 export const ML_TASK_CREATE = concatenateUrl([ML_TASKS_BASE, CREATE]);
 
-export const ML_SETUP_LEADERBOARDS = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER, "setup-leaderboards"]);
-export const getMlSetupLeaderboards = (taskId) => ML_SETUP_LEADERBOARDS.replace(ML_TASK_IDENTIFIER, taskId);
+export const ML_SETUP_LEADERBOARD_TEMPLATE = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER, "setup-leaderboard-template"]);
+export const getMlSetupLeaderboardTemplate = (taskId: string) =>
+  ML_SETUP_LEADERBOARD_TEMPLATE.replace(ML_TASK_IDENTIFIER, taskId);
 
 export const ML_DATASETS = concatenateUrl([ML_DATASETS_BASE]);
 export const ML_DATASET_CREATE = concatenateUrl([ML_DATASETS_BASE, CREATE]);
 export const ML_DATASET_EDIT = concatenateUrl([ML_DATASETS_BASE, ML_DATASET_IDENTIFIER, EDIT]);
-export const getEditMlDatasetUrl = (id) => ML_DATASET_EDIT.replace(ML_DATASET_IDENTIFIER, id);
+export const getEditMlDatasetUrl = (id: string) => ML_DATASET_EDIT.replace(ML_DATASET_IDENTIFIER, id);
 
 export const ML_MODELS = concatenateUrl([ML_MODELS_BASE]);
 export const ML_MODEL_CREATE = concatenateUrl([ML_MODELS_BASE, CREATE]);

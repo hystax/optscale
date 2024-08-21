@@ -1,3 +1,0 @@
-import LeaderboardRunGroupDetailsModalContent from "./LeaderboardRunGroupDetailsModalContent";
-
-export default LeaderboardRunGroupDetailsModalContent;

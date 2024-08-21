@@ -9,10 +9,16 @@ const MlEditTaskContainer = () => {
   const { useGetOne } = MlTasksService();
   const { task, isLoading: isGetTaskLoading } = useGetOne(taskId);
 
-  const { useGetLeaderboard } = MlLeaderboardsService();
-  const { isLoading: isGetLeaderboardLoading, leaderboard } = useGetLeaderboard(taskId);
+  const { useGetLeaderboardTemplate } = MlLeaderboardsService();
+  const { isLoading: isGetLeaderboardTemplateLoading, leaderboardTemplate } = useGetLeaderboardTemplate(taskId);
 
-  return <MlEditTask leaderboard={leaderboard} task={task} isLoading={isGetTaskLoading || isGetLeaderboardLoading} />;
+  return (
+    <MlEditTask
+      task={task}
+      leaderboardTemplate={leaderboardTemplate}
+      isLoading={isGetTaskLoading || isGetLeaderboardTemplateLoading}
+    />
+  );
 };
 
 export default MlEditTaskContainer;

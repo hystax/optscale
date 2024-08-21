@@ -5,7 +5,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
-import { datasetLabels, datasetTimespan, leaderboardCriteriaDataset, localTime } from "utils/columns";
+import { datasetLabels, datasetTimespan, leaderboardDataset, localTime } from "utils/columns";
 import { secondsToMilliseconds } from "utils/datetime";
 import { FIELD_NAMES } from "../constants";
 import { FormValues } from "../types";
@@ -36,7 +36,7 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
           />
         )
       },
-      leaderboardCriteriaDataset({
+      leaderboardDataset({
         nameAccessor: "name",
         pathAccessor: "path",
         deletedAccessor: "deleted"
