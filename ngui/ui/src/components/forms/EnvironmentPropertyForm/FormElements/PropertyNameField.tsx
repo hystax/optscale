@@ -11,7 +11,7 @@ const PropertyNameField = ({ readOnly, defaultPropertyName, existingProperties }
   return (
     <TextInput
       name={FIELD_NAME}
-      label={!readOnly && <FormattedMessage id="name" />}
+      label={<FormattedMessage id="name" />}
       required
       InputProps={{ readOnly }}
       maxLength={ENVIRONMENT_PROPERTY_NAME_MAX_INPUT_LENGTH}

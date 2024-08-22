@@ -287,8 +287,6 @@ class InviteController(BaseController):
                     'name': organization_name,
                     'currency_code': CURRENCY_MAP.get(currency, '$')
                 },
-                'title': "User Invitation",
-                'login_button': 'Go to Optscale'
             },
             'links': {
                 'login_button': url
