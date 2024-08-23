@@ -6,7 +6,7 @@ import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
 import { isEmpty } from "utils/arrays";
-import { datasetTimespan, leaderboardCriteriaDataset, leaderboardCriteriaDatasetLabels, localTime } from "utils/columns";
+import { datasetTimespan, leaderboardDataset, leaderboardDatasetLabels, localTime } from "utils/columns";
 import { EN_FULL_FORMAT, format, secondsToMilliseconds } from "utils/datetime";
 import { FIELD_NAMES } from "../constants";
 import { FormValues } from "../types";
@@ -89,7 +89,7 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
         )
       },
 
-      leaderboardCriteriaDataset({
+      leaderboardDataset({
         nameAccessor: "name",
         pathAccessor: "path",
         deletedAccessor: "deleted"
@@ -101,7 +101,7 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
         headerMessageId: "createdAt",
         defaultSort: "desc"
       }),
-      leaderboardCriteriaDatasetLabels(),
+      leaderboardDatasetLabels(),
       datasetTimespan()
     ],
     [selectedDatasets, setValue]

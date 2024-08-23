@@ -5,7 +5,7 @@ import pytest
 import sys
 from arcee.arcee_receiver.tests.base import (
     DB_MOCK, TOKEN1, Urls, prepare_tasks, prepare_metrics, prepare_token,
-    prepare_leaderboard, prepare_dataset, prepare_leaderboard_dataset
+    prepare_leaderboard_template, prepare_dataset, prepare_leaderboard
 )
 
 
@@ -16,11 +16,11 @@ sys.path.append('.')
 async def test_invalid_token(app):
     client = app.asgi_client
     for path, method in [
-        (Urls.leaderboard_datasets.format(str(uuid.uuid4())), client.get),
-        (Urls.leaderboard_datasets.format(str(uuid.uuid4())), client.post),
-        (Urls.leaderboard_dataset.format(str(uuid.uuid4())), client.get),
-        (Urls.leaderboard_dataset.format(str(uuid.uuid4())), client.patch),
-        (Urls.leaderboard_dataset.format(str(uuid.uuid4())), client.delete),
+        (Urls.leaderboards.format(str(uuid.uuid4())), client.get),
+        (Urls.leaderboards.format(str(uuid.uuid4())), client.post),
+        (Urls.leaderboard.format(str(uuid.uuid4())), client.get),
+        (Urls.leaderboard.format(str(uuid.uuid4())), client.patch),
+        (Urls.leaderboard.format(str(uuid.uuid4())), client.delete),
     ]:
         _, response = await method(path, headers={"x-api-key": "wrong"})
         assert response.status == 401
@@ -32,14 +32,15 @@ async def test_invalid_token(app):
 
 
 @pytest.mark.asyncio
-async def test_create_leaderboard_dataset(app):
+async def test_create_leaderboard(app):
     client = app.asgi_client
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
+    lb_template = await prepare_leaderboard_template(
+        metrics[0]['_id'], tasks[0]['_id'])
     ds = await prepare_dataset()
-    lb_dataset = {
+    leaderboard = {
         'name': 'name',
         'dataset_ids': [ds['_id']],
         "primary_metric": metrics[0]['_id'],
@@ -49,18 +50,18 @@ async def test_create_leaderboard_dataset(app):
         "grouping_tags": ['tag']
     }
     _, response = await client.post(
-        Urls.leaderboard_datasets.format(lb['_id']),
-        data=json.dumps(lb_dataset),
+        Urls.leaderboards.format(lb_template['_id']),
+        data=json.dumps(leaderboard),
         headers={"x-api-key": TOKEN1})
     assert response.status == 201
-    for key, value in lb_dataset.items():
+    for key, value in leaderboard.items():
         assert response.json[key] == value
     assert response.json['deleted_at'] == 0
     assert response.json['token'] == TOKEN1
 
     _, response2 = await client.post(
-        Urls.leaderboard_datasets.format(lb['_id']),
-        data=json.dumps(lb_dataset),
+        Urls.leaderboards.format(lb_template['_id']),
+        data=json.dumps(leaderboard),
         headers={"x-api-key": TOKEN1})
     assert response2.status == 201
     assert response2.json['_id'] != response.json['_id']
@@ -72,7 +73,7 @@ async def test_create_invalid_lb(app):
     await prepare_token()
     ds = await prepare_dataset()
     metrics = await prepare_metrics()
-    lb_dataset = {
+    leaderboard = {
         'name': 'name',
         'dataset_ids': [ds['_id']],
         "primary_metric": metrics[0]['_id'],
@@ -82,11 +83,11 @@ async def test_create_invalid_lb(app):
         "grouping_tags": ['tag']
     }
     _, response = await client.post(
-        Urls.leaderboard_datasets.format('test'),
-        data=json.dumps(lb_dataset),
+        Urls.leaderboards.format('test'),
+        data=json.dumps(leaderboard),
         headers={"x-api-key": TOKEN1})
     assert response.status == 404
-    assert 'Leaderboard not found' in response.text
+    assert 'Leaderboard template not found' in response.text
 
 
 @pytest.mark.asyncio
@@ -95,9 +96,10 @@ async def test_create_invalid_params(app):
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
+    lb_template = await prepare_leaderboard_template(metrics[0]['_id'],
+                                                     tasks[0]['_id'])
     ds = await prepare_dataset()
-    lb_dataset = {
+    leaderboard = {
         'name': 'name',
         'dataset_ids': [ds['_id']],
         "primary_metric": metrics[0]['_id'],
@@ -107,20 +109,20 @@ async def test_create_invalid_params(app):
         "grouping_tags": ['tag']
     }
     for value in [123, [123], {'test': 123}]:
-        params = lb_dataset.copy()
+        params = leaderboard.copy()
         params['name'] = value
         _, response = await client.post(
-            Urls.leaderboard_datasets.format(lb['_id']),
+            Urls.leaderboards.format(lb_template['_id']),
             data=json.dumps(params),
             headers={"x-api-key": TOKEN1})
         assert response.status == 400
         assert 'should be a valid string' in response.text
 
     for value in [123, '123', {'test': 123}]:
-        params = lb_dataset.copy()
+        params = leaderboard.copy()
         params['dataset_ids'] = value
         _, response = await client.post(
-            Urls.leaderboard_datasets.format(lb['_id']),
+            Urls.leaderboards.format(lb_template['_id']),
             data=json.dumps(params),
             headers={"x-api-key": TOKEN1})
         assert response.status == 400
@@ -133,9 +135,10 @@ async def test_create_missing_params(app):
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
+    lb_template = await prepare_leaderboard_template(
+        metrics[0]['_id'], tasks[0]['_id'])
     ds = await prepare_dataset()
-    lb_dataset = {
+    leaderboard = {
         'name': 'name',
         'dataset_ids': [ds['_id']],
         "primary_metric": metrics[0]['_id'],
@@ -145,10 +148,10 @@ async def test_create_missing_params(app):
         "grouping_tags": ['tag']
     }
     for param in ['name', 'dataset_ids']:
-        params = lb_dataset.copy()
+        params = leaderboard.copy()
         params.pop(param, None)
         _, response = await client.post(
-            Urls.leaderboard_datasets.format(lb['_id']),
+            Urls.leaderboards.format(lb_template['_id']),
             data=json.dumps(params),
             headers={"x-api-key": TOKEN1})
         assert response.status == 201
@@ -159,39 +162,40 @@ async def test_create_missing_params(app):
 async def test_list_missing_lb(app):
     client = app.asgi_client
     await prepare_token()
-    _, response = await client.get(Urls.leaderboard_datasets.format('fake'),
+    _, response = await client.get(Urls.leaderboards.format('fake'),
                                    headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert "[]" in response.text
 
 
 @pytest.mark.asyncio
-async def test_get_leaderboard_dataset(app):
+async def test_get_leaderboard(app):
     client = app.asgi_client
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
-    lb_dataset = await prepare_leaderboard_dataset(lb['_id'])
-    _, response = await client.get(Urls.leaderboard_dataset.format(
-        lb_dataset['_id']), headers={"x-api-key": TOKEN1})
+    lb_template = await prepare_leaderboard_template(
+        metrics[0]['_id'], tasks[0]['_id'])
+    leaderboard = await prepare_leaderboard(lb_template['_id'])
+    _, response = await client.get(Urls.leaderboard.format(
+        leaderboard['_id']), headers={"x-api-key": TOKEN1})
     assert response.status == 200
-    assert response.json['_id'] == lb_dataset['_id']
+    assert response.json['_id'] == leaderboard['_id']
 
 
 @pytest.mark.asyncio
-async def test_patch_invalid_lb_dataset(app):
+async def test_patch_invalid_leaderboard(app):
     client = app.asgi_client
     await prepare_token()
-    lb_dataset = {
+    leaderboard = {
         'name': 'name'
     }
     _, response = await client.patch(
-        Urls.leaderboard_dataset.format('test'),
-        data=json.dumps(lb_dataset),
+        Urls.leaderboard.format('test'),
+        data=json.dumps(leaderboard),
         headers={"x-api-key": TOKEN1})
     assert response.status == 404
-    assert 'LeaderboardDataset not found' in response.text
+    assert 'Leaderboard not found' in response.text
 
 
 @pytest.mark.asyncio
@@ -200,9 +204,10 @@ async def test_patch_invalid_params(app):
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
+    lb_template = await prepare_leaderboard_template(
+        metrics[0]['_id'], tasks[0]['_id'])
     ds = await prepare_dataset()
-    lb_dataset = await prepare_leaderboard_dataset(lb['_id'])
+    leaderboard = await prepare_leaderboard(lb_template['_id'])
     updates = {
         'name': 'name',
         'dataset_ids': [ds['_id']]
@@ -211,7 +216,7 @@ async def test_patch_invalid_params(app):
         params = updates.copy()
         params['name'] = value
         _, response = await client.patch(
-            Urls.leaderboard_dataset.format(lb_dataset['_id']),
+            Urls.leaderboard.format(leaderboard['_id']),
             data=json.dumps(params),
             headers={"x-api-key": TOKEN1})
         assert response.status == 400
@@ -221,7 +226,7 @@ async def test_patch_invalid_params(app):
         params = updates.copy()
         params['dataset_ids'] = value
         _, response = await client.patch(
-            Urls.leaderboard_dataset.format(lb_dataset['_id']),
+            Urls.leaderboard.format(leaderboard['_id']),
             data=json.dumps(params),
             headers={"x-api-key": TOKEN1})
         assert response.status == 400
@@ -234,9 +239,10 @@ async def test_patch_missing_params(app):
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
+    lb_template = await prepare_leaderboard_template(
+        metrics[0]['_id'], tasks[0]['_id'])
     ds = await prepare_dataset()
-    lb_dataset = await prepare_leaderboard_dataset(lb['_id'])
+    leaderboard = await prepare_leaderboard(lb_template['_id'])
     updates = {
         'name': 'name',
         'dataset_ids': [ds['_id']],
@@ -250,21 +256,22 @@ async def test_patch_missing_params(app):
         params = updates.copy()
         params.pop(param, None)
         _, response = await client.patch(
-            Urls.leaderboard_dataset.format(lb_dataset['_id']),
+            Urls.leaderboard.format(leaderboard['_id']),
             data=json.dumps(params),
             headers={"x-api-key": TOKEN1})
         assert response.status == 200
 
 
 @pytest.mark.asyncio
-async def test_patch_leaderboard_dataset(app):
+async def test_patch_leaderboard(app):
     client = app.asgi_client
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
+    lb_template = await prepare_leaderboard_template(
+        metrics[0]['_id'], tasks[0]['_id'])
     ds = await prepare_dataset()
-    lb_dataset = await prepare_leaderboard_dataset(lb['_id'])
+    leaderboard = await prepare_leaderboard(lb_template['_id'])
     updates = {
         'name': 'name',
         'dataset_ids': [ds['_id']],
@@ -275,7 +282,7 @@ async def test_patch_leaderboard_dataset(app):
         "grouping_tags": ['tag']
     }
     _, response = await client.patch(
-        Urls.leaderboard_dataset.format(lb_dataset['_id']),
+        Urls.leaderboard.format(leaderboard['_id']),
         data=json.dumps(updates),
         headers={"x-api-key": TOKEN1})
     assert response.status == 200
@@ -287,24 +294,25 @@ async def test_patch_leaderboard_dataset(app):
 async def test_delete_missing(app):
     client = app.asgi_client
     await prepare_token()
-    _, response = await client.delete(Urls.leaderboard_dataset.format('fake'),
+    _, response = await client.delete(Urls.leaderboard.format('fake'),
                                       headers={"x-api-key": TOKEN1})
     assert response.status == 404
-    assert "LeaderboardDataset not found" in response.text
+    assert "Leaderboard not found" in response.text
 
 
 @pytest.mark.asyncio
-async def test_delete_leaderboard_dataset(app):
+async def test_delete_leaderboard(app):
     client = app.asgi_client
     await prepare_token()
     metrics = await prepare_metrics()
     tasks = await prepare_tasks(metrics[0]['_id'])
-    lb = await prepare_leaderboard(metrics[0]['_id'], tasks[0]['_id'])
-    lb_dataset = await prepare_leaderboard_dataset(lb['_id'])
+    lb_template = await prepare_leaderboard_template(
+        metrics[0]['_id'], tasks[0]['_id'])
+    leaderboard = await prepare_leaderboard(lb_template['_id'])
     _, response = await client.delete(
-        Urls.leaderboard_dataset.format(lb_dataset['_id']),
+        Urls.leaderboard.format(leaderboard['_id']),
         headers={"x-api-key": TOKEN1})
     assert response.status == 204
-    result = await DB_MOCK['leaderboard_dataset'].find_one(
-        {'_id': lb_dataset['_id']})
+    result = await DB_MOCK['leaderboard'].find_one(
+        {'_id': leaderboard['_id']})
     assert result['deleted_at'] != 0

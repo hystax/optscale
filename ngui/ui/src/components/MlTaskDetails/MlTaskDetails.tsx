@@ -3,7 +3,7 @@ import { Stack } from "@mui/material";
 import PageContentWrapper from "components/PageContentWrapper";
 import TabsWrapper from "components/TabsWrapper";
 import MlTaskExecutorsContainer from "containers/MlTaskExecutorsContainer";
-import MlTaskLeaderboardContainer from "containers/MlTaskLeaderboardContainer";
+import MlTaskLeaderboardsContainer from "containers/MlTaskLeaderboardsContainer";
 import MlTaskModelVersionsContainer from "containers/MlTaskModelVersionsContainer";
 import MlTaskRecommendationsContainer from "containers/MlTaskRecommendationsContainer";
 import MlTaskRunsListContainer from "containers/MlTaskRunsListContainer";
@@ -38,7 +38,7 @@ const Tabs = ({ task, isLoading = false }) => {
     {
       title: ML_TASK_DETAILS_TABS.LEADERBOARDS,
       dataTestId: "tab_leaderboards",
-      node: <MlTaskLeaderboardContainer task={task} />
+      node: <MlTaskLeaderboardsContainer task={task} />
     },
     ...(isFinOpsEnabled
       ? [

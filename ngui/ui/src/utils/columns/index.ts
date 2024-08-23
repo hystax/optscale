@@ -21,8 +21,8 @@ import hyperparameters from "./hyperparameters";
 import lastSeenUsed from "./lastSeenUsed";
 import lastTimeLocal from "./lastTimeLocal";
 import lastUsed from "./lastUsed";
-import leaderboardCriteriaDataset from "./leaderboardCriteriaDataset";
-import leaderboardCriteriaDatasetLabels from "./leaderboardCriteriaDatasetLabels";
+import leaderboardDataset from "./leaderboardDataset";
+import leaderboardDatasetLabels from "./leaderboardDatasetLabels";
 import localTime from "./localTime";
 import markdown from "./markdown";
 import metrics from "./metrics";
@@ -134,8 +134,8 @@ export {
   dataset,
   hyperparameters,
   datasetLabels,
-  leaderboardCriteriaDataset,
-  leaderboardCriteriaDatasetLabels,
+  leaderboardDataset,
+  leaderboardDatasetLabels,
   organizationConstraintName,
   organizationConstraintStatus,
   model,

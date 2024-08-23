@@ -8,10 +8,10 @@ import {
   GET_ML_TASK_RECOMMENDATIONS,
   GET_ML_TASK_RUNS,
   GET_ML_EXECUTORS,
+  GET_ML_LEADERBOARD_TEMPLATE,
+  GET_ML_LEADERBOARDS,
   GET_ML_LEADERBOARD,
-  GET_ML_LEADERBOARD_DATASETS,
-  GET_ML_LEADERBOARD_DATASET,
-  GET_ML_LEADERBOARD_DATASET_DETAILS,
+  GET_ML_LEADERBOARD_CANDIDATES,
   GET_ML_TASK_TAGS
 } from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
@@ -43,10 +43,10 @@ const TaskActionBar = ({ isLoading, isDataReady, name, taskKey, taskId }) => {
           GET_ML_TASK_RUNS,
           GET_ML_TASK_TAGS,
           GET_ML_EXECUTORS,
+          GET_ML_LEADERBOARD_TEMPLATE,
+          GET_ML_LEADERBOARDS,
           GET_ML_LEADERBOARD,
-          GET_ML_LEADERBOARD_DATASETS,
-          GET_ML_LEADERBOARD_DATASET,
-          GET_ML_LEADERBOARD_DATASET_DETAILS
+          GET_ML_LEADERBOARD_CANDIDATES
         ]);
       }
     },

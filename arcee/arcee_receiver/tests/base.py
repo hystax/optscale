@@ -21,10 +21,10 @@ class AConfigClMock(AConfigCl):
 
 
 class Urls:
-    leaderboards = '/arcee/v2/tasks/{}/leaderboards'
+    leaderboard_templates = '/arcee/v2/tasks/{}/leaderboard_templates'
+    leaderboard_template = '/arcee/v2/leaderboard_templates/{}'
+    leaderboards = '/arcee/v2/leaderboard_templates/{}/leaderboards'
     leaderboard = '/arcee/v2/leaderboards/{}'
-    leaderboard_datasets = '/arcee/v2/leaderboards/{}/leaderboard_datasets'
-    leaderboard_dataset = '/arcee/v2/leaderboard_datasets/{}'
     tasks = '/arcee/v2/tasks'
     task = '/arcee/v2/tasks/{}'
     models = '/arcee/v2/models'
@@ -120,16 +120,16 @@ async def prepare_run(task_id, start=1, state=1, number=1, data=None,
     return await DB_MOCK['run'].find_one({'_id': run['_id']})
 
 
-async def prepare_leaderboard(primary_metric, task_id, other_metrics=None,
-                              filters=None, group_by_hp=False,
-                              grouping_tags=None):
+async def prepare_leaderboard_template(
+        primary_metric, task_id, other_metrics=None, filters=None,
+        group_by_hp=False, grouping_tags=None):
     if other_metrics is None:
         other_metrics = []
     if filters is None:
         filters = []
     if grouping_tags is None:
         grouping_tags = []
-    lb = {
+    lb_template = {
         "_id": str(uuid.uuid4()),
         "primary_metric": primary_metric,
         "other_metrics": other_metrics,
@@ -141,26 +141,27 @@ async def prepare_leaderboard(primary_metric, task_id, other_metrics=None,
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
         "deleted_at": 0
     }
-    await DB_MOCK['leaderboard'].insert_one(lb)
-    return await DB_MOCK['leaderboard'].find_one({'_id': lb['_id']})
+    await DB_MOCK['leaderboard_template'].insert_one(lb_template)
+    return await DB_MOCK['leaderboard_template'].find_one(
+        {'_id': lb_template['_id']})
 
 
-async def prepare_leaderboard_dataset(leaderboard_id, name=None,
-                                      dataset_ids=None):
+async def prepare_leaderboard(leaderboard_template_id, name=None,
+                              dataset_ids=None):
     if dataset_ids is None:
         dataset_ids = []
-    leaderboard_dataset = {
+    leaderboard = {
         "_id": str(uuid.uuid4()),
-        "leaderboard_id": leaderboard_id,
+        "leaderboard_template_id": leaderboard_template_id,
         "name": name or 'test',
         "dataset_ids": dataset_ids,
         "token": TOKEN1,
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
         "deleted_at": 0
     }
-    await DB_MOCK['leaderboard_dataset'].insert_one(leaderboard_dataset)
-    return await DB_MOCK['leaderboard_dataset'].find_one(
-        {'_id': leaderboard_dataset['_id']})
+    await DB_MOCK['leaderboard'].insert_one(leaderboard)
+    return await DB_MOCK['leaderboard'].find_one(
+        {'_id': leaderboard['_id']})
 
 
 async def prepare_dataset(name=None, description=None, labels=None, path=None):

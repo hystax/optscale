@@ -17,9 +17,9 @@ class Tendencies(Enum):
     MORE = 'more'
 
 
-async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
+async def get_leaderboard_params(db, token: str, leaderboard_id: str):
     pipeline = [
-        {"$match": {"_id": leaderboard_dataset_id}},
+        {"$match": {"_id": leaderboard_id}},
         {
             "$lookup": {
                 "from": "metric",
@@ -38,26 +38,26 @@ async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
         },
         {
             "$lookup": {
-                "from": "leaderboard",
-                "localField": "leaderboard_id",
+                "from": "leaderboard_template",
+                "localField": "leaderboard_template_id",
                 "foreignField": "_id",
-                "as": "leaderboard"
+                "as": "leaderboard_template"
             }
         },
-        {"$unwind": "$leaderboard"},
+        {"$unwind": "$leaderboard_template"},
         {"$unwind": "$primary_metric"},
     ]
     ri = None
-    cur = db.leaderboard_dataset.aggregate(pipeline)
+    cur = db.leaderboard.aggregate(pipeline)
     try:
         ri = await cur.next()
     except StopAsyncIteration:
         pass
     if not ri:
-        raise SanicException("Leaderboard dataset not found", status_code=404)
+        raise SanicException("Leaderboard not found", status_code=404)
     dataset_ids = set(ri.get("dataset_ids", []))
     tags = ri.get("grouping_tags", [])
-    task_id = ri['leaderboard']["task_id"]
+    task_id = ri['leaderboard_template']["task_id"]
     hyperparams = []
     if ri.get("group_by_hp", False):
         hyperparams = await get_available_hps(db, task_id)
@@ -570,8 +570,7 @@ async def generate_leaderboard(
     return await sort_candidates(ranked, primary_metric['key'], order)
 
 
-async def get_calculated_leaderboard(db, token: str,
-                                     leaderboard_dataset_id: str):
+async def get_calculated_leaderboard(db, token: str, leaderboard_id: str):
     (
         task_id,
         dataset_ids,
@@ -581,7 +580,7 @@ async def get_calculated_leaderboard(db, token: str,
         hyperparams,
         qualification_protocol,
         dataset_coverage
-    ) = await get_leaderboard_params(db, token, leaderboard_dataset_id)
+    ) = await get_leaderboard_params(db, token, leaderboard_id)
     leaderboard = await generate_leaderboard(
         db,
         token,

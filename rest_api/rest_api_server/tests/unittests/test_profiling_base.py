@@ -226,8 +226,8 @@ class ArceeMock:
         self.profiling_milestones = mongo_cl.arcee.milestones
         self.profiling_stages = mongo_cl.arcee.stages
         self.profiling_proc_data = mongo_cl.arcee.proc_data
+        self.profiling_leaderboard_templates = mongo_cl.arcee.leaderboard_templates
         self.profiling_leaderboards = mongo_cl.arcee.leaderboards
-        self.profiling_leaderboard_datasets = mongo_cl.arcee.leaderboard_datasets
         self.profiling_datasets = mongo_cl.arcee.datasets
         self.profiling_consoles = mongo_cl.arcee.consoles
         self.profiling_models = mongo_cl.arcee.models
@@ -561,11 +561,10 @@ class ArceeMock:
         }))
         return 200, proc_data
 
-    def leaderboards_create(self, task_id, primary_metric, grouping_tags,
-                            other_metrics=None,
-                            filters=None, group_by_hp=True,
-                            dataset_coverage_rules=None):
-        existing = list(self.profiling_leaderboards.find(
+    def leaderboard_templates_create(
+            self, task_id, primary_metric, grouping_tags, other_metrics=None,
+            filters=None, group_by_hp=True, dataset_coverage_rules=None):
+        existing = list(self.profiling_leaderboard_templates.find(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0}))
         if existing:
@@ -574,7 +573,7 @@ class ArceeMock:
             other_metrics = []
         if filters is None:
             filters = []
-        leaderboard = {
+        leaderboard_template = {
             "task_id": task_id,
             "primary_metric": primary_metric,
             "other_metrics": other_metrics,
@@ -587,64 +586,64 @@ class ArceeMock:
             "deleted_at": 0,
             "created_at": int(datetime.now(tz=timezone.utc).timestamp())
         }
-        inserted = self.profiling_leaderboards.insert_one(leaderboard)
-        return 201, list(self.profiling_leaderboards.find(
+        inserted = self.profiling_leaderboard_templates.insert_one(
+            leaderboard_template)
+        return 201, list(self.profiling_leaderboard_templates.find(
             {'_id': inserted.inserted_id}))[0]
 
-    def leaderboard_dataset_create(self, leaderboard_id, **params):
-        leaderboard_dataset = {
-            "leaderboard_id": leaderboard_id,
+    def leaderboard_create(self, leaderboard_template_id, **params):
+        leaderboard = {
+            "leaderboard_template_id": leaderboard_template_id,
             "token": self.token,
             "_id": str(uuid.uuid4()),
             "deleted_at": 0,
             "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
         }
-        leaderboard_dataset.update(params)
-        inserted = self.profiling_leaderboard_datasets.insert_one(leaderboard_dataset)
-        return 201, list(self.profiling_leaderboard_datasets.find(
+        leaderboard.update(params)
+        inserted = self.profiling_leaderboards.insert_one(leaderboard)
+        return 201, list(self.profiling_leaderboards.find(
             {'_id': inserted.inserted_id}))[0]
 
-    def leaderboard_dataset_update(self, leaderboard_dataset_id, **params):
-        leaderboard_dataset = self.profiling_leaderboard_datasets.find_one(
-            {'token': self.token, '_id': leaderboard_dataset_id,
-             'deleted_at': 0})
-        if not leaderboard_dataset:
+    def leaderboard_update(self, leaderboard_id, **params):
+        leaderboard = self.profiling_leaderboards.find_one(
+            {'token': self.token, '_id': leaderboard_id, 'deleted_at': 0})
+        if not leaderboard:
             self._raise_http_error(404)
-        self.profiling_leaderboard_datasets.update_one(
+        self.profiling_leaderboards.update_one(
             filter={
-                '_id': leaderboard_dataset['_id'],
+                '_id': leaderboard['_id'],
                 'token': self.token,
                 'deleted_at': 0
             },
             update={'$set': params}
         )
-        return 200, list(self.profiling_leaderboard_datasets.find(
-            {'_id': leaderboard_dataset_id}))[0]
+        return 200, list(self.profiling_leaderboards.find(
+            {'_id': leaderboard_id}))[0]
 
-    def leaderboard_dataset_get(self, leaderboard_dataset_id):
-        leaderboard_dataset = list(self.profiling_leaderboard_datasets.find(
-            {'token': self.token, '_id': leaderboard_dataset_id,
+    def leaderboard_get(self, leaderboard_id):
+        leaderboard = list(self.profiling_leaderboards.find(
+            {'token': self.token, '_id': leaderboard_id,
              'deleted_at': 0}))
-        if not leaderboard_dataset:
+        if not leaderboard:
             self._raise_http_error(404)
-        return 200, leaderboard_dataset[0]
+        return 200, leaderboard[0]
 
-    def leaderboard_dataset_delete(self, leaderboard_dataset_id):
-        res = self.profiling_leaderboard_datasets.delete_one(
-            {'token': self.token, '_id': leaderboard_dataset_id,
+    def leaderboard_delete(self, leaderboard_id):
+        res = self.profiling_leaderboards.delete_one(
+            {'token': self.token, '_id': leaderboard_id,
              'deleted_at': 0})
         if res.deleted_count == 0:
             self._raise_http_error(404)
         return 204, None
 
     @staticmethod
-    def leaderboard_dataset_details(leaderboard_dataset_id):
+    def leaderboard_details(leaderboard_id):
         # this method contains complex logic, so not need emulate it here
         # just interface test
         return 200, []
 
     @staticmethod
-    def leaderboard_generate(leaderboard_dataset_id):
+    def leaderboard_generate(leaderboard_id):
         # this method contains complex logic, so not need emulate it here
         # just interface test
         return 200, []
@@ -657,13 +656,14 @@ class ArceeMock:
         runs = list(self.profiling_runs.find(runs_q))
         return 200, runs
 
-    def leaderboard_update(self, task_id, primary_metric=None,
-                           grouping_tags=None, other_metrics=None, filters=None,
-                           group_by_hp=None, dataset_coverage_rules=None):
-        leaderboard = self.profiling_leaderboards.find_one(
+    def leaderboard_template_update(
+            self, task_id, primary_metric=None, grouping_tags=None,
+            other_metrics=None, filters=None, group_by_hp=None,
+            dataset_coverage_rules=None):
+        lb_template = self.profiling_leaderboard_templates.find_one(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0})
-        if not leaderboard:
+        if not lb_template:
             self._raise_http_error(404)
         for key, param in {
             'primary_metric': primary_metric,
@@ -674,53 +674,53 @@ class ArceeMock:
             'dataset_coverage_rules': dataset_coverage_rules
         }.items():
             if param is not None:
-                leaderboard.update({
+                lb_template.update({
                     key: param
                 })
-        self.profiling_leaderboards.update_one(
+        self.profiling_leaderboard_templates.update_one(
             filter={
-                '_id': leaderboard['_id'],
+                '_id': lb_template['_id'],
                 'token': self.token,
                 'deleted_at': 0
             },
-            update={'$set': leaderboard}
+            update={'$set': lb_template}
         )
         return 200, {'updated': True}
 
-    def leaderboard_datasets_get(self, leaderboard_id):
+    def leaderboards_get(self, leaderboard_template_id):
         match_filter = {
-            "leaderboard_id": leaderboard_id,
+            "leaderboard_template_id": leaderboard_template_id,
             'token': self.token,
             'deleted_at': 0
         }
-        datasets = list(self.profiling_leaderboard_datasets.find(match_filter))
-        return 200, datasets
+        leaderboards = list(self.profiling_leaderboards.find(match_filter))
+        return 200, leaderboards
 
-    def leaderboard_get(self, task_id):
-        leaderboards = list(self.profiling_leaderboards.find(
+    def leaderboard_template_get(self, task_id):
+        lb_templates = list(self.profiling_leaderboard_templates.find(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0}))
-        if not leaderboards:
+        if not lb_templates:
             return 200, {}
-        return 200, leaderboards[0]
+        return 200, lb_templates[0]
 
-    def leaderboard_get_by_id(self, leaderboard_id):
-        leaderboards = list(self.profiling_leaderboards.find(
-            {'token': self.token, '_id': leaderboard_id,
+    def leaderboard_template_get_by_id(self, lb_template_id):
+        leaderboards = list(self.profiling_leaderboard_templates.find(
+            {'token': self.token, '_id': lb_template_id,
              'deleted_at': 0}))
         if not leaderboards:
             return 200, {}
         return 200, leaderboards[0]
 
-    def leaderboard_delete(self, task_id):
-        res = self.profiling_leaderboards.delete_one(
+    def leaderboard_template_delete(self, task_id):
+        res = self.profiling_leaderboard_templates.delete_one(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0})
         if res.deleted_count == 0:
             self._raise_http_error(404)
         return 204, None
 
-    def leaderboard_details_get(self, task_id):
+    def leaderboard_template_details_get(self, task_id):
         # TODO: implement leaderboard details
         return 200, {}
 

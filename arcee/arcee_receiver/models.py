@@ -129,7 +129,7 @@ class LeaderboardFilter(BaseClass):
         return self
 
 
-class LeaderboardPostIn(BaseClass):
+class LeaderboardTemplatePostIn(BaseClass):
     primary_metric: str
     group_by_hp: bool
     grouping_tags: List[str] = []
@@ -163,7 +163,7 @@ class LeaderboardPostIn(BaseClass):
                              'between 1 and 100')
 
 
-class LeaderboardPatchIn(LeaderboardPostIn):
+class LeaderboardTemplatePatchIn(LeaderboardTemplatePostIn):
     primary_metric: Optional[str] = None
     group_by_hp: Optional[bool] = None
 
@@ -179,7 +179,7 @@ class LeaderboardPatchIn(LeaderboardPostIn):
         return self
 
 
-class Leaderboard(LeaderboardPostIn):
+class LeaderboardTemplate(LeaderboardTemplatePostIn):
     id: str = id_
     task_id: str
     token: str
@@ -190,7 +190,7 @@ class Leaderboard(LeaderboardPostIn):
         allow_population_by_field_name = True
 
 
-class LeaderboardDatasetPatchIn(LeaderboardPatchIn):
+class LeaderboardPatchIn(LeaderboardTemplatePatchIn):
     dataset_ids: Optional[list] = []
     name: Optional[str] = None
 
@@ -201,14 +201,14 @@ class LeaderboardDatasetPatchIn(LeaderboardPatchIn):
             kwargs["dataset_ids"] = list(set(ds_ids))
 
 
-class LeaderboardDatasetPostIn(LeaderboardDatasetPatchIn):
+class LeaderboardPostIn(LeaderboardPatchIn):
     pass
 
 
-class LeaderboardDataset(LeaderboardDatasetPostIn):
+class Leaderboard(LeaderboardPostIn):
     id: str = id_
     token: str
-    leaderboard_id: str
+    leaderboard_template_id: str
     created_at: int = now
     deleted_at: int = 0
 

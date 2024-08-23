@@ -1704,7 +1704,7 @@ BASIC_PRESET = {
             "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397"
         }
     ],
-    "leaderboards": [
+    "leaderboard_templates": [
         {
             "_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
             "task_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
@@ -1732,13 +1732,13 @@ BASIC_PRESET = {
             "created_at_offset": 143457
         }
     ],
-    "leaderboard_datasets": [
+    "leaderboards": [
         {
             "dataset_ids": [
                 "38766d9c-e20e-4cae-a3d1-1e19a58abc59"
             ],
             "name": "Leaderboard",
-            "leaderboard_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
+            "leaderboard_template_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
             "primary_metric": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
             "other_metrics": [
                 "804f6834-6c73-45d5-a34a-ea3b111855c3"
@@ -1855,8 +1855,8 @@ class TestLiveDemosApi(TestApiBase):
         self.run_collection = self.mongo_client.arcee.run
         self.console_collection = self.mongo_client.arcee.console
         self.dataset_collection = self.mongo_client.arcee.dataset
+        self.lb_template_collection = self.mongo_client.arcee.leaderboard_template
         self.leaderboard_collection = self.mongo_client.arcee.leaderboard
-        self.lb_dataset_collection = self.mongo_client.arcee.leaderboard_dataset
         self.stage_collection = self.mongo_client.arcee.stage
         self.milestone_collection = self.mongo_client.arcee.milestone
         self.proc_data_collection = self.mongo_client.arcee.proc_data
@@ -1888,7 +1888,7 @@ class TestLiveDemosApi(TestApiBase):
             self.checklists_collection, self.metric_collection,
             self.task_collection, self.run_collection,
             self.console_collection, self.dataset_collection,
-            self.leaderboard_collection, self.lb_dataset_collection,
+            self.lb_template_collection, self.leaderboard_collection,
             self.stage_collection, self.milestone_collection,
             self.log_collection, self.proc_data_collection,
             self.model_collection, self.model_version_collection,

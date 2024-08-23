@@ -88,7 +88,7 @@ import riSpRoute from "./riSpRoute";
 import s3DuplicateFinderRoute from "./s3DuplicateFinderRoute";
 import s3DuplicatesCheckRoute from "./s3DuplicatesCheckRoute";
 import settingsRoute from "./settingsRoute";
-import setupLeaderboardRoute from "./setupLeaderboardRoute";
+import setupLeaderboardTemplateRoute from "./setupLeaderboardTemplateRoute";
 import taggingPoliciesRoute from "./taggingPoliciesRoute";
 import taggingPolicyRoute from "./taggingPolicyRoute";
 import themeSettingsRoute from "./themeSettingsRoute";
@@ -180,7 +180,7 @@ export const routes = [
   powerSchedulesRoute,
   createPowerScheduleRoute,
   powerScheduleDetailsRoute,
-  setupLeaderboardRoute,
+  setupLeaderboardTemplateRoute,
   editPowerScheduleRoute,
   mlModelsRoute,
   mlModelCreateRoute,
