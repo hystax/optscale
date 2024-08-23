@@ -620,10 +620,8 @@ class HeraldExecutorWorker(ConsumerMixin):
             'template_params': {
                 'texts': {
                     'organization': self._get_organization_params(organization),
-                    'user': user,
                     'total_violated': len(hit_list),
                     'violated_resources': hit_list,
-                    'title': 'Resource Constraint Violation Alert',
                 }
             }
         }

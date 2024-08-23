@@ -714,24 +714,11 @@ PARAMETER_DUMPS = {
         "subject": "Action required: Hystax OptScale Resource Constraint Violation Alert",
         "template_params": {
             "texts": {
-                "title": "Resource Constraint Violation Alert",
                 "total_violated": 2,
                 "organization": {
                     "id": "2254d0c7-d341-45cd-a2b4-200f8df8112a",
                     "name": "Renaissance science",
                     "currency_code": "$"
-                },
-                "user": {
-                    "assignment_id": "355ab271-aacc-440d-975c-b14586fc0965",
-                    "assignment_resource_id": "b3299698-7d47-4a67-980a-55369841b228",
-                    "assignment_type_id": 2,
-                    "role_id": 3,
-                    "role_name": "Manager",
-                    "role_purpose": "optscale_manager",
-                    "role_scope_id": "None",
-                    "user_display_name": "I0Gun",
-                    "user_email": "kepler71@de.io",
-                    "user_id": "02398e36-4b53-40d3-9781-62d83609386b"
                 },
                 "violated_resources": [
                     {
@@ -743,7 +730,8 @@ PARAMETER_DUMPS = {
                         "pool_name": "IK_ORG",
                         "resource_name": "hystax-eu-fra. It is very very very very very very very very very very very "
                                          "very very very very very long name",
-                        "type": "ttl"
+                        "type": "ttl",
+                        "resource_id": "e2b0412d-d3d3-425e-bd1e-e27ac881d58e",
                     },
                     {
                         "cloud_resource_id": "hystax-eu-fra",
@@ -753,7 +741,8 @@ PARAMETER_DUMPS = {
                         "pool_id": "3f575a6a-237d-4f4d-a4b4-1f8005451432",
                         "pool_name": "IK_ORG",
                         "resource_name": "hystax-eu-fra",
-                        "type": "expense_limit"
+                        "type": "expense_limit",
+                        "resource_id": "2b2dd58e-366d-4138-ad72-756aec545eca",
                     }
                 ]
             }
