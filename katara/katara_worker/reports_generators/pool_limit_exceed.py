@@ -45,9 +45,7 @@ class PoolExceed(Base):
                         'currency_code': self.get_currency_code(
                             organization['currency'])
                     },
-                    'user': self.report_data,
                     'exceeded': exceeded,
-                    'title': 'Pool Limit Exceed Alert',
                     'total_cost': round(organization_total_cost, 2),
                     'total_forecast': round(organization_forecast, 2)
                 }

@@ -158,12 +158,10 @@ PARAMETER_DUMPS = {
     },
     'pool_exceed_report': {
         'email': ['james31_pza@hystax.com'],
-        'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',
+        'subject': 'Action Required: Hystax OptScale Pool Limit Exceed Alert',
         'template_type': 'pool_exceed_report',
         'template_params': {
             'texts': {
-                'title': 'Pool Exceed Alert',
-                'total_cost': 293.5,
                 'total_forecast': 293.5,
                 'exceeded': [
                     {
@@ -172,29 +170,24 @@ PARAMETER_DUMPS = {
                         'limit': 50,
                         'pool_name': 'AQA_1617018508.3637385. It is very very very very very very very very very '
                                        'very very very very very very very long name',
-                        'total_expenses': 293.5},
+                        'total_expenses': 293.5
+                    },
                     {
                         'forecast': 293.5,
                         'id': '9e07786f-c476-484e-adc5-43d76815bd1d',
                         'limit': 100,
                         'pool_name': 'AQA_CA_1617018508.3637757_find_report',
-                        'total_expenses': 293.5}],
+                        'total_expenses': 293.5
+                    }
+                ],
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                     'currency_code': '$'
-                },
-                'user': {
-                    'assignment_id': 'f3b2a722-9674-4042-a08a-81f41b926647',
-                    'assignment_resource_id': '943cb6e0-2cbe-4974-a937-2c480aa9934f',
-                    'assignment_type_id': 2,
-                    'role_id': 3,
-                    'role_name': 'Manager',
-                    'role_purpose': 'optscale_manager',
-                    'role_scope_id': None,
-                    'user_display_name': 'james31',
-                    'user_email': 'james31_pza@hystax.com',
-                    'user_id': '4a50413a-9703-4586-ab39-96aa289e979e'}}}},
+                }
+            }
+        }
+    },
     'pool_exceed_resources_report': {
         'email': ['ranxygcrfg@novaemail.com'],
         'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',
