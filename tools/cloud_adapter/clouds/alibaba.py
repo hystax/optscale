@@ -736,6 +736,10 @@ class Alibaba(CloudBase):
             'ap-northeast-1': {
                 'name': 'Japan (Tokyo)',
                 'longitude': 139.2080387, 'latitude': 35.5079383},
+            'ap-northeast-2': {
+                'name': 'South Korea (Seoul)',
+                'longitude': 126.985613, 'latitude': 37.538269
+            },
             'ap-southeast-1': {
                 'name': 'Singapore',
                 'longitude': 103.7038234, 'latitude': 1.3139961},
@@ -748,6 +752,14 @@ class Alibaba(CloudBase):
             'ap-southeast-5': {
                 'name': 'Indonesia (Jakarta)',
                 'longitude': 106.7593066, 'latitude': -6.2297419},
+            'ap-southeast-6': {
+                'name': 'Philippines (Manila)',
+                'longitude': 120.975954, 'latitude': 14.602475,
+            },
+            'ap-southeast-7': {
+                'name': 'Thailand (Bangkok)',
+                'longitude': 100.515775, 'latitude': 13.755747
+            },
             'ap-south-1': {
                 'name': 'India (Mumbai) Closing Down',
                 'longitude': 72.74076, 'latitude': 19.0821976},
