@@ -742,7 +742,6 @@ PARAMETER_DUMPS = {
         "subject": "Action required: Hystax OptScale Resource Constraints Report",
         "template_params": {
             "texts": {
-                "title": "Resource Constraints Report",
                 "total_differ": 1,
                 "total_violated": 1,
                 "differ_resources": [{
@@ -777,11 +776,6 @@ PARAMETER_DUMPS = {
                 "organization": {
                     "id": "b8835bce-da4c-4c29-98a0-4b4967baba53",
                     "name": "Czar Pictures"
-                },
-                "user": {
-                    "user_display_name": "Mr Smith",
-                    "user_email": "root@hystax.com",
-                    "user_id": "8aa14efd-d111-4934-9c19-92b6f0da18fe"
                 },
                 "violated_resources": [{
                     "cloud_resource_id": "hystax-eu-fra",
