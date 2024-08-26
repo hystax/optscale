@@ -1,3 +1,4 @@
+import { ReactNode, SyntheticEvent } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import WidthNormalIcon from "@mui/icons-material/WidthNormal";
 import WidthWideIcon from "@mui/icons-material/WidthWide";
@@ -10,6 +11,23 @@ import SideModalTitle from "components/SideModalTitle";
 import { capitalize } from "utils/strings";
 import useStyles from "./SideModalHeader.styles";
 
+type Title =
+  | { text: string; messageId?: never; formattedMessageValues?: never }
+  | { text?: never; messageId: string; formattedMessageValues?: Record<string, ReactNode> };
+
+export type SideModalHeaderProps = Title & {
+  onClose: (event: SyntheticEvent) => void;
+  showExpand?: boolean;
+  onExpandChange?: () => void;
+  isExpanded?: boolean;
+  dataTestIds?: {
+    title?: string;
+    closeButton?: string;
+    expandButton?: string;
+  };
+  color?: "primary" | "success" | "info" | "error";
+};
+
 const SideModalHeader = ({
   text,
   messageId,
@@ -20,7 +38,7 @@ const SideModalHeader = ({
   formattedMessageValues,
   dataTestIds,
   color = "primary"
-}) => {
+}: SideModalHeaderProps) => {
   const { classes, cx } = useStyles();
 
   const {
@@ -29,7 +47,8 @@ const SideModalHeader = ({
     expandButton: expandButtonDataTestId
   } = dataTestIds || {};
 
-  const headerClasses = cx(classes["header".concat(capitalize(color))]);
+  const headerColorClassName = `header${capitalize(color)}` as const;
+  const headerClasses = cx(classes[headerColorClassName]);
 
   return (
     <Box mb={2}>

@@ -31,7 +31,8 @@ export const getHash = (s) => {
   return h;
 };
 
-export const capitalize = (s) => (isString(s) ? s.charAt(0).toUpperCase() + s.slice(1) : "");
+export const capitalize = <T extends string>(s: T): Capitalize<T> =>
+  (isString(s) ? s.charAt(0).toUpperCase() + s.slice(1) : "") as Capitalize<T>;
 
 export const concatenate = (array, pre, separator) => {
   const string = array.join(separator);
