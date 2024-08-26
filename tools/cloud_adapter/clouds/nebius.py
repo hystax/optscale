@@ -891,7 +891,7 @@ class Nebius(S3CloudMixin):
                                  downsampling)
 
     def get_metric(self, metric_name, instance_ids, start_date, end_date,
-                   interval=0, folder_id=None):
+                   interval=0, folder_id=None, filter_by=None):
         """
         Get metric for instances
 
@@ -901,10 +901,13 @@ class Nebius(S3CloudMixin):
         :param end_date: metric end datetime date
         :param interval: time interval in seconds
         :param folder_id: id of folder
+        :param filter_by: name of a field to filter by
         :return: dict
         """
         resource_ids_str = '|'.join(instance_ids)
-        query = "%s{resource_id=\"%s\"}" % (metric_name, resource_ids_str)
+        if not filter_by:
+            filter_by = 'resource_id'
+        query = "%s{%s=\"%s\"}" % (metric_name, filter_by, resource_ids_str)
         downsampling = {
             "gridInterval": str(interval * MSEC_IN_SEC),
             "gapFilling": "NONE"

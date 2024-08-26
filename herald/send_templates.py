@@ -158,12 +158,10 @@ PARAMETER_DUMPS = {
     },
     'pool_exceed_report': {
         'email': ['james31_pza@hystax.com'],
-        'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',
+        'subject': 'Action Required: Hystax OptScale Pool Limit Exceed Alert',
         'template_type': 'pool_exceed_report',
         'template_params': {
             'texts': {
-                'title': 'Pool Exceed Alert',
-                'total_cost': 293.5,
                 'total_forecast': 293.5,
                 'exceeded': [
                     {
@@ -172,29 +170,24 @@ PARAMETER_DUMPS = {
                         'limit': 50,
                         'pool_name': 'AQA_1617018508.3637385. It is very very very very very very very very very '
                                        'very very very very very very very long name',
-                        'total_expenses': 293.5},
+                        'total_expenses': 293.5
+                    },
                     {
                         'forecast': 293.5,
                         'id': '9e07786f-c476-484e-adc5-43d76815bd1d',
                         'limit': 100,
                         'pool_name': 'AQA_CA_1617018508.3637757_find_report',
-                        'total_expenses': 293.5}],
+                        'total_expenses': 293.5
+                    }
+                ],
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                     'currency_code': '$'
-                },
-                'user': {
-                    'assignment_id': 'f3b2a722-9674-4042-a08a-81f41b926647',
-                    'assignment_resource_id': '943cb6e0-2cbe-4974-a937-2c480aa9934f',
-                    'assignment_type_id': 2,
-                    'role_id': 3,
-                    'role_name': 'Manager',
-                    'role_purpose': 'optscale_manager',
-                    'role_scope_id': None,
-                    'user_display_name': 'james31',
-                    'user_email': 'james31_pza@hystax.com',
-                    'user_id': '4a50413a-9703-4586-ab39-96aa289e979e'}}}},
+                }
+            }
+        }
+    },
     'pool_exceed_resources_report': {
         'email': ['ranxygcrfg@novaemail.com'],
         'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',
@@ -721,24 +714,11 @@ PARAMETER_DUMPS = {
         "subject": "Action required: Hystax OptScale Resource Constraint Violation Alert",
         "template_params": {
             "texts": {
-                "title": "Resource Constraint Violation Alert",
                 "total_violated": 2,
                 "organization": {
                     "id": "2254d0c7-d341-45cd-a2b4-200f8df8112a",
                     "name": "Renaissance science",
                     "currency_code": "$"
-                },
-                "user": {
-                    "assignment_id": "355ab271-aacc-440d-975c-b14586fc0965",
-                    "assignment_resource_id": "b3299698-7d47-4a67-980a-55369841b228",
-                    "assignment_type_id": 2,
-                    "role_id": 3,
-                    "role_name": "Manager",
-                    "role_purpose": "optscale_manager",
-                    "role_scope_id": "None",
-                    "user_display_name": "I0Gun",
-                    "user_email": "kepler71@de.io",
-                    "user_id": "02398e36-4b53-40d3-9781-62d83609386b"
                 },
                 "violated_resources": [
                     {
@@ -750,7 +730,8 @@ PARAMETER_DUMPS = {
                         "pool_name": "IK_ORG",
                         "resource_name": "hystax-eu-fra. It is very very very very very very very very very very very "
                                          "very very very very very long name",
-                        "type": "ttl"
+                        "type": "ttl",
+                        "resource_id": "e2b0412d-d3d3-425e-bd1e-e27ac881d58e",
                     },
                     {
                         "cloud_resource_id": "hystax-eu-fra",
@@ -760,7 +741,8 @@ PARAMETER_DUMPS = {
                         "pool_id": "3f575a6a-237d-4f4d-a4b4-1f8005451432",
                         "pool_name": "IK_ORG",
                         "resource_name": "hystax-eu-fra",
-                        "type": "expense_limit"
+                        "type": "expense_limit",
+                        "resource_id": "2b2dd58e-366d-4138-ad72-756aec545eca",
                     }
                 ]
             }

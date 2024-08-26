@@ -640,33 +640,36 @@ class MetricsProcessor(object):
         metrics = defaultdict(lambda: defaultdict(dict))
         resource_metrics_map = {
             'Instance': {
-                'cpu': 'cpu_usage',
-                'disk_read_io': 'disk_read_ops',
-                'disk_write_io': 'disk_write_ops',
-                'network_in_io': 'network_received_bytes',
-                'network_out_io': 'network_sent_bytes'},
+                'cpu': ('cpu_usage', 'resource_id'),
+                'disk_read_io': ('disk.read_ops', 'instance'),
+                'disk_write_io': ('disk.write_ops', 'instance'),
+                'network_in_io': ('network_received_bytes', 'resource_id'),
+                'network_out_io': ('network_sent_bytes', 'resource_id')},
             'RDS Instance': {
-                'cpu': 'load.avg_15min',
-                'disk_read_io': 'io.read_count',
-                'disk_write_io': 'io.write_count',
-                'network_in_io': 'net.bytes_recv',
-                'network_out_io': 'net.bytes_sent',
-                'ram': 'mem.used_bytes',
-                'ram_size': 'mem.total_bytes'
+                'cpu': ('load.avg_15min', 'resource_id'),
+                'disk_read_io': ('io.read_count', 'resource_id'),
+                'disk_write_io': ('io.write_count', 'resource_id'),
+                'network_in_io': ('net.bytes_recv', 'resource_id'),
+                'network_out_io': ('net.bytes_sent', 'resource_id'),
+                'ram': ('mem.used_bytes', 'resource_id'),
+                'ram_size': ('mem.total_bytes', 'resource_id'),
             }
         }
         metric_names_map = resource_metrics_map.get(r_type)
         folders = adapter.folders
-        for metric_name, cloud_metric_name in metric_names_map.items():
+        for metric_name, cloud_metric_data in metric_names_map.items():
+            cloud_metric_name, filter_by = cloud_metric_data
             for folder in folders:
                 try:
                     response = adapter.get_metric(
                         cloud_metric_name, cloud_resource_ids, start_date,
-                        end_date, METRIC_INTERVAL, folder)
+                        end_date, METRIC_INTERVAL, folder, filter_by)
                     for resp_metrics in response['metrics']:
                         timestamps = resp_metrics['timeseries']['timestamps']
                         values = resp_metrics['timeseries']['doubleValues']
-                        cloud_resource_id = resp_metrics['labels']['resource_id']
+                        cloud_resource_id = resp_metrics['labels'].get(
+                            'resource_id') or resp_metrics['labels'].get(
+                                'instance')
                         if r_type == 'RDS Instance':
                             cloud_resource_id = resp_metrics['labels']['host']
                         if cloud_resource_id not in resource_ids_map:
