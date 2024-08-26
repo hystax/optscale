@@ -651,7 +651,6 @@ PARAMETER_DUMPS = {
         'template_type': 'pool_owner_violation_report',
         'template_params': {
             'texts': {
-                'title': 'Resource Constraints Report',
                 'total_differ': 0,
                 'total_violated': 2,
                 'differ_resources': [],
@@ -659,17 +658,6 @@ PARAMETER_DUMPS = {
                     'id': '28eef4b1-4acf-4050-b833-86c3b2aaf1e7',
                     'name': 'Lori Inc'
                 },
-                'user': {
-                    'assignment_id': 'e56d3134-a7f3-44c3-9f70-4734fae654fd',
-                    'assignment_resource_id': '28eef4b1-4acf-4050-b833-86c3b2aaf1e7',
-                    'assignment_type_id': 2,
-                    'role_id': 3,
-                    'role_name': 'Manager',
-                    'role_scope_id': None,
-                    'role_purpose': 'optscale_manager',
-                    'user_display_name': 'lori54',
-                    'user_email': 'lori54_lskqtdln@hystax.com',
-                    'user_id': '0eebe586-9cad-4daf-b143-075c2422cf98'},
                 'violated_resources': [
                     {
                         'cloud_resource_id': 'i-05377b0fa5b9674fd',

@@ -39,7 +39,6 @@ class ViolatedConstraints(Base):
                 'Action required: Hystax OptScale Resource Constraints Report',
             'template_params': {
                 'texts': {
-                    'user': self.report_data,
                     'organization': {
                         'id': org['id'],
                         'name': org['name']
@@ -48,7 +47,6 @@ class ViolatedConstraints(Base):
                     'total_violated': total_violated,
                     'differ_resources': differ_resources,
                     'violated_resources': violated_resources,
-                    'title': 'Resource Constraints Report'
                 }
             }
         }
