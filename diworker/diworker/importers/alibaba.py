@@ -395,7 +395,7 @@ class AlibabaReportImporter(BaseReportImporter):
         recipient = self.config_cl.optscale_error_email_recipient()
         if not recipient:
             return
-        title = "Incorrect expenses for Alibaba cloud account"
+        title = "Incorrect expenses for Alibaba data source"
         subject = '[%s] %s' % (self.config_cl.public_ip(), title)
         template_params = {
             'texts': {
