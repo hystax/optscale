@@ -190,20 +190,149 @@ PARAMETER_DUMPS = {
     },
     'pool_exceed_resources_report': {
         'email': ['ranxygcrfg@novaemail.com'],
-        'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',
+        'subject': 'Action Required: Hystax OptScale Pool Limit Exceed Alert',
         'template_type': 'pool_exceed_resources_report',
         'template_params': {
             'texts': {
-                'exceeded_pools_count': 1,
-                'exceeded_pool_forecasts': [],
-                'exceeded_pool_forecasts_count': 0,
-                'title': 'Pool Exceed Alert',
+                'exceeded_pools_count': 2,
+                'exceeded_pool_forecasts_count': 2,
+                "exceeded_pool_forecasts": [
+                    {
+                        'forecast': 448.72,
+                        'limit': 100,
+                        'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                        'pool_name': 'Dalek Industry pool',
+                        'pool_purpose': 'business_unit',
+                        'total_expenses': 448.72,
+                        "resources": [
+                            {
+                                'active': True,
+                                'cloud_account_id': '5c1ed35a-bf6b-4c7d-897a-8388b220fff3',
+                                'cloud_account_name': 'AWS linked',
+                                'cloud_console_link': 'https://console.aws.amazon.com/ec2/v2/home?region=us-west-2'
+                                                      '#InstanceDetails:instanceId=i-082b1a163698b8ede',
+                                'cloud_created_at': 1607326764,
+                                'cloud_resource_id': 'i-082b1a163698b8ede',
+                                'flavor': 't2.large',
+                                'image_id': 'ami-09d7e4ccf2c68700d',
+                                'last_seen': 1617152478,
+                                'last_seen_not_stopped': 1617152478,
+                                'organization_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
+                                'owner_id': '0b2287ea-c543-4b47-a8aa-a2953fad9eb4',
+                                'owner_name': 'Tester',
+                                'name': 'HystaxWebSite. It is very very very very very very very very very very very '
+                                        'very very very very very long name',
+                                'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                                'pool_name': 'Dalek Industry',
+                                'pool_purpose': 'business_unit',
+                                'region': 'us-west-2',
+                                'resource_id': 'd3809841-eb70-4568-bb02-e962e401fdca',
+                                'spotted': False,
+                                'stopped_allocated': False,
+                                'type': 'instance',
+                                'security_groups': [
+                                    {
+                                        'GroupId': 'sg-0d99e8ecd70254ebe',
+                                        'GroupName': 'websites'}],
+                                'tags': {
+                                    'aws:createdBy': 'IAMUser:AIDA4YBYU3OICYSASYZ2E:pkozlov'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        'forecast': 448.72,
+                        'limit': 100,
+                        'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                        'pool_name': 'My Pool',
+                        'pool_purpose': 'business_unit',
+                        'total_expenses': 448.72,
+                        "resources": [
+                            {
+                                'active': True,
+                                'cloud_account_id': '5c1ed35a-bf6b-4c7d-897a-8388b220fff3',
+                                'cloud_account_name': 'AWS linked',
+                                'cloud_console_link': 'https://console.aws.amazon.com/ec2/v2/home?region=us-west-2'
+                                                      '#InstanceDetails:instanceId=i-082b1a163698b8ede',
+                                'cloud_created_at': 1607326764,
+                                'cloud_resource_id': 'i-082b1a163698b8ede',
+                                'flavor': 't2.large',
+                                'image_id': 'ami-09d7e4ccf2c68700d',
+                                'last_seen': 1617152478,
+                                'last_seen_not_stopped': 1617152478,
+                                'organization_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
+                                'owner_id': '0b2287ea-c543-4b47-a8aa-a2953fad9eb4',
+                                'owner_name': 'Tester',
+                                'name': 'HystaxWebSite. It is very very very very very very very very very very very '
+                                        'very very very very very long name',
+                                'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                                'pool_name': 'Dalek Industry',
+                                'pool_purpose': 'business_unit',
+                                'region': 'us-west-2',
+                                'resource_id': 'd3809841-eb70-4568-bb02-e962e401fdca',
+                                'spotted': False,
+                                'stopped_allocated': False,
+                                'type': 'instance',
+                                'security_groups': [
+                                    {
+                                        'GroupId': 'sg-0d99e8ecd70254ebe',
+                                        'GroupName': 'websites'}],
+                                'tags': {
+                                    'aws:createdBy': 'IAMUser:AIDA4YBYU3OICYSASYZ2E:pkozlov'
+                                }
+                            }
+                        ]
+                    }
+                ],
                 'exceeded_pools': [
                     {
                         'forecast': 448.72,
                         'limit': 100,
                         'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
-                        'pool_name': 'Dalek Industry',
+                        'pool_name': 'My pool',
+                        'pool_purpose': 'business_unit',
+                        'total_expenses': 448.72,
+                        "resources": [
+                            {
+                                'active': True,
+                                'cloud_account_id': '5c1ed35a-bf6b-4c7d-897a-8388b220fff3',
+                                'cloud_account_name': 'AWS linked',
+                                'cloud_console_link': 'https://console.aws.amazon.com/ec2/v2/home?region=us-west-2'
+                                                      '#InstanceDetails:instanceId=i-082b1a163698b8ede',
+                                'cloud_created_at': 1607326764,
+                                'cloud_resource_id': 'i-082b1a163698b8ede',
+                                'flavor': 't2.large',
+                                'image_id': 'ami-09d7e4ccf2c68700d',
+                                'last_seen': 1617152478,
+                                'last_seen_not_stopped': 1617152478,
+                                'organization_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
+                                'owner_id': '0b2287ea-c543-4b47-a8aa-a2953fad9eb4',
+                                'owner_name': 'Tester',
+                                'name': 'HystaxWebSite. It is very very very very very very very very very very very '
+                                        'very very very very very long name',
+                                'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                                'pool_name': 'Dalek Industry',
+                                'pool_purpose': 'business_unit',
+                                'region': 'us-west-2',
+                                'resource_id': 'd3809841-eb70-4568-bb02-e962e401fdca',
+                                'spotted': False,
+                                'stopped_allocated': False,
+                                'type': 'instance',
+                                'security_groups': [
+                                    {
+                                        'GroupId': 'sg-0d99e8ecd70254ebe',
+                                        'GroupName': 'websites'}],
+                                'tags': {
+                                    'aws:createdBy': 'IAMUser:AIDA4YBYU3OICYSASYZ2E:pkozlov'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        'forecast': 448.72,
+                        'limit': 100,
+                        'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                        'pool_name': 'Dalek Industry pool',
                         'pool_purpose': 'business_unit',
                         'total_expenses': 448.72,
                         'resources': [
@@ -628,23 +757,19 @@ PARAMETER_DUMPS = {
                                 'resource_id': '0fee4514-7b48-4616-9cd1-1b88cdbf5eef',
                                 'type': 'bucket',
                                 'tags': {
-                                    'aws:createdBy': 'IAMUser:AIDAIPPYCHRYQONGDLRJS:pk-full'}}]}],
+                                    'aws:createdBy': 'IAMUser:AIDAIPPYCHRYQONGDLRJS:pk-full'}
+                            }
+                        ]
+                    }
+                ],
                 'organization': {
                     'id': 'c2272558-912f-4571-8dc5-99bd5d30f7d1',
                     'name': 'Dalek Industry',
                     'currency_code': '$'
                 },
-                'user': {
-                    'assignment_id': '1fb37f03-1750-4b37-a98d-432bbddbcc1d',
-                    'assignment_resource_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
-                    'assignment_type_id': 2,
-                    'role_id': 4,
-                    'role_name': 'Engineer',
-                    'role_purpose': 'optscale_engineer',
-                    'role_scope_id': None,
-                    'user_display_name': 'Tester',
-                    'user_email': 'ranxygcrfg@novaemail.com',
-                    'user_id': 'cd7c7a35-572a-42bb-aefb-7479ffaf5f41'}}}},
+            }
+        }
+    },
     'pool_owner_violation_report': {
         'email': ['lori54_lskqtdln@hystax.com'],
         'subject': 'Action required: Hystax OptScale Resource Constraints Report',
