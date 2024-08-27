@@ -173,6 +173,8 @@ export const EVENT_LEVEL = Object.freeze({
   ERROR: "ERROR"
 });
 
+export const EVENTS_LIMIT = 80;
+
 export const CLOUD_ACCOUNT_TYPES_LIST = Object.keys(CLOUD_ACCOUNT_TYPE);
 
 export const DEFAULT_MAX_INPUT_LENGTH = 255;
