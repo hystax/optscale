@@ -806,9 +806,6 @@ PARAMETER_DUMPS = {
         "subject": "OptScale weekly expense report",
         "template_params": {
             "texts": {
-                "end_date": "29/3/2021",
-                "start_date": "1/3/2021",
-                "title": "Weekly expense report",
                 "organization": {
                     "forecast": 482.32,
                     "id": "ed74eb3b-1c4d-477e-b431-28f697d62233",
@@ -853,7 +850,7 @@ PARAMETER_DUMPS = {
                     },
                     {
                         "cost": 93.56,
-                        "forecast": 100.01,
+                        "forecast": 122222312300.01,
                         "id": "278c5876-43bb-4f33-9dff-55ae518d65db",
                         "limit": 50,
                         "name": "testo",
@@ -864,11 +861,6 @@ PARAMETER_DUMPS = {
                     "forecast": 224.81,
                     "total_cost": 210.3,
                     "resources_tracked": 540
-                },
-                "user": {
-                    "user_display_name": "Mr Smith",
-                    "user_email": "root@hystax.com",
-                    "user_id": "8aa14efd-d111-4934-9c19-92b6f0da18fe"
                 }
             }
         }
