@@ -1350,20 +1350,20 @@ PARAMETER_DUMPS = {
                 }}},
     'incorrect_alibaba_expenses': {
         "email": ["optscale-staging-notifications@hystax.com"],
-        "subject": "[172.22.20.6] Incorrect expenses for Alibaba cloud account",
+        "subject": "[172.22.20.6] Incorrect expenses for Alibaba data source",
         'template_type': 'incorrect_alibaba_expenses',
         'template_params': {
             'texts': {
                 'clean_expenses': 18256.11,
                 'cloud_expenses': 17822.97,
-                'period': '2022-11',
+                'period': '2022-11-11 - 2022-11-17',
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                 },
                 'cloud_account': {
                     'id': 'c063973e-0bb2-4134-9ebe-2e68104d7aa8',
-                    'name': 'Test cloud account',
+                    'name': 'Test_data_source',
                 }}}},
     'disconnect_survey': {
         'email': ['andersonmatthew_hwp@hystax.com'],

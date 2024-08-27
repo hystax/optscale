@@ -25,7 +25,8 @@ ALIBABA_REGION_MAP = {
            'China (Nanjing - Local Region)'],
     'ap': ['China (Hong Kong)', 'Japan (Tokyo)', 'Singapore',
            'Australia (Sydney)', 'Malaysia (Kuala Lumpur)',
-           'Indonesia (Jakarta)', 'India (Mumbai)'],
+           'Indonesia (Jakarta)', 'India (Mumbai)', 'Thailand (Bangkok)',
+           'Philippines (Manila)', 'South Korea (Seoul)'],
     'me': ['UAE (Dubai)']}
 
 
