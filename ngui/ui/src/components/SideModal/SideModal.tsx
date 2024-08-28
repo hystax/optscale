@@ -1,9 +1,25 @@
-import { useState } from "react";
+import { ReactNode, SyntheticEvent, useState } from "react";
 import Drawer from "@mui/material/Drawer";
 import SideModalHeader from "components/SideModalHeader";
+import { SideModalHeaderProps } from "components/SideModalHeader/SideModalHeader";
 import useStyles from "./SideModal.styles";
 
-const DrawerContent = ({ headerProps, handleClose, children }) => {
+type DrawerContentProps = {
+  headerProps: SideModalHeaderProps;
+  handleClose: (event: SyntheticEvent) => void;
+  children: ReactNode;
+};
+
+type SideModalProps = {
+  isOpen: boolean;
+  closeHandler: (isOpen: boolean) => void;
+  dataTestId: string;
+  headerProps: SideModalHeaderProps;
+  onClose?: (event: SyntheticEvent) => void;
+  children: ReactNode;
+};
+
+const DrawerContent = ({ headerProps, handleClose, children }: DrawerContentProps) => {
   const { showExpand, ...sideModalHeaderProps } = headerProps;
 
   const [isExpanded, setIsExpanded] = useState(showExpand);
@@ -14,6 +30,7 @@ const DrawerContent = ({ headerProps, handleClose, children }) => {
     <div className={cx(classes.sideModal, isExpanded && classes.sideModalExpanded)}>
       <SideModalHeader
         {...sideModalHeaderProps}
+        showExpand={showExpand}
         onClose={handleClose}
         isExpanded={isExpanded}
         onExpandChange={() => setIsExpanded(!isExpanded)}
@@ -23,7 +40,7 @@ const DrawerContent = ({ headerProps, handleClose, children }) => {
   );
 };
 
-const SideModal = ({ isOpen, closeHandler, dataTestId, headerProps = {}, onClose, children }) => {
+const SideModal = ({ isOpen, closeHandler, dataTestId, headerProps, onClose, children }: SideModalProps) => {
   const handleClose = (event) => {
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
       return;
