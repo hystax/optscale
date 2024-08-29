@@ -47,8 +47,11 @@ const LeaderboardsListSection = ({
         value={leaderboards.find(({ id }) => id === selectedLeaderboardId) ?? ""}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         onChange={(event, newValue) => {
-          onSelectedLeaderboardIdChange(newValue.id);
+          if (newValue) {
+            onSelectedLeaderboardIdChange(newValue.id);
+          }
         }}
+        blurOnSelect
         sx={{
           maxWidth: "450px",
           flexBasis: "280px",
