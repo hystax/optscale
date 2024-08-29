@@ -41,7 +41,8 @@ import {
   GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS,
   DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD,
   DOCS_HYSTAX_CONNECT_GCP_CLOUD,
-  DATABRICKS_CREATE_SERVICE_PRINCIPAL
+  DATABRICKS_CREATE_SERVICE_PRINCIPAL,
+  DOCS_HYSTAX_CONNECTING_A_KUBERNETES_CLUSTER_TO_OPTSCALE
 } from "urls";
 import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
 import {
@@ -311,7 +312,19 @@ const renderConnectionTypeInfoMessage = ({ connectionType }) =>
     [KUBERNETES]: renderConnectionTypeDescription([
       {
         key: "createKubernetesDocumentationReference1",
-        messageId: "createKubernetesDocumentationReference1"
+        messageId: "createKubernetesDocumentationReference1",
+        values: {
+          link: (chunks) => (
+            <Link
+              data-test-id="link_guide"
+              href={DOCS_HYSTAX_CONNECTING_A_KUBERNETES_CLUSTER_TO_OPTSCALE}
+              target="_blank"
+              rel="noopener"
+            >
+              {chunks}
+            </Link>
+          )
+        }
       },
       {
         key: "createKubernetesDocumentationReference2",

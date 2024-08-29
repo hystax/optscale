@@ -26,7 +26,8 @@ import {
   DOCS_HYSTAX_CONNECT_GCP_CLOUD,
   DOCS_HYSTAX_DISCOVER_RESOURCES,
   GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR,
-  DATABRICKS_CREATE_SERVICE_PRINCIPAL
+  DATABRICKS_CREATE_SERVICE_PRINCIPAL,
+  DOCS_HYSTAX_MIGRATE_FROM_CUR_TO_DATA_EXPORTS_CUR_2_0
 } from "urls";
 import {
   ALIBABA_CNR,
@@ -62,17 +63,39 @@ const Description = ({ type, config }) => {
               }}
             />
           ) : (
-            <FormattedMessage
-              id="createAwsRootDocumentationReference"
-              values={{
-                link: (chunks) => (
-                  <Link data-test-id="link_guide" href={DOCS_HYSTAX_AUTO_BILLING_AWS} target="_blank" rel="noopener">
-                    {chunks}
-                  </Link>
-                ),
-                strong: (chunks) => <strong>{chunks}</strong>
-              }}
-            />
+            <>
+              <Typography>
+                <FormattedMessage
+                  id="createAwsRootDocumentationReference"
+                  values={{
+                    link: (chunks) => (
+                      <Link data-test-id="link_guide" href={DOCS_HYSTAX_AUTO_BILLING_AWS} target="_blank" rel="noopener">
+                        {chunks}
+                      </Link>
+                    ),
+                    strong: (chunks) => <strong>{chunks}</strong>
+                  }}
+                />
+              </Typography>
+              <Typography>
+                <FormattedMessage
+                  id="migrateToCur2.0"
+                  values={{
+                    link: (chunks) => (
+                      <Link
+                        data-test-id="link_guide"
+                        href={DOCS_HYSTAX_MIGRATE_FROM_CUR_TO_DATA_EXPORTS_CUR_2_0}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                    strong: (chunks) => <strong>{chunks}</strong>
+                  }}
+                />
+              </Typography>
+            </>
           )}
         </Typography>
       );
