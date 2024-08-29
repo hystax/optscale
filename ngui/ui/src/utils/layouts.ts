@@ -7,7 +7,7 @@ export const SPACING_4 = 4;
 export const SPACING_5 = 5;
 export const SPACING_6 = 6;
 
-export const scrolledToBottom = (target) => target.scrollTop + document.documentElement.offsetHeight > target.scrollHeight;
+export const scrolledToBottom = (target) => target.scrollTop + target.clientHeight >= target.scrollHeight;
 
 /**
  * Calculate the approximate width of the provided text

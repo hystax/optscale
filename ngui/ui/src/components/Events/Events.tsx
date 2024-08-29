@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
 import ErrorIcon from "@mui/icons-material/Error";
 import InfoIcon from "@mui/icons-material/Info";
+import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { FormattedMessage } from "react-intl";
 import Accordion from "components/Accordion";
@@ -15,11 +15,10 @@ import RangePickerForm from "components/RangePickerForm";
 import Table from "components/Table";
 import { useInitialMount } from "hooks/useInitialMount";
 import { isEmpty } from "utils/arrays";
-import { EVENT_LEVEL } from "utils/constants";
-import { formatUTC } from "utils/datetime";
-import { SPACING_1 } from "utils/layouts";
+import { EVENT_LEVEL, EVENTS_LIMIT } from "utils/constants";
+import { EN_FULL_FORMAT, formatUTC } from "utils/datetime";
+import { SPACING_1, SPACING_2, SPACING_3 } from "utils/layouts";
 import { getQueryParams, updateQueryParams, removeQueryParam } from "utils/network";
-import useStyles from "./Events.styles";
 
 const actionBarDefinition = {
   title: {
@@ -29,7 +28,7 @@ const actionBarDefinition = {
 };
 
 const Loader = () => (
-  <Box textAlign="center" pt={2}>
+  <Box width="100%" textAlign="center" pt={2}>
     <CircularProgress />
   </Box>
 );
@@ -106,15 +105,30 @@ const EventLevelSelector = ({ eventLevel, onApply }) => {
   );
 };
 
+const getEventsGroupedByTime = (events) =>
+  events.reduce((resultObject, event) => {
+    const groupKey = formatUTC(event.time);
+    return {
+      ...resultObject,
+      [groupKey]: [...(resultObject[groupKey] || []), event]
+    };
+  }, {});
+
+const EventIcon = ({ eventLevel }) =>
+  ({
+    [EVENT_LEVEL.INFO]: <InfoIcon fontSize="small" color="info" />,
+    [EVENT_LEVEL.WARNING]: <ErrorIcon fontSize="small" color="warning" />,
+    [EVENT_LEVEL.ERROR]: <ErrorIcon fontSize="small" color="error" />
+  })[eventLevel];
+
 const Events = ({ eventLevel, onScroll, applyFilter, events, isLoading = false }) => {
   const [expanded, setExpanded] = useState("");
-  const { classes, cx } = useStyles();
   const queryParams = getQueryParams();
 
-  const handleAccordion = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : "");
+  const handleAccordion = (eventId) => (_, isExpanded) => {
+    setExpanded(isExpanded ? eventId : "");
     if (isExpanded) {
-      updateQueryParams({ event: panel });
+      updateQueryParams({ event: eventId });
     } else {
       removeQueryParam("event");
     }
@@ -129,13 +143,6 @@ const Events = ({ eventLevel, onScroll, applyFilter, events, isLoading = false }
       setExpanded(queryParams.event);
     }
   }, [setExpanded, queryParams, isInitialMount, setIsInitialMount]);
-
-  const addIcon = (level) =>
-    ({
-      [EVENT_LEVEL.INFO]: <InfoIcon className={cx(classes.tableIcon, classes.infoIcon)} />,
-      [EVENT_LEVEL.WARNING]: <ErrorIcon className={cx(classes.tableIcon, classes.warningIcon)} />,
-      [EVENT_LEVEL.ERROR]: <ErrorIcon color="error" className={classes.tableIcon} />
-    })[level];
 
   const eventTableColumns = useMemo(
     () => [
@@ -164,7 +171,7 @@ const Events = ({ eventLevel, onScroll, applyFilter, events, isLoading = false }
       {
         name: <FormattedMessage id="date" />,
         dataTestId: "lbl_date",
-        value: `${formatUTC(event.time, "MM/dd/yyyy hh:mm a")} UTC`
+        value: `${formatUTC(event.time, EN_FULL_FORMAT)} UTC`
       },
       {
         name: <FormattedMessage id="objectName" />,
@@ -211,65 +218,79 @@ const Events = ({ eventLevel, onScroll, applyFilter, events, isLoading = false }
     eventsList.map((event, index) => (
       <Accordion
         headerDataTestId={index === 0 && parentIndex === 0 ? "sp_first_event" : null}
-        key={`${event.id}`}
-        expanded={expanded === `${event.id}`}
-        onChange={handleAccordion(`${event.id}`)}
+        key={event.id}
+        expanded={expanded === event.id}
+        onChange={handleAccordion(event.id)}
         zeroSummaryMinHeight
         hideExpandIcon
       >
-        <Typography variant="inherit" noWrap className={classes.heading}>
-          {addIcon(event.level)}
-          {event.description}
-        </Typography>
+        <Box maxWidth="100%" display="flex" alignItems="center" py={0.5}>
+          <Box display="flex" mr={0.5}>
+            <EventIcon eventLevel={event.level} />
+          </Box>
+          <Typography variant="body2" noWrap>
+            {event.description}
+          </Typography>
+        </Box>
         {getAccordionContent(event)}
       </Accordion>
     ));
 
-  const getGroupedEvents = (eventsList) =>
-    eventsList.reduce((resultObject, event) => {
-      const groupKey = formatUTC(event.time);
-      return {
-        ...resultObject,
-        [groupKey]: [...(resultObject[groupKey] || []), event]
-      };
-    }, {});
+  const renderEventList = () => {
+    const noEvents = isEmpty(events);
 
-  const buildEventsBox = (eventsObj) =>
-    Object.keys(eventsObj).map((groupKey, index) => (
-      <Box key={groupKey} className={cx(index !== 0 && classes.dateBlock)}>
-        <Typography>{groupKey}</Typography>
-        {renderAccordion(eventsObj[groupKey], index)}
+    if (noEvents) {
+      return isLoading ? <Loader /> : <FormattedMessage id="noEvents" />;
+    }
+
+    return (
+      <Box>
+        <Stack spacing={SPACING_3}>
+          {Object.entries(getEventsGroupedByTime(events)).map(([groupKey, groupData], index) => (
+            <Box key={groupKey}>
+              <Typography>{groupKey}</Typography>
+              {renderAccordion(groupData, index)}
+            </Box>
+          ))}
+        </Stack>
+        {isLoading ? <Loader /> : null}
       </Box>
-    ));
+    );
+  };
 
   return (
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <Grid container spacing={SPACING_1}>
-          <Grid container item xs={12} direction="row" justifyContent="space-between">
-            <Grid item>
+        <Stack spacing={SPACING_1} height="100%">
+          <Box display="flex" flexWrap="wrap" gap={SPACING_2} justifyContent="space-between">
+            <Box>
               <EventLevelSelector eventLevel={eventLevel} onApply={applyFilter} />
-            </Grid>
-            <Grid item>
-              <Picker onApply={applyFilter} />
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Box className={classes.eventsWrapper}>
-              {isLoading && isEmpty(events) ? (
-                <Box className={cx(classes.events)}>
-                  <Loader />
-                </Box>
-              ) : (
-                <Box onScroll={onScroll} pl={0.5} className={cx(classes.events)}>
-                  {buildEventsBox(getGroupedEvents(events))}
-                  {isLoading ? <Loader /> : null}
-                </Box>
-              )}
             </Box>
-          </Grid>
-        </Grid>
+            <Box>
+              <Picker onApply={applyFilter} />
+            </Box>
+          </Box>
+          <Box
+            onScroll={onScroll}
+            display="flex"
+            flexDirection="column"
+            flexGrow={1}
+            flexBasis="0px"
+            overflow="auto"
+            /**
+             * Set an approximate maximum height for the events section to ensure it remains scrollable on large screens.
+             * The maximum height should be determined based on the height of the container when all events belong to a single date.
+             * In this scenario, the container's height will be close to its minimum possible value.
+             *
+             * EVENTS_LIMIT represents the maximum number of events that can be fetched in a single request.
+             * Each event is assumed to occupy approximately 25 pixels in height.
+             */
+            maxHeight={`${EVENTS_LIMIT * 25}px`}
+          >
+            {renderEventList()}
+          </Box>
+        </Stack>
       </PageContentWrapper>
     </>
   );

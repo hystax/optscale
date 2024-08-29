@@ -61,10 +61,8 @@ class PoolExceedResources(Base):
                         'currency_code': self.get_currency_code(
                             organization['currency'])
                     },
-                    'user': self.report_data,
                     'exceeded_pools': exceeded_pools,
                     'exceeded_pool_forecasts': exceeded_pool_forecasts,
-                    'title': 'Pool Limit Exceed Alert',
                     "exceeded_pool_forecasts_count": len(
                         exceeded_pool_forecasts),
                     "exceeded_pools_count": len(exceeded_pools)

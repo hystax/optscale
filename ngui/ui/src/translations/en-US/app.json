@@ -1318,6 +1318,7 @@
   "noDuplicateChecks": "No duplicate checks, create a new one using the \"Run check\" button.",
   "noEnvironments": "No Shared Environments",
   "noErrorOutput": "No error output",
+  "noEvents": "No events",
   "noExceededPoolLimitForecasts": "No exceeded pool limit forecasts",
   "noExceededPoolLimits": "No exceeded pool limits",
   "noExclusions": "No exclusions",
