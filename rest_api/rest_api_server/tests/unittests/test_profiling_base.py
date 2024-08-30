@@ -3,6 +3,10 @@ import uuid
 from typing import Optional, List
 
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.models.db_factory import DBFactory, DBType
+from rest_api.rest_api_server.models.db_base import BaseDB
+from rest_api.rest_api_server.models.models import ProfilingToken
+
 from unittest.mock import patch, PropertyMock
 from requests.exceptions import HTTPError
 from requests.models import Response
@@ -21,6 +25,16 @@ class TestProfilingBase(TestApiBase):
               new_callable=PropertyMock).start()
         patch('rest_api.rest_api_server.controllers.base.'
               'BaseProfilingTokenController.get_secret').start()
+
+    @staticmethod
+    def get_profiling_token(organization_id):
+        db = DBFactory(DBType.Test, None).db
+        engine = db.engine
+        session = BaseDB.session(engine)()
+        token = session.query(ProfilingToken).filter(
+            ProfilingToken.organization_id == organization_id).one_or_none()
+        if token:
+            return token.token
 
     def _gen_executor(self, token, **kwargs):
         executor_id = kwargs.pop('_id', None)
@@ -53,16 +67,8 @@ class TestProfilingBase(TestApiBase):
             'created_at': int(datetime.now(tz=timezone.utc).timestamp()),
             'deleted_at': 0,
             'token': token,
-            'training_set': {
-                'path': str(uuid.uuid4()),
-                'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
-                'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
-            },
-            'validation_set': {
-                'path': str(uuid.uuid4()),
-                'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
-                'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
-            }
+            'timespan_from': int(datetime.now(tz=timezone.utc).timestamp()),
+            'timespan_to': int(datetime.now(tz=timezone.utc).timestamp())
         }
         if kwargs:
             dataset.update(kwargs)
@@ -79,6 +85,7 @@ class TestProfilingBase(TestApiBase):
             'tags': {'key': 'value', 'project': 'regression'},
             'data': {'step': 2000, 'loss': 0.153899},
             'token': token,
+            'deleted_at': 0
         }
         if executor_ids:
             run['executors'] = executor_ids
@@ -219,12 +226,13 @@ class ArceeMock:
         self.profiling_milestones = mongo_cl.arcee.milestones
         self.profiling_stages = mongo_cl.arcee.stages
         self.profiling_proc_data = mongo_cl.arcee.proc_data
+        self.profiling_leaderboard_templates = mongo_cl.arcee.leaderboard_templates
         self.profiling_leaderboards = mongo_cl.arcee.leaderboards
-        self.profiling_leaderboard_datasets = mongo_cl.arcee.leaderboard_datasets
         self.profiling_datasets = mongo_cl.arcee.datasets
         self.profiling_consoles = mongo_cl.arcee.consoles
         self.profiling_models = mongo_cl.arcee.models
         self.profiling_model_versions = mongo_cl.arcee.model_versions
+        self.profiling_artifacts = mongo_cl.arcee.artifacts
         self._token = None
 
     @staticmethod
@@ -553,10 +561,10 @@ class ArceeMock:
         }))
         return 200, proc_data
 
-    def leaderboards_create(self, task_id, primary_metric, grouping_tags,
-                            other_metrics=None,
-                            filters=None, group_by_hp=True):
-        existing = list(self.profiling_leaderboards.find(
+    def leaderboard_templates_create(
+            self, task_id, primary_metric, grouping_tags, other_metrics=None,
+            filters=None, group_by_hp=True, dataset_coverage_rules=None):
+        existing = list(self.profiling_leaderboard_templates.find(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0}))
         if existing:
@@ -565,85 +573,77 @@ class ArceeMock:
             other_metrics = []
         if filters is None:
             filters = []
-        leaderboard = {
+        leaderboard_template = {
             "task_id": task_id,
             "primary_metric": primary_metric,
             "other_metrics": other_metrics,
             "filters": filters,
             "grouping_tags": grouping_tags,
             "group_by_hp": group_by_hp,
+            "dataset_coverage_rules": dataset_coverage_rules,
             "token": self.token,
             "_id": str(uuid.uuid4()),
             "deleted_at": 0,
             "created_at": int(datetime.now(tz=timezone.utc).timestamp())
         }
+        inserted = self.profiling_leaderboard_templates.insert_one(
+            leaderboard_template)
+        return 201, list(self.profiling_leaderboard_templates.find(
+            {'_id': inserted.inserted_id}))[0]
+
+    def leaderboard_create(self, leaderboard_template_id, **params):
+        leaderboard = {
+            "leaderboard_template_id": leaderboard_template_id,
+            "token": self.token,
+            "_id": str(uuid.uuid4()),
+            "deleted_at": 0,
+            "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
+        }
+        leaderboard.update(params)
         inserted = self.profiling_leaderboards.insert_one(leaderboard)
         return 201, list(self.profiling_leaderboards.find(
             {'_id': inserted.inserted_id}))[0]
 
-    def leaderboard_dataset_create(self, leaderboard_id, name, dataset_ids):
-        leaderboard_dataset = {
-            "leaderboard_id": leaderboard_id,
-            "dataset_ids": dataset_ids,
-            "name": name,
-            "token": self.token,
-            "_id": str(uuid.uuid4()),
-            "deleted_at": 0,
-            "created_at": int(datetime.now(tz=timezone.utc).timestamp())
-        }
-        inserted = self.profiling_leaderboard_datasets.insert_one(leaderboard_dataset)
-        return 201, list(self.profiling_leaderboard_datasets.find(
-            {'_id': inserted.inserted_id}))[0]
-
-    def leaderboard_dataset_update(self, leaderboard_dataset_id, name, dataset_ids):
-        leaderboard_dataset = self.profiling_leaderboard_datasets.find_one(
-            {'token': self.token, '_id': leaderboard_dataset_id,
-             'deleted_at': 0})
-        if not leaderboard_dataset:
+    def leaderboard_update(self, leaderboard_id, **params):
+        leaderboard = self.profiling_leaderboards.find_one(
+            {'token': self.token, '_id': leaderboard_id, 'deleted_at': 0})
+        if not leaderboard:
             self._raise_http_error(404)
-        if name:
-            leaderboard_dataset.update({
-                'name': name
-            })
-        if dataset_ids:
-            leaderboard_dataset.update({
-                'dataset_ids': dataset_ids
-            })
-        self.profiling_leaderboard_datasets.update_one(
+        self.profiling_leaderboards.update_one(
             filter={
-                '_id': leaderboard_dataset['_id'],
+                '_id': leaderboard['_id'],
                 'token': self.token,
                 'deleted_at': 0
             },
-            update={'$set': leaderboard_dataset}
+            update={'$set': params}
         )
-        return 200, list(self.profiling_leaderboard_datasets.find(
-            {'_id': leaderboard_dataset_id}))[0]
+        return 200, list(self.profiling_leaderboards.find(
+            {'_id': leaderboard_id}))[0]
 
-    def leaderboard_dataset_get(self, leaderboard_dataset_id):
-        leaderboard_dataset = list(self.profiling_leaderboard_datasets.find(
-            {'token': self.token, '_id': leaderboard_dataset_id,
+    def leaderboard_get(self, leaderboard_id):
+        leaderboard = list(self.profiling_leaderboards.find(
+            {'token': self.token, '_id': leaderboard_id,
              'deleted_at': 0}))
-        if not leaderboard_dataset:
+        if not leaderboard:
             self._raise_http_error(404)
-        return 200, leaderboard_dataset[0]
+        return 200, leaderboard[0]
 
-    def leaderboard_dataset_delete(self, leaderboard_dataset_id):
-        res = self.profiling_leaderboard_datasets.delete_one(
-            {'token': self.token, '_id': leaderboard_dataset_id,
+    def leaderboard_delete(self, leaderboard_id):
+        res = self.profiling_leaderboards.delete_one(
+            {'token': self.token, '_id': leaderboard_id,
              'deleted_at': 0})
         if res.deleted_count == 0:
             self._raise_http_error(404)
         return 204, None
 
     @staticmethod
-    def leaderboard_dataset_details(leaderboard_dataset_id):
+    def leaderboard_details(leaderboard_id):
         # this method contains complex logic, so not need emulate it here
         # just interface test
         return 200, []
 
     @staticmethod
-    def leaderboard_generate(leaderboard_dataset_id):
+    def leaderboard_generate(leaderboard_id):
         # this method contains complex logic, so not need emulate it here
         # just interface test
         return 200, []
@@ -656,61 +656,71 @@ class ArceeMock:
         runs = list(self.profiling_runs.find(runs_q))
         return 200, runs
 
-    def leaderboard_update(self, task_id, primary_metric=None,
-                           grouping_tags=None, other_metrics=None, filters=None,
-                           group_by_hp=None):
-        leaderboard = self.profiling_leaderboards.find_one(
+    def leaderboard_template_update(
+            self, task_id, primary_metric=None, grouping_tags=None,
+            other_metrics=None, filters=None, group_by_hp=None,
+            dataset_coverage_rules=None):
+        lb_template = self.profiling_leaderboard_templates.find_one(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0})
-        if not leaderboard:
+        if not lb_template:
             self._raise_http_error(404)
         for key, param in {
             'primary_metric': primary_metric,
             'grouping_tags': grouping_tags,
             'other_metrics': other_metrics,
             'filters': filters,
-            'group_by_hp': group_by_hp
+            'group_by_hp': group_by_hp,
+            'dataset_coverage_rules': dataset_coverage_rules
         }.items():
             if param is not None:
-                leaderboard.update({
+                lb_template.update({
                     key: param
                 })
-        self.profiling_leaderboards.update_one(
+        self.profiling_leaderboard_templates.update_one(
             filter={
-                '_id': leaderboard['_id'],
+                '_id': lb_template['_id'],
                 'token': self.token,
                 'deleted_at': 0
             },
-            update={'$set': leaderboard}
+            update={'$set': lb_template}
         )
         return 200, {'updated': True}
 
-    def leaderboard_datasets_get(self, leaderboard_id):
+    def leaderboards_get(self, leaderboard_template_id):
         match_filter = {
-            "leaderboard_id": leaderboard_id,
+            "leaderboard_template_id": leaderboard_template_id,
             'token': self.token,
             'deleted_at': 0
         }
-        datasets = list(self.profiling_leaderboard_datasets.find(match_filter))
-        return 200, datasets
+        leaderboards = list(self.profiling_leaderboards.find(match_filter))
+        return 200, leaderboards
 
-    def leaderboard_get(self, task_id):
-        leaderboards = list(self.profiling_leaderboards.find(
+    def leaderboard_template_get(self, task_id):
+        lb_templates = list(self.profiling_leaderboard_templates.find(
             {'token': self.token, 'task_id': task_id,
+             'deleted_at': 0}))
+        if not lb_templates:
+            return 200, {}
+        return 200, lb_templates[0]
+
+    def leaderboard_template_get_by_id(self, lb_template_id):
+        leaderboards = list(self.profiling_leaderboard_templates.find(
+            {'token': self.token, '_id': lb_template_id,
              'deleted_at': 0}))
         if not leaderboards:
             return 200, {}
         return 200, leaderboards[0]
 
-    def leaderboard_delete(self, task_id):
-        res = self.profiling_leaderboards.delete_one(
+    def leaderboard_template_delete(self, task_id):
+        res = self.profiling_leaderboard_templates.delete_one(
             {'token': self.token, 'task_id': task_id,
              'deleted_at': 0})
         if res.deleted_count == 0:
             self._raise_http_error(404)
         return 204, None
 
-    def leaderboard_details_get(self, task_id):
+    def leaderboard_template_details_get(self, task_id):
         # TODO: implement leaderboard details
         return 200, {}
 
@@ -720,8 +730,8 @@ class ArceeMock:
             labels: List[str] = None,
             name: Optional[str] = None,
             description: Optional[str] = None,
-            training_set: Optional[dict] = None,
-            validation_set: Optional[dict] = None
+            timespan_from: Optional[int] = None,
+            timespan_to: Optional[int] = None,
     ):
         d = {
             "_id": str(uuid.uuid4()),
@@ -732,19 +742,21 @@ class ArceeMock:
             "token": self.token,
             "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
             "deleted_at": 0,
-            "training_set": training_set,
-            "validation_set": validation_set,
+            "timespan_from": timespan_from,
+            "timespan_to": timespan_to,
         }
         inserted = self.profiling_datasets.insert_one(d)
         dataset = list(self.profiling_datasets.find(
             {'_id': inserted.inserted_id}))[0]
         return 201, dataset
 
-    def dataset_list(self, include_deleted=False):
+    def dataset_list(self, include_deleted=False, dataset_ids=None):
         match_filter = {
             'token': self.token,
             'deleted_at': 0
         }
+        if dataset_ids:
+            match_filter.update({'_id': {'$in': dataset_ids}})
         if include_deleted:
             match_filter.pop('deleted_at')
         datasets = list(self.profiling_datasets.find(match_filter))
@@ -796,6 +808,27 @@ class ArceeMock:
             # keep insertion order
             labels.extend(OrderedDict.fromkeys(res.get('labels', [])).keys())
         return 200, labels
+
+    def tags_list(self, task_id):
+        task = self.profiling_task.find_one({'_id': task_id, 'deleted_at': 0,
+                                             'token': self.token})
+        if not task:
+            self._raise_http_error(404)
+        pipeline = [
+            {"$match": {"task_id": task_id,
+                        "deleted_at": 0}},
+            {"$project": {"tags": {"$objectToArray": "$tags"}}},
+            {"$unwind": "$tags"},
+            {"$group": {"_id": None, "tags": {"$addToSet": "$tags.k"}}},
+        ]
+        tags = []
+        cur = self.profiling_runs.aggregate(pipeline)
+        try:
+            res = cur.next()
+            tags = res['tags']
+        except StopAsyncIteration:
+            pass
+        return 200, tags
 
     def console_create(self, run_id: str, output: str, error: str):
         d = {
@@ -961,3 +994,134 @@ class ArceeMock:
             version.pop('run_id', None)
             version.pop('model_id', None)
         return 200, versions
+
+    def artifact_create(self, run_id, path, name=None, tags=None,
+                        description=None):
+        now = datetime.now(tz=timezone.utc)
+        b = {
+            'run_id': run_id,
+            'path': path,
+            'name': name,
+            'tags': tags,
+            'token': self.token,
+            '_id': str(uuid.uuid4()),
+            '_created_at_dt': int(now.replace(
+                hour=0, minute=0, second=0, microsecond=0).timestamp()),
+            'description': description,
+            'created_at': int(now.timestamp())
+        }
+        inserted = self.profiling_artifacts.insert_one(b)
+        id_ = inserted.inserted_id
+        result = self.profiling_artifacts.find_one({'_id': id_})
+        result['run'] = {
+            '_id': 'run_id',
+            'task_id': 'task_id',
+            'name': 'name',
+            'number': 'number'
+        }
+        return 201, result
+
+    def artifacts_get(self, **kwargs):
+        filters = defaultdict(dict)
+        result = {
+            'artifacts': [],
+            'limit': kwargs.get('limit', 0),
+            'start_from': kwargs.get('start_from', 0),
+            'total_count': 0
+        }
+        task_query = {'token': self.token}
+        if 'task_id' in kwargs:
+            task_query['_id'] = {'$in': kwargs['task_id']}
+        tasks = {x['_id']: x['name'] for x in self.profiling_task.find(
+            task_query, {'_id': 1, 'name': 1})}
+        tasks_ids = list(tasks.keys())
+
+        run_query = {'task_id': {'$in': tasks_ids}}
+        if 'run_id' in kwargs:
+            run_query['_id'] = {'$in': kwargs['run_id']}
+        runs_map = {run['_id']: run
+                    for run in self.profiling_runs.find(run_query)}
+        filters['run_id'] = {'$in': list(runs_map.keys())}
+        if 'created_at_lt' in kwargs:
+            filters['created_at'].update({'$lt': kwargs['created_at_lt']})
+        if 'created_at_gt' in kwargs:
+            filters['created_at'].update({'$gt': kwargs['created_at_gt']})
+        pipeline = [{'$match': filters}]
+        if 'text_like' in kwargs:
+            pipeline += [
+                {'$addFields': {'tags_array': {'$objectToArray': '$tags'}}},
+                {'$match': {'$or': [
+                    {'name': {'$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'description': {
+                        '$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'path': {'$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'tags_array.k': {
+                        '$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                    {'tags_array.v': {
+                        '$regex': f'(.*){kwargs["text_like"]}(.*)'}},
+                ]}}
+            ]
+        pipeline.append({'$sort': {'created_at': -1}})
+        if 'start_from' in kwargs:
+            pipeline.append({'$skip': kwargs['start_from']})
+        if 'limit' in kwargs:
+            pipeline.append({'$limit': kwargs['limit']})
+        artifacts = list(self.profiling_artifacts.aggregate(pipeline))
+        for artifact in artifacts:
+            run = runs_map[artifact['run_id']]
+            artifact['run'] = {
+                '_id': run['_id'],
+                'task_id': run['task_id'],
+                'task_name': tasks[run['task_id']],
+                'name': run['name'],
+                'number': run['number']
+            }
+            result['artifacts'] .append(artifact)
+        result['total_count'] = len(artifacts)
+        return 200, result
+
+    def artifact_get(self, artifact_id: str):
+        artifacts = list(self.profiling_artifacts.find(
+            {'token': self.token, '_id': artifact_id}))
+        if not artifacts:
+            self._raise_http_error(404)
+        artifact = artifacts[0]
+        artifact['run'] = {
+            '_id': 'run_id',
+            'task_id': 'task_id',
+            'name': 'name',
+            'number': 'number'
+        }
+        return 200, artifact
+
+    def artifact_update(self, artifact_id, **params):
+        artifact = list(self.profiling_artifacts.find(
+            {'token': self.token, '_id': artifact_id}))
+        if not artifact:
+            self._raise_http_error(404)
+        if params:
+            self.profiling_artifacts.update_one(
+                filter={
+                    '_id': artifact_id,
+                    'token': self.token
+                },
+                update={'$set': params}
+            )
+        artifact = self.profiling_artifacts.find_one(
+            {'token': self.token, '_id': artifact_id})
+        artifact['run'] = {
+            '_id': 'run_id',
+            'task_id': 'task_id',
+            'name': 'name',
+            'number': 'number'
+        }
+        return 200, artifact
+
+    def artifact_delete(self, artifact_id):
+        artifact = list(self.profiling_artifacts.find(
+            {'token': self.token, '_id': artifact_id}))
+        if not artifact:
+            self._raise_http_error(404)
+        self.profiling_artifacts.delete_one(
+            {'token': self.token, '_id': artifact_id})
+        return 204, None

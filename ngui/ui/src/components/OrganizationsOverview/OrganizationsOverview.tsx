@@ -4,6 +4,7 @@ import ActionBar from "components/ActionBar";
 import ButtonGroup from "components/ButtonGroup";
 import OrganizationsOverviewTable from "components/OrganizationsOverviewTable";
 import PageContentWrapper from "components/PageContentWrapper";
+import { HOME } from "urls";
 import { ORGANIZATIONS_OVERVIEW_FILTERS } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
@@ -12,7 +13,16 @@ const actionBarDefinition = {
   title: {
     messageId: "organizationsOverview",
     dataTestId: "lbl_orgs_overview"
-  }
+  },
+  items: [
+    {
+      key: "add",
+      messageId: "goToDashboard",
+      type: "button",
+      link: HOME,
+      dataTestId: "btn_add"
+    }
+  ]
 };
 
 const OrganizationsOverview = ({ data, isLoading = false }) => {

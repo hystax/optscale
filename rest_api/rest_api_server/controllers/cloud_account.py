@@ -21,6 +21,7 @@ from tools.optscale_exceptions.common_exc import (
 from rest_api.rest_api_server.controllers.cloud_resource import CloudResourceController
 from rest_api.rest_api_server.controllers.cost_model import (
     CloudBasedCostModelController, SkuBasedCostModelController)
+from rest_api.rest_api_server.controllers.base import ClickHouseMixin
 from rest_api.rest_api_server.controllers.discovery_info import DiscoveryInfoController
 from rest_api.rest_api_server.controllers.employee import EmployeeController
 from rest_api.rest_api_server.controllers.expense import (
@@ -59,7 +60,7 @@ LOG = logging.getLogger(__name__)
 NOTIFY_FIELDS = ["name", "config"]
 
 
-class CloudAccountController(BaseController):
+class CloudAccountController(BaseController, ClickHouseMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._employee_ctrl = None
@@ -229,9 +230,9 @@ class CloudAccountController(BaseController):
             return
         control_panel_name = self._config.public_ip()
         action_params_map = {
-            'created': ('Cloud has been connected',
+            'created': ('Data source has been connected',
                         'new_cloud_account'),
-            'deleted': ('Cloud account has been deleted',
+            'deleted': ('Data source has been deleted',
                         'cloud_account_deleted')
         }
         title, template = action_params_map.get(action, (None, None))
@@ -244,7 +245,6 @@ class CloudAccountController(BaseController):
             return
         template_params = {
             'texts': {
-                'title': title,
                 'organization': {
                     'id': cloud_account.organization_id,
                     'name': cloud_account.organization.name,
@@ -526,6 +526,35 @@ class CloudAccountController(BaseController):
                 updated_cloud_account, 'cloud_account_updated')
         return updated_cloud_account
 
+    def clean_clickhouse(self, cloud_account_id, cloud_type):
+        self.execute_clickhouse(
+            """ALTER TABLE traffic_expenses DELETE
+               WHERE cloud_account_id=%(cloud_account_id)s""",
+            params={'cloud_account_id': cloud_account_id}
+        )
+        self.execute_clickhouse(
+            """ALTER TABLE average_metrics DELETE
+               WHERE cloud_account_id=%(cloud_account_id)s""",
+            params={'cloud_account_id': cloud_account_id}
+        )
+        if cloud_type == CloudTypes.KUBERNETES_CNR:
+            self.execute_clickhouse(
+                """ALTER TABLE k8s_metrics DELETE
+                   WHERE cloud_account_id=%(cloud_account_id)s""",
+                params={'cloud_account_id': cloud_account_id}
+            )
+        elif cloud_type == CloudTypes.AWS_CNR:
+            self.execute_clickhouse(
+                """ALTER TABLE risp.ri_sp_usage DELETE
+                   WHERE cloud_account_id=%(cloud_account_id)s""",
+                params={'cloud_account_id': cloud_account_id}
+            )
+            self.execute_clickhouse(
+                """ALTER TABLE risp.uncovered_usage DELETE
+                   WHERE cloud_account_id=%(cloud_account_id)s""",
+                params={'cloud_account_id': cloud_account_id}
+            )
+
     def delete(self, item_id):
         cloud_account = self.get(item_id)
         self.delete_children_accounts(cloud_account)
@@ -543,6 +572,7 @@ class CloudAccountController(BaseController):
         expense_ctrl.delete_cloud_expenses(item_id)
         resource_ctrl = CloudResourceController(self._config)
         resource_ctrl.delete_cloud_resources(item_id)
+        self.clean_clickhouse(cloud_account.id, cloud_account.type)
         OrganizationConstraintController(
             self.session, self._config, self.token).delete_constraints_with_hits(
             cloud_account.organization_id,

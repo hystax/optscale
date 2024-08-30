@@ -230,11 +230,11 @@ class AlibabaReportImporter(BaseReportImporter):
         billing_item = expense.get('BillingItem')
         billing_item_code = expense.get('BillingItemCode')
         product_detail = expense['ProductDetail']
-        if (product_code == 'yundisk' or
+        if 'RDD' in expense['resource_id']:
+            return 'Round Down Discount'
+        elif (product_code == 'yundisk' or
                 billing_item in SYSTEM_DISK_BILLING_ITEMS):
             return 'Volume'
-        elif 'RDD' in expense['resource_id']:
-            return 'Round Down Discount'
         elif product_code == 'ecs':
             return 'Instance'
         elif product_code == 'snapshot' and billing_item_code == 'Size':
@@ -395,7 +395,7 @@ class AlibabaReportImporter(BaseReportImporter):
         recipient = self.config_cl.optscale_error_email_recipient()
         if not recipient:
             return
-        title = "Incorrect expenses for Alibaba cloud account"
+        title = "Incorrect expenses for Alibaba data source"
         subject = '[%s] %s' % (self.config_cl.public_ip(), title)
         template_params = {
             'texts': {

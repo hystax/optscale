@@ -350,12 +350,13 @@ def check_list_attribute(name, value, allow_empty=False):
         raise WrongArgumentsException(Err.OE0385, [name])
 
 
-def check_int_attribute(name, value, min_length=0, max_length=MAX_32_INT):
+def check_int_attribute(name, value, min_length=0, max_length=MAX_32_INT,
+                        check_length=True):
     if value is None:
         raise_not_provided_exception(name)
     if not isinstance(value, int) or isinstance(value, bool):
         raise WrongArgumentsException(Err.OE0223, [name])
-    if not min_length <= value <= max_length:
+    if check_length and not min_length <= value <= max_length:
         raise WrongArgumentsException(
             Err.OE0224, [name, min_length, max_length])
 
@@ -746,6 +747,13 @@ class SupportedFiltersMixin(object):
         self.int_filters = []
 
 
+def _get_http_error_message(ex):
+    try:
+        return json.loads(ex.response.text)['message']
+    except Exception:
+        return str(ex)
+
+
 def handle_http_exc(func):
     def inner(*args, **kwargs):
         try:
@@ -755,11 +763,11 @@ def handle_http_exc(func):
             if ex.response.status_code == 400:
                 # track possible difference in validation
                 raise WrongArgumentsException(
-                    Err.OE0287, [str(ex)])
+                    Err.OE0287, [_get_http_error_message(ex)])
             elif ex.response.status_code == 401:
                 # track possible token related problems
                 raise UnauthorizedException(
-                    Err.OE0543, [str(ex)])
+                    Err.OE0543, [_get_http_error_message(ex)])
             elif ex.response.status_code == 403:
                 raise ForbiddenException(Err.OE0234, [])
             raise

@@ -2,7 +2,7 @@ import AlibabaCredentials, { FIELD_NAMES as ALIBABA_CREDENTIALS_FIELD_NAMES } fr
 import AwsLinkedCredentials, { FIELD_NAMES as AWS_LINKED_CREDENTIALS_FIELD_NAMES } from "./AwsLinkedCredentials";
 import AwsRootBillingBucket, { FIELD_NAMES as AWS_ROOT_BILLING_BUCKET_FIELD_NAMES } from "./AwsRootBillingBucket";
 import AwsRootCredentials, { FIELD_NAMES as AWS_ROOT_CREDENTIALS_FIELD_NAMES } from "./AwsRootCredentials";
-
+import AwsRootExportType, { FIELD_NAMES as AWS_ROOT_EXPORT_TYPE_FIELD_NAMES } from "./AwsRootExportType";
 import AzureSubscriptionCredentials, {
   FIELD_NAMES as AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES
 } from "./AzureSubscriptionCredentials";
@@ -17,6 +17,8 @@ export {
   AWS_ROOT_CREDENTIALS_FIELD_NAMES,
   AwsRootBillingBucket,
   AWS_ROOT_BILLING_BUCKET_FIELD_NAMES,
+  AwsRootExportType,
+  AWS_ROOT_EXPORT_TYPE_FIELD_NAMES,
   AwsLinkedCredentials,
   AWS_LINKED_CREDENTIALS_FIELD_NAMES,
   AzureTenantCredentials,

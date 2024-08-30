@@ -449,7 +449,7 @@ class TestTaskApi(TestProfilingBase):
         _, task = self.client.task_create(
             self.org['id'], self.valid_task)
         metric1 = self._create_metric(self.org['id'], key='metric1_key')
-        leaderboard = {
+        leaderboard_template = {
             'primary_metric': metric1['id'],
             'other_metrics': [],
             'grouping_tags': ['test_tag'],
@@ -462,32 +462,30 @@ class TestTaskApi(TestProfilingBase):
                  }
             ],
         }
-        _, leaderboard = self.client.leaderboard_create(
-            self.org['id'], task['id'], leaderboard)
+        _, leaderboard = self.client.leaderboard_template_create(
+            self.org['id'], task['id'], leaderboard_template)
         valid_dataset = {
             'path': 's3://ml-bucket/dataset',
             'name': 'Test',
             'description': 'Test ML dataset',
             'labels': ['test', 'demo'],
-            'training_set': {
-                'path': 's3://ml-bucket/training_set',
-                'timespan_from': 1698740386,
-                'timespan_to': 1698741386
-            },
-            'validation_set': {
-                'path': 's3://ml-bucket/validation_set',
-                'timespan_from': 1698740386,
-                'timespan_to': 1698741386
-            }
+            'timespan_from': 1698740386,
+            'timespan_to': 1698741386
         }
         _, dataset = self.client.dataset_create(self.org['id'], valid_dataset)
         dt = datetime(2023, 10, 10, tzinfo=timezone.utc)
         with freeze_time(dt + timedelta(days=1)):
-            self.client.leaderboard_dataset_create(
-                self.org['id'], "test", leaderboard['id'], [dataset['id']])
+            self.client.leaderboard_create(
+                self.org['id'], leaderboard['id'], {
+                    'name': "test",
+                    'dataset_ids': [dataset['id']]
+                })
         with freeze_time(dt):
-            self.client.leaderboard_dataset_create(
-                self.org['id'], "test2", leaderboard['id'], [dataset['id']])
+            self.client.leaderboard_create(
+                self.org['id'], leaderboard['id'], {
+                    'name': "test2",
+                    'dataset_ids': [dataset['id']]
+                })
         code, resp = self.client.task_get(self.org['id'], task['id'])
         self.assertEqual(code, 200)
         self.assertIsNone(resp.get('last_leaderboards'))

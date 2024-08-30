@@ -1,4 +1,5 @@
 import { useFormContext } from "react-hook-form";
+import Dropzone from "components/Dropzone/Dropzone";
 import {
   AccessKeyId,
   AccessKeySecretKey,
@@ -8,8 +9,7 @@ import {
   AuthorizedKeyTitle,
   ServiceAccountId,
   FIELD_NAMES
-} from "components/CluidilConfigFormElements";
-import Dropzone from "components/Dropzone/Dropzone";
+} from "components/NebiusConfigFormElements";
 import { readFileAsText } from "utils/files";
 
 const NebiusCredentials = () => {

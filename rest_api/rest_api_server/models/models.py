@@ -1610,8 +1610,10 @@ class OrganizationGemini(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     status = Column(GeminiStatus,
                     default=GeminiStatuses.CREATED,
                     nullable=False, info=ColumnPermissions.update_only)
-    filters = Column(NullableText("filters"), nullable=True, info=ColumnPermissions.full, default="{}")
-    stats = Column(NullableText("stats"), nullable=True, info=ColumnPermissions.full, default="{}")
+    filters = Column(NullableText("filters"), nullable=True,
+                     info=ColumnPermissions.create_only, default="{}")
+    stats = Column(NullableText("stats"), nullable=True,
+                   info=ColumnPermissions.full, default="{}")
 
     @hybrid_property
     def unique_fields(self):
@@ -1677,11 +1679,11 @@ class Layout(Base, BaseMixin, ValidatorMixin):
                 info=ColumnPermissions.create_only)
     name = Column(NotWhiteSpaceString('name'), nullable=False,
                   info=ColumnPermissions.full)
-    data = Column(NullableJSON('data'), nullable=True, default='{}',
+    data = Column(NullableJSON('data'), nullable=False, default='{}',
                   info=ColumnPermissions.full)
     type = Column(NotWhiteSpaceString('type'), nullable=False,
                   info=ColumnPermissions.create_only)
-    shared = Column(NullableBool('shared'), nullable=True, default=False,
+    shared = Column(NullableBool('shared'), nullable=False, default=False,
                     info=ColumnPermissions.full)
     owner_id = Column(Uuid('owner_id'),
                       ForeignKey('employee.id'),

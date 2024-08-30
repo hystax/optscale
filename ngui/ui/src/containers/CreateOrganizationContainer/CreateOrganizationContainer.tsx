@@ -1,4 +1,5 @@
-import CreateOrganizationForm from "components/CreateOrganizationForm";
+import CreateOrganizationForm from "components/forms/CreateOrganizationForm";
+import { FormValues } from "components/forms/CreateOrganizationForm/types";
 import OrganizationsService from "services/OrganizationsService";
 
 const CreateOrganizationContainer = ({ onSuccess, closeSideModal }) => {
@@ -9,8 +10,8 @@ const CreateOrganizationContainer = ({ onSuccess, closeSideModal }) => {
 
   const isLoading = isCreateLoading || isGetLoading;
 
-  const onSubmit = async (name) => {
-    const { id } = await onCreate(name);
+  const onSubmit = async (formData: FormValues) => {
+    const { id } = await onCreate(formData.name);
     await getOrganizations();
     onSuccess(id);
     closeSideModal();

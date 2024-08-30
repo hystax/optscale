@@ -237,6 +237,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
         getRunName: ({ run: { name } }) => name,
         getRunId: ({ run: { id } }) => id,
         getTaskId: ({ run: { task_id: taskId } }) => taskId,
+        getTaskName: ({ run: { task_name: taskName } }) => taskName,
         headerMessageId: "run",
         headerDataTestId: "lbl_run"
       })
@@ -259,6 +260,9 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
           pageSize={50}
           localization={{
             emptyMessageId: "noVersions"
+          }}
+          counters={{
+            showCounters: true
           }}
         />
       )}

@@ -1704,7 +1704,7 @@ BASIC_PRESET = {
             "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397"
         }
     ],
-    "leaderboards": [
+    "leaderboard_templates": [
         {
             "_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
             "task_id": "c688402f-04a7-42ba-835d-5daf0d623a4b",
@@ -1732,13 +1732,34 @@ BASIC_PRESET = {
             "created_at_offset": 143457
         }
     ],
-    "leaderboard_datasets": [
+    "leaderboards": [
         {
             "dataset_ids": [
                 "38766d9c-e20e-4cae-a3d1-1e19a58abc59"
             ],
             "name": "Leaderboard",
-            "leaderboard_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
+            "leaderboard_template_id": "e3a3ee11-120b-4df5-be94-e9e47f3947b0",
+            "primary_metric": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+            "other_metrics": [
+                "804f6834-6c73-45d5-a34a-ea3b111855c3"
+            ],
+            "filters": [
+                {
+                    "id": "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+                    "max": 100,
+                    "min": 1
+                },
+                {
+                    "id": "804f6834-6c73-45d5-a34a-ea3b111855c3",
+                    "max": 33,
+                    "min": 3
+                }
+            ],
+            "group_by_hp": True,
+            "grouping_tags": [
+                "Algorithm",
+                "code_commit"
+            ],
             "created_at_offset": 143434
         }
     ],
@@ -1750,18 +1771,21 @@ BASIC_PRESET = {
             "labels": [
                 "flowers"
             ],
-            "training_set": {
-                "path": "https://s3.amazonaws.com/ml-bucket/training.csv"
-            },
-            "validation_set": {
-                "path": "https://s3.amazonaws.com/ml-bucket/validation.csv"
-            },
+            "timespan_from_offset": 7554600,
+            "timespan_to_offset": 1074600,
             "path": "https://s3.amazonaws.com/ml-bucket/flowers_231021.csv",
-            "created_at_offset": 146220,
-            "training_set.timespan_from_offset": 7554600,
-            "training_set.timespan_to_offset": 1074600,
-            "validation_set.timespan_from_offset": 7554600,
-            "validation_set.timespan_to_offset": 1074600
+            "created_at_offset": 146220
+        },
+        {
+            "_id": "38766d9c-e20e-4cae-a3d1-1e19a58abc59",
+            "name": "100 flowers",
+            "description": "Dataset without timespan_to_offset",
+            "labels": [
+                "flowers"
+            ],
+            "timespan_from_offset": 7554600,
+            "path": "https://s3.amazonaws.com/ml-bucket/flowers.csv",
+            "created_at_offset": 146220
         }
     ],
     "models": [
@@ -1782,6 +1806,18 @@ BASIC_PRESET = {
             "version": "1",
             "path": "/test_result",
             "aliases": ["alias"]
+        }
+    ],
+    "artifacts": [
+        {
+            "_id": str(uuid.uuid4()),
+            "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
+            "path": "/test_result",
+            "description": "",
+            "token": str(uuid.uuid4()),
+            "tags": {},
+            "created_at_offset": 0,
+            "_created_at_dt_offset": 0
         }
     ]
 }
@@ -1819,14 +1855,15 @@ class TestLiveDemosApi(TestApiBase):
         self.run_collection = self.mongo_client.arcee.run
         self.console_collection = self.mongo_client.arcee.console
         self.dataset_collection = self.mongo_client.arcee.dataset
+        self.lb_template_collection = self.mongo_client.arcee.leaderboard_template
         self.leaderboard_collection = self.mongo_client.arcee.leaderboard
-        self.lb_dataset_collection = self.mongo_client.arcee.leaderboard_dataset
         self.stage_collection = self.mongo_client.arcee.stage
         self.milestone_collection = self.mongo_client.arcee.milestone
         self.proc_data_collection = self.mongo_client.arcee.proc_data
         self.log_collection = self.mongo_client.arcee.log
         self.model_collection = self.mongo_client.arcee.model
         self.model_version_collection = self.mongo_client.arcee.model_version
+        self.artifact_collection = self.mongo_client.arcee.artifact
         self.template_collection = self.mongo_client.bulldozer.template
         self.runner_collection = self.mongo_client.bulldozer.runner
         self.runset_collection = self.mongo_client.bulldozer.runset
@@ -1851,12 +1888,12 @@ class TestLiveDemosApi(TestApiBase):
             self.checklists_collection, self.metric_collection,
             self.task_collection, self.run_collection,
             self.console_collection, self.dataset_collection,
-            self.leaderboard_collection, self.lb_dataset_collection,
+            self.lb_template_collection, self.leaderboard_collection,
             self.stage_collection, self.milestone_collection,
             self.log_collection, self.proc_data_collection,
             self.model_collection, self.model_version_collection,
-            self.template_collection, self.runner_collection,
-            self.runset_collection
+            self.artifact_collection, self.template_collection,
+            self.runner_collection, self.runset_collection
         ]:
             cnt = len(list(collection.find()))
             if check_empty:
@@ -1972,6 +2009,10 @@ class TestLiveDemosApi(TestApiBase):
                         self.assertIn('start', resource.get('meta', {}))
                         self.assertIn('end', resource.get('meta', {}))
                         self.assertIn('instance_type', resource.get('meta', {}))
+                datasets = list(self.dataset_collection.find())
+                for dataset in datasets:
+                    self.assertIn('timespan_from', dataset)
+                    self.assertIn('timespan_to', dataset)
 
     def test_live_demo_org_constraint_create(self):
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController'

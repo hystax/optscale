@@ -36,14 +36,15 @@ class CleanMongoDB(object):
             self.mongo_client.arcee.proc_data: ROWS_LIMIT,
             self.mongo_client.arcee.stage: ROWS_LIMIT,
             self.mongo_client.arcee.model_version: ROWS_LIMIT,
+            self.mongo_client.arcee.artifact: ROWS_LIMIT,
             # linked to task_id
             self.mongo_client.arcee.run: ROWS_LIMIT,
             # linked to profiling_token.token
             self.mongo_client.arcee.task: ROWS_LIMIT,
             self.mongo_client.arcee.dataset: ROWS_LIMIT,
-            self.mongo_client.arcee.goal: ROWS_LIMIT,
+            self.mongo_client.arcee.metric: ROWS_LIMIT,
+            self.mongo_client.arcee.leaderboard_template: ROWS_LIMIT,
             self.mongo_client.arcee.leaderboard: ROWS_LIMIT,
-            self.mongo_client.arcee.leaderboard_dataset: ROWS_LIMIT,
             self.mongo_client.arcee.model: ROWS_LIMIT,
             # linked to profiling_token.infrastructure_token
             self.mongo_client.bulldozer.template: ROWS_LIMIT,
@@ -121,16 +122,15 @@ class CleanMongoDB(object):
     def get_deleted_organization_info(self):
         result = None
         session = self.get_session()
-        stmt = """SELECT org_t.id, profiling_token.token,
-                    profiling_token.infrastructure_token
-                  FROM (
-                    SELECT id FROM organization
-                    WHERE organization.deleted_at != 0 AND
-                      organization.cleaned_at = 0
-                    LIMIT 1
-                  ) as org_t
-                  JOIN profiling_token
-                  ON org_t.id = profiling_token.organization_id"""
+        stmt = """
+            SELECT organization.id, p_token.token, p_token.infrastructure_token
+            FROM organization
+            LEFT JOIN profiling_token as p_token
+            ON organization.id = p_token.organization_id
+            WHERE organization.deleted_at != 0 AND
+                organization.cleaned_at = 0
+            LIMIT 1
+        """
         try:
             result = next(session.execute(stmt))
         except StopIteration:
@@ -179,7 +179,8 @@ class CleanMongoDB(object):
                            self.mongo_client.arcee.milestone,
                            self.mongo_client.arcee.stage,
                            self.mongo_client.arcee.proc_data,
-                           self.mongo_client.arcee.model_version]
+                           self.mongo_client.arcee.model_version,
+                           self.mongo_client.arcee.artifact]
         if all(self.limits.get(x) == 0 for x in run_collections):
             # maximum number of entities related to runs have already
             # been deleted
@@ -315,10 +316,13 @@ class CleanMongoDB(object):
         return result
 
     def _delete_by_organization(self, org_id, token, infra_token):
+        if not token:
+            self.update_cleaned_at(organization_id=org_id)
+            return
         arcee_collections = [self.mongo_client.arcee.dataset,
-                             self.mongo_client.arcee.goal,
+                             self.mongo_client.arcee.metric,
+                             self.mongo_client.arcee.leaderboard_template,
                              self.mongo_client.arcee.leaderboard,
-                             self.mongo_client.arcee.leaderboard_dataset,
                              self.mongo_client.arcee.model]
         bulldozer_collections = [self.mongo_client.bulldozer.template,
                                  self.mongo_client.bulldozer.runset,
@@ -340,9 +344,9 @@ class CleanMongoDB(object):
     def organization_limits(self):
         collections = [self.mongo_client.arcee.task,
                        self.mongo_client.arcee.dataset,
-                       self.mongo_client.arcee.goal,
+                       self.mongo_client.arcee.metric,
+                       self.mongo_client.arcee.leaderboard_template,
                        self.mongo_client.arcee.leaderboard,
-                       self.mongo_client.arcee.leaderboard_dataset,
                        self.mongo_client.arcee.run,
                        self.mongo_client.arcee.console,
                        self.mongo_client.arcee.log,
@@ -351,6 +355,7 @@ class CleanMongoDB(object):
                        self.mongo_client.arcee.proc_data,
                        self.mongo_client.arcee.model,
                        self.mongo_client.arcee.model_version,
+                       self.mongo_client.arcee.artifact,
                        self.mongo_client.bulldozer.template,
                        self.mongo_client.bulldozer.runset,
                        self.mongo_client.bulldozer.runner]

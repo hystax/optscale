@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import { visit } from "unist-util-visit";
-import { SPACING_1, SPACING_2 } from "utils/layouts";
+import { SPACING_2 } from "utils/layouts";
 
 function reactMarkdownRemarkDirective() {
   return (tree) => {
@@ -22,32 +22,6 @@ function reactMarkdownRemarkDirective() {
   };
 }
 
-// TODO: Maybe need to create a component with a length limit
-const MarkdownTypography = ({ children, variant, component }) => (
-  <Typography variant={variant} component={component}>
-    {children}
-  </Typography>
-);
-
-const DividingHeader = ({ children }) => (
-  <Box
-    component="span"
-    sx={{
-      padding: SPACING_1,
-      mt: SPACING_2,
-      mb: SPACING_2,
-      display: "block",
-      textAlign: "center",
-      backgroundColor: (theme) => theme.palette.info.main,
-      color: (theme) => theme.palette.common.white
-    }}
-  >
-    <MarkdownTypography variant="h6" component="span">
-      {children}
-    </MarkdownTypography>
-  </Box>
-);
-
 const Markdown = ({ children, transformImageUri }) => (
   <ReactMarkdown
     transformImageUri={(uri) => (typeof transformImageUri === "function" ? transformImageUri(uri) : uri)}
@@ -59,47 +33,47 @@ const Markdown = ({ children, transformImageUri }) => (
         </Link>
       ),
       h1: ({ children: markdownChildren }) => (
-        <MarkdownTypography variant="h6" component="h1">
+        <Typography variant="h6" component="h1" gutterBottom>
           {markdownChildren}
-        </MarkdownTypography>
+        </Typography>
       ),
       h2: ({ children: markdownChildren }) => (
-        <MarkdownTypography variant="h6" component="h2">
+        <Typography variant="h6" component="h2" gutterBottom>
           {markdownChildren}
-        </MarkdownTypography>
+        </Typography>
       ),
       h3: ({ children: markdownChildren }) => (
-        <MarkdownTypography variant="subtitle1" component="h3">
+        <Typography variant="subtitle1" component="h3" gutterBottom>
           {markdownChildren}
-        </MarkdownTypography>
+        </Typography>
       ),
       h4: ({ children: markdownChildren }) => (
-        <MarkdownTypography variant="subtitle1" component="h4">
+        <Typography variant="subtitle1" component="h4" gutterBottom>
           {markdownChildren}
-        </MarkdownTypography>
+        </Typography>
       ),
       h5: ({ children: markdownChildren }) => (
-        <MarkdownTypography variant="body1" component="h5">
+        <Typography variant="body1" component="h5" gutterBottom>
           {markdownChildren}
-        </MarkdownTypography>
+        </Typography>
       ),
       h6: ({ children: markdownChildren }) => (
-        <MarkdownTypography variant="body1" component="h6">
+        <Typography variant="body1" component="h6" gutterBottom>
           {markdownChildren}
-        </MarkdownTypography>
+        </Typography>
       ),
-      p: ({ children: markdownChildren }) => <MarkdownTypography>{markdownChildren}</MarkdownTypography>,
+      p: ({ children: markdownChildren }) => <Typography gutterBottom>{markdownChildren}</Typography>,
       img: ({ src, alt }) => (
         <Box display="block" component="span" my={SPACING_2}>
           <img style={{ maxWidth: "100%" }} src={src} alt={alt} />
         </Box>
       ),
-      li: ({ children: liChildren }) => (
-        <Typography>
-          <li>{liChildren}</li>
+      li: ({ children: liChildren }) => <Typography component="li">{liChildren}</Typography>,
+      ul: ({ children: ulChildren }) => (
+        <Typography component="ul" gutterBottom>
+          {ulChildren}
         </Typography>
-      ),
-      DividingHeader
+      )
     }}
     remarkPlugins={[remarkGfm, remarkDirective, reactMarkdownRemarkDirective]}
   >

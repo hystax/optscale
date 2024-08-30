@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MlCreateModelForm } from "components/MlModelForm";
+import { MlCreateModelForm } from "components/forms/MlModelForm";
 import MlModelsService, { CreateModelApiParams } from "services/MlModelsService";
 import { ML_MODELS } from "urls";
 

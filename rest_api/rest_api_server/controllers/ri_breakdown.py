@@ -114,16 +114,23 @@ class RiBreakdownController(CleanExpenseController):
 
     def get_flavors(self, cloud_account_ids):
         flavor_factor_map = defaultdict(float)
-        expenses = self.raw_expenses_collection.distinct(
-            'product/instanceType', {
-                'cloud_account_id': {'$in': cloud_account_ids},
-                'start_date': {
-                    '$gte': datetime.fromtimestamp(self.start_date),
-                    '$lte': datetime.fromtimestamp(self.end_date)},
-                'lineItem/LineItemType': 'DiscountedUsage'
-            }
-        )
-        for flavor_name in expenses:
+        flavors = self.execute_clickhouse(
+            """SELECT DISTINCT instance_type
+               FROM ri_sp_usage
+               WHERE cloud_account_id IN cloud_account_ids AND
+                 date >= %(start_date)s AND date <= %(end_date)s AND
+                 offer_type='ri'
+               """,
+            params={
+                'start_date': datetime.fromtimestamp(self.start_date),
+                'end_date': datetime.fromtimestamp(self.end_date)
+            },
+            external_tables=[{'name': 'cloud_account_ids',
+                              'structure': [('id', 'String')],
+                              'data': [{'id': r_id} for r_id in
+                                       cloud_account_ids]}])
+        flavors = [x[0] for x in flavors]
+        for flavor_name in flavors:
             if 'db.' in flavor_name:
                 # RDS instances don't have normalization factor
                 # use 1 as default

@@ -488,13 +488,13 @@ class TasksAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                                         type: string
                         last_leaderboards:
                             type: array
-                            description: list of leaderboard datasets
+                            description: list of leaderboards
                             items:
                                 type: object
                             properties:
-                                leaderboard_id:
+                                leaderboard_template_id:
                                     type: string
-                                    description: Leaderboard id
+                                    description: Leaderboard template id
                                 dataset_ids:
                                     type: array
                                     description: list of dataset ids
@@ -502,7 +502,7 @@ class TasksAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                                         type: string
                                 name:
                                     type: string
-                                    description: Leaderboard dataset name
+                                    description: Leaderboard name
                                 deleted_at:
                                     type: integer
                                     description: Deleted at timestamp
@@ -511,7 +511,7 @@ class TasksAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler,
                                     description: Created at timestamp
                                 id:
                                     type: string
-                                    description: Leaderboard dataset id
+                                    description: Leaderboard id
             401:
                 description: |
                     Unauthorized:

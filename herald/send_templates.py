@@ -47,13 +47,11 @@ PARAMETER_DUMPS = {
                     'currency_code': '$'
                 }}}},
     'invite': {
-        "email": ["me@1.ru"],
+        "email": ["me@1.com"],
         "subject": "OptScale invitation notification",
         "template_type": "invite",
         "template_params": {
             "texts": {
-                "login_button": "Go to Optscale",
-                "title": "User Invitation",
                 "organization": {
                     'id': "95a42273-2e87-4749-aa11-e60a61dcc0b8",
                     'name': "ishorg",
@@ -68,11 +66,10 @@ PARAMETER_DUMPS = {
     },
     'new_cloud_account': {
         "email": ["optscale-staging-notifications@hystax.com"],
-        "subject": "[172.22.20.8] Cloud has been connected",
+        "subject": "[172.22.20.8] Data source has been connected",
         "template_type": "new_cloud_account",
         "template_params": {
             "texts": {
-                "title": "Cloud has been connected",
                 "cloud_account_id": "cb40fab5-3247-4064-b416-c3632786707a",
                 "cloud_account_name": "aws",
                 "cloud_account_type": "aws_cnr",
@@ -81,18 +78,17 @@ PARAMETER_DUMPS = {
                     "name": "Twister Inc.",
                     "currency_code": "$"
                 },
-                "user_email": "me2@1.ru",
+                "user_email": "me2@1.com",
                 "user_name": "Mr Twister"
             }
         }
     },
     'cloud_account_deleted': {
         "email": ["optscale-staging-notifications@hystax.com"],
-        "subject": "[172.22.20.8] Cloud account has been deleted",
+        "subject": "[172.22.20.8] Data source has been deleted",
         "template_type": "cloud_account_deleted",
         "template_params": {
             "texts": {
-                "title": "Cloud account has been deleted",
                 "cloud_account_id": "cb40fab5-3247-4064-b416-c3632786707a",
                 "cloud_account_name": "aws",
                 "cloud_account_type": "aws_cnr",
@@ -129,7 +125,7 @@ PARAMETER_DUMPS = {
         "email": ["optscale-staging-notifications@hystax.com"],
         "subject": "[172.22.20.8] New user joined organization",
         "template_type": "new_employee",
-        "reply_to_email": "me2@1.ru",
+        "reply_to_email": "me2@1.com",
         "template_params": {
             "texts": {
                 "organization": {
@@ -139,37 +135,33 @@ PARAMETER_DUMPS = {
                 },
                 "user": {
                     "id": "63b4c37e-ce9b-47fb-be38-413a23168ae3",
-                    "email": "me2@1.ru",
+                    "email": "me2@1.com",
                     "authentication_type": "password"
                 },
                 "users_count": 2,
-                "title": "New user joined organization"
             }
         }
     },
     'new_subscriber': {
         "email": ["optscale-staging-notifications@hystax.com"],
-        "subject": "[172.22.20.8] New subscriber",
+        "subject": "[172.22.20.8] New live demo subscriber",
         "template_type": "new_subscriber",
-        "reply_to_email": "me2@1.ru",
+        "reply_to_email": "me2@1.com",
         "template_params": {
             "texts": {
                 "user": {
-                    "email": "me2@1.ru",
+                    "email": "me2@1.com",
                     "subscribe": True
                 },
-                "title": "New live demo subscriber"
             }
         }
     },
     'pool_exceed_report': {
         'email': ['james31_pza@hystax.com'],
-        'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',
+        'subject': 'Action Required: Hystax OptScale Pool Limit Exceed Alert',
         'template_type': 'pool_exceed_report',
         'template_params': {
             'texts': {
-                'title': 'Pool Exceed Alert',
-                'total_cost': 293.5,
                 'total_forecast': 293.5,
                 'exceeded': [
                     {
@@ -178,45 +170,169 @@ PARAMETER_DUMPS = {
                         'limit': 50,
                         'pool_name': 'AQA_1617018508.3637385. It is very very very very very very very very very '
                                        'very very very very very very very long name',
-                        'total_expenses': 293.5},
+                        'total_expenses': 293.5
+                    },
                     {
                         'forecast': 293.5,
                         'id': '9e07786f-c476-484e-adc5-43d76815bd1d',
                         'limit': 100,
                         'pool_name': 'AQA_CA_1617018508.3637757_find_report',
-                        'total_expenses': 293.5}],
+                        'total_expenses': 293.5
+                    }
+                ],
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                     'currency_code': '$'
-                },
-                'user': {
-                    'assignment_id': 'f3b2a722-9674-4042-a08a-81f41b926647',
-                    'assignment_resource_id': '943cb6e0-2cbe-4974-a937-2c480aa9934f',
-                    'assignment_type_id': 2,
-                    'role_id': 3,
-                    'role_name': 'Manager',
-                    'role_purpose': 'optscale_manager',
-                    'role_scope_id': None,
-                    'user_display_name': 'james31',
-                    'user_email': 'james31_pza@hystax.com',
-                    'user_id': '4a50413a-9703-4586-ab39-96aa289e979e'}}}},
+                }
+            }
+        }
+    },
     'pool_exceed_resources_report': {
         'email': ['ranxygcrfg@novaemail.com'],
-        'subject': 'Action Required: Hystax OptScale Pool Exceed Alert',
+        'subject': 'Action Required: Hystax OptScale Pool Limit Exceed Alert',
         'template_type': 'pool_exceed_resources_report',
         'template_params': {
             'texts': {
-                'exceeded_pools_count': 1,
-                'exceeded_pool_forecasts': [],
-                'exceeded_pool_forecasts_count': 0,
-                'title': 'Pool Exceed Alert',
+                'exceeded_pools_count': 2,
+                'exceeded_pool_forecasts_count': 2,
+                "exceeded_pool_forecasts": [
+                    {
+                        'forecast': 448.72,
+                        'limit': 100,
+                        'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                        'pool_name': 'Dalek Industry pool',
+                        'pool_purpose': 'business_unit',
+                        'total_expenses': 448.72,
+                        "resources": [
+                            {
+                                'active': True,
+                                'cloud_account_id': '5c1ed35a-bf6b-4c7d-897a-8388b220fff3',
+                                'cloud_account_name': 'AWS linked',
+                                'cloud_console_link': 'https://console.aws.amazon.com/ec2/v2/home?region=us-west-2'
+                                                      '#InstanceDetails:instanceId=i-082b1a163698b8ede',
+                                'cloud_created_at': 1607326764,
+                                'cloud_resource_id': 'i-082b1a163698b8ede',
+                                'flavor': 't2.large',
+                                'image_id': 'ami-09d7e4ccf2c68700d',
+                                'last_seen': 1617152478,
+                                'last_seen_not_stopped': 1617152478,
+                                'organization_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
+                                'owner_id': '0b2287ea-c543-4b47-a8aa-a2953fad9eb4',
+                                'owner_name': 'Tester',
+                                'name': 'HystaxWebSite. It is very very very very very very very very very very very '
+                                        'very very very very very long name',
+                                'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                                'pool_name': 'Dalek Industry',
+                                'pool_purpose': 'business_unit',
+                                'region': 'us-west-2',
+                                'resource_id': 'd3809841-eb70-4568-bb02-e962e401fdca',
+                                'spotted': False,
+                                'stopped_allocated': False,
+                                'type': 'instance',
+                                'security_groups': [
+                                    {
+                                        'GroupId': 'sg-0d99e8ecd70254ebe',
+                                        'GroupName': 'websites'}],
+                                'tags': {
+                                    'aws:createdBy': 'IAMUser:AIDA4YBYU3OICYSASYZ2E:pkozlov'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        'forecast': 448.72,
+                        'limit': 100,
+                        'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                        'pool_name': 'My Pool',
+                        'pool_purpose': 'business_unit',
+                        'total_expenses': 448.72,
+                        "resources": [
+                            {
+                                'active': True,
+                                'cloud_account_id': '5c1ed35a-bf6b-4c7d-897a-8388b220fff3',
+                                'cloud_account_name': 'AWS linked',
+                                'cloud_console_link': 'https://console.aws.amazon.com/ec2/v2/home?region=us-west-2'
+                                                      '#InstanceDetails:instanceId=i-082b1a163698b8ede',
+                                'cloud_created_at': 1607326764,
+                                'cloud_resource_id': 'i-082b1a163698b8ede',
+                                'flavor': 't2.large',
+                                'image_id': 'ami-09d7e4ccf2c68700d',
+                                'last_seen': 1617152478,
+                                'last_seen_not_stopped': 1617152478,
+                                'organization_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
+                                'owner_id': '0b2287ea-c543-4b47-a8aa-a2953fad9eb4',
+                                'owner_name': 'Tester',
+                                'name': 'HystaxWebSite. It is very very very very very very very very very very very '
+                                        'very very very very very long name',
+                                'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                                'pool_name': 'Dalek Industry',
+                                'pool_purpose': 'business_unit',
+                                'region': 'us-west-2',
+                                'resource_id': 'd3809841-eb70-4568-bb02-e962e401fdca',
+                                'spotted': False,
+                                'stopped_allocated': False,
+                                'type': 'instance',
+                                'security_groups': [
+                                    {
+                                        'GroupId': 'sg-0d99e8ecd70254ebe',
+                                        'GroupName': 'websites'}],
+                                'tags': {
+                                    'aws:createdBy': 'IAMUser:AIDA4YBYU3OICYSASYZ2E:pkozlov'
+                                }
+                            }
+                        ]
+                    }
+                ],
                 'exceeded_pools': [
                     {
                         'forecast': 448.72,
                         'limit': 100,
                         'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
-                        'pool_name': 'Dalek Industry',
+                        'pool_name': 'My pool',
+                        'pool_purpose': 'business_unit',
+                        'total_expenses': 448.72,
+                        "resources": [
+                            {
+                                'active': True,
+                                'cloud_account_id': '5c1ed35a-bf6b-4c7d-897a-8388b220fff3',
+                                'cloud_account_name': 'AWS linked',
+                                'cloud_console_link': 'https://console.aws.amazon.com/ec2/v2/home?region=us-west-2'
+                                                      '#InstanceDetails:instanceId=i-082b1a163698b8ede',
+                                'cloud_created_at': 1607326764,
+                                'cloud_resource_id': 'i-082b1a163698b8ede',
+                                'flavor': 't2.large',
+                                'image_id': 'ami-09d7e4ccf2c68700d',
+                                'last_seen': 1617152478,
+                                'last_seen_not_stopped': 1617152478,
+                                'organization_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
+                                'owner_id': '0b2287ea-c543-4b47-a8aa-a2953fad9eb4',
+                                'owner_name': 'Tester',
+                                'name': 'HystaxWebSite. It is very very very very very very very very very very very '
+                                        'very very very very very long name',
+                                'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                                'pool_name': 'Dalek Industry',
+                                'pool_purpose': 'business_unit',
+                                'region': 'us-west-2',
+                                'resource_id': 'd3809841-eb70-4568-bb02-e962e401fdca',
+                                'spotted': False,
+                                'stopped_allocated': False,
+                                'type': 'instance',
+                                'security_groups': [
+                                    {
+                                        'GroupId': 'sg-0d99e8ecd70254ebe',
+                                        'GroupName': 'websites'}],
+                                'tags': {
+                                    'aws:createdBy': 'IAMUser:AIDA4YBYU3OICYSASYZ2E:pkozlov'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        'forecast': 448.72,
+                        'limit': 100,
+                        'pool_id': '6e4c3ef9-37a9-47ec-87f7-0a864af86016',
+                        'pool_name': 'Dalek Industry pool',
                         'pool_purpose': 'business_unit',
                         'total_expenses': 448.72,
                         'resources': [
@@ -641,30 +757,25 @@ PARAMETER_DUMPS = {
                                 'resource_id': '0fee4514-7b48-4616-9cd1-1b88cdbf5eef',
                                 'type': 'bucket',
                                 'tags': {
-                                    'aws:createdBy': 'IAMUser:AIDAIPPYCHRYQONGDLRJS:pk-full'}}]}],
+                                    'aws:createdBy': 'IAMUser:AIDAIPPYCHRYQONGDLRJS:pk-full'}
+                            }
+                        ]
+                    }
+                ],
                 'organization': {
                     'id': 'c2272558-912f-4571-8dc5-99bd5d30f7d1',
                     'name': 'Dalek Industry',
                     'currency_code': '$'
                 },
-                'user': {
-                    'assignment_id': '1fb37f03-1750-4b37-a98d-432bbddbcc1d',
-                    'assignment_resource_id': '955f3783-ad70-4ad8-9682-b64890ef95c6',
-                    'assignment_type_id': 2,
-                    'role_id': 4,
-                    'role_name': 'Engineer',
-                    'role_purpose': 'optscale_engineer',
-                    'role_scope_id': None,
-                    'user_display_name': 'Tester',
-                    'user_email': 'ranxygcrfg@novaemail.com',
-                    'user_id': 'cd7c7a35-572a-42bb-aefb-7479ffaf5f41'}}}},
+            }
+        }
+    },
     'pool_owner_violation_report': {
         'email': ['lori54_lskqtdln@hystax.com'],
         'subject': 'Action required: Hystax OptScale Resource Constraints Report',
         'template_type': 'pool_owner_violation_report',
         'template_params': {
             'texts': {
-                'title': 'Resource Constraints Report',
                 'total_differ': 0,
                 'total_violated': 2,
                 'differ_resources': [],
@@ -672,17 +783,6 @@ PARAMETER_DUMPS = {
                     'id': '28eef4b1-4acf-4050-b833-86c3b2aaf1e7',
                     'name': 'Lori Inc'
                 },
-                'user': {
-                    'assignment_id': 'e56d3134-a7f3-44c3-9f70-4734fae654fd',
-                    'assignment_resource_id': '28eef4b1-4acf-4050-b833-86c3b2aaf1e7',
-                    'assignment_type_id': 2,
-                    'role_id': 3,
-                    'role_name': 'Manager',
-                    'role_scope_id': None,
-                    'role_purpose': 'optscale_manager',
-                    'user_display_name': 'lori54',
-                    'user_email': 'lori54_lskqtdln@hystax.com',
-                    'user_id': '0eebe586-9cad-4daf-b143-075c2422cf98'},
                 'violated_resources': [
                     {
                         'cloud_resource_id': 'i-05377b0fa5b9674fd',
@@ -727,24 +827,11 @@ PARAMETER_DUMPS = {
         "subject": "Action required: Hystax OptScale Resource Constraint Violation Alert",
         "template_params": {
             "texts": {
-                "title": "Resource Constraint Violation Alert",
                 "total_violated": 2,
                 "organization": {
                     "id": "2254d0c7-d341-45cd-a2b4-200f8df8112a",
                     "name": "Renaissance science",
                     "currency_code": "$"
-                },
-                "user": {
-                    "assignment_id": "355ab271-aacc-440d-975c-b14586fc0965",
-                    "assignment_resource_id": "b3299698-7d47-4a67-980a-55369841b228",
-                    "assignment_type_id": 2,
-                    "role_id": 3,
-                    "role_name": "Manager",
-                    "role_purpose": "optscale_manager",
-                    "role_scope_id": "None",
-                    "user_display_name": "I0Gun",
-                    "user_email": "kepler71@de.io",
-                    "user_id": "02398e36-4b53-40d3-9781-62d83609386b"
                 },
                 "violated_resources": [
                     {
@@ -756,7 +843,8 @@ PARAMETER_DUMPS = {
                         "pool_name": "IK_ORG",
                         "resource_name": "hystax-eu-fra. It is very very very very very very very very very very very "
                                          "very very very very very long name",
-                        "type": "ttl"
+                        "type": "ttl",
+                        "resource_id": "e2b0412d-d3d3-425e-bd1e-e27ac881d58e",
                     },
                     {
                         "cloud_resource_id": "hystax-eu-fra",
@@ -766,7 +854,8 @@ PARAMETER_DUMPS = {
                         "pool_id": "3f575a6a-237d-4f4d-a4b4-1f8005451432",
                         "pool_name": "IK_ORG",
                         "resource_name": "hystax-eu-fra",
-                        "type": "expense_limit"
+                        "type": "expense_limit",
+                        "resource_id": "2b2dd58e-366d-4138-ad72-756aec545eca",
                     }
                 ]
             }
@@ -778,7 +867,6 @@ PARAMETER_DUMPS = {
         "subject": "Action required: Hystax OptScale Resource Constraints Report",
         "template_params": {
             "texts": {
-                "title": "Resource Constraints Report",
                 "total_differ": 1,
                 "total_violated": 1,
                 "differ_resources": [{
@@ -814,11 +902,6 @@ PARAMETER_DUMPS = {
                     "id": "b8835bce-da4c-4c29-98a0-4b4967baba53",
                     "name": "Czar Pictures"
                 },
-                "user": {
-                    "user_display_name": "Mr Smith",
-                    "user_email": "root@hystax.com",
-                    "user_id": "8aa14efd-d111-4934-9c19-92b6f0da18fe"
-                },
                 "violated_resources": [{
                     "cloud_resource_id": "hystax-eu-fra",
                     "constraint_limit": 1,
@@ -848,9 +931,6 @@ PARAMETER_DUMPS = {
         "subject": "OptScale weekly expense report",
         "template_params": {
             "texts": {
-                "end_date": "29/3/2021",
-                "start_date": "1/3/2021",
-                "title": "Weekly expense report",
                 "organization": {
                     "forecast": 482.32,
                     "id": "ed74eb3b-1c4d-477e-b431-28f697d62233",
@@ -895,7 +975,7 @@ PARAMETER_DUMPS = {
                     },
                     {
                         "cost": 93.56,
-                        "forecast": 100.01,
+                        "forecast": 122222312300.01,
                         "id": "278c5876-43bb-4f33-9dff-55ae518d65db",
                         "limit": 50,
                         "name": "testo",
@@ -906,11 +986,6 @@ PARAMETER_DUMPS = {
                     "forecast": 224.81,
                     "total_cost": 210.3,
                     "resources_tracked": 540
-                },
-                "user": {
-                    "user_display_name": "Mr Smith",
-                    "user_email": "root@hystax.com",
-                    "user_id": "8aa14efd-d111-4934-9c19-92b6f0da18fe"
                 }
             }
         }
@@ -922,8 +997,10 @@ PARAMETER_DUMPS = {
         'template_params': {
             'texts': {
                 'organization': {
-                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415'
+                    'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
+                    'name': 'Czar Pictures'
                 },
+                "reason": "Timeout error while process task 1639638582 (organization_id b74f3ca6-c392-4bcb-96b3-2ffaa0281810)",
                 'failed_modules': [{
                     'module': 'instance_migration',
                     'error': 'Timeout error while process task 1639638582 '
@@ -947,15 +1024,14 @@ PARAMETER_DUMPS = {
             }}},
     'first_shareable_resources': {
         "email": ["azaza@ma.il"],
-        "subject": "OptScale shareable resources notification",
+        "subject": "OptScale shareable environments notification",
         "template_type": "first_shareable_resources",
         "template_params": {
             "texts": {
                 "organization": {
                     "id": "5d3d4501-0de8-40dc-a9ed-df2fb1396141",
                     "name": "am2"
-                },
-                "title": "First shareable resource"
+                }
             },
         }
     },
@@ -975,50 +1051,113 @@ PARAMETER_DUMPS = {
                     'type': 'alibaba_cnr',
                     'last_import_at': '09/03/2021 10:37:57 UTC'
                 },
-                'reason': 'Because',
-                'title': 'Report import failed'
+                'reason': 'Because'
             },
         }
     },
     'environment_changes': {
         "email": ["azaza@ma.il"],
-        "subject": "OptScale environment changes notification",
+        "subject": "Environment changed",
         "template_type": "environment_changes",
         "template_params": {
             "texts": {
                 "organization": {
-                        "name": "AS_Test_ORG",
-                        "id": "7e23e036-87b9-460f-aa3e-10f2a5b63f54",
-                        "currency_code": "$"
-                    },
-                    "user": {
-                        "user_display_name": "ASBalmah_Engineer"
-                    },
+                    "name": "AS_Test_ORG",
+                    "id": "7e23e036-87b9-460f-aa3e-10f2a5b63f54",
+                    "currency_code": "$"
+                },
+                "user": {
+                    "user_display_name": "ASBalmah_Engineer"
+                },
+                "environment_status_changed": {
                     "changed_environment": {
                         "name": "Test_Environment",
-                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf"
-                    },
-                "environments_infos": [{
-                        "cloud_resource_id": "environment_f09696910bdd874a99cd74c8f05b5c44",
-                        "resource_name": "Test_Environment",
-                        "cloud_account_id": "07b66570-ad21-4cae-93f7-b079b548daae",
-                        "cloud_account_name": "Environment",
-                        "type": "Test_Type",
-                        "resource_id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
-                        "jira_tickets": [{
+                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                        "status": "released"
+                    }
+                },
+                "environment_prop_changed": {
+                    "changed_environment": {
+                        "property_info": [
+                            {
+                                "name": "Purpose",
+                                "previous_value": "Staging",
+                                "new_value": "Production"
+                            },
+                            {
+                                "name": "Purpose2",
+                                "previous_value": "Staging2",
+                                "new_value": "Production2"
+                            }
+                        ],
+                        "name": "Test_Environment",
+                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                    }
+                },
+                "environments_infos": {
+                    "cloud_resource_id": "environment_f09696910bdd874a99cd74c8f05b5c44",
+                    "resource_name": "Test_Environment",
+                    "cloud_account_id": "07b66570-ad21-4cae-93f7-b079b548daae",
+                    "cloud_account_name": "Environment",
+                    "type": "Test_Type",
+                    "resource_id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                    "pool": "Environment",
+                    "resource_type": "environment",
+                    "jira_tickets": [
+                        {
                             "url": "https://jira.com.example/NGUI-1242",
                             "name": "NGUI-1242"
-                        }, {
+                        }, 
+                        {
                             "url": "https://jira.com.example/NGUI-3214",
                             "name": "NGUI-3214"
-                        }],
-                        "software": "software_example",
-                        "status": {'Status': 'Available'},
-                        "upcoming_bookings": {'status_info': {'Status': "-"}}
-                    }],
-                    "name": "Vasya2",
-                    "changed_status_text": "released",
-                    "title": "Environment changes",
+                        }
+                    ],
+                    "software": "software_example",
+                    "status": {
+                        "Status": "IN USE",
+                        "details": {
+                            "User": "John Doe",
+                            "Since": "2024-08-01 06:44:49 UTC",
+                            "Until": "2024-08-01 10:00:00 UTC",
+                            "Remained": "3 hours"
+                        }
+                    },
+                    "upcoming_bookings": [
+                        {
+                            "details": {
+                                "User": "John Doe",
+                                "Since": "2024-08-02 07:00:00 UTC",
+                                "Until": "2024-08-04 07:00:00 UTC",
+                                "Duration": "48 hours"
+                            },
+                            "status_info": {
+                                "Status": "<upcoming booking status>"
+                            }
+                        }
+                    ],
+                    "contains_envs": True,
+                    "env_properties": [
+                        {
+                            "env_key": "Purpose",
+                            "env_value": "Production"
+                        },
+                        {
+                            "env_key": "Software version",
+                            "env_value": "v1.2.32141"
+                        }
+
+                    ]
+                },
+                "environment_state_changed": {
+                    "changed_environment": {
+                        "name": "Test_Environment",
+                        "id": "5dba5d14-d385-4b29-a426-b37160d1adbf",
+                        "previous_value": "Active",
+                        "new_value": "Not Active",
+                    }
+                },
+                "name": "John Doe",
             },
         }
     },
@@ -1292,12 +1431,14 @@ PARAMETER_DUMPS = {
         'template_type': 'report_imports_passed_for_org',
         'template_params': {
             'texts': {
-                'title': 'Expenses initial processing completed',
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                     'currency_code': '$'
-                }}}},
+                }
+            }
+        }
+    },
     'insider_prices_sslerror': {
         "email": ["optscale-staging-notifications@hystax.com"],
         "subject": "[172.22.20.6] Insider faced Azure SSLError",
@@ -1308,20 +1449,20 @@ PARAMETER_DUMPS = {
                 }}},
     'incorrect_alibaba_expenses': {
         "email": ["optscale-staging-notifications@hystax.com"],
-        "subject": "[172.22.20.6] Incorrect expenses for Alibaba cloud account",
+        "subject": "[172.22.20.6] Incorrect expenses for Alibaba data source",
         'template_type': 'incorrect_alibaba_expenses',
         'template_params': {
             'texts': {
                 'clean_expenses': 18256.11,
                 'cloud_expenses': 17822.97,
-                'period': '2022-11',
+                'period': '2022-11-11 - 2022-11-17',
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
                 },
                 'cloud_account': {
                     'id': 'c063973e-0bb2-4134-9ebe-2e68104d7aa8',
-                    'name': 'Test cloud account',
+                    'name': 'Test_data_source',
                 }}}},
     'disconnect_survey': {
         'email': ['andersonmatthew_hwp@hystax.com'],
@@ -1331,10 +1472,13 @@ PARAMETER_DUMPS = {
             'texts': {
                 'user': 'Eliot Alderson',
                 'email': 'ealderson@fsociety.com',
-                'data': {
-                    'k1': 'v1',
-                    'k2': 'v2',
-                },
+                'data': [{
+                    'k': 'key1',
+                    'v': 'value1',
+                }, {
+                    'k': 'key2',
+                    'v': 'value2',
+                }],
                 'organization': {
                     'id': 'd7092814-2b12-4e60-89c5-67919c9b17d6',
                     'name': 'Funny company',

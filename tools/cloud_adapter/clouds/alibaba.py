@@ -257,10 +257,18 @@ class Alibaba(CloudBase):
                 raise ValueError('Unexpected response format: {}'.format(
                     response))
 
+    @staticmethod
+    def _exclude_closed_regions(regions):
+        # 'ap-south-1' region is closed, but it still remains in regions list,
+        # let's exclude it
+        closed_regions = ['ap-south-1']
+        return [x for x in regions if x['RegionId'] not in closed_regions]
+
     def _list_region_details(self):
         request = DescribeRegionsRequest.DescribeRegionsRequest()
         request.set_AcceptLanguage('en-US')  # The default is Chinese
-        return self._send_request(request)['Regions']['Region']
+        regions = self._send_request(request)['Regions']['Region']
+        return self._exclude_closed_regions(regions)
 
     def _find_region(self, id_or_name):
         if id_or_name not in self._regions_map:
@@ -728,6 +736,10 @@ class Alibaba(CloudBase):
             'ap-northeast-1': {
                 'name': 'Japan (Tokyo)',
                 'longitude': 139.2080387, 'latitude': 35.5079383},
+            'ap-northeast-2': {
+                'name': 'South Korea (Seoul)',
+                'longitude': 126.985613, 'latitude': 37.538269
+            },
             'ap-southeast-1': {
                 'name': 'Singapore',
                 'longitude': 103.7038234, 'latitude': 1.3139961},
@@ -740,8 +752,16 @@ class Alibaba(CloudBase):
             'ap-southeast-5': {
                 'name': 'Indonesia (Jakarta)',
                 'longitude': 106.7593066, 'latitude': -6.2297419},
+            'ap-southeast-6': {
+                'name': 'Philippines (Manila)',
+                'longitude': 120.975954, 'latitude': 14.602475,
+            },
+            'ap-southeast-7': {
+                'name': 'Thailand (Bangkok)',
+                'longitude': 100.515775, 'latitude': 13.755747
+            },
             'ap-south-1': {
-                'name': 'India (Mumbai)',
+                'name': 'India (Mumbai) Closing Down',
                 'longitude': 72.74076, 'latitude': 19.0821976},
             'us-east-1': {
                 'name': 'US (Virginia)',
@@ -764,8 +784,21 @@ class Alibaba(CloudBase):
         }
         # endregion
 
+    @staticmethod
+    def _get_outdated_regions():
+        # "India (Mumbai)" region was renamed to "India (Mumbai) Closing Down",
+        # but it still remains in old expenses. Let's create a fake region with
+        # the outdated name, as optscale uses regions names instead of ids for
+        # Alibaba cloud
+        return {
+            'ap-south-1-fake': {
+                'name': 'India (Mumbai)',
+                'longitude': 72.74076, 'latitude': 19.0821976},
+        }
+
     def get_regions_coordinates(self):
         coordinates_map = self._get_coordinates_map()
+        coordinates_map.update(self._get_outdated_regions())
         try:
             for region_details in self._list_region_details():
                 region_id = region_details['RegionId']

@@ -11,7 +11,9 @@ from requests import HTTPError
 from optscale_client.insider_client.client import Client as InsiderClient
 from optscale_client.metroculus_client.client import Client as MetroculusClient
 
-from bumiworker.bumiworker.modules.base import ModuleBase
+from bumiworker.bumiworker.modules.base import (
+    ModuleBase, ArchiveBase, ArchiveReason
+)
 
 LOG = logging.getLogger(__name__)
 BULK_SIZE = 500
@@ -71,14 +73,17 @@ class RightsizingBase(ModuleBase):
         raise NotImplementedError
 
     @staticmethod
-    def _get_base_recommended_cpu(flavor_cpu, instance_metrics, optimization_metric):
+    def _get_base_recommended_cpu(flavor_cpu, instance_metrics,
+                                  optimization_metric):
         optimization_metric_type = optimization_metric.get('type')
         optimization_metric_limit = optimization_metric.get('limit')
-        relevant_instance_metric = instance_metrics.get(optimization_metric_type)
+        relevant_instance_metric = instance_metrics.get(
+            optimization_metric_type)
         if relevant_instance_metric is None:
             LOG.warning("unknown CPU metric %s", optimization_metric_type)
             return None
-        recommended = ceil(flavor_cpu / optimization_metric_limit * relevant_instance_metric)
+        recommended = ceil(
+            flavor_cpu / optimization_metric_limit * relevant_instance_metric)
         return recommended
 
     def get_recommended_cpu(self, flavor_cpu, instance_metrics,
@@ -210,11 +215,13 @@ class RightsizingBase(ModuleBase):
 
     def _handle_instances(self, current_flavor_params, cloud_account,
                           write_stat_func, optimization_metric, metrics_map,
-                          resource_info_map, r_info, recommended_flavor_cpu_min,
-                          excluded_pools, excluded_flavor_prog):
+                          resource_info_map, r_info,
+                          recommended_flavor_cpu_min, excluded_pools,
+                          excluded_flavor_prog):
         result = []
-        unable_to_get_current_flavor = set(x for params in current_flavor_params
-                                           for x in params['resource_ids'])
+        unable_to_get_current_flavor = set(
+            x for params in current_flavor_params
+            for x in params['resource_ids'])
         for params in current_flavor_params:
             res_ids = params['resource_ids']
             region = params['region']
@@ -274,16 +281,19 @@ class RightsizingBase(ModuleBase):
                     if not recommended_flavor:
                         continue
                     if (recommended_flavor['flavor'] == flavor or
-                            platform_name and not flavor and recommended_flavor[
-                                'flavor'] != platform_name):
+                            platform_name and not flavor and
+                            recommended_flavor['flavor'] != platform_name):
                         write_stat_func('no_recommended_flavor')
                         break
-                    current_cost = current_r_info.get('day_cost', 0) * DAYS_IN_MONTH
+                    current_cost = current_r_info.get(
+                        'day_cost', 0) * DAYS_IN_MONTH
                     discount_multiplier = current_r_info.get(
                         'discount_multiplier', 1)
                     multiplier = HOURS_IN_DAY * DAYS_IN_MONTH * discount_multiplier
-                    recommended_cost = recommended_flavor.get('price') * multiplier
-                    current_flavor_cost = current_flavor.get('price') * multiplier
+                    recommended_cost = recommended_flavor.get(
+                        'price') * multiplier
+                    current_flavor_cost = current_flavor.get(
+                        'price') * multiplier
                     if recommended_cost >= current_flavor_cost:
                         write_stat_func('current_cost_less_recommended')
                         break
@@ -397,7 +407,8 @@ class RightsizingBase(ModuleBase):
             ca_result = self._handle_instances(
                 current_flavor_params, ca, write_stat, optimization_metric,
                 metrics_map, resource_info_map, info,
-                recommended_flavor_cpu_min, excluded_pools, excluded_flavor_prog)
+                recommended_flavor_cpu_min, excluded_pools,
+                excluded_flavor_prog)
             LOG.info('%s statistics for %s (%s): %s',
                      self.get_name().capitalize(), self.organization_id,
                      cloud_type, stats_map)
@@ -441,7 +452,8 @@ class RightsizingBase(ModuleBase):
                 }]
         return result
 
-    def get_base_azure_instances_info(self, cloud_resources, cloud_account_ids):
+    def get_base_azure_instances_info(self, cloud_resources,
+                                      cloud_account_ids):
         result = defaultdict(list)
         for i in range(0, len(cloud_resources), BULK_SIZE):
             bulk_resources = cloud_resources[i:i + BULK_SIZE]
@@ -480,8 +492,8 @@ class RightsizingBase(ModuleBase):
                 result[res_id].append(data)
         return result
 
-    def get_base_alibaba_instances_info(self, cloud_resources, cloud_account_ids,
-                                        pay_as_you_go_item):
+    def get_base_alibaba_instances_info(self, cloud_resources,
+                                        cloud_account_ids, pay_as_you_go_item):
         result = {}
         for i in range(0, len(cloud_resources), BULK_SIZE):
             bulk_resources = cloud_resources[i:i + BULK_SIZE]
@@ -540,7 +552,8 @@ class RightsizingBase(ModuleBase):
             resource_id = cloud_resource["cloud_resource_id"]
             current_flavor = self._find_flavor(
                 "gcp_cnr", cloud_resource["region"],
-                {"source_flavor_id": cloud_resource["meta"]["flavor"]}, 'current')
+                {"source_flavor_id": cloud_resource["meta"]["flavor"]},
+                'current')
             if not current_flavor:
                 # we do not currently support custom flavors,
                 # so insider might return empty response
@@ -554,7 +567,8 @@ class RightsizingBase(ModuleBase):
                 }]
         return result
 
-    def get_base_nebius_instances_info(self, cloud_resources, cloud_account_ids):
+    def get_base_nebius_instances_info(self, cloud_resources,
+                                       cloud_account_ids):
         result = {}
         for cloud_resource in cloud_resources:
             resource_id = cloud_resource["cloud_resource_id"]
@@ -624,3 +638,89 @@ class RightsizingBase(ModuleBase):
                         'setting default', metric_limit)
             return default_value
         return option_value
+
+
+class RightsizingArchiveBase(ArchiveBase, RightsizingBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reason_description_map[ArchiveReason.RECOMMENDATION_APPLIED] = (
+            'flavor changed')
+
+    @property
+    def supported_cloud_types(self):
+        return list(self._get_supported_func_map().keys())
+
+    def _get_instances(self, cloud_account_ids, start_date):
+        instances = super()._get_instances(cloud_account_ids, start_date)
+        instances_by_account_map = {x: [] for x in cloud_account_ids}
+        for instance in instances:
+            cloud_account_id = instance['cloud_account_id']
+            instances_by_account_map[cloud_account_id].append(instance)
+        return instances_by_account_map
+
+    def set_additional_reasons(self, cloud_resource_map, cloud_account,
+                               cloud_resource_id_instance_map,
+                               optimizations_dict, days_threshold, result):
+        pass
+
+    def _get(self, previous_options, optimizations, cloud_accounts_map,
+             **kwargs):
+        days_threshold = previous_options['days_threshold']
+
+        cloud_acc_instances_map = defaultdict(dict)
+        min_dt = datetime.utcnow() - timedelta(days=days_threshold)
+        for cloud_acc_id, instances in self._get_instances(
+                list(cloud_accounts_map.keys()),
+                int(min_dt.timestamp())).items():
+            for instance in instances:
+                instance_key = self.get_record_key(instance)
+                cloud_acc_instances_map[cloud_acc_id][instance_key] = instance
+
+        account_optimizations_map = defaultdict(dict)
+        for optimization in optimizations:
+            optimization_key = self.get_record_key(optimization)
+            account_optimizations_map[optimization['cloud_account_id']][
+                optimization_key] = optimization
+
+        result = []
+        for cloud_account_id, optimizations_dict in account_optimizations_map.items():
+            cloud_account = cloud_accounts_map.get(cloud_account_id)
+            if not cloud_account:
+                for optimization in optimizations_dict.values():
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.CLOUD_ACCOUNT_DELETED)
+                    result.append(optimization)
+                continue
+
+            instances_map = cloud_acc_instances_map.get(cloud_account_id, {})
+            cloud_resource_map = {}
+            cloud_resource_id_instance_map = {}
+            for instance_key, optimization in optimizations_dict.items():
+                instance = instances_map.get(instance_key)
+                if not instance:
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.RESOURCE_DELETED)
+                    result.append(optimization)
+                    continue
+                meta = instance['meta']
+                inst_flavor = meta.get('flavor') or meta.get('platform_name')
+                if (inst_flavor == optimization['recommended_flavor'] and
+                        meta.get('cpu_count') == optimization[
+                          'recommended_flavor_cpu']):
+                    self._set_reason_properties(
+                        optimization, ArchiveReason.RECOMMENDATION_APPLIED)
+                    result.append(optimization)
+                    continue
+                else:
+                    cloud_resource_map[instance['_id']] = instance
+                    cloud_resource_id_instance_map[
+                        instance['cloud_resource_id']] = instance
+
+            if not cloud_resource_id_instance_map:
+                continue
+
+            self.set_additional_reasons(cloud_resource_map, cloud_account,
+                                        cloud_resource_id_instance_map,
+                                        optimizations_dict, days_threshold,
+                                        result)
+        return result

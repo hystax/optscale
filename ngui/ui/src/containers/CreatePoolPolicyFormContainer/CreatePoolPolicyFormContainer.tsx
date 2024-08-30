@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAvailablePools, RESTAPI } from "api";
 import { GET_AVAILABLE_POOLS } from "api/restapi/actionTypes";
-import CreatePoolPolicyForm from "components/CreatePoolPolicyForm";
+import CreatePoolPolicyForm from "components/forms/CreatePoolPolicyForm";
 import { useApiState } from "hooks/useApiState";
 import { useConstraints } from "hooks/useConstraints";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";

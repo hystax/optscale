@@ -20,6 +20,14 @@ spec:
     app: {{ $config.name }}
     release: {{ .Release.Name }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: php-config-vol
+data:
+  php.ini: |
+{{ include "php.ini" . | indent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -57,3 +65,12 @@ spec:
           value: {{ $config.image.id }}
         - name: PMA_HOST
           value: {{ .Values.mariadb.service.name }}
+        volumeMounts:
+        - mountPath: /etc/php.ini
+          name: configmap
+          subPath: php.ini
+      volumes:
+      - name: configmap
+        configMap:
+          name: php-config-vol
+        

@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -14,11 +14,17 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  JSONObject: { input: Record<string, any>; output: Record<string, any>; }
 };
 
 export type AlibabaConfig = {
   __typename?: 'AlibabaConfig';
-  access_key_id: Scalars['String']['output'];
+  access_key_id?: Maybe<Scalars['String']['output']>;
+};
+
+export type AlibabaConfigInput = {
+  access_key_id: Scalars['String']['input'];
+  secret_access_key: Scalars['String']['input'];
 };
 
 export type AlibabaDataSource = DataSourceInterface & {
@@ -40,10 +46,11 @@ export type AlibabaDataSource = DataSourceInterface & {
 
 export type AwsConfig = {
   __typename?: 'AwsConfig';
-  access_key_id: Scalars['String']['output'];
+  access_key_id?: Maybe<Scalars['String']['output']>;
   bucket_name?: Maybe<Scalars['String']['output']>;
   bucket_prefix?: Maybe<Scalars['String']['output']>;
   config_scheme?: Maybe<Scalars['String']['output']>;
+  cur_version?: Maybe<Scalars['Int']['output']>;
   linked?: Maybe<Scalars['Boolean']['output']>;
   region_name?: Maybe<Scalars['String']['output']>;
   report_name?: Maybe<Scalars['String']['output']>;
@@ -66,12 +73,35 @@ export type AwsDataSource = DataSourceInterface & {
   type: DataSourceType;
 };
 
+export type AwsLinkedConfigInput = {
+  access_key_id: Scalars['String']['input'];
+  linked: Scalars['Boolean']['input'];
+  secret_access_key: Scalars['String']['input'];
+};
+
+export type AwsRootConfigInput = {
+  access_key_id: Scalars['String']['input'];
+  bucket_name?: InputMaybe<Scalars['String']['input']>;
+  bucket_prefix?: InputMaybe<Scalars['String']['input']>;
+  config_scheme?: InputMaybe<Scalars['String']['input']>;
+  cur_version?: InputMaybe<Scalars['Int']['input']>;
+  report_name?: InputMaybe<Scalars['String']['input']>;
+  secret_access_key: Scalars['String']['input'];
+};
+
 export type AzureSubscriptionConfig = {
   __typename?: 'AzureSubscriptionConfig';
-  client_id: Scalars['String']['output'];
-  expense_import_scheme: Scalars['String']['output'];
-  subscription_id: Scalars['String']['output'];
-  tenant: Scalars['String']['output'];
+  client_id?: Maybe<Scalars['String']['output']>;
+  expense_import_scheme?: Maybe<Scalars['String']['output']>;
+  subscription_id?: Maybe<Scalars['String']['output']>;
+  tenant?: Maybe<Scalars['String']['output']>;
+};
+
+export type AzureSubscriptionConfigInput = {
+  client_id: Scalars['String']['input'];
+  secret: Scalars['String']['input'];
+  subscription_id: Scalars['String']['input'];
+  tenant: Scalars['String']['input'];
 };
 
 export type AzureSubscriptionDataSource = DataSourceInterface & {
@@ -93,8 +123,14 @@ export type AzureSubscriptionDataSource = DataSourceInterface & {
 
 export type AzureTenantConfig = {
   __typename?: 'AzureTenantConfig';
-  client_id: Scalars['String']['output'];
-  tenant: Scalars['String']['output'];
+  client_id?: Maybe<Scalars['String']['output']>;
+  tenant?: Maybe<Scalars['String']['output']>;
+};
+
+export type AzureTenantConfigInput = {
+  client_id: Scalars['String']['input'];
+  secret: Scalars['String']['input'];
+  tenant: Scalars['String']['input'];
 };
 
 export type AzureTenantDataSource = DataSourceInterface & {
@@ -170,8 +206,14 @@ export enum DataSourceType {
 
 export type DatabricksConfig = {
   __typename?: 'DatabricksConfig';
-  account_id: Scalars['String']['output'];
-  client_id: Scalars['String']['output'];
+  account_id?: Maybe<Scalars['String']['output']>;
+  client_id?: Maybe<Scalars['String']['output']>;
+};
+
+export type DatabricksConfigInput = {
+  account_id: Scalars['String']['input'];
+  client_id: Scalars['String']['input'];
+  client_secret: Scalars['String']['input'];
 };
 
 export type DatabricksDataSource = DataSourceInterface & {
@@ -209,14 +251,24 @@ export type EnvironmentDataSource = DataSourceInterface & {
 
 export type GcpBillingDataConfig = {
   __typename?: 'GcpBillingDataConfig';
-  dataset_name: Scalars['String']['output'];
+  dataset_name?: Maybe<Scalars['String']['output']>;
   project_id?: Maybe<Scalars['String']['output']>;
-  table_name: Scalars['String']['output'];
+  table_name?: Maybe<Scalars['String']['output']>;
+};
+
+export type GcpBillingDataConfigInput = {
+  dataset_name: Scalars['String']['input'];
+  table_name: Scalars['String']['input'];
 };
 
 export type GcpConfig = {
   __typename?: 'GcpConfig';
-  billing_data: GcpBillingDataConfig;
+  billing_data?: Maybe<GcpBillingDataConfig>;
+};
+
+export type GcpConfigInput = {
+  billing_data: GcpBillingDataConfigInput;
+  credentials: Scalars['JSONObject']['input'];
 };
 
 export type GcpDataSource = DataSourceInterface & {
@@ -248,6 +300,11 @@ export type K8sConfig = {
   user: Scalars['String']['output'];
 };
 
+export type K8sConfigInput = {
+  password: Scalars['String']['input'];
+  user: Scalars['String']['input'];
+};
+
 export type K8sDataSource = DataSourceInterface & {
   __typename?: 'K8sDataSource';
   account_id: Scalars['String']['output'];
@@ -265,14 +322,36 @@ export type K8sDataSource = DataSourceInterface & {
   type: DataSourceType;
 };
 
+export type Mutation = {
+  __typename?: 'Mutation';
+  updateDataSource?: Maybe<DataSourceInterface>;
+};
+
+
+export type MutationUpdateDataSourceArgs = {
+  dataSourceId: Scalars['ID']['input'];
+  params: UpdateDataSourceInput;
+};
+
 export type NebiusConfig = {
   __typename?: 'NebiusConfig';
-  access_key_id: Scalars['String']['output'];
+  access_key_id?: Maybe<Scalars['String']['output']>;
   bucket_name?: Maybe<Scalars['String']['output']>;
   bucket_prefix?: Maybe<Scalars['String']['output']>;
-  cloud_name: Scalars['String']['output'];
-  key_id: Scalars['String']['output'];
-  service_account_id: Scalars['String']['output'];
+  cloud_name?: Maybe<Scalars['String']['output']>;
+  key_id?: Maybe<Scalars['String']['output']>;
+  service_account_id?: Maybe<Scalars['String']['output']>;
+};
+
+export type NebiusConfigInput = {
+  access_key_id: Scalars['String']['input'];
+  bucket_name: Scalars['String']['input'];
+  bucket_prefix?: InputMaybe<Scalars['String']['input']>;
+  cloud_name: Scalars['String']['input'];
+  key_id: Scalars['String']['input'];
+  private_key: Scalars['String']['input'];
+  secret_access_key: Scalars['String']['input'];
+  service_account_id: Scalars['String']['input'];
 };
 
 export type NebiusDataSource = DataSourceInterface & {
@@ -301,6 +380,19 @@ export type Query = {
 export type QueryDataSourceArgs = {
   dataSourceId: Scalars['ID']['input'];
   requestParams?: InputMaybe<DataSourceRequestParams>;
+};
+
+export type UpdateDataSourceInput = {
+  alibabaConfig?: InputMaybe<AlibabaConfigInput>;
+  awsLinkedConfig?: InputMaybe<AwsLinkedConfigInput>;
+  awsRootConfig?: InputMaybe<AwsRootConfigInput>;
+  azureSubscriptionConfig?: InputMaybe<AzureSubscriptionConfigInput>;
+  azureTenantConfig?: InputMaybe<AzureTenantConfigInput>;
+  databricksConfig?: InputMaybe<DatabricksConfigInput>;
+  gcpConfig?: InputMaybe<GcpConfigInput>;
+  k8sConfig?: InputMaybe<K8sConfigInput>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  nebiusConfig?: InputMaybe<NebiusConfigInput>;
 };
 
 
@@ -372,19 +464,24 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 
 /** Mapping of interface types */
-export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = {
+export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = {
   DataSourceInterface: ( AlibabaDataSource ) | ( AwsDataSource ) | ( AzureSubscriptionDataSource ) | ( AzureTenantDataSource ) | ( DatabricksDataSource ) | ( EnvironmentDataSource ) | ( GcpDataSource ) | ( K8sDataSource ) | ( NebiusDataSource );
 };
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   AlibabaConfig: ResolverTypeWrapper<AlibabaConfig>;
+  AlibabaConfigInput: AlibabaConfigInput;
   AlibabaDataSource: ResolverTypeWrapper<AlibabaDataSource>;
   AwsConfig: ResolverTypeWrapper<AwsConfig>;
   AwsDataSource: ResolverTypeWrapper<AwsDataSource>;
+  AwsLinkedConfigInput: AwsLinkedConfigInput;
+  AwsRootConfigInput: AwsRootConfigInput;
   AzureSubscriptionConfig: ResolverTypeWrapper<AzureSubscriptionConfig>;
+  AzureSubscriptionConfigInput: AzureSubscriptionConfigInput;
   AzureSubscriptionDataSource: ResolverTypeWrapper<AzureSubscriptionDataSource>;
   AzureTenantConfig: ResolverTypeWrapper<AzureTenantConfig>;
+  AzureTenantConfigInput: AzureTenantConfigInput;
   AzureTenantDataSource: ResolverTypeWrapper<AzureTenantDataSource>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   DataSourceDetails: ResolverTypeWrapper<DataSourceDetails>;
@@ -393,32 +490,45 @@ export type ResolversTypes = {
   DataSourceRequestParams: DataSourceRequestParams;
   DataSourceType: DataSourceType;
   DatabricksConfig: ResolverTypeWrapper<DatabricksConfig>;
+  DatabricksConfigInput: DatabricksConfigInput;
   DatabricksDataSource: ResolverTypeWrapper<DatabricksDataSource>;
   EnvironmentDataSource: ResolverTypeWrapper<EnvironmentDataSource>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GcpBillingDataConfig: ResolverTypeWrapper<GcpBillingDataConfig>;
+  GcpBillingDataConfigInput: GcpBillingDataConfigInput;
   GcpConfig: ResolverTypeWrapper<GcpConfig>;
+  GcpConfigInput: GcpConfigInput;
   GcpDataSource: ResolverTypeWrapper<GcpDataSource>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  JSONObject: ResolverTypeWrapper<Scalars['JSONObject']['output']>;
   K8CostModelConfig: ResolverTypeWrapper<K8CostModelConfig>;
   K8sConfig: ResolverTypeWrapper<K8sConfig>;
+  K8sConfigInput: K8sConfigInput;
   K8sDataSource: ResolverTypeWrapper<K8sDataSource>;
+  Mutation: ResolverTypeWrapper<{}>;
   NebiusConfig: ResolverTypeWrapper<NebiusConfig>;
+  NebiusConfigInput: NebiusConfigInput;
   NebiusDataSource: ResolverTypeWrapper<NebiusDataSource>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  UpdateDataSourceInput: UpdateDataSourceInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   AlibabaConfig: AlibabaConfig;
+  AlibabaConfigInput: AlibabaConfigInput;
   AlibabaDataSource: AlibabaDataSource;
   AwsConfig: AwsConfig;
   AwsDataSource: AwsDataSource;
+  AwsLinkedConfigInput: AwsLinkedConfigInput;
+  AwsRootConfigInput: AwsRootConfigInput;
   AzureSubscriptionConfig: AzureSubscriptionConfig;
+  AzureSubscriptionConfigInput: AzureSubscriptionConfigInput;
   AzureSubscriptionDataSource: AzureSubscriptionDataSource;
   AzureTenantConfig: AzureTenantConfig;
+  AzureTenantConfigInput: AzureTenantConfigInput;
   AzureTenantDataSource: AzureTenantDataSource;
   Boolean: Scalars['Boolean']['output'];
   DataSourceDetails: DataSourceDetails;
@@ -426,25 +536,33 @@ export type ResolversParentTypes = {
   DataSourceInterface: ResolversInterfaceTypes<ResolversParentTypes>['DataSourceInterface'];
   DataSourceRequestParams: DataSourceRequestParams;
   DatabricksConfig: DatabricksConfig;
+  DatabricksConfigInput: DatabricksConfigInput;
   DatabricksDataSource: DatabricksDataSource;
   EnvironmentDataSource: EnvironmentDataSource;
   Float: Scalars['Float']['output'];
   GcpBillingDataConfig: GcpBillingDataConfig;
+  GcpBillingDataConfigInput: GcpBillingDataConfigInput;
   GcpConfig: GcpConfig;
+  GcpConfigInput: GcpConfigInput;
   GcpDataSource: GcpDataSource;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  JSONObject: Scalars['JSONObject']['output'];
   K8CostModelConfig: K8CostModelConfig;
   K8sConfig: K8sConfig;
+  K8sConfigInput: K8sConfigInput;
   K8sDataSource: K8sDataSource;
+  Mutation: {};
   NebiusConfig: NebiusConfig;
+  NebiusConfigInput: NebiusConfigInput;
   NebiusDataSource: NebiusDataSource;
   Query: {};
   String: Scalars['String']['output'];
+  UpdateDataSourceInput: UpdateDataSourceInput;
 };
 
 export type AlibabaConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AlibabaConfig'] = ResolversParentTypes['AlibabaConfig']> = {
-  access_key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  access_key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -466,10 +584,11 @@ export type AlibabaDataSourceResolvers<ContextType = any, ParentType extends Res
 };
 
 export type AwsConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AwsConfig'] = ResolversParentTypes['AwsConfig']> = {
-  access_key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  access_key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   config_scheme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  cur_version?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   linked?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   region_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   report_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -494,10 +613,10 @@ export type AwsDataSourceResolvers<ContextType = any, ParentType extends Resolve
 };
 
 export type AzureSubscriptionConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AzureSubscriptionConfig'] = ResolversParentTypes['AzureSubscriptionConfig']> = {
-  client_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  expense_import_scheme?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subscription_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  tenant?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  client_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  expense_import_scheme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subscription_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tenant?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -519,8 +638,8 @@ export type AzureSubscriptionDataSourceResolvers<ContextType = any, ParentType e
 };
 
 export type AzureTenantConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['AzureTenantConfig'] = ResolversParentTypes['AzureTenantConfig']> = {
-  client_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  tenant?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  client_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tenant?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -581,8 +700,8 @@ export type DataSourceInterfaceResolvers<ContextType = any, ParentType extends R
 };
 
 export type DatabricksConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['DatabricksConfig'] = ResolversParentTypes['DatabricksConfig']> = {
-  account_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  client_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  account_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  client_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -620,14 +739,14 @@ export type EnvironmentDataSourceResolvers<ContextType = any, ParentType extends
 };
 
 export type GcpBillingDataConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['GcpBillingDataConfig'] = ResolversParentTypes['GcpBillingDataConfig']> = {
-  dataset_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dataset_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   project_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  table_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  table_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type GcpConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['GcpConfig'] = ResolversParentTypes['GcpConfig']> = {
-  billing_data?: Resolver<ResolversTypes['GcpBillingDataConfig'], ParentType, ContextType>;
+  billing_data?: Resolver<Maybe<ResolversTypes['GcpBillingDataConfig']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -647,6 +766,10 @@ export type GcpDataSourceResolvers<ContextType = any, ParentType extends Resolve
   type?: Resolver<ResolversTypes['DataSourceType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface JsonObjectScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSONObject'], any> {
+  name: 'JSONObject';
+}
 
 export type K8CostModelConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['K8CostModelConfig'] = ResolversParentTypes['K8CostModelConfig']> = {
   cpu_hourly_cost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -677,13 +800,17 @@ export type K8sDataSourceResolvers<ContextType = any, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  updateDataSource?: Resolver<Maybe<ResolversTypes['DataSourceInterface']>, ParentType, ContextType, RequireFields<MutationUpdateDataSourceArgs, 'dataSourceId' | 'params'>>;
+};
+
 export type NebiusConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['NebiusConfig'] = ResolversParentTypes['NebiusConfig']> = {
-  access_key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  access_key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   bucket_prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  cloud_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  key_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  service_account_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  cloud_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  key_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  service_account_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -726,9 +853,11 @@ export type Resolvers<ContextType = any> = {
   GcpBillingDataConfig?: GcpBillingDataConfigResolvers<ContextType>;
   GcpConfig?: GcpConfigResolvers<ContextType>;
   GcpDataSource?: GcpDataSourceResolvers<ContextType>;
+  JSONObject?: GraphQLScalarType;
   K8CostModelConfig?: K8CostModelConfigResolvers<ContextType>;
   K8sConfig?: K8sConfigResolvers<ContextType>;
   K8sDataSource?: K8sDataSourceResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
   NebiusConfig?: NebiusConfigResolvers<ContextType>;
   NebiusDataSource?: NebiusDataSourceResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

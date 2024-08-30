@@ -36,6 +36,7 @@ const GET_DATA_SOURCE = gql`
         config {
           access_key_id
           linked
+          cur_version
           bucket_name
           bucket_prefix
           config_scheme
@@ -100,4 +101,12 @@ const GET_DATA_SOURCE = gql`
   }
 `;
 
-export { GET_DATA_SOURCE };
+const UPDATE_DATA_SOURCE = gql`
+  mutation UpdateDataSource($dataSourceId: ID!, $params: UpdateDataSourceInput!) {
+    updateDataSource(dataSourceId: $dataSourceId, params: $params) {
+      name
+    }
+  }
+`;
+
+export { GET_DATA_SOURCE, UPDATE_DATA_SOURCE };

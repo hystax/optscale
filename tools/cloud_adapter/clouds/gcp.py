@@ -50,6 +50,15 @@ _RETRYABLE_REASONS = frozenset(
     ["rateLimitExceeded", "backendError", "internalError", "badGateway"]
 )
 
+# some resources like buckets do not always belong to a specific region.
+# if they span multiple regions, their locations can have different values
+# in resource dicovery and in report import. here we try to unify those names
+# by replacing discovered values with those that we expet to get from
+# report import.
+REGION_REPLACEMENTS = {
+    "eu": "europe"
+}
+
 
 def _should_retry(exc):
     """Predicate for determining when to retry."""
@@ -202,26 +211,13 @@ class GcpResource:
             region = self._last_path_element(self._cloud_object.region)
         return region
 
-    @property
-    def _region_name_replacements(self) -> dict[str, str]:
-        # some resources like buckets do not always belong to a specific region.
-        # if they span multiple regions, their locations can have different values
-        # in resource dicovery and in report import. here we try to unify those names
-        # by replacing discovered values with those that we expet to get from
-        # report import.
-        return {"eu": "europe"}
-
-    def _fix_region(self, region: str) -> str:
-        region = region.lower()
-        return self._region_name_replacements.get(region, region)
-
     def _get_console_link(self):
         raise NotImplemented()
 
     def _get_common_fields(self):
         tags = self._extract_tags()
         region = self._extract_region()
-        region = self._fix_region(region)
+        region = Gcp.fix_region(region)
         return dict(
             cloud_resource_id=str(self._cloud_object.id),
             cloud_account_id=self._cloud_adapter.cloud_account_id,
@@ -538,6 +534,13 @@ class Gcp(CloudBase):
     def __init__(self, cloud_config, *args, **kwargs):
         self.config = cloud_config
         self._currency = DEFAULT_CURRENCY
+
+    @staticmethod
+    def fix_region(region: str) -> str:
+        if region:
+            region_lower = region.lower()
+            region = REGION_REPLACEMENTS.get(region_lower, region_lower)
+        return region
 
     def discovery_calls_map(self):
         return {

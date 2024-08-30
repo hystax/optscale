@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import Events from "components/Events";
 import { GET_EVENTS } from "graphql/api/keeper/queries";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { EVENT_LEVEL } from "utils/constants";
+import { EVENT_LEVEL, EVENTS_LIMIT } from "utils/constants";
 import { scrolledToBottom } from "utils/layouts";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
@@ -25,7 +25,10 @@ const EventsContainer = () => {
   const { loading } = useQuery(GET_EVENTS, {
     variables: {
       organizationId,
-      requestParams
+      requestParams: {
+        ...requestParams,
+        limit: EVENTS_LIMIT
+      }
     },
     onCompleted: (data) => {
       setEvents((state) => [...state, ...(data?.events ?? [])]);

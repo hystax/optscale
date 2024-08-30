@@ -27,6 +27,7 @@ type SelectProps = {
   onOpen?: () => void;
   onClose?: () => void;
   endAdornment?: ReactNode;
+  renderValue?: (value: unknown) => ReactNode;
 };
 
 const Select = ({
@@ -47,7 +48,8 @@ const Select = ({
   open,
   onClose,
   onOpen,
-  endAdornment
+  endAdornment,
+  renderValue
 }: SelectProps) => {
   const { classes } = useStyles();
 
@@ -80,6 +82,7 @@ const Select = ({
         inputRef={inputRef}
         disabled={isLoading || disabled}
         open={open}
+        renderValue={renderValue}
         classes={{
           root: readOnly ? classes.readOnly : "",
           icon: endAdornment ? classes.adornmentIconPosition : ""

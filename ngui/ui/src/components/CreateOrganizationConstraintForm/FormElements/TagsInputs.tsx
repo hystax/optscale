@@ -7,7 +7,6 @@ import Input from "components/Input";
 import AvailableFiltersService from "services/AvailableFiltersService";
 import { TAG_KEY_MAX_SIZE } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
-import { getMaxLengthValidationDefinition } from "utils/validation";
 import { CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES } from "../constants";
 import { filtersRangeFunction } from "./Filters";
 
@@ -26,31 +25,55 @@ const ControllableButtonsGroup = ({ buttons, value, onChange }) => {
   );
 };
 
-const AutocompleteInput = ({ captionId, required, fieldName, register, errors, possibleTags }) => {
+const AutocompleteInput = ({ labelMessageId, fieldName, tags, required = false }) => {
   const intl = useIntl();
 
-  const registerOptions = {
-    required: {
-      value: required,
-      message: intl.formatMessage({ id: "thisFieldIsRequired" })
-    },
-    maxLength: getMaxLengthValidationDefinition(fieldName, TAG_KEY_MAX_SIZE)
-  };
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext();
 
-  const sortedTags = [...possibleTags.sort()];
+  const sortedTags = tags.toSorted();
+
   return (
-    <Autocomplete
-      freeSolo
-      options={sortedTags}
-      renderInput={(autoCompleteParams) => (
-        <Input
-          required={required}
-          label={<FormattedMessage id={captionId} />}
-          dataTestId={`input_${fieldName}`}
-          error={!!errors[fieldName]}
-          helperText={errors[fieldName]?.message}
-          {...register(fieldName, registerOptions)}
-          {...autoCompleteParams}
+    <Controller
+      name={fieldName}
+      control={control}
+      rules={{
+        required: {
+          value: required,
+          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+        },
+        maxLength: {
+          value: TAG_KEY_MAX_SIZE,
+          message: intl.formatMessage(
+            { id: "maxLength" },
+            { inputName: intl.formatMessage({ id: "value" }), max: TAG_KEY_MAX_SIZE }
+          )
+        }
+      }}
+      render={({ field: { value: formFieldValue, onChange, ...rest } }) => (
+        <Autocomplete
+          freeSolo
+          options={sortedTags}
+          value={formFieldValue}
+          onChange={(event, newValue) => {
+            onChange(newValue);
+          }}
+          onInputChange={(event, newInputValue) => {
+            onChange(newInputValue);
+          }}
+          renderInput={(autoCompleteParams) => (
+            <Input
+              required={required}
+              label={<FormattedMessage id={labelMessageId} />}
+              dataTestId={`input_${fieldName}`}
+              error={!!errors[fieldName]}
+              helperText={errors[fieldName]?.message}
+              {...autoCompleteParams}
+              {...rest}
+            />
+          )}
         />
       )}
     />
@@ -62,12 +85,7 @@ export const TYPE_PROHIBITED = "taggingPolicy.prohibitedTag";
 export const TYPE_CORRELATION = "taggingPolicy.tagsCorrelation";
 
 const TagsInputs = () => {
-  const {
-    register,
-    control,
-    watch,
-    formState: { errors }
-  } = useFormContext();
+  const { control, watch } = useFormContext();
 
   const typeSelected = watch(FIELD_NAME_BAR);
 
@@ -101,45 +119,28 @@ const TagsInputs = () => {
       />
       {typeSelected === TYPE_REQUIRED && (
         <>
-          <AutocompleteInput
-            possibleTags={tag}
-            captionId={FIELD_NAME_REQUIRED_TAG}
-            fieldName={FIELD_NAME_REQUIRED_TAG}
-            register={register}
-            errors={errors}
-          />
+          <AutocompleteInput tags={tag} labelMessageId="requiredTagField" fieldName={FIELD_NAME_REQUIRED_TAG} />
           <Typography variant="caption">
             <FormattedMessage id="taggingPolicy.anyTagHelpText" />
           </Typography>
         </>
       )}
       {typeSelected === TYPE_PROHIBITED && (
-        <AutocompleteInput
-          required
-          possibleTags={tag}
-          captionId={FIELD_NAME_PROHIBITED_TAG}
-          fieldName={FIELD_NAME_PROHIBITED_TAG}
-          register={register}
-          errors={errors}
-        />
+        <AutocompleteInput required tags={tag} labelMessageId="prohibitedTagField" fieldName={FIELD_NAME_PROHIBITED_TAG} />
       )}
       {typeSelected === TYPE_CORRELATION && (
         <>
           <AutocompleteInput
             required
-            possibleTags={tag}
-            captionId={FIELD_NAME_CORRELATION_TAG_1}
+            tags={tag}
+            labelMessageId="tagsCorrelationPrimaryTag"
             fieldName={FIELD_NAME_CORRELATION_TAG_1}
-            register={register}
-            errors={errors}
           />
           <AutocompleteInput
             required
-            possibleTags={tag}
-            captionId={FIELD_NAME_CORRELATION_TAG_2}
+            tags={tag}
+            labelMessageId="tagsCorrelationCorrelatedTag"
             fieldName={FIELD_NAME_CORRELATION_TAG_2}
-            register={register}
-            errors={errors}
           />
           <Typography variant="caption">
             <FormattedMessage id="taggingPolicy.tagsCorrelationHelpText" />

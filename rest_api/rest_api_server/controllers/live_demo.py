@@ -110,11 +110,12 @@ class ObjectGroups(enum.Enum):
     Stages = 'stages'
     ProcData = 'proc_data'
     Consoles = 'consoles'
+    LeaderboardTemplates = 'leaderboard_templates'
     Leaderboards = 'leaderboards'
-    LeaderboardDatasets = 'leaderboard_datasets'
     OrganizationGeminis = 'organization_geminis'
     Models = 'models'
     ModelVersions = 'model_versions'
+    Artifacts = 'artifacts'
 
     @classmethod
     def rest_objects(cls):
@@ -168,13 +169,14 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.ProcData: self.build_proc_data,
             ObjectGroups.Models: self.build_model,
             ObjectGroups.ModelVersions: self.build_model_version,
+            ObjectGroups.Artifacts: self.build_artifact,
             ObjectGroups.Templates: self.build_template,
             ObjectGroups.Runsets: self.build_runset,
             ObjectGroups.Runners: self.build_runner,
             ObjectGroups.Datasets: self.build_dataset,
             ObjectGroups.Consoles: self.build_console,
+            ObjectGroups.LeaderboardTemplates: self.build_leaderboard_template,
             ObjectGroups.Leaderboards: self.build_leaderboard,
-            ObjectGroups.LeaderboardDatasets: self.build_leaderboard_dataset,
             ObjectGroups.OrganizationGeminis: self.build_organization_gemini,
             ObjectGroups.PowerSchedules: self.build_power_schedule
         }
@@ -199,9 +201,11 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             ObjectGroups.Runners: self.runners_collection,
             ObjectGroups.Datasets: self.datasets_collection,
             ObjectGroups.Consoles: self.consoles_collection,
-            ObjectGroups.Leaderboards: self.leaderboards_collection,
-            ObjectGroups.LeaderboardDatasets:
-                self.leaderboard_datasets_collection,
+            ObjectGroups.LeaderboardTemplates:
+                self.leaderboard_templates_collection,
+            ObjectGroups.Leaderboards:
+                self.leaderboards_collection,
+            ObjectGroups.Artifacts: self.artifact_collection,
         }
         self._clickhouse_table_map = {
             ObjectGroups.AverageMetrics: 'average_metrics',
@@ -233,7 +237,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'model_id': ObjectGroups.Models.value,
             'template_id': ObjectGroups.Templates.value,
             'runset_id': ObjectGroups.Runsets.value,
-            'leaderboard_id': ObjectGroups.Leaderboards.value,
+            'leaderboard_template_id': ObjectGroups.LeaderboardTemplates.value,
             'dataset_id': ObjectGroups.Datasets.value,
             'dataset_ids': ObjectGroups.Datasets.value,
             'primary_metric': ObjectGroups.Metrics.value,
@@ -298,6 +302,10 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         return self.mongo_client.arcee.model_version
 
     @property
+    def artifact_collection(self):
+        return self.mongo_client.arcee.artifact
+
+    @property
     def templates_collection(self):
         return self.mongo_client.bulldozer.template
 
@@ -318,12 +326,12 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         return self.mongo_client.arcee.console
 
     @property
-    def leaderboards_collection(self):
-        return self.mongo_client.arcee.leaderboard
+    def leaderboard_templates_collection(self):
+        return self.mongo_client.arcee.leaderboard_template
 
     @property
-    def leaderboard_datasets_collection(self):
-        return self.mongo_client.arcee.leaderboard_dataset
+    def leaderboards_collection(self):
+        return self.mongo_client.arcee.leaderboard
 
     def _get_demo_multiplier(self):
         try:
@@ -944,11 +952,12 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['deleted_at'] = 0
         obj = self.offsets_to_timestamps([
             'created_at',
-            'training_set.timespan_from',
-            'training_set.timespan_to',
-            'validation_set.timespan_from',
-            'validation_set.timespan_to'
+            'timespan_from',
+            'timespan_to',
         ], now, obj)
+        for param in ['timespan_from', 'timespan_to']:
+            if param not in obj:
+                obj[param] = None
         return obj
 
     def build_console(self, obj, objects_group, **kwargs):
@@ -956,8 +965,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.refresh_relations(['run_id'], obj)
         return obj
 
-    def build_leaderboard(self, obj, now, objects_group, profiling_token,
-                          **kwargs):
+    def build_leaderboard_template(
+            self, obj, now, objects_group, profiling_token, **kwargs):
         new_id = gen_id()
         self._recovery_map[objects_group.value][obj['_id']] = new_id
         obj['_id'] = new_id
@@ -968,12 +977,13 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         return obj
 
-    def build_leaderboard_dataset(
-            self, obj, now, profiling_token, **kwargs):
+    def build_leaderboard(self, obj, now, profiling_token, **kwargs):
         obj['_id'] = gen_id()
         obj['token'] = profiling_token
         obj['deleted_at'] = 0
-        obj = self.refresh_relations(['leaderboard_id', 'dataset_ids'], obj)
+        obj = self.refresh_relations(['leaderboard_template_id', 'dataset_ids',
+                                      'primary_metric', 'other_metrics',
+                                      'filters'], obj)
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         return obj
 
@@ -1037,6 +1047,17 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.refresh_relations(
             ['model_id', 'run_id'], obj)
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        return obj
+
+    def build_artifact(self, obj, objects_group, now, profiling_token,
+                       **kwargs):
+        new_id = gen_id()
+        self._recovery_map[objects_group.value][obj['_id']] = new_id
+        obj['_id'] = new_id
+        obj['token'] = profiling_token
+        obj = self.offsets_to_timestamps(
+            ['created_at', '_created_at_dt'], now, obj)
+        obj = self.refresh_relations(['run_id'], obj)
         return obj
 
     def build_template(
@@ -1385,7 +1406,6 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                     'email': email,
                     'subscribe': subscribe
                 },
-                'title': "New live demo subscriber"
             }
         }
         HeraldClient(

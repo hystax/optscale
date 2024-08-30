@@ -3,26 +3,11 @@ import { Box, Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
-import MlRunsetTemplateForm from "components/MlRunsetTemplateForm";
-import { FIELD_NAMES } from "components/MlRunsetTemplateForm/FormElements";
+import MlRunsetTemplateForm from "components/forms/MlRunsetTemplateForm";
+import { FIELD_NAMES } from "components/forms/MlRunsetTemplateForm/constants";
 import PageContentWrapper from "components/PageContentWrapper";
 import { ML_RUNSET_TEMPLATES, getMlRunsetTemplateUrl } from "urls";
 import { RUNSET_TEMPLATE_INSTANCE_TYPES, RUNSET_TEMPLATE_REGIONS } from "utils/constants";
-
-const {
-  TASK_FIELD_NAME,
-  DATA_SOURCES_FIELD_NAME,
-  REGIONS_FIELD_NAME,
-  INSTANCE_TYPES_FIELD_NAME,
-  NAME_FIELD_NAME,
-  RESOURCE_NAME_PREFIX_NAME,
-  MAXIMUM_RUNSET_BUDGET_FIELD_NAME,
-  CUSTOM_TAG_KEY_NAME,
-  CUSTOM_TAG_VALUE_NAME,
-  HYPERPARAMETERS_ARRAY_FIELD_NAME,
-  HYPERPARAMETER_NAME_FIELD_NAME,
-  HYPERPARAMETER_ENVIRONMENT_VARIABLE_FIELD_NAME
-} = FIELD_NAMES;
 
 const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, onCancel, isLoading = {} }) => {
   const {
@@ -47,28 +32,28 @@ const MlRunsetTemplateEdit = ({ runsetTemplate, tasks, dataSources, onSubmit, on
     const [tagKey, tagName] = Object.entries(tags)[0] ?? [];
 
     return {
-      [NAME_FIELD_NAME]: name,
-      [MAXIMUM_RUNSET_BUDGET_FIELD_NAME]: budget,
-      [RESOURCE_NAME_PREFIX_NAME]: resourceNamePrefix,
-      [CUSTOM_TAG_KEY_NAME]: tagKey,
-      [CUSTOM_TAG_VALUE_NAME]: tagName,
-      [HYPERPARAMETERS_ARRAY_FIELD_NAME]: Object.entries(hyperparameters).map(
+      [FIELD_NAMES.NAME]: name,
+      [FIELD_NAMES.BUDGET]: budget,
+      [FIELD_NAMES.RESOURCE_NAME_PREFIX]: resourceNamePrefix,
+      [FIELD_NAMES.TAG_KEY]: tagKey,
+      [FIELD_NAMES.TAG_VALUE]: tagName,
+      [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.FIELD_NAME]: Object.entries(hyperparameters).map(
         ([hyperparameterName, hyperparameterEnvironmentVariable]) => ({
-          [HYPERPARAMETER_NAME_FIELD_NAME]: hyperparameterName,
-          [HYPERPARAMETER_ENVIRONMENT_VARIABLE_FIELD_NAME]: hyperparameterEnvironmentVariable
+          [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.HYPERPARAMETER_NAME]: hyperparameterName,
+          [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.ENVIRONMENT_VARIABLE]: hyperparameterEnvironmentVariable
         })
       ),
-      [TASK_FIELD_NAME]: runsetTemplateTasks.filter(
+      [FIELD_NAMES.TASKS]: runsetTemplateTasks.filter(
         (runsetTemplateTask) => tasks.find((knownTask) => knownTask.id === runsetTemplateTask.id) !== undefined
       ),
-      [DATA_SOURCES_FIELD_NAME]: runsetTemplateDataSources.filter(
+      [FIELD_NAMES.DATA_SOURCES]: runsetTemplateDataSources.filter(
         (runsetTemplateDataSource) =>
           dataSources.find((knownDataSource) => knownDataSource.id === runsetTemplateDataSource.id) !== undefined
       ),
-      [REGIONS_FIELD_NAME]: RUNSET_TEMPLATE_REGIONS.filter(
+      [FIELD_NAMES.REGIONS]: RUNSET_TEMPLATE_REGIONS.filter(
         (region) => runsetTemplateRegions.find((runsetTemplateRegion) => runsetTemplateRegion.id === region.id) !== undefined
       ),
-      [INSTANCE_TYPES_FIELD_NAME]: RUNSET_TEMPLATE_INSTANCE_TYPES.filter(
+      [FIELD_NAMES.INSTANCE_TYPES]: RUNSET_TEMPLATE_INSTANCE_TYPES.filter(
         (instanceType) =>
           runsetTemplateInstanceTypes.find(
             (runsetTemplateInstanceType) => runsetTemplateInstanceType.name === instanceType.name

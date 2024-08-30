@@ -156,16 +156,8 @@ class TestInfrastructureBase(TestApiBase):
             'created_at': int(datetime.datetime.utcnow().timestamp()),
             'deleted_at': 0,
             'token': token,
-            'training_set': {
-                'path': str(uuid.uuid4()),
-                'timespan_from': int(datetime.datetime.utcnow().timestamp()),
-                'timespan_to': int(datetime.datetime.utcnow().timestamp())
-            },
-            'validation_set': {
-                'path': str(uuid.uuid4()),
-                'timespan_from': int(datetime.datetime.utcnow().timestamp()),
-                'timespan_to': int(datetime.datetime.utcnow().timestamp())
-            }
+            'timespan_from': int(datetime.datetime.utcnow().timestamp()),
+            'timespan_to': int(datetime.datetime.utcnow().timestamp())
         }
         if kwargs:
             dataset.update(kwargs)

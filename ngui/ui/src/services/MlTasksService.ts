@@ -19,7 +19,8 @@ import {
   getMlRunDetails,
   getMlRunDetailsBreakdown,
   getMlTaskRunsBulk,
-  getMlTaskModelVersions
+  getMlTaskModelVersions,
+  getMlTaskTags
 } from "api";
 import {
   GET_ML_TASKS,
@@ -38,7 +39,8 @@ import {
   GET_ML_OPTIMIZATION_DETAILS,
   GET_ML_TASK_RECOMMENDATIONS,
   GET_ML_TASK_RUNS_BULK,
-  GET_ML_TASK_MODEL_VERSIONS
+  GET_ML_TASK_MODEL_VERSIONS,
+  GET_ML_TASK_TAGS
 } from "api/restapi/actionTypes";
 import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiData } from "hooks/useApiData";
@@ -302,6 +304,26 @@ const useGetTaskRun = (runId) => {
   return { isLoading, isDataReady, run: apiData };
 };
 
+const useGetTaskTags = (taskId) => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+
+  const { isLoading, shouldInvoke } = useApiState(GET_ML_TASK_TAGS, { organizationId, taskId });
+
+  const {
+    apiData: { tags = [] }
+  } = useApiData(GET_ML_TASK_TAGS);
+
+  useEffect(() => {
+    if (shouldInvoke) {
+      dispatch(getMlTaskTags(organizationId, taskId));
+    }
+  }, [dispatch, organizationId, shouldInvoke, taskId]);
+
+  return { isLoading, tags };
+};
+
 const useGetRunBreakdown = (runId) => {
   const dispatch = useDispatch();
 
@@ -445,6 +467,7 @@ function MlTasksService() {
     useGetTaskRecommendation,
     useGetTaskRecommendations,
     useGetTaskRun,
+    useGetTaskTags,
     useGetRunBreakdown,
     useGetOne,
     useGetTaskRunsList,

@@ -2,7 +2,7 @@ import { Link } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
-import ConnectCloudAccountForm from "components/ConnectCloudAccountForm";
+import ConnectCloudAccountForm from "components/forms/ConnectCloudAccountForm";
 import PageContentWrapper from "components/PageContentWrapper";
 import { CLOUD_ACCOUNTS } from "urls";
 

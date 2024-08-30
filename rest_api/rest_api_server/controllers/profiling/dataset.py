@@ -62,8 +62,8 @@ class DatasetController(BaseProfilingController):
                     Err.OE0555, [dataset_id])
             raise
 
-    def list(self, profiling_token):
-        return self.list_datasets(profiling_token)
+    def list(self, profiling_token, dataset_ids=None):
+        return self.list_datasets(profiling_token, dataset_ids=dataset_ids)
 
 
 class DatasetAsyncController(BaseAsyncControllerWrapper):

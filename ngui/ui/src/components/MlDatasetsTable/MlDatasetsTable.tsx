@@ -5,123 +5,83 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
-import CaptionedCell from "components/CaptionedCell";
-import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import Markdown from "components/Markdown";
 import { MlDeleteDatasetModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TextWithDataTestId from "components/TextWithDataTestId";
+import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { ML_DATASET_CREATE, getEditMlDatasetUrl } from "urls";
-import { datasetLabels, text } from "utils/columns";
-import { EN_FULL_FORMAT, formatUTC } from "utils/datetime";
+import { datasetLabels, datasetTimespan, localTime, slicedText } from "utils/columns";
+import { DATASET_NAME_LENGTH_LIMIT, DATASET_PATH_LENGTH_LIMIT } from "utils/constants";
+import { secondsToMilliseconds } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
 
 const MlDatasetsTable = ({ datasets }) => {
   const openSideModal = useOpenSideModal();
   const navigate = useNavigate();
 
-  const columns = useMemo(
-    () => [
-      text({
-        headerDataTestId: "lbl_name",
+  const isManageDatasetsAllowed = useIsAllowed({
+    requiredActions: ["EDIT_PARTNER"]
+  });
+
+  const columns = useMemo(() => {
+    const getActionsColumn = () => ({
+      header: (
+        <TextWithDataTestId dataTestId="lbl_actions">
+          <FormattedMessage id="actions" />
+        </TextWithDataTestId>
+      ),
+      enableSorting: false,
+      id: "actions",
+      cell: ({ row: { original: { id, path } = {}, index } }) => (
+        <TableCellActions
+          items={[
+            {
+              key: "adit",
+              messageId: "edit",
+              icon: <EditOutlinedIcon />,
+              requiredActions: ["EDIT_PARTNER"],
+              dataTestId: `btn_edit_${index}`,
+              action: () => navigate(getEditMlDatasetUrl(id))
+            },
+            {
+              key: "delete",
+              messageId: "delete",
+              icon: <DeleteOutlinedIcon />,
+              color: "error",
+              requiredActions: ["EDIT_PARTNER"],
+              dataTestId: `btn_delete_${index}`,
+              action: () => openSideModal(MlDeleteDatasetModal, { id, path })
+            }
+          ]}
+        />
+      )
+    });
+
+    return [
+      slicedText({
         headerMessageId: "name",
-        accessorKey: "name"
+        headerDataTestId: "lbl_name",
+        accessorKey: "name",
+        maxTextLength: DATASET_NAME_LENGTH_LIMIT
       }),
-      text({
-        headerDataTestId: "lbl_id",
-        headerMessageId: "id",
-        accessorKey: "path"
+      slicedText({
+        headerMessageId: "path",
+        headerDataTestId: "lbl_path",
+        accessorKey: "path",
+        maxTextLength: DATASET_PATH_LENGTH_LIMIT,
+        copy: true
       }),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_training_set">
-            <FormattedMessage id="trainingSet" />
-          </TextWithDataTestId>
-        ),
-        id: "trainingSet",
-        accessorFn: (originalRow) => originalRow.training_set?.path,
-        cell: ({
-          cell,
-          row: {
-            original: {
-              training_set: { timespan_from: timespanFrom, timespan_to: timespanTo }
-            }
-          }
-        }) => (
-          <CaptionedCell
-            caption={[
-              {
-                key: "timespanFrom",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="from"
-                    variant="caption"
-                    value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              },
-              {
-                key: "timespanTo",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="to"
-                    variant="caption"
-                    value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              }
-            ]}
-          >
-            {cell.getValue()}
-          </CaptionedCell>
-        )
-      },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_validation_set">
-            <FormattedMessage id="validationSet" />
-          </TextWithDataTestId>
-        ),
-        id: "validationSet",
-        accessorFn: (originalRow) => originalRow.validation_set?.path,
-        cell: ({
-          cell,
-          row: {
-            original: {
-              validation_set: { timespan_from: timespanFrom, timespan_to: timespanTo }
-            }
-          }
-        }) => (
-          <CaptionedCell
-            caption={[
-              {
-                key: "timespanFrom",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="from"
-                    variant="caption"
-                    value={timespanFrom ? formatUTC(timespanFrom, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              },
-              {
-                key: "timespanTo",
-                node: (
-                  <KeyValueLabel
-                    keyMessageId="to"
-                    variant="caption"
-                    value={timespanTo ? formatUTC(timespanTo, EN_FULL_FORMAT) : undefined}
-                  />
-                )
-              }
-            ]}
-          >
-            {cell.getValue()}
-          </CaptionedCell>
-        )
-      },
+      localTime({
+        id: "created_at",
+        accessorFn: (originalRow) => secondsToMilliseconds(originalRow.created_at),
+        headerDataTestId: "lbl_updated_at",
+        headerMessageId: "createdAt",
+        defaultSort: "desc"
+      }),
+      datasetTimespan(),
       {
         header: (
           <TextWithDataTestId dataTestId="lbl_description">
@@ -143,41 +103,9 @@ const MlDatasetsTable = ({ datasets }) => {
           maxWidth: "400px"
         }
       }),
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_actions">
-            <FormattedMessage id="actions" />
-          </TextWithDataTestId>
-        ),
-        enableSorting: false,
-        id: "actions",
-        cell: ({ row: { original: { id, path } = {}, index } }) => (
-          <TableCellActions
-            items={[
-              {
-                key: "adit",
-                messageId: "edit",
-                icon: <EditOutlinedIcon />,
-                requiredActions: ["EDIT_PARTNER"],
-                dataTestId: `btn_edit_${index}`,
-                action: () => navigate(getEditMlDatasetUrl(id))
-              },
-              {
-                key: "delete",
-                messageId: "delete",
-                icon: <DeleteOutlinedIcon />,
-                color: "error",
-                requiredActions: ["EDIT_PARTNER"],
-                dataTestId: `btn_delete_${index}`,
-                action: () => openSideModal(MlDeleteDatasetModal, { id, path })
-              }
-            ]}
-          />
-        )
-      }
-    ],
-    [openSideModal, navigate]
-  );
+      ...(isManageDatasetsAllowed ? [getActionsColumn()] : [])
+    ];
+  }, [isManageDatasetsAllowed, navigate, openSideModal]);
 
   const data = useMemo(() => datasets, [datasets]);
 
@@ -204,7 +132,16 @@ const MlDatasetsTable = ({ datasets }) => {
     <>
       <Stack spacing={SPACING_1}>
         <div>
-          <Table data={data} columns={columns} actionBar={tableActionBarDefinition} withSearch pageSize={50} />
+          <Table
+            data={data}
+            columns={columns}
+            actionBar={tableActionBarDefinition}
+            withSearch
+            pageSize={50}
+            counters={{
+              showCounters: true
+            }}
+          />
         </div>
       </Stack>
     </>

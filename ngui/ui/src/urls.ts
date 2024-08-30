@@ -326,6 +326,8 @@ const ML_DATASETS_BASE = "datasets";
 const ML_DATASET_IDENTIFIER = ":datasetId";
 const ML_MODELS_BASE = "models";
 const ML_MODEL_IDENTIFIER = ":modelId";
+const ML_ARTIFACTS_BASE = "artifacts";
+const ML_ARTIFACT_IDENTIFIER = ":artifactId";
 
 export const ML_RUNSETS_BASE = "runsets";
 export const ML_RUN_BASE = "run";
@@ -333,13 +335,14 @@ export const ML_RUN_BASE = "run";
 export const ML_TASKS = concatenateUrl([ML_TASKS_BASE]);
 export const ML_TASK_CREATE = concatenateUrl([ML_TASKS_BASE, CREATE]);
 
-export const ML_SETUP_LEADERBOARDS = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER, "setup-leaderboards"]);
-export const getMlSetupLeaderboards = (taskId) => ML_SETUP_LEADERBOARDS.replace(ML_TASK_IDENTIFIER, taskId);
+export const ML_SETUP_LEADERBOARD_TEMPLATE = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER, "setup-leaderboard-template"]);
+export const getMlSetupLeaderboardTemplate = (taskId: string) =>
+  ML_SETUP_LEADERBOARD_TEMPLATE.replace(ML_TASK_IDENTIFIER, taskId);
 
 export const ML_DATASETS = concatenateUrl([ML_DATASETS_BASE]);
 export const ML_DATASET_CREATE = concatenateUrl([ML_DATASETS_BASE, CREATE]);
 export const ML_DATASET_EDIT = concatenateUrl([ML_DATASETS_BASE, ML_DATASET_IDENTIFIER, EDIT]);
-export const getEditMlDatasetUrl = (id) => ML_DATASET_EDIT.replace(ML_DATASET_IDENTIFIER, id);
+export const getEditMlDatasetUrl = (id: string) => ML_DATASET_EDIT.replace(ML_DATASET_IDENTIFIER, id);
 
 export const ML_MODELS = concatenateUrl([ML_MODELS_BASE]);
 export const ML_MODEL_CREATE = concatenateUrl([ML_MODELS_BASE, CREATE]);
@@ -407,8 +410,52 @@ export const getMlRunsetDetailsUrl = (runsetId) => ML_RUNSET_DETAILS.replace(ML_
 
 export const ML_TASK_RUN = concatenateUrl([ML_TASKS_BASE, ML_TASK_IDENTIFIER, ML_RUN_BASE, ML_TASK_RUN_IDENTIFIER]);
 
-export const getMlTaskRunUrl = (taskId, runId) =>
-  ML_TASK_RUN.replace(ML_TASK_IDENTIFIER, taskId).replace(ML_TASK_RUN_IDENTIFIER, runId);
+export const getMlTaskRunUrl = (
+  taskId: string,
+  runId: string,
+  {
+    tab
+  }: {
+    tab?: string;
+  } = {}
+) => {
+  const url = ML_TASK_RUN.replace(ML_TASK_IDENTIFIER, taskId).replace(ML_TASK_RUN_IDENTIFIER, runId);
+
+  return tab ? `${url}?${TAB_QUERY_PARAM_NAME}=${tab}` : url;
+};
+
+export const ML_CREATE_RUN_ARTIFACT = concatenateUrl([
+  ML_TASKS_BASE,
+  ML_TASK_IDENTIFIER,
+  ML_RUN_BASE,
+  ML_TASK_RUN_IDENTIFIER,
+  ML_ARTIFACTS_BASE,
+  CREATE
+]);
+
+export const ML_EDIT_RUN_ARTIFACT = concatenateUrl([
+  ML_TASKS_BASE,
+  ML_TASK_IDENTIFIER,
+  ML_RUN_BASE,
+  ML_TASK_RUN_IDENTIFIER,
+  ML_ARTIFACTS_BASE,
+  ML_ARTIFACT_IDENTIFIER,
+  EDIT
+]);
+
+export const ML_EDIT_ARTIFACT = concatenateUrl([ML_ARTIFACTS_BASE, ML_ARTIFACT_IDENTIFIER, EDIT]);
+
+export const getCreateMlRunArtifactUrl = (taskId: string, runId: string) =>
+  ML_CREATE_RUN_ARTIFACT.replace(ML_TASK_IDENTIFIER, taskId).replace(ML_TASK_RUN_IDENTIFIER, runId);
+
+export const getEditMlRunArtifactUrl = (taskId: string, runId: string, artifactId: string) =>
+  ML_EDIT_RUN_ARTIFACT.replace(ML_TASK_IDENTIFIER, taskId)
+    .replace(ML_TASK_RUN_IDENTIFIER, runId)
+    .replace(ML_ARTIFACT_IDENTIFIER, artifactId);
+
+export const getEditMlArtifactUrl = (artifactId: string) => ML_EDIT_ARTIFACT.replace(ML_ARTIFACT_IDENTIFIER, artifactId);
+
+export const ML_ARTIFACTS = concatenateUrl([ML_ARTIFACTS_BASE]);
 
 // Live demo
 export const LIVE_DEMO = "/live-demo";
@@ -496,6 +543,8 @@ export const JIRA_MARKETPLACE = "https://marketplace.atlassian.com/apps/1227110/
 // Hystax documentation urls
 export const DOCS_HYSTAX_OPTSCALE = "https://hystax.com/documentation/optscale/";
 export const DOCS_HYSTAX_AUTO_BILLING_AWS = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_root_cur.html#automatic-billing-data-import-in-aws`;
+export const DOCS_HYSTAX_MIGRATE_FROM_CUR_TO_DATA_EXPORTS_CUR_2_0 = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_migrate_cur1_cur2.html`;
+export const DOCS_HYSTAX_CONNECTING_A_KUBERNETES_CLUSTER_TO_OPTSCALE = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_kubernetes.html#connecting-a-kubernetes-cluster-to-optscale`;
 export const DOCS_HYSTAX_DISCOVER_RESOURCES = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_linked.html#discover-resources`;
 export const DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_alibaba.html`;
 export const DOCS_HYSTAX_CONNECT_GCP_CLOUD = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_gcp.html`;

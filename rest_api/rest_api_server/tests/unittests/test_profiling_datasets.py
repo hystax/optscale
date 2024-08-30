@@ -31,16 +31,8 @@ class TestDatasetApi(TestProfilingBase):
             'name': 'Test',
             'description': 'Test ML dataset',
             'labels': ['test', 'demo'],
-            'training_set': {
-                'path': 's3://ml-bucket/training_set',
-                'timespan_from': 1698740386,
-                'timespan_to': 1698741386
-            },
-            'validation_set': {
-                'path': 's3://ml-bucket/validation_set',
-                'timespan_from': 1698740386,
-                'timespan_to': 1698741386
-            }
+            'timespan_from': 1698740386,
+            'timespan_to': 1698741386
         }
 
     def test_create(self):
@@ -52,26 +44,12 @@ class TestDatasetApi(TestProfilingBase):
         self.assertTrue('token' not in dataset)
 
     def test_create_incorrect_timespan(self):
-        for set_param in ['validation_set', 'training_set']:
-            valid_dataset = self.valid_dataset.copy()
-            valid_dataset[set_param]['timespan_from'] = int(
-                datetime.datetime.utcnow().timestamp()) + 100
-            code, dataset = self.client.dataset_create(
-                self.organization_id, valid_dataset)
-            self.assertEqual(code, 400)
-
-    def test_create_subset_optional(self):
         valid_dataset = self.valid_dataset.copy()
-        valid_dataset['validation_set']['timespan_from'] = None
-        valid_dataset['validation_set'].pop('timespan_to')
+        valid_dataset['timespan_from'] = int(
+            datetime.datetime.utcnow().timestamp()) + 100
         code, dataset = self.client.dataset_create(
             self.organization_id, valid_dataset)
-        self.assertEqual(code, 201)
-
-        valid_dataset.pop('training_set')
-        code, dataset = self.client.dataset_create(
-            self.organization_id, valid_dataset)
-        self.assertEqual(code, 201)
+        self.assertEqual(code, 400)
 
     def test_create_incorrect(self):
         incorrect_updates = {
@@ -79,8 +57,6 @@ class TestDatasetApi(TestProfilingBase):
             'path': True,
             'labels': 3,
             'description': {'text': 'Some description'},
-            'training_set': (1, 2),
-            'validation_set': 'test' * 100
         }
         for k, v in incorrect_updates.items():
             valid_dataset = self.valid_dataset.copy()
@@ -98,11 +74,12 @@ class TestDatasetApi(TestProfilingBase):
         self.assertEqual(res.get('error', {}).get('error_code'), 'OE0212')
 
         valid_dataset = self.valid_dataset.copy()
-        valid_dataset['training_set']['extra'] = 'value'
-        code, res = self.client.dataset_create(
-            self.organization_id, valid_dataset)
-        self.assertEqual(code, 400)
-        self.assertEqual(res.get('error', {}).get('error_code'), 'OE0212')
+        for k in ['training_set', 'validation_set']:
+            valid_dataset[k] = {}
+            code, res = self.client.dataset_create(
+                self.organization_id, valid_dataset)
+            self.assertEqual(code, 400)
+            self.assertEqual(res.get('error', {}).get('error_code'), 'OE0212')
 
     def test_create_missing(self):
         valid_dataset = self.valid_dataset.copy()
@@ -112,14 +89,6 @@ class TestDatasetApi(TestProfilingBase):
             self.organization_id, valid_dataset)
         self.assertEqual(code, 400)
         self.assertEqual(res.get('error', {}).get('error_code'), 'OE0216')
-
-        for k in ['training_set', 'validation_set']:
-            valid_dataset = self.valid_dataset.copy()
-            valid_dataset[k].pop('path')
-            code, res = self.client.dataset_create(
-                self.organization_id, valid_dataset)
-            self.assertEqual(code, 400)
-            self.assertEqual(res.get('error', {}).get('error_code'), 'OE0216')
 
     def test_get(self):
         code, dataset = self.client.dataset_create(
@@ -159,8 +128,8 @@ class TestDatasetApi(TestProfilingBase):
             'name': 'new_name',
             'description': 'new_description',
             'labels': ['new', 'labels'],
-            'training_set': {'path': 'another set'},
-            'validation_set': {'path': 'some set'}
+            'timespan_from': int(datetime.datetime(2024, 12, 11).timestamp()),
+            'timespan_to': int(datetime.datetime(2024, 12, 11).timestamp()),
         }
         code, dataset = self.client.dataset_update(
             self.organization_id, dataset['id'], updates)
@@ -184,8 +153,6 @@ class TestDatasetApi(TestProfilingBase):
             'name': [0],
             'description': False,
             'labels': -1,
-            'training_set': 0,
-            'validation_set': 'set' * 100,
             'timespan_from': 'test',
             'timespan_to': {'key': 'value'}
         }
@@ -199,8 +166,8 @@ class TestDatasetApi(TestProfilingBase):
         code, dataset = self.client.dataset_create(
             self.organization_id, self.valid_dataset)
         self.assertEqual(code, 201)
-        updates = ['name', 'description', 'labels', 'training_set',
-                   'validation_set']
+        updates = ['name', 'description', 'labels', 'timespan_from',
+                   'timespan_to']
         for k in updates:
             updates = {k: None}
             code, dataset_ = self.client.dataset_update(
@@ -216,6 +183,8 @@ class TestDatasetApi(TestProfilingBase):
             'name': '',
             'description': '',
             'labels': [],
+            'timespan_from': None,
+            'timespan_to': None
         }
         for k, v in updates.items():
             updates = {k: v}
@@ -223,15 +192,6 @@ class TestDatasetApi(TestProfilingBase):
                 self.organization_id, dataset['id'], updates)
             self.assertEqual(code, 200)
             self.assertEqual(dataset_[k], v)
-        updates = {
-            'training_set': {},
-            'validation_set': {},
-        }
-        for k, v in updates.items():
-            updates = {k: v}
-            code, dataset_ = self.client.dataset_update(
-                self.organization_id, dataset['id'], updates)
-            self.assertEqual(code, 400)
 
     def test_update_unexpected(self):
         code, dataset = self.client.dataset_create(
@@ -260,6 +220,31 @@ class TestDatasetApi(TestProfilingBase):
             self.assertEqual(dataset['path'], d['path'])
             self.assertEqual(dataset['description'], d['description'])
             self.assertEqual(dataset['labels'], d['labels'])
+
+    def test_list_bulk(self):
+        code, dataset_1 = self.client.dataset_create(
+            self.organization_id, self.valid_dataset)
+        self.assertEqual(code, 201)
+        code, dataset_2 = self.client.dataset_create(
+            self.organization_id, self.valid_dataset)
+        self.assertEqual(code, 201)
+        code, dataset_3 = self.client.dataset_create(
+            self.organization_id, self.valid_dataset)
+        self.assertEqual(code, 201)
+        code, res = self.client.dataset_list(self.organization_id)
+        self.assertEqual(len(res['datasets']), 3)
+
+        code, res = self.client.dataset_list(self.organization_id,
+                                             dataset_ids=[dataset_2['id']])
+        self.assertEqual(len(res['datasets']), 1)
+        self.assertEqual(res['datasets'][0]['id'], dataset_2['id'])
+
+        dataset_ids = [dataset_1['id'], dataset_3['id']]
+        code, res = self.client.dataset_list(self.organization_id,
+                                             dataset_ids=dataset_ids)
+        self.assertEqual(len(res['datasets']), 2)
+        for d in res['datasets']:
+            self.assertTrue(d['id'] in dataset_ids)
 
     def test_list_deleted(self):
         code, dataset = self.client.dataset_create(

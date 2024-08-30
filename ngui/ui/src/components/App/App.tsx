@@ -3,6 +3,7 @@ import { GET_TOKEN } from "api/auth/actionTypes";
 import ErrorBoundary from "components/ErrorBoundary";
 import LayoutWrapper from "components/LayoutWrapper";
 import CommunityDocsContextProvider from "contexts/CommunityDocsContext/CommunityDocsContextProvider";
+import RoutePathContextProvider from "contexts/RoutePathContext/RoutePathContextProvider";
 import { useApiData } from "hooks/useApiData";
 import { useOrganizationIdQueryParameterListener } from "hooks/useOrganizationIdQueryParameterListener";
 import { LOGIN, USER_EMAIL_QUERY_PARAMETER_NAME } from "urls";
@@ -63,7 +64,11 @@ const App = () => (
         <Route
           key={key}
           path={link}
-          element={<RouteRender isTokenRequired={isTokenRequired} component={component} context={context} layout={layout} />}
+          element={
+            <RoutePathContextProvider path={link}>
+              <RouteRender isTokenRequired={isTokenRequired} component={component} context={context} layout={layout} />
+            </RoutePathContextProvider>
+          }
         />
       ))}
     </Routes>

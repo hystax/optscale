@@ -1,20 +1,37 @@
+from unittest.mock import patch
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
 
 
 class TestOrganizationGemini(TestApiBase):
     def setUp(self, version="v2"):
         super().setUp(version)
-
+        _, self.organization = self.client.organization_create(
+            {"name": "partner"})
+        self.organization_id = self.organization["id"]
+        self.auth_user_id = self.gen_id()
+        _, self.employee1 = self.client.employee_create(
+            self.organization_id,
+            {'name': 'name1', 'auth_user_id': self.auth_user_id})
+        patch('rest_api.rest_api_server.controllers.cloud_account.'
+              'CloudAccountController._configure_report').start()
+        cloud_acc = {
+            'name': 'cloud_acc1',
+            'type': 'aws_cnr',
+            'config': {
+                'access_key_id': 'key',
+                'secret_access_key': 'secret',
+                'config_scheme': 'create_report'
+            }
+        }
+        _, self.cloud_acc = self.create_cloud_account(
+            self.organization_id, cloud_acc, auth_user_id=self.auth_user_id)
         self.filters = {
             "filters": {
-                "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
-                "buckets": "bucket1,bucket2",
+                "buckets": [{'name': 'test',
+                             'cloud_account_id': self.cloud_acc['id']}],
                 "min_size": 1
             }
         }
-
-        _, self.organization = self.client.organization_create({"name": "partner"})
-        self.organization_id = self.organization["id"]
         self.code_1, self.gemini_1 = self.client.gemini_create(
             self.organization_id, self.filters
         )
@@ -24,16 +41,36 @@ class TestOrganizationGemini(TestApiBase):
 
     def test_create_gemini(self):
         self.assertEqual(self.code_1, 201)
-        self.assertEqual(self.gemini_1["organization_id"], self.organization_id)
+        self.assertEqual(self.gemini_1["organization_id"],
+                         self.organization_id)
         self.assertIn("stats", self.gemini_1)
         self.assertIn("status", self.gemini_1)
         self.assertIn("filters", self.gemini_1)
 
         self.assertEqual(self.code_2, 201)
-        self.assertEqual(self.gemini_2["organization_id"], self.organization_id)
+        self.assertEqual(self.gemini_2["organization_id"],
+                         self.organization_id)
         self.assertIn("stats", self.gemini_2)
         self.assertIn("status", self.gemini_2)
         self.assertIn("filters", self.gemini_2)
+
+    def test_create_invalid_min_size(self):
+        filters = self.filters.copy()
+        filters['filters']['min_size'] = 'test'
+        code, resp = self.client.gemini_create(
+            self.organization_id, filters
+        )
+        self.assertEqual(code, 400)
+        self.assertEqual(resp['error']['error_code'], 'OE0223')
+
+    def test_create_invalid_buckets(self):
+        filters = self.filters.copy()
+        filters['filters']['buckets'] = 123
+        code, resp = self.client.gemini_create(
+            self.organization_id, filters
+        )
+        self.assertEqual(code, 400)
+        self.assertEqual(resp['error']['error_code'], 'OE0385')
 
     def test_list_geminis(self):
         code, result = self.client.gemini_list(self.organization_id)
@@ -41,7 +78,8 @@ class TestOrganizationGemini(TestApiBase):
 
         self.assertEqual(code, 200)
         self.assertEqual(len(geminis), 2)
-        self.assertEqual(geminis[0]["organization_id"], geminis[1]["organization_id"])
+        self.assertEqual(geminis[0]["organization_id"],
+                         geminis[1]["organization_id"])
         self.assertEqual(geminis[0]["status"], "CREATED")
         self.assertEqual(geminis[1]["status"], "CREATED")
 
@@ -113,6 +151,58 @@ class TestOrganizationGemini(TestApiBase):
         self.assertIn("buckets", stats)
         self.assertIn("matrix", stats)
 
+    def test_patch_filters(self):
+        code, resp = self.client.gemini_update(
+            self.gemini_1["id"], self.filters)
+        self.assertEqual(code, 400)
+        self.assertEqual(resp['error']['error_code'], 'OE0211')
+
+    def test_patch_stats(self):
+        for param in ['total_objects', 'filtered_objects',
+                      'duplicated_objects']:
+            params = {
+                'stats': {
+                    'total_objects': 1,
+                    'filtered_objects': 1,
+                    'duplicated_objects': 1
+                }
+            }
+            params['stats'][param] = 'test'
+            code, resp = self.client.gemini_update(
+                self.gemini_1["id"], params)
+            self.assertEqual(code, 400)
+            self.assertEqual(resp["error"]["error_code"], "OE0223")
+
+            params['stats'][param] = 2 ** 65
+            code, resp = self.client.gemini_update(
+                self.gemini_1["id"], params)
+            self.assertEqual(code, 200)
+
+        for param in ['total_size', 'duplicates_size', 'monthly_savings']:
+            params = {
+                'stats': {
+                    'total_size': 1.0,
+                    'duplicates_size': 1.0,
+                    'monthly_savings': 1.0
+                }
+            }
+            params['stats'][param] = 'test'
+            code, resp = self.client.gemini_update(
+                self.gemini_1["id"], params)
+            self.assertEqual(code, 400)
+            self.assertEqual(resp["error"]["error_code"], "OE0466")
+
+            params['stats'][param] = 2 ** 65
+            code, resp = self.client.gemini_update(
+                self.gemini_1["id"], params)
+            self.assertEqual(code, 200)
+
+    def test_patch_invalid_stats_type(self):
+        code, resp = self.client.gemini_update(
+            self.gemini_1["id"], {'stats': 123})
+        self.assertEqual(code, 400)
+        self.assertEqual(resp["error"]["error_code"], "OE0344")
+
     def test_get_not_existing_gemini(self):
         code, data = self.client.gemini_get("123")
         self.assertEqual(code, 404)
@@ -127,9 +217,10 @@ class TestOrganizationGemini(TestApiBase):
         self.assertEqual(204, code)
 
     def test_delete_for_org(self):
-        _, temp_organization = self.client.organization_create({"name": "Temp org"})
+        _, temp_organization = self.client.organization_create(
+            {"name": "Temp org"})
         _, gemini = self.client.gemini_create(
-            temp_organization["id"], self.filters
+            temp_organization["id"], {}
         )
         code, data = self.client.gemini_get(gemini["id"])
         self.assertEqual(code, 200)

@@ -31,7 +31,7 @@
     "@vitejs/plugin-react-swc": "^3.6.0",
     "ajv": "^8.12.0",
     "analytics": "^0.8.1",
-    "axios": "^1.6.8",
+    "axios": "^1.7.4",
     "core-js": "^3.27.2",
     "d3-array": "^3.2.4",
     "d3-scale": "^3.3.0",
@@ -53,7 +53,7 @@
     "react-big-calendar": "^1.5.2",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.42.1",
+    "react-hook-form": "^7.51.3",
     "react-intl": "^6.5.5",
     "react-json-editor-ajrm": "^2.5.13",
     "react-markdown": "^8.0.5",
@@ -79,7 +79,9 @@
   },
   "pnpm": {
     "overrides": {
-      "d3-color": "^3.1.0"
+      "d3-color": "^3.1.0",
+      "braces@<3.0.3": ">=3.0.3",
+      "ws@>=8.0.0 <8.17.1": ">=8.17.1"
     }
   },
   "scripts": {
@@ -116,13 +118,13 @@
     ]
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^7.6.5",
-    "@storybook/addon-backgrounds": "^7.6.5",
-    "@storybook/addon-controls": "^7.6.5",
-    "@storybook/addon-links": "^7.6.5",
-    "@storybook/addons": "^7.6.5",
-    "@storybook/react": "^7.6.5",
-    "@storybook/react-vite": "^7.6.6",
+    "@storybook/addon-actions": "^7.6.20",
+    "@storybook/addon-backgrounds": "^7.6.20",
+    "@storybook/addon-controls": "^7.6.20",
+    "@storybook/addon-links": "^7.6.20",
+    "@storybook/addons": "^7.6.17",
+    "@storybook/react": "^7.6.20",
+    "@storybook/react-vite": "^7.6.20",
     "@storybook/theming": "^7.6.5",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",
@@ -139,7 +141,7 @@
     "jsdom": "^22.1.0",
     "prettier": "^3.1.1",
     "redux-immutable-state-invariant": "^2.1.0",
-    "storybook": "^7.6.3",
+    "storybook": "^7.6.20",
     "vitest": "^0.34.5"
   }
 }

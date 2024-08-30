@@ -2,7 +2,8 @@ import uuid
 from enum import Enum
 from datetime import datetime, timezone
 from pydantic import (
-    BaseModel, BeforeValidator, ConfigDict, Field, model_validator)
+    BaseModel, BeforeValidator, ConfigDict, Field, NonNegativeInt,
+    model_validator)
 from typing import List, Optional, Union
 from typing_extensions import Annotated
 
@@ -23,6 +24,10 @@ now = Field(
         default_factory=lambda: int(datetime.now(tz=timezone.utc).timestamp()))
 now_ms = Field(
         default_factory=lambda: datetime.now(tz=timezone.utc).timestamp())
+date_start = Field(
+        default_factory=lambda: int(datetime.now(tz=timezone.utc).replace(
+            hour=0, minute=0, second=0, microsecond=0).timestamp()),
+        alias='_created_at_dt')
 
 
 class ConsolePostIn(BaseClass):
@@ -35,22 +40,28 @@ class Console(ConsolePostIn):
     run_id: str
 
 
-class SubDataset(BaseModel):
-    path: str
-    timespan_from: Optional[int] = None
-    timespan_to: Optional[int] = None
-
-
 class DatasetPatchIn(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    labels: List[str] = []
-    training_set: Optional[SubDataset] = None
-    validation_set: Optional[SubDataset] = None
+    labels: Optional[List[str]] = []
+    timespan_from: Optional[int] = None
+    timespan_to: Optional[int] = None
+
+    @model_validator(mode='after')
+    def set_labels(self):
+        if self.labels:
+            self.labels = list(set(self.labels))
+        return self
 
 
 class DatasetPostIn(DatasetPatchIn):
     path: str
+
+    @model_validator(mode='after')
+    def set_name(self):
+        if not self.name:
+            self.name = self.path
+        return self
 
 
 class Dataset(DatasetPostIn):
@@ -118,7 +129,7 @@ class LeaderboardFilter(BaseClass):
         return self
 
 
-class LeaderboardPostIn(BaseClass):
+class LeaderboardTemplatePostIn(BaseClass):
     primary_metric: str
     group_by_hp: bool
     grouping_tags: List[str] = []
@@ -128,6 +139,7 @@ class LeaderboardPostIn(BaseClass):
         [],
         description='list of metrics from primary_metric and other_metrics',
         exclude=True)
+    dataset_coverage_rules: Optional[dict] = {}
 
     @model_validator(mode='after')
     def validate_filters_values(self):
@@ -142,8 +154,16 @@ class LeaderboardPostIn(BaseClass):
         self.metrics = list(set(self.other_metrics + [self.primary_metric]))
         return self
 
+    @model_validator(mode='after')
+    def validate_dataset_coverage_rules(self):
+        if self.dataset_coverage_rules and not all(
+                isinstance(x, int) and 0 < x <= 100 for x in
+                self.dataset_coverage_rules.values()):
+            raise ValueError('value of dataset_coverage_rules should be int '
+                             'between 1 and 100')
 
-class LeaderboardPatchIn(LeaderboardPostIn):
+
+class LeaderboardTemplatePatchIn(LeaderboardTemplatePostIn):
     primary_metric: Optional[str] = None
     group_by_hp: Optional[bool] = None
 
@@ -154,8 +174,12 @@ class LeaderboardPatchIn(LeaderboardPostIn):
             self.metrics = list(set(self.metrics + [self.primary_metric]))
         return self
 
+    @model_validator(mode='after')
+    def validate_filters_values(self):
+        return self
 
-class Leaderboard(LeaderboardPostIn):
+
+class LeaderboardTemplate(LeaderboardTemplatePostIn):
     id: str = id_
     task_id: str
     token: str
@@ -166,7 +190,7 @@ class Leaderboard(LeaderboardPostIn):
         allow_population_by_field_name = True
 
 
-class LeaderboardDatasetPatchIn(BaseModel):
+class LeaderboardPatchIn(LeaderboardTemplatePatchIn):
     dataset_ids: Optional[list] = []
     name: Optional[str] = None
 
@@ -177,14 +201,14 @@ class LeaderboardDatasetPatchIn(BaseModel):
             kwargs["dataset_ids"] = list(set(ds_ids))
 
 
-class LeaderboardDatasetPostIn(LeaderboardDatasetPatchIn):
+class LeaderboardPostIn(LeaderboardPatchIn):
     pass
 
 
-class LeaderboardDataset(LeaderboardDatasetPostIn):
+class Leaderboard(LeaderboardPostIn):
     id: str = id_
     token: str
-    leaderboard_id: str
+    leaderboard_template_id: str
     created_at: int = now
     deleted_at: int = 0
 
@@ -317,3 +341,84 @@ class MetricPatchIn(MetricPostIn):
 class Metric(MetricPatchIn):
     id: str = id_
     token: str
+
+
+class ArtifactPatchIn(BaseClass):
+    path: str = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[dict] = {}
+
+
+class ArtifactPostIn(ArtifactPatchIn):
+    run_id: str
+    path: str
+
+    @model_validator(mode='after')
+    def set_name(self):
+        if not self.name:
+            self.name = self.path
+        return self
+
+
+class Artifact(ArtifactPostIn):
+    id: str = id_
+    token: str
+    created_at: int = now
+    created_at_dt: int = date_start
+
+
+timestamp = Field(None, ge=0, le=2**31-1)
+max_mongo_int = Field(0, ge=0, le=2**63-1)
+
+
+class ArtifactSearchParams(BaseModel):
+    created_at_lt: Optional[NonNegativeInt] = timestamp
+    created_at_gt: Optional[NonNegativeInt] = timestamp
+    limit: Optional[NonNegativeInt] = max_mongo_int
+    start_from: Optional[NonNegativeInt] = max_mongo_int
+    run_id: Optional[Union[list, str]] = []
+    task_id: Optional[Union[list, str]] = []
+    text_like: Optional[str] = None
+
+    @model_validator(mode='before')
+    def convert_to_expected_types(self):
+        """
+        Converts a dict of request.args passed as query parameters to a dict
+        suitable for further model validation.
+
+        Example:
+          request.args: {"limit": ["1"], "text_like": ["test"]}
+          return: {"limit": "1", "text_like": "test"}
+        """
+        numeric_fields = ['created_at_lt', 'created_at_gt',
+                          'limit', 'start_from']
+        for k, v in self.items():
+            if isinstance(v, list) and len(v) == 1:
+                v = v[0]
+                self[k] = v
+            if k in numeric_fields:
+                try:
+                    self[k] = int(v)
+                except (TypeError, ValueError):
+                    continue
+        return self
+
+    @model_validator(mode='after')
+    def validate_run_id(self):
+        if isinstance(self.run_id, str):
+            self.run_id = [self.run_id]
+        return self
+
+    @model_validator(mode='after')
+    def validate_created_at(self):
+        if (self.created_at_gt is not None and self.created_at_lt is not None
+                and self.created_at_lt <= self.created_at_gt):
+            raise ValueError('Invalid created_at filter values')
+        return self
+
+    @model_validator(mode='after')
+    def validate_task_id(self):
+        if isinstance(self.task_id, str):
+            self.task_id = [self.task_id]
+        return self

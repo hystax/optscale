@@ -969,7 +969,7 @@ class Err(enum.Enum):
         []
     ]
     OE0549 = [
-        "Leaderboard already exists for task %s",
+        "Leaderboard template already exists for task %s",
         ["task_id"],
         ["a3706242-47a9-4e55-b7ab-b9f58fa9ec31"]
     ]

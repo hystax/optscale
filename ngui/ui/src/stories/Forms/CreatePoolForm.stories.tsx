@@ -1,4 +1,4 @@
-import { CreatePoolForm } from "components/PoolForm";
+import { CreatePoolForm } from "components/forms/PoolForm";
 
 export default {
   component: CreatePoolForm,

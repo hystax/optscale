@@ -1,18 +1,28 @@
-### View
+### **Summary**
 
-- Switch between a table and a cards view. Each recommendation can be pinned to the top of the list (max is 5).
-- See archived recommendations by clicking the "Archive" button from the page toolbar.
-- Download a cleanup script or a JSON/XLSX file with a list of recommendations.
+A Recommendation page provides personalized advice. Get practical information about suggesting services and features available in OptScale. Find a brief description and other pertinent information in the cards to help you assess the situation quickly.
 
-### Filtering
+### **View**
 
-- Filter recommendations by data source.
-- See a specific recommendations category and/or filter the recommendations by a service.
+- Summary Cards: Get an at-a-glance overview of possible monthly savings, check time, savings, expenses, and duplicates found.
 
-### Settings
+- Recommendation Cards: Get tailored suggestions based on your behavior, preferences, and other relevant data.
 
-- Recommendations are configurable. Open a menu by clicking the ellipsis (cards view) or the cog (table view) icon.
-- You can force recommendations check by clicking the "Force check" button from the page toolbar.
+### **Actions**
+
+- Filter: Filter recommendations by data source, categories, or applicable services.
+
+- Cards or Table View: Observe the data in either card format or as a table.
+
+- Force Recommendations: Click the "Force check" button from the page toolbar. 
+
+- Easy Access the Key Cards: Pin an important card to keep it easily accessible and highlighted for quick reference (max is 5).
+
+### **Tips**
+
+- Prioritize Personalization: Rate the recommendations.
+
+- Explore Beyond the Familiar: Use recommendation cards as a way to discover new content, products, or ideas that you might not have found on your own. They’re designed to introduce you to options that align with your interests, but may not be immediately obvious.
 
 Want to learn more about the utilization of recommendation cards? Check out this post - [How to use recommendation cards in OptScale](https://hystax.com/how-to-use-recommendation-cards-in-optscale/)
 

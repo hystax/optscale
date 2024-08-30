@@ -1,8 +1,13 @@
 import uuid
-from rest_api.rest_api_server.tests.unittests.test_profiling_base import TestProfilingBase
 from unittest.mock import patch
 from datetime import datetime, timezone, timedelta
 from freezegun import freeze_time
+
+from tools.optscale_exceptions.http_exc import OptHTTPError
+
+from rest_api.rest_api_server.exceptions import Err
+from rest_api.rest_api_server.tests.unittests.test_profiling_base import (
+    TestProfilingBase)
 
 BYTES_IN_MB = 1024 * 1024
 
@@ -68,6 +73,39 @@ class TestRunsApi(TestProfilingBase):
         code, resp = self.client.run_get(self.org['id'], run['_id'])
         self.assertEqual(code, 200)
         self.assertEqual(resp['git'], self.git_data)
+
+    def test_get_run_with_token(self):
+        metric_1 = self._create_metric(self.org['id'], 'loss')
+        code, task = self.client.task_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+                'metrics': [metric_1['id']]
+            })
+        self.assertEqual(code, 201)
+        run = self._create_run(self.org['id'],
+                               task['id'],
+                               ['i-1', 'i-2'],
+                               's3://ml-bucket/dataset',
+                               data={'step': 2000, 'loss': 55},
+                               git=self.git_data)
+        token = self.get_profiling_token(self.org['id'])
+        code, resp = self.client.run_get(
+            self.org['id'], run['_id'], token=token)
+        self.assertEqual(code, 200)
+
+        def side_eff(_action, *_args, **_kwargs):
+            raise OptHTTPError(403, Err.OE0234, [])
+
+        patch(
+            'rest_api.rest_api_server.handlers.v1.base.'
+            'BaseAuthHandler.check_permissions',
+            side_effect=side_eff).start()
+
+        code, resp = self.client.run_get(
+            self.org['id'], run['_id'], token='123')
+        self.assertEqual(code, 403)
+        self.assertEqual(resp['error']['error_code'], 'OE0234')
 
     def test_get_run_console_data(self):
         metric_1 = self._create_metric(self.org['id'], 'loss')
@@ -450,6 +488,33 @@ class TestRunsApi(TestProfilingBase):
             resp['breakdown'], {
                 str(now): {'metrics': {}, 'data': {}}
             })
+
+    def test_run_breakdown_with_token(self):
+        code, task = self.client.task_create(
+            self.org['id'], {
+                'name': 'My test project',
+                'key': 'test_project',
+            })
+        now = int(datetime(2022, 5, 10).timestamp())
+        run = self._create_run(self.org['id'], task['id'], [],
+                               start=now, finish=None)
+        token = self.get_profiling_token(self.org['id'])
+        code, resp = self.client.run_breakdown_get(
+            self.org['id'], run['_id'], token=token)
+        self.assertEqual(code, 200)
+
+        def side_eff(_action, *_args, **_kwargs):
+            raise OptHTTPError(403, Err.OE0234, [])
+
+        patch(
+            'rest_api.rest_api_server.handlers.v1.base.'
+            'BaseAuthHandler.check_permissions',
+            side_effect=side_eff).start()
+
+        code, resp = self.client.run_breakdown_get(
+            self.org['id'], run['_id'], token='123')
+        self.assertEqual(code, 403)
+        self.assertEqual(resp['error']['error_code'], 'OE0234')
 
     def test_run_breakdown_metrics(self):
         code, task = self.client.task_create(

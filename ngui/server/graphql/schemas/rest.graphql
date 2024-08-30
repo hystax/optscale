@@ -1,3 +1,5 @@
+scalar JSONObject
+
 # use enum to get types for the "dataSource.type" field in revolver
 enum DataSourceType {
   aws_cnr
@@ -49,8 +51,9 @@ interface DataSourceInterface {
 
 # AWS data source
 type AwsConfig {
-  access_key_id: String!
+  access_key_id: String
   linked: Boolean
+  cur_version: Int
   bucket_name: String
   bucket_prefix: String
   config_scheme: String
@@ -76,8 +79,8 @@ type AwsDataSource implements DataSourceInterface {
 
 # Azure tenant data source
 type AzureTenantConfig {
-  client_id: String!
-  tenant: String!
+  client_id: String
+  tenant: String
 }
 
 type AzureTenantDataSource implements DataSourceInterface {
@@ -98,10 +101,10 @@ type AzureTenantDataSource implements DataSourceInterface {
 
 # Azure subscription data source
 type AzureSubscriptionConfig {
-  client_id: String!
-  expense_import_scheme: String!
-  subscription_id: String!
-  tenant: String!
+  client_id: String
+  expense_import_scheme: String
+  subscription_id: String
+  tenant: String
 }
 
 type AzureSubscriptionDataSource implements DataSourceInterface {
@@ -122,13 +125,13 @@ type AzureSubscriptionDataSource implements DataSourceInterface {
 
 # GCP data source
 type GcpBillingDataConfig {
-  dataset_name: String!
-  table_name: String!
+  dataset_name: String
+  table_name: String
   project_id: String
 }
 
 type GcpConfig {
-  billing_data: GcpBillingDataConfig!
+  billing_data: GcpBillingDataConfig
 }
 
 type GcpDataSource implements DataSourceInterface {
@@ -149,7 +152,7 @@ type GcpDataSource implements DataSourceInterface {
 
 # Alibaba data source
 type AlibabaConfig {
-  access_key_id: String!
+  access_key_id: String
 }
 
 type AlibabaDataSource implements DataSourceInterface {
@@ -170,10 +173,10 @@ type AlibabaDataSource implements DataSourceInterface {
 
 # Nebius data source
 type NebiusConfig {
-  cloud_name: String!
-  service_account_id: String!
-  key_id: String!
-  access_key_id: String!
+  cloud_name: String
+  service_account_id: String
+  key_id: String
+  access_key_id: String
   # Make bucket name and prefix optional to fix conflicting types
   # to make it compatible with the AwsConfig type
   bucket_name: String
@@ -198,8 +201,8 @@ type NebiusDataSource implements DataSourceInterface {
 
 # Databricks data source
 type DatabricksConfig {
-  account_id: String!
-  client_id: String!
+  account_id: String
+  client_id: String
 }
 
 type DatabricksDataSource implements DataSourceInterface {
@@ -265,9 +268,95 @@ input DataSourceRequestParams {
   details: Boolean
 }
 
+input AwsRootConfigInput {
+  access_key_id: String!
+  secret_access_key: String!
+  cur_version: Int
+  bucket_name: String
+  bucket_prefix: String
+  config_scheme: String
+  report_name: String
+}
+
+input AwsLinkedConfigInput {
+  access_key_id: String!
+  secret_access_key: String!
+  linked: Boolean!
+}
+
+input AzureSubscriptionConfigInput {
+  client_id: String!
+  secret: String!
+  subscription_id: String!
+  tenant: String!
+}
+
+input AzureTenantConfigInput {
+  client_id: String!
+  secret: String!
+  tenant: String!
+}
+
+input GcpBillingDataConfigInput {
+  dataset_name: String!
+  table_name: String!
+}
+
+input GcpConfigInput {
+  billing_data: GcpBillingDataConfigInput!
+  credentials: JSONObject!
+}
+
+input AlibabaConfigInput {
+  access_key_id: String!
+  secret_access_key: String!
+}
+
+input NebiusConfigInput {
+  cloud_name: String!
+  service_account_id: String!
+  key_id: String!
+  private_key: String!
+  access_key_id: String!
+  secret_access_key: String!
+  bucket_name: String!
+  bucket_prefix: String
+}
+
+input K8sConfigInput {
+  password: String!
+  user: String!
+}
+
+input DatabricksConfigInput {
+  account_id: String!
+  client_id: String!
+  client_secret: String!
+}
+
+input UpdateDataSourceInput {
+  name: String
+  awsRootConfig: AwsRootConfigInput
+  awsLinkedConfig: AwsLinkedConfigInput
+  azureSubscriptionConfig: AzureSubscriptionConfigInput
+  azureTenantConfig: AzureTenantConfigInput
+  gcpConfig: GcpConfigInput
+  alibabaConfig: AlibabaConfigInput
+  nebiusConfig: NebiusConfigInput
+  databricksConfig: DatabricksConfigInput
+  k8sConfig: K8sConfigInput
+}
+
 type Query {
   dataSource(
     dataSourceId: ID!
     requestParams: DataSourceRequestParams
+  ): DataSourceInterface
+}
+
+type Mutation {
+  updateDataSource(
+    dataSourceId: ID!
+    params: UpdateDataSourceInput!
   ): DataSourceInterface
 }

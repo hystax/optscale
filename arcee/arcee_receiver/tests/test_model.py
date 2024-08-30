@@ -3,7 +3,7 @@ import uuid
 import pytest
 from arcee.arcee_receiver.tests.base import (
     DB_MOCK, Urls, TOKEN1, prepare_token, prepare_run, prepare_model,
-    prepare_model_version
+    prepare_model_version, prepare_tasks
 )
 
 
@@ -301,8 +301,9 @@ async def test_get_model(app):
     client = app.asgi_client
     await prepare_token()
     model = await prepare_model(TOKEN1)
-    run = await prepare_run('task_id', 99, 1, 1, {})
-    run2 = await prepare_run('task_id', 99, 1, 1, {})
+    tasks = await prepare_tasks()
+    run = await prepare_run(tasks[0]['_id'], 99, 1, 1, {})
+    run2 = await prepare_run(tasks[0]['_id'], 99, 1, 1, {})
     version = await prepare_model_version(
         model['_id'], run['_id'], tags={'test': 'test'},
         aliases=['alias1', 'alias2', 'alias3', 'alias4', 'alias5', 'alias6'])
@@ -318,10 +319,11 @@ async def test_get_model(app):
         'path': '/my/path',
         'version': '1',
         'run': {
-            'task_id': 'task_id',
+            'task_id': tasks[0]['_id'],
             'name': 99,
             'number': 1,
-            '_id': run['_id']
+            '_id': run['_id'],
+            'task_name': tasks[0]['name'],
         },
         'tags': {'test': 'test'},
         'created_at': version['created_at']

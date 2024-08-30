@@ -1,4 +1,4 @@
-import CreateColumnSetForm from "components/CreateColumnSetForm";
+import CreateColumnSetForm from "components/forms/CreateColumnSetForm";
 import { getVisibleColumnIds } from "components/Table/utils";
 import LayoutsService from "services/LayoutsService";
 import { LAYOUT_TYPES } from "utils/constants";

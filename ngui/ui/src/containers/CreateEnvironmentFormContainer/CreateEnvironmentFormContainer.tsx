@@ -2,7 +2,8 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createEnvironment } from "api";
 import { CREATE_ENVIRONMENT } from "api/restapi/actionTypes";
-import CreateEnvironmentForm from "components/CreateEnvironmentForm";
+import CreateEnvironmentForm from "components/forms/CreateEnvironmentForm";
+import { FormValues } from "components/forms/CreateEnvironmentForm/types";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ENVIRONMENTS } from "urls";
@@ -20,9 +21,18 @@ const CreateEnvironmentFormContainer = () => {
 
   const onCancel = () => redirect();
 
-  const onSubmit = (formData) => {
+  const onSubmit = (formData: FormValues) => {
+    const { properties, ...rest } = formData;
+
+    const params = {
+      properties: Object.fromEntries(
+        formData.properties.map(({ propertyName, propertyValue }) => [propertyName, propertyValue])
+      ),
+      ...rest
+    };
+
     dispatch((_, getState) => {
-      dispatch(createEnvironment(organizationId, formData))
+      dispatch(createEnvironment(organizationId, params))
         .then(() => {
           if (isError(CREATE_ENVIRONMENT, getState())) {
             return Promise.reject();

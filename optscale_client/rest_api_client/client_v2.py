@@ -1700,20 +1700,26 @@ class Client(Client_v1):
             organization_id, metric_id))
 
     def executor_list(self, organization_id, task_ids=None,
-                      run_ids=None):
+                      run_ids=None, token=None):
         url = self.executors_url(organization_id) + self.query_url(
-            task_id=task_ids, run_id=run_ids)
+            task_id=task_ids, run_id=run_ids, token=token)
         return self.get(url)
 
     def executors_breakdown_get(self, organization_id):
         url = self.executors_breakdown_url(organization_id)
         return self.get(url)
 
-    def run_get(self, organization_id, run_id):
-        return self.get(self.runs_url(organization_id, run_id))
+    def run_get(self, organization_id, run_id, token=None):
+        url = self.runs_url(organization_id, run_id)
+        if token:
+            url += self.query_url(token=token)
+        return self.get(url)
 
-    def run_breakdown_get(self, organization_id, run_id):
-        return self.get(self.runs_breakdown_url(organization_id, run_id))
+    def run_breakdown_get(self, organization_id, run_id, token=None):
+        url = self.runs_breakdown_url(organization_id, run_id)
+        if token:
+            url += self.query_url(token=token)
+        return self.get(url)
 
     def run_list(self, organization_id, task_id, **kwargs):
         url = self.runs_url(organization_id, task_id=task_id
@@ -1975,41 +1981,41 @@ class Client(Client_v1):
         url = self.power_schedules_actions_url(id_=id_)
         return self.post(url, params)
 
-    def leaderboard_url(self, organization_id, task_id):
-        return '%s/leaderboard' % Client.tasks_url(
+    def leaderboard_template_url(self, organization_id, task_id):
+        return '%s/leaderboard_template' % Client.tasks_url(
             organization_id, task_id)
 
     @staticmethod
-    def leaderboard_dataset_url(organization_id, leaderboard_dataset_id):
-        return '%s/leaderboard_datasets/%s' % (
-            Client.organization_url(organization_id), leaderboard_dataset_id)
-
-    @staticmethod
-    def leaderboard_generate_url(organization_id, leaderboard_dataset_id):
-        return "%s/generate" % (Client.leaderboard_dataset_url(
-            organization_id, leaderboard_dataset_id))
-
-    @staticmethod
-    def leaderboard_datasets_url(organization_id, leaderboard_id):
-        return '%s/leaderboards/%s/leaderboard_datasets' % (
+    def leaderboard_url(organization_id, leaderboard_id):
+        return '%s/leaderboards/%s' % (
             Client.organization_url(organization_id), leaderboard_id)
 
-    def leaderboard_create(self, organization_id, task_id, params):
-        return self.post(
-            self.leaderboard_url(organization_id, task_id), params)
+    @staticmethod
+    def leaderboard_generate_url(organization_id, leaderboard_id):
+        return "%s/generate" % (Client.leaderboard_url(
+            organization_id, leaderboard_id))
 
-    def leaderboard_get(self, organization_id, task_id, details=False):
-        url = self.leaderboard_url(
+    @staticmethod
+    def leaderboards_url(organization_id, leaderboard_template_id):
+        return '%s/leaderboard_templates/%s/leaderboards' % (
+            Client.organization_url(organization_id), leaderboard_template_id)
+
+    def leaderboard_template_create(self, organization_id, task_id, params):
+        return self.post(
+            self.leaderboard_template_url(organization_id, task_id), params)
+
+    def leaderboard_template_get(self, organization_id, task_id, details=False):
+        url = self.leaderboard_template_url(
             organization_id, task_id) + self.query_url(details=details)
         return self.get(url)
 
-    def leaderboard_update(self, organization_id, task_id, params):
+    def leaderboard_template_update(self, organization_id, task_id, params):
         return self.patch(
-            self.leaderboard_url(organization_id, task_id), params)
+            self.leaderboard_template_url(organization_id, task_id), params)
 
-    def leaderboard_delete(self, organization_id, task_id):
+    def leaderboard_template_delete(self, organization_id, task_id):
         return self.delete(
-            self.leaderboard_url(organization_id, task_id))
+            self.leaderboard_template_url(organization_id, task_id))
 
     @staticmethod
     def datasets_url(organization_id, id=None):
@@ -2031,8 +2037,9 @@ class Client(Client_v1):
     def dataset_get(self, organization_id, dataset_id):
         return self.get(self.datasets_url(organization_id, dataset_id))
 
-    def dataset_list(self, organization_id):
-        return self.get(self.datasets_url(organization_id))
+    def dataset_list(self, organization_id, dataset_ids=None):
+        return self.get(self.datasets_url(organization_id) + self.query_url(
+            dataset_id=dataset_ids))
 
     @staticmethod
     def labels_url(organization_id):
@@ -2041,42 +2048,35 @@ class Client(Client_v1):
     def labels_list(self, organization_id):
         return self.get(self.labels_url(organization_id))
 
-    def leaderboard_dataset_get(self, organization_id, leaderboard_dataset_id,
-                                details=False):
-        url = self.leaderboard_dataset_url(
-            organization_id, leaderboard_dataset_id) + self.query_url(
-            details=details)
+    @staticmethod
+    def tags_url(organization_id, task_id):
+        return '%s/tags' % Client.tasks_url(organization_id, task_id)
+
+    def tags_list(self, organization_id, task_id):
+        return self.get(self.tags_url(organization_id, task_id))
+
+    def leaderboard_get(self, organization_id, leaderboard_id, details=False):
+        url = self.leaderboard_url(
+            organization_id, leaderboard_id
+        ) + self.query_url(details=details)
         return self.get(url)
 
-    def leaderboard_dataset_create(self, organization_id, name, leaderboard_id,
-                                   dataset_ids):
-        params = {
-            "name": name,
-            "dataset_ids": dataset_ids
-        }
-        url = self.leaderboard_datasets_url(organization_id, leaderboard_id)
+    def leaderboard_create(self, organization_id, leaderboard_template_id,
+                           params):
+        url = self.leaderboards_url(organization_id, leaderboard_template_id)
         return self.post(url, params)
 
-    def leaderboard_dataset_update(self, organization_id,
-                                   leaderboard_dataset_id,  name=None,
-                                   dataset_ids=None):
-        params = {
-            "name": name,
-            "dataset_ids": dataset_ids
-        }
-        url = self.leaderboard_dataset_url(organization_id,
-                                           leaderboard_dataset_id)
+    def leaderboard_update(self, organization_id, leaderboard_id, params):
+        url = self.leaderboard_url(organization_id, leaderboard_id)
         return self.patch(url, params)
 
-    def leaderboard_dataset_delete(self, organization_id,
-                                   leaderboard_dataset_id):
-        url = self.leaderboard_dataset_url(organization_id,
-                                           leaderboard_dataset_id)
+    def leaderboard_delete(self, organization_id, leaderboard_id):
+        url = self.leaderboard_url(organization_id, leaderboard_id)
         return self.delete(url)
 
-    def leaderboard_generate(self, organization_id, leaderboard_dataset_id):
+    def leaderboard_generate(self, organization_id, leaderboard_id):
         return self.get(self.leaderboard_generate_url(organization_id,
-                                                      leaderboard_dataset_id))
+                                                      leaderboard_id))
 
     def runs_bulk_get(self, organization_id, task_id, run_ids):
         url = Client.runs_bulk_url(organization_id, task_id)
@@ -2085,9 +2085,8 @@ class Client(Client_v1):
         )
         return self.get(url)
 
-    def leaderboard_dataset_list(self, organization_id, leaderboard_id):
-        url = self.leaderboard_datasets_url(
-            organization_id, leaderboard_id)
+    def leaderboard_list(self, organization_id, leaderboard_template_id):
+        url = self.leaderboards_url(organization_id, leaderboard_template_id)
         return self.get(url)
 
     @staticmethod
@@ -2101,10 +2100,10 @@ class Client(Client_v1):
         return self.post(self.layouts_url(organization_id), params)
 
     def layouts_list(self, org_id, layout_type=None, include_shared=False,
-                     entity_id=None):
+                     entity_id=None, token=None):
         url = self.layouts_url(org_id) + self.query_url(
             layout_type=layout_type, include_shared=include_shared,
-            entity_id=entity_id)
+            entity_id=entity_id, token=token)
         return self.get(url)
 
     def layout_get(self, org_id, layout_id):
@@ -2181,3 +2180,25 @@ class Client(Client_v1):
 
     def model_versions_by_task(self, org_id, task_id):
         return self.get(self.task_model_versions_url(org_id, task_id))
+
+    @staticmethod
+    def artifacts_url(org_id, artifact_id=None):
+        url = '%s/artifacts' % Client.organization_url(org_id)
+        if artifact_id is not None:
+            url = '%s/%s' % (url, artifact_id)
+        return url
+
+    def artifact_create(self, org_id, params):
+        return self.post(self.artifacts_url(org_id), params)
+
+    def artifact_update(self, org_id, artifact_id, **params):
+        return self.patch(self.artifacts_url(org_id, artifact_id), params)
+
+    def artifacts_get(self, org_id, **params):
+        return self.get(self.artifacts_url(org_id) + self.query_url(**params))
+
+    def artifact_get(self, org_id, artifact_id):
+        return self.get(self.artifacts_url(org_id, artifact_id))
+
+    def artifact_delete(self, org_id, artifact_id):
+        return self.delete(self.artifacts_url(org_id, artifact_id))

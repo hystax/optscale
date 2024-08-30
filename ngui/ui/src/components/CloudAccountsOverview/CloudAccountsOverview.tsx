@@ -2,12 +2,21 @@ import Grid from "@mui/material/Grid";
 import ActionBar from "components/ActionBar";
 import CloudAccountsTable from "components/CloudAccountsTable";
 import CloudExpensesChart from "components/CloudExpensesChart";
+import InlineSeverityAlert from "components/InlineSeverityAlert";
 import PageContentWrapper from "components/PageContentWrapper";
 import SummaryGrid from "components/SummaryGrid";
-import { getSumByNestedObjectKey } from "utils/arrays";
-import { SUMMARY_VALUE_COMPONENT_TYPES, SUMMARY_CARD_TYPES } from "utils/constants";
+import { useIsAllowed } from "hooks/useAllowedActions";
+import { getSumByNestedObjectKey, isEmpty as isEmptyArray } from "utils/arrays";
+import { SUMMARY_VALUE_COMPONENT_TYPES, SUMMARY_CARD_TYPES, AWS_CNR } from "utils/constants";
 import { SPACING_2, SPACING_3 } from "utils/layouts";
 import { getPercentageChangeModule } from "utils/math";
+
+type SummaryProps = {
+  totalExpenses: number;
+  totalForecast: number;
+  lastMonthCost: number;
+  isLoading?: boolean;
+};
 
 const actionBarDefinition = {
   title: {
@@ -15,11 +24,7 @@ const actionBarDefinition = {
   }
 };
 
-const CloudAccountsOverview = ({ isLoading, cloudAccounts, organizationLimit }) => {
-  const totalExpenses = getSumByNestedObjectKey(cloudAccounts, "details", "cost");
-  const totalForecast = getSumByNestedObjectKey(cloudAccounts, "details", "forecast");
-  const lastMonthCost = getSumByNestedObjectKey(cloudAccounts, "details", "last_month_cost");
-
+const Summary = ({ totalExpenses, totalForecast, lastMonthCost, isLoading = false }: SummaryProps) => {
   const getSummaryData = () =>
     lastMonthCost
       ? [
@@ -93,13 +98,43 @@ const CloudAccountsOverview = ({ isLoading, cloudAccounts, organizationLimit }) 
           }
         ];
 
+  return <SummaryGrid summaryData={getSummaryData()} />;
+};
+
+const AwsLinkedAccountsWarning = () => {
+  const isManageCloudCredentialsAllowed = useIsAllowed({ requiredActions: ["MANAGE_CLOUD_CREDENTIALS"] });
+
+  return (
+    <InlineSeverityAlert
+      messageId="onlyAwsLinkedAccountsConnectedWarning"
+      messageValues={{
+        hasPermissionsToConnectDataSources: isManageCloudCredentialsAllowed
+      }}
+      severity="warning"
+    />
+  );
+};
+
+const CloudAccountsOverview = ({ cloudAccounts, organizationLimit, isLoading = false }) => {
+  const totalExpenses = getSumByNestedObjectKey(cloudAccounts, "details", "cost");
+  const totalForecast = getSumByNestedObjectKey(cloudAccounts, "details", "forecast");
+  const lastMonthCost = getSumByNestedObjectKey(cloudAccounts, "details", "last_month_cost");
+
+  const awsDataSources = cloudAccounts.filter(({ type }) => type === AWS_CNR);
+  const onlyAwsLinkedAccountsConnected = !isEmptyArray(awsDataSources) && awsDataSources.every(({ config }) => config.linked);
+
   return (
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
         <Grid container justifyContent="flex-start" alignItems="center" spacing={SPACING_2}>
           <Grid item xs={12}>
-            <SummaryGrid summaryData={getSummaryData()} />
+            <Summary
+              totalExpenses={totalExpenses}
+              totalForecast={totalForecast}
+              lastMonthCost={lastMonthCost}
+              isLoading={isLoading}
+            />
           </Grid>
           <Grid item xs={12}>
             <Grid container spacing={SPACING_3}>
@@ -114,6 +149,7 @@ const CloudAccountsOverview = ({ isLoading, cloudAccounts, organizationLimit }) 
                 </Grid>
               )}
               <Grid item xs={12}>
+                {!isLoading && onlyAwsLinkedAccountsConnected && <AwsLinkedAccountsWarning />}
                 <CloudAccountsTable cloudAccounts={cloudAccounts} isLoading={isLoading} />
               </Grid>
             </Grid>

@@ -6,7 +6,8 @@ import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { createAssignmentRule, getPoolOwners, RESTAPI, getAvailablePools } from "api";
 import { CREATE_ASSIGNMENT_RULE, GET_DATA_SOURCES, GET_POOL_OWNERS, GET_AVAILABLE_POOLS } from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
-import AssignmentRuleForm from "components/AssignmentRuleForm";
+import AssignmentRuleForm from "components/forms/AssignmentRuleForm";
+import { FIELD_NAMES } from "components/forms/AssignmentRuleForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -16,17 +17,14 @@ import { isError } from "utils/api";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import {
   DEFAULT_CONDITIONS,
-  CONDITION,
-  TAG_CONDITION,
   CONDITION_TYPES,
   TAG_IS,
-  ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER
+  ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER,
+  CLOUD_IS,
+  TAG_VALUE_STARTS_WITH
 } from "utils/constants";
 import { getQueryParams } from "utils/network";
 import { parseJSON } from "utils/strings";
-
-const { META_INFO, TYPE } = CONDITION;
-const { KEY: TAG_KEY, VALUE: TAG_VALUE } = TAG_CONDITION;
 
 const PageActionBar = ({ isFormDataLoading }) => {
   const getActionBarDefinitions = () => ({
@@ -57,7 +55,7 @@ const PageActionBar = ({ isFormDataLoading }) => {
   );
 };
 
-export const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
+const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
   const conditions = conditionsQueryParam
     .map((condition) => {
       const parsedCondition = parseJSON(condition, undefined);
@@ -70,14 +68,30 @@ export const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
 
         if (type === TAG_IS) {
           return {
-            [TYPE]: type,
-            [`${META_INFO}_${TAG_KEY}`]: value?.tagKey,
-            [`${META_INFO}_${TAG_VALUE}`]: value?.tagValue
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: value?.tagKey,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue
           };
         }
+
+        if (type === TAG_VALUE_STARTS_WITH) {
+          return {
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: value?.tagKey,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue
+          };
+        }
+
+        if (type === CLOUD_IS) {
+          return {
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: value
+          };
+        }
+
         return {
-          [TYPE]: type,
-          [META_INFO]: value
+          [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+          [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: value
         };
       }
       return undefined;

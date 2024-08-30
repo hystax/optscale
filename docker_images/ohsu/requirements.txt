@@ -1,5 +1,5 @@
 boto
-tornado==6.3.3
+tornado==6.4.1
 
 # OptScale packages
 -e tools/optscale_exceptions

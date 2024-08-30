@@ -281,9 +281,11 @@ class BaseInfraController(BaseProfilingTokenController, MongoMixin):
         return executors
 
     @handle_http_exc
-    def list_datasets(self, profiling_token, include_deleted=False):
+    def list_datasets(self, profiling_token, include_deleted=False,
+                      dataset_ids=None):
         arcee = self.get_arcee_client(profiling_token)
-        _, datasets = arcee.dataset_list(include_deleted)
+        _, datasets = arcee.dataset_list(include_deleted,
+                                         dataset_ids=dataset_ids)
         return datasets
 
     @handle_http_exc

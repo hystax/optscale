@@ -1,3 +1,0 @@
-import CreateLeaderboardDatasetFormContainer from "./CreateLeaderboardDatasetFormContainer";
-
-export default CreateLeaderboardDatasetFormContainer;

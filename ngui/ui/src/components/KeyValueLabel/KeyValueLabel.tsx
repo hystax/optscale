@@ -9,7 +9,7 @@ type KeyType =
       keyText?: never;
     }
   | {
-      keyText: string;
+      keyText: ReactNode;
       keyMessageId?: never;
     };
 

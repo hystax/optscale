@@ -1,0 +1,3 @@
+import MlEditTaskLeaderboardTemplateContainer from "./MlEditTaskLeaderboardTemplateContainer";
+
+export default MlEditTaskLeaderboardTemplateContainer;

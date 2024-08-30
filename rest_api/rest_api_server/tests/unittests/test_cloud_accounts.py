@@ -445,6 +445,9 @@ class TestCloudAccountApi(TestApiBase):
         mock_delete_expenses = patch(
             'rest_api.rest_api_server.controllers.expense.ExpenseController.'
             'delete_cloud_expenses').start()
+        mock_clean_ch = patch(
+            'rest_api.rest_api_server.controllers.cloud_account.'
+            'CloudAccountController.clean_clickhouse').start()
         code, cloud_acc = self.create_cloud_account(self.org_id,
                                                     self.valid_aws_cloud_acc)
         self.assertEqual(code, 201)
@@ -471,6 +474,8 @@ class TestCloudAccountApi(TestApiBase):
         code, _ = self.client.cloud_account_delete(cloud_acc['id'])
         self.assertEqual(code, 204)
         mock_delete_expenses.assert_called_once_with(cloud_acc['id'])
+        mock_clean_ch.assert_called_once_with(
+            cloud_acc['id'], CloudTypes.AWS_CNR)
         code, _ = self.client.cloud_account_get(cloud_acc['id'])
         self.assertEqual(code, 404)
 

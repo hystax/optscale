@@ -8,6 +8,7 @@ DB_MOCK = AsyncMongoMockClient()['arcee']
 
 TOKEN1 = "token_value1"
 TOKEN2 = "token_value2"
+SECRET = "secret"
 
 
 class AConfigClMock(AConfigCl):
@@ -16,13 +17,14 @@ class AConfigClMock(AConfigCl):
         return 'name', 'password', '127.0.0.1', 80, 'arcee'
 
     async def cluster_secret(self):
-        return 'secret'
+        return SECRET
 
 
 class Urls:
-    leaderboards = '/arcee/v2/tasks/{}/leaderboards'
-    leaderboard_datasets = '/arcee/v2/leaderboards/{}/leaderboard_datasets'
-    leaderboard_dataset = '/arcee/v2/leaderboard_datasets/{}'
+    leaderboard_templates = '/arcee/v2/tasks/{}/leaderboard_templates'
+    leaderboard_template = '/arcee/v2/leaderboard_templates/{}'
+    leaderboards = '/arcee/v2/leaderboard_templates/{}/leaderboards'
+    leaderboard = '/arcee/v2/leaderboards/{}'
     tasks = '/arcee/v2/tasks'
     task = '/arcee/v2/tasks/{}'
     models = '/arcee/v2/models'
@@ -34,6 +36,15 @@ class Urls:
     metrics = '/arcee/v2/metrics'
     metric = '/arcee/v2/metrics/{}'
     collect = '/arcee/v2/collect'
+    artifacts = '/arcee/v2/artifacts'
+    artifact = '/arcee/v2/artifacts/{}'
+    tags = '/arcee/v2/tasks/{}/tags'
+    datasets = '/arcee/v2/datasets'
+    dataset_register = '/arcee/v2/run/{}/dataset_register'
+    dataset = '/arcee/v2/datasets/{}'
+    labels = '/arcee/v2/labels'
+    tokens = '/arcee/v2/tokens'
+    token = '/arcee/v2/tokens/{}'
 
 
 async def prepare_token():
@@ -41,6 +52,7 @@ async def prepare_token():
         {"_id": str(uuid.uuid4()), "token": TOKEN1, "deleted_at": 0})
     await DB_MOCK['token'].insert_one(
         {"_id": str(uuid.uuid4()), "token": TOKEN2, "deleted_at": 0})
+    return [x async for x in DB_MOCK['token'].find({})]
 
 
 async def prepare_tasks(metrics=None):
@@ -48,7 +60,7 @@ async def prepare_tasks(metrics=None):
         "_id": str(uuid.uuid4()),
         "owner_id": str(uuid.uuid4()),
         "key": "key",
-        "name": "model1",
+        "name": "task",
         "metrics": [],
         "token": TOKEN1,
         "deleted_at": 0
@@ -86,7 +98,10 @@ async def prepare_metrics():
     return [x async for x in DB_MOCK['metric'].find()]
 
 
-async def prepare_run(task_id, start, state, number, data):
+async def prepare_run(task_id, start=1, state=1, number=1, data=None,
+                      tags=None):
+    if not data:
+        data = {}
     run = {
         "_id": str(uuid.uuid4()),
         "task_id": task_id,
@@ -99,20 +114,22 @@ async def prepare_run(task_id, start, state, number, data):
         "data": data,
         "executors": ["executor"]
     }
+    if tags:
+        run['tags'] = tags
     await DB_MOCK['run'].insert_one(run)
     return await DB_MOCK['run'].find_one({'_id': run['_id']})
 
 
-async def prepare_leaderboard(primary_metric, task_id, other_metrics=None,
-                              filters=None, group_by_hp=False,
-                              grouping_tags=None):
+async def prepare_leaderboard_template(
+        primary_metric, task_id, other_metrics=None, filters=None,
+        group_by_hp=False, grouping_tags=None):
     if other_metrics is None:
         other_metrics = []
     if filters is None:
         filters = []
     if grouping_tags is None:
         grouping_tags = []
-    lb = {
+    lb_template = {
         "_id": str(uuid.uuid4()),
         "primary_metric": primary_metric,
         "other_metrics": other_metrics,
@@ -124,30 +141,30 @@ async def prepare_leaderboard(primary_metric, task_id, other_metrics=None,
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
         "deleted_at": 0
     }
-    await DB_MOCK['leaderboard'].insert_one(lb)
-    return await DB_MOCK['leaderboard'].find_one({'_id': lb['_id']})
+    await DB_MOCK['leaderboard_template'].insert_one(lb_template)
+    return await DB_MOCK['leaderboard_template'].find_one(
+        {'_id': lb_template['_id']})
 
 
-async def prepare_leaderboard_dataset(leaderboard_id, name=None,
-                                      dataset_ids=None):
+async def prepare_leaderboard(leaderboard_template_id, name=None,
+                              dataset_ids=None):
     if dataset_ids is None:
         dataset_ids = []
-    leaderboard_dataset = {
+    leaderboard = {
         "_id": str(uuid.uuid4()),
-        "leaderboard_id": leaderboard_id,
+        "leaderboard_template_id": leaderboard_template_id,
         "name": name or 'test',
         "dataset_ids": dataset_ids,
         "token": TOKEN1,
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
         "deleted_at": 0
     }
-    await DB_MOCK['leaderboard_dataset'].insert_one(leaderboard_dataset)
-    return await DB_MOCK['leaderboard_dataset'].find_one(
-        {'_id': leaderboard_dataset['_id']})
+    await DB_MOCK['leaderboard'].insert_one(leaderboard)
+    return await DB_MOCK['leaderboard'].find_one(
+        {'_id': leaderboard['_id']})
 
 
-async def prepare_dataset(name=None, description=None, labels=None, path=None,
-                          training_set=None, validation_set=None):
+async def prepare_dataset(name=None, description=None, labels=None, path=None):
     if labels is None:
         labels = []
     dataset = {
@@ -156,9 +173,8 @@ async def prepare_dataset(name=None, description=None, labels=None, path=None,
         "description": description or 'test',
         "labels": labels,
         "path": path or 'test',
-        "training_set": training_set,
-        "validation_set": validation_set,
         "created_at": int(datetime.now(tz=timezone.utc).timestamp()),
+        "token": TOKEN1,
         "deleted_at": 0
     }
     await DB_MOCK['dataset'].insert_one(dataset)
@@ -201,3 +217,32 @@ async def prepare_model_version(model_id, run_id, version='1', aliases=None,
     await DB_MOCK['model_version'].insert_one(model_version)
     return await DB_MOCK['model_version'].find_one({
         "run_id": run_id, "model_id": model_id})
+
+
+async def prepare_artifact(run_id, name=None, description=None,
+                           path=None, tags=None, created_at=None):
+    now = datetime.now(tz=timezone.utc)
+    if not created_at:
+        created_at = int(now.timestamp())
+    if not name:
+        name = "my artifact"
+    if not description:
+        description = "my artifact"
+    if not path:
+        path = "/my/path"
+    if not tags:
+        tags = {"key": "value"}
+    artifact = {
+        "_id": str(uuid.uuid4()),
+        "path": path,
+        "name": name,
+        "description": description,
+        "tags": tags,
+        "run_id": run_id,
+        "created_at": created_at,
+        "token": TOKEN1,
+        '_created_at_dt': int(now.replace(hour=0, minute=0, second=0,
+                                          microsecond=0).timestamp())
+    }
+    await DB_MOCK['artifact'].insert_one(artifact)
+    return await DB_MOCK['artifact'].find_one({'_id': artifact['_id']})

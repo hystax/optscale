@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createClusterType } from "api";
 import { CREATE_CLUSTER_TYPE } from "api/restapi/actionTypes";
-import CreateClusterTypeForm from "components/CreateClusterTypeForm";
+import CreateClusterTypeForm from "components/forms/CreateClusterTypeForm";
 import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { CLUSTER_TYPES } from "urls";

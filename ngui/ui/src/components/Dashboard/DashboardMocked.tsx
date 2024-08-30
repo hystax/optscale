@@ -2,10 +2,12 @@ import DashboardGridLayout from "components/DashboardGridLayout";
 import OrganizationConstraintsCard from "components/OrganizationConstraintsCard";
 import OrganizationExpenses from "components/OrganizationExpenses";
 import PageContentWrapper from "components/PageContentWrapper";
+import RecentModelsCard from "components/RecentModelsCard";
+import RecentTasksCard from "components/RecentTasksCard";
 import RecommendationsCard from "components/RecommendationsCard";
 import TopResourcesExpensesCard from "components/TopResourcesExpensesCard";
 import { MOCKED_ORGANIZATION_POOL_ID } from "stories";
-import { getLastMonthRange, millisecondsToSeconds } from "utils/datetime";
+import { getLastMonthRange, millisecondsToSeconds, subMinutes } from "utils/datetime";
 
 const cleanExpenses = [
   {
@@ -454,6 +456,294 @@ const constraints = [
   }
 ];
 
+const tasks = [
+  {
+    name: "Digit Recognizer",
+    id: "6569a65e-17bc-49e3-8439-44eb9e5f38b6",
+    status: "completed",
+    last_run: millisecondsToSeconds(+subMinutes(new Date(), 25)),
+    last_run_reached_goals: {
+      iter: {
+        id: "4254aa87-0095-45bc-84e7-139a560d5729",
+        tendency: "more",
+        target_value: 3,
+        name: "Iter",
+        value: 57600,
+        reached: true
+      },
+      loss: {
+        id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
+        tendency: "less",
+        target_value: 1.1,
+        name: "Data Loss",
+        value: 0.7866795659065247,
+        reached: true
+      },
+      epoch: {
+        id: "ba8b5cbb-2e77-4326-91ea-756db9b43270",
+        tendency: "less",
+        target_value: 9,
+        name: "Epochs",
+        value: 10,
+        reached: false
+      }
+    }
+  },
+  {
+    name: "House Prices",
+    id: "16a17169-7dbc-4557-9101-dbcba713b1d4",
+    status: "completed",
+    last_run: millisecondsToSeconds(+subMinutes(new Date(), 36)),
+    last_run_reached_goals: {
+      accuracy: {
+        id: "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+        tendency: "more",
+        target_value: 60,
+        name: "Accuracy",
+        value: 70.67,
+        reached: true
+      },
+      loss: {
+        id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
+        tendency: "less",
+        target_value: 1.1,
+        name: "Data Loss",
+        value: 0.7786335945129395,
+        reached: true
+      },
+      iter: {
+        id: "4254aa87-0095-45bc-84e7-139a560d5729",
+        tendency: "more",
+        target_value: 3,
+        name: "Iter",
+        value: 57600,
+        reached: true
+      }
+    }
+  },
+  {
+    name: "Flower Classification",
+    id: "77d078a6-3381-40a0-8fd3-e6dc4c1b0448",
+    status: "completed",
+    last_run: millisecondsToSeconds(+subMinutes(new Date(), 42)),
+    last_run_reached_goals: {
+      iter: {
+        id: "4254aa87-0095-45bc-84e7-139a560d5729",
+        tendency: "more",
+        target_value: 3,
+        name: "Iter",
+        value: 57600,
+        reached: true
+      },
+      loss: {
+        id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
+        tendency: "less",
+        target_value: 1.1,
+        name: "Data Loss",
+        value: 0.7814914584159851,
+        reached: true
+      },
+      accuracy: {
+        id: "95fded0b-dfdf-4a10-a154-7b2f390739f0",
+        tendency: "more",
+        target_value: 60,
+        name: "Accuracy",
+        value: 70.74000000000001,
+        reached: true
+      },
+      epoch: {
+        id: "ba8b5cbb-2e77-4326-91ea-756db9b43270",
+        tendency: "less",
+        target_value: 9,
+        name: "Epochs",
+        value: 10,
+        reached: false
+      }
+    }
+  }
+];
+
+const models = [
+  {
+    name: "House prices model ",
+    description: "Model for House Prices task",
+    tags: {
+      environment: "staging",
+      task: "House Prices"
+    },
+    key: "houses_prices_model",
+    created_at: 1711707203,
+    aliased_versions: [
+      {
+        path: "https://s3.amazonaws.com/ml-bucket/houses_model_7.csv",
+        aliases: ["latest"],
+        version: "7",
+        tags: {
+          validation_status: "+"
+        },
+        deleted_at: 0,
+        run_id: "511d178d-3c00-4d07-b764-d8ca2eb5e5c9",
+        model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
+        created_at: 1711976089,
+        alias: "latest",
+        id: "49cefad5-09b3-41f9-9767-83111bf4d248"
+      },
+      {
+        path: "https://s3.amazonaws.com/ml-bucket/houses_model_6.pkl",
+        aliases: ["staging"],
+        version: "6",
+        tags: {
+          validation_status: "+"
+        },
+        deleted_at: 0,
+        run_id: "fec45ced-ed0c-487c-97a2-a926e6fd4467",
+        model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
+        created_at: 1711953447,
+        alias: "staging",
+        id: "6564da92-e28e-411b-83af-881af824750c"
+      },
+      {
+        path: "https://s3.amazonaws.com/ml-bucket/houses_model_4.pkl",
+        aliases: ["prod", "champion"],
+        version: "4",
+        tags: {
+          validation_status: "+"
+        },
+        deleted_at: 0,
+        run_id: "73e84364-5a59-4c19-add0-d1592e46baea",
+        model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
+        created_at: 1711952367,
+        alias: "prod",
+        id: "63075ce9-9d8f-4e62-b534-400f1fd0aa2b"
+      },
+      {
+        path: "https://s3.amazonaws.com/ml-bucket/houses_model_4.pkl",
+        aliases: ["prod", "champion"],
+        version: "4",
+        tags: {
+          validation_status: "+"
+        },
+        deleted_at: 0,
+        run_id: "73e84364-5a59-4c19-add0-d1592e46baea",
+        model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
+        created_at: 1711952367,
+        alias: "champion",
+        id: "63075ce9-9d8f-4e62-b534-400f1fd0aa2b"
+      }
+    ],
+    last_version: {
+      path: "https://s3.amazonaws.com/ml-bucket/houses_model_7.csv",
+      aliases: ["latest"],
+      version: "7",
+      tags: {
+        validation_status: "+"
+      },
+      deleted_at: 0,
+      run_id: "511d178d-3c00-4d07-b764-d8ca2eb5e5c9",
+      model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
+      created_at: 1711976089,
+      id: "49cefad5-09b3-41f9-9767-83111bf4d248"
+    },
+    id: "86f6684f-cd42-4e79-aaa6-30e48005740b"
+  },
+  {
+    name: "Iris model prod",
+    description: "Model for Flowers Classification task on prod",
+    tags: {
+      environment: "production",
+      task: "Flowers Classification"
+    },
+    key: "iris_model_prod",
+    created_at: 1711707084,
+    aliased_versions: [
+      {
+        path: "https://s3.amazonaws.com/ml-bucket/iris_model_prod_1.bin",
+        aliases: ["champion"],
+        version: "Version 1",
+        tags: {
+          validation_status: "+"
+        },
+        deleted_at: 0,
+        run_id: "e8ab8ed1-94a9-4f5e-b07d-603ed3598a37",
+        model_id: "db626a7e-164f-4226-8e2e-9a1951fbcd7b",
+        created_at: 1711707697,
+        alias: "champion",
+        id: "ec6bd4f5-f7ef-4982-bf79-e38415f30f24"
+      }
+    ],
+    last_version: {
+      path: "https://s3.amazonaws.com/ml-bucket/iris_model_prod_1.bin",
+      aliases: ["champion"],
+      version: "Version 1",
+      tags: {
+        validation_status: "+"
+      },
+      deleted_at: 0,
+      run_id: "e8ab8ed1-94a9-4f5e-b07d-603ed3598a37",
+      model_id: "db626a7e-164f-4226-8e2e-9a1951fbcd7b",
+      created_at: 1711707697,
+      id: "ec6bd4f5-f7ef-4982-bf79-e38415f30f24"
+    },
+    id: "db626a7e-164f-4226-8e2e-9a1951fbcd7b"
+  },
+  {
+    name: "Iris model testing",
+    description: "Model for Flowers Classification task",
+    tags: {
+      task: "Flower Classification",
+      environment: "staging"
+    },
+    key: "iris_model_testing",
+    created_at: 1711698668,
+    aliased_versions: [
+      {
+        path: "https://s3.amazonaws.com/ml-bucket/iris_model_2.pkl",
+        aliases: ["champion"],
+        version: "Version 2",
+        tags: {
+          task: "Flowers Classification",
+          validation_status: "+"
+        },
+        deleted_at: 0,
+        run_id: "96922c7b-bc80-400a-a846-4ddc8c32b8e0",
+        model_id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6",
+        created_at: 1717408535,
+        alias: "champion",
+        id: "f417eda9-0894-45b5-ac81-21f5da5d9579"
+      },
+      {
+        path: "https://s3.amazonaws.com/ml-bucket/iris_model_1.pkl",
+        aliases: ["challenger"],
+        version: "Version 1",
+        tags: {
+          task: "Flower Classification",
+          validation_status: "-"
+        },
+        deleted_at: 0,
+        run_id: "4e2c4970-9c44-4823-9d1e-dda297df207d",
+        model_id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6",
+        created_at: 1717408063,
+        alias: "challenger",
+        id: "f49947b8-8d9b-4a95-9d7b-abee390264c7"
+      }
+    ],
+    last_version: {
+      path: "https://s3.amazonaws.com/ml-bucket/iris_model_5.pkl",
+      aliases: [],
+      version: "Version 5",
+      tags: {
+        validation_status: "+"
+      },
+      deleted_at: 0,
+      run_id: "e352dd33-7742-4019-b0df-0d26a82e8261",
+      model_id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6",
+      created_at: 1717410085,
+      id: "6f4c4c0a-188a-40c7-9066-02191614a3bb"
+    },
+    id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6"
+  }
+];
+
 const DashboardMocked = () => (
   <PageContentWrapper>
     <DashboardGridLayout
@@ -467,6 +757,8 @@ const DashboardMocked = () => (
           securityRecommendationsCount={21}
         />
       }
+      recentTasksCard={<RecentTasksCard tasks={tasks} />}
+      recentModelsCard={<RecentModelsCard models={models} />}
     />
   </PageContentWrapper>
 );

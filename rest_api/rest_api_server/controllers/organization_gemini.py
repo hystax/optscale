@@ -3,9 +3,16 @@ import logging
 from typing import List
 
 from clickhouse_driver import Client as ClickHouseClient
-from rest_api.rest_api_server.controllers.base import BaseController, ClickHouseMixin
-from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
+
+from rest_api.rest_api_server.controllers.base import (
+    BaseController, ClickHouseMixin)
+from rest_api.rest_api_server.controllers.base_async import (
+    BaseAsyncControllerWrapper)
 from rest_api.rest_api_server.models.models import OrganizationGemini
+from rest_api.rest_api_server.utils import (
+    check_int_attribute, check_dict_attribute, check_list_attribute,
+    check_float_attribute
+)
 
 
 LOG = logging.getLogger(__name__)
@@ -18,6 +25,28 @@ class GeminiController(BaseController):
 
     def _get_model_type(self):
         return OrganizationGemini
+
+    @staticmethod
+    def _validate_stats(**kwargs):
+        stats = kwargs.get('stats')
+        check_dict_attribute('stats', stats, allow_empty=True)
+        if stats:
+            for param in ['total_objects', 'filtered_objects',
+                          'duplicated_objects']:
+                value = stats.get(param)
+                if value is not None:
+                    check_int_attribute(param, value, check_length=False)
+            for param in ['total_size', 'duplicates_size', 'monthly_savings']:
+                value = stats.get(param)
+                if value is not None:
+                    check_float_attribute(param, value, check_length=False)
+
+    def edit(self, item_id, **kwargs):
+        self._validate_stats(**kwargs)
+        stats = kwargs.get('stats')
+        if stats:
+            kwargs['stats'] = json.dumps(stats)
+        return super().edit(item_id, **kwargs)
 
 
 class GeminiAsyncController(BaseAsyncControllerWrapper):
@@ -99,7 +128,7 @@ class OrganizationGeminiController(BaseController):
     Controller for /restapi/v2/organizations/{id}/geminis and /restapi/v2/geminis
     """
 
-    def _get_model_type(self) -> type:
+    def _get_model_type(self):
         return OrganizationGemini
 
     def list(self, organization_id: str = None, **kwargs) -> List[OrganizationGemini]:
@@ -108,7 +137,16 @@ class OrganizationGeminiController(BaseController):
         else:
             return super().list()
 
+    def _validate_filters(self, filters):
+        check_dict_attribute('filters', filters, allow_empty=True)
+        if filters:
+            if 'buckets' in filters:
+                check_list_attribute('buckets', filters['buckets'])
+            if 'min_size' in filters:
+                check_int_attribute('min_size', filters['min_size'])
+
     def create(self, organization_id: str, filters: dict) -> OrganizationGemini:
+        self._validate_filters(filters)
         return super().create(organization_id=organization_id,
                               filters=json.dumps(filters))
 

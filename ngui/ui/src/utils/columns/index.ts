@@ -5,6 +5,7 @@ import biExportNextExport from "./biExportNextExport";
 import biExportTargetStorage from "./biExportTargetStorage";
 import dataset from "./dataset";
 import datasetLabels from "./datasetLabels";
+import datasetTimespan from "./datasetTimespan";
 import dataSource from "./dataSource";
 import detectedAt from "./detectedAt";
 import discoveryStatus from "./discoveryStatus";
@@ -20,8 +21,10 @@ import hyperparameters from "./hyperparameters";
 import lastSeenUsed from "./lastSeenUsed";
 import lastTimeLocal from "./lastTimeLocal";
 import lastUsed from "./lastUsed";
-import leaderboardCriteriaDataset from "./leaderboardCriteriaDataset";
-import leaderboardCriteriaDatasetLabels from "./leaderboardCriteriaDatasetLabels";
+import leaderboardDataset from "./leaderboardDataset";
+import leaderboardDatasetLabels from "./leaderboardDatasetLabels";
+import localTime from "./localTime";
+import markdown from "./markdown";
 import metrics from "./metrics";
 import milestones from "./milestones";
 import mlAverageLifetime from "./mlAverageLifetime";
@@ -34,8 +37,11 @@ import mlGpuMemoryUsage from "./mlGpuMemoryUsage";
 import mlIOPSCap from "./mlIOPSCap";
 import mlLocalStorageBottleneckDuration from "./mlLocalStorageBottleneckDuration";
 import mlModelPath from "./mlModelPath";
+import mlModelUsedAliases from "./mlModelUsedAliases";
 import mlModelVersion from "./mlModelVersion";
 import mlRunsCount from "./mlRunsCount";
+import mlTaskLastRun from "./mlTaskLastRun";
+import mlTaskName from "./mlTaskName";
 import model from "./model";
 import name from "./name";
 import openPorts from "./openPorts";
@@ -59,6 +65,7 @@ import rightsizingSize from "./rightsizingSize";
 import run from "./run";
 import savings from "./savings";
 import size from "./size";
+import slicedText from "./slicedText";
 import startedAt from "./startedAt";
 import tags from "./tags";
 import tendency from "./tendency";
@@ -127,13 +134,20 @@ export {
   dataset,
   hyperparameters,
   datasetLabels,
-  leaderboardCriteriaDataset,
-  leaderboardCriteriaDatasetLabels,
+  leaderboardDataset,
+  leaderboardDatasetLabels,
   organizationConstraintName,
   organizationConstraintStatus,
   model,
   run,
   utcTime,
   mlModelVersion,
-  mlModelPath
+  mlModelPath,
+  mlTaskName,
+  mlTaskLastRun,
+  mlModelUsedAliases,
+  datasetTimespan,
+  markdown,
+  slicedText,
+  localTime
 };

@@ -55,12 +55,15 @@ import {
   GET_BI_EXPORT,
   UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
-  UPDATE_ML_LEADERBOARD_DATASET,
-  GET_ML_LEADERBOARD_DATASET,
+  UPDATE_ML_LEADERBOARD,
+  GET_ML_LEADERBOARD,
   SET_POWER_SCHEDULE,
   GET_POWER_SCHEDULE,
   SET_ML_MODEL,
-  GET_ML_MODEL
+  GET_ML_MODEL,
+  SET_ML_ARTIFACT,
+  GET_ML_ARTIFACT,
+  CREATE_ML_LEADERBOARD
 } from "./actionTypes";
 
 export const onUpdateOrganizationOption = (data) => ({
@@ -246,6 +249,12 @@ export const onUpdateMlTask = (data) => ({
   label: GET_ML_TASK
 });
 
+export const onUpdateMlArtifact = (data) => ({
+  type: SET_ML_ARTIFACT,
+  payload: data,
+  label: GET_ML_ARTIFACT
+});
+
 export const onUpdateMlModel = (data) => ({
   type: SET_ML_MODEL,
   payload: data,
@@ -270,14 +279,20 @@ export const onUpdateS3DuplicatesOrganizationSettings = (data) => ({
   label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
 });
 
-export const onUpdateMlLeaderboardDataset = (data) => ({
-  type: UPDATE_ML_LEADERBOARD_DATASET,
+export const onUpdateMlLeaderboard = (data) => ({
+  type: UPDATE_ML_LEADERBOARD,
   payload: data,
-  label: GET_ML_LEADERBOARD_DATASET
+  label: GET_ML_LEADERBOARD
 });
 
 export const onUpdatePowerSchedule = (data) => ({
   type: SET_POWER_SCHEDULE,
   payload: data,
   label: GET_POWER_SCHEDULE
+});
+
+export const onSuccessCreateMlLeaderboard = (data) => ({
+  type: CREATE_ML_LEADERBOARD,
+  payload: data,
+  label: CREATE_ML_LEADERBOARD
 });

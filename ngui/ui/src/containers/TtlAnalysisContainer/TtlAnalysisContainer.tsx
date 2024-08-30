@@ -13,14 +13,7 @@ import { useInitialMount } from "hooks/useInitialMount";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { useRootData } from "hooks/useRootData";
 import { isError, isTtlExpired } from "utils/api";
-import {
-  TTL_MODES,
-  TTL_ANALYSIS_QUERY_PARAMETERS,
-  TTL_ANALYSIS_TOP_SECTION_TYPES,
-  START_DATE_PICKER_NAME,
-  END_DATE_PICKER_NAME,
-  DATE_RANGE_TYPE
-} from "utils/constants";
+import { TTL_MODES, TTL_ANALYSIS_QUERY_PARAMETERS, TTL_ANALYSIS_TOP_SECTION_TYPES, DATE_RANGE_TYPE } from "utils/constants";
 import { getQueryParams, updateQueryParams } from "utils/network";
 
 const { PREDEFINED_TTL, CUSTOM_TTL } = TTL_MODES;
@@ -228,14 +221,7 @@ const TtlAnalysisContainer = ({ pathPoolId }) => {
           isPoolSelectorReadOnly: isPoolIdPredefined,
           onSubmit: onTtlAnalysisFormSubmit,
           pools: allPools,
-          defaultValues,
-          fieldNames: {
-            poolFieldName: POOL_ID,
-            ttlModeFieldName: TTL_MODE,
-            customTtlFieldName: CUSTOM_TTL,
-            startDateFieldName: START_DATE_PICKER_NAME,
-            endDateFieldName: END_DATE_PICKER_NAME
-          }
+          defaultValues
         }}
         TtlAnalysisReportProps={{
           resourcesTracked,

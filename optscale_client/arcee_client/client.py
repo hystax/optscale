@@ -205,8 +205,8 @@ class Client:
         return "run/executors"
 
     @staticmethod
-    def leaderboards_url(task_id):
-        return '%s/leaderboards' % Client.tasks_url(task_id)
+    def leaderboard_templates_url(task_id):
+        return '%s/leaderboard_templates' % Client.tasks_url(task_id)
 
     @staticmethod
     def datasets_url(id_=None):
@@ -216,15 +216,15 @@ class Client:
         return url
 
     @staticmethod
-    def leaderboard_url(id_=None):
-        url = "leaderboards"
+    def leaderboard_template_url(id_=None):
+        url = "leaderboard_templates"
         if id_ is not None:
             url = '%s/%s' % (url, id_)
         return url
 
     @staticmethod
-    def leaderboard_datasets_url(id_=None):
-        url = "leaderboard_datasets"
+    def leaderboards_url(id_=None):
+        url = "leaderboards"
         if id_ is not None:
             url = '%s/%s' % (url, id_)
         return url
@@ -232,6 +232,10 @@ class Client:
     @staticmethod
     def labels_url():
         return 'labels'
+
+    @staticmethod
+    def tags_url(task_id):
+        return '%s/tags' % Client.tasks_url(task_id)
 
     @staticmethod
     def console_url(run_id):
@@ -254,6 +258,13 @@ class Client:
 
     def model_versions_url(self, task_id):
         return '%s/model_versions' % (self.tasks_url(task_id))
+
+    @staticmethod
+    def artifacts_url(artifact_id=None):
+        url = 'artifacts'
+        if artifact_id:
+            url = '%s/%s' % (url, artifact_id)
+        return url
 
     def metrics_get(self):
         """
@@ -559,64 +570,78 @@ class Client:
         )
         return self.get(url)
 
-    def leaderboards_create(self, task_id, primary_metric, grouping_tags,
-                            other_metrics=None, filters=None, group_by_hp=True):
+    def leaderboard_templates_create(
+            self, task_id, primary_metric, grouping_tags, other_metrics=None,
+            filters=None, group_by_hp=True, dataset_coverage_rules=None):
         """
-        Creates leaderboard
+        Creates leaderboard template
         """
-        leaderboard = {
+        leaderboard_template = {
             "primary_metric": primary_metric,
             "other_metrics": other_metrics or [],
             "filters": filters or [],
             "grouping_tags": grouping_tags,
             "group_by_hp": group_by_hp,
+            "dataset_coverage_rules": dataset_coverage_rules
         }
-        return self.post(self.leaderboards_url(task_id), leaderboard)
+        return self.post(self.leaderboard_templates_url(task_id),
+                         leaderboard_template)
 
-    def leaderboard_update(self, task_id, primary_metric=None,
-                           grouping_tags=None,
-                           other_metrics=None, filters=None, group_by_hp=None):
-        leaderboard = dict()
+    def leaderboard_template_update(
+            self, task_id, primary_metric=None, grouping_tags=None,
+            other_metrics=None, filters=None, group_by_hp=None,
+            dataset_coverage_rules=None):
+        leaderboard_template = dict()
         for key, param in {
             'primary_metric': primary_metric,
             'grouping_tags': grouping_tags,
             'other_metrics': other_metrics,
             'filters': filters,
-            'group_by_hp': group_by_hp
+            'group_by_hp': group_by_hp,
+            'dataset_coverage_rules': dataset_coverage_rules
         }.items():
             if param is not None:
-                leaderboard.update({
+                leaderboard_template.update({
                     key: param
                 })
         if filters is not None:
-            leaderboard.update({
+            leaderboard_template.update({
                 "filters": filters,
             })
-        return self.patch(self.leaderboards_url(task_id), leaderboard)
+        return self.patch(self.leaderboard_templates_url(task_id),
+                          leaderboard_template)
 
-    def leaderboard_get(self, task_id):
+    def leaderboard_template_get(self, task_id):
         """
-        Gets leaderboard by task_id
-        :param leaderboard_id:
-        :return:
-        """
-        return self.get(self.leaderboards_url(task_id))
-
-    def leaderboard_delete(self, task_id):
-        """
-        Deletes leaderboard by task_id
+        Gets leaderboard template by task_id
         :param task_id:
         :return:
         """
-        return self.delete(self.leaderboards_url(task_id))
+        return self.get(self.leaderboard_templates_url(task_id))
 
-    def leaderboard_details_get(self, task_id):
+    def leaderboard_template_get_by_id(self, task_id):
         """
-        Gets leaderboard details by id
+        Gets leaderboard template by task_id
         :param task_id:
         :return:
         """
-        url = self.leaderboards_url(task_id) + '/details'
+        return self.get(self.leaderboard_template_url(task_id))
+
+    def leaderboard_template_delete(self, task_id):
+        """
+        Deletes leaderboard template by task_id
+        :param task_id:
+        :return:
+        """
+        return self.delete(self.leaderboard_templates_url(task_id))
+
+    def leaderboard_template_details_get(self, task_id):
+        """
+        Gets leaderboard template details by id
+        :param task_id:
+        :return:
+        """
+        url = self.leaderboard_templates_url(task_id) + '/details'
         return self.get(url)
 
     def dataset_create(
@@ -625,16 +650,16 @@ class Client:
             labels: List[str] = None,
             name: Optional[str] = None,
             description: Optional[str] = None,
-            training_set: Optional[dict] = None,
-            validation_set: Optional[dict] = None
+            timespan_from: Optional[int] = None,
+            timespan_to: Optional[int] = None,
     ):
         b = {
             "path": path,
             "name": name,
             "description": description,
             "labels": labels or [],
-            "training_set": training_set,
-            "validation_set": validation_set,
+            "timespan_from": timespan_from,
+            "timespan_to": timespan_to,
         }
         return self.post(self.datasets_url(), b)
 
@@ -644,15 +669,16 @@ class Client:
 
         :param id_:
         :param params: dataset optional parameters like *labels*, *name*,
-            *description*, *training_set*, *validation_set*
+            *description*, *timespan_from*, *timespan_to*
         :return:
         '''
         return self.patch(self.datasets_url(id_), params)
 
-    def dataset_list(self, include_deleted=False):
+    def dataset_list(self, include_deleted=False, dataset_ids=None):
         url = self.datasets_url()
         url += self.query_url(
-            include_deleted=include_deleted
+            include_deleted=include_deleted,
+            dataset_id=dataset_ids
         )
         return self.get(url)
 
@@ -665,6 +691,9 @@ class Client:
     def labels_list(self):
         return self.get(self.labels_url())
 
+    def tags_list(self, task_id):
+        return self.get(self.tags_url(task_id))
+
     def console_create(self, run_id: str, output: str, error: str):
         data = {
             "output": output,
@@ -675,48 +704,34 @@ class Client:
     def console_get(self, run_id: str):
         return self.get(self.console_url(run_id))
 
-    def leaderboard_dataset_create(self, leaderboard_id: str, name: str,
-                                   dataset_ids: list):
-        b = {
-            "name": name,
-            "dataset_ids": dataset_ids
-        }
-        return self.post("%s/%s" % (self.leaderboard_url(leaderboard_id),
-                                    self.leaderboard_datasets_url()), b)
+    def leaderboard_create(self, leaderboard_template_id: str, **params):
+        return self.post("%s/%s" % (self.leaderboard_template_url(leaderboard_template_id),
+                                    self.leaderboards_url()), params)
 
-    def leaderboard_dataset_update(self, leaderboard_dataset_id: str,
-                                   name: str=None, dataset_ids: list=None):
-        b = {}
-        if name is not None:
-            b['name'] = name
-        if dataset_ids is not None:
-            b['dataset_ids'] = dataset_ids
+    def leaderboard_update(self, leaderboard_id: str, **params):
         return self.patch(
-            self.leaderboard_datasets_url(leaderboard_dataset_id), b)
+            self.leaderboards_url(leaderboard_id), params)
 
-    def leaderboard_datasets_get(self, leaderboard_id: str,
-                                 include_deleted=False):
-        url = "%s/%s" % (self.leaderboard_url(leaderboard_id),
-                         self.leaderboard_datasets_url())
+    def leaderboards_get(self, leaderboard_template_id: str,
+                         include_deleted=False):
+        url = "%s/%s" % (self.leaderboard_template_url(leaderboard_template_id),
+                         self.leaderboards_url())
         url += self.query_url(
             include_deleted=include_deleted
         )
         return self.get(url)
 
-    def leaderboard_dataset_get(self, leaderboard_dataset_id: str):
-        return self.get(self.leaderboard_datasets_url(leaderboard_dataset_id))
+    def leaderboard_get(self, leaderboard_id: str):
+        return self.get(self.leaderboards_url(leaderboard_id))
 
-    def leaderboard_dataset_delete(self, leaderboard_dataset_id: str):
-        return self.delete(self.leaderboard_datasets_url(
-            leaderboard_dataset_id))
+    def leaderboard_delete(self, leaderboard_id: str):
+        return self.delete(self.leaderboards_url(leaderboard_id))
 
-    def leaderboard_dataset_details(self, leaderboard_dataset_id: str):
-        return self.get("%s/details" % self.leaderboard_datasets_url(
-            leaderboard_dataset_id))
+    def leaderboard_details(self, leaderboard_id: str):
+        return self.get("%s/details" % self.leaderboards_url(leaderboard_id))
 
-    def leaderboard_generate(self, leaderboard_dataset_id: str):
-        return self.get("%s/generate" % self.leaderboard_datasets_url(
-            leaderboard_dataset_id))
+    def leaderboard_generate(self, leaderboard_id: str):
+        return self.get("%s/generate" % self.leaderboards_url(leaderboard_id))
 
     def runs_bulk_get_by_ids(self, task_id: str, run_ids: list):
         url = "%s/%s" % (self.tasks_url(task_id), 'runs/bulk')
@@ -782,3 +797,34 @@ class Client:
 
     def model_versions_by_task(self, task_id: str):
         return self.get(self.model_versions_url(task_id))
+
+    def artifact_create(
+            self,
+            run_id: str,
+            path: str,
+            name: str = None,
+            description: str = None,
+            tags: dict = None):
+        body = {
+            "run_id": run_id,
+            "path": path
+        }
+        if name is not None:
+            body['name'] = name
+        if description is not None:
+            body['description'] = description
+        if tags is not None:
+            body['tags'] = tags
+        return self.post(self.artifacts_url(), body)
+
+    def artifact_update(self, artifact_id: str, **params):
+        return self.patch(self.artifacts_url(artifact_id), params)
+
+    def artifacts_get(self, **params):
+        return self.get(self.artifacts_url() + self.query_url(**params))
+
+    def artifact_get(self, artifact_id: str):
+        return self.get(self.artifacts_url(artifact_id))
+
+    def artifact_delete(self, artifact_id: str):
+        return self.delete(self.artifacts_url(artifact_id))

@@ -5,21 +5,34 @@ import { useToggle } from "hooks/useToggle";
 
 type ExpandableListProps<T> = {
   items: T[];
-  render: (item: T, index: number) => ReactNode;
+  render: (item: T, index: number, items: T[]) => ReactNode;
   maxRows?: number;
+  stopPropagationOnShowMore?: boolean;
 };
 
-const ExpandableList = <T,>({ items, render, maxRows = undefined }: ExpandableListProps<T>) => {
+const ExpandableList = <T,>({
+  items,
+  render,
+  maxRows = undefined,
+  stopPropagationOnShowMore = false
+}: ExpandableListProps<T>) => {
   const [isExpanded, setIsExpanded] = useToggle(false);
 
   const content = useMemo(() => {
     const max = isExpanded ? items.length : maxRows;
     const itemsToShow = items.slice(0, max);
-    return itemsToShow.map((item, i) => render(item, i));
+    return itemsToShow.map((item, i, array) => render(item, i, array));
   }, [isExpanded, items, maxRows, render]);
 
   const expander = () => (
-    <DashedTypography onClick={() => setIsExpanded()}>
+    <DashedTypography
+      onClick={(event) => {
+        if (stopPropagationOnShowMore) {
+          event.stopPropagation();
+        }
+        setIsExpanded();
+      }}
+    >
       <FormattedMessage id={isExpanded ? "showLess" : "showMore"} />
     </DashedTypography>
   );

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import IconStatus from "components/IconStatus";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
@@ -88,8 +88,8 @@ const AdvancedDataSourceDetails = ({
   discoveryInfos
 }) => (
   <>
-    <Grid container spacing={4}>
-      <Grid item xs={12} sm={4}>
+    <Box display="flex" flexWrap="wrap" rowGap={1} columnGap={16}>
+      <Box>
         <SummaryList
           titleMessage={<FormattedMessage id="billingImport" />}
           items={
@@ -139,8 +139,8 @@ const AdvancedDataSourceDetails = ({
             </>
           }
         />
-      </Grid>
-      <Grid item xs={12} sm={4}>
+      </Box>
+      <Box>
         <SummaryList
           titleMessage={<FormattedMessage id="monitoringMetricsImport" />}
           items={
@@ -194,13 +194,13 @@ const AdvancedDataSourceDetails = ({
             </>
           }
         />
-      </Grid>
+      </Box>
       {!isEmptyArray(discoveryInfos) && (
         <Grid item xs={12}>
           <Discovery discoveryInfos={discoveryInfos} />
         </Grid>
       )}
-    </Grid>
+    </Box>
   </>
 );
 

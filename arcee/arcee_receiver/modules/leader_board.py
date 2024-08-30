@@ -1,6 +1,7 @@
 from enum import Enum
 from sanic.exceptions import SanicException
 from sanic.log import logger
+from collections import defaultdict
 
 
 aggregate_func_map = {
@@ -16,20 +17,7 @@ class Tendencies(Enum):
     MORE = 'more'
 
 
-async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
-    o = await db.leaderboard_dataset.find_one(
-        {
-            "token": token,
-            "_id": leaderboard_dataset_id,
-            "deleted_at": 0
-        }
-    )
-    logger.info("leaderboard dataset %s", o)
-    if not o:
-        raise SanicException("Leaderboard dataset not found", status_code=404)
-
-    dataset_ids = o.get("dataset_ids", [])
-    leaderboard_id = o["leaderboard_id"]
+async def get_leaderboard_params(db, token: str, leaderboard_id: str):
     pipeline = [
         {"$match": {"_id": leaderboard_id}},
         {
@@ -48,6 +36,15 @@ async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
                 "as": "other_metrics",
             },
         },
+        {
+            "$lookup": {
+                "from": "leaderboard_template",
+                "localField": "leaderboard_template_id",
+                "foreignField": "_id",
+                "as": "leaderboard_template"
+            }
+        },
+        {"$unwind": "$leaderboard_template"},
         {"$unwind": "$primary_metric"},
     ]
     ri = None
@@ -56,8 +53,11 @@ async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
         ri = await cur.next()
     except StopAsyncIteration:
         pass
+    if not ri:
+        raise SanicException("Leaderboard not found", status_code=404)
+    dataset_ids = set(ri.get("dataset_ids", []))
     tags = ri.get("grouping_tags", [])
-    task_id = ri["task_id"]
+    task_id = ri['leaderboard_template']["task_id"]
     hyperparams = []
     if ri.get("group_by_hp", False):
         hyperparams = await get_available_hps(db, task_id)
@@ -77,8 +77,31 @@ async def get_leaderboard_params(db, token: str, leaderboard_dataset_id: str):
         min_ = f.get("min")
         max_ = f.get("max")
         filters[key] = (min_, max_)
-    return (task_id, dataset_ids, primary_metric,
-            key_metric_map, tags, hyperparams, filters)
+
+    dataset_coverage_rules = ri.get('dataset_coverage_rules')
+    dataset_coverage = defaultdict(list)
+    if dataset_coverage_rules:
+        db_labels = db.dataset.aggregate([
+            {'$match': {
+                'token': token,
+                'deleted_at': 0
+            }},
+            {'$unwind': '$labels'},
+            {'$match': {
+                'labels': {'$in': list(dataset_coverage_rules.keys())}
+            }},
+            {'$sort': {'created_at': -1}}
+        ])
+        try:
+            async for i in db_labels:
+                label = i['labels']
+                if len(dataset_coverage[label]
+                       ) < dataset_coverage_rules[label]:
+                    dataset_coverage[label].append(i['_id'])
+        except StopAsyncIteration:
+            pass
+    return (task_id, list(dataset_ids), primary_metric,
+            key_metric_map, tags, hyperparams, filters, dataset_coverage)
 
 
 async def qualification_datasets(db, token: str, ids: list):
@@ -214,6 +237,10 @@ async def generate_candidates_template(
             }
         )
 
+    primary_metric_field = "data.%s" % primary_metric_key
+    if primary_metric_field not in match["$match"]:
+        match["$match"][primary_metric_field] = {"$exists": True}
+
     sort = {
         "$sort": {
             "updated_at": -1,
@@ -343,7 +370,8 @@ async def rank_by_datasets(
         grp: tuple,
         pri_metric_key: str,
         metrics: list,
-        key_metrics_map: dict
+        key_metrics_map: dict,
+        dataset_coverage: dict
 ):
     """
     Calculates candidates ranked (qualified) by datasets
@@ -364,11 +392,14 @@ async def rank_by_datasets(
 
     qual_ds_ids = [x["_id"] for x in datasets]
     for candidate in candidates:
+        candidate["dataset_coverage"] = {}
         qualification = set(candidate.get(
             "dataset_ids", list())) & set(qual_ds_ids)
         # add qualification to candidate
         if candidate.get("qualification") is None:
             candidate["qualification"] = []
+        for k, v in dataset_coverage.items():
+            candidate["dataset_coverage"][k] = list(set(v) & qualification)
         qual = list(qualification)
         # candidate qualification represents calculation only by
         # covered datasets
@@ -461,6 +492,7 @@ async def generate_leaderboard(
     key_metric_map: dict,
     dataset_ids: list,
     qualification_protocol: dict,  # leaderboard filters : {key: (min, max)}
+    dataset_coverage: dict,  # coverage rules datasets : {label: [id_1, id_2]}
 ):
     # Algorithm
 
@@ -518,25 +550,27 @@ async def generate_leaderboard(
 
     aggr_list = await get_aggregation_list(key_metric_map)
 
+    dataset_ids = set(dataset_ids)
+    for _ids in dataset_coverage.values():
+        dataset_ids.update(_ids)
     dss = await qualification_datasets(
         db,
         token,
-        dataset_ids,
+        list(dataset_ids),
     )
     cand = await leaderboard_candidates(
         db, task_id, qualification_protocol, group, aggr_list,
         primary_metric['key'])
     ranked = await rank_by_datasets(db, dss, cand, group,
                                     primary_metric['key'], aggr_list,
-                                    key_metric_map)
+                                    key_metric_map, dataset_coverage)
     order = primary_metric.get("tendency",
                                Tendencies.MORE.value) == Tendencies.MORE.value
     # finally, leader board
     return await sort_candidates(ranked, primary_metric['key'], order)
 
 
-async def get_calculated_leaderboard(db, token: str,
-                                     leaderboard_dataset_id: str):
+async def get_calculated_leaderboard(db, token: str, leaderboard_id: str):
     (
         task_id,
         dataset_ids,
@@ -545,7 +579,8 @@ async def get_calculated_leaderboard(db, token: str,
         tags,
         hyperparams,
         qualification_protocol,
-    ) = await get_leaderboard_params(db, token, leaderboard_dataset_id)
+        dataset_coverage
+    ) = await get_leaderboard_params(db, token, leaderboard_id)
     leaderboard = await generate_leaderboard(
         db,
         token,
@@ -555,6 +590,7 @@ async def get_calculated_leaderboard(db, token: str,
         primary_metric,
         key_metric_map,
         dataset_ids,
-        qualification_protocol
+        qualification_protocol,
+        dataset_coverage
     )
     return leaderboard

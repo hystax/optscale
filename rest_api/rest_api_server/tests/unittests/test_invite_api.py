@@ -421,8 +421,6 @@ class TestInviteApi(TestApiBase):
                         'name': 'root org',
                         'currency_code': '$'
                     },
-                    'title': 'User Invitation',
-                    'login_button': 'Go to Optscale'
                 },
                 'links': {
                     'login_button': ANY

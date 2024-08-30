@@ -1,5 +1,6 @@
 import { scaleLinear, scaleOrdinal, scaleBand } from "d3-scale";
 import CloudLabel from "components/CloudLabel";
+import PoolLabel from "components/PoolLabel";
 import { isEmpty, sortObjects, getArithmeticMean, getElementsSum } from "utils/arrays";
 import { EXPENSES_FILTERBY_TYPES } from "utils/constants";
 import { remToPx } from "utils/fonts";
@@ -137,13 +138,12 @@ export const getMaxAndMinBandValues = (data, keys) => {
 };
 
 export const addEntityIconToTooltipKey = (text, details, entityName) => {
-  let textWithIcon;
-  if (details.type) {
-    textWithIcon = {
-      [EXPENSES_FILTERBY_TYPES.CLOUD]: <CloudLabel type={details.type} label={text} />
-    }[entityName];
-  }
-  return textWithIcon || text;
+  const textWithIcon = {
+    [EXPENSES_FILTERBY_TYPES.CLOUD]: <CloudLabel type={details.type} label={text} />,
+    [EXPENSES_FILTERBY_TYPES.POOL]: <PoolLabel type={details.purpose} name={text} disableLink />
+  }[entityName];
+
+  return textWithIcon ?? text;
 };
 
 const getTickValues = ({ range, minValue, maxValue, ticksCount }) =>

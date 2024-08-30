@@ -91,6 +91,7 @@ const MlTaskModelVersions = ({ modelVersions, isLoading }: MlTaskModelVersionsPr
       localization={{
         emptyMessageId: "noModelVersions"
       }}
+      counters={{ showCounters: true }}
     />
   );
 };

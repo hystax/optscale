@@ -24,6 +24,7 @@ from tools.cloud_adapter.exceptions import *
 from tools.cloud_adapter.clouds.base import S3CloudMixin
 from tools.cloud_adapter.model import *
 from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
+from tools.cloud_adapter.templates import AwsTemplates
 
 LOG = logging.getLogger(__name__)
 DEFAULT_REPORT_NAME = 'optscale-report'
@@ -101,6 +102,9 @@ class Aws(S3CloudMixin):
         CloudParameter(name='bucket_prefix', type=str, required=False),
         CloudParameter(name='report_name', type=str, required=False),
         CloudParameter(name='linked', type=bool, required=False),
+
+        # Service parameters
+        CloudParameter(name='cur_version', type=int, required=False)
     ]
     DEFAULT_S3_REGION_NAME = 'eu-central-1'
     SUPPORTS_REPORT_UPLOAD = True
@@ -138,6 +142,10 @@ class Aws(S3CloudMixin):
     def cur(self):
         # hardcoded, because service is only available in us-east-1
         return self.session.client('cur', 'us-east-1')
+
+    @property
+    def cur_2(self):
+        return self.session.client('bcm-data-exports')
 
     @property
     def iam(self):
@@ -644,30 +652,8 @@ class Aws(S3CloudMixin):
             self.config['bucket_name'], report_name, file_obj)
 
     def configure_bucket_policy(self, bucket_name):
-        bucket_policy = {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Principal": {
-                        "Service": "billingreports.amazonaws.com"
-                    },
-                    "Action": [
-                        "s3:GetBucketAcl",
-                        "s3:GetBucketPolicy"
-                    ],
-                    "Resource": "arn:aws:s3:::{}".format(bucket_name)
-                },
-                {
-                    "Effect": "Allow",
-                    "Principal": {
-                        "Service": "billingreports.amazonaws.com"
-                    },
-                    "Action": "s3:PutObject",
-                    "Resource": "arn:aws:s3:::{}/*".format(bucket_name)
-                }
-            ]
-        }
+        account_id = self.validate_credentials()['account_id']
+        bucket_policy = AwsTemplates.get_bucket_policy(bucket_name, account_id)
         return self.s3.put_bucket_policy(
             Bucket=bucket_name,
             Policy=json.dumps(bucket_policy),
@@ -785,10 +771,39 @@ class Aws(S3CloudMixin):
         for step, func in actions:
             self._wrap(step, create_bucket_for_report_inner, func)
 
+    def _find_exports(self):
+        result = []
+        for r in self.cur_2.list_exports()['Exports']:
+            export = self.cur_2.get_export(ExportArn=r['ExportArn'])['Export']
+            format_map = {
+                'TEXT_OR_CSV': 'textORcsv', 'PARQUET': 'Parquet'
+            }
+            destination = export['DestinationConfigurations']['S3Destination']
+            s3_conf = destination['S3OutputConfigurations']
+            result.append({
+                'ReportName': export['Name'],
+                'TimeUnit': export['DataQuery']['TableConfigurations'][
+                    'COST_AND_USAGE_REPORT']['TIME_GRANULARITY'],
+                'Format': format_map.get(s3_conf['Format']) or s3_conf['Format'],
+                'Compression': format_map.get(
+                    s3_conf['Compression']) or s3_conf['Compression'],
+                'S3Bucket': destination['S3Bucket'],
+                'S3Prefix': destination['S3Prefix'],
+                'S3Region': destination['S3Region'],
+                'ReportVersioning': s3_conf['Overwrite'],
+                'AdditionalSchemaElements': ['RESOURCES'],
+                'RefreshClosedReports': True
+            })
+        return result
+
     def find_reports(self, name=None, raise_on_bad_config=False,
                      search_criteria=None, **kwargs):
         res = []
-        for r in self.cur.describe_report_definitions()['ReportDefinitions']:
+        if self.config.get('cur_version') == 2:
+            reports = self._find_exports()
+        else:
+            reports = self.cur.describe_report_definitions()['ReportDefinitions']
+        for r in reports:
             if name is None or (name and r['ReportName'] == name):
                 if search_criteria:
                     try:
@@ -845,13 +860,31 @@ class Aws(S3CloudMixin):
                     raise ReportConfigurationException(
                         'Unable to create report: invalid parameters')
 
+            def create_export(definition):
+                try:
+                    self.cur_2.create_export(
+                        Export=AwsTemplates.get_data_export_template(
+                            definition['ReportName'], definition['S3Bucket'],
+                            definition['S3Prefix'], definition['S3Region']
+                        ))
+                except ParamValidationError:
+                    raise ReportConfigurationException(
+                        'Unable to create report: invalid parameters')
+                except self.cur_2.exceptions.ServiceQuotaExceededException:
+                    raise ReportConfigurationException(
+                        'Unable to create report: quota exceeded')
+                except self.cur_2.exceptions.ValidationException:
+                    raise ReportConfigurationException(
+                        'Unable to create report: validation error')
+
             report_definition = self.get_report_definition(
                 report_name=report_name, bucket_name=bucket_name,
                 prefix=prefix,
                 region=self.config.get('region_name', self.DEFAULT_S3_REGION_NAME))
-            self._wrap(
-                'create report {}'.format(report_name),
-                create_report, report_definition)
+            func = create_export if self.config.get(
+                'cur_version') == 2 else create_report
+            self._wrap('create report {}'.format(report_name),
+                       func, report_definition)
         resp = self._wrap(
             'check access to {}/{}'.format(bucket_name, prefix),
             self.s3.list_objects_v2,

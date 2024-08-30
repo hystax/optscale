@@ -142,16 +142,9 @@ class Client:
         return 'cloud_types/%s' % cloud_type
 
     @staticmethod
-    def region_price_sums_url(cloud_type):
-        return '%s/region_price_sums' % Client.cloud_type_url(cloud_type)
-
-    @staticmethod
     def similar_pricings_url(cloud_type, pricing_id):
         return '%s/pricings/%s/similar' % (
             Client.cloud_type_url(cloud_type), pricing_id)
-
-    def get_region_price_sums(self, cloud_type):
-        return self.get(self.region_price_sums_url(cloud_type))
 
     def get_similar_pricings(self, cloud_type, pricing_id):
         return self.get(self.similar_pricings_url(cloud_type, pricing_id))

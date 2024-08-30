@@ -17,11 +17,15 @@ from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
 def check_timespan_range(data: dict):
-    if 'timespan_from' in data and 'timespan_to' in data:
-        check_int_attribute(
-            'timespan_to',
-            data['timespan_to'],
-            min_length=data['timespan_from'])
+    if 'timespan_from' in data:
+        if data['timespan_from'] is not None:
+            check_int_attribute('timespan_from', data['timespan_from'])
+    if 'timespan_to' in data:
+        if data['timespan_to'] is not None:
+            timespan_from = data.get('timespan_from')
+            min_length = timespan_from if timespan_from else 0
+            check_int_attribute('timespan_to', data['timespan_to'],
+                                min_length=min_length)
 
 
 class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
@@ -32,32 +36,12 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         'description': (check_string_attribute, False),
         'name': (check_string_attribute, False),
         'path': (check_string_attribute, True),
-        'training_set': (check_dict_attribute, False),
-        'validation_set': (check_dict_attribute, False),
-    }
-    SUB_DATASET_VALIDATION_MAP = {
-        'path': (check_string_attribute, True),
         'timespan_from': (check_int_attribute, False),
         'timespan_to': (check_int_attribute, False)
     }
 
     def _get_controller_class(self):
         return DatasetAsyncController
-
-    def _validate_sub_dataset(self, name, **data):
-        unexpected_args = list(filter(
-            lambda x: x not in self.SUB_DATASET_VALIDATION_MAP, data))
-        if unexpected_args:
-            message = ', '.join(map(
-                lambda x: f'{name}.{x}', unexpected_args))
-            raise OptHTTPError(400, Err.OE0212, [message])
-        for param_name, validation_data in self.SUB_DATASET_VALIDATION_MAP.items():
-            validation_func, is_required = validation_data
-            param_value = data.get(param_name)
-            if not is_required and not param_value:
-                continue
-            validation_func(param_name, param_value)
-        check_timespan_range(data)
 
     def _validate_params(self, **data):
         unexpected_args = list(filter(
@@ -75,9 +59,7 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 if isinstance(param_value, list):
                     for v in param_value:
                         check_string_attribute(f'{param_name} values', v)
-                elif isinstance(param_value, dict):
-                    if param_name in ['training_set', 'validation_set']:
-                        self._validate_sub_dataset(param_name, **param_value)
+            check_timespan_range(data)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
 
@@ -126,44 +108,16 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         example:
                         - test
                         - demo
-                    training_set:
-                        type: object
+                    timespan_from:
+                        type: integer
+                        description: Timespan from timestamp
                         required: false
-                        properties:
-                            path:
-                                type: string
-                                description: Training set path
-                                required: true
-                                example: s3://ml-bucket/training_set
-                            timespan_from:
-                                type: integer
-                                description: Timespan from timestamp
-                                required: false
-                                example: 1698740386
-                            timespan_to:
-                                type: integer
-                                description: Timespan to timestamp
-                                required: false
-                                example: 1698741386
-                    validation_set:
-                        type: object
+                        example: 1698740386
+                    timespan_to:
+                        type: integer
+                        description: Timespan to timestamp
                         required: false
-                        properties:
-                            path:
-                                type: string
-                                description: Validation set path
-                                required: true
-                                example: s3://ml-bucket/validation_set
-                            timespan_from:
-                                type: integer
-                                description: Timespan from timestamp
-                                required: false
-                                example: 1698740386
-                            timespan_to:
-                                type: integer
-                                description: Timespan to timestamp
-                                required: false
-                                example: 1698741386
+                        example: 1698740386
         responses:
             201:
                 description: Returns created dataset
@@ -179,14 +133,8 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         - demo
                         created_at: 1697175347
                         deleted_at: 0
-                        training_set:
-                            path: s3://ml-bucket/training_set
-                            timespan_from: 1698740386
+                        timespan_from: 1698740386
                         timespan_to: 1698741386
-                        validation_set:
-                            path: s3://ml-bucket/validation_set
-                            timespan_from: 1698740386
-                            timespan_to: 1698741386
             400:
                 description: |
                     Wrong arguments:
@@ -242,6 +190,10 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
             description: Organization id
             required: true
             type: string
+        -   name: dataset id
+            in: query
+            description: dataset id
+            required: false
         responses:
             200:
                 description: Datasets list
@@ -278,31 +230,12 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                     deleted_at:
                                         type: integer
                                         description: Deleted timestamp (service field)
-                                    training_set:
-                                        type: object
-                                        properties:
-                                            path:
-                                                type: string
-                                                description: Training set path
-                                            timespan_from:
-                                                type: integer
-                                                description: Timespan from timestamp
-                                            timespan_to:
-                                                type: integer
-                                                description: Timespan to timestamp
-                                    validation_set:
-                                        type: object
-                                        properties:
-                                            path:
-                                                type: string
-                                                description: Validation set path
-                                            timespan_from:
-                                                type: integer
-                                                description: Timespan from timestamp
-                                            timespan_to:
-                                                type: integer
-                                                description: Timespan to timestamp
-
+                                    timespan_from:
+                                        type: integer
+                                        description: Timespan from timestamp
+                                    timespan_to:
+                                        type: integer
+                                        description: Timespan to timestamp
             401:
                 description: |
                     Unauthorized:
@@ -323,7 +256,8 @@ class DatasetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
         token = await self._get_profiling_token(organization_id)
-        res = await run_task(self.controller.list, token)
+        dataset_ids = self.get_arg('dataset_id', str, repeated=True)
+        res = await run_task(self.controller.list, token, dataset_ids)
         datasets_dict = {'datasets': res}
         self.write(json.dumps(datasets_dict, cls=ModelEncoder))
 
@@ -335,32 +269,12 @@ class DatasetsAsyncItemHandler(BaseAsyncItemHandler,
         'labels': (check_list_attribute, {'allow_empty': True}),
         'description': (check_string_attribute, {'min_length': 0}),
         'name': (check_string_attribute, {'min_length': 0}),
-        'training_set': (check_dict_attribute, {}),
-        'validation_set': (check_dict_attribute, {}),
-    }
-    SUB_DATASET_VALIDATION_MAP = {
-        'path': (check_string_attribute, True),
-        'timespan_from': (check_int_attribute, False),
-        'timespan_to': (check_int_attribute, False)
+        'timespan_from': (check_int_attribute, {}),
+        'timespan_to': (check_int_attribute, {})
     }
 
     def _get_controller_class(self):
         return DatasetAsyncController
-
-    def _validate_sub_dataset(self, name, **data):
-        unexpected_args = list(filter(
-            lambda x: x not in self.SUB_DATASET_VALIDATION_MAP, data))
-        if unexpected_args:
-            message = ', '.join(map(
-                lambda x: f'{name}.{x}', unexpected_args))
-            raise OptHTTPError(400, Err.OE0212, [message])
-        for param_name, validation_data in self.SUB_DATASET_VALIDATION_MAP.items():
-            validation_func, is_required = validation_data
-            param_value = data.get(param_name)
-            if not is_required and not param_value:
-                continue
-            validation_func(param_name, param_value)
-        check_timespan_range(data)
 
     def _validate_params(self, **data):
         unexpected_args = list(filter(
@@ -379,9 +293,7 @@ class DatasetsAsyncItemHandler(BaseAsyncItemHandler,
                     if isinstance(param_value, list):
                         for v in param_value:
                             check_string_attribute(f'{param_name} values', v)
-                    elif isinstance(param_value, dict):
-                        if param_name in ['training_set', 'validation_set']:
-                            self._validate_sub_dataset(param_name, **param_value)
+            check_timespan_range(data)
         except WrongArgumentsException as exc:
             raise OptHTTPError.from_opt_exception(400, exc)
 
@@ -435,30 +347,12 @@ class DatasetsAsyncItemHandler(BaseAsyncItemHandler,
                         deleted_at:
                             type: integer
                             description: Deleted timestamp (service field)
-                        training_set:
-                            type: object
-                            properties:
-                                path:
-                                    type: string
-                                    description: Training set path
-                                timespan_from:
-                                    type: integer
-                                    description: Timespan from timestamp
-                                timespan_to:
-                                    type: integer
-                                    description: Timespan to timestamp
-                        validation_set:
-                            type: object
-                            properties:
-                                path:
-                                    type: string
-                                    description: Validation set path
-                                timespan_from:
-                                    type: integer
-                                    description: Timespan from timestamp
-                                timespan_to:
-                                    type: integer
-                                    description: Timespan to timestamp
+                        timespan_from:
+                            type: integer
+                            description: Timespan from timestamp
+                        timespan_to:
+                            type: integer
+                            description: Timespan to timestamp
             401:
                 description: |
                     Unauthorized:
@@ -524,44 +418,16 @@ class DatasetsAsyncItemHandler(BaseAsyncItemHandler,
                         example:
                         -   demo
                         -   test
-                    training_set:
-                        type: object
+                    timespan_from:
+                        type: integer
+                        description: Timespan from timestamp
                         required: false
-                        properties:
-                            path:
-                                type: string
-                                description: Training set path
-                                required: true
-                                example: s3://ml-bucket/training_set
-                            timespan_from:
-                                type: integer
-                                description: Timespan from timestamp
-                                required: false
-                                example: 1698740386
-                            timespan_to:
-                                type: integer
-                                description: Timespan to timestamp
-                                required: false
-                                example: 1698741386
-                    validation_set:
-                        type: object
+                        example: 1698740386
+                    timespan_to:
+                        type: integer
+                        description: Timespan to timestamp
                         required: false
-                        properties:
-                            path:
-                                type: string
-                                description: Validation set path
-                                required: true
-                                example: s3://ml-bucket/validation_set
-                            timespan_from:
-                                type: integer
-                                description: Timespan from timestamp
-                                required: false
-                                example: 1698740386
-                            timespan_to:
-                                type: integer
-                                description: Timespan to timestamp
-                                required: false
-                                example: 1698741386
+                        example: 1698740386
         responses:
             200:
                 description: Dataset object

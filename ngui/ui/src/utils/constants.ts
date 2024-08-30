@@ -173,6 +173,8 @@ export const EVENT_LEVEL = Object.freeze({
   ERROR: "ERROR"
 });
 
+export const EVENTS_LIMIT = 80;
+
 export const CLOUD_ACCOUNT_TYPES_LIST = Object.keys(CLOUD_ACCOUNT_TYPE);
 
 export const DEFAULT_MAX_INPUT_LENGTH = 255;
@@ -236,6 +238,9 @@ export const STATUS_FILTER = "status";
 export const GOALS_BE_FILTER = "goals";
 export const GOALS_FILTER = "goals";
 
+export const TASKS_BE_FILTER = "task_id";
+export const TASKS_FILTER = "task";
+
 export const RESOURCE_TYPE_BE_FILTER = "resource_type";
 export const RESOURCE_TYPE_FILTER = "resourceType";
 
@@ -280,6 +285,16 @@ export const AWS_ROOT_CONNECT_CONFIG_SCHEMES = Object.freeze({
   FIND_REPORT: "find_report",
   CREATE_REPORT: "create_report",
   BUCKET_ONLY: "bucket_only"
+});
+
+export const AWS_ROOT_CONNECT_CUR_VERSION = Object.freeze({
+  CUR_1: 1,
+  CUR_2: 2
+});
+
+export const AWS_ROOT_CONNECT_CUR_VERSION_MESSAGE_ID = Object.freeze({
+  [AWS_ROOT_CONNECT_CUR_VERSION.CUR_1]: "legacyCurExport",
+  [AWS_ROOT_CONNECT_CUR_VERSION.CUR_2]: "standardDataExport"
 });
 
 export const SUMMARY_VALUE_COMPONENT_TYPES = Object.freeze({
@@ -940,3 +955,6 @@ export const OPTSCALE_MODE = Object.freeze({
   FINOPS: "finops",
   MLOPS: "mlops"
 });
+
+export const DATASET_NAME_LENGTH_LIMIT = 70;
+export const DATASET_PATH_LENGTH_LIMIT = 70;

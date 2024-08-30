@@ -1,4 +1,4 @@
-import ConnectCloudAccountForm from "components/ConnectCloudAccountForm";
+import ConnectCloudAccountForm from "components/forms/ConnectCloudAccountForm";
 
 export default {
   component: ConnectCloudAccountForm

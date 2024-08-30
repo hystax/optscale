@@ -5,7 +5,7 @@ import ActionBar from "components/ActionBar";
 import PageContentWrapper from "components/PageContentWrapper";
 import TabsWrapper from "components/TabsWrapper";
 import MlEditTaskFormContainer from "containers/MlEditTaskFormContainer";
-import MlEditTaskLeaderboardContainer from "containers/MlEditTaskLeaderboardContainer";
+import MlEditTaskLeaderboardTemplateContainer from "containers/MlEditTaskLeaderboardTemplateContainer";
 import MlEditTaskMetricsContainer from "containers/MlEditTaskMetricsContainer";
 import { ML_TASKS, getMlTaskDetailsUrl } from "urls";
 import { isEmpty as isEmptyObject } from "utils/objects";
@@ -13,10 +13,10 @@ import { isEmpty as isEmptyObject } from "utils/objects";
 const SETTING_TABS = Object.freeze({
   COMMON: "common",
   METRICS: "metrics",
-  LEADERBOARDS: "leaderboards"
+  LEADERBOARD_TEMPLATE: "leaderboardTemplate"
 });
 
-const MlEditTask = ({ leaderboard, task, isLoading = false }) => {
+const MlEditTask = ({ leaderboardTemplate, task, isLoading = false }) => {
   const { id, name } = task;
 
   const actionBarDefinition = {
@@ -46,12 +46,12 @@ const MlEditTask = ({ leaderboard, task, isLoading = false }) => {
       dataTestId: "tab_metrics",
       node: <MlEditTaskMetricsContainer taskMetrics={task.metrics ?? []} />
     },
-    ...(!isEmptyObject(leaderboard)
+    ...(!isEmptyObject(leaderboardTemplate)
       ? [
           {
-            title: SETTING_TABS.LEADERBOARDS,
-            dataTestId: "tab_leaderboard",
-            node: <MlEditTaskLeaderboardContainer leaderboard={leaderboard} task={task} />
+            title: SETTING_TABS.LEADERBOARD_TEMPLATE,
+            dataTestId: "tab_leaderboard_template",
+            node: <MlEditTaskLeaderboardTemplateContainer leaderboardTemplate={leaderboardTemplate} task={task} />
           }
         ]
       : [])

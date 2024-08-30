@@ -7,9 +7,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
-import { useTheme } from "@mui/material/styles";
 import { FormattedMessage } from "react-intl";
-import { WIDTH as DOCS_PANEL_WIDTH } from "components/DocsPanel/DocsPanel.styles";
 import IconButton from "components/IconButton";
 import Popover from "components/Popover";
 import { PRODUCT_TOUR, useStartTour } from "components/Tour";
@@ -17,7 +15,6 @@ import { useIsTourAvailableForCurrentBreakpoint } from "components/Tour/hooks";
 import ProfileMenuContainer from "containers/ProfileMenuContainer";
 import { CommunityDocsContext } from "contexts/CommunityDocsContext";
 import { useMainMenuState } from "hooks/useMainMenuState";
-import { useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { DOCS_HYSTAX_OPTSCALE } from "urls";
 import useStyles from "./HeaderButtons.styles";
 
@@ -42,10 +39,6 @@ const HeaderButtons = () => {
   };
 
   const isTourAvailableForCurrentBreakpoint = useIsTourAvailableForCurrentBreakpoint();
-
-  const theme = useTheme();
-  const minimumWidthToShowCommunityDocs = theme.breakpoints.values.md + DOCS_PANEL_WIDTH;
-  const isCommunityVisible = useIsUpMediaQuery(minimumWidthToShowCommunityDocs);
 
   const { isCommunityDocsOpened, setIsCommunityDocsOpened } = useContext(CommunityDocsContext);
 
@@ -73,17 +66,15 @@ const HeaderButtons = () => {
             value: <FormattedMessage id="productTour" />
           }}
         />
-        {isCommunityVisible && (
-          <IconButton
-            icon={isCommunityDocsOpened ? <SchoolIcon /> : <SchoolOutlinedIcon />}
-            onClick={setIsCommunityDocsOpened}
-            color="primary"
-            tooltip={{
-              show: true,
-              value: <FormattedMessage id="communityDocs" />
-            }}
-          />
-        )}
+        <IconButton
+          icon={isCommunityDocsOpened ? <SchoolIcon /> : <SchoolOutlinedIcon />}
+          onClick={setIsCommunityDocsOpened}
+          color="primary"
+          tooltip={{
+            show: true,
+            value: <FormattedMessage id="communityDocs" />
+          }}
+        />
         <Popover
           label={
             <IconButton
@@ -113,6 +104,17 @@ const HeaderButtons = () => {
               tooltip={{
                 show: true,
                 value: <FormattedMessage id="documentation" />
+              }}
+            />
+          </Box>
+          <Box className={classes.customMenuItem}>
+            <IconButton
+              icon={isCommunityDocsOpened ? <SchoolIcon /> : <SchoolOutlinedIcon />}
+              onClick={setIsCommunityDocsOpened}
+              color="primary"
+              tooltip={{
+                show: true,
+                value: <FormattedMessage id="communityDocs" />
               }}
             />
           </Box>
