@@ -543,6 +543,8 @@ export const JIRA_MARKETPLACE = "https://marketplace.atlassian.com/apps/1227110/
 // Hystax documentation urls
 export const DOCS_HYSTAX_OPTSCALE = "https://hystax.com/documentation/optscale/";
 export const DOCS_HYSTAX_AUTO_BILLING_AWS = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_root_cur.html#automatic-billing-data-import-in-aws`;
+export const DOCS_HYSTAX_MIGRATE_FROM_CUR_TO_DATA_EXPORTS_CUR_2_0 = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_migrate_cur1_cur2.html`;
+export const DOCS_HYSTAX_CONNECTING_A_KUBERNETES_CLUSTER_TO_OPTSCALE = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_kubernetes.html#connecting-a-kubernetes-cluster-to-optscale`;
 export const DOCS_HYSTAX_DISCOVER_RESOURCES = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_aws_linked.html#discover-resources`;
 export const DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_alibaba.html`;
 export const DOCS_HYSTAX_CONNECT_GCP_CLOUD = `${DOCS_HYSTAX_OPTSCALE}e2e_guides/e2e_gcp.html`;
