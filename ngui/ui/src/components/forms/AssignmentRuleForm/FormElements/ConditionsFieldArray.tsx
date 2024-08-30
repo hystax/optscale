@@ -159,6 +159,7 @@ const ConditionsFieldArray = ({ name = FIELD_NAME, isLoading = false, cloudAccou
                 color="error"
                 icon={<DeleteOutlinedIcon />}
                 onClick={() => (fields.length > 1 ? remove(count) : null)}
+                disabled={fields.length === 1}
                 tooltip={{
                   show: true,
                   value: <FormattedMessage id="delete" />
