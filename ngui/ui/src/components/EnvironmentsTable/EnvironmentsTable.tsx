@@ -488,10 +488,13 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
       dataProductTourId: getProductTourIdForDynamicField(field),
       style: {
         minWidth: 200,
-        maxWidth: 400,
-        overflow: "auto"
+        maxWidth: 400
       },
-      cell: ({ cell }) => <Markdown>{cell.getValue()}</Markdown>
+      cell: ({ cell }) => (
+        <Box overflow="auto">
+          <Markdown>{cell.getValue()}</Markdown>
+        </Box>
+      )
     }));
 
     return [

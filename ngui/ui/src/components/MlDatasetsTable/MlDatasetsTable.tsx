@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { Box } from "@mui/material";
 import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
@@ -91,10 +92,13 @@ const MlDatasetsTable = ({ datasets }) => {
         accessorKey: "description",
         style: {
           minWidth: 200,
-          maxWidth: 400,
-          overflow: "auto"
+          maxWidth: 400
         },
-        cell: ({ cell }) => <Markdown>{cell.getValue()}</Markdown>
+        cell: ({ cell }) => (
+          <Box overflow="auto">
+            <Markdown>{cell.getValue()}</Markdown>
+          </Box>
+        )
       },
       datasetLabels({
         id: "labels",

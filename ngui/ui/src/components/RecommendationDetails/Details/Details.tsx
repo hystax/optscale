@@ -235,6 +235,8 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
           }
         }}
         columns={columns}
+        pageSize={50}
+        enablePaginationQueryParam={false}
         data={recommendation.items}
       />
     </>
