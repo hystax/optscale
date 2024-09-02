@@ -6,25 +6,27 @@ import {
   GET_ORGANIZATION_ALLOWED_ACTIONS,
   GET_TOKEN,
   GET_USER,
-  SET_TOKEN,
   SET_USER,
   RESET_PASSWORD,
   GET_POOL_ALLOWED_ACTIONS,
   GET_RESOURCE_ALLOWED_ACTIONS,
   SET_ALLOWED_ACTIONS,
-  SIGN_IN
+  SIGN_IN,
+  UPDATE_USER
 } from "./actionTypes";
 
-import { onSuccessSignIn, onSuccessCreateUser } from "./handlers";
+import { onSuccessSignIn, onSuccessCreateUser, onSuccessGetToken } from "./handlers";
 
 export const API_URL = getApiUrl("auth");
 
-export const getToken = (email, password) =>
+export const getToken = ({ email, password, code }) =>
   apiAction({
     url: `${API_URL}/tokens`,
-    onSuccess: handleSuccess(SET_TOKEN),
+    onSuccess: onSuccessGetToken({
+      isTemporary: !!code
+    }),
     label: GET_TOKEN,
-    params: { email, password }
+    params: { email, password, verification_code: code }
   });
 
 export const signIn = (provider, params) =>
@@ -41,6 +43,14 @@ export const createUser = (name, email, password) =>
     onSuccess: onSuccessCreateUser,
     label: CREATE_USER,
     params: { display_name: name, email, password }
+  });
+
+export const updateUser = (userId, params = {}) =>
+  apiAction({
+    url: `${API_URL}/users/${userId}`,
+    method: "PATCH",
+    label: UPDATE_USER,
+    params: { display_name: params.name, password: params.password }
   });
 
 export const getUser = (userId) =>
@@ -87,7 +97,7 @@ export const getPoolAllowedActions = (params) =>
 
 export const resetPassword = (email) =>
   apiAction({
-    url: `${API_URL}/reset_password`,
+    url: `${API_URL}/restore_password`,
     method: "POST",
     label: RESET_PASSWORD,
     params: { email }

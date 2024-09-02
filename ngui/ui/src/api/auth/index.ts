@@ -7,6 +7,7 @@ import {
   resetPassword,
   getResourceAllowedActions,
   signIn,
+  updateUser,
   API_URL
 } from "./actionCreators";
 
@@ -19,5 +20,6 @@ export {
   resetPassword,
   getResourceAllowedActions,
   signIn,
+  updateUser,
   API_URL
 };

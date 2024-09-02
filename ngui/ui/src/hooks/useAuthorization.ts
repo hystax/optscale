@@ -38,7 +38,7 @@ export const useAuthorization = ({ onSuccessRedirectionPath } = {}) => {
   const authorize = useCallback(
     (email, password) =>
       dispatch((_, getState) =>
-        dispatch(getToken(email, password))
+        dispatch(getToken({ email, password }))
           .then(() => checkError(GET_TOKEN, getState()))
           .then(() => dispatch(getOrganizations()))
           .then(() => checkError(GET_ORGANIZATIONS, getState()))

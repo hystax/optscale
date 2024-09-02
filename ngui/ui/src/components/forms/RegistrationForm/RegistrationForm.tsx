@@ -65,7 +65,7 @@ const RegistrationForm = ({ onSubmit, isLoading = false, isInvited = false }: Re
         <Box display="flex" justifyContent="center">
           <Typography>
             <Link data-test-id="link_sign_in" color="primary" to={`${LOGIN}${search}`} component={RouterLink}>
-              {<FormattedMessage id="haveAccountSignIn" />}
+              <FormattedMessage id="haveAccountSignIn" />
             </Link>
           </Typography>
         </Box>

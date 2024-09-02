@@ -60,7 +60,7 @@ export const reformatBreakdown = (breakdown) =>
     })
   );
 
-export const signOut = (dispatch, payload) => {
+export const signOut = (dispatch, payload = {}) => {
   const { userEmail } = payload;
 
   updateQueryParams({
