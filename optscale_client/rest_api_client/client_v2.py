@@ -2202,3 +2202,11 @@ class Client(Client_v1):
 
     def artifact_delete(self, org_id, artifact_id):
         return self.delete(self.artifacts_url(org_id, artifact_id))
+
+    @staticmethod
+    def restore_password_url():
+        return 'restore_password'
+
+    def restore_password(self, email):
+        url = self.restore_password_url()
+        return self.post(url, {'email': email})

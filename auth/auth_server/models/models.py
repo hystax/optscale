@@ -399,3 +399,13 @@ class Assignment(Base, BaseMixin):
     def __repr__(self):
         return f'<Assignment type: {self.type.name} user: {self.user.email} ' \
                f'role: {self.role.name} resource: {self.resource_id}>'
+
+
+class VerificationCode(Base, BaseMixin):
+    __tablename__ = 'verification_code'
+
+    email = Column(String(256), nullable=False, index=True,
+                   info=ColumnPermissions.create_only)
+    valid_until = Column(TIMESTAMP, nullable=False)
+    code = Column(String(32), nullable=False,
+                  info=ColumnPermissions.create_only)

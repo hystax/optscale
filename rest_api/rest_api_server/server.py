@@ -530,6 +530,9 @@ def get_handlers(handler_kwargs, version=None):
             (urls_v2.ri_group_breakdown,
              h_v2.ri_group_breakdowns.RiGroupBreakdownAsyncHandler,
              handler_kwargs),
+            (urls_v2.restore_password,
+             h_v2.restore_passwords.RestorePasswordAsyncCollectionHandler,
+             handler_kwargs),
             *profiling_urls,
         ])
     return result
