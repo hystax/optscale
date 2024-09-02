@@ -746,15 +746,31 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         configs = adapter.get_children_configs()
         if not configs:
             return
+        root_skipped_subscriptions = root_config.pop('skipped_subscriptions', {})
+        skipped_subscriptions = root_skipped_subscriptions.copy()
         for c_config in configs:
+            c_name = c_config.get('name')
             try:
                 self.create(
                     organization_id=root_account.organization_id,
-                    parent_id=root_account.id, root_config=root_config,
+                    parent_id=root_account.id, root_config=root_config.copy(),
                     **c_config)
+                if c_name in skipped_subscriptions:
+                    skipped_subscriptions.pop(c_name, None)
             except Exception as ex:
-                LOG.info('Unable to create child account %s: %s' % (
-                    c_config, str(ex)))
+                if c_name not in skipped_subscriptions:
+                    # Add error reason to root config
+                    # Send event only on first time error
+                    error_message = 'Unable to create child account %s: %s' % (
+                        c_name, str(ex))
+                    LOG.info(error_message)
+                    self._publish_cloud_acc_activity(
+                        root_account, 'cloud_account_warning', level='ERROR',
+                        reason=error_message)
+                    skipped_subscriptions[c_name] = str(ex)
+        if skipped_subscriptions.keys() != root_skipped_subscriptions.keys():
+            root_config['skipped_subscriptions'] = skipped_subscriptions
+            self.edit(root_account.id, config=root_config)
 
     def delete_children_accounts(self, root_account):
         children = self.session.query(CloudAccount).filter(
