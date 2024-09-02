@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import RenameDataSourceForm from "components/forms/RenameDataSourceForm";
 import { FormValues } from "components/forms/RenameDataSourceForm/types";
-import { GET_DATA_SOURCE, UPDATE_DATA_SOURCE } from "graphql/api/rest/rest.queries";
+import { GET_DATA_SOURCE, UPDATE_DATA_SOURCE } from "graphql/api/restapi/queries/restapi.queries";
 
 const RenameDataSourceContainer = ({ id, name, closeSideModal }) => {
   const [updateDataSource, { loading }] = useMutation(UPDATE_DATA_SOURCE);

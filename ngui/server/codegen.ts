@@ -14,8 +14,8 @@ const config: CodegenConfig = {
       schema: "./graphql/schemas/slacker.graphql",
       plugins: commonPlugins,
     },
-    "./graphql/resolvers/rest.generated.ts": {
-      schema: "./graphql/schemas/rest.graphql",
+    "./graphql/resolvers/restapi.generated.ts": {
+      schema: "./graphql/schemas/restapi.graphql",
       plugins: commonPlugins,
       config: {
         scalars: {

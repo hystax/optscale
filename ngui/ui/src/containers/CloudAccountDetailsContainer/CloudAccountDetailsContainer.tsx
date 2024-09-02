@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import CloudAccountDetails from "components/CloudAccountDetails";
-import { GET_DATA_SOURCE } from "graphql/api/rest";
+import { GET_DATA_SOURCE } from "graphql/api/restapi/queries";
 
 type CloudAccountDetailsContainerProps = {
   cloudAccountId: string;

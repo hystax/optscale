@@ -2,7 +2,7 @@ import BaseClient from "../baseClient.js";
 import {
   DataSourceRequestParams,
   UpdateDataSourceInput,
-} from "../../graphql/resolvers/rest.generated.js";
+} from "../../graphql/resolvers/restapi.generated.js";
 
 class RestClient extends BaseClient {
   override baseURL = `${

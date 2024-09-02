@@ -11,11 +11,11 @@ import checkEnvironment from "./checkEnvironment.js";
 import KeeperClient from "./api/keeper/client.js";
 import keeperResolvers from "./graphql/resolvers/keeper.js";
 import slackerResolvers from "./graphql/resolvers/slacker.js";
-import restResolvers from "./graphql/resolvers/rest.js";
+import restResolvers from "./graphql/resolvers/restapi.js";
 import SlackerClient from "./api/slacker/client.js";
 import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
 import { loadFilesSync } from "@graphql-tools/load-files";
-import RestClient from "./api/rest/client.js";
+import RestApiClient from "./api/restapi/client.js";
 
 checkEnvironment(["UI_BUILD_PATH", "PROXY_URL"]);
 
@@ -27,6 +27,7 @@ interface ContextValue {
   dataSources: {
     keeper: KeeperClient;
     slacker: SlackerClient;
+    restapi: RestApiClient;
   };
 }
 
@@ -73,7 +74,7 @@ app.use(
         dataSources: {
           keeper: new KeeperClient({ cache }, token, "http://keeper"),
           slacker: new SlackerClient({ cache }, token, "http://slacker"),
-          rest: new RestClient({ cache }, token, "http://restapi"),
+          restapi: new RestApiClient({ cache }, token, "http://restapi"),
         },
       };
     },
