@@ -14,6 +14,9 @@ class AzureTenant(Azure):
         CloudParameter(name='partner_client_id', type=str, required=False),
         CloudParameter(name='partner_secret', type=str, required=False,
                        protected=True),
+
+        # Service parameters
+        CloudParameter(name='skipped_subscriptions', type=dict, required=False)
     ]
 
     def discovery_calls_map(self):

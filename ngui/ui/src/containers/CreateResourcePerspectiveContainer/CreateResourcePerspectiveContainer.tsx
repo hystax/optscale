@@ -1,4 +1,4 @@
-import CreateResourcePerspectiveForm from "components/CreateResourcePerspectiveForm";
+import CreateResourcePerspectiveForm from "components/forms/CreateResourcePerspectiveForm";
 import { useOrganizationPerspectives } from "hooks/useOrganizationPerspectives";
 import OrganizationOptionsService from "services/OrganizationOptionsService";
 
@@ -26,6 +26,7 @@ const CreateResourcePerspectiveContainer = ({ filters, breakdownBy, breakdownDat
       breakdownBy={breakdownBy}
       breakdownData={breakdownData}
       filters={filters}
+      perspectiveNames={Object.keys(allPerspectives)}
       onCancel={onCancel}
     />
   );

@@ -1,5 +1,5 @@
 import { JSONObjectResolver } from "graphql-scalars";
-import { Resolvers } from "./rest.generated.js";
+import { Resolvers } from "./restapi.generated.js";
 
 const resolvers: Resolvers = {
   JSONObject: JSONObjectResolver,
@@ -42,12 +42,12 @@ const resolvers: Resolvers = {
   },
   Query: {
     dataSource: async (_, { dataSourceId, requestParams }, { dataSources }) => {
-      return dataSources.rest.getDataSource(dataSourceId, requestParams);
+      return dataSources.restapi.getDataSource(dataSourceId, requestParams);
     },
   },
   Mutation: {
     updateDataSource: async (_, { dataSourceId, params }, { dataSources }) => {
-      return dataSources.rest.updateDataSource(dataSourceId, params);
+      return dataSources.restapi.updateDataSource(dataSourceId, params);
     },
   },
 };

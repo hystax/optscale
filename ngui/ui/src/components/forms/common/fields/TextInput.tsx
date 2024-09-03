@@ -15,6 +15,7 @@ type TextInputProps = {
   dataTestId?: string;
   isLoading?: boolean;
   InputProps?: Record<string, unknown>;
+  inputProps?: Record<string, unknown>;
   maxLength?: number | null;
   minLength?: number | null;
   validate?: Record<string, unknown>;
@@ -47,6 +48,7 @@ const TextInput = ({
   dataTestId,
   isLoading = false,
   InputProps,
+  inputProps,
   maxLength = DEFAULT_MAX_INPUT_LENGTH,
   minLength = null,
   validate,
@@ -87,6 +89,7 @@ const TextInput = ({
       helperText={fieldError?.message}
       dataTestId={dataTestId}
       InputProps={InputProps}
+      inputProps={inputProps}
       placeholder={placeholder}
       multiline={multiline}
       rows={rows}

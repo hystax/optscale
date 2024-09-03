@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client";
 import UpdateDataSourceCredentialsForm from "components/forms/UpdateDataSourceCredentialsForm";
-import { GET_DATA_SOURCE, UPDATE_DATA_SOURCE } from "graphql/api/rest/rest.queries";
+import { GET_DATA_SOURCE, UPDATE_DATA_SOURCE } from "graphql/api/restapi/queries/restapi.queries";
 import { ALIBABA_CNR, AWS_CNR, AZURE_CNR, AZURE_TENANT, DATABRICKS, GCP_CNR, KUBERNETES_CNR, NEBIUS } from "utils/constants";
 
 const UpdateDataSourceCredentialsContainer = ({ id, type, config, closeSideModal }) => {
