@@ -1,3 +1,4 @@
+import { Stack } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import { GET_TOKEN } from "api/auth/actionTypes";
 import LoginForm from "components/forms/LoginForm";
@@ -7,12 +8,11 @@ import Greeter from "components/Greeter";
 import MicrosoftSignInButton from "components/MicrosoftSignInButton";
 import OAuthSignIn from "components/OAuthSignIn";
 import Redirector from "components/Redirector";
-import TopAlertWrapper from "components/TopAlertWrapper";
-import { ALERT_TYPES } from "components/TopAlertWrapper/TopAlertWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useNewAuthorization } from "hooks/useNewAuthorization";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { HOME_FIRST_TIME, HOME, REGISTER, LOGIN } from "urls";
+import { SPACING_4 } from "utils/layouts";
 import { getQueryParams } from "utils/network";
 
 export const getLoginRedirectionPath = (scopeUserEmail: string) => {
@@ -81,28 +81,31 @@ const AuthorizationContainer = () => {
 
   return (
     <Redirector condition={shouldRedirectAuthorizedUser} to={next}>
-      <TopAlertWrapper blacklistIds={[ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING, ALERT_TYPES.DATA_SOURCES_PROCEEDED]} />
       <Greeter
-        form={createForm()}
-        oAuthForm={
-          <OAuthSignIn
-            googleButton={
-              <GoogleAuthButton
-                thirdPartySignIn={onThirdPartySignIn}
-                setIsAuthInProgress={setIsAuthInProgress}
-                isAuthInProgress={isAuthInProgress}
-                isRegistrationInProgress={isRegistrationInProgress}
+        content={
+          <Stack spacing={SPACING_4}>
+            <div>{createForm()}</div>
+            <div>
+              <OAuthSignIn
+                googleButton={
+                  <GoogleAuthButton
+                    thirdPartySignIn={onThirdPartySignIn}
+                    setIsAuthInProgress={setIsAuthInProgress}
+                    isAuthInProgress={isAuthInProgress}
+                    isRegistrationInProgress={isRegistrationInProgress}
+                  />
+                }
+                microsoftButton={
+                  <MicrosoftSignInButton
+                    thirdPartySignIn={onThirdPartySignIn}
+                    setIsAuthInProgress={setIsAuthInProgress}
+                    isAuthInProgress={isAuthInProgress}
+                    isRegistrationInProgress={isRegistrationInProgress}
+                  />
+                }
               />
-            }
-            microsoftButton={
-              <MicrosoftSignInButton
-                thirdPartySignIn={onThirdPartySignIn}
-                setIsAuthInProgress={setIsAuthInProgress}
-                isAuthInProgress={isAuthInProgress}
-                isRegistrationInProgress={isRegistrationInProgress}
-              />
-            }
-          />
+            </div>
+          </Stack>
         }
       />
     </Redirector>

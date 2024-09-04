@@ -3,10 +3,10 @@ import { makeStyles } from "tss-react/mui";
 const getFormAndMapWrapperClasses = (theme) => {
   const wrapperClass = {
     [theme.breakpoints.down("xl")]: {
-      width: 450
+      width: 400
     },
     [theme.breakpoints.down("sm")]: {
-      maxWidth: 450,
+      maxWidth: 400,
       width: "100%"
     },
     width: 600

@@ -1,0 +1,3 @@
+import SendVerificationCodeAgainContainer from "./SendVerificationCodeAgainContainer";
+
+export default SendVerificationCodeAgainContainer;

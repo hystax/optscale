@@ -297,10 +297,11 @@ class Client:
     def role_delete(self, id):
         return self.delete(self.role_url(id))
 
-    def token_get(self, email, password):
+    def token_get(self, email, password=None, verification_code=None):
         body = {
             "email": email,
-            "password": password
+            "password": password,
+            "verification_code": verification_code
         }
         return self.post(self.token_url(), body)
 

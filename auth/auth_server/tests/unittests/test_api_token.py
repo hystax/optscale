@@ -1,7 +1,9 @@
+from datetime import datetime, timedelta
 import uuid
 from auth.auth_server.tests.unittests.test_api_base import TestAuthBase
-from auth.auth_server.models.models import Type, User, gen_salt
-from auth.auth_server.utils import hash_password
+from auth.auth_server.models.models import (Type, User, gen_salt,
+                                            VerificationCode)
+from auth.auth_server.utils import hash_password, get_digest
 from auth.auth_server.tests.unittests.utils import extract_caveats
 
 
@@ -110,3 +112,51 @@ class TestTokenApi(TestAuthBase):
         self.assertEqual(code, 201)
         self.assertEqual(token_info['user_email'], self.admin_user.email)
         extract_caveats(token_info['token'])
+
+    def test_token_by_verification_code(self):
+        session = self.db_session
+        partner_salt = gen_salt()
+        partner_password = 'pass1234'
+        partner_email = 'partner@mail.com'
+        partner_user = User(
+            partner_email, self.type_customer, display_name='Partner User',
+            password=hash_password(partner_password, partner_salt),
+            scope_id=str(uuid.uuid4()), salt=partner_salt)
+        session.add(partner_user)
+
+        code_1, code_3, code_4 = 123456, 234567, 345678
+        now = datetime.utcnow()
+        vc_1 = VerificationCode(
+            email='wrong@email.com', valid_until=now + timedelta(hours=1),
+            code=get_digest(str(code_1)))
+        vc_2 = VerificationCode(
+            email=partner_email, valid_until=now + timedelta(hours=1),
+            code=get_digest('112345'))
+        vc_3 = VerificationCode(
+            email=partner_email, valid_until=now - timedelta(seconds=1),
+            code=get_digest(str(code_3)))
+        vc_4 = VerificationCode(
+            email=partner_email, valid_until=now + timedelta(minutes=1),
+            code=get_digest(str(code_4)))
+        for vc in [vc_1, vc_2, vc_3, vc_4]:
+            session.add(vc)
+        session.commit()
+
+        self.client.secret = None
+        for code in [code_1, code_3]:
+            body = {
+                'verification_code': code,
+                'email': partner_user.email,
+            }
+            code, resp = self.client.post('tokens', body)
+            self.assertEqual(code, 403)
+            self.assertEqual(resp['error']['error_code'], 'OA0071')
+
+        body = {
+            'verification_code': code_4,
+            'email': partner_user.email,
+        }
+        code, resp = self.client.post('tokens', body)
+        self.assertEqual(code, 201)
+        self.assertEqual(resp['user_email'], partner_user.email)
+        self.assertTrue(vc_4.deleted_at != 0)

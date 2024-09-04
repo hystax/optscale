@@ -51,7 +51,8 @@ const apiMiddleware =
 
     const state = getState();
 
-    const { token: accessToken, userEmail } = state?.auth?.[GET_TOKEN] ?? {};
+    const { token, temporaryToken, userEmail } = state?.auth?.[GET_TOKEN] ?? {};
+    const accessToken = temporaryToken || token;
 
     const dataOrParams = ["GET", "DELETE"].includes(method) ? "params" : "data";
 

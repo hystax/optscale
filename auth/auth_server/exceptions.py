@@ -196,3 +196,9 @@ class Err(enum.Enum):
         "Registration with domain %s is prohibited. "
         "Please use your business email for registration",
     ]
+    OA0071 = [
+        "Email or verification_code is invalid",
+    ]
+    OA0072 = [
+        "The verification code can be generated once in a minute"
+    ]

@@ -45,6 +45,11 @@ class Client(Client_v1):
         return url
 
     @staticmethod
+    def verification_codes_url():
+        url = 'verification_codes'
+        return url
+
+    @staticmethod
     def query_url(**query):
         query = {
             key: value for key, value in query.items() if value is not None
@@ -165,3 +170,10 @@ class Client(Client_v1):
             "token": token,
         }
         return self.post(self.signin_url(), body)
+
+    def verification_code_create(self, email, code):
+        body = {
+            "email": email,
+            "code": code,
+        }
+        return self.post(self.verification_codes_url(), body)

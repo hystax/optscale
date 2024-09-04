@@ -33,7 +33,8 @@ class TokenController(BaseController):
 
     @property
     def create_restrictions(self):
-        return super().create_restrictions + ['email', 'password']
+        return super().create_restrictions + [
+            'email', 'password', 'verification_code']
 
     @property
     def expiration(self):
@@ -42,15 +43,23 @@ class TokenController(BaseController):
         except (etcd.EtcdKeyNotFound, ValueError):
             return DEFAULT_TOKEN_EXPIRATION
 
-    def _check_user(self, email, password):
+    def _check_user(self, email, password=None, verification_code=None):
         user = self.session.query(User).filter(
             and_(
                 User.email == email,
                 User.deleted.is_(False)
             )
         ).one_or_none()
-        if not user or user.password != hash_password(password, user.salt):
-            raise ForbiddenException(Err.OA0037, [])
+        if not user:
+            raise ForbiddenException(
+                Err.OA0037 if password else Err.OA0071, [])
+        if password:
+            if user.password != hash_password(password, user.salt):
+                raise ForbiddenException(Err.OA0037, [])
+        else:
+            vc_used = self.use_verification_code(email, verification_code)
+            if not vc_used:
+                raise ForbiddenException(Err.OA0071, [])
         if not user.is_active:
             raise ForbiddenException(Err.OA0038, [])
         return user
@@ -58,14 +67,16 @@ class TokenController(BaseController):
     def _check_input(self, **input_):
         email = input_.get('email')
         password = input_.get('password')
-        if not email or not password:
+        verification_code = input_.get('verification_code')
+        if not email or not (password or verification_code):
             raise WrongArgumentsException(Err.OA0039, [])
-        user = self._check_user(email, password)
+        user = self._check_user(email, password, verification_code)
         return user
 
     def create(self, **kwargs):
         user = self._check_input(**kwargs)
         popkey(kwargs, 'password')
+        popkey(kwargs, 'verification_code')
         return self.create_user_token(user, **kwargs)
 
     def create_token_by_user_id(self, **kwargs):

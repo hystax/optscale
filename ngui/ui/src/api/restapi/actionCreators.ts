@@ -326,7 +326,8 @@ import {
   SET_ML_DATASET_LABELS,
   GET_ML_DATASET_LABELS,
   SET_ML_TASK_TAGS,
-  GET_ML_TASK_TAGS
+  GET_ML_TASK_TAGS,
+  RESTORE_PASSWORD
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -2900,4 +2901,14 @@ export const deleteLayout = (organizationId, layoutId) =>
     label: DELETE_LAYOUT,
     affectedRequests: [GET_LAYOUTS],
     entityId: layoutId
+  });
+
+export const restorePassword = (email) =>
+  apiAction({
+    url: `${API_URL}/restore_password`,
+    method: "POST",
+    label: RESTORE_PASSWORD,
+    params: {
+      email
+    }
   });

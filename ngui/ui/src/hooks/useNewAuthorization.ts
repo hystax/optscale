@@ -105,7 +105,7 @@ export const useNewAuthorization = () => {
     ({ email, password }, { getOnSuccessRedirectionPath }) => {
       setIsAuthInProgress(true);
       dispatch((_, getState) =>
-        dispatch(getToken(email, password))
+        dispatch(getToken({ email, password }))
           .then(() => checkError(GET_TOKEN, getState()))
           .then(() => dispatch(getInvitations()))
           .then(() => checkError(GET_INVITATIONS, getState()))

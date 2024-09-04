@@ -1,6 +1,6 @@
 import time
-import datetime
 import logging
+from datetime import datetime
 import requests
 from ordered_set import OrderedSet
 from sqlalchemy import and_
@@ -9,7 +9,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 
 from auth.auth_server.exceptions import Err
 from auth.auth_server.models.models import (Token, Type, User, Role,
-                                            PermissionKeys)
+                                            PermissionKeys, VerificationCode)
 from auth.auth_server.auth_token.token_store import TokenStore
 from auth.auth_server.utils import Config, popkey, get_digest
 from tools.optscale_exceptions.common_exc import (WrongArgumentsException,
@@ -106,7 +106,7 @@ class BaseController(object):
 
     def get_user(self, token):
         token = self.session.query(Token).get(get_digest(token))
-        if not token or not token.valid_until > datetime.datetime.utcnow():
+        if not token or not token.valid_until > datetime.utcnow():
             raise UnauthorizedException(Err.OA0023, [])
         return token.user
 
@@ -307,6 +307,21 @@ class BaseController(object):
 
         nested_dict_iter(downward_hierarchy)
         return res
+
+    def use_verification_code(self, email, code):
+        if not email or not code:
+            return
+        now = datetime.utcnow()
+        return self.session.query(VerificationCode).filter(
+            and_(
+                VerificationCode.email == email,
+                VerificationCode.deleted.is_(False),
+                VerificationCode.code == get_digest(str(code)),
+                VerificationCode.valid_until > now
+            )
+        ).update({
+            VerificationCode.deleted_at: int(now.timestamp())
+        })
 
     def create(self, **kwargs):
         model_type = self._get_model_type()

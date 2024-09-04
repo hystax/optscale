@@ -34,9 +34,9 @@ export const HOME_FIRST_TIME = `/?${SHOW_POLICY_QUERY_PARAM}=true`;
 export const LOGIN = "/login";
 export const REGISTER = "/register";
 export const INVITED = "/invited";
-export const RESET_PASSWORD = "/reset-password";
 export const ACCEPT_INVITATION = "/accept-invitation";
 export const ACCEPT_INVITATIONS = "/accept-invitations";
+export const PASSWORD_RECOVERY = "/password-recovery";
 
 export const POOL_BASE = "pool";
 export const POOLS_BASE = "pools";

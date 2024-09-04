@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
+import { Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
 import { useTheme } from "@mui/material/styles";
@@ -18,10 +19,12 @@ import IconLabel from "components/IconLabel";
 import IntegrationsGallery from "components/IntegrationsGallery";
 import Logo from "components/Logo";
 import SubTitle from "components/SubTitle";
+import TopAlertWrapper from "components/TopAlertWrapper";
+import { ALERT_TYPES } from "components/TopAlertWrapper/TopAlertWrapper";
 import { useIsDownMediaQuery, useIsUpMediaQuery } from "hooks/useMediaQueries";
 import { HYSTAX, LIVE_DEMO } from "urls";
 import { tag as tagHotjar } from "utils/hotjar";
-import { SPACING_4, SPACING_2, SPACING_6 } from "utils/layouts";
+import { SPACING_2, SPACING_6, SPACING_1 } from "utils/layouts";
 import { isEven } from "utils/math";
 import useStyles from "./Greeter.styles";
 
@@ -30,8 +33,7 @@ type LiveDemoButtonProps = {
 };
 
 type GreeterProps = {
-  form: ReactNode;
-  oAuthForm: ReactNode;
+  content: ReactNode;
 };
 
 const OptScaleLink = () => {
@@ -119,7 +121,7 @@ const getVerticalOrder = () => {
   return [...evenNumbers, ...oddNumbers];
 };
 
-const Greeter = ({ form, oAuthForm }: GreeterProps) => {
+const Greeter = ({ content }: GreeterProps) => {
   const { classes, cx } = useStyles();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -159,15 +161,12 @@ const Greeter = ({ form, oAuthForm }: GreeterProps) => {
     {
       key: "form",
       children: (
-        <Grid container alignItems="center" justifyContent="center" className={classes.wrapper} spacing={SPACING_4}>
-          <Grid item xs={12}>
+        <Stack className={classes.wrapper} spacing={SPACING_1}>
+          <div>
             <Logo width={200} dataTestId="img_logo" />
-            {form}
-          </Grid>
-          <Grid item xs={12}>
-            {oAuthForm}
-          </Grid>
-        </Grid>
+          </div>
+          <div>{content}</div>
+        </Stack>
       ),
       className: classes.centeredFlexColumnDirection
     },
@@ -198,38 +197,41 @@ const Greeter = ({ form, oAuthForm }: GreeterProps) => {
    *    https://github.com/mui-org/material-ui/pull/30333
    */
   return (
-    <div
-      style={{
-        padding: theme.spacing(halfSpacing)
-      }}
-    >
-      <Grid
-        sx={{
-          m: -halfSpacing
+    <>
+      <TopAlertWrapper blacklistIds={[ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING, ALERT_TYPES.DATA_SOURCES_PROCEEDED]} />
+      <div
+        style={{
+          padding: theme.spacing(halfSpacing)
         }}
-        spacing={spacing}
-        container
-        className={classes.root}
       >
-        {order.map((gridIndex) => {
-          const { key, children = null, className = "" } = gridDefinition[gridIndex];
-          return (
-            <Grid
-              sx={{
-                p: spacing
-              }}
-              key={key}
-              md={6}
-              xs={12}
-              item
-              className={cx(gridIndex % 2 === 0 ? classes.leftSideGrid : classes.rightSideGrid, className)}
-            >
-              {children}
-            </Grid>
-          );
-        })}
-      </Grid>
-    </div>
+        <Grid
+          sx={{
+            m: -halfSpacing
+          }}
+          spacing={spacing}
+          container
+          className={classes.root}
+        >
+          {order.map((gridIndex) => {
+            const { key, children = null, className = "" } = gridDefinition[gridIndex];
+            return (
+              <Grid
+                sx={{
+                  p: spacing
+                }}
+                key={key}
+                md={6}
+                xs={12}
+                item
+                className={cx(gridIndex % 2 === 0 ? classes.leftSideGrid : classes.rightSideGrid, className)}
+              >
+                {children}
+              </Grid>
+            );
+          })}
+        </Grid>
+      </div>
+    </>
   );
 };
 

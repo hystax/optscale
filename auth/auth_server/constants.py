@@ -28,6 +28,7 @@ class Urls:
             r"%s/users/(?P<user_id>[^/]+)/action_resources",
         'bulk_action_resources': r"%s/bulk_action_resources",
         'signin': r"%s/signin",
+        'verification_codes': r"%s/verification_codes"
     }
 
     def __init__(self):

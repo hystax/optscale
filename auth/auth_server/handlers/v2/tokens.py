@@ -31,6 +31,9 @@ class TokenAsyncCollectionHandler(tokens_v1.TokenAsyncCollectionHandler,
                 properties:
                     password: {type: string, description: User password}
                     email: {type: string, description: User email}
+                    verification_code:
+                        type: integer
+                        description: verification code from email
                     user_id:
                         type: string
                         description: can only be used with cluster secret
@@ -59,6 +62,7 @@ class TokenAsyncCollectionHandler(tokens_v1.TokenAsyncCollectionHandler,
                     Forbidden:
                     - OA0037: Email or password is invalid
                     - OA0038: User is inactive
+                    - OA0071: Email or verification_code is invalid
             404:
                 description: |
                     Not found:

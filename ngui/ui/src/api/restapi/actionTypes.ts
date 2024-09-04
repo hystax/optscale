@@ -453,3 +453,5 @@ export const SET_LAYOUT = "SET_LAYOUT";
 export const CREATE_LAYOUT = "CREATE_LAYOUT";
 export const UPDATE_LAYOUT = "UPDATE_LAYOUT";
 export const DELETE_LAYOUT = "DELETE_LAYOUT";
+
+export const RESTORE_PASSWORD = "RESTORE_PASSWORD";

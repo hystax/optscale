@@ -21,6 +21,7 @@
   "OA0048": "{0} should contain {1}-{2} characters",
   "OA0061": "Database error: {0}",
   "OA0062": "This resource requires an authorization token",
+  "OA0071": "Email or code is invalid",
   "OE0002": "{0} {1} is not found",
   "OE0003": "Forbidden",
   "OE0004": "Type error: {0}",

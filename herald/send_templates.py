@@ -1483,6 +1483,20 @@ PARAMETER_DUMPS = {
                     'id': 'd7092814-2b12-4e60-89c5-67919c9b17d6',
                     'name': 'Funny company',
                 }}}},
+    'restore_password': {
+        'email': ['serviceuser@hystax.com'],
+        'subject': 'Optscale password recovery',
+        'template_type': 'restore_password',
+        'template_params': {
+            'texts': {
+                'code': 263308
+            },
+            'links': {
+                'restore_button': 'https://172.22.20.8/password-recovery'
+                                  '?email=serviceuser%40hystax.com&code=263308'
+            }
+        }
+    }
 }
 
 REGEX_EMAIL = '^[a-z0-9!#$%&\'*+/=?`{|}~\^\-\+_()]+(\.[a-z0-9!#$%&\'*+/=' \

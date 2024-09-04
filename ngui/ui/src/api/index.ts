@@ -8,6 +8,7 @@ import {
   resetPassword,
   getResourceAllowedActions,
   signIn,
+  updateUser,
   API_URL as AUTH_API_URL
 } from "./auth";
 import { AUTH } from "./auth/reducer";
@@ -227,7 +228,8 @@ import {
   createMlArtifact,
   deleteMlArtifact,
   getMlDatasetLabels,
-  getMlTaskTags
+  getMlTaskTags,
+  restorePassword
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
@@ -459,7 +461,9 @@ export {
   createMlArtifact,
   deleteMlArtifact,
   getMlDatasetLabels,
-  getMlTaskTags
+  getMlTaskTags,
+  restorePassword,
+  updateUser
 };
 
 export { RESTAPI, AUTH, JIRA_BUS };

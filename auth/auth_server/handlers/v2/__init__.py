@@ -11,3 +11,4 @@ import auth.auth_server.handlers.v2.scopes
 import auth.auth_server.handlers.v2.tokens
 import auth.auth_server.handlers.v2.types
 import auth.auth_server.handlers.v2.signin
+import auth.auth_server.handlers.v2.verification_codes

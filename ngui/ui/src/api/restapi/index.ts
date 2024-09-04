@@ -214,7 +214,8 @@ import {
   createMlArtifact,
   deleteMlArtifact,
   getMlDatasetLabels,
-  getMlTaskTags
+  getMlTaskTags,
+  restorePassword
 } from "./actionCreators";
 
 export {
@@ -433,5 +434,6 @@ export {
   createMlArtifact,
   deleteMlArtifact,
   getMlDatasetLabels,
-  getMlTaskTags
+  getMlTaskTags,
+  restorePassword
 };
