@@ -83,11 +83,13 @@ class EventController(EventBaseController):
         evt_classes = kwargs.get("evt_classes")
         levels = kwargs.get("levels", [])
         object_types = kwargs.get("object_types", [])
+        description_like = kwargs.get("description_like")
         _check_filter_list(levels, "levels")
         _check_filter_list(object_types, "object_types")
         last_polled_time = 0
         events = self.get_events(
-            time_start, time_end, evt_classes, levels, object_types, ack_only, limit
+            time_start, time_end, evt_classes, levels, object_types, ack_only,
+            limit, description_like
         )
         events_result = []
         last_id = kwargs.get("last_id")

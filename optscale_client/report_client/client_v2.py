@@ -41,7 +41,7 @@ class Client(ClientV1):
     def event_list(self, org_id, limit=None, ack_only=False, time_start=None,
                    time_end=None, levels=None, object_types=None,
                    evt_classes=None, last_id=None, include_read=False,
-                   read_on_get=False):
+                   read_on_get=False, description_like=None):
         """
         Gets event list based on filters ordered by time ascending
         Doesn't marks Events as read, requires cluster secret
@@ -56,6 +56,7 @@ class Client(ClientV1):
         :param last_id: (string) - last loaded event id
         :param include_read: (bool) - show read events
         :param read_on_get: (bool) - show read events
+        :param description_like: (string) - search by description like
          ['INITIAL_REPLICATION_COMPLETED']
         :return: list(dict(Event))
         """
@@ -69,7 +70,8 @@ class Client(ClientV1):
             evt_class=evt_classes,
             last_id=last_id,
             include_read=include_read,
-            read_on_get=read_on_get
+            read_on_get=read_on_get,
+            description_like=description_like
         )
         return self.get(url)
 

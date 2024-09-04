@@ -99,6 +99,11 @@ class EventAsyncHandler(ReceiveHandler):
           in: query
           required: false
           description: if True - mark all requested events as read
+        - name: description_like
+          type: string
+          in: query
+          required: false
+          description: search events by description like
         responses:
           200:
             description: Success
@@ -161,6 +166,7 @@ class EventAsyncHandler(ReceiveHandler):
                 "read_on_get": self.get_arg("read_on_get", bool),
                 "organization_id": organization_id,
                 "token": self.token,
+                "description_like": self.get_arg("description_like", str)
             }
             data = {k: v for k, v in data.items() if v is not None}
             res = await self.controller.list(**data)
