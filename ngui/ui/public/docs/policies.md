@@ -32,3 +32,5 @@ maximizing the efficiency and availability of cloud resources.
 - Optimize Resource Usage: Allocate quotas to ensure optimal usage and prevent overconsumption.
 
 - Collaborate with Your Team: Coordinate resource allocation and financial planning to ensure that cloud resources are utilized effectively within budgetary constraints and team requirements.
+
+Want to learn more? Check out this post - [How to set budgets and quotas using OptScale](https://hystax.com/how-to-set-budgets-and-quotas-using-optscale/)
