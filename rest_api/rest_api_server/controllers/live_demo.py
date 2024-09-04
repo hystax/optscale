@@ -12,7 +12,7 @@ from bson.objectid import ObjectId
 from pymongo import UpdateOne
 
 from optscale_client.config_client.client import etcd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import and_, true
 
 from tools.cloud_adapter.model import ResourceTypes
@@ -52,6 +52,8 @@ WITH_SUBPOOLS_SIGN = '+'
 RECOMMENDATION_MULTIPLIED_FIELDS = ['saving', 'annually_monthly_saving',
                                     'monthly_saving']
 PREPARED_DEMO_LIFETIME_DAYS = 3
+CLOUD_ACCOUNT_TS_OFFSET_HRS = 1
+SEC_IN_HR = 60 * 60
 CLICKHOUSE_TABLE_DB_MAP = {
     'average_metrics': 'default',
     'k8s_metrics': 'default',
@@ -489,6 +491,15 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         return res
 
     @staticmethod
+    def set_now_ts(keys: list, obj: dict):
+        date_ts = int((datetime.now(tz=timezone.utc) - timedelta(
+                    hours=CLOUD_ACCOUNT_TS_OFFSET_HRS)).timestamp())
+        for key in keys:
+            obj.pop('%s_offset' % key, None)
+            obj[key] = date_ts
+        return obj
+
+    @staticmethod
     def offsets_to_timestamps(keys, now, obj):
         for key in keys:
             val = obj.pop('%s_offset' % key, None)
@@ -590,8 +601,11 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['config'] = encode_config(config)
         obj['organization_id'] = organization_id
         obj['account_id'] = gen_id()
-        obj = self.offsets_to_timestamps(
-            ['created_at', 'last_import_at'], now, obj)
+        obj = self.offsets_to_timestamps(['created_at'], now, obj)
+        obj = self.set_now_ts(
+            ['last_import_at', 'last_import_attempt_at',
+             'last_import_modified_at', 'last_getting_metrics_at',
+             'last_getting_metric_attempt_at'], obj)
         return CloudAccount(**obj)
 
     def build_checklist(self, obj, now, organization_id, **kwargs):
@@ -811,10 +825,10 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         return ConstraintLimitHit(**obj)
 
     def build_discovery_info(self, obj, now, **kwargs):
-        obj = self.offsets_to_timestamps(
-            ['created_at', 'last_discovery_at'], now, obj)
+        obj = self.offsets_to_timestamps(['created_at'], now, obj)
         obj = self.refresh_relations(['cloud_account_id'], obj)
         obj['resource_type'] = getattr(ResourceTypes, obj['resource_type'])
+        obj = self.set_now_ts(['last_discovery_at'], obj)
         return DiscoveryInfo(**obj)
 
     def build_node(self, obj, now, **kwargs):
