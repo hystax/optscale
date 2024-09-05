@@ -205,7 +205,7 @@ class AlibabaReportImporter(BaseReportImporter):
             'InstanceSpec',
             'InstanceConfig'
         ] + self.get_cost_related_fields()
-        optscale_fields = ['cost']
+        optscale_fields = ['cost', 'report_identity']
         if optscale_f_incl:
             return cloud_fields + optscale_fields
         else:

@@ -445,6 +445,7 @@ class Azure(CloudBase):
         subscription_type = self._guess_subscription_type(
             self._subscription_id)
         warnings = []
+        usage_detail = None
         try:
             range_end = datetime.datetime.utcnow()
             range_start = range_end - datetime.timedelta(days=DAYS_IN_MONTH)
@@ -481,7 +482,9 @@ class Azure(CloudBase):
             else:
                 raise
 
-        if subscription_type == 'EnterpriseAgreement':
+        if (subscription_type == 'EnterpriseAgreement' and
+                not (getattr(usage_detail, 'cost', None) or
+                     getattr(usage_detail, 'cost_in_billing_currency', None))):
             consumption_api_supported = False
 
         return {
