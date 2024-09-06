@@ -1,3 +1,4 @@
+import re
 import logging
 import hashlib
 from requests import HTTPError
@@ -39,7 +40,8 @@ class EventBaseController(BaseController):
 
     @staticmethod
     def get_events(
-        time_start, time_end, evt_classes, levels, object_types, ack_only, limit
+        time_start, time_end, evt_classes, levels, object_types, ack_only,
+            limit, description_like
     ):
         # pylint: disable=no-member
         events = Event.objects().order_by("-time", "-_id")
@@ -55,6 +57,9 @@ class EventBaseController(BaseController):
             events = events(Q(object_type__in=object_types))
         if ack_only:
             events = events(Q(ack=True))
+        if description_like:
+            regex = re.compile(f'.*{description_like}.*', re.IGNORECASE)
+            events = events(Q(description=regex))
         if limit:
             events = events[:limit]
         return events
