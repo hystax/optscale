@@ -81,7 +81,8 @@
     "overrides": {
       "d3-color": "^3.1.0",
       "braces@<3.0.3": ">=3.0.3",
-      "ws@>=8.0.0 <8.17.1": ">=8.17.1"
+      "ws@>=8.0.0 <8.17.1": ">=8.17.1",
+      "micromatch@<4.0.8": ">=4.0.8"
     }
   },
   "scripts": {
@@ -126,17 +127,17 @@
     "@storybook/react": "^7.6.20",
     "@storybook/react-vite": "^7.6.20",
     "@storybook/theming": "^7.6.5",
-    "@types/jest": "^29.5.11",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.10.5",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.56.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-storybook": "^0.6.15",
-    "eslint-plugin-unused-imports": "^3.0.0",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-react": "^7.35.2",
+    "eslint-plugin-storybook": "^0.8.0",
+    "eslint-plugin-unused-imports": "^3.2.0",
     "glob": "^10.3.10",
     "jsdom": "^22.1.0",
     "prettier": "^3.1.1",
