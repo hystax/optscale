@@ -437,12 +437,12 @@ class ResourceConstraintsAsyncItemHandler(BaseAsyncItemHandler,
         """
         data = self._request_body()
         data.update(kwargs)
+        user_id = await self.check_self_auth()
         try:
             resource_constraint = await self._get_item(id)
         except NotFoundException as ex:
             raise OptHTTPError.from_opt_exception(404, ex)
         resource_id = resource_constraint.resource_id
-        user_id = await self.check_self_auth()
         owner_id = await run_task(
             self.controller.get_resource_owner, resource_id)
         if user_id == owner_id:
@@ -485,12 +485,12 @@ class ResourceConstraintsAsyncItemHandler(BaseAsyncItemHandler,
         security:
         - token: []
         """
+        user_id = await self.check_self_auth()
         try:
             resource_constraint = await self._get_item(id)
         except NotFoundException as ex:
             raise OptHTTPError.from_opt_exception(404, ex)
         resource_id = resource_constraint.resource_id
-        user_id = await self.check_self_auth()
         owner_id = await run_task(
             self.controller.get_resource_owner, resource_id)
         if user_id == owner_id:
