@@ -9,7 +9,7 @@ import HtmlSymbol from "components/HtmlSymbol";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import { ProfilingIntegrationModalContext } from "contexts/ProfilingIntegrationModalContext";
-import { ML_TASK_METRICS, ML_TASKS, PYPI_OPTSCALE_ARCEE, isProduction } from "urls";
+import { ML_METRICS, ML_TASKS, PYPI_OPTSCALE_ARCEE, isProduction } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SPACING_2 } from "utils/layouts";
 
@@ -275,7 +275,7 @@ const SendingMetrics = () => (
         id: "mlProfilingIntegration.sendingMetrics.description",
         values: {
           link: (chunks) => (
-            <Link to={ML_TASK_METRICS} component={RouterLink}>
+            <Link to={ML_METRICS} component={RouterLink}>
               {chunks}
             </Link>
           )
@@ -296,7 +296,7 @@ const AddingHyperparameters = () => (
         id: "mlProfilingIntegration.addingHyperparameters.description",
         values: {
           link: (chunks) => (
-            <Link to={ML_TASK_METRICS} component={RouterLink}>
+            <Link to={ML_METRICS} component={RouterLink}>
               {chunks}
             </Link>
           )

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import MlTaskCreateForm from "components/forms/MlTaskCreateForm";
 import EmployeesService from "services/EmployeesService";
+import MlMetricsService from "services/MlMetricsService";
 import MlTasksService from "services/MlTasksService";
 import { ML_TASKS } from "urls";
 
@@ -10,8 +11,9 @@ const MlTaskCreateFormContainer = () => {
 
   const navigate = useNavigate();
 
-  const { useCreateTask, useGetGlobalMetrics } = MlTasksService();
-  const { isLoading: isGetGlobalMetricsLoading, metrics: globalMetrics } = useGetGlobalMetrics();
+  const { useCreateTask } = MlTasksService();
+  const { useGetMlMetrics } = MlMetricsService();
+  const { isLoading: isGetMlMetricsLoading, metrics: globalMetrics } = useGetMlMetrics();
 
   const { isLoading: isCreateTaskLoading, onCreate } = useCreateTask();
 
@@ -32,7 +34,7 @@ const MlTaskCreateFormContainer = () => {
       isLoading={{
         isGetEmployeesLoading,
         isCreateTaskLoading,
-        isGetGlobalMetricsLoading
+        isGetMlMetricsLoading
       }}
     />
   );

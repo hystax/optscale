@@ -16,7 +16,7 @@ import AggregateFunctionFormattedMessage from "components/AggregateFunctionForma
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
 import SubTitle from "components/SubTitle";
 import TendencyFormattedMessage from "components/TendencyFormattedMessage";
-import { ML_TASK_METRICS } from "urls";
+import { ML_METRICS } from "urls";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { FIELD_NAMES } from "../constants";
 import { FormValues } from "../types";
@@ -76,7 +76,7 @@ const MetricsField = ({ metrics = [], isLoading = false }) => {
                   id="noMetricsToTrack"
                   values={{
                     link: (chunks) => (
-                      <Link data-test-id="link_metrics_library" href={ML_TASK_METRICS} target="_blank" rel="noopener">
+                      <Link data-test-id="link_metrics_library" href={ML_METRICS} target="_blank" rel="noopener">
                         {chunks}
                       </Link>
                     )

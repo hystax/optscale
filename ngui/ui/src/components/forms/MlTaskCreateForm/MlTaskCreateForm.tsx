@@ -4,7 +4,7 @@ import { FormValues } from "./types";
 import { getDefaultValues } from "./utils";
 
 const MlTaskCreateForm = ({ onSubmit, onCancel, employees = [], metrics, isLoading = {} }) => {
-  const { isGetEmployeesLoading = false, isCreateTaskLoading = false, isGetGlobalMetricsLoading = false } = isLoading;
+  const { isGetEmployeesLoading = false, isCreateTaskLoading = false, isGetMlMetricsLoading = false } = isLoading;
 
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues()
@@ -19,11 +19,8 @@ const MlTaskCreateForm = ({ onSubmit, onCancel, employees = [], metrics, isLoadi
         <DescriptionField />
         <KeyField />
         <OwnerField employees={employees} isLoading={isGetEmployeesLoading} />
-        <MetricsField metrics={metrics} isLoading={isGetGlobalMetricsLoading} />
-        <FormButtons
-          onCancel={onCancel}
-          isLoading={isGetEmployeesLoading || isCreateTaskLoading || isGetGlobalMetricsLoading}
-        />
+        <MetricsField metrics={metrics} isLoading={isGetMlMetricsLoading} />
+        <FormButtons onCancel={onCancel} isLoading={isGetEmployeesLoading || isCreateTaskLoading || isGetMlMetricsLoading} />
       </form>
     </FormProvider>
   );

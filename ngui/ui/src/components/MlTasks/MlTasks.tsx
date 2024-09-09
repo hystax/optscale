@@ -13,7 +13,7 @@ import { ProfilingIntegrationModal } from "components/SideModalManager/SideModal
 import TableLoader from "components/TableLoader";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { useRefetchApis } from "hooks/useRefetchApis";
-import { ML_TASK_METRICS, ML_EXECUTORS } from "urls";
+import { ML_METRICS, ML_EXECUTORS } from "urls";
 import {
   GOALS_BE_FILTER,
   GOAL_STATUS,
@@ -60,7 +60,7 @@ const PageActionBar = () => {
         messageId: "manageMetrics",
         dataTestId: "btn_manage_metrics",
         type: "button",
-        link: ML_TASK_METRICS
+        link: ML_METRICS
       },
       {
         key: "btn-executors",

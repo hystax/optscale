@@ -1140,7 +1140,7 @@
   "mlDeleteDatasetTitle": "Delete Dataset",
   "mlDeleteTaskTitle": "Delete Task",
   "mlExecutorsDescription": "Executors list shows you compute resources that are used to run your ML activities.",
-  "mlGlobalMetricsDescription": "Here you can define a set of metrics which every module should be evaluated against. For each captured metric you can also set a target value and tendency.",
+  "mlMetricsDescription": "Here you can define a set of metrics which every module should be evaluated against. For each captured metric you can also set a target value and tendency.",
   "mlMetricsLibrary": "Metrics library",
   "mlMetricsLibraryTitle": "Metrics Library",
   "mlProfilesTitle": "Profiles",

@@ -1,12 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   getMlTasks,
-  createGlobalMetric,
-  getMlGlobalMetric,
-  getMlGlobalMetrics,
-  updateGlobalMetric,
-  deleteGlobalMetric,
   RESTAPI,
   getResourceAllowedActions,
   createMlTask,
@@ -24,11 +19,6 @@ import {
 } from "api";
 import {
   GET_ML_TASKS,
-  CREATE_GLOBAL_METRIC,
-  GET_ML_GLOBAL_METRIC,
-  GET_ML_GLOBAL_METRICS,
-  UPDATE_GLOBAL_METRIC,
-  DELETE_GLOBAL_METRIC,
   CREATE_ML_TASK,
   GET_ML_TASK,
   UPDATE_ML_TASK,
@@ -347,123 +337,12 @@ const useGetRunBreakdown = (runId) => {
   return { isLoading, isDataReady, breakdown, stages, milestones };
 };
 
-const useGetGlobalMetrics = () => {
-  const dispatch = useDispatch();
-
-  const { organizationId } = useOrganizationInfo();
-
-  const {
-    apiData: { metrics = [] }
-  } = useApiData(GET_ML_GLOBAL_METRICS);
-
-  const { isLoading, shouldInvoke } = useApiState(GET_ML_GLOBAL_METRICS, {
-    organizationId
-  });
-
-  useEffect(() => {
-    if (shouldInvoke) {
-      dispatch(getMlGlobalMetrics(organizationId));
-    }
-  }, [dispatch, organizationId, shouldInvoke]);
-
-  return { isLoading, metrics };
-};
-
-const useAlwaysGetGlobalMetric = (metricId) => {
-  const dispatch = useDispatch();
-
-  const { organizationId } = useOrganizationInfo();
-
-  const [metric, setMetric] = useState({});
-
-  const { isLoading } = useApiState(GET_ML_GLOBAL_METRIC, {
-    organizationId
-  });
-
-  useEffect(() => {
-    dispatch((_, getState) => {
-      dispatch(getMlGlobalMetric(organizationId, metricId)).then(() => {
-        const state = getState();
-        if (!isError(GET_ML_GLOBAL_METRIC, getState())) {
-          setMetric(state.restapi[GET_ML_GLOBAL_METRIC]);
-        }
-      });
-    });
-  }, [dispatch, organizationId, metricId]);
-
-  return { isLoading, metric };
-};
-
-const useCreateGlobalMetric = () => {
-  const dispatch = useDispatch();
-
-  const { organizationId } = useOrganizationInfo();
-  const { isLoading } = useApiState(CREATE_GLOBAL_METRIC);
-
-  const onCreate = (params) =>
-    new Promise((resolve, reject) => {
-      dispatch((_, getState) => {
-        dispatch(createGlobalMetric(organizationId, params)).then(() => {
-          if (!isError(CREATE_GLOBAL_METRIC, getState())) {
-            return resolve();
-          }
-          return reject();
-        });
-      });
-    });
-
-  return { onCreate, isLoading };
-};
-
-const useUpdateGlobalMetric = (metricId) => {
-  const dispatch = useDispatch();
-
-  const { organizationId } = useOrganizationInfo();
-  const { isLoading } = useApiState(UPDATE_GLOBAL_METRIC);
-
-  const onUpdate = (params) =>
-    new Promise((resolve, reject) => {
-      dispatch((_, getState) => {
-        dispatch(updateGlobalMetric(organizationId, metricId, params)).then(() => {
-          if (!isError(UPDATE_GLOBAL_METRIC, getState())) {
-            return resolve();
-          }
-          return reject();
-        });
-      });
-    });
-
-  return { onUpdate, isLoading };
-};
-
-const useDeleteGlobalMetric = () => {
-  const dispatch = useDispatch();
-
-  const { organizationId } = useOrganizationInfo();
-  const { isLoading } = useApiState(DELETE_GLOBAL_METRIC);
-
-  const onDelete = (metricId) =>
-    new Promise((resolve, reject) => {
-      dispatch((_, getState) => {
-        dispatch(deleteGlobalMetric(organizationId, metricId)).then(() => {
-          if (!isError(DELETE_GLOBAL_METRIC, getState())) {
-            return resolve();
-          }
-          return reject();
-        });
-      });
-    });
-
-  return { onDelete, isLoading };
-};
-
 function MlTasksService() {
   return {
     useGetAll,
     useCreateTask,
     useUpdateTask,
     useDeleteTask,
-    useGetGlobalMetrics,
     useGetTaskRecommendation,
     useGetTaskRecommendations,
     useGetTaskRun,
@@ -471,10 +350,6 @@ function MlTasksService() {
     useGetRunBreakdown,
     useGetOne,
     useGetTaskRunsList,
-    useCreateGlobalMetric,
-    useUpdateGlobalMetric,
-    useAlwaysGetGlobalMetric,
-    useDeleteGlobalMetric,
     useGetTaskRunsBulk,
     useGetTaskModelVersions
   };

@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import MlEditTaskMetrics from "components/MlEditTaskMetrics";
+import MlMetricsService from "services/MlMetricsService";
 import MlTasksService from "services/MlTasksService";
 
 const MlEditTaskMetricsContainer = ({ taskMetrics }) => {
@@ -17,9 +18,11 @@ const MlEditTaskMetricsContainer = ({ taskMetrics }) => {
   };
 
   const { taskId } = useParams();
-  const { useUpdateTask, useGetGlobalMetrics } = MlTasksService();
 
-  const { isLoading: isGetGlobalMetricsLoading, metrics: globalMetrics } = useGetGlobalMetrics();
+  const { useUpdateTask } = MlTasksService();
+  const { useGetMlMetrics } = MlMetricsService();
+
+  const { isLoading: isGetMlMetricsLoading, metrics: globalMetrics } = useGetMlMetrics();
   const { onUpdate, isLoading: isUpdateLoading } = useUpdateTask();
 
   const onAttachChange = (formData) => {
@@ -30,7 +33,7 @@ const MlEditTaskMetricsContainer = ({ taskMetrics }) => {
     <MlEditTaskMetrics
       metrics={getMetrics(globalMetrics)}
       onAttachChange={onAttachChange}
-      isLoading={isGetGlobalMetricsLoading}
+      isLoading={isGetMlMetricsLoading}
       isUpdateLoading={isUpdateLoading}
     />
   );

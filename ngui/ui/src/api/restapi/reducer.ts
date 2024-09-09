@@ -85,7 +85,7 @@ import {
   SET_ML_LEADERBOARD_CANDIDATES,
   SET_ML_DATASETS,
   SET_ML_DATASET,
-  SET_ML_GLOBAL_METRICS,
+  SET_ML_METRICS,
   SET_ML_GLOBAL_METRIC,
   SET_PROFILING_TOKEN,
   SET_ML_EXECUTORS,
@@ -748,7 +748,7 @@ const reducer = (state = {}, action) => {
         [action.label]: action.payload
       };
     }
-    case SET_ML_GLOBAL_METRICS: {
+    case SET_ML_METRICS: {
       return {
         ...state,
         [action.label]: action.payload
