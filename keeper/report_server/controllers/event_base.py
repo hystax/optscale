@@ -44,7 +44,7 @@ class EventBaseController(BaseController):
             limit, description_like
     ):
         # pylint: disable=no-member
-        events = Event.objects().order_by("-time", "-_id")
+        events = Event.objects().order_by("-time")
         if time_start:
             events = events(Q(time__gte=time_start))
         if time_end:
