@@ -735,7 +735,6 @@ class HeraldExecutorWorker(ConsumerMixin):
                  else round(latest_hit['value']))
         params = {
             'texts': {
-                'title': title,
                 'organization': self._get_organization_params(organization),
                 'organization_constraint': {**constraint_data},
                 'limit_hit': {
@@ -743,10 +742,7 @@ class HeraldExecutorWorker(ConsumerMixin):
                     'value': value,
                     'link': link,
                     'constraint_limit': constraint_limit
-                },
-                'user': {
-                    'user_display_name': user_info.get('display_name')
-                },
+                }
             }
         }
         if constraint['type'] == 'tagging_policy':

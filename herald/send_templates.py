@@ -1397,7 +1397,6 @@ PARAMETER_DUMPS = {
         'template_type': 'organization_policy_tagging',
         'template_params': {
             'texts': {
-                'title': 'Organization policy violated',
                 'organization': {
                     'id': '6946211f-47ff-43a3-a9a3-3e5f57d52415',
                     'name': 'AQA_1617018508.3637385',
@@ -1421,9 +1420,6 @@ PARAMETER_DUMPS = {
                             'startDate=1645401600&endDate=1645487999&'
                             'poolId=b1d60c69-4e14-4bda-be16-dc8fc6d8b941',
                     'constraint_limit': 0
-                },
-                'user': {
-                    'user_display_name': 'james31',
                 }}}},
     'report_imports_passed_for_org': {
         'email': ['james31_pza@hystax.com'],
