@@ -11,13 +11,13 @@ class DataSourcesMenuItem extends BaseMenuItem {
   // eslint-disable-next-line class-methods-use-this
   messageId = ({ mode }) => {
     if (mode?.[OPTSCALE_MODE.FINOPS] ?? true) {
-      return "dataSources";
+      return "dataSourcesTitle";
     }
 
-    return "cloudConnections";
+    return "cloudConnectionsTitle";
   };
 
-  dataTestId = "btn_cloud_accs";
+  dataTestId = "btn_data_sources";
 
   dataProductTourId = PRODUCT_TOUR_IDS.DATA_SOURCES;
 
