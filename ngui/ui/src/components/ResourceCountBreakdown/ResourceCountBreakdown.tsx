@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Grid } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { FormattedMessage, useIntl } from "react-intl";
 import BreakdownBy from "components/ExpensesDailyBreakdownBy/BreakdownBy";
-import WrapperCard from "components/WrapperCard";
 import { splitIntoTwoChunks, isEmpty as isEmptyArray } from "utils/arrays";
 import { getColorScale } from "utils/charts";
 import { format, secondsToMilliseconds } from "utils/datetime";
@@ -171,35 +170,33 @@ const ResourceCountBreakdown = ({
   const lineData = useLineData(breakdown, excludeHiddenResourceTypes());
 
   return (
-    <WrapperCard>
-      <Grid container spacing={SPACING_1}>
-        <Grid item xs={12} sx={{ display: "flex" }}>
-          <BreakdownBy value={breakdownByValue} onChange={onBreakdownByChange} />
-          <ResourceCountBreakdownShowWeekendSwitch />
-        </Grid>
-        <Grid item xs={12}>
-          <ResourceCountBreakdownLineChart
-            data={lineData}
-            colors={chartColors}
-            isLoading={isLoading}
-            breakdownBy={breakdownByValue}
-            dataTestId="resource_count_breakdown_chart"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <ResourceCountBreakdownTable
-            counts={counts}
-            colors={tableColors}
-            isLoading={isLoading}
-            appliedRange={appliedRange}
-            onToggleResourceCountDisplay={updateLineDisplaySettings}
-            onToggleAllResourceCountsDisplay={updateAllLinesDisplaySettings}
-            resourceCountBreakdownChartDisplaySettings={chartLinesDisplaySettings}
-            breakdownBy={breakdownByValue}
-          />
-        </Grid>
-      </Grid>
-    </WrapperCard>
+    <Stack spacing={SPACING_1}>
+      <Box display="flex">
+        <BreakdownBy value={breakdownByValue} onChange={onBreakdownByChange} />
+        <ResourceCountBreakdownShowWeekendSwitch />
+      </Box>
+      <Box>
+        <ResourceCountBreakdownLineChart
+          data={lineData}
+          colors={chartColors}
+          isLoading={isLoading}
+          breakdownBy={breakdownByValue}
+          dataTestId="resource_count_breakdown_chart"
+        />
+      </Box>
+      <Box>
+        <ResourceCountBreakdownTable
+          counts={counts}
+          colors={tableColors}
+          isLoading={isLoading}
+          appliedRange={appliedRange}
+          onToggleResourceCountDisplay={updateLineDisplaySettings}
+          onToggleAllResourceCountsDisplay={updateAllLinesDisplaySettings}
+          resourceCountBreakdownChartDisplaySettings={chartLinesDisplaySettings}
+          breakdownBy={breakdownByValue}
+        />
+      </Box>
+    </Stack>
   );
 };
 

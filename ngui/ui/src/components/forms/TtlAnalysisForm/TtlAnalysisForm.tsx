@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
+import { Box } from "@mui/material";
 import { useForm, FormProvider } from "react-hook-form";
 import ButtonLoader from "components/ButtonLoader";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
-import WrapperCard from "components/WrapperCard";
 import { useReactiveDefaultDateRange } from "hooks/useReactiveDefaultDateRange";
 import { TTL_MODES, DATE_RANGE_TYPE } from "utils/constants";
 import { FIELD_NAMES } from "./constants";
@@ -75,7 +75,7 @@ const TtlAnalysisForm = ({ pools, isLoading, isPoolSelectorReadOnly, onSubmit, d
   });
 
   return (
-    <WrapperCard className="halfWidth">
+    <Box sx={{ width: { md: "50%" } }}>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit} noValidate>
           <PoolSelector isReadOnly={isPoolSelectorReadOnly} isLoading={isLoading} pools={pools} fullWidth />
@@ -93,7 +93,7 @@ const TtlAnalysisForm = ({ pools, isLoading, isPoolSelectorReadOnly, onSubmit, d
           </FormButtonsWrapper>
         </form>
       </FormProvider>
-    </WrapperCard>
+    </Box>
   );
 };
 
