@@ -35,7 +35,7 @@ class RecipientAsyncItemHandler(BaseAsyncItemHandler):
         tags: [recipients]
         summary: Get recipient
         parameters:
-        -   name: id
+        -   name: recipient_id
             in: path
             description: Recipient ID
             required: true
@@ -165,7 +165,7 @@ class RecipientAsyncCollectionHandler(BaseAsyncCollectionHandler):
             Required permission: CLUSTER_SECRET
         parameters:
         -   name: scope_id
-            in: path
+            in: query
             description: Recipient scope id (organization id)
             required: true
             type: string

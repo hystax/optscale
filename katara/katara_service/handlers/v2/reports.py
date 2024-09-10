@@ -85,7 +85,7 @@ class ReportAsyncItemHandler(BaseAsyncItemHandler):
         tags: [reports]
         summary: Get report
         parameters:
-        -   name: id
+        -   name: report_id
             in: path
             description: Report ID
             required: true

@@ -154,7 +154,7 @@ class TaskAsyncItemHandler(BaseAsyncItemHandler):
             Modifies a task with specified id \n\n
             Required permission: CLUSTER_SECRET
         parameters:
-        -   name: id
+        -   name: task_id
             in: path
             description: Task ID
             required: true
@@ -166,8 +166,6 @@ class TaskAsyncItemHandler(BaseAsyncItemHandler):
             schema:
                 type: object
                 properties:
-                    completed_at: {type: integer,
-                        description: "Task completed timestamp"}
                     state: {type: string,
                         description: "Task state"}
                     result: {type: string,
