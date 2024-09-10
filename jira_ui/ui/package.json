@@ -50,13 +50,13 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^8.54.0",
+    "eslint": "^8.57.0",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-unused-imports": "^3.0.0",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-react": "^7.35.2",
+    "eslint-plugin-unused-imports": "^3.2.0",
     "prettier": "^3.1.0"
   }
 }

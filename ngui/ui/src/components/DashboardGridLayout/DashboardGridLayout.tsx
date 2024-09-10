@@ -24,6 +24,16 @@ const DashboardGridLayout = ({
   recentModelsCard
 }: DashboardGridLayoutProps) => {
   const squareNodes = [
+    {
+      key: "recentModelsCard",
+      node: recentModelsCard,
+      mode: OPTSCALE_MODE.MLOPS
+    },
+    {
+      key: "recentTasksCard",
+      node: recentTasksCard,
+      mode: OPTSCALE_MODE.MLOPS
+    },
     { key: "organizationExpenses", node: organizationExpenses },
     {
       key: "topResourcesExpensesCard",
@@ -40,16 +50,6 @@ const DashboardGridLayout = ({
       key: "poolsRequiringAttentionCard",
       node: poolsRequiringAttentionCard,
       mode: OPTSCALE_MODE.FINOPS
-    },
-    {
-      key: "recentTasksCard",
-      node: recentTasksCard,
-      mode: OPTSCALE_MODE.MLOPS
-    },
-    {
-      key: "recentModelsCard",
-      node: recentModelsCard,
-      mode: OPTSCALE_MODE.MLOPS
     }
   ].filter(({ node }) => Boolean(node));
 
