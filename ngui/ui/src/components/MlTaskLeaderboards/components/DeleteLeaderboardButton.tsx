@@ -3,7 +3,7 @@ import IconButton from "components/IconButton";
 import { DeleteLeaderboardModal } from "components/SideModalManager/SideModals";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 
-const DeleteLeaderboardButton = ({ leaderboard }) => {
+const DeleteLeaderboardButton = ({ leaderboard, onSuccess }) => {
   const openSideModal = useOpenSideModal();
 
   return (
@@ -14,7 +14,7 @@ const DeleteLeaderboardButton = ({ leaderboard }) => {
         show: true,
         messageId: "delete"
       }}
-      onClick={() => openSideModal(DeleteLeaderboardModal, { leaderboard })}
+      onClick={() => openSideModal(DeleteLeaderboardModal, { leaderboard, onSuccess })}
     />
   );
 };

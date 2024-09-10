@@ -92,6 +92,16 @@ const MlTaskLeaderboardsContainer = ({ task }) => {
           getLeaderboardData(updatedLeaderboard.id);
         });
       }}
+      onDeleteLeaderboard={() => {
+        getLeaderboards(leaderboardTemplate.id).then((newLeaderboards) => {
+          const firstLeaderboardId = newLeaderboards[0]?.id;
+          onSelectionChange(firstLeaderboardId);
+
+          if (firstLeaderboardId) {
+            getLeaderboardData(firstLeaderboardId);
+          }
+        });
+      }}
       isLoadingProps={{
         isGetLeaderboardTemplateLoading,
         isGetLeaderboardsLoading,

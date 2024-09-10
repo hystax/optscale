@@ -34,7 +34,8 @@ const LeaderboardsListSection = ({
   selectedLeaderboardId,
   onSelectedLeaderboardIdChange,
   onCreateLeaderboard,
-  onUpdateLeaderboard
+  onUpdateLeaderboard,
+  onDeleteLeaderboard
 }) => {
   const isManageLeaderboardAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
 
@@ -89,7 +90,7 @@ const LeaderboardsListSection = ({
             leaderboard={leaderboard}
             onSuccess={onCreateLeaderboard}
           />
-          <DeleteLeaderboardButton leaderboard={leaderboard} />
+          <DeleteLeaderboardButton leaderboard={leaderboard} onSuccess={onDeleteLeaderboard} />
         </Box>
       )}
     </Box>
@@ -106,6 +107,7 @@ const Leaderboards = ({
   onSelectedLeaderboardIdChange,
   onCreateLeaderboard,
   onUpdateLeaderboard,
+  onDeleteLeaderboard,
   isLoadingProps = {}
 }) => (
   <Box>
@@ -123,6 +125,7 @@ const Leaderboards = ({
             onSelectedLeaderboardIdChange={onSelectedLeaderboardIdChange}
             onCreateLeaderboard={onCreateLeaderboard}
             onUpdateLeaderboard={onUpdateLeaderboard}
+            onDeleteLeaderboard={onDeleteLeaderboard}
           />
         </div>
         <div>
