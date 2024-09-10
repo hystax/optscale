@@ -465,7 +465,7 @@ class ShareableResourceBookingsAsyncHandler(BaseAsyncItemHandler,
         summary: Get list of bookings for shareable resource
         parameters:
         -   in: path
-            name: resource_id
+            name: id
             description: resource id
             required: true
         responses:
