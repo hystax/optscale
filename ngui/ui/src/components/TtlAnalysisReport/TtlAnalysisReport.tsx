@@ -9,7 +9,6 @@ import SummaryGrid from "components/SummaryGrid";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import WrapperCard from "components/WrapperCard";
 import { SUMMARY_VALUE_COMPONENT_TYPES, SUMMARY_CARD_TYPES, FORMATTED_MONEY_TYPES } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import { percentXofY } from "utils/math";
@@ -198,22 +197,20 @@ const TtlAnalysisReport = ({
         />
       </Grid>
       <Grid item xs={12}>
-        <WrapperCard>
-          {isLoading ? (
-            <TableLoader columnsCounter={columns.length} showHeader />
-          ) : (
-            <Table
-              data={tableData}
-              columns={columns}
-              localization={{
-                emptyMessageId: "noResources"
-              }}
-              dataTestIds={{
-                container: "table_report_data"
-              }}
-            />
-          )}
-        </WrapperCard>
+        {isLoading ? (
+          <TableLoader columnsCounter={columns.length} showHeader />
+        ) : (
+          <Table
+            data={tableData}
+            columns={columns}
+            localization={{
+              emptyMessageId: "noResources"
+            }}
+            dataTestIds={{
+              container: "table_report_data"
+            }}
+          />
+        )}
       </Grid>
     </Grid>
   );

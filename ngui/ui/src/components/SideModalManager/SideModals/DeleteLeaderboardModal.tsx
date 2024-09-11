@@ -17,7 +17,10 @@ class DeleteLeaderboardModal extends BaseSideModal {
     return (
       <DeleteLeaderboardContainer
         onCancel={this.closeSideModal}
-        onSuccess={this.closeSideModal}
+        onSuccess={() => {
+          this.payload?.onSuccess?.();
+          this.closeSideModal();
+        }}
         leaderboard={this.payload?.leaderboard}
       />
     );

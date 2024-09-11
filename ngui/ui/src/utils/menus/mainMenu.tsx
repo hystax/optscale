@@ -15,6 +15,7 @@ import k8sRightsizing from "./k8sRightsizingMenuItem";
 import mlArtifactsMenuItem from "./mlArtifactsMenuItem";
 import mlDatasets from "./mlDatasetsMenuItem";
 import mlHypertuningMenuItem from "./mlHypertuningMenuItem";
+import mlMetricsMenuItem from "./mlMetricsMenuItem";
 import mlModels from "./mlModelsMenuItem";
 import mlTasks from "./mlTasksMenuItem";
 import pools from "./poolsMenuItem";
@@ -42,7 +43,7 @@ export default [
   {
     id: MAIN_MENU_SECTION_IDS.ML_OPS,
     menuSectionTitle: <MainMenuSectionTitle messageId="mlops" />,
-    items: [mlTasks, mlModels, mlDatasets, mlHypertuningMenuItem, mlArtifactsMenuItem],
+    items: [mlTasks, mlModels, mlDatasets, mlArtifactsMenuItem, mlHypertuningMenuItem, mlMetricsMenuItem],
     mode: OPTSCALE_MODE.MLOPS
   },
   {

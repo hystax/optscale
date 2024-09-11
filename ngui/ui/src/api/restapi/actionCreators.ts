@@ -209,8 +209,8 @@ import {
   SET_ML_DATASET,
   UPDATE_ML_DATASET,
   DELETE_ML_DATASET,
-  GET_ML_GLOBAL_METRICS,
-  SET_ML_GLOBAL_METRICS,
+  GET_ML_METRICS,
+  SET_ML_METRICS,
   GET_ML_GLOBAL_METRIC,
   SET_ML_GLOBAL_METRIC,
   CREATE_GLOBAL_METRIC,
@@ -2352,18 +2352,18 @@ export const updateMlModelVersion = (organizationId, modelId, runId, params) =>
     affectedRequests: [GET_ML_MODEL, GET_ML_MODELS]
   });
 
-export const getMlGlobalMetrics = (organizationId) =>
+export const getMlMetrics = (organizationId) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/metrics`,
     method: "GET",
-    label: GET_ML_GLOBAL_METRICS,
+    label: GET_ML_METRICS,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId }),
     errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
-    onSuccess: handleSuccess(SET_ML_GLOBAL_METRICS)
+    onSuccess: handleSuccess(SET_ML_METRICS)
   });
 
-export const getMlGlobalMetric = (organizationId, metricId) =>
+export const getMlMetric = (organizationId, metricId) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/metrics/${metricId}`,
     method: "GET",
@@ -2373,30 +2373,30 @@ export const getMlGlobalMetric = (organizationId, metricId) =>
     onSuccess: handleSuccess(SET_ML_GLOBAL_METRIC)
   });
 
-export const createGlobalMetric = (organizationId, params) =>
+export const createMlMetric = (organizationId, params) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/metrics`,
     method: "POST",
     label: CREATE_GLOBAL_METRIC,
     params,
-    affectedRequests: [GET_ML_GLOBAL_METRICS]
+    affectedRequests: [GET_ML_METRICS]
   });
 
-export const updateGlobalMetric = (organizationId, metricId, params) =>
+export const updateMlMetric = (organizationId, metricId, params) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/metrics/${metricId}`,
     method: "PATCH",
     label: UPDATE_GLOBAL_METRIC,
-    affectedRequests: [GET_ML_GLOBAL_METRICS],
+    affectedRequests: [GET_ML_METRICS],
     params
   });
 
-export const deleteGlobalMetric = (organizationId, metricId) =>
+export const deleteMlMetric = (organizationId, metricId) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/metrics/${metricId}`,
     method: "DELETE",
     label: DELETE_GLOBAL_METRIC,
-    affectedRequests: [GET_ML_GLOBAL_METRICS]
+    affectedRequests: [GET_ML_METRICS]
   });
 
 export const getProfilingToken = (organizationId) =>

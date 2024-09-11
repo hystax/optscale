@@ -23,7 +23,7 @@ import DeleteEnvironmentPropertyModal from "./DeleteEnvironmentPropertyModal";
 import DeleteGlobalResourceConstraintModal from "./DeleteGlobalResourceConstraintModal";
 import DeleteLeaderboardModal from "./DeleteLeaderboardModal";
 import DeleteMlChartsDashboard from "./DeleteMlChartsDashboard";
-import DeleteMlGlobalMetricModal from "./DeleteMlGlobalMetricModal";
+import DeleteMlMetricModal from "./DeleteMlMetricModal";
 import DeleteMlModelModal from "./DeleteMlModelModal";
 import DeleteMlRunsetTemplateModal from "./DeleteMlRunsetTemplateModal";
 import DeleteOrganizationConstraintModal from "./DeleteOrganizationConstraintModal";
@@ -99,7 +99,7 @@ export {
   UpdateDataSourceCredentialsModal,
   RenameDataSourceModal,
   CreateOrganizationModal,
-  DeleteMlGlobalMetricModal,
+  DeleteMlMetricModal,
   ProfilingIntegrationModal,
   MlDeleteTaskModal,
   RecommendationModal,

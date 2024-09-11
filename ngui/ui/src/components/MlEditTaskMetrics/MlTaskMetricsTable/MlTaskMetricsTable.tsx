@@ -7,7 +7,7 @@ import Table from "components/Table";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import Tooltip from "components/Tooltip";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
-import { ML_TASK_METRICS } from "urls";
+import { ML_METRICS } from "urls";
 import { tendency, text } from "utils/columns";
 import aggregateFunction from "utils/columns/aggregateFunction";
 
@@ -22,7 +22,7 @@ const tableActionBar = {
         messageId: "manageMetricsLibrary",
         variant: "text",
         type: "button",
-        link: ML_TASK_METRICS
+        link: ML_METRICS
       }
     ]
   }

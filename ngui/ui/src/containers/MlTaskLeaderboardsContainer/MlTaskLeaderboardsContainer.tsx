@@ -1,10 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { GET_ML_LEADERBOARD_TEMPLATE } from "api/restapi/actionTypes";
 import MlTaskLeaderboards from "components/MlTaskLeaderboards";
-import { useApiState } from "hooks/useApiState";
-import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import {
   getStoreLeaderboardId,
   setStoreLeaderboardId,
@@ -16,7 +13,6 @@ import { isEmpty as isEmptyArray } from "utils/arrays";
 const MlTaskLeaderboardsContainer = ({ task }) => {
   const { taskId } = useParams() as { taskId: string };
   const dispatch = useDispatch();
-  const { organizationId } = useOrganizationInfo();
 
   const {
     useGetLeaderboardTemplateOnDemand,
@@ -46,36 +42,29 @@ const MlTaskLeaderboardsContainer = ({ task }) => {
     [getLeaderboard, getLeaderboardCandidates]
   );
 
-  const { shouldInvoke: shouldInvokeGetMlLeaderboardTemplate } = useApiState(GET_ML_LEADERBOARD_TEMPLATE, {
-    organizationId,
-    taskId
-  });
-
   useEffect(() => {
-    if (shouldInvokeGetMlLeaderboardTemplate) {
-      dispatch((_, getState) => {
-        getLeaderboardTemplate(taskId).then((apiLeaderboardTemplate) => {
-          const { id: apiLeaderboardTemplateId } = apiLeaderboardTemplate;
+    dispatch((_, getState) => {
+      getLeaderboardTemplate(taskId).then((apiLeaderboardTemplate) => {
+        const { id: apiLeaderboardTemplateId } = apiLeaderboardTemplate;
 
-          if (apiLeaderboardTemplateId) {
-            return getLeaderboards(apiLeaderboardTemplateId).then((apiLeaderboards) => {
-              if (!isEmptyArray(apiLeaderboards)) {
-                const storedLeaderboardId = getStoreLeaderboardId(getState(), taskId);
+        if (apiLeaderboardTemplateId) {
+          return getLeaderboards(apiLeaderboardTemplateId).then((apiLeaderboards) => {
+            if (!isEmptyArray(apiLeaderboards)) {
+              const storedLeaderboardId = getStoreLeaderboardId(getState(), taskId);
 
-                const leaderboardId = apiLeaderboards.find(({ id }) => id === storedLeaderboardId)?.id ?? apiLeaderboards[0].id;
+              const leaderboardId = apiLeaderboards.find(({ id }) => id === storedLeaderboardId)?.id ?? apiLeaderboards[0].id;
 
-                setStoreLeaderboardId(dispatch)(taskId, leaderboardId);
+              setStoreLeaderboardId(dispatch)(taskId, leaderboardId);
 
-                return getLeaderboardData(leaderboardId);
-              }
-              return Promise.resolve();
-            });
-          }
-          return Promise.resolve();
-        });
+              return getLeaderboardData(leaderboardId);
+            }
+            return Promise.resolve();
+          });
+        }
+        return Promise.resolve();
       });
-    }
-  }, [dispatch, getLeaderboardTemplate, getLeaderboardData, getLeaderboards, shouldInvokeGetMlLeaderboardTemplate, taskId]);
+    });
+  }, [dispatch, getLeaderboardTemplate, getLeaderboardData, getLeaderboards, taskId]);
 
   const { selectedLeaderboardId, onSelectionChange } = useTaskSelectedLeaderboardId(taskId as string);
 
@@ -101,6 +90,16 @@ const MlTaskLeaderboardsContainer = ({ task }) => {
         getLeaderboards(leaderboardTemplate.id).then(() => {
           onSelectionChange(updatedLeaderboard.id);
           getLeaderboardData(updatedLeaderboard.id);
+        });
+      }}
+      onDeleteLeaderboard={() => {
+        getLeaderboards(leaderboardTemplate.id).then((newLeaderboards) => {
+          const firstLeaderboardId = newLeaderboards[0]?.id;
+          onSelectionChange(firstLeaderboardId);
+
+          if (firstLeaderboardId) {
+            getLeaderboardData(firstLeaderboardId);
+          }
         });
       }}
       isLoadingProps={{

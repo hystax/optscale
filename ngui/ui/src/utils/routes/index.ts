@@ -18,7 +18,7 @@ import createBIExportRoute from "./createBIExportRoute";
 import createClusterTypeRoute from "./createClusterTypeRoute";
 import createDataSourceRoute from "./createDataSourceRoute";
 import createEnvironmentRoute from "./createEnvironmentRoute";
-import createMlTaskMetricRoute from "./createMlTaskMetricRoute";
+import createMlMetricRoute from "./createMlMetricRoute";
 import createPoolPolicyRoute from "./createPoolPolicyRoute";
 import createPowerScheduleRoute from "./createPowerScheduleRoute";
 import createQuotaAndBudgetPolicyRoute from "./createQuotaAndBudgetPolicyRoute";
@@ -28,7 +28,7 @@ import dataSourceOverviewRoute from "./dataSourceOverviewRoute";
 import dataSourcesRoute from "./dataSourcesRoute";
 import editAssignmentRuleRoute from "./editAssignmentRuleRoute";
 import editBIExportRoute from "./editBIExportRoute";
-import editMlTaskMetricRoute from "./editMlTaskMetricRoute";
+import editMlMetricRoute from "./editMlMetricRoute";
 import editPowerScheduleRoute from "./editPowerScheduleRoute";
 import environmentsRoute from "./environmentsRoute";
 import eventsRoute from "./eventsRoute";
@@ -53,6 +53,7 @@ import mlEditModelRoute from "./mlEditModelRoute";
 import mlEditRunArtifactRoute from "./mlEditRunArtifactRoute";
 import mlEditTaskRoute from "./mlEditTaskRoute";
 import mlExecutorsRoute from "./mlExecutorsRoute";
+import mlMetricsRoute from "./mlMetricsRoute";
 import mlModel from "./mlModel";
 import mlModelsRoute from "./mlModelsRoute";
 import mlRunsetConfiguration from "./mlRunsetConfiguration";
@@ -63,7 +64,6 @@ import mlRunsetTemplateEditRoute from "./mlRunsetTemplateEditRoute";
 import mlRunsetTemplateRoute from "./mlRunsetTemplateRoute";
 import mlTaskCreateRoute from "./mlTaskCreateRoute";
 import mlTaskDetailsRoute from "./mlTaskDetailsRoute";
-import mlTaskGlobalMetricsRoute from "./mlTaskGlobalMetricsRoute";
 import mlTaskRunRoute from "./mlTaskRunRoute";
 import mlTasksRoute from "./mlTasksRoute";
 import notFoundRoute from "./notFoundRoute";
@@ -152,8 +152,8 @@ export const routes = [
   resourceLifecycleRoute,
   createPoolPolicyRoute,
   themeSettingsRoute,
-  createMlTaskMetricRoute,
-  editMlTaskMetricRoute,
+  createMlMetricRoute,
+  editMlMetricRoute,
   mlEditTaskRoute,
   mlExecutorsRoute,
   mlRunsetsRoute,
@@ -163,7 +163,7 @@ export const routes = [
   mlDatasetEditRoute,
   mlTaskDetailsRoute,
   mlTaskRunRoute,
-  mlTaskGlobalMetricsRoute,
+  mlMetricsRoute,
   mlTasksRoute,
   mlRunsetTemplateCreateRoute,
   mlRunsetConfiguration,

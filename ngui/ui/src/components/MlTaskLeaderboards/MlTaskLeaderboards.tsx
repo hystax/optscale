@@ -11,6 +11,7 @@ const MlTaskLeaderboards = ({
   onSelectedLeaderboardIdChange,
   onCreateLeaderboard,
   onUpdateLeaderboard,
+  onDeleteLeaderboard,
   isLoadingProps = {}
 }) => {
   if (isLoadingProps.isGetLeaderboardTemplateLoading || isLoadingProps.isGetLeaderboardsLoading) {
@@ -29,6 +30,7 @@ const MlTaskLeaderboards = ({
         onSelectedLeaderboardIdChange={onSelectedLeaderboardIdChange}
         onCreateLeaderboard={onCreateLeaderboard}
         onUpdateLeaderboard={onUpdateLeaderboard}
+        onDeleteLeaderboard={onDeleteLeaderboard}
         isLoadingProps={{
           isGetLeaderboardLoading: isLoadingProps.isGetLeaderboardLoading,
           isGetLeaderboardCandidatesLoading: isLoadingProps.isGetLeaderboardCandidatesLoading

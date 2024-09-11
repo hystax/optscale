@@ -4,7 +4,7 @@ import MlLeaderboardsService from "services/MlLeaderboardsService";
 import MlTasksService from "services/MlTasksService";
 
 const MlEditTaskContainer = () => {
-  const { taskId } = useParams();
+  const { taskId } = useParams() as { taskId: string };
 
   const { useGetOne } = MlTasksService();
   const { task, isLoading: isGetTaskLoading } = useGetOne(taskId);
