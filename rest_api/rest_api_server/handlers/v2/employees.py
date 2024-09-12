@@ -117,12 +117,11 @@ class EmployeeAsyncCollectionHandler(BaseAsyncCollectionHandler,
         -   name: field
             in: query
             description: Requested employee fields
-            requiered: false
+            required: false
             collectionFormat: multi
             type: array
             items:
                 type: string
-            default: all fields
             enum:
                 - id, name, user_email, deleted_at, created_at
                 - organization_id, auth_user_id, user_display_name

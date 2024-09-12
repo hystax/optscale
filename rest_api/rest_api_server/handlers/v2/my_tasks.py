@@ -38,6 +38,11 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
             collectionFormat: multi
             description: types for which details must be returned
             required: false
+        -   name: user_id
+            type: string
+            in: query
+            description: id of a user (only with CLUSTER_SECRET)
+            required: false
         responses:
             200:
                 description: My Tasks
@@ -50,8 +55,8 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                 count:
                                     type: integer
                                     description: >
-                                        count of active assignment requests with
-                                        current user as an approver
+                                        count of active assignment requests
+                                        with current user as an approver
                                 tasks:
                                     description: >
                                         info about assignment requests where
@@ -86,8 +91,8 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                             source_pool_name:
                                                 type: string
                                                 description: >
-                                                    name of the current resource
-                                                    pool
+                                                    name of the current
+                                                    resource pool
                                             source_pool_purpose:
                                                 type: string
                                                 description: >
@@ -103,7 +108,9 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                                 description: resource name
                                             cluster_type_id:
                                                 type: string
-                                                description: id of the cluster type (only for cluster resource)
+                                                description: >
+                                                    id of the cluster type (
+                                                    only for cluster resource)
                         outgoing_assignment_requests:
                             type: object
                             properties:
@@ -146,8 +153,8 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                             source_pool_name:
                                                 type: string
                                                 description: >
-                                                    name of the current resource
-                                                    pool
+                                                    name of the current
+                                                    resource pool
                                             source_pool_purpose:
                                                 type: string
                                                 description: >
@@ -156,14 +163,16 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                             approver_name:
                                                 type: string
                                                 description: >
-                                                    name of the person
-                                                    who will approve the request
+                                                    name of the person who
+                                                    will approve the request
                                             resource_name:
                                                 type: string
                                                 description: resource name
                                             cluster_type_id:
                                                 type: string
-                                                description: id of the cluster type (only for cluster resource)
+                                                description: |
+                                                    id of the cluster type (
+                                                    only for cluster resource)
                         exceeded_pools:
                             type: object
                             properties:
@@ -195,13 +204,13 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                                 type: number
                                                 description: >
                                                     total amount of expenses
-                                                    calculated for the pool limit
-                                                    in current month
+                                                    calculated for the pool
+                                                    limit in current month
                                             forecast:
                                                 type: number
                                                 description: >
-                                                    pool limit forecast for current
-                                                    month
+                                                    pool limit forecast for
+                                                    current month
                         exceeded_pool_forecasts:
                             type: object
                             properties:
@@ -238,8 +247,8 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                             forecast:
                                                 type: number
                                                 description: >
-                                                    pool limit forecast for current
-                                                    month
+                                                    pool limit forecast for
+                                                    current month
                         violated_constraints:
                             type: object
                             properties:
@@ -288,8 +297,8 @@ class MyTasksAsyncHandler(BaseAsyncItemHandler, BaseAuthHandler, BaseHandler):
                                                 type: number
                                                 description: |
                                                     Value that violated
-                                                    constraint (only for expense
-                                                    constraint)
+                                                    constraint (only for
+                                                    expense constraint)
                                             pool_name:
                                                 type: string
                                                 description: >

@@ -23,7 +23,7 @@ class TrafficProcessingTaskAsyncCollectionHandler(BaseAsyncCollectionHandler,
         parameters:
         -   in: path
             name: cloud_account_id
-            description: cloud_account id
+            description: cloud account id
             required: true
         -   in: body
             name: body
@@ -95,6 +95,11 @@ class TrafficProcessingTaskAsyncCollectionHandler(BaseAsyncCollectionHandler,
             Required permission: CLUSTER_SECRET
         tags: [traffic_processing_tasks]
         summary: List of traffic processing tasks for cloud account
+        parameters:
+        -   in: path
+            name: cloud_account_id
+            description: cloud account id
+            required: true
         responses:
             200:
                 description: Traffic processing tasks list

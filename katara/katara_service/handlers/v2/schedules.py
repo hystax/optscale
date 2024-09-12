@@ -26,7 +26,7 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
         tags: [schedules]
         summary: Get schedule
         parameters:
-        -   name: id
+        -   name: schedule_id
             in: path
             description: Schedule ID
             required: true
@@ -79,7 +79,7 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
             Modifies a schedule with specified id \n\n
             Required permission: CLUSTER_SECRET
         parameters:
-        -   name: id
+        -   name: schedule_id
             in: path
             description: Schedule ID
             required: true
@@ -93,10 +93,6 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
                 properties:
                     crontab: {type: string,
                         description: "Schedule in crontab format"}
-                    last_run: {type: integer,
-                        description: "Schedule last_run"}
-                    next_run: {type: integer,
-                        description: "Schedule next_run"}
         responses:
             200: {description: Success (returns modified schedule data)}
             400:
@@ -133,7 +129,7 @@ class ScheduleAsyncItemHandler(BaseAsyncItemHandler):
             Deletes schedule with specified id \n\n
             Required permission: CLUSTER_SECRET
         parameters:
-        -   name: id
+        -   name: schedule_id
             in: path
             description: Schedule ID
             required: true
@@ -225,12 +221,12 @@ class ScheduleAsyncCollectionHandler(BaseAsyncCollectionHandler):
             Required permission: CLUSTER_SECRET
         parameters:
         -   name: recipient_id
-            in: path
+            in: query
             description: Schedule recipient id
             required: true
             type: string
         -   name: report_id
-            in: path
+            in: query
             description: Schedule report id
             required: false
             type: string
