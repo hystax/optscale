@@ -488,7 +488,11 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
       dataProductTourId: getProductTourIdForDynamicField(field),
       style: {
         minWidth: 200,
-        maxWidth: 400
+        /**
+         * The maximum width is set to prevent the table from becoming too wide when the content is long
+         * The value of 550 is selected to match the maximum width based on the environment property name length, which is limited to 64 characters
+         */
+        maxWidth: 550
       },
       cell: ({ cell }) => (
         <Box overflow="auto">
