@@ -5,7 +5,7 @@ import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import Chip from "components/Chip";
@@ -30,12 +30,12 @@ import UpcomingBooking from "components/UpcomingBooking";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { ENVIRONMENTS_TABLE } from "reducers/columns";
 import { ENVIRONMENT_CREATE } from "urls";
-import { isEmpty, sortObjects } from "utils/arrays";
+import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SCOPE_TYPES, RESOURCE_PAGE_TABS, ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
 import { getCloudResourceIdentifier, getResourceDisplayedName } from "utils/resources";
-import useStyles from "./EnvironmentsTable.styles";
+import { CELL_EMPTY_VALUE } from "utils/tables";
 
 const NAME_COLUMN_ACCESSOR = "displayedName";
 
@@ -91,111 +91,6 @@ const getTableData = (data) => {
   return patchedWithDisplayedName;
 };
 
-const ShortTable = ({ data, isLoadingProps }) => {
-  const tableData = useMemo(
-    () =>
-      // sorting before slicing to make sure that the order of the first 5 element in Short and Full tables will be the same
-      sortObjects({
-        array: getTableData(data),
-        field: NAME_COLUMN_ACCESSOR,
-        type: "asc"
-      }).slice(0, 4),
-    // getTableData(data).slice(0, 5),
-    [data]
-  );
-
-  const columns = useMemo(
-    () => [
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_environment">
-            <FormattedMessage id="environment" />
-          </TextWithDataTestId>
-        ),
-        accessorKey: NAME_COLUMN_ACCESSOR,
-        cell: ({ row: { original, index } }) =>
-          renderEnvironmentCell({
-            resource: original,
-            index
-          }),
-        defaultSort: "asc"
-      },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_pool">
-            <FormattedMessage id="pool" />
-          </TextWithDataTestId>
-        ),
-        accessorKey: "pool_name",
-        cell: ({ row: { original, index } }) => (
-          <PoolLabel
-            id={original.pool_id}
-            name={original.pool_name}
-            type={original.pool_purpose}
-            dataTestId={`environment_pool_${index}`}
-          />
-        )
-      },
-      {
-        header: (
-          <TextWithDataTestId dataTestId="lbl_current_booking">
-            <FormattedMessage id="currentBookings" />
-          </TextWithDataTestId>
-        ),
-        id: "currentBookings",
-        accessorKey: "shareable_bookings",
-        enableSorting: false,
-        cell: ({
-          cell,
-          row: {
-            original: { id, active: isActive }
-          }
-        }) => {
-          const value = cell.getValue() ?? [];
-
-          const activeBooking = getActiveBooking(value, id);
-
-          const renderCurrentBooking = () => {
-            const { acquired_by: { name } = {}, acquired_since: acquiredSince, released_at: releasedAt } = activeBooking;
-            return <CurrentBooking employeeName={name} acquiredSince={acquiredSince} releasedAt={releasedAt} />;
-          };
-
-          const getChip = () =>
-            activeBooking ? (
-              <Chip variant="outlined" uppercase color="warning" label={<FormattedMessage id="inUse" />} />
-            ) : (
-              <Chip variant="outlined" uppercase color="success" label={<FormattedMessage id="available" />} />
-            );
-
-          return (
-            <Fragment key={id}>
-              {isActive ? (
-                <>
-                  <Box display="flex" alignItems="center">
-                    <Box>{getChip()}</Box>
-                  </Box>
-                  {activeBooking && renderCurrentBooking()}
-                </>
-              ) : (
-                <Chip variant="outlined" uppercase color="error" label={<FormattedMessage id="unavailable" />} />
-              )}
-            </Fragment>
-          );
-        }
-      }
-    ],
-    []
-  );
-
-  const isLoading = isLoadingProps.isGetEnvironmentsLoading;
-
-  return isLoading ? (
-    <TableLoader columnsCounter={columns.length} showHeader />
-  ) : (
-    <Table data={tableData} columns={columns} localization={{ emptyMessageId: "noEnvironments" }} />
-  );
-};
-
 const getUniqueSortedEnvironmentProperties = (data) => {
   const allEnvironmentProperties = data.flatMap(({ env_properties: envProperties = {} }) => Object.keys(envProperties));
   return [...new Set(allEnvironmentProperties)].sort();
@@ -203,10 +98,8 @@ const getUniqueSortedEnvironmentProperties = (data) => {
 
 const getProductTourIdForDynamicField = (field) => ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS[field] || undefined;
 
-const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) => {
-  const { classes } = useStyles();
+const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) => {
   const memoizedData = useMemo(() => getTableData(data), [data]);
-
   const openSideModal = useOpenSideModal();
 
   const {
@@ -404,8 +297,8 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
             <Fragment key={id}>
               {isActive ? (
                 <>
-                  <Box display="flex" alignItems="center">
-                    <Box mr={1}>{getChip()}</Box>
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Box>{getChip()}</Box>
                     <Box>
                       <TableCellActions entityType={SCOPE_TYPES.RESOURCE} entityId={id} items={actionItems} />
                     </Box>
@@ -441,37 +334,38 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
           const value = cell.getValue() ?? [];
 
           const upcomingBookings = getUpcomingBookings(value, id);
-          if (!isEmpty(upcomingBookings)) {
-            return (
-              <Box className={classes.marginBottom}>
-                {upcomingBookings.map((upcomingBooking, index) => {
-                  const {
-                    acquired_by: { name } = {},
-                    id: bookingId,
-                    acquired_since: acquiredSince,
-                    released_at: releasedAt,
-                    resource_id: resourceId
-                  } = upcomingBooking;
-                  return (
-                    <Box key={bookingId} display="flex" justifyContent="flex-start" alignItems="center">
-                      <Box mr={SPACING_1}>
-                        <UpcomingBooking employeeName={name} acquiredSince={acquiredSince} releasedAt={releasedAt} />
-                      </Box>
-                      <Box>
-                        <TableCellActions
-                          entityType={SCOPE_TYPES.RESOURCE}
-                          entityId={resourceId}
-                          items={[getDeleteBookingAction(bookingId, index)]}
-                        />
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Box>
-            );
+
+          if (isEmptyArray(upcomingBookings)) {
+            return CELL_EMPTY_VALUE;
           }
-          // TODO: handle "empty value" in Table ?
-          return "-";
+
+          return (
+            <Stack spacing={SPACING_1}>
+              {upcomingBookings.map((upcomingBooking, index) => {
+                const {
+                  acquired_by: { name } = {},
+                  id: bookingId,
+                  acquired_since: acquiredSince,
+                  released_at: releasedAt,
+                  resource_id: resourceId
+                } = upcomingBooking;
+                return (
+                  <Box key={bookingId} display="flex" justifyContent="flex-start" alignItems="center">
+                    <Box mr={SPACING_1}>
+                      <UpcomingBooking employeeName={name} acquiredSince={acquiredSince} releasedAt={releasedAt} />
+                    </Box>
+                    <Box>
+                      <TableCellActions
+                        entityType={SCOPE_TYPES.RESOURCE}
+                        entityId={resourceId}
+                        items={[getDeleteBookingAction(bookingId, index)]}
+                      />
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Stack>
+          );
         }
       }
     ];
@@ -522,15 +416,7 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
         )
       }
     ];
-  }, [
-    isUpdateEnvironmentLoading,
-    entityId,
-    isGetResourceAllowedActionsLoading,
-    onUpdateActivity,
-    classes.marginBottom,
-    memoizedData,
-    openSideModal
-  ]);
+  }, [isUpdateEnvironmentLoading, entityId, isGetResourceAllowedActionsLoading, onUpdateActivity, memoizedData, openSideModal]);
 
   return isGetEnvironmentsLoading ? (
     <TableLoader columnsCounter={5} showHeader />
@@ -569,7 +455,5 @@ const FullTable = ({ data, onUpdateActivity, entityId, isLoadingProps = {} }) =>
     />
   );
 };
-
-const EnvironmentsTable = ({ shortTable, ...rest }) => (shortTable ? <ShortTable {...rest} /> : <FullTable {...rest} />);
 
 export default EnvironmentsTable;
