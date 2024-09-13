@@ -208,7 +208,7 @@ and open port in docker service config:
 sudo nano /etc/systemd/system/docker.service
 ```
 
-add this line (do not dorget to close docker port after installing Optscale)
+add this line (do not forget to close docker port after installing OptScale)
 
 ```
 ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2376
