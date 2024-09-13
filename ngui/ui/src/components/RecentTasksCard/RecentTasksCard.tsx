@@ -10,13 +10,8 @@ import WrapperCard from "components/WrapperCard";
 import { ML_TASKS } from "urls";
 import { metrics, mlTaskLastRun, mlTaskName } from "utils/columns";
 
-const RECENT_TASKS_LIMIT = 5;
-
 const RecentTasksTable = ({ tasks }) => {
-  const tableData = useMemo(
-    () => tasks.toSorted((taskA, taskB) => taskB.last_run - taskA.last_run).slice(0, RECENT_TASKS_LIMIT),
-    [tasks]
-  );
+  const tableData = useMemo(() => tasks.toSorted((taskA, taskB) => taskB.last_run - taskA.last_run), [tasks]);
 
   const columns = useMemo(
     () => [
@@ -48,6 +43,8 @@ const RecentTasksTable = ({ tasks }) => {
     <Table
       data={tableData}
       columns={columns}
+      pageSize={5}
+      enablePaginationQueryParam={false}
       localization={{
         emptyMessageId: "noTasks"
       }}
