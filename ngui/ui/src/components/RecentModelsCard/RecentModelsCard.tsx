@@ -20,14 +20,9 @@ type RecentModelsTableProps = {
   models: ListModel[];
 };
 
-const RECENT_MODELS_LIMIT = 5;
-
 const RecentModelsTable = ({ models }: RecentModelsTableProps) => {
   const tableData = useMemo(
-    () =>
-      models
-        .toSorted((modelA, modelB) => (modelB.last_version?.created_at ?? 0) - (modelA.last_version?.created_at ?? 0))
-        .slice(0, RECENT_MODELS_LIMIT),
+    () => models.toSorted((modelA, modelB) => (modelB.last_version?.created_at ?? 0) - (modelA.last_version?.created_at ?? 0)),
     [models]
   );
 
@@ -57,6 +52,8 @@ const RecentModelsTable = ({ models }: RecentModelsTableProps) => {
     <Table
       data={tableData}
       columns={columns}
+      pageSize={5}
+      enablePaginationQueryParam={false}
       localization={{
         emptyMessageId: "noTasks"
       }}

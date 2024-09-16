@@ -9,7 +9,7 @@ from herald.herald_server.utils import tp_executor
 LOG = logging.getLogger(__name__)
 
 
-RECONNECT_DELAY = 2
+RECONNECT_DELAY = 5
 RECONNECT_ATTEMPTS = 100
 
 DEAD_LETTER_DELAY = 5000
@@ -48,10 +48,15 @@ class Consumer:
 
         self._connection = TornadoConnection(
             self.connection_parameters,
-            self.on_connection_open
+            self.on_connection_open,
+            self.on_connection_error
         )
 
-    def on_connection_open(self, unused_connection):
+    def on_connection_error(self, _connection, _exception):
+        LOG.error('Failed to connect to rabbitmq. Will try to reconnect')
+        self._connection.ioloop.add_timeout(5, self.connect)
+
+    def on_connection_open(self, _connection):
         LOG.info('Connection opened')
         self.add_on_connection_close_callback()
         self.open_channel()

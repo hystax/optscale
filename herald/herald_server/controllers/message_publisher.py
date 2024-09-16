@@ -37,10 +37,15 @@ class Publisher:
 
         self._connection = TornadoConnection(
             self.connection_parameters,
-            self.on_connection_open
+            self.on_connection_open,
+            self.on_connection_error
         )
 
-    def on_connection_open(self, unused_connection):
+    def on_connection_error(self, _connection, _exception):
+        LOG.error('Failed to connect to rabbitmq. Will try to reconnect')
+        self._connection.ioloop.add_timeout(5, self.connect)
+
+    def on_connection_open(self, _connection):
         LOG.info('Connection opened')
         self.add_on_connection_close_callback()
         self.open_channel()
@@ -76,8 +81,8 @@ class Publisher:
     def publish_message(self, message):
         if self._channel is None or not self._channel.is_open:
             # connection not available
-            LOG.error(
-                'Failed to publish message. Rabbit connection not available')
+            LOG.error('Failed to publish message. '
+                      'Rabbit connection not available')
             return
 
         self._channel.basic_publish(
