@@ -132,7 +132,10 @@ class ResourcesSaver:
                 cloud_acc_id, {'resources': payload},
                 behavior='update_existing', return_resources=True)
         for resource in resources:
-            resource.post_discover()
+            try:
+                resource.post_discover()
+            except Exception as exc:
+                LOG.error('Post discover actions failed: %s', str(exc))
 
 
 class DiscoveryWorker(ConsumerMixin):
