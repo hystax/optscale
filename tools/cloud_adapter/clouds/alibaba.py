@@ -1072,14 +1072,10 @@ class Alibaba(CloudBase):
             request.set_InstanceTypeFamily(family)
         if flavor_ids:
             request.set_InstanceTypess(flavor_ids)  # Yes, two "s", not my typo
-        response = self._send_request(
-            request, region_id=self._find_region(region))
-        try:
-            return {x['InstanceTypeId']: x for x in response[
-                'InstanceTypes']['InstanceType']}
-        except KeyError:
-            raise ValueError('Unexpected response format: {}'.format(
-                response))
+        result = self._send_marker_paged_request(
+            request, paged_item='InstanceType', nested_item='InstanceTypes',
+            region_id=self._find_region(region))
+        return {x['InstanceTypeId']: x for x in result}
 
     def get_all_families(self, region):
         request_family = (DescribeInstanceTypeFamiliesRequest
