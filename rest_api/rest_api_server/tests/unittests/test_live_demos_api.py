@@ -462,7 +462,7 @@ BASIC_PRESET = {
             "run_id": "3c9d6c3c-b96c-4476-98d8-12541ec98397",
             "data": {},
             "instance_id": "i-0503b887d4b3dba17",
-            "time_offset": 494315.87966799736
+            "timestamp_offset": 494315.87966799736
         },
         {
             "project": "k_near",
@@ -473,7 +473,7 @@ BASIC_PRESET = {
                 "epoch": 1
             },
             "instance_id": "i-0503b887d4b3dba17",
-            "time_offset": 494314.22013807297
+            "timestamp_offset": 494314.22013807297
         },
     ],
     "milestones": [
