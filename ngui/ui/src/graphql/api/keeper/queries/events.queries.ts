@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 const GET_EVENTS = gql`
-  query events($organizationId: ID!, $requestParams: RequestParam) {
+  query events($organizationId: ID!, $requestParams: EventsRequestParams) {
     events(organizationId: $organizationId, requestParams: $requestParams) {
       time
       level

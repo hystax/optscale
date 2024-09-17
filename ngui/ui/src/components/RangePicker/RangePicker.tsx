@@ -83,6 +83,7 @@ const RangePicker = ({
 
   return (
     <Popover
+      fullWidth={fullWidth}
       label={
         <OutlinedDiv
           label={<FormattedMessage id={isUtc ? "dateRangeUTC" : "dateRange"} />}
@@ -98,7 +99,7 @@ const RangePicker = ({
           helperText={validation.helperText}
           fullWidth={fullWidth}
           dataTestId="text_selected_dates"
-          style={{ minWidth: "130px" }}
+          style={{ minWidth: "180px" }}
         >
           {dateAsText}
         </OutlinedDiv>

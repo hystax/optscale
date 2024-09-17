@@ -1,12 +1,12 @@
 import BaseClient from "../baseClient.js";
-import { RequestParam } from "../../graphql/resolvers/keeper.generated.js";
+import { EventsRequestParams } from "../../graphql/resolvers/keeper.generated.js";
 
 class KeeperClient extends BaseClient {
   override baseURL = `${
     process.env.KEEPER_ENDPOINT || this.endpoint
   }/report/v2/`;
 
-  async getEvents(organizationId: string, requestParams: RequestParam) {
+  async getEvents(organizationId: string, requestParams: EventsRequestParams) {
     const params = new URLSearchParams();
 
     const paramsMapping = {
@@ -15,6 +15,7 @@ class KeeperClient extends BaseClient {
       lastId: "last_id",
       includeRead: "include_read",
       readOnGet: "read_on_get",
+      descriptionLike: "description_like",
     };
 
     // This is temporary. All URL parameters must be strings.

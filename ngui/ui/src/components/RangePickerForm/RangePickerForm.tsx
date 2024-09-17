@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import Box from "@mui/material/Box";
 import { useForm } from "react-hook-form";
 import { useIntl } from "react-intl";
 import RangePicker from "components/RangePicker";
@@ -15,7 +14,8 @@ const RangePickerForm = ({
   definedRanges = [],
   minDate,
   maxDate,
-  notSetMessageId
+  notSetMessageId,
+  fullWidth
 }) => {
   const intl = useIntl();
 
@@ -59,27 +59,30 @@ const RangePickerForm = ({
   const submit = handleSubmit(onSubmit);
 
   return (
-    <form onSubmit={submit}>
-      <Box display="flex" flexDirection="column">
-        <RangePicker
-          initialDateRange={{ startDate, endDate }}
-          validation={{
-            error: !!errors[START_DATE] || !!errors[END_DATE],
-            helperText:
-              (errors[START_DATE] && errors[START_DATE].message) || (errors[END_DATE] && errors[END_DATE].message) || ""
-          }}
-          onChange={(dateRange) => {
-            setValue(START_DATE, dateRange.startDate);
-            setValue(END_DATE, dateRange.endDate);
-            clearErrors();
-          }}
-          onApply={submit}
-          definedRanges={definedRanges}
-          minDate={minDate}
-          maxDate={maxDate}
-          notSetMessageId={notSetMessageId}
-        />
-      </Box>
+    <form
+      onSubmit={submit}
+      style={{
+        width: fullWidth ? "100%" : undefined
+      }}
+    >
+      <RangePicker
+        initialDateRange={{ startDate, endDate }}
+        validation={{
+          error: !!errors[START_DATE] || !!errors[END_DATE],
+          helperText: (errors[START_DATE] && errors[START_DATE].message) || (errors[END_DATE] && errors[END_DATE].message) || ""
+        }}
+        onChange={(dateRange) => {
+          setValue(START_DATE, dateRange.startDate);
+          setValue(END_DATE, dateRange.endDate);
+          clearErrors();
+        }}
+        onApply={submit}
+        definedRanges={definedRanges}
+        minDate={minDate}
+        maxDate={maxDate}
+        notSetMessageId={notSetMessageId}
+        fullWidth={fullWidth}
+      />
     </form>
   );
 };
