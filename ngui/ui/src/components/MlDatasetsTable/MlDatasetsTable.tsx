@@ -3,7 +3,6 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Box } from "@mui/material";
-import { Stack } from "@mui/system";
 import { FormattedMessage } from "react-intl";
 import { useNavigate } from "react-router-dom";
 import Markdown from "components/Markdown";
@@ -17,7 +16,6 @@ import { ML_DATASET_CREATE, getEditMlDatasetUrl } from "urls";
 import { datasetLabels, datasetTimespan, localTime, slicedText } from "utils/columns";
 import { DATASET_NAME_LENGTH_LIMIT, DATASET_PATH_LENGTH_LIMIT } from "utils/constants";
 import { secondsToMilliseconds } from "utils/datetime";
-import { SPACING_1 } from "utils/layouts";
 
 const MlDatasetsTable = ({ datasets }) => {
   const openSideModal = useOpenSideModal();
@@ -133,22 +131,16 @@ const MlDatasetsTable = ({ datasets }) => {
   };
 
   return (
-    <>
-      <Stack spacing={SPACING_1}>
-        <div>
-          <Table
-            data={data}
-            columns={columns}
-            actionBar={tableActionBarDefinition}
-            withSearch
-            pageSize={50}
-            counters={{
-              showCounters: true
-            }}
-          />
-        </div>
-      </Stack>
-    </>
+    <Table
+      data={data}
+      columns={columns}
+      actionBar={tableActionBarDefinition}
+      withSearch
+      pageSize={50}
+      counters={{
+        showCounters: true
+      }}
+    />
   );
 };
 
