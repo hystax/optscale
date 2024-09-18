@@ -3,6 +3,7 @@ import enum
 import json
 import logging
 import os
+import random
 import uuid
 from collections import defaultdict
 from json.decoder import JSONDecodeError
@@ -49,6 +50,8 @@ DUPLICATION_COUNT = 3
 TOP_NO_DUPLICATE_RESOURCES = 10
 DUPLICATION_FORMAT = '-x{ending}'
 WITH_SUBPOOLS_SIGN = '+'
+MIN_RUN_DURATION = 7 * 60 * 60
+MAX_RUN_DURATION = 24 * 60 * 60
 RECOMMENDATION_MULTIPLIED_FIELDS = ['saving', 'annually_monthly_saving',
                                     'monthly_saving']
 PREPARED_DEMO_LIFETIME_DAYS = 3
@@ -248,6 +251,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'power_schedule': ObjectGroups.PowerSchedules.value
         }
         self._multiplier = None
+        self._run_factors = defaultdict(lambda: (1, 1, 1))
         self._duplication_module_res_info_map = defaultdict(dict)
         self._origin_res_duplication_info = defaultdict(dict)
         self._object_group_duplicated_func_map = {
@@ -1011,6 +1015,13 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             obj = self.refresh_relations(['dataset_id'], obj)
         obj = self.refresh_relations(['task_id'], obj)
         obj = self.offsets_to_timestamps(['start', 'finish'], now, obj)
+        duration = obj['finish'] - obj['start']
+        if duration < MIN_RUN_DURATION:
+            new_duration = random.randint(MIN_RUN_DURATION, MAX_RUN_DURATION)
+            new_start = obj['finish'] - new_duration
+            self._run_factors[new_id] = (obj['start'], obj['finish'],
+                                         new_start)
+            obj['start'] = obj['finish'] - new_duration
         return obj
 
     def build_platform(self, obj, **kwargs):
@@ -1022,24 +1033,44 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['_id'] = gen_id()
         obj = self.refresh_relations(['run_id'], obj)
         obj = self.offsets_to_timestamps(['timestamp'], now, obj)
+        # move timestamp according to moved run's start
+        start, finish, new_start = self._run_factors[obj['run_id']]
+        obj['timestamp'] = round(
+            finish - (finish - obj['timestamp']) * (finish - new_start) / (
+                    finish - start))
         return obj
 
     def build_milestone(self, obj, now, **kwargs):
         obj['_id'] = gen_id()
         obj = self.refresh_relations(['run_id'], obj)
         obj = self.offsets_to_timestamps(['timestamp'], now, obj)
+        # move timestamp according to moved run's start
+        start, finish, new_start = self._run_factors[obj['run_id']]
+        obj['timestamp'] = round(
+            finish - (finish - obj['timestamp']) * (finish - new_start) / (
+                    finish - start))
         return obj
 
     def build_stage(self, obj, now, **kwargs):
         obj['_id'] = gen_id()
         obj = self.refresh_relations(['run_id'], obj)
         obj = self.offsets_to_timestamps(['timestamp'], now, obj)
+        # move timestamp according to moved run's start
+        start, finish, new_start = self._run_factors[obj['run_id']]
+        obj['timestamp'] = round(
+            finish - (finish - obj['timestamp']) * (finish - new_start) / (
+                    finish - start))
         return obj
 
     def build_proc_data(self, obj, now, **kwargs):
         obj['_id'] = gen_id()
         obj = self.refresh_relations(['run_id'], obj)
         obj = self.offsets_to_timestamps(['timestamp'], now, obj)
+        # move timestamp according to moved run's start
+        start, finish, new_start = self._run_factors[obj['run_id']]
+        obj['timestamp'] = round(
+            finish - (finish - obj['timestamp']) * (finish - new_start) / (
+                    finish - start))
         return obj
 
     def build_model(

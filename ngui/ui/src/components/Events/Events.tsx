@@ -12,6 +12,7 @@ import { getBasicRangesSet } from "components/DateRangePicker/defaults";
 import LinearSelector from "components/LinearSelector";
 import PageContentWrapper from "components/PageContentWrapper";
 import RangePickerForm from "components/RangePickerForm";
+import SearchInput from "components/SearchInput";
 import Table from "components/Table";
 import { useInitialMount } from "hooks/useInitialMount";
 import { isEmpty } from "utils/arrays";
@@ -48,6 +49,7 @@ const Picker = ({ onApply }) => {
       }
       notSetMessageId="latest"
       definedRanges={getBasicRangesSet()}
+      fullWidth
     />
   );
 };
@@ -121,7 +123,7 @@ const EventIcon = ({ eventLevel }) =>
     [EVENT_LEVEL.ERROR]: <ErrorIcon fontSize="small" color="error" />
   })[eventLevel];
 
-const Events = ({ eventLevel, onScroll, applyFilter, events, isLoading = false }) => {
+const Events = ({ eventLevel, descriptionLike, onScroll, applyFilter, events, isLoading = false }) => {
   const [expanded, setExpanded] = useState("");
   const queryParams = getQueryParams();
 
@@ -263,12 +265,48 @@ const Events = ({ eventLevel, onScroll, applyFilter, events, isLoading = false }
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
         <Stack spacing={SPACING_1} height="100%">
-          <Box display="flex" flexWrap="wrap" gap={SPACING_2} justifyContent="space-between">
+          <Box display="flex" flexWrap="wrap" gap={SPACING_2}>
             <Box>
               <EventLevelSelector eventLevel={eventLevel} onApply={applyFilter} />
             </Box>
-            <Box>
-              <Picker onApply={applyFilter} />
+            <Box
+              display="flex"
+              gap={SPACING_2}
+              flexGrow={1}
+              justifyContent="flex-end"
+              flexWrap={{
+                sm: "nowrap",
+                xs: "wrap"
+              }}
+            >
+              <Box
+                sx={{
+                  flexGrow: {
+                    sm: 0,
+                    xs: 1
+                  }
+                }}
+              >
+                <SearchInput
+                  onSearch={(text) => {
+                    applyFilter({
+                      descriptionLike: text
+                    });
+                  }}
+                  initialSearchText={descriptionLike}
+                  fullWidth
+                />
+              </Box>
+              <Box
+                sx={{
+                  flexGrow: {
+                    sm: 0,
+                    xs: 1
+                  }
+                }}
+              >
+                <Picker onApply={applyFilter} />
+              </Box>
             </Box>
           </Box>
           <Box

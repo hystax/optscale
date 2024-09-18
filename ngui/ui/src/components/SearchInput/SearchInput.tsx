@@ -6,12 +6,28 @@ import IconButton from "components/IconButton";
 import Input from "components/Input";
 import useStyles from "./SearchInput.styles";
 
-const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = {} }) => {
-  const { classes, cx } = useStyles();
+type SearchInputProps = {
+  onSearch: (text: string) => void;
+  initialSearchText?: string;
+  dataTestIds?: {
+    searchInput?: string;
+    searchButton?: string;
+    deleteSearchButton?: string;
+  };
+  sx?: Record<string, unknown>;
+  fullWidth?: boolean;
+};
+
+const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = {}, fullWidth = false }: SearchInputProps) => {
+  const { classes } = useStyles();
   const intl = useIntl();
   const inputRef = useRef();
 
-  const { searchInput = null, searchButton = null, deleteSearchButton = null } = dataTestIds;
+  const {
+    searchInput: searchInputDataTestId,
+    searchButton: searchButtonDataTestId,
+    deleteSearchButton: deleteSearchButtonDataTestId
+  } = dataTestIds;
 
   const [currentText, setCurrentText] = useState(initialSearchText);
 
@@ -37,12 +53,12 @@ const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = 
 
   return (
     <Input
-      fullWidth={false}
+      fullWidth={fullWidth}
       placeholder={intl.formatMessage({ id: "search" })}
       InputProps={{
         startAdornment: (
           <IconButton
-            dataTestId={searchButton}
+            dataTestId={searchButtonDataTestId}
             icon={<SearchOutlinedIcon />}
             onClick={() => {
               inputRef.current.focus();
@@ -52,7 +68,7 @@ const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = 
         ),
         endAdornment: currentText !== "" && (
           <IconButton
-            dataTestId={deleteSearchButton}
+            dataTestId={deleteSearchButtonDataTestId}
             icon={<CancelIcon className={classes.clearSearchIcon} />}
             onClick={() => {
               inputRef.current.focus();
@@ -64,11 +80,10 @@ const SearchInput = ({ onSearch, initialSearchText = "", dataTestIds = {}, sx = 
       }}
       ref={inputRef}
       margin="none"
-      className={cx(classes.input)}
       value={currentText}
       onChange={handleInputChange}
       onKeyDown={handleKeyDown}
-      dataTestId={searchInput}
+      dataTestId={searchInputDataTestId}
       sx={sx}
     />
   );

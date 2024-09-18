@@ -18,6 +18,9 @@ const useStyles = makeStyles()((theme) => ({
         marginRight: 0
       }
     }
+  },
+  fullWidth: {
+    width: "100%"
   }
 }));
 

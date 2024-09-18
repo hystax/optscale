@@ -14,9 +14,10 @@ const Popover = ({
   renderMenu,
   dataTestIds = {},
   rightLabelPosition = false,
-  disabled = false
+  disabled = false,
+  fullWidth
 }) => {
-  const { classes } = useStyles();
+  const { cx, classes } = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const handleClick = (event) => {
     if (disabled) {
@@ -60,7 +61,7 @@ const Popover = ({
   );
 
   return (
-    <div className={classes.container}>
+    <div className={cx(classes.container, fullWidth && classes.fullWidth)}>
       <div
         aria-describedby={id}
         onClick={handleClick}

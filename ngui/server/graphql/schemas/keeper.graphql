@@ -15,7 +15,7 @@ type Event {
 }
 
 # TODO: circle back on types - required types must be exclamated (see organizationId below and generated resolversTypes)
-input RequestParam {
+input EventsRequestParams {
   limit: Int = 80
   level: String
   timeStart: Int
@@ -23,8 +23,9 @@ input RequestParam {
   lastId: String
   includeRead: Boolean = true
   readOnGet: Boolean = true
+  descriptionLike: String
 }
 
 type Query {
-  events(organizationId: ID!, requestParams: RequestParam): [Event]
+  events(organizationId: ID!, requestParams: EventsRequestParams): [Event]
 }

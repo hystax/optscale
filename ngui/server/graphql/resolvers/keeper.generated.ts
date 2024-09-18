@@ -33,6 +33,17 @@ export type Event = {
   time?: Maybe<Scalars['Int']['output']>;
 };
 
+export type EventsRequestParams = {
+  descriptionLike?: InputMaybe<Scalars['String']['input']>;
+  includeRead?: InputMaybe<Scalars['Boolean']['input']>;
+  lastId?: InputMaybe<Scalars['String']['input']>;
+  level?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  readOnGet?: InputMaybe<Scalars['Boolean']['input']>;
+  timeEnd?: InputMaybe<Scalars['Int']['input']>;
+  timeStart?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   events?: Maybe<Array<Maybe<Event>>>;
@@ -41,17 +52,7 @@ export type Query = {
 
 export type QueryEventsArgs = {
   organizationId: Scalars['ID']['input'];
-  requestParams?: InputMaybe<RequestParam>;
-};
-
-export type RequestParam = {
-  includeRead?: InputMaybe<Scalars['Boolean']['input']>;
-  lastId?: InputMaybe<Scalars['String']['input']>;
-  level?: InputMaybe<Scalars['String']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  readOnGet?: InputMaybe<Scalars['Boolean']['input']>;
-  timeEnd?: InputMaybe<Scalars['Int']['input']>;
-  timeStart?: InputMaybe<Scalars['Int']['input']>;
+  requestParams?: InputMaybe<EventsRequestParams>;
 };
 
 
@@ -127,10 +128,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Event: ResolverTypeWrapper<Event>;
+  EventsRequestParams: EventsRequestParams;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Query: ResolverTypeWrapper<{}>;
-  RequestParam: RequestParam;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 };
 
@@ -138,10 +139,10 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   Event: Event;
+  EventsRequestParams: EventsRequestParams;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Query: {};
-  RequestParam: RequestParam;
   String: Scalars['String']['output'];
 };
 
