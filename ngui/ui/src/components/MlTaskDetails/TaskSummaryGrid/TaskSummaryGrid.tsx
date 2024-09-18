@@ -61,6 +61,10 @@ const TaskSummaryGrid = ({ task, recommendations, isGetRecommendationsLoading, i
       valueComponentProps: {
         value: totalSaving
       },
+      help: {
+        show: true,
+        messageId: "projectedMonthlySavingsForRelatedInfrastructure"
+      },
       captionMessageId: "summarySavings",
       relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
       relativeValueComponentProps: {
