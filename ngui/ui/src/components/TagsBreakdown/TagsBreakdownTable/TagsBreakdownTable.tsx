@@ -1,24 +1,18 @@
 import { useMemo } from "react";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import FormattedMoney from "components/FormattedMoney";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
 import TableLoader from "components/TableLoader";
-import TagKey from "components/TagKey";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import TextWithDate from "components/TextWithDate";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 
-const getTotalBreakdownTableData = (counts) =>
-  Object.entries(counts).map(([id, { name = "", ...details }]) => ({
-    id: id ?? name,
-    name,
-    ...details
-  }));
-
 const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShowOnChartClick }) => {
-  const tableData = useMemo(() => getTotalBreakdownTableData(data), [data]);
+  const tableData = useMemo(() => data, [data]);
+
+  const intl = useIntl();
 
   const columns = useMemo(
     () => [
@@ -28,8 +22,12 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
             <FormattedMessage id="tagKey" />
           </TextWithDataTestId>
         ),
-        accessorKey: "tag",
-        cell: ({ cell }) => <TagKey tagKey={cell.getValue()} />
+        id: "tagKey",
+        accessorFn: ({ tag }) =>
+          tag ??
+          intl.formatMessage({
+            id: "(untagged)"
+          })
       },
       {
         header: (
@@ -81,7 +79,7 @@ const TagsBreakdownTable = ({ data, appliedRange, isLoading, selectedTag, onShow
         )
       }
     ],
-    [appliedRange.startSecondsTimestamp, appliedRange.endSecondsTimestamp, onShowOnChartClick, selectedTag]
+    [appliedRange.startSecondsTimestamp, appliedRange.endSecondsTimestamp, intl, selectedTag, onShowOnChartClick]
   );
 
   return isLoading ? (
