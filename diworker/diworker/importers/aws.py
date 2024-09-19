@@ -2,6 +2,7 @@
 import csv
 import gzip
 import logging
+import math
 import os
 import re
 import pyarrow
@@ -477,6 +478,8 @@ class AWSReportImporter(CSVBaseReportImporter):
                     elif field_name == 'lineItem/UsageType':
                         if 'BoxUsage' in value:
                             chunk[expense_num]['box_usage'] = True
+                    if isinstance(value, float) and math.isnan(value):
+                        value = 0
                     if value:
                         chunk[expense_num][field_name] = value
 
