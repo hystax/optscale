@@ -140,16 +140,23 @@ class AlibabaReportImporter(BaseReportImporter):
             self.update_raw_records(chunk)
             chunk.clear()
 
+    def _load_billing_items(self, current_day):
+        billing_items = self.cloud_adapter.get_billing_items(
+            current_day)
+        return list(billing_items)
+
     def load_raw_data(self):
         chunk = []
         now = datetime.utcnow()
         current_day = self.period_start.replace(
             hour=0, minute=0, second=0, microsecond=0)
         while current_day <= now:
-            billing_items = self.cloud_adapter.get_billing_items(current_day)
+            try:
+                items = self._load_billing_items(current_day)
+            except ValueError:
+                items = self._load_billing_items(current_day)
             # sometimes Alibaba splits the same expenses for a date into
             # several bills, so merge them into one
-            items = list(billing_items)
             billing_items_merged = self._merge_same_billing_items(items)
 
             system_disk_ids = self._get_system_disk_ids(current_day)
