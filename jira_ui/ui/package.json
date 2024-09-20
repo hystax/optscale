@@ -14,7 +14,7 @@
     "@atlaskit/tabs": "^14.0.0",
     "@atlaskit/tooltip": "^18.0.0",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@vitejs/plugin-react-swc": "^3.6.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
     "dotenv": "^16.3.1",
     "express": "^4.20.0",
     "http-proxy-middleware": "^2.0.6",
@@ -23,8 +23,8 @@
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.19.0",
     "remark-gfm": "^4.0.0",
-    "vite": "^5.2.10",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite": "^5.4.6",
+    "vite-tsconfig-paths": "^5.0.1"
   },
   "scripts": {
     "start": "vite",
