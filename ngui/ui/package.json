@@ -36,7 +36,7 @@
     "d3-array": "^3.2.4",
     "d3-scale": "^3.3.0",
     "date-fns": "^2.29.3",
-    "express": "^4.20.0",
+    "express": "^4.21.0",
     "file-saver": "^2.0.5",
     "github-buttons": "^2.27.0",
     "google-map-react": "^2.2.1",
