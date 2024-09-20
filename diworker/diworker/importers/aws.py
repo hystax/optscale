@@ -47,6 +47,7 @@ SERVICE_TAG_PREFIXES = ['aws', 'user', 'cloudformation']
 AWS_CUR_PREFIX_MAP = {
     'identity': (False, []),
     'bill': (False, []),
+    'discount': (False, []),
     'line_item': (False, []),
     'product': (True, ['product_name', 'purchase_option', 'size_flex']),
     'pricing': (True, ['rate_code', 'rate_id', 'purchase_option',
