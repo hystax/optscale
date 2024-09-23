@@ -483,6 +483,7 @@ class RISPWorker(ConsumerMixin):
                 'pricing/publicOnDemandCost': 1,
                 'product/operatingSystem': 1,
                 'product/instanceType': 1,
+                'product/usagetype': 1,
                 'product/region': 1,
                 'lineItem/AvailabilityZone': 1
             }
@@ -500,11 +501,14 @@ class RISPWorker(ConsumerMixin):
             # lineItem/UnblendedCost may be missing for Lambda
             cost = expense.get('pricing/publicOnDemandCost') or expense.get(
                 'lineItem/UnblendedCost')
+            if 'SpotUsage-Fargate' in expense.get('product/usagetype', ''):
+                # spot Fargate tasks can't be covered by RI/SP
+                continue
             if cost is None:
                 raise Exception('Unsupported expense for resource %s, '
                                 'cloud account: %s, date: %s' % (
                                     expense['resource_id'],
-                                    expense['cloud_account_id'],
+                                    cloud_account_id,
                                     expense['start_date']))
             cost = float(cost)
             usage_hrs = float(expense['lineItem/UsageAmount'])
