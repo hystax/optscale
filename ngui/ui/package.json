@@ -28,7 +28,7 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "@uiw/react-textarea-code-editor": "^2.1.1",
-    "@vitejs/plugin-react-swc": "^3.6.0",
+    "@vitejs/plugin-react-swc": "^3.7.0",
     "ajv": "^8.12.0",
     "analytics": "^0.8.1",
     "axios": "^1.7.4",
@@ -36,7 +36,7 @@
     "d3-array": "^3.2.4",
     "d3-scale": "^3.3.0",
     "date-fns": "^2.29.3",
-    "express": "^4.20.0",
+    "express": "^4.21.0",
     "file-saver": "^2.0.5",
     "github-buttons": "^2.27.0",
     "google-map-react": "^2.2.1",
@@ -74,8 +74,8 @@
     "typescript": "^5.3.3",
     "unist-util-visit": "^5.0.0",
     "uuid": "^9.0.0",
-    "vite": "^5.2.10",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite": "^5.4.6",
+    "vite-tsconfig-paths": "^5.0.1"
   },
   "pnpm": {
     "overrides": {
@@ -143,6 +143,6 @@
     "prettier": "^3.1.1",
     "redux-immutable-state-invariant": "^2.1.0",
     "storybook": "^7.6.20",
-    "vitest": "^0.34.5"
+    "vitest": "^0.34.6"
   }
 }
