@@ -169,9 +169,6 @@ const ArtifactsTable = ({ artifacts, pagination, search, rangeFilter, tasksFilte
             search,
             rangeFilter: rangeFilter?.manualFilterDefinition
           }}
-          counters={{
-            showCounters: true
-          }}
         />
       </div>
     </Stack>

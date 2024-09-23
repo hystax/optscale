@@ -86,11 +86,11 @@ const TableField = ({ instances, value, onChange }) => {
       getRowId={(row) => row.id}
       onRowSelectionChange={onChange}
       pageSize={10}
-      queryParamPrefix="addInstancesToSchedule"
       localization={{
         emptyMessageId: "noInstances"
       }}
-      counters={{ showCounters: true, hideTotal: false, hideDisplayed: true }}
+      enableSearchQueryParam={false}
+      enablePaginationQueryParam={false}
     />
   );
 };

@@ -445,6 +445,7 @@ const EnvironmentsTable = ({ data, onUpdateActivity, entityId, isLoadingProps = 
       data={memoizedData}
       columns={columns}
       withSearch
+      pageSize={50}
       columnsSelectorUID={ENVIRONMENTS_TABLE}
       dataTestIds={{
         searchInput: "input_search",

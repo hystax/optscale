@@ -101,14 +101,7 @@ const PoolsTable = ({ pools, sortColumn }) => {
   );
 
   return (
-    <Table
-      columns={columns}
-      enableSearchQueryParam={false}
-      enablePaginationQueryParam={false}
-      data={tableData}
-      pageSize={5}
-      counters={{ showCounters: true, hideTotal: false, hideDisplayed: true }}
-    />
+    <Table columns={columns} enableSearchQueryParam={false} enablePaginationQueryParam={false} data={tableData} pageSize={5} />
   );
 };
 

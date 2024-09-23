@@ -130,18 +130,7 @@ const MlDatasetsTable = ({ datasets }) => {
     }
   };
 
-  return (
-    <Table
-      data={data}
-      columns={columns}
-      actionBar={tableActionBarDefinition}
-      withSearch
-      pageSize={50}
-      counters={{
-        showCounters: true
-      }}
-    />
-  );
+  return <Table data={data} columns={columns} actionBar={tableActionBarDefinition} withSearch pageSize={50} />;
 };
 
 export default MlDatasetsTable;

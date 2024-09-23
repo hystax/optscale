@@ -92,7 +92,15 @@ const ComparisonTable = ({ sizes }) => {
     ];
   }, [intl, moneyFormatter, sizes]);
 
-  return <Table columns={columns} data={tableData} />;
+  return (
+    <Table
+      columns={columns}
+      data={tableData}
+      counters={{
+        show: false
+      }}
+    />
+  );
 };
 
 const CloudCostComparisonModalContent = ({ onClose }) => {

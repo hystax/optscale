@@ -91,8 +91,6 @@ const Table = ({
   manualPagination,
   manualGlobalFiltering
 }) => {
-  const { showCounters = false, hideTotal = false, hideDisplayed = false } = counters;
-
   const headerRef = useRef();
 
   const { classes } = useStyles();
@@ -209,7 +207,7 @@ const Table = ({
 
   const { flatRows: filteredSelectedFlatRows } = table.getFilteredSelectedRowModel();
 
-  const selectedRowsCounts = withSelection ? filteredSelectedFlatRows.length : 0;
+  const selectedRowsCount = withSelection ? filteredSelectedFlatRows.length : 0;
 
   const { rows } = table.getRowModel();
 
@@ -257,11 +255,13 @@ const Table = ({
     };
   };
 
+  const withPagination = paginationSettings.pageCount > 1;
+
   return (
     <div data-test-id={dataTestIds.container}>
       <TableActions
         actionBar={actionBar}
-        selectedRowsCount={selectedRowsCounts}
+        selectedRowsCount={selectedRowsCount}
         {...getFilterOptions()}
         tableContext={table}
         columnsSelectorUID={columnsSelectorUID}
@@ -389,15 +389,15 @@ const Table = ({
         }}
       >
         <InfoArea
-          showCounters={showCounters}
-          hideTotal={hideTotal}
-          hideDisplayed={hideDisplayed}
-          totalNumber={counters.total || paginationSettings.totalRows}
+          counters={counters}
           rowsCount={rows.length}
-          selectedRowsCount={selectedRowsCounts}
+          selectedRowsCount={selectedRowsCount}
           dataTestIds={dataTestIds.infoAreaTestIds}
           showAllLink={showAllLink}
           pagination={paginationSettings}
+          withSearch={withSearch}
+          withSelection={withSelection}
+          withPagination={withPagination}
         />
         {paginationSettings.pageCount > 1 && (
           <Pagination

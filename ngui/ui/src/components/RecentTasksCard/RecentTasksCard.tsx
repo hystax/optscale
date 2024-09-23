@@ -48,6 +48,9 @@ const RecentTasksTable = ({ tasks }) => {
       localization={{
         emptyMessageId: "noTasks"
       }}
+      counters={{
+        show: false
+      }}
     />
   );
 };

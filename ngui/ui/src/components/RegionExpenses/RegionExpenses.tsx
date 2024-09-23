@@ -170,6 +170,7 @@ const RegionExpenses = ({ expenses, isLoading = false }) => {
               localization={{
                 emptyMessageId: "noRegionExpenses"
               }}
+              pageSize={50}
             />
           )}
         </Grid>

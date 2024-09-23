@@ -261,9 +261,6 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
           localization={{
             emptyMessageId: "noVersions"
           }}
-          counters={{
-            showCounters: true
-          }}
         />
       )}
     </Box>

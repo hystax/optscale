@@ -154,9 +154,6 @@ const RunArtifactsTable = ({ artifacts, pagination, search }: RunArtifactsTableP
       manualGlobalFiltering={{
         search
       }}
-      counters={{
-        showCounters: true
-      }}
     />
   );
 };

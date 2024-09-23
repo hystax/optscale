@@ -29,6 +29,8 @@ const PoolAssignmentRulesTable = ({ rules, isLoading = false }) => {
         dataTestIds={{
           container: "table_rules"
         }}
+        pageSize={50}
+        enablePaginationQueryParam={false}
       />
     </>
   );

@@ -65,6 +65,9 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
       localization={{
         emptyMessageId: "noDatasets"
       }}
+      counters={{
+        show: false
+      }}
     />
   );
 };

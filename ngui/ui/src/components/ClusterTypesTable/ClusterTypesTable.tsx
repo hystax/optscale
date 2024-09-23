@@ -166,6 +166,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
       data={memoizedClusterTypes}
       columns={columns}
       withSearch
+      pageSize={50}
       dataTestIds={{
         searchInput: "input_search",
         searchButton: "btn_search",

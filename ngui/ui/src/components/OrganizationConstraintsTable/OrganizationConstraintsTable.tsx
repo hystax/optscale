@@ -174,36 +174,35 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
   return isLoading ? (
     <TableLoader columnsCounter={columns.length} showHeader />
   ) : (
-    <>
-      <Table
-        actionBar={{
-          show: isManageResourcesAllowed && !isEmpty(cloudAccounts),
-          definition: {
-            items: [
-              {
-                key: "add",
-                icon: <AddOutlinedIcon fontSize="small" />,
-                messageId: "add",
-                color: "success",
-                variant: "contained",
-                type: "button",
-                link: addButtonLink,
-                dataTestId: "btn_add"
-              }
-            ]
-          }
-        }}
-        data={memoizedConstraints}
-        columns={columns}
-        withSearch
-        dataTestIds={{
-          searchInput: "input_search",
-          searchButton: "btn_search",
-          deleteSearchButton: "btn_delete_search"
-        }}
-        localization={{ emptyMessageId: "noPolicies" }}
-      />
-    </>
+    <Table
+      actionBar={{
+        show: isManageResourcesAllowed && !isEmpty(cloudAccounts),
+        definition: {
+          items: [
+            {
+              key: "add",
+              icon: <AddOutlinedIcon fontSize="small" />,
+              messageId: "add",
+              color: "success",
+              variant: "contained",
+              type: "button",
+              link: addButtonLink,
+              dataTestId: "btn_add"
+            }
+          ]
+        }
+      }}
+      data={memoizedConstraints}
+      columns={columns}
+      withSearch
+      dataTestIds={{
+        searchInput: "input_search",
+        searchButton: "btn_search",
+        deleteSearchButton: "btn_delete_search"
+      }}
+      localization={{ emptyMessageId: "noPolicies" }}
+      pageSize={50}
+    />
   );
 };
 

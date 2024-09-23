@@ -278,7 +278,14 @@ const ResourceLifecycleGlobalResourceConstraints = ({ constraints, isLoading = f
         {isLoading ? (
           <TableLoader columnsCounter={columns.length} />
         ) : (
-          <Table withSearch data={data} columns={columns} localization={{ emptyMessageId: "noResourceConstraints" }} />
+          <Table
+            data={data}
+            columns={columns}
+            localization={{ emptyMessageId: "noResourceConstraints" }}
+            withSearch
+            pageSize={50}
+            queryParamPrefix="resourceConstraints"
+          />
         )}
       </div>
       <div>

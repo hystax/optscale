@@ -145,9 +145,6 @@ const RunsetsTable = ({ runsets, isLoading }) => {
           localization={{
             emptyMessageId: "noRunsets"
           }}
-          counters={{
-            showCounters: true
-          }}
         />
       )}
     </>

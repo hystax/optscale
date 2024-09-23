@@ -145,6 +145,7 @@ const RunsTable = ({ runs, isLoading = false }) => {
         emptyMessageId: "noRuns"
       }}
       pageSize={50}
+      queryParamPrefix="runs"
     />
   );
 };

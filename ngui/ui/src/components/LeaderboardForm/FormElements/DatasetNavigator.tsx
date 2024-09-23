@@ -121,6 +121,9 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
         emptyMessageId: "noDatasets"
       }}
       rangeFilter={getRangeFilterDefinition()}
+      counters={{
+        show: false
+      }}
     />
   );
 };

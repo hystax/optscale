@@ -213,6 +213,9 @@ const Events = ({ eventLevel, descriptionLike, onScroll, applyFilter, events, is
         dataTestIds={{
           container: "div_event_details"
         }}
+        counters={{
+          show: false
+        }}
       />
     ) : null;
 

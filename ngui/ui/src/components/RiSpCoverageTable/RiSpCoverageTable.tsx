@@ -109,19 +109,18 @@ const RiSpCoverageTable = ({ breakdown, isLoading = false }) => {
   return isLoading ? (
     <TableLoader showHeader />
   ) : (
-    <>
-      <Table
-        data={tableData}
-        withFooter
-        localization={{
-          emptyMessageId: "noRiSpUsageData"
-        }}
-        columns={columns}
-        dataTestIds={{
-          container: "table_ri_sp_usage"
-        }}
-      />
-    </>
+    <Table
+      data={tableData}
+      withFooter
+      localization={{
+        emptyMessageId: "noRiSpUsageData"
+      }}
+      columns={columns}
+      pageSize={50}
+      dataTestIds={{
+        container: "table_ri_sp_usage"
+      }}
+    />
   );
 };
 

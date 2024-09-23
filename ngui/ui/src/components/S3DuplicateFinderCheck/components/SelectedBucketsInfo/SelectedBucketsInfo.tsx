@@ -52,7 +52,15 @@ const BucketsTable = ({ fromBucket, toBucket }) => {
     []
   );
 
-  return <Table data={data} columns={columns} />;
+  return (
+    <Table
+      data={data}
+      columns={columns}
+      counters={{
+        show: false
+      }}
+    />
+  );
 };
 
 const Duplicates = ({ crossBucketsStats }) => {

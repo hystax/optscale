@@ -150,7 +150,6 @@ const MlTasksTable = ({ tasks, filterValues, appliedFilters, onFilterChange }) =
             }}
             columnsSelectorUID="mlTasksTable"
             pageSize={50}
-            counters={{ showCounters: true }}
           />
         </div>
       </Stack>

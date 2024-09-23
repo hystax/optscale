@@ -10,6 +10,7 @@ import PageContentWrapper from "components/PageContentWrapper";
 import { DeleteMlMetricModal } from "components/SideModalManager/SideModals";
 import Table from "components/Table";
 import TableCellActions from "components/TableCellActions";
+import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import { useIsAllowed } from "hooks/useAllowedActions";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
@@ -109,19 +110,22 @@ const MlMetrics = ({ metrics, isLoading }) => {
       <PageContentWrapper>
         <Stack spacing={SPACING_2}>
           <div>
-            <Table
-              isLoading={isLoading}
-              data={memoizedMetrics}
-              columns={columns}
-              actionBar={{
-                show: true,
-                definition: tableActionBarDefinition
-              }}
-              localization={{
-                emptyMessageId: "noMetrics"
-              }}
-              pageSize={50}
-            />
+            {isLoading ? (
+              <TableLoader />
+            ) : (
+              <Table
+                data={memoizedMetrics}
+                columns={columns}
+                actionBar={{
+                  show: true,
+                  definition: tableActionBarDefinition
+                }}
+                localization={{
+                  emptyMessageId: "noMetrics"
+                }}
+                pageSize={50}
+              />
+            )}
           </div>
           <div>
             <InlineSeverityAlert messageId="mlMetricsDescription" />

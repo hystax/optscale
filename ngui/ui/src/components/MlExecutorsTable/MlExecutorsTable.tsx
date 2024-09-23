@@ -34,13 +34,7 @@ const MlExecutorsTable = ({ executors, isLoading }) => {
   return isLoading ? (
     <TableLoader columnsCounter={columns.length} showHeader />
   ) : (
-    <Table
-      data={memoizedExecutors}
-      columns={columns}
-      localization={{ emptyMessageId: "noExecutors" }}
-      pageSize={50}
-      counters={{ showCounters: true }}
-    />
+    <Table data={memoizedExecutors} columns={columns} localization={{ emptyMessageId: "noExecutors" }} pageSize={50} />
   );
 };
 
