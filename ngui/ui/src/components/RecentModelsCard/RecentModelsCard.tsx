@@ -57,9 +57,6 @@ const RecentModelsTable = ({ models }: RecentModelsTableProps) => {
       localization={{
         emptyMessageId: "noTasks"
       }}
-      counters={{
-        show: false
-      }}
     />
   );
 };
