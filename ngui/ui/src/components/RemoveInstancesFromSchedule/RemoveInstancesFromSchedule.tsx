@@ -64,6 +64,8 @@ const RemoveInstancesFromSchedule = ({ instancesToRemove, onDelete, onCancel, is
         localization={{
           emptyMessageId: "noInstances"
         }}
+        pageSize={50}
+        enablePaginationQueryParam={false}
       />
     </DeleteEntity>
   );

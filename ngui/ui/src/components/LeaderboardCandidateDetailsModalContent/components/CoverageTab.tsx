@@ -84,6 +84,9 @@ const DatasetsTable = ({ datasets }) => {
       localization={{
         emptyMessageId: "noDataset"
       }}
+      counters={{
+        show: false
+      }}
     />
   );
 };

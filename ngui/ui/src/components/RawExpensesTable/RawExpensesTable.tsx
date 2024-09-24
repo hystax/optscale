@@ -63,9 +63,9 @@ const RawExpensesTable = ({ expenses, isLoading }) => {
       columnOrder={STATIC_RAW_EXPENSES_COLUMNS}
       pageSize={50}
       withSearch
-      counters={{ showCounters: true }}
       columnsSelectorUID={RAW_EXPENSES}
       columnSetsSelectorId={LAYOUT_TYPES.RESOURCE_RAW_EXPENSES_COLUMNS}
+      queryParamPrefix="detailed"
     />
   );
 };

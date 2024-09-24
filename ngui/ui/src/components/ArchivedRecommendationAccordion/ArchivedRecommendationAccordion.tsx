@@ -8,6 +8,7 @@ import ArchivedRecommendationAccordionTitle from "components/ArchivedRecommendat
 import ArchivedRecommendationDescription from "components/ArchivedRecommendationDescription";
 import RecommendationLimitWarning from "components/RecommendationLimitWarning";
 import Table from "components/Table";
+import TableLoader from "components/TableLoader";
 import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -78,15 +79,21 @@ const ArchivedRecommendationAccordion = ({
           </div>
         )}
         <div>
-          <Table
-            columns={columns}
-            isLoading={isLoading}
-            data={items}
-            localization={{
-              emptyMessageId: "noRecommendations"
-            }}
-            dataTestIds={{ container: "archived_recommendation_accordion_table" }}
-          />
+          {isLoading ? (
+            <TableLoader />
+          ) : (
+            <Table
+              columns={columns}
+              isLoading={isLoading}
+              data={items}
+              localization={{
+                emptyMessageId: "noRecommendations"
+              }}
+              pageSize={50}
+              enablePaginationQueryParam={false}
+              dataTestIds={{ container: "archived_recommendation_accordion_table" }}
+            />
+          )}
         </div>
       </Stack>
     </Accordion>

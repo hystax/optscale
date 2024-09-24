@@ -36,43 +36,51 @@ const DisplayedLabel = ({ rowsCount, totalNumber, pagination, dataTestIds }) => 
 };
 
 const InfoArea = ({
-  showCounters,
-  hideTotal,
-  hideDisplayed,
-  totalNumber = 0,
   rowsCount = 0,
   selectedRowsCount = 0,
   dataTestIds = {},
   showAllLink,
-  pagination
+  pagination,
+  counters,
+  withSearch,
+  withSelection,
+  withPagination
 }) => {
+  const { show: showCounters = true, hideTotal = false, hideDisplayed = false, hideSelected = false } = counters;
+
   const { classes } = useStyles();
   const { showAll: showAllDataTestId = null } = dataTestIds;
 
   const hasSomethingToShow = showCounters || !!showAllLink;
+
+  const totalNumber = counters.total || pagination.totalRows;
+
+  const showTotal = !hideTotal;
+  const showDisplayed = !hideDisplayed && (withSearch || withPagination);
+  const showSelected = !hideSelected && withSelection && selectedRowsCount !== 0;
 
   return (
     hasSomethingToShow && (
       <Box className={classes.infoWrapper}>
         {showCounters && (
           <>
-            {hideTotal ? null : (
+            {showTotal ? (
               <KeyValueLabel
                 value={totalNumber}
                 keyMessageId="total"
                 variant="caption"
                 dataTestIds={{ typography: dataTestIds.total, key: dataTestIds.totalKey, value: dataTestIds.totalValue }}
               />
-            )}
-            {hideDisplayed ? null : (
+            ) : null}
+            {showDisplayed ? (
               <DisplayedLabel
                 rowsCount={rowsCount}
                 totalNumber={totalNumber}
                 dataTestIds={dataTestIds}
                 pagination={pagination}
               />
-            )}
-            {selectedRowsCount !== 0 && (
+            ) : null}
+            {showSelected ? (
               <KeyValueLabel
                 value={selectedRowsCount}
                 keyMessageId="selected"
@@ -83,7 +91,7 @@ const InfoArea = ({
                   value: dataTestIds.selectedValue
                 }}
               />
-            )}
+            ) : null}
           </>
         )}
         {!!showAllLink && (

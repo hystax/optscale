@@ -123,6 +123,9 @@ const RunsTable = ({ candidatePrimaryMetric, candidateSecondaryMetrics, runsData
       pageSize={RUNS_TABLE_ROWS_PER_PAGE}
       enablePaginationQueryParam={false}
       enableSearchQueryParam={false}
+      counters={{
+        show: false
+      }}
     />
   );
 };

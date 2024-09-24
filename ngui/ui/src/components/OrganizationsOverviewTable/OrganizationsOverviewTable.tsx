@@ -125,7 +125,7 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
         emptyMessageId: "noOrganizations"
       }}
       pageSize={50}
-      counters={{ showCounters: true, hideTotal: false, total }}
+      counters={{ total }}
       getRowStyle={(rowData) => ({
         backgroundColor: rowData.exceededOrganizationIds.has(rowData.id)
           ? alpha(theme.palette.error.main, ALPHA)

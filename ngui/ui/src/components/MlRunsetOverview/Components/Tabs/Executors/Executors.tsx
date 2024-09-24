@@ -166,7 +166,13 @@ const Executors = ({ executors, isLoading }) => {
   return isLoading ? (
     <TableLoader columnsCounter={4} />
   ) : (
-    <Table data={tableData} columns={columns} localization={{ emptyMessageId: "noExecutors" }} pageSize={50} />
+    <Table
+      data={tableData}
+      columns={columns}
+      localization={{ emptyMessageId: "noExecutors" }}
+      pageSize={50}
+      queryParamPrefix="executors"
+    />
   );
 };
 

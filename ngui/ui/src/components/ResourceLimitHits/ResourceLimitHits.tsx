@@ -86,6 +86,8 @@ const ResourceLimitHits = ({ limitHits, isLoading }) => {
           localization={{
             emptyMessageId: "noConstraintViolations"
           }}
+          pageSize={50}
+          queryParamPrefix="constraints"
         />
       </>
     )

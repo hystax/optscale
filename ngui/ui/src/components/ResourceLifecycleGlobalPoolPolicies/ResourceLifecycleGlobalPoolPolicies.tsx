@@ -257,6 +257,8 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
               show: true,
               definition: actionBarDefinition
             }}
+            pageSize={50}
+            queryParamPrefix="poolPolicies"
           />
         )}
       </div>

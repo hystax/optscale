@@ -77,6 +77,8 @@ const ResourceGroupedExpensesTable = ({ data, isLoading, startDate, endDate, sho
       localization={{
         emptyMessageId: "noExpenses"
       }}
+      pageSize={50}
+      queryParamPrefix="grouped"
     />
   );
 };

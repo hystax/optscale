@@ -223,6 +223,7 @@ const ResourcesPerspectives = () => {
             emptyMessageId: "noPerspectives"
           }}
           withSearch
+          pageSize={50}
         />
       </div>
       <div>

@@ -31,6 +31,7 @@ const DetectedConstraintsHistoryTable = ({ limitHits, constraint }) => {
       localization={{
         emptyMessageId: "noDetectedAnomalies"
       }}
+      pageSize={50}
     />
   );
 };

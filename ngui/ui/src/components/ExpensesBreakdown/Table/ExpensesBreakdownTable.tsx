@@ -97,7 +97,7 @@ const ExpensesBreakdownTable = ({
   return isLoading ? (
     <TableLoader columnsCounter={columns.length} showHeader />
   ) : (
-    <Table data={tableData} columns={columns} localization={localization} />
+    <Table data={tableData} columns={columns} localization={localization} pageSize={50} />
   );
 };
 

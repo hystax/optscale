@@ -70,7 +70,6 @@ const TableField = ({ buckets, value, dataSources, onChange, errors }) => {
         localization={{
           emptyMessageId: "noBuckets"
         }}
-        counters={{ showCounters: true, hideTotal: false, hideDisplayed: true }}
       />
       {!!errors[FIELD_NAME] && <FormHelperText error>{errors[FIELD_NAME].message}</FormHelperText>}
     </>

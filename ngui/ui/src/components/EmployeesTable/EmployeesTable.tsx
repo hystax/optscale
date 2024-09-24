@@ -225,11 +225,8 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
         localization={{
           emptyMessageId: "noUsers"
         }}
-        counters={{
-          showCounters: true,
-          hideDisplayed: true
-        }}
         withSearch
+        pageSize={50}
         columns={columns}
         actionBar={{
           show: true,

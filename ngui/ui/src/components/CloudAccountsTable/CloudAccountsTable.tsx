@@ -173,6 +173,7 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
           )
         }
       }}
+      pageSize={50}
       withExpanded
       actionBar={{
         show: true,

@@ -167,6 +167,7 @@ const AssignmentRulesTable = ({ rules, managedPools, isLoadingProps = {}, onUpda
           show: true,
           definition: actionBarDefinition
         }}
+        pageSize={50}
         dataTestIds={{
           container: "table_rules"
         }}

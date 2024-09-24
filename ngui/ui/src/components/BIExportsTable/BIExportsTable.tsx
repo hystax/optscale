@@ -45,6 +45,7 @@ const BIExportsTable = ({ exports }) => {
           ]
         }
       }}
+      pageSize={50}
       columns={columns}
       localization={{
         emptyMessageId: "noBIExports"

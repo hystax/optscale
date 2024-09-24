@@ -74,7 +74,6 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
       enablePaginationQueryParam={false}
       withSearch
       enableSearchQueryParam={false}
-      counters={{ showCounters: true, hideDisplayed: true }}
       localization={{
         emptyMessageId: "noPorts"
       }}

@@ -314,6 +314,9 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
           isSelectedRow={(row) => !!selectedRow && row.id === selectedRow.id}
           overflowX="initial"
           disableBottomBorderForLastRow
+          counters={{
+            show: false
+          }}
         />
       </div>
       {!isEmptyArray(notQualifiedTableData) && (
@@ -335,6 +338,9 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
               tableLayout="fixed"
               isSelectedRow={(row) => !!selectedRow && row.id === selectedRow.id}
               overflowX="initial"
+              counters={{
+                show: false
+              }}
             />
           </div>
         </>

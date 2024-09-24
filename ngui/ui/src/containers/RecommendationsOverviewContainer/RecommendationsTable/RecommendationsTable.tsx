@@ -65,7 +65,17 @@ const RecommendationsTable = ({
 
   return (
     <Box sx={{ width: "100%" }}>
-      {isLoading ? <TableLoader columnsCounter={columns.length} /> : <Table data={tableData} columns={columns} />}
+      {isLoading ? (
+        <TableLoader columnsCounter={columns.length} />
+      ) : (
+        <Table
+          data={tableData}
+          columns={columns}
+          counters={{
+            show: false
+          }}
+        />
+      )}
     </Box>
   );
 };

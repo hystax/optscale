@@ -105,9 +105,6 @@ const ModelsTable = ({ models }: ModelsTableProps) => {
       localization={{
         emptyMessageId: "noModels"
       }}
-      counters={{
-        showCounters: true
-      }}
     />
   );
 };

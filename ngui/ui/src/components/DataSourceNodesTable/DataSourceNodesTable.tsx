@@ -136,11 +136,9 @@ const DataSourceNodesTable = ({ nodes, actionBar, isLoading = false }) => {
       localization={{
         emptyMessageId: "noNodes"
       }}
+      pageSize={50}
+      queryParamPrefix="nodes"
       actionBar={actionBar}
-      counters={{
-        showCounters: true,
-        hideDisplayed: true
-      }}
     />
   );
 };

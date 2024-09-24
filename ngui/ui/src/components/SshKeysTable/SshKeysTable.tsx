@@ -82,15 +82,13 @@ const SshKeysTable = ({ isLoading, sshKeys = [], isMakeDefaultLoading, onMakeDef
         localization={{
           emptyMessageId: "noKeys"
         }}
-        counters={{
-          showCounters: true,
-          hideDisplayed: true
-        }}
         columns={columns}
         dataTestIds={{
           container: "table_ssh_keys"
         }}
         withSearch
+        pageSize={50}
+        queryParamPrefix="sshKeys"
       />
     </Box>
   );

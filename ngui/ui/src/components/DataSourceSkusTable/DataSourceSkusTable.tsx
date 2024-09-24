@@ -89,7 +89,7 @@ const DataSourceSkusTable = ({ dataSourceId, skus, usedSkus, costModel, isLoadin
 
   const tableData = useMemo(() => skus, [skus]);
 
-  return isLoading ? <TableLoader /> : <Table data={tableData} columns={columns} />;
+  return isLoading ? <TableLoader /> : <Table data={tableData} columns={columns} pageSize={50} queryParamPrefix="pricing" />;
 };
 
 export default DataSourceSkusTable;

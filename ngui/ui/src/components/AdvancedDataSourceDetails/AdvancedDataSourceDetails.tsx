@@ -56,7 +56,13 @@ const Discovery = ({ discoveryInfos }) => {
       <SubTitle>
         <FormattedMessage id="discovery" />
       </SubTitle>
-      <Table data={tableData} columns={columns} />
+      <Table
+        data={tableData}
+        columns={columns}
+        counters={{
+          show: false
+        }}
+      />
     </>
   );
 };

@@ -277,6 +277,9 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
       memoBodyCells
       getRowCellClassName={getRowCellClassName}
       getHeaderCellClassName={getHeaderCellClassName}
+      counters={{
+        show: false
+      }}
     />
   );
 };

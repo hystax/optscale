@@ -114,7 +114,6 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
         emptyMessageId: "noSubResources"
       }}
       pageSize={50}
-      counters={{ showCounters: true, hideTotal: false }}
     />
   );
 };

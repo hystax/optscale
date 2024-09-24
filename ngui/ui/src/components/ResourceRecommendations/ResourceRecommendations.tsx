@@ -96,6 +96,9 @@ const DismissedResourceRecommendations = ({
           localization={{
             emptyMessageId: "noDismissedRecommendations"
           }}
+          counters={{
+            show: false
+          }}
         />
       }
     />
@@ -133,6 +136,9 @@ const ActiveResourceRecommendations = ({ patchResource, activeRecommendations = 
           columns={columns}
           localization={{
             emptyMessageId: "noRecommendations"
+          }}
+          counters={{
+            show: false
           }}
         />
       }

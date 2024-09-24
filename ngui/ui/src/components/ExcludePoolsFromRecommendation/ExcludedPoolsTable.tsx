@@ -57,11 +57,11 @@ const ExcludedPoolsTable = ({
       localization={{
         emptyMessageId: "noExclusions"
       }}
-      counters={{ showCounters: true, hideDisplayed: true }}
       withSearch
-      queryParamPrefix="excludePools"
+      pageSize={50}
       getRowId={(row) => row.id}
       enableSearchQueryParam={false}
+      enablePaginationQueryParam={false}
       {...(isChangeSettingsAllowed ? getRowSelectionProps() : {})}
     />
   );
