@@ -205,9 +205,7 @@ const Table = ({
     ...tableOptions
   });
 
-  const { flatRows: filteredSelectedFlatRows } = table.getFilteredSelectedRowModel();
-
-  const selectedRowsCount = withSelection ? filteredSelectedFlatRows.length : 0;
+  const selectedRowsCount = withSelection ? table.getSelectedRowModel().flatRows.length : 0;
 
   const { rows } = table.getRowModel();
 
