@@ -40,13 +40,15 @@ def _generate_context(template_params, config_client):
         list_params = []
         for input_key, output_key in control_panel_keys_map.items():
             if organization_map.get(input_key):
-                list_params.append('%s=%s' % (output_key, organization_map[input_key]))
+                list_params.append('%s=%s' % (output_key,
+                                              organization_map[input_key]))
         return "?" + '&'.join(list_params) if list_params else None
     default_template = get_default_template()
     texts = template_params.get('texts', {})
     numbered_dict = get_numbered_params(texts)
     organization_info = texts.get('organization', {})
-    texts['control_panel_parameters'] = generate_control_panel_parameters(organization_info)
+    texts['control_panel_parameters'] = generate_control_panel_parameters(
+        organization_info)
     texts['etcd'] = {}
     texts['etcd']['control_panel_link'] = config_client.get('/public_ip').value
     template = update_template(default_template, template_params)
@@ -70,6 +72,7 @@ def generate_email(config_client, to, subject, template_params,
     msg['To'] = to
     if reply_to_email:
         msg['reply-to'] = reply_to_email
+    template_params = template_params if template_params else {}
     context = _generate_context(template_params, config_client)
     msg.attach(_generate_body(context, template_type))
     return msg
