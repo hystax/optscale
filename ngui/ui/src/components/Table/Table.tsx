@@ -130,12 +130,14 @@ const Table = ({
   const { state: columnsVisibilityState, tableOptions: columnsVisibilityTableOptions } =
     useColumnsVisibility(columnsSelectorUID);
 
+  const totalRowsCount = getRowsCount(data, {
+    withExpanded,
+    getSubRows
+  });
+
   const { state: paginationState, tableOptions: paginationTableOptions } = usePaginationTableSettings({
     pageSize,
-    rowsCount: getRowsCount(data, {
-      withExpanded,
-      getSubRows
-    }),
+    rowsCount: totalRowsCount,
     queryParamPrefix,
     enablePaginationQueryParam
   });
@@ -225,7 +227,7 @@ const Table = ({
       pageIndex: table.getState().pagination.pageIndex,
       pageSize: table.getState().pagination.pageSize,
       onPageIndexChange: table.setPageIndex,
-      totalRows: data.length
+      totalRows: totalRowsCount
     };
   };
 
