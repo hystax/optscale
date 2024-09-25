@@ -12,6 +12,7 @@ import zipfile
 import json
 from collections import defaultdict, OrderedDict
 from datetime import datetime, timedelta, timezone
+from functools import cached_property
 
 from diworker.diworker.importers.base import CSVBaseReportImporter
 
@@ -79,6 +80,10 @@ class AWSReportImporter(CSVBaseReportImporter):
         }
         self.import_start_ts = int(datetime.utcnow().timestamp())
         self.current_billing_period = None
+
+    @cached_property
+    def use_edp_discount(self):
+        return self.cloud_acc['config'].get('use_edp_discount', False)
 
     @staticmethod
     def unzip_report(report_path, dest_dir):
@@ -168,6 +173,7 @@ class AWSReportImporter(CSVBaseReportImporter):
 
     def get_update_fields(self):
         return [
+            'discount/EdpDiscount',
             'lineItem/BlendedRate',
             'lineItem/BlendedCost',
             'lineItem/UnblendedRate',
@@ -419,6 +425,8 @@ class AWSReportImporter(CSVBaseReportImporter):
                     row, 'lineItem/UsageEndDate')
                 row['cost'] = float(row['lineItem/BlendedCost']) if row[
                     'lineItem/BlendedCost'] else 0
+                if self.use_edp_discount:
+                    row['cost'] += float(row.get('discount/EdpDiscount') or 0)
                 if self._is_flavor_usage(row):
                     row['box_usage'] = True
                 for k, v in row.copy().items():
@@ -442,7 +450,7 @@ class AWSReportImporter(CSVBaseReportImporter):
         for i in range(0, dataframe.shape[0], CHUNK_SIZE):
             expense_chunk = self._extract_nested_objects(
                 dataframe.iloc[i:i + CHUNK_SIZE, :].to_dict(), parquet=True)
-            chunk = [{} for _ in range(0, CHUNK_SIZE)]
+            chunk = [{'cost': 0} for _ in range(0, CHUNK_SIZE)]
             skipped_rows = set()
             for field_name, values_dict in expense_chunk.items():
                 for n, value in values_dict.items():
@@ -476,6 +484,9 @@ class AWSReportImporter(CSVBaseReportImporter):
                             value)
                     elif field_name == 'lineItem/BlendedCost':
                         chunk[expense_num]['cost'] = float(value) if value else 0
+                    elif (self.use_edp_discount and
+                          field_name == 'discount/EdpDiscount' and value):
+                        chunk[expense_num]['cost'] += float(value)
                     elif field_name == 'lineItem/UsageType':
                         if 'BoxUsage' in value:
                             chunk[expense_num]['box_usage'] = True
