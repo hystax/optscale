@@ -56,7 +56,8 @@ const CleanExpensesTable = ({
   isDownloadingResources = false,
   startDateTimestamp,
   endDateTimestamp,
-  assignmentRuleCreationLinkParameters
+  assignmentRuleCreationLinkParameters,
+  totalResourcesCount
 }) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
@@ -344,7 +345,13 @@ const CleanExpensesTable = ({
       columnsSelectorUID={disableColumnsSelection ? "" : "cleanExpensesTable"}
       localization={{ emptyMessageId: "noResources" }}
       queryParamPrefix={CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX}
-      counters={{ hideTotal: true }}
+      counters={
+        totalResourcesCount
+          ? { total: totalResourcesCount }
+          : {
+              hideTotal: true
+            }
+      }
       dataTestIds={{
         infoArea: {
           displayed: "counter_displayed",

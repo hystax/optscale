@@ -51,7 +51,7 @@ const CleanExpensesBreakdownContainer = ({ requestParams }) => {
 
   const { useGet } = CleanExpensesService();
   const { isLoading, data: apiData } = useGet({ params: requestParams });
-  const { clean_expenses: expenses = [] } = apiData;
+  const { clean_expenses: expenses = [], total_count: totalResourcesCount } = apiData;
 
   const startDateTimestamp = Number(requestParams.startDate);
   const endDateTimestamp = Number(requestParams.endDate);
@@ -76,6 +76,7 @@ const CleanExpensesBreakdownContainer = ({ requestParams }) => {
           }
           downloadResources={downloadResources}
           isDownloadingResources={isFileDownloading}
+          totalResourcesCount={totalResourcesCount}
         />
       </>
     );

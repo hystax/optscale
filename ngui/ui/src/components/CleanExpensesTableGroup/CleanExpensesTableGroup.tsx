@@ -133,7 +133,8 @@ const CleanExpensesTableGroup = ({
   downloadResources,
   isDownloadingResources = false,
   startDateTimestamp,
-  endDateTimestamp
+  endDateTimestamp,
+  totalResourcesCount
 }) => {
   const {
     [GROUP_TYPE_PARAM_NAME]: groupTypeQueryParameter = "",
@@ -285,6 +286,7 @@ const CleanExpensesTableGroup = ({
             expenses={expenses}
             downloadResources={downloadResources}
             isDownloadingResources={isDownloadingResources}
+            totalResourcesCount={totalResourcesCount}
           />
         )}
       </Grid>
