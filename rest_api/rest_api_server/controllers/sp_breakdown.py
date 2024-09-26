@@ -112,7 +112,7 @@ class SpBreakdownController(RiBreakdownController):
             cloud_acc_ids, start_date, end_date)
         for data in expenses:
             cloud_account_id, date, used, expected = data
-            if expected:
+            if expected and expected > used:
                 overprov_exp = expected - used
             else:
                 overprov_exp = 0

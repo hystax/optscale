@@ -1,5 +1,4 @@
 import logging
-import json
 from clickhouse_driver import Client as ClickHouseClient
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -287,7 +286,7 @@ class RiBreakdownController(CleanExpenseController):
         cloud_acc_overprov_n_hrs = defaultdict(lambda: defaultdict(float))
         for data in expenses:
             cloud_acc_id, date, offer_cost, expected_cost, n_usage = data
-            if expected_cost:
+            if expected_cost and expected_cost > offer_cost:
                 overprov_exp = expected_cost - offer_cost
             else:
                 overprov_exp = 0
