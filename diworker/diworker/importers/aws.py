@@ -495,9 +495,9 @@ class AWSReportImporter(CSVBaseReportImporter):
                     if value:
                         chunk[expense_num][field_name] = value
 
-            expenses = [x for x in chunk if x and
-                        chunk.index(x) not in skipped_rows and
-                        x['cloud_account_id'] is not None and
+            expenses = [x for x in chunk
+                        if chunk.index(x) not in skipped_rows and
+                        x.get('cloud_account_id') is not None and
                         # RIFee is created once a month and is updated every day
                         (x['start_date'] >= self.min_date_import_threshold or
                          x['lineItem/LineItemType'] == 'RIFee')]
