@@ -1,7 +1,9 @@
 import json
 
 from herald.herald_server.controllers.base import BaseController
-from herald.herald_server.controllers.base_async import BaseAsyncControllerWrapper
+from herald.herald_server.controllers.base_async import (
+    BaseAsyncControllerWrapper
+)
 from herald.herald_server.utils import is_hystax_email
 
 
@@ -11,12 +13,17 @@ class EmailAsyncController(BaseAsyncControllerWrapper):
 
 
 class EmailController(BaseController):
-    def skip_email_send(self, data):
+
+    @staticmethod
+    def skip_email_send(data):
         template_type = data.get('template_type')
         if template_type in ['new_employee', 'new_cloud_account',
                              'cloud_account_deleted']:
-            auth_user_email = data.get('template_params', {}).get(
-                'texts', {}).get('user_email')
+            auth_user_email = None
+            template_params = data.get('template_params')
+            if template_params:
+                auth_user_email = template_params.get('texts', {}).get(
+                    'user_email')
             return auth_user_email is not None and is_hystax_email(
                 auth_user_email)
         return False
