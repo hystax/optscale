@@ -8,7 +8,7 @@ apispec==6.3.1
 google-auth==1.23.0
 requests==2.32.3
 PyJWT>=2.4.0
-cryptography==42.0.4
+cryptography==43.0.1
 pyyaml==6.0.1
 zcrmsdk==3.1.0
 # OptScale packages

@@ -104,7 +104,8 @@ class Aws(S3CloudMixin):
         CloudParameter(name='linked', type=bool, required=False),
 
         # Service parameters
-        CloudParameter(name='cur_version', type=int, required=False)
+        CloudParameter(name='cur_version', type=int, required=False),
+        CloudParameter(name='use_edp_discount', type=bool, required=False)
     ]
     DEFAULT_S3_REGION_NAME = 'eu-central-1'
     SUPPORTS_REPORT_UPLOAD = True
