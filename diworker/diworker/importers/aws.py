@@ -157,6 +157,7 @@ class AWSReportImporter(CSVBaseReportImporter):
             'lineItem/UsageType',
             'lineItem/Operation',
             'lineItem/ProductCode',
+            'lineItem/ResourceId',
             'cloud_account_id',
             'lineItem/AvailabilityZone',
             'savingsPlan/SavingsPlanARN',
