@@ -237,6 +237,7 @@ const getConfig = (type, config) => {
                 [AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
                 [AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: "",
                 [AWS_ROOT_UPDATE_DATA_EXPORT_PARAMETERS]: false,
+                [AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT]: config.use_edp_discount,
                 [AWS_ROOT_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]: config.cur_version ?? AWS_ROOT_CONNECT_CUR_VERSION.CUR_2,
                 [AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME]: config.bucket_name,
                 [AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME]: config.report_name,
