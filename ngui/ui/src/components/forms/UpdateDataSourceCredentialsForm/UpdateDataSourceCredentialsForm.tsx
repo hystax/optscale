@@ -264,7 +264,11 @@ const getConfig = (type, config) => {
                         bucket_prefix: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]
                       }
                     : {
-                        cur_version: config.cur_version,
+                        /**
+                         * Data sources that were created before the introduction of the new data export parameters
+                         * may not have the cur_version field set, so we need to pass it as undefined to avoid sending it to the backend
+                         */
+                        cur_version: config.cur_version ?? undefined,
                         bucket_name: config.bucket_name,
                         report_name: config.report_name,
                         bucket_prefix: config.bucket_prefix
