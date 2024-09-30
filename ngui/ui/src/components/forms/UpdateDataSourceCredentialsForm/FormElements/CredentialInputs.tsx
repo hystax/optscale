@@ -16,7 +16,8 @@ import {
   AwsLinkedCredentials,
   AwsRootCredentials,
   AwsRootBillingBucket,
-  AwsRootExportType
+  AwsRootExportType,
+  AwsRootUseAwsEdpDiscount
 } from "components/DataSourceCredentialFields";
 import { Switch } from "components/forms/common/fields";
 import {
@@ -63,6 +64,7 @@ const CredentialInputs = ({ type, config }) => {
       ) : (
         <>
           <AwsRootCredentials />
+          <AwsRootUseAwsEdpDiscount />
           <CostAndUsageReport />
         </>
       );

@@ -13,7 +13,8 @@ import {
   KubernetesCredentials,
   DatabricksCredentials,
   AwsRootBillingBucket,
-  AwsRootExportType
+  AwsRootExportType,
+  AwsRootUseAwsEdpDiscount
 } from "components/DataSourceCredentialFields";
 import { RadioGroup } from "components/forms/common/fields";
 import {
@@ -54,6 +55,7 @@ const AwsRootInputs = () => (
       return (
         <>
           <AwsRootCredentials />
+          <AwsRootUseAwsEdpDiscount />
           <AwsRootExportType />
           <SwitchField
             name={AWS_ROOT_INPUTS_FIELD_NAMES.IS_FIND_REPORT}

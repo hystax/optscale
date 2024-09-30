@@ -3,6 +3,7 @@ import AwsLinkedCredentials, { FIELD_NAMES as AWS_LINKED_CREDENTIALS_FIELD_NAMES
 import AwsRootBillingBucket, { FIELD_NAMES as AWS_ROOT_BILLING_BUCKET_FIELD_NAMES } from "./AwsRootBillingBucket";
 import AwsRootCredentials, { FIELD_NAMES as AWS_ROOT_CREDENTIALS_FIELD_NAMES } from "./AwsRootCredentials";
 import AwsRootExportType, { FIELD_NAMES as AWS_ROOT_EXPORT_TYPE_FIELD_NAMES } from "./AwsRootExportType";
+import AwsRootUseAwsEdpDiscount, { FIELD_NAMES as AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES } from "./AwsRootUseAwsEdpDiscount";
 import AzureSubscriptionCredentials, {
   FIELD_NAMES as AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES
 } from "./AzureSubscriptionCredentials";
@@ -19,6 +20,8 @@ export {
   AWS_ROOT_BILLING_BUCKET_FIELD_NAMES,
   AwsRootExportType,
   AWS_ROOT_EXPORT_TYPE_FIELD_NAMES,
+  AwsRootUseAwsEdpDiscount,
+  AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES,
   AwsLinkedCredentials,
   AWS_LINKED_CREDENTIALS_FIELD_NAMES,
   AzureTenantCredentials,
