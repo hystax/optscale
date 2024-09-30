@@ -249,7 +249,7 @@ const Resource = ({ resource, isGetResourceLoading, patchResource, isLoadingPatc
         onClick: () => setActiveTab(RECOMMENDATIONS_TAB),
         tooltip: {
           show: true,
-          messageId: "recommendations",
+          messageId: "seeAllRecommendations",
           placement: "top"
         }
       },

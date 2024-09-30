@@ -51,7 +51,7 @@ const ExpensesSummaryContainer = ({ requestParams }) => {
         link: RECOMMENDATIONS,
         tooltip: {
           show: true,
-          messageId: "recommendations",
+          messageId: "seeAllRecommendations",
           placement: "top"
         }
       },
