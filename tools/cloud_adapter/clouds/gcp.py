@@ -291,6 +291,7 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
             cloud_instance.creation_timestamp
         )
         spotted = cloud_instance.scheduling.provisioning_model == "SPOT"
+        stopped_allocated = cloud_instance.status == 'SUSPENDED'
         network_id, network_name = self._extract_network()
         zone_id = self._last_path_element(self._cloud_object.zone)
 
@@ -300,6 +301,7 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
             # TODO: find security groups info
             security_groups=None,
             spotted=spotted,
+            stopped_allocated=stopped_allocated,
             image_id=image_id,
             cloud_created_at=cloud_created_at,
             vpc_id=network_id,

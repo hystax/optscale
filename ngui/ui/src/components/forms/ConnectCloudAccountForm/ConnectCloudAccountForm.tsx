@@ -434,16 +434,14 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading, showCancel = t
       icon: AzureLogoIcon,
       messageId: AZURE_TENANT_ACCOUNT,
       dataTestId: "btn_azure_tenant",
-      action: () => defaultTileAction(AZURE_TENANT_ACCOUNT, AZURE_TENANT),
-      mode: OPTSCALE_MODE.FINOPS
+      action: () => defaultTileAction(AZURE_TENANT_ACCOUNT, AZURE_TENANT)
     },
     {
       id: AZURE_SUBSCRIPTION,
       icon: AzureLogoIcon,
       messageId: AZURE_SUBSCRIPTION,
       dataTestId: "btn_azure_subscription",
-      action: () => defaultTileAction(AZURE_SUBSCRIPTION, AZURE_CNR),
-      mode: OPTSCALE_MODE.FINOPS
+      action: () => defaultTileAction(AZURE_SUBSCRIPTION, AZURE_CNR)
     },
     {
       id: GCP_ACCOUNT,

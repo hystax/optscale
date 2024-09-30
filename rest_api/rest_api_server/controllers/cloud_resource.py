@@ -39,6 +39,7 @@ RESOURCE_MODEL_MAP = {
 }
 CLOUD_RESOURCE_ID_FIELD = 'cloud_resource_id'
 CLOUD_RESOURCE_HASH_FIELD = 'cloud_resource_hash'
+RESOURCE_CHUNK_LEN = 1000
 
 
 class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
@@ -531,19 +532,14 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         )
         return result[0]
 
-    def get_resources_by_hash_or_id(self, cloud_account_id, resources,
-                                    include_deleted=True, unique=False,
-                                    unique_field_name=False):
-        hashes = [x.get(CLOUD_RESOURCE_HASH_FIELD) for x in resources
-                  if x.get(CLOUD_RESOURCE_HASH_FIELD)]
-        ids = [x.get(CLOUD_RESOURCE_ID_FIELD) for x in resources
-               if x.get(CLOUD_RESOURCE_ID_FIELD)]
+    def _get_resources_by_hash_or_id(self, cloud_account_id, filter_,
+                                     include_deleted, unique_field_name,
+                                     unique):
+        resources_map = {}
         cond_list = [
-            {'$or': [
-                {'cloud_resource_id': {'$in': ids}},
-                {'cloud_resource_hash': {'$in': hashes}}
-            ]},
-            {'cloud_account_id': cloud_account_id}]
+            {'cloud_account_id': cloud_account_id},
+            filter_
+        ]
         if not include_deleted:
             cond_list.append({'deleted_at': 0})
         db_resources = self.resources_collection.aggregate([
@@ -553,22 +549,46 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
                 }
             }
         ])
-        db_resources_map = {}
         for r in db_resources:
             id_ = r.get(CLOUD_RESOURCE_ID_FIELD)
             hash_ = r.get(CLOUD_RESOURCE_HASH_FIELD)
             if id_ and hash_:
-                db_resources_map[id_] = (
+                resources_map[id_] = (
                     r, CLOUD_RESOURCE_ID_FIELD) if unique_field_name else r
                 if not unique:
-                    db_resources_map[hash_] = (
-                        r, CLOUD_RESOURCE_HASH_FIELD) if unique_field_name else r
+                    resources_map[hash_] = (
+                        r,
+                        CLOUD_RESOURCE_HASH_FIELD) if unique_field_name else r
             elif id_:
-                db_resources_map[id_] = (
+                resources_map[id_] = (
                     r, CLOUD_RESOURCE_ID_FIELD) if unique_field_name else r
             elif hash_:
-                db_resources_map[hash_] = (
+                resources_map[hash_] = (
                     r, CLOUD_RESOURCE_HASH_FIELD) if unique_field_name else r
+        return resources_map
+
+    def get_resources_by_hash_or_id(self, cloud_account_id, resources,
+                                    include_deleted=True, unique=False,
+                                    unique_field_name=False):
+        hashes = [x.get(CLOUD_RESOURCE_HASH_FIELD) for x in resources
+                  if x.get(CLOUD_RESOURCE_HASH_FIELD)]
+        ids = [x.get(CLOUD_RESOURCE_ID_FIELD) for x in resources
+               if x.get(CLOUD_RESOURCE_ID_FIELD)]
+        db_resources_map = {}
+        for i in range(0, len(hashes), RESOURCE_CHUNK_LEN):
+            chunk = hashes[i:i + RESOURCE_CHUNK_LEN]
+            filter_ = {'cloud_resource_hash': {'$in': chunk}}
+            db_resources_map.update(
+                self._get_resources_by_hash_or_id(
+                    cloud_account_id, filter_, include_deleted,
+                    unique_field_name, unique))
+        for j in range(0, len(ids), RESOURCE_CHUNK_LEN):
+            chunk = ids[j:j + RESOURCE_CHUNK_LEN]
+            filter_ = {'cloud_resource_id': {'$in': chunk}}
+            db_resources_map.update(
+                self._get_resources_by_hash_or_id(
+                    cloud_account_id, filter_, include_deleted,
+                    unique_field_name, unique))
         return db_resources_map
 
     def get_resources(

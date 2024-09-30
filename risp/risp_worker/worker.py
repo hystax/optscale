@@ -307,7 +307,7 @@ class RISPWorker(ConsumerMixin):
                 'reservation/TotalReservedNormalizedUnits') or expense.get(
                 'reservation/TotalReservedUnits'))
             total_cost_per_month = float(
-                expense['lineItem/UnblendedCost']) + float(expense.get(
+                expense.get('lineItem/UnblendedCost', 0)) + float(expense.get(
                     'reservation/AmortizedUpfrontFeeForBillingPeriod', 0))
             cost_per_n_hr = total_cost_per_month / total_norm_hours
             norm_factor = float(expense.get('lineItem/NormalizationFactor', 1))
