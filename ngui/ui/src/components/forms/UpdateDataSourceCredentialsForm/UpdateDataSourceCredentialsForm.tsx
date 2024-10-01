@@ -14,7 +14,8 @@ import {
   AWS_LINKED_CREDENTIALS_FIELD_NAMES,
   AWS_ROOT_CREDENTIALS_FIELD_NAMES,
   AWS_ROOT_BILLING_BUCKET_FIELD_NAMES,
-  AWS_ROOT_EXPORT_TYPE_FIELD_NAMES
+  AWS_ROOT_EXPORT_TYPE_FIELD_NAMES,
+  AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import InlineSeverityAlert from "components/InlineSeverityAlert";
@@ -236,6 +237,7 @@ const getConfig = (type, config) => {
                 [AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
                 [AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: "",
                 [AWS_ROOT_UPDATE_DATA_EXPORT_PARAMETERS]: false,
+                [AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT]: config.use_edp_discount ?? false,
                 [AWS_ROOT_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]: config.cur_version ?? AWS_ROOT_CONNECT_CUR_VERSION.CUR_2,
                 [AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME]: config.bucket_name,
                 [AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME]: config.report_name,
@@ -253,6 +255,7 @@ const getConfig = (type, config) => {
                   access_key_id: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
                   secret_access_key: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
                   config_scheme: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY,
+                  use_edp_discount: formData[AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT],
                   ...(formData[AWS_ROOT_UPDATE_DATA_EXPORT_PARAMETERS]
                     ? {
                         cur_version: Number(formData[AWS_ROOT_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
@@ -261,7 +264,11 @@ const getConfig = (type, config) => {
                         bucket_prefix: formData[AWS_ROOT_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]
                       }
                     : {
-                        cur_version: config.cur_version,
+                        /**
+                         * Data sources that were created before the introduction of the new data export parameters
+                         * may not have the cur_version field set, so we need to pass it as undefined to avoid sending it to the backend
+                         */
+                        cur_version: config.cur_version ?? undefined,
                         bucket_name: config.bucket_name,
                         report_name: config.report_name,
                         bucket_prefix: config.bucket_prefix

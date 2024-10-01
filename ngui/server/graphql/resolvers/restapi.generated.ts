@@ -54,6 +54,7 @@ export type AwsConfig = {
   linked?: Maybe<Scalars['Boolean']['output']>;
   region_name?: Maybe<Scalars['String']['output']>;
   report_name?: Maybe<Scalars['String']['output']>;
+  use_edp_discount?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type AwsDataSource = DataSourceInterface & {
@@ -87,6 +88,7 @@ export type AwsRootConfigInput = {
   cur_version?: InputMaybe<Scalars['Int']['input']>;
   report_name?: InputMaybe<Scalars['String']['input']>;
   secret_access_key: Scalars['String']['input'];
+  use_edp_discount?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type AzureSubscriptionConfig = {
@@ -592,6 +594,7 @@ export type AwsConfigResolvers<ContextType = any, ParentType extends ResolversPa
   linked?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   region_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   report_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  use_edp_discount?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

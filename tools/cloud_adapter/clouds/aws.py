@@ -755,10 +755,13 @@ class Aws(S3CloudMixin):
             }
             destination = export['DestinationConfigurations']['S3Destination']
             s3_conf = destination['S3OutputConfigurations']
+            cost_and_usage_report = export['DataQuery'][
+                'TableConfigurations'].get('COST_AND_USAGE_REPORT')
+            if not cost_and_usage_report:
+                continue
             result.append({
                 'ReportName': export['Name'],
-                'TimeUnit': export['DataQuery']['TableConfigurations'][
-                    'COST_AND_USAGE_REPORT']['TIME_GRANULARITY'],
+                'TimeUnit': cost_and_usage_report['TIME_GRANULARITY'],
                 'Format': format_map.get(s3_conf['Format']) or s3_conf['Format'],
                 'Compression': format_map.get(
                     s3_conf['Compression']) or s3_conf['Compression'],

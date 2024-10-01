@@ -18,7 +18,8 @@ import {
   AWS_ROOT_CREDENTIALS_FIELD_NAMES,
   AWS_ROOT_BILLING_BUCKET_FIELD_NAMES,
   AWS_ROOT_EXPORT_TYPE_FIELD_NAMES,
-  AWS_LINKED_CREDENTIALS_FIELD_NAMES
+  AWS_LINKED_CREDENTIALS_FIELD_NAMES,
+  AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import ModeWrapper from "components/ModeWrapper";
@@ -108,11 +109,12 @@ const getAwsParameters = (formData) => {
           config_scheme: formData[AWS_ROOT_INPUTS_FIELD_NAMES.CONFIG_SCHEME]
         };
   return {
-    name: formData.name,
+    name: formData[DATA_SOURCE_NAME_FIELD_NAME],
     type: AWS_CNR,
     config: {
       access_key_id: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
       secret_access_key: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
+      use_edp_discount: formData[AWS_ROOT_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT],
       linked: false,
       cur_version: Number(formData[AWS_ROOT_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
       ...getConfigSchemeParameters()

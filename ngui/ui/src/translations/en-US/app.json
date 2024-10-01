@@ -2273,6 +2273,8 @@
   "upload": "Upload",
   "url": "URL",
   "usage": "Usage",
+  "useAwsEdpDiscount": "Use AWS Enterprise Discount Program (EDP)",
+  "useAwsEdpDiscountDescription": "Use this option to apply any available discounts under your AWS Enterprise Discount Program (EDP) agreement.",
   "used": "Used",
   "usedAliases": "Used aliases",
   "user": "User",

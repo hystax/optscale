@@ -11,6 +11,7 @@ type AwsPropertiesProps = {
     linked: boolean;
     report_name: string;
     cur_version?: 1 | 2;
+    use_edp_discount?: boolean;
   };
 };
 
@@ -21,7 +22,8 @@ const AwsProperties = ({ accountId, config }: AwsPropertiesProps) => {
     bucket_prefix: buckerPrefix,
     linked,
     cur_version: curVersion,
-    report_name: reportName
+    report_name: reportName,
+    use_edp_discount: useEdpDiscount
   } = config;
 
   return (
@@ -56,6 +58,11 @@ const AwsProperties = ({ accountId, config }: AwsPropertiesProps) => {
       ) : null}
       {!linked && (
         <>
+          <KeyValueLabel
+            keyMessageId="useAwsEdpDiscount"
+            value={<FormattedMessage id={useEdpDiscount ? "yes" : "no"} />}
+            dataTestIds={{ key: "p_use_edp_discount_key", value: "p_use_edp_discount_value" }}
+          />
           <KeyValueLabel
             keyMessageId="exportName"
             value={reportName}
