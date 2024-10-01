@@ -1436,11 +1436,8 @@ PARAMETER_DUMPS = {
     'insider_prices_sslerror': {
         "email": ["optscale-staging-notifications@hystax.com"],
         "subject": "[172.22.20.6] Insider faced Azure SSLError",
-        'template_type': 'insider_prices_sslerror',
-        'template_params': {
-            'texts': {
-                'title': 'Insider faced Azure SSLError',
-                }}},
+        'template_type': 'insider_prices_sslerror'
+    },
     'incorrect_alibaba_expenses': {
         "email": ["optscale-staging-notifications@hystax.com"],
         "subject": "[172.22.20.6] Incorrect expenses for Alibaba data source",

@@ -873,15 +873,10 @@ class HeraldExecutorWorker(ConsumerMixin):
             public_ip = self.config_cl.public_ip()
             title = 'Insider faced Azure SSLError'
             subject = f'[{public_ip}] {title}'
-            template_params = {
-                'texts': {
-                    'title': title
-                }
-            }
             self.herald_cl.email_send(
                 [email], subject,
-                template_type=HeraldTemplates.INSIDER_SSLERROR.value,
-                template_params=template_params)
+                template_type=HeraldTemplates.INSIDER_SSLERROR.value
+            )
 
     def execute(self, task):
         organization_id = task.get('organization_id')
