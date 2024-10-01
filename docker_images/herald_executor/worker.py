@@ -552,27 +552,21 @@ class HeraldExecutorWorker(ConsumerMixin):
         self.send_environment_changes(resource, environment_state_changed,
                                       organization_id)
 
-    def send_expenses_alert(self, email, alert, pool_name, user_display_name,
-                            organization):
-        threshold_message = "%s%s" % (CURRENCY_MAP.get(organization['currency'], '$'),
-                                      alert['threshold'])
+    def send_expenses_alert(self, email, alert, pool_name, organization):
+        threshold = "%s%s" % (CURRENCY_MAP.get(organization['currency'], '$'),
+                              alert['threshold'])
         if alert['threshold_type'] == 'percentage':
-            threshold_message = "%s%%" % alert['threshold']
-        email_body = "Pool %s exceeded by alert base type %s with threshold " \
-                     "value %s." % (pool_name, alert['based'],
-                                    threshold_message)
+            threshold = "%s%%" % alert['threshold']
         template_params = {
             'texts': {
-                'user': {
-                    'user_display_name': user_display_name
-                },
                 'organization': self._get_organization_params(organization),
-                'title': "Pool Limit exceeded",
-                'message': email_body
+                'pool_name': pool_name,
+                'alert_type': alert['based'],
+                'threshold': threshold
             }
         }
         self.herald_cl.email_send(
-            [email], 'Optscale pool limit alert',
+            [email], 'OptScale pool limit alert',
             template_type=HeraldTemplates.POOL_ALERT.value,
             template_params=template_params)
         LOG.info('sending email notification to user %s' % email)
@@ -588,8 +582,7 @@ class HeraldExecutorWorker(ConsumerMixin):
                 _, employee = self.rest_cl.employee_get(employee_id)
                 _, user = self.auth_cl.user_get(employee['auth_user_id'])
                 self.send_expenses_alert(
-                    user['email'], alert, pool['name'], user['display_name'],
-                    organization)
+                    user['email'], alert, pool['name'], organization)
 
     def execute_constraint_violated(self, object_id, organization_id, meta,
                                     object_type):

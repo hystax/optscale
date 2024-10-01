@@ -14,20 +14,18 @@ from os.path import isfile, join
 PARAMETER_DUMPS = {
     'alert': {
         "email": ["kowalski@mail.mg"],
-        "subject": "Optscale Pool limit alert",
+        "subject": "OptScale Pool limit alert",
         "template_type": "alert",
         "template_params": {
             "texts": {
-                "message": "Pool Zoo-org exceeded by alert base type cost with threshold value $5.",
-                "title": "Pool Limit exceeded",
-                "user": {
-                    "user_display_name": "Kowalski"
-                },
                 "organization": {
                     "name": "New York Central Park Zoo",
                     "id": "c432cbd6-ab2b-4c6f-a601-c71c11b5502b",
                     "currency_code": "$"
                 },
+                "pool_name": "Zoo-org",
+                "alert_type": "cost",
+                "threshold": "$5",
             }
         }
     },
