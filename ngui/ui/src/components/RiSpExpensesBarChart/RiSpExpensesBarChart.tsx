@@ -9,6 +9,7 @@ import { RI_SP_CHART_PALETTE } from "theme";
 import { AXIS_FORMATS } from "utils/charts";
 import { FORMATTED_MONEY_TYPES } from "utils/constants";
 import { EN_FORMAT_SHORT_YEAR, formatUTC } from "utils/datetime";
+import { round } from "utils/math";
 
 const getChartData = (breakdown) =>
   Object.entries(breakdown).reduce((data, [key, value]) => {
@@ -27,10 +28,10 @@ const getChartData = (breakdown) =>
           total_cost_without_offer: totalCostWithoutOffer
         } = result;
 
-        const spCostHrsAggregated = spCostWithOffer + itemSpCostWithOffer;
-        const riCostHrsAggregated = riCostWithOffer + itemRiCostWithOffer;
-        const totalCostWithHrsAggregated = totalCostWithOffer + itemTotalCostWithOffer;
-        const totalCostWithoutHrsAggregated = totalCostWithoutOffer + itemTotalCostWithoutOffer;
+        const spCostHrsAggregated = round(spCostWithOffer + itemSpCostWithOffer, 2);
+        const riCostHrsAggregated = round(riCostWithOffer + itemRiCostWithOffer, 2);
+        const totalCostWithHrsAggregated = round(totalCostWithOffer + itemTotalCostWithOffer, 2);
+        const totalCostWithoutHrsAggregated = round(totalCostWithoutOffer + itemTotalCostWithoutOffer);
 
         return {
           ...result,
@@ -63,8 +64,8 @@ const getChartData = (breakdown) =>
       sp_expenses: tempSpCostWithOffer,
       ri_expenses: tempRiCostWithOffer,
       total_expenses: tempTotalCostWithOffer,
-      total_savings: tempTotalCostWithoutOffer - tempTotalCostWithOffer,
-      uncovered_expenses: tempTotalCostWithOffer - tempSpCostWithOffer - tempRiCostWithOffer
+      total_savings: round(tempTotalCostWithoutOffer - tempTotalCostWithOffer, 2),
+      uncovered_expenses: round(tempTotalCostWithOffer - tempSpCostWithOffer - tempRiCostWithOffer, 2)
     };
 
     return [...data, finalItem];
@@ -96,17 +97,17 @@ const getRenderTooltipBody = (sectionData, showSavings) => {
   const {
     data: {
       date,
+      total_expenses: totalExpenses = 0,
+      total_savings: totalSavings = 0,
       sp_cost_with_offer: spCostWithOffer = 0,
       ri_cost_with_offer: riCostWithOffer = 0,
-      total_cost_with_offer: totalCostWithOffer = 0,
-      total_cost_without_offer: totalCostWithoutOffer = 0,
       uncovered_expenses: uncoveredExpenses = 0
     }
   } = sectionData;
 
   const items = [
-    getTooltipItem("totalExpenses", null, uncoveredExpenses + spCostWithOffer + riCostWithOffer),
-    showSavings && getTooltipItem("savings", RI_SP_EXPENSES_COLOR_INDEXES.SAVINGS, totalCostWithoutOffer - totalCostWithOffer),
+    getTooltipItem("totalExpenses", null, totalExpenses),
+    showSavings && getTooltipItem("savings", RI_SP_EXPENSES_COLOR_INDEXES.SAVINGS, totalSavings),
     getTooltipItem("uncoveredExpenses", RI_SP_EXPENSES_COLOR_INDEXES.UNCOVERED_EXPENSES, uncoveredExpenses),
     getTooltipItem("riExpenses", RI_SP_EXPENSES_COLOR_INDEXES.RI_EXPENSES, riCostWithOffer),
     getTooltipItem("spExpenses", RI_SP_EXPENSES_COLOR_INDEXES.SP_EXPENSES, spCostWithOffer)
