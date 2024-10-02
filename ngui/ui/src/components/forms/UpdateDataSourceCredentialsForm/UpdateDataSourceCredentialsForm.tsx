@@ -51,21 +51,23 @@ const Description = ({ type, config }) => {
   switch (type) {
     case AWS_CNR:
       return (
-        <Typography gutterBottom>
+        <>
           {config.linked ? (
-            <FormattedMessage
-              id="createAwsLinkedDocumentationReference3"
-              values={{
-                discoverResourcesLink: (chunks) => (
-                  <Link data-test-id="link_iam_user" href={DOCS_HYSTAX_DISCOVER_RESOURCES} target="_blank" rel="noopener">
-                    {chunks}
-                  </Link>
-                )
-              }}
-            />
+            <Typography gutterBottom>
+              <FormattedMessage
+                id="createAwsLinkedDocumentationReference3"
+                values={{
+                  discoverResourcesLink: (chunks) => (
+                    <Link data-test-id="link_iam_user" href={DOCS_HYSTAX_DISCOVER_RESOURCES} target="_blank" rel="noopener">
+                      {chunks}
+                    </Link>
+                  )
+                }}
+              />
+            </Typography>
           ) : (
-            <>
-              <Typography>
+            <Typography gutterBottom component="div">
+              <div>
                 <FormattedMessage
                   id="createAwsRootDocumentationReference"
                   values={{
@@ -77,8 +79,8 @@ const Description = ({ type, config }) => {
                     strong: (chunks) => <strong>{chunks}</strong>
                   }}
                 />
-              </Typography>
-              <Typography>
+              </div>
+              <div>
                 <FormattedMessage
                   id="migrateToCur2.0"
                   values={{
@@ -95,10 +97,10 @@ const Description = ({ type, config }) => {
                     strong: (chunks) => <strong>{chunks}</strong>
                   }}
                 />
-              </Typography>
-            </>
+              </div>
+            </Typography>
           )}
-        </Typography>
+        </>
       );
     case AZURE_TENANT:
       return (
