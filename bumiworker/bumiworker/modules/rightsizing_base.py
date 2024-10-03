@@ -237,12 +237,12 @@ class RightsizingBase(ModuleBase):
             current_cpu = current_flavor.get('cpu', 0)
             if current_cpu <= recommended_flavor_cpu_min:
                 for res_id in res_ids:
-                    unable_to_get_current_flavor.remove(res_id)
+                    unable_to_get_current_flavor.discard(res_id)
                     write_stat_func('current_cpu_too_low')
                 continue
             cpu_flavor_map = {}
             for res_id in res_ids:
-                unable_to_get_current_flavor.remove(res_id)
+                unable_to_get_current_flavor.discard(res_id)
 
                 current_r_info = r_info[res_id][0]
                 if (cloud_account['type'] == 'azure_cnr' and
