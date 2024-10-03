@@ -175,7 +175,7 @@ export const useGetAvailablePools = (params) => {
     apiData: { pools = [] }
   } = useApiData(GET_AVAILABLE_POOLS);
 
-  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_AVAILABLE_POOLS, { organizationId });
+  const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_AVAILABLE_POOLS, { ...params, organizationId });
 
   useEffect(() => {
     if (shouldInvoke) {
