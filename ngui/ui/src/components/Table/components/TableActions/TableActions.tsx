@@ -59,7 +59,9 @@ const TableActions = ({
   const withColumnsSelector = !!columnsSelectorUID;
   const withColumnSetsSelector = !!columnSetsSelectorId;
 
-  const gotSomethingToDisplay = showActionBar || withSearch || withColumnsSelector || withColumnSetsSelector;
+  const withRangeFilter = !!rangeFilter;
+
+  const gotSomethingToDisplay = showActionBar || withSearch || withRangeFilter || withColumnsSelector || withColumnSetsSelector;
 
   /**
    * TODO: Do not render TableActions completely if there is nothing to display
@@ -91,7 +93,7 @@ const TableActions = ({
           {withColumnSetsSelector && <ColumnSets tableContext={tableContext} />}
         </Box>
       </Box>
-      {!!rangeFilter && (
+      {withRangeFilter && (
         <Box flexGrow={1} px={2}>
           {rangeFilter.title(rangeValue)}
           <Slider

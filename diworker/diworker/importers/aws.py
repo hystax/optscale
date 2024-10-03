@@ -86,6 +86,10 @@ class AWSReportImporter(CSVBaseReportImporter):
         return self.cloud_acc['config'].get('use_edp_discount', False)
 
     @staticmethod
+    def short_resource_id(resource_id):
+        return resource_id[resource_id.find('/') + 1:]
+
+    @staticmethod
     def unzip_report(report_path, dest_dir):
         LOG.info('Extracting %s as zip archive to %s', report_path, dest_dir)
         if zipfile.is_zipfile(report_path):
@@ -412,8 +416,8 @@ class AWSReportImporter(CSVBaseReportImporter):
                 row['_rec_n'] = record_number
                 row['cloud_account_id'] = cloud_account_id
                 if 'lineItem/ResourceId' in row:
-                    r_id = row['lineItem/ResourceId']
-                    row['resource_id'] = r_id[r_id.find('/') + 1:]
+                    row['resource_id'] = self.short_resource_id(
+                        row['lineItem/ResourceId'])
                 start_date = self._datetime_from_expense(
                     row, 'lineItem/UsageStartDate').replace(
                     hour=0, minute=0, second=0)
@@ -475,7 +479,8 @@ class AWSReportImporter(CSVBaseReportImporter):
                         chunk[expense_num]['cloud_account_id'] = cloud_account_id
                         self.detected_cloud_accounts.add(cloud_account_id)
                     elif field_name == 'lineItem/ResourceId' and value:
-                        chunk[expense_num]['resource_id'] = value[value.find('/') + 1:]
+                        chunk[expense_num][
+                            'resource_id'] = self.short_resource_id(value)
                     elif field_name == 'lineItem/UsageStartDate':
                         start_date = self._datetime_from_value(value).replace(
                             hour=0, minute=0, second=0)
@@ -775,7 +780,9 @@ class AWSReportImporter(CSVBaseReportImporter):
             # are related to SP resource
             for exp in expenses:
                 if exp['lineItem/LineItemType'] == 'SavingsPlanCoveredUsage':
-                    sp_covered_chunk[exp['lineItem/ResourceId']].append(exp)
+                    resource_id = self.short_resource_id(
+                        exp['lineItem/ResourceId'])
+                    sp_covered_chunk[resource_id].append(exp)
 
         # use predefined resource type to avoid detecting SP fields
         info_map = {
@@ -887,9 +894,9 @@ class AWSReportImporter(CSVBaseReportImporter):
         if item_type in IGNORE_EXPENSE_TYPES:
             return
         elif 'SavingsPlan' in item_type and sp_id:
-            return sp_id[sp_id.find('/') + 1:]
+            return self.short_resource_id(sp_id)
         elif ri_id:
-            return ri_id[ri_id.find('/') + 1:]
+            return self.short_resource_id(ri_id)
         parts = self.ITEM_TYPE_ID_FIELDS.get(item_type)
         if parts:
             resource_id = ' '.join([expense.get(k)

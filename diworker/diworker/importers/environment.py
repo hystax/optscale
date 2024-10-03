@@ -126,6 +126,20 @@ class EnvironmentReportImporter(BaseReportImporter):
             **self._get_fake_cad_extras(info)
         }
 
+    def get_resource_ids(self, cloud_account_id, period_start):
+        all_resource_ids = super().get_resource_ids(cloud_account_id,
+                                                    period_start)
+        not_deleted_resource_ids = []
+        for i in range(0, len(all_resource_ids), CHUNK_SIZE):
+            chunk = all_resource_ids[i:i+CHUNK_SIZE]
+            chunk_res_ids = [
+                x['cloud_resource_id'] for x in self.mongo_resources.find({
+                    'cloud_account_id': self.cloud_acc_id,
+                    'cloud_resource_id': {'$in': chunk},
+                    'deleted_at': 0}, {'cloud_resource_id': 1})]
+            not_deleted_resource_ids.extend(chunk_res_ids)
+        return not_deleted_resource_ids
+
     def generate_clean_records(self, regeneration=False):
         if regeneration:
             self.period_start = None

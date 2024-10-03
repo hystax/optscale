@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
 import { useMeasure } from "@nivo/core";
 
-// Empiric ???
+/**
+ * The same value as in @nivo/tooltip
+ * packages/tooltip/src/TooltipWrapper.tsx
+ */
 const TOOLTIP_OFFSET = 14;
 
 const ChartTooltip = ({ bandData, renderTooltipBody, barsCount }) => {
@@ -14,20 +17,24 @@ const ChartTooltip = ({ bandData, renderTooltipBody, barsCount }) => {
   const isLeftHalf = (bandData?.index ?? 0) < barsCount / 2;
 
   useEffect(() => {
-    setX(isLeftHalf ? TOOLTIP_OFFSET : -bounds.width - TOOLTIP_OFFSET);
-    setY(-bounds.height / 2);
+    const xOffset = TOOLTIP_OFFSET + bounds.width / 2;
+    const yOffset = TOOLTIP_OFFSET + bounds.height / 2;
+
+    setX(isLeftHalf ? xOffset : -xOffset);
+    setY(yOffset);
   }, [bounds.width, bounds.height, isLeftHalf]);
 
   return (
     <div
       ref={measureRef}
       style={{
-        position: "absolute",
+        position: "relative",
         pointerEvents: "none",
-        left: x,
-        top: y,
+        // left: x,
+        // top: y,
+        transform: `translate(${x}px, ${y}px)`,
         // Without this style rule, the tooltip wraps the text incorrectly when isLeftHalf is true.
-        // For the bars on the right everything is displayed correclty. ¯\_(ツ)_/¯
+        // For the bars on the right everything is displayed correctly.
         width: "max-content"
       }}
     >
