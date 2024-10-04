@@ -1569,16 +1569,9 @@ class Client(Client_v1):
         return '{}/archived_recommendations_details'.format(
             Client.organization_url(organization_id))
 
-    def archived_recommendations_details_get(
-            self, organization_id, type, reason, archived_at, **params):
-        query_params = {
-            'type': type,
-            'reason': reason,
-            'archived_at': archived_at,
-            **params
-        }
+    def archived_recommendations_details_get(self, organization_id, **params):
         url = self.archived_recommendations_details_url(
-            organization_id) + self.query_url(**query_params)
+            organization_id) + self.query_url(**params)
         return self.get(url)
 
     @staticmethod

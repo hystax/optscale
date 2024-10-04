@@ -112,11 +112,18 @@ class BreakdownArchivedRecommendationsController(BaseArchivedRecommendations):
 
 class ArchivedRecommendationsDetailsController(BaseArchivedRecommendations):
     def _get_pipeline_filter(self, organization_id, **params):
+        start_date = params.pop('start_date')
+        end_date = params.pop('end_date')
         res = [
-            {'organization_id': organization_id},
+            {'organization_id': organization_id}
         ]
+        if start_date:
+            res.append({'archived_at': {'$gte': start_date}})
+        if end_date:
+            res.append({'archived_at': {'$lte': end_date}})
         for k, v in params.items():
-            res.append({self._get_pipeline_filter_key(k): v})
+            if v is not None:
+                res.append({self._get_pipeline_filter_key(k): v})
         return res
 
     def _build_pipeline(self, match_filter, limit=None, start_from=0):

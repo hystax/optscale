@@ -202,8 +202,9 @@ class ArchivedRecommendationsDetailsAsyncHandler(SupportedFiltersMixin,
         super().__init__(*args, **kwargs)
         self.list_filters = []
         self.bool_filters = []
-        self.str_filters = ['type', 'reason']
-        self.int_filters = ['archived_at', 'start_from', 'limit']
+        self.str_filters = ['type', 'reason', 'format']
+        self.int_filters = ['archived_at', 'start_date', 'end_date',
+                            'start_from', 'limit']
 
     def _get_controller_class(self):
         return ArchivedRecommendationsDetailsAsyncController
@@ -222,20 +223,27 @@ class ArchivedRecommendationsDetailsAsyncHandler(SupportedFiltersMixin,
         for filter_name in self.str_filters:
             args[filter_name] = self.get_arg(filter_name, str, repeated=False)
             try:
-                check_string_attribute(filter_name, args[filter_name])
+                check_string_attribute(filter_name, args[filter_name],
+                                       allow_empty=True)
             except WrongArgumentsException as exc:
                 raise OptHTTPError.from_opt_exception(400, exc)
 
+        format_ = args['format']
+        if format_ is not None and format_ != 'json':
+            raise OptHTTPError(400, Err.OE0473, [args['format']])
+
         int_filters_validation_params = {
-            'archived_at': (True, None, 1),
-            'start_from': (False, 0, 0),
-            'limit': (False, None, 1)
+            'archived_at': (None, 1),
+            'start_date': (None, 0),
+            'end_date': (None, 1),
+            'start_from': (0, 0),
+            'limit': (None, 1)
         }
         for filter_name in self.int_filters:
-            is_required, default, min_length = int_filters_validation_params.get(
+            default, min_length = int_filters_validation_params.get(
                 filter_name)
             args[filter_name] = self.get_arg(filter_name, int, default=default)
-            if is_required or args[filter_name] is not None:
+            if args[filter_name] is not None:
                 try:
                     check_int_attribute(filter_name, args[filter_name],
                                         min_length=min_length)
@@ -260,17 +268,27 @@ class ArchivedRecommendationsDetailsAsyncHandler(SupportedFiltersMixin,
         -   name: archived_at
             in: query
             description: Archive date (timestamp in seconds)
-            required: true
+            required: false
+            type: integer
+        -   name: start_date
+            in: query
+            description: Start date (timestamp in seconds)
+            required: false
+            type: integer
+        -   name: end_date
+            in: query
+            description: End date (timestamp in seconds)
+            required: false
             type: integer
         -   name: type
             in: query
             description: Optimizations module name
-            required: true
+            required: false
             type: string
         -   name: reason
             in: query
             description: Archiving reason
-            required: true
+            required: false
             type: string
         -   name: start_from
             in: query
@@ -283,6 +301,13 @@ class ArchivedRecommendationsDetailsAsyncHandler(SupportedFiltersMixin,
             description: Limit records count
             required: false
             type: integer
+        -   name: format
+            in: query
+            description: Output format
+            required: false
+            type: string
+            default: json
+            enum: [json]
         responses:
             200:
                 description: Details data
@@ -300,7 +325,8 @@ class ArchivedRecommendationsDetailsAsyncHandler(SupportedFiltersMixin,
                                         example: inactive_users
                                     archived_at:
                                         type: integer
-                                        description: Archive date (timestamp in seconds)
+                                        description: |
+                                            Archive date (timestamp in seconds)
                                         example: 1649853214
                                     reason:
                                         type: string
@@ -348,6 +374,7 @@ class ArchivedRecommendationsDetailsAsyncHandler(SupportedFiltersMixin,
                     - OE0217: Invalid query parameter
                     - OE0224: Wrong integer value
                     - OE0416: Argument should not contain only whitespaces
+                    - OE0473: Format is not allowed
             401:
                 description: |
                     Unauthorized:
@@ -367,11 +394,17 @@ class ArchivedRecommendationsDetailsAsyncHandler(SupportedFiltersMixin,
         await self.check_permissions(
             'INFO_ORGANIZATION', 'organization', organization_id)
         args = self.get_filter_arguments()
+        format_ = args.pop('format', None)
         try:
             res = await run_task(self.controller.get, organization_id, **args)
         except NotFoundException as exc:
             raise OptHTTPError.from_opt_exception(404, exc)
-        self.write(json.dumps(res, cls=ModelEncoder))
+        if format_ == 'json':
+            self.set_content_type('application/json; charset="utf-8"')
+            self.write(json.dumps(res, cls=ModelEncoder, indent=4,
+                                  sort_keys=True))
+        else:
+            self.write(json.dumps(res, cls=ModelEncoder))
 
 
 class ArchivedRecommendationsCountAsyncHandler(BreakdownArchivedRecommendationsAsyncHandler):
