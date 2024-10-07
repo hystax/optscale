@@ -18,10 +18,11 @@ from rest_api.rest_api_server.models.models import (
 from tools.optscale_exceptions.common_exc import (
     FailedDependency, NotFoundException, UnauthorizedException,
     WrongArgumentsException)
-from rest_api.rest_api_server.utils import Config, CURRENCY_MAP
+from rest_api.rest_api_server.utils import Config
 
 from optscale_client.auth_client.client_v2 import Client as AuthClient
 from optscale_client.katara_client.client import Client as KataraClient
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 
 LOG = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ class OrganizationController(BaseController, ClickHouseMixin):
 
     def _validate(self, item, is_new=True, **kwargs):
         currency = kwargs.get('currency')
-        if currency is not None and currency not in CURRENCY_MAP:
+        if currency is not None and currency not in CURRENCY_SYMBOLS_MAP:
             raise WrongArgumentsException(Err.OE0536, [currency])
 
     def get_cloud_accounts(self, item_id, only_external=False):

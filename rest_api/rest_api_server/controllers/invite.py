@@ -13,12 +13,13 @@ from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import InviteAssignmentScopeTypes
 from rest_api.rest_api_server.models.models import (
     Invite, InviteAssignment, Organization, Pool)
-from rest_api.rest_api_server.utils import CURRENCY_MAP, query_url
+from rest_api.rest_api_server.utils import query_url
 
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
 from tools.optscale_exceptions.common_exc import (
     NotFoundException, HeraldException, WrongArgumentsException)
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 
 LOG = logging.getLogger(__name__)
 
@@ -285,7 +286,7 @@ class InviteController(BaseController):
                 'organization': {
                     'id': organization_id,
                     'name': organization_name,
-                    'currency_code': CURRENCY_MAP.get(currency, '$')
+                    'currency_code': CURRENCY_SYMBOLS_MAP.get(currency, '$')
                 },
             },
             'links': {

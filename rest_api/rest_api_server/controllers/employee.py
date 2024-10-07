@@ -23,10 +23,11 @@ from rest_api.rest_api_server.models.enums import (
 from rest_api.rest_api_server.models.models import (
     AssignmentRequest, Employee, Layout, Organization, Pool, Rule,
     ShareableBooking)
-from rest_api.rest_api_server.utils import Config, CURRENCY_MAP
+from rest_api.rest_api_server.utils import Config
 
 from optscale_client.auth_client.client_v2 import Client as AuthClient
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 
 LOG = logging.getLogger(__name__)
 
@@ -449,7 +450,7 @@ class EmployeeController(BaseController, MongoMixin):
                 'organization': {
                     'id': organization_id,
                     'name': organization_name,
-                    'currency_code': CURRENCY_MAP.get(currency, "$")
+                    'currency_code': CURRENCY_SYMBOLS_MAP.get(currency, "$")
                 },
                 'user': {
                     'id': employee_id,

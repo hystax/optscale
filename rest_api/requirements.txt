@@ -17,6 +17,7 @@ pyyaml==6.0.1
 protobuf==3.20.3
 google-api-python-client==1.7.11
 google-auth-oauthlib==0.4.0
+currency-symbols==2.0.3
 
 # OptScale packages
 -e tools/cloud_adapter

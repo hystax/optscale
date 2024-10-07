@@ -7,7 +7,7 @@ from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerW
 from rest_api.rest_api_server.controllers.employee import EmployeeController
 from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.models import Organization
-from rest_api.rest_api_server.utils import CURRENCY_MAP
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 
 LOG = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class AuditSubmitController(BaseController):
                 'organization': {
                     'id': org_id,
                     'name': org_name,
-                    'currency_code': CURRENCY_MAP.get(currency, '$')
+                    'currency_code': CURRENCY_SYMBOLS_MAP.get(currency, '$')
                 },
                 'employee': {
                     'id': employee_id,
