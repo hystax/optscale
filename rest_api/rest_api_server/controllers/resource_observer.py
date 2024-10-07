@@ -54,10 +54,12 @@ class ResourceObserverController(BaseController, MongoMixin):
             resources_.update({r['_id']: r for r in res})
         inactive_res_ids = list(resources_.keys())
         if inactive_res_ids:
-            self.resources_collection.update_many(
-                filter={'_id': {'$in': inactive_res_ids}},
-                update={'$unset': {'active': 1}}
-            )
+            for i in range(0, len(inactive_res_ids), BULK_SIZE):
+                chunk = inactive_res_ids[i:i+BULK_SIZE]
+                self.resources_collection.update_many(
+                    filter={'_id': {'$in': chunk}},
+                    update={'$unset': {'active': 1}}
+                )
         return list(resources_.values())
 
     def _clear_clusters_active_flags(self, cluster_ids, organization_id):

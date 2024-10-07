@@ -316,19 +316,20 @@ class TestArchivedRecommendationsDetailsApi(TestArchivedRecommendationsBase):
 
     def test_details_nonexistent_organization(self):
         code, res = self.client.archived_recommendations_details_get(
-            str(uuid.uuid4()), 'module', 'reason', 123)
+            str(uuid.uuid4()), type='module', reason='reason', archived_at=123)
         self.assertEqual(code, 404)
 
     def test_details_empty(self):
         code, res = self.client.archived_recommendations_details_get(
-            self.org_id, 'module', 'reason', 123)
+            self.org_id, type='module', reason='reason', archived_at=123)
         self.assertEqual(code, 200)
         self.assertEqual(res['count'], 0)
         self.assertEqual(res['items'], [])
 
     def test_details_unexpected_parameters(self):
         code, res = self.client.archived_recommendations_details_get(
-            self.org_id, 'module', 'reason', 123, key='value')
+            self.org_id, type='module', reason='reason', archived_at=123,
+            key='value')
         self.assertEqual(code, 400)
         self.assertEqual(res['error']['error_code'], 'OE0212')
 
@@ -340,14 +341,14 @@ class TestArchivedRecommendationsDetailsApi(TestArchivedRecommendationsBase):
             str(uuid.uuid4()), module, reason, self.instance,
             archived_at)
         code, res = self.client.archived_recommendations_details_get(
-            self.org_id, module, reason, archived_at)
+            self.org_id, type=module, reason=reason, archived_at=archived_at)
         self.assertEqual(code, 200)
         self.assertEqual(res['count'], 0)
         self.assertEqual(res['items'], [])
 
     def test_details_incorrect_date(self):
         code, res = self.client.archived_recommendations_details_get(
-            self.org_id, 'module', 'reason', archived_at=-123)
+            self.org_id, type='module', reason='reason', archived_at=-123)
         self.assertEqual(code, 400)
         self.assertEqual(res['error']['error_code'], 'OE0224')
 
@@ -458,6 +459,49 @@ class TestArchivedRecommendationsDetailsApi(TestArchivedRecommendationsBase):
             archived_at=self.start_date, start_from=-1)
         self.assertEqual(code, 400)
         self.assertEqual(res['error']['error_code'], 'OE0224')
+
+    def test_details_dates(self):
+        self._add_archive_recommendation(
+            self.org_id, 'module', 'reason', self.instance, self.start_date)
+        code, res = self.client.archived_recommendations_details_get(
+            self.org_id, start_date=self.start_date, end_date=self.end_date)
+        self.assertEqual(code, 200)
+        self.assertEqual(res['count'], 1)
+        self.assertEqual(len(res['items']), 1)
+
+        code, res = self.client.archived_recommendations_details_get(
+            self.org_id, end_date=self.end_date)
+        self.assertEqual(code, 200)
+        self.assertEqual(res['count'], 1)
+        self.assertEqual(len(res['items']), 1)
+
+        code, res = self.client.archived_recommendations_details_get(
+            self.org_id, start_date=self.start_date)
+        self.assertEqual(code, 200)
+        self.assertEqual(res['count'], 1)
+        self.assertEqual(len(res['items']), 1)
+
+    def test_details_invalid_dates(self):
+        for param in ['start_date', 'end_date']:
+            code, res = self.client.archived_recommendations_details_get(
+                self.org_id, **{param: 'test'})
+            self.assertEqual(code, 400)
+            self.assertEqual(res['error']['error_code'], 'OE0217')
+
+    def test_details_format(self):
+        self._add_archive_recommendation(
+            self.org_id, 'module', 'reason', self.instance, self.start_date)
+        code, res = self.client.archived_recommendations_details_get(
+                self.org_id, format='json')
+        self.assertEqual(code, 200)
+        self.assertEqual(res['count'], 1)
+        self.assertEqual(len(res['items']), 1)
+
+    def test_details_invalid_format(self):
+        code, res = self.client.archived_recommendations_details_get(
+                self.org_id, format='test')
+        self.assertEqual(code, 400)
+        self.assertEqual(res['error']['error_code'], 'OE0473')
 
     def test_details_pages(self):
         count = 15
