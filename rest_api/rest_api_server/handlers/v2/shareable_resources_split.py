@@ -27,14 +27,19 @@ class SplitShareableResourceAsyncHandler(BaseAsyncItemHandler,
             description: organization id
             required: true
         -   in: body
-            name: resource_ids
-            description: ids of resources
+            name: body
+            description: Resource ids
             required: true
             schema:
-                type: array
-                items:
-                    type: string
-                    description: Resource ids
+                type: object
+                properties:
+                    resource_ids:
+                        description: ids of resources
+                        required: true
+                        type: array
+                        items:
+                            type: string
+                            description: Resource ids
         responses:
             200:
                 description: |

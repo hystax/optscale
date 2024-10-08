@@ -520,8 +520,8 @@ class TestShareableResourcesApi(TestApiBase):
         released_at = now + DAY_SECONDS
         code, response = self.client.shareable_book_release(
             book['id'], {'released_at': released_at})
-
         self.assertEqual(code, 200)
+        self.assertEqual(response['acquired_by']['id'], self.employee_2['id'])
         p_activities_publish.assert_has_calls([
             call(
                 response['organization_id'], resource['id'], 'resource',
@@ -681,8 +681,10 @@ class TestShareableResourcesApi(TestApiBase):
         self.assertEqual(code, 201)
         code, data = self.client.shareable_book_get(book['id'])
         self.assertEqual(code, 200)
+        schedule_book.pop('acquired_by_id', None)
         for k, v in schedule_book.items():
             self.assertEqual(data[k], v)
+        self.assertEqual(data['acquired_by']['id'], self.employee_2['id'])
 
     def test_get_not_existing_booking(self):
         code, data = self.client.shareable_book_get('123')
@@ -1060,6 +1062,7 @@ class TestShareableResourcesApi(TestApiBase):
         self.assertEqual(len(bookings), 2)
         self.assertEqual(bookings[0]['released_at'], old_until)
         self.assertEqual(bookings[1]['acquired_since'], now)
+        self.assertEqual(bookings[1]['acquired_by']['id'], self.employee['id'])
 
     def test_patch_current_booking(self):
         resource = self._create_resource()
