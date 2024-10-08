@@ -8,9 +8,9 @@ from rest_api.rest_api_server.controllers.organization import OrganizationContro
 from rest_api.rest_api_server.models.models import Employee
 from rest_api.rest_api_server.models.enums import (
     RolePurposes, InviteAssignmentScopeTypes)
-from rest_api.rest_api_server.utils import CURRENCY_MAP
 
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 
 LOG = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ class RegisterController(BaseController):
                 'organization': {
                     'id': org_id,
                     'name': org_name,
-                    'currency_code': CURRENCY_MAP.get(currency, '$')
+                    'currency_code': CURRENCY_SYMBOLS_MAP.get(currency, '$')
                 }
             }
         }

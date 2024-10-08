@@ -1,5 +1,4 @@
-from katara.katara_worker.consts import CURRENCY_MAP
-
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 from optscale_client.auth_client.client_v2 import Client as AuthClient
 from optscale_client.rest_api_client.client_v2 import Client as RestClient
 
@@ -30,4 +29,4 @@ class Base(object):
 
     @staticmethod
     def get_currency_code(currency):
-        return CURRENCY_MAP.get(currency, '')
+        return CURRENCY_SYMBOLS_MAP.get(currency, '')

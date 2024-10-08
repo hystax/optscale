@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from datetime import datetime
-from slacker.slacker_server.constants import CURRENCY_MAP
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 
 __all__ = ['get_resource_details_block', 'get_resource_details_message']
 
@@ -70,7 +70,7 @@ def _get_expense_limit_msg(c_sign, total_cost, expense):
 def get_resource_details_message(
         resource, org_id, public_ip, booking=None,
         currency='USD', total_expense_limit_enabled=False):
-    c_sign = CURRENCY_MAP.get(currency, '')
+    c_sign = CURRENCY_SYMBOLS_MAP.get(currency, '')
     r_id = resource['id']
     details = resource['details']
     pool_id = resource.get('pool_id')

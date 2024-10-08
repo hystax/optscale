@@ -68,8 +68,24 @@ class EnvironmentResourceController(CloudResourceController,
         return obj
 
     def edit(self, item_id, **kwargs):
-        self.get(item_id)
+        item = self.get(item_id)
         edited_env = super().edit(item_id, **kwargs)
+        if item['active'] != edited_env['active']:
+            cloud_account_id = edited_env['cloud_account_id']
+            organization_id = CloudAccountController(
+                self.session, self._config, self.token).get(
+                    cloud_account_id).organization_id
+            state = {
+                True: 'activated',
+                False: 'deactivated'
+            }
+            meta = {
+                'state': state[edited_env['active']],
+                'object_name': edited_env.get('name')
+            }
+            self.publish_activities_task(
+                organization_id, item_id, 'environment', 'env_power_mngmt',
+                meta, 'environment.env_power_mngmt')
         return edited_env
 
     def get_environment_account(self, organization_id, no_create=False):

@@ -343,9 +343,13 @@ class TestEnvironmentResourceApi(TestApiBase):
             'previous_state': 'Active',
             'new_state': 'Not Active'
         }
-        p_disp_task.assert_called_once_with(
-            self.org_id, res['id'], 'resource', 'env_active_state_changed',
-            meta, 'alert.violation.env_change')
+        p_disp_task.assert_has_calls([
+            call(self.org_id, res['id'], 'resource',
+                 'env_active_state_changed', meta,
+                 'alert.violation.env_change'),
+            call(self.org_id, res['id'], 'environment', 'env_power_mngmt',
+                 {'state': 'deactivated', 'object_name': res['name']},
+                 'environment.env_power_mngmt')], any_order=True)
         p_disp_task.reset_mock()
 
         # env_properties updated
@@ -391,9 +395,13 @@ class TestEnvironmentResourceApi(TestApiBase):
             'previous_state': 'Active',
             'new_state': 'Not Active'
         }
-        p_disp_task.assert_called_once_with(
-            self.org_id, res['id'], 'resource', 'env_active_state_changed',
-            meta, 'alert.violation.env_change')
+        p_disp_task.assert_has_calls([
+            call(self.org_id, res['id'], 'resource',
+                 'env_active_state_changed', meta,
+                 'alert.violation.env_change'),
+            call(self.org_id, res['id'], 'environment', 'env_power_mngmt',
+                 {'state': 'deactivated', 'object_name': res['name']},
+                 'environment.env_power_mngmt')], any_order=True)
         p_disp_task.reset_mock()
 
         # env_properties updated

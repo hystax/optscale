@@ -6,6 +6,7 @@ alembic==1.13.1
 mysql-connector-python==8.1.0
 apispec==6.3.1
 pyyaml==6.0.1
+currency-symbols==2.0.3
 # OptScale packages
 -e tools/optscale_exceptions
 -e optscale_client/auth_client

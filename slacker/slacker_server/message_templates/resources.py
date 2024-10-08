@@ -1,5 +1,5 @@
 from slacker.slacker_server.message_templates.common import get_resource_type_location
-from slacker.slacker_server.constants import CURRENCY_MAP
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP as CURRENCY_MAP
 
 __all__ = ['get_resource_blocks', 'get_resources_message']
 

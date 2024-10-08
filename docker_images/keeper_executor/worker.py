@@ -24,7 +24,7 @@ TASK_EXCHANGE = Exchange(EXCHANGE_NAME, type='topic')
 ROUTING_KEYS = [
     'pool.#', 'employee.#', 'calendar_synchronization.#', 'cloud_account.#',
     'organization.*', 'cluster_type.#', 'report_import.#', 'resource.#',
-    'alert.action.added', 'alert.action.removed', 'rule.#']
+    'alert.action.added', 'alert.action.removed', 'rule.#', 'environment.#']
 TASK_QUEUE = Queue(QUEUE_NAME, TASK_EXCHANGE, bindings=[
     binding(TASK_EXCHANGE, routing_key=routing_key)
     for routing_key in ROUTING_KEYS])
@@ -337,7 +337,12 @@ class KeeperExecutorWorker(ConsumerMixin):
                      'submitted for technical audit by employee '
                      '{employee_name} ({employee_id})', 'N0120',
                      ['object_name', 'object_id', 'employee_name',
-                      'employee_id']))
+                      'employee_id'])),
+                'env_power_mngmt': (
+                    self.execute_event_base,
+                    ('Shared environment {object_name} ({object_id}) has been '
+                     '{state}', 'N0122',
+                     ['object_name', 'object_id', 'state'])),
             }
         return self._action_func_details_map
 

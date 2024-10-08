@@ -22,10 +22,10 @@ from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.models import (
     Employee, Organization, ShareableBooking, Pool, JiraIssueAttachment)
 from rest_api.rest_api_server.utils import (check_int_attribute,
-                                            raise_not_provided_exception,
-                                            CURRENCY_MAP)
+                                            raise_not_provided_exception)
 from sqlalchemy import or_, and_, false
 from sqlalchemy.exc import IntegrityError
+from currency_symbols.currency_symbols import CURRENCY_SYMBOLS_MAP
 
 LOG = logging.getLogger(__name__)
 ROUTING_KEY = 'booking-activity'
@@ -181,7 +181,8 @@ class ShareableBookingController(BaseController, MongoMixin,
                 'organization': {
                     'id': organization.id,
                     'name': organization.name,
-                    'currency_code': CURRENCY_MAP.get(organization.currency, '$')
+                    'currency_code': CURRENCY_SYMBOLS_MAP.get(
+                        organization.currency, '$')
                 },
                 'shareable_resource_count': count
             }
