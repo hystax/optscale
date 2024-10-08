@@ -1,7 +1,7 @@
 ### **Summary**
 
 Runset is a collection of runs that will be automatically created upon the launch of the runset. Each run will be executed 
-on a cloud instance (runner). The runset expects that the user script with integrated ```optscale-arcee```will be executed 
+on a cloud instance (runner). The runset expects that the user script with integrated ```optscale-arcee``` will be executed 
 on the runner. As a result, a new run will be added to the runset task. Otherwise, the runset will be considered 
 as failed.
 
