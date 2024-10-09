@@ -11,6 +11,7 @@ export const useChartTheme = () => {
     ? remToPx(parseFloat(themeTextFontSize))
     : parseInt(themeTextFontSize, 10);
 
+  // https://nivo.rocks/guides/theming
   return useMemo(
     () => ({
       canvas: {
@@ -18,9 +19,22 @@ export const useChartTheme = () => {
           fontFamily: theme.typography.fontFamily,
           fontSize: `${themTextFontSizePixelsNumber}px`,
           font: `${themTextFontSizePixelsNumber}px ${theme.typography.fontFamily}`
+        },
+        marker: {
+          xOffset: 14,
+          yOffset: 10,
+          lineDash: [10, 10],
+          lineWidth: 2,
+          color: theme.palette.error.main,
+          font: `${themTextFontSizePixelsNumber}px ${theme.typography.fontFamily}`
         }
       },
-      // https://nivo.rocks/guides/theming
+      labels: {
+        text: {
+          fontSize: themTextFontSizePixelsNumber,
+          fontFamily: theme.typography.fontFamily
+        }
+      },
       axis: {
         domain: {
           line: {
@@ -47,6 +61,7 @@ export const useChartTheme = () => {
     }),
     [
       themTextFontSizePixelsNumber,
+      theme.palette.error.main,
       theme.palette.info.light,
       theme.palette.text.primary,
       theme.typography.fontFamily,
