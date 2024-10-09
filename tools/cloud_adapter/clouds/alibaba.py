@@ -259,9 +259,9 @@ class Alibaba(CloudBase):
 
     @staticmethod
     def _exclude_closed_regions(regions):
-        # 'ap-south-1' region is closed, but it still remains in regions list,
-        # let's exclude it
-        closed_regions = ['ap-south-1']
+        # 'ap-south-1', 'ap-southeast-2' regions are closed, but they still
+        # remains in regions list, let's exclude them
+        closed_regions = ['ap-south-1', 'ap-southeast-2']
         return [x for x in regions if x['RegionId'] not in closed_regions]
 
     def _list_region_details(self):
@@ -744,7 +744,7 @@ class Alibaba(CloudBase):
                 'name': 'Singapore',
                 'longitude': 103.7038234, 'latitude': 1.3139961},
             'ap-southeast-2': {
-                'name': 'Australia (Sydney)',
+                'name': 'Australia (Sydney) (Closing down)',
                 'longitude': 150.7915495, 'latitude': -33.8481643},
             'ap-southeast-3': {
                 'name': 'Malaysia (Kuala Lumpur)',
@@ -786,14 +786,18 @@ class Alibaba(CloudBase):
 
     @staticmethod
     def _get_outdated_regions():
-        # "India (Mumbai)" region was renamed to "India (Mumbai) Closing Down",
-        # but it still remains in old expenses. Let's create a fake region with
-        # the outdated name, as optscale uses regions names instead of ids for
-        # Alibaba cloud
+        # "India (Mumbai)" and "Australia (Sydney)" regions were renamed to
+        # "India (Mumbai) Closing Down" and "Australia (Sydney) (Closing
+        # down)", but they still remains in old expenses. Let's create a fake
+        # region with the outdated name, as optscale uses regions names
+        # instead of ids for Alibaba cloud
         return {
             'ap-south-1-fake': {
                 'name': 'India (Mumbai)',
                 'longitude': 72.74076, 'latitude': 19.0821976},
+            'ap-southeast-2-fake': {
+                'name': 'Australia (Sydney)',
+                'longitude': 150.7915495, 'latitude': -33.8481643},
         }
 
     def get_regions_coordinates(self):

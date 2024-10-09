@@ -81,6 +81,8 @@ class InsecureSecurityGroups(ModuleBase):
                 continue
             cloud_resources = list(filter(
                 lambda x: x['cloud_account_id'] == config['id'], resources))
+            if not cloud_resources:
+                continue
             try:
                 security_groups = security_group_call(
                     config, cloud_resources, excluded_pools, insecure_ports)
