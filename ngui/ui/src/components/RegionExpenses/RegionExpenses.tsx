@@ -49,7 +49,7 @@ const getColumns = (navigate, startDate, endDate) => [
     cell: ({ row: { original }, cell }) => {
       const value = cell.getValue();
 
-      return original.type ? <CloudLabel label={value} type={original.type} /> : value ?? <FormattedMessage id="(not set)" />;
+      return original.type ? <CloudLabel label={value} type={original.type} /> : (value ?? <FormattedMessage id="(not set)" />);
     }
   },
   {

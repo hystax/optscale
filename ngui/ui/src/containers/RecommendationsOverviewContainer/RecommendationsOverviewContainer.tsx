@@ -68,15 +68,14 @@ const RecommendationsOverviewContainer = ({ selectedDataSources }) => {
   const optscaleRecommendations = useOptscaleRecommendations();
 
   const organizationRecommendationOptions = options
-    .filter(
-      ({ name }) =>
-        /**
-         * The options API has 2 output formats: an array of names ([string]) and an array of objects ([{name, value}]).
-         * On the "Org options" page, we request options with withValues set to false, giving us an array of strings.
-         * However, on the Recommendations page, when trying to access the "name" property, it's undefined, resulting in a "cannot read property" error.
-         * Adding `?.` fixes OS-6409
-         */
-        name?.startsWith(OPTION_PREFIX)
+    .filter(({ name }) =>
+      /**
+       * The options API has 2 output formats: an array of names ([string]) and an array of objects ([{name, value}]).
+       * On the "Org options" page, we request options with withValues set to false, giving us an array of strings.
+       * However, on the Recommendations page, when trying to access the "name" property, it's undefined, resulting in a "cannot read property" error.
+       * Adding `?.` fixes OS-6409
+       */
+      name?.startsWith(OPTION_PREFIX)
     )
     .reduce((result, { name, value }) => ({ ...result, [name.slice(OPTION_PREFIX.length)]: value }), {});
 

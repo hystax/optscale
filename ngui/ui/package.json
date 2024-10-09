@@ -140,7 +140,7 @@
     "eslint-plugin-unused-imports": "^3.2.0",
     "glob": "^10.3.10",
     "jsdom": "^22.1.0",
-    "prettier": "^3.1.1",
+    "prettier": "^3.3.3",
     "redux-immutable-state-invariant": "^2.1.0",
     "storybook": "^7.6.20",
     "vitest": "^0.34.6"
