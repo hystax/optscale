@@ -11,9 +11,10 @@ type ShareSwitchProps = {
   adornment?: ReactNode;
   sx?: Record<string, unknown>;
   isLoading?: boolean;
+  defaultValue?: boolean;
 };
 
-const Switch = ({ name, label, onChange, adornment, sx, isLoading }: ShareSwitchProps) => {
+const Switch = ({ name, label, onChange, adornment, sx, defaultValue, isLoading }: ShareSwitchProps) => {
   const { control } = useFormContext();
 
   return isLoading ? (
@@ -25,6 +26,7 @@ const Switch = ({ name, label, onChange, adornment, sx, isLoading }: ShareSwitch
           <Controller
             name={name}
             control={control}
+            defaultValue={defaultValue}
             render={({ field }) => (
               <MuiSwitch
                 checked={field.value}
