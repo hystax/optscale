@@ -299,6 +299,10 @@ class ShareableBookingController(BaseController, MongoMixin,
 
         return self.fill_booking_acquired_by(shareable_book)
 
+    def get_by_id(self, item_id, **kwargs):
+        result = super().get(item_id, **kwargs)
+        return self.fill_booking_acquired_by(result)
+
     def get_resource_current_booking(self, resource_id):
         now_ts = int(datetime.utcnow().timestamp())
         resource_booking = self.session.query(ShareableBooking).filter(
@@ -435,7 +439,7 @@ class ShareableBookingController(BaseController, MongoMixin,
                 item.organization_id, resource['_id'], 'resource',
                 'shareable_resource_changed', meta,
                 'resource.shareable_resource_changed', add_token=True)
-        return item
+        return self.fill_booking_acquired_by(item)
 
     @staticmethod
     def fill_booking_acquired_by(booking):
@@ -588,7 +592,7 @@ class ShareableBookingController(BaseController, MongoMixin,
                 )
             )
         ).all()
-        return shareable_bookings
+        return [self.fill_booking_acquired_by(x) for x in shareable_bookings]
 
 
 class ShareableBookingAsyncController(BaseAsyncControllerWrapper):

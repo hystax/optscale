@@ -437,7 +437,7 @@ class TestEmployeeApi(TestProfilingBase):
         self.assertEqual(code, 204)
         code, res = self.client.shareable_book_get(booking['id'])
         self.assertEqual(code, 200)
-        self.assertEqual(res['acquired_by_id'], root_emp['id'])
+        self.assertEqual(res['acquired_by']['id'], root_emp['id'])
 
     @patch('optscale_client.auth_client.client_v2.Client.assignment_list')
     def test_delete_reassign_resources(self, p_assignment_list):

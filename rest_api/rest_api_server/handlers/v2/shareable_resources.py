@@ -207,7 +207,7 @@ class ShareableBookingAsyncHandler(BaseAsyncCollectionHandler,
             type: integer
         responses:
             200:
-                description: List of booking
+                description: List of bookings
                 schema:
                     type: object
                     properties:
@@ -220,20 +220,13 @@ class ShareableBookingAsyncHandler(BaseAsyncCollectionHandler,
                                     resource_id: ab9079bf-39eb-4ef5-8c3c-cf4619662b04
                                     created_at: 1634651742
                                     organization_id: 52485b43-c154-4d0a-b2cc-43ce26f1fbee
-                                    acquired_by_id: a9f72db9-8e07-466f-88e9-82f51526f586
+                                    acquired_by:
+                                        id: a9f72db9-8e07-466f-88e9-82f51526f586
+                                        name: John Snow
                                     deleted_at: 0
                                     acquired_since: 1634651742
                                     released_at: 0
-                                    ssh_key: None
-                                -   id: 42ca15ee-602e-4daf-9d0c-8533ccaf02ed
-                                    resource_id: ab9079bf-39eb-4ef5-8c3c-cf4619662b04
-                                    created_at: 1634651743
-                                    organization_id: 52485b43-c154-4d0a-b2cc-43ce26f1fbee
-                                    acquired_by_id: 5348030f-b0e1-44af-9731-2f664b6aa52f
-                                    deleted_at: 0
-                                    acquired_since: 1634651743
-                                    released_at: 1634651745
-                                    ssh_key: None
+                                    ssh_key: null
             401:
                 description: |
                     Unauthorized:
@@ -258,7 +251,7 @@ class ShareableBookingAsyncHandler(BaseAsyncCollectionHandler,
         self.check_date_arguments(args)
         res = await run_task(self.controller.get_shareable_bookings,
                              organization_id=organization_id, **args)
-        result = {'data': [r.to_dict() for r in res]}
+        result = {'data': res}
         self.write(json.dumps(result, cls=ModelEncoder))
 
 
@@ -280,17 +273,17 @@ class ShareableResourceAsyncHandler(BaseAsyncCollectionHandler,
         -   name: client_key
             in: query
             description: Jira issue tenant id
-            required: true
+            required: false
             type: string
         -   name: project_key
             in: query
             description: Jira issue project id
-            required: true
+            required: false
             type: string
         -   name: issue_number
             in: query
             description: Jira issue number
-            required: true
+            required: false
             type: string
         responses:
             200:
@@ -418,6 +411,7 @@ class ShareableResourceAsyncHandler(BaseAsyncCollectionHandler,
                     - OE0002: Organization not found
         security:
         - token: []
+        - secret: []
         """
         if not self.check_cluster_secret(raises=False):
             await self.check_permissions(
@@ -564,6 +558,16 @@ class ShareableBookingAsyncItemHandler(BaseAsyncItemHandler,
             description: Shareable Booking Id
             required: true
             type: string
+        -   in: body
+            name: body
+            description: Released time
+            required: true
+            schema:
+                type: object
+                properties:
+                    released_at:
+                        type: integer
+                        description: released timestamp
         responses:
             200:
                 description: Success (returns modified value)
@@ -573,7 +577,9 @@ class ShareableBookingAsyncItemHandler(BaseAsyncItemHandler,
                         id: 86c4fdf2-8920-46dd-b7e0-fff443a43f1c
                         resource_id: 75fc97bc-4f3b-4d25-9715-a8b35273f58d
                         organization_id: 19239823-c9a1-448a-9ba3-b22f1f60e826
-                        acquired_by_id: 747a69cb-9cb6-40c7-94a0-91979a9bd827
+                        acquired_by:
+                            id: 747a69cb-9cb6-40c7-94a0-91979a9bd827
+                            name: John Snow
                         acquired_since: 1628582018
                         released_at: 0
                         created_at: 1587029026
@@ -633,7 +639,7 @@ class ShareableBookingAsyncItemHandler(BaseAsyncItemHandler,
                              item_id=id,
                              is_admin_permission=is_admin_permission, **data)
         self.set_status(200)
-        self.write(res.to_json())
+        self.write(res)
 
     async def get(self, id, **kwargs):
         """
@@ -655,26 +661,43 @@ class ShareableBookingAsyncItemHandler(BaseAsyncItemHandler,
                 schema:
                     type: object
                     properties:
-                        id: {type: string,
-                            description: "Unique shareable booking id"}
-                        organization_id: {type: string,
-                            description: "Organization id"}
-                        resource_id: {type: string,
-                            description: "Resource id"}
-                        acquired_by: {type: string,
-                            description: "Employee ID"}
-                        deleted_at: {type: integer,
-                            description: "Deleted timestamp (service field)"}
-                        created_at: {type: integer,
-                            description: "Created timestamp (service field)"}
-                        acquired_since: {type: integer,
-                            description: "Booking start timestamp"}
-                        released_at: {type: integer,
-                            description: "Release booking timestamp"}
-                        ssh_key: {type: string,
-                            description: "Json encoded strint with ssh_key"}
-                        event_id : {type: string,
-                            description: "Google Calendar event id"}
+                        id:
+                            type: string
+                            description: Unique shareable booking id
+                        organization_id:
+                            type: string
+                            description: Organization id
+                        resource_id:
+                            type: string,
+                            description: Resource id
+                        acquired_by:
+                            type: object
+                            description: Employee info
+                            properties:
+                                id:
+                                    type: string
+                                    description: Employee id
+                                name:
+                                    type: string
+                                    description: Employee name
+                        deleted_at:
+                            type: integer
+                            description: Deleted timestamp (service field)
+                        created_at:
+                            type: string
+                            description: Created timestamp (service field)
+                        acquired_since:
+                            type: integer
+                            description: Booking start timestamp
+                        released_at:
+                            type: integer
+                            description: Release booking timestamp
+                        ssh_key:
+                            type: string
+                            description: Json encoded strint with ssh_key
+                        event_id :
+                            type: string
+                            description: Google Calendar event id
             401:
                 description: |
                     Unauthorized:
@@ -692,11 +715,14 @@ class ShareableBookingAsyncItemHandler(BaseAsyncItemHandler,
         - token: []
         - secret: []
         """
-        shareable_booking = await self._get_item(id)
         if not self.check_cluster_secret(raises=False):
             await self.check_permissions(
                 'INFO_ORGANIZATION', 'shareable_booking', id)
-        self.write(shareable_booking.to_json())
+        res = await run_task(self.controller.get_by_id, id, **kwargs)
+        type_name = self.controller.model_type.__name__
+        if res is None:
+            raise OptHTTPError(404, Err.OE0002, [type_name, id])
+        self.write(res)
 
     async def delete(self, id, **kwargs):
         """
