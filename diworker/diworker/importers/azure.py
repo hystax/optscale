@@ -213,7 +213,17 @@ class AzureReportImporter(BaseReportImporter):
             # collect all usage parts without them being overwritten by each
             # other. Later, on clean expense generation, all entries for one
             # day will be summed together.
-            daily_usages = self._get_day_raw_usage(current_day)
+            try:
+                daily_usages = self._get_day_raw_usage(current_day)
+            except AzureErrorResponseException as exc:
+                code = getattr(exc.error, 'additional_properties', {}).get(
+                    'error', {}).get('code')
+                if code == 'SubscriptionNotFound':
+                    msg = exc.error.additional_properties['error'].get(
+                        'message')
+                    raise AzureResourceNotFoundError(msg)
+                else:
+                    raise exc
             record_number = 0
             try:
                 for usage_obj in daily_usages:
