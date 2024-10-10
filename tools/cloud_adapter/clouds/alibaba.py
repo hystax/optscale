@@ -177,6 +177,7 @@ class Alibaba(CloudBase):
                 timeout=DEFAULT_READ_TIMEOUT,
             )
             self._regional_clients[region] = client
+        request.set_user_agent({})
         response = client.do_action_with_exception(request)
         return json.loads(response.decode('utf-8'))
 
