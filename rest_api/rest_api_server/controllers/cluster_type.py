@@ -568,12 +568,13 @@ class ClusterTypeApplyController(ClusterTypeController):
                         },
                     },
                 ))
-
-        args = ['cluster_id', 'cluster_name', 'clustered_resources_count',
-                'clusters_count']
         for c_type_info in cluster_types_apply_stat.values():
-            meta = {k: c_type_info.get(k) for k in args}
-            meta.update({'object_name': c_type_info['name']})
+            meta = {
+                'object_name': c_type_info['name'],
+                'clusters_count': c_type_info['clusters_count'],
+                'clustered_resources_count': c_type_info[
+                    'clustered_resources_count']
+            }
             self.publish_activities_task(
                 organization_id, c_type_info['id'], 'cluster_type',
                 'cluster_type_applied', meta,
