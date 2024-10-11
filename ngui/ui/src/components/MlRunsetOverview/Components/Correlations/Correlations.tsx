@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { Stack, Typography } from "@mui/material";
@@ -10,6 +10,7 @@ import createPlotlyComponent from "react-plotly.js/factory";
 import Button from "components/Button";
 import QuestionMark from "components/QuestionMark";
 import SubTitle from "components/SubTitle";
+import { useResizeObserver } from "hooks/useResizeObserver";
 import { isEmpty as isEmptyArray } from "utils/arrays";
 import { SPACING_1 } from "utils/layouts";
 import { removeKey } from "utils/objects";
@@ -63,6 +64,122 @@ const getHyperparametersValueToTickValueMap = (chartRunsData) => {
   );
 };
 
+const Chart = ({
+  chartRunsData,
+  setSelectedRunNumbers,
+  dimensionsState,
+  setDimensionsState,
+  hyperparametersValueToTickValueMap
+}) => {
+  const wrapperRef = useRef(null);
+  const theme = useTheme();
+
+  const { classes, cx } = useStyles();
+
+  const { width, height } = useResizeObserver(wrapperRef);
+
+  return (
+    <Box className={cx(classes.wrapper, classes.fullWidthHeight)} ref={wrapperRef}>
+      <Plot
+        onInitialized={(figure) => {
+          const [runsCorrelationsTrace] = figure.data;
+          const { dimensions } = runsCorrelationsTrace;
+          const selectedRuns = getSelectedRuns(chartRunsData, dimensions, hyperparametersValueToTickValueMap);
+
+          setSelectedRunNumbers(selectedRuns.map(({ runNumber }) => runNumber));
+          setDimensionsState(dimensions);
+        }}
+        onUpdate={(figure) => {
+          const [runsCorrelationsTrace] = figure.data;
+          const { dimensions } = runsCorrelationsTrace;
+
+          const selectedRuns = getSelectedRuns(chartRunsData, dimensions, hyperparametersValueToTickValueMap);
+
+          const updateRunNamesDimensionTicks = () => {
+            const { tickvals, ticktext } = getRunNamesDimensionTicks({
+              chartRunsData,
+              selectedChartRunsData: selectedRuns
+            });
+
+            const [runsDimension, ...restDimensions] = dimensions;
+
+            const updatedRunsDimension = {
+              ...runsDimension,
+              tickvals,
+              ticktext
+            };
+
+            return [updatedRunsDimension, ...restDimensions];
+          };
+
+          const newDimensionState = updateRunNamesDimensionTicks();
+
+          /**
+           * Comparing states in order to prevent infinite updates loop
+           *
+           * TODO: Investigate if it is possible to update local state and prevent infinite updates
+           * The problem is that the onUpdate callback is called on each component update, so if
+           * we update the state here we get an infinite update loop
+           */
+          if (JSON.stringify(dimensionsState) !== JSON.stringify(newDimensionState)) {
+            setSelectedRunNumbers(selectedRuns.map(({ runNumber }) => runNumber));
+            setDimensionsState(updateRunNamesDimensionTicks());
+          }
+        }}
+        data={[
+          {
+            type: "parcoords",
+            dimensions: dimensionsState,
+            line: {
+              // https://plotly.com/javascript/reference/parcoords/#parcoords-line-color
+              color: chartRunsData.map(({ index }) => index),
+              // https://plotly.com/javascript/reference/parcoords/#parcoords-line-colorscale
+              colorscale:
+                chartRunsData.length === 1
+                  ? [
+                      [0, chartRunsData[0].color],
+                      [1, chartRunsData[0].color]
+                    ]
+                  : chartRunsData.map(({ index, color }) => [
+                      chartRunsData.length === 1 ? 0 : index / (chartRunsData.length - 1),
+                      color
+                    ])
+            }
+          }
+        ]}
+        layout={{
+          margin: {
+            l: MARGIN.LEFT,
+            t: MARGIN.TOP,
+            b: MARGIN.BOTTOM,
+            r: MARGIN.RIGHT
+          },
+          font: {
+            color: theme.palette.text.primary,
+            family: theme.typography.fontFamily,
+            size: FONT_SIZE
+          },
+          width,
+          height
+        }}
+        frames={[]}
+        config={{
+          displayModeBar: true,
+          displaylogo: false,
+          modeBarButtonsToRemove: ["toImage"]
+        }}
+        className={
+          /**
+           * Use this style to ensure the chart takes the full width and height on the initial render
+           * when wrapper height and width are not yet calculated (0px)
+           */
+          classes.fullWidthHeight
+        }
+      />
+    </Box>
+  );
+};
+
 const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
   const chartRunsData = getChartRunsData(runs);
 
@@ -76,9 +193,7 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
 
   const getGoalNameByKey = (goalKey) => goalsDefinition[goalKey]?.name;
 
-  const theme = useTheme();
   const intl = useIntl();
-  const { classes, cx } = useStyles();
 
   const runNamesDimensionLabel = intl.formatMessage({ id: "runName" });
 
@@ -204,7 +319,9 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
             dashedBorder
             onClick={clearFilters}
             startIcon={<DeleteOutlinedIcon />}
-            customClass={classes.clearFiltersButton}
+            sx={{
+              ml: 1
+            }}
           />
         )}
       </Stack>
@@ -221,98 +338,13 @@ const Correlations = ({ runs = [], setSelectedRunNumbers }) => {
             <FormattedMessage id="noDataToDisplay" />
           </Typography>
         ) : (
-          <div className={cx(classes.wrapper, classes.fullWidthHeight)}>
-            <Plot
-              onInitialized={(figure) => {
-                const [runsCorrelationsTrace] = figure.data;
-                const { dimensions } = runsCorrelationsTrace;
-                const selectedRuns = getSelectedRuns(chartRunsData, dimensions, hyperparametersValueToTickValueMap);
-
-                setSelectedRunNumbers(selectedRuns.map(({ runNumber }) => runNumber));
-
-                setDimensionsState(dimensions);
-              }}
-              onUpdate={(figure) => {
-                const [runsCorrelationsTrace] = figure.data;
-                const { dimensions } = runsCorrelationsTrace;
-
-                const selectedRuns = getSelectedRuns(chartRunsData, dimensions, hyperparametersValueToTickValueMap);
-
-                const updateRunNamesDimensionTicks = () => {
-                  const { tickvals, ticktext } = getRunNamesDimensionTicks({
-                    chartRunsData,
-                    selectedChartRunsData: selectedRuns
-                  });
-
-                  const [runsDimension, ...restDimensions] = dimensions;
-
-                  const updatedRunsDimension = {
-                    ...runsDimension,
-                    tickvals,
-                    ticktext
-                  };
-
-                  return [updatedRunsDimension, ...restDimensions];
-                };
-
-                const newDimensionState = updateRunNamesDimensionTicks();
-
-                /**
-                 * Comparing states in order to prevent infinite updates loop
-                 *
-                 * TODO: Investigate if it is possible to update local state and prevent infinite updates
-                 * The problem is that the onUpdate callback is called on each component update, so if
-                 * we update the state here we get an infinite update loop
-                 */
-                if (JSON.stringify(dimensionsState) !== JSON.stringify(newDimensionState)) {
-                  setSelectedRunNumbers(selectedRuns.map(({ runNumber }) => runNumber));
-                  setDimensionsState(updateRunNamesDimensionTicks());
-                }
-              }}
-              data={[
-                {
-                  type: "parcoords",
-                  dimensions: dimensionsState,
-                  line: {
-                    // https://plotly.com/javascript/reference/parcoords/#parcoords-line-color
-                    color: chartRunsData.map(({ index }) => index),
-                    // https://plotly.com/javascript/reference/parcoords/#parcoords-line-colorscale
-                    colorscale:
-                      chartRunsData.length === 1
-                        ? [
-                            [0, chartRunsData[0].color],
-                            [1, chartRunsData[0].color]
-                          ]
-                        : chartRunsData.map(({ index, color }) => [
-                            chartRunsData.length === 1 ? 0 : index / (chartRunsData.length - 1),
-                            color
-                          ])
-                  }
-                }
-              ]}
-              layout={{
-                margin: {
-                  l: MARGIN.LEFT,
-                  t: MARGIN.TOP,
-                  b: MARGIN.BOTTOM,
-                  r: MARGIN.RIGHT
-                },
-                font: {
-                  color: theme.palette.text.primary,
-                  family: theme.typography.fontFamily,
-                  size: FONT_SIZE
-                }
-              }}
-              frames={[]}
-              config={{
-                displayModeBar: true,
-                displaylogo: false,
-                responsive: true,
-                modeBarButtonsToRemove: ["toImage"]
-              }}
-              className={classes.fullWidthHeight}
-            />
-          </div>
+          <Chart
+            chartRunsData={chartRunsData}
+            setSelectedRunNumbers={setSelectedRunNumbers}
+            setDimensionsState={setDimensionsState}
+            dimensionsState={dimensionsState}
+            hyperparametersValueToTickValueMap={hyperparametersValueToTickValueMap}
+          />
         )}
       </Box>
     </Stack>

@@ -5,9 +5,6 @@ const useStyles = makeStyles()((theme) => ({
     height: "100%",
     width: "100%"
   },
-  clearFiltersButton: {
-    marginLeft: theme.spacing(1)
-  },
   wrapper: {
     "& line.highlight": {
       stroke: theme.palette.primary.light,
