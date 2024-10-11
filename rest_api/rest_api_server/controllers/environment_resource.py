@@ -14,7 +14,8 @@ from rest_api.rest_api_server.exceptions import Err
 from rest_api.rest_api_server.models.enums import CloudTypes, ThresholdBasedTypes
 from rest_api.rest_api_server.models.models import (Organization, CloudAccount)
 
-from tools.optscale_exceptions.common_exc import (NotFoundException,
+from tools.optscale_exceptions.common_exc import (ConflictException,
+                                                  NotFoundException,
                                                   WrongArgumentsException)
 
 LOG = logging.getLogger(__name__)
@@ -116,6 +117,17 @@ class EnvironmentResourceController(CloudResourceController,
         cloud_account = self.get_environment_account(organization_id)
         contains_shareable_resources = self.contains_shareable_resource(
             organization_id)
+        if contains_shareable_resources:
+            resource = kwargs.copy()
+            self.gen_cloud_resource_ids([resource])
+            res = list(self.resources_collection.find({
+                'cloud_account_id': cloud_account.id,
+                'cloud_resource_id': resource['cloud_resource_id'],
+                'deleted_at': 0
+            }))
+            if res:
+                raise ConflictException(
+                    Err.OE0558, [resource['name'], resource['resource_type']])
         result = self.save_bulk(
             cloud_account_id=cloud_account.id,
             behavior='error_existing',

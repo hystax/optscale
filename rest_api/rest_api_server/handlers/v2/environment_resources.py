@@ -1,13 +1,15 @@
 import json
 
-from rest_api.rest_api_server.controllers.environment_resource import EnvironmentResourceAsyncController
+from rest_api.rest_api_server.controllers.environment_resource import (
+    EnvironmentResourceAsyncController)
 from rest_api.rest_api_server.handlers.v1.base_async import (
     BaseAsyncCollectionHandler, BaseAsyncItemHandler)
 from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
 from rest_api.rest_api_server.handlers.v2.base import BaseHandler
 from rest_api.rest_api_server.utils import run_task, ModelEncoder
 from tools.optscale_exceptions.http_exc import OptHTTPError
-from tools.optscale_exceptions.common_exc import NotFoundException
+from tools.optscale_exceptions.common_exc import (
+    ConflictException, NotFoundException)
 
 
 class EnvironmentResourceAsyncCollectionHandler(BaseAsyncCollectionHandler,
@@ -174,6 +176,10 @@ class EnvironmentResourceAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 description: |
                     Not found:
                     - OE0002: Organization not found
+            409:
+                description: |
+                    Conflict:
+                    - OE0558: Environment with name and resource type already exists
         security:
         - token: []
         - secret: []
@@ -184,8 +190,11 @@ class EnvironmentResourceAsyncCollectionHandler(BaseAsyncCollectionHandler,
         data = self._request_body()
         data.update(url_params)
         self._validate_params(**data)
-        res = await run_task(self.controller.create,
-                             organization_id=organization_id, **data)
+        try:
+            res = await run_task(self.controller.create,
+                                 organization_id=organization_id, **data)
+        except ConflictException as exc:
+            raise OptHTTPError.from_opt_exception(409, exc)
         self.set_status(201)
         self.write(json.dumps(res, cls=ModelEncoder))
 
