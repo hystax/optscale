@@ -191,7 +191,7 @@ const renderTitle = (title, ref) => {
   return CustomTitleComponent ? (
     <CustomTitleComponent reference={ref} />
   ) : (
-    title.custom ?? (
+    (title.custom ?? (
       <ActionBarHeader
         dataTestId={title.dataTestId || null}
         dataProductTourId={title.dataProductTourId || null}
@@ -201,7 +201,7 @@ const renderTitle = (title, ref) => {
         logo={title.logo || null}
         ref={ref}
       />
-    )
+    ))
   );
 };
 

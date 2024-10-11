@@ -25,7 +25,7 @@ import useStyles from "./CanvasBarChart.styles";
 import CanvasBarChartPdf from "./CanvasBarChartPdf";
 import CanvasBarChartTooltip from "./CanvasBarChartTooltip";
 
-const DEFAULT_LAYERS = ["grid", "axes", "bars", "legends", "annotations"];
+const DEFAULT_LAYERS = ["grid", "axes", "bars", "legends", "annotations", "totals"];
 
 const isBarEmpty = (barData) => barData.value === 0;
 
@@ -219,7 +219,10 @@ const CanvasBarChart = ({
   labelTextColor,
   axisBottom: axisBottomProperty,
   axisLeft: axisLeftProperty,
-  minMaxTicksEqualToMinMaxValues
+  minMaxTicksEqualToMinMaxValues,
+  enableTotals,
+  valueFormat,
+  thresholdMarker
 }) => {
   const wrapperRef = useRef();
   const canvasRef = useRef();
@@ -248,11 +251,13 @@ const CanvasBarChart = ({
 
   const { maxBandValue, minBandValue } = getMaxAndMinBandValues(data, keys);
 
+  const getMaxValue = () => Math.max(...[maxBandValue, thresholdMarker?.value].filter(Boolean));
+
   const { tickValues, gridValues, maxValue, minValue } = getBarTicks({
     height: wrapperHeight,
     layout,
     ticksCount: TICK_COUNT,
-    maxValue: maxBandValue,
+    maxValue: getMaxValue(),
     minValue: minBandValue,
     minMaxTicksEqualToMinMaxValues
   });
@@ -371,21 +376,56 @@ const CanvasBarChart = ({
         }}
         layers={[
           ...layers,
-          (canvasContext, layerContext) => {
+          (ctx, layerContext) => {
             if (selectedBar) {
               layerContext.bars.forEach((bar) => {
-                drawBar(canvasContext, getBarSettings(bar));
+                drawBar(ctx, getBarSettings(bar));
               });
             }
           },
           (_, { bars }) => {
             barsRef.current = bars.map((bar) => getBarSettings(bar));
-          }
+          },
+          ...(thresholdMarker
+            ? [
+                (ctx, layerContext) => {
+                  const { innerWidth, yScale } = layerContext;
+
+                  const yTotal = yScale(thresholdMarker.value);
+
+                  const x0 = 0;
+                  const x1 = innerWidth;
+                  const y0 = yTotal;
+                  const y1 = yTotal;
+
+                  ctx.strokeStyle = chartTheme.canvas.marker.color;
+                  ctx.lineWidth = chartTheme.canvas.marker.lineWidth;
+
+                  ctx.beginPath();
+                  ctx.setLineDash(chartTheme.canvas.marker.lineDash);
+                  ctx.moveTo(x0, y0);
+                  ctx.lineTo(x1, y1);
+                  ctx.stroke();
+
+                  const textX0 = innerWidth - chartTheme.canvas.marker.xOffset;
+                  const textY0 = yTotal - chartTheme.canvas.marker.yOffset;
+
+                  ctx.textAlign = "right";
+                  ctx.fillStyle = chartTheme.canvas.marker.color;
+                  const text = thresholdMarker.format?.(thresholdMarker.value) ?? thresholdMarker.value;
+                  ctx.font = chartTheme.canvas.marker.font;
+                  ctx.fillText(text, textX0, textY0);
+                  ctx.restore();
+                }
+              ]
+            : [])
         ]}
         theme={chartTheme}
         axisFormat={AXIS_FORMATS.MONEY}
         labelSkipWidth={labelSkipWidth}
         labelTextColor={labelTextColor}
+        enableTotals={enableTotals}
+        valueFormat={valueFormat}
       />
     </div>
   );

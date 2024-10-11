@@ -110,14 +110,14 @@ const useYScaleSpec = ({ data, yScaleSpecProp = {} }) =>
 const useLineYTicks = ({ yScaleSpec: defaultYScaleSpec, outerHeight, y }) => {
   const getYMax = () => {
     if (defaultYScaleSpec.max === "auto") {
-      return defaultYScaleSpec.stacked ? y.maxStacked ?? 0 : y.max;
+      return defaultYScaleSpec.stacked ? (y.maxStacked ?? 0) : y.max;
     }
     return defaultYScaleSpec.max;
   };
 
   const getYMin = () => {
     if (defaultYScaleSpec.min === "auto") {
-      return defaultYScaleSpec.stacked ? y.minStacked ?? 0 : y.min;
+      return defaultYScaleSpec.stacked ? (y.minStacked ?? 0) : y.min;
     }
     return defaultYScaleSpec.min;
   };

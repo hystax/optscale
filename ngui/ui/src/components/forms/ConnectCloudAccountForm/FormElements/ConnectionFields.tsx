@@ -16,7 +16,7 @@ import {
   AwsRootExportType,
   AwsRootUseAwsEdpDiscount
 } from "components/DataSourceCredentialFields";
-import { RadioGroup } from "components/forms/common/fields";
+import { RadioGroup, Switch } from "components/forms/common/fields";
 import {
   BillingReportBucketDescription,
   BillingReportBucketTitle,
@@ -26,7 +26,6 @@ import {
   ServiceAccountCredentialsDescription
 } from "components/NebiusConfigFormElements";
 import QuestionMark from "components/QuestionMark";
-import SwitchField from "components/SwitchField";
 import {
   AWS_ROOT_CONNECT_CONFIG_SCHEMES,
   AWS_ROOT_ACCOUNT,
@@ -47,7 +46,7 @@ export const AWS_ROOT_INPUTS_FIELD_NAMES = {
 
 const AwsRootInputs = () => (
   <ConnectForm>
-    {({ control, watch }) => {
+    {({ watch }) => {
       const isFindReportWatch = watch(AWS_ROOT_INPUTS_FIELD_NAMES.IS_FIND_REPORT, true);
       const configScheme =
         watch(AWS_ROOT_INPUTS_FIELD_NAMES.CONFIG_SCHEME, AWS_ROOT_CONNECT_CONFIG_SCHEMES.CREATE_REPORT) ||
@@ -57,16 +56,11 @@ const AwsRootInputs = () => (
           <AwsRootCredentials />
           <AwsRootUseAwsEdpDiscount />
           <AwsRootExportType />
-          <SwitchField
+          <Switch
             name={AWS_ROOT_INPUTS_FIELD_NAMES.IS_FIND_REPORT}
+            label={<FormattedMessage id="dataExportDetection" />}
             defaultValue={isFindReportWatch}
-            control={control}
-            dataTestIds={{
-              labelText: "lbl_data_export_detection",
-              input: "switch_data_export_detection"
-            }}
-            labelMessageId="dataExportDetection"
-            endAdornment={
+            adornment={
               <QuestionMark
                 messageId="dataExportDetectionTooltip"
                 messageValues={{
