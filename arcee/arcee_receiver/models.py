@@ -214,7 +214,7 @@ class Leaderboard(LeaderboardPostIn):
 
 
 class PlatformType(str, Enum):
-    ali = "ali"
+    alibaba = "alibaba"
     aws = "aws"
     azure = "azure"
     gcp = "gcp"
