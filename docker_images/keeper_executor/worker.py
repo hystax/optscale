@@ -202,9 +202,9 @@ class KeeperExecutorWorker(ConsumerMixin):
                     ('Cluster type applied: {clustered_resources_count} '
                      'resources have been automatically grouped to '
                      '{clusters_count} clusters according to cluster type '
-                     '{cluster_name} ({cluster_id})', 'N0105',
+                     '{object_name} ({object_id})', 'N0105',
                      ['clustered_resources_count', 'clusters_count',
-                      'cluster_name', 'cluster_id'])),
+                      'object_name', 'object_id'])),
                 'shareable_resource_deleted': (
                     self.execute_event_base,
                     ('Booking of the resource {object_name} ({object_id}) was '
