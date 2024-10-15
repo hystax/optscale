@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  d3-color: ^3.1.0
   braces@<3.0.3: '>=3.0.3'
   ws@>=8.0.0 <8.17.1: '>=8.17.1'
   micromatch@<4.0.8: '>=4.0.8'
@@ -105,8 +104,8 @@ dependencies:
     specifier: ^3.2.4
     version: 3.2.4
   d3-scale:
-    specifier: ^3.3.0
-    version: 3.3.0
+    specifier: ^4.0.2
+    version: 4.0.2
   date-fns:
     specifier: ^2.29.3
     version: 2.29.3
@@ -2672,9 +2671,9 @@ packages:
     dependencies:
       d3-array: 3.2.4
       d3-color: 3.1.0
-      d3-geo: 3.1.0
+      d3-geo: 3.1.1
       d3-interpolate: 3.0.1
-      d3-scale: 3.3.0
+      d3-scale: 4.0.2
       d3-scale-chromatic: 3.0.0
       d3-time: 3.1.0
       d3-time-format: 4.1.0
@@ -7346,8 +7345,8 @@ packages:
       d3-array: 1.2.4
     dev: false
 
-  /d3-geo@3.1.0:
-    resolution: {integrity: sha512-JEo5HxXDdDYXCaWdwLRt79y7giK8SbhZJbFWXqbRTolCHFI5jRqteLzCsq51NKbUoX0PjBVSohxrx+NoOUujYA==}
+  /d3-geo@3.1.1:
+    resolution: {integrity: sha512-637ln3gXKXOwhalDzinUgY83KzNWZRKbYubaG+fGVuc/dxO64RRljtCTnf5ecMyE1RIdtqpkVcq0IbtU2S8j2Q==}
     engines: {node: '>=12'}
     dependencies:
       d3-array: 3.2.4
@@ -7355,12 +7354,6 @@ packages:
 
   /d3-hierarchy@1.1.9:
     resolution: {integrity: sha512-j8tPxlqh1srJHAtxfvOUwKNYJkQuBFdM1+JAUfq6xqH5eAqf93L7oG1NVqDa4CpFZNvnNKtCYEUC8KY9yEn9lQ==}
-    dev: false
-
-  /d3-interpolate@2.0.1:
-    resolution: {integrity: sha512-c5UhwwTs/yybcmTpAVqwSFl6vrQ8JZJoT5F7xNFK9pymv5C0Ymcc9/LIJHtYIggg/yS9YHw8i8O8tgb9pupjeQ==}
-    dependencies:
-      d3-color: 3.1.0
     dev: false
 
   /d3-interpolate@3.0.1:
@@ -7389,16 +7382,6 @@ packages:
     dependencies:
       d3-color: 3.1.0
       d3-interpolate: 3.0.1
-    dev: false
-
-  /d3-scale@3.3.0:
-    resolution: {integrity: sha512-1JGp44NQCt5d1g+Yy+GeOnZP7xHo0ii8zsQp6PGzd+C1/dl0KGsp9A7Mxwp+1D1o4unbTTxVdU/ZOIEBoeZPbQ==}
-    dependencies:
-      d3-array: 2.12.1
-      d3-format: 2.0.0
-      d3-interpolate: 2.0.1
-      d3-time: 2.1.1
-      d3-time-format: 3.0.0
     dev: false
 
   /d3-scale@4.0.2:
