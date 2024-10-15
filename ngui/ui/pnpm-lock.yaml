@@ -144,8 +144,8 @@ dependencies:
     specifier: ^0.0.6
     version: 0.0.6
   plotly.js-gl2d-dist-min:
-    specifier: ^2.24.0
-    version: 2.24.0
+    specifier: ^2.35.2
+    version: 2.35.2
   query-string:
     specifier: ^7.1.3
     version: 7.1.3
@@ -12052,8 +12052,8 @@ packages:
       pathe: 1.1.2
     dev: true
 
-  /plotly.js-gl2d-dist-min@2.24.0:
-    resolution: {integrity: sha512-LW27JXYxKmEcmMutjUknBWqM+BYN3uhc8FS75ZK4iFCWp+DSKsPU+ALlwOoOp+XGhR2ryCqdIRyNH/Jh2elC3A==}
+  /plotly.js-gl2d-dist-min@2.35.2:
+    resolution: {integrity: sha512-unHF+uJJoozFHgIX0PkHRyrnF/gRqVnHmbDnvwTRxcalV+U2pGY9UhEMebo/6j09Tb2Q83UhXb8DWVHvBZa+0Q==}
     dev: false
 
   /plotly.js@2.33.0(mapbox-gl@1.13.3):

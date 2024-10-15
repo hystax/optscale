@@ -265,6 +265,9 @@ class ArtifactsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                                             name: best_run
                                             number: 1
                                             task_id: 49c16dab-baec-486d-b5cf-1541da07276f
+                        count:
+                            type: integer
+                            description: Filtered artifacts count
                         total_count:
                             type: integer
                             description: Total artifacts count

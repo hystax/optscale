@@ -2442,6 +2442,7 @@ async def list_artifacts(request):
         'artifacts': [],
         'limit': query.limit,
         'start_from': query.start_from,
+        'count': 0,
         'total_count': 0
     }
     task_query = {'token': token}
@@ -2471,16 +2472,17 @@ async def list_artifacts(request):
         res = _format_artifact(artifact, runs_map[artifact['run_id']], tasks)
         result['artifacts'].append(res)
     if len(result['artifacts']) != 0 and not query.limit:
-        result['total_count'] = len(result['artifacts']) + query.start_from
+        result['count'] = len(result['artifacts']) + query.start_from
     else:
         pipeline = _build_artifact_filter_pipeline(runs_ids, query)
         pipeline.append({'$count': 'count'})
         res = db.artifact.aggregate(pipeline)
         try:
             count = await res.next()
-            result['total_count'] = count['count']
+            result['count'] = count['count']
         except StopAsyncIteration:
             pass
+    result['total_count'] = await db.artifact.count_documents({'token': token})
     return json(result)
 
 

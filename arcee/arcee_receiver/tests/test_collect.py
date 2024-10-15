@@ -35,7 +35,7 @@ async def test_collect(app):
             "loss": 99
         },
         "platform": {
-            "platform_type": "aws",
+            "platform_type": "alibaba",
             "instance_id": str(uuid.uuid4()),
             "account_id": str(uuid.uuid4()),
             "local_ip": "1.1.1.1",

@@ -266,7 +266,8 @@ async def test_list_artifacts_created_at(app):
     assert response.status == 200
     assert len(response.json['artifacts']) == 1
     assert response.json['artifacts'][0]['_id'] == artifact['_id']
-    assert response.json['total_count'] == 1
+    assert response.json['count'] == 1
+    assert response.json['total_count'] == 3
     assert response.json['limit'] == 0
     assert response.json['start_from'] == 0
 
@@ -287,7 +288,8 @@ async def test_list_artifacts_run_id(app):
         headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert len(response.json['artifacts']) == 2
-    assert response.json['total_count'] == 2
+    assert response.json['count'] == 2
+    assert response.json['total_count'] == 3
     assert response.json['limit'] == 0
     assert response.json['start_from'] == 0
     for artifact in response.json['artifacts']:
@@ -310,7 +312,8 @@ async def test_list_artifacts_task_id(app):
         headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert len(response.json['artifacts']) == 2
-    assert response.json['total_count'] == 2
+    assert response.json['count'] == 2
+    assert response.json['total_count'] == 3
     assert response.json['limit'] == 0
     assert response.json['start_from'] == 0
     for artifact in response.json['artifacts']:
@@ -332,7 +335,8 @@ async def test_list_artifacts_text_like(app):
                                    headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert len(response.json['artifacts']) == 1
-    assert response.json['total_count'] == 1
+    assert response.json['count'] == 1
+    assert response.json['total_count'] == 4
     assert response.json['limit'] == 0
     assert response.json['start_from'] == 0
     assert response.json['artifacts'][0]['_id'] == artifact1['_id']
@@ -341,7 +345,8 @@ async def test_list_artifacts_text_like(app):
                                    headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert len(response.json['artifacts']) == 1
-    assert response.json['total_count'] == 1
+    assert response.json['count'] == 1
+    assert response.json['total_count'] == 4
     assert response.json['limit'] == 0
     assert response.json['start_from'] == 0
     assert response.json['artifacts'][0]['_id'] == artifact2['_id']
@@ -350,7 +355,8 @@ async def test_list_artifacts_text_like(app):
                                    headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert len(response.json['artifacts']) == 1
-    assert response.json['total_count'] == 1
+    assert response.json['count'] == 1
+    assert response.json['total_count'] == 4
     assert response.json['limit'] == 0
     assert response.json['start_from'] == 0
     assert response.json['artifacts'][0]['_id'] == artifact3['_id']
@@ -359,7 +365,8 @@ async def test_list_artifacts_text_like(app):
                                    headers={"x-api-key": TOKEN1})
     assert response.status == 200
     assert len(response.json['artifacts']) == 1
-    assert response.json['total_count'] == 1
+    assert response.json['count'] == 1
+    assert response.json['total_count'] == 4
     assert response.json['limit'] == 0
     assert response.json['start_from'] == 0
     assert response.json['artifacts'][0]['_id'] == artifact4['_id']

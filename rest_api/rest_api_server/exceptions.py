@@ -1013,3 +1013,8 @@ class Err(enum.Enum):
         [],
         []
     ]
+    OE0558 = [
+        "Environment with name %s and resource type %s already exists",
+        ['name', 'resource_type'],
+        ['dev-1', 'instance']
+    ]

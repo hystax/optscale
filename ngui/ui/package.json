@@ -47,7 +47,7 @@
     "jspdf-autotable": "^3.5.28",
     "localforage": "^1.10.0",
     "node-macaroons": "^0.0.6",
-    "plotly.js-gl2d-dist-min": "^2.24.0",
+    "plotly.js-gl2d-dist-min": "^2.35.2",
     "query-string": "^7.1.3",
     "react": "^18.2.0",
     "react-big-calendar": "^1.5.2",

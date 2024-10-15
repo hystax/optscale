@@ -215,6 +215,16 @@ class TestEnvironmentResourceApi(TestApiBase):
         self.assertEqual(res['employee_id'], employee['id'])
         self.assertEqual(res['pool_id'], self.org['pool_id'])
 
+    def test_create_duplicates(self):
+        self.valid_resource.pop('cloud_resource_id')
+        code, res = self.environment_resource_create(
+            self.org_id, self.valid_resource)
+        self.assertEqual(code, 201)
+        code, res = self.environment_resource_create(
+            self.org_id, self.valid_resource)
+        self.assertEqual(code, 409)
+        self.assertEqual(res['error']['error_code'], 'OE0558')
+
     def test_create_clustering(self):
         code, ct = self.client.cluster_type_create(
             self.org_id, {'name': 'my_ct', 'tag_key': 'tn'})
