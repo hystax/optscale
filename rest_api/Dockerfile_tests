@@ -1,4 +1,5 @@
 ARG BUILDTAG=build
+FROM clickhouse/clickhouse-server:22.8 AS clickhouse
 FROM rest_api:${BUILDTAG}
 LABEL org.opencontainers.image.authors="Hystax"
 
@@ -9,3 +10,4 @@ COPY optscale_client/rest_api_client optscale_client/rest_api_client
 RUN pip install --no-cache-dir -r rest_api/test-requirements.txt
 COPY rest_api/rest_api_server/tests rest_api/rest_api_server/tests
 COPY rest_api/prepare_clickhouse_local.sh rest_api/prepare_clickhouse_local.sh
+COPY --from=clickhouse /usr/bin/clickhouse /usr/bin/clickhouse
