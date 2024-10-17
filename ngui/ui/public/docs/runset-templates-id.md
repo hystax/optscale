@@ -19,7 +19,7 @@ Use this page to visualize and create runsets based on the Runset Template.
 
 - Update the Content: Click the "Refresh" button to view the latest information.
 
-- Add a New Runset: Easily create a new runset by clicking the green "Add" button. Specify instance types, 
+- Add a New Runset: Easily create a new runset by clicking the "Launch" button. Specify instance types, 
   hyperparameters, commands to execute, abort conditions, and other properties.
 
 - Manage Your Runsets: Click on a table row to view detailed information about a runset, including runs history, 
