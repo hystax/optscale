@@ -423,7 +423,7 @@ class RunAsyncItemHandler(BaseAsyncItemHandler, BaseAuthQueryTokenHandler,
                     Not found:
                     - OE0002: Object not found
         security:
-        - token: []
+        - secret: []
         """
         self.check_cluster_secret()
         token = await self._get_profiling_token(organization_id)

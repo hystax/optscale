@@ -213,19 +213,9 @@ class AzureReportImporter(BaseReportImporter):
             # collect all usage parts without them being overwritten by each
             # other. Later, on clean expense generation, all entries for one
             # day will be summed together.
-            try:
-                daily_usages = self._get_day_raw_usage(current_day)
-            except AzureErrorResponseException as exc:
-                code = getattr(exc.error, 'additional_properties', {}).get(
-                    'error', {}).get('code')
-                if code == 'SubscriptionNotFound':
-                    msg = exc.error.additional_properties['error'].get(
-                        'message')
-                    raise AzureResourceNotFoundError(msg)
-                else:
-                    raise exc
             record_number = 0
             try:
+                daily_usages = self._get_day_raw_usage(current_day)
                 for usage_obj in daily_usages:
                     usage_dict = usage_obj.as_dict()
                     inst_data = json.loads(usage_dict.get('instance_data', '{}'))
@@ -252,11 +242,17 @@ class AzureReportImporter(BaseReportImporter):
                         self.update_raw_records(chunk)
                         chunk = []
             except AzureErrorResponseException as ex:
+                code = getattr(ex.error, 'additional_properties', {}).get(
+                    'error', {}).get('code')
+                if code == 'SubscriptionNotFound':
+                    msg = ex.error.additional_properties['error'].get(
+                        'message')
+                    raise AzureResourceNotFoundError(msg)
                 error_message = str(ex)
                 if 'Unknown error' in error_message:
-                    LOG.error('No ready reports yet in cloud for %s. Will skip the '
-                              'remaining report import days and try next time'
-                              ' later.', current_day)
+                    LOG.error('No ready reports yet in cloud for %s. Will '
+                              'skip the remaining report import days and try '
+                              'next time later.', current_day)
                     break
                 raise
             current_day += timedelta(days=1)
