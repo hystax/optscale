@@ -69,7 +69,7 @@ class GcpReportImporter(BaseReportImporter):
 
     @staticmethod
     def _generate_tags_hash(tags: dict[str: str]) -> str:
-        return hashlib.sha1(repr(sorted(tags.items())).encode()).hexdigest()
+        return hashlib.sha1(repr(sorted(tags.items())).encode(), usedforsecurity=False).hexdigest()
 
     @staticmethod
     def _generate_resource_id(row_dict):

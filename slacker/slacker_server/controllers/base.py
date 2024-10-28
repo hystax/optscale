@@ -83,7 +83,7 @@ class BaseHandlerController(BaseController):
         self.token = token
 
     def get_user_id(self):
-        user_digest = hashlib.md5(self.token.encode('utf-8')).hexdigest()
+        user_digest = hashlib.md5(self.token.encode('utf-8'), usedforsecurity=False).hexdigest()
         _, token_meta = self.auth_client.token_meta_get([user_digest])
         return token_meta.get(user_digest, {}).get('user_id')
 

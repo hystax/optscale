@@ -41,7 +41,7 @@ class TestAllowedActionsApi(TestAuthBase):
         token_response = self.get_token_response(self.user_partner.email,
                                                  self.user_partner_password)
         token = token_response['token']
-        digest = hashlib.md5(token.encode('utf-8')).hexdigest()
+        digest = hashlib.md5(token.encode('utf-8'), usedforsecurity=False).hexdigest()
         code, token_meta = self.client.token_meta_get([digest])
         self.assertEqual(code, 200)
         self.assertEqual(len(token_meta), 1)
@@ -62,8 +62,8 @@ class TestAllowedActionsApi(TestAuthBase):
                                                   self.user_partner_password)
         token1 = token_response1['token']
         token2 = token_response2['token']
-        digest1 = hashlib.md5(token1.encode('utf-8')).hexdigest()
-        digest2 = hashlib.md5(token2.encode('utf-8')).hexdigest()
+        digest1 = hashlib.md5(token1.encode('utf-8'), usedforsecurity=False).hexdigest()
+        digest2 = hashlib.md5(token2.encode('utf-8'), usedforsecurity=False).hexdigest()
         code, token_meta = self.client.token_meta_get([digest1, digest2])
         self.assertEqual(code, 200)
         self.assertEqual(len(token_meta), 2)
@@ -89,7 +89,7 @@ class TestAllowedActionsApi(TestAuthBase):
     def test_digest_get_with_unexpected(self):
         token = self.get_token(self.user_partner.email,
                                self.user_partner_password)
-        digest = hashlib.md5(token.encode('utf-8')).hexdigest()
+        digest = hashlib.md5(token.encode('utf-8'), usedforsecurity=False).hexdigest()
         payload_dict = {
             'digests': [digest]
         }

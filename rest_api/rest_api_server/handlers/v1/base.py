@@ -295,9 +295,8 @@ class BaseAuthHandler(BaseHandler):
         return token_meta_dict
 
     def get_meta_by_token(self, token):
-        print(2)
         user_digest = list(map(
-            lambda x: hashlib.md5(x.encode('utf-8')).hexdigest(), [token]))[0]
+            lambda x: hashlib.md5(x.encode('utf-8'), usedforsecurity=False).hexdigest(), [token]))[0]
         token_meta = self.get_token_meta([user_digest]).get(user_digest, {})
         return token_meta
 

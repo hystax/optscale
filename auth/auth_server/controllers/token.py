@@ -109,7 +109,7 @@ class TokenController(BaseController):
             'created_at': now,
             'valid_until': now + datetime.timedelta(hours=self.expiration),
             'ip': kwargs.get('ip'),
-            'digest': hashlib.md5(macaroon_token.encode('utf-8')).hexdigest()
+            'digest': hashlib.md5(macaroon_token.encode('utf-8'), usedforsecurity=False).hexdigest()
         }
         token = model_type(**params)
         self.session.add(token)
