@@ -50,15 +50,6 @@ _RETRYABLE_REASONS = frozenset(
     ["rateLimitExceeded", "backendError", "internalError", "badGateway"]
 )
 
-# some resources like buckets do not always belong to a specific region.
-# if they span multiple regions, their locations can have different values
-# in resource dicovery and in report import. here we try to unify those names
-# by replacing discovered values with those that we expet to get from
-# report import.
-REGION_REPLACEMENTS = {
-    "eu": "europe"
-}
-
 
 def _should_retry(exc):
     """Predicate for determining when to retry."""
@@ -152,8 +143,8 @@ class InstanceType:
 
 class MachineFamilyResourcePrice:
     def __init__(self):
-        self.vcpu_price = None
-        self.ram_gb_price = None
+        self.vcpu_price = 0.0
+        self.ram_gb_price = 0.0
 
     def set_price(self, sku_text: str, price: float):
         if "Core" in sku_text:
@@ -211,13 +202,26 @@ class GcpResource:
             region = self._last_path_element(self._cloud_object.region)
         return region
 
+    @property
+    def _region_name_replacements(self) -> dict[str, str]:
+        # some resources like buckets do not always belong to a specific region.
+        # if they span multiple regions, their locations can have different values
+        # in resource discovery and in report import. here we try to unify those names
+        # by replacing discovered values with those that we expet to get from
+        # report import.
+        return {"eu": "europe"}
+
+    def _fix_region(self, region: str) -> str:
+        region = region.lower()
+        return self._region_name_replacements.get(region, region)
+
     def _get_console_link(self):
         raise NotImplemented()
 
     def _get_common_fields(self):
         tags = self._extract_tags()
         region = self._extract_region()
-        region = Gcp.fix_region(region)
+        region = self._fix_region(region)
         return dict(
             cloud_resource_id=str(self._cloud_object.id),
             cloud_account_id=self._cloud_adapter.cloud_account_id,
@@ -277,10 +281,10 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
         return self._last_path_element(self._cloud_object.machine_type)
 
     def _extract_network(self):
-        network_link = self._cloud_object.network_interfaces[0].network
-        network_name = self._last_path_element(network_link)
+        network = self._cloud_object.network_interfaces[0].network
+        network_name = self._last_path_element(network)
         network_id = self._cloud_adapter.network_name_to_id.get(network_name)
-        return network_id, network_name, network_link
+        return network_id, network_name
 
     def __init__(self, cloud_instance: compute.Instance, cloud_adapter: "Gcp"):
         GcpResource.__init__(self, cloud_instance, cloud_adapter)
@@ -291,17 +295,15 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
             cloud_instance.creation_timestamp
         )
         spotted = cloud_instance.scheduling.provisioning_model == "SPOT"
-        stopped_allocated = cloud_instance.status == 'SUSPENDED'
-        network_id, network_name, network_link = self._extract_network()
-        security_groups = list(cloud_instance.tags.items)
+        network_id, network_name = self._extract_network()
         zone_id = self._last_path_element(self._cloud_object.zone)
 
         super().__init__(
             **self._common_fields,
             flavor=flavor,
-            security_groups=security_groups,
+            # TODO: find security groups info
+            security_groups=None,
             spotted=spotted,
-            stopped_allocated=stopped_allocated,
             image_id=image_id,
             cloud_created_at=cloud_created_at,
             vpc_id=network_id,
@@ -312,20 +314,20 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
     def _new_labels_request(self, key, value):
         labels = self._cloud_object.labels
         labels[key] = value
-        labels_request = compute.InstancesSetLabelsRequest(
+        labesl_request = compute.InstancesSetLabelsRequest(
             label_fingerprint=self._cloud_object.label_fingerprint,
             labels=labels,
         )
-        return labels_request
+        return labesl_request
 
     def _set_tag(self, key, value):
-        labels_request = self._new_labels_request(key, value)
+        labesl_request = self._new_labels_request(key, value)
         zone = self._last_path_element(self._cloud_object.zone)
         self._cloud_adapter.compute_instances_client.set_labels(
             project=self._cloud_adapter.project_id,
             zone=zone,
             instance=self._cloud_object.name,
-            instances_set_labels_request_resource=labels_request,
+            instances_set_labels_request_resource=labesl_request,
             **DEFAULT_KWARGS,
         )
 
@@ -537,13 +539,6 @@ class Gcp(CloudBase):
         self.config = cloud_config
         self._currency = DEFAULT_CURRENCY
 
-    @staticmethod
-    def fix_region(region: str) -> str:
-        if region:
-            region_lower = region.lower()
-            region = REGION_REPLACEMENTS.get(region_lower, region_lower)
-        return region
-
     def discovery_calls_map(self):
         return {
             tools.cloud_adapter.model.VolumeResource: self.volume_discovery_calls,
@@ -646,13 +641,7 @@ class Gcp(CloudBase):
 
     @cached_property
     def compute_instance_types_client(self):
-        return compute.MachineTypesClient.from_service_account_info(
-            self.credentials)
-
-    @cached_property
-    def compute_firewall_client(self):
-        return compute.FirewallsClient.from_service_account_info(
-            self.credentials)
+        return compute.MachineTypesClient.from_service_account_info(self.credentials)
 
     @cached_property
     def compute_networks_client(self):
@@ -984,13 +973,6 @@ class Gcp(CloudBase):
             result[network.name] = str(network.id)
         return result
 
-    def discover_firewalls(self):
-        return self.discover_entities(
-            self.compute_firewall_client.list,
-            compute.ListFirewallsRequest,
-            project=self.project_id
-        )
-
     ######################################################################################
     # INSTANCE TYPES DISCOVERY
     ######################################################################################
@@ -1026,17 +1008,24 @@ class Gcp(CloudBase):
     def _resource_priced_machine_series_descriptions(self) -> dict:
         return {
             "A2 Instance": "a2",
+            "A3 Instance": "a3",
             "C2D AMD Instance": "c2d",
             "Compute optimized": "c2",
+            "C3 Instance": "c3",
+            "C4 Instance": "c4",
             "E2 Instance": "e2",
+            "G2 Instance": "g2",
+            "M1 Memory-optimized Instance": "m1",
+            "M2 Memory-optimized Instance": "m2",
             "M3 Memory-optimized Instance": "m3",
-            "Memory-optimized Instance": "m1",
-            "Memory Optimized Upgrade Premium for Memory-optimized Instance": "m2",
             "N1 Predefined Instance": "n1",
             "N2 Instance": "n2",
             "N2D AMD Instance": "n2d",
+            "N4 Instance": "n4",
             "T2D AMD Instance": "t2d",
             "T2A Arm Instance": "t2a",
+            "X4 Instance": "x4",
+            "Z3 Instance": "z3",
         }
 
     @cached_property
@@ -1044,6 +1033,46 @@ class Gcp(CloudBase):
         return {
             "f1-micro": "Micro Instance with burstable CPU",
             "g1-small": "Small Instance with 1 VCPU",
+            "c2-standard": "Standard Compute C2",
+            "c2-highcpu": "High CPU Compute C2",
+            "c2-highmem": "High Memory Compute C2",
+            "c3-standard": "Standard Compute C3",
+            "c3-highcpu": "High CPU Compute C3",
+            "c3-highmem": "High Memory Compute C3",
+            "c4-standard": "Standard Compute C4",
+            "c4-highcpu": "High CPU Compute C4",
+            "c4-highmem": "High Memory Compute C4",
+            "e2-medium": "E2 Medium Instance",
+            "e2-small": "E2 Small Instance",
+            "e2-micro": "E2 Micro Instance",
+            "e2-highcpu": "E2 High CPU Instance",
+            "e2-highmem": "E2 High Memory Instance",
+            "n1-standard": "Standard Compute N1",
+            "n1-highcpu": "High CPU Compute N1",
+            "n1-highmem": "High Memory Compute N1",
+            "n2-standard": "Standard Compute N2",
+            "n2-highcpu": "High CPU Compute N2",
+            "n2-highmem": "High Memory Compute N2",
+            "n2d-standard": "Standard Compute N2D",
+            "n2d-highcpu": "High CPU Compute N2D",
+            "n2d-highmem": "High Memory Compute N2D",
+            "n4-standard": "Standard Compute N4",
+            "n4-highcpu": "High CPU Compute N4",
+            "n4-highmem": "High Memory Compute N4",
+            "c3d-standard": "Standard Compute C3D",
+            "c3d-highcpu": "High CPU Compute C3D",
+            "c4d-standard": "Standard Compute C4D",
+            "c4d-highcpu": "High CPU Compute C4D",
+            "m1-megamem": "Mega Memory M1",
+            "m1-ultramem": "Ultra Memory M1",
+            "m2-hypermem": "Hyper Memory M2",
+            "m2-megamem": "Mega Memory M2",
+            "m2-ultramem": "Ultra Memory M2",
+            "m3-megamem": "Mega Memory M3",
+            "m3-ultramem": "Ultra Memory M3",
+            "x4-megamem": "Mega Memory X4",
+            "z3-highmem": "High Memory Z3",
+            "a2-ultragpu": "Ultra GPU A2",
         }
 
     @staticmethod
@@ -1055,6 +1084,49 @@ class Gcp(CloudBase):
         # 'Small Instance with 1 VCPU running in London'
         prefix = "%" if wildcard_prefix else ""
         return f"{prefix}{sku_text} running in {location}"
+
+    def _get_pricing_table_schema(self):
+        """
+        Retrieves the schema of the cloud_pricing_export table.
+        """
+        try:
+            table = self.bigquery_client.get_table(self._pricing_table_full_name())
+            schema = table.schema
+            LOG.info(f"Retrieved schema for table {self._pricing_table_full_name()}: {[field.name for field in schema]}")
+            return schema
+        except Exception as ex:
+            LOG.error(f"Error retrieving schema for table {self._pricing_table_full_name()}: {ex}")
+            raise
+
+    def _identify_pricing_column(self):
+        """
+        Identifies the pricing column dynamically based on the table schema.
+        Returns the column name if found, else raises an exception.
+        """
+        schema = self._get_pricing_table_schema()
+        possible_price_columns = ['list_price', 'unit_price', 'price', 'cost', 'billing_price']  # Extend as needed
+
+        # Search for columns that match possible pricing column names
+        for field in schema:
+            if field.name.lower() in possible_price_columns:
+                LOG.info(f"Identified pricing column: {field.name}")
+                return field.name
+
+        # If no exact match, search for columns containing 'price' or 'cost'
+        for field in schema:
+            if 'price' in field.name.lower() or 'cost' in field.name.lower():
+                LOG.info(f"Identified pricing column based on substring match: {field.name}")
+                return field.name
+
+        # If no pricing column is found, raise an exception
+        raise ValueError(f"No pricing column found in table {self._pricing_table_full_name()}. Please ensure that the table contains a pricing-related column.")
+    
+    @cached_property
+    def pricing_column(self):
+        """
+        Caches the identified pricing column name.
+        """
+        return self._identify_pricing_column()
 
     def _build_pricing_query(self, sku_desription_pattern: str) -> str:
         # sample query that we are building here:
@@ -1074,8 +1146,8 @@ class Gcp(CloudBase):
             AND sku.description LIKE '{sku_desription_pattern}'
         GROUP BY sku.id"""
         query = f"""
-        SELECT prices.list_price, prices.sku
-        FROM `hystaxcom.pricing_dataset.cloud_pricing_export` prices
+        SELECT prices.{self.pricing_column}, prices.sku
+        FROM `{self._pricing_table_full_name()}` prices
         INNER JOIN ({inner_query}) inr
         ON    prices.sku.id = inr.sku_id
           AND prices.export_time = inr.export_time
@@ -1092,11 +1164,21 @@ class Gcp(CloudBase):
         return result
 
     @staticmethod
-    def _parse_price(row) -> float:
-        # use tier 0 rate because this is the base price
-        # and we don't know if a customer has any usage discounts.
-        highest_price = row.list_price["tiered_rates"][0]["usd_amount"]
-        return highest_price
+    def _parse_price(row, pricing_column: str) -> float:
+        try:
+            price_info = getattr(row, pricing_column)
+            if isinstance(price_info, dict) and "tiered_rates" in price_info:
+                highest_price = price_info["tiered_rates"][0]["usd_amount"]
+                return float(highest_price)
+            elif isinstance(price_info, (float, int)):
+                return float(price_info)
+            else:
+                LOG.error(f"Unexpected format in pricing column '{pricing_column}': {price_info}")
+                return 0.0
+        except AttributeError:
+            LOG.error(f"Row does not have the expected pricing column '{pricing_column}'")
+            return 0.0
+
 
     def _parse_machine_family(self, row, sku_desription_pattern: str) -> str:
         # - take sku description (M3 Memory-optimized Instance Core running in Las Vegas)
@@ -1134,7 +1216,7 @@ class Gcp(CloudBase):
                     )
                     if not machine_family:
                         continue
-                    price = self._parse_price(row)
+                    price = self._parse_price(row, self.pricing_column)
                     instance_family_prices[machine_family].set_price(sku_text, price)
         self._update_m2_prices(instance_family_prices)
         return instance_family_prices
@@ -1152,7 +1234,7 @@ class Gcp(CloudBase):
                     sku_text, location, wildcard_prefix=False
                 )
                 for row in self._query_prices(sku_desription_pattern):
-                    price = self._parse_price(row)
+                    price = self._parse_price(row, self.pricing_column)
                     instance_type_prices[instance_type] = price
         return instance_type_prices
 
@@ -1210,7 +1292,7 @@ class Gcp(CloudBase):
             )
             if price is None:
                 LOG.warning(
-                    f"failed to dicover price for {instance_type_name} in {region}"
+                    f"failed to discover price for {instance_type_name} in {region}"
                 )
                 continue
             instance_type.price = price
@@ -1531,4 +1613,3 @@ class Gcp(CloudBase):
             )
         except api_exceptions.NotFound as exc:
             raise ResourceNotFound(str(exc))
-
