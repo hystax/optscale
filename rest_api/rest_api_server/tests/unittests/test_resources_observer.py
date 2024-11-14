@@ -137,18 +137,22 @@ class TestObserver(TestApiBase):
     @patch(PROCESS_RESOURCES)
     def test_observe_only_cached(self, m_hits):
         self.resource_discovery_call(self.instances)
+        self.resources_collection.update_many(
+            {}, {'$set': {'shareable': True}})
         resources = list(self.resources_collection.find())
         for resource in resources:
             self.assertTrue(resource.get('active'))
         now = opttime.utcnow()
         with freeze_time(now + timedelta(60)):
-            self.resource_discovery_call(self.instances, create_resources=False)
+            self.resource_discovery_call(self.instances,
+                                         create_resources=False)
             code, _ = self.client.observe_resources(self.org_id)
             self.assertEqual(code, 204)
         m_hits.assert_not_called()
         resources = list(self.resources_collection.find())
         for resource in resources:
             self.assertTrue(not resource.get('active'))
+            self.assertTrue(not resource.get('shareable'))
 
     def test_observe_newly_discovered_resources(self):
         rule_1 = {'id': str(uuid.uuid4()), 'name': 'rule1',

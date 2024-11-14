@@ -29,7 +29,7 @@ const StyledKeyValueChip = ({ keyMessageId, value }: StyledKeyValueChipProps) =>
     }}
     label={
       // Wrap with typography to inherit its text color setting to make the label contrast with the background
-      <Typography>
+      <Typography component="span">
         <KeyValueLabel keyMessageId={keyMessageId} isBoldValue={false} value={value} />
       </Typography>
     }

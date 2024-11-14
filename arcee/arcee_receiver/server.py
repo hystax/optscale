@@ -78,8 +78,9 @@ client.get_io_loop = asyncio.get_running_loop
 db = client[db_name]
 
 
-async def publish_activities_task(profiling_token, object_id, object_name,
-                                  object_type, action, **kwargs):
+async def publish_activities_task(
+        profiling_token, object_id, object_name, object_type, action,
+        routing_key=None, **kwargs):
     task = {
         "profiling_token": profiling_token,
         "object_id": object_id,
@@ -88,7 +89,7 @@ async def publish_activities_task(profiling_token, object_id, object_name,
         "action": action,
         **kwargs
     }
-    routing_key = ".".join([object_type, action])
+    routing_key = ".".join([routing_key or object_type, action])
     producer = ActivitiesTaskProducer()
     logger.info("Creating activities task:%s, routing_key:%s", task,
                 routing_key)
@@ -240,8 +241,13 @@ async def create_task(request, body: TaskPostIn):
         {"token": token, "key": body.key, "deleted_at": 0})
     if o:
         raise SanicException("Project exists", status_code=409)
+    task_cnt = await db.task.count_documents({"token": token})
     task = await _create_task(
             token=token, **body.model_dump(exclude_unset=True))
+    if not task_cnt:
+        await publish_activities_task(
+            token, task["_id"], task.get("name"), "task",
+            "first_task_created", routing_key='arcee.system')
     await publish_activities_task(
         token, task["_id"], task.get("name"), "task", "task_created")
     return json(task)
@@ -489,6 +495,20 @@ async def create_task_run(request, body: RunPostIn, name: str):
     r = Run(task_id=task_id, number=run_cnt + 1, **body.model_dump())
 
     await db.run.insert_one(r.model_dump(by_alias=True))
+    if not run_cnt:
+        all_tasks_run_cnt = await db.run.count_documents({
+            "task_id": {'$in': [
+                doc["_id"] async for doc in db.task.find(
+                    {"token": token}, ['_id']
+                )
+            ]},
+            '_id': {'$ne': r.id}
+        })
+        if not all_tasks_run_cnt:
+            await publish_activities_task(
+                token, r.id, r.name, "run", "first_run_started",
+                routing_key='arcee.system', meta={
+                    'task': {'id': task_id, 'name': o['name']}})
     await publish_activities_task(
         token, r.id, r.name, "run", "run_started"
     )

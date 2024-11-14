@@ -10,7 +10,8 @@ import { updateQueryParams } from "utils/network";
 const ArchivedRecommendationsContainer = () => {
   const isNebiusConnectionEnabled = useIsNebiusConnectionEnabled();
 
-  const { useGetArchivedOptimizationsBreakdown, useGetArchivedOptimizationsCount } = ArchivedRecommendationService();
+  const { useGetArchivedOptimizationsBreakdown, useGetArchivedOptimizationsCount, useDownloadArchivedOptimizations } =
+    ArchivedRecommendationService();
 
   const [startDateTimestamp, endDateTimestamp] = useReactiveDefaultDateRange(DATE_RANGE_TYPE.ARCHIVED_RECOMMENDATIONS);
 
@@ -32,6 +33,8 @@ const ArchivedRecommendationsContainer = () => {
     isLoading,
     data: { breakdown: archivedRecommendationsBreakdown = [] }
   } = useGetArchivedOptimizationsBreakdown(breakdownDateRange);
+
+  const { isLoading: isDownloading, onDownload } = useDownloadArchivedOptimizations();
 
   const onTimeRangeChange = ({ startDate, endDate }) => {
     setDateRange({
@@ -73,7 +76,9 @@ const ArchivedRecommendationsContainer = () => {
       dateRange={dateRange}
       archivedRecommendationsChartBreakdown={filteredArchivedRecommendationsChartBreakdown}
       archivedRecommendationsBreakdown={filteredArchivedRecommendationsBreakdown}
+      onDownload={() => onDownload(dateRange)}
       isChartLoading={isChartLoading}
+      isDownloading={isDownloading}
       isLoading={isLoading}
     />
   );

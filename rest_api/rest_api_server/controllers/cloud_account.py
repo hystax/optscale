@@ -576,8 +576,6 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         super().delete(item_id)
         expense_ctrl = ExpenseController(self._config)
         expense_ctrl.delete_cloud_expenses(item_id)
-        resource_ctrl = CloudResourceController(self._config)
-        resource_ctrl.delete_cloud_resources(item_id)
         self.clean_clickhouse(cloud_account.id, cloud_account.type)
         OrganizationConstraintController(
             self.session, self._config, self.token).delete_constraints_with_hits(

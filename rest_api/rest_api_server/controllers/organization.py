@@ -324,8 +324,7 @@ class OrganizationController(BaseController, ClickHouseMixin):
         }
         self.publish_activities_task(
             organization.id, organization.id, 'organization',
-            action, meta, 'organization.{action}'.format(action=action),
-            add_token=True)
+            action, meta, 'organization.{action}'.format(action=action))
 
 
 class OrganizationAsyncController(BaseAsyncControllerWrapper):

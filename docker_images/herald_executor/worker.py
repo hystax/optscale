@@ -50,7 +50,8 @@ TASK_QUEUE = Queue(QUEUE_NAME, TASK_EXCHANGE, bindings=[
     binding(TASK_EXCHANGE,
             routing_key='organization.recommendation.saving_spike'),
     binding(TASK_EXCHANGE, routing_key='organization.report_import.passed'),
-    binding(TASK_EXCHANGE, routing_key='insider.error.sslerror')
+    binding(TASK_EXCHANGE, routing_key='insider.error.sslerror'),
+    binding(TASK_EXCHANGE, routing_key='arcee.system.#')
 ])
 
 
@@ -71,6 +72,8 @@ class HeraldTemplates(Enum):
     TAGGING_POLICY = 'organization_policy_tagging'
     REPORT_IMPORT_PASSED = 'report_imports_passed_for_org'
     INSIDER_SSLERROR = 'insider_prices_sslerror'
+    FIRST_TASK_CREATED = 'first_task_created'
+    FIRST_RUN_STARTED = 'first_run_started'
 
 
 class HeraldExecutorWorker(ConsumerMixin):
@@ -694,21 +697,73 @@ class HeraldExecutorWorker(ConsumerMixin):
             template_params=template_params)
 
     def execute_insider_prices(self):
+        self._send_service_email('Insider faced Azure SSLError',
+                                 HeraldTemplates.INSIDER_SSLERROR.value, {})
+
+    def _send_service_email(self, title, template_type, template_params):
         email = self._get_service_emails()
         if email:
             public_ip = self.config_cl.public_ip()
-            title = 'Insider faced Azure SSLError'
             subject = f'[{public_ip}] {title}'
             self.herald_cl.email_send(
-                [email], subject,
-                template_type=HeraldTemplates.INSIDER_SSLERROR.value
+                [email], subject, template_type=template_type,
+                template_params=template_params
             )
+
+    def _get_organization_info_by_token(self, profiling_token):
+        _, data = self.rest_cl.profiling_token_info_get(profiling_token)
+        _, org = self.rest_cl.organization_get(data['organization_id'])
+        return org['id'], org['name']
+
+    def execute_first_task_created(self, task_id, task_name, profiling_token):
+        LOG.info('SEND SERVICE EMAIL: execute_first_task_created: %s, %s' % (
+            task_id, task_name))
+        title = 'OptScale first task created notification'
+        template_type = HeraldTemplates.FIRST_TASK_CREATED.value
+        org_id, org_name = self._get_organization_info_by_token(profiling_token)
+        template_params = {
+            'texts': {
+                "organization": {
+                    "id": org_id,
+                    "name": org_name
+                },
+                "task": {
+                    "id": task_id,
+                    "name": task_name
+                }
+            }
+        }
+        self._send_service_email(title, template_type, template_params)
+
+    def execute_first_run_started(self, run_id, run_name, profiling_token,
+                                  meta):
+        LOG.info('SEND SERVICE EMAIL: execute_first_run_started: %s, %s' % (
+            run_id, run_name))
+        title = 'OptScale first run started notification'
+        template_type = HeraldTemplates.FIRST_RUN_STARTED.value
+        org_id, org_name = self._get_organization_info_by_token(profiling_token)
+        template_params = {
+            'texts': {
+                "organization": {
+                    "id": org_id,
+                    "name": org_name
+                },
+                "task": meta.get("task", {}),
+                "run": {
+                    "id": run_id,
+                    "name": run_name
+                }
+            }
+        }
+        self._send_service_email(title, template_type, template_params)
 
     def execute(self, task):
         organization_id = task.get('organization_id')
         action = task.get('action')
         object_id = task.get('object_id')
         object_type = task.get('object_type')
+        object_name = task.get('object_name')
+        profiling_token = task.get('profiling_token')
         meta = task.get('meta')
         task_params = [
             object_id, organization_id
@@ -724,7 +779,9 @@ class HeraldExecutorWorker(ConsumerMixin):
             'new_security_recommendation': [organization_id, meta],
             'saving_spike': [object_id, meta],
             'report_import_passed': [object_id],
-            'insider_prices_sslerror': []
+            'insider_prices_sslerror': [],
+            'first_task_created': [object_id, object_name, profiling_token],
+            'first_run_started': [object_id, object_name, profiling_token, meta]
         }
         if action_param_required.get(action) is None or any(
                 map(lambda x: x is None, action_param_required.get(action))):
@@ -743,7 +800,9 @@ class HeraldExecutorWorker(ConsumerMixin):
                 self.execute_new_security_recommendation,
             'saving_spike': self.execute_saving_spike,
             'report_import_passed': self.execute_report_imports_passed_for_org,
-            'insider_prices_sslerror': self.execute_insider_prices
+            'insider_prices_sslerror': self.execute_insider_prices,
+            'first_task_created': self.execute_first_task_created,
+            'first_run_started': self.execute_first_run_started
         }
         LOG.info('Started processing for object %s task type for %s '
                  'for organization %s' % (object_id, action, organization_id))

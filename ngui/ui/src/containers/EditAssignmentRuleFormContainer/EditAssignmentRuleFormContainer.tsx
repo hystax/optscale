@@ -17,15 +17,23 @@ import { FIELD_NAMES } from "components/forms/AssignmentRuleForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
+import { useAssignmentRulesAvailableFilters } from "hooks/useAssignmentRulesAvailableFilters";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ASSIGNMENT_RULES, POOLS } from "urls";
 import { isError } from "utils/api";
-import { TAG_IS, CLOUD_IS, TAG_VALUE_STARTS_WITH } from "utils/constants";
+import { TAG_IS, CLOUD_IS, TAG_VALUE_STARTS_WITH, RESOURCE_TYPE_IS, REGION_IS } from "utils/constants";
 
 const getConditions = (conditions = []) =>
   conditions.map((condition) => {
-    const { TYPE, META_INFO, TAG_KEY_FIELD_NAME, TAG_VALUE_FIELD_NAME, CLOUD_IS_FIELD_NAME } =
-      FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
+    const {
+      TYPE,
+      META_INFO,
+      TAG_KEY_FIELD_NAME,
+      TAG_VALUE_FIELD_NAME,
+      CLOUD_IS_FIELD_NAME,
+      RESOURCE_TYPE_IS_FIELD_NAME,
+      REGION_IS_FIELD_NAME
+    } = FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
 
     if ([TAG_IS, TAG_VALUE_STARTS_WITH].includes(condition[TYPE])) {
       const { key, value } = JSON.parse(condition[META_INFO]);
@@ -39,6 +47,18 @@ const getConditions = (conditions = []) =>
       return {
         [TYPE]: condition[TYPE],
         [CLOUD_IS_FIELD_NAME]: condition[META_INFO]
+      };
+    }
+    if (condition[TYPE] === RESOURCE_TYPE_IS) {
+      return {
+        [TYPE]: condition[TYPE],
+        [RESOURCE_TYPE_IS_FIELD_NAME]: condition[META_INFO]
+      };
+    }
+    if (condition[TYPE] === REGION_IS) {
+      return {
+        [TYPE]: condition[TYPE],
+        [REGION_IS_FIELD_NAME]: condition[META_INFO]
       };
     }
     return {
@@ -85,6 +105,8 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
   // Attention: we don't request cloud account here as they are included in the initial loader
   // and we assume that they are up-to-date
   const { apiData: { cloudAccounts = [] } = {} } = useApiData(GET_DATA_SOURCES);
+
+  const { isLoading: isAvailableFiltersLoading, resourceTypes, regions } = useAssignmentRulesAvailableFilters();
 
   useEffect(() => {
     dispatch((_, getState) => {
@@ -169,6 +191,8 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
             onCancel={redirect}
             pools={pools}
             cloudAccounts={cloudAccounts}
+            resourceTypes={resourceTypes}
+            regions={regions}
             isEdit
             onPoolChange={(newPoolId, callback) => {
               dispatch((_, getState) => {
@@ -183,7 +207,7 @@ const EditAssignmentRuleFormContainer = ({ assignmentRuleId }) => {
             isLoadingProps={{
               isActiveCheckboxLoading: isFormDataLoading,
               isNameInputLoading: isFormDataLoading,
-              isConditionsFieldLoading: isFormDataLoading,
+              isConditionsFieldLoading: isFormDataLoading || isAvailableFiltersLoading,
               isPoolSelectorLoading: isFormDataLoading,
               isOwnerSelectorLoading: isFormDataLoading,
               isSubmitButtonLoading: isFormDataLoading || isUpdateAssignmentRuleLoading

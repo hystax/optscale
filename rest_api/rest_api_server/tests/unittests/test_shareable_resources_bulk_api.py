@@ -127,7 +127,8 @@ class TestShareableResourcesApi(TestApiBase):
     def test_shareable_bulk(self):
         self._make_resources_active([self.instance_resource['id'],
                                      self.not_instance['id'],
-                                     self.cluster_resource['_id']])
+                                     self.cluster_resource['_id'],
+                                     self.instance_cluster_res['id']])
         # shareable instance
         code, data = self.client.resources_bulk_share(
             self.org_id, resource_ids=[self.instance_resource['id']])
@@ -154,6 +155,12 @@ class TestShareableResourcesApi(TestApiBase):
         self.assertEqual(code, 201)
         self.verify_shareable_resources_response(
             data, shared_ids=[self.cluster_resource['_id']])
+
+        # not shareable clustered instance
+        code, data = self.client.resources_bulk_share(
+            self.org_id, resource_ids=[self.instance_cluster_res['id']])
+        self.assertEqual(code, 201)
+        self.assertEqual(data['failed'][0]['code'], 'OE0481')
 
         # shareable environment
         code, data = self.client.resources_bulk_share(

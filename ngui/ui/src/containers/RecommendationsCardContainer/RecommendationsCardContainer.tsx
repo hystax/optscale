@@ -6,9 +6,9 @@ import {
   CATEGORY_SECURITY,
   RECOMMENDATION_COLOR
 } from "containers/RecommendationsOverviewContainer/recommendations/BaseRecommendation";
-import RecommendationsOverviewService from "containers/RecommendationsOverviewContainer/RecommendationsOverviewService";
 import { useAllRecommendations } from "hooks/useAllRecommendations";
 import ExpensesService from "services/ExpensesService";
+import RecommendationsOverviewService from "services/RecommendationsOverviewService";
 
 const RecommendationsCardContainer = () => {
   const { useGetOrganizationExpenses } = ExpensesService();

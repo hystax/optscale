@@ -450,7 +450,7 @@ class AzureReportImporter(BaseReportImporter):
             'name': r_name,
             'type': r_type,
             'region': region,
-            'service_name': service,
+            'service_name': service.lower(),
             'tags': tags,
             'first_seen': int(first_seen.timestamp()),
             'last_seen': int(last_seen.timestamp())

@@ -48,10 +48,9 @@ class BaseHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
         self.set_header("Content-Type", "application/json; charset=UTF-8")
 
-    def initialize(self, mongo_client, config, rabbit_client):
+    def initialize(self, mongo_client, config):
         self.mongo_client = mongo_client
         self._config = config
-        self.rabbit_client = rabbit_client
         self._controller = None
         self.executor = tp_executor
         self.io_loop = IOLoop.current()
@@ -90,7 +89,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def controller(self):
         if not self._controller:
             self._controller = self._get_controller_class()(
-                self.mongo_client, self._config, self.rabbit_client
+                self.mongo_client, self._config
             )
         return self._controller
 
@@ -139,8 +138,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
 
 class BaseAuthHandler(BaseHandler):
-    def initialize(self, mongo_client, config, rabbit_client):
-        super().initialize(mongo_client, config, rabbit_client)
+    def initialize(self, mongo_client, config):
+        super().initialize(mongo_client, config)
         self.cluster_secret = config.cluster_secret()
 
     @property

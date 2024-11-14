@@ -2,7 +2,6 @@ import os
 import logging
 import argparse
 
-import time
 import tornado.ioloop
 import tornado.web
 from pymongo import MongoClient
@@ -12,7 +11,6 @@ from mongoengine import connect
 import keeper.report_server.handlers.v2 as h_v2
 from keeper.report_server.handlers.swagger import SwaggerStaticFileHandler
 from keeper.report_server.constants import urls_v2
-from keeper.report_server.controllers.message_publisher import Publisher
 from keeper.report_server.handlers.base import DefaultHandler
 
 import optscale_client.config_client.client
@@ -101,22 +99,10 @@ def make_app(etcd_host, etcd_port, wait=False, mongo_client_class=None):
         **connection_params
     )
 
-    rabbit_user, rabbit_pass, rabbit_host, rabbit_port = config_cl.rabbit_params()
-    events_queue = config_cl.events_queue()
-
-    rabbit_client = Publisher(
-        events_queue, rabbit_host, rabbit_port, rabbit_user, rabbit_pass
-    )
-
-    tornado.ioloop.IOLoop.instance().add_timeout(
-        time.time() + 0.1, rabbit_client.connect
-    )
-
     config_cl.tell_everybody_that_i_am_ready()
     handler_kwargs = {
         "mongo_client": mongo_client,
         "config": config_cl,
-        "rabbit_client": rabbit_client,
     }
 
     return tornado.web.Application(

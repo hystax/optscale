@@ -1,11 +1,14 @@
 import { useMemo } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import { FormattedMessage } from "react-intl";
+import { useNavigate } from "react-router-dom";
 import { GET_DATA_SOURCES } from "api/restapi/actionTypes";
 import AnomaliesFilters from "components/AnomaliesFilters";
 import Filters from "components/Filters";
 import { RESOURCE_FILTERS } from "components/Filters/constants";
 import { useMoneyFormatter } from "components/FormattedMoney";
+import IconButton from "components/IconButton";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
 import TextWithDataTestId from "components/TextWithDataTestId";
@@ -25,6 +28,7 @@ import {
 } from "utils/constants";
 import { formatUTC } from "utils/datetime";
 import { isEmpty as isEmptyObject } from "utils/objects";
+import { getResourcesLink } from "utils/organizationConstraints/getResourcesLink";
 import { CELL_EMPTY_VALUE } from "utils/tables";
 
 const buildDescription = ({ type, definition, formatter, rawString = false }) => {
@@ -107,6 +111,8 @@ const buildDescription = ({ type, definition, formatter, rawString = false }) =>
 };
 
 const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = false }) => {
+  const navigate = useNavigate();
+
   const isManageResourcesAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });
   const formatter = useMoneyFormatter();
 
@@ -166,9 +172,32 @@ const OrganizationConstraintsTable = ({ constraints, addButtonLink, isLoading = 
         enableSorting: false,
         cell: ({ row: { original: { filters } = {} } }) =>
           isEmptyObject(filters) ? CELL_EMPTY_VALUE : <AnomaliesFilters filters={filters} />
+      },
+      {
+        header: (
+          <TextWithDataTestId dataTestId="lbl_actions">
+            <FormattedMessage id="actions" />
+          </TextWithDataTestId>
+        ),
+        enableSorting: false,
+        id: "actions",
+        cell: ({ row: { original, index } }) => (
+          <IconButton
+            dataTestId={`actions_column_link_${index}`}
+            icon={<ListAltOutlinedIcon />}
+            onClick={() => {
+              const link = getResourcesLink(original);
+              navigate(link);
+            }}
+            tooltip={{
+              show: true,
+              value: <FormattedMessage id="showResources" />
+            }}
+          />
+        )
       }
     ],
-    [formatter]
+    [formatter, navigate]
   );
 
   return isLoading ? (

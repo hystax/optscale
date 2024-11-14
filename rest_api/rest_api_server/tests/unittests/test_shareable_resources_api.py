@@ -1030,6 +1030,19 @@ class TestShareableResourcesApi(TestApiBase):
         self.assertEqual(code, 404)
         self.assertEqual(response['error']['error_code'], 'OE0002')
 
+    def test_get_bookings_for_cluster(self):
+        code, cluster_type = self.client.cluster_type_create(
+            self.organization_id, {'name': 'cluster', 'tag_key': 'type'})
+        self._create_resource(is_shareable=False, tags={'type': 'val'})
+        self.client.cluster_types_apply(self.organization_id)
+        cluster = next(
+            self.resources_collection.find({'cluster_type_id': cluster_type[
+                'id']}))
+        self.resources_collection.update_one(
+            {'_id': cluster['_id']}, {'$set': {'shareable': True}})
+        code, response = self.client.resource_bookings_get(cluster['_id'])
+        self.assertEqual(code, 200)
+
     def test_bookings_list_for_organization(self):
         resource = self._create_resource()
         code, response = self.client.resource_bookings_get(resource['id'])

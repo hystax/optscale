@@ -15,8 +15,8 @@ LOG = logging.getLogger(__name__)
 
 
 class EventBaseController(BaseController):
-    def __init__(self, mongo_client, config, rabbit_client):
-        super().__init__(mongo_client, config, rabbit_client)
+    def __init__(self, mongo_client, config):
+        super().__init__(mongo_client, config)
 
     def get_poll_resources(self, token):
         return self.get_resources(token, "POLL_EVENT")

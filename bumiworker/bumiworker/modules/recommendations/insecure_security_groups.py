@@ -95,7 +95,13 @@ class InsecureSecurityGroups(ModuleBase):
         return result
 
     @staticmethod
-    def _get_aws_region_insecure_sg(cloud_adapter, region, sg_ids, insecure_ports):
+    def _format_protocol(protocol):
+        if not protocol or protocol.lower() in ['any', 'all']:
+            return '*'
+        return protocol
+
+    def _get_aws_region_insecure_sg(
+            self, cloud_adapter, region, sg_ids, insecure_ports):
         res = []
         security_groups = cloud_adapter.describe_security_groups(
             region, sg_ids)
@@ -131,10 +137,14 @@ class InsecureSecurityGroups(ModuleBase):
                         if any(filter(lambda x:
                                       x[cidr_key] in INSECURE_CIDRS,
                                       ranges)):
-                            found_insecure_ports.add((insecure_port_value, insecure_port_protocol))
+                            found_insecure_ports.add((insecure_port_value,
+                                                      insecure_port_protocol))
             if found_insecure_ports:
                 res.append(security_group)
-                insecure_ports_js = [{'port': port, 'protocol': protocol} for port, protocol in found_insecure_ports]
+                insecure_ports_js = [
+                    {'port': port, 'protocol': self._format_protocol(protocol)}
+                    for port, protocol in found_insecure_ports
+                ]
                 security_group['insecure_ports'] = insecure_ports_js
         return {region: res}
 
@@ -175,9 +185,11 @@ class InsecureSecurityGroups(ModuleBase):
             for region, insecure_sgs in region_insecure_sgs_map.items():
                 for insecure_sg in insecure_sgs:
                     security_groups_map = region_sg_map.get(region, {})
-                    for instance in security_groups_map.get(insecure_sg['GroupId'], []):
+                    for instance in security_groups_map.get(
+                            insecure_sg['GroupId'], []):
                         result.append({
-                            'cloud_resource_id': instance.get('cloud_resource_id'),
+                            'cloud_resource_id': instance.get(
+                                'cloud_resource_id'),
                             'resource_name': instance.get('name'),
                             'cloud_account_id': instance.get(
                                 'cloud_account_id'),
@@ -259,15 +271,16 @@ class InsecureSecurityGroups(ModuleBase):
                         to_port = from_port
                     for insecure_port in insecure_ports:
                         insecure_port_protocol = insecure_port.get('protocol')
-                        if rule.protocol.lower() not in [insecure_port_protocol, '*']:
+                        if rule.protocol.lower() not in [
+                                insecure_port_protocol, '*']:
                             continue
                         insecure_port_value = insecure_port.get('port')
                         if from_port <= insecure_port_value <= to_port:
-                            found_insecure_ports.add((insecure_port_value,
-                                                      insecure_port_protocol))
+                            found_insecure_ports.add(
+                                (insecure_port_value, insecure_port_protocol))
             if found_insecure_ports:
                 insecure_ports_js = [
-                    {'port': port, 'protocol': protocol}
+                    {'port': port, 'protocol': self._format_protocol(protocol)}
                     for port, protocol in found_insecure_ports]
                 result.append({
                     'cloud_resource_id': cloud_resource.get(
@@ -349,13 +362,13 @@ class InsecureSecurityGroups(ModuleBase):
                                 insecure_port == from_port or
                                 insecure_port == to_port) and
                                 protocol in [insecure_protocol, 'ANY']):
-                            found_insecure_ports.add(
-                                (insecure_port, protocol.lower()))
+                            found_insecure_ports.add((insecure_port, protocol))
 
                 if found_insecure_ports:
-                    insecure_ports_js = [
-                        {'port': port, 'protocol': protocol}
-                        for port, protocol in found_insecure_ports]
+                    insecure_ports_js = [{
+                        'port': port,
+                        'protocol': self._format_protocol(protocol)
+                    } for port, protocol in found_insecure_ports]
                     region = instance.get('region') or instance.get(
                         'meta', {}).get('zone_id')
                     result.append({
@@ -413,7 +426,7 @@ class InsecureSecurityGroups(ModuleBase):
                     if protocol in insecure_protocols or protocol == 'all':
                         insecure_firewall_ports.append({
                             'port': '*',
-                            'protocol': protocol
+                            'protocol': self._format_protocol(protocol)
                         })
                         continue
                 for port_range in rule_ports:
@@ -432,6 +445,8 @@ class InsecureSecurityGroups(ModuleBase):
                     ins_protocol = insecure_port['protocol']
                     if ins_port in ports and (
                             ins_protocol == protocol or protocol == 'all'):
+                        insecure_port['protocol'] = self._format_protocol(
+                            ins_protocol)
                         insecure_firewall_ports.append(insecure_port)
             if insecure_firewall_ports:
                 firewall_network_id = network_self_link_id[firewall.network]

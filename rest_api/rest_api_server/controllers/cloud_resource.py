@@ -992,30 +992,6 @@ class CloudResourceController(BaseController, MongoMixin, ResourceFormatMixin):
         if not r.modified_count:
             raise NotFoundException(Err.OE0002, ['Resource', item_id])
 
-    def delete_cloud_resources(self, cloud_account_id):
-        now = opttime.utcnow_timestamp()
-        chunk_size = 10000
-        while True:
-            res = self.resources_collection.find(
-                {'cloud_account_id': cloud_account_id, 'deleted_at': 0},
-                {'_id': True}).limit(chunk_size)
-            res_ids = [x['_id'] for x in res]
-            if not len(res_ids):
-                break
-            r = self.resources_collection.update_many(
-                filter={
-                    '_id': {'$in': res_ids}
-                },
-                update={
-                    '$set': {'deleted_at': now},
-                    '$unset': {'cluster_id': ''}
-                }
-            )
-            if r.modified_count != len(res_ids):
-                LOG.warning('Delete cloud resources failed - deleted %d of %d;'
-                            ' result: %s' %
-                            (r.modified_count, len(res_ids), r.raw_result))
-
     def get_script(self, item_id):
         resource = self.get(item_id)
         if not resource.get('shareable'):

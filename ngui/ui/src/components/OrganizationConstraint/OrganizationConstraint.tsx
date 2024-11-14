@@ -1,9 +1,11 @@
 import { useState } from "react";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import { Skeleton, Stack, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { FormattedMessage, FormattedNumber } from "react-intl";
+import { useNavigate } from "react-router-dom";
 import ActionBar from "components/ActionBar";
 import AnomaliesFilters from "components/AnomaliesFilters";
 import DetectedConstraintsHistory from "components/DetectedConstraintsHistory";
@@ -28,6 +30,7 @@ import {
 import { EN_FULL_FORMAT, format, secondsToMilliseconds } from "utils/datetime";
 import { SPACING_1 } from "utils/layouts";
 import { isEmpty as isEmptyObject } from "utils/objects";
+import { getResourcesLink } from "utils/organizationConstraints/getResourcesLink";
 import SlicedText from "../SlicedText";
 import TaggingPolicyDescriptionShort from "./TaggingPolicyDescriptionShort";
 
@@ -146,6 +149,8 @@ const OrganizationConstraint = ({
   limitHits,
   isLoadingProps = {}
 }) => {
+  const navigate = useNavigate();
+
   const openSideModal = useOpenSideModal();
 
   const { isGetConstraintLoading = false, isGetLimitHitsLoading = false } = isLoadingProps;
@@ -158,6 +163,18 @@ const OrganizationConstraint = ({
     breadcrumbs: actionBarBreadcrumbsDefinition,
     title: actionBarTitleDefinition,
     items: [
+      {
+        key: "showResources",
+        icon: <ListAltOutlinedIcon fontSize="small" />,
+        messageId: "showResources",
+        type: "button",
+        isLoading: isGetConstraintLoading,
+        dataTestId: "btn_show_resources",
+        action: () => {
+          const link = getResourcesLink(constraint);
+          navigate(link);
+        }
+      },
       {
         key: "delete",
         icon: <DeleteOutlinedIcon fontSize="small" />,

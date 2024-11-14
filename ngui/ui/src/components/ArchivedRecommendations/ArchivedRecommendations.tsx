@@ -1,4 +1,5 @@
-import { Grid, Link, Typography } from "@mui/material";
+import CloudDownloadOutlinedIcon from "@mui/icons-material/CloudDownloadOutlined";
+import { Box, Link, Stack, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink } from "react-router-dom";
 import ActionBar from "components/ActionBar";
@@ -19,6 +20,8 @@ const ArchivedRecommendations = ({
   dateRange,
   archivedRecommendationsChartBreakdown,
   archivedRecommendationsBreakdown,
+  onDownload,
+  isDownloading = false,
   isChartLoading = false,
   isLoading = false
 }) => {
@@ -45,15 +48,26 @@ const ArchivedRecommendations = ({
     title: {
       text: <FormattedMessage id="archivedRecommendations" />,
       dataTestId: "lbl_archived_recommendations"
-    }
+    },
+    items: [
+      {
+        key: "download",
+        icon: <CloudDownloadOutlinedIcon />,
+        messageId: "download",
+        type: "button",
+        action: onDownload,
+        isLoading: isDownloading,
+        dataTestId: "btn_download"
+      }
+    ]
   };
 
   return (
     <>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
-        <Grid container spacing={SPACING_2}>
-          <Grid item xs={12} sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Stack spacing={SPACING_2}>
+          <Box display="flex" justifyContent="flex-end">
             <RangePickerFormContainer
               onApply={onTimeRangeChange}
               initialStartDateValue={dateRange.startDate}
@@ -61,18 +75,16 @@ const ArchivedRecommendations = ({
               rangeType={DATE_RANGE_TYPE.ARCHIVED_RECOMMENDATIONS}
               definedRanges={getBasicRangesSet()}
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+          <Box>
             <ArchivedRecommendationsBreakdownContainer
               isLoading={isChartLoading}
               onBarChartSelect={onBarChartSelect}
               breakdown={archivedRecommendationsChartBreakdown}
             />
-          </Grid>
-          <Grid item xs={12}>
-            {renderArchivedRecommendationsDetails()}
-          </Grid>
-        </Grid>
+          </Box>
+          <Box>{renderArchivedRecommendationsDetails()}</Box>
+        </Stack>
       </PageContentWrapper>
     </>
   );

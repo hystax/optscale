@@ -13,10 +13,9 @@ class BaseAsyncControllerWrapper(object):
     Used to wrap sync controller methods to return awaitable
     """
 
-    def __init__(self, mongo_client, config, rabbit_client):
+    def __init__(self, mongo_client, config):
         self.mongo_client = mongo_client
         self._config = config
-        self.rabbit_client = rabbit_client
         self._controller = None
         self.executor = tp_executor
         self.io_loop = IOLoop.current()
@@ -25,7 +24,7 @@ class BaseAsyncControllerWrapper(object):
     def controller(self):
         if not self._controller:
             self._controller = self._get_controller_class()(
-                self.mongo_client, self._config, self.rabbit_client
+                self.mongo_client, self._config
             )
         return self._controller
 

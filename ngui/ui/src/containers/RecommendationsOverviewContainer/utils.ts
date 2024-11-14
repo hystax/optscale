@@ -25,7 +25,7 @@ export const categoryFilter = (category) => (recommendation) => {
   }
 
   if (category === CATEGORY_NON_EMPTY) {
-    return recommendation.saving !== 0 && recommendation.count !== 0;
+    return recommendation.count !== 0;
   }
 
   return true;

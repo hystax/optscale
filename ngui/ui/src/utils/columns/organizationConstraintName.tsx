@@ -9,6 +9,7 @@ import SlicedText from "components/SlicedText";
 import TextWithDataTestId from "components/TextWithDataTestId";
 import Tooltip from "components/Tooltip";
 import { useIntervalTimeAgo } from "hooks/useIntervalTimeAgo";
+import { CONSTRAINTS_HIT_DAYS } from "services/OrganizationConstraintsService";
 import { getAnomalyUrl, getQuotaAndBudgetUrl, getTaggingPolicyUrl } from "urls";
 import { ANOMALY_TYPES, QUOTAS_AND_BUDGETS_TYPES, TAGGING_POLICY_TYPES } from "utils/constants";
 import { isAnomalyConstraint, isQuotasAndBudgetsConstraint, isTaggingPolicyConstraint } from "utils/organizationConstraints";
@@ -50,7 +51,9 @@ const NameCell = ({ lastRun, limitHitsCount, id, type, name }: NameCellProps) =>
           <IconLabel
             icon={
               limitHitsCount !== 0 && (
-                <Tooltip title={intl.formatMessage({ id: "hitsForLastDays" }, { value: limitHitsCount, amount: 3 })}>
+                <Tooltip
+                  title={intl.formatMessage({ id: "hitsForLastDays" }, { value: limitHitsCount, amount: CONSTRAINTS_HIT_DAYS })}
+                >
                   <ErrorOutlineIcon fontSize="inherit" />
                 </Tooltip>
               )

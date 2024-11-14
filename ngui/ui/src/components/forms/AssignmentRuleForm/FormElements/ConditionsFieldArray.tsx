@@ -1,15 +1,20 @@
 import { Fragment } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import { Autocomplete } from "@mui/material";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import { FormattedMessage } from "react-intl";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { FormattedMessage, useIntl } from "react-intl";
 import { makeStyles } from "tss-react/mui";
 import Button from "components/Button";
+import CloudTypeIcon from "components/CloudTypeIcon";
 import { Selector, TextInput } from "components/forms/common/fields";
 import IconButton from "components/IconButton";
+import IconLabel from "components/IconLabel";
+import Input from "components/Input";
 import InputLoader from "components/InputLoader";
+import ResourceTypeLabel from "components/ResourceTypeLabel";
 import { ItemContent, ItemContentWithDataSourceIcon } from "components/Selector";
 import {
   CONDITION_TYPES,
@@ -18,9 +23,13 @@ import {
   TAG_VALUE_STARTS_WITH,
   TAG_EXISTS,
   DEFAULT_CONDITION,
-  ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH
+  ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH,
+  RESOURCE_TYPE_IS,
+  REGION_IS,
+  OPTSCALE_RESOURCE_TYPES
 } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
+import { idx } from "utils/objects";
 import { FIELD_NAMES } from "../utils";
 
 const { FIELD_NAME, TYPE, META_INFO } = FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
@@ -41,10 +50,16 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const ConditionsFieldArray = ({ name = FIELD_NAME, isLoading = false, cloudAccounts }) => {
+const ConditionsFieldArray = ({ name = FIELD_NAME, isLoading = false, cloudAccounts, resourceTypes, regions }) => {
+  const intl = useIntl();
+
   const { classes, cx } = useStyles();
 
-  const { control, watch } = useFormContext();
+  const {
+    control,
+    watch,
+    formState: { errors }
+  } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -114,6 +129,149 @@ const ConditionsFieldArray = ({ name = FIELD_NAME, isLoading = false, cloudAccou
     );
   };
 
+  const renderResourceTypeIsAutocompleteField = (field, count) => {
+    const NAME = FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME;
+
+    const fieldName = `${name}.${count}.${NAME}`;
+    const fieldError = idx(fieldName.split("."), errors);
+
+    return (
+      <Controller
+        name={`${name}.${count}.${NAME}`}
+        control={control}
+        defaultValue={field[NAME] ?? ""}
+        rules={{
+          required: {
+            value: true,
+            message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          }
+        }}
+        render={({ field: { value: formFieldValue, onChange, ...rest } }) => (
+          <Autocomplete
+            freeSolo
+            options={resourceTypes.toSorted((resourceTypeA, resourceTypeB) => {
+              if (resourceTypeA.type === resourceTypeB.type) {
+                return resourceTypeA.name.localeCompare(resourceTypeB.name);
+              }
+
+              return resourceTypeA.type.localeCompare(resourceTypeB.type);
+            })}
+            value={formFieldValue}
+            onChange={(event, newValue) => {
+              onChange(newValue?.name ?? "");
+            }}
+            onInputChange={(event, newInputValue) => {
+              onChange(newInputValue);
+            }}
+            isOptionEqualToValue={(option, value) => option.name === value}
+            getOptionLabel={(option) => {
+              if (typeof option === "string") {
+                return option;
+              }
+              return option.name;
+            }}
+            renderOption={(props, option) => {
+              const getOptionLabel = () => {
+                if ([OPTSCALE_RESOURCE_TYPES.CLUSTER, OPTSCALE_RESOURCE_TYPES.ENVIRONMENT].includes(option.type)) {
+                  return (
+                    <ResourceTypeLabel
+                      resourceInfo={{
+                        resourceType: option.name,
+                        clusterTypeId: option.type === OPTSCALE_RESOURCE_TYPES.CLUSTER,
+                        isEnvironment: option.type === OPTSCALE_RESOURCE_TYPES.ENVIRONMENT
+                      }}
+                    />
+                  );
+                }
+
+                return option.name;
+              };
+
+              return <li {...props}>{getOptionLabel()}</li>;
+            }}
+            renderInput={(autoCompleteParams) => (
+              <Input
+                required
+                label={<FormattedMessage id="resourceType" />}
+                dataTestId={`input_${fieldName}`}
+                error={!!fieldError}
+                helperText={fieldError?.message}
+                {...autoCompleteParams}
+                {...rest}
+              />
+            )}
+          />
+        )}
+      />
+    );
+  };
+
+  const renderRegionIsAutocompleteField = (field, count) => {
+    const NAME = FIELD_NAMES.CONDITIONS_FIELD_ARRAY.REGION_IS_FIELD_NAME;
+
+    const fieldName = `${name}.${count}.${NAME}`;
+    const fieldError = idx(fieldName.split("."), errors);
+
+    return (
+      <Controller
+        name={fieldName}
+        control={control}
+        defaultValue={field[NAME] ?? ""}
+        rules={{
+          required: {
+            value: true,
+            message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          }
+        }}
+        render={({ field: { value: formFieldValue, onChange, ...rest } }) => (
+          <Autocomplete
+            freeSolo
+            options={regions
+              // Exclude empty (null) regions
+              .filter(Boolean)
+              .toSorted((regionA, regionB) => {
+                if (regionA.cloud_type === regionB.cloud_type) {
+                  return regionA.name.localeCompare(regionB.name);
+                }
+
+                return regionA.cloud_type.localeCompare(regionB.cloud_type);
+              })}
+            value={formFieldValue}
+            onChange={(event, newValue) => {
+              onChange(newValue?.name ?? "");
+            }}
+            onInputChange={(event, newInputValue) => {
+              onChange(newInputValue);
+            }}
+            isOptionEqualToValue={(option, value) => option.name === value}
+            getOptionLabel={(option) => {
+              if (typeof option === "string") {
+                return option;
+              }
+              return option.name;
+            }}
+            renderOption={(props, option) => (
+              <li {...props}>
+                <IconLabel icon={<CloudTypeIcon type={option.cloud_type} hasRightMargin />} label={option.name} />
+              </li>
+            )}
+            renderInput={(autoCompleteParams) => (
+              <Input
+                required
+                label={<FormattedMessage id="region" />}
+                dataTestId={`input_${fieldName}`}
+                error={!!fieldError}
+                helperText={fieldError?.message}
+                {...autoCompleteParams}
+                {...rest}
+              />
+            )}
+          />
+        )}
+      />
+    );
+  };
+
   const conditionRow = (field, count) => {
     const condition = watchConditions?.[count]?.[TYPE];
 
@@ -126,6 +284,10 @@ const ConditionsFieldArray = ({ name = FIELD_NAME, isLoading = false, cloudAccou
           return renderCloudAccountSelector(field, count);
         case TAG_EXISTS:
           return renderInputField(field, count, "key");
+        case RESOURCE_TYPE_IS:
+          return renderResourceTypeIsAutocompleteField(field, count);
+        case REGION_IS:
+          return renderRegionIsAutocompleteField(field, count);
         default:
           return renderInputField(field, count);
       }

@@ -10,10 +10,9 @@ from optscale_client.auth_client.client_v2 import Client as AuthClient
 
 
 class BaseController(object):
-    def __init__(self, mongo_client, config, rabbit_client):
+    def __init__(self, mongo_client, config):
         self.mongo_client = mongo_client
         self._config = config
-        self.rabbit_client = rabbit_client
         self.auth_client = AuthClient(url=config.auth_url())
 
     @staticmethod

@@ -18,10 +18,11 @@ import { FIELD_NAMES } from "components/forms/AssignmentRuleForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
+import { useAssignmentRulesAvailableFilters } from "hooks/useAssignmentRulesAvailableFilters";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { RESOURCES, getResourceUrl } from "urls";
 import { isError } from "utils/api";
-import { TAG_IS, CLOUD_IS, NAME_ID_IS, DEFAULT_CONDITIONS } from "utils/constants";
+import { TAG_IS, CLOUD_IS, NAME_ID_IS, DEFAULT_CONDITIONS, RESOURCE_TYPE_IS, REGION_IS } from "utils/constants";
 import { getResourceDisplayedName } from "utils/resources";
 
 const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
@@ -82,7 +83,9 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             pool_id: resourcePoolId,
             employee_id: resourceOwnerId,
             cloud_account_id: cloudAccountId,
-            tags = []
+            tags = [],
+            resource_type: resourceType,
+            region
           } = loadedResource;
 
           const getConditions = () => {
@@ -101,8 +104,21 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: resourceName
               });
             }
+
+            // Environment resources have no region
+            if (region) {
+              conditions.push({
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: REGION_IS,
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.REGION_IS_FIELD_NAME]: region
+              });
+            }
+
             return [
               ...conditions,
+              {
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: RESOURCE_TYPE_IS,
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME]: resourceType
+              },
               ...Object.entries(tags).map(([key, value]) => ({
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: TAG_IS,
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: key,
@@ -159,6 +175,8 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
   // and we assume that they are up-to-date
   const { apiData: { cloudAccounts = [] } = {} } = useApiData(GET_DATA_SOURCES);
 
+  const { isLoading: isAvailableFiltersLoading, resourceTypes, regions } = useAssignmentRulesAvailableFilters();
+
   return (
     <>
       <ActionBar
@@ -198,6 +216,8 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             onCancel={redirect}
             pools={pools}
             cloudAccounts={cloudAccounts}
+            resourceTypes={resourceTypes}
+            regions={regions}
             onPoolChange={(newPoolId, callback) => {
               dispatch((_, getState) => {
                 dispatch(getPoolOwners(newPoolId)).then(() => {
@@ -212,7 +232,7 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             isLoadingProps={{
               isActiveCheckboxLoading: false,
               isNameInputLoading: false,
-              isConditionsFieldLoading: isFormDataLoading,
+              isConditionsFieldLoading: isFormDataLoading || isAvailableFiltersLoading,
               isPoolSelectorLoading: isFormDataLoading,
               isOwnerSelectorLoading: isFormDataLoading,
               isSubmitButtonLoading: isFormDataLoading || isCreateAssignmentRuleLoading

@@ -13,6 +13,8 @@ const AssignmentRuleForm = ({
   onCancel,
   pools,
   cloudAccounts,
+  resourceTypes,
+  regions,
   isEdit = false,
   onPoolChange,
   poolOwners,
@@ -35,8 +37,16 @@ const AssignmentRuleForm = ({
 
   const onFormSubmit = (formData: FormValues) => {
     const getConditions = () => {
-      const { FIELD_NAME, META_INFO, TYPE, TAG_KEY_FIELD_NAME, TAG_VALUE_FIELD_NAME, CLOUD_IS_FIELD_NAME } =
-        FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
+      const {
+        FIELD_NAME,
+        META_INFO,
+        TYPE,
+        TAG_KEY_FIELD_NAME,
+        TAG_VALUE_FIELD_NAME,
+        CLOUD_IS_FIELD_NAME,
+        RESOURCE_TYPE_IS_FIELD_NAME,
+        REGION_IS_FIELD_NAME
+      } = FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
 
       return formData[FIELD_NAME].map((item) => {
         if (TAG_KEY_FIELD_NAME in item) {
@@ -51,6 +61,18 @@ const AssignmentRuleForm = ({
         if (CLOUD_IS_FIELD_NAME in item) {
           return {
             [META_INFO]: item[CLOUD_IS_FIELD_NAME].trim(),
+            [TYPE]: item[TYPE]
+          };
+        }
+        if (RESOURCE_TYPE_IS_FIELD_NAME in item) {
+          return {
+            [META_INFO]: item[RESOURCE_TYPE_IS_FIELD_NAME].trim(),
+            [TYPE]: item[TYPE]
+          };
+        }
+        if (REGION_IS_FIELD_NAME in item) {
+          return {
+            [META_INFO]: item[REGION_IS_FIELD_NAME].trim(),
             [TYPE]: item[TYPE]
           };
         }
@@ -69,7 +91,13 @@ const AssignmentRuleForm = ({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onFormSubmit)} noValidate data-test-id="add_rule_form">
+      <form
+        onSubmit={handleSubmit((formData) => {
+          onFormSubmit(formData);
+        })}
+        noValidate
+        data-test-id="add_rule_form"
+      >
         <ActiveCheckboxField isLoading={isLoadingProps.isActiveCheckboxLoading} />
         <NameField isLoading={isLoadingProps.isNameInputLoading} />
         <Box display="flex" alignItems="center">
@@ -78,7 +106,12 @@ const AssignmentRuleForm = ({
           </FormLabel>
           <QuestionMark dataTestId="conditions_help" messageId="assignmentRuleConditionsDescription" fontSize="small" />
         </Box>
-        <ConditionsFieldArray isLoading={isLoadingProps.isConditionsFieldLoading} cloudAccounts={cloudAccounts} />
+        <ConditionsFieldArray
+          isLoading={isLoadingProps.isConditionsFieldLoading}
+          cloudAccounts={cloudAccounts}
+          resourceTypes={resourceTypes}
+          regions={regions}
+        />
         <FormLabel data-test-id="lbl_assign" component="p">
           <FormattedMessage id="assignTo" />
         </FormLabel>

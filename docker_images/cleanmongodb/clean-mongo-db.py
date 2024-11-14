@@ -319,6 +319,9 @@ class CleanMongoDB(object):
         if not token:
             self.update_cleaned_at(organization_id=org_id)
             return
+        # delete clusters resources
+        restapi_collections = [self.mongo_client.restapi.resources]
+        # delete ml objects
         arcee_collections = [self.mongo_client.arcee.dataset,
                              self.mongo_client.arcee.metric,
                              self.mongo_client.arcee.leaderboard_template,
@@ -327,7 +330,10 @@ class CleanMongoDB(object):
         bulldozer_collections = [self.mongo_client.bulldozer.template,
                                  self.mongo_client.bulldozer.runset,
                                  self.mongo_client.bulldozer.runner]
-        LOG.info('Start processing ML objects for organization %s', org_id)
+        LOG.info('Start processing objects for organization %s', org_id)
+        for collection in restapi_collections:
+            self.limits[collection] = self.delete_in_chunks(
+                collection, 'organization_id', org_id)
         for collection in arcee_collections:
             self.limits[collection] = self.delete_in_chunks(
                 collection, 'token', token)

@@ -202,22 +202,23 @@ class MyTasksController(BaseController, MongoMixin):
             existing_hit = resource_hits.get(hit.type.value)
             if existing_hit is None or existing_hit.time < hit.time:
                 resource_hits[hit.type.value] = hit
-
+        cloud_accounts = self.get_cloud_accounts(organization.id)
         resource_to_find = set(
             resource_hit_map.keys() | constraints_map.keys())
         resource_filter = {
             '_id': {'$in': list(resource_to_find)},
+            '$and': [{
+                '$or': [
+                    {'cloud_account_id': {'$in': [x.id for x in cloud_accounts]}},
+                    {'organization_id': organization.id}]}],
             'deleted_at': 0,
             'active': True
         }
         if organization.pool_id not in managed_pool_ids:
-            resource_filter['$or'] = [
-                {'pool_id': {'$in': managed_pool_ids}},
-                {'$and': [
-                    {'employee_id': employee.id},
-                    {'pool_id': {'$in': pool_ids}}
-                ]}
-            ]
+            resource_filter['$and'].append({
+                '$or': [{'pool_id': {'$in': managed_pool_ids}},
+                        {'$and': [{'employee_id': employee.id},
+                                  {'pool_id': {'$in': pool_ids}}]}]})
         resource_map = {
             r['_id']: r for r in self.resources_collection.find(resource_filter)
         }

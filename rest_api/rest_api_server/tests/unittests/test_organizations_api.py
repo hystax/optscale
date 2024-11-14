@@ -182,7 +182,7 @@ class TestOrganizationApi(TestApiBase):
                 'object_name': org['name']
             })
         p_publish_activities.assert_called_once_with(
-            *activity_param_tuples, add_token=True
+            *activity_param_tuples
         )
         patch('rest_api.rest_api_server.controllers.base.BaseController.'
               'get_user_id',
@@ -271,7 +271,7 @@ class TestOrganizationApi(TestApiBase):
                 'object_name': response['name']
             })
         p_publish_activities.assert_called_once_with(
-            *activity_param_tuples, add_token=True
+            *activity_param_tuples
         )
         p_publish_activities = patch(
             'rest_api.rest_api_server.controllers.base.BaseController.'
@@ -288,7 +288,7 @@ class TestOrganizationApi(TestApiBase):
                 'object_name': response['name']
             })
         p_publish_activities.assert_called_once_with(
-            *activity_param_tuples, add_token=True
+            *activity_param_tuples
         )
         p_publish_activities = patch(
             'rest_api.rest_api_server.controllers.base.BaseController.'
@@ -301,7 +301,7 @@ class TestOrganizationApi(TestApiBase):
                 'object_name': response['name']
             })
         p_publish_activities.assert_called_once_with(
-            *activity_param_tuples, add_token=True
+            *activity_param_tuples
         )
 
     def test_create_organization_empty_by_token(self):

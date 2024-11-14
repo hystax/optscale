@@ -14,7 +14,17 @@ type CloudCondition = {
   meta_info_cloudId: string;
 };
 
-type Condition = NameCondition | TagCondition | CloudCondition;
+type ResourceTypeCondition = {
+  type: "resource_type_is";
+  resource_type_is: string;
+};
+
+type RegionIsCondition = {
+  type: "region_is";
+  region_is: string;
+};
+
+type Condition = NameCondition | TagCondition | CloudCondition | ResourceTypeCondition | RegionIsCondition;
 
 export type FormValues = {
   active: boolean;

@@ -57,7 +57,7 @@ class ResourceObserverController(BaseController, MongoMixin):
                 chunk = inactive_res_ids[i:i+BULK_SIZE]
                 self.resources_collection.update_many(
                     filter={'_id': {'$in': chunk}},
-                    update={'$unset': {'active': 1}}
+                    update={'$unset': {'active': 1, 'shareable': 1}}
                 )
         return list(resources_.values())
 
@@ -71,7 +71,7 @@ class ResourceObserverController(BaseController, MongoMixin):
         resources_ = {r['_id']: r for r in res}
         self.resources_collection.update_many(
             filter={'_id': {'$in': list(resources_.keys())}},
-            update={'$unset': {'active': 1}}
+            update={'$unset': {'active': 1, 'shareable': 1}}
         )
         return list(resources_.values())
 

@@ -7,6 +7,7 @@ import { ALL_SERVICES, useRecommendationServices } from "hooks/useRecommendation
 import { useRiSpExpensesSummary } from "hooks/useRiSpExpensesSummary";
 import { useSyncQueryParamWithState } from "hooks/useSyncQueryParamWithState";
 import OrganizationOptionsService from "services/OrganizationOptionsService";
+import RecommendationsOverviewService from "services/RecommendationsOverviewService";
 import {
   RECOMMENDATION_CATEGORY_QUERY_PARAMETER,
   RECOMMENDATION_SERVICE_QUERY_PARAMETER,
@@ -14,9 +15,7 @@ import {
 } from "urls";
 import { RECOMMENDATIONS_LIMIT_FILTER } from "utils/constants";
 import { DEFAULT_RECOMMENDATIONS_FILTER, DEFAULT_VIEW, POSSIBLE_RECOMMENDATIONS_FILTERS, POSSIBLE_VIEWS } from "./Filters";
-
 import RecommendationsOverview from "./RecommendationsOverview";
-import RecommendationsOverviewService from "./RecommendationsOverviewService";
 import {
   setCategory as setCategoryActionCreator,
   setService as setServiceActionCreator,

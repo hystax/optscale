@@ -28,12 +28,6 @@ class TestReportBase(tornado.testing.AsyncHTTPTestCase):
             27017,
             "keeper",
         )
-        p_config.return_value.rabbit_params.return_value = (
-            "root",
-            "pass",
-            "localhost",
-            27017,
-        )
         p_config.return_value.cluster_secret.return_value = secret
         super().setUp()
         patch("keeper.report_server.handlers.base.Config").start()

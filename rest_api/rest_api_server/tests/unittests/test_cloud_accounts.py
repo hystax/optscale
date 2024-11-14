@@ -454,18 +454,6 @@ class TestCloudAccountApi(TestApiBase):
                                                     self.valid_aws_cloud_acc)
         self.assertEqual(code, 201)
 
-        self.resources_collection.insert_one({
-            'cloud_resource_id': '1',
-            'cloud_account_id': cloud_acc['id'],
-            'deleted_at': 0,
-            'cluster_id': 'some_id'
-        })
-        self.resources_collection.insert_one({
-            'cloud_resource_id': '2',
-            'cloud_account_id': cloud_acc['id'],
-            'deleted_at': 0
-        })
-
         # need to get cloud_account without cluster secret
         patch('optscale_client.config_client.client.Client.cluster_secret',
               return_value=None).start()
@@ -480,11 +468,6 @@ class TestCloudAccountApi(TestApiBase):
             cloud_acc['id'], CloudTypes.AWS_CNR)
         code, _ = self.client.cloud_account_get(cloud_acc['id'])
         self.assertEqual(code, 404)
-
-        resources = list(self.resources_collection.find({'cloud_account_id': cloud_acc['id']}))
-        for resource in resources:
-            self.assertNotEqual(resource['deleted_at'], 0)
-            self.assertIsNone(resource.get('cluster_id'))
 
     @patch('rest_api.rest_api_server.handlers.v2.cloud_account.'
            'CloudAccountAsyncCollectionHandler.check_cluster_secret',

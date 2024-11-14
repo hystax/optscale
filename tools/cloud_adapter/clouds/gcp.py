@@ -1026,17 +1026,24 @@ class Gcp(CloudBase):
     def _resource_priced_machine_series_descriptions(self) -> dict:
         return {
             "A2 Instance": "a2",
+            "A3 Instance": "a3",
             "C2D AMD Instance": "c2d",
             "Compute optimized": "c2",
+            "C3 Instance": "c3",
+            "C4 Instance": "c4",
             "E2 Instance": "e2",
+            "G2 Instance": "g2",
+            "M1 Memory-optimized Instance": "m1",
+            "M2 Memory-optimized Instance": "m2",
             "M3 Memory-optimized Instance": "m3",
-            "Memory-optimized Instance": "m1",
-            "Memory Optimized Upgrade Premium for Memory-optimized Instance": "m2",
             "N1 Predefined Instance": "n1",
             "N2 Instance": "n2",
             "N2D AMD Instance": "n2d",
+            "N4 Instance": "n4",
             "T2D AMD Instance": "t2d",
             "T2A Arm Instance": "t2a",
+            "X4 Instance": "x4",
+            "Z3 Instance": "z3",
         }
 
     @cached_property
@@ -1075,7 +1082,7 @@ class Gcp(CloudBase):
         GROUP BY sku.id"""
         query = f"""
         SELECT prices.list_price, prices.sku
-        FROM `hystaxcom.pricing_dataset.cloud_pricing_export` prices
+        FROM `{self._pricing_table_full_name()}` prices
         INNER JOIN ({inner_query}) inr
         ON    prices.sku.id = inr.sku_id
           AND prices.export_time = inr.export_time

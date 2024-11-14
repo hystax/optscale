@@ -48,6 +48,8 @@ export const basic = (args) => (
     poolOwners={[]}
     pools={[]}
     isEdit={args.isEdit}
+    resourceTypes={[]}
+    regions={[]}
     isLoadingProps={getIsLoadingProps()}
     readOnlyProps={getReadOnlyProps()}
   />

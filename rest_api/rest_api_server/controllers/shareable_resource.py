@@ -89,7 +89,9 @@ class ShareableBookingController(BaseController, MongoMixin,
                                           ['Resource', resource['id']])
         resource_type = resource.get('resource_type')
         is_environment = resource.get('is_environment', False)
-        if not is_environment and resource_type != 'Instance':
+        is_cluster = resource.get('cluster_type_id')
+        if (not is_environment and resource_type != 'Instance'
+                and not is_cluster):
             raise WrongArgumentsException(Err.OE0384, [resource_type])
         if not resource.get('shareable'):
             raise WrongArgumentsException(Err.OE0480, ['Resource',
@@ -222,6 +224,7 @@ class ShareableBookingController(BaseController, MongoMixin,
         resources = []
         invalid_resources = []
         not_active_resources = []
+        clustered_resources = []
         all_resources_ids = set(x['id'] for x in all_resources)
         not_found_resources_ids = [x for x in resource_ids
                                    if x not in all_resources_ids]
@@ -234,13 +237,17 @@ class ShareableBookingController(BaseController, MongoMixin,
                 resources.append(resource)
             elif not resource.get('active'):
                 not_active_resources.append(resource)
+            elif (resource.get('resource_type') == ResourceTypes.instance.value
+                  and resource.get('cluster_id')):
+                clustered_resources.append(resource)
             else:
                 resources.append(resource)
         if not_found_resources_ids:
             for res_id in not_found_resources_ids:
                 invalid_resources.append({'id': res_id,
                                           'cloud_resource_id': res_id})
-        return resources, invalid_resources, not_active_resources
+        return (resources, invalid_resources, not_active_resources,
+                clustered_resources)
 
     def get_employee_by_id(self, employee_id):
         employee = self.session.query(Employee).filter(and_(

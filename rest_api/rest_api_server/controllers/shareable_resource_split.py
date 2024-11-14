@@ -10,8 +10,8 @@ LOG = logging.getLogger(__name__)
 class SplitShareableResourceController(ShareableBookingController):
 
     def split_resources(self, organization_id, resource_ids):
-        resources, invalid_res, not_active_res = self._check_resources(
-            organization_id, resource_ids)
+        (resources, invalid_res, not_active_res,
+         clustered_res) = self._check_resources(organization_id, resource_ids)
         if invalid_res:
             raise NotFoundException(
                 Err.OE0002, ['Resources', ', '.join(
@@ -19,7 +19,7 @@ class SplitShareableResourceController(ShareableBookingController):
         shareable, not_shareable, already = self.split_resources_by_shareability(
             resources)
         return {
-            'not_eligible': not_shareable + not_active_res,
+            'not_eligible': not_shareable + not_active_res + clustered_res,
             'eligible': shareable,
             'already_shareable': already
         }

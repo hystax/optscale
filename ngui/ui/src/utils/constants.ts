@@ -123,6 +123,8 @@ export const TAG_IS = "tag_is";
 export const CLOUD_IS = "cloud_is";
 export const TAG_EXISTS = "tag_exists";
 export const TAG_VALUE_STARTS_WITH = "tag_value_starts_with";
+export const RESOURCE_TYPE_IS = "resource_type_is";
+export const REGION_IS = "region_is";
 
 export const COMPLEX_TAG_CONDITION_TYPES = Object.freeze({
   [TAG_IS]: "tagIs",
@@ -137,7 +139,9 @@ export const CONDITION_TYPES = Object.freeze({
   [TAG_IS]: "tagIs",
   [TAG_EXISTS]: "tagExists",
   [TAG_VALUE_STARTS_WITH]: "tagValueStartsWith",
-  [CLOUD_IS]: "sourceIs"
+  [CLOUD_IS]: "sourceIs",
+  [RESOURCE_TYPE_IS]: "resourceTypeIs",
+  [REGION_IS]: "regionIs"
 });
 
 export const CONDITION = Object.freeze({

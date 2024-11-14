@@ -46,7 +46,7 @@ const useActionBarItems = ({ downloadLimit, recommendation, dataSourceIds, withD
       startIcon: <CloudDownloadOutlinedIcon />,
       messageId: "download",
       type: "dropdown",
-      dataTestId: `download`,
+      dataTestId: "download",
       isLoading: isDownloadLoading,
       disabled: !hasItems,
       show: withDownload,

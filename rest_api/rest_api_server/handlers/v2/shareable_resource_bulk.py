@@ -1,5 +1,9 @@
-from rest_api.rest_api_server.controllers.shareable_resource_bulk import ShareableResourceBulkAsyncController
-from rest_api.rest_api_server.handlers.v1.base_async import BaseAsyncCollectionHandler
+from rest_api.rest_api_server.controllers.shareable_resource_bulk import (
+    ShareableResourceBulkAsyncController
+)
+from rest_api.rest_api_server.handlers.v1.base_async import (
+    BaseAsyncCollectionHandler
+)
 from rest_api.rest_api_server.handlers.v1.base import BaseAuthHandler
 from rest_api.rest_api_server.utils import run_task
 from tools.optscale_exceptions.http_exc import OptHTTPError
@@ -12,13 +16,17 @@ class ShareableResourceBulkAsyncHandler(BaseAsyncCollectionHandler,
         return ShareableResourceBulkAsyncController
 
     def _validate_params(self, data):
-        resource_ids = data.pop('resource_ids', None)
+        if not isinstance(data, dict):
+            raise OptHTTPError(400, Err.OE0344, ['body'])
+        resource_ids = data.get('resource_ids')
         if resource_ids is None:
             raise OptHTTPError(400, Err.OE0216, ['resource_ids'])
         if not isinstance(resource_ids, list):
             raise OptHTTPError(400, Err.OE0385, ['resource_ids'])
-        if data:
-            raise OptHTTPError(400, Err.OE0212, [x for x in data.keys()])
+        allowed_params = ['resource_ids']
+        unexpected_params = [x for x in data if x not in allowed_params]
+        if unexpected_params:
+            raise OptHTTPError(400, Err.OE0212, [", ".join(unexpected_params)])
 
     async def post(self, organization_id):
         """
@@ -34,14 +42,19 @@ class ShareableResourceBulkAsyncHandler(BaseAsyncCollectionHandler,
             description: organization id
             required: true
         -   in: body
-            name: resource_ids
-            description: ids of resources to share
+            name: body
+            description: Resources IDs to mark shareable
             required: true
-            type: string
-            example: ["7e7dd1d2-3173-4e14-affc-9e5a9098a1b9",
-                      "cc9d0355-14e2-4304-9332-497299b6a5cf",
-                      "d7a8a215-2a61-404c-b4e3-5f1267ea3d0d",
-                      "123"]
+            schema:
+                type: object
+                properties:
+                    resource_ids:
+                        description: ids of resources to share
+                        required: true
+                        type: array
+                        example: ["7e7dd1d2-3173-4e14-affc-9e5a9098a1b9",
+                                  "cc9d0355-14e2-4304-9332-497299b6a5cf",
+                                  "d7a8a215-2a61-404c-b4e3-5f1267ea3d0d"]
         responses:
             201:
                 description: Results for operations inside bulk
@@ -51,7 +64,9 @@ class ShareableResourceBulkAsyncHandler(BaseAsyncCollectionHandler,
                         failed:
                         - code: OE0478
                           id: 7e7dd1d2-3173-4e14-affc-9e5a9098a1b9
-                          message: Current resource can't be shared, resource type is invalid for sharing i-1234567890
+                          message: |
+                            Current resource can't be shared, resource type is
+                            invalid for sharing i-1234567890
                         - code: OE0412
                           id: 123
                           message: Resources with ids 123 were not found
@@ -66,6 +81,7 @@ class ShareableResourceBulkAsyncHandler(BaseAsyncCollectionHandler,
                     - OE0212: Unexpected parameters
                     - OE0216: resource_ids is not provided
                     - OE0233: Incorrect body received
+                    - OE0344: body should be a dictionary
                     - OE0385: resource_ids should be a list
             404:
                 description: |
@@ -83,11 +99,11 @@ class ShareableResourceBulkAsyncHandler(BaseAsyncCollectionHandler,
         security:
         - token: []
         """
-        data = self._request_body()
-        resource_ids = data.get('resource_ids')
-        self._validate_params(data)
         await self.check_permissions(
             'MANAGE_RESOURCES', 'organization', organization_id)
+        data = self._request_body()
+        self._validate_params(data)
+        resource_ids = data.get('resource_ids')
         res = await run_task(self.controller.bulk_share,
                              organization_id, resource_ids)
         self.set_status(201)

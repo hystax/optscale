@@ -124,7 +124,7 @@ Run the following command:
 ansible-playbook -e "ansible_ssh_user=<user>" -k -K -i "<ip address>," ansible/k8s-master.yaml
 ```
 
-where <user> - actual username; <ip address> - host ip address,
+where `<user>` - actual username; `<ip address>` - host ip address,
 ip address should be private address of the machine, you can check it with
 
 ```
@@ -162,6 +162,9 @@ or if you want to use socket:
 - Use your own tag version if you build your optscale images (eg: latest).
 
 **please note**: if you use key authentication, you should have the required key (id_rsa) on the machine
+
+Check the state of the pods using `kubectl get pods` command.
+When all of the pods are running your OptScale is ready to use. Try to access it by `https://<ip address>`.
 
 #### Cluster update
 

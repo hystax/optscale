@@ -11,6 +11,7 @@ import { FIELD_NAMES } from "components/forms/AssignmentRuleForm/utils";
 import PageContentWrapper from "components/PageContentWrapper";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
+import { useAssignmentRulesAvailableFilters } from "hooks/useAssignmentRulesAvailableFilters";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { ASSIGNMENT_RULES, POOLS } from "urls";
 import { isError } from "utils/api";
@@ -21,7 +22,9 @@ import {
   TAG_IS,
   ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER,
   CLOUD_IS,
-  TAG_VALUE_STARTS_WITH
+  TAG_VALUE_STARTS_WITH,
+  RESOURCE_TYPE_IS,
+  REGION_IS
 } from "utils/constants";
 import { getQueryParams } from "utils/network";
 import { parseJSON } from "utils/strings";
@@ -86,6 +89,20 @@ const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
           return {
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: value
+          };
+        }
+
+        if (type === RESOURCE_TYPE_IS) {
+          return {
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME]: value
+          };
+        }
+
+        if (type === REGION_IS) {
+          return {
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.REGION_IS_FIELD_NAME]: value
           };
         }
 
@@ -164,6 +181,8 @@ const CreateAssignmentRuleFormContainer = () => {
   // and we assume that they are up-to-date
   const { apiData: { cloudAccounts = [] } = {} } = useApiData(GET_DATA_SOURCES);
 
+  const { isLoading: isAvailableFiltersLoading, resourceTypes, regions } = useAssignmentRulesAvailableFilters();
+
   return (
     <>
       <PageActionBar isFormDataLoading={isFormDataLoading} pools={pools} />
@@ -187,6 +206,8 @@ const CreateAssignmentRuleFormContainer = () => {
             onCancel={redirect}
             pools={pools}
             cloudAccounts={cloudAccounts}
+            resourceTypes={resourceTypes}
+            regions={regions}
             onPoolChange={(newPoolId, callback) => {
               dispatch((_, getState) => {
                 dispatch(getPoolOwners(newPoolId)).then(() => {
@@ -200,7 +221,7 @@ const CreateAssignmentRuleFormContainer = () => {
             isLoadingProps={{
               isActiveCheckboxLoading: false,
               isNameInputLoading: false,
-              isConditionsFieldLoading: false,
+              isConditionsFieldLoading: isAvailableFiltersLoading,
               isPoolSelectorLoading: isFormDataLoading,
               isOwnerSelectorLoading: isFormDataLoading,
               isSubmitButtonLoading: isFormDataLoading || isCreateAssignmentRuleLoading

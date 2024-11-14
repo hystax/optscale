@@ -210,9 +210,6 @@ class EventController(EventBaseController):
             ReadEvent.objects.insert(read_event)
         return {"id": event_ids}
 
-    def _publish_event(self, **kwargs):
-        self.rabbit_client.publish_message(kwargs)
-
     def submit(self, **kwargs):
         # TODO: possible filter kwargs/filter unexpected
         kwargs["time"] = int(datetime.now(tz=timezone.utc).timestamp())
@@ -221,9 +218,6 @@ class EventController(EventBaseController):
             event.save()
         except ValidationError as exc:
             self.raise_from_validation_error(exc)
-
-        self._publish_event(**kwargs)
-
         return event.to_dict()
 
 

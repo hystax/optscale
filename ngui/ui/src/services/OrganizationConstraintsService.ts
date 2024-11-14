@@ -19,6 +19,8 @@ import { useApiState } from "hooks/useApiState";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { checkError } from "utils/api";
 
+export const CONSTRAINTS_HIT_DAYS = 3;
+
 export const useGetAll = (types) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
@@ -30,7 +32,7 @@ export const useGetAll = (types) => {
 
   useEffect(() => {
     if (shouldInvoke) {
-      dispatch(getOrganizationConstraints(organizationId, { type: types, hit_days: 3 }));
+      dispatch(getOrganizationConstraints(organizationId, { type: types, hit_days: CONSTRAINTS_HIT_DAYS }));
     }
   }, [shouldInvoke, dispatch, organizationId, types]);
 

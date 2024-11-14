@@ -611,9 +611,11 @@ class Err(enum.Enum):
         []
     ]
     OE0478 = [
-        "Current resource can't be shared, resource type is invalid for sharing %s",
+        "Current resource can't be shared, resource type is invalid for "
+        "sharing %s",
         ["cloud_resource_id"],
-        ["Current resource can't be shared, resource type is invalid for sharing i-095a8e515029f5153"],
+        ["Current resource can't be shared, resource type is invalid for "
+         "sharing i-095a8e515029f5153"],
     ]
     OE0479 = [
         "%s should be False",

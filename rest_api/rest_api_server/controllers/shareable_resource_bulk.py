@@ -1,12 +1,18 @@
-from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
-from rest_api.rest_api_server.controllers.shareable_resource import ShareableBookingController
+from rest_api.rest_api_server.controllers.base_async import (
+    BaseAsyncControllerWrapper
+)
+from rest_api.rest_api_server.controllers.shareable_resource import (
+    ShareableBookingController
+)
 from rest_api.rest_api_server.exceptions import Err
 
 
 class ShareableResourceBulkController(ShareableBookingController):
-    def _sharing_failed_response(self, not_shared_ids,
+    @staticmethod
+    def _sharing_failed_response(not_shared_ids,
                                  invalid_ids=None,
-                                 not_active_ids=None):
+                                 not_active_ids=None,
+                                 clustered_ids=None):
         failed = []
         for resource in not_shared_ids:
             failed.append({
@@ -23,6 +29,11 @@ class ShareableResourceBulkController(ShareableBookingController):
                 "id": resource[0],
                 "message": Err.OE0443.value[0] % resource[1],
                 "code": Err.OE0443.name})
+        for resource in clustered_ids:
+            failed.append({
+                "id": resource[0],
+                "message": Err.OE0481.value[0] % resource[1],
+                "code": Err.OE0481.name})
         return failed
 
     def make_resources_shareable(self, resources_ids):
@@ -42,8 +53,8 @@ class ShareableResourceBulkController(ShareableBookingController):
             ) for res in r_list]
 
         result = {}
-        resources, invalid_res, not_active_res = self._check_resources(
-            organization_id, resource_ids)
+        (resources, invalid_res, not_active_res,
+         clustered_res) = self._check_resources(organization_id, resource_ids)
         to_share, not_to_share, shareable = self.split_resources_by_shareability(
             resources)
         share_ids = [res['id'] for res in to_share]
@@ -57,8 +68,11 @@ class ShareableResourceBulkController(ShareableBookingController):
         not_to_share_ids = extract_resource_id_list(not_to_share)
         invalid_resources_ids = extract_resource_id_list(invalid_res)
         not_active_ids = extract_resource_id_list(not_active_res)
+        clustered_ids = extract_resource_id_list(clustered_res)
         result['failed'] = self._sharing_failed_response(
-            not_to_share_ids, invalid_resources_ids, not_active_ids)
+            not_to_share_ids, invalid_resources_ids, not_active_ids,
+            clustered_ids
+        )
         if contains_shareable_resources is False and share_ids:
             self.send_first_shareable_email(organization_id, len(share_ids))
         return result
