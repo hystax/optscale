@@ -171,7 +171,7 @@ class EnvironmentResourceController(CloudResourceController,
         def get_cloud_resource_id(r):
             tail = "%s%s" % (r.get('name'), r.get('resource_type'))
             return 'environment_%s' % hashlib.md5(
-                tail.encode('utf-8')).hexdigest()
+                tail.encode('utf-8'), usedforsecurity=False).hexdigest()
 
         for resource in resources:
             if resource.get('cloud_resource_id'):

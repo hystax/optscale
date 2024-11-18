@@ -229,7 +229,7 @@ class GcpResource:
         )
 
     def _cloud_resource_hash(self):
-        return hashlib.sha1(self._cloud_object.self_link.encode()).hexdigest()
+        return hashlib.sha1(self._cloud_object.self_link.encode(), usedforsecurity=False).hexdigest()
 
     def _need_to_update_tags(self):
         optscale_tag_value = self.tags.get(OPTSCALE_TRACKING_TAG)

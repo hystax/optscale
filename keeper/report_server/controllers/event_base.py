@@ -84,7 +84,7 @@ class EventBaseController(BaseController):
 
     def get_meta_by_token(self, token):
         user_digest = list(
-            map(lambda x: hashlib.md5(x.encode("utf-8")).hexdigest(), [token])
+            map(lambda x: hashlib.md5(x.encode("utf-8"), usedforsecurity=False).hexdigest(), [token])
         )[0]
         token_meta = self.get_token_meta([user_digest]).get(user_digest, {})
         return token_meta

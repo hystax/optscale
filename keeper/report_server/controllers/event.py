@@ -154,7 +154,7 @@ class EventController(EventBaseController):
         poll_orgs = self.get_ack_resources(token)
         if event.organization_id not in poll_orgs:
             raise ForbiddenException(Err.OK0002, [])
-        digest = hashlib.md5(token.encode("utf-8")).hexdigest()
+        digest = hashlib.md5(token.encode("utf-8"), usedforsecurity=False).hexdigest()
         user_meta = self.get_meta_by_token(token)
         event.acknowledged_by = digest
         event.acknowledged_user = "%s (%s)" % (
