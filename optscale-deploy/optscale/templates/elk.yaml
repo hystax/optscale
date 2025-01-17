@@ -21,7 +21,6 @@ spec:
     protocol: TCP
     name: logstash-tcp
   - port: 81
-    targetPort: {{ $config.service.internal_kibana_port }}
     nodePort: {{ $config.service.external_kibana_port }}
     name: kibana
   selector:
@@ -65,6 +64,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       containers:
       - name: {{ $config.name }}
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

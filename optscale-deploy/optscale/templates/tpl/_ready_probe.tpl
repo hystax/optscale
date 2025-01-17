@@ -2,6 +2,6 @@
 readinessProbe:
   tcpSocket:
     port: {{ .service.internalPort }}
-    initialDelaySeconds: 5
-    periodSeconds: 10
+  initialDelaySeconds: 5
+  periodSeconds: 10
 {{- end -}}

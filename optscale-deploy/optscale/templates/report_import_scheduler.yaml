@@ -39,6 +39,8 @@ spec:
             app: {{ $config.name }}-{{ $period }}
             release: {{ $.Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: {{  $.Values.imagePullSecret }}
           initContainers:
 {{ include "wait_for_service" $.Values.rest_api | indent 10 }}
           containers:

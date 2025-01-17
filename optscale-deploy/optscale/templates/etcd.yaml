@@ -111,6 +111,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
 {{- if .Values.elk.enabled }}
       initContainers:
 {{ include "wait_for_elk" . | indent 6 }}
@@ -161,8 +163,8 @@ spec:
         hostPath:
           path: /optscale/etcd
           type: DirectoryOrCreate
-      nodeSelector:
-        node-role.kubernetes.io/master:
+    #  nodeSelector:
+    #    node-role.kubernetes.io/master: "true"
 {{- end }}
 ---
 apiVersion: v1
@@ -190,6 +192,8 @@ spec:
         app: configurator
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: "regcred"
       containers:
       - name: configurator
         image: configurator:local
@@ -217,6 +221,6 @@ spec:
       - name: config-volume
         configMap:
           name: optscale-etcd
-      nodeSelector:
-        node-role.kubernetes.io/master:
+   #   nodeSelector:
+   #     node-role.kubernetes.io/master: "true"
   backoffLimit: 10

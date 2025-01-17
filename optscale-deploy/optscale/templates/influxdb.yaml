@@ -40,6 +40,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
 {{- if .Values.elk.enabled }}
       initContainers:
 {{ include "wait_for_elk" . | indent 6 }}
@@ -67,5 +69,5 @@ spec:
         hostPath:
           path: /optscale/influxdb
           type: DirectoryOrCreate
-      nodeSelector:
-        node-role.kubernetes.io/master:
+  #    nodeSelector:
+   #     node-role.kubernetes.io/master: "true"

@@ -94,6 +94,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       terminationGracePeriodSeconds: 30
       initContainers:
 {{- if .Values.elk.enabled }}

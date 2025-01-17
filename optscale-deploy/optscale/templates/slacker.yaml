@@ -36,13 +36,14 @@ spec:
     matchLabels:
       app: {{ $config.name }}
       release: {{ .Release.Name }}
-  serviceName: {{ $config.service.name }}
   template:
     metadata:
       labels:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}

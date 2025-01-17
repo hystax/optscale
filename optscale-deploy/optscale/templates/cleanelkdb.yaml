@@ -28,6 +28,8 @@ spec:
             app: {{ $config.name }}
             release: {{ .Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: {{  .Values.imagePullSecret }}
           containers:
           - name: {{ $config.name }}
             image: "{{ $config.image.repository }}:{{ $config.image.tag }}"

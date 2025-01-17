@@ -27,6 +27,8 @@ spec:
             app: {{ $config.name }}
             release: {{ .Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: {{  .Values.imagePullSecret }}
           initContainers:
 {{ include "wait_for_service" .Values.mariadb | indent 10 }}
 {{- if not .Values.clickhouse.external }}
@@ -47,4 +49,3 @@ spec:
             - name: HX_ETCD_PORT
               value: {{ .Values.etcd.service.externalPort | quote }}
           restartPolicy: Never
-

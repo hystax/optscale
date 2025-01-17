@@ -20,6 +20,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{ include "wait_for_service" .Values.katara_service | indent 6 }}
       containers:

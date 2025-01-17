@@ -21,11 +21,13 @@ spec:
       labels:
         app: {{ .Values.clickhouse.name }}
         release: {{ .Release.Name }}
-{{- if .Values.elk.enabled }}
+    spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
+{{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
-    spec:
       containers:
         - name: {{ .Values.clickhouse.name }}
           image: "yandex/clickhouse-server:21.10"

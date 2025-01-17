@@ -2,6 +2,8 @@
 
 tag: &tag local
 
+imagePullSecret: regcred
+
 etcd:
   name: &etcd_name etcd
   replicaCount: 1

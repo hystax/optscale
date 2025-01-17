@@ -33,13 +33,14 @@ spec:
     matchLabels:
       app: {{ $config.name }}
       release: {{ .Release.Name }}
-  serviceName: {{ $config.service.name }}
   template:
     metadata:
       labels:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -52,16 +53,16 @@ spec:
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
-        - containerPort: {{ $config.service.internalPort }}
+          - containerPort: {{ $config.service.internalPort }}
         env:
-        - name: IMAGE_ID
-          value: {{ $config.image.id }}
-        - name: HX_ETCD_HOST
-          value: {{ .Values.etcd.service.name }}
-        - name: HX_ETCD_PORT
-          value: {{ .Values.etcd.service.externalPort | quote }}
-        - name: REQUESTS_CA_BUNDLE
-          value: /etc/ssl/certs/ca-certificates.crt
-        - name: FAKE_CAD_ENABLED
-          value: {{ .Values.fake_cad_enabled | quote }}
+          - name: IMAGE_ID
+            value: {{ $config.image.id }}
+          - name: HX_ETCD_HOST
+            value: {{ .Values.etcd.service.name }}
+          - name: HX_ETCD_PORT
+            value: {{ .Values.etcd.service.externalPort | quote }}
+          - name: REQUESTS_CA_BUNDLE
+            value: /etc/ssl/certs/ca-certificates.crt
+          - name: FAKE_CAD_ENABLED
+            value: {{ .Values.fake_cad_enabled | quote }}
 {{ include "ready_probe" $config | indent 8 }}

@@ -75,6 +75,8 @@ spec:
             app: {{ $config.name }}
             release: {{ $.Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: {{  .Values.imagePullSecret }}
           initContainers:
 {{ include "wait_for_service" .Values.minio | indent 10 }}
           containers:

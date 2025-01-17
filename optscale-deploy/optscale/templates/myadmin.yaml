@@ -42,13 +42,14 @@ spec:
     matchLabels:
       app: {{ $config.name }}
       release: {{ .Release.Name }}
-  serviceName: {{ $config.service.name }}
   template:
     metadata:
       labels:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -59,12 +60,12 @@ spec:
         image: "phpmyadmin/phpmyadmin:4.7"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
-        - containerPort: {{ $config.service.internalPort }}
+          - containerPort: {{ $config.service.internalPort }}
         env:
-        - name: IMAGE_ID
-          value: {{ $config.image.id }}
-        - name: PMA_HOST
-          value: {{ .Values.mariadb.service.name }}
+          - name: IMAGE_ID
+            value: {{ $config.image.id }}
+          - name: PMA_HOST
+            value: {{ .Values.mariadb.service.name }}
         volumeMounts:
         - mountPath: /etc/php.ini
           name: configmap

@@ -20,6 +20,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{ include "wait_for_service" .Values.etcd | indent 6 }}
       containers:
@@ -48,8 +50,6 @@ spec:
 {{- range untilStep 30180 30280 1 }}
     - port: {{ . }}
       targetPort: {{ . }}
-      containerPort: {{ . }}
-      nodePort: {{ . }}
       name: shs-port-{{ . }}
 {{- end }}
     - port: 80

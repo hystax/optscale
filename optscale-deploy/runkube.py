@@ -21,7 +21,7 @@ from docker.errors import ImageNotFound
 REPOSITORY = 'hystax/optscale'
 DESCRIPTION = f"Script to deploy OptScale on k8s. " \
               f"See deployment instructions at https://github.com/{REPOSITORY}"
-HELM_DELETE_CMD = 'helm delete --purge {release}'
+HELM_DELETE_CMD = 'helm delete {release}'
 HELM_UPDATE_CMD = 'helm upgrade --install {overlays} {release} {chart}'
 GET_FAKE_CERT_CMD = 'cat /ingress-controller/ssl/default-defaultcert.pem'
 HELM_LIST_CMD = 'helm list -a'

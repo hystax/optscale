@@ -33,13 +33,14 @@ spec:
     matchLabels:
       app: {{ $config.name }}
       release: {{ .Release.Name }}
-  serviceName: {{ $config.service.name }}
   template:
     metadata:
       labels:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{ include "wait_for_service" .Values.etcd | indent 6 }}
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}

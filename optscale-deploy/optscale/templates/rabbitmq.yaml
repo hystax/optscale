@@ -186,6 +186,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       terminationGracePeriodSeconds: 10
       serviceAccountName: {{ $config.name }}
       initContainers:
@@ -279,15 +281,15 @@ spec:
         - name: PLUGINS_HASH
           value: {{ include "rabbit-plugins" . | sha256sum }}
         ports:
-        - name: epmd
-          protocol: TCP
-          containerPort: {{ $config.service.empdPort }}
-        - name: amqp
-          protocol: TCP
-          containerPort: {{ $config.service.internalPort }}
-        - name: http
-          protocol: TCP
-          containerPort: {{ $config.service.managerPort }}
+          - name: epmd
+            protocol: TCP
+            containerPort: {{ $config.service.empdPort }}
+          - name: amqp
+            protocol: TCP
+            containerPort: {{ $config.service.internalPort }}
+          - name: http
+            protocol: TCP
+            containerPort: {{ $config.service.managerPort }}
         livenessProbe:
           initialDelaySeconds: 120
           periodSeconds: 10

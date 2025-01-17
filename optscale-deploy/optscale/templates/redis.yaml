@@ -40,6 +40,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -49,7 +51,7 @@ spec:
         image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
-        - containerPort: {{ $config.service.internalPort }}
+          - containerPort: {{ $config.service.internalPort }}
         readinessProbe:
           exec:
             command:
@@ -59,5 +61,5 @@ spec:
           initialDelaySeconds: 15
           timeoutSeconds: 5
         env:
-        - name: IMAGE_ID
-          value: {{ $config.image.id }}
+          - name: IMAGE_ID
+            value: {{ $config.image.id }}

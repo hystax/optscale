@@ -53,13 +53,14 @@ spec:
     matchLabels:
       app: {{ $config.name }}
       release: {{ .Release.Name }}
-  serviceName: {{ $config.service.name }}
   template:
     metadata:
       labels:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: {{  .Values.imagePullSecret }}
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -89,17 +90,17 @@ spec:
             httpGet:
               path: /-/healthy
               port: http
-              initialDelaySeconds: 30
-              timeoutSeconds: 30
-              periodSeconds: 10
-              successThreshold: 1
-              failureThreshold: 6
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 6
           readinessProbe:
             httpGet:
               path: /-/ready
               port: http
-              initialDelaySeconds: 30
-              timeoutSeconds: 30
-              periodSeconds: 10
-              successThreshold: 1
-              failureThreshold: 6
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 6
