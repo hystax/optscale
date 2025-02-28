@@ -4,6 +4,7 @@ import argparse
 import base64
 import json
 import logging
+import requests
 
 import os
 import time
@@ -142,13 +143,35 @@ class Runkube:
             }
         return self._versions_info
 
+    def _get_image_tags(self, repository):
+        """Fetch all tags of a Docker Hub repository."""
+        url = f"https://hub.docker.com/v2/repositories/hystax/{repository}/tags"
+        tags = []
+
+        while url:
+            response = requests.get(url)
+            data = response.json()
+            tags.extend([tag["name"] for tag in data.get("results", [])])
+            url = data.get("next")  
+        
+        return tags
+
     def _pull_image(self, ctrd_cl, image_name, tag, auth_config):
-        full_image_name = os.path.join(self.dregistry, image_name)
-        LOG.info("Pulling image %s with tag %s", full_image_name, tag)
-        ctrd_cl.image.pull('{}:{}'.format(full_image_name, tag))
-        image = ctrd_cl.image.inspect('{}:{}'.format(full_image_name, tag)).id
-        LOG.debug("Pulled image with id %s", image)
-        return image
+        try:
+            full_image_name = os.path.join(self.dregistry, image_name)
+            LOG.info("Pulling image %s with tag %s", full_image_name, tag)
+            ctrd_cl.image.pull('{}:{}'.format(full_image_name, tag))
+            image = ctrd_cl.image.inspect('{}:{}'.format(full_image_name, tag)).id
+            LOG.debug("Pulled image with id %s", image)
+            return image
+        except:
+            tags = self._get_image_tags(image_name)
+            LATEST_TAG = tags[0]
+
+            ctrd_cl.image.pull('{}:{}'.format(full_image_name, LATEST_TAG))
+            image = ctrd_cl.image.inspect('{}:{}'.format(full_image_name, LATEST_TAG)).id
+            LOG.debug("Pulled image with id %s", image)
+            return image
 
     def pull_images(self, ctrd_cl):
         LOG.debug("Logging into container registry %s", self.dregistry)
