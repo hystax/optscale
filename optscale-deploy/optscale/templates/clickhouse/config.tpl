@@ -24,7 +24,7 @@
     <mark_cache_size>5368709120</mark_cache_size>
     <path>/var/lib/clickhouse/</path>
     <tmp_path>/var/lib/clickhouse/tmp/</tmp_path>
-    <default_profile>{{ .Values.clickhouse.db.user }}</default_profile>
+    <default_profile>default</default_profile>
     <default_database>{{ .Values.clickhouse.db.name }}</default_database>
     <zookeeper incl="zookeeper-servers" optional="true" />
     <macros incl="macros" optional="true" />
