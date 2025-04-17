@@ -43,7 +43,6 @@ class TFGenerator:
                  image,
                  region,
                  instance_type,
-                 volume_size_gb,
                  user_data=None,
                  key=None,
                  tags=None,
@@ -60,7 +59,6 @@ class TFGenerator:
         self.key = bool(key)
         self.key_name = key
         self.instance_type = instance_type
-        self.volume_size_gb = volume_size_gb
         self.user_data = user_data
         self.tags = tags
         self.open_ingress = open_ingress
@@ -68,7 +66,7 @@ class TFGenerator:
 
     @property
     def image(self):
-        if self._image is None:
+        if not self._image:
             image = self.aws_image_region_map.get(self.region)
             if not image:
                 raise DefaultImageNotSupported(
@@ -98,7 +96,6 @@ class TFGenerator:
             "key": self.key,
             "key_name": self.key_name,
             "instance_type": self.instance_type,
-            "volume_size_gb": self.volume_size_gb,
             "tags": tags,
             "open_ingress": self.open_ingress,
         }

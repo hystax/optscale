@@ -43,6 +43,13 @@ resource "aws_security_group" "optscale_sg_{{seed}}" {
   }
 }
 
+data "aws_ami" "source_ami" {
+  filter {
+    name   = "image-id"
+    values = ["{{image}}"]
+  }
+}
+
 {{#use_spot}}
 resource "aws_spot_instance_request" "optscale_instance_{{seed}}" {
   ami           = "{{image}}"
@@ -57,7 +64,7 @@ resource "aws_spot_instance_request" "optscale_instance_{{seed}}" {
   instance_type = "{{instance_type}}"
   vpc_security_group_ids = ["${aws_security_group.optscale_sg_{{seed}}.id}"]
   root_block_device {
-    volume_size           = "{{volume_size_gb}}"
+    volume_size           = max(tolist(data.aws_ami.source_ami.block_device_mappings)[0].ebs.volume_size, 20)
     volume_type           = "gp2"
     encrypted             = false
     delete_on_termination = true
@@ -85,7 +92,7 @@ resource "aws_instance" "optscale_instance_{{seed}}" {
   instance_type = "{{instance_type}}"
   vpc_security_group_ids = ["${aws_security_group.optscale_sg_{{seed}}.id}"]
   root_block_device {
-    volume_size           = "{{volume_size_gb}}"
+    volume_size           = max(tolist(data.aws_ami.source_ami.block_device_mappings)[0].ebs.volume_size, 20)
     volume_type           = "gp2"
     encrypted             = false
     delete_on_termination = true

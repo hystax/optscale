@@ -106,6 +106,7 @@ class TestInfrastructureBase(TestApiBase):
             'cloud_account_id': self.cloud_account_id,
             'region_id': 'us-east-1',
             'instance_type': 'm5',
+            'image': 'ami-0123456',
             'name_prefix': 'test_prefix',
             'commands': 'echo hello world',
             'tags': {
@@ -360,7 +361,7 @@ class BulldozerMock:
     def runset_create(self, template_id, task_id, cloud_account_id,
                       region_id, instance_type, name_prefix, owner_id,
                       hyperparameters, tags, destroy_conditions, commands,
-                      open_ingress=False, spot_settings=None):
+                      open_ingress=False, spot_settings=None, image=None):
         now = utcnow_timestamp()
         b = {
             "template_id": template_id,
@@ -368,6 +369,7 @@ class BulldozerMock:
             "cloud_account_id": cloud_account_id,
             "region_id": region_id,
             "instance_type": instance_type,
+            "image": image,
             "owner_id": owner_id,
             "name_prefix": name_prefix,
             "tags": tags,

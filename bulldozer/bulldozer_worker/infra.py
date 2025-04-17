@@ -13,7 +13,13 @@ from bulldozer.bulldozer_worker.generator.aws import TFGeneratorFactory
 LOG = logging.getLogger(__name__)
 
 
+# retryable error
 class InfraException(Exception):
+    pass
+
+
+# not retryable error
+class InfraConfigException(Exception):
     pass
 
 
@@ -200,12 +206,34 @@ class Infra:
                                      self.get_var_file_path()),
                         os.path.join(path, self.var_file))
 
+    def _cleanup(self, path):
+        try:
+            LOG.info("Cleaning up runner %s", str(self.seed))
+            subprocess.check_output(
+                [self.exe_path, "destroy", "--auto-approve"],
+                cwd=path).decode('UTF-8')
+        except Exception:
+            pass
+
+    @staticmethod
+    def _extract_exception(error_text):
+        not_retriable_errors = [
+            "InvalidAMIID",
+            "InvalidBlockDeviceMapping",
+            "InvalidParameterValue"
+        ]
+        for error in not_retriable_errors:
+            if error in error_text:
+                ind = error_text.index(error)
+                text = error_text[ind:]
+                raise InfraConfigException(text)
+        raise InfraException(error_text)
+
     def start(
             self,
             name,
             region,
             flavor,
-            size_gb,
             user_data,
             image=None,
             key=None,
@@ -220,7 +248,6 @@ class Infra:
             image,
             region,
             flavor,
-            size_gb,
             user_data,
             key,
             tags,
@@ -237,9 +264,13 @@ class Infra:
             self.copy_artifacts(path)
             self.make_vars(path)
             # save plan to the logs
-            out = subprocess.check_output(
-                [self.exe_path, "apply", "--auto-approve"],
-                cwd=path).decode('UTF-8')
+            out = subprocess.run(
+                [self.exe_path, "apply", "--auto-approve", "-no-color"],
+                cwd=path, capture_output=True)
+            if out.returncode != 0:
+                out = out.stderr.decode("UTF-8")
+                raise Exception(out)
+            out = out.stdout.decode("UTF-8")
             LOG.info(out)
             LOG.debug("extracting instance id and ip address")
             instance_id, ip_addr = self.extract_outputs(out)
@@ -252,18 +283,10 @@ class Infra:
             self.save_infra(filename, path)
             shutil.rmtree(path)
             return instance_id, ip_addr
-
         except Exception as exc:
-            # cleanup
             LOG.error("Infra failed because of %s", str(exc))
-            try:
-                LOG.info("Cleaning up runner %s", str(self.seed))
-                subprocess.check_output(
-                    [self.exe_path, "destroy", "--auto-approve"],
-                    cwd=path).decode('UTF-8')
-            except Exception:
-                pass
-            raise InfraException(f"Infra exception: {str(exc)}")
+            self._cleanup(path)
+            self._extract_exception(str(exc))
         finally:
             # ensure we cleaned workdir in case of infra failure
             shutil.rmtree(path, ignore_errors=True)
@@ -277,8 +300,9 @@ class Infra:
         return path
 
     def destroy(self):
-        path = self.load()
+        path = os.path.join(self.path, self.seed)
         try:
+            path = self.load()
             self.copy_artifacts(path)
             self.make_vars(path)
             plan = subprocess.check_output(
@@ -288,4 +312,4 @@ class Infra:
             # by design do not remove states for s3
         finally:
             # cleanup workdir
-            shutil.rmtree(path)
+            shutil.rmtree(path, ignore_errors=True)

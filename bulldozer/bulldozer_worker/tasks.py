@@ -1,6 +1,8 @@
 import logging
 
-from bulldozer.bulldozer_worker.infra import Infra, InfraException
+from bulldozer.bulldozer_worker.infra import (
+    Infra, InfraException, InfraConfigException
+)
 from tools.optscale_time import utcnow_timestamp
 
 LOG = logging.getLogger(__name__)
@@ -123,15 +125,15 @@ class Base:
         raise NotImplementedError
 
     def get_run_by_runner(self, runner):
-        instance_id = runner["instance_id"]
+        run_id = None
+        instance_id = runner.get("instance_id")
         task_id = runner["task_id"]
-        _, runs = self.arcee_cl.runs_by_executor(instance_id, [task_id])
-        LOG.info("runs info: %s", str(runs))
-        if runs:
-            run_id = runs[0]
-            LOG.info("run found! run id: %s", run_id)
-        else:
-            run_id = None
+        if instance_id:
+            _, runs = self.arcee_cl.runs_by_executor(instance_id, [task_id])
+            LOG.info("runs info: %s", str(runs))
+            if runs:
+                run_id = runs[0]
+                LOG.info("run found! run id: %s", run_id)
         return run_id
 
     def update_run_info(self, run_id, runner):
@@ -184,6 +186,8 @@ class Base:
             ex, RunFailedException
         ) and not isinstance(
             ex, DestroyConditionException
+        ) and not isinstance(
+            ex, InfraConfigException
         )
 
     def _handle_error(self, err):
@@ -405,6 +409,7 @@ class StartInfra(Continue):
         # opens ingress ports for runner instance
         open_ingress = runner.get("open_ingress", False)
         _, runset = self.bulldozer_cl.runset_get(runner["runset_id"])
+        image = runset.get("image")
         spot_settings = runset.get("spot_settings")
         spot_price = None
         if spot_settings:
@@ -449,9 +454,8 @@ class StartInfra(Continue):
             name,
             region_id,
             instance_type,
-            20,
             user_data,
-            image=None,  # using default image
+            image=image,  # if None using default image
             key=None,
             tags=tags,
             open_ingress=open_ingress,

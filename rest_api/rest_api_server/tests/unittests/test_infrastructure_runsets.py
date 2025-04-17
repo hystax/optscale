@@ -74,6 +74,14 @@ class TestRunsetsApi(TestInfrastructureBase):
         # Hardcoded based on duration and flavor cost (hourly cost is 0.175)
         self.assertEqual(res.get('cost'), 0.0049)
 
+    def test_create_invalid_image(self):
+        params = self.valid_runset.copy()
+        params['image'] = 'invalid_image'
+        code, resp = self.client.runset_create(
+            self.organization_id, self.template_id, params)
+        self.assertEqual(code, 400)
+        self.assertEqual(resp['error']['error_code'], 'OE0218')
+
     def test_create_spot_price(self):
         params = deepcopy(self.valid_runset)
         params['spot_settings']['spot_price'] = "123"
@@ -165,16 +173,18 @@ class TestRunsetsApi(TestInfrastructureBase):
             if k in ['destroy_conditions']:
                 # destroy_conditions is optional param
                 self.assertEqual(code, 201)
-                self.assertTrue(isinstance(res.get('destroy_conditions'), dict))
+                self.assertTrue(isinstance(
+                    res.get('destroy_conditions'), dict))
                 self.assertEqual(
                     res.get('destroy_conditions', {}).get('max_budget'),
                     self.valid_template['budget'])
-            elif k in ['spot_settings', 'open_ingress']:
+            elif k in ['spot_settings', 'open_ingress', 'image']:
                 # params above are optional and set based on bulldozer logic
                 self.assertEqual(code, 201)
             else:
                 self.assertEqual(code, 400, k)
-                self.assertEqual(res.get('error', {}).get('error_code'), 'OE0216')
+                self.assertEqual(res.get('error', {}).get('error_code'),
+                                 'OE0216')
 
     def test_create_nonexisting_entities(self):
         nonexisting_updates = [

@@ -29,6 +29,7 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
         'cloud_account_id': (check_string_attribute, True),
         'region_id': (check_string_attribute, True),
         'instance_type': (check_string_attribute, True),
+        'image': (check_string_attribute, False),
         'commands': (check_string_attribute, True),
         'name_prefix': (check_string_attribute, True),
         'open_ingress': (check_bool_attribute, False),
@@ -95,7 +96,13 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                 if param_name == 'commands':
                     # directly restricting user data size
                     extras['max_length'] = 128 * KiB
+                if param_name == 'image':
+                    extras['allow_empty'] = True
                 validation_func(param_name, param_value, **extras)
+                if (param_name == 'image' and param_value and
+                        not param_value.startswith('ami-')):
+                    raise WrongArgumentsException(
+                        Err.OE0218, [param_name, param_value])
                 if isinstance(param_value, dict):
                     if param_name == 'destroy_conditions':
                         self._validate_destroy_conditions(**param_value)
@@ -168,6 +175,11 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         description: One of template instance families names
                         required: true
                         example: p4
+                    image:
+                        type: string
+                        description: AMI id used to create runners
+                        required: false
+                        example: ami-1234567890123456
                     region_id:
                         type: string
                         description: One of template regions ids
@@ -241,6 +253,7 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                         instance_type:
                             name: m5.xlarge
                             cloud_type: aws_cnr
+                        image: ami-1234567890123456
                         region:
                             id: us-east-1
                             name: us-east-1
@@ -265,6 +278,7 @@ class RunsetsAsyncCollectionHandler(BaseAsyncCollectionHandler,
                     - OE0214: Argument should be a string
                     - OE0215: Wrong number of characters in string
                     - OE0216: Argument is not provided
+                    - OE0218: Argument has incorrect format
                     - OE0223: Argument should be integer
                     - OE0224: Value of argument should be between 0 and 2147483647
                     - OE0344: Argument should be a dictionary

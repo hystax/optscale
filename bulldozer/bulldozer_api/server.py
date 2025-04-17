@@ -569,6 +569,10 @@ async def create_runset(request, template_id: str):
     task_id = doc.get("task_id")
     cloud_account_id = doc.get("cloud_account_id")
     region_id = doc.get("region_id")
+    image = doc.get("image")
+    if image and (not isinstance(image, str) or not image.startswith('ami-')):
+        raise SanicException("Image should be string starting with 'ami-'",
+                             status_code=400)
     instance_type = doc.get("instance_type")
     name_prefix = doc.get("name_prefix")
     tags = doc.get("tags")
@@ -591,6 +595,7 @@ async def create_runset(request, template_id: str):
         "cloud_account_id": cloud_account_id,
         "region_id": region_id,
         "instance_type": instance_type,
+        "image": image,
         "name_prefix": name_prefix,
         "tags": tags,
         "hyperparameters": hyperparameters,

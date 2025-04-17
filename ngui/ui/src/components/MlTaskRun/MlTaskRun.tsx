@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import { Link, Stack, Typography } from "@mui/material";
@@ -32,22 +33,26 @@ const MlTaskRun = ({
 
   const actionBarDefinition = {
     breadcrumbs: [
-      isPublicRun ? (
-        <span>
-          <FormattedMessage id="tasks" />
-        </span>
-      ) : (
-        <Link key={1} to={ML_TASKS} component={RouterLink}>
-          <FormattedMessage id="tasks" />
-        </Link>
-      ),
-      isPublicRun ? (
-        <span>{taskName}</span>
-      ) : (
-        <Link key={2} to={getMlTaskDetailsUrl(taskId)} component={RouterLink}>
-          {taskName}
-        </Link>
-      ),
+      <Fragment key={1}>
+        {isPublicRun ? (
+          <span>
+            <FormattedMessage id="tasks" />
+          </span>
+        ) : (
+          <Link to={ML_TASKS} component={RouterLink}>
+            <FormattedMessage id="tasks" />
+          </Link>
+        )}
+      </Fragment>,
+      <Fragment key={2}>
+        {isPublicRun ? (
+          <span>{taskName}</span>
+        ) : (
+          <Link to={getMlTaskDetailsUrl(taskId)} component={RouterLink}>
+            {taskName}
+          </Link>
+        )}
+      </Fragment>,
       <FormattedMessage key={3} id="runs" />
     ],
     title: {

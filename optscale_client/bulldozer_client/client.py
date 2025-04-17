@@ -325,12 +325,14 @@ class Client:
             commands: str,
             spot_settings: Union[dict, None] = None,
             open_ingress: bool = False,
+            image: str = None,
     ):
         b = {
             "task_id": task_id,
             "cloud_account_id": cloud_account_id,
             "region_id": region_id,
             "instance_type": instance_type,
+            "image": image,
             "owner_id": owner_id,
             "name_prefix": name_prefix,
             "tags": tags,
