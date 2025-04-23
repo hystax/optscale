@@ -14,6 +14,7 @@ COPY tools/optscale_time tools/optscale_time
 COPY optscale_client/config_client optscale_client/config_client
 COPY optscale_client/rest_api_client optscale_client/rest_api_client
 COPY auth/zoho_integrator auth/zoho_integrator
+
 COPY auth/requirements.txt auth/requirements.txt
 RUN pip install --no-cache-dir -r /usr/src/app/auth/requirements.txt
 
