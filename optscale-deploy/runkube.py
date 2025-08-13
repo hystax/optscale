@@ -327,7 +327,7 @@ class Runkube:
                                 tty=False, _preload_content=False)
             client.run_forever(timeout=60)
             err = client.read_channel(ERROR_CHANNEL)
-            if yaml.safe_load(err)['status'].lower() == 'Failure':
+            if yaml.safe_load(err)['status'].lower() == 'failure':
                 return []
             overlay_str = client.read_all().rstrip()
             overlay_list = [] if not overlay_str else overlay_str.split(',')
