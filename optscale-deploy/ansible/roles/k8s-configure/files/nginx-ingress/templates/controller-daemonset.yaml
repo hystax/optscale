@@ -52,26 +52,13 @@ spec:
           {{- end }}
           args:
             - /nginx-ingress-controller
-            - --https-port=4443
-            - --http-port=8080
-            - --status-port=28080
-            - --healthz-port=20254
-            - --default-server-port=8282
             - --default-backend-service={{ if .Values.defaultBackend.enabled }}{{ .Release.Namespace }}/{{ template "nginx-ingress.defaultBackend.fullname" . }}{{ else }}{{ .Values.controller.defaultBackendService }}{{ end }}
-          {{- if and (semverCompare ">=0.9.0-beta.1" .Values.controller.image.tag) .Values.controller.publishService.enabled }}
+          {{- if .Values.controller.publishService.enabled }}
             - --publish-service={{ template "nginx-ingress.controller.publishServicePath" . }}
           {{- end }}
-          {{- if (semverCompare ">=0.9.0-beta.1" .Values.controller.image.tag) }}
             - --election-id={{ .Values.controller.electionID }}
-          {{- end }}
-          {{- if (semverCompare ">=0.9.0-beta.1" .Values.controller.image.tag) }}
             - --ingress-class={{ .Values.controller.ingressClass }}
-          {{- end }}
-          {{- if (semverCompare ">=0.9.0-beta.1" .Values.controller.image.tag) }}
             - --configmap={{ .Release.Namespace }}/{{ template "nginx-ingress.controller.fullname" . }}
-          {{- else }}
-            - --nginx-configmap={{ .Release.Namespace }}/{{ template "nginx-ingress.controller.fullname" . }}
-          {{- end }}
           {{- if .Values.tcp }}
             - --tcp-services-configmap={{ .Release.Namespace }}/{{ template "nginx-ingress.fullname" . }}-tcp
           {{- end }}
@@ -103,7 +90,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 20254
+              port: 10254
               scheme: HTTP
             initialDelaySeconds: {{ .Values.controller.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.controller.livenessProbe.periodSeconds }}
@@ -111,18 +98,21 @@ spec:
             successThreshold: {{ .Values.controller.livenessProbe.successThreshold }}
             failureThreshold: {{ .Values.controller.livenessProbe.failureThreshold }}
           ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
             - name: https
-              containerPort: 4443
+              containerPort: 443
               protocol: TCP
           {{- if .Values.controller.stats.enabled }}
             - name: stats
-              containerPort: 28080
+              containerPort: 18080
               protocol: TCP
-            {{- if .Values.controller.metrics.enabled }}
+          {{- end }}
+          {{- if .Values.controller.metrics.enabled }}
             - name: metrics
-              containerPort: 20254
+              containerPort: 10254
               protocol: TCP
-            {{- end }}
           {{- end }}
           {{- range $key, $value := .Values.tcp }}
             - name: "{{ $key }}-tcp"
@@ -137,7 +127,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 20254
+              port: 10254
               scheme: HTTP
             initialDelaySeconds: {{ .Values.controller.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.controller.readinessProbe.periodSeconds }}
