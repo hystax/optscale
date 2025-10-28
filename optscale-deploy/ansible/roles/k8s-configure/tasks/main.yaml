@@ -71,7 +71,7 @@
   run_once: true
 
 - name: Install nginx ingress controller
-  shell: helm upgrade --install ngingress ingress-nginx --repo https://kubernetes.github.io/ingress-nginx -f nginx-ingress/values.yaml
+  shell: helm upgrade --install ngingress ingress-nginx --repo https://kubernetes.github.io/ingress-nginx -f roles/k8s-configure/files/nginx-ingress/values.yaml
   run_once: true
 
 - name: Check domain presence
