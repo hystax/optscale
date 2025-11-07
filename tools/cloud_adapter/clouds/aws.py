@@ -145,7 +145,13 @@ class Aws(S3CloudMixin):
                 region_name=region_name,
             )
 
-            sts_client = base_session.client('sts', config=IAM_CLIENT_CONFIG)
+            # Use regional STS endpoint for opt-in regions
+            sts_endpoint_url = f'https://sts.{region_name}.amazonaws.com'
+            sts_client = base_session.client(
+                'sts',
+                endpoint_url=sts_endpoint_url,
+                config=IAM_CLIENT_CONFIG
+            )
             response = sts_client.assume_role(
                 RoleArn=f'arn:aws:iam::{role_account_id}:role/{role_name}',
                 RoleSessionName=role_session_name,
