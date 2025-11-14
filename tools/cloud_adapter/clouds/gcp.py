@@ -31,28 +31,42 @@ from tools.cloud_adapter.utils import CloudParameter, gbs_to_bytes
 MAX_RESULTS = 500
 BILLING_THRESHOLD = 3
 
+_AUTH_TYPES = (
+    api_exceptions.PermissionDenied,   # 403
+    api_exceptions.Unauthenticated,    # 401
+    api_exceptions.Forbidden,          # same semantic as 403
+)
+
 # Retries logic composed of code from
 # google/cloud/bigquery/retry.py and
 # google/cloud/storage/retry.py
+# should NOT include auth errors
 _RETRYABLE_TYPES = (
-    api_exceptions.TooManyRequests,  # 429
-    api_exceptions.InternalServerError,  # 500
-    api_exceptions.BadGateway,  # 502
+    api_exceptions.TooManyRequests,     # 429
+    api_exceptions.InternalServerError, # 500
+    api_exceptions.BadGateway,          # 502
     api_exceptions.ServiceUnavailable,  # 503
-    api_exceptions.GatewayTimeout,  # 504
-    api_exceptions.Unauthorized,   # 401
+    api_exceptions.GatewayTimeout,      # 504
+    api_exceptions.DeadlineExceeded,    # 504 / RPC deadline
     ConnectionError,
     requests.ConnectionError,
     requests_exceptions.ChunkedEncodingError,
     requests_exceptions.Timeout,
 )
 
-# Some retriable errors don't have their own custom exception in api_core.
-_ADDITIONAL_RETRYABLE_STATUS_CODES = (408,)
 
-_RETRYABLE_REASONS = frozenset(
-    ["rateLimitExceeded", "backendError", "internalError", "badGateway"]
-)
+# Some retriable errors don't have their own custom exception in api_core.
+_ADDITIONAL_RETRYABLE_STATUS_CODES = (408, 500, 502, 503, 504)
+
+_RETRYABLE_REASONS = frozenset({
+    "rateLimitExceeded",
+    "userRateLimitExceeded",
+    "backendError",
+    "internalError",
+    "badGateway",
+    "serviceUnavailable",
+    "deadlineExceeded",
+})
 
 # some resources like buckets do not always belong to a specific region.
 # if they span multiple regions, their locations can have different values
@@ -64,19 +78,62 @@ REGION_REPLACEMENTS = {
 }
 
 
-def _should_retry(exc):
-    """Predicate for determining when to retry."""
-    result = False
+
+def _is_auth_error(exc: BaseException) -> bool:
+
+    if isinstance(exc, _AUTH_TYPES):
+        return True
+
+    if isinstance(exc, auth_exceptions.TransportError):
+        try:
+            return _is_auth_error(exc.args[0])
+        except Exception:
+            return False
+
+    if isinstance(exc, api_exceptions.GoogleAPICallError):
+        code = getattr(exc, "code", None)
+        if code in (401, 403):
+            return True
+
+        msg = (str(exc) or "").lower()
+        if any(s in msg for s in ("permissiondenied", "unauthenticated", "forbidden")):
+            return True
+    return False
+
+
+def _should_retry(exc: BaseException) -> bool:
+    """
+    Predicate for google.api_core.retry.Retry: True => retry.
+    """
+
+    # do not retry auth errors
+    if _is_auth_error(exc):
+        return False
+
     if isinstance(exc, _RETRYABLE_TYPES):
-        result = True
-    elif isinstance(exc, api_exceptions.GoogleAPICallError):
-        result = exc.code in _ADDITIONAL_RETRYABLE_STATUS_CODES
-        if not result:
-            reason = exc.errors[0]["reason"]
-            result = reason in _RETRYABLE_REASONS
-    elif isinstance(exc, auth_exceptions.TransportError):
-        result = _should_retry(exc.args[0])
-    return result
+        return True
+
+    # Google API call error: inspect status code + 'reason'
+    if isinstance(exc, api_exceptions.GoogleAPICallError):
+        if getattr(exc, "code", None) in _ADDITIONAL_RETRYABLE_STATUS_CODES:
+            return True
+        # Some exceptions expose .errors (BigQuery/JSON) like [{'reason': 'rateLimitExceeded', ...}]
+        try:
+            errors = getattr(exc, "errors", None) or []
+            if errors:
+                reason = (errors[0] or {}).get("reason")
+                if reason in _RETRYABLE_REASONS:
+                    return True
+        except Exception:
+            pass
+
+    if isinstance(exc, auth_exceptions.TransportError):
+        try:
+            return _should_retry(exc.args[0])
+        except Exception:
+            return False
+
+    return False
 
 
 # Exponential retries starting with 10 seconds delay

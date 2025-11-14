@@ -86,6 +86,82 @@ AzureAuthenticationError = ClientAuthenticationError
 AzureResourceNotFoundError = ResourceNotFoundError
 
 
+AUTH_STATUS = {401, 403}
+AUTH_ERROR_CODES = {
+    "AuthorizationFailed",
+    "InvalidAuthenticationToken",
+    "InvalidClientSecret",
+    "InvalidClientId",
+    "AuthenticationFailed",
+    "ExpiredAuthenticationToken",
+    "RequestDisallowedByPolicy",
+    "LinkedAuthorizationFailed",
+    "MissingSubscriptionRegistration",
+    "ActiveDirectoryOAuthTokenRequestFailure",
+    "NoRegisteredProviderFound",
+    "SubscriptionNotFound",
+}
+
+def _extract_azure_status_and_code(exc):
+    """
+    Try to extract HTTP status code and ARM 'code' string from azure exceptions.
+    Returns (status:int|None, code:str|None, headers:dict|None).
+    """
+    status = None
+    code = None
+    headers = None
+
+    resp = getattr(exc, "response", None)
+    if resp is not None:
+        try:
+            status = int(getattr(resp, "status_code", None) or 0)
+        except Exception:
+            status = None
+        headers = getattr(resp, "headers", None)
+
+        try:
+            data = resp.json()
+            code = (data.get("error") or {}).get("code") or data.get("code")
+        except Exception:
+            code = getattr(exc, "error", None) or getattr(exc, "code", None)
+
+    if status is None and hasattr(exc, "status_code"):
+        status = getattr(exc, "status_code", None)
+    if code is None and hasattr(exc, "error"):
+        try:
+            code = getattr(exc, "error").get("code")
+        except Exception:
+            pass
+
+    return status, code, headers
+
+
+def _is_auth_error(exc) -> bool:
+
+    if isinstance(exc, (AuthenticationError, ClientAuthenticationError)):
+        return True
+
+    if isinstance(exc, HttpResponseError) or hasattr(exc, "response"):
+        status, code, _ = _extract_azure_status_and_code(exc)
+        if status in AUTH_STATUS:
+            return True
+        if (code or "") in AUTH_ERROR_CODES:
+            return True
+
+    msg = str(exc) or ""
+    needles = [
+        "AuthorizationFailed",
+        "InvalidAuthenticationToken",
+        "is not authorized to perform",
+        "does not have authorization",
+        "status code 401",
+        "status code 403",
+        "AuthenticationFailed",
+        "ExpiredAuthenticationToken",
+    ]
+    return any(n.lower() in msg.lower() for n in needles)
+
+
 try:
     LOG.info("INIT: Trying to apply Azure SDK retry policy")
     from azure.core.pipeline.policies import RetryPolicy
@@ -152,34 +228,33 @@ def _sleep_with_headers(resp_headers: Dict[str, Any] | None, source="unknown"):
 
 
 def _retry_on_error(exc):
-    if isinstance(exc, AzureConsumptionException):
-        resp = getattr(exc, "response", None)
-        code = int(getattr(resp, "status_code", 0) or 0)
-        headers = getattr(resp, "headers", {}) or {}
 
-        if code in (429, 503):
-            LOG.error(
-                "RETRY: Azure throttle HTTP %s — honoring server retry headers.",
-                code
-            )
-            _sleep_with_headers(headers, source=f"429/503 ({code})")
-            return True
-
-        if code in (500, 502, 504):
-            LOG.error("RETRY: Azure transient HTTP %s", code)
-            _sleep_with_headers({}, source=str(code))
-            return True
-
+    # Do not retry Auth errors
+    if _is_auth_error(exc):
         return False
 
-    if isinstance(exc, MetricsServerTimeoutException):
-        LOG.error("RETRY: Metrics timeout")
-        _sleep_with_headers({}, source="metrics_timeout")
+    # Throttling
+    if isinstance(exc, AzureConsumptionException):
+        status, _, headers = _extract_azure_status_and_code(exc)
+        if status in (429, 503):
+            LOG.error("RETRY: Azure throttle HTTP %s — honoring server headers", status)
+            _sleep_with_headers(headers, source=f"{status}")
+            return True
+        if status in (500, 502, 504):
+            LOG.error("RETRY: Azure transient HTTP %s", status)
+            _sleep_with_headers({}, source=f"{status}")
+            return True
+        return False
+
+    # Network/client side transients
+    if isinstance(exc, (ServiceRequestError, ClientRequestError)):
+        LOG.error("RETRY: network/client exception: %s", type(exc).__name__)
+        _sleep_with_headers({}, source="network")
         return True
 
-    if isinstance(exc, (ServiceRequestError, ClientRequestError)):
-        LOG.error("RETRY: Network/client exception: %s", type(exc).__name__)
-        _sleep_with_headers({}, source="network")
+    if isinstance(exc, MetricsServerTimeoutException):
+        LOG.error("RETRY: metrics server timeout")
+        _sleep_with_headers({}, source="metrics_timeout")
         return True
 
     return False
@@ -296,11 +371,9 @@ class Azure(CloudBase):
     @property
     def location_map(self):
         if self._location_map is None:
-            self._location_map = {
-                x.name: x.display_name
-                for x in self.subscription.subscriptions.list_locations(
-                    self._subscription_id)
-            }
+            locs = self._retry(self.subscription.subscriptions.list_locations,
+                               self._subscription_id)
+            self._location_map = {x.name: x.display_name for x in locs}
         return self._location_map
 
     @property
@@ -763,7 +836,7 @@ class Azure(CloudBase):
         return CLOUD_LINK_PATTERN % (DEFAULT_BASE_URL, resource_id)
 
     def _discover_vnets(self):
-        vnets = self.network.virtual_networks.list_all()
+        vnets = self._retry(self.network.virtual_networks.list_all)
         return {vnet.id: vnet.name for vnet in vnets}
 
     def _get_nics_by_instance(self, vm, return_all=True):
@@ -797,7 +870,7 @@ class Azure(CloudBase):
         Discovers instance cloud resources
         :return: list(model.InstanceResource)
         """
-        virtual_machines = self.compute.virtual_machines.list_all()
+        virtual_machines = self._retry(self.compute.virtual_machines.list_all)
         vnet_id_to_name = None
         for vm in virtual_machines:
             if not vnet_id_to_name:
@@ -828,7 +901,7 @@ class Azure(CloudBase):
                 os=os_type,
                 vpc_id=vnet_id,
                 vpc_name=vnet_id_to_name.get(vnet_id),
-                security_groups=sgs_ids
+                security_groups=sgs_ids,
             )
             yield instance_resource
 
@@ -840,7 +913,7 @@ class Azure(CloudBase):
         Discovers volume cloud resources
         :return: list(model.VolumeResource)
         """
-        volumes = self.compute.disks.list()
+        volumes = self._retry(self.compute.disks.list)
         for volume in volumes:
             tags = volume.tags or {}
             cloud_console_link = self._generate_cloud_link(volume.id)
@@ -866,7 +939,7 @@ class Azure(CloudBase):
         Discovers Snapshot cloud resources
         :return: list(model.SnapshotResource)
         """
-        snapshots = self.compute.snapshots.list()
+        snapshots = self._retry(self.compute.snapshots.list)
         for snapshot in snapshots:
             tags = snapshot.tags or {}
             cloud_console_link = self._generate_cloud_link(snapshot.id)
@@ -899,7 +972,7 @@ class Azure(CloudBase):
 
         :return: list(model.BucketResource)
         """
-        accounts = self.storage.storage_accounts.list()
+        accounts = self._retry(self.storage.storage_accounts.list)
         for account in accounts:
             tags = account.tags or {}
             cloud_console_link = self._generate_cloud_link(account.id)
@@ -917,7 +990,7 @@ class Azure(CloudBase):
         return [(self.discover_bucket_resources, ())]
 
     def discover_ip_address_resources(self):
-        all_ip_addresses = list(self.network.public_ip_addresses.list_all())
+        all_ip_addresses = list(self._retry(self.network.public_ip_addresses.list_all))
         for public_ip_address in all_ip_addresses:
             tags = public_ip_address.tags or {}
             public_ip_id = public_ip_address.id
@@ -976,7 +1049,7 @@ class Azure(CloudBase):
         return [(self.discover_ip_address_resources, ())]
 
     def discover_load_balancers_resources(self):
-        all_lbs = list(self.network.load_balancers.list_all())
+        all_lbs = list(self._retry(self.network.load_balancers.list_all))
         for lb in all_lbs:
             cloud_console_link = self._generate_cloud_link(lb)
             resource = LoadBalancerResource(
@@ -987,7 +1060,7 @@ class Azure(CloudBase):
                 region=self.location_map.get(lb.location),
                 category=lb.sku.name,
                 name=lb.name,
-                tags=lb.tags or {}
+                tags=lb.tags or {},
             )
             yield resource
 

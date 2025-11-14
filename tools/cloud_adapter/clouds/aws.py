@@ -66,21 +66,54 @@ GROUP_DATES_PATTERNS = {
 }
 
 
-def _retry_on_error(exc):
-    if isinstance(exc, ResponseParserError):
-        return True
-    if isinstance(exc, EndpointConnectionError):
-        return True
+AUTH_ERROR_CODES = {
+    'AuthFailure', 'AccessDenied', 'AccessDeniedException',
+    'UnauthorizedOperation', 'UnrecognizedClientException',
+    'InvalidClientTokenId', 'ExpiredToken', 'InvalidToken',
+    'SignatureDoesNotMatch', 'InvalidSignatureException',
+}
+
+THROTTLE_ERROR_CODES = {
+    'RequestLimitExceeded', 'Throttling', 'ThrottlingException',
+    'TooManyRequestsException', 'ProvisionedThroughputExceededException',
+}
+
+def _is_auth_error(exc) -> bool:
+
     if isinstance(exc, ClientError):
-        err_code = exc.response['Error'].get('Code')
-        if err_code and err_code == 'RequestLimitExceeded':
+        meta = exc.response.get('ResponseMetadata', {})
+        if meta.get('HTTPStatusCode') in (401, 403):
             return True
-    if isinstance(exc, WaiterError):
-        err_reason = exc.kwargs.get('reason')
-        if err_reason and 'Request limit exceeded' in err_reason:
+        code = (exc.response.get('Error') or {}).get('Code')
+        if code in AUTH_ERROR_CODES:
             return True
-    if isinstance(exc, SSLError):
+    msg = str(exc) or ""
+    needles = [
+        "was not able to validate the provided access credentials",
+        "is not authorized to perform",
+        "AccessDenied", "AuthFailure", "UnauthorizedOperation",
+        "HTTP 401", "HTTP 403",
+    ]
+    return any(n.lower() in msg.lower() for n in needles)
+
+
+def _retry_on_error(exc):
+    if _is_auth_error(exc):
+        return False
+
+    if isinstance(exc, (ResponseParserError, EndpointConnectionError, SSLError)):
         return True
+
+    if isinstance(exc, ClientError):
+        code = (exc.response.get('Error') or {}).get('Code')
+        if code in THROTTLE_ERROR_CODES:
+            return True
+
+    if isinstance(exc, WaiterError):
+        reason = exc.kwargs.get('reason', '') or ''
+        if 'Request limit exceeded' in reason or 'Throttl' in reason:
+            return True
+
     return False
 
 
