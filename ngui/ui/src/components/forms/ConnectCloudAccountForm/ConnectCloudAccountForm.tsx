@@ -173,7 +173,7 @@ const getAwsRootParameters = (formData: FieldValues, connectionType: string) => 
     config: {
       access_key_id: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
       secret_access_key: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
-      ...(connectionType !== CONNECTION_TYPES.AWS_MEMBER ? extraParams : {})
+      ...(connectionType !== CONNECTION_TYPES.AWS_MEMBER ? extraParams : { linked: true })
     }
   };
 };
