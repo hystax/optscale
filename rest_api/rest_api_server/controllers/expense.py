@@ -1746,16 +1746,20 @@ class RawExpenseController(CleanExpenseController):
             for n, filter_value in enumerate(filter_values):
                 if filter_value == nil_uuid:
                     filter_values[n] = None
-        filters = [
-            {"cloud_account_id": {"$in": cloud_account_ids}},
-            {
-                "$or": [
-                    {"resource_id": {"$in": cloud_resource_ids}},
-                    {"resource_hash": {"$in": cloud_resource_hashes}},
-                ]
-            },
-        ]
-        expenses = list(self.expense_ctrl.get_raw_expenses(start, end, filters))
+        expenses = []
+        for field, list_ids in [
+            ('resource_id', cloud_resource_ids),
+            ('resource_hash', cloud_resource_hashes)
+        ]:
+            if not list_ids:
+                continue
+            filters = [
+                {"cloud_account_id": {"$in": cloud_account_ids}},
+                {field: {"$in": list_ids}},
+            ]
+            expenses.extend(
+                list(self.expense_ctrl.get_raw_expenses(start, end, filters))
+            )
         return expenses, self.get_expenses_total_cost(expenses)
 
     def _get_cloud_resource_ids(self, resource_ids):

@@ -189,29 +189,6 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 400)
         self.assertEqual(cloud_acc['error']['error_code'], 'OE0548')
 
-    def test_restrict_change_to_assumed(self):
-        valid_config = {
-            'name': 'my cloud_acc',
-            'type': 'aws_cnr',
-            'config': {
-                'access_key_id': 'key',
-                'secret_access_key': 'secret',
-            }
-        }
-        code, cloud_acc = self.create_cloud_account(self.org_id, valid_config)
-        cloud_acc_id = cloud_acc["id"]
-        valid_config.pop('type')
-        # add valid parameter set for assumed account
-        # but restrict changed account type
-        for i in ['assume_role_account_id', 'assume_role_name']:
-            update_cfg = copy.deepcopy(valid_config)
-            update_cfg['config'][i] = ''
-
-            code, cloud_acc = self.client.cloud_account_update(
-                cloud_acc_id, update_cfg)
-            self.assertEqual(code, 400)
-            self.assertEqual(cloud_acc['error']['error_code'], 'OE0212')
-
     def test_create_aws_cloud_acc_assume(self):
         assume_role_account_id = '87629'
         assume_role_name = 'va-test'
@@ -274,6 +251,76 @@ class TestCloudAccountApi(TestApiBase):
                          self._aws_service_creds['access_key_id'])
         self.assertEqual(new_cloud_acc['config']['assume_role_account_id'],
                          config['config']['assume_role_account_id'])
+
+    @patch('rest_api.rest_api_server.controllers.cloud_account.'
+           'ExpensesRecalculationScheduleController.schedule')
+    def test_edit_change_to_assumed(self, t_schedule):
+        valid_config = {
+            'name': 'my cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'access_key_id': 'key',
+                'secret_access_key': 'secret',
+            }
+        }
+        code, cloud_acc = self.create_cloud_account(self.org_id, valid_config)
+        cloud_acc_id = cloud_acc["id"]
+
+        # check service creds account id in config
+        patch('tools.cloud_adapter.clouds.aws.Aws.validate_credentials',
+              return_value={'account_id': cloud_acc_id, 'warnings': []}).start()
+
+        # set valid parameters for an assumed account
+        role_acc_id = '87629'
+        role_acc = 'va-test'
+        assumed_config = {
+            'config': {
+                'assume_role_account_id': role_acc_id,
+                'assume_role_name': role_acc,
+            }
+        }
+        code, cloud_acc = self.client.cloud_account_update(cloud_acc_id, assumed_config)
+        self.assertEqual(code, 200)
+        self.assertEqual(cloud_acc['config']['assume_role_account_id'], role_acc_id)
+        self.assertEqual(cloud_acc['config']['assume_role_name'], role_acc)
+        self.assertEqual(
+            cloud_acc['config']['access_key_id'],
+            self._aws_service_creds['access_key_id'],
+        )
+
+    @patch('rest_api.rest_api_server.controllers.cloud_account.'
+           'ExpensesRecalculationScheduleController.schedule')
+    def test_edit_change_to_access_key(self, t_schedule):
+        config = {
+            'name': 'assume_cloud_acc',
+            'type': 'aws_cnr',
+            'config': {
+                'assume_role_account_id': '87629',
+                'assume_role_name': 'va-test',
+                'config_scheme': 'create_report'
+            }
+        }
+
+        code, cloud_acc = self.create_cloud_account(self.org_id, config)
+        cloud_acc_id = cloud_acc["id"]
+
+        # check service creds account id in config
+        patch('tools.cloud_adapter.clouds.aws.Aws.validate_credentials',
+              return_value={'account_id': cloud_acc_id, 'warnings': []}).start()
+
+        # set valid parameters for an access key
+        key = 'key'
+        secret = 'secret'
+        access_config = {
+            'config': {
+                'access_key_id': key,
+                'secret_access_key': secret,
+            }
+        }
+
+        code, cloud_acc = self.client.cloud_account_update(cloud_acc_id, access_config)
+        self.assertEqual(code, 200)
+        self.assertDictEqual(cloud_acc['config'], {'access_key_id': key})
 
     @patch('rest_api.rest_api_server.controllers.cloud_account.'
            'ExpensesRecalculationScheduleController.schedule')

@@ -536,18 +536,21 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         if cloud_acc_obj.parent_id and config:
             raise WrongArgumentsException(Err.OE0211, ['config'])
         if cloud_acc_type in [CloudTypes.AWS_CNR.value]:
-            role_account_id = old_config.get('assume_role_account_id')
-            old_role = old_config.get('assume_role_name')
-            if role_account_id:
-                new_role_acc = config.get('assume_role_account_id')
-                if new_role_acc and (new_role_acc != role_account_id):
-                    raise WrongArgumentsException(Err.OE0211, [
-                        'assume_role_account_id'])
+            has_assumed_role_data = bool(
+                config.get('assume_role_account_id') or config.get('assume_role_name')
+            )
+            # assumed
+            if has_assumed_role_data:
+                old_role_acc = old_config.get('assume_role_account_id')
+                role_acc = config.get('assume_role_account_id') or old_role_acc
+
+                if old_role_acc and role_acc != old_role_acc:
+                    raise WrongArgumentsException(Err.OE0211, ['assume_role_account_id'])
+
                 role = config.get('assume_role_name')
-                if new_role_acc:
-                    if not role:
-                        raise WrongArgumentsException(Err.OE0548, [
-                            'assume_role_name'])
+                if not role:
+                    raise WrongArgumentsException(Err.OE0548, [
+                        'assume_role_name'])
                 unexpected = ['access_key_id', 'secret_access_key']
                 for i in unexpected:
                     if config.get(i):
@@ -559,11 +562,10 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                         "access_key_id", "")
                     config["secret_access_key"] = service_creds.get(
                         "secret_access_key", "")
-                    config["assume_role_account_id"] = role_account_id
-                    config["assume_role_name"] = role or old_role
+                    config["assume_role_account_id"] = role_acc
+                    config["assume_role_name"] = role
             # non-assumed
             else:
-
                 access_key_id = config.get('access_key_id')
                 secret_access_key = config.get('secret_access_key')
                 if bool(access_key_id) ^ bool(secret_access_key):
