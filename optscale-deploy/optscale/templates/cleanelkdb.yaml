@@ -28,9 +28,12 @@ spec:
             app: {{ $config.name }}
             release: {{ .Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: dockerhub-creds
           containers:
           - name: {{ $config.name }}
-            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
+            imagePullPolicy: {{ $config.image.pullPolicy }}
             env:
             - name: HX_ELK_LOG_MAX_SIZE
               value: "{{ $config.log_max_size }}"

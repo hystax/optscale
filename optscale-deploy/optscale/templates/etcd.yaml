@@ -111,13 +111,15 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
 {{- if .Values.elk.enabled }}
       initContainers:
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         command:
           - "/usr/local/bin/etcd"
@@ -156,13 +158,28 @@ spec:
           value: {{ $config.hb_interval | quote }}
         - name: ETCD_ELECTION_TIMEOUT
           value: {{ $config.election_timeout | quote }}
+{{- if not $config.usePersistentVolume }}
       volumes:
       - name: etcd-persistent-storage
         hostPath:
           path: /optscale/etcd
           type: DirectoryOrCreate
-      nodeSelector:
-        node-role.kubernetes.io/control-plane:
+{{- end }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: etcd-persistent-storage
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+{{- end }}
 {{- end }}
 ---
 apiVersion: v1
@@ -190,9 +207,11 @@ spec:
         app: configurator
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       containers:
       - name: configurator
-        image: configurator:local
+        image: "{{ .Values.docker_registry }}/configurator:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}local{{ end }}"
         volumeMounts:
         - name: config-volume
           mountPath: /config
@@ -217,6 +236,4 @@ spec:
       - name: config-volume
         configMap:
           name: optscale-etcd
-      nodeSelector:
-        node-role.kubernetes.io/control-plane:
   backoffLimit: 10

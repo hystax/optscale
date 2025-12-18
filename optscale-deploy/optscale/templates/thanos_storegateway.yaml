@@ -73,6 +73,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -133,6 +135,23 @@ spec:
             items:
               - key: thanos_conf.yaml
                 path: thanos_conf.yaml
+{{- if not $config.usePersistentVolume }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ $config.name }}-claim
+{{- end }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ $config.dataSize }}
+{{- end }}

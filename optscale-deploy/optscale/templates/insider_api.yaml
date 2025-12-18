@@ -19,6 +19,19 @@ spec:
     app: {{ $config.name }}
     release: {{ .Release.Name }}
 ---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ $config.name }}"
+  labels:
+    app: "{{ $config.name }}"
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: "{{ $config.name }}"
+      release: "{{ .Release.Name }}"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,6 +52,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -47,9 +62,10 @@ spec:
 {{- if not .Values.mongo.external }}
 {{ include "wait_for_service" .Values.mongo | indent 6 }}
 {{- end }}
+{{ include "anti-affinity" $config | indent 6 }}
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}

@@ -1,5 +1,18 @@
 {{- if not .Values.clickhouse.external }}
 ---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ .Values.clickhouse.name }}"
+  labels:
+    app: "{{ .Values.clickhouse.name }}"
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: "{{ .Values.clickhouse.name }}"
+      release: "{{ .Release.Name }}"
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -21,11 +34,14 @@ spec:
       labels:
         app: {{ .Values.clickhouse.name }}
         release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
 {{- if .Values.elk.enabled }}
       initContainers:
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
-    spec:
+{{ include "anti-affinity" .Values.clickhouse | indent 6 }}
       containers:
         - name: {{ .Values.clickhouse.name }}
           image: "clickhouse/clickhouse-server:24.12"
@@ -65,6 +81,10 @@ spec:
             - name: clickhouse-logs
               mountPath: /var/log/clickhouse-server/
       volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Values.clickhouse.name }}-config
+{{- if not .Values.clickhouse.usePersistentVolume }}
         - name: clickhouse-data-volume
           hostPath:
             path: /optscale/clickhouse
@@ -73,7 +93,32 @@ spec:
           hostPath:
             path: /optscale/clickhouse/logs
             type: DirectoryOrCreate
-        - name: config-volume
-          configMap:
-            name: {{ .Values.clickhouse.name }}-config
+{{- end }}
+{{- if .Values.clickhouse.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: clickhouse-data-volume
+      labels:
+        app: {{ .Values.clickhouse.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Gi
+  - metadata:
+      name: clickhouse-logs
+      labels:
+        app: {{ .Values.clickhouse.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+{{- end }}
 {{- end -}}

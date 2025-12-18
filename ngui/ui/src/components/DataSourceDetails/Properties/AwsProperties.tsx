@@ -21,18 +21,14 @@ const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => 
 
   const getAwsAccountTypeMessageId = () => {
     if (linked) {
-      return "member";
+      return "linked";
     }
 
-    return "managementStandalone";
-  };
-
-  const getAwsAuthenticationTypeMessageId = () => {
     if (isAssumeRole) {
       return "assumedRole";
     }
 
-    return "accessKey";
+    return "root";
   };
 
   return (
@@ -60,11 +56,6 @@ const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => 
           key: `p_${AWS_CNR}_key`,
           value: `p_${AWS_CNR}_value`
         }}
-      />
-      <KeyValueLabel
-        keyMessageId="awsAuthenticationType"
-        value={<FormattedMessage id={getAwsAuthenticationTypeMessageId()} />}
-        dataTestIds={{ key: "p_authentication_type_key", value: "p_authentication_type_value" }}
       />
       {isAssumeRole && (
         <KeyValueLabel

@@ -428,7 +428,6 @@ const CanvasBarChart = ({
 
 const ResponsiveCanvasBarChart = ({
   data,
-  wrapperRef,
   keys = [],
   style = {},
   isLoading = false,
@@ -455,7 +454,6 @@ const ResponsiveCanvasBarChart = ({
       style={{
         height: muiTheme.spacing(height)
       }}
-      ref={wrapperRef}
     >
       <ResponsiveWrapper>
         {({ width: wrapperWidth, height: wrapperHeight }) => {

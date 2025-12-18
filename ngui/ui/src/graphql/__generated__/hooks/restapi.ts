@@ -82,7 +82,6 @@ export type AwsAssumedRoleConfigInput = {
   region_name?: InputMaybe<Scalars["String"]["input"]>;
   report_name?: InputMaybe<Scalars["String"]["input"]>;
   use_edp_discount?: InputMaybe<Scalars["Boolean"]["input"]>;
-  linked?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
 export type AwsConfig = {

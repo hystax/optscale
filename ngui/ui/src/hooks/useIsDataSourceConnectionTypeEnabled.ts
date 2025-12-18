@@ -11,8 +11,9 @@ export const useIsDataSourceConnectionTypeEnabled = () => {
   return useCallback(
     (type: ConnectionType) =>
       ({
-        [CONNECTION_TYPES.AWS_MANAGEMENT]: true,
-        [CONNECTION_TYPES.AWS_MEMBER]: true,
+        [CONNECTION_TYPES.AWS_ROLE]: true,
+        [CONNECTION_TYPES.AWS_ROOT]: true,
+        [CONNECTION_TYPES.AWS_LINKED]: true,
         [CONNECTION_TYPES.AZURE_TENANT]: true,
         [CONNECTION_TYPES.AZURE_SUBSCRIPTION]: true,
         [CONNECTION_TYPES.GCP_TENANT]: true,

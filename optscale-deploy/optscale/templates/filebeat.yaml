@@ -68,6 +68,8 @@ spec:
       labels:
         k8s-app: filebeat
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       terminationGracePeriodSeconds: 30
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
@@ -77,7 +79,7 @@ spec:
 {{- end }}
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         args: [
           "-c", "/etc/filebeat.yml",

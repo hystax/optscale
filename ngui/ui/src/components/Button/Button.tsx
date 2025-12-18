@@ -30,7 +30,7 @@ type ButtonText = ExclusiveUnion<{
   pepega: string;
 }>;
 
-export type ButtonProps = MuiButtonProps &
+type ButtonProps = MuiButtonProps &
   ButtonText &
   NavProps & {
     dataTestId?: string;

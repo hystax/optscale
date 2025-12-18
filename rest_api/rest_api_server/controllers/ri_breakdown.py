@@ -144,7 +144,7 @@ class RiBreakdownController(CleanExpenseController):
                FROM ri_sp_usage
                WHERE cloud_account_id IN cloud_account_ids AND
                  date >= %(start_date)s AND date <= %(end_date)s AND
-                 offer_type='ri' AND instance_type != ''
+                 offer_type='ri'
                """,
             parameters={
                 'start_date': datetime.fromtimestamp(self.start_date),
@@ -176,7 +176,6 @@ class RiBreakdownController(CleanExpenseController):
                     flavor_factor_map[flavor_name] = value
                     cloud_type_flavors[cloud_type].add(flavor_name)
                     break
-            cloud_type_flavors[cloud_type].add(flavor_name)
         return flavor_factor_map, cloud_type_flavors
 
     @staticmethod
@@ -216,14 +215,13 @@ class RiBreakdownController(CleanExpenseController):
         }
 
     def format_result(self, result, cloud_account_id, date_ts, total_stats,
-                      ri_sp_stats, cloud_accs_map, cloud_acc_flavor_rate):
+                      ri_sp_stats, cloud_accs_map, flavors_map):
         usage = ri_sp_stats.get('usage', 0)
         overprovision_hrs = ri_sp_stats.get('overprovision_hrs', {})
         cost_with_offer = ri_sp_stats.get('cost_with_offer', 0)
         cost_without_offer = ri_sp_stats.get('cost_without_offer', 0)
         for flavor_name, hrs in overprovision_hrs.items():
             overprovision_hrs[flavor_name] = round(hrs, 10)
-        flavors_map = cloud_acc_flavor_rate.get(cloud_account_id, {})
         for flavor in flavors_map:
             if flavor not in overprovision_hrs:
                 overprovision_hrs[flavor] = 0
@@ -247,9 +245,7 @@ class RiBreakdownController(CleanExpenseController):
         result[date_ts].append(result_dict)
         return result
 
-    def _empty_stats(self, cloud_account_id, cloud_accs_map,
-                     cloud_acc_flavors_map):
-        flavors_map = cloud_acc_flavors_map.get(cloud_account_id, {})
+    def _empty_stats(self, cloud_account_id, cloud_accs_map, flavors_map):
         result_dict = {
             'cloud_account_id': cloud_account_id,
             'total_usage_hrs': 0,
@@ -268,7 +264,7 @@ class RiBreakdownController(CleanExpenseController):
         return result_dict
 
     def fill_empty_dates(self, result, dates, cloud_account_ids, aws_cloud_accs,
-                         cloud_acc_flavors_map):
+                         flavors_map):
         if not cloud_account_ids:
             return result
         for date_ts, date_result in result.items():
@@ -277,13 +273,11 @@ class RiBreakdownController(CleanExpenseController):
             cloud_accs_to_fill = set(cloud_account_ids) - date_cloud_accs_ids
             for cloud_acc_id in cloud_accs_to_fill:
                 date_result.append(self._empty_stats(
-                    cloud_acc_id, aws_cloud_accs, cloud_acc_flavors_map))
+                    cloud_acc_id, aws_cloud_accs, flavors_map))
         dates_to_fill = [x for x in dates if x not in result]
         for date in dates_to_fill:
-            result[date] = [
-                self._empty_stats(x, aws_cloud_accs, cloud_acc_flavors_map)
-                for x in cloud_account_ids
-            ]
+            result[date] = [self._empty_stats(x, aws_cloud_accs, flavors_map)
+                            for x in cloud_account_ids]
         return result
 
     def get_overprovision_ch_expenses(
@@ -413,11 +407,11 @@ class RiBreakdownController(CleanExpenseController):
                 ri_stats = date_ri_usage.get(date, {})
                 result = self.format_result(
                     result, cloud_account_id, date_ts, total_stats, ri_stats,
-                    cloud_accs_map, cloud_acc_flavor_rate)
+                    cloud_accs_map, flavor_rate_map)
         breakdown_dates = self.breakdown_dates(self.start_date, self.end_date)
         result = self.fill_empty_dates(
             result, breakdown_dates, cloud_account_ids, cloud_accs_map,
-            cloud_acc_flavor_rate)
+            flavor_rate_map)
         return result
 
 

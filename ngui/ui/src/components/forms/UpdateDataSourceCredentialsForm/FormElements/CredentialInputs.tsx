@@ -72,17 +72,12 @@ const CostAndUsageReport = () => {
 
 const CredentialInputs = ({ type, config }) => {
   const getAwsInputs = (config) => {
-    if (config.assume_role_account_id && config.assume_role_name) {
-      return (
-        <AwsAssumedRoleInputs
-          readOnlyFields={[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID]}
-          showAdvancedOptions={!config.linked}
-        />
-      );
-    }
-
     if (config.linked) {
       return <AwsLinkedCredentials />;
+    }
+
+    if (config.assume_role_account_id && config.assume_role_name) {
+      return <AwsAssumedRoleInputs readOnlyFields={[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID]} />;
     }
 
     return (

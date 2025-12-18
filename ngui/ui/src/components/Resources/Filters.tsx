@@ -32,9 +32,107 @@ const ResourceFilters = ({ filters, appliedFilters, onAppliedFiltersChange }) =>
   const intl = useIntl();
 
   const handleChange = (type) => (selectedItems) => {
-    onAppliedFiltersChange({
-      [type]: selectedItems
-    });
+    // Special handling for cloudType filter
+    if (type === "cloudType") {
+      // When cloud type changes, update cloudAccountId to include all datasources of selected cloud types
+      const selectedCloudTypes = selectedItems.values || [];
+
+      if (selectedCloudTypes.length === 0) {
+        // If no cloud types selected, clear cloudAccountId filter
+        onAppliedFiltersChange({
+          [type]: selectedItems,
+          cloudAccountId: { values: [] }
+        });
+      } else {
+        // Map cloud type groups to actual cloud account types
+        const cloudTypeGroups = {
+          aws: ["aws_cnr"],
+          azure: ["azure_cnr", "azure_tenant"],
+          gcp: ["gcp_cnr", "gcp_tenant"],
+          alibaba: ["alibaba_cnr"],
+          kubernetes: ["kubernetes_cnr"],
+          nebius: ["nebius"],
+          databricks: ["databricks"],
+          environment: ["environment"]
+        };
+
+        // Get all cloud account types for selected cloud type groups
+        const selectedCloudAccountTypes = selectedCloudTypes.flatMap(
+          (cloudType) => cloudTypeGroups[cloudType] || []
+        );
+
+        // Filter datasources by selected cloud types
+        const matchingDataSources = (filters.cloud_account || [])
+          .filter((ds) => ds !== null && selectedCloudAccountTypes.includes(ds.type))
+          .map((ds) => ds.id);
+
+        onAppliedFiltersChange({
+          [type]: selectedItems,
+          cloudAccountId: { values: matchingDataSources }
+        });
+      }
+    } else if (type === "cloudAccountId") {
+      // When cloudAccountId changes, update cloudType accordingly
+      const selectedDataSourceIds = selectedItems.values || [];
+
+      if (selectedDataSourceIds.length === 0) {
+        // If no datasources selected, clear cloudType filter
+        onAppliedFiltersChange({
+          [type]: selectedItems,
+          cloudType: { values: [] }
+        });
+      } else {
+        // Determine which cloud types are represented by selected datasources
+        const selectedDataSources = (filters.cloud_account || [])
+          .filter((ds) => ds !== null && selectedDataSourceIds.includes(ds.id));
+
+        const cloudTypeGroups = {
+          aws: ["aws_cnr"],
+          azure: ["azure_cnr", "azure_tenant"],
+          gcp: ["gcp_cnr", "gcp_tenant"],
+          alibaba: ["alibaba_cnr"],
+          kubernetes: ["kubernetes_cnr"],
+          nebius: ["nebius"],
+          databricks: ["databricks"],
+          environment: ["environment"]
+        };
+
+        const representedCloudTypes = new Set();
+        selectedDataSources.forEach((ds) => {
+          Object.entries(cloudTypeGroups).forEach(([groupKey, types]) => {
+            if (types.includes(ds.type)) {
+              representedCloudTypes.add(groupKey);
+            }
+          });
+        });
+
+        // Only update cloudType if all datasources of a cloud type are selected
+        const cloudTypesToSelect = [];
+        Object.entries(cloudTypeGroups).forEach(([groupKey, types]) => {
+          const allDataSourcesOfType = (filters.cloud_account || [])
+            .filter((ds) => ds !== null && types.includes(ds.type));
+
+          const selectedDataSourcesOfType = selectedDataSources.filter((ds) =>
+            types.includes(ds.type)
+          );
+
+          // If all datasources of this type are selected, include the cloud type
+          if (allDataSourcesOfType.length > 0 &&
+              selectedDataSourcesOfType.length === allDataSourcesOfType.length) {
+            cloudTypesToSelect.push(groupKey);
+          }
+        });
+
+        onAppliedFiltersChange({
+          [type]: selectedItems,
+          cloudType: { values: cloudTypesToSelect }
+        });
+      }
+    } else {
+      onAppliedFiltersChange({
+        [type]: selectedItems
+      });
+    }
   };
 
   const handleRangeChange = (type) => (selectedRange) => {
@@ -122,6 +220,7 @@ const ResourceFilters = ({ filters, appliedFilters, onAppliedFiltersChange }) =>
 
   const FILTER_GROUPS = {
     primary: [
+      { key: "cloudType", data: filters.cloud_account },
       { key: "cloudAccountId", data: filters.cloud_account },
       { key: "poolId", data: filters.pool },
       { key: "ownerId", data: filters.owner },

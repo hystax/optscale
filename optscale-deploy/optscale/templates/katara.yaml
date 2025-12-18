@@ -39,11 +39,13 @@ spec:
         app: {{ $config.name }}{{ $config.scheduler.role }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       initContainers:
 {{ include "wait_for_service" .Values.katara_service | indent 6 }}
       containers:
       - name: {{ $config.name }}{{ $config.scheduler.role }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         env:
         - name: IMAGE_ID
@@ -75,6 +77,8 @@ spec:
         app: {{ $config.name }}{{ $config.api.role }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -84,7 +88,7 @@ spec:
 {{ include "wait_for_service" .Values.rest_api | indent 6 }}
       containers:
       - name: {{ $config.name }}{{ $config.api.role }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}

@@ -1,10 +1,9 @@
-import { ReactNode, useEffect, useState } from "react";
-import { Stack } from "@mui/material";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import { FieldValues, FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { FormattedMessage } from "react-intl";
 import Button from "components/Button";
 import ButtonGroup from "components/ButtonGroup/ButtonGroup";
@@ -12,17 +11,18 @@ import ButtonLoader from "components/ButtonLoader";
 import CapabilityWrapper from "components/CapabilityWrapper";
 import {
   ALIBABA_CREDENTIALS_FIELD_NAMES,
-  AWS_BILLING_BUCKET_FIELD_NAMES,
-  AWS_EXPORT_TYPE_FIELD_NAMES,
-  AWS_ROLE_CREDENTIALS_FIELD_NAMES,
-  AWS_ROOT_CREDENTIALS_FIELD_NAMES,
-  AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES,
-  AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES,
   AZURE_TENANT_CREDENTIALS_FIELD_NAMES,
-  DATABRICKS_CREDENTIALS_FIELD_NAMES,
+  AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES,
   GCP_CREDENTIALS_FIELD_NAMES,
   GCP_TENANT_CREDENTIALS_FIELD_NAMES,
-  KUBERNETES_CREDENTIALS_FIELD_NAMES
+  KUBERNETES_CREDENTIALS_FIELD_NAMES,
+  DATABRICKS_CREDENTIALS_FIELD_NAMES,
+  AWS_ROOT_CREDENTIALS_FIELD_NAMES,
+  AWS_BILLING_BUCKET_FIELD_NAMES,
+  AWS_EXPORT_TYPE_FIELD_NAMES,
+  AWS_LINKED_CREDENTIALS_FIELD_NAMES,
+  AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES,
+  AWS_ROLE_CREDENTIALS_FIELD_NAMES
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import { FIELD_NAMES as NEBIUS_FIELD_NAMES } from "components/NebiusConfigFormElements";
@@ -35,31 +35,36 @@ import DatabricksLogoIcon from "icons/DatabricksLogoIcon";
 import GcpLogoIcon from "icons/GcpLogoIcon";
 import K8sLogoIcon from "icons/K8sLogoIcon";
 import NebiusLogoIcon from "icons/NebiusLogoIcon";
+import { intl } from "translations/react-intl-config";
 import {
-  DATABRICKS_CREATE_SERVICE_PRINCIPAL,
-  DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD,
-  DOCS_HYSTAX_CONNECT_AZURE_SUBSCRIPTION,
+  DOCS_HYSTAX_CONNECT_AWS_ROOT,
   DOCS_HYSTAX_CONNECT_AZURE_TENANT,
+  DOCS_HYSTAX_AWS_LINKED_DISCOVER_RESOURCES,
+  GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR,
+  GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS,
+  DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD,
   DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD,
-  DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD_TENANT,
+  DATABRICKS_CREATE_SERVICE_PRINCIPAL,
   DOCS_HYSTAX_CONNECT_KUBERNETES,
-  GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR
+  DOCS_HYSTAX_CONNECT_AWS_LINKED,
+  DOCS_HYSTAX_CONNECT_AZURE_SUBSCRIPTION,
+  DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD_TENANT
 } from "urls";
-import { GA_EVENT_CATEGORIES, trackEvent } from "utils/analytics";
+import { trackEvent, GA_EVENT_CATEGORIES } from "utils/analytics";
 import {
-  ALIBABA_CNR,
   AWS_CNR,
-  AWS_ROOT_CONNECT_CONFIG_SCHEMES,
   AZURE_CNR,
   AZURE_TENANT,
-  CLOUD_PROVIDERS,
-  CONNECTION_TYPES,
-  DATABRICKS,
-  GCP_CNR,
-  GCP_TENANT,
   KUBERNETES_CNR,
+  AWS_ROOT_CONNECT_CONFIG_SCHEMES,
+  ALIBABA_CNR,
+  GCP_CNR,
   NEBIUS,
-  OPTSCALE_CAPABILITY
+  DATABRICKS,
+  OPTSCALE_CAPABILITY,
+  GCP_TENANT,
+  CONNECTION_TYPES,
+  CLOUD_PROVIDERS
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
 import { SPACING_2 } from "utils/layouts";
@@ -67,14 +72,7 @@ import { getSearchParams } from "utils/network";
 import { ObjectValues } from "utils/types";
 import useStyles from "./ConnectCloudAccountForm.styles";
 import { ConnectionInputs, DataSourceNameField } from "./FormElements";
-import {
-  AuthenticationTypeSelector,
-  getAwsConnectionTypeDescriptions,
-  useAuthenticationType,
-  AUTHENTICATION_TYPES,
-  AWS_ROOT_INPUTS_FIELD_NAMES,
-  AuthenticationType
-} from "./FormElements/AwsConnectionForm";
+import { AWS_ROOT_INPUTS_FIELD_NAMES } from "./FormElements/ConnectionFields";
 import { FIELD_NAME as DATA_SOURCE_NAME_FIELD_NAME } from "./FormElements/DataSourceNameField";
 
 type ConnectionType = ObjectValues<typeof CONNECTION_TYPES>;
@@ -107,8 +105,9 @@ type CloudProviderTypes = Record<
 
 const CLOUD_PROVIDER_TYPES: CloudProviderTypes = {
   [CLOUD_PROVIDERS.AWS]: [
-    { connectionType: CONNECTION_TYPES.AWS_MANAGEMENT, messageId: "managementStandalone", cloudType: AWS_CNR },
-    { connectionType: CONNECTION_TYPES.AWS_MEMBER, messageId: "member", cloudType: AWS_CNR }
+    { connectionType: CONNECTION_TYPES.AWS_ROLE, messageId: "assumedRole", cloudType: AWS_CNR },
+    { connectionType: CONNECTION_TYPES.AWS_ROOT, messageId: "root", cloudType: AWS_CNR },
+    { connectionType: CONNECTION_TYPES.AWS_LINKED, messageId: "linked", cloudType: AWS_CNR }
   ],
   [CLOUD_PROVIDERS.AZURE]: [
     { connectionType: CONNECTION_TYPES.AZURE_TENANT, messageId: "tenant", cloudType: AZURE_TENANT },
@@ -147,7 +146,7 @@ const getCloudTypeFromConnectionType = (connectionType: ConnectionType): CloudTy
   return providerTypes.cloudType;
 };
 
-const getAwsRootParameters = (formData: FieldValues, connectionType: string) => {
+const getAwsRootParameters = (formData) => {
   const getConfigSchemeParameters = () =>
     formData.isFindReport
       ? {
@@ -160,26 +159,35 @@ const getAwsRootParameters = (formData: FieldValues, connectionType: string) => 
           region_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.REGION_NAME] || undefined,
           config_scheme: formData[AWS_ROOT_INPUTS_FIELD_NAMES.CONFIG_SCHEME]
         };
-
-  const extraParams = {
-    use_edp_discount: formData[AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT],
-    cur_version: Number(formData[AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
-    ...getConfigSchemeParameters()
-  };
-
   return {
     name: formData[DATA_SOURCE_NAME_FIELD_NAME],
     type: AWS_CNR,
     config: {
       access_key_id: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
       secret_access_key: formData[AWS_ROOT_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
-      ...(connectionType !== CONNECTION_TYPES.AWS_MEMBER ? extraParams : { linked: true })
+      use_edp_discount: formData[AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT],
+      cur_version: Number(formData[AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
+      ...getConfigSchemeParameters()
     }
   };
 };
 
-const getAwsAssumedRoleParameters = (formData: FieldValues, connectionType: string) => {
-  const extraParams = {
+const getAwsLinkedParameters = (formData) => ({
+  name: formData[DATA_SOURCE_NAME_FIELD_NAME],
+  type: AWS_CNR,
+  config: {
+    access_key_id: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
+    secret_access_key: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
+    linked: true
+  }
+});
+
+const getAwsAssumedRoleParameters = (formData) => ({
+  name: formData[DATA_SOURCE_NAME_FIELD_NAME],
+  type: AWS_CNR,
+  config: {
+    assume_role_account_id: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID],
+    assume_role_name: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_NAME],
     use_edp_discount: formData[AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT],
     cur_version: Number(formData[AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
     bucket_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME],
@@ -187,29 +195,19 @@ const getAwsAssumedRoleParameters = (formData: FieldValues, connectionType: stri
     report_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME],
     region_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.REGION_NAME] || undefined,
     config_scheme: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY
-  };
+  }
+});
 
-  return {
-    name: formData[DATA_SOURCE_NAME_FIELD_NAME],
-    type: AWS_CNR,
-    config: {
-      assume_role_account_id: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID],
-      assume_role_name: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_NAME],
-      ...(connectionType !== CONNECTION_TYPES.AWS_MEMBER
-        ? extraParams
-        : {
-            linked: true
-          })
-    }
-  };
+const getAwsParametersByConnectionType = (connectionType: string) => {
+  const parameters = {
+    [CONNECTION_TYPES.AWS_LINKED]: getAwsLinkedParameters,
+    [CONNECTION_TYPES.AWS_ROLE]: getAwsAssumedRoleParameters
+  }[connectionType];
+
+  return parameters || getAwsRootParameters;
 };
 
-const getAwsParametersByAuthenticationType = (connectionType: string, authenticationType: AuthenticationType) =>
-  authenticationType === AUTHENTICATION_TYPES.ACCESS_KEY
-    ? (formData: FieldValues) => getAwsRootParameters(formData, connectionType)
-    : (formData: FieldValues) => getAwsAssumedRoleParameters(formData, connectionType);
-
-const getAzureTenantParameters = (formData: FieldValues) => ({
+const getAzureTenantParameters = (formData) => ({
   name: formData[DATA_SOURCE_NAME_FIELD_NAME],
   type: AZURE_TENANT,
   config: {
@@ -219,7 +217,7 @@ const getAzureTenantParameters = (formData: FieldValues) => ({
   }
 });
 
-const getAzureSubscriptionParameters = (formData: FieldValues) => ({
+const getAzureSubscriptionParameters = (formData) => ({
   name: formData[DATA_SOURCE_NAME_FIELD_NAME],
   type: AZURE_CNR,
   config: {
@@ -238,7 +236,7 @@ const getAzureSubscriptionParameters = (formData: FieldValues) => ({
   }
 });
 
-const getKubernetesParameters = (formData: FieldValues) => ({
+const getKubernetesParameters = (formData) => ({
   name: formData[DATA_SOURCE_NAME_FIELD_NAME],
   type: KUBERNETES_CNR,
   config: {
@@ -249,7 +247,7 @@ const getKubernetesParameters = (formData: FieldValues) => ({
   }
 });
 
-const getAlibabaParameters = (formData: FieldValues) => ({
+const getAlibabaParameters = (formData) => ({
   name: formData[DATA_SOURCE_NAME_FIELD_NAME],
   type: ALIBABA_CNR,
   config: {
@@ -258,14 +256,14 @@ const getAlibabaParameters = (formData: FieldValues) => ({
   }
 });
 
-const getGoogleParameters = async (formData: FieldValues) => {
+const getGoogleParameters = async (formData) => {
   const credentials = await readFileAsText(formData[GCP_CREDENTIALS_FIELD_NAMES.CREDENTIALS]);
 
   return {
     name: formData[DATA_SOURCE_NAME_FIELD_NAME],
     type: GCP_CNR,
     config: {
-      credentials: JSON.parse(credentials as string),
+      credentials: JSON.parse(credentials),
       billing_data: {
         dataset_name: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET],
         table_name: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE],
@@ -284,14 +282,14 @@ const getGoogleParameters = async (formData: FieldValues) => {
   };
 };
 
-const getGoogleTenantParameters = async (formData: FieldValues) => {
+const getGoogleTenantParameters = async (formData) => {
   const credentials = await readFileAsText(formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.CREDENTIALS]);
 
   return {
     name: formData[DATA_SOURCE_NAME_FIELD_NAME],
     type: GCP_TENANT,
     config: {
-      credentials: JSON.parse(credentials as string),
+      credentials: JSON.parse(credentials),
       billing_data: {
         dataset_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET],
         table_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE]
@@ -308,7 +306,7 @@ const getGoogleTenantParameters = async (formData: FieldValues) => {
   };
 };
 
-const getNebiusParameters = (formData: FieldValues) => ({
+const getNebiusParameters = (formData) => ({
   name: formData[DATA_SOURCE_NAME_FIELD_NAME],
   type: NEBIUS,
   config: {
@@ -328,7 +326,7 @@ const getNebiusParameters = (formData: FieldValues) => ({
   }
 });
 
-const getDatabricksParameters = (formData: FieldValues) => ({
+const getDatabricksParameters = (formData) => ({
   name: formData[DATA_SOURCE_NAME_FIELD_NAME],
   type: DATABRICKS,
   config: {
@@ -346,20 +344,80 @@ const renderConnectionTypeDescription = (settings) =>
     </Typography>
   ));
 
-const renderConnectionTypeInfoMessage = (connectionType: ConnectionType, authenticationType: AuthenticationType) =>
+const renderConnectionTypeInfoMessage = (connectionType: ConnectionType) =>
   ({
-    ...getAwsConnectionTypeDescriptions(authenticationType),
+    [CONNECTION_TYPES.AWS_ROLE]: renderConnectionTypeDescription([
+      {
+        key: "createAwsAssumedRoleDescription",
+        messageId: "createAwsAssumedRoleDescription",
+        values: { action: intl.formatMessage({ id: "connect" }) }
+      }
+    ]),
+    [CONNECTION_TYPES.AWS_ROOT]: renderConnectionTypeDescription([
+      {
+        key: "createAwsRootDocumentationReference",
+        messageId: "createAwsRootDocumentationReference",
+        values: {
+          link: (chunks) => (
+            <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_AWS_ROOT} target="_blank" rel="noopener">
+              {chunks}
+            </Link>
+          ),
+          strong: (chunks) => <strong>{chunks}</strong>
+        }
+      }
+    ]),
+    [CONNECTION_TYPES.AWS_LINKED]: renderConnectionTypeDescription([
+      {
+        key: "createAwsLinkedDocumentationReference1",
+        messageId: "createAwsLinkedDocumentationReference1",
+        values: {
+          autoBillingAwsLink: (chunks) => (
+            <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_AWS_LINKED} target="_blank" rel="noopener">
+              {chunks}
+            </Link>
+          )
+        }
+      },
+      {
+        key: "createAwsLinkedDocumentationReference2",
+        messageId: "createAwsLinkedDocumentationReference2",
+        values: {
+          extractLinkedReports: (
+            <Link
+              data-test-id="extract_linked_reports"
+              href={GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS}
+              target="_blank"
+              rel="noopener"
+            >
+              {GITHUB_HYSTAX_EXTRACT_LINKED_REPORTS}
+            </Link>
+          )
+        }
+      },
+      {
+        key: "createAwsLinkedDocumentationReference3",
+        messageId: "createAwsLinkedDocumentationReference3",
+        values: {
+          discoverResourcesLink: (chunks) => (
+            <Link data-test-id="link_iam_user" href={DOCS_HYSTAX_AWS_LINKED_DISCOVER_RESOURCES} target="_blank" rel="noopener">
+              {chunks}
+            </Link>
+          )
+        }
+      }
+    ]),
     [CONNECTION_TYPES.AZURE_TENANT]: renderConnectionTypeDescription([
       {
         key: "createAzureSubscriptionDocumentationReference",
         messageId: "createAzureSubscriptionDocumentationReference",
         values: {
-          link: (chunks: ReactNode) => (
+          link: (chunks) => (
             <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_AZURE_TENANT} target="_blank" rel="noopener">
               {chunks}
             </Link>
           ),
-          strong: (chunks: ReactNode) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>
         }
       }
     ]),
@@ -368,46 +426,12 @@ const renderConnectionTypeInfoMessage = (connectionType: ConnectionType, authent
         key: "createAzureSubscriptionDocumentationReference",
         messageId: "createAzureSubscriptionDocumentationReference",
         values: {
-          link: (chunks: ReactNode) => (
+          link: (chunks) => (
             <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_AZURE_SUBSCRIPTION} target="_blank" rel="noopener">
               {chunks}
             </Link>
           ),
-          strong: (chunks: ReactNode) => <strong>{chunks}</strong>
-        }
-      }
-    ]),
-    [CONNECTION_TYPES.GCP_PROJECT]: renderConnectionTypeDescription([
-      {
-        key: "createGCPDocumentationReference",
-        messageId: "createGCPDocumentationReference",
-        values: {
-          link: (chunks: ReactNode) => (
-            <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD} target="_blank" rel="noopener">
-              {chunks}
-            </Link>
-          ),
-          strong: (chunks: ReactNode) => <strong>{chunks}</strong>,
-          p: (chunks: ReactNode) => <p>{chunks}</p>
-        }
-      }
-    ]),
-    [CONNECTION_TYPES.GCP_TENANT]: renderConnectionTypeDescription([
-      {
-        key: "createGCPTenantDocumentationReference1",
-        messageId: "createGCPTenantDocumentationReference1"
-      },
-      {
-        key: "createGCPTenantDocumentationReference2",
-        messageId: "createGCPTenantDocumentationReference2",
-        values: {
-          link: (chunks: ReactNode) => (
-            <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD_TENANT} target="_blank" rel="noopener">
-              {chunks}
-            </Link>
-          ),
-          strong: (chunks: ReactNode) => <strong>{chunks}</strong>,
-          p: (chunks: ReactNode) => <p>{chunks}</p>
+          strong: (chunks) => <strong>{chunks}</strong>
         }
       }
     ]),
@@ -416,7 +440,7 @@ const renderConnectionTypeInfoMessage = (connectionType: ConnectionType, authent
         key: "createKubernetesDocumentationReference1",
         messageId: "createKubernetesDocumentationReference1",
         values: {
-          link: (chunks: ReactNode) => (
+          link: (chunks) => (
             <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_KUBERNETES} target="_blank" rel="noopener">
               {chunks}
             </Link>
@@ -436,7 +460,7 @@ const renderConnectionTypeInfoMessage = (connectionType: ConnectionType, authent
               {GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR}
             </Link>
           ),
-          p: (chunks: ReactNode) => <p>{chunks}</p>
+          p: (chunks) => <p>{chunks}</p>
         }
       }
     ]),
@@ -445,12 +469,12 @@ const renderConnectionTypeInfoMessage = (connectionType: ConnectionType, authent
         key: "createAlibabaDocumentationReference",
         messageId: "createAlibabaDocumentationReference",
         values: {
-          link: (chunks: ReactNode) => (
+          link: (chunks) => (
             <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD} target="_blank" rel="noopener">
               {chunks}
             </Link>
           ),
-          strong: (chunks: ReactNode) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>
         }
       }
     ]),
@@ -459,12 +483,46 @@ const renderConnectionTypeInfoMessage = (connectionType: ConnectionType, authent
         key: "createDatabricksDocumentationReference",
         messageId: "createDatabricksDocumentationReference",
         values: {
-          link: (chunks: ReactNode) => (
+          link: (chunks) => (
             <Link data-test-id="link_guide" href={DATABRICKS_CREATE_SERVICE_PRINCIPAL} target="_blank" rel="noopener">
               {chunks}
             </Link>
           ),
-          strong: (chunks: ReactNode) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>
+        }
+      }
+    ]),
+    [CONNECTION_TYPES.GCP_PROJECT]: renderConnectionTypeDescription([
+      {
+        key: "createGCPDocumentationReference",
+        messageId: "createGCPDocumentationReference",
+        values: {
+          link: (chunks) => (
+            <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD} target="_blank" rel="noopener">
+              {chunks}
+            </Link>
+          ),
+          strong: (chunks) => <strong>{chunks}</strong>,
+          p: (chunks) => <p>{chunks}</p>
+        }
+      }
+    ]),
+    [CONNECTION_TYPES.GCP_TENANT]: renderConnectionTypeDescription([
+      {
+        key: "createGCPTenantDocumentationReference1",
+        messageId: "createGCPTenantDocumentationReference1"
+      },
+      {
+        key: "createGCPTenantDocumentationReference2",
+        messageId: "createGCPTenantDocumentationReference2",
+        values: {
+          link: (chunks) => (
+            <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD_TENANT} target="_blank" rel="noopener">
+              {chunks}
+            </Link>
+          ),
+          strong: (chunks) => <strong>{chunks}</strong>,
+          p: (chunks) => <p>{chunks}</p>
         }
       }
     ]),
@@ -505,10 +563,8 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
       return connectionTypeFromQueryParams;
     }
 
-    return CONNECTION_TYPES.AWS_MANAGEMENT;
+    return CONNECTION_TYPES.AWS_ROLE;
   });
-
-  const { authenticationType, setAuthenticationType } = useAuthenticationType();
 
   const selectedProvider = getCloudProviderFromConnectionType(connectionType);
 
@@ -524,7 +580,7 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
       icon: AwsLogoIcon,
       messageId: "aws",
       dataTestId: "btn_aws_account",
-      action: () => setConnectionType(CONNECTION_TYPES.AWS_MANAGEMENT)
+      action: () => setConnectionType(CONNECTION_TYPES.AWS_ROLE)
     },
     {
       id: CLOUD_PROVIDERS.AZURE,
@@ -579,37 +635,6 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
       : isDataSourceConnectionTypeEnabled(providerTypes.connectionType);
   });
 
-  const renderFormTabs = () => {
-    if (!Array.isArray(CLOUD_PROVIDER_TYPES[selectedProvider])) {
-      return null;
-    }
-
-    return (
-      <>
-        <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-          <Typography>
-            <FormattedMessage id={selectedProvider === CLOUD_PROVIDERS.AWS ? "accountType" : "connectionType"} />
-          </Typography>
-          <ButtonGroup
-            buttons={CLOUD_PROVIDER_TYPES[selectedProvider]
-              .filter((subtype) => isDataSourceConnectionTypeEnabled(subtype.connectionType))
-              .map((subtype) => ({
-                id: subtype.connectionType,
-                messageId: subtype.messageId,
-                dataTestId: `btn_${subtype.messageId}`,
-                action: () => setConnectionType(subtype.connectionType)
-              }))}
-            activeButtonId={connectionType}
-          />
-        </Stack>
-
-        {selectedProvider === CLOUD_PROVIDERS.AWS && (
-          <AuthenticationTypeSelector authenticationType={authenticationType} setAuthenticationType={setAuthenticationType} />
-        )}
-      </>
-    );
-  };
-
   return (
     <FormProvider {...methods}>
       <Box sx={{ width: { md: "50%" } }}>
@@ -640,8 +665,24 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
           ))}
         </Box>
         <Box>
-          {renderFormTabs()}
-          <Box sx={{ marginBottom: SPACING_2 }}>{renderConnectionTypeInfoMessage(connectionType, authenticationType)}</Box>
+          {Array.isArray(CLOUD_PROVIDER_TYPES[selectedProvider]) && (
+            <Box alignItems="center" display="flex" mb={1}>
+              <Typography sx={{ mr: 1 }}>
+                <FormattedMessage id="connectionType" />{" "}
+              </Typography>
+              <ButtonGroup
+                buttons={CLOUD_PROVIDER_TYPES[selectedProvider]
+                  .filter((subtype) => isDataSourceConnectionTypeEnabled(subtype.connectionType))
+                  .map((subtype) => ({
+                    id: subtype.connectionType,
+                    messageId: subtype.messageId,
+                    action: () => setConnectionType(subtype.connectionType)
+                  }))}
+                activeButtonId={connectionType}
+              />
+            </Box>
+          )}
+          <Box sx={{ marginBottom: SPACING_2 }}>{renderConnectionTypeInfoMessage(connectionType)}</Box>
           <form
             onSubmit={
               isRestricted
@@ -650,7 +691,7 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
                     const cloudType = getCloudTypeFromConnectionType(connectionType);
 
                     const getParameters = {
-                      [AWS_CNR]: getAwsParametersByAuthenticationType(connectionType, authenticationType),
+                      [AWS_CNR]: getAwsParametersByConnectionType(connectionType),
                       [AZURE_TENANT]: getAzureTenantParameters,
                       [AZURE_CNR]: getAzureSubscriptionParameters,
                       [GCP_CNR]: getGoogleParameters,
@@ -667,7 +708,7 @@ const ConnectCloudAccountForm = ({ onSubmit, onCancel, isLoading = false, showCa
             noValidate
           >
             <DataSourceNameField />
-            <ConnectionInputs connectionType={connectionType} authenticationType={authenticationType} />
+            <ConnectionInputs connectionType={connectionType} />
             <FormButtonsWrapper justifyContent={!showCancel ? "center" : "left"}>
               <ButtonLoader
                 dataTestId="btn_connect_cloud_account"

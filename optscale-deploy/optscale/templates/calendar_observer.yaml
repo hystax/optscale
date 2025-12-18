@@ -20,12 +20,14 @@ spec:
         app: {{ $config.name }}-worker
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       initContainers:
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
 {{ include "wait_for_service" .Values.rest_api | indent 6 }}
       containers:
       - name: {{ $config.name }}-worker
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         env:
         - name: IMAGE_ID
@@ -62,11 +64,13 @@ spec:
             app: {{ $config.name }}-scheduler
             release: {{ $.Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: dockerhub-creds
           initContainers:
 {{ include "wait_for_service" $.Values.rest_api | indent 10 }}
           containers:
           - name: {{ $config.name }}-scheduler
-            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
             imagePullPolicy: {{ $config.image.pullPolicy }}
             command:
             - "python3"

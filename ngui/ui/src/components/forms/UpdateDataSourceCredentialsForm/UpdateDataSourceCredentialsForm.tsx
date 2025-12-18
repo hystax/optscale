@@ -54,14 +54,6 @@ import { AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS as AWS_ROOT_UPDATE_DATA_EXPORT_P
 import type { UpdateDataSourceCredentialsFormProps } from "./types";
 
 const getAwsDescription = (config) => {
-  if (config.assume_role_account_id && config.assume_role_name) {
-    return (
-      <Typography sx={{ marginBottom: SPACING_2 }}>
-        <FormattedMessage id="createAwsAssumedRoleDescription" values={{ action: intl.formatMessage({ id: "save" }) }} />
-      </Typography>
-    );
-  }
-
   if (config.linked) {
     return (
       <Typography gutterBottom>
@@ -80,6 +72,14 @@ const getAwsDescription = (config) => {
             )
           }}
         />
+      </Typography>
+    );
+  }
+
+  if (config.assume_role_account_id && config.assume_role_name) {
+    return (
+      <Typography sx={{ marginBottom: SPACING_2 }}>
+        <FormattedMessage id="createAwsAssumedRoleDescription" values={{ action: intl.formatMessage({ id: "save" }) }} />
       </Typography>
     );
   }
@@ -268,6 +268,13 @@ const getConfig = (type, config) => {
 
       return {
         getDefaultFormValues: () => {
+          if (config.linked) {
+            return {
+              [AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
+              [AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: ""
+            };
+          }
+
           if (config.assume_role_account_id && config.assume_role_name) {
             return {
               [AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID]: config.assume_role_account_id,
@@ -276,13 +283,6 @@ const getConfig = (type, config) => {
               [AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT]: config.use_edp_discount ?? false,
               [AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]: config.cur_version ?? AWS_ROOT_CONNECT_CUR_VERSION.CUR_2,
               ...billingBucketFields
-            };
-          }
-
-          if (config.linked) {
-            return {
-              [AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
-              [AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: ""
             };
           }
 
@@ -296,35 +296,28 @@ const getConfig = (type, config) => {
           };
         },
         parseFormDataToApiParams: (formData) => {
-          if (config.assume_role_account_id && config.assume_role_name) {
-            return config.linked
-              ? {
-                  config: {
-                    assume_role_account_id: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID],
-                    assume_role_name: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_NAME],
-                    linked: true
-                  }
-                }
-              : {
-                  config: {
-                    assume_role_account_id: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID],
-                    assume_role_name: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_NAME],
-                    config_scheme: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY,
-                    use_edp_discount: formData[AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT],
-                    cur_version: Number(formData[AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
-                    bucket_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME],
-                    report_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME],
-                    region_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.REGION_NAME] || undefined,
-                    bucket_prefix: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]
-                  }
-                };
-          }
           if (config.linked) {
             return {
               config: {
                 access_key_id: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
                 secret_access_key: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
                 linked: true
+              }
+            };
+          }
+
+          if (config.assume_role_account_id && config.assume_role_name) {
+            return {
+              config: {
+                assume_role_account_id: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID],
+                assume_role_name: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_NAME],
+                config_scheme: AWS_ROOT_CONNECT_CONFIG_SCHEMES.BUCKET_ONLY,
+                use_edp_discount: formData[AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT],
+                cur_version: Number(formData[AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]),
+                bucket_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME],
+                report_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME],
+                region_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.REGION_NAME] || undefined,
+                bucket_prefix: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]
               }
             };
           }

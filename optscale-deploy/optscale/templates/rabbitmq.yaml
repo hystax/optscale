@@ -195,6 +195,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       terminationGracePeriodSeconds: 10
       serviceAccountName: {{ $config.name }}
 
@@ -860,9 +862,11 @@ spec:
           name: {{ $config.service.name }}-config
       - name: datadir
         emptyDir: {}
+{{- if not $config.usePersistentVolume }}
       - name: mnesia
         persistentVolumeClaim:
           claimName: {{ $config.name }}-claim
+{{- end }}
       - name: definitions
         secret:
           secretName: rabbit-secret
@@ -870,3 +874,18 @@ spec:
           - key: definitions.json
             path: definitions.json
 {{ include "anti-affinity" $config | indent 6 }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: mnesia
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ $config.mnesiaSize }}
+{{- end }}

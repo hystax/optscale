@@ -31,12 +31,12 @@ const ConnectCloudAccountContainer = () => {
   const redirectToCloudsOverview = () => navigate(CLOUD_ACCOUNTS);
 
   const getAwsConfigName = (config: Config) => {
-    if (config.assume_role_account_id && config.assume_role_name) {
-      return "awsAssumedRoleConfig";
-    }
-
     if (config.linked) {
       return "awsLinkedConfig";
+    }
+
+    if (config.assume_role_account_id && config.assume_role_name) {
+      return "awsAssumedRoleConfig";
     }
 
     return "awsRootConfig";

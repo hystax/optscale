@@ -85,6 +85,8 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
 {{ include "anti-affinity" $config | indent 6 }}
       initContainers:
 {{- if .Values.elk.enabled }}
@@ -101,7 +103,7 @@ spec:
           mountPath: /etc/mysql/conf.d
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         env:
         - name: MARIADB_CNF_SHA
@@ -153,10 +155,12 @@ spec:
         - name: config
           mountPath: /etc/mysql/conf.d
       volumes:
+{{- if not $config.usePersistentVolume }}
       - name: mariadb-persistent-storage
         hostPath:
           path: /optscale/db
           type: DirectoryOrCreate
+{{- end }}
       - name: config
         emptyDir: {}
       - name: configmap
@@ -169,6 +173,21 @@ spec:
 {{- end }}
           - path: "mariadb.cnf"
             key: mariadb.cnf
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: mariadb-persistent-storage
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 50Gi
+{{- end }}
 {{- if .Values.db_backup.enabled }}
 ---
 apiVersion: batch/v1
@@ -191,9 +210,11 @@ spec:
           labels:
             release: {{ .Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: dockerhub-creds
           containers:
           - name: db-backup
-            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
             env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:

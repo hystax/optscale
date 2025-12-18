@@ -39,6 +39,8 @@ spec:
         app: {{ $config.name }}{{ $config.api.role }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -46,7 +48,7 @@ spec:
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
       containers:
       - name: {{ $config.name }}{{ $config.api.role }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
@@ -81,6 +83,8 @@ spec:
         app: {{ $config.name }}{{ $config.engine.role }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -88,7 +92,7 @@ spec:
 {{ include "wait_for_service" .Values.rabbitmq | indent 6 }}
       containers:
       - name: {{ $config.name }}{{ $config.engine.role }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         env:
         - name: IMAGE_ID

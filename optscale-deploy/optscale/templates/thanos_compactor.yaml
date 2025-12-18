@@ -75,6 +75,8 @@ spec:
             app: {{ $config.name }}
             release: {{ $.Release.Name }}
         spec:
+          imagePullSecrets:
+          - name: dockerhub-creds
           initContainers:
 {{ include "wait_for_service" .Values.minio | indent 10 }}
           containers:

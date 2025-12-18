@@ -10,19 +10,25 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
 spec:
-  type: NodePort
+  type: {{ $config.service.type | default "ClusterIP" }}
   ports:
   - port: {{ $config.service.logstash_udp_port }}
-    nodePort: {{ $config.service.logstash_udp_port }}
+{{- if eq ($config.service.type | default "ClusterIP") "NodePort" }}
+    nodePort: {{ $config.service.logstash_udp_nodeport | default 30201 }}
+{{- end }}
     protocol: UDP
     name: logstash-udp
   - port: {{ $config.service.logstash_tcp_port }}
-    nodePort: {{ $config.service.logstash_tcp_port }}
+{{- if eq ($config.service.type | default "ClusterIP") "NodePort" }}
+    nodePort: {{ $config.service.logstash_tcp_nodeport | default 30202 }}
+{{- end }}
     protocol: TCP
     name: logstash-tcp
   - port: 81
     targetPort: {{ $config.service.internal_kibana_port }}
+{{- if eq ($config.service.type | default "ClusterIP") "NodePort" }}
     nodePort: {{ $config.service.external_kibana_port }}
+{{- end }}
     name: kibana
   selector:
     app: {{ $config.name }}
@@ -65,9 +71,11 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+      - name: dockerhub-creds
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ .Values.docker_registry }}/{{ $config.image.repository }}:{{ if .Values.docker_tag }}{{ .Values.docker_tag }}{{ else }}{{ $config.image.tag }}{{ end }}"
         imagePullPolicy: {{ $config.image.pullPolicy }}
         env:
         - name: IMAGE_ID
@@ -93,9 +101,26 @@ spec:
           mountPath: /var/lib/elasticsearch
           readOnly: false
           mountPropagation: HostToContainer
+{{- if not $config.usePersistentVolume }}
       volumes:
       - name: etcd-persistent-storage
         hostPath:
-          path: /optscale/elk-7
+          path: /optscale/elk
           type: DirectoryOrCreate
+{{- end }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: etcd-persistent-storage
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 50Gi
+{{- end }}
 {{- end -}}

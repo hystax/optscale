@@ -7,12 +7,14 @@ import logging
 
 import os
 import time
+import shutil
 
 import yaml
 import subprocess
 
-from python_on_whales import DockerClient
-from python_on_whales.exceptions import NoSuchImage
+# DEPRECATED: Image pulling is now handled by Kubernetes directly
+# from python_on_whales import DockerClient
+# from python_on_whales.exceptions import NoSuchImage
 
 from urllib.parse import urlsplit
 from kubernetes import client as k8s_client, config as k8s_config
@@ -55,7 +57,7 @@ class Runkube:
     def __init__(self, name, config, overlays, dport, dregistry, dregistry_user,
                  dregistry_password, no_pull, pull_by_master_ip, with_elk,
                  external_clickhouse, external_mongo, use_socket, insecure,
-                 version, wait_timeout=0):
+                 version, wait_timeout=0, registry=None, tag=None):
         self.name = name
         if config is None:
             self.config = os.path.join(os.environ.get('HOME'), '.kube/config')
@@ -80,6 +82,8 @@ class Runkube:
         self.version = version
         self._versions_info = None
         self.wait_timeout = wait_timeout
+        self.registry = registry
+        self.tag = tag
 
     @property
     def kube_cl(self):
@@ -97,39 +101,55 @@ class Runkube:
                     context['clusters'][0]['cluster']['server']).hostname
         return self._master_ip
 
-    @staticmethod
-    def _get_image(ctrd_cl, image_name, tag):
-        return ctrd_cl.image.inspect('{}:{}'.format(image_name, tag))
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # @staticmethod
+    # def _get_image(ctrd_cl, image_name, tag):
+    #     return ctrd_cl.image.inspect('{}:{}'.format(image_name, tag))
 
-    def get_node_ips(self):
-        LOG.debug("Getting node ips...")
-        ips = []
-        if self.pull_by_master_ip:
-            ips.append(self.master_ip)
-            return ips
-
-        nodes = self.kube_cl.list_node()
-        for node in nodes.items:
-            ips.append(list(filter(lambda x: x.type == 'InternalIP',
-                                   node.status.addresses))[0].address)
-        return ips
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def get_node_ips(self):
+    #     LOG.debug("Getting node ips...")
+    #     ips = []
+    #     if self.pull_by_master_ip:
+    #         ips.append(self.master_ip)
+    #         return ips
+    #
+    #     nodes = self.kube_cl.list_node()
+    #     for node in nodes.items:
+    #         ips.append(list(filter(lambda x: x.type == 'InternalIP',
+    #                                node.status.addresses))[0].address)
+    #     return ips
 
     def get_node_names(self):
         LOG.debug("Getting node names...")
         return [n.metadata.labels.get('kubernetes.io/hostname')
                 for n in self.kube_cl.list_node().items]
 
-    def get_ctrd_cl(self, node):
-        cmd = ["nerdctl"]
-        if self.use_socket:
-            LOG.info("Using Docker socket..")
-            os.environ["DOCKER_HOST"] = DOCKER_SOCKET
-            os.environ["CONTAINERD_ADDRESS"] = CONTAINERD_SOCKET
-        LOG.info("Connecting to ctd daemon %s:%s", node, self.dport)
-        if self.insecure:
-            cmd.append("--insecure-registry")
-        cl = DockerClient(client_call=cmd)
-        return cl
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # @staticmethod
+    # def _detect_container_runtime():
+    #     """Detect available container runtime (nerdctl or docker)"""
+    #     if shutil.which("nerdctl"):
+    #         return "nerdctl"
+    #     elif shutil.which("docker"):
+    #         return "docker"
+    #     else:
+    #         raise Exception("Neither 'nerdctl' nor 'docker' found in PATH. Please install Docker or nerdctl.")
+
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def get_ctrd_cl(self, node):
+    #     runtime = self._detect_container_runtime()
+    #     LOG.info("Using container runtime: %s", runtime)
+    #     cmd = [runtime]
+    #     if self.use_socket:
+    #         LOG.info("Using Docker socket..")
+    #         os.environ["DOCKER_HOST"] = DOCKER_SOCKET
+    #         os.environ["CONTAINERD_ADDRESS"] = CONTAINERD_SOCKET
+    #     LOG.info("Connecting to ctd daemon %s:%s", node, self.dport)
+    #     if self.insecure:
+    #         cmd.append("--insecure-registry")
+    #     cl = DockerClient(client_call=cmd)
+    #     return cl
 
     @property
     def versions_info(self):
@@ -142,70 +162,76 @@ class Runkube:
             }
         return self._versions_info
 
-    def _pull_image(self, ctrd_cl, image_name, tag, auth_config):
-        full_image_name = os.path.join(self.dregistry, image_name)
-        LOG.info("Pulling image %s with tag %s", full_image_name, tag)
-        ctrd_cl.image.pull('{}:{}'.format(full_image_name, tag))
-        image = ctrd_cl.image.inspect('{}:{}'.format(full_image_name, tag)).id
-        LOG.debug("Pulled image with id %s", image)
-        return image
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def _pull_image(self, ctrd_cl, image_name, tag, auth_config):
+    #     full_image_name = os.path.join(self.dregistry, image_name)
+    #     LOG.info("Pulling image %s with tag %s", full_image_name, tag)
+    #     ctrd_cl.image.pull('{}:{}'.format(full_image_name, tag))
+    #     image = ctrd_cl.image.inspect('{}:{}'.format(full_image_name, tag)).id
+    #     LOG.debug("Pulled image with id %s", image)
+    #     return image
 
-    def pull_images(self, ctrd_cl):
-        LOG.debug("Logging into container registry %s", self.dregistry)
-        auth_config = {}
-        if self.dregistry_user or self.dregistry_password:
-            auth_config = {
-                'server': self.dregistry,
-                'username': self.dregistry_user,
-                'password': self.dregistry_password
-            }
-            ctrd_cl.login(**auth_config)
-        images = {}
-        for image_name in self.versions_info['images']:
-            image = self._pull_image(ctrd_cl, image_name, self.version,
-                                     auth_config)
-            images[image_name] = image
-        if auth_config:
-            ctrd_cl.logout(auth_config['server'])
-        return images
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def pull_images(self, ctrd_cl):
+    #     LOG.debug("Logging into container registry %s", self.dregistry)
+    #     auth_config = {}
+    #     if self.dregistry_user or self.dregistry_password:
+    #         auth_config = {
+    #             'server': self.dregistry,
+    #             'username': self.dregistry_user,
+    #             'password': self.dregistry_password
+    #         }
+    #         ctrd_cl.login(**auth_config)
+    #     images = {}
+    #     for image_name in self.versions_info['images']:
+    #         image = self._pull_image(ctrd_cl, image_name, self.version,
+    #                                  auth_config)
+    #         images[image_name] = image
+    #     if auth_config:
+    #         ctrd_cl.logout(auth_config['server'])
+    #     return images
 
-    def _find_image(self, ctrd_cl, name, version):
-        image = None
-        for image_name in [name, os.path.join(self.dregistry, name)]:
-            try:
-                image = self._get_image(ctrd_cl, image_name, version)
-                break
-            except NoSuchImage:
-                pass
-        return image
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def _find_image(self, ctrd_cl, name, version):
+    #     image = None
+    #     for image_name in [name, os.path.join(self.dregistry, name)]:
+    #         try:
+    #             image = self._get_image(ctrd_cl, image_name, version)
+    #             break
+    #         except NoSuchImage:
+    #             pass
+    #     return image
 
-    def get_local_images(self, ctrd_cl):
-        images = {}
-        for name in self.versions_info['images']:
-            image = self._find_image(ctrd_cl, name, self.version)
-            local_image = self._find_image(ctrd_cl, name, LOCAL_TAG)
-            if not image:
-                if not local_image:
-                    raise Exception('Image %s not found' % name)
-                continue
-            elif not local_image or image.id != local_image.id:
-                images[name] = image
-        return images
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def get_local_images(self, ctrd_cl):
+    #     images = {}
+    #     for name in self.versions_info['images']:
+    #         image = self._find_image(ctrd_cl, name, self.version)
+    #         local_image = self._find_image(ctrd_cl, name, LOCAL_TAG)
+    #         if not image:
+    #             if not local_image:
+    #                 raise Exception('Image %s not found' % name)
+    #             continue
+    #         elif not local_image or image.id != local_image.id:
+    #             images[name] = image
+    #     return images
 
-    def tag_images_local(self, images, ctrd_cl):
-        for image_name, image in images.items():
-            LOG.info("Tagging %s as %s:%s" % (image, image_name, LOCAL_TAG))
-            ctrd_cl.image.tag(source_image=image, new_tag='{}:{}'.format(image_name,LOCAL_TAG))
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def tag_images_local(self, images, ctrd_cl):
+    #     for image_name, image in images.items():
+    #         LOG.info("Tagging %s as %s:%s" % (image, image_name, LOCAL_TAG))
+    #         ctrd_cl.image.tag(source_image=image, new_tag='{}:{}'.format(image_name,LOCAL_TAG))
 
-    def get_image_id_map(self):
-        LOG.debug("Getting map of image ids...")
-        ctrd_cl = self.get_ctrd_cl(self.master_ip)
-        images = {}
-        for service in self.versions_info['images']:
-            image = self._get_image(ctrd_cl, service, LOCAL_TAG)
-            images[service] = image.id
-        LOG.debug("Image ids map: %s", images)
-        return images
+    # DEPRECATED: Image pulling is now handled by Kubernetes directly
+    # def get_image_id_map(self):
+    #     LOG.debug("Getting map of image ids...")
+    #     ctrd_cl = self.get_ctrd_cl(self.master_ip)
+    #     images = {}
+    #     for service in self.versions_info['images']:
+    #         image = self._get_image(ctrd_cl, service, LOCAL_TAG)
+    #         images[service] = image.id
+    #     LOG.debug("Image ids map: %s", images)
+    #     return images
 
     def generate_base_overlay(self, update):
         LOG.info("Generating base overlay...")
@@ -215,11 +241,11 @@ class Runkube:
         cert = base64.b64decode(secret.data['tls.crt'])
         key = base64.b64decode(secret.data['tls.key'])
         base_overlay = {'optscale_key': key, 'certificates': {'optscale': cert}}
-        for name, image_id in self.get_image_id_map().items():
-            base_overlay[name] = {'image': {'id': image_id}}
 
         base_overlay['public_ip'] = self.master_ip
-        base_overlay['docker_registry'] = self.dregistry
+        base_overlay['docker_registry'] = self.registry
+        base_overlay['docker_tag'] = self.tag
+        base_overlay['tag'] = self.tag
         base_overlay['release'] = self.name
         if self.overlays:
             base_overlay['overlay_list'] = ','.join(self.overlays)
@@ -348,15 +374,8 @@ class Runkube:
     def start(self, check, update):
         self.check_releases(update)
         self.check_version()
-        for node in self.get_node_ips():
-            ctrd_cl = self.get_ctrd_cl(node)
-            if not self.no_pull:
-                LOG.info("Pulling images for %s", node)
-                images = self.pull_images(ctrd_cl)
-            else:
-                LOG.info('Сomparing local images for %s' % node)
-                images = self.get_local_images(ctrd_cl)
-            self.tag_images_local(images, ctrd_cl)
+        LOG.info("Images will be pulled directly from registry %s with tag %s",
+                 self.registry, self.tag)
         overlays = []
         LOG.debug("Creating temp dir %s", TEMP_DIR)
         os.makedirs(TEMP_DIR, mode=0o755, exist_ok=True)
@@ -418,22 +437,22 @@ if __name__ == '__main__':
                               help='Helm dry run to check if chart is valid')
     parser.add_argument('-o', '--overlays', nargs='*',
                         help='Overlay config files')
-    parser.add_argument('--dport', help='Docker port for image pulling',
+    parser.add_argument('--dport', help='[DEPRECATED] Docker port for image pulling',
                         default=2376, type=int)
     parser.add_argument('--dregistry',
-                        help='Docker registry server for image pulling',
+                        help='[DEPRECATED] Docker registry server for image pulling',
                         type=str, default='index.docker.io/hystax')
     parser.add_argument('--dregistry_user',
-                        help='Docker registry user for image pulling', type=str)
+                        help='[DEPRECATED] Docker registry user for image pulling', type=str)
     parser.add_argument('--dregistry_password',
-                        help='Docker registry password for image pulling',
+                        help='[DEPRECATED] Docker registry password for image pulling',
                         type=str)
-    parser.add_argument('--no-pull', help="Don't pull images before deploy",
+    parser.add_argument('--no-pull', help="[DEPRECATED] Don't pull images before deploy",
                         action='store_true')
     parser.add_argument('-v', '--verbose', help="Enable debug logging",
                         action='store_true')
     parser.add_argument('--pull-by-master-ip', action='store_true',
-                        help="Pull by ip from k8s config, not by node ip(node "
+                        help="[DEPRECATED] Pull by ip from k8s config, not by node ip(node "
                              "ip may be not accessible internal ip)",
                         default=False)
     parser.add_argument('--with-elk', action='store_true', default=False,
@@ -445,18 +464,25 @@ if __name__ == '__main__':
                         default=False,
                         help='Connect to external mongodb as part of OptScale')
     parser.add_argument('--skip-login', action='store_true', default=False,
-                        help="Don't login into docker registry "
+                        help="[DEPRECATED] Don't login into docker registry "
                              "(updating from patch)")
     parser.add_argument('-u', '--update-only', action='store_true',
                         default=False,
                         help="Only update images and restart related pods")
     parser.add_argument('--use-socket', action='store_true',
-                        default=False, help="Use docker socket")
+                        default=False, help="[DEPRECATED] Use docker socket")
     parser.add_argument('--insecure', action='store_true',
-                        default=False, help="Use insecure registry")
+                        default=False, help="[DEPRECATED] Use insecure registry")
     parser.add_argument('-w', '--wait', type=int, default=0,
                         help="Wait for deployment completion for "
                              "specified number of seconds")
+    parser.add_argument('--registry', type=str,
+                        default='index.docker.io/hystax',
+                        help="Docker registry for image references "
+                             "(default: index.docker.io/hystax)")
+    parser.add_argument('--tag', type=str,
+                        help="Image tag to use for deployment "
+                             "(default: uses version parameter)")
     args = parser.parse_args()
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, datefmt='%H:%M:%S',
@@ -478,6 +504,8 @@ if __name__ == '__main__':
         insecure=args.insecure,
         version=args.version,
         wait_timeout=args.wait,
+        registry=args.registry,
+        tag=args.tag if args.tag else args.version,
     )
     if args.delete or args.restart:
         acr.delete()

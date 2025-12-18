@@ -26,7 +26,17 @@ import {
   OPTSCALE_RESOURCE_TYPES,
   ANY_NETWORK_TRAFFIC_LOCATION,
   CLOUD_ACCOUNT_TYPES_LIST,
-  POOL_TYPES_LIST
+  POOL_TYPES_LIST,
+  AWS_CNR,
+  AZURE_CNR,
+  AZURE_TENANT,
+  GCP_CNR,
+  GCP_TENANT,
+  ALIBABA_CNR,
+  KUBERNETES_CNR,
+  NEBIUS,
+  DATABRICKS,
+  ENVIRONMENT
 } from "utils/constants";
 import { EN_FORMAT, formatUTC, millisecondsToSeconds, moveDateToUTC, secondsToMilliseconds } from "utils/datetime";
 import { getMetaFormattedName } from "utils/metadata";
@@ -135,6 +145,133 @@ export const FILTER_CONFIGS = {
       },
       appliedFilter: {
         cloudAccountId: {
+          type: "array",
+          items: {
+            type: "string"
+          }
+        }
+      }
+    }
+  },
+  cloudType: {
+    id: "cloudType",
+    apiName: "cloud_type",
+    type: "selection",
+    label: <FormattedMessage id="cloudType" />,
+    labelString: intl.formatMessage({ id: "cloudType" }),
+    icon: <CloudOutlinedIcon />,
+    renderItem: (item) => <CloudLabel id={item.value} name={item.name} type={item.types?.[0]} disableLink dataTestId={`cloud-type-${item.value}`} label={undefined} />,
+    renderSelectedItem: (item) => item.name,
+    searchPredicate: (item, query) => item.name.toLowerCase().includes(query.toLowerCase()),
+    renderPerspectiveItem: (appliedValue, filterValues, { stringify = false } = {}) => {
+      const item = filterValues.find((filterValue) => filterValue.value === appliedValue);
+
+      if (!item) {
+        return appliedValue;
+      }
+
+      return stringify ? item.name : <CloudLabel id={item.value} name={item.name} type={item.types?.[0]} disableLink dataTestId={`cloud-type-${item.value}`} label={undefined} />;
+    },
+    getValuesFromSearchParams: () => ({
+      values: getSelectionAppliedValuesFromSearchParams("cloudType")
+    }),
+    getDefaultValue: () => ({
+      values: []
+    }),
+    isApplied: (appliedFilter) => !isEmptyArray(appliedFilter.values),
+    transformers: {
+      getItems: (availableDataSources) => {
+        if (!availableDataSources) {
+          return [];
+        }
+
+        // Extract unique cloud types from available data sources
+        const cloudTypesSet = new Set();
+        availableDataSources.forEach((item) => {
+          if (item !== null && item.type) {
+            cloudTypesSet.add(item.type);
+          }
+        });
+
+        // Map cloud types to display names
+        const cloudTypeNames = {
+          [AWS_CNR]: "AWS",
+          [AZURE_CNR]: "Azure",
+          [AZURE_TENANT]: "Azure",
+          [GCP_CNR]: "GCP",
+          [GCP_TENANT]: "GCP",
+          [ALIBABA_CNR]: "Alibaba Cloud",
+          [KUBERNETES_CNR]: "Kubernetes",
+          [NEBIUS]: "Nebius",
+          [DATABRICKS]: "Databricks",
+          [ENVIRONMENT]: "Environment"
+        };
+
+        // Group similar cloud types (e.g., AWS_CNR, AZURE_CNR/AZURE_TENANT, GCP_CNR/GCP_TENANT)
+        const cloudTypeGroups = {
+          aws: [AWS_CNR],
+          azure: [AZURE_CNR, AZURE_TENANT],
+          gcp: [GCP_CNR, GCP_TENANT],
+          alibaba: [ALIBABA_CNR],
+          kubernetes: [KUBERNETES_CNR],
+          nebius: [NEBIUS],
+          databricks: [DATABRICKS],
+          environment: [ENVIRONMENT]
+        };
+
+        const uniqueCloudTypes = [];
+        const addedGroups = new Set();
+
+        Object.entries(cloudTypeGroups).forEach(([groupKey, types]) => {
+          const hasType = types.some((type) => cloudTypesSet.has(type));
+          if (hasType && !addedGroups.has(groupKey)) {
+            addedGroups.add(groupKey);
+            // Use the first type in the group as the representative
+            const representativeType = types.find((type) => cloudTypesSet.has(type)) || types[0];
+            uniqueCloudTypes.push({
+              name: cloudTypeNames[representativeType] || representativeType,
+              value: groupKey,
+              types: types
+            });
+          }
+        });
+
+        return uniqueCloudTypes;
+      },
+      getValue: (item) => item.value,
+      toApi: () => ({
+        // Cloud type filter doesn't send to API directly, it's handled by cloudAccountId
+        // Return empty object so it doesn't add any query params
+      }),
+      filterFilterValuesByAppliedFilters: (filterValues, appliedFilters) =>
+        filterValues.filter((filterValue) => appliedFilters.includes(filterValue.value))
+    },
+    schema: {
+      filterValues: {
+        cloud_account: {
+          type: "array",
+          items: {
+            type: "object",
+            required: ["id", "name", "type"],
+            nullable: true,
+            additionalProperties: false,
+            properties: {
+              id: {
+                type: "string"
+              },
+              name: {
+                type: "string"
+              },
+              type: {
+                type: "string",
+                enum: CLOUD_ACCOUNT_TYPES_LIST
+              }
+            }
+          }
+        }
+      },
+      appliedFilter: {
+        cloudType: {
           type: "array",
           items: {
             type: "string"
