@@ -29,6 +29,23 @@ OptScale is an open source FinOps platform that optimizes cloud costs and perfor
 ![Average cloud cost savings](https://img.shields.io/badge/Average_cloud_cost_savings-38%25-yellow)
 
 </div>
+<div align="center">
+
+<img src="images/max_kuzkin.jpeg" width="120" style="border-radius: 50%;" />
+
+<br><br>
+
+<i>
+“Hystax OptScale has been a game-changer for our FinOps practice.”
+</i>
+
+<br><br>
+
+<b>John Smith</b><br>
+Head of Cloud Engineering
+
+</div>
+
 <br>
 
 ## OptScale FinOps and cloud cost optimization capabilities
