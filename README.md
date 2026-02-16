@@ -29,16 +29,15 @@ OptScale is an open source FinOps platform that optimizes cloud costs and perfor
 ![Average cloud cost savings](https://img.shields.io/badge/Average_cloud_cost_savings-38%25-yellow)
 
 </div>
-<div align="center">
-<br><br>
-<img src="documentation/images/Max_Kuzkin_SoftwareOne-Platform.jpg" width="120"" />
 <br>
+<img src="documentation/images/Max_Kuzkin_SoftwareOne-Platform.jpg" width="120" align="left" style="border-radius:50%; margin-right:15px;" />
+
 <i>
 “Hystax OptScale has been a game-changer for our FinOps practice. Its powerful capabilities, flexibility, and seamless integration have empowered us to deliver unprecedented transparency, control, and cost optimization for our clients. We truly value our partnership with Hystax and are excited to innovate further together.”
 </i>
-
+<br>
 <b>Max Kuzkin</b>, General Manager, SoftwareOne Platform
-</div>
+<br clear="left"/>
 
 <br>
 
