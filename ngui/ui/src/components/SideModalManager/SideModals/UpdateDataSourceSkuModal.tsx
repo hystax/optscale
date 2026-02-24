@@ -7,8 +7,8 @@ class UpdateDataSourceSkuModal extends BaseSideModal {
     color: "primary",
     dataTestIds: {
       title: "lbl_update_data_source_sku",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_update_data_source_sku";

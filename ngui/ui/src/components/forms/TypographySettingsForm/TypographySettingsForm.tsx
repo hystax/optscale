@@ -12,7 +12,7 @@ const TypographySettingsForm = ({ variant, options, onUpdate }) => {
   const themeSettings = useThemeSettingsOptions();
 
   const methods = useForm({
-    defaultValues: options
+    defaultValues: options,
   });
 
   const { handleSubmit, reset } = methods;
@@ -20,7 +20,7 @@ const TypographySettingsForm = ({ variant, options, onUpdate }) => {
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...options
+      ...options,
     }));
   }, [options, reset]);
 
@@ -29,8 +29,8 @@ const TypographySettingsForm = ({ variant, options, onUpdate }) => {
       ...themeSettings,
       typography: {
         ...themeSettings.typography,
-        [variant]: formData
-      }
+        [variant]: formData,
+      },
     };
 
     onUpdate(updatedSettings);
@@ -41,8 +41,8 @@ const TypographySettingsForm = ({ variant, options, onUpdate }) => {
       ...themeSettings,
       typography: {
         ...themeSettings.typography,
-        [variant]: {}
-      }
+        [variant]: {},
+      },
     };
 
     onUpdate(updatedSettings);
@@ -55,7 +55,7 @@ const TypographySettingsForm = ({ variant, options, onUpdate }) => {
           id="variantTypographySettings"
           values={{
             variant,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </SubTitle>

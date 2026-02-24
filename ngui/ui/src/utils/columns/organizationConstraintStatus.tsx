@@ -12,7 +12,7 @@ import {
   hasStatusInformation,
   isAnomalyConstraint,
   isQuotasAndBudgetsConstraint,
-  isTaggingPolicyConstraint
+  isTaggingPolicyConstraint,
 } from "utils/organizationConstraints";
 
 const ConstraintStatusCell = ({ constraint }) => {
@@ -77,7 +77,7 @@ const organizationConstraintStatus = () => ({
   id: "status",
   cell: ({ row }) => <ConstraintStatusCell constraint={row.original} />,
   enableSorting: false,
-  enableGlobalFilter: false
+  enableGlobalFilter: false,
 });
 
 export default organizationConstraintStatus;

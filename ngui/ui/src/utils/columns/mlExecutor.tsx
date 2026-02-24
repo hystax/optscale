@@ -27,12 +27,12 @@ const ExecutorInfo = ({ info, showRunInspect }) => {
                 </Tooltip>
               )}
             </div>
-          )
+          ),
         },
         {
           key: "time",
-          node: <KeyValueLabel keyMessageId="lastRun" value={timeAgo} />
-        }
+          node: <KeyValueLabel keyMessageId="lastRun" value={timeAgo} />,
+        },
       ]
     : [];
 
@@ -41,9 +41,9 @@ const ExecutorInfo = ({ info, showRunInspect }) => {
       caption={[
         {
           key: "name",
-          node: <KeyValueLabel keyMessageId="name" value={name} />
+          node: <KeyValueLabel keyMessageId="name" value={name} />,
         },
-        ...runInfo
+        ...runInfo,
       ]}
     >
       <IconLabel
@@ -62,9 +62,9 @@ const mlExecutor = ({ headerDataTestId = "lbl_executor", showRunInspect = false 
   ),
   id: "resource",
   style: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
-  cell: ({ row: { original } }) => <ExecutorInfo info={original} showRunInspect={showRunInspect} />
+  cell: ({ row: { original } }) => <ExecutorInfo info={original} showRunInspect={showRunInspect} />,
 });
 
 export default mlExecutor;

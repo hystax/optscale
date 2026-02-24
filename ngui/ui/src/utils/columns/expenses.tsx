@@ -13,7 +13,7 @@ const expenses = ({ id, headerDataTestId, headerMessageId, accessorKey, accessor
   accessorKey,
   accessorFn,
   defaultSort,
-  cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
+  cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
 });
 
 export default expenses;

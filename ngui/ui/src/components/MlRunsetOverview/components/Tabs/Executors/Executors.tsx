@@ -24,7 +24,7 @@ const STATE = Object.freeze({
   DESTROYED: "destroyed",
   ERROR: "error",
   WAITING_ARCEE: "waiting arcee",
-  UNKNOWN: "unknown"
+  UNKNOWN: "unknown",
 });
 
 const STATE_TRANSLATION_MAP = Object.freeze({
@@ -37,7 +37,7 @@ const STATE_TRANSLATION_MAP = Object.freeze({
   [STATE.DESTROYED]: "terminated",
   [STATE.ERROR]: "error",
   [STATE.WAITING_ARCEE]: "waitingOptscaleArcee",
-  [STATE.UNKNOWN]: "unknown"
+  [STATE.UNKNOWN]: "unknown",
 });
 
 const Executors = ({ executors, isLoading }) => {
@@ -56,8 +56,8 @@ const Executors = ({ executors, isLoading }) => {
         cell: ({
           cell,
           row: {
-            original: { reason }
-          }
+            original: { reason },
+          },
         }) => {
           const state = cell.getValue();
 
@@ -70,7 +70,7 @@ const Executors = ({ executors, isLoading }) => {
           ) : (
             CELL_EMPTY_VALUE
           );
-        }
+        },
       },
       {
         header: (
@@ -85,12 +85,12 @@ const Executors = ({ executors, isLoading }) => {
               instance_id: instanceId,
               name = "",
               instance_size: { name: instanceName, cloud_type: instanceCloudType },
-              ip_addr: ipAddress
-            }
-          }
+              ip_addr: ipAddress,
+            },
+          },
         }) => {
           const cloudResourceIdentifier = getCloudResourceIdentifier({
-            cloud_resource_id: instanceId
+            cloud_resource_id: instanceId,
           });
           return (
             <CaptionedCell
@@ -104,7 +104,7 @@ const Executors = ({ executors, isLoading }) => {
                       value={name ? <ResourceName name={name} /> : undefined}
                     />
                   ),
-                  show: name !== cloudResourceIdentifier
+                  show: name !== cloudResourceIdentifier,
                 },
                 {
                   key: "instance_size",
@@ -114,27 +114,27 @@ const Executors = ({ executors, isLoading }) => {
                       keyMessageId="size"
                       value={<CloudLabel name={<strong>{instanceName}</strong>} type={instanceCloudType} disableLink />}
                     />
-                  )
+                  ),
                 },
                 {
                   key: "ip",
-                  node: <KeyValueLabel variant="caption" keyMessageId="ip" value={ipAddress} />
-                }
+                  node: <KeyValueLabel variant="caption" keyMessageId="ip" value={ipAddress} />,
+                },
               ]}
             >
               <ResourceLabel cloudResourceIdentifier={cloudResourceIdentifier} />
             </CaptionedCell>
           );
-        }
+        },
       },
       resourceLocation({
         headerDataTestId: "lbl_location",
         idAccessor: "cloud_id",
         typeAccessor: "cloud_type",
         locationAccessors: {
-          region: "region_name"
+          region: "region_name",
         },
-        accessorKey: "cloud_name"
+        accessorKey: "cloud_name",
       }),
       ...(isFinOpsEnabled
         ? [
@@ -142,10 +142,10 @@ const Executors = ({ executors, isLoading }) => {
               id: "expenses",
               headerDataTestId: "lbl_expenses",
               headerMessageId: "expenses",
-              accessorKey: "cost"
-            })
+              accessorKey: "cost",
+            }),
           ]
-        : [])
+        : []),
     ],
     [isFinOpsEnabled]
   );
@@ -157,7 +157,7 @@ const Executors = ({ executors, isLoading }) => {
         cloud_id: executor.cloud_account?.id ?? "",
         cloud_type: executor.cloud_account?.type ?? "",
         region_name: executor.region?.name ?? "",
-        cloud_name: executor.cloud_account?.name ?? ""
+        cloud_name: executor.cloud_account?.name ?? "",
       })),
     [executors]
   );

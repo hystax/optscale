@@ -11,6 +11,6 @@ export const useGetToken = () => {
     userId,
     token,
     userEmail,
-    caveats
+    caveats,
   };
 };

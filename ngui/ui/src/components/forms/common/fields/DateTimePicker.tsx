@@ -19,11 +19,11 @@ const DateTimePicker = ({
   defaultValue,
   required = false,
   isLoading = false,
-  fullWidth = false
+  fullWidth = false,
 }) => {
   const {
     formState: { errors },
-    control
+    control,
   } = useFormContext();
 
   const intl = useIntl();
@@ -39,9 +39,9 @@ const DateTimePicker = ({
         rules={{
           required: {
             value: required,
-            message: intl.formatMessage({ id: "thisFieldIsRequired" })
+            message: intl.formatMessage({ id: "thisFieldIsRequired" }),
           },
-          validate
+          validate,
         }}
         render={({ field: { value, onChange: fieldOnChange } }) => (
           <IntervalTimePicker
@@ -63,16 +63,16 @@ const DateTimePicker = ({
             validation={{
               dataTestId: `input_${name}`,
               error: !!errors[name],
-              helperText: errors[name]?.message
+              helperText: errors[name]?.message,
             }}
             dataTestIds={{
               field: {
                 input: `input_${name}`,
-                iconButton: `btn_${name}_select_date`
+                iconButton: `btn_${name}_select_date`,
               },
               quickValues: {
-                item: `btn_quick_value_${name}`
-              }
+                item: `btn_quick_value_${name}`,
+              },
             }}
             quickValues={quickValues}
             intervalMinutes={intervalMinutes}

@@ -21,21 +21,21 @@ const ArchivedRecommendationAccordion = ({
   archivedAt,
   onChange,
   isExpanded = false,
-  dataTestId
+  dataTestId,
 }) => {
   const dispatch = useDispatch();
 
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { items = [] }
+    apiData: { items = [] },
   } = useApiData(GET_ARCHIVED_OPTIMIZATION_DETAILS, {});
 
   const { isLoading, shouldInvoke } = useApiState(GET_ARCHIVED_OPTIMIZATION_DETAILS, {
     organizationId,
     type: recommendationType,
     archivedAt,
-    reason
+    reason,
   });
 
   const allRecommendations = useAllRecommendations({ withDeprecated: true });
@@ -46,7 +46,7 @@ const ArchivedRecommendationAccordion = ({
         getArchivedOptimizationDetails(organizationId, {
           type: recommendationType,
           archivedAt,
-          reason
+          reason,
         })
       );
     }
@@ -79,7 +79,7 @@ const ArchivedRecommendationAccordion = ({
               isLoading={isLoading}
               data={items}
               localization={{
-                emptyMessageId: "noRecommendations"
+                emptyMessageId: "noRecommendations",
               }}
               pageSize={50}
               enablePaginationQueryParam={false}

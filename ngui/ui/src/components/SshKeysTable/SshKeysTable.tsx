@@ -24,7 +24,7 @@ const SshKeysTable = ({ isLoading, sshKeys = [], isMakeDefaultLoading, onMakeDef
           </TextWithDataTestId>
         ),
         accessorKey: "name",
-        defaultSort: "asc"
+        defaultSort: "asc",
       },
       {
         header: (
@@ -32,7 +32,7 @@ const SshKeysTable = ({ isLoading, sshKeys = [], isMakeDefaultLoading, onMakeDef
             <FormattedMessage id="fingerprint" />
           </TextWithDataTestId>
         ),
-        accessorKey: "fingerprint"
+        accessorKey: "fingerprint",
       },
       {
         header: (
@@ -52,7 +52,7 @@ const SshKeysTable = ({ isLoading, sshKeys = [], isMakeDefaultLoading, onMakeDef
                 dataTestId: `btn_default_${index}`,
                 action: !isDefault && typeof onMakeDefault === "function" ? () => onMakeDefault(keyId) : undefined,
                 disabled: isDefault,
-                isLoading: isMakeDefaultLoading
+                isLoading: isMakeDefaultLoading,
               },
               {
                 key: "delete",
@@ -61,12 +61,12 @@ const SshKeysTable = ({ isLoading, sshKeys = [], isMakeDefaultLoading, onMakeDef
                 color: "error",
                 dataTestId: `btn_delete_${index}`,
                 action: () => openSideModal(DeleteSshKeyModal, { keyToDeleteId: keyId, sshKeys }),
-                isLoading: isMakeDefaultLoading
-              }
+                isLoading: isMakeDefaultLoading,
+              },
             ]}
           />
-        )
-      }
+        ),
+      },
     ],
     [isMakeDefaultLoading, onMakeDefault, openSideModal, sshKeys]
   );
@@ -80,11 +80,11 @@ const SshKeysTable = ({ isLoading, sshKeys = [], isMakeDefaultLoading, onMakeDef
       <Table
         data={data}
         localization={{
-          emptyMessageId: "noKeys"
+          emptyMessageId: "noKeys",
         }}
         columns={columns}
         dataTestIds={{
-          container: "table_ssh_keys"
+          container: "table_ssh_keys",
         }}
         withSearch
         pageSize={50}

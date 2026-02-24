@@ -11,7 +11,7 @@ import {
   KUBERNETES_CNR,
   NEBIUS,
   DATABRICKS,
-  GCP_TENANT
+  GCP_TENANT,
 } from "utils/constants";
 import { formatUTC } from "utils/datetime";
 import { SPACING_2 } from "utils/layouts";
@@ -24,7 +24,7 @@ import {
   NebiusProperties,
   GcpProperties,
   K8sProperties,
-  DatabricksProperties
+  DatabricksProperties,
 } from "./Properties";
 import { K8sPropertiesProps } from "./Properties/types";
 import type { ConfigMap, DataSourceDetailsProps, PropertiesMap } from "./types";
@@ -38,7 +38,7 @@ const propertiesMap: PropertiesMap = {
   [ALIBABA_CNR]: AlibabaProperties,
   [KUBERNETES_CNR]: K8sProperties,
   [NEBIUS]: NebiusProperties,
-  [DATABRICKS]: DatabricksProperties
+  [DATABRICKS]: DatabricksProperties,
 };
 
 const renderHelpMap = (id: string, config: ConfigMap) => ({
@@ -50,7 +50,7 @@ const renderHelpMap = (id: string, config: ConfigMap) => ({
   [GCP_TENANT]: null,
   [ALIBABA_CNR]: null,
   [NEBIUS]: null,
-  [DATABRICKS]: null
+  [DATABRICKS]: null,
 });
 
 const childrenListMap = (id: string) => ({
@@ -62,7 +62,7 @@ const childrenListMap = (id: string) => ({
   [GCP_CNR]: null,
   [ALIBABA_CNR]: null,
   [NEBIUS]: null,
-  [DATABRICKS]: null
+  [DATABRICKS]: null,
 });
 
 const DataSourceDetails = ({ id, accountId, parentId, type, createdAt, config = {} }: DataSourceDetailsProps) => {

@@ -31,7 +31,7 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
     active: true,
     conditions: DEFAULT_CONDITIONS,
     poolId: "",
-    ownerId: ""
+    ownerId: "",
   });
 
   const [pools, setPools] = useState([]);
@@ -51,12 +51,12 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
           }
 
           const {
-            resource: { pool_id: resourcePoolId }
+            resource: { pool_id: resourcePoolId },
           } = stateAfterGetResource?.[RESTAPI]?.[GET_RESOURCE] ?? {};
 
           return Promise.all([
             dispatch(getAvailablePools(organizationId)),
-            dispatch(getPoolOwners(resourcePoolId || organizationPoolId))
+            dispatch(getPoolOwners(resourcePoolId || organizationPoolId)),
           ]);
         })
         .then(() => {
@@ -79,7 +79,7 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             cloud_account_id: cloudAccountId,
             tags = [],
             resource_type: resourceType,
-            region
+            region,
           } = loadedResource;
 
           const getConditions = () => {
@@ -88,14 +88,14 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             if (cloudAccountId) {
               conditions.push({
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: CLOUD_IS,
-                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: cloudAccountId
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: cloudAccountId,
               });
             }
             // resource can be unnamed
             if (resourceName) {
               conditions.push({
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: NAME_ID_IS,
-                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: resourceName
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: resourceName,
               });
             }
 
@@ -104,18 +104,18 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
               {
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: REGION_IS,
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.REGION_IS_FIELD_NAME]: {
-                  regionName: region
-                }
+                  regionName: region,
+                },
               },
               {
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: RESOURCE_TYPE_IS,
-                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME]: resourceType
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME]: resourceType,
               },
               ...Object.entries(tags).map(([key, value]) => ({
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: TAG_IS,
                 [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: key,
-                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value
-              }))
+                [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value,
+              })),
             ];
           };
 
@@ -139,11 +139,11 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             defaultValues: {
               conditions,
               poolId: defaultPoolId,
-              ownerId: defaultOwnerId
+              ownerId: defaultOwnerId,
             },
             owners: poolOwners,
             pools: availablePools,
-            resource: loadedResource
+            resource: loadedResource,
           });
         })
         .then((data) => {
@@ -152,7 +152,7 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
           setResource(data.resource);
           setDefaultValues((currentDefaultValues) => ({
             ...currentDefaultValues,
-            ...data.defaultValues
+            ...data.defaultValues,
           }));
         })
         .catch(() => {})
@@ -176,19 +176,19 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
             </Link>,
             <Link key={2} to={getResourceUrl(resource.id)} component={RouterLink}>
               <ActionBarResourceNameTitleText resourceName={getResourceDisplayedName(resource)} />
-            </Link>
+            </Link>,
           ],
           title: {
             text: <FormattedMessage id="addAssignmentRuleTitle" />,
             dataTestId: "lbl_add_rule",
-            isLoading: isFormDataLoading
-          }
+            isLoading: isFormDataLoading,
+          },
         }}
       />
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <AssignmentRuleForm
@@ -224,7 +224,7 @@ const CreateResourceAssignmentRuleFormContainer = ({ resourceId }) => {
               isConditionsFieldLoading: isFormDataLoading || isAvailableFiltersLoading,
               isPoolSelectorLoading: isFormDataLoading,
               isOwnerSelectorLoading: isFormDataLoading,
-              isSubmitButtonLoading: isFormDataLoading || isCreateAssignmentRuleLoading
+              isSubmitButtonLoading: isFormDataLoading || isCreateAssignmentRuleLoading,
             }}
           />
         </Box>

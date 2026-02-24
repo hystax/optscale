@@ -5,7 +5,7 @@ const InformationWrapper = ({ children }) => (
     <PageContentDescription
       position="top"
       alertProps={{
-        messageId: "recommendationsSettingsOutOfSyncMessage"
+        messageId: "recommendationsSettingsOutOfSyncMessage",
       }}
     />
     {children}

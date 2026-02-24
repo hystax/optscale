@@ -16,7 +16,7 @@ const rules = {
       pool_purpose: "team",
       pool_id: "72976397-9606-48dc-9f85-188849d9cbcc",
       active: true,
-      conditions: [{ id: "4e8524ec-ee00-4a41-8537-eb3ff14dd78b", type: "name_ends_with", meta_info: "-integration_dev_dc" }]
+      conditions: [{ id: "4e8524ec-ee00-4a41-8537-eb3ff14dd78b", type: "name_ends_with", meta_info: "-integration_dev_dc" }],
     },
     {
       priority: 2,
@@ -33,8 +33,8 @@ const rules = {
       pool_id: "72976397-9606-48dc-9f85-188849d9cbcc",
       active: true,
       conditions: [
-        { id: "4def7fff-9e61-4f58-8041-491bb3b79c76", type: "name_is", meta_info: "sunflower_availability_test_volume" }
-      ]
+        { id: "4def7fff-9e61-4f58-8041-491bb3b79c76", type: "name_is", meta_info: "sunflower_availability_test_volume" },
+      ],
     },
     {
       priority: 3,
@@ -51,8 +51,8 @@ const rules = {
       pool_id: "72976397-9606-48dc-9f85-188849d9cbcc",
       active: true,
       conditions: [
-        { id: "73bf0503-6dd5-422d-9a7d-6a9a9e08231a", type: "name_is", meta_info: "sunflower_availability_test_agent" }
-      ]
+        { id: "73bf0503-6dd5-422d-9a7d-6a9a9e08231a", type: "name_is", meta_info: "sunflower_availability_test_agent" },
+      ],
     },
     {
       priority: 4,
@@ -69,8 +69,8 @@ const rules = {
       pool_id: "5bd7803a-408d-4281-9598-4c6095f444b4",
       active: true,
       conditions: [
-        { id: "36ec6b00-29c4-4ac2-811c-1a5d1b6a58c5", type: "name_starts_with", meta_info: "sunflower_lily_VA_MGR_AWS_3_4" }
-      ]
+        { id: "36ec6b00-29c4-4ac2-811c-1a5d1b6a58c5", type: "name_starts_with", meta_info: "sunflower_lily_VA_MGR_AWS_3_4" },
+      ],
     },
     {
       priority: 5,
@@ -87,8 +87,8 @@ const rules = {
       pool_id: "72976397-9606-48dc-9f85-188849d9cbcc",
       active: true,
       conditions: [
-        { id: "fcd01848-063b-48e5-956c-ed7c07a58bbd", type: "name_starts_with", meta_info: "baget_smoke_managed__cloud_agent" }
-      ]
+        { id: "fcd01848-063b-48e5-956c-ed7c07a58bbd", type: "name_starts_with", meta_info: "baget_smoke_managed__cloud_agent" },
+      ],
     },
     {
       priority: 6,
@@ -105,8 +105,8 @@ const rules = {
       pool_id: "72976397-9606-48dc-9f85-188849d9cbcc",
       active: true,
       conditions: [
-        { id: "8464fee2-eabc-4e73-aaf2-5862446ef445", type: "name_starts_with", meta_info: "failback_smoke_manag_cloud_agent" }
-      ]
+        { id: "8464fee2-eabc-4e73-aaf2-5862446ef445", type: "name_starts_with", meta_info: "failback_smoke_manag_cloud_agent" },
+      ],
     },
     {
       priority: 7,
@@ -126,17 +126,17 @@ const rules = {
         {
           id: "4330bb5c-8947-4767-97b6-ce3c6771dd1b",
           type: "tag_is",
-          meta_info: '{"key":"orchid_owner_id","value":"9c458a6d-13b4-47d5-b921-b75ee8bf8101"}'
+          meta_info: '{"key":"orchid_owner_id","value":"9c458a6d-13b4-47d5-b921-b75ee8bf8101"}',
         },
         { id: "55d49bab-4e06-4866-b886-fe53fc725c26", type: "name_starts_with", meta_info: "Engineering" },
         {
           id: "cca32a09-bf7c-4af6-9d98-edf5b70f364c",
           type: "tag_is",
-          meta_info: '{"key":"orchid_pool_id","value":"6731a6ef-7b52-44ed-bc69-a137c36f8840"}'
-        }
-      ]
-    }
-  ]
+          meta_info: '{"key":"orchid_pool_id","value":"6731a6ef-7b52-44ed-bc69-a137c36f8840"}',
+        },
+      ],
+    },
+  ],
 };
 
 const AssignmentRulesMocked = () => <AssignmentRules rules={rules} entities={{}} onUpdatePriority={() => {}} />;

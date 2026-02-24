@@ -52,7 +52,7 @@ const EnvironmentWebhook = ({ webhook, action, resourceId, isLoadingProps = {} }
             onClick={enableEditMode}
             tooltip={{
               show: true,
-              value: isRestricted ? restrictionReasonMessage : "edit"
+              value: isRestricted ? restrictionReasonMessage : "edit",
             }}
           />
         )}

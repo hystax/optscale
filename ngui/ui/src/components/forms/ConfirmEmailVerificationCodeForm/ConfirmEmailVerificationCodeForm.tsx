@@ -8,13 +8,13 @@ import { FormValues, ConfirmEmailVerificationCodeFormProps } from "./types";
 
 const ConfirmEmailVerificationCodeForm = ({ onSubmit, isLoading = false }: ConfirmEmailVerificationCodeFormProps) => {
   const { code } = getSearchParams({
-    parseNumbers: false
+    parseNumbers: false,
   }) as { code: string };
 
   const methods = useForm<FormValues>({
     defaultValues: {
-      [FIELD_NAMES.CODE]: code ?? ""
-    }
+      [FIELD_NAMES.CODE]: code ?? "",
+    },
   });
 
   const { handleSubmit } = methods;

@@ -16,7 +16,7 @@ const InstanceTypeField = ({ instanceTypes, isLoading = false }) => (
     isLoading={isLoading}
     items={instanceTypes.map(({ name, cloud_type: dataSourceType }) => ({
       value: name,
-      content: <ItemContentWithDataSourceIcon dataSourceType={dataSourceType}>{name}</ItemContentWithDataSourceIcon>
+      content: <ItemContentWithDataSourceIcon dataSourceType={dataSourceType}>{name}</ItemContentWithDataSourceIcon>,
     }))}
   />
 );

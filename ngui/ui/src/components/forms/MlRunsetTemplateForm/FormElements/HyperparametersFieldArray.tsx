@@ -37,7 +37,7 @@ const NameInput = ({ index }) => {
           const isPropertyUnique = propertiesWithSameName.length === 1;
 
           return isPropertyUnique || intl.formatMessage({ id: "thisFieldMustBeUnique" });
-        }
+        },
       }}
       dataTestId={`hyperparameter_name_${index}`}
     />
@@ -47,7 +47,7 @@ const NameInput = ({ index }) => {
 const EnvironmentName = ({ index }) => {
   const {
     formState: { errors },
-    control
+    control,
   } = useFormContext<FormValues>();
 
   const intl = useIntl();
@@ -61,7 +61,7 @@ const EnvironmentName = ({ index }) => {
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         maxLength: {
           value: DEFAULT_MAX_INPUT_LENGTH,
@@ -69,9 +69,9 @@ const EnvironmentName = ({ index }) => {
             { id: "maxLength" },
             {
               inputName: intl.formatMessage({ id: "environmentVariable" }),
-              max: DEFAULT_MAX_INPUT_LENGTH
+              max: DEFAULT_MAX_INPUT_LENGTH,
             }
-          )
+          ),
         },
         validate: {
           unique: (value, formValues) => {
@@ -84,8 +84,8 @@ const EnvironmentName = ({ index }) => {
           },
           isRunsetTemplateEnvironmentVariable: (value) =>
             isRunsetTemplateEnvironmentVariable(intl.formatMessage({ id: "environmentVariable" }))(value),
-          doNotBeginWithNumber: doNotBeginWithNumber(intl.formatMessage({ id: "environmentVariable" }))
-        }
+          doNotBeginWithNumber: doNotBeginWithNumber(intl.formatMessage({ id: "environmentVariable" })),
+        },
       }}
       render={({ field: { onChange, ...rest } }) => (
         <Input
@@ -110,13 +110,13 @@ const FieldArray = () => {
 
   const { fields, append, remove } = useFieldArray<FormValues>({
     control,
-    name: ARRAY_FIELD_NAME
+    name: ARRAY_FIELD_NAME,
   });
 
   const onAppend = () =>
     append({
       [NAME_FIELD_NAME]: "",
-      [ENVIRONMENT_VARIABLE_FIELD]: ""
+      [ENVIRONMENT_VARIABLE_FIELD]: "",
     });
 
   return (
@@ -138,7 +138,7 @@ const FieldArray = () => {
                   onClick={() => remove(index)}
                   tooltip={{
                     show: true,
-                    value: <FormattedMessage id="delete" />
+                    value: <FormattedMessage id="delete" />,
                   }}
                   dataTestId={`btn_delete_hyperparameter_${index}`}
                 />

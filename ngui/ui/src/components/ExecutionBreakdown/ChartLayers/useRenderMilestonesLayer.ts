@@ -40,7 +40,7 @@ export const useRenderMilestonesLayer = () => {
                 milestoneX + SPACING_BETWEEN_MILESTONE_LINE_AND_NAME + milestoneNameWidth > linesAreaRectangle.xEnd
                   ? milestoneX - SPACING_BETWEEN_MILESTONE_LINE_AND_NAME - milestoneNameWidth
                   : milestoneX + SPACING_BETWEEN_MILESTONE_LINE_AND_NAME,
-              y: linesAreaRectangle.yStart + namesCounter * Y_AXIS_SHIFT_COEFFICIENT
+              y: linesAreaRectangle.yStart + namesCounter * Y_AXIS_SHIFT_COEFFICIENT,
             };
 
             ctx.fillText(milestoneName, position.x, position.y);

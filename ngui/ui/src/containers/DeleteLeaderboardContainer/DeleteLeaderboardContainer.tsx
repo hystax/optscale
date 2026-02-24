@@ -16,20 +16,20 @@ const DeleteLeaderboardContainer = ({ leaderboard, onSuccess, onCancel }) => {
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       isLoading={isDeleteLeaderboardLoading}
       dataTestIds={{
         text: "p_delete",
         deleteButton: "btn_smodal_delete",
-        cancelButton: "btn_cancel"
+        cancelButton: "btn_cancel",
       }}
       message={{
         messageId: "deleteLeaderboardQuestion",
         values: {
-          name: leaderboard.name
-        }
+          name: leaderboard.name,
+        },
       }}
     />
   );

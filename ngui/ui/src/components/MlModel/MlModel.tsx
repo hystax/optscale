@@ -19,7 +19,7 @@ import PageContentWrapper from "components/PageContentWrapper";
 import {
   EditModelPathModal,
   EditModelVersionAliasModal,
-  EditModelVersionTagsModal
+  EditModelVersionTagsModal,
 } from "components/SideModalManager/SideModals";
 import SubTitle from "components/SubTitle";
 import SummaryList from "components/SummaryList";
@@ -80,7 +80,7 @@ const Summary = ({ name = "", modelKey = "", createdAt = 0, tags = {}, isLoading
         items={[
           <KeyValueLabel key="name" keyMessageId="name" value={name} />,
           <KeyValueLabel key="key" keyMessageId="key" value={modelKey} />,
-          <KeyValueLabel key="createdAt" keyMessageId="createdAt" value={unixTimestampToDateTime(createdAt)} />
+          <KeyValueLabel key="createdAt" keyMessageId="createdAt" value={unixTimestampToDateTime(createdAt)} />,
         ]}
         isLoading={isLoading}
       />
@@ -124,14 +124,14 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
       mlModelVersion({
         headerMessageId: "version",
         headerDataTestId: "lbl_version",
-        accessorKey: "version"
+        accessorKey: "version",
       }),
       utcTime({
         id: "registeredAt",
         accessorFn: (originalRow) => originalRow.created_at,
         headerMessageId: "registeredAt",
         headerDataTestId: "lbl_registered_at",
-        defaultSort: "desc"
+        defaultSort: "desc",
       }),
       {
         header: (
@@ -164,7 +164,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
               {isManageVersionAllowed && renderButton()}
             </Box>
           );
-        }
+        },
       },
       mlModelPath({
         accessorKey: "path",
@@ -190,7 +190,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
               {isManageVersionAllowed && renderButton()}
             </Box>
           );
-        }
+        },
       }),
       {
         header: (
@@ -200,7 +200,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
         ),
         id: "tags",
         style: {
-          minWidth: "200px"
+          minWidth: "200px",
         },
         enableSorting: false,
         accessorFn: (originalRow) =>
@@ -229,7 +229,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
               {isManageVersionAllowed && renderButton()}
             </Box>
           );
-        }
+        },
       },
       run({
         id: "run",
@@ -239,8 +239,8 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
         getTaskId: ({ run: { task_id: taskId } }) => taskId,
         getTaskName: ({ run: { task_name: taskName } }) => taskName,
         headerMessageId: "run",
-        headerDataTestId: "lbl_run"
-      })
+        headerDataTestId: "lbl_run",
+      }),
     ],
     [isManageVersionAllowed, modelId, openSideModal, aliasToVersionMap]
   );
@@ -259,7 +259,7 @@ const Version = ({ versions = [], isLoading = false }: VersionProps) => {
           withSearch
           pageSize={50}
           localization={{
-            emptyMessageId: "noVersions"
+            emptyMessageId: "noVersions",
           }}
         />
       )}
@@ -280,12 +280,12 @@ const MlModel = ({ model, isLoading = false }: MlModelProps) => {
           breadcrumbs: [
             <Link key={1} to={ML_MODELS} component={RouterLink}>
               <FormattedMessage id="models" />
-            </Link>
+            </Link>,
           ],
           title: {
             text: name,
             isLoading,
-            dataTestId: "lbl_model"
+            dataTestId: "lbl_model",
           },
           items: [
             {
@@ -294,7 +294,7 @@ const MlModel = ({ model, isLoading = false }: MlModelProps) => {
               messageId: "refresh",
               dataTestId: "btn_refresh",
               type: "button",
-              action: () => refetch([GET_ML_MODEL])
+              action: () => refetch([GET_ML_MODEL]),
             },
             {
               key: "edit",
@@ -306,9 +306,9 @@ const MlModel = ({ model, isLoading = false }: MlModelProps) => {
               type: "button",
               isLoading,
               requiredActions: ["EDIT_PARTNER"],
-              dataTestId: "btn_edit"
-            }
-          ]
+              dataTestId: "btn_edit",
+            },
+          ],
         }}
       />
       <PageContentWrapper>

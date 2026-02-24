@@ -12,12 +12,12 @@ const MlDatasetEdit = ({ dataset, onSubmit, onCancel, isLoadingProps }) => {
       <Link key={1} to={ML_DATASETS} component={RouterLink}>
         <FormattedMessage id="datasets" />
       </Link>,
-      <span key={2}>{dataset.name}</span>
+      <span key={2}>{dataset.name}</span>,
     ],
     title: {
       messageId: "editDatasetTitle",
-      dataTestId: "lbl_edit_dataset"
-    }
+      dataTestId: "lbl_edit_dataset",
+    },
   };
 
   return (
@@ -26,7 +26,7 @@ const MlDatasetEdit = ({ dataset, onSubmit, onCancel, isLoadingProps }) => {
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <MlDatasetEditForm dataset={dataset} onSubmit={onSubmit} onCancel={onCancel} isLoadingProps={isLoadingProps} />

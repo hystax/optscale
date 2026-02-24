@@ -6,5 +6,5 @@ export const getDefaultValues = (): FormValues => ({
   [FIELD_NAMES.DESCRIPTION]: "",
   [FIELD_NAMES.KEY]: "",
   [FIELD_NAMES.OWNER]: "",
-  [FIELD_NAMES.METRICS]: []
+  [FIELD_NAMES.METRICS]: [],
 });

@@ -20,8 +20,8 @@ class DeleteOrganizationConstraintModal extends BaseSideModal {
       color: "error",
       dataTestIds: {
         title: "lbl_delete",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

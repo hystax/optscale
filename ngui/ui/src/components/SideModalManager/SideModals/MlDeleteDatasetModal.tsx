@@ -7,8 +7,8 @@ class MlDeleteDatasetModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_delete_ml_dataset",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_delete";

@@ -19,7 +19,7 @@ const mlModelUsedAliases = () => ({
   id: "usedAliases",
   enableSorting: false,
   style: {
-    maxWidth: "350px"
+    maxWidth: "350px",
   },
   accessorFn: ({ aliased_versions: aliasedVersions = [] }) =>
     aliasedVersions.map(({ version, alias }) => getAliasedVersionString(version, alias)).join(" "),
@@ -45,7 +45,7 @@ const mlModelUsedAliases = () => ({
         />
       </Box>
     );
-  }
+  },
 });
 
 export default mlModelUsedAliases;

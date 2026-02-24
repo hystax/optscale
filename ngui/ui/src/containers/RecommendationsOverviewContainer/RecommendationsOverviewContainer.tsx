@@ -11,14 +11,14 @@ import RecommendationsOverviewService from "services/RecommendationsOverviewServ
 import {
   RECOMMENDATION_CATEGORY_QUERY_PARAMETER,
   RECOMMENDATION_SERVICE_QUERY_PARAMETER,
-  RECOMMENDATION_VIEW_QUERY_PARAMETER
+  RECOMMENDATION_VIEW_QUERY_PARAMETER,
 } from "urls";
 import { DEFAULT_RECOMMENDATIONS_FILTER, DEFAULT_VIEW, POSSIBLE_RECOMMENDATIONS_FILTERS, POSSIBLE_VIEWS } from "./Filters";
 import RecommendationsOverview from "./RecommendationsOverview";
 import {
   setCategory as setCategoryActionCreator,
   setService as setServiceActionCreator,
-  setView as setViewActionCreator
+  setView as setViewActionCreator,
 } from "./redux/controlsState/actionCreators";
 import { useControlState } from "./redux/controlsState/hooks";
 import { VALUE_ACCESSORS } from "./redux/controlsState/reducer";
@@ -32,7 +32,7 @@ type RecommendationsOverviewContainerProps = {
 
 const RecommendationsOverviewContainer = ({
   selectedDataSourceIds,
-  selectedDataSourceTypes
+  selectedDataSourceTypes,
 }: RecommendationsOverviewContainerProps) => {
   const { useGet, useGetRecommendationsDownloadOptions } = OrganizationOptionsService();
   const { options: downloadOptions } = useGetRecommendationsDownloadOptions();
@@ -46,26 +46,26 @@ const RecommendationsOverviewContainer = ({
     redux: { stateAccessor: VALUE_ACCESSORS.CATEGORY, actionCreator: setCategoryActionCreator },
     queryParamName: RECOMMENDATION_CATEGORY_QUERY_PARAMETER,
     defaultValue: DEFAULT_RECOMMENDATIONS_FILTER,
-    possibleStates: POSSIBLE_RECOMMENDATIONS_FILTERS
+    possibleStates: POSSIBLE_RECOMMENDATIONS_FILTERS,
   });
 
   const [service, setService] = useControlState({
     redux: { stateAccessor: VALUE_ACCESSORS.SERVICE, actionCreator: setServiceActionCreator },
     queryParamName: RECOMMENDATION_SERVICE_QUERY_PARAMETER,
     defaultValue: ALL_SERVICES,
-    possibleStates: Object.keys(services)
+    possibleStates: Object.keys(services),
   });
 
   const [view, setView] = useControlState({
     redux: { stateAccessor: VALUE_ACCESSORS.VIEW, actionCreator: setViewActionCreator },
     queryParamName: RECOMMENDATION_VIEW_QUERY_PARAMETER,
     defaultValue: DEFAULT_VIEW,
-    possibleStates: POSSIBLE_VIEWS
+    possibleStates: POSSIBLE_VIEWS,
   });
 
   const [search, setSearch] = useSyncQueryParamWithState({
     queryParamName: "search",
-    defaultValue: ""
+    defaultValue: "",
   });
 
   const { useGetOptimizationsOverview } = RecommendationsOverviewService();
@@ -96,7 +96,7 @@ const RecommendationsOverviewContainer = ({
         limit: downloadLimit,
         dataSourceIds: selectedDataSourceIds,
         dismissible: recommendation.dismissible,
-        withExclusions: recommendation.withExclusions
+        withExclusions: recommendation.withExclusions,
       });
     },
     [downloadLimit, openSideModal, selectedDataSourceIds]

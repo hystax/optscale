@@ -15,7 +15,7 @@ const InfoCard = ({ title, value, isLoading, dataTestIds = {}, icon, color }) =>
       elevation={0}
       className={classes.infoCard}
       sx={{
-        backgroundColor: color ? (theme) => lighten(theme.palette[color].main, 0.95) : undefined
+        backgroundColor: color ? (theme) => lighten(theme.palette[color].main, 0.95) : undefined,
       }}
     >
       <IconLabel
@@ -25,7 +25,7 @@ const InfoCard = ({ title, value, isLoading, dataTestIds = {}, icon, color }) =>
             align="center"
             data-test-id={titleDataTestId}
             sx={{
-              ml: 1
+              ml: 1,
             }}
           >
             {title}

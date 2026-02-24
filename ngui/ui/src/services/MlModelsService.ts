@@ -7,7 +7,7 @@ import {
   GET_ML_MODEL,
   GET_ML_MODELS,
   UPDATE_ML_MODEL,
-  UPDATE_ML_MODEL_VERSION
+  UPDATE_ML_MODEL_VERSION,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -70,7 +70,7 @@ const useGetAll = (): {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { models = [] }
+    apiData: { models = [] },
   } = useApiData(GET_ML_MODELS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_MODELS, organizationId);
@@ -83,7 +83,7 @@ const useGetAll = (): {
 
   return {
     isLoading,
-    models
+    models,
   };
 };
 
@@ -109,7 +109,7 @@ const useGet = (
 
   return {
     isLoading,
-    model
+    model,
   };
 };
 
@@ -204,7 +204,7 @@ function MlModelsService() {
     useCreate,
     useUpdate,
     useDelete,
-    useUpdateModelVersion
+    useUpdateModelVersion,
   };
 }
 

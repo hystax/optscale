@@ -26,11 +26,11 @@ const getValueComponentSettings = (type, CustomComponent) => ({
     },
     [SUMMARY_VALUE_COMPONENT_TYPES.FormattedMessage]: FormattedMessage,
     [SUMMARY_VALUE_COMPONENT_TYPES.FormattedDigitalUnit]: FormattedDigitalUnit,
-    [SUMMARY_VALUE_COMPONENT_TYPES.Custom]: CustomComponent
+    [SUMMARY_VALUE_COMPONENT_TYPES.Custom]: CustomComponent,
   }[type],
   computedProps: {
-    FormattedMoney: {}
-  }[type]
+    FormattedMoney: {},
+  }[type],
 });
 
 const renderSummaryCard = ({
@@ -48,7 +48,7 @@ const renderSummaryCard = ({
   dataTestIds,
   icon,
   pdfId,
-  backdrop
+  backdrop,
 }) => {
   const { component: ValueComponent } = getValueComponentSettings(valueComponentType, CustomValueComponent);
 
@@ -88,7 +88,7 @@ const renderExtendedSummaryCard = ({
   button,
   dataTestIds,
   icon,
-  backdrop
+  backdrop,
 }) => {
   const { component: ValueComponent, computedProps: computedValueComponentProps = {} } = getValueComponentSettings(
     valueComponentType,
@@ -124,7 +124,7 @@ const renderExtendedSummaryCard = ({
 const getCardRenderer = (cardType) =>
   ({
     [SUMMARY_CARD_TYPES.BASIC]: renderSummaryCard,
-    [SUMMARY_CARD_TYPES.EXTENDED]: renderExtendedSummaryCard
+    [SUMMARY_CARD_TYPES.EXTENDED]: renderExtendedSummaryCard,
   })[cardType];
 
 const SummaryGrid = ({ summaryData }) => {

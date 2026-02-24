@@ -10,11 +10,11 @@ const DeleteOrganizationOptionContainer = ({ name, onCancel }) => {
       onCancel={onCancel}
       isLoading={isDeleteOrganizationOptionLoading}
       deleteButtonProps={{
-        onDelete: () => deleteOption(name, onCancel)
+        onDelete: () => deleteOption(name, onCancel),
       }}
       message={{
         messageId: "deleteOrganizationOptionQuestion",
-        values: { name: <strong>{name}</strong> }
+        values: { name: <strong>{name}</strong> },
       }}
     />
   );

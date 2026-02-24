@@ -28,7 +28,7 @@ const METRIC_NAME_LENGTH_LIMIT = 15;
 const RANKINGS = Object.freeze({
   TOP_ONE: 1,
   TOP_TWO: 2,
-  TOP_THREE: 3
+  TOP_THREE: 3,
 });
 
 const RANKING_ICON_SIZE = "1.5rem";
@@ -49,14 +49,14 @@ const QualificationTableDivider = () => {
         textAlign="center"
         sx={{
           backgroundColor: () => theme.palette.background.paper,
-          left: "calc(50% - 45px)"
+          left: "calc(50% - 45px)",
         }}
       >
         <FormattedMessage id="qualification" />
       </Box>
       <Divider
         sx={{
-          borderStyle: "dashed"
+          borderStyle: "dashed",
         }}
       />
     </Box>
@@ -75,7 +75,7 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
     () => ({
       [RANKINGS.TOP_ONE]: theme.palette.gold.main,
       [RANKINGS.TOP_TWO]: theme.palette.silver.main,
-      [RANKINGS.TOP_THREE]: theme.palette.bronze.main
+      [RANKINGS.TOP_THREE]: theme.palette.bronze.main,
     }),
     [theme.palette.bronze.main, theme.palette.gold.main, theme.palette.silver.main]
   );
@@ -108,14 +108,14 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
           coverage: {
             datasets: {
               covered: getIntersection(datum.qualification, leaderboard.dataset_ids).length,
-              all: leaderboard.dataset_ids.length
+              all: leaderboard.dataset_ids.length,
             },
             coverageRules: Object.entries(leaderboard.dataset_coverage_rules ?? {}).map(([label, datasetsCount]) => ({
               label,
               all: datasetsCount,
-              covered: datum.dataset_coverage[label]?.length ?? 0
-            }))
-          }
+              covered: datum.dataset_coverage[label]?.length ?? 0,
+            })),
+          },
         };
       }),
     [leaderboard.dataset_coverage_rules, leaderboard.dataset_ids, leaderboardCandidates]
@@ -139,7 +139,7 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
         emptyValue: " ",
         enableSorting: false,
         style: {
-          width: "80px"
+          width: "80px",
         },
         cell: ({ cell }) => {
           const ranking = cell.getValue();
@@ -160,13 +160,13 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
                 <EmojiEventsIcon
                   style={{
                     color: RANKING_COLORS[ranking],
-                    fontSize: RANKING_ICON_SIZE
+                    fontSize: RANKING_ICON_SIZE,
                   }}
                 />
               }
             />
           );
-        }
+        },
       },
       {
         header: (
@@ -177,21 +177,21 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
         id: "coverage",
         enableSorting: false,
         style: {
-          width: "320px"
+          width: "320px",
         },
         cell: ({
           row: {
-            original: { coverage: { datasets, coverageRules } = {} }
-          }
+            original: { coverage: { datasets, coverageRules } = {} },
+          },
         }) => (
           <LeaderboardDatasetsCoverageRules
             datasets={datasets}
             coverageRules={coverageRules}
             noDatasetsCoverageRulesMessage={{
-              text: "-"
+              text: "-",
             }}
           />
-        )
+        ),
       },
       {
         header: (
@@ -213,13 +213,13 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
         accessorFn: (originalRow) => originalRow.primary_metric?.[primaryMetric.key]?.value,
         style: {
           width: "150px",
-          backgroundColor: lighten(theme.palette.success.main, 0.95)
+          backgroundColor: lighten(theme.palette.success.main, 0.95),
         },
         cell: ({ cell, row: { original } }) => {
           const unit = original.primary_metric?.[primaryMetric.key]?.unit ?? "";
 
           return <MetricUnitLabel label={<DynamicFractionDigitsValue value={cell.getValue()} />} unit={unit} />;
-        }
+        },
       },
       {
         header: (
@@ -230,12 +230,12 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
         id: "secondaryMetrics",
         enableSorting: false,
         style: {
-          width: "200px"
+          width: "200px",
         },
         cell: ({
           row: {
-            original: { metrics = {} }
-          }
+            original: { metrics = {} },
+          },
         }) =>
           isEmptyObject(metrics) ? (
             CELL_EMPTY_VALUE
@@ -255,7 +255,7 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
               )}
               maxRows={5}
             />
-          )
+          ),
       },
       {
         header: (
@@ -266,13 +266,13 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
         id: "tags",
         enableSorting: false,
         style: {
-          width: "500px"
+          width: "500px",
         },
         cell: ({
           row: {
-            original: { tags = {} }
-          }
-        }) => (isEmptyObject(tags) ? CELL_EMPTY_VALUE : <CollapsableTableCell maxRows={5} tags={tags} />)
+            original: { tags = {} },
+          },
+        }) => (isEmptyObject(tags) ? CELL_EMPTY_VALUE : <CollapsableTableCell maxRows={5} tags={tags} />),
       },
       {
         header: (
@@ -283,12 +283,12 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
         id: "hyperparameters",
         enableSorting: false,
         style: {
-          width: "500px"
+          width: "500px",
         },
         cell: ({
           row: {
-            original: { hyperparams = {} }
-          }
+            original: { hyperparams = {} },
+          },
         }) =>
           isEmptyObject(hyperparams) ? (
             CELL_EMPTY_VALUE
@@ -297,8 +297,8 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
               maxRows={5}
               tags={Object.fromEntries(Object.entries(hyperparams).filter(([, value]) => value !== null))}
             />
-          )
-      }
+          ),
+      },
     ];
   }, [leaderboard, theme.palette.success.main, RANKING_COLORS]);
 
@@ -313,18 +313,18 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
             openSideModal(LeaderboardCandidateDetailsModal, {
               candidateDetails: row,
               leaderboard,
-              taskId
+              taskId,
             });
           }}
           localization={{
-            emptyMessageId: "noQualifiedGroups"
+            emptyMessageId: "noQualifiedGroups",
           }}
           tableLayout="fixed"
           isSelectedRow={(row) => !!selectedRow && row.id === selectedRow.id}
           overflowX="initial"
           disableBottomBorderForLastRow
           counters={{
-            show: false
+            show: false,
           }}
         />
       </div>
@@ -341,14 +341,14 @@ const LeaderboardCandidatesTable = ({ leaderboard, leaderboardCandidates }) => {
                 openSideModal(LeaderboardCandidateDetailsModal, {
                   candidateDetails: row,
                   leaderboard,
-                  taskId
+                  taskId,
                 });
               }}
               tableLayout="fixed"
               isSelectedRow={(row) => !!selectedRow && row.id === selectedRow.id}
               overflowX="initial"
               counters={{
-                show: false
+                show: false,
               }}
             />
           </div>

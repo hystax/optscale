@@ -6,8 +6,8 @@ import { getDefaultValues } from "./utils";
 const RenameMlRunChartForm = ({ chartName, onRename }: RenameMlRunChartFormProps) => {
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      name: chartName
-    })
+      name: chartName,
+    }),
   });
 
   const { handleSubmit } = methods;

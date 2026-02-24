@@ -1,7 +1,7 @@
 import CreateResourcePerspectiveForm from "components/forms/CreateResourcePerspectiveForm";
 import {
   OrganizationPerspectivesDocument,
-  useUpdateOrganizationPerspectivesMutation
+  useUpdateOrganizationPerspectivesMutation,
 } from "graphql/__generated__/hooks/restapi";
 import { useOrganizationPerspectives } from "hooks/coreData/useOrganizationPerspectives";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -12,7 +12,7 @@ const CreateResourcePerspectiveContainer = ({
   onSuccess,
   onCancel,
   filterValues,
-  appliedFilters
+  appliedFilters,
 }) => {
   const { organizationId } = useOrganizationInfo();
 
@@ -24,10 +24,10 @@ const CreateResourcePerspectiveContainer = ({
         query: OrganizationPerspectivesDocument,
         variables: { organizationId },
         data: {
-          organizationPerspectives: data.updateOrganizationPerspectives
-        }
+          organizationPerspectives: data.updateOrganizationPerspectives,
+        },
       });
-    }
+    },
   });
 
   const onSubmit = (data) =>
@@ -36,9 +36,9 @@ const CreateResourcePerspectiveContainer = ({
         organizationId,
         value: {
           ...allPerspectives,
-          [data.name]: data.payload
-        }
-      }
+          [data.name]: data.payload,
+        },
+      },
     }).then(onSuccess);
 
   return (

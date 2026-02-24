@@ -17,7 +17,7 @@ const DashboardControls = ({
   createDashboard,
   removeDashboard,
   isPublicRun,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const isOwnedDashboard = currentEmployeeId === dashboard.ownerId;
 
@@ -28,7 +28,7 @@ const DashboardControls = ({
       dashboard,
       updateDashboard,
       isOwnedDashboard,
-      createDashboard
+      createDashboard,
     });
   };
 

@@ -33,13 +33,13 @@ const DescriptionMarker = ({ label, color }) => {
       */}
       <span
         style={{
-          display: "inline-block"
+          display: "inline-block",
         }}
       >
         <Circle
           style={{
             fontSize: "10px",
-            color
+            color,
           }}
         />{" "}
         {firstLabelWord}
@@ -63,7 +63,7 @@ const UsageDescription = () => (
         uncoveredUsageMarker: ([label]) => (
           <DescriptionMarker label={label} color={RI_SP_CHART_PALETTE[RI_SP_COVERAGE_COLOR_INDEXES.UNCOVERED_USAGE]} />
         ),
-        br: <br />
+        br: <br />,
       }}
     />
   </Typography>
@@ -109,7 +109,7 @@ const ExpensesDescription = () => (
         uncoveredExpensesMarker: ([label]) => (
           <DescriptionMarker label={label} color={RI_SP_CHART_PALETTE[RI_SP_EXPENSES_COLOR_INDEXES.UNCOVERED_EXPENSES]} />
         ),
-        br: <br />
+        br: <br />,
       }}
     />
   </Typography>
@@ -125,7 +125,7 @@ const RiSpCoverage = ({ usageBreakdown, expensesBreakdown, isLoadingProps }) => 
     <ExpensesTitle
       showSavingsCheckbox={{
         onChange: toggleShowSavings,
-        checked: showSavings
+        checked: showSavings,
       }}
     />
   );

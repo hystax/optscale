@@ -17,14 +17,14 @@ const RecentTasksTable = ({ tasks }) => {
     () => [
       mlTaskName({
         enableSorting: false,
-        enableHiding: false
+        enableHiding: false,
       }),
       mlTaskLastRun({
         columnSelector: {
           accessor: "lastRun",
           messageId: "lastRun",
-          dataTestId: "btn_toggle_column_last_run"
-        }
+          dataTestId: "btn_toggle_column_last_run",
+        },
       }),
       metrics({
         accessorKey: "last_run_reached_goals",
@@ -32,9 +32,9 @@ const RecentTasksTable = ({ tasks }) => {
         columnSelector: {
           accessor: "metrics",
           messageId: "metrics",
-          dataTestId: "btn_toggle_column_metrics"
-        }
-      })
+          dataTestId: "btn_toggle_column_metrics",
+        },
+      }),
     ],
     []
   );
@@ -46,7 +46,7 @@ const RecentTasksTable = ({ tasks }) => {
       pageSize={5}
       enablePaginationQueryParam={false}
       localization={{
-        emptyMessageId: "noTasks"
+        emptyMessageId: "noTasks",
       }}
     />
   );
@@ -70,7 +70,7 @@ const RecentTasksCard = ({ tasks, isLoading = false }) => {
               icon={<ExitToAppOutlinedIcon />}
               tooltip={{
                 show: true,
-                messageId: "goToTasks"
+                messageId: "goToTasks",
               }}
               onClick={goToTasks}
               isLoading={isLoading}
@@ -82,7 +82,7 @@ const RecentTasksCard = ({ tasks, isLoading = false }) => {
       dataTestIds={{
         wrapper: "block_recent_tasks",
         title: "lbl_recent_tasks",
-        titleCaption: "p_recent_tasks"
+        titleCaption: "p_recent_tasks",
       }}
       elevation={0}
     >

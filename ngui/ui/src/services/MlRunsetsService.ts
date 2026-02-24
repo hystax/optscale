@@ -8,7 +8,7 @@ import {
   GET_ML_RUNSETS,
   GET_ML_RUNSETS_RUNS,
   GET_ML_RUNSET_EXECUTORS,
-  STOP_ML_RUNSET
+  STOP_ML_RUNSET,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -21,7 +21,7 @@ const useGetAll = (runsetTemplateId) => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { runsets = [], total_runs: runsCount, total_cost: totalCost, last_runset_cost: lastRunsetCost }
+    apiData: { runsets = [], total_runs: runsCount, total_cost: totalCost, last_runset_cost: lastRunsetCost },
   } = useApiData(GET_ML_RUNSETS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_RUNSETS, { organizationId, runsetTemplateId });
@@ -38,8 +38,8 @@ const useGetAll = (runsetTemplateId) => {
       runsets,
       runsCount,
       totalCost,
-      lastRunsetCost
-    }
+      lastRunsetCost,
+    },
   };
 };
 
@@ -88,7 +88,7 @@ const useGetRuns = (runsetId) => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { runs = [] }
+    apiData: { runs = [] },
   } = useApiData(GET_ML_RUNSETS_RUNS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_RUNSETS_RUNS, { organizationId, runsetId });
@@ -101,7 +101,7 @@ const useGetRuns = (runsetId) => {
 
   return {
     isLoading,
-    runs
+    runs,
   };
 };
 
@@ -111,7 +111,7 @@ const useGetRunners = (runsetId) => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { runners: executors = [] }
+    apiData: { runners: executors = [] },
   } = useApiData(GET_ML_RUNSET_EXECUTORS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_RUNSET_EXECUTORS, { organizationId, runsetId });

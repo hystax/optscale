@@ -12,7 +12,7 @@ const PoolSelector = ({ pools }) => (
     labelMessageId="pools"
     items={pools.map(({ id, name, pool_purpose: poolPurpose }) => ({
       value: id,
-      content: <ItemContentWithPoolIcon poolType={poolPurpose} label={name} />
+      content: <ItemContentWithPoolIcon poolType={poolPurpose} label={name} />,
     }))}
   />
 );

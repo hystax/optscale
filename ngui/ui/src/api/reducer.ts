@@ -13,8 +13,8 @@ const reducer = (state = { latestErrorLabel: "", [LATEST_SUCCESS_HANDLED_LABEL]:
           ...state[action.payload.label],
           isLoading: true,
           hash: action.payload.hash,
-          entityId: action.payload.entityId
-        }
+          entityId: action.payload.entityId,
+        },
       };
     }
     case API_END:
@@ -22,8 +22,8 @@ const reducer = (state = { latestErrorLabel: "", [LATEST_SUCCESS_HANDLED_LABEL]:
         ...state,
         [action.payload]: {
           ...state[action.payload],
-          isLoading: false
-        }
+          isLoading: false,
+        },
       };
     case API_SUCCESS: {
       const status = state[action.payload.label] || {};
@@ -44,12 +44,12 @@ const reducer = (state = { latestErrorLabel: "", [LATEST_SUCCESS_HANDLED_LABEL]:
                   code: action.payload.code,
                   messageParams: action.payload.messageParams,
                   reason: action.payload.label,
-                  alertSeverity: action.payload.alertSeverity
-                }
-              }
-            }
-          }
-        }
+                  alertSeverity: action.payload.alertSeverity,
+                },
+              },
+            },
+          },
+        },
       };
 
       if (action.payload.successHandlerType === SUCCESS_HANDLER_TYPE_ALERT) {
@@ -67,8 +67,8 @@ const reducer = (state = { latestErrorLabel: "", [LATEST_SUCCESS_HANDLED_LABEL]:
         ...action.payload.response,
         config: {
           url: action.payload.response.config.url,
-          params: { ...action.payload.response.config.params }
-        }
+          params: { ...action.payload.response.config.params },
+        },
       };
       return {
         ...state,
@@ -79,9 +79,9 @@ const reducer = (state = { latestErrorLabel: "", [LATEST_SUCCESS_HANDLED_LABEL]:
             ...status.status,
             isError: true,
             errorHandlerType: action.payload.errorHandlerType,
-            response
-          }
-        }
+            response,
+          },
+        },
       };
     }
     case RESET_TTL: {
@@ -89,8 +89,8 @@ const reducer = (state = { latestErrorLabel: "", [LATEST_SUCCESS_HANDLED_LABEL]:
         ...state,
         [action.label]: {
           ...state[action.label],
-          timestamp: 0
-        }
+          timestamp: 0,
+        },
       };
     }
     default:

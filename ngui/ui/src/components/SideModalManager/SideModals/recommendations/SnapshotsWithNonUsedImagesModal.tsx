@@ -7,8 +7,8 @@ class SnapshotsWithNonUsedImagesModal extends BaseSideModal {
     messageId: "snapshotsWithNonUsedImagesTitle",
     dataTestIds: {
       title: "lbl_snapshots_with_non_used_images_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_snapshots_with_non_used_mages";

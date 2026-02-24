@@ -79,7 +79,7 @@ export const parseJSON = (jsonString, fallback = {}) => {
 export const booleanStringToBoolean = (string) =>
   ({
     true: true,
-    false: false
+    false: false,
   })[string.toLowerCase()] ?? string;
 
 export const hasSymbolAtTheEnd = (variable, symbol) => (isString(variable) ? variable.slice(-1) === symbol : false);

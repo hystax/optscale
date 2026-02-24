@@ -21,7 +21,7 @@ const RecommendationCard = ({
   onCtaClick,
   menu,
   children,
-  isLoading = false
+  isLoading = false,
 }: RecommendationCardProps) => {
   const { classes } = useStyles(color);
 

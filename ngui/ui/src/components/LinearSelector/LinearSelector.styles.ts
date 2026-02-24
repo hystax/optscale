@@ -11,20 +11,20 @@ const useStyles = makeStyles()((theme) => {
       flexWrap: "wrap",
       margin: `-${gap} -${halfGap} 0 -${halfGap}`,
       "& > *": {
-        margin: `${gap} ${halfGap} 0 ${halfGap}`
+        margin: `${gap} ${halfGap} 0 ${halfGap}`,
       },
-      minHeight: "40px"
+      minHeight: "40px",
     },
     checkboxMenuItem: {
-      paddingLeft: theme.spacing(1)
+      paddingLeft: theme.spacing(1),
     },
     labelIcon: {
       // the same styles as for Button component with endIcon
-      fontSize: "18px"
+      fontSize: "18px",
     },
     label: {
-      display: "inline-flex"
-    }
+      display: "inline-flex",
+    },
   };
 });
 

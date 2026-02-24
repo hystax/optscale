@@ -9,14 +9,14 @@ import { getEnvironmentVariable } from "utils/env";
 const actionBarDefinition = {
   title: {
     messageId: "finOpsPortalTitle",
-    dataTestId: "lbl_finops_portal"
-  }
+    dataTestId: "lbl_finops_portal",
+  },
 };
 
 export const FINOPS_TABS = Object.freeze({
   OVERVIEW: "overview",
   HOWTOS: "howtos",
-  CHECKLIST: "checklist"
+  CHECKLIST: "checklist",
 });
 
 const FinOpsPortal = () => {
@@ -36,7 +36,7 @@ const FinOpsPortal = () => {
                 fallbackMessageId="unableToLoad"
                 fallbackButtonMessageId="proceedToFinopsWebsite"
               />
-            )
+            ),
           },
           {
             title: FINOPS_TABS.HOWTOS,
@@ -49,15 +49,15 @@ const FinOpsPortal = () => {
                 fallbackMessageId="unableToLoad"
                 fallbackButtonMessageId="proceedToFinopsWebsite"
               />
-            )
-          }
+            ),
+          },
         ]
       : []),
     {
       title: FINOPS_TABS.CHECKLIST,
       dataTestId: `tab_${FINOPS_TABS.CHECKLIST}`,
-      node: <FinOpsChecklistContainer />
-    }
+      node: <FinOpsChecklistContainer />,
+    },
   ];
 
   return (
@@ -69,7 +69,7 @@ const FinOpsPortal = () => {
             keepTabContentMounted: true,
             name: "finops",
             tabs,
-            defaultTab: tabs[0].title
+            defaultTab: tabs[0].title,
           }}
         />
       </PageContentWrapper>

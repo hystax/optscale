@@ -18,5 +18,5 @@ export {
   ExecutorsUpgrade,
   GpuMemory,
   LocalStorageBottleneck,
-  SpotInstancesUsage
+  SpotInstancesUsage,
 };

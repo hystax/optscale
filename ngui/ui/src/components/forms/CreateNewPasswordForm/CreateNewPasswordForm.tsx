@@ -10,8 +10,8 @@ const CreateNewPasswordForm = ({ onSubmit, isLoading = false }: CreateNewPasswor
 
   const methods = useForm<FormValues>({
     defaultValues: {
-      [FIELD_NAMES.EMAIL]: email
-    }
+      [FIELD_NAMES.EMAIL]: email,
+    },
   });
 
   const { handleSubmit } = methods;

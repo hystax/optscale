@@ -618,7 +618,7 @@ class Worker(ConsumerMixin):
             for cloud_account_id in cloud_account_ids:
                 _, cloud_account = self.rest_client.cloud_account_get(
                     cloud_account_id)
-                config = cloud_account.get("config", {})
+                cloud_account.update(cloud_account['config'])
                 target_bucket_names = list(
                     set(
                         [
@@ -629,7 +629,7 @@ class Worker(ConsumerMixin):
                     )
                 )
 
-                data.append((config, target_bucket_names))
+                data.append((cloud_account, target_bucket_names))
                 all_bucket_names += target_bucket_names
 
             duplicates, stats = Factory.get(data, filters)

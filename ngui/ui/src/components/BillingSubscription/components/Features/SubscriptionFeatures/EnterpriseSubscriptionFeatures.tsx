@@ -7,7 +7,7 @@ const features = [
   "billingSubscriptionFeatures.privateDeployment",
   "billingSubscriptionFeatures.accessToRoadmap",
   "billingSubscriptionFeatures.prioritizedPoolRequestReview",
-  "billingSubscriptionFeatures.dedicated24HourSupportSevenDaysAWeek"
+  "billingSubscriptionFeatures.dedicated24HourSupportSevenDaysAWeek",
 ] as const;
 
 const EnterpriseSubscriptionFeatures = () => (

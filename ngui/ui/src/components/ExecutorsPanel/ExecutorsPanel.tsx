@@ -8,7 +8,7 @@ import useDateRanges, {
   oneWeekRange,
   twoWeeksRange,
   oneMonthRange,
-  customRange
+  customRange,
 } from "hooks/useDateRanges";
 import { SPACING_1 } from "utils/layouts";
 
@@ -19,7 +19,7 @@ const ExecutorsPanel = () => {
     oneWeekRange(true),
     twoWeeksRange(true),
     oneMonthRange(true),
-    customRange(true)
+    customRange(true),
   ]);
 
   return (

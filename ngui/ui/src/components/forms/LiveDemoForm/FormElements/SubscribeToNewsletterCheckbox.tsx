@@ -17,7 +17,7 @@ const SubscribeToNewsletterCheckbox = () => (
             <Link data-test-id="link_parameters_library" href={FINOPS} target="_blank" rel="noopener">
               {chunks}
             </Link>
-          )
+          ),
         }}
       />
     }

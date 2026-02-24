@@ -21,7 +21,7 @@ class GoalsFilter extends Filter {
   _getAppliedFilterItem(appliedFilter, filterItem) {
     return {
       value: appliedFilter,
-      displayedValue: this.constructor.getDisplayedValueRenderer(filterItem)
+      displayedValue: this.constructor.getDisplayedValueRenderer(filterItem),
     };
   }
 
@@ -29,7 +29,7 @@ class GoalsFilter extends Filter {
     return sortObjects({
       array: items,
       field: "name",
-      type: "asc"
+      type: "asc",
     });
   }
 }

@@ -8,9 +8,9 @@ export const useOrganizationAllowedActions = () => {
     fetchPolicy: "cache-only",
     variables: {
       requestParams: {
-        organization: organizationId
-      }
-    }
+        organization: organizationId,
+      },
+    },
   });
 
   return organizationAllowedActions;

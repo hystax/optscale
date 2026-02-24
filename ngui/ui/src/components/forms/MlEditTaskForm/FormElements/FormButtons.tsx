@@ -18,7 +18,7 @@ const DeleteTaskButton = ({ id, name }) => {
       onClick={() =>
         openSideModal(MlDeleteTaskModal, {
           name,
-          id
+          id,
         })
       }
     />
@@ -41,7 +41,7 @@ const MlEditTaskFormButtons = ({ taskId, taskName, onCancel, isLoading = false }
           isLoading={isLoading}
           tooltip={{
             show: isRestricted,
-            value: restrictionReasonMessage
+            value: restrictionReasonMessage,
           }}
         />
         <Button messageId="cancel" dataTestId="btn_cancel" onClick={onCancel} />

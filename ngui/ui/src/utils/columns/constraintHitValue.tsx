@@ -12,7 +12,7 @@ const constraintHitValue = ({ type }) => ({
   accessorKey: "value",
   cell: ({ cell, row: { original: { constraint_limit: constraintLimit } = {} } }) => (
     <ConstraintValue hitValue={cell.getValue()} constraintLimit={constraintLimit} type={type} />
-  )
+  ),
 });
 
 export default constraintHitValue;

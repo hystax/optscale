@@ -21,36 +21,36 @@ const DashboardGridLayout = ({
   recommendationsCard,
   poolsRequiringAttentionCard,
   recentTasksCard,
-  recentModelsCard
+  recentModelsCard,
 }: DashboardGridLayoutProps) => {
   const squareNodes = [
     {
       key: "recentModelsCard",
       node: recentModelsCard,
-      capability: OPTSCALE_CAPABILITY.MLOPS
+      capability: OPTSCALE_CAPABILITY.MLOPS,
     },
     {
       key: "recentTasksCard",
       node: recentTasksCard,
-      capability: OPTSCALE_CAPABILITY.MLOPS
+      capability: OPTSCALE_CAPABILITY.MLOPS,
     },
     { key: "organizationExpenses", node: organizationExpenses },
     {
       key: "topResourcesExpensesCard",
       node: topResourcesExpensesCard,
-      capability: OPTSCALE_CAPABILITY.FINOPS
+      capability: OPTSCALE_CAPABILITY.FINOPS,
     },
     { key: "recommendationsCard", node: recommendationsCard },
     {
       key: "policiesCard",
       node: policiesCard,
-      capability: OPTSCALE_CAPABILITY.FINOPS
+      capability: OPTSCALE_CAPABILITY.FINOPS,
     },
     {
       key: "poolsRequiringAttentionCard",
       node: poolsRequiringAttentionCard,
-      capability: OPTSCALE_CAPABILITY.FINOPS
-    }
+      capability: OPTSCALE_CAPABILITY.FINOPS,
+    },
   ].filter(({ node }) => Boolean(node));
 
   return (

@@ -68,6 +68,6 @@ export function ThemeResolver(theme: string): Plugin {
       if (!resolved?.id?.startsWith("/")) return null;
 
       return redirectToThemePath(resolved.id);
-    }
+    },
   };
 }

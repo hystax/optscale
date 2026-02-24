@@ -9,7 +9,7 @@ import {
   INTER_REGION_LAT,
   INTER_REGION_LON,
   EXTERNAL_LAT,
-  EXTERNAL_LON
+  EXTERNAL_LON,
 } from "utils/maps";
 
 const isOtherLocation = (location) => location.latitude === OTHER_LAT && location.longitude === OTHER_LON;
@@ -34,7 +34,7 @@ const getFlowThicknessScale = (magnitudeExtent) => {
       Math.max.apply(
         null,
         magnitudeExtent.map((x) => Math.abs(x || 0))
-      )
+      ),
     ]);
 };
 

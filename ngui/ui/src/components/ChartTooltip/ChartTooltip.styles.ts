@@ -19,8 +19,8 @@ const useStyles = makeStyles()((theme) => ({
             100% {
               opacity: 1;
             }
-            `} 0.1s normal forwards ease-out`
-  }
+            `} 0.1s normal forwards ease-out`,
+  },
 }));
 
 export default useStyles;

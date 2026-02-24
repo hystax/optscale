@@ -10,7 +10,7 @@ import { getDefaultValues } from "./utils";
 
 const UpdateDataSourceSkuForm = ({ sku, cost, onSubmit, onCancel, isLoading = false }: UpdateDataSourceSkuFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues({ cost })
+    defaultValues: getDefaultValues({ cost }),
   });
 
   const { handleSubmit } = methods;

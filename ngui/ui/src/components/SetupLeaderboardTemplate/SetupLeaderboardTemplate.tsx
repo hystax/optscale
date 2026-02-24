@@ -16,7 +16,7 @@ const SetupLeaderboardTemplate = ({ task, datasetLabels, groupingTags, onSetup, 
     isGetTaskLoading = false,
     isGetTaskTagsLoading = false,
     isSetupLoading = false,
-    isGetDatasetLabelsLoading = false
+    isGetDatasetLabelsLoading = false,
   } = isLoadingProps;
 
   const mlTaskDetailsUrl = getMlTaskDetailsUrl(id);
@@ -28,13 +28,13 @@ const SetupLeaderboardTemplate = ({ task, datasetLabels, groupingTags, onSetup, 
       </Link>,
       <Link key={2} to={mlTaskDetailsUrl} component={RouterLink}>
         {name}
-      </Link>
+      </Link>,
     ],
     title: {
       text: <FormattedMessage id="setupLeaderboardTemplateTitle" />,
       dataTestId: "lbl_setup_leaderboard_title",
-      isLoading: isGetTaskLoading
-    }
+      isLoading: isGetTaskLoading,
+    },
   };
 
   const defaultValues = useMemo(
@@ -46,12 +46,12 @@ const SetupLeaderboardTemplate = ({ task, datasetLabels, groupingTags, onSetup, 
           {
             max: "",
             min: "",
-            id: ""
-          }
+            id: "",
+          },
         ],
         datasetCoverageRules: {
-          "": ""
-        }
+          "": "",
+        },
       }),
     [groupingTags]
   );
@@ -62,7 +62,7 @@ const SetupLeaderboardTemplate = ({ task, datasetLabels, groupingTags, onSetup, 
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <LeaderboardForm
@@ -75,7 +75,7 @@ const SetupLeaderboardTemplate = ({ task, datasetLabels, groupingTags, onSetup, 
             isTemplate
             isLoadingProps={{
               isGetDataLoading: isGetTaskLoading || isGetTaskTagsLoading || isGetDatasetLabelsLoading,
-              isSubmitDataLoading: isSetupLoading
+              isSubmitDataLoading: isSetupLoading,
             }}
           />
         </Box>

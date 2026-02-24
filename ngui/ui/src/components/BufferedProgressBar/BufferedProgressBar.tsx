@@ -12,7 +12,7 @@ const BufferedProgressBar = ({
   valueBufferColor,
   totalColor,
   tooltip = {},
-  dataTestId
+  dataTestId,
 }) => {
   const { classes, cx } = useStyles({ mainColor: valueColor, secondaryColor: valueBufferColor, backgroundColor: totalColor });
 
@@ -22,7 +22,7 @@ const BufferedProgressBar = ({
     valueBufferTooltipMessage = "",
     totalTooltipMessage = "",
     customTooltipMessage = "",
-    placement = "top"
+    placement = "top",
   } = tooltip;
 
   const renderProgress = () => (
@@ -33,9 +33,9 @@ const BufferedProgressBar = ({
         classes={{
           bar1Buffer: classes.bar1Buffer,
           bar2Buffer: classes.bar2Buffer,
-          dashed: classes.dashed
+          dashed: classes.dashed,
         }}
-        variant={"buffer"}
+        variant="buffer"
         value={Math.min(value, 100)}
         valueBuffer={valueBuffer}
       />

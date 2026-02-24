@@ -30,7 +30,7 @@ const useColors = (countKeys) => {
 
   return {
     tableColors: getColorsMap(countKeys, chartPalette),
-    chartColors: getColorsMap([...countKeys, OTHER_LINE_NAME], chartPalette)
+    chartColors: getColorsMap([...countKeys, OTHER_LINE_NAME], chartPalette),
   };
 };
 
@@ -63,7 +63,7 @@ const useLineData = (breakdown, countKeys) => {
           id = countKey,
           name,
           purpose,
-          type
+          type,
         } = getResourceTypeBreakdownByDate(date, countKey);
 
         return {
@@ -76,10 +76,10 @@ const useLineData = (breakdown, countKeys) => {
             deletedDayBefore,
             name,
             purpose,
-            type
-          }
+            type,
+          },
         };
-      })
+      }),
     }))
     .reverse();
 
@@ -100,9 +100,9 @@ const useLineData = (breakdown, countKeys) => {
       translatedSerieId: translatedOtherLineName,
       details: {
         deletedDayBefore: getOtherDeletedDayBeforeResourcesCountSum(date),
-        created: getOtherCreatedResourcesCountSum(date)
-      }
-    }))
+        created: getOtherCreatedResourcesCountSum(date),
+      },
+    })),
   });
 
   if (!isEmptyArray(otherCountKeys)) {
@@ -122,13 +122,13 @@ const ResourceCountBreakdown = ({
   breakdownByValue,
   onBreakdownByChange,
   isLoading = false,
-  showTable = false
+  showTable = false,
 }) => {
   const { breakdown = {}, start_date: startDate = 0, end_date: endDate = 0, counts = {} } = resourceCountBreakdown;
 
   const appliedRange = {
     startSecondsTimestamp: startDate,
-    endSecondsTimestamp: endDate
+    endSecondsTimestamp: endDate,
   };
 
   const countKeys = useMemo(() => getCountKeysSortedByAverageInDescendingOrder(counts), [counts]);
@@ -149,7 +149,7 @@ const ResourceCountBreakdown = ({
   const [withLegend, setWithLegend] = useSyncQueryParamWithState({
     queryParamName: WITH_LEGEND_QUERY_PARAMETER_NAME,
     possibleStates: [true, false],
-    defaultValue: true
+    defaultValue: true,
   });
 
   return (

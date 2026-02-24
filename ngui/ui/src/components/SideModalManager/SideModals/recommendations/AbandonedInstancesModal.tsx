@@ -11,7 +11,7 @@ import { useCommonSettingsData, useFormWithValuesFromOptions } from "./hooks";
 const VALUE_KEYS = Object.freeze({
   [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
   [THRESHOLD_INPUT_NAMES.CPU_PERCENT_THRESHOLD]: "cpu_percent_threshold",
-  [THRESHOLD_INPUT_NAMES.NETWORK_BPS_THRESHOLD]: "network_bps_threshold"
+  [THRESHOLD_INPUT_NAMES.NETWORK_BPS_THRESHOLD]: "network_bps_threshold",
 });
 
 const AbandonedInstancesThresholds = ({ recommendationType, onSuccess }) => {
@@ -63,8 +63,8 @@ class AbandonedInstancesModal extends BaseSideModal {
     messageId: "abandonedInstances",
     dataTestIds: {
       title: "lbl_abandoned_instances_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_abandoned_instances_strategy";

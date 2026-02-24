@@ -24,7 +24,7 @@ const BookUntilTimePicker = ({ validate }) => {
       fullWidth
       quickValues={{
         values: ["3h", "1d", "3d"],
-        orValues: ["noLimit"]
+        orValues: ["noLimit"],
       }}
       intervalMinutes={INTERVAL_ENVIRONMENT}
       withTimePicker

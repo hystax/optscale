@@ -9,7 +9,7 @@ const lastUsed = ({
   titleMessageId = "lastUsed",
   accessorKey = "last_used",
   accessorFn,
-  defaultSort
+  defaultSort,
 } = {}) => ({
   id,
   header: (
@@ -30,7 +30,7 @@ const lastUsed = ({
     const formattedCellValue = cellValue === 0 ? intl.formatMessage({ id: "never" }) : unixTimestampToDateTime(cellValue);
 
     return formattedCellValue.toLocaleLowerCase().includes(search);
-  }
+  },
 });
 
 export default lastUsed;

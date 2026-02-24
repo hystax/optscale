@@ -52,7 +52,7 @@ const HeaderButtons = ({ isProductTourAvailable = false }) => {
           icon={<MenuBookOutlinedIcon />}
           tooltip={{
             show: true,
-            value: <FormattedMessage id="documentation" />
+            value: <FormattedMessage id="documentation" />,
           }}
         />
         <IconButton
@@ -63,7 +63,7 @@ const HeaderButtons = ({ isProductTourAvailable = false }) => {
           disabled={!isProductTourAvailable || !isTourAvailableForCurrentBreakpoint}
           tooltip={{
             show: true,
-            value: <FormattedMessage id="productTour" />
+            value: <FormattedMessage id="productTour" />,
           }}
         />
         <IconButton
@@ -72,7 +72,7 @@ const HeaderButtons = ({ isProductTourAvailable = false }) => {
           color="primary"
           tooltip={{
             show: true,
-            value: <FormattedMessage id="communityDocs" />
+            value: <FormattedMessage id="communityDocs" />,
           }}
         />
         <Popover
@@ -83,7 +83,7 @@ const HeaderButtons = ({ isProductTourAvailable = false }) => {
               color="primary"
               tooltip={{
                 show: true,
-                value: <FormattedMessage id="profile" />
+                value: <FormattedMessage id="profile" />,
               }}
             />
           }
@@ -103,7 +103,7 @@ const HeaderButtons = ({ isProductTourAvailable = false }) => {
               color="primary"
               tooltip={{
                 show: true,
-                value: <FormattedMessage id="documentation" />
+                value: <FormattedMessage id="documentation" />,
               }}
             />
           </Box>
@@ -114,7 +114,7 @@ const HeaderButtons = ({ isProductTourAvailable = false }) => {
               color="primary"
               tooltip={{
                 show: true,
-                value: <FormattedMessage id="communityDocs" />
+                value: <FormattedMessage id="communityDocs" />,
               }}
             />
           </Box>
@@ -127,7 +127,7 @@ const HeaderButtons = ({ isProductTourAvailable = false }) => {
                   color="primary"
                   tooltip={{
                     show: true,
-                    value: <FormattedMessage id="profile" />
+                    value: <FormattedMessage id="profile" />,
                   }}
                 />
               }

@@ -33,7 +33,7 @@ const GoalLabel = ({ name, goalValue, targetGoalValue, reached, unit, displayInO
               id="value / value"
               values={{
                 value1: <DynamicFractionDigitsValue value={goalValue} />,
-                value2: <DynamicFractionDigitsValue value={targetGoalValue} />
+                value2: <DynamicFractionDigitsValue value={targetGoalValue} />,
               }}
             />
           </strong>
@@ -49,7 +49,7 @@ const GoalLabel = ({ name, goalValue, targetGoalValue, reached, unit, displayInO
       style={{
         display: "flex",
         alignItems: "center",
-        ...(displayInOneLine ? { flexWrap: "nowrap", whiteSpace: "nowrap" } : { flexWrap: "wrap" })
+        ...(displayInOneLine ? { flexWrap: "nowrap", whiteSpace: "nowrap" } : { flexWrap: "wrap" }),
       }}
     >
       <span>

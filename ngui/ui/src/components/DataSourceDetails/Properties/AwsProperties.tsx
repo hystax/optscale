@@ -14,7 +14,7 @@ const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => 
     cur_version: curVersion,
     report_name: reportName,
     use_edp_discount: useEdpDiscount,
-    region_name: regionName
+    region_name: regionName,
   } = config;
 
   const isAssumeRole = Boolean(assumeRoleAccountId && assumeRoleName);
@@ -42,7 +42,7 @@ const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => 
         value={createdAt}
         dataTestIds={{
           key: `p_connected_at_id`,
-          value: `p_connected_at_value`
+          value: `p_connected_at_value`,
         }}
       />
       <KeyValueLabel
@@ -50,7 +50,7 @@ const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => 
         value={accountId}
         dataTestIds={{
           key: `p_${AWS_CNR}_id`,
-          value: `p_${AWS_CNR}_value`
+          value: `p_${AWS_CNR}_value`,
         }}
       />
       <KeyValueLabel
@@ -58,7 +58,7 @@ const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => 
         value={<FormattedMessage id={getAwsAccountTypeMessageId()} />}
         dataTestIds={{
           key: `p_${AWS_CNR}_key`,
-          value: `p_${AWS_CNR}_value`
+          value: `p_${AWS_CNR}_value`,
         }}
       />
       <KeyValueLabel

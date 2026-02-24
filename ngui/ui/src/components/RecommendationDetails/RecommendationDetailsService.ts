@@ -21,7 +21,7 @@ const useGetOptimizations = ({ type, limit, status, cloudAccountIds }) => {
     cloudAccountIds,
     type,
     status,
-    limit
+    limit,
   });
 
   const allRecommendations = useAllRecommendations();
@@ -55,7 +55,7 @@ const usePatchResource = (recommendationType, status) => {
     dispatch(
       updateResourceVisibility(resourceId, {
         recommendation: recommendationType,
-        action: status === STATUS.ACTIVE ? RESOURCE_VISIBILITY_ACTIONS.DISMISS : RESOURCE_VISIBILITY_ACTIONS.ACTIVATE
+        action: status === STATUS.ACTIVE ? RESOURCE_VISIBILITY_ACTIONS.DISMISS : RESOURCE_VISIBILITY_ACTIONS.ACTIVATE,
       })
     );
 };
@@ -63,7 +63,7 @@ const usePatchResource = (recommendationType, status) => {
 function RecommendationDetailsService() {
   return {
     useGetOptimizations,
-    usePatchResource
+    usePatchResource,
   };
 }
 

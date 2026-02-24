@@ -16,7 +16,7 @@ import {
   CHART_LEGEND_LAYOUT_SETTINGS,
   DEFAULT_LINE_CHART_HEIGHT,
   DEFAULT_LINE_CHART_MARGIN,
-  MAX_LEGEND_LABEL_WIDTH
+  MAX_LEGEND_LABEL_WIDTH,
 } from "utils/constants";
 import CanvasLayer from "./CanvasLayer";
 import SliceTooltipLayer from "./SliceTooltipLayer";
@@ -44,13 +44,13 @@ const useLineDimensions = ({ height, width, margin: partialMargin }) => {
     innerWidth,
     outerHeight,
     innerHeight,
-    outerWidth
+    outerWidth,
   };
 };
 
 const useXScaleSpec = (
   xScaleSpecProp = {
-    type: "point"
+    type: "point",
   }
 ) =>
   useMemo(() => {
@@ -64,7 +64,7 @@ const useXScaleSpec = (
         clamp: false,
         nice: false,
         round: false,
-        ...xScaleSpecProp
+        ...xScaleSpecProp,
       };
     }
 
@@ -77,7 +77,7 @@ const useYScaleSpec = ({ data, yScaleSpecProp = {} }) =>
       type: yScaleSpecProp.type ?? "linear",
       min: yScaleSpecProp.min,
       max: yScaleSpecProp.max,
-      stacked: yScaleSpecProp.stacked ?? false
+      stacked: yScaleSpecProp.stacked ?? false,
     };
 
     const getAllY = () => {
@@ -124,7 +124,7 @@ const useYScaleSpec = ({ data, yScaleSpecProp = {} }) =>
     return {
       ...yScaleSpec,
       min: getMin(),
-      max: getMax()
+      max: getMax(),
     };
   }, [data, yScaleSpecProp.max, yScaleSpecProp.min, yScaleSpecProp.stacked, yScaleSpecProp.type]);
 
@@ -146,12 +146,12 @@ const useLineYTicks = ({ yScaleSpec: defaultYScaleSpec, outerHeight, y }) => {
   const {
     maxValue: calculatedMaxYValue,
     minValue: calculatedMinYValue,
-    tickValues: yTickValues
+    tickValues: yTickValues,
   } = getLineYTicks({
     ticksCount: TICK_COUNT,
     yMax: getYMax(),
     yMin: getYMin(),
-    height: outerHeight
+    height: outerHeight,
   });
 
   return {
@@ -159,9 +159,9 @@ const useLineYTicks = ({ yScaleSpec: defaultYScaleSpec, outerHeight, y }) => {
       ...defaultYScaleSpec,
       // Override max value in order to add one more vertical line (tick) above/below lines
       max: calculatedMaxYValue,
-      min: calculatedMinYValue
+      min: calculatedMinYValue,
     },
-    yTickValues
+    yTickValues,
   };
 };
 
@@ -188,7 +188,7 @@ const Line = ({
   xScale: xScaleSpecProp,
   yScale: yScaleSpecProp,
   withLegend,
-  legendLabel
+  legendLabel,
 }) => {
   const chartTheme = useChartTheme();
 
@@ -196,13 +196,13 @@ const Line = ({
 
   const yScaleSpec = useYScaleSpec({
     data,
-    yScaleSpecProp
+    yScaleSpecProp,
   });
 
   const { margin, innerWidth, outerHeight, innerHeight, outerWidth } = useLineDimensions({
     width: wrapperDimensions.width,
     height: wrapperDimensions.height,
-    margin: partialMargin
+    margin: partialMargin,
   });
 
   const { xScale, x, y, series } = useMemo(
@@ -213,7 +213,7 @@ const Line = ({
   const { yScaleSpec: updatedYScaleSpec, yTickValues } = useLineYTicks({
     yScaleSpec,
     outerHeight,
-    y
+    y,
   });
 
   const isStackedChart = updatedYScaleSpec.stacked;
@@ -227,7 +227,7 @@ const Line = ({
     () =>
       series.map((serie) => ({
         ...serie,
-        color: seriesColorScale(serie)
+        color: seriesColorScale(serie),
       })),
     [seriesColorScale, series]
   );
@@ -247,9 +247,9 @@ const Line = ({
               scale: xScale,
               font: {
                 fontSize: chartTheme.axis.ticks.text.fontSize,
-                fontFamily: chartTheme.axis.ticks.text.fontFamily
+                fontFamily: chartTheme.axis.ticks.text.fontFamily,
               },
-              formatString: axisBottomSpec.formatString
+              formatString: axisBottomSpec.formatString,
             });
       }
 
@@ -259,7 +259,7 @@ const Line = ({
     return {
       ...axisBottomSpec,
       format: axisBottomSpec.format ? axisBottomSpec.format : (value) => String(value),
-      tickValues: getTickValues()
+      tickValues: getTickValues(),
     };
   };
 
@@ -280,8 +280,8 @@ const Line = ({
         yStart: margin.top,
         yEnd: outerHeight - margin.bottom,
         height: innerHeight,
-        width: innerWidth
-      }
+        width: innerWidth,
+      },
     }),
     [chartTheme, innerHeight, innerWidth, margin, outerHeight, outerWidth, x, xScale]
   );
@@ -291,7 +291,7 @@ const Line = ({
       style={{
         position: "relative",
         height: wrapperDimensions.height,
-        width: wrapperDimensions.width
+        width: wrapperDimensions.width,
       }}
     >
       <SliceTooltipLayer
@@ -328,7 +328,7 @@ const Line = ({
             ? {
                 ...axisRight,
                 tickValues: yTickValues,
-                tickSize: 0
+                tickSize: 0,
               }
             : null
         }
@@ -359,13 +359,13 @@ const Line = ({
                     ...CHART_LEGEND_LAYOUT_SETTINGS,
                     containerWidth: layerContext.innerWidth,
                     containerHeight: layerContext.innerHeight,
-                    theme: chartTheme
+                    theme: chartTheme,
                   });
 
                   ctx.restore();
-                }
+                },
               ]
-            : [])
+            : []),
         ]}
         pixelRatio={2}
       />
@@ -389,14 +389,14 @@ const ResponsiveLine = ({
     height = DEFAULT_LINE_CHART_HEIGHT,
     margin = {
       ...DEFAULT_LINE_CHART_MARGIN,
-      right: withLegend ? 200 : DEFAULT_LINE_CHART_MARGIN.right
-    }
+      right: withLegend ? 200 : DEFAULT_LINE_CHART_MARGIN.right,
+    },
   } = style;
 
   return (
     <div
       style={{
-        height: theme.spacing(height)
+        height: theme.spacing(height),
       }}
       data-test-id={dataTestId}
       ref={wrapperRef}
@@ -424,7 +424,7 @@ const ResponsiveLine = ({
             <Line
               wrapperDimensions={{
                 width: wrapperWidth,
-                height: wrapperHeight
+                height: wrapperHeight,
               }}
               data={data}
               margin={margin}

@@ -15,7 +15,7 @@ import {
   isExpensesLimit,
   isTtlLimit,
   TOTAL_EXPENSE_LIMIT,
-  TTL
+  TTL,
 } from "utils/constraints";
 import { isEmptyObject } from "utils/objects";
 
@@ -26,22 +26,22 @@ const getDataTestIds = (type) =>
       subheaderText: "p_total_expense_limit",
       switch: "switch_total_expense_limit",
       editButton: "btn_total_expense_edit",
-      constraintLimitMessage: "lbl_total_expense_value"
+      constraintLimitMessage: "lbl_total_expense_value",
     },
     [DAILY_EXPENSE_LIMIT]: {
       card: "block_daily_total_expense_limit",
       subheaderText: "p_daily_total_expense_limit",
       switch: "switch_daily_total_expense_limit",
       editButton: "btn_daily_total_expense_edit",
-      constraintLimitMessage: "lbl_daily_total_expense_value"
+      constraintLimitMessage: "lbl_daily_total_expense_value",
     },
     [TTL]: {
       card: "block_ttl",
       subheaderText: "p_ttl",
       switch: "switch_ttl",
       editButton: "btn_ttl_edit",
-      constraintLimitMessage: "lbl_ttl_value"
-    }
+      constraintLimitMessage: "lbl_ttl_value",
+    },
   })[type];
 
 const PoolConstraintForm = ({ update, create, updateActivity, policy = {}, policyType, poolId, isLoadingProps = {} }) => {
@@ -54,7 +54,7 @@ const PoolConstraintForm = ({ update, create, updateActivity, policy = {}, polic
     subheaderText: subheaderTextDataTestId,
     switch: switchDataTestId,
     editButton: editButtonDataTestId,
-    constraintLimitMessage: constraintLimitMessageDataTestId
+    constraintLimitMessage: constraintLimitMessageDataTestId,
   } = getDataTestIds(policyType);
 
   const isManagePoolsAllowed = useIsAllowed({ requiredActions: ["MANAGE_POOLS"] });
@@ -62,7 +62,7 @@ const PoolConstraintForm = ({ update, create, updateActivity, policy = {}, polic
   const isManagePoolAllowed = useIsAllowed({
     entityId: poolId,
     entityType: SCOPE_TYPES.POOL,
-    requiredActions: ["MANAGE_POOLS"]
+    requiredActions: ["MANAGE_POOLS"],
   });
 
   const renderPolicy = () => (
@@ -82,7 +82,7 @@ const PoolConstraintForm = ({ update, create, updateActivity, policy = {}, polic
       isLoading={isUpdateLoading || isCreateLoading}
       dataTestIds={{
         constraintLimitMessageDataTestId,
-        editButtonDataTestId
+        editButtonDataTestId,
       }}
     />
   );

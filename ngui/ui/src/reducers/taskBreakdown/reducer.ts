@@ -4,7 +4,7 @@ export const TASK_BREAKDOWN = "taskBreakdown";
 
 export const STORE_ACCESSORS = Object.freeze({
   RUNS: "runs_breakdown",
-  LEADERBOARD_ID: "leaderboard_id"
+  LEADERBOARD_ID: "leaderboard_id",
 });
 
 const reducer = (state = {}, action) => {
@@ -14,8 +14,8 @@ const reducer = (state = {}, action) => {
         ...state,
         [action.payload.taskId]: {
           ...state[action.payload.taskId],
-          [STORE_ACCESSORS.RUNS]: action.payload.breakdowns
-        }
+          [STORE_ACCESSORS.RUNS]: action.payload.breakdowns,
+        },
       };
     }
     case SET_SELECTED_TASK_LEADERBOARD_ID: {
@@ -23,8 +23,8 @@ const reducer = (state = {}, action) => {
         ...state,
         [action.payload.taskId]: {
           ...state[action.payload.taskId],
-          [STORE_ACCESSORS.LEADERBOARD_ID]: action.payload.leaderboardId
-        }
+          [STORE_ACCESSORS.LEADERBOARD_ID]: action.payload.leaderboardId,
+        },
       };
     }
     default:

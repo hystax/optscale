@@ -12,7 +12,7 @@ const Duration = ({ rawDuration, rawDurationThreshold }) => {
       id="{value}OutOf{defaultValue}"
       values={{
         value: duration,
-        defaultValue: durationThreshold
+        defaultValue: durationThreshold,
       }}
     />
   );
@@ -26,11 +26,11 @@ const mlLocalStorageBottleneckDuration = ({ headerDataTestId = "lbl_duration" } 
   ),
   id: "duration",
   style: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
   cell: ({ row: { original } }) => (
     <Duration rawDuration={original.duration} rawDurationThreshold={original.duration_threshold} />
-  )
+  ),
 });
 
 export default mlLocalStorageBottleneckDuration;

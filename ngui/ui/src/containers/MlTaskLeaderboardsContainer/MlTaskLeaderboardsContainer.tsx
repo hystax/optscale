@@ -5,7 +5,7 @@ import MlTaskLeaderboards from "components/MlTaskLeaderboards";
 import {
   getStoreLeaderboardId,
   setStoreLeaderboardId,
-  useTaskSelectedLeaderboardId
+  useTaskSelectedLeaderboardId,
 } from "reducers/taskBreakdown/useTaskSelectedLeaderboardId";
 import MlLeaderboardsService from "services/MlLeaderboardsService";
 import { isEmptyArray } from "utils/arrays";
@@ -18,13 +18,13 @@ const MlTaskLeaderboardsContainer = ({ task }) => {
     useGetLeaderboardTemplateOnDemand,
     useGetLeaderboardsOnDemand,
     useGetLeaderboardOnDemand,
-    useGetLeaderboardCandidatesOnDemand
+    useGetLeaderboardCandidatesOnDemand,
   } = MlLeaderboardsService();
 
   const {
     isLoading: isGetLeaderboardTemplateLoading,
     data: leaderboardTemplate,
-    getData: getLeaderboardTemplate
+    getData: getLeaderboardTemplate,
   } = useGetLeaderboardTemplateOnDemand();
 
   const { isLoading: isGetLeaderboardsLoading, data: leaderboards, getData: getLeaderboards } = useGetLeaderboardsOnDemand();
@@ -34,7 +34,7 @@ const MlTaskLeaderboardsContainer = ({ task }) => {
   const {
     isLoading: isGetLeaderboardCandidatesLoading,
     data: leaderboardCandidates,
-    getData: getLeaderboardCandidates
+    getData: getLeaderboardCandidates,
   } = useGetLeaderboardCandidatesOnDemand();
 
   const getLeaderboardData = useCallback(
@@ -106,7 +106,7 @@ const MlTaskLeaderboardsContainer = ({ task }) => {
         isGetLeaderboardTemplateLoading,
         isGetLeaderboardsLoading,
         isGetLeaderboardLoading,
-        isGetLeaderboardCandidatesLoading
+        isGetLeaderboardCandidatesLoading,
       }}
     />
   );

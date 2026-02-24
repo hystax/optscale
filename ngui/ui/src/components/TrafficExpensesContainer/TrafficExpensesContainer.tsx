@@ -18,7 +18,7 @@ const TrafficExpensesContainer = () => {
   const { isDataReady, shouldInvoke } = useApiState(GET_TRAFFIC_EXPENSES, {
     startDate: startDateTimestamp,
     endDate: endDateTimestamp,
-    organizationId
+    organizationId,
   });
 
   useEffect(() => {
@@ -26,14 +26,14 @@ const TrafficExpensesContainer = () => {
       dispatch(
         getTrafficExpenses(organizationId, {
           startDate: startDateTimestamp,
-          endDate: endDateTimestamp
+          endDate: endDateTimestamp,
         })
       );
     }
   }, [dispatch, endDateTimestamp, organizationId, shouldInvoke, startDateTimestamp]);
 
   const {
-    apiData: { expenses = {} }
+    apiData: { expenses = {} },
   } = useApiData(GET_TRAFFIC_EXPENSES);
 
   return <TrafficExpenses isLoading={!isDataReady} expenses={expenses} />;

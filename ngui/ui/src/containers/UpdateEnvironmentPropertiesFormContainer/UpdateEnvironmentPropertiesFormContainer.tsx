@@ -44,7 +44,7 @@ const UpdateEnvironmentPropertiesFormContainer = ({
   onSuccess,
   onCancel,
   isEdit,
-  existingProperties
+  existingProperties,
 }) => {
   const dispatch = useDispatch();
 

@@ -1,7 +1,7 @@
 import logging
-import boto3
 
 from datetime import datetime
+from tools.cloud_adapter.cloud import Cloud
 from gemini.gemini_worker.duplicate_object_finder.aws.object_info import ObjectInfo
 
 LOG = logging.getLogger(__file__)
@@ -10,25 +10,13 @@ LOG = logging.getLogger(__file__)
 class DefaultAWSClientFactory:
     def __init__(
         self,
-        endpoint_url=None,
-        access_key_id=None,
-        secret_access_key=None,
         config=None,
     ):
-        self._endpoint_url = endpoint_url
-        self._access_key_id = access_key_id
-        self._secret_access_key = secret_access_key
         self._config = config
+        self.cloud_adapter = Cloud.get_adapter(self._config)
 
-    def create_client(self, region=None):
-        return boto3.client(
-            "s3",
-            endpoint_url=self._endpoint_url,
-            region_name=region,
-            aws_access_key_id=self._access_key_id,
-            aws_secret_access_key=self._secret_access_key,
-            config=self._config,
-        )
+    def create_client(self):
+        return self.cloud_adapter.s3
 
 
 class AWSObjectEnumerator:
@@ -67,8 +55,8 @@ class AWSObjectEnumerator:
                 region = location_constraint
                 LOG.info(f"Processing bucket {bucket} in {region}")
 
-            paginator = self._client_factory.create_client(
-                region).get_paginator("list_objects_v2")
+            paginator = self._client_factory.create_client().get_paginator(
+                "list_objects_v2")
 
             kwargs = {"Bucket": bucket}
             before_request = datetime.now()

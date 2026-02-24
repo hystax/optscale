@@ -32,7 +32,7 @@ const UpdatePoolPolicyActivityContainer = ({ policyId, poolId, active }) => {
   const isManagePoolAllowed = useIsAllowed({
     entityId: poolId,
     entityType: SCOPE_TYPES.POOL,
-    requiredActions: ["MANAGE_POOLS"]
+    requiredActions: ["MANAGE_POOLS"],
   });
 
   const onActivityChange = () => {
@@ -40,11 +40,11 @@ const UpdatePoolPolicyActivityContainer = ({ policyId, poolId, active }) => {
     updatePolicyActivity(
       {
         policyId,
-        isActive: !active
+        isActive: !active,
       },
       {
         onSuccess: () => setIsUpdateActivityLoading(false),
-        onError: () => setIsUpdateActivityLoading(false)
+        onError: () => setIsUpdateActivityLoading(false),
       }
     );
   };
@@ -62,7 +62,7 @@ const UpdatePoolPolicyActivityContainer = ({ policyId, poolId, active }) => {
           height: 20,
           borderRadius: "50%",
           backgroundColor: (theme) => (isChecked ? theme.palette.secondary.main : theme.palette.background.default),
-          boxShadow: (theme) => theme.shadows[1]
+          boxShadow: (theme) => theme.shadows[1],
         }}
       >
         {isUpdateActivityLoading && <CircularProgress size={14} thickness={6} />}
@@ -94,7 +94,7 @@ const UpdatePoolPolicyContainer = ({ policyId, policyLimit, policyType, poolId, 
   const isManagePoolAllowed = useIsAllowed({
     entityId: poolId,
     entityType: SCOPE_TYPES.POOL,
-    requiredActions: ["MANAGE_POOLS"]
+    requiredActions: ["MANAGE_POOLS"],
   });
 
   // Need to handle the loading state locally since it is possible dispatch multiple requests with the same API label
@@ -111,7 +111,7 @@ const UpdatePoolPolicyContainer = ({ policyId, policyLimit, policyType, poolId, 
           setIsUpdateLimitLoading(false);
           onSuccess();
         },
-        onError: () => setIsUpdateLimitLoading(false)
+        onError: () => setIsUpdateLimitLoading(false),
       }
     );
   };
@@ -120,7 +120,7 @@ const UpdatePoolPolicyContainer = ({ policyId, policyLimit, policyType, poolId, 
     <Box
       sx={{
         width: "250px",
-        display: "flex"
+        display: "flex",
       }}
     >
       <EditablePoolPolicyLimit
@@ -149,8 +149,8 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
         formattedPolicyLimit: formatConstraintLimitMessage({
           limit: poolPolicy.limit,
           type: poolPolicy.type,
-          formats: { ttl: CONSTRAINT_MESSAGE_FORMAT.TEXT }
-        })
+          formats: { ttl: CONSTRAINT_MESSAGE_FORMAT.TEXT },
+        }),
       })),
     [poolPolicies, intl, formatConstraintLimitMessage]
   );
@@ -161,7 +161,7 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
     [...new Set(poolPolicies.map((policy) => policy.pool_id))].map((poolId) => ({
       entityId: poolId,
       entityType: SCOPE_TYPES.POOL,
-      requiredActions: ["MANAGE_POOLS"]
+      requiredActions: ["MANAGE_POOLS"],
     }))
   );
 
@@ -177,7 +177,7 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
         cell: ({ row: { original } }) => (
           <PoolLabel name={original.details.name} type={original.details.purpose} id={original.details.id} />
         ),
-        defaultSort: "asc"
+        defaultSort: "asc",
       },
       {
         header: (
@@ -185,7 +185,7 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
             <FormattedMessage id="policyType" />
           </TextWithDataTestId>
         ),
-        accessorKey: "translatedType"
+        accessorKey: "translatedType",
       },
       {
         header: (
@@ -206,8 +206,8 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
               poolId={poolId}
             />
           );
-        }
-      }
+        },
+      },
     ];
     return [
       ...baseColumns,
@@ -225,10 +225,10 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
                 const { id, pool_id: poolId, active } = original;
 
                 return <UpdatePoolPolicyActivityContainer policyId={id} poolId={poolId} active={active} />;
-              }
-            }
+              },
+            },
           ]
-        : [])
+        : []),
     ];
   }, [isAllowedToManageAnyPool]);
 
@@ -242,9 +242,9 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
         variant: "contained",
         type: "button",
         dataTestId: "btn_add",
-        action: () => navigate(RESOURCE_LIFECYCLE_CREATE_POOL_POLICY)
-      }
-    ]
+        action: () => navigate(RESOURCE_LIFECYCLE_CREATE_POOL_POLICY),
+      },
+    ],
   };
 
   return (
@@ -256,12 +256,12 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
           withSearch
           data={data}
           localization={{
-            emptyMessageId: "noPoolPolicies"
+            emptyMessageId: "noPoolPolicies",
           }}
           columns={columns}
           actionBar={{
             show: true,
-            definition: actionBarDefinition
+            definition: actionBarDefinition,
           }}
           pageSize={50}
           queryParamPrefix="poolPolicies"
@@ -270,7 +270,7 @@ const ResourceLifecycleGlobalPoolPolicies = ({ poolPolicies, isLoading = false }
       <PageContentDescription
         position="bottom"
         alertProps={{
-          messageId: "globalPoolPoliciesDescription"
+          messageId: "globalPoolPoliciesDescription",
         }}
       />
     </>

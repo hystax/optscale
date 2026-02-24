@@ -9,7 +9,7 @@ const checkPoolAndSubpools = (parent, subPools, isExpanded = false) => {
   const { limit, cost, forecast } = parent;
   const checks = {
     exceededExpenses: isCostOverLimit({ limit, cost }),
-    exceededForecast: isForecastOverLimit({ limit, forecast })
+    exceededForecast: isForecastOverLimit({ limit, forecast }),
   };
   if (checks.exceededExpenses || isExpanded) {
     return checks;
@@ -54,12 +54,12 @@ const useGetRowStyle = (pools) => {
 
       if (check.exceededExpenses) {
         return {
-          borderLeft: `4px solid ${theme.palette.error.main}`
+          borderLeft: `4px solid ${theme.palette.error.main}`,
         };
       }
       if (check.exceededForecast) {
         return {
-          borderLeft: `4px solid ${theme.palette.warning.main}`
+          borderLeft: `4px solid ${theme.palette.warning.main}`,
         };
       }
       return noAttentionStyle;

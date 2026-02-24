@@ -29,7 +29,7 @@ const Summary = ({ data, isLoading = false }: SummaryProps) => {
       if (poolExpenses > poolLimit && poolLimit !== 0) {
         return {
           exceededPools: acc.exceededPools + 1,
-          exceededByValue: acc.exceededByValue + (poolExpenses - poolLimit)
+          exceededByValue: acc.exceededByValue + (poolExpenses - poolLimit),
         };
       }
       return acc;
@@ -43,61 +43,61 @@ const Summary = ({ data, isLoading = false }: SummaryProps) => {
       type: SUMMARY_CARD_TYPES.EXTENDED,
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: exceededByValue
+        value: exceededByValue,
       },
       captionMessageId: "spentOverLimit",
       relativeValue: exceededPools,
       relativeValueCaptionMessageId: "exceededLimit",
       dataTestIds: {
-        cardTestId: "card_total_exp"
+        cardTestId: "card_total_exp",
       },
       color: "error",
       renderCondition: () => !!exceededPools,
-      isLoading
+      isLoading,
     },
     {
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: limit
+        value: limit,
       },
       captionMessageId: "organizationLimit",
       key: "pool",
       isLoading,
       dataTestIds: {
-        cardTestId: "card_pool"
-      }
+        cardTestId: "card_pool",
+      },
     },
     {
       key: "expensesThisMonth",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: cost
+        value: cost,
       },
       color: getPoolColorStatus(costPercent),
       captionMessageId: "expensesThisMonth",
       isLoading,
       dataTestIds: {
-        cardTestId: "card_expenses"
-      }
+        cardTestId: "card_expenses",
+      },
     },
     {
       key: "forecastThisMonth",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: forecast
+        value: forecast,
       },
       captionMessageId: "forecastThisMonth",
       color: getPoolColorStatus(forecastPercent),
       isLoading,
       dataTestIds: {
-        cardTestId: "card_forecast"
-      }
+        cardTestId: "card_forecast",
+      },
     },
     {
       key: "possibleMonthlySavings",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: saving
+        value: saving,
       },
       captionMessageId: "possibleMonthlySavings",
       renderCondition: () => saving !== 0,
@@ -107,19 +107,19 @@ const Summary = ({ data, isLoading = false }: SummaryProps) => {
           [POOL_ID_FILTER]: getPoolIdWithSubPools(id),
           [RECOMMENDATIONS_FILTER]: true,
           sStartDate: startOfMonth,
-          sEndDate: today
+          sEndDate: today,
         }),
         tooltip: {
           show: true,
           messageId: "goToResources",
-          placement: "top"
-        }
+          placement: "top",
+        },
       },
       isLoading,
       dataTestIds: {
-        cardTestId: "card_savings"
-      }
-    }
+        cardTestId: "card_savings",
+      },
+    },
   ];
 
   return <SummaryGrid summaryData={summaryDefinition} />;

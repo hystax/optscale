@@ -14,7 +14,7 @@ const poolOwner = () => ({
     <CaptionedCell caption={original.owner_name}>
       <PoolLabel id={original.pool_id} name={original.pool_name} type={original.pool_purpose} />
     </CaptionedCell>
-  )
+  ),
 });
 
 export default poolOwner;

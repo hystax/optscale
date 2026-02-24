@@ -9,7 +9,7 @@ import { FIELD_NAMES } from "../constants";
 const NameField = ({ name = FIELD_NAMES.NAME, isLoading = false }) => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -27,18 +27,18 @@ const NameField = ({ name = FIELD_NAMES.NAME, isLoading = false }) => {
       {...register(name, {
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         maxLength: {
           value: DEFAULT_MAX_INPUT_LENGTH,
           message: intl.formatMessage(
             { id: "maxLength" },
             { inputName: intl.formatMessage({ id: "name" }), max: DEFAULT_MAX_INPUT_LENGTH }
-          )
+          ),
         },
         validate: {
-          notOnlyWhiteSpaces
-        }
+          notOnlyWhiteSpaces,
+        },
       })}
     />
   );

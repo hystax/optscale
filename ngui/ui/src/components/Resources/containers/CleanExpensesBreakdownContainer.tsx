@@ -25,10 +25,10 @@ const LimitWarning = ({ limit }) => {
       messageId="rowsLimitWarning"
       messageValues={{
         entities: intl.formatMessage({ id: "resources" }).toLocaleLowerCase(),
-        count: limit
+        count: limit,
       }}
       sx={{
-        mb: 1
+        mb: 1,
       }}
     />
   );
@@ -48,7 +48,7 @@ const CleanExpensesBreakdownContainer = ({ requestParams }) => {
       url: `${REST_API_URL}/organizations/${organizationId}/clean_expenses?${stringifySearchParams(
         mapCleanExpensesRequestParamsToApiParams(params)
       )}`,
-      fallbackFilename: `resources_list.${format}`
+      fallbackFilename: `resources_list.${format}`,
     });
   };
 

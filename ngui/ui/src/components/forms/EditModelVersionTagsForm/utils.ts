@@ -7,11 +7,11 @@ export const getDefaultValues = (tags: Tags): FormValues => ({
     ? [
         {
           [FIELD_NAMES.TAGS_FIELD_ARRAY.KEY]: "",
-          [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: ""
-        }
+          [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: "",
+        },
       ]
     : Object.entries(tags).map(([key, value]) => ({
         [FIELD_NAMES.TAGS_FIELD_ARRAY.KEY]: key,
-        [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: value
-      }))
+        [FIELD_NAMES.TAGS_FIELD_ARRAY.VALUE]: value,
+      })),
 });

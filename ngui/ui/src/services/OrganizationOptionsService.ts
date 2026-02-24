@@ -7,12 +7,12 @@ import {
   getOrganizationOption,
   updateOrganizationOption,
   createOrganizationOption,
-  deleteOrganizationOption
+  deleteOrganizationOption,
 } from "api";
 import {
   getRecommendationsDownloadLimit,
   getS3DuplicatesOrganizationSettings,
-  updateS3DuplicatesOrganizationSettings
+  updateS3DuplicatesOrganizationSettings,
 } from "api/restapi/actionCreators";
 import {
   GET_ORGANIZATION_OPTIONS,
@@ -24,7 +24,7 @@ import {
   DELETE_ORGANIZATION_OPTION,
   GET_RECOMMENDATIONS_DOWNLOAD_OPTIONS,
   GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
-  UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS
+  UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -48,7 +48,7 @@ const useGet = (withValues) => {
 
   return {
     isGetOrganizationOptionsLoading: isLoading,
-    options: withValues ? options.map(({ name, value }) => ({ name, value: parseJSON(value) })) : options
+    options: withValues ? options.map(({ name, value }) => ({ name, value: parseJSON(value) })) : options,
   };
 };
 
@@ -138,7 +138,7 @@ const useGetRecommendationOptions = (recommendationType) => {
 
   const { isLoading, shouldInvoke } = useApiState(GET_OPTIMIZATION_OPTIONS, {
     organizationId,
-    recommendationType
+    recommendationType,
   });
 
   useEffect(() => {
@@ -158,7 +158,7 @@ const useGetRecommendationOptionsOnce = (recommendationType) => {
 
   const { isLoading } = useApiState(GET_OPTIMIZATION_OPTIONS, {
     organizationId,
-    recommendationType
+    recommendationType,
   });
 
   useEffect(() => {
@@ -184,7 +184,7 @@ const useUpdateRecommendationOptions = () => {
     // This field will be removed on the next recomendaition check, because it is "artificial" and
     // is not recognized by any recommendation type.
     const params = {
-      value: JSON.stringify({ ...options, isUpdated: true })
+      value: JSON.stringify({ ...options, isUpdated: true }),
     };
 
     dispatch((_, getState) => {
@@ -205,7 +205,7 @@ const useGetRecommendationsDownloadOptions = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { value: options = "{}" }
+    apiData: { value: options = "{}" },
   } = useApiData(GET_RECOMMENDATIONS_DOWNLOAD_OPTIONS, {});
 
   const { isLoading, shouldInvoke, isDataReady } = useApiState(GET_RECOMMENDATIONS_DOWNLOAD_OPTIONS, organizationId);
@@ -219,7 +219,7 @@ const useGetRecommendationsDownloadOptions = () => {
   return {
     options: parseJSON(options),
     isGetRecommendationsDownloadOptionsLoading: isLoading,
-    isGetRecommendationsDownloadOptionsReady: isDataReady
+    isGetRecommendationsDownloadOptionsReady: isDataReady,
   };
 };
 
@@ -273,7 +273,7 @@ function OrganizationOptionsService() {
     useUpdateRecommendationOptions,
     useGetRecommendationsDownloadOptions,
     useGetS3DuplicatesOrganizationSettings,
-    useUpdateS3DuplicatedOrganizationSettings
+    useUpdateS3DuplicatedOrganizationSettings,
   };
 }
 

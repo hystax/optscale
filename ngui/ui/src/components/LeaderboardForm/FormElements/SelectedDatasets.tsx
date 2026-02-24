@@ -21,8 +21,8 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
         id: "actions",
         cell: ({
           row: {
-            original: { id }
-          }
+            original: { id },
+          },
         }) => (
           <TableCellActions
             items={[
@@ -30,29 +30,29 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
                 key: "remove",
                 messageId: "remove",
                 icon: <RemoveOutlinedIcon fontSize="small" />,
-                action: () => onDatasetRemove(selectedDatasets.filter((selectedDataset) => selectedDataset.id !== id))
-              }
+                action: () => onDatasetRemove(selectedDatasets.filter((selectedDataset) => selectedDataset.id !== id)),
+              },
             ]}
           />
-        )
+        ),
       },
       leaderboardDataset({
         nameAccessor: "name",
         pathAccessor: "path",
-        deletedAccessor: "deleted"
+        deletedAccessor: "deleted",
       }),
       localTime({
         id: "created_at",
         accessorFn: (originalRow) => secondsToMilliseconds(originalRow.created_at),
         headerDataTestId: "lbl_updated_at",
         headerMessageId: "createdAt",
-        defaultSort: "desc"
+        defaultSort: "desc",
       }),
       datasetLabels({
         id: "labels",
-        accessorFn: (originalRow) => originalRow.labels
+        accessorFn: (originalRow) => originalRow.labels,
       }),
-      datasetTimespan()
+      datasetTimespan(),
     ],
     [onDatasetRemove, selectedDatasets]
   );
@@ -63,10 +63,10 @@ const ControlledTable = ({ selectedDatasets, onDatasetRemove }) => {
       columns={columns}
       pageSize={5}
       localization={{
-        emptyMessageId: "noDatasets"
+        emptyMessageId: "noDatasets",
       }}
       counters={{
-        show: false
+        show: false,
       }}
     />
   );
@@ -77,7 +77,7 @@ const SelectedDatasets = ({ isLoading = false }) => {
     control,
     formState: { errors, isSubmitted },
     watch,
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   const selectedDatasets = watch(FIELD_NAMES.SELECTED_DATASETS);

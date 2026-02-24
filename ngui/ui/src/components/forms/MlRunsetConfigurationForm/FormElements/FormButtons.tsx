@@ -16,7 +16,7 @@ const FormButtons = ({ onCancel, isLoading = false }) => {
         isLoading={isLoading}
         tooltip={{
           show: isRestricted,
-          value: restrictionReasonMessage
+          value: restrictionReasonMessage,
         }}
         disabled={isRestricted}
       />

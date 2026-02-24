@@ -6,7 +6,7 @@ const ResourcePaidNetworkTrafficContainer = ({ resourceId, startDate, endDate })
 
   const {
     trafficExpenses: { traffic_expenses: expenses = [] },
-    isLoading
+    isLoading,
   } = useGetTrafficExpenses({ startDate, endDate, resourceId });
 
   return <ResourcePaidNetworkTraffic trafficExpenses={expenses} isLoading={isLoading} />;

@@ -27,7 +27,7 @@ import {
   ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH,
   RESOURCE_TYPE_IS,
   REGION_IS,
-  OPTSCALE_RESOURCE_TYPES
+  OPTSCALE_RESOURCE_TYPES,
 } from "utils/constants";
 import { SPACING_1 } from "utils/layouts";
 import { idx } from "utils/objects";
@@ -40,17 +40,17 @@ const { FIELD_NAME, TYPE, META_INFO } = FIELD_NAMES.CONDITIONS_FIELD_ARRAY;
 const useStyles = makeStyles()((theme) => ({
   item: {
     width: "100%",
-    minWidth: 0
+    minWidth: 0,
   },
   keyValueInput: {
-    width: `calc(50% - ${theme.spacing(SPACING_1 / 2)})`
+    width: `calc(50% - ${theme.spacing(SPACING_1 / 2)})`,
   },
   spaceRight: {
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   deleteButton: {
-    alignItems: "flex-end"
-  }
+    alignItems: "flex-end",
+  },
 }));
 
 export const NOT_SET_REGION_FILTER_NAME = intl.formatMessage({ id: "notSet" });
@@ -58,7 +58,7 @@ export const NOT_SET_REGION_FILTER_NAME = intl.formatMessage({ id: "notSet" });
 const ResourceTypeIsAutocompleteField = ({ resourceTypes, name, field, count }) => {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const NAME = FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME;
@@ -74,8 +74,8 @@ const ResourceTypeIsAutocompleteField = ({ resourceTypes, name, field, count }) 
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
-        }
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
+        },
       }}
       render={({ field: { value: formFieldValue, onChange, ...rest } }) => (
         <Autocomplete
@@ -109,7 +109,7 @@ const ResourceTypeIsAutocompleteField = ({ resourceTypes, name, field, count }) 
                     resourceInfo={{
                       resourceType: option.name,
                       clusterTypeId: option.type === OPTSCALE_RESOURCE_TYPES.CLUSTER,
-                      isEnvironment: option.type === OPTSCALE_RESOURCE_TYPES.ENVIRONMENT
+                      isEnvironment: option.type === OPTSCALE_RESOURCE_TYPES.ENVIRONMENT,
                     }}
                   />
                 );
@@ -140,7 +140,7 @@ const ResourceTypeIsAutocompleteField = ({ resourceTypes, name, field, count }) 
 const RegionIsAutocompleteField = ({ regions, name, count }) => {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const NAME = FIELD_NAMES.CONDITIONS_FIELD_ARRAY.REGION_IS_FIELD_NAME;
@@ -174,8 +174,8 @@ const RegionIsAutocompleteField = ({ regions, name, count }) => {
             }
 
             return notOnlyWhiteSpaces(regionName);
-          }
-        }
+          },
+        },
       }}
       render={({ field: { value: formFieldValue, onChange, ...rest } }) => (
         <Autocomplete
@@ -185,12 +185,12 @@ const RegionIsAutocompleteField = ({ regions, name, count }) => {
               if (region === null) {
                 return {
                   regionName: null,
-                  dataSourceType: undefined
+                  dataSourceType: undefined,
                 };
               }
               return {
                 regionName: region.name,
-                dataSourceType: region.cloud_type
+                dataSourceType: region.cloud_type,
               };
             })
             .toSorted((regionA, regionB) => {
@@ -214,14 +214,14 @@ const RegionIsAutocompleteField = ({ regions, name, count }) => {
               onChange(null);
             } else {
               onChange({
-                regionName: newValue.regionName
+                regionName: newValue.regionName,
               });
             }
           }}
           onInputChange={(event, newInputValue) => {
             if (newInputValue === NOT_SET_REGION_FILTER_NAME) {
               onChange({
-                regionName: null
+                regionName: null,
               });
               return;
             }
@@ -230,7 +230,7 @@ const RegionIsAutocompleteField = ({ regions, name, count }) => {
               return;
             }
             onChange({
-              regionName: newInputValue
+              regionName: newInputValue,
             });
           }}
           isOptionEqualToValue={(option, autocompleteValue) => option.regionName === autocompleteValue.regionName}
@@ -266,7 +266,7 @@ const ConditionsFieldArray = ({
   isLoading = false,
   cloudAccounts,
   resourceTypes,
-  regions
+  regions,
 }: ConditionsFieldArrayProps) => {
   const { classes, cx } = useStyles();
 
@@ -274,7 +274,7 @@ const ConditionsFieldArray = ({
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name
+    name,
   });
 
   const watchConditions = watch(name);
@@ -334,7 +334,7 @@ const ConditionsFieldArray = ({
         labelMessageId="dataSource"
         items={cloudAccounts.map(({ id, name: cloudAccountName, type }) => ({
           value: id,
-          content: <ItemContentWithDataSourceIcon dataSourceType={type}>{cloudAccountName}</ItemContentWithDataSourceIcon>
+          content: <ItemContentWithDataSourceIcon dataSourceType={type}>{cloudAccountName}</ItemContentWithDataSourceIcon>,
         }))}
       />
     );
@@ -377,7 +377,7 @@ const ConditionsFieldArray = ({
                 <ItemContent>
                   <FormattedMessage id={conditionMessageId} />
                 </ItemContent>
-              )
+              ),
             }))}
           />
         </Box>
@@ -392,7 +392,7 @@ const ConditionsFieldArray = ({
                 disabled={fields.length === 1}
                 tooltip={{
                   show: true,
-                  value: <FormattedMessage id="delete" />
+                  value: <FormattedMessage id="delete" />,
                 }}
                 dataTestId={`btn_delete_${count}`}
               />

@@ -9,7 +9,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider
       state={{
-        [PRODUCT_TOUR]: { isOpen: false, isFinished: false }
+        [PRODUCT_TOUR]: { isOpen: false, isFinished: false },
       }}
     >
       <Mocked mock={<div>Mock</div>}>

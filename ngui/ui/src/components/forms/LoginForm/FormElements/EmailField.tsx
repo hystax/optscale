@@ -14,7 +14,7 @@ const EmailField = ({ readOnly = false }) => {
       label={<FormattedMessage id="userLogin" />}
       required
       InputProps={{
-        readOnly
+        readOnly,
       }}
       type="email"
       autoComplete="email"
@@ -22,7 +22,7 @@ const EmailField = ({ readOnly = false }) => {
       margin="normal"
       pattern={{
         value: emailRegex,
-        message: intl.formatMessage({ id: "invalidEmailAddress" })
+        message: intl.formatMessage({ id: "invalidEmailAddress" }),
       }}
     />
   );

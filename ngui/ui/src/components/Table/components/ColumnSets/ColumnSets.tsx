@@ -11,7 +11,7 @@ const ColumnSets = ({ tableContext }) => {
       icon={<CollectionsBookmarkIcon />}
       onClick={() => {
         openSideModal(ColumnSetsModal, {
-          tableContext
+          tableContext,
         });
       }}
     />

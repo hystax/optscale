@@ -12,7 +12,7 @@ const ChartDataSelector = ({ selectedBreakdowns, colorsMap, breakdownConfig, onC
   const breakdownsColored = breakdownConfig
     .map((item) => ({
       color: colorsMap[item.name] || theme.palette.common.black,
-      ...item
+      ...item,
     }))
     .sort(({ isNotImplemented: a = false }, { isNotImplemented: b = false }) => a - b);
 

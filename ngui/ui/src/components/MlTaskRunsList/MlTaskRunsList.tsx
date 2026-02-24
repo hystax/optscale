@@ -8,7 +8,7 @@ import useDateRanges, {
   oneDayRange,
   oneMonthRange,
   oneWeekRange,
-  twoWeeksRange
+  twoWeeksRange,
 } from "hooks/useDateRanges";
 import { GOALS_FILTER, STATUS_FILTER } from "utils/constants";
 import { secondsToMilliseconds, inDateRange } from "utils/datetime";
@@ -27,7 +27,7 @@ const MlTaskRunsList = ({ runs, isLoading }) => {
     oneWeekRange(true),
     twoWeeksRange(true),
     oneMonthRange(true),
-    customRange(true)
+    customRange(true),
   ]);
 
   const { interval } = selectedRange;
@@ -42,7 +42,7 @@ const MlTaskRunsList = ({ runs, isLoading }) => {
         return inDateRange(
           {
             startDate: interval.startDate,
-            endDate: interval.endDate
+            endDate: interval.endDate,
           },
           millisecondsRunStartTimestamp
         );

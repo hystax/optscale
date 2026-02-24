@@ -25,7 +25,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
     () =>
       namespaces.map((obj) => ({
         ...obj,
-        location: [obj.cloud_account_name, obj.namespace].join()
+        location: [obj.cloud_account_name, obj.namespace].join(),
       })),
     [namespaces]
   );
@@ -41,9 +41,9 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
         accessorKey: "name",
         defaultSort: "asc",
         style: {
-          maxWidth: 200
+          maxWidth: 200,
         },
-        cell: ({ cell }) => <TextWithDataTestId dataTestId="application">{cell.getValue()}</TextWithDataTestId>
+        cell: ({ cell }) => <TextWithDataTestId dataTestId="application">{cell.getValue()}</TextWithDataTestId>,
       },
       {
         header: (
@@ -55,11 +55,11 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
         defaultSort: "asc",
         cell: ({
           row: {
-            original: { application, namespace, cloud_account_id: cloudAccountId, cloud_account_name: cloudAccountName }
-          }
+            original: { application, namespace, cloud_account_id: cloudAccountId, cloud_account_name: cloudAccountName },
+          },
         }) => {
           const link = (
-            <Tooltip title={<FormattedMessage id={"showResources"} />}>
+            <Tooltip title={<FormattedMessage id="showResources" />}>
               <Link
                 data-test-id="namespase"
                 color="primary"
@@ -67,7 +67,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
                   [CLOUD_ACCOUNT_ID_FILTER]: cloudAccountId,
                   [K8S_NAMESPACE_FILTER]: namespace,
                   sStartDate: startOfMonth,
-                  sEndDate: today
+                  sEndDate: today,
                 })}
                 component={RouterLink}
               >
@@ -77,14 +77,14 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
           );
           const namespaceCaption = {
             key: `${application}_${cloudAccountId}`,
-            node: <Typography variant="caption">{link}</Typography>
+            node: <Typography variant="caption">{link}</Typography>,
           };
           return (
             <CaptionedCell caption={namespaceCaption}>
               <CloudLabel dataTestId="data_source" id={cloudAccountId} name={cloudAccountName} type="kubernetes_cnr" />
             </CaptionedCell>
           );
-        }
+        },
       },
       resourcesMeter({
         id: "cpu_utilization",
@@ -107,7 +107,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
             <ApproximatelyZero />
           ) : (
             <FormattedNumber value={value} maximumFractionDigits={MAXIMUM_FRACTION_DIGITS} />
-          )
+          ),
       }),
       resourcesUsed({
         headerDataTestId: "lbl_total_pod_cpu_hours",
@@ -116,7 +116,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
         questionMarkMessageId: "cpuUsedTooltip",
         accessorKey: "total_pod_cpu_hours",
         totalAccessor: "total_pod_cpu_hours",
-        totalRequestsAccessor: "total_pod_cpu_requests"
+        totalRequestsAccessor: "total_pod_cpu_requests",
       }),
       resourcesMeter({
         id: "memory_utilization",
@@ -136,7 +136,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
         mismatchedLimitMessageId: "memoryUtilizationProgressbarTooltip.mismatchedLimit",
         valueFormatterFn: (value) => (
           <FormattedDigitalUnit value={value} baseUnit={IEC_UNITS.BYTE} maximumFractionDigits={MAXIMUM_FRACTION_DIGITS} />
-        )
+        ),
       }),
       resourcesUsed({
         headerDataTestId: "lbl_total_pod_memory_gb",
@@ -145,8 +145,8 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
         questionMarkMessageId: "totalPodMemoryUsedTooltip",
         accessorKey: "total_pod_memory_gb",
         totalAccessor: "total_pod_memory_gb",
-        totalRequestsAccessor: "total_pod_memory_requests_gb"
-      })
+        totalRequestsAccessor: "total_pod_memory_requests_gb",
+      }),
     ],
     [startOfMonth, today]
   );
@@ -159,7 +159,7 @@ const K8sRightsizingTable = ({ namespaces, isLoading = false, tableActionBarDefi
       dataTestIds={{
         searchInput: "input_search",
         searchButton: "btn_search",
-        deleteSearchButton: "btn_delete_search"
+        deleteSearchButton: "btn_delete_search",
       }}
       localization={{ emptyMessageId: "noApplications" }}
       actionBar={tableActionBarDefinition}

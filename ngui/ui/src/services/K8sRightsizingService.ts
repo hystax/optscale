@@ -16,11 +16,11 @@ const useGet = (params = {}) => {
   const { isDataReady, shouldInvoke } = useApiState(GET_K8S_RIGHTSIZING, {
     organizationId,
     startDate,
-    endDate
+    endDate,
   });
 
   const {
-    apiData: { k8sRightsizing = {} }
+    apiData: { k8sRightsizing = {} },
   } = useApiData(GET_K8S_RIGHTSIZING);
 
   useEffect(() => {

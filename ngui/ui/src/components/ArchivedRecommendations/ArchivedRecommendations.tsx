@@ -26,7 +26,7 @@ const ArchivedRecommendations = ({
   onDownload,
   isDownloading = false,
   isChartLoading = false,
-  isBreakdownLoading = false
+  isBreakdownLoading = false,
 }) => {
   const renderArchivedResourcesCountBarChart = () => {
     if (isChartLoading) {
@@ -66,11 +66,11 @@ const ArchivedRecommendations = ({
     breadcrumbs: [
       <Link key={1} to={RECOMMENDATIONS} component={RouterLink}>
         <FormattedMessage id="recommendations" />
-      </Link>
+      </Link>,
     ],
     title: {
       text: <FormattedMessage id="archivedRecommendations" />,
-      dataTestId: "lbl_archived_recommendations"
+      dataTestId: "lbl_archived_recommendations",
     },
     items: [
       {
@@ -80,9 +80,9 @@ const ArchivedRecommendations = ({
         type: "button",
         action: onDownload,
         isLoading: isDownloading,
-        dataTestId: "btn_download"
-      }
-    ]
+        dataTestId: "btn_download",
+      },
+    ],
   };
 
   return (

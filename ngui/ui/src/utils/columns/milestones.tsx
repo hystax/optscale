@@ -5,7 +5,7 @@ const milestones = ({
   headerMessageId = "milestones",
   headerDataTestId = "lbl_milestones",
   accessor = "milestoneNames",
-  disableSortBy = true
+  disableSortBy = true,
 } = {}) => ({
   Header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -14,7 +14,7 @@ const milestones = ({
   ),
   accessor,
   disableSortBy,
-  Cell: ({ cell: { value } }) => value.map((name) => <div key={name}>{name}</div>)
+  Cell: ({ cell: { value } }) => value.map((name) => <div key={name}>{name}</div>),
 });
 
 export default milestones;

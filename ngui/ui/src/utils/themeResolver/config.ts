@@ -19,8 +19,8 @@ export const THEME_RESOLVER_CONFIG = {
     "/index.jsx",
     "/index.mjs",
     "/index.cjs",
-    "/index.css"
+    "/index.css",
   ],
   themesDir: "themes", // Directory where themes are stored
-  srcDir: "src" // Source directory for resolving relative paths
+  srcDir: "src", // Source directory for resolving relative paths
 };

@@ -11,7 +11,7 @@ const firstSeen = ({ id = "first_seen", headerDataTestId, accessorKey, accessorF
   ),
   accessorKey,
   accessorFn,
-  cell: ({ cell }) => (cell.getValue() === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(cell.getValue()))
+  cell: ({ cell }) => (cell.getValue() === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(cell.getValue())),
 });
 
 export default firstSeen;

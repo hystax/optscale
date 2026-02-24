@@ -49,7 +49,7 @@ const Select = ({
   onClose,
   onOpen,
   endAdornment,
-  renderValue
+  renderValue,
 }: SelectProps) => {
   const { classes } = useStyles();
 
@@ -85,14 +85,14 @@ const Select = ({
         renderValue={renderValue}
         classes={{
           root: readOnly ? classes.readOnly : "",
-          icon: endAdornment ? classes.adornmentIconPosition : ""
+          icon: endAdornment ? classes.adornmentIconPosition : "",
         }}
         onOpen={onOpen}
         onClose={onClose}
         MenuProps={{
           classes: {
-            root: classes.menu
-          }
+            root: classes.menu,
+          },
         }}
         endAdornment={endAdornment && <InputAdornment position="end">{endAdornment}</InputAdornment>}
         readOnly={!isLoading && readOnly}
@@ -101,7 +101,7 @@ const Select = ({
           ? [
               <Item key="loading" value={LOADING_ITEM_VALUE}>
                 <Skeleton width="100%" />
-              </Item>
+              </Item>,
             ]
           : children}
       </MuiSelect>

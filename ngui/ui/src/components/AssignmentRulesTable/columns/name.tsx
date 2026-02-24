@@ -16,7 +16,7 @@ const name = () => ({
       label={<SlicedText limit={32} text={original.name} />}
       tooltip={{ show: true, messageId: original.active ? "active" : "inactive", placement: "right" }}
     />
-  )
+  ),
 });
 
 export default name;

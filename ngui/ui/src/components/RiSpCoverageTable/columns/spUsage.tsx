@@ -24,10 +24,10 @@ const spUsage = ({ totalSpUsageHrs, totalTotalUsageHrs }) => ({
   cell: ({
     cell,
     row: {
-      original: { total_usage_hrs: totalUsageHrs }
-    }
+      original: { total_usage_hrs: totalUsageHrs },
+    },
   }) => <CellValue usage={cell.getValue()} totalUsage={totalUsageHrs} />,
-  footer: () => <CellValue usage={totalSpUsageHrs} totalUsage={totalTotalUsageHrs} />
+  footer: () => <CellValue usage={totalSpUsageHrs} totalUsage={totalTotalUsageHrs} />,
 });
 
 export default spUsage;

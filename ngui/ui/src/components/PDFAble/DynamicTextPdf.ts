@@ -7,8 +7,8 @@ class DynamicTextPdf extends PDFAble {
     return [
       {
         type: elementType,
-        value: text
-      }
+        value: text,
+      },
     ];
   };
 }

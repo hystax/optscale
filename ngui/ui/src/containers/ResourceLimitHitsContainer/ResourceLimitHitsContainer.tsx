@@ -10,7 +10,7 @@ const ResourceLimitHitsContainer = ({ resourceId }) => {
   const dispatch = useDispatch();
 
   const {
-    apiData: { limitHits = [] }
+    apiData: { limitHits = [] },
   } = useApiData(GET_RESOURCE_LIMIT_HITS);
   const { isLoading, shouldInvoke } = useApiState(GET_RESOURCE_LIMIT_HITS, { resourceId });
 

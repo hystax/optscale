@@ -48,10 +48,7 @@ def find_duplicates(
     enumerators = []
 
     for config, buckets in data:
-        client_factory = DefaultAWSClientFactory(
-            access_key_id=config.get("access_key_id"),
-            secret_access_key=config.get("secret_access_key"),
-        )
+        client_factory = DefaultAWSClientFactory(config)
         enumerator = AWSObjectEnumerator(buckets, stats, client_factory)
         enumerators.append(enumerator)
 

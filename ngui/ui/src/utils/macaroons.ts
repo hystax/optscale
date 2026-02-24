@@ -7,5 +7,5 @@ export default {
     (caveats ?? []).reduce((result, { _identifier = ":" }) => {
       const [key, value] = _identifier.split(":");
       return { ...result, ...{ [key]: booleanStringToBoolean(value) } };
-    }, {})
+    }, {}),
 };

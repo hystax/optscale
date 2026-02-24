@@ -8,19 +8,19 @@ import BaseRecommendation from "../BaseRecommendation";
 const columns = [
   mlExecutor(),
   lastUsed({
-    defaultSort: "desc"
+    defaultSort: "desc",
   }),
   firstSeen({ headerDataTestId: "lbl_first_seen" }),
   resourceLocation({
     headerDataTestId: "lbl_location",
     idAccessor: "cloud_id",
     typeAccessor: "cloud_type",
-    accessorKey: "cloud_name"
+    accessorKey: "cloud_name",
   }),
   size({
     accessorKey: "size",
-    headerDataTestId: "lbl_size"
-  })
+    headerDataTestId: "lbl_size",
+  }),
 ];
 
 class ExecutorsUpgrade extends BaseRecommendation {
@@ -43,7 +43,7 @@ class ExecutorsUpgrade extends BaseRecommendation {
         cloud_type: cloudType,
         cloud_resource_id: cloudResourceId,
         recommended_size: recommendedSizeRaw,
-        size: sizeRaw
+        size: sizeRaw,
       } = item;
 
       return [
@@ -54,7 +54,7 @@ class ExecutorsUpgrade extends BaseRecommendation {
               icon={<CloudTypeIcon type={cloudType} hasRightMargin />}
               label={<CloudResourceId resourceId={cloudResourceId} cloudResourceIdentifier={id} />}
             />
-          )
+          ),
         },
         {
           key: "size",
@@ -64,12 +64,12 @@ class ExecutorsUpgrade extends BaseRecommendation {
                 id="value -> value"
                 values={{
                   value1: sizeRaw,
-                  value2: recommendedSizeRaw
+                  value2: recommendedSizeRaw,
                 }}
               />
             </strong>
-          )
-        }
+          ),
+        },
       ];
     });
   }

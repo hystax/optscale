@@ -14,7 +14,7 @@ export const FIELD_NAMES = Object.freeze({
   AUTOMATICALLY_DETECT_PRICING_DATA: "automaticallyDetectPricingData",
   PRICING_DATA_DATASET: "pricingDataDatasetName",
   PRICING_DATA_TABLE: "pricingDataTableName",
-  PRICING_DATA_PROJECT_ID: "pricingDataProjectId"
+  PRICING_DATA_PROJECT_ID: "pricingDataProjectId",
 });
 
 type FieldName = ObjectValues<typeof FIELD_NAMES>;
@@ -29,7 +29,7 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
   const anyPricingDataFieldVisible = [
     FIELD_NAMES.PRICING_DATA_DATASET,
     FIELD_NAMES.PRICING_DATA_TABLE,
-    FIELD_NAMES.PRICING_DATA_PROJECT_ID
+    FIELD_NAMES.PRICING_DATA_PROJECT_ID,
   ].some((fieldName) => !isHidden(fieldName));
 
   const { watch } = useFormContext();
@@ -51,11 +51,11 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
               <QuestionMark
                 messageId="billingDataDatasetNameTooltip"
                 messageValues={{
-                  i: (chunks) => <i>{chunks}</i>
+                  i: (chunks) => <i>{chunks}</i>,
                 }}
                 dataTestId="qmark_billing_data_dataset_name"
               />
-            )
+            ),
           }}
           label={<FormattedMessage id="billingDataDatasetName" />}
           autoComplete="off"
@@ -67,7 +67,7 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
           dataTestId="input_billing_data_table_name"
           name={FIELD_NAMES.BILLING_DATA_TABLE}
           InputProps={{
-            endAdornment: <QuestionMark messageId="billingDataTableNameTooltip" dataTestId="qmark_billing_data_table_name" />
+            endAdornment: <QuestionMark messageId="billingDataTableNameTooltip" dataTestId="qmark_billing_data_table_name" />,
           }}
           label={<FormattedMessage id="billingDataTableName" />}
           autoComplete="off"
@@ -78,7 +78,7 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
           name={FIELD_NAMES.BILLING_DATA_PROJECT_ID}
           dataTestId="input_billing_data_project_id"
           InputProps={{
-            endAdornment: <QuestionMark messageId="billingDataProjectIdTooltip" dataTestId="qmark_billing_data_project_id" />
+            endAdornment: <QuestionMark messageId="billingDataProjectIdTooltip" dataTestId="qmark_billing_data_project_id" />,
           }}
           label={<FormattedMessage id="billingDataProjectId" />}
           autoComplete="off"
@@ -94,7 +94,7 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
             <QuestionMark
               messageId="automaticallyDetectPricingDataDescription"
               messageValues={{
-                break: <br />
+                break: <br />,
               }}
               dataTestId="qmark_automatically_detect_pricing_data"
             />
@@ -111,7 +111,7 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
               InputProps={{
                 endAdornment: (
                   <QuestionMark messageId="pricingDataDatasetNameTooltip" dataTestId="qmark_pricing_data_dataset_name" />
-                )
+                ),
               }}
               label={<FormattedMessage id="pricingDataDatasetName" />}
               autoComplete="off"
@@ -125,7 +125,7 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
               InputProps={{
                 endAdornment: (
                   <QuestionMark messageId="pricingDataTableNameTooltip" dataTestId="qmark_pricing_data_table_name" />
-                )
+                ),
               }}
               label={<FormattedMessage id="pricingDataTableName" />}
               autoComplete="off"
@@ -138,7 +138,7 @@ const GcpCredentials = ({ hidden = [] }: GcpCredentialsProps) => {
               InputProps={{
                 endAdornment: (
                   <QuestionMark messageId="pricingDataProjectIdTooltip" dataTestId="qmark_pricing_data_project_id" />
-                )
+                ),
               }}
               label={<FormattedMessage id="pricingDataProjectId" />}
               autoComplete="off"

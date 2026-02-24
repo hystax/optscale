@@ -18,5 +18,5 @@ const apiSelector = createSelector(
 );
 
 export const useApiData = (label, defaultValue = {}) => ({
-  apiData: useShallowEqualSelector((state) => apiSelector(state, { label, defaultValue }))
+  apiData: useShallowEqualSelector((state) => apiSelector(state, { label, defaultValue })),
 });

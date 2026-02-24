@@ -5,7 +5,7 @@ import QuestionMark from "components/QuestionMark";
 export const FIELD_NAMES = Object.freeze({
   CLIENT_ID: "clientId",
   TENANT: "tenant",
-  SECRET: "secret"
+  SECRET: "secret",
 });
 
 const AzureTenantCredentials = ({ readOnlyFields = [] }) => {
@@ -23,11 +23,11 @@ const AzureTenantCredentials = ({ readOnlyFields = [] }) => {
             <QuestionMark
               messageId="directoryTenantIdTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_tenant_id"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="directoryTenantId" />}
         autoComplete="off"
@@ -41,11 +41,11 @@ const AzureTenantCredentials = ({ readOnlyFields = [] }) => {
             <QuestionMark
               messageId="applicationClientIdTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_client_id"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="applicationClientId" />}
         autoComplete="off"
@@ -60,11 +60,11 @@ const AzureTenantCredentials = ({ readOnlyFields = [] }) => {
             <QuestionMark
               messageId="secretTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_secret"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="secret" />}
         autoComplete="off"

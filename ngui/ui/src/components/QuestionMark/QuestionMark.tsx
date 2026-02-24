@@ -47,7 +47,7 @@ const QuestionMark = ({
   /**
    * TODO: Consider replacing it with a "margin" (or just "m") setting that utilizes theme.spacing(1) as the default left margin.
    */
-  withLeftMargin = true
+  withLeftMargin = true,
 }: QuestionMarkProps) => {
   const { classes, cx } = useStyles();
 

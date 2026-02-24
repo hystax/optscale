@@ -5,7 +5,7 @@ export const getData = ({ breakdown = {}, milestones = [], stages = [] }) => {
     return {
       breakdown: {},
       milestones: [],
-      stages: []
+      stages: [],
     };
   }
 
@@ -24,7 +24,7 @@ export const getData = ({ breakdown = {}, milestones = [], stages = [] }) => {
       const { timestamp } = milestone;
       return {
         ...milestone,
-        time: timestampToSeconds(timestamp)
+        time: timestampToSeconds(timestamp),
       };
     }),
     stages: stages.map((stage) => {
@@ -35,8 +35,8 @@ export const getData = ({ breakdown = {}, milestones = [], stages = [] }) => {
         startTimestamp: start,
         endTimestamp: end,
         start: timestampToSeconds(start),
-        end: end ? timestampToSeconds(end) : null
+        end: end ? timestampToSeconds(end) : null,
       };
-    })
+    }),
   };
 };

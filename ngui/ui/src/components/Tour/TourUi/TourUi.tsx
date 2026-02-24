@@ -114,7 +114,7 @@ const TourUi = ({ steps, close, onStepChange }) => {
           top: `${coords.top}px`,
           left: `${coords.left}px`,
           width: `${coords.width}px`,
-          height: `${coords.height}px`
+          height: `${coords.height}px`,
         }}
       />
       <div id={TOUR_UI}>

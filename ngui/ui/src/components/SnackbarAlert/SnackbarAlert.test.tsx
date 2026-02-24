@@ -8,7 +8,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider
       state={{
-        api: { latestErrorLabel: "" }
+        api: { latestErrorLabel: "" },
       }}
     >
       <SnackbarAlert text="test" openState={false} handleClose={(e) => console.log(e)} />

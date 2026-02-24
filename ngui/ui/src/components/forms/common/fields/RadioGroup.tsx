@@ -20,11 +20,11 @@ const RadioGroup = ({
   defaultValue,
   margin,
   row = false,
-  fullWidth = false
+  fullWidth = false,
 }: RadioGroupProps) => {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (

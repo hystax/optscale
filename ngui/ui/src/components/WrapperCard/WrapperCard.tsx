@@ -55,7 +55,7 @@ const WrapperCard = forwardRef<HTMLDivElement, WrapperCardProps>(
       wrapper: wrapperDataTestId,
       title: titleDataTestId,
       titleCaption: titleCaptionDataTestId,
-      button: buttonDataTestId
+      button: buttonDataTestId,
     } = dataTestIds || {};
     const { show: showButton, href, link, messageId: buttonTextId } = button || {};
 

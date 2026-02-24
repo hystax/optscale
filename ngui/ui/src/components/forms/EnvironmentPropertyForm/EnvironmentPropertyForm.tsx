@@ -14,13 +14,13 @@ const EnvironmentPropertyForm = ({
   onCancel,
   existingProperties,
   isLoading = false,
-  isEdit = false
+  isEdit = false,
 }: EnvironmentPropertyFormProps) => {
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
       propertyName: defaultPropertyName,
-      propertyValue: defaultPropertyValue
-    })
+      propertyValue: defaultPropertyValue,
+    }),
   });
 
   const { handleSubmit } = methods;

@@ -7,7 +7,7 @@ import {
   EN_FORMAT_SHORT_YEAR,
   startOfDay,
   endOfDay,
-  performDateTimeFunction
+  performDateTimeFunction,
 } from "utils/datetime";
 
 const startOfDayInUTC = (timestamp) =>
@@ -26,7 +26,7 @@ const groupChunkBreakdownArray = (chunk, dates) =>
             ...obj,
             startDate: dates.startDate,
             endDate: dates.endDate,
-            expense: (mergedData[obj.name]?.expense ?? 0) + obj.expense
+            expense: (mergedData[obj.name]?.expense ?? 0) + obj.expense,
           };
         });
         return mergedData;
@@ -44,7 +44,7 @@ const getChunkTimeInterval = (chunk) => {
 
   return {
     start,
-    end
+    end,
   };
 };
 
@@ -55,8 +55,8 @@ const getDailyBreakdownData = (breakdown) =>
       expense.map((e) => ({
         ...e,
         startDate: startOfDayInUTC(sTimestamp),
-        endDate: endOfDayInUTC(sTimestamp)
-      }))
+        endDate: endOfDayInUTC(sTimestamp),
+      })),
     ])
   );
 
@@ -67,7 +67,7 @@ const getWeeklyBreakdownData = (breakdown) =>
 
       const groupArray = groupChunkBreakdownArray(weeklyChunk, {
         startDate: start,
-        endDate: end
+        endDate: end,
       });
 
       const formattedStartDate = formatUTC(start, EN_FORMAT_SHORT_YEAR);
@@ -88,7 +88,7 @@ const getMonthlyBreakdownData = (breakdown) => {
 
       const groupArray = groupChunkBreakdownArray(monthlyChunkData, {
         startDate: start,
-        endDate: end
+        endDate: end,
       });
 
       return [groupName, groupArray];
@@ -106,6 +106,6 @@ export const useBreakdownData = (breakdown) => {
   return {
     daily: dailyBreakdownData,
     weekly: weeklyBreakdownData,
-    monthly: monthlyBreakdownData
+    monthly: monthlyBreakdownData,
   };
 };

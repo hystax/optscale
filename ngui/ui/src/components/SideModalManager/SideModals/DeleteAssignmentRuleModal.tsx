@@ -7,8 +7,8 @@ class DeleteAssignmentRuleModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "title_delete_rule",
-      closeButton: "close_btn"
-    }
+      closeButton: "close_btn",
+    },
   };
 
   dataTestId = "smodal_delete_assignment_rule";

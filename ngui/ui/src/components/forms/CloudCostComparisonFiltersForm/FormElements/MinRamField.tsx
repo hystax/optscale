@@ -19,14 +19,14 @@ const MinRamField = () => {
           <FormattedMessage
             id="digitalUnits"
             values={{
-              unit: IEC_UNITS.GIBIBYTE
+              unit: IEC_UNITS.GIBIBYTE,
             }}
           />
-        )
+        ),
       }}
       min={0}
       validate={{
-        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true)
+        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
       }}
     />
   );

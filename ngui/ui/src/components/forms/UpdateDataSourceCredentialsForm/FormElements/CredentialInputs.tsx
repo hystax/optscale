@@ -21,14 +21,14 @@ import {
   GcpTenantCredentials,
   GCP_TENANT_CREDENTIALS_FIELD_NAMES,
   AwsAssumedRoleInputs,
-  AWS_ROLE_CREDENTIALS_FIELD_NAMES
+  AWS_ROLE_CREDENTIALS_FIELD_NAMES,
 } from "components/DataSourceCredentialFields";
 import { Switch } from "components/forms/common/fields";
 import {
   BillingReportBucketTitle,
   CloudName,
   ReportBucketName,
-  ReportBucketPathPrefix
+  ReportBucketPathPrefix,
 } from "components/NebiusConfigFormElements";
 import UpdateServiceAccountCredentialsDescription from "components/NebiusConfigFormElements/UpdateServiceAccountCredentialsDescription";
 import {
@@ -40,7 +40,7 @@ import {
   GCP_CNR,
   DATABRICKS,
   KUBERNETES_CNR,
-  GCP_TENANT
+  GCP_TENANT,
 } from "utils/constants";
 
 export const AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS = "updateDataExportParameters";
@@ -118,7 +118,7 @@ const CredentialInputs = ({ type, config }) => {
           hidden={[
             GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET,
             GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE,
-            GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_PROJECT_ID
+            GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_PROJECT_ID,
           ]}
         />
       );
@@ -127,7 +127,7 @@ const CredentialInputs = ({ type, config }) => {
         <GcpTenantCredentials
           hidden={[
             GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET,
-            GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE
+            GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE,
           ]}
         />
       );

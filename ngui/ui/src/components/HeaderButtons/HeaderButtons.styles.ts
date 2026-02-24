@@ -5,20 +5,20 @@ const useStyles = makeStyles()((theme) => ({
     display: "none",
     [theme.breakpoints.up("md")]: {
       display: "flex",
-      alignItems: "center"
-    }
+      alignItems: "center",
+    },
   },
   sectionMobile: {
     display: "flex",
     [theme.breakpoints.up("md")]: {
-      display: "none"
-    }
+      display: "none",
+    },
   },
   customMenuItem: {
     display: "flex",
     alignItems: "center",
-    flexDirection: "column"
-  }
+    flexDirection: "column",
+  },
 }));
 
 export default useStyles;

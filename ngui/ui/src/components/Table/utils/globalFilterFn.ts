@@ -20,7 +20,7 @@ const searchFilter = ({ row, filterValue, columnId, columns }) => {
   if (typeof columnDef?.searchFn === "function") {
     return columnDef.searchFn(row.getValue(columnId), search, {
       row,
-      columnId
+      columnId,
     });
   }
 

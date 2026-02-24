@@ -19,6 +19,6 @@ export const getOrganizationDisplayName = ({ name, isInactive = false, maxLength
       ? `${sliceByLimitWithEllipsis(name, effectiveMaxLength)}${isInactive ? INACTIVE_SUFFIX : ""}`
       : displayName,
     isNameLong,
-    originalName: name
+    originalName: name,
   };
 };

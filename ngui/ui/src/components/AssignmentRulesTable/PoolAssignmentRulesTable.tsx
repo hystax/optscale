@@ -11,7 +11,7 @@ const PoolAssignmentRulesTable = ({ rules, isLoading = false }) => {
     () =>
       prepareData({
         assignmentRules,
-        entities
+        entities,
       }),
     [assignmentRules, entities]
   );
@@ -27,7 +27,7 @@ const PoolAssignmentRulesTable = ({ rules, isLoading = false }) => {
         columns={columns}
         localization={{ emptyMessageId: "noAutomaticResourceAssignmentRules" }}
         dataTestIds={{
-          container: "table_rules"
+          container: "table_rules",
         }}
         pageSize={50}
         enablePaginationQueryParam={false}

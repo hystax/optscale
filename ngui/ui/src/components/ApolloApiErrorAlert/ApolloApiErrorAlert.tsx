@@ -42,7 +42,7 @@ const ApolloApiErrorAlert = () => {
         openState={open}
         handleClose={handleClose}
         dataTestIds={{
-          snackbar: "alert_error"
+          snackbar: "alert_error",
         }}
       />
     )

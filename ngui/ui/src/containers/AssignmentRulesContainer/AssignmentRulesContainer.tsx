@@ -18,7 +18,7 @@ const AssignmentRulesContainer = () => {
   const { useGetAvailablePools } = PoolsService();
   const getAvailablePoolsParams = useMemo(
     () => ({
-      permission: GET_AVAILABLE_POOLS_PERMISSION
+      permission: GET_AVAILABLE_POOLS_PERMISSION,
     }),
     []
   );
@@ -36,7 +36,7 @@ const AssignmentRulesContainer = () => {
         managedPools={managedPools}
         isLoadingProps={{
           isGetAssignmentRulesLoading,
-          isGetManagedPoolsLoading
+          isGetManagedPoolsLoading,
         }}
         isUpdateLoading={isUpdateAssignmentRulePriorityLoading}
         onUpdatePriority={updatePriority}

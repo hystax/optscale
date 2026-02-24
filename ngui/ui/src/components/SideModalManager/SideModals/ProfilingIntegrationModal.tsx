@@ -8,8 +8,8 @@ class ProfilingIntegrationModal extends BaseSideModal {
     showExpand: true,
     dataTestIds: {
       title: "lbl_profiling_integration",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_profiling_integration";

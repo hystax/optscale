@@ -16,10 +16,10 @@ const StepContainer = ({ refetchInvitations, isInvitationsRefetching }) => {
     data: organizations,
     networkStatus: getOrganizationsNetworkStatus,
     error: getOrganizationsError,
-    refetch: refetchOrganizations
+    refetch: refetchOrganizations,
   } = useOrganizationsQuery({
     fetchPolicy: "no-cache",
-    notifyOnNetworkStatusChange: true
+    notifyOnNetworkStatusChange: true,
   });
 
   const getOrganizationsLoading = getOrganizationsNetworkStatus === NetworkStatus.loading;

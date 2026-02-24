@@ -6,7 +6,7 @@ const poolActions = () => ({
   id: "actions",
   enableSorting: false,
   cell: RowActions,
-  enableHiding: false
+  enableHiding: false,
 });
 
 export default poolActions;

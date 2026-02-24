@@ -6,7 +6,7 @@ import {
   updateTotalExpenseLimitResourceConstraint,
   deleteResourceConstraint,
   createDailyExpenseLimitResourceConstraint,
-  updateDailyExpenseLimitResourceConstraint
+  updateDailyExpenseLimitResourceConstraint,
 } from "api";
 import {
   CREATE_TOTAL_EXPENSE_LIMIT_RESOURCE_CONSTRAINT,
@@ -16,7 +16,7 @@ import {
   DELETE_RESOURCE_CONSTRAINT,
   GET_RESOURCE_LIMIT_HITS,
   CREATE_DAILY_EXPENSE_LIMIT_RESOURCE_CONSTRAINT,
-  UPDATE_DAILY_EXPENSE_LIMIT_RESOURCE_CONSTRAINT
+  UPDATE_DAILY_EXPENSE_LIMIT_RESOURCE_CONSTRAINT,
 } from "api/restapi/actionTypes";
 import ResourceConstraintCard from "components/ResourceConstraintCard";
 import ResourceConstraintFormPermissionsContainer from "containers/ResourceConstraintFormPermissionsContainer";
@@ -32,21 +32,21 @@ const getApiConfiguration = (type) => {
         createType: CREATE_TTL_RESOURCE_CONSTRAINT,
         createAction: createTtlResourceConstraint,
         updateType: UPDATE_TTL_RESOURCE_CONSTRAINT,
-        updateAction: updateTtlResourceConstraint
+        updateAction: updateTtlResourceConstraint,
       };
     case TOTAL_EXPENSE_LIMIT:
       return {
         createType: CREATE_TOTAL_EXPENSE_LIMIT_RESOURCE_CONSTRAINT,
         createAction: createTotalExpenseLimitResourceConstraint,
         updateType: UPDATE_TOTAL_EXPENSE_LIMIT_RESOURCE_CONSTRAINT,
-        updateAction: updateTotalExpenseLimitResourceConstraint
+        updateAction: updateTotalExpenseLimitResourceConstraint,
       };
     case DAILY_EXPENSE_LIMIT:
       return {
         createType: CREATE_DAILY_EXPENSE_LIMIT_RESOURCE_CONSTRAINT,
         createAction: createDailyExpenseLimitResourceConstraint,
         updateType: UPDATE_DAILY_EXPENSE_LIMIT_RESOURCE_CONSTRAINT,
-        updateAction: updateDailyExpenseLimitResourceConstraint
+        updateAction: updateDailyExpenseLimitResourceConstraint,
       };
     default:
       return null;
@@ -60,12 +60,12 @@ const ResourceConstraintContainer = ({
   constraint,
   poolPolicy,
   isGetResourceLoading,
-  constraintType
+  constraintType,
 }) => {
   const dispatch = useDispatch();
 
   const {
-    apiData: { limitHits = [] }
+    apiData: { limitHits = [] },
   } = useApiData(GET_RESOURCE_LIMIT_HITS);
 
   const { createType, createAction, updateType, updateAction } = getApiConfiguration(constraintType);
@@ -104,7 +104,7 @@ const ResourceConstraintContainer = ({
     constraint,
     constraintType,
     poolPolicy,
-    limitHit
+    limitHit,
   };
 
   return (
@@ -117,7 +117,7 @@ const ResourceConstraintContainer = ({
             isGetDataLoading: isGetResourceLoading || isGetPermissionsLoading,
             isUpdateLoading: updateIsLoading,
             isCreateLoading: createIsLoading,
-            isDeleteLoading: constraint?.id === deleteEntityId && deleteIsLoading
+            isDeleteLoading: constraint?.id === deleteEntityId && deleteIsLoading,
           }}
           canEdit={canEdit}
         />

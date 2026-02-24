@@ -3,7 +3,7 @@ import { Checkbox } from "components/forms/common/fields";
 import QuestionMark from "components/QuestionMark";
 
 export const FIELD_NAMES = Object.freeze({
-  USE_EDP_DISCOUNT: "useEdpDiscount"
+  USE_EDP_DISCOUNT: "useEdpDiscount",
 });
 
 const AwsUseAwsEdpDiscount = () => (

@@ -10,21 +10,21 @@ export const useGet = ({ objectType, objectId, permission }) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
   const {
-    apiData: { employees = [] }
+    apiData: { employees = [] },
   } = useApiData(GET_AUTHORIZED_EMPLOYEES);
 
   const requestParams = useMemo(
     () => ({
       objectType,
       objectId,
-      permission
+      permission,
     }),
     [objectType, objectId, permission]
   );
 
   const { isLoading, shouldInvoke } = useApiState(GET_AUTHORIZED_EMPLOYEES, {
     ...requestParams,
-    organizationId
+    organizationId,
   });
 
   useEffect(() => {

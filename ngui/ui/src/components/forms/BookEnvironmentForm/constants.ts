@@ -4,5 +4,5 @@ export const FIELD_NAMES = Object.freeze({
   BOOK_UNTIL: "bookUntil",
   SELECTED_KEY_FIELD_ID: "selectedKeyId",
   KEY_NAME: "name",
-  KEY_VALUE: "key"
+  KEY_VALUE: "key",
 });

@@ -30,7 +30,7 @@ const PoolLink = ({ id, name, dataTestId, organizationId }) => {
         if (organizationId) {
           updateScope({
             newScopeId: organizationId,
-            redirectTo: url
+            redirectTo: url,
           });
         } else {
           navigate(url);
@@ -62,7 +62,7 @@ const PoolLabel = ({
   organizationId,
   endAdornment = null,
   iconProps = {},
-  withSubpools = false
+  withSubpools = false,
 }) => (
   <>
     <IconLabel
@@ -77,7 +77,7 @@ const PoolLabel = ({
               name,
               id,
               dataTestId,
-              organizationId
+              organizationId,
             })
           )}
           {withSubpools && (

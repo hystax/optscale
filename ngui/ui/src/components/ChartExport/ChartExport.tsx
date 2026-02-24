@@ -24,7 +24,7 @@ type ChartExportProps = {
 const defaultConfig: FileNameConfig = {
   title: "OptScale_chart",
   fileFormat: "png",
-  withTime: true
+  withTime: true,
 };
 
 const generateFileName = ({ title, fileFormat, withTime }: FileNameConfig): string => {

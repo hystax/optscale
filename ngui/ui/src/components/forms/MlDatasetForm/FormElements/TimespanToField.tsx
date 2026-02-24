@@ -10,7 +10,7 @@ const FIELD_NAME = FIELD_NAMES.TIMESPAN_TO;
 const TimespanToField = ({ isLoading = false }) => {
   const {
     formState: { isSubmitted },
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   const intl = useIntl();
@@ -35,15 +35,15 @@ const TimespanToField = ({ isLoading = false }) => {
                 { id: "fieldMoreThanOrEqualToField" },
                 {
                   fieldName1: intl.formatMessage({ id: "timespanTo" }),
-                  fieldName2: intl.formatMessage({ id: "timespanFrom" })
+                  fieldName2: intl.formatMessage({ id: "timespanFrom" }),
                 }
               );
-        }
+        },
       }}
       withTimePicker
       quickValues={{
         values: ["3h", "1d", "3d"],
-        orValues: ["noLimit"]
+        orValues: ["noLimit"],
       }}
       margin="dense"
       onChange={() => {

@@ -34,8 +34,8 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
           fromBucket: buckets[fromBucketId],
           toBucket: buckets[toBucketId],
           crossBucketsStats: matrix[fromBucketId][toBucketId],
-          matrixColumnIndex
-        }))
+          matrixColumnIndex,
+        })),
       ]),
     [buckets, matrix]
   );
@@ -47,7 +47,7 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
     if (!isEmptyObject(buckets) && buckets[matrixHeaderBuckets[0]].monthly_cost !== undefined) {
       return {
         from: matrixHeaderBuckets[0],
-        to: matrixHeaderBuckets[0]
+        to: matrixHeaderBuckets[0],
       };
     }
 
@@ -70,14 +70,14 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
           /*
             Make sure header cell in the 1st column covers rest columns and rows when scrolling
           */
-          zIndex: 1
+          zIndex: 1,
         },
         style: {
           minWidth: "250px",
           height: "65px",
           backgroundColor: "white",
           position: "sticky",
-          left: 0
+          left: 0,
         },
         cell: ({ cell }) => {
           const bucket = cell.getValue();
@@ -87,7 +87,7 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
               <Box
                 display="flex"
                 sx={{
-                  wordBreak: "break-word"
+                  wordBreak: "break-word",
                 }}
               >
                 <strong>{bucket.name}</strong>
@@ -106,9 +106,9 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
           const bucket = cell.getValue();
 
           openSideModal(BucketDuplicatesModal, {
-            bucket
+            bucket,
           });
-        }
+        },
       },
       ...matrixHeaderBuckets.map((headerBucketId, columnIndex) => ({
         id: headerBucketId,
@@ -116,14 +116,14 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
         header: (
           <strong
             style={{
-              wordBreak: "break-word"
+              wordBreak: "break-word",
             }}
           >
             {headerBucketId}
           </strong>
         ),
         headerStyle: {
-          minWidth: "220px"
+          minWidth: "220px",
         },
         cell: ({ cell }) => {
           const { fromBucket, crossBucketsStats } = cell.getValue();
@@ -141,15 +141,15 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
             checkId,
             fromBucket,
             toBucket,
-            crossBucketsStats
+            crossBucketsStats,
           });
 
           setSelectedBuckets({
             from: fromBucket.name,
-            to: toBucket.name
+            to: toBucket.name,
           });
-        }
-      }))
+        },
+      })),
     ],
     [matrixHeaderBuckets, openSideModal, checkId]
   );
@@ -157,7 +157,7 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
   const getRowCellClassName = (context) => {
     if (context.column.id === FROM_BUCKET_COLUMN_ID) {
       const {
-        row: { index: rowIndex }
+        row: { index: rowIndex },
       } = context;
       const isCellInRowSelected = selectedBuckets ? selectedBuckets.from === matrixHeaderBuckets[rowIndex] : false;
 
@@ -166,8 +166,8 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
       const activityHoverClassName = css({
         "&:hover": {
           backgroundColor: theme.palette.action.hover,
-          cursor: "pointer"
-        }
+          cursor: "pointer",
+        },
       });
 
       return cx(selectedCellClassName, activityHoverClassName);
@@ -175,7 +175,7 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
 
     const {
       cell,
-      row: { index: rowIndex }
+      row: { index: rowIndex },
     } = context;
 
     const { fromBucket, toBucket, crossBucketsStats } = cell.getValue();
@@ -225,12 +225,12 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
       ? getSelectionBorderClassName({
           selectedCellIndexes: {
             row: selectedMatrixRowIndex,
-            column: selectedMatrixColumnIndex
+            column: selectedMatrixColumnIndex,
           },
           cellIndexes: {
             row: rowIndex,
-            column: context.cell.getValue().matrixColumnIndex
-          }
+            column: context.cell.getValue().matrixColumnIndex,
+          },
         })
       : {};
 
@@ -243,14 +243,14 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
       backgroundColor:
         selectedBuckets && !isCellSelected(fromBucket.name, toBucket.name)
           ? lighten(backgroundColor, 0.8)
-          : lighten(backgroundColor, 0.7)
+          : lighten(backgroundColor, 0.7),
     });
 
     const activityHoverClassName = css({
       "&:hover": {
         backgroundColor: lighten(backgroundColor, 0.65),
-        cursor: "pointer"
-      }
+        cursor: "pointer",
+      },
     });
 
     return cx([colorClassName, borderClassName, activityHoverClassName]);
@@ -272,13 +272,13 @@ const CrossDuplicatesTable = ({ colorsRange, buckets, matrix }) => {
       columns={columns}
       stickySettings={{
         stickyHeader: true,
-        scrollWrapperDOMId: BASE_LAYOUT_CONTAINER_ID
+        scrollWrapperDOMId: BASE_LAYOUT_CONTAINER_ID,
       }}
       memoBodyCells
       getRowCellClassName={getRowCellClassName}
       getHeaderCellClassName={getHeaderCellClassName}
       counters={{
-        show: false
+        show: false,
       }}
     />
   );

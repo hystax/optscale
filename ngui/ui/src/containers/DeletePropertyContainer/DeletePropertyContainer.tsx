@@ -31,11 +31,11 @@ const DeletePropertyContainer = ({ environmentId, propertyName, onSuccess, onCan
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       message={{
-        messageId: "deleteEnvironmentPropertyQuestion"
+        messageId: "deleteEnvironmentPropertyQuestion",
       }}
     />
   );

@@ -45,13 +45,13 @@ export const useSticky = ({ headerRef, stickySettings }) => {
   return {
     stickyHeaderCellStyles: stickyHeader
       ? {
-          backgroundColor: "white"
+          backgroundColor: "white",
         }
       : {},
     stickyTableStyles: stickyHeader
       ? {
-          borderCollapse: "separate"
+          borderCollapse: "separate",
         }
-      : {}
+      : {},
   };
 };

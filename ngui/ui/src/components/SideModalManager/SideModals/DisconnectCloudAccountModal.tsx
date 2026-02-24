@@ -9,8 +9,8 @@ class DisconnectCloudAccountModal extends BaseSideModal {
       formattedMessageValues: { name: this.payload?.name },
       dataTestIds: {
         title: "lbl_disconnect",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

@@ -5,7 +5,7 @@ import QuestionMark from "components/QuestionMark";
 export const FIELD_NAMES = Object.freeze({
   PASSWORD: "password",
   USER: "user",
-  USE_FLAVOR_BASED_COST_MODEL: "flavor_based_cost_model"
+  USE_FLAVOR_BASED_COST_MODEL: "flavor_based_cost_model",
 });
 
 const KubernetesCredentials = () => (
@@ -15,7 +15,7 @@ const KubernetesCredentials = () => (
       required
       dataTestId="input_user"
       InputProps={{
-        endAdornment: <QuestionMark messageId="userTooltip" dataTestId="qmark_user" />
+        endAdornment: <QuestionMark messageId="userTooltip" dataTestId="qmark_user" />,
       }}
       label={<FormattedMessage id="user" />}
     />
@@ -24,7 +24,7 @@ const KubernetesCredentials = () => (
       required
       dataTestId="input_password"
       InputProps={{
-        endAdornment: <QuestionMark messageId="passwordTooltip" dataTestId="qmark_password" />
+        endAdornment: <QuestionMark messageId="passwordTooltip" dataTestId="qmark_password" />,
       }}
       label={<FormattedMessage id="password" />}
       autoComplete="one-time-code"

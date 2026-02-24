@@ -15,8 +15,8 @@ const biExportTargetStorage = () => ({
   enableSorting: false,
   cell: ({
     row: {
-      original: { meta, type }
-    }
+      original: { meta, type },
+    },
   }) => (
     <>
       {type === BI_EXPORT_STORAGE_TYPE.AWS_RAW_EXPORT && (
@@ -26,7 +26,7 @@ const biExportTargetStorage = () => ({
             value={<CloudLabel type={AWS_CNR} label={<FormattedMessage id="amazonS3" />} />}
             dataTestIds={{
               key: `p_amazon_S3_id`,
-              value: `p_amazon_S3_value`
+              value: `p_amazon_S3_value`,
             }}
           />
           <KeyValueLabel
@@ -34,7 +34,7 @@ const biExportTargetStorage = () => ({
             value={meta.bucket}
             dataTestIds={{
               key: `p_bucket_id`,
-              value: `p_bucket_value`
+              value: `p_bucket_value`,
             }}
           />
           <KeyValueLabel
@@ -42,7 +42,7 @@ const biExportTargetStorage = () => ({
             value={meta.s3_prefix}
             dataTestIds={{
               key: `p_s3_path_id`,
-              value: `p_s3_path_value`
+              value: `p_s3_path_value`,
             }}
           />
         </>
@@ -54,7 +54,7 @@ const biExportTargetStorage = () => ({
             value={<CloudLabel type={AZURE_CNR} label={<FormattedMessage id="azureBlobStorage" />} />}
             dataTestIds={{
               key: `p_azure_blob_storage_id`,
-              value: `p_azure_blob_storage_value`
+              value: `p_azure_blob_storage_value`,
             }}
           />
           <KeyValueLabel
@@ -62,7 +62,7 @@ const biExportTargetStorage = () => ({
             value={meta.container}
             dataTestIds={{
               key: `p_container_id`,
-              value: `p_container_value`
+              value: `p_container_value`,
             }}
           />
           <KeyValueLabel
@@ -70,13 +70,13 @@ const biExportTargetStorage = () => ({
             value={meta.storage_account}
             dataTestIds={{
               key: `p_storage_account_id`,
-              value: `p_storage_account_value`
+              value: `p_storage_account_value`,
             }}
           />
         </>
       )}
     </>
-  )
+  ),
 });
 
 export default biExportTargetStorage;

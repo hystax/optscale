@@ -14,13 +14,13 @@ import {
   S3PrefixField,
   ConnectionStringField,
   ContainerField,
-  FormButtons
+  FormButtons,
 } from "./FormElements";
 import { BIExportFormProps, ExportType, FormValues } from "./types";
 
 const BIExportForm = ({ defaultValues, isLoadingProps, onSubmit, onCancel, isEdit = false }: BIExportFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues
+    defaultValues,
   });
 
   const { isSubmitLoading, isGetDataLoading } = isLoadingProps;
@@ -32,7 +32,7 @@ const BIExportForm = ({ defaultValues, isLoadingProps, onSubmit, onCancel, isEdi
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...defaultValues
+      ...defaultValues,
     }));
   }, [defaultValues, reset]);
 
@@ -48,16 +48,16 @@ const BIExportForm = ({ defaultValues, isLoadingProps, onSubmit, onCancel, isEdi
               access_key_id: formData[FIELD_NAMES.AWS_STORAGE.AWS_ACCESS_KEY_ID_FIELD_NAME],
               secret_access_key: formData[FIELD_NAMES.AWS_STORAGE.AWS_SECRET_ACCESS_KEY_FIELD_NAME],
               bucket: formData[FIELD_NAMES.AWS_STORAGE.BUCKET_NAME_FIELD_NAME],
-              s3_prefix: formData[FIELD_NAMES.AWS_STORAGE.S3_PATH_FIELD_NAME] || undefined
-            }
+              s3_prefix: formData[FIELD_NAMES.AWS_STORAGE.S3_PATH_FIELD_NAME] || undefined,
+            },
           };
         case BI_EXPORT_STORAGE_TYPE.AZURE_RAW_EXPORT:
           return {
             type,
             meta: {
               connection_string: formData[FIELD_NAMES.AZURE_STORAGE.CONNECTION_STRING_FIELD_NAME],
-              container: formData[FIELD_NAMES.AZURE_STORAGE.CONTAINER_FIELD_NAME]
-            }
+              container: formData[FIELD_NAMES.AZURE_STORAGE.CONTAINER_FIELD_NAME],
+            },
           };
         default: {
           const exhaustiveCheck: never = type;
@@ -72,7 +72,7 @@ const BIExportForm = ({ defaultValues, isLoadingProps, onSubmit, onCancel, isEdi
       name: formData[FIELD_NAMES.NAME],
       days: Number(formData[FIELD_NAMES.EXPORTED_DAYS]),
       meta,
-      type: isEdit ? undefined : type
+      type: isEdit ? undefined : type,
     });
   };
 

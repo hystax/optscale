@@ -21,7 +21,7 @@ const AnomaliesFilters = ({ filters, showAll = false }) => {
         return {
           key: `${config.id}-${value}`,
           filterName: config.label,
-          filterValue: config.renderPerspectiveItem(value, appliedFilters)
+          filterValue: config.renderPerspectiveItem(value, appliedFilters),
         };
       });
     }
@@ -38,8 +38,8 @@ const AnomaliesFilters = ({ filters, showAll = false }) => {
         {
           key: `${config.id}-${from}-${to}`,
           filterName: config.label,
-          filterValue: config.renderPerspectiveItem({ from, to })
-        }
+          filterValue: config.renderPerspectiveItem({ from, to }),
+        },
       ];
     }
 

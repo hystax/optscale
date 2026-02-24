@@ -6,8 +6,8 @@ class ShareRunLinkModal extends BaseSideModal {
     messageId: "shareRunLinkTitle",
     dataTestIds: {
       title: "lbl_share_run_link",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_share_run_link";

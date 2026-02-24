@@ -8,17 +8,17 @@ const data = {
   expenses: {
     last_month: {
       total: 60,
-      date: 1585688400 // timestamp of last day of last month
+      date: 1585688400, // timestamp of last day of last month
     },
     this_month: {
       total: 45,
-      date: 1585697200 // today's timestamp
+      date: 1585697200, // today's timestamp
     },
     this_month_forecast: {
       total: 55,
-      date: 1585715100 // timestamp of last day of this month
-    }
-  }
+      date: 1585715100, // timestamp of last day of this month
+    },
+  },
 };
 
 it("renders without crashing", () => {

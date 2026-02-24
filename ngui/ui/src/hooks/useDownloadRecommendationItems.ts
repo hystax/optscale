@@ -17,16 +17,16 @@ export const useDownloadRecommendationItems = ({ limit, type, status, dataSource
         status,
         format,
         limit,
-        cloud_account_id: dataSourceIds
+        cloud_account_id: dataSourceIds,
       });
 
       const url = `${apiPath}?${queryParameters}`;
 
       fetchAndDownloadRecommendation({
         url,
-        fallbackFilename: `${type}.${format}`
+        fallbackFilename: `${type}.${format}`,
       });
     },
-    isLoading
+    isLoading,
   };
 };

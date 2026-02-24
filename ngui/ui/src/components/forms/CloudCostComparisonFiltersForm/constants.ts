@@ -12,7 +12,7 @@ export const FIELD_NAMES = Object.freeze({
   MIN_CPU: "minCpu",
   MAX_CPU: "maxCpu",
   MIN_RAM: "minRam",
-  MAX_RAM: "maxRam"
+  MAX_RAM: "maxRam",
 });
 
 export const REGIONS = Object.freeze({
@@ -22,25 +22,25 @@ export const REGIONS = Object.freeze({
   SA: "sa",
   US: "us",
   AF: "af",
-  ME: "me"
+  ME: "me",
 });
 
 export const SUPPORTED_CLOUD_TYPES = [
   { name: "aws", type: AWS_CNR },
   {
     name: "azure",
-    type: AZURE_CNR
+    type: AZURE_CNR,
   },
   {
     name: "gcp",
-    type: GCP_CNR
+    type: GCP_CNR,
   },
   {
     name: "alibaba",
-    type: ALIBABA_CNR
+    type: ALIBABA_CNR,
   },
   {
     name: "nebius",
-    type: NEBIUS
-  }
+    type: NEBIUS,
+  },
 ] as const;

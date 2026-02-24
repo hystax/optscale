@@ -42,20 +42,20 @@ const DeleteAnomalyContainer = ({ onCancel, id, name, type }) => {
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       dataTestIds={{
         text: "p_delete",
         deleteButton: "btn_smodal_delete",
-        cancelButton: "btn_cancel"
+        cancelButton: "btn_cancel",
       }}
       message={{
         messageId,
         values: {
           strong: (chunks) => <strong>{chunks}</strong>,
-          name
-        }
+          name,
+        },
       }}
     />
   );

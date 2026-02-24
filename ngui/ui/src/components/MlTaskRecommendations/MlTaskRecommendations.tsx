@@ -28,7 +28,7 @@ const MlTaskRecommendations = ({ taskId, recommendations, isLoading }) => {
         type: recommendation.type,
         titleMessageId: recommendation.title,
         limit: downloadLimit,
-        mlTaskId: taskId
+        mlTaskId: taskId,
       });
     },
     [downloadLimit, openSideModal, taskId]
@@ -39,7 +39,7 @@ const MlTaskRecommendations = ({ taskId, recommendations, isLoading }) => {
       return [
         <RecommendationCard key={1} isLoading={isLoading} />,
         <RecommendationCard key={2} isLoading={isLoading} />,
-        <RecommendationCard key={3} isLoading={isLoading} />
+        <RecommendationCard key={3} isLoading={isLoading} />,
       ];
     }
 

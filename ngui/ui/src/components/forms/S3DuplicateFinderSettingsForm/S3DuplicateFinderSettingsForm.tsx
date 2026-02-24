@@ -9,12 +9,12 @@ const S3DuplicateFinderSettingsForm = ({
   critical,
   onCancel,
   onSubmit,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }: S3DuplicateFinderSettingsFormProps) => {
   const { isGetDataLoading = false, isSubmitLoading = false } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit, reset } = methods;
@@ -24,8 +24,8 @@ const S3DuplicateFinderSettingsForm = ({
       ...formValues,
       ...getDefaultValues({
         requiringAttention,
-        critical
-      })
+        critical,
+      }),
     }));
   }, [critical, requiringAttention, reset]);
 

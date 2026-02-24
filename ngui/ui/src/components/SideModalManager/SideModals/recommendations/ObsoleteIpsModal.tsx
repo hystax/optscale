@@ -9,7 +9,7 @@ import TextWithInlineInput from "./components/TextWithInlineInput";
 import { useCommonSettingsData, useFormWithValuesFromOptions } from "./hooks";
 
 const VALUE_KEYS = Object.freeze({
-  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold"
+  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
 });
 
 const ObsoleteIpsThresholds = ({ recommendationType, onSuccess }) => {
@@ -45,8 +45,8 @@ class ObsoleteIpsModal extends BaseSideModal {
     messageId: "obsoleteIps",
     dataTestIds: {
       title: "lbl_obsolete_ips_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_obsolete_ips";

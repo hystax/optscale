@@ -6,8 +6,8 @@ class CreateS3DuplicateFinderCheckModal extends BaseSideModal {
     messageId: "createS3DuplicateFinderCheckTitle",
     dataTestIds: {
       title: "title_create_s3_duplicate_finder_check",
-      closeButton: "close_btn"
-    }
+      closeButton: "close_btn",
+    },
   };
 
   dataTestId = "smodal_create_s3_duplicate_finder_check";

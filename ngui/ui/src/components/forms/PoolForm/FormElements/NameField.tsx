@@ -17,7 +17,7 @@ const NameField = ({ isLoading = false, readOnly = false }: NameFieldProps) => (
     isLoading={isLoading}
     dataTestId="input_name"
     InputProps={{
-      readOnly
+      readOnly,
     }}
   />
 );

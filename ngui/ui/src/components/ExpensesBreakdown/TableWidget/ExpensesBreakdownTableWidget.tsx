@@ -21,7 +21,7 @@ const getTableWrapperCardTitleName = (filterBy) =>
     [EXPENSES_FILTERBY_TYPES.EMPLOYEE]: OWNER,
     [EXPENSES_FILTERBY_TYPES.SERVICE]: SERVICE,
     [EXPENSES_FILTERBY_TYPES.REGION]: REGION,
-    [EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE]: RESOURCE_TYPE
+    [EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE]: RESOURCE_TYPE,
   })[filterBy];
 
 const getTableEmptyMessageId = (filterBy) =>
@@ -31,7 +31,7 @@ const getTableEmptyMessageId = (filterBy) =>
     [EXPENSES_FILTERBY_TYPES.SERVICE]: "noServiceExpenses",
     [EXPENSES_FILTERBY_TYPES.REGION]: "noRegionExpenses",
     [EXPENSES_FILTERBY_TYPES.EMPLOYEE]: "noOwnerExpenses",
-    [EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE]: "noResourceTypeExpenses"
+    [EXPENSES_FILTERBY_TYPES.RESOURCE_TYPE]: "noResourceTypeExpenses",
   })[filterBy];
 
 const getExpensesTableData = ({ filteredBreakdown, totalExpenses, urlGetter, colorsMap }) =>
@@ -39,7 +39,7 @@ const getExpensesTableData = ({ filteredBreakdown, totalExpenses, urlGetter, col
     percent: percentXofY(value.total, totalExpenses),
     link: urlGetter(value.id, value.type),
     color: colorsMap[value.name],
-    ...value
+    ...value,
   }));
 
 const ExpensesBreakdownTableWidget = ({
@@ -52,13 +52,13 @@ const ExpensesBreakdownTableWidget = ({
   onTitleButtonClick,
   onRowActionClick,
   startDateTimestamp,
-  endDateTimestamp
+  endDateTimestamp,
 }) => {
   const title = (
     <FormattedMessage
       id="summaryBy"
       values={{
-        name: getTableWrapperCardTitleName(filterBy)
+        name: getTableWrapperCardTitleName(filterBy),
       }}
     />
   );
@@ -68,10 +68,10 @@ const ExpensesBreakdownTableWidget = ({
       filteredBreakdown,
       totalExpenses: total,
       urlGetter: getEntityExpensesUrl,
-      colorsMap
+      colorsMap,
     }),
     localization: {
-      emptyMessageId: getTableEmptyMessageId(filterBy)
+      emptyMessageId: getTableEmptyMessageId(filterBy),
     },
     rowActions: [
       {
@@ -80,9 +80,9 @@ const ExpensesBreakdownTableWidget = ({
         onClick: (rowData) => {
           onRowActionClick(rowData);
         },
-        icon: <ListAltOutlinedIcon />
-      }
-    ]
+        icon: <ListAltOutlinedIcon />,
+      },
+    ],
   };
 
   return (

@@ -8,12 +8,12 @@ const EditModelVersionAliasForm = ({
   aliasToVersionMap,
   onSubmit,
   onCancel,
-  isLoadingProps
+  isLoadingProps,
 }: EditModelVersionAliasFormProps) => {
   const { isSubmitLoading } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues(modelVersion)
+    defaultValues: getDefaultValues(modelVersion),
   });
 
   const { handleSubmit } = methods;
@@ -25,7 +25,7 @@ const EditModelVersionAliasForm = ({
         onSubmit={handleSubmit((formData) => {
           onSubmit({
             ...formData,
-            aliases: formData.aliases.filter(isAliasValid)
+            aliases: formData.aliases.filter(isAliasValid),
           });
         })}
         noValidate

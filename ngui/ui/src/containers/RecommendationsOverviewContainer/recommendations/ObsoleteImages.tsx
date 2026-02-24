@@ -13,13 +13,13 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_oi_resource"
+    headerDataTestId: "lbl_oi_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_oi_location"
+    headerDataTestId: "lbl_oi_location",
   }),
   firstSeenOn({
-    headerDataTestId: "lbl_oi_created_at"
+    headerDataTestId: "lbl_oi_created_at",
   }),
   {
     header: (
@@ -34,7 +34,7 @@ const columns = [
       const value = cell.getValue();
 
       return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
-    }
+    },
   },
   {
     header: (
@@ -52,13 +52,13 @@ const columns = [
           <CloudResourceId resourceId={snapshot.resource_id} cloudResourceIdentifier={snapshot.cloud_resource_id} />
         </div>
       ));
-    }
+    },
   },
   detectedAt({ headerDataTestId: "lbl_oi_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_oi_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 /**
@@ -101,12 +101,12 @@ class ObsoleteImages extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

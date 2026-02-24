@@ -52,9 +52,9 @@ const poolName = ({ onExpensesExportClick, onConstraintsClick }) => ({
     );
   },
   style: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
   },
-  enableHiding: false
+  enableHiding: false,
 });
 
 export default poolName;

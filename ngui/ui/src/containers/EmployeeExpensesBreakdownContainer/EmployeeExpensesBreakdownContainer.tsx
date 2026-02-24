@@ -16,7 +16,7 @@ const EmployeeExpensesBreakdownContainer = ({ type, entityId: employeeId }) => {
   const [requestParams, applyFilter, updateFilter] = useExpensesBreakdownRequestParams({
     filterBy,
     startDateTimestamp,
-    endDateTimestamp
+    endDateTimestamp,
   });
 
   const { isLoading, shouldInvoke } = useApiState(GET_EMPLOYEES_EXPENSES, { ...requestParams, employeeId });

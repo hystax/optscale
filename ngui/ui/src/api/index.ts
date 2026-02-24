@@ -8,7 +8,7 @@ import {
   getResourceAllowedActions,
   signIn,
   updateUser,
-  API_URL as AUTH_API_URL
+  API_URL as AUTH_API_URL,
 } from "./auth";
 import { AUTH } from "./auth/reducer";
 import { updateUserAssignment, getJiraOrganizationStatus } from "./jira_bus";
@@ -213,7 +213,7 @@ import {
   getMlDatasetLabels,
   getMlTaskTags,
   restorePassword,
-  verifyEmail
+  verifyEmail,
 } from "./restapi";
 import { RESTAPI } from "./restapi/reducer";
 
@@ -431,7 +431,7 @@ export {
   getMlTaskTags,
   restorePassword,
   updateUser,
-  verifyEmail
+  verifyEmail,
 };
 
 export { RESTAPI, AUTH, JIRA_BUS };

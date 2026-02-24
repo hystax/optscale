@@ -14,7 +14,7 @@ const GcpProperties = ({ accountId, createdAt, config = {} }: GcpPropertiesProps
         value={createdAt}
         dataTestIds={{
           key: `p_connected_at_id`,
-          value: `p_connected_at_value`
+          value: `p_connected_at_value`,
         }}
       />
       <KeyValueLabel
@@ -22,7 +22,7 @@ const GcpProperties = ({ accountId, createdAt, config = {} }: GcpPropertiesProps
         value={accountId}
         dataTestIds={{
           key: `p_${GCP_CNR}_id`,
-          value: `p_${GCP_CNR}_value`
+          value: `p_${GCP_CNR}_value`,
         }}
       />
       <KeyValueLabel

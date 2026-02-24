@@ -15,7 +15,7 @@ const VALUE_KEYS = Object.freeze({
   [THRESHOLD_INPUT_NAMES.PUT_REQUEST_QUANTITY_THRESHOLD]: "put_request_quantity_threshold",
   [THRESHOLD_INPUT_NAMES.HEAD_REQUEST_QUANTITY_THRESHOLD]: "head_request_quantity_threshold",
   [THRESHOLD_INPUT_NAMES.OPTIONS_REQUEST_QUANTITY_THRESHOLD]: "options_request_quantity_threshold",
-  [THRESHOLD_INPUT_NAMES.DELETE_REQUEST_QUANTITY_THRESHOLD]: "delete_request_quantity_threshold"
+  [THRESHOLD_INPUT_NAMES.DELETE_REQUEST_QUANTITY_THRESHOLD]: "delete_request_quantity_threshold",
 });
 
 const AbandonedNebiusS3BucketsForm = ({ recommendationType, onSuccess }) => {
@@ -30,7 +30,7 @@ const AbandonedNebiusS3BucketsForm = ({ recommendationType, onSuccess }) => {
     <FormProvider {...methods}>
       <form noValidate onSubmit={submitHandler}>
         <TextWithInlineInput
-          messageId={"thresholds.abandonedNebiusS3Buckets.intro"}
+          messageId="thresholds.abandonedNebiusS3Buckets.intro"
           isLoading={isGetDataLoading}
           lessOrEqualValidation={lessOrEqual(COMMON_YEAR_LENGTH)}
           name={THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD}
@@ -107,8 +107,8 @@ class AbandonedNebiusS3BucketsModal extends BaseSideModal {
     messageId: "abandonedNebuisS3Buckets",
     dataTestIds: {
       title: "lbl_abandoned_nebuis_s3_buckets_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_abandoned_nebius_s3_buckets";

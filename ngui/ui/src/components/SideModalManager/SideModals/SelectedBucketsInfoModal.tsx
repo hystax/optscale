@@ -6,8 +6,8 @@ class SelectedBucketsInfoModal extends BaseSideModal {
     messageId: "crossBucketDuplicatesTitle",
     dataTestIds: {
       title: "lbl_cross_buckets",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_cross_buckets";

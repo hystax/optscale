@@ -11,7 +11,7 @@ import {
   GCP_CNR,
   GCP_TENANT,
   KUBERNETES_CNR,
-  NEBIUS
+  NEBIUS,
 } from "utils/constants";
 import type { Config, Params, UpdateDataSourceCredentialsContainerProps } from "./types";
 
@@ -19,7 +19,7 @@ const UpdateDataSourceCredentialsContainer = ({
   id,
   type,
   config,
-  closeSideModal
+  closeSideModal,
 }: UpdateDataSourceCredentialsContainerProps) => {
   const refetch = useRefetchApis();
 
@@ -47,16 +47,16 @@ const UpdateDataSourceCredentialsContainer = ({
       [ALIBABA_CNR]: "alibabaConfig",
       [NEBIUS]: "nebiusConfig",
       [DATABRICKS]: "databricksConfig",
-      [KUBERNETES_CNR]: "k8sConfig"
+      [KUBERNETES_CNR]: "k8sConfig",
     }[type];
 
     updateDataSource({
       variables: {
         dataSourceId,
         params: {
-          [configName]: newConfig
-        }
-      }
+          [configName]: newConfig,
+        },
+      },
     }).then(() => {
       refetch([GET_AVAILABLE_FILTERS]);
       closeSideModal();

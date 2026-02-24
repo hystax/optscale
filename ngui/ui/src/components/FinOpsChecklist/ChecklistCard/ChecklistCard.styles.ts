@@ -4,44 +4,44 @@ const useStyles = makeStyles()((theme) => ({
   root: {
     height: 230,
     transition: theme.transitions.create("height", {
-      duration: theme.transitions.duration.shortest
-    })
+      duration: theme.transitions.duration.shortest,
+    }),
   },
   fullHeight: {
-    height: "100%"
+    height: "100%",
   },
   title: {
-    justifyContent: "center"
+    justifyContent: "center",
   },
   titleContainer: {
-    textAlign: "center"
+    textAlign: "center",
   },
   descriptionContainer: {
-    wordBreak: "break-word"
+    wordBreak: "break-word",
   },
   illustrationContainer: {
     display: "flex",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   illustration: {
     maxWidth: "120px",
     marginTop: "-60px",
     transition: theme.transitions.create("filter", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.standard
-    })
+      duration: theme.transitions.duration.standard,
+    }),
   },
   blackAndWhite: {
-    filter: "grayscale(1)"
+    filter: "grayscale(1)",
   },
   subtitle: {
     display: "inline",
     borderBottom: "1px dashed",
     width: "fit-content",
     "&:hover": {
-      cursor: "pointer"
-    }
-  }
+      cursor: "pointer",
+    },
+  },
 }));
 
 export default useStyles;

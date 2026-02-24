@@ -37,11 +37,11 @@ const PasswordInput = ({
   dataTestId,
   margin,
   autoComplete,
-  sx
+  sx,
 }: PasswordInputProps) => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -50,20 +50,20 @@ const PasswordInput = ({
   const { ref, ...rest } = register(name, {
     required: {
       value: required,
-      message: intl.formatMessage({ id: "thisFieldIsRequired" })
+      message: intl.formatMessage({ id: "thisFieldIsRequired" }),
     },
     maxLength:
       maxLength !== null
         ? {
             value: maxLength,
-            message: intl.formatMessage({ id: "maxFieldLength" }, { max: maxLength })
+            message: intl.formatMessage({ id: "maxFieldLength" }, { max: maxLength }),
           }
         : undefined,
     minLength:
       minLength !== null
         ? { value: minLength, message: intl.formatMessage({ id: "minFieldLength" }, { min: minLength }) }
         : undefined,
-    validate
+    validate,
   });
 
   const [shouldShowPassword, setShouldShowPassword] = useState(false);
@@ -104,7 +104,7 @@ const PasswordInput = ({
             {endAdornment}
           </>
         ),
-        ...restInputProps
+        ...restInputProps,
       }}
       {...rest}
     />

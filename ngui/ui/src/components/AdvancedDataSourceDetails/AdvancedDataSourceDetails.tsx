@@ -20,18 +20,18 @@ const Discovery = ({ discoveryInfos }) => {
     () => [
       resourceType({
         style: {
-          minWidth: "150px"
-        }
+          minWidth: "150px",
+        },
       }),
       lastTimeLocal({
         headerDataTestId: "lbl_last_discovery_at",
         messageId: "lastDiscoveryAt",
         accessorKey: "last_discovery_at",
         style: {
-          minWidth: "170px"
-        }
+          minWidth: "170px",
+        },
       }),
-      discoveryStatus()
+      discoveryStatus(),
     ],
     []
   );
@@ -47,7 +47,7 @@ const Discovery = ({ discoveryInfos }) => {
 
     return discoveryInfos.map((info) => ({
       ...info,
-      status: getStatus(info.last_discovery_at, info.last_error_at)
+      status: getStatus(info.last_discovery_at, info.last_error_at),
     }));
   }, [discoveryInfos]);
 
@@ -60,7 +60,7 @@ const Discovery = ({ discoveryInfos }) => {
         data={tableData}
         columns={columns}
         counters={{
-          show: false
+          show: false,
         }}
       />
     </>
@@ -71,7 +71,7 @@ const Status = ({ timestamp, attemptTimestamp, error }) => {
   const status = getBillingImportStatus({
     timestamp,
     attemptTimestamp,
-    error
+    error,
   });
 
   if (status === BILLING_IMPORT_STATUS.SUCCESS) {
@@ -91,7 +91,7 @@ const AdvancedDataSourceDetails = ({
   lastMetricsRetrieval,
   lastMetricsRetrievalAttempt,
   lastGettingMetricAttemptError,
-  discoveryInfos
+  discoveryInfos,
 }) => (
   <>
     <Box display="flex" flexWrap="wrap" rowGap={1} columnGap={16}>
@@ -107,7 +107,7 @@ const AdvancedDataSourceDetails = ({
                   <FormattedMessage
                     id={!lastImportAt ? "never" : "valueAgo"}
                     values={{
-                      value: lastImportAt ? getTimeDistance(lastImportAt) : null
+                      value: lastImportAt ? getTimeDistance(lastImportAt) : null,
                     }}
                   />
                 }
@@ -120,7 +120,7 @@ const AdvancedDataSourceDetails = ({
                   <FormattedMessage
                     id={!lastImportAttemptAt ? "never" : "valueAgo"}
                     values={{
-                      value: lastImportAttemptAt ? getTimeDistance(lastImportAttemptAt) : null
+                      value: lastImportAttemptAt ? getTimeDistance(lastImportAttemptAt) : null,
                     }}
                   />
                 }
@@ -158,7 +158,7 @@ const AdvancedDataSourceDetails = ({
                   <FormattedMessage
                     id={!lastMetricsRetrieval ? "never" : "valueAgo"}
                     values={{
-                      value: lastMetricsRetrieval ? getTimeDistance(lastMetricsRetrieval) : null
+                      value: lastMetricsRetrieval ? getTimeDistance(lastMetricsRetrieval) : null,
                     }}
                   />
                 }
@@ -171,7 +171,7 @@ const AdvancedDataSourceDetails = ({
                   <FormattedMessage
                     id={!lastMetricsRetrievalAttempt ? "never" : "valueAgo"}
                     values={{
-                      value: lastMetricsRetrievalAttempt ? getTimeDistance(lastMetricsRetrievalAttempt) : null
+                      value: lastMetricsRetrievalAttempt ? getTimeDistance(lastMetricsRetrievalAttempt) : null,
                     }}
                   />
                 }

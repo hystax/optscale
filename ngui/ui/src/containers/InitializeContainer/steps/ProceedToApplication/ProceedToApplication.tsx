@@ -8,7 +8,7 @@ const getRedirectionPath = (scopeUserEmail: string) => {
   const {
     [NEXT_QUERY_PARAMETER_NAME]: next = HOME,
     [USER_EMAIL_QUERY_PARAMETER_NAME]: userEmailQueryParameter,
-    [SHOW_POLICY_QUERY_PARAM]: showPolicyQueryParameter = false
+    [SHOW_POLICY_QUERY_PARAM]: showPolicyQueryParameter = false,
   } = getSearchParams() as {
     [NEXT_QUERY_PARAMETER_NAME]: string;
     [USER_EMAIL_QUERY_PARAMETER_NAME]: string;

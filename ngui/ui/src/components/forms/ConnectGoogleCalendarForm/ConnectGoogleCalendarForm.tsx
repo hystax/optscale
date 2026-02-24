@@ -15,10 +15,10 @@ const ConnectGoogleCalendarForm = ({
   serviceAccount,
   onCancel,
   onSubmit,
-  isLoading = false
+  isLoading = false,
 }: ConnectGoogleCalendarFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;
@@ -43,7 +43,7 @@ const ConnectGoogleCalendarForm = ({
                     <CopyText variant="inherit" text={serviceAccount}>
                       {serviceAccount}
                     </CopyText>
-                  )
+                  ),
                 }}
               />
             </Typography>
@@ -64,7 +64,7 @@ const ConnectGoogleCalendarForm = ({
                   >
                     {chunks}
                   </Link>
-                )
+                ),
               }}
             />
           </Typography>

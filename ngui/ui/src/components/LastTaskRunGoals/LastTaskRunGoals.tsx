@@ -17,12 +17,12 @@ const LastTaskRunGoals = ({ lastRunMetrics, taskReachedGoals }) =>
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
-          minHeight: "30px"
+          minHeight: "30px",
         }}
       >
         <div
           style={{
-            marginRight: shouldRenderHistory ? "8px" : undefined
+            marginRight: shouldRenderHistory ? "8px" : undefined,
           }}
         >
           <GoalLabel name={name} goalValue={value} targetGoalValue={targetValue} reached={reached} unit={unit} />

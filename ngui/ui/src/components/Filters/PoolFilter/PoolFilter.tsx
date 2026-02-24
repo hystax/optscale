@@ -26,21 +26,21 @@ class PoolFilter extends Filter {
     additionalProperties: false,
     properties: {
       id: {
-        type: "string"
+        type: "string",
       },
       name: {
-        type: "string"
+        type: "string",
       },
       purpose: {
         type: "string",
-        enum: POOL_TYPES_LIST
-      }
-    }
+        enum: POOL_TYPES_LIST,
+      },
+    },
   };
 
   // TODO: Use ajv TS integration to create schema based on types def
   static appliedFilterSchema = {
-    type: "string"
+    type: "string",
   };
 
   static _getValue(filterItem) {
@@ -76,13 +76,13 @@ class PoolFilter extends Filter {
         disableLink: false,
         dataTestId: `${this.constructor.filterName}_filter_link`,
         iconProps: {
-          dataTestId: `${this.constructor.filterName}_filter_logo`
+          dataTestId: `${this.constructor.filterName}_filter_logo`,
         },
-        withSubpools: isPoolIdWithSubPools(appliedFilter)
+        withSubpools: isPoolIdWithSubPools(appliedFilter),
       })),
       displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem, () => ({
-        withSubPools: isPoolIdWithSubPools(appliedFilter)
-      }))
+        withSubPools: isPoolIdWithSubPools(appliedFilter),
+      })),
     };
   }
 
@@ -90,7 +90,7 @@ class PoolFilter extends Filter {
     return sortObjects({
       array: items,
       field: "name",
-      type: "asc"
+      type: "asc",
     });
   }
 }

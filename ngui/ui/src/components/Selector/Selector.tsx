@@ -57,7 +57,7 @@ const Selector = forwardRef(
       onOpen,
       onClose,
       endAdornment,
-      renderValue
+      renderValue,
     }: SelectorProps,
     ref
   ) => {
@@ -67,7 +67,7 @@ const Selector = forwardRef(
       formControl: `${id}-form-control`,
       select: `${id}-select`,
       label: `${id}-label`,
-      helper: `${id}-helper-text`
+      helper: `${id}-helper-text`,
     };
 
     const label = labelMessageId ? intl.formatMessage({ id: labelMessageId }) : null;
@@ -90,7 +90,7 @@ const Selector = forwardRef(
         data-test-id={dataTestIds.formControl}
         sx={{
           minWidth: approximateLabelWidth,
-          ...sx
+          ...sx,
         }}
       >
         <Select
@@ -98,7 +98,7 @@ const Selector = forwardRef(
           name={name}
           dataTestIds={{
             selectDataTestId: dataTestIds.select,
-            labelDataTestId: dataTestIds.label
+            labelDataTestId: dataTestIds.label,
           }}
           value={value}
           required={required}

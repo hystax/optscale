@@ -61,7 +61,7 @@ const NameCell = ({ lastRun, limitHitsCount, id, type, name }: NameCellProps) =>
             label={<KeyValueLabel keyMessageId="lastCheck" value={timeAgo} variant="caption" />}
             component={RouterLink}
           />
-        ) : null
+        ) : null,
       }}
     >
       <Link to={getLink(id, type)} component={RouterLink}>
@@ -80,11 +80,11 @@ const organizationConstraintName = () => ({
   accessorKey: "name",
   cell: ({
     row: {
-      original: { id, type, last_run: lastRun, limit_hits: limitHits = [] }
+      original: { id, type, last_run: lastRun, limit_hits: limitHits = [] },
     },
-    cell
+    cell,
   }) => <NameCell lastRun={lastRun} limitHitsCount={limitHits.length} id={id} type={type} name={cell.getValue()} />,
-  defaultSort: "asc"
+  defaultSort: "asc",
 });
 
 export default organizationConstraintName;

@@ -22,13 +22,13 @@ const MlEditModel = ({ model, isLoading }: MlEditModelProps) => {
       </Link>,
       <Link key={2} to={getMlModelUrl(id)} component={RouterLink}>
         {name}
-      </Link>
+      </Link>,
     ],
     title: {
       messageId: "editModelTitle",
       isLoading,
-      dataTestId: "lbl_edit_model"
-    }
+      dataTestId: "lbl_edit_model",
+    },
   };
 
   return (
@@ -37,7 +37,7 @@ const MlEditModel = ({ model, isLoading }: MlEditModelProps) => {
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <MlEditModelFormContainer model={model} isModelLoading={isLoading} />

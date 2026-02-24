@@ -23,7 +23,7 @@ const leaderboardDataset = ({ nameAccessor, pathAccessor, deletedAccessor }) => 
         </Typography>
       </CaptionedCell>
     );
-  }
+  },
 });
 
 export default leaderboardDataset;

@@ -29,7 +29,7 @@ const MlDatasetEditContainer = () => {
       onCancel={onCancel}
       isLoadingProps={{
         isGetDatasetLoading,
-        isUpdateDatasetLoading
+        isUpdateDatasetLoading,
       }}
     />
   );

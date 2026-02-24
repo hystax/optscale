@@ -8,7 +8,7 @@ const DeleteEntity = ({ children, onCancel, message = {}, dataTestIds, isLoading
   const {
     text: textDataTestId,
     deleteButton: deleteButtonDataTestId,
-    cancelButton: cancelButtonDataTestId
+    cancelButton: cancelButtonDataTestId,
   } = dataTestIds || {};
   const { messageId, values = {} } = message;
   const {
@@ -17,7 +17,7 @@ const DeleteEntity = ({ children, onCancel, message = {}, dataTestIds, isLoading
     color: deleteButtonColor = "error",
     variant: deleteButtonVariant = "contained",
     tooltip,
-    onDelete
+    onDelete,
   } = deleteButtonProps;
 
   return (

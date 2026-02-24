@@ -21,7 +21,7 @@ const ShowLessThanValueSwitch = ({ disabled = false }) => {
       labelPlacement="start"
       sx={{
         float: "right",
-        marginRight: "0"
+        marginRight: "0",
       }}
     />
   );

@@ -14,7 +14,7 @@ const CloudExpensesChartMarker = ({
   chartBorderWidth,
   chartSegmentHeight,
   chartBase,
-  position = "bottom"
+  position = "bottom",
 }) => {
   const theme = useTheme();
   const ref = useRef();
@@ -30,12 +30,12 @@ const CloudExpensesChartMarker = ({
 
   const positionStyles = {
     top: {
-      bottom: `calc(${markerVerticalShift})`
+      bottom: `calc(${markerVerticalShift})`,
     },
     bottom: {
       alignItems: "flex-end",
-      top: `calc(${markerVerticalShift})`
-    }
+      top: `calc(${markerVerticalShift})`,
+    },
   };
 
   return (
@@ -50,18 +50,18 @@ const CloudExpensesChartMarker = ({
         justifyContent: isRightSideMarker ? "flex-start" : "flex-end",
         ...(isRightSideMarker
           ? {
-              left: `${leftShift}%`
+              left: `${leftShift}%`,
             }
           : {
-              left: `calc(${leftShift}% - ${markerWidth}px)`
-            })
+              left: `calc(${leftShift}% - ${markerWidth}px)`,
+            }),
       }}
     >
       <Box
         style={{
           position: "absolute",
           borderRight: borderStyle,
-          height: `calc(100% + ${markerVerticalShift})`
+          height: `calc(100% + ${markerVerticalShift})`,
         }}
       />
       <Box ml={isRightSideMarker ? textSpacing : 0} mr={!isRightSideMarker ? textSpacing : 0}>

@@ -6,7 +6,7 @@ const CellValue = ({ usage }) => (
   <FormattedMessage
     id="hour"
     values={{
-      value: round(usage, 1)
+      value: round(usage, 1),
     }}
   />
 );
@@ -19,7 +19,7 @@ const totalUsage = ({ totalTotalUsageHrs }) => ({
   ),
   accessorKey: "total_usage_hrs",
   cell: ({ cell }) => <CellValue usage={cell.getValue()} />,
-  footer: () => <CellValue usage={totalTotalUsageHrs} />
+  footer: () => <CellValue usage={totalTotalUsageHrs} />,
 });
 
 export default totalUsage;

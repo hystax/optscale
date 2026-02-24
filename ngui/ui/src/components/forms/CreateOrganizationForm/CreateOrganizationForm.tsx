@@ -7,7 +7,7 @@ import { getDefaultValues } from "./utils";
 
 const CreateOrganizationForm = ({ onSubmit, onCancel, isLoading }: CreateOrganizationFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   return (

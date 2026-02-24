@@ -22,10 +22,10 @@ export const useColumnsVisibility = (columnsSelectorUID) => {
 
   return {
     state: {
-      columnVisibility
+      columnVisibility,
     },
     tableOptions: {
-      onColumnVisibilityChange
-    }
+      onColumnVisibilityChange,
+    },
   };
 };

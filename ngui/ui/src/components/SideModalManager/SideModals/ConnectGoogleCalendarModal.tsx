@@ -6,8 +6,8 @@ class ConnectGoogleCalendarModal extends BaseSideModal {
     messageId: "connectGoogleCalendar",
     dataTestIds: {
       title: "lbl_connect",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_connect_google_calendar";

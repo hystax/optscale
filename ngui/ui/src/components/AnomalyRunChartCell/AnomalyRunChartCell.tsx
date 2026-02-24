@@ -27,7 +27,7 @@ const AnomalyRunChartCell = ({ breakdown, today, average, threshold, type, today
       }
       thresholdArea={{
         start: average,
-        end: average * (1 + threshold / 100)
+        end: average * (1 + threshold / 100),
       }}
     />
   );

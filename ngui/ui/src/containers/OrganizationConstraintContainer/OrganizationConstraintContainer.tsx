@@ -9,7 +9,7 @@ import { ANOMALIES, QUOTAS_AND_BUDGETS, TAGGING_POLICIES } from "urls";
 const getActionBarProperties = ({
   anomalyId,
   policyId,
-  taggingPolicyId
+  taggingPolicyId,
 }: {
   anomalyId?: string;
   policyId?: string;
@@ -21,42 +21,42 @@ const getActionBarProperties = ({
         actionBarBreadcrumbsDefinition: [
           <Link key={1} to={ANOMALIES} component={RouterLink}>
             <FormattedMessage id="anomalyDetectionTitle" />
-          </Link>
+          </Link>,
         ],
         actionBarTitleDefinition: {
           text: <FormattedMessage id="anomalyDetectionPolicyTitle" />,
-          dataTestId: "lbl_anomaly_detection_policy"
-        }
+          dataTestId: "lbl_anomaly_detection_policy",
+        },
       };
     case !!policyId:
       return {
         actionBarBreadcrumbsDefinition: [
           <Link key={1} to={QUOTAS_AND_BUDGETS} component={RouterLink}>
             <FormattedMessage id="quotasAndBudgetsTitle" />
-          </Link>
+          </Link>,
         ],
         actionBarTitleDefinition: {
           text: <FormattedMessage id="quotaAndBudgetPolicyTitle" />,
-          dataTestId: "lbl_quota_and_budget_policy"
-        }
+          dataTestId: "lbl_quota_and_budget_policy",
+        },
       };
     case !!taggingPolicyId:
       return {
         actionBarBreadcrumbsDefinition: [
           <Link key={1} to={TAGGING_POLICIES} component={RouterLink}>
             <FormattedMessage id="taggingPolicy.taggingPoliciesTitle" />
-          </Link>
+          </Link>,
         ],
         actionBarTitleDefinition: {
           text: <FormattedMessage id="taggingPolicyTitle" />,
-          dataTestId: "lbl_tagging_policy"
-        }
+          dataTestId: "lbl_tagging_policy",
+        },
       };
 
     default:
       return {
         actionBarBreadcrumbsDefinition: undefined,
-        actionBarTitleDefinition: undefined
+        actionBarTitleDefinition: undefined,
       };
   }
 };
@@ -68,8 +68,8 @@ const OrganizationConstraintContainer = () => {
 
   const { data: { organizationConstraint = {} } = {}, loading: isGetConstraintLoading } = useGetOrganizationConstraintQuery({
     variables: {
-      constraintId
-    }
+      constraintId,
+    },
   });
 
   const { organizationId } = useOrganizationInfo();
@@ -78,14 +78,14 @@ const OrganizationConstraintContainer = () => {
     useGetOrganizationLimitHitsQuery({
       variables: {
         organizationId,
-        constraintId
-      }
+        constraintId,
+      },
     });
 
   const { actionBarBreadcrumbsDefinition, actionBarTitleDefinition } = getActionBarProperties({
     anomalyId,
     policyId,
-    taggingPolicyId
+    taggingPolicyId,
   });
 
   return (
@@ -96,7 +96,7 @@ const OrganizationConstraintContainer = () => {
       limitHits={limitHits}
       isLoadingProps={{
         isGetConstraintLoading,
-        isGetLimitHitsLoading
+        isGetLimitHitsLoading,
       }}
     />
   );

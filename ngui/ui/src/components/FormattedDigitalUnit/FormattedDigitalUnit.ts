@@ -7,7 +7,7 @@ export const IEC_UNITS = Object.freeze({
   MEBIBYTE: "mebibyte",
   GIBIBYTE: "gibibyte",
   TEBIBYTE: "tebibyte",
-  PEBIBYTE: "pebibyte"
+  PEBIBYTE: "pebibyte",
 });
 
 export const SI_UNITS = Object.freeze({
@@ -16,7 +16,7 @@ export const SI_UNITS = Object.freeze({
   MEGABYTE: "megabyte",
   GIGABYTE: "gigabyte",
   TERABYTE: "terabyte",
-  PETABYTE: "petabyte"
+  PETABYTE: "petabyte",
 });
 
 type IecUnitType = (typeof IEC_UNITS)[keyof typeof IEC_UNITS];
@@ -33,12 +33,12 @@ type FormattedDigitalUnitProps = {
 
 const IEC_SYSTEM_OF_UNITS = Object.freeze({
   BASE: 1024,
-  UNITS: Object.values(IEC_UNITS) as readonly IecUnitType[]
+  UNITS: Object.values(IEC_UNITS) as readonly IecUnitType[],
 });
 
 const SI_SYSTEM_OF_UNITS = Object.freeze({
   BASE: 1000,
-  UNITS: Object.values(SI_UNITS) as readonly SiUnitType[]
+  UNITS: Object.values(SI_UNITS) as readonly SiUnitType[],
 });
 
 const getSystemOfUnits = (unitName: UnitType) => {

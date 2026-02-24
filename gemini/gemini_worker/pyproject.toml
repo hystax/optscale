@@ -3,8 +3,8 @@ name = "gemini-worker"
 version = "0.1.0"
 requires-python = ">=3.12.11,<3.13"
 dependencies = [
-    "boto3==1.34.7",
     "clickhouse-connect==0.8.15",
+    "cloud-adapter",
     "config-client",
     "kombu==5.5.4",
     "pymongo==4.6.3",
@@ -12,6 +12,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
+cloud-adapter = { path = "../../tools/cloud_adapter" }
 config-client = { path = "../../optscale_client/config_client" }
 restapi-client = { path = "../../optscale_client/rest_api_client" }
 

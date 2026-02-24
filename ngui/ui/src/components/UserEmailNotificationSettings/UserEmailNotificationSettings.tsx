@@ -15,92 +15,92 @@ import {
   EmployeeEmail,
   LoadingSwitchProps,
   UserEmailNotificationSettingsProps,
-  UserEmailSettingsProps
+  UserEmailSettingsProps,
 } from "./types";
 
 const EMAIL_TEMPLATES = {
   finOps: {
     weekly_expense_report: {
       title: "emailTemplates.finOps.weekly_expense_report.title",
-      description: "emailTemplates.finOps.weekly_expense_report.description"
+      description: "emailTemplates.finOps.weekly_expense_report.description",
     },
     pool_exceed_resources_report: {
       title: "emailTemplates.finOps.pool_exceed_resources_report.title",
-      description: "emailTemplates.finOps.pool_exceed_resources_report.description"
+      description: "emailTemplates.finOps.pool_exceed_resources_report.description",
     },
     pool_exceed_report: {
       title: "emailTemplates.finOps.pool_exceed_report.title",
-      description: "emailTemplates.finOps.pool_exceed_report.description"
+      description: "emailTemplates.finOps.pool_exceed_report.description",
     },
     alert: {
       title: "emailTemplates.finOps.alert.title",
-      description: "emailTemplates.finOps.alert.description"
+      description: "emailTemplates.finOps.alert.description",
     },
     saving_spike: {
       title: "emailTemplates.finOps.saving_spike.title",
-      description: "emailTemplates.finOps.saving_spike.description"
-    }
+      description: "emailTemplates.finOps.saving_spike.description",
+    },
   },
   policy: {
     resource_owner_violation_report: {
       title: "emailTemplates.policy.resource_owner_violation_report.title",
-      description: "emailTemplates.policy.resource_owner_violation_report.description"
+      description: "emailTemplates.policy.resource_owner_violation_report.description",
     },
     pool_owner_violation_report: {
       title: "emailTemplates.policy.pool_owner_violation_report.title",
-      description: "emailTemplates.policy.pool_owner_violation_report.description"
+      description: "emailTemplates.policy.pool_owner_violation_report.description",
     },
     resource_owner_violation_alert: {
       title: "emailTemplates.policy.resource_owner_violation_alert.title",
-      description: "emailTemplates.policy.resource_owner_violation_alert.description"
+      description: "emailTemplates.policy.resource_owner_violation_alert.description",
     },
     anomaly_detection_alert: {
       title: "emailTemplates.policy.anomaly_detection_alert.title",
-      description: "emailTemplates.policy.anomaly_detection_alert.description"
+      description: "emailTemplates.policy.anomaly_detection_alert.description",
     },
     organization_policy_expiring_budget: {
       title: "emailTemplates.policy.organization_policy_expiring_budget.title",
-      description: "emailTemplates.policy.organization_policy_expiring_budget.description"
+      description: "emailTemplates.policy.organization_policy_expiring_budget.description",
     },
     organization_policy_quota: {
       title: "emailTemplates.policy.organization_policy_quota.title",
-      description: "emailTemplates.policy.organization_policy_quota.description"
+      description: "emailTemplates.policy.organization_policy_quota.description",
     },
     organization_policy_recurring_budget: {
       title: "emailTemplates.policy.organization_policy_recurring_budget.title",
-      description: "emailTemplates.policy.organization_policy_recurring_budget.description"
+      description: "emailTemplates.policy.organization_policy_recurring_budget.description",
     },
     organization_policy_tagging: {
       title: "emailTemplates.policy.organization_policy_tagging.title",
-      description: "emailTemplates.policy.organization_policy_tagging.description"
-    }
+      description: "emailTemplates.policy.organization_policy_tagging.description",
+    },
   },
   recommendations: {
     new_security_recommendation: {
       title: "emailTemplates.recommendations.new_security_recommendation.title",
-      description: "emailTemplates.recommendations.new_security_recommendation.description"
-    }
+      description: "emailTemplates.recommendations.new_security_recommendation.description",
+    },
   },
   systemNotifications: {
     environment_changes: {
       title: "emailTemplates.systemNotifications.environment_changes.title",
-      description: "emailTemplates.systemNotifications.environment_changes.description"
+      description: "emailTemplates.systemNotifications.environment_changes.description",
     },
     report_imports_passed_for_org: {
       title: "emailTemplates.systemNotifications.report_imports_passed_for_org.title",
-      description: "emailTemplates.systemNotifications.report_imports_passed_for_org.description"
+      description: "emailTemplates.systemNotifications.report_imports_passed_for_org.description",
     },
     report_import_failed: {
       title: "emailTemplates.systemNotifications.report_import_failed.title",
-      description: "emailTemplates.systemNotifications.report_import_failed.description"
-    }
+      description: "emailTemplates.systemNotifications.report_import_failed.description",
+    },
   },
   accountManagement: {
     invite: {
       title: "emailTemplates.accountManagement.invite.title",
-      description: "emailTemplates.accountManagement.invite.description"
-    }
-  }
+      description: "emailTemplates.accountManagement.invite.description",
+    },
+  },
 } as const;
 
 const LoadingSwitch = ({ checked, onChange, isLoading = false }: LoadingSwitchProps) => {
@@ -114,7 +114,7 @@ const LoadingSwitch = ({ checked, onChange, isLoading = false }: LoadingSwitchPr
         height: 20,
         borderRadius: "50%",
         backgroundColor: (theme) => (checked ? theme.palette.secondary.main : theme.palette.background.default),
-        boxShadow: (theme) => theme.shadows[1]
+        boxShadow: (theme) => theme.shadows[1],
       }}
     >
       {isLoading && <CircularProgress size={14} thickness={6} />}
@@ -143,15 +143,17 @@ const EmailSetting = ({ emailId, employeeId, enabled, emailTitle, description }:
                 employeeId,
                 params: {
                   emailId,
-                  action: checked ? "enable" : "disable"
-                }
-              }
+                  action: checked ? "enable" : "disable",
+                },
+              },
             });
           }}
           isLoading={updateEmployeeEmailLoading}
         />
       </Box>
-      <Typography variant="caption">{<FormattedMessage id={description} />}</Typography>
+      <Typography variant="caption">
+        <FormattedMessage id={description} />
+      </Typography>
     </Box>
   );
 };
@@ -178,8 +180,8 @@ const UserEmailSettings = ({ title, employeeEmails }: UserEmailSettingsProps) =>
         maxWidth: "650px",
         // add padding to align the title switch with the switches in the accordion details
         "& .MuiAccordionSummary-root": {
-          paddingRight: (theme) => theme.spacing(2)
-        }
+          paddingRight: (theme) => theme.spacing(2),
+        },
       }}
     >
       <Box display="flex" alignItems="center" rowGap={0.5} width="100%" justifyContent="space-between">
@@ -197,7 +199,7 @@ const UserEmailSettings = ({ title, employeeEmails }: UserEmailSettingsProps) =>
                     id="value/value"
                     values={{
                       value1: enabledEmailsCount,
-                      value2: totalEmailsCount
+                      value2: totalEmailsCount,
                     }}
                   />
                 }
@@ -220,9 +222,9 @@ const UserEmailSettings = ({ title, employeeEmails }: UserEmailSettingsProps) =>
                 variables: {
                   employeeId,
                   params: {
-                    [checked ? "enable" : "disable"]: employeeEmails.map((email) => email.id)
-                  }
-                }
+                    [checked ? "enable" : "disable"]: employeeEmails.map((email) => email.id),
+                  },
+                },
               });
             }}
             isLoading={updateEmployeeEmailsLoading}
@@ -262,7 +264,7 @@ const getGroupedEmailTemplates = (employeeEmails: ApiEmployeeEmail[]) => {
 
           return { ...email, title, description } as EmployeeEmail;
         })
-        .filter(({ available_by_role: availableByRole }) => availableByRole)
+        .filter(({ available_by_role: availableByRole }) => availableByRole),
     ])
   ) as {
     [K in ObjectKeys<typeof EMAIL_TEMPLATES>]: EmployeeEmail[];

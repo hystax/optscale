@@ -8,28 +8,28 @@ import { COST_EXPLORER, CLOUD_DETAILS, OWNER_DETAILS, POOL_DETAILS, EXPENSES_FIL
 const ENTITY_TYPES = Object.freeze({
   CLOUD: "cloud",
   OWNER: "owner",
-  POOL: "pool"
+  POOL: "pool",
 });
 
 const getEntityTypeByBreakdownType = (expensesBreakdownType) =>
   ({
     [CLOUD_DETAILS]: ENTITY_TYPES.CLOUD,
     [OWNER_DETAILS]: ENTITY_TYPES.OWNER,
-    [POOL_DETAILS]: ENTITY_TYPES.POOL
+    [POOL_DETAILS]: ENTITY_TYPES.POOL,
   })[expensesBreakdownType];
 
 const getEntityTypeByFilter = (filterBy) =>
   ({
     [EXPENSES_FILTERBY_TYPES.EMPLOYEE]: ENTITY_TYPES.OWNER,
     [EXPENSES_FILTERBY_TYPES.CLOUD]: ENTITY_TYPES.CLOUD,
-    [EXPENSES_FILTERBY_TYPES.POOL]: ENTITY_TYPES.POOL
+    [EXPENSES_FILTERBY_TYPES.POOL]: ENTITY_TYPES.POOL,
   })[filterBy];
 
 const getCostExplorerExpensesBreakdownTitle = (entityType) => (
   <FormattedMessage
     id="expensesBreakdownByTitle"
     values={{
-      entityType
+      entityType,
     }}
   />
 );
@@ -39,7 +39,7 @@ const getExpensesBreakdownTitle = (name, entityType) => (
     id="expensesBreakdownForTitle"
     values={{
       name,
-      entityType
+      entityType,
     }}
   />
 );
@@ -57,8 +57,8 @@ const ExpensesBreakdownActionBar = ({ expensesBreakdownType, filterBy, name, isL
         breadcrumbs: [
           <Link key={1} to={EXPENSES} component={RouterLink}>
             <FormattedMessage id="costExplorerTitle" />
-          </Link>
-        ]
+          </Link>,
+        ],
       };
     }
 
@@ -77,14 +77,14 @@ const ExpensesBreakdownActionBar = ({ expensesBreakdownType, filterBy, name, isL
             {
               [ENTITY_TYPES.OWNER]: EXPENSES_BY_OWNER,
               [ENTITY_TYPES.CLOUD]: EXPENSES_BY_CLOUD,
-              [ENTITY_TYPES.POOL]: EXPENSES_BY_POOL
+              [ENTITY_TYPES.POOL]: EXPENSES_BY_POOL,
             }[entityType]
           }
           component={RouterLink}
         >
           {getCostExplorerExpensesBreakdownTitle(entityType)}
-        </Link>
-      ]
+        </Link>,
+      ],
     };
   };
 
@@ -94,8 +94,8 @@ const ExpensesBreakdownActionBar = ({ expensesBreakdownType, filterBy, name, isL
     breadcrumbs,
     title: {
       text: titleText,
-      isLoading
-    }
+      isLoading,
+    },
   };
 
   return <ActionBar data={actionBarData} />;

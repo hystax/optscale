@@ -14,8 +14,8 @@ const ExpensesBreakdownBarChart = ({ periodType, pdfId, breakdownData, fieldTool
     sourceData: {
       [EXPENSES_SPLIT_PERIODS.DAILY]: breakdownData.daily,
       [EXPENSES_SPLIT_PERIODS.WEEKLY]: breakdownData.weekly,
-      [EXPENSES_SPLIT_PERIODS.MONTHLY]: breakdownData.monthly
-    }[periodType]
+      [EXPENSES_SPLIT_PERIODS.MONTHLY]: breakdownData.monthly,
+    }[periodType],
   });
 
   const onClickHandler =

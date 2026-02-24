@@ -19,5 +19,5 @@ export {
   usePaginationTableSettings,
   useGlobalFilterTableSettings,
   useSortingTableSettings,
-  useSticky
+  useSticky,
 };

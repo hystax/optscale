@@ -15,7 +15,7 @@ const resourcesUsed = ({
   questionMarkMessageId = "totalPodMemoryUsedTooltip",
   accessorKey = "recommended_flavor",
   totalAccessor = "total_pod_memory_gb",
-  totalRequestsAccessor = "total_pod_memory_requests_gb"
+  totalRequestsAccessor = "total_pod_memory_requests_gb",
 }) => ({
   header: (
     <Box display="flex" alignItems="center">
@@ -25,7 +25,7 @@ const resourcesUsed = ({
       <QuestionMark
         messageId={questionMarkMessageId}
         messageValues={{
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         }}
       />
     </Box>
@@ -54,15 +54,15 @@ const resourcesUsed = ({
           id="value / value"
           values={{
             value1,
-            value2
+            value2,
           }}
         />
       </TextWithDataTestId>
     );
   },
   style: {
-    maxWidth: 130
-  }
+    maxWidth: 130,
+  },
 });
 
 export default resourcesUsed;

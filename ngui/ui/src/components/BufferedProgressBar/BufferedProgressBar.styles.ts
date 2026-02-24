@@ -5,24 +5,24 @@ const useStyles = makeStyles()((theme, { mainColor, secondaryColor, backgroundCo
     position: "relative",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   progress: {
     height: "0.5rem",
     borderRadius: "0.3rem",
-    width: "100%"
+    width: "100%",
   },
   bar1Buffer: {
-    backgroundColor: mainColor
+    backgroundColor: mainColor,
   },
   bar2Buffer: {
-    backgroundColor: secondaryColor
+    backgroundColor: secondaryColor,
   },
   dashed: {
     backgroundColor,
     backgroundImage: "none",
-    animation: "none"
-  }
+    animation: "none",
+  },
 }));
 
 export default useStyles;

@@ -34,13 +34,13 @@ const ProPlanCard = ({ monthlyPlan, annualPlan }: ProPlanCardProps) => {
     {
       id: BILLING_CYCLE.MONTHLY,
       messageId: "subscriptionBillingCycle.monthly",
-      action: () => setBillingCycle(BILLING_CYCLE.MONTHLY)
+      action: () => setBillingCycle(BILLING_CYCLE.MONTHLY),
     },
     {
       id: BILLING_CYCLE.ANNUAL,
       messageId: "subscriptionBillingCycle.annual",
-      action: () => setBillingCycle(BILLING_CYCLE.ANNUAL)
-    }
+      action: () => setBillingCycle(BILLING_CYCLE.ANNUAL),
+    },
   ];
 
   const { id, monthlyPrice, annualPrice, currency } =
@@ -49,13 +49,13 @@ const ProPlanCard = ({ monthlyPlan, annualPlan }: ProPlanCardProps) => {
           id: monthlyPlan.id,
           monthlyPrice: monthlyPlan.price,
           annualPrice: monthlyPlan.price * 12,
-          currency: monthlyPlan.currency
+          currency: monthlyPlan.currency,
         }
       : {
           id: annualPlan.id,
           monthlyPrice: annualPlan.price / 12,
           annualPrice: annualPlan.price,
-          currency: annualPlan.currency
+          currency: annualPlan.currency,
         };
 
   return (

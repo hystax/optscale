@@ -21,7 +21,7 @@ const PoolExpensesBreakdownContainer = ({ type, entityId: poolId }) => {
   const [requestParams, applyFilter, updateFilter] = useExpensesBreakdownRequestParams({
     filterBy,
     startDateTimestamp,
-    endDateTimestamp
+    endDateTimestamp,
   });
 
   const getIdValue = () => poolId || organizationPoolId;

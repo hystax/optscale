@@ -6,8 +6,8 @@ class ReapplyRulesetModal extends BaseSideModal {
     messageId: "reapplyRulesetTitle",
     dataTestIds: {
       title: "title_reapply",
-      closeButton: "close_btn"
-    }
+      closeButton: "close_btn",
+    },
   };
 
   dataTestId = "smodal_reapply_ruleset";

@@ -10,6 +10,6 @@ export const processGraphQLErrorData = (graphQLError: GraphQLFormattedError) => 
     errorCode: error?.error_code,
     errorReason: error?.reason,
     params: error?.params,
-    apolloErrorMessage: message
+    apolloErrorMessage: message,
   };
 };

@@ -11,10 +11,10 @@ export const updateUserAssignment = (secret) =>
     method: "PATCH",
     label: UPDATE_USER_ASSIGNMENT,
     params: {
-      secret
+      secret,
     },
     // TODO EK: handle error
-    errorHandlerType: ERROR_HANDLER_TYPE_LOCAL
+    errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
   });
 
 export const getJiraOrganizationStatus = (organizationId) =>
@@ -24,5 +24,5 @@ export const getJiraOrganizationStatus = (organizationId) =>
     onSuccess: handleSuccess(SET_JIRA_ORGANIZATION_STATUS),
     ttl: 10 * MINUTE,
     label: GET_JIRA_ORGANIZATION_STATUS,
-    hash: hashParams(organizationId)
+    hash: hashParams(organizationId),
   });

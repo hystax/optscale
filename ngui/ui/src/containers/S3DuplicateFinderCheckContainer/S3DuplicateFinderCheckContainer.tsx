@@ -12,7 +12,7 @@ const S3DuplicateFinderCheckContainer = () => {
 
   const {
     isLoading: isGetSettingsLoading,
-    settings: { thresholds }
+    settings: { thresholds },
   } = useS3DuplicatesSettings();
 
   return (
@@ -20,7 +20,7 @@ const S3DuplicateFinderCheckContainer = () => {
       gemini={gemini}
       isLoadingProps={{
         isGetCheckLoading,
-        isGetSettingsLoading
+        isGetSettingsLoading,
       }}
       thresholds={thresholds}
     />

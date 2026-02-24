@@ -17,7 +17,7 @@ const SubmitButtonLoader = ({
   tooltip = {},
   dataTestId,
   loaderDataTestId,
-  size
+  size,
 }: SubmitButtonLoaderProps) => (
   <ButtonLoader
     variant="contained"

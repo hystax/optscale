@@ -7,7 +7,7 @@ const MlTaskCreateForm = ({ onSubmit, onCancel, employees = [], metrics, isLoadi
   const { isGetEmployeesLoading = false, isCreateTaskLoading = false, isGetMlMetricsLoading = false } = isLoading;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;

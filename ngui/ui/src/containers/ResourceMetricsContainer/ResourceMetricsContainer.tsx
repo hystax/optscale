@@ -16,7 +16,7 @@ import {
   endOfDay,
   secondsToMilliseconds,
   millisecondsToSeconds,
-  performDateTimeFunction
+  performDateTimeFunction,
 } from "utils/datetime";
 import { updateSearchParams } from "utils/network";
 
@@ -32,12 +32,12 @@ const ResourceMetricsContainer = ({ resourceId, lastSeen, firstSeen }) => {
 
   const [startDateTimestamp, endDateTimestamp] = useResourceDetailsDefaultDateRange({
     lastSeenEndOfDay,
-    firstSeenStartOfDay
+    firstSeenStartOfDay,
   });
 
   const [requestParams, setRequestParams] = useState({
     startDate: startDateTimestamp,
-    endDate: endDateTimestamp
+    endDate: endDateTimestamp,
   });
 
   const { shouldInvoke, isLoading } = useApiState(GET_RESOURCE_METRICS, { ...requestParams, resourceId });
@@ -45,7 +45,7 @@ const ResourceMetricsContainer = ({ resourceId, lastSeen, firstSeen }) => {
   useEffect(() => {
     updateSearchParams({
       startDate: requestParams.startDate,
-      endDate: requestParams.endDate
+      endDate: requestParams.endDate,
     });
   }, [requestParams.startDate, requestParams.endDate]);
 
@@ -53,7 +53,7 @@ const ResourceMetricsContainer = ({ resourceId, lastSeen, firstSeen }) => {
     const params = {
       ...requestParams,
       startDate,
-      endDate
+      endDate,
     };
     setRequestParams(params);
   };

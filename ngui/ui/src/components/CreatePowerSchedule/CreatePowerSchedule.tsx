@@ -10,12 +10,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={POWER_SCHEDULES} component={RouterLink}>
       <FormattedMessage id="powerSchedulesTitle" />
-    </Link>
+    </Link>,
   ],
   title: {
     messageId: "createPowerScheduleTitle",
-    dataTestId: "lbl_create_power_schedule_title"
-  }
+    dataTestId: "lbl_create_power_schedule_title",
+  },
 };
 
 const CreatePowerSchedule = () => (

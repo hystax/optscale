@@ -15,7 +15,7 @@ import {
   getMlRunDetailsBreakdown,
   getMlTaskRunsBulk,
   getMlTaskModelVersions,
-  getMlTaskTags
+  getMlTaskTags,
 } from "api";
 import {
   GET_ML_TASKS,
@@ -30,7 +30,7 @@ import {
   GET_ML_TASK_RECOMMENDATIONS,
   GET_ML_TASK_RUNS_BULK,
   GET_ML_TASK_MODEL_VERSIONS,
-  GET_ML_TASK_TAGS
+  GET_ML_TASK_TAGS,
 } from "api/restapi/actionTypes";
 import { useAllRecommendations } from "hooks/useAllRecommendations";
 import { useApiData } from "hooks/useApiData";
@@ -46,7 +46,7 @@ const useGetAll = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { tasks = [] }
+    apiData: { tasks = [] },
   } = useApiData(GET_ML_TASKS);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_TASKS, organizationId);
@@ -69,7 +69,7 @@ const useGetTaskRecommendations = (taskId) => {
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_TASK_RECOMMENDATIONS, {
     organizationId,
-    taskId
+    taskId,
   });
 
   useEffect(() => {
@@ -92,7 +92,7 @@ const useGetTaskRecommendation = ({ taskId, type, status }) => {
     organizationId,
     taskId,
     type,
-    status
+    status,
   });
 
   const allRecommendations = useAllRecommendations();
@@ -207,11 +207,11 @@ const useGetTaskRunsList = (taskId) => {
 
   const { isLoading, isDataReady, shouldInvoke } = useApiState(GET_ML_TASK_RUNS, {
     organizationId,
-    taskId
+    taskId,
   });
 
   const {
-    apiData: { runs = [] }
+    apiData: { runs = [] },
   } = useApiData(GET_ML_TASK_RUNS);
 
   useEffect(() => {
@@ -235,11 +235,11 @@ const useGetTaskModelVersions = (
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_TASK_MODEL_VERSIONS, {
     organizationId,
-    taskId
+    taskId,
   });
 
   const {
-    apiData: { model_versions: modelVersions = [] }
+    apiData: { model_versions: modelVersions = [] },
   } = useApiData(GET_ML_TASK_MODEL_VERSIONS);
 
   useEffect(() => {
@@ -250,7 +250,7 @@ const useGetTaskModelVersions = (
 
   return {
     isLoading,
-    modelVersions
+    modelVersions,
   };
 };
 
@@ -262,7 +262,7 @@ const useGetTaskRunsBulk = (taskId, runIds) => {
   const { isLoading, isDataReady, shouldInvoke } = useApiState(GET_ML_TASK_RUNS_BULK, {
     organizationId,
     taskId,
-    runIds
+    runIds,
   });
 
   const { apiData: runs } = useApiData(GET_ML_TASK_RUNS_BULK, []);
@@ -300,7 +300,7 @@ const useGetTaskTags = (taskId) => {
   const { isLoading, shouldInvoke } = useApiState(GET_ML_TASK_TAGS, { organizationId, taskId });
 
   const {
-    apiData: { tags = [] }
+    apiData: { tags = [] },
   } = useApiData(GET_ML_TASK_TAGS);
 
   useEffect(() => {
@@ -317,11 +317,11 @@ const useGetRunBreakdown = (organizationId, runId, params) => {
 
   const { isLoading, isDataReady, shouldInvoke } = useApiState(GET_ML_RUN_DETAILS_BREAKDOWN, {
     organizationId,
-    runId
+    runId,
   });
 
   const {
-    apiData: { breakdown = {}, stages = [], milestones = [] }
+    apiData: { breakdown = {}, stages = [], milestones = [] },
   } = useApiData(GET_ML_RUN_DETAILS_BREAKDOWN);
 
   useEffect(() => {
@@ -347,7 +347,7 @@ function MlTasksService() {
     useGetOne,
     useGetTaskRunsList,
     useGetTaskRunsBulk,
-    useGetTaskModelVersions
+    useGetTaskModelVersions,
   };
 }
 

@@ -49,7 +49,7 @@ const tags = ({
   columnSelector,
   enableSorting = false,
   getTags,
-  sorted = true
+  sorted = true,
 }) => ({
   id,
   header: (
@@ -86,7 +86,7 @@ const tags = ({
     );
 
     return <ExpandableList items={sortedTags} render={renderTag} maxRows={MAX_ROWS} />;
-  }
+  },
 });
 
 export default tags;

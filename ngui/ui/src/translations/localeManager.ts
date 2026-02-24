@@ -13,7 +13,7 @@ export default (() => {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
-    ...rest
+    ...rest,
   });
 
   const getCompactCurrencyConfiguration = (currency, rest = {}) => ({
@@ -21,7 +21,7 @@ export default (() => {
     currency,
     maximumFractionDigits: 1,
     minimumFractionDigits: 0,
-    ...rest
+    ...rest,
   });
 
   const localeConfigMap = {
@@ -32,25 +32,25 @@ export default (() => {
             currencyCodes
               .map((code) => [
                 [code, getCurrencyConfiguration(code, { currencyDisplay: "narrowSymbol" })],
-                [`${code}Compact`, getCompactCurrencyConfiguration(code, { currencyDisplay: "narrowSymbol" })]
+                [`${code}Compact`, getCompactCurrencyConfiguration(code, { currencyDisplay: "narrowSymbol" })],
               ])
               .flat()
           ),
           percentage: {
-            style: "percent"
+            style: "percent",
           },
           percentage2: {
             style: "percent",
             maximumFractionDigits: 2,
-            minimumFractionDigits: 0
-          }
-        }
-      }
-    }
+            minimumFractionDigits: 0,
+          },
+        },
+      },
+    },
   };
 
   const messagesMap = {
-    [DEFAULT_LOCALE]: messagesEnUS
+    [DEFAULT_LOCALE]: messagesEnUS,
   };
 
   const locale = messagesMap[navigator.language] ? navigator.language : DEFAULT_LOCALE;
@@ -59,6 +59,6 @@ export default (() => {
 
   return {
     getConfig,
-    getCurrencySymbol: (currencyCode) => getCurrencySymbol(currencyCode, locale)
+    getCurrencySymbol: (currencyCode) => getCurrencySymbol(currencyCode, locale),
   };
 })();

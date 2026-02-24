@@ -17,7 +17,7 @@ export const useTaskRunsDashboardState = (taskId) => {
       dispatch(
         setTaskRunsDashboardId({
           taskId,
-          dashboardId: newDashboardId
+          dashboardId: newDashboardId,
         })
       );
     },
@@ -26,6 +26,6 @@ export const useTaskRunsDashboardState = (taskId) => {
 
   return {
     dashboardId,
-    setDashboardId
+    setDashboardId,
   };
 };

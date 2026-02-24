@@ -15,13 +15,13 @@ import {
   GROUP_BY_PARAM_NAME,
   GROUP_TYPE_PARAM_NAME,
   RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME,
-  RESOURCES_SELECTED_PERSPECTIVE_PARAMETER_NAME
+  RESOURCES_SELECTED_PERSPECTIVE_PARAMETER_NAME,
 } from "urls";
 import {
   DATE_RANGE_TYPE,
   EXPENSES_LIMIT_FILTER_DEFAULT_VALUE,
   CLEAN_EXPENSES_BREAKDOWN_TYPES,
-  CLEAN_EXPENSES_BREAKDOWN_TYPES_LIST
+  CLEAN_EXPENSES_BREAKDOWN_TYPES_LIST,
 } from "utils/constants";
 import { getCurrentMonthRange } from "utils/datetime";
 import { getSearchParams, removeSearchParam, updateSearchParams } from "utils/network";
@@ -59,7 +59,7 @@ const useDateRange = () => {
 
     return {
       startDate: Number(getStartDate()),
-      endDate: Number(getEndDate())
+      endDate: Number(getEndDate()),
     };
   });
 
@@ -149,7 +149,7 @@ const ResourcesContainer = () => {
 
       return {
         ...acc,
-        ...config.transformers.toApi(value)
+        ...config.transformers.toApi(value),
       };
     }, {});
 
@@ -157,9 +157,9 @@ const ResourcesContainer = () => {
       limit: Number(queryParams.limit || EXPENSES_LIMIT_FILTER_DEFAULT_VALUE),
       dateRange: {
         startDate: dateRange.startDate,
-        endDate: dateRange.endDate
+        endDate: dateRange.endDate,
       },
-      filters: apiFilterParams
+      filters: apiFilterParams,
     };
   }, [dateRange, appliedFilters]);
 
@@ -167,7 +167,7 @@ const ResourcesContainer = () => {
     () => ({
       ...requestParams.filters,
       ...requestParams.dateRange,
-      limit: requestParams.limit
+      limit: requestParams.limit,
     }),
     [requestParams]
   );
@@ -181,9 +181,9 @@ const ResourcesContainer = () => {
       organizationId,
       params: {
         start_date: dateRange.startDate,
-        end_date: dateRange.endDate
-      }
-    }
+        end_date: dateRange.endDate,
+      },
+    },
   });
 
   const onApplyDateRange = (dateRange) => {
@@ -193,7 +193,7 @@ const ResourcesContainer = () => {
   const onPerspectiveApply = (newPerspectiveName) => {
     navigate(
       getResourcesExpensesUrl({
-        perspective: newPerspectiveName
+        perspective: newPerspectiveName,
       })
     );
   };
@@ -228,7 +228,7 @@ const ResourcesContainer = () => {
           if (filterConfig) {
             return {
               ...acc,
-              ...filterConfig.transformers.toApi(value)
+              ...filterConfig.transformers.toApi(value),
             };
           }
           return acc;
@@ -238,7 +238,7 @@ const ResourcesContainer = () => {
 
         setAppliedFilters((prev) => ({
           ...prev,
-          ...newFilters
+          ...newFilters,
         }));
       }}
     />

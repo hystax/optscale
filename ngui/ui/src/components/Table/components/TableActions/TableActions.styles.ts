@@ -12,13 +12,13 @@ const useStyles = makeStyles()((theme) => ({
     maxWidth: "100%",
     "& > *": {
       "&:not(:last-child)": {
-        marginRight: theme.spacing(1)
-      }
+        marginRight: theme.spacing(1),
+      },
     },
     [theme.breakpoints.down("md")]: {
-      paddingBottom: theme.spacing(1)
-    }
-  }
+      paddingBottom: theme.spacing(1),
+    },
+  },
 }));
 
 export default useStyles;

@@ -10,7 +10,7 @@ const aggregateFunction = ({ headerDataTestId = "lbl_aggregate", accessorKey = "
     />
   ),
   accessorKey,
-  cell: ({ cell }) => <AggregateFunctionFormattedMessage aggregateFunction={cell.getValue()} />
+  cell: ({ cell }) => <AggregateFunctionFormattedMessage aggregateFunction={cell.getValue()} />,
 });
 
 export default aggregateFunction;

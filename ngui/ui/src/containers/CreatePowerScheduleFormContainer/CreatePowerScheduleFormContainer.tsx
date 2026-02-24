@@ -5,7 +5,7 @@ import {
   getNameApiParam,
   getStartDateApiParam,
   getTimeZoneApiParam,
-  getTriggersApiParam
+  getTriggersApiParam,
 } from "components/PowerScheduleForm/utils";
 import PowerScheduleService, { type PowerScheduleApiParams } from "services/PowerScheduleService";
 import { POWER_SCHEDULES } from "urls";
@@ -23,7 +23,7 @@ const CreatePowerScheduleFormContainer = () => {
       timezone: getTimeZoneApiParam(formData),
       start_date: getStartDateApiParam(formData),
       end_date: getEndDateApiParam(formData),
-      enabled: true
+      enabled: true,
     };
 
     onCreate(data).then(() => navigate(POWER_SCHEDULES));
@@ -36,7 +36,7 @@ const CreatePowerScheduleFormContainer = () => {
       onSubmit={onSubmit}
       onCancel={onCancel}
       isLoadingProps={{
-        isSubmitLoading: isCreateLoading
+        isSubmitLoading: isCreateLoading,
       }}
     />
   );

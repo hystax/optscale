@@ -44,7 +44,7 @@ export const sortObjects = <T, K extends keyof T>({
   array,
   field,
   type = "desc",
-  compareFunction
+  compareFunction,
 }: {
   array: T[];
 } & (
@@ -139,7 +139,7 @@ export const setObjectsOrder = (arrayOfObject, order, objectKey) =>
 
 export const splitIntoTwoChunks = <T>(array: T[], firstChunkLength: number): [T[], T[]] => [
   array.slice(0, firstChunkLength),
-  array.slice(firstChunkLength, array.length)
+  array.slice(firstChunkLength, array.length),
 ];
 
 export const splitIntoChunks = (array, chunkSize) =>

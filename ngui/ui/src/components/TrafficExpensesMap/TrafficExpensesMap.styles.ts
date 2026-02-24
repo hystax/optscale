@@ -18,15 +18,15 @@ const useStyles = makeStyles()((theme) => ({
     marginLeft: 0,
     position: "absolute",
     fontSize: "10px",
-    pointerEvents: "none"
+    pointerEvents: "none",
   },
   legend: {
     height: "14px",
     width: "200px",
     backgroundColor: "rgb(167,225,241)",
     backgroundImage:
-      "linear-gradient(90deg, rgba(167,225,241,1) 0%, rgba(108,211,245,1) 35%, rgba(164,222,52,1) 63%, rgba(236,235,26,1) 74%, rgba(252,179,21,1) 84%, rgba(241,36,38,1) 100%);"
-  }
+      "linear-gradient(90deg, rgba(167,225,241,1) 0%, rgba(108,211,245,1) 35%, rgba(164,222,52,1) 63%, rgba(236,235,26,1) 74%, rgba(252,179,21,1) 84%, rgba(241,36,38,1) 100%);",
+  },
 }));
 
 export default useStyles;

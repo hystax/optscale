@@ -39,7 +39,7 @@ const CloudCostComparisonContainer = () => {
         min_ram: params[FIELD_NAMES.MIN_RAM].trim(),
         max_ram: params[FIELD_NAMES.MAX_RAM].trim(),
         region: params[FIELD_NAMES.REGION],
-        preferred_currency: params[FIELD_NAMES.CURRENCY_CODE]
+        preferred_currency: params[FIELD_NAMES.CURRENCY_CODE],
       };
     },
     [isNebiusConnectionEnabled]
@@ -55,9 +55,9 @@ const CloudCostComparisonContainer = () => {
         getRelevantFlavors({
           variables: {
             organizationId: organizationId,
-            requestParams: getApiParams(newParams)
+            requestParams: getApiParams(newParams),
           },
-          fetchPolicy: "no-cache"
+          fetchPolicy: "no-cache",
         });
       }}
       relevantSizes={flavors}

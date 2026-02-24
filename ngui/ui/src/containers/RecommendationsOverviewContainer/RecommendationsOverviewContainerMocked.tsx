@@ -33,7 +33,7 @@ const RecommendationsOverviewContainerMocked = () => {
         riSpExpensesSummary={{
           totalCostWithOffer: 208.83945818440003,
           totalSaving: 44.93673360120001,
-          computeExpensesCoveredWithCommitments: 0.07
+          computeExpensesCoveredWithCommitments: 0.07,
         }}
         isRiSpExpensesSummaryLoading={false}
       />

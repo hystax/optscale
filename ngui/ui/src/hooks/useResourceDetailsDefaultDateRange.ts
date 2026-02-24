@@ -30,7 +30,7 @@ export const useResourceDetailsDefaultDateRange = ({ lastSeen, firstSeen }) => {
   const [startDateTimestamp, endDateTimestamp] = useDateRange({
     lastSeen,
     firstSeen,
-    syntheticDateFilter
+    syntheticDateFilter,
   });
 
   return [startDateTimestamp, endDateTimestamp];

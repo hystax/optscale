@@ -16,7 +16,7 @@ const S3DuplicateFinderCheckMocked = () => (
         filters: {
           cloud_account_id: "04ceaf5d-add6-4945-a72d-1ae425021b40",
           min_size: 0,
-          buckets: ["bucket-copy", "bucket-main", "bucket-main-new"]
+          buckets: ["bucket-copy", "bucket-main", "bucket-main-new"],
         },
         stats: {
           total_objects: 703164,
@@ -33,7 +33,7 @@ const S3DuplicateFinderCheckMocked = () => (
               monthly_cost: 0.21185923199999998,
               objects_with_duplicates: 2,
               objects_with_duplicates_size: 4,
-              monthly_savings: 23.32
+              monthly_savings: 23.32,
             },
             "bucket-main": {
               total_objects: 79,
@@ -42,7 +42,7 @@ const S3DuplicateFinderCheckMocked = () => (
               monthly_cost: 26.127478212,
               objects_with_duplicates: 0,
               objects_with_duplicates_size: 0,
-              monthly_savings: 5.1
+              monthly_savings: 5.1,
             },
             "bucket-main-new": {
               total_objects: 9,
@@ -51,68 +51,68 @@ const S3DuplicateFinderCheckMocked = () => (
               monthly_cost: 0.013725659999999999,
               objects_with_duplicates: 3,
               objects_with_duplicates_size: 5406007,
-              monthly_savings: 31.2
-            }
+              monthly_savings: 31.2,
+            },
           },
           matrix: {
             "bucket-copy": {
               "bucket-copy": {
                 duplicated_objects: 33,
                 duplicates_size: 10000381,
-                monthly_savings: 32.42
+                monthly_savings: 32.42,
               },
               "bucket-main": {
                 duplicated_objects: 12,
                 duplicates_size: 52432534827,
-                monthly_savings: 12.42
+                monthly_savings: 12.42,
               },
               "bucket-main-new": {
                 duplicated_objects: 8,
                 duplicates_size: 3734827,
-                monthly_savings: 52.22
-              }
+                monthly_savings: 52.22,
+              },
             },
             "bucket-main": {
               "bucket-main": {
                 duplicated_objects: 4,
                 duplicates_size: 104857600000,
-                monthly_savings: 42.1
+                monthly_savings: 42.1,
               },
               "bucket-copy": {
                 duplicated_objects: 12,
                 duplicates_size: 52432534827,
-                monthly_savings: 12.62
+                monthly_savings: 12.62,
               },
               "bucket-main-new": {
                 duplicated_objects: 4,
                 duplicates_size: 52428800000,
-                monthly_savings: 85.2
-              }
+                monthly_savings: 85.2,
+              },
             },
             "bucket-main-new": {
               "bucket-main-new": {
                 duplicated_objects: 7,
                 duplicates_size: 21019006,
-                monthly_savings: 42.2
+                monthly_savings: 42.2,
               },
               "bucket-copy": {
                 duplicated_objects: 8,
                 duplicates_size: 3734827,
-                monthly_savings: 64.6
+                monthly_savings: 64.6,
               },
               "bucket-main": {
                 duplicated_objects: 4,
                 duplicates_size: 52428800000,
-                monthly_savings: 72.8
-              }
-            }
-          }
-        }
+                monthly_savings: 72.8,
+              },
+            },
+          },
+        },
       }}
       isLoading={false}
       thresholds={{
         requiringAttention: 50,
-        critical: 200
+        critical: 200,
       }}
     />
   </PageMockupContextProvider>

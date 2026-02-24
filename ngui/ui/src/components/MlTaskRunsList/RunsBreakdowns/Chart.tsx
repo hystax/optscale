@@ -11,7 +11,7 @@ const Chart = ({ runs = [], breakdownConfig = [], selectedBreakdowns = [], isLoa
   const breakdownLines = useMlBreakdownLines({
     breakdown: Object.fromEntries(runs.map((run) => [run.number, run])),
     breakdownConfig,
-    selectedBreakdowns
+    selectedBreakdowns,
   });
 
   return (
@@ -20,7 +20,7 @@ const Chart = ({ runs = [], breakdownConfig = [], selectedBreakdowns = [], isLoa
       data={breakdownLines}
       xScale={{
         type: "linear",
-        min: "auto"
+        min: "auto",
       }}
       renderTooltipBody={({ slice: { points = [] } = {} }) => {
         const { x: runNumber } = points[0]?.data ?? {};
@@ -43,26 +43,26 @@ const Chart = ({ runs = [], breakdownConfig = [], selectedBreakdowns = [], isLoa
       }}
       colors={colors}
       style={{
-        margin: CHART_MARGIN_STYLES
+        margin: CHART_MARGIN_STYLES,
       }}
       axisLeft={
         [1, 2].includes(breakdownLines.length)
           ? {
-              format: breakdownLines[0].formatAxis
+              format: breakdownLines[0].formatAxis,
             }
           : null
       }
       axisRight={
         breakdownLines.length === 2
           ? {
-              format: breakdownLines[1].formatAxis
+              format: breakdownLines[1].formatAxis,
             }
           : null
       }
       animate={false}
       axisBottom={{
         format: (runNumber) => formatRunNumber(runNumber),
-        formatString: (runNumber) => formatRunNumber(runNumber)
+        formatString: (runNumber) => formatRunNumber(runNumber),
       }}
     />
   );

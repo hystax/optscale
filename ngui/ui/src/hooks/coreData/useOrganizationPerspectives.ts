@@ -14,7 +14,7 @@ const validatePerspectives = (perspectives) => {
 
   return {
     validPerspectives,
-    invalidPerspectives
+    invalidPerspectives,
   };
 };
 
@@ -23,9 +23,9 @@ export const useOrganizationPerspectives = () => {
 
   const { data: { organizationPerspectives = {} } = {} } = useOrganizationPerspectivesQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    fetchPolicy: "cache-only"
+    fetchPolicy: "cache-only",
   });
 
   return useMemo(() => {
@@ -34,7 +34,7 @@ export const useOrganizationPerspectives = () => {
     return {
       allPerspectives: organizationPerspectives,
       validPerspectives,
-      invalidPerspectives
+      invalidPerspectives,
     };
   }, [organizationPerspectives]);
 };

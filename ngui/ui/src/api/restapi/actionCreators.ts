@@ -304,7 +304,7 @@ import {
   GET_ML_TASK_TAGS,
   RESTORE_PASSWORD,
   VERIFY_EMAIL,
-  GET_POOL
+  GET_POOL,
 } from "./actionTypes";
 import {
   onUpdateOrganizationOption,
@@ -339,7 +339,7 @@ import {
   onUpdatePowerSchedule,
   onUpdateMlModel,
   onUpdateMlArtifact,
-  onSuccessCreateMlLeaderboard
+  onSuccessCreateMlLeaderboard,
 } from "./handlers";
 
 export const API_URL = getApiUrl("restapi");
@@ -353,8 +353,8 @@ export const getOrganizationOptions = (organizationId, withValues = false) =>
     hash: hashParams({ organizationId, withValues }),
     label: GET_ORGANIZATION_OPTIONS,
     params: {
-      with_values: withValues
-    }
+      with_values: withValues,
+    },
   });
 
 export const getOrganizationOption = (organizationId, name) =>
@@ -364,7 +364,7 @@ export const getOrganizationOption = (organizationId, name) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ORGANIZATION_OPTION),
     hash: hashParams({ organizationId, name }),
-    label: GET_ORGANIZATION_OPTION
+    label: GET_ORGANIZATION_OPTION,
   });
 
 export const deleteOrganizationOption = (organizationId, name) =>
@@ -372,7 +372,7 @@ export const deleteOrganizationOption = (organizationId, name) =>
     url: `${API_URL}/organizations/${organizationId}/options/${name}`,
     method: "DELETE",
     label: DELETE_ORGANIZATION_OPTION,
-    affectedRequests: [GET_ORGANIZATION_OPTIONS]
+    affectedRequests: [GET_ORGANIZATION_OPTIONS],
   });
 
 export const updateOrganizationOption = (organizationId, name, value) =>
@@ -384,8 +384,8 @@ export const updateOrganizationOption = (organizationId, name, value) =>
     label: UPDATE_ORGANIZATION_OPTION,
     affectedRequests: [GET_ORGANIZATION_OPTIONS],
     params: {
-      value: JSON.stringify(value)
-    }
+      value: JSON.stringify(value),
+    },
   });
 
 // Creating an option via PATCH is correct
@@ -396,8 +396,8 @@ export const createOrganizationOption = (organizationId, name, value) =>
     label: CREATE_ORGANIZATION_OPTION,
     affectedRequests: [GET_ORGANIZATION_OPTIONS],
     params: {
-      value: JSON.stringify(value)
-    }
+      value: JSON.stringify(value),
+    },
   });
 
 export const getOrganizationConstraints = (organizationId, params) =>
@@ -408,7 +408,7 @@ export const getOrganizationConstraints = (organizationId, params) =>
     onSuccess: handleSuccess(SET_ORGANIZATION_CONSTRAINTS),
     hash: hashParams({ ...params, organizationId }),
     label: GET_ORGANIZATION_CONSTRAINTS,
-    params
+    params,
   });
 
 export const createOrganizationConstraint = (organizationId, params) =>
@@ -417,7 +417,7 @@ export const createOrganizationConstraint = (organizationId, params) =>
     method: "POST",
     label: CREATE_ORGANIZATION_CONSTRAINT,
     affectedRequests: [GET_ORGANIZATION_CONSTRAINTS],
-    params
+    params,
   });
 
 export const getOrganizationConstraint = (id) =>
@@ -427,7 +427,7 @@ export const getOrganizationConstraint = (id) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ORGANIZATION_CONSTRAINT),
     hash: hashParams(id),
-    label: GET_ORGANIZATION_CONSTRAINT
+    label: GET_ORGANIZATION_CONSTRAINT,
   });
 
 export const deleteOrganizationConstraint = (id) =>
@@ -435,7 +435,7 @@ export const deleteOrganizationConstraint = (id) =>
     url: `${API_URL}/organization_constraints/${id}`,
     method: "DELETE",
     label: DELETE_ORGANIZATION_CONSTRAINT,
-    affectedRequests: [GET_ORGANIZATION_CONSTRAINTS]
+    affectedRequests: [GET_ORGANIZATION_CONSTRAINTS],
   });
 
 export const updateOrganizationConstraint = (id, params) =>
@@ -445,7 +445,7 @@ export const updateOrganizationConstraint = (id, params) =>
     label: UPDATE_ORGANIZATION_CONSTRAINT,
     affectedRequests: [GET_ORGANIZATION_CONSTRAINTS],
     onSuccess: onSuccessUpdateAnomaly,
-    params
+    params,
   });
 
 export const uploadCloudReport = (cloudAccountId, file) =>
@@ -453,11 +453,11 @@ export const uploadCloudReport = (cloudAccountId, file) =>
     url: `${API_URL}/cloud_accounts/${cloudAccountId}/report_upload`,
     method: "POST",
     headersOverride: {
-      "Content-Type": "application/octet-stream"
+      "Content-Type": "application/octet-stream",
     },
     label: UPLOAD_CLOUD_REPORT,
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
-    params: file
+    params: file,
   });
 
 export const uploadCodeReport = (organizationId, file) =>
@@ -465,18 +465,18 @@ export const uploadCodeReport = (organizationId, file) =>
     url: `${API_URL}/organizations/${organizationId}/code_report_upload`,
     method: "POST",
     headersOverride: {
-      "Content-Type": "application/octet-stream"
+      "Content-Type": "application/octet-stream",
     },
     label: UPLOAD_CODE_REPORT,
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
-    params: file
+    params: file,
   });
 
 export const submitForAudit = (organizationId) =>
   apiAction({
     url: `${API_URL}/organizations/${organizationId}/submit_for_audit`,
     method: "POST",
-    label: SUBMIT_FOR_AUDIT
+    label: SUBMIT_FOR_AUDIT,
   });
 
 export const updateDataSource = (id, params) =>
@@ -485,7 +485,7 @@ export const updateDataSource = (id, params) =>
     method: "PATCH",
     label: UPDATE_DATA_SOURCE,
     affectedRequests: [GET_DATA_SOURCE_NODES],
-    params
+    params,
   });
 
 export const getPool = (poolId, children = false, details = false) =>
@@ -498,8 +498,8 @@ export const getPool = (poolId, children = false, details = false) =>
     hash: hashParams({ poolId, children, details }),
     params: {
       children,
-      details
-    }
+      details,
+    },
   });
 
 export const createPool = (organizationId, params) =>
@@ -515,8 +515,8 @@ export const createPool = (organizationId, params) =>
       limit: params.limit,
       purpose: params.type,
       auto_extension: params.autoExtension,
-      default_owner_id: params.defaultOwnerId
-    }
+      default_owner_id: params.defaultOwnerId,
+    },
   });
 
 export const updatePool = ({ id, name, limit, defaultOwnerId, type, autoExtension }) =>
@@ -533,15 +533,15 @@ export const updatePool = ({ id, name, limit, defaultOwnerId, type, autoExtensio
       GET_ORGANIZATION_EXPENSES,
       GET_ORGANIZATIONS_OVERVIEW,
       GET_RESOURCE,
-      GET_POOL
+      GET_POOL,
     ],
     params: {
       name,
       limit,
       default_owner_id: defaultOwnerId,
       purpose: type,
-      auto_extension: autoExtension
-    }
+      auto_extension: autoExtension,
+    },
   });
 
 export const deletePool = (id) =>
@@ -550,7 +550,7 @@ export const deletePool = (id) =>
     method: "DELETE",
     onSuccess: onSuccessDeletePool(id),
     affectedRequests: [GET_AVAILABLE_FILTERS],
-    label: DELETE_POOL
+    label: DELETE_POOL,
   });
 
 export const updateOrganization = (organizationId, params) =>
@@ -558,7 +558,7 @@ export const updateOrganization = (organizationId, params) =>
     url: `${API_URL}/organizations/${organizationId}`,
     method: "PATCH",
     label: UPDATE_ORGANIZATION,
-    params
+    params,
   });
 
 export const getOrganizationsOverview = (details = true) =>
@@ -570,8 +570,8 @@ export const getOrganizationsOverview = (details = true) =>
     label: GET_ORGANIZATIONS_OVERVIEW,
     hash: hashParams({ details }),
     params: {
-      details
-    }
+      details,
+    },
   });
 
 export const getPoolExpenses = (poolId, params) =>
@@ -586,8 +586,8 @@ export const getPoolExpenses = (poolId, params) =>
     params: {
       start_date: params.startDate,
       end_date: params.endDate,
-      filter_by: params.filterBy
-    }
+      filter_by: params.filterBy,
+    },
   });
 
 export const getCloudsExpenses = (cloudAccountId, params) =>
@@ -601,8 +601,8 @@ export const getCloudsExpenses = (cloudAccountId, params) =>
     params: {
       start_date: params.startDate,
       end_date: params.endDate,
-      filter_by: params.filterBy
-    }
+      filter_by: params.filterBy,
+    },
   });
 
 export const getEmployeesExpenses = (employeeId, params) =>
@@ -616,8 +616,8 @@ export const getEmployeesExpenses = (employeeId, params) =>
     params: {
       start_date: params.startDate,
       end_date: params.endDate,
-      filter_by: params.filterBy
-    }
+      filter_by: params.filterBy,
+    },
   });
 
 export const createInvitations = (invitations) =>
@@ -626,7 +626,7 @@ export const createInvitations = (invitations) =>
     method: "POST",
     label: CREATE_INVITATIONS,
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
-    params: { invites: invitations }
+    params: { invites: invitations },
   });
 
 export const getInvitation = (inviteId) =>
@@ -634,7 +634,7 @@ export const getInvitation = (inviteId) =>
     url: `${API_URL}/invites/${inviteId}`,
     method: "GET",
     onSuccess: handleSuccess(SET_INVITATION),
-    label: GET_INVITATION
+    label: GET_INVITATION,
   });
 
 export const splitResources = (organizationId, ids) =>
@@ -643,7 +643,7 @@ export const splitResources = (organizationId, ids) =>
     method: "POST",
     onSuccess: handleSuccess(SET_SPLIT_RESOURCES),
     label: GET_SPLIT_RESOURCES,
-    params: ids
+    params: ids,
   });
 
 export const getAvailablePools = (organizationId, params = {}) =>
@@ -656,8 +656,8 @@ export const getAvailablePools = (organizationId, params = {}) =>
     hash: hashParams({ ...params, organizationId }),
     params: {
       permission: params.permission || ["INFO_ORGANIZATION"],
-      condition: params.condition
-    }
+      condition: params.condition,
+    },
   });
 
 export const getPoolOwners = (poolId: string, excludeMyself = false) =>
@@ -669,8 +669,8 @@ export const getPoolOwners = (poolId: string, excludeMyself = false) =>
     ttl: MINUTE,
     hash: hashParams({ poolId, excludeMyself }),
     params: {
-      exclude_myself: excludeMyself
-    }
+      exclude_myself: excludeMyself,
+    },
   });
 
 export const getAuthorizedEmployees = (organizationId, params = {}) =>
@@ -684,8 +684,8 @@ export const getAuthorizedEmployees = (organizationId, params = {}) =>
     params: {
       object_type: params.objectType,
       object_id: params.objectId,
-      permission: params.permission || ["INFO_ORGANIZATION"]
-    }
+      permission: params.permission || ["INFO_ORGANIZATION"],
+    },
   });
 
 export const getEmployees = (organizationId, roles = false, excludeMyself = false) =>
@@ -698,8 +698,8 @@ export const getEmployees = (organizationId, roles = false, excludeMyself = fals
     hash: hashParams({ organizationId, roles }),
     params: {
       roles,
-      exclude_myself: excludeMyself
-    }
+      exclude_myself: excludeMyself,
+    },
   });
 
 export const deleteEmployee = (employeeId, { newOwnerId }) =>
@@ -710,8 +710,8 @@ export const deleteEmployee = (employeeId, { newOwnerId }) =>
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
     affectedRequests: [GET_EMPLOYEES, GET_AUTHORIZED_EMPLOYEES],
     params: {
-      new_owner_id: newOwnerId
-    }
+      new_owner_id: newOwnerId,
+    },
   });
 
 export const getOrganizationExpenses = (organizationId) =>
@@ -721,7 +721,7 @@ export const getOrganizationExpenses = (organizationId) =>
     onSuccess: handleSuccess(SET_ORGANIZATION_EXPENSES),
     label: GET_ORGANIZATION_EXPENSES,
     ttl: MINUTE,
-    hash: hashParams(organizationId)
+    hash: hashParams(organizationId),
   });
 
 export const getRawExpenses = (resourceId, params) =>
@@ -734,8 +734,8 @@ export const getRawExpenses = (resourceId, params) =>
     hash: hashParams({ ...params, resourceId }),
     params: {
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const getCleanExpenses = (organizationId, params) =>
@@ -746,7 +746,7 @@ export const getCleanExpenses = (organizationId, params) =>
     label: GET_CLEAN_EXPENSES,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
-    params
+    params,
   });
 
 export const getExpensesSummary = (organizationId, params) =>
@@ -757,7 +757,7 @@ export const getExpensesSummary = (organizationId, params) =>
     label: GET_EXPENSES_SUMMARY,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
-    params
+    params,
   });
 
 export const getAvailableFilters = (organizationId, params) =>
@@ -768,7 +768,7 @@ export const getAvailableFilters = (organizationId, params) =>
     label: GET_AVAILABLE_FILTERS,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
-    params
+    params,
   });
 
 export const getResourceCountBreakdown = (organizationId, params) =>
@@ -779,7 +779,7 @@ export const getResourceCountBreakdown = (organizationId, params) =>
     label: GET_RESOURCE_COUNT_BREAKDOWN,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
-    params
+    params,
   });
 
 export const getTagsBreakdown = (organizationId, params) =>
@@ -790,7 +790,7 @@ export const getTagsBreakdown = (organizationId, params) =>
     label: GET_TAGS_BREAKDOWN,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
-    params
+    params,
   });
 
 export const getRegionExpenses = (organizationId, params) =>
@@ -803,8 +803,8 @@ export const getRegionExpenses = (organizationId, params) =>
     hash: hashParams({ ...params, organizationId }),
     params: {
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const getTrafficExpenses = (organizationId, params) =>
@@ -818,8 +818,8 @@ export const getTrafficExpenses = (organizationId, params) =>
     params: {
       start_date: params.startDate,
       end_date: params.endDate,
-      _id: params.resourceId
-    }
+      _id: params.resourceId,
+    },
   });
 
 export const getAssignmentRules = (organizationId, params = {}) =>
@@ -832,8 +832,8 @@ export const getAssignmentRules = (organizationId, params = {}) =>
     hash: hashParams({ ...params, organizationId }),
     params: {
       pool_id: params.poolId,
-      owner_id: params.ownerId
-    }
+      owner_id: params.ownerId,
+    },
   });
 
 export const getK8sRightsizing = (organizationId, params = {}) =>
@@ -846,8 +846,8 @@ export const getK8sRightsizing = (organizationId, params = {}) =>
     hash: hashParams({ ...params, organizationId }),
     params: {
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const updateAssignmentRulePriority = (assignmentRuleId, action) =>
@@ -857,8 +857,8 @@ export const updateAssignmentRulePriority = (assignmentRuleId, action) =>
     onSuccess: onSuccessUpdateAssignmentRulePriority,
     label: UPDATE_ASSIGNMENT_RULE_PRIORITY,
     params: {
-      action
-    }
+      action,
+    },
   });
 
 export const getAssignmentRule = (assignmentRuleId) =>
@@ -866,7 +866,7 @@ export const getAssignmentRule = (assignmentRuleId) =>
     url: `${API_URL}/rules/${assignmentRuleId}`,
     method: "GET",
     onSuccess: handleSuccess(SET_ASSIGNMENT_RULE),
-    label: GET_ASSIGNMENT_RULE
+    label: GET_ASSIGNMENT_RULE,
   });
 
 export const createAssignmentRule = (organizationId, params = {}) =>
@@ -882,8 +882,8 @@ export const createAssignmentRule = (organizationId, params = {}) =>
       pool_id: params.poolId,
       owner_id: params.ownerId,
       operator: params.operator,
-      conditions: params.conditions
-    }
+      conditions: params.conditions,
+    },
   });
 
 export const updateAssignmentRule = (assignmentRuleId, params = {}) =>
@@ -898,8 +898,8 @@ export const updateAssignmentRule = (assignmentRuleId, params = {}) =>
       operator: params.operator,
       conditions: params.conditions,
       pool_id: params.poolId,
-      owner_id: params.ownerId
-    }
+      owner_id: params.ownerId,
+    },
   });
 
 export const deleteAssignmentRule = (ruleId) =>
@@ -907,7 +907,7 @@ export const deleteAssignmentRule = (ruleId) =>
     url: `${API_URL}/rules/${ruleId}`,
     method: "DELETE",
     label: DELETE_ASSIGNMENT_RULE,
-    affectedRequests: [GET_ASSIGNMENT_RULES]
+    affectedRequests: [GET_ASSIGNMENT_RULES],
   });
 
 export const getResource = (resourceId, details = false) =>
@@ -919,8 +919,8 @@ export const getResource = (resourceId, details = false) =>
     ttl: 5 * MINUTE,
     hash: hashParams({ resourceId, details }),
     params: {
-      details
-    }
+      details,
+    },
   });
 
 export const getPoolPolicies = (poolId) =>
@@ -930,7 +930,7 @@ export const getPoolPolicies = (poolId) =>
     onSuccess: handleSuccess(SET_POOL_POLICIES),
     label: GET_POOL_POLICIES,
     ttl: MINUTE,
-    hash: hashParams({ poolId })
+    hash: hashParams({ poolId }),
   });
 
 const createPoolPolicyBase = ({ poolId, params, onSuccess, label, affectedRequests = [] }) =>
@@ -942,9 +942,9 @@ const createPoolPolicyBase = ({ poolId, params, onSuccess, label, affectedReques
     params: {
       active: true,
       limit: params.limit,
-      type: params.type
+      type: params.type,
     },
-    affectedRequests: [GET_GLOBAL_POOL_POLICIES, ...affectedRequests]
+    affectedRequests: [GET_GLOBAL_POOL_POLICIES, ...affectedRequests],
   });
 
 export const createGlobalPoolPolicy = (poolId, params) =>
@@ -952,7 +952,7 @@ export const createGlobalPoolPolicy = (poolId, params) =>
     poolId,
     params,
     label: CREATE_GLOBAL_POOL_POLICY,
-    affectedRequests: [GET_POOL_POLICIES]
+    affectedRequests: [GET_POOL_POLICIES],
   });
 
 export const createPoolPolicy = (poolId, params) =>
@@ -961,7 +961,7 @@ export const createPoolPolicy = (poolId, params) =>
     params,
     onSuccess: onSuccessCreatePoolPolicy,
     label: CREATE_POOL_POLICY,
-    affectedRequests: [GET_POOL]
+    affectedRequests: [GET_POOL],
   });
 
 export const createExpensesExport = (poolId) =>
@@ -970,7 +970,7 @@ export const createExpensesExport = (poolId) =>
     method: "POST",
     onSuccess: onSuccessExportLinkChange,
     label: CREATE_POOL_EXPENSES_EXPORT,
-    affectedRequests: [GET_POOL]
+    affectedRequests: [GET_POOL],
   });
 
 export const deleteExpensesExport = (poolId) =>
@@ -979,7 +979,7 @@ export const deleteExpensesExport = (poolId) =>
     method: "DELETE",
     onSuccess: onSuccessExportLinkChange,
     label: DELETE_POOL_EXPENSES_EXPORT,
-    affectedRequests: [GET_POOL]
+    affectedRequests: [GET_POOL],
   });
 
 const updatePoolPolicyLimitBase = ({
@@ -988,7 +988,7 @@ const updatePoolPolicyLimitBase = ({
   onSuccess,
   label,
   affectedRequests = [],
-  allowMultipleRequests = false
+  allowMultipleRequests = false,
 }) =>
   apiAction({
     url: `${API_URL}/policies/${policyId}`,
@@ -998,7 +998,7 @@ const updatePoolPolicyLimitBase = ({
     entityId: policyId,
     affectedRequests: [GET_RESOURCE, ...affectedRequests],
     params,
-    allowMultipleRequests
+    allowMultipleRequests,
   });
 
 export const updatePoolPolicyLimit = (policyId, limit) =>
@@ -1007,7 +1007,7 @@ export const updatePoolPolicyLimit = (policyId, limit) =>
     params: { limit },
     onSuccess: onSuccessCreatePoolPolicy,
     label: UPDATE_POOL_POLICY_LIMIT,
-    affectedRequests: [GET_GLOBAL_POOL_POLICIES, GET_POOL]
+    affectedRequests: [GET_GLOBAL_POOL_POLICIES, GET_POOL],
   });
 
 export const updateGlobalPoolPolicyLimit = (policyId, limit) =>
@@ -1017,7 +1017,7 @@ export const updateGlobalPoolPolicyLimit = (policyId, limit) =>
     onSuccess: onSuccessUpdateGlobalPoolPolicyLimit,
     label: UPDATE_GLOBAL_POOL_POLICY_LIMIT,
     allowMultipleRequests: true,
-    affectedRequests: [GET_POOL_POLICIES]
+    affectedRequests: [GET_POOL_POLICIES],
   });
 
 const updatePoolPolicyActivityBase = ({
@@ -1026,7 +1026,7 @@ const updatePoolPolicyActivityBase = ({
   affectedRequests = [],
   onSuccess,
   label,
-  allowMultipleRequests = false
+  allowMultipleRequests = false,
 }) =>
   apiAction({
     url: `${API_URL}/policies/${policyId}`,
@@ -1036,7 +1036,7 @@ const updatePoolPolicyActivityBase = ({
     entityId: policyId,
     affectedRequests: [GET_RESOURCE, GET_POOL, ...affectedRequests],
     params,
-    allowMultipleRequests
+    allowMultipleRequests,
   });
 
 export const updatePoolPolicyActivity = (policyId, active) =>
@@ -1045,7 +1045,7 @@ export const updatePoolPolicyActivity = (policyId, active) =>
     params: { active },
     affectedRequests: [GET_GLOBAL_POOL_POLICIES],
     onSuccess: onSuccessCreatePoolPolicy,
-    label: UPDATE_POOL_POLICY_ACTIVITY
+    label: UPDATE_POOL_POLICY_ACTIVITY,
   });
 
 export const updateGlobalPoolPolicyActivity = (policyId, active) =>
@@ -1055,7 +1055,7 @@ export const updateGlobalPoolPolicyActivity = (policyId, active) =>
     onSuccess: onSuccessUpdateGlobalPoolPolicyActivity,
     label: UPDATE_GLOBAL_POOL_POLICY_ACTIVITY,
     affectedRequests: [GET_POOL_POLICIES],
-    allowMultipleRequests: true
+    allowMultipleRequests: true,
   });
 
 export const createResourceConstraint =
@@ -1068,8 +1068,8 @@ export const createResourceConstraint =
       onSuccess: onSuccessCreateResourceConstraint,
       params: {
         limit: params.limit,
-        type: params.type
-      }
+        type: params.type,
+      },
     });
 
 export const createTotalExpenseLimitResourceConstraint = (resourceId, limit) =>
@@ -1080,9 +1080,9 @@ export const createTotalExpenseLimitResourceConstraint = (resourceId, limit) =>
     onSuccess: onSuccessCreateResourceConstraint,
     params: {
       limit,
-      type: TOTAL_EXPENSE_LIMIT
+      type: TOTAL_EXPENSE_LIMIT,
     },
-    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS]
+    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS],
   });
 
 export const createDailyExpenseLimitResourceConstraint = (resourceId, limit) =>
@@ -1093,9 +1093,9 @@ export const createDailyExpenseLimitResourceConstraint = (resourceId, limit) =>
     onSuccess: onSuccessCreateResourceConstraint,
     params: {
       limit,
-      type: DAILY_EXPENSE_LIMIT
+      type: DAILY_EXPENSE_LIMIT,
     },
-    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS]
+    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS],
   });
 
 export const createTtlResourceConstraint = (resourceId, limit) =>
@@ -1106,9 +1106,9 @@ export const createTtlResourceConstraint = (resourceId, limit) =>
     onSuccess: onSuccessCreateResourceConstraint,
     params: {
       limit,
-      type: TTL
+      type: TTL,
     },
-    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS]
+    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS],
   });
 
 export const updateGlobalResourceConstraintLimit = (constraintId, limit) =>
@@ -1118,10 +1118,10 @@ export const updateGlobalResourceConstraintLimit = (constraintId, limit) =>
     label: UPDATE_GLOBAL_RESOURCE_CONSTRAINT_LIMIT,
     onSuccess: onSuccessUpdateGlobalResourceConstraintLimit,
     params: {
-      limit
+      limit,
     },
     affectedRequests: [GET_RESOURCE],
-    allowMultipleRequests: true
+    allowMultipleRequests: true,
   });
 
 const updateResourceConstraint = (label) => (constraintId, limit) =>
@@ -1131,9 +1131,9 @@ const updateResourceConstraint = (label) => (constraintId, limit) =>
     label,
     onSuccess: onSuccessCreateResourceConstraint,
     params: {
-      limit
+      limit,
     },
-    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS]
+    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS],
   });
 
 export const updateTtlResourceConstraint = updateResourceConstraint(UPDATE_TTL_RESOURCE_CONSTRAINT);
@@ -1153,21 +1153,21 @@ const deleteResourceConstraintBase = ({ constraintId, onSuccess, label, affected
     onSuccess,
     entityId: constraintId,
     label,
-    affectedRequests
+    affectedRequests,
   });
 
 export const deleteResourceConstraint = (constraintId) =>
   deleteResourceConstraintBase({
     constraintId,
     onSuccess: () => onSuccessDeleteResourceConstraint(constraintId),
-    label: DELETE_RESOURCE_CONSTRAINT
+    label: DELETE_RESOURCE_CONSTRAINT,
   });
 
 export const deleteGlobalResourceConstraint = (constraintId) =>
   deleteResourceConstraintBase({
     constraintId,
     label: DELETE_GLOBAL_RESOURCE_CONSTRAINT,
-    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS]
+    affectedRequests: [GET_GLOBAL_RESOURCE_CONSTRAINTS],
   });
 
 export const getResourceLimitHits = (resourceId) =>
@@ -1177,7 +1177,7 @@ export const getResourceLimitHits = (resourceId) =>
     onSuccess: handleSuccess(SET_RESOURCE_LIMIT_HITS),
     label: GET_RESOURCE_LIMIT_HITS,
     ttl: MINUTE,
-    hash: hashParams({ resourceId })
+    hash: hashParams({ resourceId }),
   });
 
 export const getOptimizationDetails = (organizationId, params = {}) =>
@@ -1192,8 +1192,8 @@ export const getOptimizationDetails = (organizationId, params = {}) =>
       type: params.type,
       limit: params.limit,
       status: params.status,
-      cloud_account_id: params.cloudAccountIds
-    }
+      cloud_account_id: params.cloudAccountIds,
+    },
   });
 
 export const getOptimizationsOverview = (organizationId, cloudAccountIds = []) =>
@@ -1207,8 +1207,8 @@ export const getOptimizationsOverview = (organizationId, cloudAccountIds = []) =
     params: {
       limit: 3,
       overview: true,
-      cloud_account_id: cloudAccountIds
-    }
+      cloud_account_id: cloudAccountIds,
+    },
   });
 
 export const getOptimizationOptions = (organizationId, recommendationType) =>
@@ -1217,11 +1217,11 @@ export const getOptimizationOptions = (organizationId, recommendationType) =>
     method: "GET",
     hash: hashParams({
       organizationId,
-      recommendationType
+      recommendationType,
     }),
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_OPTIMIZATION_OPTIONS),
-    label: GET_OPTIMIZATION_OPTIONS
+    label: GET_OPTIMIZATION_OPTIONS,
   });
 
 export const updateOptimizationOptions = (settingType, pathParams, params) => {
@@ -1233,10 +1233,10 @@ export const updateOptimizationOptions = (settingType, pathParams, params) => {
     affectedRequests: [GET_OPTIMIZATIONS, GET_OPTIMIZATIONS_OVERVIEW, GET_ORGANIZATION_OPTIONS],
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
     successHandlerPayload: {
-      settingType
+      settingType,
     },
     label: UPDATE_OPTIMIZATION_OPTIONS,
-    params
+    params,
   });
 };
 
@@ -1248,8 +1248,8 @@ export const updateOptimizations = (checklistId, params) =>
     onSuccess: onSuccessUpdateOptimizations,
     affectedRequests: [GET_OPTIMIZATIONS_OVERVIEW],
     params: {
-      next_run: params.nextRun
-    }
+      next_run: params.nextRun,
+    },
   });
 
 export const getLiveDemo = () =>
@@ -1258,7 +1258,7 @@ export const getLiveDemo = () =>
     method: "GET",
     onSuccess: handleSuccess(SET_LIVE_DEMO),
     label: GET_LIVE_DEMO,
-    errorHandlerType: ERROR_HANDLER_TYPE_LOCAL
+    errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
   });
 
 export const createLiveDemo = ({ email, subscribeToNewsletter }) =>
@@ -1270,8 +1270,8 @@ export const createLiveDemo = ({ email, subscribeToNewsletter }) =>
     errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
     params: {
       email,
-      subscribe: subscribeToNewsletter
-    }
+      subscribe: subscribeToNewsletter,
+    },
   });
 
 export const getTtlAnalysis = (poolId, params) =>
@@ -1283,8 +1283,8 @@ export const getTtlAnalysis = (poolId, params) =>
     params: {
       start_date: params.startDate,
       end_date: params.endDate,
-      ttl: params.ttl
-    }
+      ttl: params.ttl,
+    },
   });
 
 export const applyAssignmentRules = (organizationId, params) =>
@@ -1295,8 +1295,8 @@ export const applyAssignmentRules = (organizationId, params) =>
     affectedRequests: [GET_CLEAN_EXPENSES],
     params: {
       pool_id: params.poolId,
-      include_children: params.includeChildren
-    }
+      include_children: params.includeChildren,
+    },
   });
 
 export const updateResourceVisibility = (resourceId, params = {}) =>
@@ -1309,12 +1309,12 @@ export const updateResourceVisibility = (resourceId, params = {}) =>
       GET_ML_OPTIMIZATION_DETAILS,
       GET_ML_TASK_RECOMMENDATIONS,
       GET_OPTIMIZATION_DETAILS,
-      GET_OPTIMIZATIONS_OVERVIEW
+      GET_OPTIMIZATIONS_OVERVIEW,
     ],
     params: {
       action: params.action,
-      recommendation: params.recommendation
-    }
+      recommendation: params.recommendation,
+    },
   });
 
 export const getFinOpsChecklist = (organizationId) =>
@@ -1324,7 +1324,7 @@ export const getFinOpsChecklist = (organizationId) =>
     onSuccess: handleSuccess(SET_FINOPS_CHECKLIST),
     ttl: HALF_HOUR,
     hash: hashParams(organizationId),
-    label: GET_FINOPS_CHECKLIST
+    label: GET_FINOPS_CHECKLIST,
   });
 
 export const updateFinOpsChecklist = (organizationId, value) =>
@@ -1334,8 +1334,8 @@ export const updateFinOpsChecklist = (organizationId, value) =>
     label: UPDATE_FINOPS_CHECKLIST,
     onSuccess: onFinOpsChecklist,
     params: {
-      value: JSON.stringify(value)
-    }
+      value: JSON.stringify(value),
+    },
   });
 
 export const getRecommendationsDownloadLimit = (organizationId) =>
@@ -1345,7 +1345,7 @@ export const getRecommendationsDownloadLimit = (organizationId) =>
     onSuccess: handleSuccess(SET_RECOMMENDATIONS_DOWNLOAD_OPTIONS),
     ttl: HOUR,
     hash: hashParams(organizationId),
-    label: GET_RECOMMENDATIONS_DOWNLOAD_OPTIONS
+    label: GET_RECOMMENDATIONS_DOWNLOAD_OPTIONS,
   });
 
 export const getClusterTypes = (organizationId) =>
@@ -1355,7 +1355,7 @@ export const getClusterTypes = (organizationId) =>
     onSuccess: handleSuccess(SET_CLUSTER_TYPES),
     label: GET_CLUSTER_TYPES,
     ttl: MINUTE,
-    hash: hashParams(organizationId)
+    hash: hashParams(organizationId),
   });
 
 export const createClusterType = (organizationId, params = {}) =>
@@ -1366,8 +1366,8 @@ export const createClusterType = (organizationId, params = {}) =>
     affectedRequests: [GET_CLUSTER_TYPES, GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
     params: {
       name: params.name,
-      tag_key: params.tagKey
-    }
+      tag_key: params.tagKey,
+    },
   });
 
 export const deleteClusterType = (clusterTypeId) =>
@@ -1375,7 +1375,7 @@ export const deleteClusterType = (clusterTypeId) =>
     url: `${API_URL}/cluster_types/${clusterTypeId}`,
     method: "DELETE",
     label: DELETE_CLUSTER_TYPE,
-    affectedRequests: [GET_CLUSTER_TYPES, GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN]
+    affectedRequests: [GET_CLUSTER_TYPES, GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
   });
 
 export const updateClusterTypePriority = (clusterTypeId, action) =>
@@ -1385,8 +1385,8 @@ export const updateClusterTypePriority = (clusterTypeId, action) =>
     label: UPDATE_CLUSTER_TYPE_PRIORITY,
     affectedRequests: [GET_CLUSTER_TYPES, GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
     params: {
-      action
-    }
+      action,
+    },
   });
 
 export const applyClusterTypes = (organizationId) =>
@@ -1395,7 +1395,7 @@ export const applyClusterTypes = (organizationId) =>
     method: "POST",
     label: APPLY_CLUSTER_TYPES,
     affectedRequests: [GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN, GET_AVAILABLE_FILTERS],
-    params: {}
+    params: {},
   });
 
 export const getEnvironments = (organizationId) =>
@@ -1405,7 +1405,7 @@ export const getEnvironments = (organizationId) =>
     onSuccess: handleSuccess(SET_ENVIRONMENTS),
     label: GET_ENVIRONMENTS,
     ttl: MINUTE,
-    hash: hashParams(organizationId)
+    hash: hashParams(organizationId),
   });
 
 export const createEnvironment = (organizationId, params = {}) =>
@@ -1419,8 +1419,8 @@ export const createEnvironment = (organizationId, params = {}) =>
       resource_type: params.resourceType,
       tags: {},
       env_properties: params.properties,
-      ssh_only: params.requireSshKey
-    }
+      ssh_only: params.requireSshKey,
+    },
   });
 
 export const deleteEnvironment = (environmentId) =>
@@ -1433,8 +1433,8 @@ export const deleteEnvironment = (environmentId) =>
       GET_CLEAN_EXPENSES,
       GET_EXPENSES_SUMMARY,
       GET_EXPENSES_DAILY_BREAKDOWN,
-      GET_RESOURCE_COUNT_BREAKDOWN
-    ]
+      GET_RESOURCE_COUNT_BREAKDOWN,
+    ],
   });
 
 export const updateEnvironmentActivity = (environmentId, isActive) =>
@@ -1448,9 +1448,9 @@ export const updateEnvironmentActivity = (environmentId, isActive) =>
       GET_CLEAN_EXPENSES,
       GET_EXPENSES_DAILY_BREAKDOWN,
       GET_RESOURCE_COUNT_BREAKDOWN,
-      GET_RESOURCE
+      GET_RESOURCE,
     ],
-    params: { active: isActive }
+    params: { active: isActive },
   });
 
 export const updateEnvironmentSshRequirement = (environmentId, requireSshKey) =>
@@ -1461,7 +1461,7 @@ export const updateEnvironmentSshRequirement = (environmentId, requireSshKey) =>
     onSuccess: onSuccessUpdateEnvironmentSshRequirement,
     entityId: environmentId,
     affectedRequests: [GET_ENVIRONMENTS, GET_CLEAN_EXPENSES, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
-    params: { ssh_only: requireSshKey }
+    params: { ssh_only: requireSshKey },
   });
 
 export const updateEnvironmentProperty = (environmentId, { propertyName, propertyValue }) =>
@@ -1473,7 +1473,7 @@ export const updateEnvironmentProperty = (environmentId, { propertyName, propert
     label: UPDATE_ENVIRONMENT_PROPERTY,
     entityId: propertyName,
     affectedRequests: [GET_ENVIRONMENTS],
-    params: { env_properties: { [propertyName]: propertyValue } }
+    params: { env_properties: { [propertyName]: propertyValue } },
   });
 
 export const getDataSourceNodes = (cloudAccountId) =>
@@ -1483,7 +1483,7 @@ export const getDataSourceNodes = (cloudAccountId) =>
     label: GET_DATA_SOURCE_NODES,
     ttl: MINUTE,
     hash: hashParams(cloudAccountId),
-    onSuccess: handleSuccess(SET_DATA_SOURCE_NODES)
+    onSuccess: handleSuccess(SET_DATA_SOURCE_NODES),
   });
 
 export const getResourceMetrics = (resourceId, params = {}) =>
@@ -1496,8 +1496,8 @@ export const getResourceMetrics = (resourceId, params = {}) =>
     onSuccess: handleSuccess(SET_RESOURCE_METRICS),
     params: {
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const getResourceCostModel = (resourceId) =>
@@ -1507,7 +1507,7 @@ export const getResourceCostModel = (resourceId) =>
     label: GET_RESOURCE_COST_MODEL,
     ttl: MINUTE,
     hash: hashParams(resourceId),
-    onSuccess: handleSuccess(SET_RESOURCE_COST_MODEL)
+    onSuccess: handleSuccess(SET_RESOURCE_COST_MODEL),
   });
 
 export const updateResourceCostModel = (resourceId, params) =>
@@ -1517,8 +1517,8 @@ export const updateResourceCostModel = (resourceId, params) =>
     label: UPDATE_RESOURCE_COST_MODEL,
     affectedRequests: [GET_RESOURCE_COST_MODEL],
     params: {
-      value: { hourly_cost: params.hourlyPrice }
-    }
+      value: { hourly_cost: params.hourlyPrice },
+    },
   });
 
 export const getDataSourceSkus = (dataSourceId) =>
@@ -1530,8 +1530,8 @@ export const getDataSourceSkus = (dataSourceId) =>
     hash: hashParams(dataSourceId),
     onSuccess: handleSuccess(SET_DATASOURCE_SKUS),
     params: {
-      details: true
-    }
+      details: true,
+    },
   });
 
 export const updateDataSourceSku = (dataSourceId, value) =>
@@ -1541,8 +1541,8 @@ export const updateDataSourceSku = (dataSourceId, value) =>
     label: UPDATE_DATASOURCE_SKU,
     affectedRequests: [GET_DATASOURCE_SKUS],
     params: {
-      value
-    }
+      value,
+    },
   });
 
 export const markResourcesAsEnvironments = (organizationId, resourceIds) =>
@@ -1553,8 +1553,8 @@ export const markResourcesAsEnvironments = (organizationId, resourceIds) =>
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
     affectedRequests: [GET_CLEAN_EXPENSES, GET_ENVIRONMENTS, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
     params: {
-      resource_ids: resourceIds
-    }
+      resource_ids: resourceIds,
+    },
   });
 
 export const getEnvironmentBookings = (resourceId) =>
@@ -1564,7 +1564,7 @@ export const getEnvironmentBookings = (resourceId) =>
     label: GET_ENVIRONMENT_BOOKINGS,
     ttl: 5 * MINUTE,
     hash: hashParams(resourceId),
-    onSuccess: handleSuccess(SET_ENVIRONMENT_BOOKINGS)
+    onSuccess: handleSuccess(SET_ENVIRONMENT_BOOKINGS),
   });
 
 export const updateBooking = (bookingId, { releasedAt }) =>
@@ -1574,8 +1574,8 @@ export const updateBooking = (bookingId, { releasedAt }) =>
     label: UPDATE_BOOKING,
     affectedRequests: [GET_CLEAN_EXPENSES, GET_ENVIRONMENTS, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
     params: {
-      released_at: releasedAt
-    }
+      released_at: releasedAt,
+    },
   });
 
 export const deleteBooking = (bookingId) =>
@@ -1583,7 +1583,7 @@ export const deleteBooking = (bookingId) =>
     url: `${API_URL}/shareable/${bookingId}`,
     method: "DELETE",
     label: DELETE_BOOKING,
-    affectedRequests: [GET_CLEAN_EXPENSES, GET_ENVIRONMENTS, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN]
+    affectedRequests: [GET_CLEAN_EXPENSES, GET_ENVIRONMENTS, GET_EXPENSES_DAILY_BREAKDOWN, GET_RESOURCE_COUNT_BREAKDOWN],
   });
 
 // More params supported, add if required, see Swagger
@@ -1597,8 +1597,8 @@ export const getWebhooks = (organizationId, params) =>
     onSuccess: handleSuccess(SET_WEBHOOKS),
     params: {
       object_id: params.objectId,
-      object_type: params.objectType
-    }
+      object_type: params.objectType,
+    },
   });
 
 // More params supported, add if required, see Swagger
@@ -1611,8 +1611,8 @@ export const createWebhook = (organizationId, params) =>
       object_type: params.objectType,
       object_id: params.objectId,
       action: params.action,
-      url: params.url
-    }
+      url: params.url,
+    },
   });
 
 // More params supported, add if required, see Swagger
@@ -1624,8 +1624,8 @@ export const updateWebhook = (webhookId, params) =>
     onSuccess: onSuccessUpdateWebhook,
     params: {
       url: params.url,
-      active: params.active
-    }
+      active: params.active,
+    },
   });
 
 export const deleteWebhook = (webhookId) =>
@@ -1633,7 +1633,7 @@ export const deleteWebhook = (webhookId) =>
     url: `${API_URL}/webhooks/${webhookId}`,
     method: "DELETE",
     label: DELETE_WEBHOOK,
-    onSuccess: onSuccessDeleteWebhook(webhookId)
+    onSuccess: onSuccessDeleteWebhook(webhookId),
   });
 
 export const getSshKeys = (employeeId) =>
@@ -1643,7 +1643,7 @@ export const getSshKeys = (employeeId) =>
     label: GET_SSH_KEYS,
     ttl: 5 * MINUTE,
     hash: hashParams(employeeId),
-    onSuccess: handleSuccess(SET_SSH_KEYS)
+    onSuccess: handleSuccess(SET_SSH_KEYS),
   });
 
 export const createSshKey = (employeeId, params) =>
@@ -1652,9 +1652,9 @@ export const createSshKey = (employeeId, params) =>
     label: CREATE_SSH_KEY,
     params: {
       name: params.name,
-      key: params.key
+      key: params.key,
     },
-    onSuccess: onSuccessCreateSshKey
+    onSuccess: onSuccessCreateSshKey,
   });
 
 export const updateSshKey = (sshKeyId, params) =>
@@ -1665,9 +1665,9 @@ export const updateSshKey = (sshKeyId, params) =>
     affectedRequests: [GET_EMPLOYEES],
     params: {
       name: params.name,
-      default: params.default
+      default: params.default,
     },
-    onSuccess: onSuccessUpdateSshKey
+    onSuccess: onSuccessUpdateSshKey,
   });
 
 export const deleteSshKey = (sshKeyId) =>
@@ -1675,7 +1675,7 @@ export const deleteSshKey = (sshKeyId) =>
     url: `${API_URL}/ssh_keys/${sshKeyId}`,
     method: "DELETE",
     label: DELETE_SSH_KEY,
-    affectedRequests: [GET_SSH_KEYS]
+    affectedRequests: [GET_SSH_KEYS],
   });
 
 export const updateResource = (resourceId, { shareable }) =>
@@ -1685,8 +1685,8 @@ export const updateResource = (resourceId, { shareable }) =>
     label: UPDATE_RESOURCE,
     affectedRequests: [GET_RESOURCE, GET_ENVIRONMENTS],
     params: {
-      shareable
-    }
+      shareable,
+    },
   });
 
 export const bookEnvironment = (organizationId, params = {}) =>
@@ -1700,8 +1700,8 @@ export const bookEnvironment = (organizationId, params = {}) =>
       acquired_by_id: params.bookedBy,
       acquired_since: params.bookSince,
       released_at: params.bookUntil,
-      ssh_key_id: params.sshKeyId
-    }
+      ssh_key_id: params.sshKeyId,
+    },
   });
 
 export const getOrganizationCalendar = (organizationId) =>
@@ -1711,7 +1711,7 @@ export const getOrganizationCalendar = (organizationId) =>
     label: GET_ORGANIZATION_CALENDAR,
     ttl: MINUTE * 10,
     hash: hashParams(organizationId),
-    onSuccess: handleSuccess(SET_ORGANIZATION_CALENDAR)
+    onSuccess: handleSuccess(SET_ORGANIZATION_CALENDAR),
   });
 
 export const calendarSynchronization = (organizationId, calendarId) =>
@@ -1722,8 +1722,8 @@ export const calendarSynchronization = (organizationId, calendarId) =>
     affectedRequests: [GET_ORGANIZATION_CALENDAR],
     params: {
       organization_id: organizationId,
-      calendar_id: calendarId
-    }
+      calendar_id: calendarId,
+    },
   });
 
 export const deleteCalendarSynchronization = (id) =>
@@ -1731,7 +1731,7 @@ export const deleteCalendarSynchronization = (id) =>
     url: `${API_URL}/calendar_synchronizations/${id}`,
     method: "DELETE",
     label: DELETE_CALENDAR_SYNCHRONIZATION,
-    affectedRequests: [GET_ORGANIZATION_CALENDAR]
+    affectedRequests: [GET_ORGANIZATION_CALENDAR],
   });
 
 export const getDailyExpensesBreakdown = (organizationId, params) =>
@@ -1742,7 +1742,7 @@ export const getDailyExpensesBreakdown = (organizationId, params) =>
     label: GET_EXPENSES_DAILY_BREAKDOWN,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
-    params
+    params,
   });
 
 export const getGlobalPoolPolicies = (organizationId, params) =>
@@ -1753,7 +1753,7 @@ export const getGlobalPoolPolicies = (organizationId, params) =>
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
     onSuccess: handleSuccess(SET_GLOBAL_POOL_POLICIES),
-    params
+    params,
   });
 
 export const getGlobalResourceConstraints = (organizationId, params) =>
@@ -1764,7 +1764,7 @@ export const getGlobalResourceConstraints = (organizationId, params) =>
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, ...params }),
     onSuccess: handleSuccess(SET_GLOBAL_RESOURCE_CONSTRAINTS),
-    params
+    params,
   });
 
 export const getArchivedOptimizationsCount = (organizationId, params) =>
@@ -1777,8 +1777,8 @@ export const getArchivedOptimizationsCount = (organizationId, params) =>
     onSuccess: handleSuccess(SET_ARCHIVED_OPTIMIZATIONS_COUNT),
     params: {
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const getArchivedOptimizationsBreakdown = (organizationId, params) =>
@@ -1791,8 +1791,8 @@ export const getArchivedOptimizationsBreakdown = (organizationId, params) =>
     onSuccess: handleSuccess(SET_ARCHIVED_OPTIMIZATIONS_BREAKDOWN),
     params: {
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const getArchivedOptimizationDetails = (organizationId, params) =>
@@ -1807,8 +1807,8 @@ export const getArchivedOptimizationDetails = (organizationId, params) =>
       archived_at: params.archivedAt,
       reason: params.reason,
       type: params.type,
-      limit: params.limit
-    }
+      limit: params.limit,
+    },
   });
 
 export const getMlTasks = (organizationId) =>
@@ -1818,7 +1818,7 @@ export const getMlTasks = (organizationId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_TASKS),
     hash: hashParams(organizationId),
-    label: GET_ML_TASKS
+    label: GET_ML_TASKS,
   });
 
 export const getMlLeaderboardTemplate = (organizationId, taskId) =>
@@ -1828,7 +1828,7 @@ export const getMlLeaderboardTemplate = (organizationId, taskId) =>
     ttl: 30 * MINUTE,
     onSuccess: handleSuccess(SET_ML_LEADERBOARD_TEMPLATE),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_LEADERBOARD_TEMPLATE
+    label: GET_ML_LEADERBOARD_TEMPLATE,
   });
 
 export const createMlLeaderboardTemplate = (organizationId, taskId, params) =>
@@ -1843,8 +1843,8 @@ export const createMlLeaderboardTemplate = (organizationId, taskId, params) =>
       grouping_tags: params.groupingTags,
       other_metrics: params.otherMetrics,
       primary_metric: params.primaryMetric,
-      dataset_coverage_rules: params.datasetCoverageRules
-    }
+      dataset_coverage_rules: params.datasetCoverageRules,
+    },
   });
 
 export const updateMlLeaderboardTemplate = (organizationId, taskId, params) =>
@@ -1859,8 +1859,8 @@ export const updateMlLeaderboardTemplate = (organizationId, taskId, params) =>
       grouping_tags: params.groupingTags,
       other_metrics: params.otherMetrics,
       primary_metric: params.primaryMetric,
-      dataset_coverage_rules: params.datasetCoverageRules
-    }
+      dataset_coverage_rules: params.datasetCoverageRules,
+    },
   });
 
 export const getMlLeaderboards = (organizationId, leaderboardTemplateId) =>
@@ -1870,7 +1870,7 @@ export const getMlLeaderboards = (organizationId, leaderboardTemplateId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_LEADERBOARDS),
     hash: hashParams({ organizationId, leaderboardTemplateId }),
-    label: GET_ML_LEADERBOARDS
+    label: GET_ML_LEADERBOARDS,
   });
 
 export const getMlLeaderboard = (organizationId, leaderboardId) =>
@@ -1880,7 +1880,7 @@ export const getMlLeaderboard = (organizationId, leaderboardId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_LEADERBOARD),
     hash: hashParams({ organizationId, leaderboardId }),
-    label: GET_ML_LEADERBOARD
+    label: GET_ML_LEADERBOARD,
   });
 
 export const createMlLeaderboard = (organizationId, leaderboardTemplateId, params) =>
@@ -1897,8 +1897,8 @@ export const createMlLeaderboard = (organizationId, leaderboardTemplateId, param
       grouping_tags: params.groupingTags,
       other_metrics: params.otherMetrics,
       primary_metric: params.primaryMetric,
-      dataset_coverage_rules: params.datasetCoverageRules
-    }
+      dataset_coverage_rules: params.datasetCoverageRules,
+    },
   });
 
 export const updateMlLeaderboard = (organizationId, leaderboardId, params) =>
@@ -1915,8 +1915,8 @@ export const updateMlLeaderboard = (organizationId, leaderboardId, params) =>
       grouping_tags: params.groupingTags,
       other_metrics: params.otherMetrics,
       primary_metric: params.primaryMetric,
-      dataset_coverage_rules: params.datasetCoverageRules
-    }
+      dataset_coverage_rules: params.datasetCoverageRules,
+    },
   });
 
 export const deleteMlLeaderboard = (organizationId, leaderboardId) =>
@@ -1924,7 +1924,7 @@ export const deleteMlLeaderboard = (organizationId, leaderboardId) =>
     url: `${API_URL}/organizations/${organizationId}/leaderboards/${leaderboardId}`,
     method: "DELETE",
     label: DELETE_ML_LEADERBOARD,
-    affectedRequests: [GET_ML_LEADERBOARD_TEMPLATE]
+    affectedRequests: [GET_ML_LEADERBOARD_TEMPLATE],
   });
 
 export const getMlLeaderboardCandidates = (organizationId, leaderboardId) =>
@@ -1934,7 +1934,7 @@ export const getMlLeaderboardCandidates = (organizationId, leaderboardId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_LEADERBOARD_CANDIDATES),
     hash: hashParams({ organizationId, leaderboardId }),
-    label: GET_ML_LEADERBOARD_CANDIDATES
+    label: GET_ML_LEADERBOARD_CANDIDATES,
   });
 
 export const getMlDatasets = (organizationId) =>
@@ -1944,7 +1944,7 @@ export const getMlDatasets = (organizationId) =>
     ttl: 30 * MINUTE,
     onSuccess: handleSuccess(SET_ML_DATASETS),
     hash: hashParams(organizationId),
-    label: GET_ML_DATASETS
+    label: GET_ML_DATASETS,
   });
 
 export const getMlDataset = (organizationId, datasetId) =>
@@ -1954,7 +1954,7 @@ export const getMlDataset = (organizationId, datasetId) =>
     ttl: 30 * MINUTE,
     onSuccess: handleSuccess(SET_ML_DATASET),
     hash: hashParams(organizationId, datasetId),
-    label: GET_ML_DATASET
+    label: GET_ML_DATASET,
   });
 
 export const getMlDatasetLabels = (organizationId) =>
@@ -1964,7 +1964,7 @@ export const getMlDatasetLabels = (organizationId) =>
     ttl: 30 * MINUTE,
     onSuccess: handleSuccess(SET_ML_DATASET_LABELS),
     hash: hashParams(organizationId),
-    label: GET_ML_DATASET_LABELS
+    label: GET_ML_DATASET_LABELS,
   });
 
 export const createMlDataset = (organizationId, params) =>
@@ -1973,7 +1973,7 @@ export const createMlDataset = (organizationId, params) =>
     method: "POST",
     label: CREATE_ML_DATASET,
     params,
-    affectedRequests: [GET_ML_DATASETS]
+    affectedRequests: [GET_ML_DATASETS],
   });
 
 export const updateMlDataset = (organizationId, datasetId, params) =>
@@ -1982,7 +1982,7 @@ export const updateMlDataset = (organizationId, datasetId, params) =>
     method: "PATCH",
     label: UPDATE_ML_DATASET,
     params,
-    affectedRequests: [GET_ML_DATASET, GET_ML_DATASETS]
+    affectedRequests: [GET_ML_DATASET, GET_ML_DATASETS],
   });
 
 export const deleteMlDataset = (organizationId, datasetId) =>
@@ -1990,7 +1990,7 @@ export const deleteMlDataset = (organizationId, datasetId) =>
     url: `${API_URL}/organizations/${organizationId}/datasets/${datasetId}`,
     method: "DELETE",
     label: DELETE_ML_DATASET,
-    affectedRequests: [GET_ML_DATASETS]
+    affectedRequests: [GET_ML_DATASETS],
   });
 
 export const getMlTaskRecommendations = (organizationId, taskId) =>
@@ -2000,7 +2000,7 @@ export const getMlTaskRecommendations = (organizationId, taskId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_TASK_RECOMMENDATIONS),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_TASK_RECOMMENDATIONS
+    label: GET_ML_TASK_RECOMMENDATIONS,
   });
 
 export const getMlTaskRecommendationDetails = (organizationId, taskId, params = {}) =>
@@ -2013,8 +2013,8 @@ export const getMlTaskRecommendationDetails = (organizationId, taskId, params = 
     ttl: 5 * MINUTE,
     params: {
       type: params.type,
-      status: params.status
-    }
+      status: params.status,
+    },
   });
 
 export const getMlTask = (organizationId, taskId) =>
@@ -2024,7 +2024,7 @@ export const getMlTask = (organizationId, taskId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_TASK),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_TASK
+    label: GET_ML_TASK,
   });
 
 export const getMlTaskRuns = (organizationId, taskId) =>
@@ -2034,7 +2034,7 @@ export const getMlTaskRuns = (organizationId, taskId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_TASK_RUNS),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_TASK_RUNS
+    label: GET_ML_TASK_RUNS,
   });
 
 export const getMlTaskTags = (organizationId, taskId) =>
@@ -2044,7 +2044,7 @@ export const getMlTaskTags = (organizationId, taskId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_TASK_TAGS),
     hash: hashParams({ organizationId, taskId }),
-    label: GET_ML_TASK_TAGS
+    label: GET_ML_TASK_TAGS,
   });
 
 export const getMlTaskRunsBulk = (organizationId, taskId, runIds) =>
@@ -2056,8 +2056,8 @@ export const getMlTaskRunsBulk = (organizationId, taskId, runIds) =>
     hash: hashParams({ organizationId, taskId, runIds }),
     label: GET_ML_TASK_RUNS_BULK,
     params: {
-      run_id: runIds
-    }
+      run_id: runIds,
+    },
   });
 
 export const getMlRunDetails = (organizationId, runId, params = {}) =>
@@ -2069,8 +2069,8 @@ export const getMlRunDetails = (organizationId, runId, params = {}) =>
     hash: hashParams({ organizationId, runId }),
     label: GET_ML_RUN_DETAILS,
     params: {
-      token: params.arceeToken
-    }
+      token: params.arceeToken,
+    },
   });
 
 export const getMlRunDetailsBreakdown = (organizationId, runId, params = {}) =>
@@ -2082,8 +2082,8 @@ export const getMlRunDetailsBreakdown = (organizationId, runId, params = {}) =>
     hash: hashParams({ organizationId, runId }),
     label: GET_ML_RUN_DETAILS_BREAKDOWN,
     params: {
-      token: params.arceeToken
-    }
+      token: params.arceeToken,
+    },
   });
 
 export const createMlTask = (organizationId, params) =>
@@ -2092,7 +2092,7 @@ export const createMlTask = (organizationId, params) =>
     method: "POST",
     label: CREATE_ML_TASK,
     params,
-    affectedRequests: [GET_ML_TASKS]
+    affectedRequests: [GET_ML_TASKS],
   });
 
 export const updateMlTask = (organizationId, taskId, params) =>
@@ -2102,7 +2102,7 @@ export const updateMlTask = (organizationId, taskId, params) =>
     label: UPDATE_ML_TASK,
     onSuccess: onUpdateMlTask,
     params,
-    affectedRequests: [GET_ML_TASKS]
+    affectedRequests: [GET_ML_TASKS],
   });
 
 export const deleteMlTask = (organizationId, taskId) =>
@@ -2110,7 +2110,7 @@ export const deleteMlTask = (organizationId, taskId) =>
     url: `${API_URL}/organizations/${organizationId}/tasks/${taskId}`,
     method: "DELETE",
     label: DELETE_ML_TASK,
-    affectedRequests: [GET_ML_TASKS]
+    affectedRequests: [GET_ML_TASKS],
   });
 
 export const getMlTaskModelVersions = (organizationId, taskId) =>
@@ -2119,7 +2119,7 @@ export const getMlTaskModelVersions = (organizationId, taskId) =>
     method: "GET",
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_TASK_MODEL_VERSIONS),
-    label: GET_ML_TASK_MODEL_VERSIONS
+    label: GET_ML_TASK_MODEL_VERSIONS,
   });
 
 export const getMlModels = (organizationId) =>
@@ -2129,7 +2129,7 @@ export const getMlModels = (organizationId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_MODELS),
     hash: hashParams(organizationId),
-    label: GET_ML_MODELS
+    label: GET_ML_MODELS,
   });
 
 export const getMlModel = (organizationId, modelId) =>
@@ -2139,7 +2139,7 @@ export const getMlModel = (organizationId, modelId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_MODEL),
     hash: hashParams({ organizationId, modelId }),
-    label: GET_ML_MODEL
+    label: GET_ML_MODEL,
   });
 
 export const createMlModel = (organizationId, params) =>
@@ -2148,7 +2148,7 @@ export const createMlModel = (organizationId, params) =>
     method: "POST",
     label: CREATE_ML_MODEL,
     params,
-    affectedRequests: [GET_ML_MODELS]
+    affectedRequests: [GET_ML_MODELS],
   });
 
 export const updateMlModel = (organizationId, modelId, params) =>
@@ -2158,7 +2158,7 @@ export const updateMlModel = (organizationId, modelId, params) =>
     label: UPDATE_ML_MODEL,
     onSuccess: onUpdateMlModel,
     params,
-    affectedRequests: [GET_ML_MODELS]
+    affectedRequests: [GET_ML_MODELS],
   });
 
 export const deleteMlModel = (organizationId, modelId) =>
@@ -2166,7 +2166,7 @@ export const deleteMlModel = (organizationId, modelId) =>
     url: `${API_URL}/organizations/${organizationId}/models/${modelId}`,
     method: "DELETE",
     label: DELETE_ML_MODEL,
-    affectedRequests: [GET_ML_MODELS]
+    affectedRequests: [GET_ML_MODELS],
   });
 
 // eslint-disable-next-line max-params
@@ -2176,7 +2176,7 @@ export const updateMlModelVersion = (organizationId, modelId, runId, params) =>
     method: "PATCH",
     label: UPDATE_ML_MODEL_VERSION,
     params,
-    affectedRequests: [GET_ML_MODEL, GET_ML_MODELS]
+    affectedRequests: [GET_ML_MODEL, GET_ML_MODELS],
   });
 
 export const getMlMetrics = (organizationId) =>
@@ -2187,7 +2187,7 @@ export const getMlMetrics = (organizationId) =>
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId }),
     errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
-    onSuccess: handleSuccess(SET_ML_METRICS)
+    onSuccess: handleSuccess(SET_ML_METRICS),
   });
 
 export const getMlMetric = (organizationId, metricId) =>
@@ -2197,7 +2197,7 @@ export const getMlMetric = (organizationId, metricId) =>
     label: GET_ML_GLOBAL_METRIC,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId, metricId }),
-    onSuccess: handleSuccess(SET_ML_GLOBAL_METRIC)
+    onSuccess: handleSuccess(SET_ML_GLOBAL_METRIC),
   });
 
 export const createMlMetric = (organizationId, params) =>
@@ -2206,7 +2206,7 @@ export const createMlMetric = (organizationId, params) =>
     method: "POST",
     label: CREATE_GLOBAL_METRIC,
     params,
-    affectedRequests: [GET_ML_METRICS]
+    affectedRequests: [GET_ML_METRICS],
   });
 
 export const updateMlMetric = (organizationId, metricId, params) =>
@@ -2215,7 +2215,7 @@ export const updateMlMetric = (organizationId, metricId, params) =>
     method: "PATCH",
     label: UPDATE_GLOBAL_METRIC,
     affectedRequests: [GET_ML_METRICS],
-    params
+    params,
   });
 
 export const deleteMlMetric = (organizationId, metricId) =>
@@ -2223,7 +2223,7 @@ export const deleteMlMetric = (organizationId, metricId) =>
     url: `${API_URL}/organizations/${organizationId}/metrics/${metricId}`,
     method: "DELETE",
     label: DELETE_GLOBAL_METRIC,
-    affectedRequests: [GET_ML_METRICS]
+    affectedRequests: [GET_ML_METRICS],
   });
 
 export const getProfilingToken = (organizationId) =>
@@ -2233,7 +2233,7 @@ export const getProfilingToken = (organizationId) =>
     label: GET_PROFILING_TOKEN,
     ttl: 5 * MINUTE,
     hash: hashParams({ organizationId }),
-    onSuccess: handleSuccess(SET_PROFILING_TOKEN)
+    onSuccess: handleSuccess(SET_PROFILING_TOKEN),
   });
 
 export const getMlExecutors = (organizationId, params) =>
@@ -2247,8 +2247,8 @@ export const getMlExecutors = (organizationId, params) =>
     params: {
       task_id: params.taskIds,
       run_id: params.runIds,
-      token: params.arceeToken
-    }
+      token: params.arceeToken,
+    },
   });
 
 export const getMlExecutorsBreakdown = (organizationId) =>
@@ -2258,7 +2258,7 @@ export const getMlExecutorsBreakdown = (organizationId) =>
     onSuccess: handleSuccess(SET_ML_EXECUTORS_BREAKDOWN),
     label: GET_ML_EXECUTORS_BREAKDOWN,
     ttl: 5 * MINUTE,
-    hash: hashParams(organizationId)
+    hash: hashParams(organizationId),
   });
 
 export const getMlArtifacts = (organizationId, params = {}) =>
@@ -2277,8 +2277,8 @@ export const getMlArtifacts = (organizationId, params = {}) =>
       created_at_gt: params.createdAtGt,
       created_at_lt: params.createdAtLt,
       task_id: params.taskId,
-      token: params.arceeToken
-    }
+      token: params.arceeToken,
+    },
   });
 
 export const getMlArtifact = (organizationId, artifactId) =>
@@ -2288,7 +2288,7 @@ export const getMlArtifact = (organizationId, artifactId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_ML_ARTIFACT),
     hash: hashParams({ organizationId, artifactId }),
-    label: GET_ML_ARTIFACT
+    label: GET_ML_ARTIFACT,
   });
 
 export const updateMlArtifact = (organizationId, artifactId, params) =>
@@ -2298,7 +2298,7 @@ export const updateMlArtifact = (organizationId, artifactId, params) =>
     label: UPDATE_ML_ARTIFACT,
     onSuccess: onUpdateMlArtifact,
     params,
-    affectedRequests: [GET_ML_ARTIFACTS]
+    affectedRequests: [GET_ML_ARTIFACTS],
   });
 
 export const createMlArtifact = (organizationId, params) =>
@@ -2311,9 +2311,9 @@ export const createMlArtifact = (organizationId, params) =>
       path: params.path,
       description: params.description,
       tags: params.tags,
-      run_id: params.runId
+      run_id: params.runId,
     },
-    affectedRequests: [GET_ML_ARTIFACTS]
+    affectedRequests: [GET_ML_ARTIFACTS],
   });
 
 export const deleteMlArtifact = (organizationId, artifactId) =>
@@ -2321,7 +2321,7 @@ export const deleteMlArtifact = (organizationId, artifactId) =>
     url: `${API_URL}/organizations/${organizationId}/artifacts/${artifactId}`,
     method: "DELETE",
     label: DELETE_ML_ARTIFACT,
-    affectedRequests: [GET_ML_ARTIFACTS]
+    affectedRequests: [GET_ML_ARTIFACTS],
   });
 
 export const getReservedInstancesBreakdown = (organizationId, params) =>
@@ -2335,8 +2335,8 @@ export const getReservedInstancesBreakdown = (organizationId, params) =>
     params: {
       cloud_account_id: params.dataSourceIds,
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const getSavingPlansBreakdown = (organizationId, params) =>
@@ -2350,8 +2350,8 @@ export const getSavingPlansBreakdown = (organizationId, params) =>
     params: {
       cloud_account_id: params.dataSourceIds,
       start_date: params.startDate,
-      end_date: params.endDate
-    }
+      end_date: params.endDate,
+    },
   });
 
 export const getMlRunsetTemplates = (organizationId) =>
@@ -2361,7 +2361,7 @@ export const getMlRunsetTemplates = (organizationId) =>
     onSuccess: handleSuccess(SET_ML_RUNSET_TEMPLATES),
     hash: hashParams({ organizationId }),
     label: GET_ML_RUNSET_TEMPLATES,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const getMlRunsetTemplate = (organizationId, runsetTemplateId) =>
@@ -2371,7 +2371,7 @@ export const getMlRunsetTemplate = (organizationId, runsetTemplateId) =>
     hash: hashParams({ organizationId, runsetTemplateId }),
     onSuccess: handleSuccess(SET_ML_RUNSET_TEMPLATE),
     label: GET_ML_RUNSET_TEMPLATE,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const createMlRunsetTemplate = (organizationId, params) =>
@@ -2380,7 +2380,7 @@ export const createMlRunsetTemplate = (organizationId, params) =>
     method: "POST",
     label: CREATE_ML_RUNSET_TEMPLATE,
     params,
-    affectedRequests: [GET_ML_RUNSET_TEMPLATES]
+    affectedRequests: [GET_ML_RUNSET_TEMPLATES],
   });
 
 export const updateMlRunsetTemplate = (organizationId, runsetTemplateId, params) =>
@@ -2390,7 +2390,7 @@ export const updateMlRunsetTemplate = (organizationId, runsetTemplateId, params)
     label: UPDATE_ML_RUNSET_TEMPLATE,
     onSuccess: onUpdateMlRunsetTemplate,
     params,
-    affectedRequests: [GET_ML_RUNSET_TEMPLATES]
+    affectedRequests: [GET_ML_RUNSET_TEMPLATES],
   });
 
 export const deleteMlRunsetTemplate = (organizationId, runsetTemplateId) =>
@@ -2398,7 +2398,7 @@ export const deleteMlRunsetTemplate = (organizationId, runsetTemplateId) =>
     url: `${API_URL}/organizations/${organizationId}/templates/${runsetTemplateId}`,
     method: "DELETE",
     label: DELETE_ML_RUNSET_TEMPLATE,
-    affectedRequests: [GET_ML_RUNSET_TEMPLATES]
+    affectedRequests: [GET_ML_RUNSET_TEMPLATES],
   });
 
 export const getMlRunsets = (organizationId, runsetTemplateId) =>
@@ -2408,7 +2408,7 @@ export const getMlRunsets = (organizationId, runsetTemplateId) =>
     hash: hashParams({ organizationId, runsetTemplateId }),
     onSuccess: handleSuccess(SET_ML_RUNSETS),
     label: GET_ML_RUNSETS,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const getMlRunset = (organizationId, runsetId) =>
@@ -2418,7 +2418,7 @@ export const getMlRunset = (organizationId, runsetId) =>
     hash: hashParams({ organizationId, runsetId }),
     onSuccess: handleSuccess(SET_ML_RUNSET),
     label: GET_ML_RUNSET,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const createMlRunset = (organizationId, runsetTemplateId, params) =>
@@ -2427,7 +2427,7 @@ export const createMlRunset = (organizationId, runsetTemplateId, params) =>
     method: "POST",
     label: CREATE_ML_RUNSET,
     params,
-    affectedRequests: [GET_ML_RUNSETS]
+    affectedRequests: [GET_ML_RUNSETS],
   });
 
 export const stopMlRunset = (organizationId, runsetId) =>
@@ -2437,9 +2437,9 @@ export const stopMlRunset = (organizationId, runsetId) =>
     label: STOP_ML_RUNSET,
     successHandlerType: SUCCESS_HANDLER_TYPE_ALERT,
     params: {
-      action: "stop"
+      action: "stop",
     },
-    affectedRequests: [GET_ML_RUNSET, GET_ML_RUNSETS]
+    affectedRequests: [GET_ML_RUNSET, GET_ML_RUNSETS],
   });
 
 export const getMlRunsetsRuns = (organizationId, runsetId) =>
@@ -2449,7 +2449,7 @@ export const getMlRunsetsRuns = (organizationId, runsetId) =>
     hash: hashParams({ organizationId, runsetId }),
     onSuccess: handleSuccess(SET_ML_RUNSETS_RUNS),
     label: GET_ML_RUNSETS_RUNS,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const getMlRunsetExecutors = (organizationId, runsetId) =>
@@ -2459,7 +2459,7 @@ export const getMlRunsetExecutors = (organizationId, runsetId) =>
     hash: hashParams({ organizationId, runsetId }),
     onSuccess: handleSuccess(SET_ML_RUNSET_EXECUTORS),
     label: GET_ML_RUNSET_EXECUTORS,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const getOrganizationBIExports = (organizationId) =>
@@ -2469,7 +2469,7 @@ export const getOrganizationBIExports = (organizationId) =>
     hash: hashParams({ organizationId }),
     onSuccess: handleSuccess(SET_ORGANIZATION_BI_EXPORTS),
     label: GET_ORGANIZATION_BI_EXPORT,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const createOrganizationBIExports = (organizationId, params) =>
@@ -2478,7 +2478,7 @@ export const createOrganizationBIExports = (organizationId, params) =>
     method: "POST",
     label: CREATE_ORGANIZATION_BI_EXPORT,
     params,
-    affectedRequests: [GET_ORGANIZATION_BI_EXPORT]
+    affectedRequests: [GET_ORGANIZATION_BI_EXPORT],
   });
 
 export const getBIExport = (biExportId) =>
@@ -2488,7 +2488,7 @@ export const getBIExport = (biExportId) =>
     hash: hashParams({ biExportId }),
     label: GET_BI_EXPORT,
     onSuccess: handleSuccess(SET_BI_EXPORT),
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const updateBIExport = (biExportId, params) =>
@@ -2498,7 +2498,7 @@ export const updateBIExport = (biExportId, params) =>
     label: UPDATE_BI_EXPORT,
     onSuccess: onUpdateBIExport,
     affectedRequests: [GET_ORGANIZATION_BI_EXPORT],
-    params
+    params,
   });
 
 export const deleteBIExport = (biExportId) =>
@@ -2506,7 +2506,7 @@ export const deleteBIExport = (biExportId) =>
     url: `${API_URL}/bi/${biExportId}`,
     method: "DELETE",
     label: DELETE_BI_EXPORT,
-    affectedRequests: [GET_ORGANIZATION_BI_EXPORT]
+    affectedRequests: [GET_ORGANIZATION_BI_EXPORT],
   });
 
 export const getS3DuplicatesOrganizationSettings = (organizationId) =>
@@ -2516,7 +2516,7 @@ export const getS3DuplicatesOrganizationSettings = (organizationId) =>
     ttl: HOUR,
     onSuccess: handleSuccess(SET_S3_DUPLICATES_ORGANIZATION_SETTINGS),
     hash: hashParams(organizationId),
-    label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS
+    label: GET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   });
 
 export const updateS3DuplicatesOrganizationSettings = (organizationId, value) =>
@@ -2528,8 +2528,8 @@ export const updateS3DuplicatesOrganizationSettings = (organizationId, value) =>
     label: UPDATE_S3_DUPLICATES_ORGANIZATION_SETTINGS,
     affectedRequests: [GET_S3_DUPLICATES_ORGANIZATION_SETTINGS],
     params: {
-      value: JSON.stringify(value)
-    }
+      value: JSON.stringify(value),
+    },
   });
 
 export const getOrganizationCloudResources = (organizationId, params) =>
@@ -2540,7 +2540,7 @@ export const getOrganizationCloudResources = (organizationId, params) =>
     onSuccess: handleSuccess(SET_ORGANIZATION_CLOUD_RESOURCES),
     label: GET_ORGANIZATION_CLOUD_RESOURCES,
     ttl: 5 * MINUTE,
-    params
+    params,
   });
 
 export const getOrganizationGeminis = (organizationId) =>
@@ -2550,7 +2550,7 @@ export const getOrganizationGeminis = (organizationId) =>
     hash: hashParams({ organizationId }),
     onSuccess: handleSuccess(SET_ORGANIZATION_GEMINIS),
     label: GET_ORGANIZATION_GEMINIS,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const getGemini = (checkId) =>
@@ -2560,7 +2560,7 @@ export const getGemini = (checkId) =>
     hash: hashParams({ checkId }),
     onSuccess: handleSuccess(SET_GEMINI),
     label: GET_GEMINI,
-    ttl: 5 * MINUTE
+    ttl: 5 * MINUTE,
   });
 
 export const createOrganizationGemini = (organizationId, params) =>
@@ -2569,7 +2569,7 @@ export const createOrganizationGemini = (organizationId, params) =>
     method: "POST",
     label: CREATE_ORGANIZATION_GEMINI,
     affectedRequests: [GET_ORGANIZATION_GEMINIS],
-    params
+    params,
   });
 
 export const createSurvey = (organizationId, { type, payload }) =>
@@ -2579,8 +2579,8 @@ export const createSurvey = (organizationId, { type, payload }) =>
     label: CREATE_SURVEY,
     params: {
       survey_type: type,
-      payload
-    }
+      payload,
+    },
   });
 
 export const getPowerSchedules = (organizationId) =>
@@ -2590,7 +2590,7 @@ export const getPowerSchedules = (organizationId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_POWER_SCHEDULES),
     hash: hashParams(organizationId),
-    label: GET_POWER_SCHEDULES
+    label: GET_POWER_SCHEDULES,
   });
 
 export const getPowerSchedule = (powerScheduleId) =>
@@ -2600,7 +2600,7 @@ export const getPowerSchedule = (powerScheduleId) =>
     ttl: 5 * MINUTE,
     onSuccess: handleSuccess(SET_POWER_SCHEDULE),
     hash: hashParams(powerScheduleId),
-    label: GET_POWER_SCHEDULE
+    label: GET_POWER_SCHEDULE,
   });
 
 export const createPowerSchedule = (organizationId, params) =>
@@ -2609,7 +2609,7 @@ export const createPowerSchedule = (organizationId, params) =>
     method: "POST",
     label: CREATE_POWER_SCHEDULES,
     affectedRequests: [GET_POWER_SCHEDULES],
-    params
+    params,
   });
 
 export const deletePowerSchedule = (powerScheduleId) =>
@@ -2617,7 +2617,7 @@ export const deletePowerSchedule = (powerScheduleId) =>
     url: `${API_URL}/power_schedules/${powerScheduleId}`,
     method: "DELETE",
     label: DELETE_POWER_SCHEDULE,
-    affectedRequests: [GET_POWER_SCHEDULES]
+    affectedRequests: [GET_POWER_SCHEDULES],
   });
 
 export const updatePowerSchedule = (powerScheduleId, params) =>
@@ -2628,7 +2628,7 @@ export const updatePowerSchedule = (powerScheduleId, params) =>
     onSuccess: onUpdatePowerSchedule,
     entityId: powerScheduleId,
     affectedRequests: [GET_POWER_SCHEDULES],
-    params
+    params,
   });
 
 export const attachInstancesToSchedule = (powerScheduleId, instancesToAttach) =>
@@ -2640,8 +2640,8 @@ export const attachInstancesToSchedule = (powerScheduleId, instancesToAttach) =>
     affectedRequests: [GET_POWER_SCHEDULE, GET_POWER_SCHEDULES],
     params: {
       action: "attach",
-      instance_id: instancesToAttach
-    }
+      instance_id: instancesToAttach,
+    },
   });
 
 export const removeInstancesFromSchedule = (powerScheduleId, instancesToRemove) =>
@@ -2653,8 +2653,8 @@ export const removeInstancesFromSchedule = (powerScheduleId, instancesToRemove) 
     affectedRequests: [GET_POWER_SCHEDULE, GET_POWER_SCHEDULES],
     params: {
       action: "detach",
-      instance_id: instancesToRemove
-    }
+      instance_id: instancesToRemove,
+    },
   });
 
 export const getLayouts = (organizationId, { layoutType, entityId, includeShared, arceeToken }) =>
@@ -2669,8 +2669,8 @@ export const getLayouts = (organizationId, { layoutType, entityId, includeShared
       layout_type: layoutType,
       entity_id: entityId,
       include_shared: includeShared,
-      token: arceeToken
-    }
+      token: arceeToken,
+    },
   });
 
 export const getLayout = (organizationId, layoutId, params = {}) =>
@@ -2683,8 +2683,8 @@ export const getLayout = (organizationId, layoutId, params = {}) =>
     label: GET_LAYOUT,
     ttl: 5 * MINUTE,
     params: {
-      token: params.arceeToken
-    }
+      token: params.arceeToken,
+    },
   });
 
 export const createLayout = (organizationId, params = {}) =>
@@ -2699,8 +2699,8 @@ export const createLayout = (organizationId, params = {}) =>
       shared: params.shared,
       data: params.data,
       type: params.type,
-      entity_id: params.entityId
-    }
+      entity_id: params.entityId,
+    },
   });
 
 export const updateLayout = (organizationId, layoutId, params = {}) =>
@@ -2712,8 +2712,8 @@ export const updateLayout = (organizationId, layoutId, params = {}) =>
     params: {
       name: params.name,
       shared: params.shared,
-      data: params.data
-    }
+      data: params.data,
+    },
   });
 
 export const deleteLayout = (organizationId, layoutId) =>
@@ -2722,7 +2722,7 @@ export const deleteLayout = (organizationId, layoutId) =>
     method: "DELETE",
     label: DELETE_LAYOUT,
     affectedRequests: [GET_LAYOUTS],
-    entityId: layoutId
+    entityId: layoutId,
   });
 
 export const restorePassword = (params) =>
@@ -2732,8 +2732,8 @@ export const restorePassword = (params) =>
     label: RESTORE_PASSWORD,
     params: {
       email: params.email,
-      link_params: params.linkParams
-    }
+      link_params: params.linkParams,
+    },
   });
 
 export const verifyEmail = (params) =>
@@ -2743,6 +2743,6 @@ export const verifyEmail = (params) =>
     label: VERIFY_EMAIL,
     params: {
       email: params.email,
-      link_params: params.linkParams
-    }
+      link_params: params.linkParams,
+    },
   });

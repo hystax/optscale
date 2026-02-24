@@ -24,33 +24,33 @@ const columns = [
         caption={[
           {
             key: "region",
-            node: <KeyValueLabel keyMessageId="region" value={region} />
+            node: <KeyValueLabel keyMessageId="region" value={region} />,
           },
           {
             key: "cpu",
-            node: <KeyValueLabel keyMessageId="cpu" value={cpu} />
+            node: <KeyValueLabel keyMessageId="cpu" value={cpu} />,
           },
           {
             key: "ram",
             node: (
               <KeyValueLabel keyMessageId="ram" value={<FormattedDigitalUnit value={ram} baseUnit={IEC_UNITS.GIBIBYTE} />} />
-            )
-          }
+            ),
+          },
         ]}
       >
         <CloudLabel type={type} label={cell.getValue()} />
       </CaptionedCell>
     ),
-    accessorKey: "flavor"
+    accessorKey: "flavor",
   },
   expenses({
     headerDataTestId: "lbl_current_monthly_cost",
     headerMessageId: "currentMonthlyCost",
-    accessorKey: "cost"
+    accessorKey: "cost",
   }),
   usage({
     headerDataTestId: "lbl_projected_monthly_usage",
-    headerMessageId: "projectedMonthlyUsage"
+    headerMessageId: "projectedMonthlyUsage",
   }),
   {
     id: "recommendedSize",
@@ -64,31 +64,31 @@ const columns = [
         caption={[
           {
             key: "cpu",
-            node: <KeyValueLabel keyMessageId="cpu" value={cpu} />
+            node: <KeyValueLabel keyMessageId="cpu" value={cpu} />,
           },
           {
             key: "ram",
             node: (
               <KeyValueLabel keyMessageId="ram" value={<FormattedDigitalUnit value={ram} baseUnit={IEC_UNITS.GIBIBYTE} />} />
-            )
-          }
+            ),
+          },
         ]}
       >
         <CloudLabel type={NEBIUS} label={cell.getValue()} />
       </CaptionedCell>
     ),
-    accessorFn: (originalRow) => originalRow?.recommended_flavor?.flavor
+    accessorFn: (originalRow) => originalRow?.recommended_flavor?.flavor,
   },
   expenses({
     headerDataTestId: "lbl_projected_monthly_cost",
     headerMessageId: "projectedMonthlyCost",
     id: "recommendedCost",
-    accessorFn: (originalRow) => originalRow?.recommended_flavor?.cost
+    accessorFn: (originalRow) => originalRow?.recommended_flavor?.cost,
   }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_nm_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class NebiusMigration extends BaseRecommendation {
@@ -118,16 +118,16 @@ class NebiusMigration extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.flavor}-flavor`,
-        value: <RecommendationListItemFlavorLabel item={item} />
+        value: <RecommendationListItemFlavorLabel item={item} />,
       },
       {
         key: `${item.flavor}-recommended_flavor`,
-        value: item.recommended_flavor.flavor
+        value: item.recommended_flavor.flavor,
       },
       {
         key: `${item.saving}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

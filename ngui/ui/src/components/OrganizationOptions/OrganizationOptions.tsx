@@ -26,12 +26,12 @@ const OrganizationOptions = ({
   handleExpand,
   options,
   onSave,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const {
     isGetOrganizationOptionsLoading = false,
     isGetOrganizationOptionLoading = false,
-    isUpdateOrganizationOptionLoading = false
+    isUpdateOrganizationOptionLoading = false,
   } = isLoadingProps;
 
   const [updatedValue, setUpdatedValue] = useState(value);
@@ -63,7 +63,7 @@ const OrganizationOptions = ({
   const actionBarDefinition = {
     title: {
       messageId: "organizationOptions",
-      dataTestId: "lbl_organization_options"
+      dataTestId: "lbl_organization_options",
     },
     items: [
       {
@@ -75,9 +75,9 @@ const OrganizationOptions = ({
         action: () => openSideModal(CreateOrganizationOptionModal),
         type: "button",
         requiredActions: ["EDIT_PARTNER"],
-        dataTestId: "btn_add_organization_option"
-      }
-    ]
+        dataTestId: "btn_add_organization_option",
+      },
+    ],
   };
 
   const isChangeSettingsAllowed = useIsAllowed({ requiredActions: ["EDIT_PARTNER"] });

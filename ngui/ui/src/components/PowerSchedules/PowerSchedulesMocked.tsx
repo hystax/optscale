@@ -17,7 +17,7 @@ const PowerSchedulesMocked = () => (
           { action: "power_on", time: "08:00" },
           { action: "power_off", time: "10:00" },
           { action: "power_on", time: "12:00" },
-          { action: "power_off", time: "14:00" }
+          { action: "power_off", time: "14:00" },
         ],
         timezone: "Europe/Vienna",
         start_date: 1696912229,
@@ -26,7 +26,7 @@ const PowerSchedulesMocked = () => (
         last_run_error: null,
         created_at: 1696912229,
         deleted_at: 0,
-        resources_count: 23
+        resources_count: 23,
       },
       {
         id: "2",
@@ -35,7 +35,7 @@ const PowerSchedulesMocked = () => (
         enabled: true,
         triggers: [
           { action: "power_on", time: "07:00" },
-          { action: "power_off", time: "19:00" }
+          { action: "power_off", time: "19:00" },
         ],
         timezone: "Europe/Vienna",
         start_date: 1696912229,
@@ -44,7 +44,7 @@ const PowerSchedulesMocked = () => (
         last_run_error: null,
         created_at: 1696912229,
         deleted_at: 0,
-        resources_count: 5
+        resources_count: 5,
       },
       {
         id: "3",
@@ -57,7 +57,7 @@ const PowerSchedulesMocked = () => (
           { action: "power_on", time: "12:00" },
           { action: "power_off", time: "15:00" },
           { action: "power_on", time: "18:00" },
-          { action: "power_off", time: "21:00" }
+          { action: "power_off", time: "21:00" },
         ],
         timezone: "Europe/Vienna",
         start_date: null,
@@ -66,7 +66,7 @@ const PowerSchedulesMocked = () => (
         last_run_error: null,
         created_at: 1696912229,
         deleted_at: 0,
-        resources_count: 12
+        resources_count: 12,
       },
       {
         id: "4",
@@ -75,7 +75,7 @@ const PowerSchedulesMocked = () => (
         enabled: true,
         triggers: [
           { action: "power_off", time: "03:00" },
-          { action: "power_on", time: "04:00" }
+          { action: "power_on", time: "04:00" },
         ],
         timezone: "Europe/Vienna",
         start_date: null,
@@ -84,8 +84,8 @@ const PowerSchedulesMocked = () => (
         last_run_error: null,
         created_at: 1696912229,
         deleted_at: 0,
-        resources_count: 2
-      }
+        resources_count: 2,
+      },
     ]}
     onActivate={() => {}}
     onDeactivate={() => {}}

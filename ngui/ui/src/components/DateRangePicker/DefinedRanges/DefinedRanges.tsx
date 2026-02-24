@@ -21,8 +21,8 @@ const DefinedRanges = ({ ranges, setRange, selectedRange }) => {
           <ListItemText
             primaryTypographyProps={{
               style: {
-                fontWeight: isSameRange(objectMap(range, secondsToMilliseconds), selectedRange) ? "bold" : "normal"
-              }
+                fontWeight: isSameRange(objectMap(range, secondsToMilliseconds), selectedRange) ? "bold" : "normal",
+              },
             }}
           >
             {intl.formatMessage({ id: range.messageId })}

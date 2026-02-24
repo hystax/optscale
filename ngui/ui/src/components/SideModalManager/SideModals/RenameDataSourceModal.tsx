@@ -9,8 +9,8 @@ class RenameDataSourceModal extends BaseSideModal {
       formattedMessageValues: { name: this.payload?.name },
       dataTestIds: {
         title: "lbl_rename_data_source",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

@@ -26,7 +26,7 @@ const BreakdownBySelector = ({ value, onChange, metaNames, isLoading = false }: 
       {metaNames
         .map((name) => ({
           value: name,
-          name: getMetaFormattedName(name)
+          name: getMetaFormattedName(name),
         }))
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((breakdown) => (

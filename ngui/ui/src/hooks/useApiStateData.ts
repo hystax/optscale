@@ -11,5 +11,5 @@ const apiStateSelector = createSelector(
 );
 
 export const useApiStateData = (label) => ({
-  apiStateData: useShallowEqualSelector((state) => apiStateSelector(state, label))
+  apiStateData: useShallowEqualSelector((state) => apiStateSelector(state, label)),
 });

@@ -21,7 +21,7 @@ const Accordion = ({
 }) => {
   const { classes, cx } = useStyles({
     expandTitleColor,
-    alwaysHighlightTitle
+    alwaysHighlightTitle,
   });
 
   return (

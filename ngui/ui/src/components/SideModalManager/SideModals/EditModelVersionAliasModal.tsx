@@ -6,8 +6,8 @@ class EditModelVersionModal extends BaseSideModal {
     messageId: "manageVersionAliasesTitle",
     dataTestIds: {
       title: "lbl_edit_version_aliases",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_edit_version_aliases";

@@ -12,7 +12,7 @@ export const BOOKING_RELEASE = "booking_release";
 
 export const ACTIONS = Object.freeze({
   [BOOKING_ACQUIRE]: "acquireWebhook",
-  [BOOKING_RELEASE]: "releaseWebhook"
+  [BOOKING_RELEASE]: "releaseWebhook",
 });
 
 const useGet = ({ objectId, objectType }) => {
@@ -25,7 +25,7 @@ const useGet = ({ objectId, objectType }) => {
   const requestParams = useMemo(
     () => ({
       objectId,
-      objectType
+      objectType,
     }),
     [objectId, objectType]
   );
@@ -33,10 +33,10 @@ const useGet = ({ objectId, objectType }) => {
   const {
     isLoading: isGetWebhooksLoading,
     entityId,
-    shouldInvoke
+    shouldInvoke,
   } = useApiState(GET_WEBHOOKS, {
     ...requestParams,
-    organizationId
+    organizationId,
   });
 
   useEffect(() => {

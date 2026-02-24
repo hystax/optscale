@@ -27,19 +27,19 @@ const DeleteMlModelContainer = ({ onCancel, onSuccess, modelId, modelName }: Del
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       dataTestIds={{
         text: "p_delete",
         deleteButton: "btn_smodal_delete",
-        cancelButton: "btn_cancel"
+        cancelButton: "btn_cancel",
       }}
       message={{
         messageId: "deleteModelQuestion",
         values: {
-          name: modelName
-        }
+          name: modelName,
+        },
       }}
     />
   );

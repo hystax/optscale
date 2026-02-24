@@ -5,7 +5,7 @@ import useStyles from "./ContentBackdrop.styles";
 
 const ContentBackdrop = ({ children, bannerContent, bannerMaxWidth, icon }) => {
   const { classes } = useStyles({
-    bannerMaxWidth
+    bannerMaxWidth,
   });
 
   return (

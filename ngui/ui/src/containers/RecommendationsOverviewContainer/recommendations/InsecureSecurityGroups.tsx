@@ -10,7 +10,7 @@ import {
   AWS_EC2_VPC,
   AZURE_NETWORK,
   GCP_COMPUTE_ENGINE,
-  NEBIUS_SERVICE
+  NEBIUS_SERVICE,
 } from "hooks/useRecommendationServices";
 import { detectedAt, openPorts, resource, resourceLocation } from "utils/columns";
 import { AWS_CNR, AZURE_CNR, GCP_CNR, NEBIUS } from "utils/constants";
@@ -18,10 +18,10 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_sg_resource"
+    headerDataTestId: "lbl_sg_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_sg_location"
+    headerDataTestId: "lbl_sg_location",
   }),
   {
     header: (
@@ -29,13 +29,13 @@ const columns = [
         <FormattedMessage id="securityGroup" />
       </TextWithDataTestId>
     ),
-    accessorKey: "security_group_name"
+    accessorKey: "security_group_name",
   },
   openPorts({
     accessorKey: "insecure_ports",
-    headerDataTestId: "lbl_sg_open_ports"
+    headerDataTestId: "lbl_sg_open_ports",
   }),
-  detectedAt({ headerDataTestId: "lbl_sg_detected_at" })
+  detectedAt({ headerDataTestId: "lbl_sg_detected_at" }),
 ];
 
 class InsecureSecurityGroups extends BaseRecommendation {
@@ -87,8 +87,8 @@ class InsecureSecurityGroups extends BaseRecommendation {
               isBoldValue={false}
             />
           </Stack>
-        )
-      }
+        ),
+      },
     ]);
   }
 

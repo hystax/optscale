@@ -19,8 +19,8 @@ import { FormValues } from "../types";
 const {
   DATASETS_COVERAGE_ARRAY_FIELD_NAMES: {
     NAME: FIELD_NAME,
-    ARRAY_FIELD_NAMES: { DATASET_LABEL, LAST_DATASETS_COVERED }
-  }
+    ARRAY_FIELD_NAMES: { DATASET_LABEL, LAST_DATASETS_COVERED },
+  },
 } = FIELD_NAMES;
 
 const filter = createFilterOptions();
@@ -30,7 +30,7 @@ const MAX_DATASETS_COVERED = 100;
 const LastDatasetsCoveredInput = ({ index }) => {
   const {
     formState: { isSubmitted },
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   return (
@@ -55,7 +55,7 @@ const DatasetLabelSelect = ({ index, labels, selectorsCount }) => {
   const {
     control,
     formState: { errors, isSubmitted },
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   const fieldName = `${FIELD_NAME}.${index}.${DATASET_LABEL}`;
@@ -75,8 +75,8 @@ const DatasetLabelSelect = ({ index, labels, selectorsCount }) => {
             return selectedLabels.filter((label) => label === value).length <= 1
               ? true
               : intl.formatMessage({ id: "entitiesMustBeUnique" }, { name: intl.formatMessage({ id: "datasetLabels" }) });
-          }
-        }
+          },
+        },
       }}
       render={({ field: { value: datasetLabel, onChange } }) => (
         <Autocomplete
@@ -103,7 +103,7 @@ const DatasetLabelSelect = ({ index, labels, selectorsCount }) => {
             if (inputValue !== "" && !isExisting) {
               filtered.push({
                 inputValue,
-                title: `${intl.formatMessage({ id: "add" })} ${inputValue}`
+                title: `${intl.formatMessage({ id: "add" })} ${inputValue}`,
               });
             }
 
@@ -140,13 +140,13 @@ const DatasetLabelsCoverageField = ({ labels = [], isLoading = false }) => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: FIELD_NAME
+    name: FIELD_NAME,
   });
 
   const onAppend = () =>
     append({
       [DATASET_LABEL]: "",
-      [LAST_DATASETS_COVERED]: ""
+      [LAST_DATASETS_COVERED]: "",
     });
 
   return isLoading ? (
@@ -175,7 +175,7 @@ const DatasetLabelsCoverageField = ({ labels = [], isLoading = false }) => {
                     onClick={() => remove(index)}
                     tooltip={{
                       show: true,
-                      value: <FormattedMessage id="delete" />
+                      value: <FormattedMessage id="delete" />,
                     }}
                     dataTestId={`btn_delete_restriction_${index}`}
                   />

@@ -14,7 +14,7 @@ const name = ({ captionAccessor, headerDataTestId, accessorKey = "name", enableT
     <CaptionedCell caption={original[captionAccessor]} enableTextCopy={enableTextCopy}>
       <strong>{cell.getValue()}</strong>
     </CaptionedCell>
-  )
+  ),
 });
 
 export default name;

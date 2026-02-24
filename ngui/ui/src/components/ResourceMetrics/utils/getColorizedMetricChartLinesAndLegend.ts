@@ -4,12 +4,12 @@ const colorizeChartLinesAndLegend = (linesAndMarkers, colors) =>
     return {
       line: {
         ...line,
-        color
+        color,
       },
       marker: {
         ...marker,
-        color
-      }
+        color,
+      },
     };
   });
 
@@ -21,7 +21,7 @@ const getColorizedMetricChartLinesAndLegend = (linesWithMarkers, colors) => {
 
   return {
     lines: getLines(colorizedLinesAndLegend),
-    legend: getMarkers(colorizedLinesAndLegend)
+    legend: getMarkers(colorizedLinesAndLegend),
   };
 };
 

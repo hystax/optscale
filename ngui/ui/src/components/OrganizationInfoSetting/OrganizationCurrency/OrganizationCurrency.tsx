@@ -36,7 +36,7 @@ const OrganizationCurrency = () => {
           onClick={enableEditMode}
           tooltip={{
             show: true,
-            messageId: "edit"
+            messageId: "edit",
           }}
         />
       ) : null}

@@ -10,8 +10,8 @@ class LeaderboardCandidateDetailsModal extends BaseSideModal {
       showExpand: true,
       dataTestIds: {
         title: "lbl_candidate_details_title",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

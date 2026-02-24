@@ -13,7 +13,7 @@ const EnvironmentCostModel = ({ resourceId, hourlyPrice, isLoadingProps = {} }) 
   const isManageResourcesAllowed = useIsAllowed({
     entityType: SCOPE_TYPES.RESOURCE,
     entityId: resourceId,
-    requiredActions: ["MANAGE_RESOURCES"]
+    requiredActions: ["MANAGE_RESOURCES"],
   });
 
   const openSideModal = useOpenSideModal();
@@ -28,7 +28,7 @@ const EnvironmentCostModel = ({ resourceId, hourlyPrice, isLoadingProps = {} }) 
           onClick={() => openSideModal(EnvironmentCostModelModal, { resourceId, hourlyPrice })}
           tooltip={{
             show: true,
-            messageId: "edit"
+            messageId: "edit",
           }}
         />
       )}

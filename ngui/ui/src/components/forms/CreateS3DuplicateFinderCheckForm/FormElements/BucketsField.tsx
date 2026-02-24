@@ -18,7 +18,7 @@ const MAX_SELECTED_BUCKETS = 100;
 
 const VALIDATION_TYPE = {
   AT_LEAST_ONE_SELECTED: "atLeastOneSelected",
-  MAX_BUCKETS: "maxBuckets"
+  MAX_BUCKETS: "maxBuckets",
 } as const;
 
 const TableField = ({ buckets, value, dataSources, onChange }) => {
@@ -28,7 +28,7 @@ const TableField = ({ buckets, value, dataSources, onChange }) => {
         const dataSource = dataSources.find(({ id }) => id === bucket.cloud_account_id);
         return {
           ...bucket,
-          cloud_account_type: dataSource?.type
+          cloud_account_type: dataSource?.type,
         };
       }),
     [buckets, dataSources]
@@ -45,15 +45,15 @@ const TableField = ({ buckets, value, dataSources, onChange }) => {
             disableLink
             cloudResourceIdentifier={getCloudResourceIdentifier({
               cloud_resource_id: bucket.cloud_resource_id,
-              cloud_resource_hash: bucket.cloud_resource_hash
+              cloud_resource_hash: bucket.cloud_resource_hash,
             })}
           />
-        )
+        ),
       },
       resourceLocation({
         headerDataTestId: "lbl_region",
-        typeAccessor: "cloud_account_type"
-      })
+        typeAccessor: "cloud_account_type",
+      }),
     ],
     []
   );
@@ -72,7 +72,7 @@ const TableField = ({ buckets, value, dataSources, onChange }) => {
       pageSize={10}
       enablePaginationQueryParam={false}
       localization={{
-        emptyMessageId: "noBuckets"
+        emptyMessageId: "noBuckets",
       }}
     />
   );
@@ -84,7 +84,7 @@ const BucketsField = ({ buckets, dataSources, isLoading }) => {
   const {
     formState: { errors },
     watch,
-    trigger
+    trigger,
   } = useFormContext<FormValues>();
 
   const selectedBuckets = watch(FIELD_NAME);
@@ -107,7 +107,7 @@ const BucketsField = ({ buckets, dataSources, isLoading }) => {
             [VALIDATION_TYPE.AT_LEAST_ONE_SELECTED]: (value) =>
               isEmptyObject(value)
                 ? intl.formatMessage({
-                    id: "atLeastOneBucketMustBeSelected"
+                    id: "atLeastOneBucketMustBeSelected",
                   })
                 : true,
             [VALIDATION_TYPE.MAX_BUCKETS]: (value) => {
@@ -115,15 +115,15 @@ const BucketsField = ({ buckets, dataSources, isLoading }) => {
               return bucketsCount > MAX_SELECTED_BUCKETS
                 ? intl.formatMessage(
                     {
-                      id: "maxNBucketsCanBeSelected"
+                      id: "maxNBucketsCanBeSelected",
                     },
                     {
-                      value: MAX_SELECTED_BUCKETS
+                      value: MAX_SELECTED_BUCKETS,
                     }
                   )
                 : true;
-            }
-          }
+            },
+          },
         }}
         render={({ field: { value, onChange } }) =>
           isLoading ? (

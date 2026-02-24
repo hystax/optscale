@@ -14,7 +14,7 @@ const migrations = {
     const secondsRanges = objectMap(state[RANGE_DATES], (range) => objectMap(range, (value) => millisecondsToSeconds(value)));
     return {
       ...state,
-      [RANGE_DATES]: secondsRanges
+      [RANGE_DATES]: secondsRanges,
     };
   },
   3: (state) => {
@@ -30,9 +30,9 @@ const migrations = {
       tours: {
         ...state.tours,
         productTour: {
-          ...productTour
-        }
-      }
+          ...productTour,
+        },
+      },
     };
   },
   5: (state) => {
@@ -41,7 +41,7 @@ const migrations = {
     const closedAlertsIds = singleIdState ? [{ id: singleIdState, closed: true }] : [];
     return {
       ...state,
-      topAlertClose: closedAlertsIds
+      topAlertClose: closedAlertsIds,
     };
   },
   6: (state) => {
@@ -51,37 +51,37 @@ const migrations = {
     );
     return {
       ...state,
-      topAlertClose: patchedData
+      topAlertClose: patchedData,
     };
   },
   7: (state) => {
     const { topAlertClose, ...restState } = state;
     return {
       ...restState,
-      alerts: {}
+      alerts: {},
     };
   },
   8: (state) => ({
     ...state,
-    [IS_EXISTING_USER]: true
+    [IS_EXISTING_USER]: true,
   }),
   9: (state) => {
     const newAlerts = Object.fromEntries(
       Object.entries(state.alerts).map(([orgId, payload]) => [
         orgId,
         // AVAILABLE_FOR_PRIVATE_DEPLOYMENT = 1
-        payload.filter(({ id }) => id !== 1)
+        payload.filter(({ id }) => id !== 1),
       ])
     );
 
     return {
       ...state,
-      alerts: newAlerts
+      alerts: newAlerts,
     };
   },
   10: (state) => ({
     ...state,
-    [COLLAPSED_MENU_ITEMS]: [...new Set([...(state[COLLAPSED_MENU_ITEMS] || []), MAIN_MENU_SECTION_IDS.SANDBOX])]
+    [COLLAPSED_MENU_ITEMS]: [...new Set([...(state[COLLAPSED_MENU_ITEMS] || []), MAIN_MENU_SECTION_IDS.SANDBOX])],
   }),
   13: (state) => {
     const { modelBreakdown, ...restState } = state;
@@ -92,14 +92,14 @@ const migrations = {
           taskId,
           {
             ...payload,
-            runs_breakdown: payload.model_runs
-          }
+            runs_breakdown: payload.model_runs,
+          },
         ])
       );
 
     return {
       ...restState,
-      taskBreakdown: getTaskRunsBreakdown()
+      taskBreakdown: getTaskRunsBreakdown(),
     };
   },
   14: (state) => {
@@ -113,15 +113,15 @@ const migrations = {
           taskId,
           {
             ...restPayload,
-            leaderboard_id: leaderboardId
-          }
+            leaderboard_id: leaderboardId,
+          },
         ];
       })
     );
 
     return {
       ...restState,
-      taskBreakdown: updatedTaskBreakdown
+      taskBreakdown: updatedTaskBreakdown,
     };
   },
   15: (state) => {
@@ -129,15 +129,15 @@ const migrations = {
       Object.entries(state.alerts).map(([orgId, payload]) => [
         orgId,
         // MLOPS_REMOVAL_ANNOUNCEMENT = 6
-        payload.filter(({ id }) => id !== 6)
+        payload.filter(({ id }) => id !== 6),
       ])
     );
 
     return {
       ...state,
-      alerts: newAlerts
+      alerts: newAlerts,
     };
-  }
+  },
 };
 
 export default migrations;

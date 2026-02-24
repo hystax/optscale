@@ -3,7 +3,7 @@ import { useMeasure } from "@nivo/core";
 
 export const TOOLTIP_ANCHOR = Object.freeze({
   LEFT: "left",
-  RIGHT: "right"
+  RIGHT: "right",
 });
 
 type SliceTooltipProps = {
@@ -38,7 +38,7 @@ const getTooltipTopLeftCornerCoordinates = (
 
   return {
     x,
-    y
+    y,
   };
 };
 
@@ -76,7 +76,7 @@ const SliceTooltip = ({ chartWrapperWidth, mousePosition, anchor, children }: Sl
         left:
           tooltipTopLeftCornerXCoordinate + getXOffset(tooltipTopLeftCornerXCoordinate, tooltipBounds.width, chartWrapperWidth),
         top: tooltipTopLeftCornerYCoordinate,
-        maxWidth: chartWrapperWidth
+        maxWidth: chartWrapperWidth,
       }}
     >
       {children}

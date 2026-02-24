@@ -9,8 +9,8 @@ export const FIELD_NAMES = Object.freeze({
     FIELD_NAME: "triggers",
     TIME: "time",
     MERIDIEM: "meridiem",
-    ACTION: "action"
-  })
+    ACTION: "action",
+  }),
 });
 
 export const TIME_VALUES = generateDayHours({ stepMinutes: 15 });

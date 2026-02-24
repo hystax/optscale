@@ -7,8 +7,8 @@ class DisconnectGoogleCalendarModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_disconnect",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_disconnect_google_calendar";

@@ -30,11 +30,11 @@ const Popover = ({ children, popoverContent, popoverId, onClose }) => {
         onClose={handleClose}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "center"
+          horizontal: "center",
         }}
         transformOrigin={{
           vertical: "top",
-          horizontal: "center"
+          horizontal: "center",
         }}
       >
         {popoverContent}

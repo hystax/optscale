@@ -8,8 +8,8 @@ const Employees = ({ employees, isLoading }) => (
       data={{
         title: {
           messageId: "users",
-          dataTestId: "lbl_users"
-        }
+          dataTestId: "lbl_users",
+        },
       }}
     />
     <PageContentWrapper>

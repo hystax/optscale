@@ -12,10 +12,10 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_vna_resource"
+    headerDataTestId: "lbl_vna_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_vna_location"
+    headerDataTestId: "lbl_vna_location",
   }),
   {
     header: (
@@ -30,7 +30,7 @@ const columns = [
       const value = cell.getValue();
 
       return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value, EN_FULL_FORMAT);
-    }
+    },
   },
   detectedAt({ headerDataTestId: "lbl_vna_detected_at" }),
   {
@@ -44,12 +44,12 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
-    }
+    },
   },
   possibleMonthlySavings({
     headerDataTestId: "lbl_vna_possible_monthly_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class VolumesNotAttachedForLongTime extends BaseRecommendation {
@@ -88,12 +88,12 @@ class VolumesNotAttachedForLongTime extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

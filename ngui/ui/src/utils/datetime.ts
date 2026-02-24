@@ -50,7 +50,7 @@ import {
   roundToNearestMinutes,
   parse,
   subHours,
-  differenceInMinutes
+  differenceInMinutes,
 } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { objectMap } from "./objects";
@@ -217,7 +217,7 @@ export const getLastWeekRange = (isUtc = true) => {
   return objectMap(
     {
       lastWeekStart,
-      lastWeekEnd
+      lastWeekEnd,
     },
     millisecondsToSeconds
   );
@@ -232,7 +232,7 @@ export const getCurrentMonthRange = (isUtc = true) => {
 
   return {
     today: millisecondsToSeconds(performDateTimeFunction(endOfDay, isUtc, today)),
-    startOfMonth: millisecondsToSeconds(performDateTimeFunction(startOfMonth, isUtc, today))
+    startOfMonth: millisecondsToSeconds(performDateTimeFunction(startOfMonth, isUtc, today)),
   };
 };
 
@@ -242,7 +242,7 @@ export const getXDaysAgoRange = (isUtc, daysCount) => {
 
   return {
     end: millisecondsToSeconds(performDateTimeFunction(endOfDay, isUtc, today)),
-    start: millisecondsToSeconds(performDateTimeFunction(startOfDay, isUtc, xDaysAgo))
+    start: millisecondsToSeconds(performDateTimeFunction(startOfDay, isUtc, xDaysAgo)),
   };
 };
 
@@ -268,7 +268,7 @@ export const getRangeAroundDay = (dateSecondsTimestamp, radius = 1, isUtc = true
 
   return {
     startDate,
-    endDate
+    endDate,
   };
 };
 
@@ -292,7 +292,7 @@ export const getMonthRange = (anyMonthDaySecondsTimestamp, isUtc = true) => {
 
   return {
     startDate,
-    endDate
+    endDate,
   };
 };
 
@@ -315,7 +315,7 @@ export const getRangeToToday = (startSecondsTimestamp, isUtc = true) => {
 
   return {
     startDate,
-    endDate
+    endDate,
   };
 };
 
@@ -325,7 +325,7 @@ export const getLast30DaysRange = () => {
 
   return {
     endDate: millisecondsToSeconds(endOfDay(today)),
-    startDate: millisecondsToSeconds(startOfDay(start))
+    startDate: millisecondsToSeconds(startOfDay(start)),
   };
 };
 
@@ -342,7 +342,7 @@ export const getLastMonthRange = (isUtc = true) => {
   return objectMap(
     {
       start: startOfPreviousMonth,
-      end: endOfPreviousMonth
+      end: endOfPreviousMonth,
     },
     millisecondsToSeconds
   );
@@ -415,7 +415,7 @@ export const fitDateIntoInterval = ({ minDate, maxDate, date }) => Math.min(Math
 
 export const fitRangeIntoInterval = ({ minDate, maxDate }, { startDate, endDate }) => ({
   startDate: startDate ? fitDateIntoInterval({ minDate, maxDate, date: startDate }) : startDate,
-  endDate: endDate ? fitDateIntoInterval({ minDate, maxDate, date: endDate }) : endDate
+  endDate: endDate ? fitDateIntoInterval({ minDate, maxDate, date: endDate }) : endDate,
 });
 
 export const formatRangeToShortNotation = (startDateTimestamp, endDateTimestamp, showInUTC = true) => {
@@ -457,7 +457,7 @@ export const INTERVAL_DURATION_VALUE_TYPES = Object.freeze({
   HOURS: "hours",
   MINUTES: "minutes",
   SECONDS: "seconds",
-  MILLISECONDS: "milliseconds"
+  MILLISECONDS: "milliseconds",
 });
 
 export const intervalToDuration = ({ start, end }) => {
@@ -484,7 +484,7 @@ export const intervalToDuration = ({ start, end }) => {
     [INTERVAL_DURATION_VALUE_TYPES.HOURS]: hours,
     [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: minutes,
     [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: seconds,
-    [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: delta
+    [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: delta,
   };
 };
 
@@ -504,7 +504,7 @@ export const formatIntervalDuration = ({
   formatTo = Object.values(INTERVAL_DURATION_VALUE_TYPES),
   precision = 2,
   compact = false,
-  intlFormatter
+  intlFormatter,
 }) => {
   const timeFrames = formatTo.filter((type) => Boolean(duration[type])).slice(0, precision);
 
@@ -544,11 +544,11 @@ export const formatIntervalTimeAgo = ({ agoSecondsTimestamp, precision, intlForm
       INTERVAL_DURATION_VALUE_TYPES.DAYS,
       INTERVAL_DURATION_VALUE_TYPES.HOURS,
       INTERVAL_DURATION_VALUE_TYPES.MINUTES,
-      INTERVAL_DURATION_VALUE_TYPES.SECONDS
+      INTERVAL_DURATION_VALUE_TYPES.SECONDS,
     ],
     duration,
     precision,
-    intlFormatter
+    intlFormatter,
   });
 
   return `${agoIntervalString} ${intlFormatter.formatMessage({ id: "ago" })}`;
@@ -656,7 +656,7 @@ const convertSecondsToMinutes = (seconds) => seconds / SECONDS_IN_MINUTE;
 const formatTimeString = ({
   timeString,
   timeStringFormat,
-  parsedTimeStringFormat
+  parsedTimeStringFormat,
 }: {
   timeString: string;
   timeStringFormat: string;
@@ -703,7 +703,7 @@ const generateDayHours = ({ stepMinutes, clockFormat = "12" }: { stepMinutes: nu
 
 const MERIDIEM_NAMES = Object.freeze({
   AM: "AM",
-  PM: "PM"
+  PM: "PM",
 });
 
 const minutesFromStartOfDay = (dateString: string, formatString: string) => {
@@ -766,5 +766,5 @@ export {
   generateDayHours,
   minutesFromStartOfDay,
   differenceInMinutes,
-  MERIDIEM_NAMES
+  MERIDIEM_NAMES,
 };

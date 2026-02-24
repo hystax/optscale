@@ -35,7 +35,7 @@ const ChartTooltip = ({ bandData, renderTooltipBody, barsCount }) => {
         transform: `translate(${x}px, ${y}px)`,
         // Without this style rule, the tooltip wraps the text incorrectly when isLeftHalf is true.
         // For the bars on the right everything is displayed correctly.
-        width: "max-content"
+        width: "max-content",
       }}
     >
       <Typography
@@ -46,7 +46,7 @@ const ChartTooltip = ({ bandData, renderTooltipBody, barsCount }) => {
           paddingTop: theme.spacing(0.5),
           paddingBottom: theme.spacing(0.5),
           paddingLeft: theme.spacing(1),
-          paddingRight: theme.spacing(1)
+          paddingRight: theme.spacing(1),
         })}
         component="div"
       >

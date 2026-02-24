@@ -11,7 +11,7 @@ const UpdateCostModelWarning = ({ costModelType, dataTestId }) => {
         id="costModelFormWarning"
         values={{
           break: <br />,
-          costModelType
+          costModelType,
         }}
       />
     </Typography>

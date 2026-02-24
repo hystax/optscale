@@ -5,7 +5,7 @@ export const useExpensesBreakdownRequestParams = ({ filterBy, startDateTimestamp
   const [requestParams, setRequestParams] = useState({
     filterBy,
     startDate: startDateTimestamp,
-    endDate: endDateTimestamp
+    endDate: endDateTimestamp,
   });
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export const useExpensesBreakdownRequestParams = ({ filterBy, startDateTimestamp
     const params = {
       ...requestParams,
       startDate: msStartDate,
-      endDate: msEndDate
+      endDate: msEndDate,
     };
     setRequestParams(params);
   };

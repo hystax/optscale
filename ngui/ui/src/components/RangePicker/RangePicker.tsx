@@ -11,7 +11,7 @@ import {
   fitRangeIntoInterval,
   formatRangeToShortNotation,
   millisecondsToSeconds,
-  secondsToMilliseconds
+  secondsToMilliseconds,
 } from "utils/datetime";
 import { objectMap } from "utils/objects";
 
@@ -25,7 +25,7 @@ const RangePicker = ({
   fullWidth = false,
   isUtc = true,
   minTimestamp = getMinPickerDateSec(isUtc),
-  maxTimestamp = getMaxPickerDateSec(isUtc)
+  maxTimestamp = getMaxPickerDateSec(isUtc),
 }) => {
   const intl = useIntl();
 
@@ -93,7 +93,7 @@ const RangePicker = ({
               size="small"
               edge="end"
               style={{ marginRight: "-11px" }}
-              dataTestId={"btn_select_date"}
+              dataTestId="btn_select_date"
             />
           }
           helperText={validation.helperText}
@@ -111,8 +111,8 @@ const RangePicker = ({
           variant: "contained",
           onClick: onApplyWrapper,
           closable: true,
-          dataTestId: "btn_apply_date"
-        }
+          dataTestId: "btn_apply_date",
+        },
       ]}
       handleClose={onClose}
       rightLabelPosition

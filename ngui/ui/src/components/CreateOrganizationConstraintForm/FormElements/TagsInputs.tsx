@@ -30,7 +30,7 @@ const AutocompleteInput = ({ labelMessageId, fieldName, tags, required = false }
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const sortedTags = tags.toSorted();
@@ -42,15 +42,15 @@ const AutocompleteInput = ({ labelMessageId, fieldName, tags, required = false }
       rules={{
         required: {
           value: required,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         maxLength: {
           value: TAG_KEY_MAX_SIZE,
           message: intl.formatMessage(
             { id: "maxLength" },
             { inputName: intl.formatMessage({ id: "value" }), max: TAG_KEY_MAX_SIZE }
-          )
-        }
+          ),
+        },
       }}
       render={({ field: { value: formFieldValue, onChange, ...rest } }) => (
         <Autocomplete
@@ -92,7 +92,7 @@ const TagsInputs = () => {
   const buttons = [TYPE_REQUIRED, TYPE_PROHIBITED, TYPE_CORRELATION].map((strategy) => ({
     id: strategy,
     messageId: strategy,
-    dataTestId: `tags_strategy_${strategy}`
+    dataTestId: `tags_strategy_${strategy}`,
   }));
 
   const { useGet } = AvailableFiltersService();
@@ -101,11 +101,11 @@ const TagsInputs = () => {
 
     return {
       startDate,
-      endDate
+      endDate,
     };
   }, []);
   const {
-    filters: { tag = [] }
+    filters: { tag = [] },
   } = useGet(params);
 
   return (

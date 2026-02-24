@@ -15,7 +15,7 @@ const Circle = forwardRef((props, ref) => {
       sx={{
         marginRight: theme.spacing(mr),
         marginLeft: theme.spacing(ml),
-        color: circleColor
+        color: circleColor,
       }}
       fontSize="inherit"
       {...rest}

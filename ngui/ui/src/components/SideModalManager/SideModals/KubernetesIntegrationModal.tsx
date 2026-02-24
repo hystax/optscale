@@ -7,8 +7,8 @@ class KubernetesIntegrationModal extends BaseSideModal {
     color: "primary",
     dataTestIds: {
       title: "lbl_kubernetes_integration",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_kubernetes_integration";

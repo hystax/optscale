@@ -1,19 +1,19 @@
+import http from "http";
+import path from "path";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import express from "express";
-import http from "http";
 import cors from "cors";
-import path from "path";
 import bodyParser from "body-parser";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import expressRateLimit from "express-rate-limit";
 import checkEnvironment from "./checkEnvironment.js";
 import KeeperClient from "./api/keeper/client.js";
 import SlackerClient from "./api/slacker/client.js";
 import RestApiClient from "./api/restapi/client.js";
 import AuthClient from "./api/auth/client.js";
 import { schema } from "./graphql/schema.js";
-import rateLimit from "express-rate-limit";
 
 if (process.env.NODE_ENV === "development") {
   const dotenv = await import("dotenv");
@@ -42,7 +42,7 @@ export interface ContextValue {
 
 const server = new ApolloServer<ContextValue>({
   schema,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
 // Ensure we wait for our server to start
@@ -69,10 +69,10 @@ app.use(
           keeper: new KeeperClient({ cache }, token, "http://keeper"),
           slacker: new SlackerClient({ cache }, token, "http://slacker"),
           restapi: new RestApiClient({ cache }, token, "http://restapi"),
-          auth: new AuthClient({ cache }, token, "http://auth")
-        }
+          auth: new AuthClient({ cache }, token, "http://auth"),
+        },
       };
-    }
+    },
   })
 );
 
@@ -80,7 +80,7 @@ app.use(
 const proxyMiddleware = createProxyMiddleware({
   target: process.env.PROXY_URL,
   changeOrigin: true,
-  secure: false
+  secure: false,
 });
 
 app.use("/auth", proxyMiddleware);
@@ -99,9 +99,9 @@ const staticDir = path.join(UI_BUILD_PATH, UI_BUILD_DIR);
 
 app.use(express.static(staticDir, { index: false }));
 
-const indexLimiter = rateLimit({
+const indexLimiter = expressRateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500
+  max: 500,
 });
 
 app.get("*", indexLimiter, (_, res) => res.sendFile(path.join(staticDir, "index.html")));

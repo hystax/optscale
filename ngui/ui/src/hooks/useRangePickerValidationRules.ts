@@ -9,14 +9,14 @@ import {
   secondsToMilliseconds,
   getMaxPickerDateSec,
   getMinPickerDateSec,
-  performDateTimeFunction
+  performDateTimeFunction,
 } from "utils/datetime";
 
 export const useRangePickerValidationRules = ({
   startDatePickerName = START_DATE_PICKER_NAME,
   endDatePickerName = END_DATE_PICKER_NAME,
   formValuesGetter,
-  isUtc = true
+  isUtc = true,
 }) => {
   const intl = useIntl();
 
@@ -51,7 +51,7 @@ export const useRangePickerValidationRules = ({
           return intl.formatMessage({ id: "startDateMustNotBeInTheFuture" });
         }
         return true;
-      }
+      },
     }),
     [endDatePickerName, formValuesGetter, intl, isUtc]
   );
@@ -77,13 +77,13 @@ export const useRangePickerValidationRules = ({
           return intl.formatMessage({ id: "endDateMustBeGreaterThanStartTime" });
         }
         return true;
-      }
+      },
     }),
     [formValuesGetter, intl, startDatePickerName, isUtc]
   );
 
   return {
     startDateValidationRules,
-    endDateValidationRules
+    endDateValidationRules,
   };
 };

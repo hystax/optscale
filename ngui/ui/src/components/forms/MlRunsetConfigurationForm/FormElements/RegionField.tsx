@@ -16,7 +16,7 @@ const RegionField = ({ regions, isLoading = false }) => (
     isLoading={isLoading}
     items={regions.map(({ name, cloud_type: dataSourceType }) => ({
       value: name,
-      content: <ItemContentWithDataSourceIcon dataSourceType={dataSourceType}>{name}</ItemContentWithDataSourceIcon>
+      content: <ItemContentWithDataSourceIcon dataSourceType={dataSourceType}>{name}</ItemContentWithDataSourceIcon>,
     }))}
   />
 );

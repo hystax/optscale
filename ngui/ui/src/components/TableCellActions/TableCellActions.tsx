@@ -19,7 +19,7 @@ const renderActions = (items, allowedItems, isGetAllowedActionsLoading) => {
       tooltip={
         item.tooltip ?? {
           show: true,
-          value: <FormattedMessage id={item.messageId} />
+          value: <FormattedMessage id={item.messageId} />,
         }
       }
     />
@@ -38,7 +38,7 @@ const TableCellActions = ({ items, entityId, entityType }) => {
   return (
     <div
       style={{
-        display: "flex"
+        display: "flex",
       }}
     >
       {renderActions(items, allowedItems, isGetAllowedActionsLoading)}

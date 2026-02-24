@@ -8,21 +8,21 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_ai_resource"
+    headerDataTestId: "lbl_ai_resource",
   }),
   resourceLocation({
     headerDataTestId: "lbl_ai_location",
-    typeAccessor: "cloud_type"
+    typeAccessor: "cloud_type",
   }),
   poolOwner({
     headerDataTestId: "lbl_ai_pool_owner",
-    id: "pool/owner"
+    id: "pool/owner",
   }),
   detectedAt({ headerDataTestId: "lbl_ai_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_ai_possible_monthly_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class AbandonedInstances extends BaseRecommendation {
@@ -38,7 +38,7 @@ class AbandonedInstances extends BaseRecommendation {
     const {
       days_threshold: daysThreshold,
       cpu_percent_threshold: cpuPercentThreshold,
-      network_bps_threshold: networkBpsThreshold
+      network_bps_threshold: networkBpsThreshold,
     } = this.options;
 
     return { cpuPercentThreshold, networkBpsThreshold, daysThreshold };
@@ -64,12 +64,12 @@ class AbandonedInstances extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

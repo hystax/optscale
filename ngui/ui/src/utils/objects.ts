@@ -32,7 +32,7 @@ export const sortByValue = <T extends number>(object: Record<string, T>, order: 
 
   const sortFunction = {
     desc: descSortFunction,
-    asc: ascSortFunction
+    asc: ascSortFunction,
   }[order];
 
   return Object.fromEntries(Object.entries(object).sort(sortFunction));

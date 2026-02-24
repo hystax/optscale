@@ -32,7 +32,7 @@ const GenerateLiveDemoContainer = ({ email, subscribeToNewsletter }: GenerateLiv
     onCompleted: (data) => {
       const caveats = macaroon.processCaveats(macaroon.deserialize(data.token.token).getCaveats());
       dispatch(initialize({ ...data.token, caveats }));
-    }
+    },
   });
 
   const retryHandler = () => {

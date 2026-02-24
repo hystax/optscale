@@ -19,18 +19,18 @@ const K8sHelp = ({ dataSourceId, user }: K8sHelpProps) => {
           <Link
             component="button"
             sx={{
-              verticalAlign: "baseline"
+              verticalAlign: "baseline",
             }}
             onClick={() =>
               openSideModal(KubernetesIntegrationModal, {
                 dataSourceId,
-                user
+                user,
               })
             }
           >
             {chunks}
           </Link>
-        )
+        ),
       }}
     />
   );

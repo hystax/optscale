@@ -26,7 +26,7 @@ import {
   RegionField,
   SpotInstanceFields,
   ImageField,
-  VirtualEnvironmentPathField
+  VirtualEnvironmentPathField,
 } from "./FormElements";
 import { FormValues } from "./types";
 import { getDefaultValues, getHyperparameterFieldName } from "./utils";
@@ -52,7 +52,7 @@ const FillFromLastRun = ({ latestRunset, hyperparameters, dataSources, tasks, in
   const {
     setValue,
     trigger,
-    formState: { isSubmitted }
+    formState: { isSubmitted },
   } = useFormContext<FormValues>();
 
   if (isLoading) {
@@ -73,7 +73,7 @@ const FillFromLastRun = ({ latestRunset, hyperparameters, dataSources, tasks, in
     instance_size: { type: latestRunsetInstanceType },
     image: latestRunsetImage = "",
     venv: latestRunsetVirtualEnvironmentPath = "",
-    spot_settings: spotSettings = {}
+    spot_settings: spotSettings = {},
   } = latestRunset;
 
   const isKnownTask = () => tasks.find((task) => task.id === latestRunsetTaskId);
@@ -152,7 +152,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
     cloud_accounts: dataSources = [],
     tasks = [],
     instance_types: instanceTypes = [],
-    regions = []
+    regions = [],
   } = runsetTemplate;
 
   const runsetDataSources = dataSources.filter(({ deleted }) => !deleted);
@@ -160,7 +160,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
   const runsetTasks = tasks.filter(({ deleted }) => !deleted);
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { reset, handleSubmit } = methods;
@@ -170,7 +170,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
       ...formValues,
       [HYPERPARAMETERS_FIELD_NAME]: Object.fromEntries(
         Object.values(hyperparameters).map((environmentVariableName) => [environmentVariableName, ""])
-      )
+      ),
     }));
   }, [hyperparameters, reset]);
 
@@ -185,18 +185,18 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
                 {
                   isEnabled: formData[ABORT_CONDITION_MAX_BUDGET_CHECKBOX_FIELD_NAME],
                   name: ML_RUNSET_ABORT_CONDITION_TYPES.MAX_BUDGET,
-                  value: Number(formData[ABORT_CONDITION_MAX_BUDGET_VALUE_FIELD_NAME])
+                  value: Number(formData[ABORT_CONDITION_MAX_BUDGET_VALUE_FIELD_NAME]),
                 },
                 {
                   isEnabled: formData[ABORT_CONDITION_REACHED_GOALS_CHECKBOX_FIELD_NAME],
                   name: ML_RUNSET_ABORT_CONDITION_TYPES.REACHED_GOALS,
-                  value: formData[ABORT_CONDITION_REACHED_GOALS_CHECKBOX_FIELD_NAME]
+                  value: formData[ABORT_CONDITION_REACHED_GOALS_CHECKBOX_FIELD_NAME],
                 },
                 {
                   isEnabled: formData[ABORT_CONDITION_MAX_DURATION_CHECKBOX_FIELD_NAME],
                   name: ML_RUNSET_ABORT_CONDITION_TYPES.MAX_DURATION,
-                  value: convertMinutesToSeconds(Number(formData[ABORT_CONDITION_MAX_DURATION_VALUE_FIELD_NAME]))
-                }
+                  value: convertMinutesToSeconds(Number(formData[ABORT_CONDITION_MAX_DURATION_VALUE_FIELD_NAME])),
+                },
               ]
                 .filter(({ isEnabled }) => isEnabled)
                 .map(({ name: conditionName, value: conditionValue }) => [conditionName, conditionValue])
@@ -222,9 +222,9 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
                   tries: Number(formData[SPOT_INSTANCES_MAX_ATTEMPTS_FIELD_NAME]),
                   spot_price: formData[SPOT_INSTANCES_MAX_PRICE_FIELD_NAME]
                     ? Number(formData[SPOT_INSTANCES_MAX_PRICE_FIELD_NAME])
-                    : undefined
+                    : undefined,
                 }
-              : {}
+              : {},
           };
 
           onSubmit(data);
@@ -293,7 +293,7 @@ const MlRunsetConfigurationForm = ({ runsetTemplate = {}, latestRunset = {}, onS
                       value={"pip install <imports>\nwget <path_to_your_task/task.py>\npython3 task.py"}
                       language="bash"
                     />
-                  )
+                  ),
                 }}
               />
             </div>

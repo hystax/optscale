@@ -33,7 +33,7 @@ const MicrosoftSignInButton = ({ handleSignIn, isLoading, disabled }) => {
       isLoading={isLoading}
       tooltip={{
         show: environmentNotSet,
-        messageId: "signInWithMicrosoftIsNotConfigured"
+        messageId: "signInWithMicrosoftIsNotConfigured",
       }}
     />
   );

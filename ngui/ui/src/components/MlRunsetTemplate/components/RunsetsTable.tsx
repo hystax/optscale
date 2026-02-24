@@ -18,8 +18,8 @@ import { formatRunFullName } from "utils/ml";
 const RunsetNameCell = ({
   cell,
   row: {
-    original: { id, state }
-  }
+    original: { id, state },
+  },
 }) => (
   <CaptionedCell
     caption={
@@ -36,7 +36,7 @@ const RunsetNameCell = ({
                 }
                 textFirst={false}
               />
-            )
+            ),
           }
         : undefined
     }
@@ -58,7 +58,7 @@ const RunsetsTable = ({ runsets, isLoading }) => {
         accessorFn: ({ number, name }) => formatRunFullName(number, name),
         defaultSort: "desc",
         sortingFn: "alphanumeric",
-        cell: ({ cell, row }) => <RunsetNameCell cell={cell} row={row} />
+        cell: ({ cell, row }) => <RunsetNameCell cell={cell} row={row} />,
       },
       {
         header: (
@@ -71,8 +71,8 @@ const RunsetsTable = ({ runsets, isLoading }) => {
         cell: ({
           cell,
           row: {
-            original: { task }
-          }
+            original: { task },
+          },
         }) => {
           const { id, deleted } = task;
 
@@ -83,47 +83,47 @@ const RunsetsTable = ({ runsets, isLoading }) => {
               {cell.getValue()}
             </Link>
           );
-        }
+        },
       },
       startedAt({
         headerMessageId: "startedAt",
         headerDataTestId: "lbl_started_at",
         accessorKey: "created_at",
         options: {
-          enableGlobalFilter: false
-        }
+          enableGlobalFilter: false,
+        },
       }),
       text({
         id: "started_by",
         accessorFn: ({ owner }) => owner?.name,
         headerMessageId: "startedBy",
         headerDataTestId: "lbl_started_by",
-        accessorKey: "started_by"
+        accessorKey: "started_by",
       }),
       duration({
         headerMessageId: "duration",
         headerDataTestId: "lbl_duration",
-        accessorKey: "duration"
+        accessorKey: "duration",
       }),
       text({
         headerMessageId: "configurationsTried",
         headerDataTestId: "lbl_configurations_tried",
-        accessorKey: "runs_count"
+        accessorKey: "runs_count",
       }),
       text({
         headerMessageId: "completedRuns",
         headerDataTestId: "lbl_completed_runs",
-        accessorKey: "succeeded_runs"
+        accessorKey: "succeeded_runs",
       }),
       ...(isFinOpsEnabled
         ? [
             expenses({
               headerDataTestId: "lbl_expenses",
               headerMessageId: "expenses",
-              accessorKey: "cost"
-            })
+              accessorKey: "cost",
+            }),
           ]
-        : [])
+        : []),
     ],
     [isFinOpsEnabled]
   );
@@ -143,7 +143,7 @@ const RunsetsTable = ({ runsets, isLoading }) => {
           data={data}
           pageSize={50}
           localization={{
-            emptyMessageId: "noRunsets"
+            emptyMessageId: "noRunsets",
           }}
         />
       )}

@@ -29,14 +29,14 @@ const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }: Disco
   const { useCreateSurvey } = DataSourcesService();
 
   const [deleteDataSource, { loading: isDisconnectDataSourceLoading }] = useDeleteDataSourceMutation({
-    refetchQueries: [DataSourcesDocument]
+    refetchQueries: [DataSourcesDocument],
   });
 
   const disconnect = () =>
     deleteDataSource({
       variables: {
-        dataSourceId: id
-      }
+        dataSourceId: id,
+      },
     }).then(() => {
       refetch([GET_AVAILABLE_FILTERS]);
       navigate(CLOUD_ACCOUNTS);
@@ -63,7 +63,7 @@ const DisconnectCloudAccountContainer = ({ id, type, parentId, onCancel }: Disco
           const data = {
             reason: isReasonSelected ? getReasonValue(reason) : undefined,
             other: otherReason,
-            capabilities: missingCapabilities
+            capabilities: missingCapabilities,
           };
           createSurvey(DATASOURCE_SURVEY_TYPES.DISCONNECT_LAST_DATA_SOURCE, data).then(disconnect);
         } else {

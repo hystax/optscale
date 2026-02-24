@@ -26,10 +26,10 @@ const PolicyTypeSelector = ({ selectedPool }) => {
               content: (
                 <ItemContent>
                   {intl.formatMessage({
-                    id: CONSTRAINTS_TYPES[constraintType]
+                    id: CONSTRAINTS_TYPES[constraintType],
                   })}
                 </ItemContent>
-              )
+              ),
             }))
           : []
       }

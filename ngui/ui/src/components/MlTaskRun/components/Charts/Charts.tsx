@@ -10,7 +10,7 @@ const Charts = ({
   arceeToken,
   isPublicRun = false,
   isTaskRunLoading = false,
-  isTaskRunDataReady = false
+  isTaskRunDataReady = false,
 }) => {
   const { useGetRunBreakdown } = MlTasksService();
 
@@ -18,7 +18,7 @@ const Charts = ({
 
   const runBreakdownParams = useMemo(
     () => ({
-      arceeToken
+      arceeToken,
     }),
     [arceeToken]
   );
@@ -28,7 +28,7 @@ const Charts = ({
     isDataReady: isGetRunBreakdownDataReady,
     breakdown: apiBreakdown = {},
     milestones: apiMilestones = [],
-    stages: apiStages = []
+    stages: apiStages = [],
   } = useGetRunBreakdown(organizationId, runId, runBreakdownParams);
 
   if (isGetRunBreakdownLoading || !isGetRunBreakdownDataReady || isTaskRunLoading || !isTaskRunDataReady) {

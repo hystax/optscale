@@ -11,12 +11,12 @@ it("renders without crashing", () => {
         chartOptions={{
           data: [
             {
-              data: [{ x: 1 }]
-            }
+              data: [{ x: 1 }],
+            },
           ],
           xScale: vi.fn,
           innerHeight: 10,
-          areaOpacity: 0.1
+          areaOpacity: 0.1,
         }}
         shouldHighlight={vi.fn}
       />

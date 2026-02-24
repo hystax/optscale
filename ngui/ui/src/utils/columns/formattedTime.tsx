@@ -9,7 +9,7 @@ const formattedTime = ({
   headerMessageId,
   headerDataTestId,
   timeStringFormat,
-  parsedTimeStringFormat
+  parsedTimeStringFormat,
 }) => ({
   id,
   accessorKey,
@@ -32,18 +32,18 @@ const formattedTime = ({
     formatTimeString({
       timeString: cell.getValue(),
       timeStringFormat,
-      parsedTimeStringFormat
+      parsedTimeStringFormat,
     }),
   globalFilterFn: (cellValue, filterValue) => {
     const search = filterValue.toLocaleLowerCase();
     const formattedCellValue = formatTimeString({
       timeString: cellValue,
       timeStringFormat,
-      parsedTimeStringFormat
+      parsedTimeStringFormat,
     });
 
     return formattedCellValue.toLocaleLowerCase().includes(search);
-  }
+  },
 });
 
 export default formattedTime;

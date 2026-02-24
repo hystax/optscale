@@ -8,19 +8,19 @@ const useStyles = makeStyles()((theme) => ({
       background: theme.palette.secondary.main,
       color: theme.palette.secondary.contrastText,
       "&:hover": {
-        backgroundColor: theme.palette.secondary.light
-      }
-    }
+        backgroundColor: theme.palette.secondary.light,
+      },
+    },
   },
   right: {
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
   },
   center: {
-    justifyContent: "center"
+    justifyContent: "center",
   },
   left: {
-    justifyContent: "flex-start"
-  }
+    justifyContent: "flex-start",
+  },
 }));
 
 export default useStyles;

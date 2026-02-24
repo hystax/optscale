@@ -31,7 +31,7 @@ const ExpensesLimitLabel = ({ color, value, limit }: { color?: string; value: nu
         id="value / value"
         values={{
           value1: moneyFormatter(FORMATTED_MONEY_TYPES.COMMON, value, { format: CURRENCY.USD }),
-          value2: moneyFormatter(FORMATTED_MONEY_TYPES.COMMON, limit, { format: CURRENCY.USD })
+          value2: moneyFormatter(FORMATTED_MONEY_TYPES.COMMON, limit, { format: CURRENCY.USD }),
         }}
       />
     </Typography>
@@ -40,7 +40,7 @@ const ExpensesLimitLabel = ({ color, value, limit }: { color?: string; value: nu
 
 const ExpensesLimit = ({
   monthExpenses,
-  monthlyExpensesLimit
+  monthlyExpensesLimit,
 }: {
   monthExpenses: Record<string, number>;
   monthlyExpensesLimit: number;
@@ -64,7 +64,7 @@ const ExpensesLimit = ({
       return {
         expenses,
         label: formatMonthLabel(monthKey),
-        isExceeded: expenses > monthlyExpensesLimit
+        isExceeded: expenses > monthlyExpensesLimit,
       };
     });
 
@@ -112,7 +112,7 @@ const ExpensesLimit = ({
                 <FormattedMessage
                   id="monthlyExpensesLimitExceededMessage"
                   values={{
-                    limit: <strong>{moneyFormatter(FORMATTED_MONEY_TYPES.COMMON, monthlyExpensesLimit)}</strong>
+                    limit: <strong>{moneyFormatter(FORMATTED_MONEY_TYPES.COMMON, monthlyExpensesLimit)}</strong>,
                   }}
                 />
               </Typography>
@@ -122,8 +122,8 @@ const ExpensesLimit = ({
                   paddingInlineStart: (theme) => theme.spacing(2),
                   listStyleType: "'-  '",
                   "& > li + li": {
-                    marginTop: (theme) => theme.spacing(0.5)
-                  }
+                    marginTop: (theme) => theme.spacing(0.5),
+                  },
                 }}
               >
                 {monthsExpensesDataArray.map((month) => (

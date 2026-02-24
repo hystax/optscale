@@ -16,7 +16,7 @@ const SizeField = () => {
 
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   return (
@@ -30,20 +30,20 @@ const SizeField = () => {
       {...register(FIELD_NAME, {
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         min: {
           value: 0,
-          message: intl.formatMessage({ id: "moreOrEqual" }, { min: 0 })
+          message: intl.formatMessage({ id: "moreOrEqual" }, { min: 0 }),
         },
         max: {
           value: MAX_INT_32,
-          message: intl.formatMessage({ id: "lessOrEqual" }, { max: MAX_INT_32 })
+          message: intl.formatMessage({ id: "lessOrEqual" }, { max: MAX_INT_32 }),
         },
         validate: {
           whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
-          notOnlyWhiteSpaces
-        }
+          notOnlyWhiteSpaces,
+        },
       })}
       InputProps={{
         endAdornment: (
@@ -52,13 +52,13 @@ const SizeField = () => {
               <FormattedMessage
                 id="digitalUnits"
                 values={{
-                  unit: SI_UNITS.MEGABYTE
+                  unit: SI_UNITS.MEGABYTE,
                 }}
               />
             </Typography>
             <QuestionMark messageId="filesLessThanSizeWillBeIgnored" dataTestId="qmark_min_file_size" />
           </>
-        )
+        ),
       }}
     />
   );

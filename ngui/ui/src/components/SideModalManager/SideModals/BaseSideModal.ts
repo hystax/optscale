@@ -17,7 +17,7 @@ class BaseSideModal {
   // assignment
 
   simpleHeaderPropsData = {
-    messageId: "(empty)"
+    messageId: "(empty)",
   };
 
   get headerProps() {

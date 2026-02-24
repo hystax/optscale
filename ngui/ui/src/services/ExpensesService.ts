@@ -23,7 +23,7 @@ const useGetOrganizationExpenses = () => {
 
   return {
     isLoading,
-    data
+    data,
   };
 };
 

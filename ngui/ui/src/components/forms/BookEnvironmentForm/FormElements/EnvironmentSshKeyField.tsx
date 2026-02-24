@@ -40,14 +40,14 @@ const EnvironmentSshKeyField = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId 
       action: () => setActiveTab(MY_KEYS),
       dataTestId: `tab_${MY_KEYS}`,
       disabled: !userHaveSshKeys,
-      tooltip: !userHaveSshKeys && "youHaveNotCreateAnySshKeys"
+      tooltip: !userHaveSshKeys && "youHaveNotCreateAnySshKeys",
     },
     {
       id: ADD_KEY,
       messageId: ADD_KEY,
       action: () => setActiveTab(ADD_KEY),
-      dataTestId: `tab_${ADD_KEY}`
-    }
+      dataTestId: `tab_${ADD_KEY}`,
+    },
   ];
 
   return !isGetSshKeysReady ? (
@@ -67,7 +67,7 @@ const EnvironmentSshKeyField = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId 
           fullWidth
           items={sshKeys.map(({ id, name, fingerprint }) => ({
             value: id,
-            content: <ItemContent>{`${name} (${fingerprint}) ${defaultKeyId === id ? defaultKeyText : ""}`}</ItemContent>
+            content: <ItemContent>{`${name} (${fingerprint}) ${defaultKeyId === id ? defaultKeyText : ""}`}</ItemContent>,
           }))}
         />
       )}
@@ -76,7 +76,7 @@ const EnvironmentSshKeyField = ({ sshKeys = [], isGetSshKeysReady, defaultKeyId 
           <FormContentDescription
             alertProps={{
               messageId: "sshHint",
-              messageDataTestId: "ssh-hint"
+              messageDataTestId: "ssh-hint",
             }}
           />
           <CreateSshKeyNameField />

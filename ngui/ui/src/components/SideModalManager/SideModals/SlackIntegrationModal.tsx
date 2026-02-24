@@ -11,8 +11,8 @@ class SlackIntegrationModal extends BaseSideModal {
     messageId: "optScaleSlackIntegrationTitle",
     dataTestIds: {
       title: "lbl_connect_slack",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_connect_slack";
@@ -40,7 +40,7 @@ class SlackIntegrationModal extends BaseSideModal {
                 <Link data-test-id="link_read_more" href={DOCS_HYSTAX_SLACK_INTEGRATION} target="_blank" rel="noopener">
                   {chunks}
                 </Link>
-              )
+              ),
             }}
           />
         </Typography>

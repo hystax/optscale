@@ -3,7 +3,7 @@ import FeaturesList from "../FeaturesList";
 
 const featureMessageIds = [
   "billingSubscriptionFeatures.unlimitedMonthlyExpenses",
-  "billingSubscriptionFeatures.24HourSupportSevenDaysAWeek"
+  "billingSubscriptionFeatures.24HourSupportSevenDaysAWeek",
 ] as const;
 
 const ProPlanFeatures = () => (

@@ -42,7 +42,7 @@ const PowerSchedules = ({
   onActivate,
   onDeactivate,
   updatingEntityId,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }: PowerSchedulesProps) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
@@ -51,15 +51,15 @@ const PowerSchedules = ({
   const intl = useIntl();
 
   const isManagePowerScheduleAllowed = useIsAllowed({
-    requiredActions: ["EDIT_PARTNER"]
+    requiredActions: ["EDIT_PARTNER"],
   });
 
   const { isGetPowerSchedulesLoading, isUpdatePowerScheduleLoading } = isLoadingProps;
 
   const actionBarDefinition = {
     title: {
-      messageId: "powerSchedulesTitle"
-    }
+      messageId: "powerSchedulesTitle",
+    },
   };
 
   const tableData = useMemo(() => powerSchedules, [powerSchedules]);
@@ -75,8 +75,8 @@ const PowerSchedules = ({
       cell: ({
         row: {
           original: { id, name, enabled },
-          index
-        }
+          index,
+        },
       }) => (
         <TableCellActions
           items={[
@@ -92,8 +92,8 @@ const PowerSchedules = ({
                   disabled: isRestricted,
                   tooltip: {
                     show: isRestricted,
-                    value: restrictionReasonMessage
-                  }
+                    value: restrictionReasonMessage,
+                  },
                 }
               : {
                   key: "activate",
@@ -106,8 +106,8 @@ const PowerSchedules = ({
                   disabled: isRestricted,
                   tooltip: {
                     show: isRestricted,
-                    value: restrictionReasonMessage
-                  }
+                    value: restrictionReasonMessage,
+                  },
                 },
             {
               key: "deletePowerSchedule",
@@ -117,11 +117,11 @@ const PowerSchedules = ({
               dataTestId: `btn_delete_power_schedule${index}`,
               action: () => {
                 openSideModal(DeletePowerScheduleModal, { id, name });
-              }
-            }
+              },
+            },
           ]}
         />
-      )
+      ),
     });
 
     return [
@@ -131,21 +131,21 @@ const PowerSchedules = ({
         headerMessageId: "name",
         cellDataAccessors: {
           enabled: "enabled",
-          id: "id"
-        }
+          id: "id",
+        },
       }),
       powerScheduleLastRun({
         accessorKey: "last_run",
         headerDataTestId: "lbl_last_execution_time",
         headerMessageId: "lastExecution",
         cellDataAccessors: {
-          lastRunError: "last_run_error"
-        }
+          lastRunError: "last_run_error",
+        },
       }),
       text({
         headerMessageId: "resourcesOnSchedule",
         headerDataTestId: "lbl_number_of_resources_on_schedule",
-        accessorKey: "resources_count"
+        accessorKey: "resources_count",
       }),
       {
         header: (
@@ -163,7 +163,7 @@ const PowerSchedules = ({
               const formattedTime = formatTimeString({
                 timeString: trigger.time,
                 timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-                parsedTimeStringFormat: EN_TIME_FORMAT
+                parsedTimeStringFormat: EN_TIME_FORMAT,
               });
 
               const action =
@@ -191,7 +191,7 @@ const PowerSchedules = ({
                 const formattedTime = formatTimeString({
                   timeString: time,
                   timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-                  parsedTimeStringFormat: EN_TIME_FORMAT
+                  parsedTimeStringFormat: EN_TIME_FORMAT,
                 });
 
                 const isOn = action === POWER_SCHEDULE_ACTIONS.POWER_ON;
@@ -216,18 +216,18 @@ const PowerSchedules = ({
               maxRows={5}
             />
           );
-        }
+        },
       },
       text({
         headerMessageId: "timeZone",
         headerDataTestId: "lbl_time_zone",
-        accessorKey: "timezone"
+        accessorKey: "timezone",
       }),
       powerScheduleValidityPeriod({
         startDateAccessor: "start_date",
-        endDateAccessor: "end_date"
+        endDateAccessor: "end_date",
       }),
-      ...(isManagePowerScheduleAllowed ? [getActionsColumn()] : [])
+      ...(isManagePowerScheduleAllowed ? [getActionsColumn()] : []),
     ];
   }, [
     intl,
@@ -238,7 +238,7 @@ const PowerSchedules = ({
     onDeactivate,
     openSideModal,
     restrictionReasonMessage,
-    updatingEntityId
+    updatingEntityId,
   ]);
 
   return (
@@ -265,10 +265,10 @@ const PowerSchedules = ({
                     variant: "contained",
                     type: "button",
                     requiredActions: ["EDIT_PARTNER"],
-                    action: () => navigate(CREATE_POWER_SCHEDULE)
-                  }
-                ]
-              }
+                    action: () => navigate(CREATE_POWER_SCHEDULE),
+                  },
+                ],
+              },
             }}
             pageSize={50}
           />

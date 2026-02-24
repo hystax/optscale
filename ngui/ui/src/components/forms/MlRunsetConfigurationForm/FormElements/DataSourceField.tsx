@@ -16,7 +16,7 @@ const DataSourceField = ({ dataSources, isLoading = false }) => (
     isLoading={isLoading}
     items={dataSources.map(({ id, name, type }) => ({
       value: id,
-      content: <ItemContentWithDataSourceIcon dataSourceType={type}>{name}</ItemContentWithDataSourceIcon>
+      content: <ItemContentWithDataSourceIcon dataSourceType={type}>{name}</ItemContentWithDataSourceIcon>,
     }))}
   />
 );

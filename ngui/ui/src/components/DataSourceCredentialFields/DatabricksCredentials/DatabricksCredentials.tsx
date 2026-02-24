@@ -5,7 +5,7 @@ import QuestionMark from "components/QuestionMark";
 export const FIELD_NAMES = Object.freeze({
   ACCOUNT_ID: "accountId",
   CLIENT_ID: "clientId",
-  CLIENT_SECRET: "clientSecret"
+  CLIENT_SECRET: "clientSecret",
 });
 
 const DatabricksCredentials = ({ readOnlyFields = [] }) => {
@@ -22,11 +22,11 @@ const DatabricksCredentials = ({ readOnlyFields = [] }) => {
             <QuestionMark
               messageId="databricksAccountIdTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_tenant_id"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="accountId" />}
         dataTestId="input_databricks_account_id"
@@ -39,11 +39,11 @@ const DatabricksCredentials = ({ readOnlyFields = [] }) => {
             <QuestionMark
               messageId="databricksClientIdTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_access_key"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="clientId" />}
         dataTestId="input_databricks_client_id"
@@ -57,11 +57,11 @@ const DatabricksCredentials = ({ readOnlyFields = [] }) => {
             <QuestionMark
               messageId="databricksSecretTooltip"
               messageValues={{
-                i: (chunks) => <i>{chunks}</i>
+                i: (chunks) => <i>{chunks}</i>,
               }}
               dataTestId="qmark_access_key"
             />
-          )
+          ),
         }}
         label={<FormattedMessage id="clientSecret" />}
         autoComplete="off"

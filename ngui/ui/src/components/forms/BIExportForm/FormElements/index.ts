@@ -19,5 +19,5 @@ export {
   S3PrefixField,
   ConnectionStringField,
   ContainerField,
-  FormButtons
+  FormButtons,
 };

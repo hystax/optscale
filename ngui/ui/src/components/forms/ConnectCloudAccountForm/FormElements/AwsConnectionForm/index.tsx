@@ -2,14 +2,14 @@ import { AwsConnectionAccessKeyInputs } from "./AwsConnectionAccessKeyInputs";
 import {
   AuthenticationTypeSelector,
   getAwsConnectionTypeDescriptions,
-  useAuthenticationType
+  useAuthenticationType,
 } from "./AwsConnectionFormElements";
 import {
   AUTHENTICATION_TYPES,
   authenticationTypes,
   awsConnectionAssumedRoleDescriptions,
   awsConnectionKeyAccessDescriptions,
-  AWS_ROOT_INPUTS_FIELD_NAMES
+  AWS_ROOT_INPUTS_FIELD_NAMES,
 } from "./constants";
 import { AuthenticationType } from "./types";
 
@@ -22,6 +22,6 @@ export {
   getAwsConnectionTypeDescriptions,
   useAuthenticationType,
   AuthenticationTypeSelector,
-  AwsConnectionAccessKeyInputs
+  AwsConnectionAccessKeyInputs,
 };
 export type { AuthenticationType };

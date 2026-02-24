@@ -35,5 +35,5 @@ export const createLiveDemoSelectors = (getState: getStateFn): LiveDemoSelectors
   getIsAlive: (): boolean => getStateField(getState, "is_alive", false),
   getOrganizationId: (): string => getStateField(getState, "organization_id", ""),
   getEmail: (): string => getStateField(getState, "email", ""),
-  getPassword: (): string => getStateField(getState, "password", "")
+  getPassword: (): string => getStateField(getState, "password", ""),
 });

@@ -31,7 +31,7 @@ const DisconnectGoogleCalendarContainer = ({ id, onCancel, shareableLink }) => {
         color: "error",
         variant: "contained",
         messageId: "disconnect",
-        onDelete: onSubmit
+        onDelete: onSubmit,
       }}
     >
       <Box mb={2}>
@@ -43,7 +43,7 @@ const DisconnectGoogleCalendarContainer = ({ id, onCancel, shareableLink }) => {
                 <Link href={shareableLink} target="_blank" rel="noopener">
                   {shareableLink}
                 </Link>
-              )
+              ),
             }}
           />
         </Typography>

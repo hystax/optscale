@@ -15,7 +15,7 @@ const SummaryCardExtended = ({
   help = {},
   icon = {},
   button = {},
-  backdrop
+  backdrop,
 }) => {
   const content = (
     <Box display="flex" height="100%">

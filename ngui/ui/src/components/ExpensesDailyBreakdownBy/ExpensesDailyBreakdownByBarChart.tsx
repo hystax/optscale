@@ -27,7 +27,7 @@ const getChartDataAndKeys = ({ breakdown, counts, split = EXPENSES_SPLIT_PERIODS
   const chartData = Object.entries(breakdown).map(([date, data]) => {
     const entry = {
       date,
-      ...Object.fromEntries(topKeys.map((id) => [id, getCostById(data, id)]))
+      ...Object.fromEntries(topKeys.map((id) => [id, getCostById(data, id)])),
     };
 
     if (!isEmptyArray(otherKeys)) {
@@ -42,14 +42,14 @@ const getChartDataAndKeys = ({ breakdown, counts, split = EXPENSES_SPLIT_PERIODS
     ...(isEmptyArray(otherKeys)
       ? {}
       : {
-          [OTHER_EXPENSES_NAME]: otherKeys.reduce((sum, key) => sum + counts[key].total, 0)
-        })
+          [OTHER_EXPENSES_NAME]: otherKeys.reduce((sum, key) => sum + counts[key].total, 0),
+        }),
   };
 
   return {
     keys: chartKeys,
     data: getResourceExpensesSplits(chartData)[split],
-    totals
+    totals,
   };
 };
 
@@ -61,7 +61,7 @@ const ExpensesDailyBreakdownByBarChart = ({
   split = EXPENSES_SPLIT_PERIODS.DAILY,
   isLoading = false,
   dataTestId,
-  showLegend = false
+  showLegend = false,
 }) => {
   const theme = useTheme();
 
@@ -70,7 +70,7 @@ const ExpensesDailyBreakdownByBarChart = ({
   const { keys, data, totals } = getChartDataAndKeys({
     breakdown,
     counts,
-    split
+    split,
   });
 
   const moneyFormatter = useMoneyFormatter();
@@ -84,10 +84,10 @@ const ExpensesDailyBreakdownByBarChart = ({
       }
       return getBreakdownLabelText({
         id: legendItem.id,
-        ...counts[legendItem.id]
+        ...counts[legendItem.id],
       });
     },
-    getTotalLabel: (legendItem) => moneyFormatter(FORMATTED_MONEY_TYPES.COMPACT, totals[legendItem.id])
+    getTotalLabel: (legendItem) => moneyFormatter(FORMATTED_MONEY_TYPES.COMPACT, totals[legendItem.id]),
   });
 
   return (
@@ -103,7 +103,7 @@ const ExpensesDailyBreakdownByBarChart = ({
 
         const details = {
           id: sectionData.id,
-          ...counts[sectionData.id]
+          ...counts[sectionData.id],
         };
 
         const text =

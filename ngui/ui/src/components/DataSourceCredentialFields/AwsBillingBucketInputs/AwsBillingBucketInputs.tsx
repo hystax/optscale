@@ -26,13 +26,13 @@ const AwsBillingBucketInputs = ({ showAssumedRoleCredentialsInModal = false }) =
     try {
       const { data } = await fetchPolicies({
         organizationId,
-        params: { bucket_name: bucketName, cloud_type: AWS_CNR }
+        params: { bucket_name: bucketName, cloud_type: AWS_CNR },
       });
 
       if (showAssumedRoleCredentialsInModal) {
         openSideModal(AwsAssumedRoleCredentialsModal, {
           name: bucketName,
-          text: JSON.stringify(data?.cloudPolicies, null, 2)
+          text: JSON.stringify(data?.cloudPolicies, null, 2),
         });
       }
     } catch (error) {
@@ -55,7 +55,7 @@ const AwsBillingBucketInputs = ({ showAssumedRoleCredentialsInModal = false }) =
                   justifyContent: "center",
                   alignItems: "center",
                   height: CODE_BLOCK_HEIGHT,
-                  backgroundColor: (theme) => theme.palette.background.default
+                  backgroundColor: (theme) => theme.palette.background.default,
                 }}
               >
                 <CircularProgress />

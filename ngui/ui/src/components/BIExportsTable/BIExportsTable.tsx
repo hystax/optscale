@@ -7,7 +7,7 @@ import {
   biExportLastSuccessfulExport,
   biExportName,
   biExportNextExport,
-  biExportTargetStorage
+  biExportTargetStorage,
 } from "utils/columns";
 
 const BIExportsTable = ({ exports }) => {
@@ -17,7 +17,7 @@ const BIExportsTable = ({ exports }) => {
       biExportTargetStorage(),
       biExportExportedDays(),
       biExportLastSuccessfulExport(),
-      biExportNextExport()
+      biExportNextExport(),
     ],
     []
   );
@@ -40,15 +40,15 @@ const BIExportsTable = ({ exports }) => {
               type: "button",
               link: CREATE_BI_EXPORT,
               dataTestId: "btn_add",
-              requiredActions: ["EDIT_PARTNER"]
-            }
-          ]
-        }
+              requiredActions: ["EDIT_PARTNER"],
+            },
+          ],
+        },
       }}
       pageSize={50}
       columns={columns}
       localization={{
-        emptyMessageId: "noBIExports"
+        emptyMessageId: "noBIExports",
       }}
     />
   );

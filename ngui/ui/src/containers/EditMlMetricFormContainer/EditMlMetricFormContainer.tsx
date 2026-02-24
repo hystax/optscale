@@ -32,7 +32,7 @@ const EditMlMetricFormContainer = () => {
       [FIELD_NAMES.TENDENCY]: metric.tendency ?? "",
       [FIELD_NAMES.TARGET_VALUE]: metric.target_value ?? "",
       [FIELD_NAMES.FUNCTION]: metric.func ?? "",
-      [FIELD_NAMES.UNIT]: metric.unit ?? ""
+      [FIELD_NAMES.UNIT]: metric.unit ?? "",
     }),
     [metric.name, metric.func, metric.target_value, metric.tendency, metric.unit]
   );

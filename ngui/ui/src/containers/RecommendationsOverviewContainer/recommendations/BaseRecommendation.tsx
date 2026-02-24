@@ -6,7 +6,7 @@ import { ObjectValues, TODO } from "utils/types";
 export const STATUS = {
   ACTIVE: "active",
   DISMISSED: "dismissed",
-  EXCLUDED: "excluded"
+  EXCLUDED: "excluded",
 } as const;
 
 export const CATEGORY = {
@@ -14,25 +14,25 @@ export const CATEGORY = {
   COST: "cost",
   SECURITY: "security",
   CRITICAL: "critical",
-  NON_EMPTY: "nonEmpty"
+  NON_EMPTY: "nonEmpty",
 } as const;
 
 export const STATUS_CATEGORY = {
   OPTIMIZATION: "optimizations",
   DISMISSED_OPTIMIZATION: "dismissed_optimizations",
-  EXCLUDED_OPTIMIZATION: "excluded_optimizations"
+  EXCLUDED_OPTIMIZATION: "excluded_optimizations",
 } as const;
 
 const statusToCategoryMap: Record<Status, StatusCategory> = {
   [STATUS.ACTIVE]: STATUS_CATEGORY.OPTIMIZATION,
   [STATUS.DISMISSED]: STATUS_CATEGORY.DISMISSED_OPTIMIZATION,
-  [STATUS.EXCLUDED]: STATUS_CATEGORY.EXCLUDED_OPTIMIZATION
+  [STATUS.EXCLUDED]: STATUS_CATEGORY.EXCLUDED_OPTIMIZATION,
 };
 
 export const RECOMMENDATION_COLOR = Object.freeze({
   SUCCESS: "success",
   WARNING: "warning",
-  ERROR: "error"
+  ERROR: "error",
 });
 
 type Status = ObjectValues<typeof STATUS>;

@@ -12,7 +12,7 @@ export const useHideActionsForSmallScreens = ({
   itemsLength, // length of displaying items
   breakpoint = "",
   mode = COLLAPSE_MODE,
-  enabled = true // need to disable this hook in case of actionbars without mobile view (Environments page, for example)
+  enabled = true, // need to disable this hook in case of actionbars without mobile view (Environments page, for example)
 }) => {
   const [hiddenElementsLength, setHiddenElementsLength] = useState(0);
   const { width: wrapperWidth = 0 } = useResizeObserver(wrapperRef);
@@ -69,6 +69,6 @@ export const useHideActionsForSmallScreens = ({
   }, [buttonsRef, titleRef, hiddenElementsLength, itemsLength, wrapperWidth, isMobile, breakpoint, enabled, mode]);
 
   return {
-    hiddenElementsLength
+    hiddenElementsLength,
   };
 };

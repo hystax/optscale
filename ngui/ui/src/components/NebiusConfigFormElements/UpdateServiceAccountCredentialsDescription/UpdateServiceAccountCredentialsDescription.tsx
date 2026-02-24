@@ -18,7 +18,7 @@ const UpdateServiceAccountCredentialsDescription = () => (
             >
               {chunks}
             </Link>
-          )
+          ),
         }}
       />
     </Typography>

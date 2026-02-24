@@ -23,5 +23,5 @@ export {
   FormButtons,
   SpotInstanceFields,
   ImageField,
-  VirtualEnvironmentPathField
+  VirtualEnvironmentPathField,
 };

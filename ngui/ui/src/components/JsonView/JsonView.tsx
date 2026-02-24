@@ -19,7 +19,7 @@ const JsonView = ({ value, onChange, id, viewOnly = false }) => {
       viewOnly={viewOnly}
       style={{
         warningBox: { display: "none" },
-        body: { fontSize: theme.typography.pxToRem(14), fontFamily: "monospace" }
+        body: { fontSize: theme.typography.pxToRem(14), fontFamily: "monospace" },
       }}
     />
   );

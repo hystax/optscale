@@ -107,7 +107,7 @@ export const extractBarChartValues = (barChartData, keys) =>
       return {
         ...chartValues,
         positiveBandValues: [...chartValues.positiveBandValues, positiveSum],
-        negativeBandValues: [...chartValues.negativeBandValues, negativeSum]
+        negativeBandValues: [...chartValues.negativeBandValues, negativeSum],
       };
     },
     { positiveBandValues: [], negativeBandValues: [] }
@@ -133,14 +133,14 @@ export const getMaxAndMinBandValues = (data, keys) => {
 
   return {
     maxBandValue: Math.max(...positiveBandValues),
-    minBandValue: Math.min(...negativeBandValues)
+    minBandValue: Math.min(...negativeBandValues),
   };
 };
 
 export const addEntityIconToTooltipKey = (text, details, entityName) => {
   const textWithIcon = {
     [EXPENSES_FILTERBY_TYPES.CLOUD]: <CloudLabel type={details.type} label={text} />,
-    [EXPENSES_FILTERBY_TYPES.POOL]: <PoolLabel type={details.purpose} name={text} disableLink />
+    [EXPENSES_FILTERBY_TYPES.POOL]: <PoolLabel type={details.purpose} name={text} disableLink />,
   }[entityName];
 
   return textWithIcon ?? text;
@@ -160,7 +160,7 @@ const getTicks = ({ minValue, maxValue, range, ticksCount, allocateAdditionalTic
       tickValues,
       gridValues: tickValues,
       maxValue,
-      minValue
+      minValue,
     };
   }
 
@@ -190,7 +190,7 @@ const getTicks = ({ minValue, maxValue, range, ticksCount, allocateAdditionalTic
     tickValues: newTickValues,
     gridValues: newTickValues,
     maxValue: maxTick,
-    minValue: minTick
+    minValue: minTick,
   };
 };
 
@@ -237,18 +237,18 @@ export const getPieChartOptions = ({
   onClick,
   shouldApplyHoverStyles,
   customDetails = {},
-  tooltipIcon
+  tooltipIcon,
 }) => {
   const defaultSortSettings = {
     type: "desc",
-    field: valueField
+    field: valueField,
   };
   const computedSortSettings = { ...defaultSortSettings, ...sortSettings };
   const colorScale = getColorScale(colors);
   const pieDataAndPalette = sortObjects({
     array: sourceData,
     type: computedSortSettings.type,
-    field: computedSortSettings.field
+    field: computedSortSettings.field,
   }).reduce(
     (result, item) => {
       const { [idField]: id, [labelField]: label } = item;
@@ -266,10 +266,10 @@ export const getPieChartOptions = ({
               label,
               details: {
                 ...item,
-                ...getCustomDetails(customDetails, item)
-              }
-            }
-          ]
+                ...getCustomDetails(customDetails, item),
+              },
+            },
+          ],
         };
       }
       return result;
@@ -281,7 +281,7 @@ export const getPieChartOptions = ({
     ...pieDataAndPalette,
     onClick,
     shouldApplyHoverStyles,
-    tooltipIcon
+    tooltipIcon,
   };
 };
 
@@ -317,12 +317,12 @@ export const getBarChartDataAndKeys = ({
   indexBy = "id",
   sourceData,
   sortType = "desc",
-  formatIndexByValue
+  formatIndexByValue,
 }) => {
   let keys = {};
   const data = Object.entries(sourceData).map(([indexByValue, values]) => {
     const indexByDefinition = {
-      [indexBy]: typeof formatIndexByValue === "function" ? formatIndexByValue(indexByValue) : indexByValue
+      [indexBy]: typeof formatIndexByValue === "function" ? formatIndexByValue(indexByValue) : indexByValue,
     };
 
     if (!Array.isArray(values) || isEmptyArray(values)) return indexByDefinition;
@@ -333,13 +333,13 @@ export const getBarChartDataAndKeys = ({
         ...result,
         [value[keyField]]: value[keyValue],
         [getBandDetailsKey(value[keyField])]: {
-          ...value
-        }
+          ...value,
+        },
       };
     }, {});
     return {
       ...indexByDefinition,
-      ...chartValues
+      ...chartValues,
     };
   });
   const filteredKeys = Object.keys(keys)
@@ -350,7 +350,7 @@ export const getBarChartDataAndKeys = ({
 
   return {
     keys: filteredKeys,
-    data
+    data,
   };
 };
 
@@ -360,7 +360,7 @@ export const getExpensesPieChartOptions = ({
   shouldApplyHoverStyles,
   customDetails,
   tooltipIcon,
-  colors
+  colors,
 }) =>
   getPieChartOptions({
     colors,
@@ -369,12 +369,12 @@ export const getExpensesPieChartOptions = ({
     valueField: "total",
     labelField: "name",
     sortSettings: {
-      field: "total"
+      field: "total",
     },
     onClick,
     shouldApplyHoverStyles,
     customDetails,
-    tooltipIcon
+    tooltipIcon,
   });
 
 export const getTickLabelWidth = (label, font) => {
@@ -414,7 +414,7 @@ export const calculateTickValues = (xValues) => {
 const getAxisFontSettings = (font) => ({
   // We usually work with 'rem' for font sizes, but pixels are used for calculations, so here we convert rem to px
   fontSize: font.fontSize.toString().includes("rem") ? remToPx(parseFloat(font.fontSize)) : parseInt(font.fontSize, 10),
-  fontFamily: font.fontFamily
+  fontFamily: font.fontFamily,
 });
 
 export const getVerticalBarChartBottomTickValues = ({ domain, tickValues, padding, font, innerWidth, format }) => {
@@ -431,7 +431,7 @@ export const getVerticalBarChartBottomTickValues = ({ domain, tickValues, paddin
         typeof format === "function" ? format(xValue) : xValue,
         getFontString(fontSettings.fontSize, fontSettings.fontFamily, "px")
       ),
-      coordinate: scale(xValue)
+      coordinate: scale(xValue),
     }))
   );
 };
@@ -448,7 +448,7 @@ export const getHorizontalBarChartBottomTickValues = ({ tickValues, domain, font
         typeof format === "function" ? format(xValue) : xValue,
         getFontString(fontSettings.fontSize, fontSettings.fontFamily, "px")
       ),
-      coordinate: Math.round(scale(xValue))
+      coordinate: Math.round(scale(xValue)),
     }))
   );
 };
@@ -463,7 +463,7 @@ export const getLineChartBottomTickValues = ({ x, scale, font, formatString }) =
       return {
         value: xValue,
         width: getTickLabelWidth(formattedXValue, getFontString(fontSettings.fontSize, fontSettings.fontFamily, "px")),
-        coordinate: scale(xValue)
+        coordinate: scale(xValue),
       };
     })
   );
@@ -502,7 +502,7 @@ export const getTotalLineValue = (lineData) => {
 export const AXIS_FORMATS = Object.freeze({
   MONEY: "money",
   RAW: "raw",
-  PERCENTAGE: "percentage"
+  PERCENTAGE: "percentage",
 });
 
 export const getScaledCanvasContext = (canvasElement, { width, height }) => {
@@ -526,12 +526,12 @@ export const renderCanvasLine = (
     points = [],
     originRelativeToCanvas = {
       x: 0,
-      y: 0
+      y: 0,
     },
     strokeStyle,
     fillStyle,
     lineWidth = 2,
-    dotRadius = 3
+    dotRadius = 3,
   } = {}
 ) => {
   ctx.save();
@@ -612,6 +612,6 @@ export const getBreakdownChartLegendLabel =
 
     return {
       label: `${truncatedLabel}${endString}`,
-      shouldTruncate: false
+      shouldTruncate: false,
     };
   };

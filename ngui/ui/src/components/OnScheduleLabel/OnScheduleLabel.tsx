@@ -19,7 +19,7 @@ const useShowLink = (powerScheduleId: PowerScheduleId) => {
 
   if (powerSchedulePath) {
     const {
-      params: { powerScheduleId: routePowerScheduleId }
+      params: { powerScheduleId: routePowerScheduleId },
     } = powerSchedulePath;
 
     if (routePowerScheduleId === powerScheduleId) {

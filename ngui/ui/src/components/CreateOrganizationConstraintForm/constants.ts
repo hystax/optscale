@@ -12,5 +12,5 @@ export const CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES = Object.freeze({
   PROHIBITED_TAG: "prohibitedTagField",
   REQUIRED_TAG: "requiredTagField",
   CORRELATION_TAG_1: "tagsCorrelationPrimaryTag",
-  CORRELATION_TAG_2: "tagsCorrelationCorrelatedTag"
+  CORRELATION_TAG_2: "tagsCorrelationCorrelatedTag",
 });

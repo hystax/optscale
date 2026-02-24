@@ -11,8 +11,8 @@ import { ANOMALY_TYPES } from "utils/constants";
 const actionBarDefinition = {
   title: {
     messageId: "anomalyDetectionTitle",
-    dataTestId: "lbl_constraints_detection"
-  }
+    dataTestId: "lbl_constraints_detection",
+  },
 };
 
 const AnomaliesContainer = () => {

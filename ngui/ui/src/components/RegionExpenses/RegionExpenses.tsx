@@ -24,7 +24,7 @@ import {
   SUMMARY_VALUE_COMPONENT_TYPES,
   FORMATTED_MONEY_TYPES,
   EMPTY_UUID,
-  DATE_RANGE_TYPE
+  DATE_RANGE_TYPE,
 } from "utils/constants";
 import { SPACING_2, getPoolColorStatus } from "utils/layouts";
 import { REGION_EXPENSES_HEIGHT } from "utils/maps";
@@ -34,7 +34,7 @@ const getGoToExpensesLink = (name, startDate, endDate) =>
   getResourcesExpensesUrl({
     computedParams: `${REGION_FILTER}=${name}`,
     sStartDate: startDate,
-    sEndDate: endDate
+    sEndDate: endDate,
   });
 
 const getFilteredMarkers = (markers, total, getColor) =>
@@ -50,18 +50,18 @@ const getColumns = (navigate, startDate, endDate) => [
       const value = cell.getValue();
 
       return original.type ? <CloudLabel label={value} type={original.type} /> : (value ?? <FormattedMessage id="(not set)" />);
-    }
+    },
   },
   {
     header: <ExpensesTableHeader startDateTimestamp={startDate} endDateTimestamp={endDate} />,
     accessorKey: "total",
     cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
-    defaultSort: "desc"
+    defaultSort: "desc",
   },
   {
     header: intl.formatMessage({ id: "percent" }),
     accessorKey: "percent",
-    cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />
+    cell: ({ cell }) => <FormattedNumber value={cell.getValue()} format="percentage" />,
   },
   {
     header: intl.formatMessage({ id: "actions" }),
@@ -72,12 +72,12 @@ const getColumns = (navigate, startDate, endDate) => [
         icon={<ListAltOutlinedIcon />}
         tooltip={{
           show: true,
-          value: <FormattedMessage id="showResources" />
+          value: <FormattedMessage id="showResources" />,
         }}
       />
     ),
-    enableSorting: true
-  }
+    enableSorting: true,
+  },
 ];
 
 const RegionExpenses = ({ expenses, isLoading = false }) => {
@@ -102,21 +102,21 @@ const RegionExpenses = ({ expenses, isLoading = false }) => {
       key: "totalExpensesForSelectedPeriod",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: total
+        value: total,
       },
       color: getPoolColorStatus(percent),
       captionMessageId: "totalExpensesForSelectedPeriod",
-      isLoading
+      isLoading,
     },
     {
       key: "totalExpensesForPreviousPeriod",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: previousTotal
+        value: previousTotal,
       },
       captionMessageId: "totalExpensesForPreviousPeriod",
-      isLoading
-    }
+      isLoading,
+    },
   ];
 
   const notSetSum = markers.find((marker) => marker.id === EMPTY_UUID)?.total || 0;
@@ -125,10 +125,10 @@ const RegionExpenses = ({ expenses, isLoading = false }) => {
       key: "expensesWithoutRegion",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: notSetSum
+        value: notSetSum,
       },
       captionMessageId: "expensesWithoutRegion",
-      isLoading
+      isLoading,
     });
   }
 
@@ -158,7 +158,7 @@ const RegionExpenses = ({ expenses, isLoading = false }) => {
           <FormattedMessage
             id="summaryBy"
             values={{
-              name: "region"
+              name: "region",
             }}
           />
           {isLoading ? (
@@ -168,7 +168,7 @@ const RegionExpenses = ({ expenses, isLoading = false }) => {
               data={data}
               columns={columns}
               localization={{
-                emptyMessageId: "noRegionExpenses"
+                emptyMessageId: "noRegionExpenses",
               }}
               pageSize={50}
             />

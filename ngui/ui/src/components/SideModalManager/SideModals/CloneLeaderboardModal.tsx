@@ -7,8 +7,8 @@ class CloneLeaderboardModal extends BaseSideModal {
     showExpand: true,
     dataTestIds: {
       title: "lbl_clone_leaderboard",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_clone_leaderboard";

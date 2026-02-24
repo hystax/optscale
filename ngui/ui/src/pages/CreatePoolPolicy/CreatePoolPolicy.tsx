@@ -14,12 +14,12 @@ const actionBarDefinition = {
     </Link>,
     <Link key={2} to={getResourceLifecycleUrl(RESOURCE_LIFECYCLE_TABS.POOL_POLICIES)} component={RouterLink}>
       <FormattedMessage id="poolPolicies" />
-    </Link>
+    </Link>,
   ],
   title: {
     text: <FormattedMessage id="createPoolPolicyTitle" />,
-    dataTestId: "lbl_create_pool_policy"
-  }
+    dataTestId: "lbl_create_pool_policy",
+  },
 };
 
 const CreatePoolPolicy = () => (

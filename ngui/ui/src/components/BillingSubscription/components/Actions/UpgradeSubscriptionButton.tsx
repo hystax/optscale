@@ -20,9 +20,9 @@ const UpgradeSubscriptionButton = ({ text, billingSubscriptionPlanId }: UpgradeS
       variables: {
         organizationId,
         params: {
-          plan_id: billingSubscriptionPlanId
-        }
-      }
+          plan_id: billingSubscriptionPlanId,
+        },
+      },
     });
 
     if (data?.createStripeCheckoutSession?.url) {

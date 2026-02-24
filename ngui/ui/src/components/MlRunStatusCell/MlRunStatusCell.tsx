@@ -9,7 +9,7 @@ const MlRunStatusCell = ({
   reason,
   status,
   // Used only in live demo mockups
-  status_description: { type: statusDescriptionType, payload: statusDescriptionPayload = {} } = {}
+  status_description: { type: statusDescriptionType, payload: statusDescriptionPayload = {} } = {},
 }) => {
   const { isDemo } = useOrganizationInfo();
 
@@ -24,13 +24,13 @@ const MlRunStatusCell = ({
               values={{
                 name: goalName,
                 value: goalValue,
-                strong: (chunks) => <strong>{chunks}</strong>
+                strong: (chunks) => <strong>{chunks}</strong>,
               }}
             />
           );
         },
         time_exceeded: () => <FormattedMessage id="timeExceeded" />,
-        goals_met: () => <FormattedMessage id="allGoalsMet" />
+        goals_met: () => <FormattedMessage id="allGoalsMet" />,
       })[statusDescriptionType];
 
     const handler = getFormatStatusDescriptionHandler();
@@ -41,7 +41,7 @@ const MlRunStatusCell = ({
       <CaptionedCell
         caption={{
           key: "caption",
-          node: formattedDescription
+          node: formattedDescription,
         }}
       >
         <MlRunStatus status={status} />

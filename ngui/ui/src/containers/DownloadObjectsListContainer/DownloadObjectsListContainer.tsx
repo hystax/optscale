@@ -13,12 +13,12 @@ const DownloadObjectsListContainer = ({ fromBucketName, toBucketName, checkId })
 
   const downloadObjectsList = () => {
     const url = `${REST_API_URL}/geminis/${checkId}/data?${stringifySearchParams({
-      bucket: [fromBucketName, toBucketName]
+      bucket: [fromBucketName, toBucketName],
     })}`;
 
     fetchAndDownload({
       url,
-      fallbackFilename: `objects_list.${DOWNLOAD_FILE_FORMATS.XLSX}`
+      fallbackFilename: `objects_list.${DOWNLOAD_FILE_FORMATS.XLSX}`,
     });
   };
 

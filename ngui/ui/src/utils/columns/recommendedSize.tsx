@@ -7,7 +7,7 @@ const recommendedSize = ({ headerDataTestId, accessorKey = "recommended_flavor" 
       <FormattedMessage id="recommendedSize" />
     </TextWithDataTestId>
   ),
-  accessorKey
+  accessorKey,
 });
 
 export default recommendedSize;

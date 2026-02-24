@@ -11,7 +11,7 @@ import {
   POOL_TYPE_CICD,
   POOL_TYPE_MLAI,
   POOL_TYPE_ASSET_POOL,
-  POOL_TYPES
+  POOL_TYPES,
 } from "utils/constants";
 import { FIELD_NAMES } from "../constants";
 
@@ -44,7 +44,7 @@ const TypeSelector = ({ isLoading = false, readOnly = false }: TypeSelectorProps
             project: <PoolTypeIcon type={POOL_TYPE_PROJECT} />,
             cicd: <PoolTypeIcon type={POOL_TYPE_CICD} />,
             mlai: <PoolTypeIcon type={POOL_TYPE_MLAI} />,
-            assetPool: <PoolTypeIcon type={POOL_TYPE_ASSET_POOL} />
+            assetPool: <PoolTypeIcon type={POOL_TYPE_ASSET_POOL} />,
           }}
           dataTestId="qmark_pool_types_description"
         />
@@ -55,7 +55,7 @@ const TypeSelector = ({ isLoading = false, readOnly = false }: TypeSelectorProps
           <ItemContentWithPoolIcon key={type} poolType={type}>
             {intl.formatMessage({ id: messageId })}
           </ItemContentWithPoolIcon>
-        )
+        ),
       }))}
     />
   );

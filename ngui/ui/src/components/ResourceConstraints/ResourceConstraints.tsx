@@ -23,7 +23,7 @@ const BillingOnly = () => (
     <InlineSeverityAlert
       messageId="resourceConstraintsBillingOnlyDescription"
       messageValues={{
-        link: linkRender
+        link: linkRender,
       }}
     />
   </Grid>
@@ -58,7 +58,7 @@ const ResourceConstraints = ({
   clusterId,
   isLoading,
   billingOnly = false,
-  isResourceActive
+  isResourceActive,
 }) => {
   const renderCommonConstraintsContent = () => (
     <Grid container spacing={SPACING_2}>
@@ -81,7 +81,7 @@ const ResourceConstraints = ({
           <InlineSeverityAlert
             messageId="resourceConstraintsDescription"
             messageValues={{
-              link: linkRender
+              link: linkRender,
             }}
           />
         </Grid>
@@ -107,7 +107,7 @@ const ResourceConstraints = ({
             <Link to={CLUSTER_TYPES} component={RouterLink}>
               {chunks}
             </Link>
-          )
+          ),
         }}
       />
     </Grid>
@@ -129,7 +129,7 @@ const ResourceConstraints = ({
           messageDataTestId="p_tracking_status"
           messageValues={{
             status: <FormattedMessage id={billingOnly ? "billingOnly" : "active"} />,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </Grid>

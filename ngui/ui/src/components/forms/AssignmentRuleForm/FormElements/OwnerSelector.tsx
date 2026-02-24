@@ -14,7 +14,7 @@ const OwnerSelector = ({
   poolSelectorName = FIELD_NAMES.POOL_ID,
   poolOwners,
   pools,
-  isFormDataLoading = false
+  isFormDataLoading = false,
 }: OwnerSelectorProps) => {
   const { watch } = useFormContext();
   const intl = useIntl();
@@ -39,7 +39,7 @@ const OwnerSelector = ({
           <ItemContent>
             {id === poolDefaultOwnerId ? intl.formatMessage({ id: "value(default)" }, { value: poolOwnerName }) : poolOwnerName}
           </ItemContent>
-        )
+        ),
       }))}
     />
   );

@@ -13,14 +13,14 @@ const CreateResourcePerspectiveForm = ({
   isLoading = false,
   onCancel,
   filterValues,
-  appliedFilters
+  appliedFilters,
 }) => {
   const perspectiveAppliedFilters = Object.values(FILTER_CONFIGS).reduce((acc, filterConfig) => {
     const key = filterConfig.id;
 
     return {
       ...acc,
-      ...filterConfig.transformers.toApi(appliedFilters[key])
+      ...filterConfig.transformers.toApi(appliedFilters[key]),
     };
   }, {});
 
@@ -37,7 +37,7 @@ const CreateResourcePerspectiveForm = ({
         [filterConfig.apiName]: filterConfig.transformers.filterFilterValuesByAppliedFilters(
           filterValues[filterConfig.apiName] ?? [],
           appliedFilters[key].values
-        )
+        ),
       };
     }
 
@@ -48,11 +48,11 @@ const CreateResourcePerspectiveForm = ({
     defaultValues: getDefaultValues({
       filters: {
         filterValues: perspectiveFilterValues,
-        appliedFilters: perspectiveAppliedFilters
+        appliedFilters: perspectiveAppliedFilters,
       },
       breakdownBy,
-      breakdownData
-    })
+      breakdownData,
+    }),
   });
 
   const { handleSubmit } = methods;

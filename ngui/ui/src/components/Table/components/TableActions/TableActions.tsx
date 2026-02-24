@@ -21,7 +21,7 @@ const TableActionBar = ({ actionBarDefinition, tableContext, selectedRowsCount }
          * ```
          */
         disabled: enableIfSelectedRows && selectedRowsCount === 0,
-        ...rest
+        ...rest,
       };
     });
 
@@ -31,7 +31,7 @@ const TableActionBar = ({ actionBarDefinition, tableContext, selectedRowsCount }
         isPage={false}
         data={{
           ...actionBarDefinition,
-          items: getActionBarItems()
+          items: getActionBarItems(),
         }}
       />
     </Box>
@@ -50,7 +50,7 @@ const TableActions = ({
   tableContext,
   columnsSelectorUID,
   columnSetsSelectorId,
-  dataTestIds = {}
+  dataTestIds = {},
 }) => {
   const { classes } = useStyles();
 
@@ -85,7 +85,7 @@ const TableActions = ({
           marginLeft: showActionBar ? "" : "auto",
           display: "flex",
           flexWrap: withSearch && withColumnSetsSelector && withColumnsSelector ? "wrap" : "nowrap",
-          gap: 1
+          gap: 1,
         }}
       >
         {withSearch && <SearchInput onSearch={onSearchChange} initialSearchText={searchValue} dataTestIds={dataTestIds} />}

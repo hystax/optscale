@@ -16,7 +16,7 @@ import {
   AWS_BILLING_BUCKET_FIELD_NAMES,
   AWS_EXPORT_TYPE_FIELD_NAMES,
   AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES,
-  AWS_ROLE_CREDENTIALS_FIELD_NAMES
+  AWS_ROLE_CREDENTIALS_FIELD_NAMES,
 } from "components/DataSourceCredentialFields";
 import FormButtonsWrapper from "components/FormButtonsWrapper";
 import FormContentDescription from "components/FormContentDescription";
@@ -32,7 +32,7 @@ import {
   GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR,
   DATABRICKS_CREATE_SERVICE_PRINCIPAL,
   DOCS_HYSTAX_MIGRATE_FROM_CUR_TO_DATA_EXPORTS_CUR_2_0,
-  DOCS_HYSTAX_CONNECT_AZURE_SUBSCRIPTION
+  DOCS_HYSTAX_CONNECT_AZURE_SUBSCRIPTION,
 } from "urls";
 import {
   ALIBABA_CNR,
@@ -45,7 +45,7 @@ import {
   DATABRICKS,
   KUBERNETES_CNR,
   AWS_ROOT_CONNECT_CUR_VERSION,
-  GCP_TENANT
+  GCP_TENANT,
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
 import { SPACING_2 } from "utils/layouts";
@@ -77,7 +77,7 @@ const getAwsDescription = (config) => {
               >
                 {chunks}
               </Link>
-            )
+            ),
           }}
         />
       </Typography>
@@ -95,7 +95,7 @@ const getAwsDescription = (config) => {
                 {chunks}
               </Link>
             ),
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </div>
@@ -113,7 +113,7 @@ const getAwsDescription = (config) => {
                 {chunks}
               </Link>
             ),
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </div>
@@ -136,7 +136,7 @@ const Description = ({ type, config }) => {
                   {chunks}
                 </Link>
               ),
-              strong: (chunks) => <strong>{chunks}</strong>
+              strong: (chunks) => <strong>{chunks}</strong>,
             }}
           />
         </Typography>
@@ -152,7 +152,7 @@ const Description = ({ type, config }) => {
                   {chunks}
                 </Link>
               ),
-              strong: (chunks) => <strong>{chunks}</strong>
+              strong: (chunks) => <strong>{chunks}</strong>,
             }}
           />
         </Typography>
@@ -168,7 +168,7 @@ const Description = ({ type, config }) => {
                   {chunks}
                 </Link>
               ),
-              strong: (chunks) => <strong>{chunks}</strong>
+              strong: (chunks) => <strong>{chunks}</strong>,
             }}
           />
         </Typography>
@@ -184,7 +184,7 @@ const Description = ({ type, config }) => {
                   {chunks}
                 </Link>
               ),
-              strong: (chunks) => <strong>{chunks}</strong>
+              strong: (chunks) => <strong>{chunks}</strong>,
             }}
           />
         </Typography>
@@ -203,7 +203,7 @@ const Description = ({ type, config }) => {
                 </Link>
               ),
               strong: (chunks) => <strong>{chunks}</strong>,
-              p: (chunks) => <p>{chunks}</p>
+              p: (chunks) => <p>{chunks}</p>,
             }}
           />
         </Typography>
@@ -217,7 +217,7 @@ const UpdateCredentialsWarning = ({ type }) => {
   const renderUpdateWarning = () => (
     <FormContentDescription
       alertProps={{
-        messageId: "updateDateSourceCredentialsWarning"
+        messageId: "updateDateSourceCredentialsWarning",
       }}
     />
   );
@@ -240,8 +240,8 @@ const UpdateCredentialsWarning = ({ type }) => {
                 <Link data-test-id="link_guide" href={GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR} target="_blank" rel="noopener">
                   {chunks}
                 </Link>
-              )
-            }
+              ),
+            },
           }}
         />
       );
@@ -263,7 +263,7 @@ const getConfig = (type, config) => {
         [AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME]: config.bucket_name,
         [AWS_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME]: config.report_name,
         [AWS_BILLING_BUCKET_FIELD_NAMES.REGION_NAME]: config.region_name,
-        [AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]: config.bucket_prefix
+        [AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]: config.bucket_prefix,
       };
 
       return {
@@ -275,14 +275,14 @@ const getConfig = (type, config) => {
               [AWS_ROOT_UPDATE_DATA_EXPORT_PARAMETERS]: false,
               [AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT]: config.use_edp_discount ?? false,
               [AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]: config.cur_version ?? AWS_ROOT_CONNECT_CUR_VERSION.CUR_2,
-              ...billingBucketFields
+              ...billingBucketFields,
             };
           }
 
           if (config.linked) {
             return {
               [AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
-              [AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: ""
+              [AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: "",
             };
           }
 
@@ -292,7 +292,7 @@ const getConfig = (type, config) => {
             [AWS_ROOT_UPDATE_DATA_EXPORT_PARAMETERS]: false,
             [AWS_USE_AWS_EDP_DISCOUNT_FIELD_NAMES.USE_EDP_DISCOUNT]: config.use_edp_discount ?? false,
             [AWS_EXPORT_TYPE_FIELD_NAMES.CUR_VERSION]: config.cur_version ?? AWS_ROOT_CONNECT_CUR_VERSION.CUR_2,
-            ...billingBucketFields
+            ...billingBucketFields,
           };
         },
         parseFormDataToApiParams: (formData) => {
@@ -302,8 +302,8 @@ const getConfig = (type, config) => {
                   config: {
                     assume_role_account_id: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID],
                     assume_role_name: formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_NAME],
-                    linked: true
-                  }
+                    linked: true,
+                  },
                 }
               : {
                   config: {
@@ -315,8 +315,8 @@ const getConfig = (type, config) => {
                     bucket_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME],
                     report_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME],
                     region_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.REGION_NAME] || undefined,
-                    bucket_prefix: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]
-                  }
+                    bucket_prefix: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX],
+                  },
                 };
           }
           if (config.linked) {
@@ -324,8 +324,8 @@ const getConfig = (type, config) => {
               config: {
                 access_key_id: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
                 secret_access_key: formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
-                linked: true
-              }
+                linked: true,
+              },
             };
           }
 
@@ -341,7 +341,7 @@ const getConfig = (type, config) => {
                     bucket_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_NAME],
                     report_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.EXPORT_NAME],
                     region_name: formData[AWS_BILLING_BUCKET_FIELD_NAMES.REGION_NAME] || undefined,
-                    bucket_prefix: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX]
+                    bucket_prefix: formData[AWS_BILLING_BUCKET_FIELD_NAMES.BUCKET_PREFIX],
                   }
                 : {
                     /**
@@ -352,11 +352,11 @@ const getConfig = (type, config) => {
                     bucket_name: config.bucket_name,
                     report_name: config.report_name,
                     region_name: config.region_name ?? undefined,
-                    bucket_prefix: config.bucket_prefix
-                  })
-            }
+                    bucket_prefix: config.bucket_prefix,
+                  }),
+            },
           };
-        }
+        },
       };
     }
     case AZURE_TENANT:
@@ -364,15 +364,15 @@ const getConfig = (type, config) => {
         getDefaultFormValues: () => ({
           [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.CLIENT_ID]: config.client_id,
           [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.TENANT]: config.tenant,
-          [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.SECRET]: ""
+          [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.SECRET]: "",
         }),
         parseFormDataToApiParams: (formData) => ({
           config: {
             client_id: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.CLIENT_ID],
             tenant: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.TENANT],
-            secret: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.SECRET]
-          }
-        })
+            secret: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.SECRET],
+          },
+        }),
       };
     case AZURE_CNR:
       return {
@@ -385,7 +385,7 @@ const getConfig = (type, config) => {
           [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.EXPORT_NAME]: config.export_name,
           [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_ACCOUNT_CONNECTION_STRING]: config.sa_connection_string,
           [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_CONTAINER]: config.container,
-          [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_DIRECTORY]: config.directory
+          [AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_DIRECTORY]: config.directory,
         }),
         parseFormDataToApiParams: (formData) => ({
           config: {
@@ -398,54 +398,54 @@ const getConfig = (type, config) => {
                   export_name: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.EXPORT_NAME],
                   sa_connection_string: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_ACCOUNT_CONNECTION_STRING],
                   container: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_CONTAINER],
-                  directory: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_DIRECTORY]
+                  directory: formData[AZURE_SUBSCRIPTION_CREDENTIALS_FIELD_NAMES.STORAGE_DIRECTORY],
                 }
-              : {})
-          }
-        })
+              : {}),
+          },
+        }),
       };
     case ALIBABA_CNR:
       return {
         getDefaultFormValues: () => ({
           [ALIBABA_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
-          [ALIBABA_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: ""
+          [ALIBABA_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]: "",
         }),
         parseFormDataToApiParams: (formData) => ({
           config: {
             access_key_id: formData[ALIBABA_CREDENTIALS_FIELD_NAMES.ACCESS_KEY_ID],
-            secret_access_key: formData[ALIBABA_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY]
-          }
-        })
+            secret_access_key: formData[ALIBABA_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY],
+          },
+        }),
       };
     case DATABRICKS:
       return {
         getDefaultFormValues: () => ({
           [DATABRICKS_CREDENTIALS_FIELD_NAMES.ACCOUNT_ID]: config.account_id,
           [DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_ID]: config.client_id,
-          [DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET]: ""
+          [DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET]: "",
         }),
         parseFormDataToApiParams: (formData) => ({
           config: {
             account_id: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.ACCOUNT_ID],
             client_id: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_ID],
-            client_secret: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET]
-          }
-        })
+            client_secret: formData[DATABRICKS_CREDENTIALS_FIELD_NAMES.CLIENT_SECRET],
+          },
+        }),
       };
     case KUBERNETES_CNR:
       return {
         getDefaultFormValues: () => ({
           [KUBERNETES_CREDENTIALS_FIELD_NAMES.USER]: config.user,
           [KUBERNETES_CREDENTIALS_FIELD_NAMES.PASSWORD]: "",
-          [KUBERNETES_CREDENTIALS_FIELD_NAMES.USE_FLAVOR_BASED_COST_MODEL]: !config.custom_price
+          [KUBERNETES_CREDENTIALS_FIELD_NAMES.USE_FLAVOR_BASED_COST_MODEL]: !config.custom_price,
         }),
         parseFormDataToApiParams: (formData) => ({
           config: {
             password: formData[KUBERNETES_CREDENTIALS_FIELD_NAMES.PASSWORD] || undefined,
             user: formData[KUBERNETES_CREDENTIALS_FIELD_NAMES.USER] || undefined,
-            custom_price: !formData[KUBERNETES_CREDENTIALS_FIELD_NAMES.USE_FLAVOR_BASED_COST_MODEL]
-          }
-        })
+            custom_price: !formData[KUBERNETES_CREDENTIALS_FIELD_NAMES.USE_FLAVOR_BASED_COST_MODEL],
+          },
+        }),
       };
     case GCP_CNR:
       return {
@@ -461,10 +461,10 @@ const getConfig = (type, config) => {
               ? {
                   [GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_DATASET]: config.pricing_data?.dataset_name,
                   [GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_TABLE]: config.pricing_data?.table_name,
-                  [GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_PROJECT_ID]: config.pricing_data?.project_id
+                  [GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_PROJECT_ID]: config.pricing_data?.project_id,
                 }
               : {}),
-            [GCP_CREDENTIALS_FIELD_NAMES.CREDENTIALS]: ""
+            [GCP_CREDENTIALS_FIELD_NAMES.CREDENTIALS]: "",
           };
         },
         parseFormDataToApiParams: async (formData) => {
@@ -478,7 +478,7 @@ const getConfig = (type, config) => {
               billing_data: {
                 dataset_name: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET],
                 table_name: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE],
-                project_id: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_PROJECT_ID] || undefined
+                project_id: formData[GCP_CREDENTIALS_FIELD_NAMES.BILLING_DATA_PROJECT_ID] || undefined,
               },
               ...(formData[GCP_CREDENTIALS_FIELD_NAMES.AUTOMATICALLY_DETECT_PRICING_DATA]
                 ? {}
@@ -486,12 +486,12 @@ const getConfig = (type, config) => {
                     pricing_data: {
                       dataset_name: formData[GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_DATASET],
                       table_name: formData[GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_TABLE],
-                      project_id: formData[GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_PROJECT_ID] || undefined
-                    }
-                  })
-            }
+                      project_id: formData[GCP_CREDENTIALS_FIELD_NAMES.PRICING_DATA_PROJECT_ID] || undefined,
+                    },
+                  }),
+            },
           };
-        }
+        },
       };
     case GCP_TENANT:
       return {
@@ -505,10 +505,10 @@ const getConfig = (type, config) => {
             ...(hasPricingData
               ? {
                   [GCP_TENANT_CREDENTIALS_FIELD_NAMES.PRICING_DATA_DATASET]: config.pricing_data?.dataset_name,
-                  [GCP_TENANT_CREDENTIALS_FIELD_NAMES.PRICING_DATA_TABLE]: config.pricing_data?.table_name
+                  [GCP_TENANT_CREDENTIALS_FIELD_NAMES.PRICING_DATA_TABLE]: config.pricing_data?.table_name,
                 }
               : {}),
-            [GCP_TENANT_CREDENTIALS_FIELD_NAMES.CREDENTIALS]: ""
+            [GCP_TENANT_CREDENTIALS_FIELD_NAMES.CREDENTIALS]: "",
           };
         },
         parseFormDataToApiParams: async (formData) => {
@@ -521,19 +521,19 @@ const getConfig = (type, config) => {
               credentials: JSON.parse(credentials),
               billing_data: {
                 dataset_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_DATASET],
-                table_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE]
+                table_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.BILLING_DATA_TABLE],
               },
               ...(formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.AUTOMATICALLY_DETECT_PRICING_DATA]
                 ? {}
                 : {
                     pricing_data: {
                       dataset_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.PRICING_DATA_DATASET],
-                      table_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.PRICING_DATA_TABLE]
-                    }
-                  })
-            }
+                      table_name: formData[GCP_TENANT_CREDENTIALS_FIELD_NAMES.PRICING_DATA_TABLE],
+                    },
+                  }),
+            },
           };
-        }
+        },
       };
     case NEBIUS:
       return {
@@ -545,7 +545,7 @@ const getConfig = (type, config) => {
           [NEBIUS_FIELD_NAMES.ACCESS_KEY_ID]: config.access_key_id,
           [NEBIUS_FIELD_NAMES.SECRET_ACCESS_KEY]: "",
           [NEBIUS_FIELD_NAMES.BUCKET_NAME]: config.bucket_name,
-          [NEBIUS_FIELD_NAMES.BUCKET_PREFIX]: config.bucket_prefix
+          [NEBIUS_FIELD_NAMES.BUCKET_PREFIX]: config.bucket_prefix,
         }),
         parseFormDataToApiParams: (formData) => ({
           config: {
@@ -556,9 +556,9 @@ const getConfig = (type, config) => {
             access_key_id: formData[NEBIUS_FIELD_NAMES.ACCESS_KEY_ID],
             secret_access_key: formData[NEBIUS_FIELD_NAMES.SECRET_ACCESS_KEY],
             bucket_name: formData[NEBIUS_FIELD_NAMES.BUCKET_NAME],
-            bucket_prefix: formData[NEBIUS_FIELD_NAMES.BUCKET_PREFIX]
-          }
-        })
+            bucket_prefix: formData[NEBIUS_FIELD_NAMES.BUCKET_PREFIX],
+          },
+        }),
       };
     default:
       return {};
@@ -571,14 +571,14 @@ const UpdateDataSourceCredentialsForm = ({
   config,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: UpdateDataSourceCredentialsFormProps) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
   const { getDefaultFormValues, parseFormDataToApiParams } = getConfig(type, config);
 
   const methods = useForm({
-    defaultValues: getDefaultFormValues()
+    defaultValues: getDefaultFormValues(),
   });
 
   const { handleSubmit } = methods;
@@ -608,7 +608,7 @@ const UpdateDataSourceCredentialsForm = ({
             disabled={isRestricted}
             tooltip={{
               show: isRestricted,
-              value: restrictionReasonMessage
+              value: restrictionReasonMessage,
             }}
           />
           <Button dataTestId="btn_cancel_update_data_source_credentials" messageId="cancel" onClick={onCancel} />

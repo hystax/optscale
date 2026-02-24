@@ -66,13 +66,13 @@ const ResourcesPerspectives = () => {
           ) : (
             <Link
               to={getResourcesExpensesUrl({
-                perspective: original.name
+                perspective: original.name,
               })}
               component={RouterLink}
             >
               {original.name}
             </Link>
-          )
+          ),
       },
       {
         header: (
@@ -80,7 +80,7 @@ const ResourcesPerspectives = () => {
             <FormattedMessage id="breakdownBy" />
           </TextWithDataTestId>
         ),
-        accessorKey: "breakdownBy"
+        accessorKey: "breakdownBy",
       },
       {
         header: (
@@ -88,7 +88,7 @@ const ResourcesPerspectives = () => {
             <FormattedMessage id="categorizeBy" />
           </TextWithDataTestId>
         ),
-        accessorKey: "categorizeBy"
+        accessorKey: "categorizeBy",
       },
       {
         header: (
@@ -107,7 +107,7 @@ const ResourcesPerspectives = () => {
             return <KeyValueLabel keyMessageId={groupBy.groupType} value={groupBy.groupBy} />;
           }
           return <FormattedMessage id={groupBy.groupType} />;
-        }
+        },
       },
       {
         header: (
@@ -127,7 +127,7 @@ const ResourcesPerspectives = () => {
                   value={displayedValue}
                 />
               ));
-        }
+        },
       },
       ...(isAllowedToDeletePerspectives
         ? [
@@ -151,14 +151,14 @@ const ResourcesPerspectives = () => {
                       dataTestId: `btn_delete_perspective_${index}`,
                       action: () => {
                         openSideModal(DeletePerspectiveSideModal, { perspectiveName: original.name });
-                      }
-                    }
+                      },
+                    },
                   ]}
                 />
-              )
-            }
+              ),
+            },
           ]
-        : [])
+        : []),
     ],
     [isAllowedToDeletePerspectives, openSideModal]
   );
@@ -182,8 +182,8 @@ const ResourcesPerspectives = () => {
           {
             breakdownBy,
             breakdownData: { groupBy, breakdownBy: categorizeBy },
-            filters: { filterValues, appliedFilters }
-          }
+            filters: { filterValues, appliedFilters },
+          },
         ]) => {
           const perspectiveFilters = Object.values(FILTER_CONFIGS).flatMap((filterConfig) => {
             if (filterConfig.type === FILTER_TYPE.SELECTION) {
@@ -201,7 +201,7 @@ const ResourcesPerspectives = () => {
                   appliedFilterValue,
                   filterValues[filterConfig.apiName],
                   { stringify: true }
-                )
+                ),
               }));
             }
             if (filterConfig.type === FILTER_TYPE.RANGE) {
@@ -217,14 +217,14 @@ const ResourcesPerspectives = () => {
                   displayedName: filterConfig.label,
                   displayedValue: filterConfig.renderPerspectiveItem({
                     from,
-                    to
+                    to,
                   }),
                   displayedNameString: filterConfig.labelString,
                   displayedValueString: filterConfig.renderPerspectiveItem({
                     from,
-                    to
-                  })
-                }
+                    to,
+                  }),
+                },
               ];
             }
             return [];
@@ -249,7 +249,7 @@ const ResourcesPerspectives = () => {
             breakdownBy: intl.formatMessage({ id: breakdownBy }),
             categorizeBy: categorizeBy ? getCategorizeBy() : undefined,
             groupBy,
-            groupByString: groupBy ? getGroupByString(groupBy) : undefined
+            groupByString: groupBy ? getGroupByString(groupBy) : undefined,
           };
         }
       );
@@ -258,7 +258,7 @@ const ResourcesPerspectives = () => {
     const invalidPerspectivesToTableData = () =>
       Object.keys(invalidPerspectives).map((perspectiveName) => ({
         name: perspectiveName,
-        isInvalid: true
+        isInvalid: true,
       }));
 
     return [...validPerspectivesToTableData(), ...invalidPerspectivesToTableData()];
@@ -270,7 +270,7 @@ const ResourcesPerspectives = () => {
         columns={columns}
         data={tableData}
         localization={{
-          emptyMessageId: "noPerspectives"
+          emptyMessageId: "noPerspectives",
         }}
         withSearch
         pageSize={50}
@@ -278,7 +278,7 @@ const ResourcesPerspectives = () => {
       <PageContentDescription
         position="bottom"
         alertProps={{
-          messageId: "perspectivesDescription"
+          messageId: "perspectivesDescription",
         }}
       />
     </>

@@ -9,9 +9,9 @@ class SummaryCardPdf extends PDFAble {
       value: intl.formatNumber(this.data.rawValue, { format: this.data.currency || "USD" }).toLocaleLowerCase(),
       parameters: {
         header: intl.formatMessage({ id: this.data.rawCaption }),
-        color: this.data.color
-      }
-    }
+        color: this.data.color,
+      },
+    },
   ];
 }
 

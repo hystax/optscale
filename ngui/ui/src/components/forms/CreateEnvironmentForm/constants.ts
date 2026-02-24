@@ -5,6 +5,6 @@ export const FIELD_NAMES = Object.freeze({
   PROPERTIES_FIELD_ARRAY: Object.freeze({
     FIELD_NAME: "properties",
     PROPERTY_NAME: "propertyName",
-    PROPERTY_VALUE: "propertyValue"
-  })
+    PROPERTY_VALUE: "propertyValue",
+  }),
 });

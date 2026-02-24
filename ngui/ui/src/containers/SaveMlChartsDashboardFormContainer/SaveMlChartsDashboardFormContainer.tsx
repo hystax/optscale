@@ -7,7 +7,7 @@ const SaveMlChartsDashboardFormContainer = ({
   updateDashboard,
   createDashboard,
   onSuccess,
-  onCancel
+  onCancel,
 }) => {
   const { useUpdate, useCreate } = LayoutsService();
   const { isLoading: isCreateLoading } = useCreate();
@@ -22,7 +22,7 @@ const SaveMlChartsDashboardFormContainer = ({
       onSuccess={onSuccess}
       onCancel={onCancel}
       isLoadingProps={{
-        isSubmitLoading: isCreateLoading || isUpdateLoading
+        isSubmitLoading: isCreateLoading || isUpdateLoading,
       }}
     />
   );

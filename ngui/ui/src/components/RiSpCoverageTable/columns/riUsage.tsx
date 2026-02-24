@@ -24,10 +24,10 @@ const riUsage = ({ totalRiUsageHrs, totalTotalUsageHrs }) => ({
   cell: ({
     cell,
     row: {
-      original: { total_usage_hrs: totalUsageHrs }
-    }
+      original: { total_usage_hrs: totalUsageHrs },
+    },
   }) => <CellValue usage={cell.getValue()} totalUsage={totalUsageHrs} />,
-  footer: () => <CellValue usage={totalRiUsageHrs} totalUsage={totalTotalUsageHrs} />
+  footer: () => <CellValue usage={totalRiUsageHrs} totalUsage={totalTotalUsageHrs} />,
 });
 
 export default riUsage;

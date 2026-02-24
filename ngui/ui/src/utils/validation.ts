@@ -69,10 +69,10 @@ export const isRunsetTemplateEnvironmentVariable = (inputName) => (value) =>
     ? true
     : intl.formatMessage(
         {
-          id: "inputMustContainOnlyUppercaseLatinLettersNumberOrUnderscore"
+          id: "inputMustContainOnlyUppercaseLatinLettersNumberOrUnderscore",
         },
         {
-          inputName
+          inputName,
         }
       );
 

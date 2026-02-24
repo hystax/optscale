@@ -1,7 +1,7 @@
+import path from "path";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
 import { loadFilesSync } from "@graphql-tools/load-files";
-import path from "path";
 
 const __dirname = import.meta.dirname;
 
@@ -10,5 +10,5 @@ const resolvers = loadFilesSync(path.join(__dirname, "resolvers", "**", "*.{js,t
 
 export const schema = makeExecutableSchema({
   typeDefs: mergeTypeDefs(typeDefs),
-  resolvers: mergeResolvers(resolvers)
+  resolvers: mergeResolvers(resolvers),
 });

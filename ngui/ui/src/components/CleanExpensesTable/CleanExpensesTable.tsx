@@ -30,7 +30,7 @@ const LocationNodes = ({ region, service_name: serviceName, k8s_node: k8sNode, k
     { value: region, messageId: "region" },
     { value: serviceName, messageId: "service" },
     { value: k8sNode, messageId: "node" },
-    { value: k8sNamespace, messageId: "namespace" }
+    { value: k8sNamespace, messageId: "namespace" },
   ].filter(({ value }) => Boolean(value));
 
   const toString = () => captionSettings.map(({ value, messageId }) => `${intl.formatMessage({ id: messageId })}: ${value}`);
@@ -42,12 +42,12 @@ const LocationNodes = ({ region, service_name: serviceName, k8s_node: k8sNode, k
         <Typography variant="caption" component="div">
           {intl.formatMessage({ id: messageId })}:&nbsp;<strong>{value}</strong>
         </Typography>
-      )
+      ),
     }));
 
   return {
     toString,
-    getNodes
+    getNodes,
   };
 };
 
@@ -59,7 +59,7 @@ const CleanExpensesTable = ({
   startDateTimestamp,
   endDateTimestamp,
   assignmentRuleCreationLinkParameters,
-  totalResourcesCount
+  totalResourcesCount,
 }) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
@@ -82,7 +82,7 @@ const CleanExpensesTable = ({
         cell: ({ row: { original, id } }) => (
           <ResourceCell rowData={original} dataTestIds={{ labelIds: { label: `resource_name_${id}` } }} />
         ),
-        enableHiding: false
+        enableHiding: false,
       },
       {
         header: (
@@ -100,7 +100,7 @@ const CleanExpensesTable = ({
           />
         ),
         defaultSort: "desc",
-        enableHiding: false
+        enableHiding: false,
       },
       {
         header: (
@@ -111,23 +111,23 @@ const CleanExpensesTable = ({
         columnSelector: {
           accessor: "paidNetworkTraffic",
           messageId: "paidNetworkTraffic",
-          dataTestId: "btn_toggle_paid_network_traffic"
+          dataTestId: "btn_toggle_paid_network_traffic",
         },
         accessorKey: "traffic_expenses",
         enableSorting: false,
         style: {
-          minWidth: 320
+          minWidth: 320,
         },
         cell: ({
           row: {
-            original: { traffic_expenses: trafficExpenses = [] }
-          }
+            original: { traffic_expenses: trafficExpenses = [] },
+          },
         }) =>
           isEmptyArray(trafficExpenses) ? (
             CELL_EMPTY_VALUE
           ) : (
             <ResourcePaidNetworkTrafficList trafficExpenses={trafficExpenses} />
-          )
+          ),
       },
       tags({
         headerDataTestId: "lbl_metadata",
@@ -137,23 +137,23 @@ const CleanExpensesTable = ({
         columnSelector: {
           accessor: "metadata",
           messageId: "metadata",
-          dataTestId: "btn_toggle_column_metadata"
+          dataTestId: "btn_toggle_column_metadata",
         },
-        sorted: false
+        sorted: false,
       }),
       resourcePoolOwner({
         accessorKey: "pool/owner",
         columnSelector: {
           accessor: "pool/owner",
           messageId: "pool/owner",
-          dataTestId: "btn_toggle_column_pool_owner"
+          dataTestId: "btn_toggle_column_pool_owner",
         },
         getOwner: (rowOriginal) => {
           const { owner } = rowOriginal;
 
           return owner
             ? {
-                name: owner.name
+                name: owner.name,
               }
             : undefined;
         },
@@ -164,10 +164,10 @@ const CleanExpensesTable = ({
             ? {
                 id: pool.id,
                 name: pool.name,
-                purpose: pool.purpose
+                purpose: pool.purpose,
               }
             : undefined;
-        }
+        },
       }),
       {
         header: (
@@ -179,22 +179,22 @@ const CleanExpensesTable = ({
         columnSelector: {
           accessor: "resourceType",
           messageId: "type",
-          dataTestId: "btn_toggle_column_type"
+          dataTestId: "btn_toggle_column_type",
         },
         cell: ({
           row: {
-            original: { resource_type: resourceType, cluster_type_id: clusterTypeId, is_environment: isEnvironment, shareable }
-          }
+            original: { resource_type: resourceType, cluster_type_id: clusterTypeId, is_environment: isEnvironment, shareable },
+          },
         }) => (
           <ResourceTypeLabel
             resourceInfo={{
               resourceType,
               clusterTypeId,
               isEnvironment,
-              shareable
+              shareable,
             }}
           />
-        )
+        ),
       },
       {
         header: (
@@ -205,11 +205,11 @@ const CleanExpensesTable = ({
         columnSelector: {
           accessor: "location",
           messageId: "location",
-          dataTestId: "btn_toggle_column_location"
+          dataTestId: "btn_toggle_column_location",
         },
         accessorKey: "locationString",
         style: {
-          whiteSpace: "nowrap"
+          whiteSpace: "nowrap",
         },
         cell: ({ row: { original, id } }) => {
           const { cloud_account_type: cloudType, cloud_account_id: cloudId, cloud_account_name: cloudName } = original;
@@ -237,7 +237,7 @@ const CleanExpensesTable = ({
               ))}
             </>
           );
-        }
+        },
       },
       tags({
         accessorKey: "tagsString",
@@ -245,9 +245,9 @@ const CleanExpensesTable = ({
         columnSelector: {
           accessor: "tags",
           messageId: "tags",
-          dataTestId: "btn_toggle_column_tags"
-        }
-      })
+          dataTestId: "btn_toggle_column_tags",
+        },
+      }),
     ],
     [endDateTimestamp, startDateTimestamp]
   );
@@ -293,8 +293,8 @@ const CleanExpensesTable = ({
         dataTestId: "btn_mark_as_environment",
         action: () => {
           dispatch(markResourcesAsEnvironments(organizationId, selectedResourceIds));
-        }
-      }
+        },
+      },
     ];
 
     if (typeof downloadResources === "function") {
@@ -311,17 +311,17 @@ const CleanExpensesTable = ({
               key: "xlsx",
               messageId: "xlsxFile",
               action: () => downloadResources(DOWNLOAD_FILE_FORMATS.XLSX),
-              dataTestId: "btn_download_xlsx"
+              dataTestId: "btn_download_xlsx",
             },
             {
               key: "json",
               messageId: "jsonFile",
               action: () => downloadResources(DOWNLOAD_FILE_FORMATS.JSON),
-              dataTestId: "btn_download_json"
-            }
-          ]
+              dataTestId: "btn_download_json",
+            },
+          ],
         },
-        dataTestId: "btn_download"
+        dataTestId: "btn_download",
       });
     }
 
@@ -331,7 +331,7 @@ const CleanExpensesTable = ({
         messageId: "addAssignmentRuleShort",
         icon: <AssignmentOutlinedIcon fontSize="small" />,
         type: "button",
-        link: getCreateAssignmentRuleUrl(assignmentRuleCreationLinkParameters)
+        link: getCreateAssignmentRuleUrl(assignmentRuleCreationLinkParameters),
       });
     }
 
@@ -350,8 +350,8 @@ const CleanExpensesTable = ({
       actionBar={{
         show: true,
         definition: {
-          items: getActionBarItems()
-        }
+          items: getActionBarItems(),
+        },
       }}
       getRowId={(row) => row.resource_id}
       withSearch
@@ -362,13 +362,13 @@ const CleanExpensesTable = ({
         totalResourcesCount
           ? { total: totalResourcesCount }
           : {
-              hideTotal: true
+              hideTotal: true,
             }
       }
       dataTestIds={{
         infoArea: {
           displayed: "counter_displayed",
-          selected: "counter_selected"
+          selected: "counter_selected",
         },
         searchInput: "input_search",
         searchButton: "btn_search",
@@ -376,8 +376,8 @@ const CleanExpensesTable = ({
         columnsSelector: {
           container: "list_columns",
           button: "btn_columns",
-          clear: "btn_select_clear_all"
-        }
+          clear: "btn_select_clear_all",
+        },
       }}
     />
   );

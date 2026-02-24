@@ -23,15 +23,15 @@ const ConstraintsTable = ({ constraints }) => {
         accessorKey: "typeMessageId",
         cell: ({
           row: {
-            original: { typeMessageId, typeLink }
-          }
+            original: { typeMessageId, typeLink },
+          },
         }) => (
           <Link to={typeLink} component={RouterLink}>
             <FormattedMessage id={typeMessageId} />
           </Link>
-        )
+        ),
       },
-      organizationConstraintStatus()
+      organizationConstraintStatus(),
     ],
     []
   );
@@ -54,7 +54,7 @@ const OrganizationConstraintsCard = ({ constraints, isLoading = false }) => (
     title={<FormattedMessage id="policyViolations" />}
     dataTestIds={{
       wrapper: "block_policies_violations",
-      title: "lbl_policies_violations"
+      title: "lbl_policies_violations",
     }}
     elevation={0}
   >

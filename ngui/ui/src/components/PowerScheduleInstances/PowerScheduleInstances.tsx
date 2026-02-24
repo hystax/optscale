@@ -55,7 +55,7 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
         cloud_account_name: instance.details?.cloud_name,
         cloud_type: instance.details?.cloud_type,
         size: instance.meta?.flavor,
-        tags: instance.tags
+        tags: instance.tags,
       })),
     [instances]
   );
@@ -67,7 +67,7 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
         nameAccessor: "name",
         activeAccessor: "active",
         headerDataTestId: "lbl_instance",
-        titleMessageId: "instance"
+        titleMessageId: "instance",
       }),
       resourcePoolOwner({
         id: "pool/owner",
@@ -81,7 +81,7 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
           const { owner_name: ownerName } = rowOriginal;
 
           return {
-            name: ownerName
+            name: ownerName,
           };
         },
         getPool: (rowOriginal) => {
@@ -91,24 +91,24 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
             ? {
                 id: poolId,
                 name: poolName,
-                purpose: poolPurpose
+                purpose: poolPurpose,
               }
             : undefined;
-        }
+        },
       }),
       resourceLocation({
         idAccessor: "cloud_account_id",
         typeAccessor: "cloud_type",
         locationAccessors: {
-          region: "region"
+          region: "region",
         },
         accessorKey: "cloud_account_name",
-        headerDataTestId: "lbl_location"
+        headerDataTestId: "lbl_location",
       }),
       size({
         id: "size",
         accessorKey: "size",
-        headerDataTestId: "lbl_size"
+        headerDataTestId: "lbl_size",
       }),
       tags({
         id: "tags",
@@ -116,8 +116,8 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
-        getTags: (rowOriginal) => rowOriginal.tags ?? {}
-      })
+        getTags: (rowOriginal) => rowOriginal.tags ?? {},
+      }),
     ],
     []
   );
@@ -134,7 +134,7 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
           type: "button",
           dataTestId: "btn_add_instances_to_schedule",
           requiredActions: ["EDIT_PARTNER"],
-          action: () => openSideModal(AddInstanceToScheduleModal, { powerScheduleId })
+          action: () => openSideModal(AddInstanceToScheduleModal, { powerScheduleId }),
         },
         (tableContext) => {
           const { rows: selectedRows } = tableContext.getFilteredSelectedRowModel();
@@ -150,12 +150,12 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
             action: () =>
               openSideModal(RemoveInstancesFromScheduleModal, {
                 powerScheduleId,
-                selectedInstances: selectedRows.map(({ original }) => original)
-              })
+                selectedInstances: selectedRows.map(({ original }) => original),
+              }),
           };
-        }
-      ]
-    }
+        },
+      ],
+    },
   };
 
   return (
@@ -168,7 +168,7 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
       columns={columns}
       actionBar={actionBar}
       localization={{
-        emptyMessageId: "noInstances"
+        emptyMessageId: "noInstances",
       }}
     />
   );

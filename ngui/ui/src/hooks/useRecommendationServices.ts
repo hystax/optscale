@@ -29,88 +29,88 @@ export const NEBIUS_SERVICE = "nebius";
 const ALIBABA_SERVICES = Object.freeze({
   [ALIBABA_ECS]: {
     type: ALIBABA_CNR,
-    name: "services.ecs"
+    name: "services.ecs",
   },
   [ALIBABA_ECS_VPC]: {
     type: ALIBABA_CNR,
-    name: "services.ecs::vpc"
+    name: "services.ecs::vpc",
   },
   [ALIBABA_EBS]: {
     type: ALIBABA_CNR,
-    name: "services.ebs"
+    name: "services.ebs",
   },
   [ALIBABA_RDS]: {
     type: ALIBABA_CNR,
-    name: "services.rds"
+    name: "services.rds",
   },
   [ALIBABA_SLB]: {
     type: ALIBABA_CNR,
-    name: "services.slb"
-  }
+    name: "services.slb",
+  },
 });
 
 const AWS_SERVICES = Object.freeze({
   [AWS_IAM]: {
     type: AWS_CNR,
-    name: "services.iam"
+    name: "services.iam",
   },
   [AWS_EC2]: {
     type: AWS_CNR,
-    name: "services.ec2"
+    name: "services.ec2",
   },
   [AWS_EC2_EBS]: {
     type: AWS_CNR,
-    name: "services.ec2::ebs"
+    name: "services.ec2::ebs",
   },
   [AWS_EC2_VPC]: {
     type: AWS_CNR,
-    name: "services.ec2::vpc"
+    name: "services.ec2::vpc",
   },
   [AWS_RDS]: {
     type: AWS_CNR,
-    name: "services.rds"
+    name: "services.rds",
   },
   [AWS_KINESIS]: {
     type: AWS_CNR,
-    name: "services.kinesis"
+    name: "services.kinesis",
   },
   [AWS_S3]: {
     type: AWS_CNR,
-    name: "services.s3"
-  }
+    name: "services.s3",
+  },
 });
 
 const AZURE_SERVICES = Object.freeze({
   [AZURE_COMPUTE]: {
     type: AZURE_CNR,
-    name: "services.compute"
+    name: "services.compute",
   },
   [AZURE_NETWORK]: {
     type: AZURE_CNR,
-    name: "services.network"
-  }
+    name: "services.network",
+  },
 });
 
 const GCP_SERVICES = Object.freeze({
   [GCP_COMPUTE_ENGINE]: {
     type: GCP_CNR,
-    name: "services.computeEngine"
+    name: "services.computeEngine",
   },
   [GCP_IAM]: {
     type: GCP_CNR,
-    name: "services.iam"
+    name: "services.iam",
   },
   [GCP_CLOUD_STORAGE]: {
     type: GCP_CNR,
-    name: "services.cloudStorage"
-  }
+    name: "services.cloudStorage",
+  },
 });
 
 const NEBIUS_SERVICES = Object.freeze({
   [NEBIUS_SERVICE]: {
     type: NEBIUS,
-    name: "services.nebius"
-  }
+    name: "services.nebius",
+  },
 });
 
 export const useRecommendationServices = () => {
@@ -118,12 +118,12 @@ export const useRecommendationServices = () => {
 
   return {
     [ALL_SERVICES]: {
-      name: ALL_SERVICES
+      name: ALL_SERVICES,
     },
     ...ALIBABA_SERVICES,
     ...AWS_SERVICES,
     ...AZURE_SERVICES,
     ...GCP_SERVICES,
-    ...(isNebiusConnectionEnabled ? NEBIUS_SERVICES : {})
+    ...(isNebiusConnectionEnabled ? NEBIUS_SERVICES : {}),
   };
 };

@@ -17,9 +17,9 @@ const buildColumnsDefinition = (fields) =>
     columnSelector: {
       accessor: field,
       title: field,
-      dataTestId: `btn_toggle_column_${field}`
+      dataTestId: `btn_toggle_column_${field}`,
     },
-    cell: ({ cell }) => cell.getValue()
+    cell: ({ cell }) => cell.getValue(),
   }));
 
 const RawExpensesTable = ({ expenses, isLoading }) => {
@@ -48,17 +48,17 @@ const RawExpensesTable = ({ expenses, isLoading }) => {
           totalKey: "lbl_total",
           totalValue: "lbl_total_value",
           displayedKey: "lbl_displayed",
-          displayedValue: "lbl_displayed_value"
+          displayedValue: "lbl_displayed_value",
         },
         columnsSelector: {
           button: "btn_columns_selector",
-          clear: "btn_select_clear_all"
-        }
+          clear: "btn_select_clear_all",
+        },
       }}
       data={data}
       columns={columns}
       localization={{
-        emptyMessageId: "noExpenses"
+        emptyMessageId: "noExpenses",
       }}
       columnOrder={STATIC_RAW_EXPENSES_COLUMNS}
       pageSize={50}

@@ -11,7 +11,7 @@ const ShareSwitch = () => (
     label={<FormattedMessage id="share" />}
     adornment={<QuestionMark messageId="shareDashboardDescription" />}
     sx={{
-      paddingLeft: (theme) => theme.spacing(1.75)
+      paddingLeft: (theme) => theme.spacing(1.75),
     }}
   />
 );

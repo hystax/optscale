@@ -7,7 +7,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <EnvironmentCostModel resourceId={""} hourlyPrice={0} />
+      <EnvironmentCostModel resourceId="" hourlyPrice={0} />
     </TestProvider>
   );
   root.unmount();

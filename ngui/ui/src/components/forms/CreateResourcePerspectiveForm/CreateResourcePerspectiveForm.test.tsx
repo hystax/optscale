@@ -15,7 +15,7 @@ it("renders without crashing", () => {
         filters={
           new Filters({
             filters: [],
-            filterValues: {}
+            filterValues: {},
           })
         }
       />

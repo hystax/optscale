@@ -7,8 +7,8 @@ class EditLeaderboardModal extends BaseSideModal {
     showExpand: true,
     dataTestIds: {
       title: "lbl_edit_leaderboard",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_edit_leaderboard";

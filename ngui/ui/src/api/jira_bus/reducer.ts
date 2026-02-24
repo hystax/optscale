@@ -7,7 +7,7 @@ const reducer = (state = {}, action) => {
     case SET_JIRA_ORGANIZATION_STATUS:
       return {
         ...state,
-        [action.label]: action.payload
+        [action.label]: action.payload,
       };
     default:
       return state;

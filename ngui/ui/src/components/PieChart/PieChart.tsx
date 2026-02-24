@@ -27,7 +27,7 @@ const PieChart = ({
   onClick,
   renderTooltipBody,
   borderWidth = DEFAULT_CHART_BORDER_WIDTH,
-  shouldApplyHoverStyles = true
+  shouldApplyHoverStyles = true,
 }) => {
   // Consume full width of a container by default. theme.spacing seems to be working correctly with percentage as well.
   const { height = 30, width = "100%", margin = { top: 10 } } = style;
@@ -37,7 +37,7 @@ const PieChart = ({
 
   const [wrapperClass, addHoverClass, removeHoverClass] = useChartHoverStyles({
     borderWidth,
-    isClickable: typeof onClick === "function"
+    isClickable: typeof onClick === "function",
   });
 
   const applyHoverStyles = (node, event) => {
@@ -71,8 +71,8 @@ const PieChart = ({
         animate={false}
         theme={{
           tooltip: {
-            zIndex: theme.zIndex.tooltip
-          }
+            zIndex: theme.zIndex.tooltip,
+          },
         }}
       />
     </Box>

@@ -23,7 +23,7 @@ const MlTaskRun = ({
   isFinOpsEnabled = false,
   isPublicRun = false,
   isLoading = false,
-  isDataReady = false
+  isDataReady = false,
 }) => {
   const { task: { id: taskId, name: taskName } = {}, name: runName, number } = run;
 
@@ -53,11 +53,11 @@ const MlTaskRun = ({
           </Link>
         )}
       </Fragment>,
-      <FormattedMessage key={3} id="runs" />
+      <FormattedMessage key={3} id="runs" />,
     ],
     title: {
       isLoading,
-      text: <Typography>{formatRunFullName(number, runName)}</Typography>
+      text: <Typography>{formatRunFullName(number, runName)}</Typography>,
     },
     items: [
       {
@@ -66,7 +66,7 @@ const MlTaskRun = ({
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_RUN_DETAILS, GET_ML_EXECUTORS, GET_ML_RUN_DETAILS_BREAKDOWN, GET_ML_ARTIFACTS])
+        action: () => refetch([GET_ML_RUN_DETAILS, GET_ML_EXECUTORS, GET_ML_RUN_DETAILS_BREAKDOWN, GET_ML_ARTIFACTS]),
       },
       ...(isPublicRun
         ? []
@@ -80,12 +80,12 @@ const MlTaskRun = ({
               isLoading,
               action: () => {
                 openSideModal(ShareRunLinkModal, {
-                  runId: run.id
+                  runId: run.id,
                 });
-              }
-            }
-          ])
-    ]
+              },
+            },
+          ]),
+    ],
   };
 
   const overviewTab = <Overview run={run} isLoading={isLoading} />;

@@ -1,8 +1,4 @@
-import {
-  RESTDataSource,
-  AugmentedRequest,
-  type DataSourceConfig,
-} from "@apollo/datasource-rest";
+import { RESTDataSource, AugmentedRequest, type DataSourceConfig } from "@apollo/datasource-rest";
 
 class BaseClient extends RESTDataSource {
   private token: string;

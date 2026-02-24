@@ -35,7 +35,7 @@ const useGetOnDemandOrganizationCloudResources = () => {
 
 function CloudResourcesService() {
   return {
-    useGetOnDemandOrganizationCloudResources
+    useGetOnDemandOrganizationCloudResources,
   };
 }
 

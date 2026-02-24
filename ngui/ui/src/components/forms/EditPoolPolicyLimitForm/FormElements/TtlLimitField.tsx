@@ -22,15 +22,15 @@ const TtlLimitField = () => {
           <Typography
             variant="body2"
             sx={{
-              whiteSpace: "nowrap"
+              whiteSpace: "nowrap",
             }}
           >
             <FormattedMessage id="hours" />
           </Typography>
-        )
+        ),
       }}
       validate={{
-        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true)
+        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
       }}
       dataTestId="input_ttl"
       margin="none"

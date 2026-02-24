@@ -7,8 +7,8 @@ import { getDefaultValues } from "./utils";
 const RenameDataSourceForm = ({ name, onSubmit, onCancel, isLoading = false }: RenameDataSourceFormProps) => {
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      name
-    })
+      name,
+    }),
   });
 
   const { handleSubmit } = methods;
@@ -24,7 +24,7 @@ const RenameDataSourceForm = ({ name, onSubmit, onCancel, isLoading = false }: R
         <NameField />
         <FormContentDescription
           alertProps={{
-            messageId: "dataSourceRenamingWarning"
+            messageId: "dataSourceRenamingWarning",
           }}
         />
         <FormButtons onCancel={onCancel} isLoading={isLoading} />

@@ -11,7 +11,7 @@ import { isEmptyObject } from "utils/objects";
 
 const getBreakdownByRenderData = (breakdownBy) => ({
   controlName: "categorizeBy",
-  renderValue: () => breakdowns.find((breakdown) => breakdown.value === breakdownBy)?.name ?? null
+  renderValue: () => breakdowns.find((breakdown) => breakdown.value === breakdownBy)?.name ?? null,
 });
 
 const getGroupByRenderData = (groupBy) => ({
@@ -24,20 +24,20 @@ const getGroupByRenderData = (groupBy) => ({
       return <KeyValueLabel keyMessageId={groupBy.groupType} value={groupBy.groupBy} />;
     }
     return <FormattedMessage id={groupBy.groupType} />;
-  }
+  },
 });
 
 const getBreakdownStateValueRenderer = (name) =>
   ({
     breakdownBy: getBreakdownByRenderData,
-    groupBy: getGroupByRenderData
+    groupBy: getGroupByRenderData,
   })[name] ?? (() => null);
 
 const ResourcesPerspectiveValuesDescription = ({
   breakdownBy,
   breakdownData = {},
   perspectiveFilterValues = {},
-  perspectiveAppliedFilters = {}
+  perspectiveAppliedFilters = {},
 }) => (
   <Stack spacing={SPACING_1}>
     <KeyValueLabel keyMessageId="breakdownBy" value={<FormattedMessage id={breakdownBy} />} />

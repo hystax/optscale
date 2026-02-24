@@ -10,7 +10,7 @@ import {
   getDate,
   isSameMonth,
   isToday,
-  isWithinInterval
+  isWithinInterval,
 } from "utils/datetime";
 import Day from "../Day";
 import Header from "../Header";
@@ -30,7 +30,7 @@ const Month = (props) => {
     maxDate,
     navState = [],
     userBounds,
-    dataTestIds
+    dataTestIds,
   } = props;
 
   const [back, forward] = navState;

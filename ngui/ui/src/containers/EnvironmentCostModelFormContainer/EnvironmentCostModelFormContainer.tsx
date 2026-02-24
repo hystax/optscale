@@ -13,7 +13,7 @@ const EnvironmentCostModelFormContainer = ({ resourceId, hourlyPrice, onCancel }
     dispatch((_, getState) => {
       dispatch(
         updateResourceCostModel(resourceId, {
-          hourlyPrice: Number(formData.hourlyPrice)
+          hourlyPrice: Number(formData.hourlyPrice),
         })
       ).then(() => {
         if (!isError(UPDATE_RESOURCE_COST_MODEL, getState())) {

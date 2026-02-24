@@ -12,19 +12,19 @@ export const ROLE_PURPOSES = Object.freeze({
   [ORGANIZATION_MANAGER]: "organizationManager",
   [MANAGER]: "manager",
   [ENGINEER]: "engineer",
-  [MEMBER]: "member"
+  [MEMBER]: "member",
 });
 
 export const ORGANIZATION_ROLE_PURPOSES = Object.freeze({
   [MANAGER]: "organizationManager",
   [ENGINEER]: "organizationEngineer",
-  [MEMBER]: "member"
+  [MEMBER]: "member",
 });
 
 export const INVITABLE_ROLE_PURPOSES = Object.freeze({
   [ORGANIZATION_MANAGER]: "organizationManager",
   [MANAGER]: "manager",
-  [ENGINEER]: "engineer"
+  [ENGINEER]: "engineer",
 });
 
 // Pool purposes
@@ -43,7 +43,7 @@ export const POOL_TYPES = Object.freeze({
   [POOL_TYPE_PROJECT]: POOL_TYPE_PROJECT,
   [POOL_TYPE_CICD]: POOL_TYPE_CICD,
   [POOL_TYPE_MLAI]: POOL_TYPE_MLAI,
-  [POOL_TYPE_ASSET_POOL]: "assetPool"
+  [POOL_TYPE_ASSET_POOL]: "assetPool",
 });
 
 export const POOL_TYPES_LIST = Object.freeze(Object.keys(POOL_TYPES));
@@ -67,7 +67,7 @@ export const CLOUD_PROVIDERS = Object.freeze({
   ALIBABA: "alibaba",
   NEBIUS: "nebius",
   DATABRICKS: "databricks",
-  KUBERNETES: "kubernetes"
+  KUBERNETES: "kubernetes",
 });
 
 export const CONNECTION_TYPES = Object.freeze({
@@ -80,7 +80,7 @@ export const CONNECTION_TYPES = Object.freeze({
   GCP_TENANT: "gcpTenant",
   NEBIUS: "nebius",
   DATABRICKS: "databricks",
-  KUBERNETES: "kubernetes"
+  KUBERNETES: "kubernetes",
 });
 
 export const CONNECTION_TYPE_SEARCH_PARAMETER = "type";
@@ -97,7 +97,7 @@ export const CLOUD_ACCOUNT_TYPE = Object.freeze({
   [GCP_TENANT]: "gcpTenant",
   [ENVIRONMENT]: "environment",
   [NEBIUS]: "nebius",
-  [KUBERNETES_CNR]: "kubernetes"
+  [KUBERNETES_CNR]: "kubernetes",
 });
 
 // Expenses
@@ -108,7 +108,7 @@ export const THIS_MONTH_FORECAST = "this_month_forecast";
 export const EXPENSES_PERIOD = Object.freeze({
   [LAST_MONTH]: "lastMonth",
   [THIS_MONTH]: "thisMonth",
-  [THIS_MONTH_FORECAST]: "thisMonthForecast"
+  [THIS_MONTH_FORECAST]: "thisMonthForecast",
 });
 
 export const COST_EXPLORER = "COST_EXPLORER";
@@ -126,7 +126,7 @@ export const EXPENSES_FILTERBY_TYPES = Object.freeze({
   REGION: "region",
   RESOURCE_TYPE: "resource_type",
   NODE: "k8s_node",
-  NAMESPACE: "k8s_namespace"
+  NAMESPACE: "k8s_namespace",
 });
 
 // Assignment rules
@@ -143,12 +143,12 @@ export const REGION_IS = "region_is";
 
 export const ASSIGNMENT_RULE_OPERATORS = Object.freeze({
   AND: "and",
-  OR: "or"
+  OR: "or",
 });
 
 export const COMPLEX_TAG_CONDITION_TYPES = Object.freeze({
   [TAG_IS]: "tagIs",
-  [TAG_VALUE_STARTS_WITH]: "tagValueStartsWith"
+  [TAG_VALUE_STARTS_WITH]: "tagValueStartsWith",
 });
 
 export const CONDITION_TYPES = Object.freeze({
@@ -161,24 +161,24 @@ export const CONDITION_TYPES = Object.freeze({
   [TAG_VALUE_STARTS_WITH]: "tagValueStartsWith",
   [CLOUD_IS]: "sourceIs",
   [RESOURCE_TYPE_IS]: "resourceTypeIs",
-  [REGION_IS]: "regionIs"
+  [REGION_IS]: "regionIs",
 });
 
 export const CONDITION = Object.freeze({
   META_INFO: "meta_info",
-  TYPE: "type"
+  TYPE: "type",
 });
 
 export const TAG_CONDITION = Object.freeze({
   KEY: "key",
-  VALUE: "value"
+  VALUE: "value",
 });
 
 export const CLOUD_IS_CONDITION_VALUE = "cloudId";
 
 export const DEFAULT_CONDITION = {
   [CONDITION.TYPE]: NAME_ID_STARTS_WITH,
-  [CONDITION.META_INFO]: ""
+  [CONDITION.META_INFO]: "",
 };
 
 export const DEFAULT_CONDITIONS = [DEFAULT_CONDITION];
@@ -195,7 +195,7 @@ export const EVENT_LEVEL = Object.freeze({
   INFO: "INFO",
   WARNING: "WARNING",
   ERROR: "ERROR",
-  DEBUG: "DEBUG"
+  DEBUG: "DEBUG",
 });
 
 export const EVENTS_LIMIT = 80;
@@ -309,24 +309,24 @@ export const SETTINGS_TYPE_SUCCESS_MESSAGE = Object.freeze({
   THRESHOLDS: "thresholds",
   RIGHTSIZING_STRATEGY: "rightsizingStrategy",
   EXCLUSIONS: "exclusions",
-  INSECURE_PORTS: "insecurePorts"
+  INSECURE_PORTS: "insecurePorts",
 });
 
 // AWS Root account connection schemes
 export const AWS_ROOT_CONNECT_CONFIG_SCHEMES = Object.freeze({
   FIND_REPORT: "find_report",
   CREATE_REPORT: "create_report",
-  BUCKET_ONLY: "bucket_only"
+  BUCKET_ONLY: "bucket_only",
 });
 
 export const AWS_ROOT_CONNECT_CUR_VERSION = Object.freeze({
   CUR_1: 1,
-  CUR_2: 2
+  CUR_2: 2,
 });
 
 export const AWS_ROOT_CONNECT_CUR_VERSION_MESSAGE_ID = Object.freeze({
   [AWS_ROOT_CONNECT_CUR_VERSION.CUR_1]: "legacyCurExport",
-  [AWS_ROOT_CONNECT_CUR_VERSION.CUR_2]: "standardDataExport"
+  [AWS_ROOT_CONNECT_CUR_VERSION.CUR_2]: "standardDataExport",
 });
 
 export const SUMMARY_VALUE_COMPONENT_TYPES = Object.freeze({
@@ -334,18 +334,18 @@ export const SUMMARY_VALUE_COMPONENT_TYPES = Object.freeze({
   FormattedMoney: "FormattedMoney",
   FormattedMessage: "FormattedMessage",
   FormattedDigitalUnit: "FormattedDigitalUnit",
-  Custom: "Custom"
+  Custom: "Custom",
 });
 
 export const SUMMARY_CARD_TYPES = Object.freeze({
   BASIC: "basic",
-  EXTENDED: "extended"
+  EXTENDED: "extended",
 });
 
 export const SCOPE_TYPES = Object.freeze({
   ORGANIZATION: "organization",
   POOL: "pool",
-  RESOURCE: "resource"
+  RESOURCE: "resource",
 });
 
 export const START_DATE_PICKER_NAME = "startDate";
@@ -358,14 +358,14 @@ export const PDF_ELEMENTS = Object.freeze({
     expensesSummary: "costExplorerExpensesSummary",
     previousExpensesSummary: "costExplorerPreviousExpensesSummary",
     barChart: "costExplorerBarChart",
-    periodWidgetTitle: "costExplorerPeriodWidgetTitle"
+    periodWidgetTitle: "costExplorerPeriodWidgetTitle",
   }),
 
   // elements with "inline renders" inside download button click handler
   basics: Object.freeze({
     H1: "basic elements h1",
     H2: "basic elements h2",
-    fileName: "set file name"
+    fileName: "set file name",
   }),
 
   // types for static pdf markup stuff, no reactive data inside
@@ -376,29 +376,29 @@ export const PDF_ELEMENTS = Object.freeze({
     newLandscapePage: "new landscape page",
     logo: "optscale logotype",
     spacer: "vertical spacer",
-    footer: "footer copyright"
-  })
+    footer: "footer copyright",
+  }),
 });
 
 // TTL Analysis
 export const TTL_MODES = Object.freeze({
   PREDEFINED_TTL: "predefined",
-  CUSTOM_TTL: "custom"
+  CUSTOM_TTL: "custom",
 });
 
 export const TTL_ANALYSIS_QUERY_PARAMETERS = Object.freeze({
   POOL_ID: "poolId",
-  TTL: "ttl"
+  TTL: "ttl",
 });
 
 export const TTL_ANALYSIS_TOP_SECTION_TYPES = Object.freeze({
   FORM: "form",
-  APPLIED_FILTERS: "appliedFilters"
+  APPLIED_FILTERS: "appliedFilters",
 });
 
 export const TTL_ANALYSIS_FORM_FIELD_NAMES = Object.freeze({
   POOL_ID: "poolId",
-  TTL_MODE: "ttlMode"
+  TTL_MODE: "ttlMode",
 });
 
 export const TAB_QUERY_PARAM_NAME = "tab";
@@ -412,7 +412,7 @@ export const RESOURCE_PAGE_TABS = Object.freeze({
   RECOMMENDATIONS: "recommendations",
   MONITORING: "monitoring",
   COST_MODEL: "costModel",
-  BOOKINGS: "bookings"
+  BOOKINGS: "bookings",
 });
 
 // Cloud account details page
@@ -421,14 +421,14 @@ export const CLOUD_ACCOUNT_DETAILS_PAGE_TABS = Object.freeze({
   ADVANCED: "advanced",
   UPLOAD: "upload",
   NODES: "nodes",
-  PRICING: "pricing"
+  PRICING: "pricing",
 });
 
 // Resource page expenses tab
 export const RESOURCE_PAGE_EXPENSES_TABS = Object.freeze({
   GROUPED: "grouped",
   DETAILED: "detailed",
-  PAID_NETWORK_TRAFFIC: "paidNetworkTraffic"
+  PAID_NETWORK_TRAFFIC: "paidNetworkTraffic",
 });
 
 export const DATE_RANGE_FILTERS = Object.freeze({
@@ -436,7 +436,7 @@ export const DATE_RANGE_FILTERS = Object.freeze({
   LAST_WEEK: "lastWeek",
   THIS_WEEK: "thisWeek",
   LAST_MONTH: "lastMonth",
-  THIS_MONTH: "thisMonth"
+  THIS_MONTH: "thisMonth",
 });
 
 export const RESOURCE_PAGE_TAB_QUERY_PARAM_NAME = "tab";
@@ -445,49 +445,49 @@ export const LINEAR_SELECTOR_ITEMS_TYPES = Object.freeze({
   TEXT: "text",
   POPOVER: "popover",
   MULTISELECT_POPOVER: "multiSelectPopover",
-  RANGE: "range"
+  RANGE: "range",
 });
 
 export const RESOURCE_VISIBILITY_ACTIONS = {
   DISMISS: "dismiss",
-  ACTIVATE: "activate"
+  ACTIVATE: "activate",
 };
 
 export const FORMATTED_MONEY_TYPES = Object.freeze({
   COMMON: "common",
   COMPACT: "compact",
   TINY: "tiny",
-  TINY_COMPACT: "tinyCompact"
+  TINY_COMPACT: "tinyCompact",
 });
 
 export const ORGANIZATION_OVERVIEW_TABS = Object.freeze({
   POOLS: "pools",
   ASSIGNMENT_RULES: "assignmentRules",
-  CONSTRAINTS: "constraints"
+  CONSTRAINTS: "constraints",
 });
 
 export const ORGANIZATIONS_OVERVIEW_FILTERS = Object.freeze({
   ALL: "all",
   REQUIRING_ATTENTION: "requiringAttention",
-  ALL_FINE: "allFine"
+  ALL_FINE: "allFine",
 });
 
 export const ENVIRONMENTS_STATUS_FILTERS = Object.freeze({
   ALL: "anyStatus",
   AVAILABLE: "available",
   UNAVAILABLE: "unavailable",
-  IN_USE: "inUse"
+  IN_USE: "inUse",
 });
 
 export const ENVIRONMENTS_ACCESS_FILTERS = Object.freeze({
   ALL: "all",
   GRANTED: "granted",
-  RESTRICTED: "restricted"
+  RESTRICTED: "restricted",
 });
 
 export const LOGO_SIZE = Object.freeze({
   FULL: "full",
-  SHORT: "short"
+  SHORT: "short",
 });
 
 export const WEEK_LENGTH = 7;
@@ -495,14 +495,14 @@ export const WEEK_LENGTH = 7;
 export const EXPENSES_SPLIT_PERIODS = Object.freeze({
   DAILY: "daily",
   WEEKLY: "weekly",
-  MONTHLY: "monthly"
+  MONTHLY: "monthly",
 });
 
 export const DATE_RANGE_TYPE = Object.freeze({
   EXPENSES: "expenses",
   RESOURCES: "resources",
   TTL_ANALYSIS: "ttlAnalysis",
-  ARCHIVED_RECOMMENDATIONS: "archivedRecommendations"
+  ARCHIVED_RECOMMENDATIONS: "archivedRecommendations",
 });
 
 export const METRIC_TYPES = Object.freeze({
@@ -514,18 +514,18 @@ export const METRIC_TYPES = Object.freeze({
   PACKETS_SENT: "packets_sent",
   DISK_IO_USAGE: "disk_io_usage",
   CONSOLIDATED_DISK_IO: "consolidated_disk_io",
-  REQUESTS: "requests"
+  REQUESTS: "requests",
 });
 
 export const COST_MODEL_TYPES = Object.freeze({
   K8S: "k8s",
-  ENVIRONMENT: "environment"
+  ENVIRONMENT: "environment",
 });
 
 export const OPTSCALE_RESOURCE_TYPES = Object.freeze({
   CLUSTER: "cluster",
   ENVIRONMENT: "environment",
-  REGULAR: "regular"
+  REGULAR: "regular",
 });
 
 export const COST_MODEL_MONEY_MAXIMUM_FRACTION_DIGITS = 6;
@@ -533,7 +533,7 @@ export const COST_MODEL_MONEY_MAXIMUM_FRACTION_DIGITS = 6;
 export const CLEAN_EXPENSES_GROUP_TYPES = Object.freeze({
   POOL: "pool",
   OWNER: "owner",
-  TAG: "tag"
+  TAG: "tag",
 });
 
 export const CLEAN_EXPENSES_GROUP_TYPES_LIST = Object.values(CLEAN_EXPENSES_GROUP_TYPES);
@@ -544,19 +544,19 @@ export const ALERT_SEVERITY = Object.freeze({
   ERROR: "error",
   INFO: "info",
   SUCCESS: "success",
-  WARNING: "warning"
+  WARNING: "warning",
 });
 
 export const ENVIRONMENT_SOFTWARE_FIELD = "Software ";
 export const ENVIRONMENT_JIRA_TICKETS_FIELD = "Jira tickets ";
 export const ENVIRONMENT_TOUR_IDS_BY_DYNAMIC_FIELDS = Object.freeze({
   [ENVIRONMENT_SOFTWARE_FIELD]: "environmentsSoftware",
-  [ENVIRONMENT_JIRA_TICKETS_FIELD]: "environmentsJiraTickets"
+  [ENVIRONMENT_JIRA_TICKETS_FIELD]: "environmentsJiraTickets",
 });
 
 export const DOWNLOAD_FILE_FORMATS = Object.freeze({
   JSON: "json",
-  XLSX: "xlsx"
+  XLSX: "xlsx",
 });
 
 export const ENV_COLLECTOR_URL = "ENV_COLLECTOR_URL";
@@ -571,7 +571,7 @@ export const DEFAULT_BAR_CHART_MARGIN = Object.freeze({
   top: 20,
   bottom: 50,
   right: 50,
-  left: 75
+  left: 75,
 });
 
 export const DEFAULT_LINE_CHART_HEIGHT = 50;
@@ -588,7 +588,7 @@ export const CHART_LEGEND_LAYOUT_SETTINGS = {
   itemHeight: 16,
   itemsSpacing: 4,
   symbolSize: 16,
-  symbolSpacing: 8
+  symbolSpacing: 8,
 } as const;
 
 export const MAX_LEGEND_LABEL_WIDTH =
@@ -599,24 +599,24 @@ export const MAX_LEGEND_LABEL_WIDTH =
 
 export const RESOURCE_LIMIT_HIT_STATE = Object.freeze({
   RED: "red",
-  GREEN: "green"
+  GREEN: "green",
 });
 
 export const GOAL_STATUS = Object.freeze({
   MET: "goalMet",
-  NOT_MET: "goalNotMet"
+  NOT_MET: "goalNotMet",
 });
 
 export const GOALS_FILTER_TYPES = Object.freeze({
   LESS_IS_BETTER: "less",
-  MORE_IS_BETTER: "more"
+  MORE_IS_BETTER: "more",
 });
 
 export const AGGREGATE_FUNCTIONS = Object.freeze({
   LAST: "last",
   SUM: "sum",
   MAX: "max",
-  AVERAGE: "average"
+  AVERAGE: "average",
 });
 
 export const CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX = "expenses";
@@ -626,7 +626,7 @@ export const PROVIDE_DATA_STEPS = Object.freeze({
   INFRASTRUCTURE: "infrastructure",
   CODE: "code",
   SURVEY: "survey",
-  REVIEW_AND_SUBMIT: "reviewAndSubmit"
+  REVIEW_AND_SUBMIT: "reviewAndSubmit",
 });
 
 export const DEFAULT_CHART_BORDER_WIDTH = 0;
@@ -640,7 +640,7 @@ export const RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY = Object.freeze({
   RESOURCE_TYPE: "resource_type",
   K8S_NODE: "k8s_node",
   K8S_NAMESPACE: "k8s_namespace",
-  K8S_SERVICE: "k8s_service"
+  K8S_SERVICE: "k8s_service",
 });
 
 export const RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY_VALUES = Object.freeze(Object.values(RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY));
@@ -649,7 +649,7 @@ export const RESOURCE_COUNT_ANOMALY = "resource_count_anomaly";
 export const EXPENSE_ANOMALY = "expense_anomaly";
 export const ANOMALY_TYPES = Object.freeze({
   [RESOURCE_COUNT_ANOMALY]: "resourceCount",
-  [EXPENSE_ANOMALY]: "expenses"
+  [EXPENSE_ANOMALY]: "expenses",
 });
 
 export const QUOTA_POLICY = "resource_quota";
@@ -658,12 +658,12 @@ export const EXPIRING_BUDGET_POLICY = "expiring_budget";
 export const QUOTAS_AND_BUDGETS_TYPES = Object.freeze({
   [QUOTA_POLICY]: "resourceQuota",
   [RECURRING_BUDGET_POLICY]: "recurringBudget",
-  [EXPIRING_BUDGET_POLICY]: "expiringBudget"
+  [EXPIRING_BUDGET_POLICY]: "expiringBudget",
 });
 
 export const TAGGING_POLICY = "tagging_policy";
 export const TAGGING_POLICY_TYPES = Object.freeze({
-  [TAGGING_POLICY]: "taggingPolicy"
+  [TAGGING_POLICY]: "taggingPolicy",
 });
 
 export const POLICY_TYPE_COLUMN_NAMES = Object.freeze({
@@ -672,13 +672,13 @@ export const POLICY_TYPE_COLUMN_NAMES = Object.freeze({
   [QUOTA_POLICY]: "resourceQuotaColumnName",
   [RECURRING_BUDGET_POLICY]: "recurringBudgetColumnName",
   [EXPIRING_BUDGET_POLICY]: "expiringBudgetColumnName",
-  [TAGGING_POLICY]: "taggingPolicyColumnName"
+  [TAGGING_POLICY]: "taggingPolicyColumnName",
 });
 
 export const RIGHTSIZING_METRIC_LIMIT_TYPES = Object.freeze({
   Q99: "qtl99",
   MAX: "max",
-  AVG: "avg"
+  AVG: "avg",
 });
 
 export const METADATA_FIELDS = Object.freeze({
@@ -724,7 +724,7 @@ export const METADATA_FIELDS = Object.freeze({
   START: "metadata.start",
   END: "metadata.end",
   IS_PUBLIC_POLICY: "metadata.isPublicPolicy",
-  IS_PUBLIC_ACLS: "metadata.isPublicAcls"
+  IS_PUBLIC_ACLS: "metadata.isPublicAcls",
 });
 
 export const INSECURE_PORTS_MAP = Object.freeze({
@@ -782,7 +782,7 @@ export const INSECURE_PORTS_MAP = Object.freeze({
   27019: "MongoDB",
   28015: "RethinkDB",
   28017: "MongoDB",
-  29015: "RethinkDB"
+  29015: "RethinkDB",
 });
 
 export const MIN_PORT = 0;
@@ -791,7 +791,7 @@ export const MAX_PORT = 65535;
 
 export const EXPENSES_MAP_TYPES = Object.freeze({
   REGION: "region",
-  TRAFFIC: "networkTraffic"
+  TRAFFIC: "networkTraffic",
 });
 
 export const EXPENSES_MAP_OBJECT_TYPES = Object.freeze({
@@ -800,7 +800,7 @@ export const EXPENSES_MAP_OBJECT_TYPES = Object.freeze({
   OTHER_MARKER: "otherMarker",
   EXTERNAL_MARKER: "externalMarker",
   INTER_REGION_MARKER: "interRegionMarker",
-  INTER_CONTINENTAL_MARKER: "interContinentalMarker"
+  INTER_CONTINENTAL_MARKER: "interContinentalMarker",
 });
 
 export const ARCHIVATION_REASON_MESSAGE_ID = Object.freeze({
@@ -809,7 +809,7 @@ export const ARCHIVATION_REASON_MESSAGE_ID = Object.freeze({
   resource_deleted: "archivationReason.resourceHasBeenDeleted",
   recommendation_applied: "archivationReason.recommendationHasBeenApplied",
   recommendation_irrelevant: "archivationReason.recommendationHasBecomeIrrelevant",
-  failed_dependency: "archivationReason.dataSourceSettingsHaveBeenUpdated"
+  failed_dependency: "archivationReason.dataSourceSettingsHaveBeenUpdated",
 });
 
 export const ARCHIVATION_REASON_DESCRIPTION_MESSAGE_ID = Object.freeze({
@@ -818,14 +818,14 @@ export const ARCHIVATION_REASON_DESCRIPTION_MESSAGE_ID = Object.freeze({
   resource_deleted: "archivationReason.resourceHasBeenDeleted.description",
   recommendation_applied: "archivationReason.recommendationHasBeenApplied.description",
   recommendation_irrelevant: "archivationReason.recommendationHasBecomeIrrelevant.description",
-  failed_dependency: "archivationReason.dataSourceSettingsHaveBeenUpdated.description"
+  failed_dependency: "archivationReason.dataSourceSettingsHaveBeenUpdated.description",
 });
 
 export const CLEAN_EXPENSES_BREAKDOWN_TYPES = Object.freeze({
   EXPENSES: "expenses",
   RESOURCE_COUNT: "resourceCount",
   TAGS: "tags",
-  META: "meta"
+  META: "meta",
 });
 
 export const CLEAN_EXPENSES_BREAKDOWN_TYPES_LIST = Object.values(CLEAN_EXPENSES_BREAKDOWN_TYPES);
@@ -837,20 +837,20 @@ export const BREAKDOWN_LINEAR_SELECTOR_ITEMS = [
     name: CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES,
     value: "expenses",
     type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-    dataTestId: "breakdown_ls_item_expenses"
+    dataTestId: "breakdown_ls_item_expenses",
   },
   {
     name: CLEAN_EXPENSES_BREAKDOWN_TYPES.RESOURCE_COUNT,
     value: "resource_type",
     type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-    dataTestId: "breakdown_ls_item_resource_count"
+    dataTestId: "breakdown_ls_item_resource_count",
   },
   {
     name: CLEAN_EXPENSES_BREAKDOWN_TYPES.TAGS,
     value: "tags",
     type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-    dataTestId: "breakdown_ls_item_tags"
-  }
+    dataTestId: "breakdown_ls_item_tags",
+  },
 ];
 
 export const ML_TASK_DETAILS_TABS = Object.freeze({
@@ -859,7 +859,7 @@ export const ML_TASK_DETAILS_TABS = Object.freeze({
   MODEL_VERSIONS: "modelVersions",
   LEADERBOARDS: "leaderboards",
   EXECUTORS: "executors",
-  RECOMMENDATIONS: "recommendations"
+  RECOMMENDATIONS: "recommendations",
 });
 
 export const ML_TASK_DETAILS_TAB_NAME = "taskDetailsTab";
@@ -869,7 +869,7 @@ export const ML_RUN_STATUS = Object.freeze({
   ABORTED: "aborted",
   COMPLETED: "completed",
   RUNNING: "running",
-  FAILED: "failed"
+  FAILED: "failed",
 });
 
 export const ML_TASK_STATUS = Object.freeze({
@@ -877,17 +877,17 @@ export const ML_TASK_STATUS = Object.freeze({
   ABORTED: "aborted",
   COMPLETED: "completed",
   RUNNING: "running",
-  FAILED: "failed"
+  FAILED: "failed",
 });
 
 export const TENDENCY = Object.freeze({
   MORE: "more",
-  LESS: "less"
+  LESS: "less",
 });
 
 export const SORTING_ORDER = Object.freeze({
   ASC: "asc",
-  DESC: "desc"
+  DESC: "desc",
 });
 
 export const FREE_ACCOUNT_30_DAYS_EXPENSES_THRESHOLD = 30000;
@@ -913,7 +913,7 @@ export const RUNSET_TEMPLATE_REGIONS = Object.freeze([
   { id: "eu-west-2", name: "eu-west-2", cloudType: AWS_CNR },
   { id: "eu-west-3", name: "eu-west-3", cloudType: AWS_CNR },
   { id: "eu-north-1", name: "eu-north-1", cloudType: AWS_CNR },
-  { id: "sa-east-1", name: "sa-east-1", cloudType: AWS_CNR }
+  { id: "sa-east-1", name: "sa-east-1", cloudType: AWS_CNR },
 ]);
 
 export const RUNSET_TEMPLATE_INSTANCE_GROUP_TYPE = Object.freeze({
@@ -922,7 +922,7 @@ export const RUNSET_TEMPLATE_INSTANCE_GROUP_TYPE = Object.freeze({
   COMPUTE_OPTIMIZED: "compute_optimized",
   MEMORY_OPTIMIZED: "memory_optimized",
   STORAGE_OPTIMIZED: "storage_optimized",
-  HPC_OPTIMIZED: "hpc_optimized"
+  HPC_OPTIMIZED: "hpc_optimized",
 });
 
 // https://aws.amazon.com/ec2/instance-types/
@@ -1001,28 +1001,28 @@ export const RUNSET_TEMPLATE_INSTANCE_TYPES = Object.freeze([
   { name: "h1", cloudType: AWS_CNR, type: RUNSET_TEMPLATE_INSTANCE_GROUP_TYPE.STORAGE_OPTIMIZED },
 
   { name: "hpc6id", cloudType: AWS_CNR, type: RUNSET_TEMPLATE_INSTANCE_GROUP_TYPE.HPC_OPTIMIZED },
-  { name: "hpc6a", cloudType: AWS_CNR, type: RUNSET_TEMPLATE_INSTANCE_GROUP_TYPE.HPC_OPTIMIZED }
+  { name: "hpc6a", cloudType: AWS_CNR, type: RUNSET_TEMPLATE_INSTANCE_GROUP_TYPE.HPC_OPTIMIZED },
 ]);
 
 export const ML_RUNSET_ABORT_CONDITION_TYPES = Object.freeze({
   MAX_BUDGET: "max_budget",
   REACHED_GOALS: "reached_goals",
-  MAX_DURATION: "max_duration"
+  MAX_DURATION: "max_duration",
 });
 
 export const ARRAY_FORM_FIELD_FLEX_BASIS_WIDTH = Object.freeze({
   MEDIUM: "150px",
-  LARGE: "300px"
+  LARGE: "300px",
 });
 
 export const LAYOUT_TYPES = Object.freeze({
   ML_RUN_CHARTS_DASHBOARD: "ml_run_charts_dashboard",
-  RESOURCE_RAW_EXPENSES_COLUMNS: "resource_raw_expenses_columns"
+  RESOURCE_RAW_EXPENSES_COLUMNS: "resource_raw_expenses_columns",
 });
 
 export const OPTSCALE_CAPABILITY = Object.freeze({
   FINOPS: "finops",
-  MLOPS: "mlops"
+  MLOPS: "mlops",
 });
 
 export const DATASET_NAME_LENGTH_LIMIT = 70;
@@ -1030,18 +1030,18 @@ export const DATASET_PATH_LENGTH_LIMIT = 70;
 
 export const AUTH_PROVIDERS = Object.freeze({
   GOOGLE: "google",
-  MICROSOFT: "microsoft"
+  MICROSOFT: "microsoft",
 });
 
 export const POWER_SCHEDULE_ACTIONS = Object.freeze({
   POWER_ON: "power_on",
-  POWER_OFF: "power_off"
+  POWER_OFF: "power_off",
 });
 
 // Different backend responses for not set values
 export const EMPTY_BREAKDOWN_KEY = Object.freeze({
   NOT_SET: "(not set)",
-  NULL: "null"
+  NULL: "null",
 });
 
 export const SETTINGS_TABS = Object.freeze({
@@ -1049,5 +1049,5 @@ export const SETTINGS_TABS = Object.freeze({
   SUBSCRIPTION: "subscription",
   INVITATIONS: "invitations",
   SSH: "sshKeys",
-  EMAIL_NOTIFICATIONS: "emailNotifications"
+  EMAIL_NOTIFICATIONS: "emailNotifications",
 });

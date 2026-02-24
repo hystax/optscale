@@ -14,7 +14,7 @@ const TasksField = ({ tasks, isLoading }) => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (
@@ -23,8 +23,8 @@ const TasksField = ({ tasks, isLoading }) => {
       control={control}
       rules={{
         validate: {
-          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" }))
-        }
+          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" })),
+        },
       }}
       render={({ field: { value: formFieldValue, onChange } }) =>
         isLoading ? (
@@ -41,7 +41,7 @@ const TasksField = ({ tasks, isLoading }) => {
             isOptionEqualToValue={(option, value) => option.id === value.id}
             options={tasks.map((task) => ({
               name: task.name,
-              id: task.id
+              id: task.id,
             }))}
             getOptionLabel={(option) => option.name}
             renderTags={(autocompleteValue, getTagProps) =>

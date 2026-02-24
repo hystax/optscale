@@ -22,7 +22,7 @@ const BookEnvironmentFormContainer = ({
   isEnvironmentAvailable,
   onSuccess,
   onCancel,
-  isSshRequired
+  isSshRequired,
 }) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
@@ -35,7 +35,7 @@ const BookEnvironmentFormContainer = ({
     () => ({
       objectType: "cloud_resource", // todo: create constant with all possible types for authorized_employees api
       objectId: resourceId,
-      permission: ["BOOK_ENVIRONMENTS"]
+      permission: ["BOOK_ENVIRONMENTS"],
     }),
     [resourceId]
   );
@@ -49,7 +49,7 @@ const BookEnvironmentFormContainer = ({
   const canSetBookingOwner = useIsAllowed({
     entityType: SCOPE_TYPES.RESOURCE,
     entityId: resourceId,
-    requiredActions: ["MANAGE_RESOURCES"]
+    requiredActions: ["MANAGE_RESOURCES"],
   });
 
   const dispatchBookEnvironment = ({ bookedBy, bookSince, bookUntil, sshKeyId }) =>
@@ -60,7 +60,7 @@ const BookEnvironmentFormContainer = ({
           bookedBy,
           bookSince,
           bookUntil,
-          sshKeyId
+          sshKeyId,
         })
       ).then(() => {
         if (typeof onSuccess === "function" && !isError(BOOK_ENVIRONMENT, getState())) {
@@ -84,7 +84,7 @@ const BookEnvironmentFormContainer = ({
         bookedBy,
         bookSince,
         bookUntil,
-        sshKeyId
+        sshKeyId,
       });
 
     // no ssh required — just booking, without keys etc

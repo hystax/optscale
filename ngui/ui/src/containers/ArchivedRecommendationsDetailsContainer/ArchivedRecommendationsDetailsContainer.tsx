@@ -6,7 +6,7 @@ const ARCHIVED_RECOMMENDATIONS = "archivedRecommendation";
 const ArchivedRecommendationsDetailsContainer = ({ archivedRecommendationsBreakdown = [] }) => {
   const accordionBreakdown = archivedRecommendationsBreakdown.map((data) => ({
     ...data,
-    accordionName: `${data.module}-${data.reason}-${data.archived_at}`
+    accordionName: `${data.module}-${data.reason}-${data.archived_at}`,
   }));
 
   const { toggleAccordionState, isExpanded } = useAccordionsState(ARCHIVED_RECOMMENDATIONS);

@@ -17,7 +17,7 @@ import {
   ASSIGNMENT_RULE_CONDITIONS_QUERY_PARAMETER,
   TAG_IS,
   CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX,
-  CLEAN_EXPENSES_GROUP_TYPES_LIST
+  CLEAN_EXPENSES_GROUP_TYPES_LIST,
 } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import { updateSearchParams } from "utils/network";
@@ -47,7 +47,7 @@ const getGroupedExpenses = ({ expenses, groupType, groupBy, sortGroupsBy }) => {
         return EMPTY_GROUP_VALUE;
       }
       return tag ?? OTHER_TAG_GROUP_VALUE;
-    }
+    },
   }[groupType];
 
   const sortGroups = (groups) => [
@@ -57,12 +57,12 @@ const getGroupedExpenses = ({ expenses, groupType, groupBy, sortGroupsBy }) => {
       const bTotalExpenses = b[1][sortGroupsBy];
 
       return bTotalExpenses - aTotalExpenses;
-    })
+    }),
   ];
 
   const getEmptyDisplayedMessageId = () =>
     ({
-      [CLEAN_EXPENSES_GROUP_TYPES.TAG]: "(empty)"
+      [CLEAN_EXPENSES_GROUP_TYPES.TAG]: "(empty)",
     })[groupType];
 
   const getAssignmentRuleCreationQueryParameters = (groupValue) => {
@@ -73,10 +73,10 @@ const getGroupedExpenses = ({ expenses, groupType, groupBy, sortGroupsBy }) => {
             type: TAG_IS,
             value: {
               tagKey: groupBy,
-              tagValue: groupValue
-            }
-          }
-        ]
+              tagValue: groupValue,
+            },
+          },
+        ],
       };
     }
 
@@ -91,13 +91,13 @@ const getGroupedExpenses = ({ expenses, groupType, groupBy, sortGroupsBy }) => {
     const groupNameGetter = {
       [CLEAN_EXPENSES_GROUP_TYPES.POOL]: () => {
         const {
-          pool: { name, purpose: type, id }
+          pool: { name, purpose: type, id },
         } = expense;
         return <PoolLabel name={name} type={type} id={id} disableLink />;
       },
       [CLEAN_EXPENSES_GROUP_TYPES.OWNER]: () => expense.owner.name,
       [CLEAN_EXPENSES_GROUP_TYPES.TAG]: () =>
-        groupValue === OTHER_TAG_GROUP_VALUE ? intl.formatMessage({ id: groupValue }) : groupValue
+        groupValue === OTHER_TAG_GROUP_VALUE ? intl.formatMessage({ id: groupValue }) : groupValue,
     }[groupType];
 
     return groupNameGetter();
@@ -113,8 +113,8 @@ const getGroupedExpenses = ({ expenses, groupType, groupBy, sortGroupsBy }) => {
         expenses: groupData,
         [TOTAL_EXPENSES]: getTotalExpenses(groupData),
         [COUNT]: getLength(groupData),
-        assignmentRuleCreationQueryParameters: getAssignmentRuleCreationQueryParameters(groupValue)
-      }
+        assignmentRuleCreationQueryParameters: getAssignmentRuleCreationQueryParameters(groupValue),
+      },
     ]
   );
 
@@ -134,11 +134,11 @@ const CleanExpensesTableGroup = ({
   isDownloadingResources = false,
   startDateTimestamp,
   endDateTimestamp,
-  totalResourcesCount
+  totalResourcesCount,
 }) => {
   const {
     [GROUP_TYPE_PARAM_NAME]: groupTypeQueryParameter = "",
-    [GROUP_BY_PARAM_NAME]: groupByQueryParameter = groupTypeQueryParameter
+    [GROUP_BY_PARAM_NAME]: groupByQueryParameter = groupTypeQueryParameter,
   } = useReactiveSearchParams(SEARCH_PARAMS);
 
   const dispatch = useDispatch();
@@ -170,8 +170,8 @@ const CleanExpensesTableGroup = ({
           expenses,
           groupType: groupTypeQueryParameter,
           groupBy: groupByQueryParameter,
-          sortGroupsBy
-        })
+          sortGroupsBy,
+        }),
       }));
     }
   }, [expenses, groupByQueryParameter, groupTypeQueryParameter, sortGroupsBy, validateQueryParameters]);
@@ -179,7 +179,7 @@ const CleanExpensesTableGroup = ({
   const groupState = validateQueryParameters()
     ? {
         groupType: groupTypeQueryParameter,
-        groupBy: groupByQueryParameter
+        groupBy: groupByQueryParameter,
       }
     : DEFAULT_GROUP_STATE;
 
@@ -187,7 +187,7 @@ const CleanExpensesTableGroup = ({
     if (!cachedGroups[groupBy]) {
       setCachedGroups((cache) => ({
         ...cache,
-        [groupBy]: getGroupedExpenses({ expenses, groupType, groupBy, sortGroupsBy })
+        [groupBy]: getGroupedExpenses({ expenses, groupType, groupBy, sortGroupsBy }),
       }));
     }
   };
@@ -204,7 +204,7 @@ const CleanExpensesTableGroup = ({
                 ? {}
                 : {
                     name: groupState.groupType,
-                    value: groupState.groupBy
+                    value: groupState.groupBy,
                   }
             }
             label={<FormattedMessage id="groupBy" />}
@@ -213,11 +213,11 @@ const CleanExpensesTableGroup = ({
                 [getPaginationQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
                 [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
                 [GROUP_TYPE_PARAM_NAME]: groupType,
-                [GROUP_BY_PARAM_NAME]: groupBy
+                [GROUP_BY_PARAM_NAME]: groupBy,
               });
               handleGroupSelectorChange({
                 groupType,
-                groupBy
+                groupBy,
               });
             }}
             onClear={() => {
@@ -225,7 +225,7 @@ const CleanExpensesTableGroup = ({
                 [GROUP_TYPE_PARAM_NAME]: undefined,
                 [GROUP_BY_PARAM_NAME]: undefined,
                 [getPaginationQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
-                [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined
+                [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
               });
             }}
             items={[
@@ -233,13 +233,13 @@ const CleanExpensesTableGroup = ({
                 name: CLEAN_EXPENSES_GROUP_TYPES.POOL,
                 value: CLEAN_EXPENSES_GROUP_TYPES.POOL,
                 type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-                dataTestId: "ls_item_pool"
+                dataTestId: "ls_item_pool",
               },
               {
                 name: CLEAN_EXPENSES_GROUP_TYPES.OWNER,
                 value: CLEAN_EXPENSES_GROUP_TYPES.OWNER,
                 type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
-                dataTestId: "ls_item_owner"
+                dataTestId: "ls_item_owner",
               },
               ...(!isEmptyArray(tags)
                 ? [
@@ -252,14 +252,14 @@ const CleanExpensesTableGroup = ({
                         value: tag,
                         label: tag,
                         key: tag,
-                        dataTestId: `ls_mi_tag_name_${index}`
-                      }))
-                    }
+                        dataTestId: `ls_mi_tag_name_${index}`,
+                      })),
+                    },
                   ]
-                : [])
+                : []),
             ]}
             dataTestIds={{
-              label: "ls_lbl_group"
+              label: "ls_lbl_group",
             }}
           />
           {!isGroupStateEmpty && <SortGroupsBySelector sortGroupsBy={sortGroupsBy} setSortGroupsBy={setSortGroupsBy} />}
@@ -273,7 +273,7 @@ const CleanExpensesTableGroup = ({
             onAccordionChange={() => {
               updateSearchParams({
                 [getPaginationQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
-                [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined
+                [getSearchQueryKey(CLEAN_EXPENSES_TABLE_QUERY_PARAM_PREFIX)]: undefined,
               });
             }}
             groupedResources={cachedGroups[groupState.groupBy] ?? []}

@@ -12,7 +12,7 @@ const OrganizationManagerSelector = ({ organizationManagersWhoSuitableForAssignm
     labelMessageId="organizationManager"
     items={organizationManagersWhoSuitableForAssignment.map(({ name, value }) => ({
       value,
-      content: <ItemContent>{name}</ItemContent>
+      content: <ItemContent>{name}</ItemContent>,
     }))}
   />
 );

@@ -40,7 +40,7 @@ const ExpandableList = <T,>({
   items,
   render,
   maxRows = undefined,
-  stopPropagationOnShowMore = false
+  stopPropagationOnShowMore = false,
 }: ExpandableListProps<T>) => {
   if (maxRows && items.length > maxRows) {
     return <Expander items={items} render={render} maxRows={maxRows} stopPropagationOnShowMore={stopPropagationOnShowMore} />;

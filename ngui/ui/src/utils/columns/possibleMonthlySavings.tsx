@@ -14,7 +14,7 @@ type PossibleMonthlySavingsConfig = {
 const possibleMonthlySavings = ({
   headerDataTestId,
   accessorKey = "saving",
-  defaultSort = "desc"
+  defaultSort = "desc",
 }: PossibleMonthlySavingsConfig = {}) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -23,7 +23,7 @@ const possibleMonthlySavings = ({
   ),
   accessorKey,
   defaultSort,
-  cell: ({ cell }: CellRowData) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
+  cell: ({ cell }: CellRowData) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
 });
 
 export default possibleMonthlySavings;

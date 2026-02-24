@@ -16,11 +16,11 @@ const GetCloudAccountsContainer = () => {
   const dispatch = useDispatch();
 
   const {
-    apiData: { pool: { limit: organizationLimit = 0 } = {} }
+    apiData: { pool: { limit: organizationLimit = 0 } = {} },
   } = useApiData(GET_POOL);
 
   const { isLoading: isGetPoolLoading, shouldInvoke: shouldInvokeGetPool } = useApiState(GET_POOL, {
-    poolId: organizationPoolId
+    poolId: organizationPoolId,
   });
 
   useEffect(() => {

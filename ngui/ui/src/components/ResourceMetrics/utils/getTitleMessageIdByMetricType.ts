@@ -11,7 +11,7 @@ const getTitleMessageIdByMetricType = (metricType: string) =>
       [METRIC_TYPES.PACKETS_SENT]: "packetsSent",
       [METRIC_TYPES.DISK_IO_USAGE]: "diskIOUsage",
       [METRIC_TYPES.CONSOLIDATED_DISK_IO]: "diskIO",
-      [METRIC_TYPES.REQUESTS]: "requests"
+      [METRIC_TYPES.REQUESTS]: "requests",
     }) as const
   )[metricType];
 

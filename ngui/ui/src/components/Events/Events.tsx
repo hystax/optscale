@@ -39,7 +39,7 @@ const Picker = ({ onApply }) => {
       onApply={(startDate, endDate) =>
         onApply({
           timeStart: startDate,
-          timeEnd: endDate
+          timeEnd: endDate,
         })
       }
       notSetMessageId="latest"
@@ -54,26 +54,26 @@ const EVENT_LEVEL_ITEMS = [
     name: "all",
     value: EVENT_LEVEL.ALL,
     type: "text",
-    dataTestId: "event_lvl_all"
+    dataTestId: "event_lvl_all",
   },
   {
     name: "info",
     value: EVENT_LEVEL.INFO,
     type: "text",
-    dataTestId: "event_lvl_info"
+    dataTestId: "event_lvl_info",
   },
   {
     name: "warning",
     value: EVENT_LEVEL.WARNING,
     type: "text",
-    dataTestId: "event_lvl_warning"
+    dataTestId: "event_lvl_warning",
   },
   {
     name: "error",
     value: EVENT_LEVEL.ERROR,
     type: "text",
-    dataTestId: "event_lvl_error"
-  }
+    dataTestId: "event_lvl_error",
+  },
 ];
 
 const DEFAULT_EVENT_LEVEL = EVENT_LEVEL_ITEMS.find(({ value: itemValue }) => itemValue === EVENT_LEVEL.ALL);
@@ -86,7 +86,7 @@ const EventLevelSelector = ({ eventLevel, onApply }) => {
 
     return {
       name,
-      value
+      value,
     };
   };
 
@@ -96,7 +96,7 @@ const EventLevelSelector = ({ eventLevel, onApply }) => {
       label={<FormattedMessage id="eventLevel" />}
       onChange={({ value }) =>
         onApply({
-          level: value
+          level: value,
         })
       }
       items={EVENT_LEVEL_ITEMS}
@@ -109,7 +109,7 @@ const getEventsGroupedByTime = (events) =>
     const groupKey = formatUTC(event.time);
     return {
       ...resultObject,
-      [groupKey]: [...(resultObject[groupKey] || []), event]
+      [groupKey]: [...(resultObject[groupKey] || []), event],
     };
   }, {});
 
@@ -118,7 +118,7 @@ const EventIcon = ({ eventLevel }) =>
     [EVENT_LEVEL.INFO]: <InfoIcon fontSize="small" color="info" />,
     [EVENT_LEVEL.WARNING]: <ErrorIcon fontSize="small" color="warning" />,
     [EVENT_LEVEL.ERROR]: <ErrorIcon fontSize="small" color="error" />,
-    [EVENT_LEVEL.DEBUG]: <PestControlIcon fontSize="small" color="info" />
+    [EVENT_LEVEL.DEBUG]: <PestControlIcon fontSize="small" color="info" />,
   })[eventLevel];
 
 const Events = ({
@@ -129,13 +129,13 @@ const Events = ({
   applyFilter,
   events,
   isLoading = false,
-  isFetchingMore = false
+  isFetchingMore = false,
 }) => {
   const actionBarDefinition = {
     title: {
       messageId: "events",
-      dataTestId: "lbl_events"
-    }
+      dataTestId: "lbl_events",
+    },
   };
 
   const [expanded, setExpanded] = useState("");
@@ -166,12 +166,12 @@ const Events = ({
         accessorKey: "name",
         cell: ({ row: { original } }) => <div data-test-id={original.dataTestId}>{original.name}</div>,
         style: {
-          whiteSpace: "nowrap"
-        }
+          whiteSpace: "nowrap",
+        },
       },
       {
-        accessorKey: "value"
-      }
+        accessorKey: "value",
+      },
     ],
     []
   );
@@ -187,30 +187,30 @@ const Events = ({
       {
         name: <FormattedMessage id="date" />,
         dataTestId: "lbl_date",
-        value: formatEventTime(event.time)
+        value: formatEventTime(event.time),
       },
       {
         name: <FormattedMessage id="objectName" />,
         dataTestId: "lbl_object_name",
-        value: event.object_name
+        value: event.object_name,
       },
       {
         name: <FormattedMessage id="objectType" />,
         dataTestId: "lbl_object_type",
-        value: event.object_type
+        value: event.object_type,
       },
       {
         name: <FormattedMessage id="description" />,
         dataTestId: "lbl_description",
-        value: event.description
-      }
+        value: event.description,
+      },
     ];
 
     // adding resolve by at second row
     if (event.acknowledged_user) {
       eventDataRaw.splice(1, 0, {
         name: <FormattedMessage id="resolveBy" />,
-        value: event.acknowledged_user
+        value: event.acknowledged_user,
       });
     }
 
@@ -225,10 +225,10 @@ const Events = ({
         localization={{ emptyMessageId: "noEvents" }}
         withHeader={false}
         dataTestIds={{
-          container: "div_event_details"
+          container: "div_event_details",
         }}
         counters={{
-          show: false
+          show: false,
         }}
       />
     ) : null;
@@ -314,7 +314,7 @@ const Events = ({
                     checked={includeDebugEvents}
                     onChange={() => {
                       applyFilter({
-                        includeDebugEvents: !includeDebugEvents
+                        includeDebugEvents: !includeDebugEvents,
                       });
                     }}
                   />
@@ -329,21 +329,21 @@ const Events = ({
               justifyContent="flex-end"
               flexWrap={{
                 sm: "nowrap",
-                xs: "wrap"
+                xs: "wrap",
               }}
             >
               <Box
                 sx={{
                   flexGrow: {
                     sm: 0,
-                    xs: 1
-                  }
+                    xs: 1,
+                  },
                 }}
               >
                 <SearchInput
                   onSearch={(text) => {
                     applyFilter({
-                      descriptionLike: text
+                      descriptionLike: text,
                     });
                   }}
                   initialSearchText={descriptionLike}
@@ -354,8 +354,8 @@ const Events = ({
                 sx={{
                   flexGrow: {
                     sm: 0,
-                    xs: 1
-                  }
+                    xs: 1,
+                  },
                 }}
               >
                 <Picker onApply={applyFilter} />

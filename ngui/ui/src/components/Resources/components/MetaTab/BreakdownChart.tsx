@@ -19,7 +19,7 @@ const BreakdownChart = ({
   field = BREAKDOWN_FIELD_NAME.COST,
   isPercentBreakdownType,
   withLegend = false,
-  isLoading = false
+  isLoading = false,
 }: BreakdownChartProps) => {
   const intl = useIntl();
   const theme = useTheme();
@@ -38,7 +38,7 @@ const BreakdownChart = ({
 
   const chartTotals = Object.fromEntries([
     ...topKeys.map((key) => [key, breakdownTotals[key] ?? 0]),
-    ...(withOther ? [[OTHER_CHART_BREAKDOWN_GROUP_NAME, sum(otherKeys.map((key) => breakdownTotals[key] ?? 0))]] : [])
+    ...(withOther ? [[OTHER_CHART_BREAKDOWN_GROUP_NAME, sum(otherKeys.map((key) => breakdownTotals[key] ?? 0))]] : []),
   ]);
 
   const dailyTotals = Object.fromEntries(
@@ -69,7 +69,7 @@ const BreakdownChart = ({
     return {
       date: formatUTC(date, EN_FORMAT_SHORT_YEAR),
       ...topValues,
-      [OTHER_CHART_BREAKDOWN_GROUP_NAME]: otherValue
+      [OTHER_CHART_BREAKDOWN_GROUP_NAME]: otherValue,
     };
   });
 
@@ -138,7 +138,7 @@ const BreakdownChart = ({
       }
 
       return intl.formatNumber(chartTotals[legendItemId]);
-    }
+    },
   });
 
   return (

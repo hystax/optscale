@@ -19,7 +19,7 @@ const PageErrorHandler = ({ children }) => {
   const { apiStateData: latestErrorLabel } = useApiStateData("latestErrorLabel");
 
   const {
-    lastResult: { response: { status } = {} }
+    lastResult: { response: { status } = {} },
   } = useLastResult(latestErrorLabel);
 
   const [isError, setIsError] = useState(false);

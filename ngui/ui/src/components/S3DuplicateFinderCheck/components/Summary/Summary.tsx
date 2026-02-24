@@ -26,7 +26,7 @@ const Status = ({ status, lastError }) => {
           [STATUS.SUCCESS]: "completed",
           [STATUS.RUNNING]: "running",
           [STATUS.CREATED]: "created",
-          [STATUS.QUEUED]: "created"
+          [STATUS.QUEUED]: "created",
         }[status] ?? "created"
       }
     />
@@ -42,7 +42,7 @@ const Summary = ({
   monthlySavings,
   lastError,
   totalObjects,
-  isLoading
+  isLoading,
 }) => {
   const items = [
     {
@@ -51,40 +51,40 @@ const Summary = ({
       CustomValueComponent: Status,
       valueComponentProps: {
         status,
-        lastError
+        lastError,
       },
       color: getStatusColor(status),
       captionMessageId: "status",
       isLoading,
       dataTestIds: {
-        cardTestId: "card_status"
-      }
+        cardTestId: "card_status",
+      },
     },
     {
       key: "savings",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: monthlySavings
+        value: monthlySavings,
       },
       captionMessageId: "savings",
       renderCondition: () => status === STATUS.SUCCESS,
       isLoading,
       dataTestIds: {
-        cardTestId: "card_savings"
-      }
+        cardTestId: "card_savings",
+      },
     },
     {
       key: "objectsScanned",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
       valueComponentProps: {
-        value: totalObjects
+        value: totalObjects,
       },
       caption: <FormattedMessage id="scannedObjects" />,
       renderCondition: () => status === STATUS.SUCCESS,
       isLoading,
       dataTestIds: {
-        cardTestId: "card_scanned_objects"
-      }
+        cardTestId: "card_scanned_objects",
+      },
     },
     {
       key: "size",
@@ -95,23 +95,23 @@ const Summary = ({
       renderCondition: () => status === STATUS.SUCCESS,
       isLoading,
       dataTestIds: {
-        cardTestId: "card_size"
-      }
+        cardTestId: "card_size",
+      },
     },
     {
       key: "duration",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.Custom,
       CustomValueComponent: FormattedDuration,
       valueComponentProps: {
-        durationInSeconds: status === STATUS.RUNNING ? millisecondsToSeconds(+new Date()) - lastRun : lastCompleted - lastRun
+        durationInSeconds: status === STATUS.RUNNING ? millisecondsToSeconds(+new Date()) - lastRun : lastCompleted - lastRun,
       },
       captionMessageId: "duration",
       renderCondition: () => [STATUS.SUCCESS, STATUS.RUNNING].includes(status),
       isLoading,
       dataTestIds: {
-        cardTestId: "card_duration"
-      }
-    }
+        cardTestId: "card_duration",
+      },
+    },
   ];
 
   return <SummaryGrid summaryData={items} />;

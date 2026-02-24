@@ -65,62 +65,26 @@ const resolvers: Resolvers = {
     organizationFeatures: async (_, { organizationId }, { dataSources }) => {
       return dataSources.restapi.getOrganizationFeatures(organizationId);
     },
-    organizationThemeSettings: async (
-      _,
-      { organizationId },
-      { dataSources }
-    ) => {
+    organizationThemeSettings: async (_, { organizationId }, { dataSources }) => {
       return dataSources.restapi.getOrganizationThemeSettings(organizationId);
     },
-    organizationPerspectives: async (
-      _,
-      { organizationId },
-      { dataSources }
-    ) => {
+    organizationPerspectives: async (_, { organizationId }, { dataSources }) => {
       return dataSources.restapi.getOrganizationPerspectives(organizationId);
     },
     organizationConstraint: async (_, { constraintId }, { dataSources }) => {
       return dataSources.restapi.getOrganizationConstraint(constraintId);
     },
-    resourceCountBreakdown: async (
-      _,
-      { organizationId, params },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.getResourceCountBreakdown(
-        organizationId,
-        params
-      );
+    resourceCountBreakdown: async (_, { organizationId, params }, { dataSources }) => {
+      return dataSources.restapi.getResourceCountBreakdown(organizationId, params);
     },
-    expensesDailyBreakdown: async (
-      _,
-      { organizationId, params },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.getExpensesDailyBreakdown(
-        organizationId,
-        params
-      );
+    expensesDailyBreakdown: async (_, { organizationId, params }, { dataSources }) => {
+      return dataSources.restapi.getExpensesDailyBreakdown(organizationId, params);
     },
-    organizationLimitHits: async (
-      _,
-      { organizationId, constraintId },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.getOrganizationLimitHits(
-        organizationId,
-        constraintId
-      );
+    organizationLimitHits: async (_, { organizationId, constraintId }, { dataSources }) => {
+      return dataSources.restapi.getOrganizationLimitHits(organizationId, constraintId);
     },
-    relevantFlavors: async (
-      _,
-      { organizationId, requestParams },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.getRelevantFlavors(
-        organizationId,
-        requestParams
-      );
+    relevantFlavors: async (_, { organizationId, requestParams }, { dataSources }) => {
+      return dataSources.restapi.getRelevantFlavors(organizationId, requestParams);
     },
     cleanExpenses: async (_, { organizationId, params }, { dataSources }) => {
       return dataSources.restapi.getCleanExpenses(organizationId, params);
@@ -145,21 +109,13 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    createDataSource: async (
-      _,
-      { organizationId, params },
-      { dataSources }
-    ) => {
+    createDataSource: async (_, { organizationId, params }, { dataSources }) => {
       return dataSources.restapi.createDataSource(organizationId, params);
     },
     updateDataSource: async (_, { dataSourceId, params }, { dataSources }) => {
       return dataSources.restapi.updateDataSource(dataSourceId, params);
     },
-    updateEmployeeEmails: async (
-      _,
-      { employeeId, params },
-      { dataSources }
-    ) => {
+    updateEmployeeEmails: async (_, { employeeId, params }, { dataSources }) => {
       return dataSources.restapi.updateEmployeeEmails(employeeId, params);
     },
     updateEmployeeEmail: async (_, { employeeId, params }, { dataSources }) => {
@@ -171,11 +127,7 @@ const resolvers: Resolvers = {
     createOrganization: async (_, { organizationName }, { dataSources }) => {
       return dataSources.restapi.createOrganization(organizationName);
     },
-    updateOrganization: async (
-      _,
-      { organizationId, params },
-      { dataSources }
-    ) => {
+    updateOrganization: async (_, { organizationId, params }, { dataSources }) => {
       return dataSources.restapi.updateOrganization(organizationId, params);
     },
     deleteOrganization: async (_, { organizationId }, { dataSources }) => {
@@ -184,44 +136,17 @@ const resolvers: Resolvers = {
     updateInvitation: async (_, { invitationId, action }, { dataSources }) => {
       return dataSources.restapi.updateInvitation(invitationId, action);
     },
-    updateOrganizationThemeSettings: async (
-      _,
-      { organizationId, value },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.updateOrganizationThemeSettings(
-        organizationId,
-        value
-      );
+    updateOrganizationThemeSettings: async (_, { organizationId, value }, { dataSources }) => {
+      return dataSources.restapi.updateOrganizationThemeSettings(organizationId, value);
     },
-    updateOrganizationPerspectives: async (
-      _,
-      { organizationId, value },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.updateOrganizationPerspectives(
-        organizationId,
-        value
-      );
+    updateOrganizationPerspectives: async (_, { organizationId, value }, { dataSources }) => {
+      return dataSources.restapi.updateOrganizationPerspectives(organizationId, value);
     },
-    createStripeCheckoutSession: async (
-      _,
-      { organizationId, params },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.createStripeCheckoutSession(
-        organizationId,
-        params
-      );
+    createStripeCheckoutSession: async (_, { organizationId, params }, { dataSources }) => {
+      return dataSources.restapi.createStripeCheckoutSession(organizationId, params);
     },
-    createStripeBillingPortalSession: async (
-      _,
-      { organizationId },
-      { dataSources }
-    ) => {
-      return dataSources.restapi.createStripeBillingPortalSession(
-        organizationId
-      );
+    createStripeBillingPortalSession: async (_, { organizationId }, { dataSources }) => {
+      return dataSources.restapi.createStripeBillingPortalSession(organizationId);
     },
   },
 };

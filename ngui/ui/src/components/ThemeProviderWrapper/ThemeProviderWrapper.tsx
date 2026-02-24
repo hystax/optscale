@@ -8,11 +8,11 @@ import getTheme from "theme";
 
 const muiCache = createCache({
   key: "mui",
-  prepend: true
+  prepend: true,
 });
 
 const tssCache = createCache({
-  key: "tss"
+  key: "tss",
 });
 
 const ThemeProviderWrapper = ({ children }) => {

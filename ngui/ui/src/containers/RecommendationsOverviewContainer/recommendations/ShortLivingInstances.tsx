@@ -10,10 +10,10 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_si_resource"
+    headerDataTestId: "lbl_si_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_si_location"
+    headerDataTestId: "lbl_si_location",
   }),
   detectedAt({ headerDataTestId: "lbl_si_detected_at" }),
   {
@@ -27,12 +27,12 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMoney value={value} type={FORMATTED_MONEY_TYPES.COMMON} />;
-    }
+    },
   },
   possibleMonthlySavings({
     headerDataTestId: "lbl_si_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class ShortLivingInstances extends BaseRecommendation {
@@ -71,12 +71,12 @@ class ShortLivingInstances extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

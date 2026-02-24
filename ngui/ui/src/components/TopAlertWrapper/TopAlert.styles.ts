@@ -9,30 +9,30 @@ const useStyles = makeStyles()((theme) => ({
       width: "100%",
       display: "flex",
       justifyContent: "center",
-      alignItems: "center"
-    }
+      alignItems: "center",
+    },
   },
   secondary: {
     backgroundColor: theme.palette.secondary.main,
     color: theme.palette.secondary.contrastText,
     ".close-alert-button": {
-      color: theme.palette.secondary.contrastText
-    }
+      color: theme.palette.secondary.contrastText,
+    },
   },
   success: {
     backgroundColor: theme.palette.success.main,
     color: theme.palette.common.white,
     ".close-alert-button": {
-      color: theme.palette.common.white
-    }
+      color: theme.palette.common.white,
+    },
   },
   info: {
     backgroundColor: theme.palette.info.main,
     color: theme.palette.common.white,
     ".close-alert-button": {
-      color: theme.palette.common.white
-    }
-  }
+      color: theme.palette.common.white,
+    },
+  },
 }));
 
 export default useStyles;

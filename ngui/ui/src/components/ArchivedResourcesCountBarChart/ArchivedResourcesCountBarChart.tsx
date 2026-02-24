@@ -55,7 +55,7 @@ const getChartData = (breakdown) => {
           0
         ),
       0
-    )
+    ),
   }));
 
   return chartData;
@@ -69,14 +69,14 @@ const ArchivedResourcesCountBarChart = ({ onSelect, breakdown }) => {
       barName === selected
         ? {
             selectionState: NOT_SELECTED,
-            dateRange: null
+            dateRange: null,
           }
         : {
             selectionState: barName,
             dateRange: {
               startDate: data.dateTimestamp,
-              endDate: getEndOfDayInUTCinSeconds(secondsToMilliseconds(data.dateTimestamp))
-            }
+              endDate: getEndOfDayInUTCinSeconds(secondsToMilliseconds(data.dateTimestamp)),
+            },
           };
 
     setSelected(selectionState);

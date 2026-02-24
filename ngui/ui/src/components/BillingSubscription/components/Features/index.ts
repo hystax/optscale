@@ -10,5 +10,5 @@ export {
   ProSubscriptionFeatures,
   FeaturesList,
   EnterprisePlanFeatures,
-  ProPlanFeatures
+  ProPlanFeatures,
 };

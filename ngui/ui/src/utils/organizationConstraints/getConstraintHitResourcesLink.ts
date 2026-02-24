@@ -6,6 +6,6 @@ export const getConstraintHitResourcesLink = (hitDate, constraint) => {
 
   return getLink({
     dateRange,
-    constraint
+    constraint,
   });
 };

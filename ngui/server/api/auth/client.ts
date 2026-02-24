@@ -9,9 +9,7 @@ import { getParams } from "../../utils/getParams.js";
 class AuthClient extends BaseClient {
   override baseURL = `${process.env.AUTH_ENDPOINT || this.endpoint}/auth/v2/`;
 
-  async getOrganizationAllowedActions(
-    requestParams: OrganizationAllowedActionsRequestParams
-  ) {
+  async getOrganizationAllowedActions(requestParams: OrganizationAllowedActionsRequestParams) {
     const path = `allowed_actions`;
 
     const actions = await this.get(path, {
@@ -48,10 +46,7 @@ class AuthClient extends BaseClient {
     };
   }
 
-  async updateUser(
-    userId: MutationUpdateUserArgs["id"],
-    params: MutationUpdateUserArgs["params"]
-  ) {
+  async updateUser(userId: MutationUpdateUserArgs["id"], params: MutationUpdateUserArgs["params"]) {
     const result = await this.patch(`users/${userId}`, {
       body: { display_name: params.name, password: params.password },
     });

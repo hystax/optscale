@@ -10,7 +10,7 @@ export const useFormatIntervalTimeAgo = () => {
       formatIntervalTimeAgo({
         agoSecondsTimestamp,
         precision,
-        intlFormatter: intl
+        intlFormatter: intl,
       }),
     [intl]
   );

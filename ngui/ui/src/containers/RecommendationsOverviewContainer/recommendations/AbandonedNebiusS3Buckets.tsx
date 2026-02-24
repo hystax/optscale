@@ -9,55 +9,55 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_nebius_s3_abandoned_buckets_resource"
+    headerDataTestId: "lbl_nebius_s3_abandoned_buckets_resource",
   }),
   resourceLocation({
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_location",
-    typeAccessor: "cloud_type"
+    typeAccessor: "cloud_type",
   }),
   poolOwner({
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_pool_owner",
-    id: "pool/owner"
+    id: "pool/owner",
   }),
   averageDataSize({
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_avg_data_size",
-    accessorKey: "avg_data_size"
+    accessorKey: "avg_data_size",
   }),
   text({
     headerMessageId: "getRequests",
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_get_requests",
-    accessorKey: "get_request_quantity"
+    accessorKey: "get_request_quantity",
   }),
   text({
     headerMessageId: "postRequests",
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_post_requests",
-    accessorKey: "post_request_quantity"
+    accessorKey: "post_request_quantity",
   }),
   text({
     headerMessageId: "putRequests",
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_put_requests",
-    accessorKey: "put_request_quantity"
+    accessorKey: "put_request_quantity",
   }),
   text({
     headerMessageId: "headRequests",
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_head_requests",
-    accessorKey: "head_request_quantity"
+    accessorKey: "head_request_quantity",
   }),
   text({
     headerMessageId: "optionsRequests",
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_options_requests",
-    accessorKey: "options_request_quantity"
+    accessorKey: "options_request_quantity",
   }),
   text({
     headerMessageId: "deleteRequests",
     headerDataTestId: "lbl_nebius_s3_abandoned_buckets_delete_requests",
-    accessorKey: "delete_request_quantity"
+    accessorKey: "delete_request_quantity",
   }),
   detectedAt({ headerDataTestId: "lbl_nebius_s3_abandoned_buckets_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_s3_abandoned_buckets_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class AbandonedNebiusS3Buckets extends BaseRecommendation {
@@ -79,7 +79,7 @@ class AbandonedNebiusS3Buckets extends BaseRecommendation {
       put_request_quantity_threshold: putRequestsQuantity,
       head_request_quantity_threshold: headRequestsQuantity,
       options_request_quantity_threshold: optionsRequestsQuantity,
-      delete_request_quantity_threshold: deleteRequestsQuantity
+      delete_request_quantity_threshold: deleteRequestsQuantity,
     } = this.options;
 
     return {
@@ -90,7 +90,7 @@ class AbandonedNebiusS3Buckets extends BaseRecommendation {
       putRequestsQuantity,
       headRequestsQuantity,
       optionsRequestsQuantity,
-      deleteRequestsQuantity
+      deleteRequestsQuantity,
     };
   }
 
@@ -114,12 +114,12 @@ class AbandonedNebiusS3Buckets extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

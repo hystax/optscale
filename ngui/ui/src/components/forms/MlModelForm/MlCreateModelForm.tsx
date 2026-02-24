@@ -7,7 +7,7 @@ const MlCreateModelForm = ({ onSubmit, onCancel, isLoadingProps = {} }: MlCreate
   const { isSubmitLoading = false } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;

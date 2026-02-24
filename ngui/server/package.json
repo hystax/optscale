@@ -9,10 +9,10 @@
     "pnpm": "=10.12.1"
   },
   "scripts": {
-    "lint": "node -e 'console.log(\"TODO: add lint\")'",
-    "lint:fix": "node -e 'console.log(\"TODO: add lint:fix\")'",
-    "check": "node -e 'console.log(\"TODO: add check\")'",
-    "fix": "node -e 'console.log(\"TODO: add fix\")'",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "check": "pnpm lint",
+    "fix": "pnpm lint:fix",
     "compile": "tsc",
     "build": "pnpm run compile",
     "serve": "node ./dist/server.js",
@@ -32,7 +32,7 @@
   "homepage": "https://gitlab.com/hystax/ngui_server#readme",
   "dependencies": {
     "@apollo/datasource-rest": "6.4.1",
-    "@apollo/server": "4.12.2",
+    "@apollo/server": "4.13.0",
     "@apollo/utils.keyvaluecache": "3.1.0",
     "@graphql-tools/load-files": "7.0.0",
     "@graphql-tools/merge": "9.0.17",
@@ -47,8 +47,15 @@
     "http-proxy-middleware": "2.0.9"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@graphql-eslint/eslint-plugin": "4.4.0",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
     "dotenv": "17.2.0",
     "dotenv-expand": "12.0.2",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "5.5.5",
     "nodemon": "3.1.10",
     "tsx": "4.20.3"
   }

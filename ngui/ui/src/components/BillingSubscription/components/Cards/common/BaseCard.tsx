@@ -11,7 +11,7 @@ type BaseCardProps = {
 export const sizeSpec = {
   maxWidth: 560,
   minWidth: 240,
-  minHeight: 220
+  minHeight: 220,
 };
 
 const BaseCard = ({ header, body, footer }: BaseCardProps) => (
@@ -22,7 +22,7 @@ const BaseCard = ({ header, body, footer }: BaseCardProps) => (
       width: "100%",
       display: "flex",
       ...sizeSpec,
-      padding: SPACING_2
+      padding: SPACING_2,
     }}
   >
     <Stack spacing={SPACING_2} flexGrow={1}>

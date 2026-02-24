@@ -16,7 +16,7 @@ const run = ({
   headerMessageId,
   headerDataTestId,
   enableSorting,
-  runDetailsUrlOptions
+  runDetailsUrlOptions,
 }) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -51,7 +51,7 @@ const run = ({
                   {taskName}
                 </Link>
               </Typography>
-            )
+            ),
           }}
         >
           {runLink}
@@ -60,7 +60,7 @@ const run = ({
     }
 
     return runLink;
-  }
+  },
 });
 
 export default run;

@@ -16,7 +16,7 @@ const MaximumRunsetRunners = ({ isLoading = false }) => {
       required
       min={1}
       validate={{
-        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true)
+        whole: (value) => (isWholeNumber(value) ? intl.formatMessage({ id: "wholeNumber" }) : true),
       }}
       isLoading={isLoading}
     />

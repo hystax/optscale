@@ -15,8 +15,8 @@ const Tabs = ({ children, variant = "scrollable", indicatorColor = "secondary", 
       allowScrollButtonsMobile
       TabScrollButtonProps={{
         classes: {
-          disabled: isScrollable ? classes.hiddenTabScrollButton : ""
-        }
+          disabled: isScrollable ? classes.hiddenTabScrollButton : "",
+        },
       }}
       {...rest}
     >

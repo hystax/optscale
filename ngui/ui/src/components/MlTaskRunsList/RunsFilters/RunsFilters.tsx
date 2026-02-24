@@ -17,18 +17,18 @@ const RunsFilters = ({ datePicker, runs, appliedFilters, onChange, isLoading }) 
 
     return {
       [STATUS_BE_FILTER]: statuses.map((status) => ({
-        name: status
+        name: status,
       })),
       [GOALS_BE_FILTER]: [
         {
           name: GOAL_STATUS.MET,
-          value: true
+          value: true,
         },
         {
           name: GOAL_STATUS.NOT_MET,
-          value: false
-        }
-      ]
+          value: false,
+        },
+      ],
     };
   }, [runs]);
 
@@ -37,7 +37,7 @@ const RunsFilters = ({ datePicker, runs, appliedFilters, onChange, isLoading }) 
       new Filters({
         filters: ML_TASK_RUNS_FILTERS,
         filterValues,
-        appliedFilters
+        appliedFilters,
       }),
     [filterValues, appliedFilters]
   );

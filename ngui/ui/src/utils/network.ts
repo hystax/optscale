@@ -15,7 +15,7 @@ export const stringifySearchParams = (params: SearchParams) =>
     skipEmptyString: true,
     skipNull: true,
     strict: false,
-    sort: false
+    sort: false,
   });
 
 export const getSearchParams = (options = {}) =>

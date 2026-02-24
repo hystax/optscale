@@ -21,9 +21,9 @@ const BIExport = ({ isLoading, exportsCount }) => (
         messageId="numberOfBIExports"
         values={{
           number: exportsCount,
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         }}
-      />
+      />,
     ]}
   />
 );

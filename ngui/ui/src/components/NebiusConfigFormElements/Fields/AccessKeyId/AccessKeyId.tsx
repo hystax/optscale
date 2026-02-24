@@ -17,11 +17,11 @@ const AccessKeyId = () => {
           <QuestionMark
             messageId="nebiusAccessKeyIdTooltip"
             messageValues={{
-              i: (chunks) => <i>{chunks}</i>
+              i: (chunks) => <i>{chunks}</i>,
             }}
             dataTestId="qmark_access_key_id`"
           />
-        )
+        ),
       }}
       multiline
       label={intl.formatMessage({ id: "id" }).toUpperCase()}

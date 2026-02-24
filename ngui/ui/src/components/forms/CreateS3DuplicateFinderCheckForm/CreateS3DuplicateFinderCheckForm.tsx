@@ -6,7 +6,7 @@ const CreateS3DuplicateFinderCheckForm = ({
   buckets,
   onSubmit,
   onCancel,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }: CreateS3DuplicateFinderCheckFormProps) => {
   const { isSubmitLoading = false, isGetBucketsLoading = false } = isLoadingProps;
 

@@ -52,7 +52,7 @@ const ResourcePaidNetworkTraffic = ({ trafficExpenses, isLoading }) => {
             data={tableData}
             columns={columns}
             localization={{
-              emptyMessageId: "noTrafficExpenses"
+              emptyMessageId: "noTrafficExpenses",
             }}
           />
         )}

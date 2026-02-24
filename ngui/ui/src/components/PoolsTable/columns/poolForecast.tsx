@@ -7,15 +7,15 @@ const poolForecast = ({ defaultSort } = {}) => ({
   cell: ({
     cell,
     row: {
-      original: { limit = 0 }
-    }
+      original: { limit = 0 },
+    },
   }) => <PoolForecast limit={limit} forecast={cell.getValue()} />,
   defaultSort,
   columnSelector: {
     accessor: "forecast",
     messageId: "forecast",
-    dataTestId: "btn_toggle_forecast"
-  }
+    dataTestId: "btn_toggle_forecast",
+  },
 });
 
 export default poolForecast;

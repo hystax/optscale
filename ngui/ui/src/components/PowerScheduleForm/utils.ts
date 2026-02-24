@@ -7,7 +7,7 @@ import {
   millisecondsToSeconds,
   moveDateFromUTC,
   parse,
-  startOfDay
+  startOfDay,
 } from "utils/datetime";
 import { FIELD_NAMES } from "./constants";
 import { FormValues } from "./types";
@@ -37,9 +37,9 @@ export const getTriggersApiParam = (formData: FormValues): PowerScheduleApiParam
         time: formatTimeString({
           timeString: `${formTime} ${meridiem}`,
           timeStringFormat: EN_TIME_FORMAT,
-          parsedTimeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM
+          parsedTimeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
         }),
-        action: trigger.action
+        action: trigger.action,
       };
     })
     .sort((a, b) => {

@@ -16,7 +16,7 @@ const EnterpriseSubscriptionCard = ({
   gracePeriodStart,
   gracePeriodDays,
   endDate,
-  cancelAtPeriodEnd
+  cancelAtPeriodEnd,
 }: EnterpriseSubscriptionCardProps) => (
   <BaseCard
     header={<SubscriptionCardHeader content={<PlanName name={<FormattedMessage id="enterprise" />} />} status={status} />}

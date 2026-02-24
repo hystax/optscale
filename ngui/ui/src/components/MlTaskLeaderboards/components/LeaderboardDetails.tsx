@@ -24,7 +24,7 @@ const Summary = ({
   groupByHyperparameters = false,
   primaryMetric = {},
   secondaryMetrics = [],
-  isLoading = false
+  isLoading = false,
 }) => (
   <SummaryList
     titleMessage={<FormattedMessage id="summary" />}
@@ -62,7 +62,7 @@ const Summary = ({
                 </Fragment>
               ))
         }
-      />
+      />,
     ]}
     isLoading={isLoading}
   />
@@ -113,7 +113,7 @@ const DatasetCoverageRules = ({ datasets = [], coverageRules = {}, isLoading = f
                   component="span"
                   sx={{
                     display: "flex",
-                    alignItems: "center"
+                    alignItems: "center",
                   }}
                 >
                   <FormattedMessage id="datasets" />
@@ -135,7 +135,7 @@ const DatasetCoverageRules = ({ datasets = [], coverageRules = {}, isLoading = f
                     <span
                       key={datasetName}
                       style={{
-                        overflowWrap: "anywhere"
+                        overflowWrap: "anywhere",
                       }}
                     >
                       <strong>
@@ -159,7 +159,7 @@ const DatasetCoverageRules = ({ datasets = [], coverageRules = {}, isLoading = f
                   component="span"
                   sx={{
                     display: "flex",
-                    alignItems: "center"
+                    alignItems: "center",
                   }}
                 >
                   <FormattedMessage id="labels" />
@@ -202,7 +202,7 @@ const LeaderboardDetails = ({ leaderboard, leaderboardCandidates, isLoadingProps
     group_by_hp: groupByHyperparameters = false,
     primary_metric: primaryMetric = {},
     other_metrics: secondaryMetrics = [],
-    filters: qualificationProtocol = []
+    filters: qualificationProtocol = [],
   } = leaderboard;
 
   return (

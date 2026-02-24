@@ -12,7 +12,7 @@ const DatabricksProperties = ({ accountId, config, createdAt }: DatabricksProper
         value={createdAt}
         dataTestIds={{
           key: `p_connected_at_id`,
-          value: `p_connected_at_value`
+          value: `p_connected_at_value`,
         }}
       />
       <KeyValueLabel
@@ -20,7 +20,7 @@ const DatabricksProperties = ({ accountId, config, createdAt }: DatabricksProper
         value={accountId}
         dataTestIds={{
           key: `p_${DATABRICKS}_id`,
-          value: `p_${DATABRICKS}_value`
+          value: `p_${DATABRICKS}_value`,
         }}
       />
       <KeyValueLabel
@@ -28,7 +28,7 @@ const DatabricksProperties = ({ accountId, config, createdAt }: DatabricksProper
         value={clientId}
         dataTestIds={{
           key: "p_client_id_key",
-          value: "p_client_id_value"
+          value: "p_client_id_value",
         }}
       />
     </>

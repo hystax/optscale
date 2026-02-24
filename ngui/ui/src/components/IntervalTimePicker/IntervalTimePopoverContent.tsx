@@ -16,7 +16,7 @@ import {
   roundTimeToInterval,
   subMinutes,
   startOfDay,
-  endOfDay
+  endOfDay,
 } from "utils/datetime";
 import IntervalTimeSelectors from "./IntervalTimeSelectors";
 
@@ -28,7 +28,7 @@ const IntervalTimePopoverContent = ({
   minDate,
   maxDate,
   intervalMinutes = AMOUNT_30_MINUTES,
-  withTimePicker = false
+  withTimePicker = false,
 }) => {
   const { classes, cx } = useStyles();
   const today = new Date();
@@ -103,13 +103,13 @@ const IntervalTimePopoverContent = ({
   const inHoverRange = () => false;
 
   const helpers = {
-    inHoverRange
+    inHoverRange,
   };
 
   const handlers = {
     onDayClick: onDayClickHandler,
     onDayHover,
-    onMonthNavigate
+    onMonthNavigate,
   };
 
   const canNavigatePast = differenceInCalendarMonths(monthToShow, minDateValid) >= 1;
@@ -131,13 +131,13 @@ const IntervalTimePopoverContent = ({
             marker={1}
             userBounds={{
               minDate: getTime(minDateValid),
-              maxDate: getTime(maxDateValid)
+              maxDate: getTime(maxDateValid),
             }}
             dataTestIds={{
               monthSelector: "selector_previous_month",
               yearSelector: "selector_previous_year",
               btnPrev: "btn_previous_left",
-              btnNext: "btn_previous_right"
+              btnNext: "btn_previous_right",
             }}
           />
         </Grid>

@@ -36,7 +36,7 @@ export const GA_EVENT_CATEGORIES = Object.freeze({
   DATA_SOURCE: "Data Source",
   USER: "User",
   LIVE_DEMO: "Live Demo",
-  ENVIRONMENT: "Environment"
+  ENVIRONMENT: "Environment",
 });
 
 log(`%cGA inited with ${GA_KEY}`);
@@ -46,9 +46,9 @@ const analytics = Analytics({
   plugins: [
     googleAnalytics({
       measurementIds: [GA_KEY],
-      debug: true
-    })
-  ]
+      debug: true,
+    }),
+  ],
 });
 
 /* Track a page view */
@@ -64,7 +64,7 @@ export const trackPage = () => {
     ["User: ", storedUser],
     ["User traits: ", storedUser.traits],
     ["Campaign:", analytics.getState("context.campaign")],
-    ["State", analytics.getState()]
+    ["State", analytics.getState()],
   ]);
 
   analytics.page();
@@ -84,7 +84,7 @@ export const trackEvent = (config) => {
       category,
       label,
       value,
-      nonInteraction
+      nonInteraction,
     };
 
     analytics.track(action, eventBody);
@@ -103,7 +103,7 @@ export const trackEvent = (config) => {
 export const identify = (uniqueId, newDimensions) => {
   const dimensions = {
     uid: newDimensions.userId,
-    ...(newDimensions.organizationId ? { orgid: newDimensions.organizationId } : {})
+    ...(newDimensions.organizationId ? { orgid: newDimensions.organizationId } : {}),
   };
   log("%cGA identify with", dimensions);
 

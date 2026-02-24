@@ -24,7 +24,7 @@ const CurrencyCodeAutocomplete = forwardRef(({ name, onBlur, value, onChange, er
       onBlur={onBlur}
       filterOptions={createFilterOptions({
         matchFrom: "any",
-        stringify: (option) => stringifyCurrency(option)
+        stringify: (option) => stringifyCurrency(option),
       })}
       renderOption={(props, option) => <li {...props}>{stringifyCurrency(option)}</li>}
       renderInput={(params) => (

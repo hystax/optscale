@@ -20,7 +20,7 @@ const TtlMessage = ({ type, limit, formats = {} }) => {
         value={format(secondsToMilliseconds(limit), EN_FULL_FORMAT)}
         dataTestIds={{
           key: `p_${type}_expires_at`,
-          value: `p_${type}_expires_at_value`
+          value: `p_${type}_expires_at_value`,
         }}
       />
     );

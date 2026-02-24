@@ -31,8 +31,8 @@ const TtlAnalysisForm = ({ pools, isLoading, isPoolSelectorReadOnly, onSubmit, d
       [customTtlFieldName]: "",
       [startDateFieldName]: startDateTimestamp,
       [endDateFieldName]: endDateTimestamp,
-      ...defaultValues
-    }
+      ...defaultValues,
+    },
   });
 
   const { handleSubmit: rhfHandleSubmit, setValue, getValues, watch, reset } = methods;
@@ -40,7 +40,7 @@ const TtlAnalysisForm = ({ pools, isLoading, isPoolSelectorReadOnly, onSubmit, d
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...defaultValues
+      ...defaultValues,
     }));
   }, [defaultValues, reset]);
 
@@ -68,7 +68,7 @@ const TtlAnalysisForm = ({ pools, isLoading, isPoolSelectorReadOnly, onSubmit, d
       poolType,
       ttlMode: formData[ttlModeFieldName],
       startDateTimestamp: formData[startDateFieldName],
-      endDateTimestamp: formData[endDateFieldName]
+      endDateTimestamp: formData[endDateFieldName],
     };
 
     onSubmit(params);

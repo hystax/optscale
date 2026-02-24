@@ -13,7 +13,7 @@ export const POOL_TABS = Object.freeze({
   GENERAL: "general",
   SHARE: "share",
   CONSTRAINTS: "constraints",
-  ASSIGNMENT_RULES: "assignmentRules"
+  ASSIGNMENT_RULES: "assignmentRules",
 });
 
 const Pool = ({ onSuccess, id }) => {
@@ -32,23 +32,23 @@ const Pool = ({ onSuccess, id }) => {
     {
       title: POOL_TABS.GENERAL,
       dataTestId: "tab_general",
-      node: <PoolSummary pool={pool} parentPool={parentPool} childPools={childPools} onSuccess={onSuccess} />
+      node: <PoolSummary pool={pool} parentPool={parentPool} childPools={childPools} onSuccess={onSuccess} />,
     },
     {
       title: POOL_TABS.CONSTRAINTS,
       dataTestId: "tab_constraints",
-      node: <PoolConstraintsContainer poolId={poolId} />
+      node: <PoolConstraintsContainer poolId={poolId} />,
     },
     {
       title: POOL_TABS.ASSIGNMENT_RULES,
       dataTestId: "tab_assignment",
-      node: <PoolAssignmentRulesContainer poolId={poolId} />
+      node: <PoolAssignmentRulesContainer poolId={poolId} />,
     },
     {
       title: POOL_TABS.SHARE,
       dataTestId: "tab_share",
-      node: <ShareSettingsContainer poolId={poolId} poolName={poolName} poolPurpose={poolPurpose} initialLink={initialLink} />
-    }
+      node: <ShareSettingsContainer poolId={poolId} poolName={poolName} poolPurpose={poolPurpose} initialLink={initialLink} />,
+    },
   ];
   return (
     <TabsWrapper
@@ -60,7 +60,7 @@ const Pool = ({ onSuccess, id }) => {
         queryTabName: EDIT_POOL_TAB_QUERY,
         handleChange: (event, value) => {
           setActiveTab(value);
-        }
+        },
       }}
     />
   );
@@ -81,8 +81,8 @@ class PoolModal extends BaseSideModal {
       ),
       dataTestIds: {
         title: "lbl_edit_pool",
-        closeButton: "bnt_close"
-      }
+        closeButton: "bnt_close",
+      },
     };
   }
 

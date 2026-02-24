@@ -39,7 +39,7 @@ export const searchFilter = (search) => (recommendation) => {
 
   const commonMessageValues = {
     strong: (chunks) => chunks,
-    link: (chunks) => chunks
+    link: (chunks) => chunks,
   };
 
   const description = intl

@@ -28,7 +28,7 @@ const layerProps = {
   getFlowOriginId: (flow) => flow.from.name,
   getLocationName: (loc) => loc.name,
   getFlowDestId: (flow) => flow.to.name,
-  getFlowMagnitude: (flow) => flow.cost
+  getFlowMagnitude: (flow) => flow.cost,
 };
 let deckOverlay = new GoogleMapsOverlay();
 const dataProvider = new FlowMapDataProvider(layerProps);
@@ -53,7 +53,7 @@ const UI_INITIAL = {
   adaptiveScalesEnabled: false,
   locationTotalsEnabled: true,
   locationLabelsEnabled: false,
-  maxTopFlowsDisplayNum: 1000
+  maxTopFlowsDisplayNum: 1000,
 };
 
 function renderToExpenses(expenses) {
@@ -85,7 +85,7 @@ function getTooltipState(info) {
                 id="totalExpensesWithTotalExpensesAndCost"
                 values={{
                   totalExpenses: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={object.location.totalExpenses} />,
-                  totalUsage: <FormattedDigitalUnit value={object.location.totalUsage} baseUnit={SI_UNITS.GIGABYTE} />
+                  totalUsage: <FormattedDigitalUnit value={object.location.totalUsage} baseUnit={SI_UNITS.GIGABYTE} />,
                 }}
               />
             </Typography>
@@ -100,7 +100,7 @@ function getTooltipState(info) {
               </>
             )}
           </>
-        )
+        ),
       };
     case PickingType.FLOW: {
       const flowSummary = object.origin.summary.filter(
@@ -129,7 +129,7 @@ function getTooltipState(info) {
                 id="totalExpensesWithTotalExpensesAndCost"
                 values={{
                   totalExpenses: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={flowTotalExpenses} />,
-                  totalUsage: <FormattedDigitalUnit value={flowTotalUsage} baseUnit={SI_UNITS.GIGABYTE} />
+                  totalUsage: <FormattedDigitalUnit value={flowTotalUsage} baseUnit={SI_UNITS.GIGABYTE} />,
                 }}
               />
             </Typography>
@@ -145,7 +145,7 @@ function getTooltipState(info) {
                         id="value / value"
                         values={{
                           value1: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={datum.cost} />,
-                          value2: <FormattedDigitalUnit value={datum.usage} baseUnit={SI_UNITS.GIGABYTE} />
+                          value2: <FormattedDigitalUnit value={datum.usage} baseUnit={SI_UNITS.GIGABYTE} />,
                         }}
                       />
                     }
@@ -154,7 +154,7 @@ function getTooltipState(info) {
               </Typography>
             )}
           </>
-        )
+        ),
       };
     }
     default:
@@ -184,7 +184,7 @@ const TrafficExpensesMap = ({ markers, defaultZoom, defaultCenter, onMapClick = 
     if (data?.locations.length) {
       locationViewState = getViewStateForLocations(data.locations, (loc) => [loc.longitude, loc.latitude], [
         globalThis.innerWidth,
-        globalThis.innerHeight
+        globalThis.innerHeight,
       ]);
     }
     setViewParams({
@@ -192,7 +192,7 @@ const TrafficExpensesMap = ({ markers, defaultZoom, defaultCenter, onMapClick = 
       defaultZoom,
       defaultCenter,
       minZoom: 2,
-      maxZoom: 6
+      maxZoom: 6,
     });
   }, [data, defaultZoom, defaultCenter, setViewParams]);
 
@@ -227,8 +227,8 @@ const TrafficExpensesMap = ({ markers, defaultZoom, defaultCenter, onMapClick = 
         onClick: (info) => {
           setTooltip(getTooltipState(null));
           onMapClick(info.object);
-        }
-      })
+        },
+      }),
     ]);
     refreshLegendMax();
   }, [onMapClick]);
@@ -338,10 +338,10 @@ const TrafficExpensesMap = ({ markers, defaultZoom, defaultCenter, onMapClick = 
             />
           )}
         </GoogleMapReact>
-        <div id={"map-legend"} style={{ visibility: "hidden" }}>
+        <div id="map-legend" style={{ visibility: "hidden" }}>
           {legend}
         </div>
-        <div id={"map-tooltip"} className={classes.tooltip} style={{ display: tooltip.display, ...tooltip.position }}>
+        <div id="map-tooltip" className={classes.tooltip} style={{ display: tooltip.display, ...tooltip.position }}>
           {tooltip.content}
         </div>
       </div>

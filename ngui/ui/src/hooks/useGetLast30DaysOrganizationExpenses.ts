@@ -11,9 +11,9 @@ export const useGetLast30DaysOrganizationExpenses = (url) => {
     () => ({
       params: {
         startDate,
-        endDate
+        endDate,
       },
-      url
+      url,
     }),
     [endDate, startDate, url]
   );
@@ -21,12 +21,12 @@ export const useGetLast30DaysOrganizationExpenses = (url) => {
   const {
     isLoading,
     isError,
-    data: { total_cost: totalExpenses }
+    data: { total_cost: totalExpenses },
   } = useGet(parameters);
 
   return {
     isLoading,
     isError,
-    last30DaysOrganizationExpenses: totalExpenses
+    last30DaysOrganizationExpenses: totalExpenses,
   };
 };

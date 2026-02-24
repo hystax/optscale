@@ -11,12 +11,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={ML_MODELS} component={RouterLink}>
       <FormattedMessage id="models" />
-    </Link>
+    </Link>,
   ],
   title: {
     messageId: "addModelTitle",
-    dataTestId: "lbl_add_model"
-  }
+    dataTestId: "lbl_add_model",
+  },
 };
 
 const MlCreateModel = () => (
@@ -25,7 +25,7 @@ const MlCreateModel = () => (
     <PageContentWrapper>
       <Box
         sx={{
-          width: { md: "50%" }
+          width: { md: "50%" },
         }}
       >
         <MlCreateModelFormContainer />

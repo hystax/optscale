@@ -28,7 +28,7 @@ const InputParameters = ({ runset, isLoading = false }) => {
     commands,
     image,
     venv: virtualEnvironmentPath,
-    spot_settings: spotSettings = {}
+    spot_settings: spotSettings = {},
   } = runset;
 
   return (
@@ -91,7 +91,7 @@ const InputParameters = ({ runset, isLoading = false }) => {
                             id="xAttemptsBeforePayAsYouGo"
                             values={{
                               value: spotSettings.tries,
-                              strong: (chunks) => <strong>{chunks}</strong>
+                              strong: (chunks) => <strong>{chunks}</strong>,
                             }}
                           />
                         </span>
@@ -115,7 +115,7 @@ const InputParameters = ({ runset, isLoading = false }) => {
                       value={<FormattedMoney value={spotSettings.spot_price} />}
                       dataTestIds={{
                         key: "p_using_spot_instances_max_cost_per_hour_key",
-                        value: "p_using_spot_instances_max_cost_per_hour_value"
+                        value: "p_using_spot_instances_max_cost_per_hour_value",
                       }}
                     />
                   )}
@@ -199,7 +199,7 @@ const InputParameters = ({ runset, isLoading = false }) => {
                    * which is an empirical value chosen to accommodate four rows of code.
                    */
                   overflowY: "auto",
-                  height: "95px"
+                  height: "95px",
                 }}
                 readOnly
               />

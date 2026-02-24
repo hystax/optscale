@@ -11,7 +11,7 @@ const DropzoneForm = ({
   isLoading,
   maxFileSizeMb = 512,
   isSubmitDisabled = false,
-  submitButtonTooltip
+  submitButtonTooltip,
 }) => {
   const methods = useForm();
 

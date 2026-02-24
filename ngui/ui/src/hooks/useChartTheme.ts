@@ -18,7 +18,7 @@ export const useChartTheme = () => {
         text: {
           fontFamily: theme.typography.fontFamily,
           fontSize: `${muiThemeTextFontSizePixelsNumber}px`,
-          font: `${muiThemeTextFontSizePixelsNumber}px ${theme.typography.fontFamily}`
+          font: `${muiThemeTextFontSizePixelsNumber}px ${theme.typography.fontFamily}`,
         },
         marker: {
           xOffset: 14,
@@ -26,44 +26,44 @@ export const useChartTheme = () => {
           lineDash: [10, 10],
           lineWidth: 2,
           color: theme.palette.error.main,
-          font: `${muiThemeTextFontSizePixelsNumber}px ${theme.typography.fontFamily}`
-        }
+          font: `${muiThemeTextFontSizePixelsNumber}px ${theme.typography.fontFamily}`,
+        },
       },
       labels: {
         text: {
           fontSize: muiThemeTextFontSizePixelsNumber,
-          fontFamily: theme.typography.fontFamily
-        }
+          fontFamily: theme.typography.fontFamily,
+        },
       },
       legends: {
         text: {
           fontSize: muiThemeTextFontSizePixelsNumber,
-          fontFamily: theme.typography.fontFamily
-        }
+          fontFamily: theme.typography.fontFamily,
+        },
       },
       axis: {
         domain: {
           line: {
             stroke: "transparent",
-            strokeWidth: 1
-          }
+            strokeWidth: 1,
+          },
         },
         ticks: {
           line: {
             stroke: theme.palette.info.light,
-            strokeWidth: 1
+            strokeWidth: 1,
           },
           text: {
             // Canvas implementation doesn't support rems, it expects unitless value
             fontSize: muiThemeTextFontSizePixelsNumber,
             fontFamily: theme.typography.fontFamily,
-            fill: theme.palette.text.primary
-          }
-        }
+            fill: theme.palette.text.primary,
+          },
+        },
       },
       tooltip: {
-        zIndex: theme.zIndex.tooltip
-      }
+        zIndex: theme.zIndex.tooltip,
+      },
     }),
     [
       muiThemeTextFontSizePixelsNumber,
@@ -71,7 +71,7 @@ export const useChartTheme = () => {
       theme.palette.info.light,
       theme.palette.text.primary,
       theme.typography.fontFamily,
-      theme.zIndex.tooltip
+      theme.zIndex.tooltip,
     ]
   );
 

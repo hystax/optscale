@@ -7,7 +7,7 @@ const DeleteAssignmentRule = ({ isLoading, closeSideModal, onSubmit }) => {
   return (
     <DeleteEntity
       message={{
-        messageId: "deleteAssignmentRuleQuestion"
+        messageId: "deleteAssignmentRuleQuestion",
       }}
       isLoading={isLoading}
       deleteButtonProps={{
@@ -15,8 +15,8 @@ const DeleteAssignmentRule = ({ isLoading, closeSideModal, onSubmit }) => {
         disabled: isRestricted,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       onCancel={closeSideModal}
     />

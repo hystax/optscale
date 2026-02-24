@@ -8,7 +8,7 @@ import {
   AWS_EC2_VPC,
   AZURE_NETWORK,
   GCP_COMPUTE_ENGINE,
-  NEBIUS_SERVICE
+  NEBIUS_SERVICE,
 } from "hooks/useRecommendationServices";
 import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { ALIBABA_CNR, AWS_CNR, AZURE_CNR, FORMATTED_MONEY_TYPES, GCP_CNR, NEBIUS } from "utils/constants";
@@ -17,10 +17,10 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_obsolete_ips_resource"
+    headerDataTestId: "lbl_obsolete_ips_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_obsolete_ips_location"
+    headerDataTestId: "lbl_obsolete_ips_location",
   }),
   {
     header: (
@@ -33,7 +33,7 @@ const columns = [
       const value = cell.getValue();
 
       return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value, EN_FULL_FORMAT);
-    }
+    },
   },
   detectedAt({ headerDataTestId: "lbl_obsolete_ips_detected_at" }),
   {
@@ -47,12 +47,12 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={value} />;
-    }
+    },
   },
   possibleMonthlySavings({
     headerDataTestId: "lbl_obsolete_ips_possible_monthly_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class ObsoleteIps extends BaseRecommendation {
@@ -89,12 +89,12 @@ class ObsoleteIps extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

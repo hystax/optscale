@@ -28,7 +28,7 @@ const CreateEnvironmentFormContainer = () => {
       properties: Object.fromEntries(
         formData.properties.map(({ propertyName, propertyValue }) => [propertyName, propertyValue])
       ),
-      ...rest
+      ...rest,
     };
 
     dispatch((_, getState) => {

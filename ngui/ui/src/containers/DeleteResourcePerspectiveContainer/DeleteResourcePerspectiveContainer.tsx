@@ -1,7 +1,7 @@
 import DeleteResourcePerspective from "components/DeleteResourcePerspective";
 import {
   OrganizationPerspectivesDocument,
-  useUpdateOrganizationPerspectivesMutation
+  useUpdateOrganizationPerspectivesMutation,
 } from "graphql/__generated__/hooks/restapi";
 import { useOrganizationPerspectives } from "hooks/coreData/useOrganizationPerspectives";
 import { useOrganizationInfo } from "hooks/useOrganizationInfo";
@@ -18,10 +18,10 @@ const DeleteResourcePerspectiveContainer = ({ perspectiveName, onCancel, onSucce
         query: OrganizationPerspectivesDocument,
         variables: { organizationId },
         data: {
-          organizationPerspectives: data.updateOrganizationPerspectives
-        }
+          organizationPerspectives: data.updateOrganizationPerspectives,
+        },
       });
-    }
+    },
   });
 
   const onDelete = () => {
@@ -30,8 +30,8 @@ const DeleteResourcePerspectiveContainer = ({ perspectiveName, onCancel, onSucce
     return updateOrganizationPerspectives({
       variables: {
         organizationId,
-        value: newPerspectives
-      }
+        value: newPerspectives,
+      },
     }).then(onSuccess);
   };
 

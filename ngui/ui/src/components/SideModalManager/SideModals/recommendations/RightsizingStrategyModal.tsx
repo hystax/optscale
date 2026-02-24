@@ -7,7 +7,7 @@ import RightsizingStrategy, {
   STRATEGY_METRICS,
   STRATEGIES,
   thresholdValidationRules,
-  NAME as RIGHTSIZING_FORM_FIELD_NAME_ROOT
+  NAME as RIGHTSIZING_FORM_FIELD_NAME_ROOT,
 } from "./components/RightsizingStrategy";
 import SaveButton from "./components/SaveButton";
 import { useCommonSettingsData } from "./hooks";
@@ -41,21 +41,21 @@ const RightsizingStrategyForm = ({ recommendationType, onSuccess }) => {
             strategy,
             daysThreshold,
             // store metric copy in order to reset previously selected values when the "custom" strategy is selected
-            customMetric: metric
-          }
+            customMetric: metric,
+          },
         };
       };
 
       return {
         ...currentValues,
-        ...getRightsizingMetricFormValue()
+        ...getRightsizingMetricFormValue(),
       };
     },
     [options]
   );
 
   const methods = useForm({
-    defaultValues: getFormValues()
+    defaultValues: getFormValues(),
   });
 
   const {
@@ -63,7 +63,7 @@ const RightsizingStrategyForm = ({ recommendationType, onSuccess }) => {
     control,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = methods;
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const RightsizingStrategyForm = ({ recommendationType, onSuccess }) => {
     const newOptions = {
       ...options,
       metric: rightsizingStrategy.metric,
-      days_threshold: rightsizingStrategy.daysThreshold
+      days_threshold: rightsizingStrategy.daysThreshold,
     };
 
     save(newOptions);
@@ -89,7 +89,7 @@ const RightsizingStrategyForm = ({ recommendationType, onSuccess }) => {
           name={RIGHTSIZING_FORM_FIELD_NAME_ROOT}
           control={control}
           rules={{
-            validate: thresholdValidationRules
+            validate: thresholdValidationRules,
           }}
           render={({ field: { onChange, value } }) => {
             const { strategy, metric, customMetric, daysThreshold } = value;
@@ -101,7 +101,7 @@ const RightsizingStrategyForm = ({ recommendationType, onSuccess }) => {
                 metric:
                   newStrategy !== STRATEGIES.CUSTOM
                     ? STRATEGY_METRICS[newStrategy]
-                    : getValues()[RIGHTSIZING_FORM_FIELD_NAME_ROOT].customMetric
+                    : getValues()[RIGHTSIZING_FORM_FIELD_NAME_ROOT].customMetric,
               };
 
               onChange(newVal);
@@ -110,13 +110,13 @@ const RightsizingStrategyForm = ({ recommendationType, onSuccess }) => {
             const onCustomMetricChange = (target, newValue) => {
               const newMetricValue = {
                 ...value.metric,
-                [target]: newValue
+                [target]: newValue,
               };
 
               onChange({
                 ...value,
                 metric: newMetricValue,
-                customMetric: newMetricValue
+                customMetric: newMetricValue,
               });
             };
 
@@ -154,8 +154,8 @@ class RightsizingStrategyModal extends BaseSideModal {
     messageId: "rightsizingStrategy",
     dataTestIds: {
       title: "lbl_rightsizing_strategy_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_rightsizing_strategy";

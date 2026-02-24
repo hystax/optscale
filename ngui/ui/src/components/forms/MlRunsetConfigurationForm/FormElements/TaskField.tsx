@@ -16,7 +16,7 @@ const TaskField = ({ tasks, isLoading = false }) => (
     isLoading={isLoading}
     items={tasks.map(({ id, name }) => ({
       value: id,
-      content: <ItemContent>{name}</ItemContent>
+      content: <ItemContent>{name}</ItemContent>,
     }))}
   />
 );

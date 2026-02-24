@@ -36,8 +36,8 @@ const ConflictingAliasesWarning = ({ modelVersion, aliasToVersionMap }: Conflict
         messageValues: {
           alias,
           version: aliasToVersionMap[alias],
-          strong: (chunks) => <strong>{chunks}</strong>
-        }
+          strong: (chunks) => <strong>{chunks}</strong>,
+        },
       }}
     />
   ));
@@ -54,7 +54,7 @@ export const isAliasValid = (alias: string) => {
 const AliasesField = ({ aliasToVersionMap, modelVersion }: AliasesFieldProps) => {
   const {
     formState: { errors },
-    control
+    control,
   } = useFormContext<FormValues>();
 
   const intl = useIntl();
@@ -62,7 +62,7 @@ const AliasesField = ({ aliasToVersionMap, modelVersion }: AliasesFieldProps) =>
   const options = useMemo(
     () =>
       Object.keys(aliasToVersionMap).map((alias) => ({
-        title: alias
+        title: alias,
       })),
     [aliasToVersionMap]
   );
@@ -75,7 +75,7 @@ const AliasesField = ({ aliasToVersionMap, modelVersion }: AliasesFieldProps) =>
         render={({ field: { value: aliasesValue, onChange } }) => (
           <Autocomplete
             value={aliasesValue.map((alias) => ({
-              title: alias
+              title: alias,
             }))}
             onChange={(event, newValues) => {
               const values = newValues.map((value) => {
@@ -105,7 +105,7 @@ const AliasesField = ({ aliasToVersionMap, modelVersion }: AliasesFieldProps) =>
               if (inputValue !== "" && !isExisting) {
                 filtered.push({
                   inputValue,
-                  title: `${intl.formatMessage({ id: "add" })} ${inputValue}`
+                  title: `${intl.formatMessage({ id: "add" })} ${inputValue}`,
                 });
               }
 

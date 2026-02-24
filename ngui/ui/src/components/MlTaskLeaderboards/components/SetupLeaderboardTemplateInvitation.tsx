@@ -17,7 +17,7 @@ const SetupLeaderboardTemplateInvitation = () => {
     <Stack alignItems="center" spacing={SPACING_1} mt={SPACING_2}>
       <img
         style={{
-          width: "160px"
+          width: "160px",
         }}
         src={finopsCloudCostOptimization}
         alt={intl.formatMessage({ id: "leaderboards" })}

@@ -22,7 +22,7 @@ const MlDatasetsTable = ({ datasets }) => {
   const navigate = useNavigate();
 
   const isManageDatasetsAllowed = useIsAllowed({
-    requiredActions: ["EDIT_PARTNER"]
+    requiredActions: ["EDIT_PARTNER"],
   });
 
   const columns = useMemo(() => {
@@ -43,7 +43,7 @@ const MlDatasetsTable = ({ datasets }) => {
               icon: <EditOutlinedIcon />,
               requiredActions: ["EDIT_PARTNER"],
               dataTestId: `btn_edit_${index}`,
-              action: () => navigate(getEditMlDatasetUrl(id))
+              action: () => navigate(getEditMlDatasetUrl(id)),
             },
             {
               key: "delete",
@@ -52,11 +52,11 @@ const MlDatasetsTable = ({ datasets }) => {
               color: "error",
               requiredActions: ["EDIT_PARTNER"],
               dataTestId: `btn_delete_${index}`,
-              action: () => openSideModal(MlDeleteDatasetModal, { id, path })
-            }
+              action: () => openSideModal(MlDeleteDatasetModal, { id, path }),
+            },
           ]}
         />
-      )
+      ),
     });
 
     return [
@@ -64,21 +64,21 @@ const MlDatasetsTable = ({ datasets }) => {
         headerMessageId: "name",
         headerDataTestId: "lbl_name",
         accessorKey: "name",
-        maxTextLength: DATASET_NAME_LENGTH_LIMIT
+        maxTextLength: DATASET_NAME_LENGTH_LIMIT,
       }),
       slicedText({
         headerMessageId: "path",
         headerDataTestId: "lbl_path",
         accessorKey: "path",
         maxTextLength: DATASET_PATH_LENGTH_LIMIT,
-        copy: true
+        copy: true,
       }),
       localTime({
         id: "created_at",
         accessorFn: (originalRow) => secondsToMilliseconds(originalRow.created_at),
         headerDataTestId: "lbl_updated_at",
         headerMessageId: "createdAt",
-        defaultSort: "desc"
+        defaultSort: "desc",
       }),
       datasetTimespan(),
       {
@@ -90,22 +90,22 @@ const MlDatasetsTable = ({ datasets }) => {
         accessorKey: "description",
         style: {
           minWidth: 200,
-          maxWidth: 400
+          maxWidth: 400,
         },
         cell: ({ cell }) => (
           <Box overflow="auto">
             <Markdown>{cell.getValue()}</Markdown>
           </Box>
-        )
+        ),
       },
       datasetLabels({
         id: "labels",
         accessorFn: (originalRow) => originalRow.labels,
         style: {
-          maxWidth: "400px"
-        }
+          maxWidth: "400px",
+        },
       }),
-      ...(isManageDatasetsAllowed ? [getActionsColumn()] : [])
+      ...(isManageDatasetsAllowed ? [getActionsColumn()] : []),
     ];
   }, [isManageDatasetsAllowed, navigate, openSideModal]);
 
@@ -124,10 +124,10 @@ const MlDatasetsTable = ({ datasets }) => {
           type: "button",
           dataTestId: "btn-create-dataset",
           link: ML_DATASET_CREATE,
-          requiredActions: ["EDIT_PARTNER"]
-        }
-      ]
-    }
+          requiredActions: ["EDIT_PARTNER"],
+        },
+      ],
+    },
   };
 
   return <Table data={data} columns={columns} actionBar={tableActionBarDefinition} withSearch pageSize={50} />;

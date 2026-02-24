@@ -12,7 +12,7 @@ const Slack = ({
   totalEmployees,
   connectedEmployees,
   isCurrentEmployeeConnectedToSlack,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const { isGetEmployeesLoading = false, isGetSlackInstallationPathLoading = false } = isLoadingProps;
 
@@ -44,10 +44,10 @@ const Slack = ({
           values={{
             total: totalEmployees,
             connected: connectedEmployees,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />,
-        <TextBlock key="description3" messageId="integrationsSlackDescription3" />
+        <TextBlock key="description3" messageId="integrationsSlackDescription3" />,
       ]}
     />
   );

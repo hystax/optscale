@@ -13,7 +13,7 @@ const ColumnSetsContainer = ({ tableContext, closeSideModal }) => {
 
   const { isLoading: isGetAllLayoutsLoading, layouts } = useGetAll({
     organizationId,
-    layoutType: LAYOUT_TYPES.RESOURCE_RAW_EXPENSES_COLUMNS
+    layoutType: LAYOUT_TYPES.RESOURCE_RAW_EXPENSES_COLUMNS,
   });
 
   const { isLoading: isGetLayoutLoading, entityId: getLayoutEntityId, onGet } = useGetOneOnDemand();
@@ -40,7 +40,7 @@ const ColumnSetsContainer = ({ tableContext, closeSideModal }) => {
       isLoadingProps={{
         isGetAllColumnSetsLoading: isGetAllLayoutsLoading,
         getIsGetColumnSetLoading: (columnsSetId) => isGetLayoutLoading && getLayoutEntityId === columnsSetId,
-        getIsDeleteColumnSetLoading: (columnsSetId) => isDeleteLayoutLoading && deletionEntityId === columnsSetId
+        getIsDeleteColumnSetLoading: (columnsSetId) => isDeleteLayoutLoading && deletionEntityId === columnsSetId,
       }}
     />
   );

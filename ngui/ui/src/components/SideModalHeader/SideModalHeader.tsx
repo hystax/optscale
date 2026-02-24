@@ -38,14 +38,14 @@ const SideModalHeader = ({
   isExpanded,
   formattedMessageValues,
   dataTestIds,
-  color = "primary"
+  color = "primary",
 }: SideModalHeaderProps) => {
   const { classes, cx } = useStyles();
 
   const {
     title: titleDataTestId,
     closeButton: closeButtonDataTestId,
-    expandButton: expandButtonDataTestId
+    expandButton: expandButtonDataTestId,
   } = dataTestIds || {};
 
   const headerColorClassName = `header${capitalize(color)}` as const;

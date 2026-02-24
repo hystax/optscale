@@ -20,7 +20,7 @@ const TtlAnalysisReport = ({
   totalExpenses,
   expensesOutsideOfTtl,
   resources,
-  isLoading = false
+  isLoading = false,
 }) => {
   const columns = useMemo(
     () => [
@@ -37,10 +37,10 @@ const TtlAnalysisReport = ({
             rowData={{
               resource_name: original.name,
               cloud_resource_id: original.cloud_resource_id,
-              resource_id: original.id
+              resource_id: original.id,
             }}
           />
-        )
+        ),
       },
       {
         header: (
@@ -51,17 +51,17 @@ const TtlAnalysisReport = ({
         accessorKey: "type",
         cell: ({
           row: {
-            original: { type, cluster_type_id: clusterTypeId, is_environment: isEnvironment }
-          }
+            original: { type, cluster_type_id: clusterTypeId, is_environment: isEnvironment },
+          },
         }) => (
           <ResourceTypeLabel
             resourceInfo={{
               resourceType: type,
               clusterTypeId,
-              isEnvironment
+              isEnvironment,
             }}
           />
-        )
+        ),
       },
       {
         header: (
@@ -69,7 +69,7 @@ const TtlAnalysisReport = ({
             <FormattedMessage id="owner" />
           </TextWithDataTestId>
         ),
-        accessorKey: "owner_name"
+        accessorKey: "owner_name",
       },
       {
         header: (
@@ -81,7 +81,7 @@ const TtlAnalysisReport = ({
         cell: ({ row: { original } }) =>
           original.cloud_account_id ? (
             <CloudLabel id={original.cloud_account_id} name={original.cloud_account_name} type={original.cloud_type} />
-          ) : null
+          ) : null,
       },
       {
         header: (
@@ -89,7 +89,7 @@ const TtlAnalysisReport = ({
             <FormattedMessage id="hoursOutsideOfTtl" />
           </TextWithDataTestId>
         ),
-        accessorKey: "hours_outside_of_ttl"
+        accessorKey: "hours_outside_of_ttl",
       },
       {
         header: (
@@ -99,8 +99,8 @@ const TtlAnalysisReport = ({
         ),
         accessorKey: "expenses_outside_of_ttl",
         cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
-        defaultSort: "desc"
-      }
+        defaultSort: "desc",
+      },
     ],
     []
   );
@@ -109,7 +109,7 @@ const TtlAnalysisReport = ({
     () =>
       resources.map((resource) => ({
         ...resource,
-        resource: `${resource.cloud_resource_id} ${resource.name}`
+        resource: `${resource.cloud_resource_id} ${resource.name}`,
       })),
     [resources]
   );
@@ -126,10 +126,10 @@ const TtlAnalysisReport = ({
               help: {
                 show: true,
                 messageId: "resourcesTrackedReportDescription",
-                dataTestId: "qmark_resources"
+                dataTestId: "qmark_resources",
               },
               isLoading,
-              dataTestId: "card_recources"
+              dataTestId: "card_recources",
             },
             {
               key: "resourcesOutsideOfTtl",
@@ -139,17 +139,17 @@ const TtlAnalysisReport = ({
               relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
               relativeValueComponentProps: {
                 value: percentXofY(resourcesOutsideOfTtl, resourcesTracked),
-                format: "percentage"
+                format: "percentage",
               },
               relativeValueCaptionMessageId: "fromTotalResourcesCount",
               help: {
                 show: true,
                 messageId: "resourcesOutsideOfTtlReportDescription",
-                dataTestId: "qmark_resources_ttl"
+                dataTestId: "qmark_resources_ttl",
               },
               isLoading,
-              dataTestId: "card_recources_ttl"
-            }
+              dataTestId: "card_recources_ttl",
+            },
           ]}
         />
       </Grid>
@@ -160,39 +160,39 @@ const TtlAnalysisReport = ({
               key: "totalExpenses",
               valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
               valueComponentProps: {
-                value: totalExpenses
+                value: totalExpenses,
               },
               captionMessageId: "totalExpenses",
               help: {
                 show: true,
                 messageId: "totalExpensesReportDescription",
-                dataTestId: "qmark_expenses"
+                dataTestId: "qmark_expenses",
               },
               isLoading,
-              dataTestId: "card_expenses"
+              dataTestId: "card_expenses",
             },
             {
               key: "expensesOutsideOfTtl",
               type: SUMMARY_CARD_TYPES.EXTENDED,
               valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
               valueComponentProps: {
-                value: expensesOutsideOfTtl
+                value: expensesOutsideOfTtl,
               },
               captionMessageId: "expensesOutsideOfTtl",
               relativeValueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedNumber,
               relativeValueComponentProps: {
                 value: percentXofY(expensesOutsideOfTtl, totalExpenses),
-                format: "percentage"
+                format: "percentage",
               },
               relativeValueCaptionMessageId: "fromTotalExpenses",
               help: {
                 show: true,
                 messageId: "expensesOutsideOfTtlReportDescription",
-                dataTestId: "qmark_expenses_ttl"
+                dataTestId: "qmark_expenses_ttl",
               },
               isLoading,
-              dataTestId: "card_expenses_ttl"
-            }
+              dataTestId: "card_expenses_ttl",
+            },
           ]}
         />
       </Grid>
@@ -204,10 +204,10 @@ const TtlAnalysisReport = ({
             data={tableData}
             columns={columns}
             localization={{
-              emptyMessageId: "noResources"
+              emptyMessageId: "noResources",
             }}
             dataTestIds={{
-              container: "table_report_data"
+              container: "table_report_data",
             }}
           />
         )}

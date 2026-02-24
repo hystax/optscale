@@ -7,7 +7,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <AnomalyRunChartCell breakdown={{}} today={0} average={0} threshold={0} type={"type"} />
+      <AnomalyRunChartCell breakdown={{}} today={0} average={0} threshold={0} type="type" />
     </TestProvider>
   );
   root.unmount();

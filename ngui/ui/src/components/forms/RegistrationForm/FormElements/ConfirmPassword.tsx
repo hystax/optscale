@@ -16,7 +16,7 @@ const ConfirmPassword = () => {
       margin="normal"
       autoComplete="new-password"
       validate={{
-        match: (value, formValues) => value === formValues.password || intl.formatMessage({ id: "passwordsDoNotMatch" })
+        match: (value, formValues) => value === formValues.password || intl.formatMessage({ id: "passwordsDoNotMatch" }),
       }}
     />
   );

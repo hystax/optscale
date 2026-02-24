@@ -17,7 +17,7 @@ const Cell = ({ insecurePorts }) => {
           {formatProtocolPortAppLabel({
             protocol,
             port,
-            app: INSECURE_PORTS_MAP[port]
+            app: INSECURE_PORTS_MAP[port],
           })}
         </div>
       ))}
@@ -34,10 +34,10 @@ const openPorts = ({ headerDataTestId, accessorKey = "insecure_ports" }) => ({
   accessorKey,
   cell: ({
     row: {
-      original: { insecure_ports: insecurePorts = [] }
-    }
+      original: { insecure_ports: insecurePorts = [] },
+    },
   }) => <Cell insecurePorts={insecurePorts} />,
-  enableSorting: false
+  enableSorting: false,
 });
 
 export default openPorts;

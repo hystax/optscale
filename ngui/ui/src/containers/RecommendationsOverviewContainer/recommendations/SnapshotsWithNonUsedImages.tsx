@@ -22,7 +22,7 @@ const columns = [
     cell: ({ cell }: { cell: { getValue: () => number } }) => {
       const value = cell.getValue();
       return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
-    }
+    },
   },
   {
     header: <FormattedMessage id="images" />,
@@ -39,10 +39,10 @@ const columns = [
           {image}
         </Box>
       ));
-    }
+    },
   },
   detectedAt(),
-  possibleMonthlySavings()
+  possibleMonthlySavings(),
 ];
 
 class SnapshotsWithNonUsedImages extends BaseRecommendation {
@@ -83,12 +83,12 @@ class SnapshotsWithNonUsedImages extends BaseRecommendation {
     return this.items.map((item: { cloud_resource_id: string; resource_id: string; saving: number }) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

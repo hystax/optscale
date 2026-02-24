@@ -41,7 +41,7 @@ const getQueryParamFilters = () => {
     timeStart,
     timeEnd,
     descriptionLike = "",
-    includeDebugEvents = false
+    includeDebugEvents = false,
   } = getSearchParams() as Partial<FilterParams>;
 
   return {
@@ -49,7 +49,7 @@ const getQueryParamFilters = () => {
     timeStart: timeStart === undefined ? timeStart : Number(timeStart),
     timeEnd: timeEnd === undefined ? timeEnd : Number(timeEnd),
     descriptionLike,
-    includeDebugEvents
+    includeDebugEvents,
   };
 };
 
@@ -95,8 +95,8 @@ const EventsContainer = () => {
           last_id: params.lastId,
           description_like: params.descriptionLike,
           limit: EVENTS_LIMIT,
-          level: getLevelParameter()
-        }
+          level: getLevelParameter(),
+        },
       };
     },
     [organizationId]
@@ -109,18 +109,18 @@ const EventsContainer = () => {
   const getEventsAbortControllerRef = useRef<AbortController | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [getEvents] = useEventsLazyQuery({
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
 
   const refetchAbortControllerRef = useRef<AbortController | null>(null);
   const [refetchEvents] = useEventsLazyQuery({
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
 
   const fetchMoreAbortControllerRef = useRef<AbortController | null>(null);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [fetchMoreEvents] = useEventsLazyQuery({
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
 
   const refetch = useCallback(
@@ -131,9 +131,9 @@ const EventsContainer = () => {
         variables,
         context: {
           fetchOptions: {
-            signal: refetchAbortControllerRef.current?.signal
-          }
-        }
+            signal: refetchAbortControllerRef.current?.signal,
+          },
+        },
       }).then(({ data }) => {
         if (data) {
           setEvents((currentEvents) => {
@@ -173,7 +173,7 @@ const EventsContainer = () => {
     setIsLoading(true);
 
     getEvents({
-      variables
+      variables,
     })
       .then(({ data }) => {
         setEvents(data.events);
@@ -197,7 +197,7 @@ const EventsContainer = () => {
       timeStart: newFilterParams.timeStart ?? filters.timeStart,
       timeEnd: newFilterParams.timeEnd ?? filters.timeEnd,
       descriptionLike: newFilterParams.descriptionLike ?? filters.descriptionLike,
-      includeDebugEvents: newFilterParams.includeDebugEvents ?? filters.includeDebugEvents
+      includeDebugEvents: newFilterParams.includeDebugEvents ?? filters.includeDebugEvents,
     };
 
     const areFiltersDifferent = (Object.keys(filterParams) as FilterNames[]).some((key) => filterParams[key] !== filters[key]);
@@ -207,7 +207,7 @@ const EventsContainer = () => {
 
       setFilters((currentRequestParams) => ({
         ...currentRequestParams,
-        ...filterParams
+        ...filterParams,
       }));
 
       const variables = getQueryVariables(filterParams);
@@ -231,9 +231,9 @@ const EventsContainer = () => {
         variables,
         context: {
           fetchOptions: {
-            signal: getEventsAbortControllerRef.current?.signal
-          }
-        }
+            signal: getEventsAbortControllerRef.current?.signal,
+          },
+        },
       })
         .then(({ data }) => {
           setEvents(data.events);
@@ -260,13 +260,13 @@ const EventsContainer = () => {
       fetchMoreEvents({
         variables: getQueryVariables({
           ...filters,
-          lastId: lastEvent.id
+          lastId: lastEvent.id,
         }),
         context: {
           fetchOptions: {
-            signal: fetchMoreAbortControllerRef.current?.signal
-          }
-        }
+            signal: fetchMoreAbortControllerRef.current?.signal,
+          },
+        },
       })
         .then(({ data }) => {
           if (data) {

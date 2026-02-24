@@ -62,21 +62,21 @@ export const legendLayer = (ctx: CanvasRenderingContext2D, layerContext, { chart
         const { label, shouldTruncate } =
           typeof legendLabel === "function"
             ? legendLabel(item, ctx, {
-                maxWidth: MAX_LEGEND_LABEL_WIDTH
+                maxWidth: MAX_LEGEND_LABEL_WIDTH,
               })
             : {
                 label: item.id,
-                shouldTruncate: true
+                shouldTruncate: true,
               };
 
         return {
           ...item,
-          label: shouldTruncate ? truncateCanvasText(ctx, label, MAX_LEGEND_LABEL_WIDTH) : label
+          label: shouldTruncate ? truncateCanvasText(ctx, label, MAX_LEGEND_LABEL_WIDTH) : label,
         };
       }),
       containerWidth: innerWidth,
       containerHeight: innerHeight,
-      theme: chartTheme
+      theme: chartTheme,
     });
   });
 
@@ -91,7 +91,7 @@ export const getChartLayers = ({
   chartTheme,
   drawBar,
   getBarSettings,
-  legendLabel
+  legendLabel,
 }) => {
   const selectedBarLayerFn = (ctx: CanvasRenderingContext2D, layerContext) =>
     selectedBarLayer(ctx, layerContext, { selectedBar, drawBar, getBarSettings });
@@ -110,6 +110,6 @@ export const getChartLayers = ({
     selectedBarLayerFn,
     barsRefLayerFn,
     ...(thresholdMarker ? [thresholdMarkerLayerFn] : []),
-    ...(withLegend ? [legendLayerFn] : [])
+    ...(withLegend ? [legendLayerFn] : []),
   ];
 };

@@ -28,11 +28,11 @@ const LabelChip = ({
   label,
   colorizeBy = label,
   labelSymbolsLimit = DEFAULT_LABEL_SYMBOLS_LIMIT,
-  labelTypographyProps
+  labelTypographyProps,
 }: LabelChipProps) => {
   const theme = useTheme();
   const {
-    palette: { getContrastText }
+    palette: { getContrastText },
   } = theme;
 
   const { r, g, b } = calculateColorFromString(colorizeBy);
@@ -50,7 +50,7 @@ const LabelChip = ({
       sx={{
         color: getContrastText(rgbColor),
         backgroundColor: rgbColor,
-        borderColor: rgbColor
+        borderColor: rgbColor,
       }}
       size="small"
     />

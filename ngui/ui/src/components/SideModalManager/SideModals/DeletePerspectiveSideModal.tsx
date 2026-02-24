@@ -7,8 +7,8 @@ class DeletePerspectiveSideModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_delete",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_delete_perspective";

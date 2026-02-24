@@ -12,7 +12,7 @@ const PaletteSettingsForm = ({ palette, options, onUpdate }) => {
   const themeSettings = useThemeSettingsOptions();
 
   const methods = useForm({
-    defaultValues: getDefaultValues(palette, options)
+    defaultValues: getDefaultValues(palette, options),
   });
 
   const { handleSubmit, reset } = methods;
@@ -20,7 +20,7 @@ const PaletteSettingsForm = ({ palette, options, onUpdate }) => {
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...getDefaultValues(palette, options)
+      ...getDefaultValues(palette, options),
     }));
   }, [options, palette, reset]);
 
@@ -30,8 +30,8 @@ const PaletteSettingsForm = ({ palette, options, onUpdate }) => {
       ...themeSettings,
       chartPalette: {
         ...themeSettings.chartPalette,
-        [palette]: colors
-      }
+        [palette]: colors,
+      },
     };
     onUpdate(updatedSettings);
   });
@@ -41,8 +41,8 @@ const PaletteSettingsForm = ({ palette, options, onUpdate }) => {
       ...themeSettings,
       chartPalette: {
         ...themeSettings.chartPalette,
-        [palette]: []
-      }
+        [palette]: [],
+      },
     };
 
     onUpdate(updatedSettings);
@@ -55,7 +55,7 @@ const PaletteSettingsForm = ({ palette, options, onUpdate }) => {
           id="chartPaletteSettings"
           values={{
             palette,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />
       </SubTitle>

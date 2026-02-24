@@ -12,7 +12,7 @@ describe("datetime utils: intervalToDuration", () => {
       [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 0,
       [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 0,
       [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 0,
-      [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0
+      [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0,
     });
   });
   describe("returns correct duration for arbitrary dates", () => {
@@ -27,7 +27,7 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 1,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 1
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 1,
       });
     });
     it("case 2", () => {
@@ -42,7 +42,7 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 59,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 50
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 50,
       });
     });
     it("case 3", () => {
@@ -57,7 +57,7 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 23,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 0,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 54,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 990
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 990,
       });
     });
     it("case 4", () => {
@@ -72,7 +72,7 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 59,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 50
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 50,
       });
     });
   });
@@ -83,7 +83,7 @@ describe("datetime utils: intervalToDuration", () => {
       expect(
         intervalToDuration({
           start: new Date(2012, 1, 28, 9, 0, 0),
-          end: new Date(2012, 1, 29, 10, 0, 0)
+          end: new Date(2012, 1, 29, 10, 0, 0),
         })
       ).toEqual({
         [INTERVAL_DURATION_VALUE_TYPES.WEEKS]: 0,
@@ -91,13 +91,13 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 0,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 0,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0,
       });
 
       expect(
         intervalToDuration({
           start: new Date(2012, 1, 29, 9, 0, 0),
-          end: new Date(2012, 1, 29, 10, 0, 0)
+          end: new Date(2012, 1, 29, 10, 0, 0),
         })
       ).toEqual({
         [INTERVAL_DURATION_VALUE_TYPES.WEEKS]: 0,
@@ -105,13 +105,13 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 0,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 0,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0,
       });
 
       expect(
         intervalToDuration({
           start: new Date(2012, 1, 28, 9, 0, 0),
-          end: new Date(2012, 1, 28, 10, 0, 0)
+          end: new Date(2012, 1, 28, 10, 0, 0),
         })
       ).toEqual({
         [INTERVAL_DURATION_VALUE_TYPES.WEEKS]: 0,
@@ -119,13 +119,13 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 1,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 0,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 0,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0,
       });
 
       expect(
         intervalToDuration({
           start: new Date(2021, 1, 28, 7, 23, 7),
-          end: new Date(2021, 1, 28, 7, 38, 18)
+          end: new Date(2021, 1, 28, 7, 38, 18),
         })
       ).toEqual({
         [INTERVAL_DURATION_VALUE_TYPES.WEEKS]: 0,
@@ -133,7 +133,7 @@ describe("datetime utils: intervalToDuration", () => {
         [INTERVAL_DURATION_VALUE_TYPES.HOURS]: 0,
         [INTERVAL_DURATION_VALUE_TYPES.MINUTES]: 15,
         [INTERVAL_DURATION_VALUE_TYPES.SECONDS]: 11,
-        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0
+        [INTERVAL_DURATION_VALUE_TYPES.MILLISECONDS]: 0,
       });
     });
   });

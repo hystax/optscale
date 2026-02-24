@@ -20,7 +20,7 @@ const LOADER_LINES = 5;
 
 const GIT_CHANGES_STATUS = Object.freeze({
   CLEAN: "clean",
-  DIRTY: "dirty"
+  DIRTY: "dirty",
 });
 
 const Goals = ({ reachedGoals, isLoading }) => {

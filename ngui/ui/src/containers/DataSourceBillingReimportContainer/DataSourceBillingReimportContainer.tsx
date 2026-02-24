@@ -20,10 +20,10 @@ const DataSourceBillingReimportContainer = ({ dataSourceId, onSuccess }: DataSou
             dataSourceId,
             params: {
               lastImportAt: importFrom,
-              lastImportModifiedAt: importFrom
-            }
+              lastImportModifiedAt: importFrom,
+            },
           },
-          refetchQueries: [DataSourceDocument]
+          refetchQueries: [DataSourceDocument],
         }).then(onSuccess);
       }}
       isSubmitLoading={loading}

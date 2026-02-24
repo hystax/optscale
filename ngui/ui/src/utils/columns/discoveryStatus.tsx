@@ -11,14 +11,14 @@ import { CELL_EMPTY_VALUE } from "utils/tables";
 export const DISCOVERY_STATUS = Object.freeze({
   UNKNOWN: 0,
   ERROR: 1,
-  SUCCESS: 2
+  SUCCESS: 2,
 });
 
 const ErrorStatus = ({ errorAt, errorText }) => (
   <CaptionedCell
     caption={[
       { node: format(secondsToMilliseconds(errorAt), EN_FULL_FORMAT), key: "error-at" },
-      { node: errorText, key: "error-text" }
+      { node: errorText, key: "error-text" },
     ]}
   >
     <IconStatus icon={CancelIcon} color="error" labelMessageId="failed" />
@@ -46,7 +46,7 @@ const discoveryStatus = ({ headerDataTestId = "lbl_status", messageId = "status"
     }
 
     return <UnknownStatus />;
-  }
+  },
 });
 
 export default discoveryStatus;

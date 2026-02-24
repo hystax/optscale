@@ -9,16 +9,16 @@ const InvitationsContainer = () => {
   const {
     data: { invitations = [] } = {},
     networkStatus,
-    refetch: refetchInvitations
+    refetch: refetchInvitations,
   } = useInvitationsQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    notifyOnNetworkStatusChange: true
+    notifyOnNetworkStatusChange: true,
   });
 
   const [getOrganizations] = useOrganizationsLazyQuery({
-    fetchPolicy: "network-only"
+    fetchPolicy: "network-only",
   });
 
   const isLoading = networkStatus === NetworkStatus.loading || networkStatus === NetworkStatus.refetch;

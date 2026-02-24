@@ -68,11 +68,11 @@ const TextInput = ({
   masked,
   className,
   fullWidth,
-  shouldUnregister
+  shouldUnregister,
 }: TextInputProps) => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -108,13 +108,13 @@ const TextInput = ({
       {...register(name, {
         required: {
           value: required,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         maxLength:
           maxLength !== null
             ? {
                 value: maxLength,
-                message: intl.formatMessage({ id: "maxFieldLength" }, { max: maxLength })
+                message: intl.formatMessage({ id: "maxFieldLength" }, { max: maxLength }),
               }
             : undefined,
         minLength:
@@ -124,9 +124,9 @@ const TextInput = ({
         pattern,
         validate: {
           notOnlyWhiteSpaces,
-          ...validate
+          ...validate,
         },
-        shouldUnregister
+        shouldUnregister,
       })}
     />
   );

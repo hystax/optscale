@@ -28,8 +28,8 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
         icon: <DeleteOutlinedIcon />,
         action: ({ id, name }) => openSideModal(DeleteClusterTypeModal, { clusterTypeId: id, clusterTypeName: name }),
         dataTestId: "btn_delete",
-        color: "error"
-      }
+        color: "error",
+      },
     ];
 
     const clusterTypesCount = memoizedClusterTypes.length;
@@ -42,7 +42,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
         dataTestId: "btn_prioritize",
         action: ({ id }) => {
           onUpdatePriority(id, "prioritize");
-        }
+        },
       },
       {
         messageId: "promote",
@@ -51,7 +51,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
         dataTestId: "btn_promote",
         action: ({ id }) => {
           onUpdatePriority(id, "promote");
-        }
+        },
       },
       {
         messageId: "demote",
@@ -60,7 +60,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
         dataTestId: "btn_demote",
         action: ({ id }) => {
           onUpdatePriority(id, "demote");
-        }
+        },
       },
       {
         messageId: "deprioritize",
@@ -69,8 +69,8 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
         dataTestId: "btn_deprioritize",
         action: ({ id }) => {
           onUpdatePriority(id, "deprioritize");
-        }
-      }
+        },
+      },
     ];
 
     const getActionsColumnDefinition = () => ({
@@ -91,16 +91,16 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
               dataTestId: `${item.dataTestId}_${index}`,
               disabled: original.priority === item.disabledPriority,
               icon: item.icon,
-              action: () => item.action(original)
+              action: () => item.action(original),
             })),
             ...basicActions.map((item) => ({
               ...item,
               dataTestId: `${item.dataTestId}_${index}`,
-              action: () => item.action(original)
-            }))
+              action: () => item.action(original),
+            })),
           ]}
         />
-      )
+      ),
     });
 
     const basicColumns = [
@@ -110,7 +110,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
             <FormattedMessage id="name" />
           </TextWithDataTestId>
         ),
-        accessorKey: "name"
+        accessorKey: "name",
       },
       {
         header: (
@@ -118,7 +118,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
             <FormattedMessage id="tagKey" />
           </TextWithDataTestId>
         ),
-        accessorKey: "tag_key"
+        accessorKey: "tag_key",
       },
       {
         header: (
@@ -127,8 +127,8 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
           </TextWithDataTestId>
         ),
         accessorKey: "priority",
-        defaultSort: "asc"
-      }
+        defaultSort: "asc",
+      },
     ];
 
     return isManageResourcesAllowed ? basicColumns.concat(getActionsColumnDefinition()) : basicColumns;
@@ -150,7 +150,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
               variant: "contained",
               type: "button",
               link: CLUSTER_TYPE_CREATE,
-              dataTestId: "btn_add"
+              dataTestId: "btn_add",
             },
             {
               key: "bu-reapply",
@@ -158,10 +158,10 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
               messageId: "reapplyClusterTypes",
               type: "button",
               action: () => openSideModal(ReapplyClusterTypesModal),
-              dataTestId: "btn_re_apply"
-            }
-          ]
-        }
+              dataTestId: "btn_re_apply",
+            },
+          ],
+        },
       }}
       data={memoizedClusterTypes}
       columns={columns}
@@ -170,7 +170,7 @@ const ClusterTypesTable = ({ clusterTypes, onUpdatePriority, isLoading = false }
       dataTestIds={{
         searchInput: "input_search",
         searchButton: "btn_search",
-        deleteSearchButton: "btn_delete_search"
+        deleteSearchButton: "btn_delete_search",
       }}
       localization={{ emptyMessageId: "noClusterTypes" }}
     />

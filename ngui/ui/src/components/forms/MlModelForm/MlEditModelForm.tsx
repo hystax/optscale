@@ -10,7 +10,7 @@ const MlEditModelForm = ({ model, onSubmit, onCancel, isLoadingProps = {} }: MlE
   const defaultValues = useMemo(() => getDefaultValues(model), [model]);
 
   const methods = useForm({
-    defaultValues
+    defaultValues,
   });
 
   const { handleSubmit, reset } = methods;
@@ -18,7 +18,7 @@ const MlEditModelForm = ({ model, onSubmit, onCancel, isLoadingProps = {} }: MlE
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...defaultValues
+      ...defaultValues,
     }));
   }, [defaultValues, reset]);
 

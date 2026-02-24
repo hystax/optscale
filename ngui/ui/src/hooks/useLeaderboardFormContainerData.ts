@@ -17,8 +17,8 @@ export const useLeaderboardFormContainerData = ({ taskId }: UseLeaderboardFormCo
     data: {
       datasets,
       datasetLabels,
-      groupingTags: tags
+      groupingTags: tags,
     },
-    isLoading: isDatasetsLoading || isDatasetLabelsLoading || isGetTaskTagsLoading
+    isLoading: isDatasetsLoading || isDatasetLabelsLoading || isGetTaskTagsLoading,
   };
 };

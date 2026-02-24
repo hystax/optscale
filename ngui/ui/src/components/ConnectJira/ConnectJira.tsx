@@ -39,7 +39,7 @@ const ConnectJira = ({ isLoading = false, isError = false }) => (
                 <FormattedMessage
                   id="pleaseContactSupport"
                   values={{
-                    supportEmail: (chunks) => <MailTo email={EMAIL_SUPPORT} text={chunks[0]} />
+                    supportEmail: (chunks) => <MailTo email={EMAIL_SUPPORT} text={chunks[0]} />,
                   }}
                 />
               </Typography>

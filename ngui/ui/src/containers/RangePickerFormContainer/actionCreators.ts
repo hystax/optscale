@@ -4,7 +4,7 @@ export const setDate = (startDate, endDate, label) => ({
   type: SET_DATE,
   payload: {
     startDate,
-    endDate
+    endDate,
   },
-  label
+  label,
 });

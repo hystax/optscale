@@ -40,20 +40,20 @@ const ExpensesDailyBreakdownBy = ({
   breakdown,
   breakdownByValue,
   onBreakdownByChange,
-  isLoading = false
+  isLoading = false,
 }: ExpensesDailyBreakdownByProps) => {
   const chartWrapperRef: RefObject<HTMLElement | null> = useRef(null);
 
   const [split, setSplit] = useSyncQueryParamWithState({
     queryParamName: DAILY_EXPENSES_SPLIT_PARAMETER_NAME,
     possibleStates: SPLITS,
-    defaultValue: EXPENSES_SPLIT_PERIODS.DAILY
+    defaultValue: EXPENSES_SPLIT_PERIODS.DAILY,
   });
 
   const [withLegend, setWithLegend] = useSyncQueryParamWithState({
     queryParamName: WITH_LEGEND_QUERY_PARAMETER_NAME,
     possibleStates: [true, false],
-    defaultValue: true
+    defaultValue: true,
   });
 
   return (

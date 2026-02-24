@@ -12,7 +12,7 @@ import {
   GET_ML_LEADERBOARDS,
   GET_ML_LEADERBOARD,
   GET_ML_LEADERBOARD_CANDIDATES,
-  GET_ML_TASK_TAGS
+  GET_ML_TASK_TAGS,
 } from "api/restapi/actionTypes";
 import ActionBar from "components/ActionBar";
 import { ProfilingIntegrationModal } from "components/SideModalManager/SideModals";
@@ -46,9 +46,9 @@ const TaskActionBar = ({ isLoading, isDataReady, name, taskKey, taskId }) => {
           GET_ML_LEADERBOARD_TEMPLATE,
           GET_ML_LEADERBOARDS,
           GET_ML_LEADERBOARD,
-          GET_ML_LEADERBOARD_CANDIDATES
+          GET_ML_LEADERBOARD_CANDIDATES,
         ]);
-      }
+      },
     },
     {
       key: "btn-profiling-integration",
@@ -57,7 +57,7 @@ const TaskActionBar = ({ isLoading, isDataReady, name, taskKey, taskId }) => {
       dataTestId: "btn_profiling_integration",
       type: "button",
       isLoading: !isDataReady,
-      action: () => openSideModal(ProfilingIntegrationModal, { taskKey })
+      action: () => openSideModal(ProfilingIntegrationModal, { taskKey }),
     },
     {
       key: "edit",
@@ -67,29 +67,29 @@ const TaskActionBar = ({ isLoading, isDataReady, name, taskKey, taskId }) => {
         const { [ML_TASK_DETAILS_TAB_NAME]: tab } = getSearchParams();
         navigate(
           getEditMlTaskUrl(taskId, {
-            [ML_TASK_DETAILS_TAB_NAME]: tab
+            [ML_TASK_DETAILS_TAB_NAME]: tab,
           })
         );
       },
       type: "button",
       isLoading: !isDataReady,
       requiredActions: ["EDIT_PARTNER"],
-      dataTestId: "btn_edit"
-    }
+      dataTestId: "btn_edit",
+    },
   ];
 
   const actionBarDefinition = {
     breadcrumbs: [
       <Link key={1} to={ML_TASKS} component={RouterLink}>
         <FormattedMessage id="tasks" />
-      </Link>
+      </Link>,
     ],
     title: {
       text: name || "",
       isLoading,
-      dataTestId: "lbl_task_overview"
+      dataTestId: "lbl_task_overview",
     },
-    items: baseActionBarItems
+    items: baseActionBarItems,
   };
 
   return <ActionBar data={actionBarDefinition} />;

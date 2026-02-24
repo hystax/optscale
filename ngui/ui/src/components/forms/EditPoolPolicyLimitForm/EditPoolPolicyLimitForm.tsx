@@ -23,10 +23,10 @@ const EditPoolPolicyLimitForm = ({
   policyLimit,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: EditPoolPolicyLimitFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues(policyLimit)
+    defaultValues: getDefaultValues(policyLimit),
   });
 
   const { handleSubmit } = methods;

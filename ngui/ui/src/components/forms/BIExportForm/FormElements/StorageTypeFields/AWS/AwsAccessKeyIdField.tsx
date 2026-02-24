@@ -12,7 +12,7 @@ const AwsAccessKeyIdField = ({ isLoading = false }) => {
       name={FIELD_NAME}
       required
       label={intl.formatMessage({
-        id: "awsAccessKeyId"
+        id: "awsAccessKeyId",
       })}
       isLoading={isLoading}
     />

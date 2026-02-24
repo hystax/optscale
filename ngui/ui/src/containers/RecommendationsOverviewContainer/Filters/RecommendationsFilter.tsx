@@ -7,7 +7,7 @@ export const RECOMMENDATIONS_FILTERS = Object.freeze([
   { messageId: "savings", id: CATEGORY.COST },
   { messageId: "security", id: CATEGORY.SECURITY },
   { messageId: "critical", id: CATEGORY.CRITICAL },
-  { messageId: "nonEmpty", id: CATEGORY.NON_EMPTY }
+  { messageId: "nonEmpty", id: CATEGORY.NON_EMPTY },
 ]);
 
 export const POSSIBLE_RECOMMENDATIONS_FILTERS = RECOMMENDATIONS_FILTERS.map(({ id }) => id);

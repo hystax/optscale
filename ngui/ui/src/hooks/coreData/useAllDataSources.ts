@@ -6,9 +6,9 @@ export const useAllDataSources = (): NonNullable<DataSourcesQuery["dataSources"]
 
   const { data: { dataSources = [] } = {} } = useDataSourcesQuery({
     variables: {
-      organizationId
+      organizationId,
     },
-    fetchPolicy: "cache-only"
+    fetchPolicy: "cache-only",
   });
 
   return dataSources ?? [];

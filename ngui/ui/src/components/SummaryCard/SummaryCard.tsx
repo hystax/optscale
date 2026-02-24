@@ -47,7 +47,7 @@ const SummaryCard = ({
   rawCaption = caption,
   pdfId,
   customContent,
-  backdrop
+  backdrop,
 }) => {
   const theme = useTheme();
 
@@ -97,7 +97,7 @@ const SummaryCard = ({
                   zIndex: () => theme.zIndex.drawer,
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)"
+                  transform: "translate(-50%, -50%)",
                 }}
                 variant="body1"
                 fontWeight="bold"

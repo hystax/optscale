@@ -6,7 +6,7 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { checkError } from "utils/api";
 
 export const DATASOURCE_SURVEY_TYPES = Object.freeze({
-  DISCONNECT_LAST_DATA_SOURCE: "disconnect_last_account"
+  DISCONNECT_LAST_DATA_SOURCE: "disconnect_last_account",
 });
 
 const useUpdateDataSource = () => {
@@ -49,7 +49,7 @@ const useCreateSurvey = () => {
 function DataSourcesService() {
   return {
     useUpdateDataSource,
-    useCreateSurvey
+    useCreateSurvey,
   };
 }
 

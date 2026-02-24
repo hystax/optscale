@@ -12,7 +12,7 @@ import {
   SET_ALLOWED_ACTIONS,
   SIGN_IN,
   UPDATE_USER,
-  SET_TOKEN
+  SET_TOKEN,
 } from "./actionTypes";
 import { onSuccessSignIn } from "./handlers";
 
@@ -23,7 +23,7 @@ export const getToken = ({ email, password, code }) =>
     url: `${API_URL}/tokens`,
     onSuccess: handleSuccess(SET_TOKEN),
     label: GET_TOKEN,
-    params: { email, password, verification_code: code }
+    params: { email, password, verification_code: code },
   });
 
 export const signIn = (provider, params) =>
@@ -31,7 +31,7 @@ export const signIn = (provider, params) =>
     url: `${API_URL}/signin`,
     onSuccess: onSuccessSignIn,
     label: SIGN_IN,
-    params: { provider, ...params }
+    params: { provider, ...params },
   });
 
 export const createUser = (name, email, password) =>
@@ -39,7 +39,7 @@ export const createUser = (name, email, password) =>
     url: `${API_URL}/users`,
     onSuccess: handleSuccess(CREATE_USER),
     label: CREATE_USER,
-    params: { display_name: name, email, password }
+    params: { display_name: name, email, password },
   });
 
 export const updateUser = (userId, params = {}) =>
@@ -47,7 +47,7 @@ export const updateUser = (userId, params = {}) =>
     url: `${API_URL}/users/${userId}`,
     method: "PATCH",
     label: UPDATE_USER,
-    params: { display_name: params.name, password: params.password }
+    params: { display_name: params.name, password: params.password },
   });
 
 export const getUser = (userId) =>
@@ -56,7 +56,7 @@ export const getUser = (userId) =>
     method: "GET",
     onSuccess: handleSuccess(SET_USER),
     label: GET_USER,
-    ttl: 30 * MINUTE
+    ttl: 30 * MINUTE,
   });
 
 export const getResourceAllowedActions = (params) =>
@@ -67,7 +67,7 @@ export const getResourceAllowedActions = (params) =>
     label: GET_RESOURCE_ALLOWED_ACTIONS,
     hash: hashParams(params),
     params: { cloud_resource: params },
-    ttl: 30 * MINUTE
+    ttl: 30 * MINUTE,
   });
 
 export const getPoolAllowedActions = (params) =>
@@ -78,7 +78,7 @@ export const getPoolAllowedActions = (params) =>
     label: GET_POOL_ALLOWED_ACTIONS,
     hash: hashParams(params),
     params: { pool: params },
-    ttl: 30 * MINUTE
+    ttl: 30 * MINUTE,
   });
 
 export const resetPassword = (email) =>
@@ -86,5 +86,5 @@ export const resetPassword = (email) =>
     url: `${API_URL}/restore_password`,
     method: "POST",
     label: RESET_PASSWORD,
-    params: { email }
+    params: { email },
   });

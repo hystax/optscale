@@ -15,7 +15,7 @@ const useGetTrafficExpenses = ({ startDate, endDate, resourceId }) => {
     startDate,
     endDate,
     resourceId,
-    organizationId
+    organizationId,
   });
 
   useEffect(() => {
@@ -24,14 +24,14 @@ const useGetTrafficExpenses = ({ startDate, endDate, resourceId }) => {
         getTrafficExpenses(organizationId, {
           startDate,
           endDate,
-          resourceId
+          resourceId,
         })
       );
     }
   }, [dispatch, shouldInvoke, organizationId, startDate, endDate, resourceId]);
 
   const {
-    apiData: { expenses: trafficExpenses = [] }
+    apiData: { expenses: trafficExpenses = [] },
   } = useApiData(GET_TRAFFIC_EXPENSES);
 
   return { trafficExpenses, isLoading };

@@ -40,11 +40,11 @@ const useGetAll = (
     organizationId,
     layoutType,
     entityId,
-    includeShared
+    includeShared,
   });
 
   const {
-    apiData: { layouts = [], current_employee_id: currentEmployeeId }
+    apiData: { layouts = [], current_employee_id: currentEmployeeId },
   } = useApiData(GET_LAYOUTS);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ const useGetAll = (
   return {
     isLoading,
     layouts,
-    currentEmployeeId
+    currentEmployeeId,
   };
 };
 
@@ -81,7 +81,7 @@ const useGet = (
 
   const { isLoading, shouldInvoke } = useApiState(GET_LAYOUT, {
     organizationId,
-    layoutId
+    layoutId,
   });
 
   const { apiData: layout } = useApiData(GET_LAYOUT);
@@ -126,7 +126,7 @@ const useGetOneOnDemand = (): {
           });
         }),
       [dispatch]
-    )
+    ),
   };
 };
 
@@ -161,7 +161,7 @@ const useCreate = (): {
         }),
       [dispatch, organizationId]
     ),
-    isLoading
+    isLoading,
   };
 };
 
@@ -189,7 +189,7 @@ const useUpdate = (): {
         }),
       [dispatch, organizationId]
     ),
-    isLoading
+    isLoading,
   };
 };
 
@@ -219,7 +219,7 @@ const useDelete = (): {
       [dispatch, organizationId]
     ),
     entityId,
-    isLoading
+    isLoading,
   };
 };
 

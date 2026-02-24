@@ -11,12 +11,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={RESOURCES} component={RouterLink}>
       <FormattedMessage id="resources" />
-    </Link>
+    </Link>,
   ],
   title: {
     text: <FormattedMessage id="clusterTypesTitle" />,
-    dataTestId: "lbl_cluster_types"
-  }
+    dataTestId: "lbl_cluster_types",
+  },
 };
 
 const ClusterTypes = ({ clusterTypes, onUpdatePriority, isLoading = false }) => (
@@ -34,8 +34,8 @@ const ClusterTypes = ({ clusterTypes, onUpdatePriority, isLoading = false }) => 
               <Link data-test-id="link_read_more" href={DOCS_HYSTAX_CLUSTERS} target="_blank" rel="noopener">
                 {chunks}
               </Link>
-            )
-          }
+            ),
+          },
         }}
       />
     </PageContentWrapper>

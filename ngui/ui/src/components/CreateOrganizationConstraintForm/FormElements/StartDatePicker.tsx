@@ -9,7 +9,7 @@ const StartDatePicker = () => {
   const {
     formState: { errors },
     control,
-    trigger
+    trigger,
   } = useFormContext();
 
   return (
@@ -31,14 +31,14 @@ const StartDatePicker = () => {
           validation={{
             dataTestId: `input_${FIELD_NAME}`,
             error: !!errors[FIELD_NAME],
-            helperText: errors[FIELD_NAME]?.message
+            helperText: errors[FIELD_NAME]?.message,
           }}
           intervalMinutes={INTERVAL_TTL_CONSTRAINT}
           dataTestIds={{
             field: {
               input: `input_${FIELD_NAME}`,
-              iconButton: "btn_select_date"
-            }
+              iconButton: "btn_select_date",
+            },
           }}
           withTimePicker
         />

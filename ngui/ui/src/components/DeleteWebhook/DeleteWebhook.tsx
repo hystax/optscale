@@ -17,7 +17,7 @@ const DeleteWebhook = ({ id, action, url }) => {
       disabled={isRestricted}
       tooltip={{
         show: isRestricted,
-        value: restrictionReasonMessage
+        value: restrictionReasonMessage,
       }}
     />
   );

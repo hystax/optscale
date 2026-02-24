@@ -8,12 +8,12 @@ const Breadcrumbs = ({ children, withSlashAtTheEnd = false }) => {
   return (
     <MuiBreadcrumbs
       classes={{
-        separator: classes.separator
+        separator: classes.separator,
       }}
       separator={
         <HorizontalRuleIcon
           sx={{
-            transform: "rotate(115deg)"
+            transform: "rotate(115deg)",
           }}
           color="info"
           fontSize="small"

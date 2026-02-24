@@ -7,7 +7,7 @@ const reducer = (state = {}, action) => {
     case SET_TASK_RUNS_DASHBOARD: {
       return {
         ...state,
-        [action.payload.taskId]: action.payload.dashboardId
+        [action.payload.taskId]: action.payload.dashboardId,
       };
     }
     default:

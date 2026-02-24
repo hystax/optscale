@@ -21,7 +21,7 @@ const InstanceTypesField = ({ isLoading }) => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (
@@ -30,8 +30,8 @@ const InstanceTypesField = ({ isLoading }) => {
       control={control}
       rules={{
         validate: {
-          positiveNumber: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" }))
-        }
+          positiveNumber: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" })),
+        },
       }}
       render={({ field: { value: formFieldValue, onChange } }) =>
         isLoading ? (
@@ -75,7 +75,7 @@ const InstanceTypesField = ({ isLoading }) => {
                     backgroundColor:
                       theme.palette.mode === "light"
                         ? lighten(theme.palette.primary.light, 0.95)
-                        : darken(theme.palette.primary.main, 0.8)
+                        : darken(theme.palette.primary.main, 0.8),
                   })}
                 >
                   {params.group === RUNSET_TEMPLATE_INSTANCE_GROUP_TYPE.ACCELERATED_COMPUTING ? (

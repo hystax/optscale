@@ -5,8 +5,8 @@ import ThemeSettingsComponent from "components/ThemeSettings";
 const actionBarDefinition = {
   title: {
     messageId: "themeSettings",
-    dataTestId: "lbl_theme_settings"
-  }
+    dataTestId: "lbl_theme_settings",
+  },
 };
 
 const ThemeSettings = () => (

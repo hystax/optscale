@@ -6,7 +6,7 @@ import {
   DescriptionField,
   LabelsField,
   TimespanFromField,
-  TimespanToField
+  TimespanToField,
 } from "./FormElements";
 import { FormValues, MlDatasetCreateFormProps } from "./types";
 import { getDefaultValues, prepareFormSubmissionData } from "./utils";
@@ -15,7 +15,7 @@ const MlDatasetCreateForm = ({ onSubmit, onCancel, isLoading = {} }: MlDatasetCr
   const { isCreateDatasetLoading = false } = isLoading;
 
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;

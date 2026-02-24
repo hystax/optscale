@@ -3,20 +3,20 @@ import { makeStyles } from "tss-react/mui";
 const useStyles = makeStyles()((theme) => ({
   fullWidthHeight: {
     height: "100%",
-    width: "100%"
+    width: "100%",
   },
   wrapper: {
     "& line.highlight": {
       stroke: theme.palette.primary.light,
-      strokeWidth: 4
+      strokeWidth: 4,
     },
     /**
      * Disable drag-n-drop for vertical lines (dimensions)
      */
     "& text.axis-title": {
-      pointerEvents: "none !important"
-    }
-  }
+      pointerEvents: "none !important",
+    },
+  },
 }));
 
 export default useStyles;

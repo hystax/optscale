@@ -18,7 +18,7 @@ const HeaderHelperCell = ({
   titleDataTestId,
   onTooltipTitleClick,
   helperMessageValues,
-  helperMessageId
+  helperMessageId,
 }: HeaderHelperCellProps) => {
   const intl = useIntl();
 

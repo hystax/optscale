@@ -8,5 +8,5 @@ export const getFilterValues = (constraint) => ({
         (result, [key, value]) => ({ ...result, [key]: [value] }),
         {}
       )
-    : {})
+    : {}),
 });

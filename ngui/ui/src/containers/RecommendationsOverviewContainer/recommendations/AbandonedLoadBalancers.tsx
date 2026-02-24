@@ -8,21 +8,21 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_abandoned_load_balancers_resource"
+    headerDataTestId: "lbl_abandoned_load_balancers_resource",
   }),
   resourceLocation({
     headerDataTestId: "lbl_abandoned_load_balancers_location",
-    typeAccessor: "cloud_type"
+    typeAccessor: "cloud_type",
   }),
   poolOwner({
     headerDataTestId: "lbl_abandoned_load_balancers_pool_owner",
-    id: "pool/owner"
+    id: "pool/owner",
   }),
   detectedAt({ headerDataTestId: "lbl_abandoned_load_balancers_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_abandoned_load_balancers_possible_monthly_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class AbandonedLoadBalancers extends BaseRecommendation {
@@ -39,7 +39,7 @@ class AbandonedLoadBalancers extends BaseRecommendation {
       days_threshold: daysThreshold,
       bytes_sent_threshold: bytesSentThreshold,
       packets_sent_threshold: packetsSendThreshold,
-      requests_threshold: requestsThreshold
+      requests_threshold: requestsThreshold,
     } = this.options;
 
     return { bytesSentThreshold, packetsSendThreshold, daysThreshold, requestsThreshold };
@@ -65,12 +65,12 @@ class AbandonedLoadBalancers extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

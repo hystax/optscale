@@ -16,15 +16,15 @@ const liveDemoData = [
       {
         id: "5dcc90a7-8923-4530-9fdd-891ea66ae1d1",
         name: "Rule for Environment_1629717445",
-        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd"
-      }
+        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd",
+      },
     ],
     first_seen: 1629676800,
     tags: {},
     env_properties: {
       [ENVIRONMENT_SOFTWARE_FIELD]: "SunWare 1.3.423-integration",
       [ENVIRONMENT_JIRA_TICKETS_FIELD]:
-        "[NGUI-1242](https://jira.com.example/NGUI-1242)  \n[NGUI-3214](jira.com.example/NGUI-3214)"
+        "[NGUI-1242](https://jira.com.example/NGUI-1242)  \n[NGUI-3214](jira.com.example/NGUI-3214)",
     },
     shareable: true,
     created_at: 1629787458,
@@ -41,9 +41,9 @@ const liveDemoData = [
         released_at: 0,
         acquired_by: {
           id: "58f99e3b-a480-4e12-944d-d0d91b260407",
-          name: "William Williams"
-        }
-      }
+          name: "William Williams",
+        },
+      },
     ],
     id: "efd9cb03-5e14-4222-bc59-2e55dfaff985",
     meta: {},
@@ -55,7 +55,7 @@ const liveDemoData = [
     cloud_account_name: "Environment",
     cloud_account_type: "environment",
     pool_name: "Environment",
-    pool_purpose: "budget"
+    pool_purpose: "budget",
   },
   {
     name: "feature-1",
@@ -71,15 +71,15 @@ const liveDemoData = [
       {
         id: "5dcc90a7-8923-4530-9fdd-891ea66ae1d1",
         name: "Rule for Environment_1629717445",
-        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd"
-      }
+        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd",
+      },
     ],
     first_seen: 1629676800,
     tags: {},
     shareable: true,
     env_properties: {
       [ENVIRONMENT_SOFTWARE_FIELD]: "SunWare 1.3.232-hotfix/support-fix",
-      [ENVIRONMENT_JIRA_TICKETS_FIELD]: "[TCS-2214](https://jira.com.example/TCS-2214)"
+      [ENVIRONMENT_JIRA_TICKETS_FIELD]: "[TCS-2214](https://jira.com.example/TCS-2214)",
     },
     created_at: 1629787513,
     last_seen: 1632896806,
@@ -95,9 +95,9 @@ const liveDemoData = [
         released_at: 0,
         acquired_by: {
           id: "58f99e3b-a480-4e12-944d-d0d91b260407",
-          name: "William Williams"
-        }
-      }
+          name: "William Williams",
+        },
+      },
     ],
     id: "6b9a6d53-5131-4431-a0b8-8077ca713914",
     meta: {},
@@ -109,7 +109,7 @@ const liveDemoData = [
     cloud_account_name: "Environment",
     cloud_account_type: "environment",
     pool_name: "Environment",
-    pool_purpose: "budget"
+    pool_purpose: "budget",
   },
   {
     name: "dev-2",
@@ -125,8 +125,8 @@ const liveDemoData = [
       {
         id: "5dcc90a7-8923-4530-9fdd-891ea66ae1d1",
         name: "Rule for Environment_1629717445",
-        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd"
-      }
+        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd",
+      },
     ],
     first_seen: 1629676800,
     tags: {},
@@ -134,7 +134,7 @@ const liveDemoData = [
     env_properties: {
       [ENVIRONMENT_SOFTWARE_FIELD]: "SunWare 1.3.424-feature/sunrise_control",
       [ENVIRONMENT_JIRA_TICKETS_FIELD]:
-        "[TCS-1674](https://jira.com.example/TCS-1674)  \n[TCS-2161](https://jira.com.example/TCS-2161)"
+        "[TCS-1674](https://jira.com.example/TCS-1674)  \n[TCS-2161](https://jira.com.example/TCS-2161)",
     },
     created_at: 1629787475,
     last_seen: 1632896806,
@@ -150,8 +150,8 @@ const liveDemoData = [
         released_at: 1633023063,
         acquired_by: {
           id: "58f99e3b-a480-4e12-944d-d0d91b260407",
-          name: "William Williams"
-        }
+          name: "William Williams",
+        },
       },
       {
         deleted_at: 0,
@@ -163,9 +163,9 @@ const liveDemoData = [
         released_at: 1633970896,
         acquired_by: {
           id: "58f99e3b-a480-4e12-944d-d0d91b260407",
-          name: "William Williams"
-        }
-      }
+          name: "William Williams",
+        },
+      },
     ],
     id: "b4053a50-13ab-4d7d-8279-537a2e5a5614",
     meta: {},
@@ -177,7 +177,7 @@ const liveDemoData = [
     cloud_account_name: "Environment",
     cloud_account_type: "environment",
     pool_name: "Environment",
-    pool_purpose: "budget"
+    pool_purpose: "budget",
   },
   {
     name: "pre-release",
@@ -193,15 +193,15 @@ const liveDemoData = [
       {
         id: "5dcc90a7-8923-4530-9fdd-891ea66ae1d1",
         name: "Rule for Environment_1629717445",
-        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd"
-      }
+        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd",
+      },
     ],
     first_seen: 1629676800,
     tags: {},
     shareable: true,
     env_properties: {
       [ENVIRONMENT_SOFTWARE_FIELD]: "SunWare 1.2.161-master",
-      [ENVIRONMENT_JIRA_TICKETS_FIELD]: "[QA-617](https://jira.com.example/QA-617)"
+      [ENVIRONMENT_JIRA_TICKETS_FIELD]: "[QA-617](https://jira.com.example/QA-617)",
     },
     created_at: 1629787492,
     last_seen: 1632896806,
@@ -217,7 +217,7 @@ const liveDemoData = [
     cloud_account_name: "Environment",
     cloud_account_type: "environment",
     pool_name: "Environment",
-    pool_purpose: "budget"
+    pool_purpose: "budget",
   },
   {
     name: "feature-2",
@@ -233,8 +233,8 @@ const liveDemoData = [
       {
         id: "5dcc90a7-8923-4530-9fdd-891ea66ae1d1",
         name: "Rule for Environment_1629717445",
-        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd"
-      }
+        pool_id: "3f6aa54c-bc90-4145-b351-34284bd5c4cd",
+      },
     ],
     first_seen: 1629676800,
     tags: {},
@@ -242,7 +242,7 @@ const liveDemoData = [
     env_properties: {
       [ENVIRONMENT_SOFTWARE_FIELD]: "SunWare 1.2.162-master",
       [ENVIRONMENT_JIRA_TICKETS_FIELD]:
-        "[NGUI-2617](https://jira.com.example/NGUI-2617)  \n[NGUI-2600](https://jira.com.example/NGUI-2600)  \n[NGUI-2620](https://jira.com.example/NGUI-2620)  \n[TCS-1355](https://jira.com.example/TCS-1355)  \n[TCS-1558](https://jira.com.example/TCS-1558)"
+        "[NGUI-2617](https://jira.com.example/NGUI-2617)  \n[NGUI-2600](https://jira.com.example/NGUI-2600)  \n[NGUI-2620](https://jira.com.example/NGUI-2620)  \n[TCS-1355](https://jira.com.example/TCS-1355)  \n[TCS-1558](https://jira.com.example/TCS-1558)",
     },
     created_at: 1629787527,
     last_seen: 1632896806,
@@ -258,8 +258,8 @@ const liveDemoData = [
     cloud_account_name: "Environment",
     cloud_account_type: "environment",
     pool_name: "Environment",
-    pool_purpose: "budget"
-  }
+    pool_purpose: "budget",
+  },
 ];
 
 const EnvironmentsMocked = () => <Environments disableFilters environments={liveDemoData} />;

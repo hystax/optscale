@@ -28,7 +28,7 @@ const breakdownByButtons = [
   { messageId: "source", link: EXPENSES_BY_CLOUD, icon: <CloudIcon /> },
   { messageId: "pool", link: EXPENSES_BY_POOL, icon: <BusinessIcon /> },
   { messageId: "owner", link: EXPENSES_BY_OWNER, icon: <PeopleIcon /> },
-  { messageId: "geography", link: EXPENSES_MAP, icon: <PublicIcon /> }
+  { messageId: "geography", link: EXPENSES_MAP, icon: <PublicIcon /> },
 ];
 
 const MAX_ORGANIZATION_NAME_LENGTH = 64;
@@ -42,7 +42,7 @@ const CostExplorer = ({
   onApply,
   startDateTimestamp,
   endDateTimestamp,
-  isInScopeOfPageMockup = false
+  isInScopeOfPageMockup = false,
 }) => {
   const navigate = useNavigate();
 
@@ -62,11 +62,11 @@ const CostExplorer = ({
                   {isNameLong ? sliceByLimitWithEllipsis(organizationName, MAX_ORGANIZATION_NAME_LENGTH) : organizationName}
                 </span>
               </Tooltip>
-            )
+            ),
           }}
         />
       ),
-      isLoading
+      isLoading,
     },
     items: [
       {
@@ -85,13 +85,13 @@ const CostExplorer = ({
               parameters: {
                 orgName: {
                   data: organizationName,
-                  type: "string"
+                  type: "string",
                 },
                 dateRange: {
                   data: PDF_ELEMENTS.costExplorer.dates,
-                  type: "object"
-                }
-              }
+                  type: "object",
+                },
+              },
             },
 
             { type: PDF_ELEMENTS.markup.logo },
@@ -106,11 +106,11 @@ const CostExplorer = ({
             { type: PDF_ELEMENTS.markup.spacer },
             { id: PDF_ELEMENTS.costExplorer.barChart },
 
-            { type: PDF_ELEMENTS.markup.footer }
+            { type: PDF_ELEMENTS.markup.footer },
           ]);
-        }
-      }
-    ]
+        },
+      },
+    ],
   };
 
   const renderBarChart = (periodType) => {
@@ -141,7 +141,7 @@ const CostExplorer = ({
                   navigate(
                     getResourcesExpensesUrl({
                       sStartDate: bandDetails.startDate,
-                      sEndDate: bandDetails.endDate
+                      sEndDate: bandDetails.endDate,
                     })
                   );
                 }
@@ -163,7 +163,7 @@ const CostExplorer = ({
               isLoading={isLoading}
               pdfIds={{
                 totalExpensesForSelectedPeriod: PDF_ELEMENTS.costExplorer.expensesSummary,
-                totalExpensesForPreviousPeriod: PDF_ELEMENTS.costExplorer.previousExpensesSummary
+                totalExpensesForPreviousPeriod: PDF_ELEMENTS.costExplorer.previousExpensesSummary,
               }}
             />
           </Grid>

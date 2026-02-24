@@ -21,7 +21,7 @@ const Chart = ({
   breakdownLines,
   highlightedStage,
   milestonesLine,
-  colors
+  colors,
 }) => {
   const renderMilestonesLayer = useRenderMilestonesLayer();
   const renderStagesLayer = useRenderStagesLayer();
@@ -40,12 +40,12 @@ const Chart = ({
 
   const filteredMilestonesLine = {
     ...milestonesLine,
-    data: filterLineData(milestonesLine.data)
+    data: filterLineData(milestonesLine.data),
   };
 
   const filteredBreakdownLines = breakdownLines.map((line) => ({
     ...line,
-    data: filterLineData(line.data)
+    data: filterLineData(line.data),
   }));
 
   const filteredLines = [filteredMilestonesLine, ...filteredBreakdownLines].filter(({ data }) => !isEmptyArray(data));
@@ -55,18 +55,18 @@ const Chart = ({
       data={filteredLines}
       {...(isEmptyArray(breakdownLines)
         ? {
-            emptyMessageId: "noDataToDisplay"
+            emptyMessageId: "noDataToDisplay",
           }
         : {
             emptyMessageId: "noDataIsAvailableWithinTheSelectedBrushRange",
-            emptyMessageValues: { br: <br /> }
+            emptyMessageValues: { br: <br /> },
           })}
       xScale={{
         type: "linear",
-        min: "auto"
+        min: "auto",
       }}
       yScale={{
-        max: 1
+        max: 1,
       }}
       renderTooltipBody={({ slice: { points: allPoints = [] } = {} }) => {
         const { milestonePoints = [], ...restPoints } = createGroupsObjectFromArray(allPoints, (point) =>
@@ -134,7 +134,7 @@ const Chart = ({
       }}
       colors={colors}
       style={{
-        margin: CHART_MARGIN_STYLES
+        margin: CHART_MARGIN_STYLES,
       }}
       overlayLayers={[
         showMilestones
@@ -142,8 +142,8 @@ const Chart = ({
               key: "milestonesLayer",
               renderCanvasContent: renderMilestonesLayer({
                 milestones: filteredMilestonesGroupedByTimeTuples,
-                shouldShowMilestoneLabels
-              })
+                shouldShowMilestoneLabels,
+              }),
             }
           : undefined,
         highlightedStage
@@ -151,28 +151,28 @@ const Chart = ({
               key: "stagesHighlightLayer",
               renderCanvasContent: renderStagesLayer({
                 highlightedStage,
-                withHeader: true
-              })
+                withHeader: true,
+              }),
             }
-          : undefined
+          : undefined,
       ].filter(Boolean)}
       axisLeft={
         [1, 2].includes(breakdownLines.length)
           ? {
-              format: breakdownLines[0].formatAxis
+              format: breakdownLines[0].formatAxis,
             }
           : null
       }
       axisRight={
         breakdownLines.length === 2
           ? {
-              format: breakdownLines[1].formatAxis
+              format: breakdownLines[1].formatAxis,
             }
           : null
       }
       axisBottom={{
         format: (value) => formatSecondsToHHMMSS(value),
-        formatString: (value) => formatSecondsToHHMMSS(value)
+        formatString: (value) => formatSecondsToHHMMSS(value),
       }}
     />
   );

@@ -20,7 +20,7 @@ const FIELD_NAMES = {
   ACCESS_KEY_ID,
   SECRET_ACCESS_KEY,
   BUCKET_NAME,
-  BUCKET_PREFIX
+  BUCKET_PREFIX,
 };
 
 export {
@@ -37,5 +37,5 @@ export {
   BillingReportBucketTitle,
   BillingReportBucketDescription,
   ReportBucketName,
-  ReportBucketPathPrefix
+  ReportBucketPathPrefix,
 };

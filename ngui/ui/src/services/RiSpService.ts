@@ -17,7 +17,7 @@ const useGetReservedInstancesBreakdown = (startDate, endDate, dataSourceIds) => 
     organizationId,
     startDate,
     endDate,
-    dataSourceIds
+    dataSourceIds,
   });
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const useGetSavingPlansBreakdown = (startDate, endDate, dataSourceIds) => {
     organizationId,
     startDate,
     endDate,
-    dataSourceIds
+    dataSourceIds,
   });
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const useGetSavingPlansBreakdown = (startDate, endDate, dataSourceIds) => {
 function RiSpService() {
   return {
     useGetReservedInstancesBreakdown,
-    useGetSavingPlansBreakdown
+    useGetSavingPlansBreakdown,
   };
 }
 

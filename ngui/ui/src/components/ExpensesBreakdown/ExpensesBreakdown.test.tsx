@@ -13,7 +13,7 @@ it("renders without crashing", () => {
   root.render(
     <TestProvider
       state={{
-        rangeDates: {}
+        rangeDates: {},
       }}
     >
       <ExpensesBreakdown

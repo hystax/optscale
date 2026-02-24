@@ -18,7 +18,7 @@ const ResourceRawExpensesContainer = ({ resourceId, startDate, endDate, expenses
   }, [dispatch, shouldInvoke, resourceId, startDate, endDate]);
 
   const {
-    apiData: { raw_expenses: expenses = [], total_cost: totalCost = 0 }
+    apiData: { raw_expenses: expenses = [], total_cost: totalCost = 0 },
   } = useApiData(GET_RAW_EXPENSES);
 
   return (

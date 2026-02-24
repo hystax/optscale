@@ -25,7 +25,7 @@ const MlEditModelFormContainer = ({ model, isModelLoading }: MlUpdateModelFormCo
         const params: EditModelApiParams = {
           name: formData.name,
           description: formData.description,
-          tags: Object.fromEntries(formData.tags.map(({ key, value }) => [key, value]))
+          tags: Object.fromEntries(formData.tags.map(({ key, value }) => [key, value])),
         };
 
         return onUpdate(modelId, params).then(() => redirect());
@@ -34,7 +34,7 @@ const MlEditModelFormContainer = ({ model, isModelLoading }: MlUpdateModelFormCo
       model={model}
       isLoadingProps={{
         isGetDataLoading: isModelLoading,
-        isSubmitLoading: isUpdateLoading
+        isSubmitLoading: isUpdateLoading,
       }}
     />
   );

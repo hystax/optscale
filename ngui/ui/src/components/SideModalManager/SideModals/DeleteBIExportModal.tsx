@@ -7,8 +7,8 @@ class DeleteBIExportModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_delete_bi_export",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_delete";

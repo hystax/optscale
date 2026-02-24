@@ -12,7 +12,7 @@ const TtlRangePicker = ({ formValuesGetter }) => {
   const { startDateValidationRules, endDateValidationRules } = useRangePickerValidationRules({
     startDatePickerName,
     endDatePickerName,
-    formValuesGetter
+    formValuesGetter,
   });
 
   const {
@@ -20,17 +20,17 @@ const TtlRangePicker = ({ formValuesGetter }) => {
     setValue,
     clearErrors,
     watch,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   const [watchStartDate, watchEndDate] = watch([startDatePickerName, endDatePickerName]);
 
   useEffect(() => {
     register(startDatePickerName, {
-      validate: startDateValidationRules
+      validate: startDateValidationRules,
     });
     register(endDatePickerName, {
-      validate: endDateValidationRules
+      validate: endDateValidationRules,
     });
   }, [register, startDateValidationRules, endDateValidationRules]);
 
@@ -39,7 +39,7 @@ const TtlRangePicker = ({ formValuesGetter }) => {
       initialDateRange={{ startDate: watchStartDate, endDate: watchEndDate }}
       validation={{
         error: !!errors[startDatePickerName] || !!errors[endDatePickerName],
-        helperText: errors?.[startDatePickerName]?.message || errors?.[endDatePickerName]?.message
+        helperText: errors?.[startDatePickerName]?.message || errors?.[endDatePickerName]?.message,
       }}
       onChange={(dateRange) => {
         setValue(startDatePickerName, dateRange.startDate);

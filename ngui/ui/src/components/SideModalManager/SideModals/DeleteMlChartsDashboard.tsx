@@ -7,8 +7,8 @@ class DeleteMlChartsDashboard extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_delete_dashboard_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_delete_dashboard";

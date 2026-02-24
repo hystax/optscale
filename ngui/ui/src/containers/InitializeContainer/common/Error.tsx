@@ -18,7 +18,7 @@ const Error = () => {
           messageId="anIssueOccurredDuringTheInitializationProcess"
           messageValues={{
             email: <MailTo email={EMAIL_SUPPORT} text={EMAIL_SUPPORT} />,
-            br: <br />
+            br: <br />,
           }}
         />
         <Typography align="center" variant="body2" px={2}>

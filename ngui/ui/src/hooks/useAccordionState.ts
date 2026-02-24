@@ -12,7 +12,7 @@ export const useAccordionsState = (queryParameterName) => {
     const isAccordionExpanded = isExpanded(accordionName);
 
     updateSearchParams({
-      [queryParameterName]: isAccordionExpanded ? "" : accordionName
+      [queryParameterName]: isAccordionExpanded ? "" : accordionName,
     });
 
     setExpanded(isAccordionExpanded ? "" : accordionName);
@@ -20,6 +20,6 @@ export const useAccordionsState = (queryParameterName) => {
 
   return {
     toggleAccordionState,
-    isExpanded
+    isExpanded,
   };
 };

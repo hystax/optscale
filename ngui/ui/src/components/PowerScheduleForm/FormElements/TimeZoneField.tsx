@@ -11,7 +11,7 @@ const ZONES_BLACKLIST = [
    * This timezone is not supported by pytz 2023.3.post1
    * Exclude it to ensure compatibility with the backend
    */
-  "Factory"
+  "Factory",
 ];
 
 const SUPPORTED_TIME_ZONES = Intl.supportedValuesOf("timeZone").filter((zone) => !ZONES_BLACKLIST.includes(zone));
@@ -20,14 +20,14 @@ const TIME_ZONE_NAMES = Object.fromEntries(
   SUPPORTED_TIME_ZONES.map((zone) => {
     const shortOffsetZoneName = Intl.DateTimeFormat(localeManager.locale, {
       timeZoneName: "shortOffset",
-      timeZone: zone
+      timeZone: zone,
     })
       .formatToParts()
       .find((i) => i.type === "timeZoneName").value;
 
     const longGenericZoneName = Intl.DateTimeFormat(localeManager.locale, {
       timeZoneName: "longGeneric",
-      timeZone: zone
+      timeZone: zone,
     })
       .formatToParts()
       .find((i) => i.type === "timeZoneName").value;
@@ -36,8 +36,8 @@ const TIME_ZONE_NAMES = Object.fromEntries(
       zone,
       {
         shortOffsetZoneName,
-        longGenericZoneName
-      }
+        longGenericZoneName,
+      },
     ];
   })
 );
@@ -53,7 +53,7 @@ const TimeZoneField = ({ name = FIELD_NAMES.TIME_ZONE, isLoading = false }) => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return isLoading ? (
@@ -66,12 +66,12 @@ const TimeZoneField = ({ name = FIELD_NAMES.TIME_ZONE, isLoading = false }) => {
         rules={{
           required: {
             value: true,
-            message: intl.formatMessage({ id: "thisFieldIsRequired" })
+            message: intl.formatMessage({ id: "thisFieldIsRequired" }),
           },
           validate: {
             allowedTimeZone: (value) =>
-              SUPPORTED_TIME_ZONES.includes(value) ? true : intl.formatMessage({ id: "invalidTimeZone" })
-          }
+              SUPPORTED_TIME_ZONES.includes(value) ? true : intl.formatMessage({ id: "invalidTimeZone" }),
+          },
         }}
         render={({ field }) => {
           const { name: fieldName, onBlur, value, onChange, ref } = field;
@@ -91,7 +91,7 @@ const TimeZoneField = ({ name = FIELD_NAMES.TIME_ZONE, isLoading = false }) => {
               onBlur={onBlur}
               filterOptions={createFilterOptions({
                 matchFrom: "any",
-                stringify: (timeZone) => getTimeZoneString(timeZone)
+                stringify: (timeZone) => getTimeZoneString(timeZone),
               })}
               renderOption={(props, timeZone) => {
                 const { shortOffsetZoneName, longGenericZoneName } = TIME_ZONE_NAMES[timeZone];

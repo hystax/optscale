@@ -13,13 +13,13 @@ import {
   MetaBreakdownData,
   ResourceCountBreakdownData,
   RenderDataItem,
-  ExpensesBreakdownData
+  ExpensesBreakdownData,
 } from "./types";
 
 const getExpensesBreakdownByRenderData = ({ breakdownBy, groupBy }: ExpensesBreakdownData): RenderDataItem[] => [
   {
     controlName: "categorizeBy",
-    renderValue: () => breakdowns.find((breakdown) => breakdown.value === breakdownBy)?.name ?? null
+    renderValue: () => breakdowns.find((breakdown) => breakdown.value === breakdownBy)?.name ?? null,
   },
   {
     controlName: "groupBy",
@@ -31,22 +31,22 @@ const getExpensesBreakdownByRenderData = ({ breakdownBy, groupBy }: ExpensesBrea
         return <KeyValueLabel keyMessageId={groupBy.groupType} value={groupBy.groupBy} />;
       }
       return <FormattedMessage id={groupBy.groupType} />;
-    }
-  }
+    },
+  },
 ];
 
 const getResourceCountBreakdownByRenderData = ({ breakdownBy }: ResourceCountBreakdownData): RenderDataItem[] => [
   {
     controlName: "categorizeBy",
-    renderValue: () => breakdowns.find((breakdown) => breakdown.value === breakdownBy)?.name ?? null
-  }
+    renderValue: () => breakdowns.find((breakdown) => breakdown.value === breakdownBy)?.name ?? null,
+  },
 ];
 
 const getMetaBreakdownByRenderData = ({ breakdownBy }: MetaBreakdownData): RenderDataItem[] => [
   {
     controlName: "categorizeBy",
-    renderValue: () => getMetaFormattedName(breakdownBy)
-  }
+    renderValue: () => getMetaFormattedName(breakdownBy),
+  },
 ];
 
 const getBreakdownStateValueRendererByType = (name: string): ((data: BreakdownData) => RenderDataItem[]) =>
@@ -54,14 +54,14 @@ const getBreakdownStateValueRendererByType = (name: string): ((data: BreakdownDa
     [CLEAN_EXPENSES_BREAKDOWN_TYPES.EXPENSES]: getExpensesBreakdownByRenderData,
     [CLEAN_EXPENSES_BREAKDOWN_TYPES.RESOURCE_COUNT]: getResourceCountBreakdownByRenderData,
     [CLEAN_EXPENSES_BREAKDOWN_TYPES.TAGS]: () => [],
-    [CLEAN_EXPENSES_BREAKDOWN_TYPES.META]: getMetaBreakdownByRenderData
+    [CLEAN_EXPENSES_BREAKDOWN_TYPES.META]: getMetaBreakdownByRenderData,
   })[name] ?? (() => []);
 
 const ResourcesPerspectiveValuesDescription = ({
   breakdownBy,
   breakdownData,
   perspectiveFilterValues = {},
-  perspectiveAppliedFilters = {}
+  perspectiveAppliedFilters = {},
 }: ResourcesPerspectiveValuesDescriptionProps) => (
   <Stack spacing={SPACING_1}>
     <KeyValueLabel keyMessageId="breakdownBy" value={<FormattedMessage id={breakdownBy} />} />

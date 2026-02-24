@@ -10,7 +10,7 @@ import {
   updateMlLeaderboard,
   deleteMlLeaderboard,
   getMlLeaderboard,
-  RESTAPI
+  RESTAPI,
 } from "api";
 import {
   GET_ML_LEADERBOARD_TEMPLATE,
@@ -21,7 +21,7 @@ import {
   CREATE_ML_LEADERBOARD,
   UPDATE_ML_LEADERBOARD,
   DELETE_ML_LEADERBOARD,
-  GET_ML_LEADERBOARD
+  GET_ML_LEADERBOARD,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -46,7 +46,7 @@ const useGetLeaderboardTemplate = (taskId: string) => {
   return {
     isLoading,
     isDataReady,
-    leaderboardTemplate
+    leaderboardTemplate,
   };
 };
 
@@ -143,7 +143,7 @@ const useGetLeaderboards = (leaderboardTemplateId: string) => {
 
   return {
     isLoading,
-    leaderboards
+    leaderboards,
   };
 };
 
@@ -175,7 +175,7 @@ const useGetLeaderboardsOnDemand = () => {
   return {
     isLoading,
     data,
-    getData
+    getData,
   };
 };
 
@@ -196,7 +196,7 @@ const useGetLeaderboard = (leaderboardId: string) => {
 
   return {
     isLoading,
-    leaderboard
+    leaderboard,
   };
 };
 
@@ -228,7 +228,7 @@ const useGetLeaderboardOnDemand = () => {
   return {
     isLoading,
     getData,
-    data: leaderboard
+    data: leaderboard,
   };
 };
 
@@ -317,7 +317,7 @@ const useGetLeaderboardCandidates = (leaderboardId: string) => {
 
   return {
     isLoading,
-    leaderboardCandidates
+    leaderboardCandidates,
   };
 };
 
@@ -349,7 +349,7 @@ const useGetLeaderboardCandidatesOnDemand = () => {
   return {
     isLoading,
     getData,
-    data: leaderboardCandidates
+    data: leaderboardCandidates,
   };
 };
 
@@ -370,7 +370,7 @@ function MlLeaderboardsService() {
     useDeleteLeaderboard,
 
     useGetLeaderboardCandidates,
-    useGetLeaderboardCandidatesOnDemand
+    useGetLeaderboardCandidatesOnDemand,
   };
 }
 

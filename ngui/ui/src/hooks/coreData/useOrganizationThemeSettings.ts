@@ -7,8 +7,8 @@ export const useOrganizationThemeSettings = () => {
   const { data: { organizationThemeSettings = {} } = {} } = useOrganizationThemeSettingsQuery({
     fetchPolicy: "cache-only",
     variables: {
-      organizationId
-    }
+      organizationId,
+    },
   });
 
   return organizationThemeSettings;

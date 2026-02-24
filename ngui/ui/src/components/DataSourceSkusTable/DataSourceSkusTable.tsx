@@ -42,7 +42,7 @@ const DataSourceSkusTable = ({ dataSourceId, skus, usedSkus, costModel, isLoadin
             sku
           );
         },
-        defaultSort: "asc"
+        defaultSort: "asc",
       },
       {
         header: (
@@ -57,7 +57,7 @@ const DataSourceSkusTable = ({ dataSourceId, skus, usedSkus, costModel, isLoadin
             maximumFractionDigits={COST_MODEL_MONEY_MAXIMUM_FRACTION_DIGITS}
             value={cell.getValue()}
           />
-        )
+        ),
       },
       {
         header: (
@@ -76,13 +76,13 @@ const DataSourceSkusTable = ({ dataSourceId, skus, usedSkus, costModel, isLoadin
                   messageId: "edit",
                   icon: <EditOutlinedIcon />,
                   requiredActions: ["MANAGE_CLOUD_CREDENTIALS"],
-                  action: () => openSideModal(UpdateDataSourceSkuModal, { sku, cost, dataSourceId, costModel })
-                }
+                  action: () => openSideModal(UpdateDataSourceSkuModal, { sku, cost, dataSourceId, costModel }),
+                },
               ]}
             />
           );
-        }
-      }
+        },
+      },
     ],
     [usedSkus, openSideModal, dataSourceId, costModel]
   );

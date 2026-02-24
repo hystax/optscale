@@ -33,7 +33,7 @@ const MILESTONES_LINE_ID = "milestones";
 const MUI_GRID_VALUES = Object.freeze({
   [GRID_TYPES.ONE_COLUMN]: 12,
   [GRID_TYPES.TWO_COLUMN]: 6,
-  [GRID_TYPES.THREE_COLUMNS]: 4
+  [GRID_TYPES.THREE_COLUMNS]: 4,
 });
 
 const GridButton = ({ gridType, onClick }) => (
@@ -67,7 +67,7 @@ const ExecutionBreakdown = ({
   stages,
   milestones,
   reachedGoals = {},
-  taskId
+  taskId,
 }) => {
   const milestonesGroupedByTimeTuples = getMilestoneTuplesGroupedByTime(milestones);
 
@@ -87,9 +87,9 @@ const ExecutionBreakdown = ({
           formatDigitalUnit({
             value,
             baseUnit: IEC_UNITS.MEBIBYTE,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
           }),
-        unit: BREAKDOWN_LINE_UNIT.MEBIBYTE
+        unit: BREAKDOWN_LINE_UNIT.MEBIBYTE,
       },
       {
         name: "host_cpu",
@@ -98,9 +98,9 @@ const ExecutionBreakdown = ({
         formatValue: (value) => <FormattedNumber format="percentage2" value={value / 100} />,
         formatAxis: (value) =>
           intl.formatNumber(value / 100, {
-            format: "percentage2"
+            format: "percentage2",
           }),
-        unit: BREAKDOWN_LINE_UNIT.PERCENT
+        unit: BREAKDOWN_LINE_UNIT.PERCENT,
       },
       {
         name: "process_cpu",
@@ -109,9 +109,9 @@ const ExecutionBreakdown = ({
         formatValue: (value) => <FormattedNumber format="percentage2" value={value / 100} />,
         formatAxis: (value) =>
           intl.formatNumber(value / 100, {
-            format: "percentage2"
+            format: "percentage2",
           }),
-        unit: BREAKDOWN_LINE_UNIT.PERCENT
+        unit: BREAKDOWN_LINE_UNIT.PERCENT,
       },
       {
         name: "process_ram",
@@ -122,9 +122,9 @@ const ExecutionBreakdown = ({
           formatDigitalUnit({
             value,
             baseUnit: IEC_UNITS.MEBIBYTE,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
           }),
-        unit: BREAKDOWN_LINE_UNIT.MEBIBYTE
+        unit: BREAKDOWN_LINE_UNIT.MEBIBYTE,
       },
       {
         name: "gpu_load",
@@ -133,9 +133,9 @@ const ExecutionBreakdown = ({
         formatValue: (value) => <FormattedNumber format="percentage2" value={value / 100} />,
         formatAxis: (value) =>
           intl.formatNumber(value / 100, {
-            format: "percentage2"
+            format: "percentage2",
           }),
-        unit: BREAKDOWN_LINE_UNIT.PERCENT
+        unit: BREAKDOWN_LINE_UNIT.PERCENT,
       },
       {
         name: "gpu_memory_used",
@@ -146,9 +146,9 @@ const ExecutionBreakdown = ({
           formatDigitalUnit({
             value,
             baseUnit: IEC_UNITS.MEBIBYTE,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
           }),
-        unit: BREAKDOWN_LINE_UNIT.MEBIBYTE
+        unit: BREAKDOWN_LINE_UNIT.MEBIBYTE,
       },
       {
         name: "disc_read",
@@ -156,7 +156,7 @@ const ExecutionBreakdown = ({
         renderBreakdownName: () => intl.formatMessage({ id: "diskRead" }),
         getPointValue: (data) => data.metrics?.disc_read ?? null,
         formatValue: (value) => value,
-        formatAxis: (value) => value
+        formatAxis: (value) => value,
       },
       {
         name: "disc_write",
@@ -164,7 +164,7 @@ const ExecutionBreakdown = ({
         renderBreakdownName: () => intl.formatMessage({ id: "diskWrite" }),
         getPointValue: (data) => data.metrics?.disc_write ?? null,
         formatValue: (value) => value,
-        formatAxis: (value) => value
+        formatAxis: (value) => value,
       },
       {
         name: "network_input",
@@ -172,7 +172,7 @@ const ExecutionBreakdown = ({
         renderBreakdownName: () => intl.formatMessage({ id: "networkReceive" }),
         getPointValue: (data) => data.metrics?.network_input ?? null,
         formatValue: (value) => value,
-        formatAxis: (value) => value
+        formatAxis: (value) => value,
       },
       {
         name: "network_output",
@@ -180,8 +180,8 @@ const ExecutionBreakdown = ({
         renderBreakdownName: () => intl.formatMessage({ id: "networkSend" }),
         getPointValue: (data) => data.metrics?.network_output ?? null,
         formatValue: (value) => value,
-        formatAxis: (value) => value
-      }
+        formatAxis: (value) => value,
+      },
     ],
     [intl]
   );
@@ -199,8 +199,8 @@ const ExecutionBreakdown = ({
           formatDynamicFractionDigitsValue({
             value,
             maximumFractionDigits: 2,
-            notation: "compact"
-          })
+            notation: "compact",
+          }),
       })),
     [formatDynamicFractionDigitsValue, reachedGoals]
   );
@@ -223,7 +223,7 @@ const ExecutionBreakdown = ({
 
   const colorsMap = {
     [MILESTONES_LINE_ID]: "transparent",
-    ...getColorsMap(breakdownNames, theme.palette.chart)
+    ...getColorsMap(breakdownNames, theme.palette.chart),
   };
 
   const breakdownSeconds = Object.keys(breakdown).map(Number);
@@ -236,8 +236,8 @@ const ExecutionBreakdown = ({
     data: milestonesGroupedByTimeTuples.map(([time, milestoneNames]) => ({
       x: Number(time),
       y: 0,
-      names: milestoneNames
-    }))
+      names: milestoneNames,
+    })),
   };
 
   const openSideModal = useOpenSideModal();
@@ -253,7 +253,7 @@ const ExecutionBreakdown = ({
       secondsTimeRange: xValuesRange,
       stages,
       milestones,
-      milestonesGroupedByTimeTuples
+      milestonesGroupedByTimeTuples,
     });
 
   const getSelectedSegment = () => selectedSegment ?? xValuesRange;
@@ -279,18 +279,18 @@ const ExecutionBreakdown = ({
     enableTooltipSync,
     disableTooltipSync,
     updateGridType,
-    isLoadingProps
+    isLoadingProps,
   } = useTaskRunChartState({
     organizationId,
     arceeToken,
     taskId,
     implementedMetricsBreakdownNames,
     breakdownNames,
-    isPublicRun
+    isPublicRun,
   });
 
   const {
-    data: { charts, show_milestones: showMilestones, sync_tooltips: syncTooltips, grid_type: gridType }
+    data: { charts, show_milestones: showMilestones, sync_tooltips: syncTooltips, grid_type: gridType },
   } = dashboard;
 
   const [mousePosition, setMousePosition] = useState(undefined);
@@ -303,7 +303,7 @@ const ExecutionBreakdown = ({
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "space-between",
-          flexDirection: { md: "row", xs: "column" }
+          flexDirection: { md: "row", xs: "column" },
         }}
       >
         <Box
@@ -311,7 +311,7 @@ const ExecutionBreakdown = ({
             flexGrow: 1,
             maxWidth: { md: "60%" },
             mr: { md: SPACING_4 },
-            ml: { xs: SPACING_1, md: SPACING_2 }
+            ml: { xs: SPACING_1, md: SPACING_2 },
           }}
         >
           <Box
@@ -320,7 +320,7 @@ const ExecutionBreakdown = ({
               flexDirection: { xs: "column", md: "row" },
               alignItems: "center",
               flexWrap: "wrap",
-              marginBottom: theme.spacing(1)
+              marginBottom: theme.spacing(1),
             }}
           >
             <Typography>
@@ -347,7 +347,7 @@ const ExecutionBreakdown = ({
               onClick={addChart}
               tooltip={{
                 show: true,
-                messageId: "addChart"
+                messageId: "addChart",
               }}
             />
             <TimerangeSlider
@@ -397,7 +397,7 @@ const ExecutionBreakdown = ({
                     chartName: name,
                     onRename: (newName) => {
                       updateChartName(chartId, newName);
-                    }
+                    },
                   })
                 }
                 selectedBreakdowns={breakdowns}

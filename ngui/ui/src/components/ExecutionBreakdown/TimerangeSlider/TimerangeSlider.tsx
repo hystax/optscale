@@ -31,8 +31,8 @@ const CustomMarkComponent = (props) => {
           opacity: 0.38,
           "&.MuiSlider-markActive": {
             opacity: 1,
-            backgroundColor: theme.palette.primary.dark
-          }
+            backgroundColor: theme.palette.primary.dark,
+          },
         }}
         onMouseEnter={() => getMarkTooltipText()}
         className={className}
@@ -53,10 +53,10 @@ const TimerangeSlider = ({ milestonesGroupedByTimeTuples, selectedSegment, setSe
   return (
     <Slider
       slots={{
-        mark: CustomMarkComponent
+        mark: CustomMarkComponent,
       }}
       slotProps={{
-        mark: { milestones: milestonesGroupedByTimeTuples }
+        mark: { milestones: milestonesGroupedByTimeTuples },
       }}
       marks={sliderMarks}
       getAriaLabel={() => chartsTimerangeMessage}

@@ -19,7 +19,7 @@ const BreakdownLabel = ({ breakdownBy, details }) => {
     [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.RESOURCE_TYPE]: () => getLabel(),
     [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.K8S_NODE]: () => getLabel(),
     [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.K8S_NAMESPACE]: () => getLabel(),
-    [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.K8S_SERVICE]: () => getLabel()
+    [RESOURCES_EXPENSES_DAILY_BREAKDOWN_BY.K8S_SERVICE]: () => getLabel(),
   }[breakdownBy];
 
   return renderer();

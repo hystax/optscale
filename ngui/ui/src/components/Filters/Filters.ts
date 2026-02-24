@@ -16,10 +16,10 @@ class Filters {
   getFilterSelectors() {
     const suggestionsFilter = new Suggestions({
       filterValues: {
-        suggestions: this.filters.flatMap((filter) => filter.getSuggestionValues())
+        suggestions: this.filters.flatMap((filter) => filter.getSuggestionValues()),
       },
       appliedFilters: [],
-      scopeInfo: this.scopeInfo
+      scopeInfo: this.scopeInfo,
     });
 
     const selectors = [suggestionsFilter, ...this.filters].map((filter) => this.constructor._getSelector(filter));
@@ -34,7 +34,7 @@ class Filters {
       type: filter.constructor.type,
       items: filter.getFilterItems(),
       enablePopoverCheckbox: filter.constructor.enablePopoverCheckbox,
-      checkboxLabel: filter.constructor.checkboxLabel
+      checkboxLabel: filter.constructor.checkboxLabel,
     };
   }
 
@@ -54,7 +54,7 @@ class Filters {
         displayedNameString: filter.constructor.displayedNameString,
         value: appliedFilterItem.value,
         displayedValue: appliedFilterItem.displayedValue,
-        displayedValueString: appliedFilterItem.displayedValueString
+        displayedValueString: appliedFilterItem.displayedValueString,
       }));
     });
   }
@@ -76,7 +76,7 @@ class Filters {
       this.filters
         .map((filter) => [
           filter.constructor.apiName,
-          filter.appliedFilters.map((applied) => filter.findFilterValue(applied)).filter((el) => el !== undefined)
+          filter.appliedFilters.map((applied) => filter.findFilterValue(applied)).filter((el) => el !== undefined),
         ])
         .filter(([, values]) => !isEmptyArray(values))
     );

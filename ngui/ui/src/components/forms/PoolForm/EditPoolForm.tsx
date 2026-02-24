@@ -27,7 +27,7 @@ const EditPoolForm = ({ unallocatedLimit, poolInfo, onSuccess, onCancel }) => {
     id: poolId,
     limit: limitAmount,
     default_owner_id: defaultResourceOwnerId = "",
-    purpose: type
+    purpose: type,
   } = poolInfo;
 
   const isReadOnly = !useIsAllowed({ entityType: SCOPE_TYPES.POOL, entityId: poolId, requiredActions: ["MANAGE_POOLS"] });
@@ -37,8 +37,8 @@ const EditPoolForm = ({ unallocatedLimit, poolInfo, onSuccess, onCancel }) => {
       poolName,
       limitAmount,
       defaultResourceOwnerId,
-      type
-    })
+      type,
+    }),
   });
 
   const { handleSubmit } = methods;
@@ -78,7 +78,7 @@ const EditPoolForm = ({ unallocatedLimit, poolInfo, onSuccess, onCancel }) => {
               dataTestId="btn_save"
               tooltip={{
                 show: isRestricted || isReadOnly,
-                value: getTooltipValue()
+                value: getTooltipValue(),
               }}
             />
             <Button messageId="cancel" dataTestId="btn_cancel" onClick={onCancel} />

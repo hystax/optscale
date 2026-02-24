@@ -30,7 +30,7 @@ const EmployeeCell = ({ rowId, rowOriginal }) => {
     slack_connected: isConnectedToSlack,
     jira_connected: itConnectedToJira,
     name: employeeName,
-    last_login: lastLogin
+    last_login: lastLogin,
   } = rowOriginal;
 
   const formatTimeAgo = useFormatIntervalTimeAgo();
@@ -43,8 +43,8 @@ const EmployeeCell = ({ rowId, rowOriginal }) => {
       caption: `${intl.formatMessage({ id: "lastLogin" })}: ${
         lastLogin === 0 ? intl.formatMessage({ id: "never" }).toLocaleLowerCase() : formatTimeAgo(lastLogin, 1)
       }`,
-      key: "lastLogin"
-    }
+      key: "lastLogin",
+    },
   ].filter(Boolean);
 
   const icons = [
@@ -67,7 +67,7 @@ const EmployeeCell = ({ rowId, rowOriginal }) => {
         dataTestId={`logo_jira_connected_${rowId}`}
         fontSize="small"
       />
-    )
+    ),
   ].filter(Boolean);
 
   return (
@@ -86,9 +86,9 @@ const renderRoles = ({ assignments = [], organizationName, rowId }, toStringsArr
       purpose: MEMBER,
       assignment_id: organizationName,
       assignment_resource_name: organizationName,
-      assignment_resource_type: SCOPE_TYPES.ORGANIZATION
+      assignment_resource_type: SCOPE_TYPES.ORGANIZATION,
     },
-    ...assignments
+    ...assignments,
   ]
     .filter((assignment) => assignment.purpose !== null)
     .map((assignment, assignmentIndex) => {
@@ -98,7 +98,7 @@ const renderRoles = ({ assignments = [], organizationName, rowId }, toStringsArr
         assignment_resource_id: assignmentResourceId,
         assignment_resource_purpose: assignmentResourcePurpose,
         assignment_resource_name: assignmentResourceName,
-        assignment_resource_type: assignmentResourceType
+        assignment_resource_type: assignmentResourceType,
       } = assignment;
 
       const isOrganizationScope = assignmentResourceType === SCOPE_TYPES.ORGANIZATION;
@@ -144,7 +144,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
     () =>
       employees.map((el) => ({
         ...el,
-        assignmentsStringified: renderRoles({ assignments: el.assignments, organizationName, id: el.id }, true, intl).join(" ")
+        assignmentsStringified: renderRoles({ assignments: el.assignments, organizationName, id: el.id }, true, intl).join(" "),
       })),
     [employees, organizationName, intl]
   );
@@ -159,7 +159,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
         ),
         accessorKey: "name",
         defaultSort: "asc",
-        cell: ({ row: { id, original } }) => <EmployeeCell rowId={id} rowOriginal={original} />
+        cell: ({ row: { id, original } }) => <EmployeeCell rowId={id} rowOriginal={original} />,
       },
       {
         header: (
@@ -167,7 +167,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
             <FormattedMessage id="email" />
           </TextWithDataTestId>
         ),
-        accessorKey: "user_email"
+        accessorKey: "user_email",
       },
       {
         header: (
@@ -177,7 +177,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
         ),
         enableSorting: false,
         accessorKey: "assignmentsStringified",
-        cell: ({ row: { id, original: { assignments } = {} } }) => renderRoles({ assignments, organizationName, id })
+        cell: ({ row: { id, original: { assignments } = {} } }) => renderRoles({ assignments, organizationName, id }),
       },
       {
         header: (
@@ -199,12 +199,12 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
                 requiredActions: ["EDIT_PARTNER"],
                 dataTestId: `btn_delete_${index}`,
                 action: () =>
-                  openSideModal(DeleteEmployeeModal, { entityToBeDeleted: { employeeName, employeeId }, employees: data })
-              }
+                  openSideModal(DeleteEmployeeModal, { entityToBeDeleted: { employeeName, employeeId }, employees: data }),
+              },
             ]}
           />
-        )
-      }
+        ),
+      },
     ],
     [organizationName, openSideModal, data]
   );
@@ -214,7 +214,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
     fetchAndDownload({
       url: `${REST_API_URL}/organizations/${organizationId}/employees?format=${format}`,
       fallbackFilename: `employees.${format}`,
-      format
+      format,
     });
   };
 
@@ -225,7 +225,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
       <Table
         data={data}
         localization={{
-          emptyMessageId: "noUsers"
+          emptyMessageId: "noUsers",
         }}
         withSearch
         pageSize={50}
@@ -243,7 +243,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
                 color: "success",
                 variant: "contained",
                 dataTestId: "btn_invite",
-                requiredActions: ["MANAGE_INVITES"]
+                requiredActions: ["MANAGE_INVITES"],
               },
               {
                 key: "slack",
@@ -251,7 +251,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
                 messageId: "slack",
                 action: () => openSideModal(SlackIntegrationModal),
                 type: "button",
-                dataTestId: "btn_slack"
+                dataTestId: "btn_slack",
               },
               {
                 key: "jira",
@@ -259,7 +259,7 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
                 messageId: "jira",
                 link: getIntegrationsUrl(JIRA),
                 type: "button",
-                dataTestId: "btn_jira"
+                dataTestId: "btn_jira",
               },
               {
                 key: "download",
@@ -273,23 +273,23 @@ const EmployeesTable = ({ isLoading = false, employees }) => {
                       key: "xlsx",
                       messageId: "xlsxFile",
                       action: () => downloadEmployees(DOWNLOAD_FILE_FORMATS.XLSX),
-                      dataTestId: "btn_download_xlsx"
+                      dataTestId: "btn_download_xlsx",
                     },
                     {
                       key: "json",
                       messageId: "jsonFile",
                       action: () => downloadEmployees(DOWNLOAD_FILE_FORMATS.JSON),
-                      dataTestId: "btn_download_json"
-                    }
-                  ]
+                      dataTestId: "btn_download_json",
+                    },
+                  ],
                 },
-                dataTestId: "btn_download"
-              }
-            ]
-          }
+                dataTestId: "btn_download",
+              },
+            ],
+          },
         }}
         dataTestIds={{
-          container: "table_employees"
+          container: "table_employees",
         }}
       />
     </>

@@ -6,7 +6,7 @@ import {
   areIntervalsOverlapping,
   addYears,
   roundTimeToInterval,
-  INTERVAL_ENVIRONMENT
+  INTERVAL_ENVIRONMENT,
 } from "utils/datetime";
 import { FIELD_NAMES } from "./constants";
 import {
@@ -14,7 +14,7 @@ import {
   BookUntilTimePicker,
   BookingOwnerSelector,
   EnvironmentSshKeyField,
-  FormButtons
+  FormButtons,
 } from "./FormElements";
 import { BookEnvironmentFormProps, FormValues } from "./types";
 import { getDefaultValues } from "./utils";
@@ -34,11 +34,11 @@ const findOverlappingInterval = (sinceTimestamp, untilTimestamp, allBookings) =>
       {
         start: new Date(secondsToMilliseconds(acquiredSince)),
         // Handle "0" until timestamp (which means that resource is booked forever)
-        end: acquiredUntil === 0 ? DISTANT_FUTURE_DATE : new Date(secondsToMilliseconds(acquiredUntil))
+        end: acquiredUntil === 0 ? DISTANT_FUTURE_DATE : new Date(secondsToMilliseconds(acquiredUntil)),
       },
       {
         start: sinceTimestampSafe,
-        end: untilTimestampSafe
+        end: untilTimestampSafe,
       }
     )
   );
@@ -55,14 +55,14 @@ const BookEnvironmentForm = ({
   canSetBookingOwner,
   isSshRequired,
   currentEmployeeSshKeys,
-  isGetSshKeysReady
+  isGetSshKeysReady,
 }: BookEnvironmentFormProps) => {
   const intl = useIntl();
 
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      bookSince: isEnvironmentAvailable ? undefined : roundTimeToInterval(+new Date(), INTERVAL_ENVIRONMENT)
-    })
+      bookSince: isEnvironmentAvailable ? undefined : roundTimeToInterval(+new Date(), INTERVAL_ENVIRONMENT),
+    }),
   });
 
   const { handleSubmit, reset, watch } = methods;
@@ -70,7 +70,7 @@ const BookEnvironmentForm = ({
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      [FIELD_NAMES.BOOKING_OWNER]: defaultBookingOwner?.id || ""
+      [FIELD_NAMES.BOOKING_OWNER]: defaultBookingOwner?.id || "",
     }));
   }, [defaultBookingOwner?.id, reset]);
 
@@ -80,7 +80,7 @@ const BookEnvironmentForm = ({
   const {
     isBookEnvironmentLoading = false,
     isGetAuthorizedEmployeesLoading = false,
-    isCreateSshKeyLoading = false
+    isCreateSshKeyLoading = false,
   } = isLoadingProps;
 
   return (
@@ -121,7 +121,7 @@ const BookEnvironmentForm = ({
               );
 
               return !overlappingInterval || intl.formatMessage({ id: "selectedIntervalIsOverlappingWithExistedBooking" });
-            }
+            },
           }}
         />
         <BookUntilTimePicker
@@ -150,7 +150,7 @@ const BookEnvironmentForm = ({
               );
 
               return !overlappingInterval || intl.formatMessage({ id: "selectedIntervalIsOverlappingWithExistedBooking" });
-            }
+            },
           }}
         />
         {isSshRequired && isBookingForMyself ? (

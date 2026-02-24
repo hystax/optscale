@@ -10,7 +10,7 @@ const estimatedExpenses = ({ headerDataTestId = "lbl_estimated_savings", accesso
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
+  cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
 });
 
 export default estimatedExpenses;

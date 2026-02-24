@@ -19,7 +19,7 @@ const SubscriptionCardBody = ({
   gracePeriodStart,
   gracePeriodDays,
   endDate,
-  cancelAtPeriodEnd
+  cancelAtPeriodEnd,
 }: SubscriptionCardBodyProps) => (
   <Stack spacing={SPACING_2}>
     <Alerts

@@ -7,13 +7,13 @@ class DeleteEnvironmentPropertyModal extends BaseSideModal {
     return {
       messageId: "deletePropertyTitle",
       formattedMessageValues: {
-        name: this.payload?.propertyName
+        name: this.payload?.propertyName,
       },
       color: "error",
       dataTestIds: {
         title: "lbl_delete_property",
-        closeButton: "bnt_close"
-      }
+        closeButton: "bnt_close",
+      },
     };
   }
 

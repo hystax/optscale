@@ -10,7 +10,7 @@ import {
   CLOUD_IS,
   TAG_VALUE_STARTS_WITH,
   REGION_IS,
-  ASSIGNMENT_RULE_OPERATORS
+  ASSIGNMENT_RULE_OPERATORS,
 } from "utils/constants";
 
 const ConditionHeaderMessage = ({ operator = ASSIGNMENT_RULE_OPERATORS.AND }) => {
@@ -27,7 +27,7 @@ const ConditionHeaderMessage = ({ operator = ASSIGNMENT_RULE_OPERATORS.AND }) =>
 const prepareData = ({ assignmentRules, entities }) => {
   const translateType = (type) =>
     intl.formatMessage({
-      id: CONDITION_TYPES[type]
+      id: CONDITION_TYPES[type],
     });
 
   const getConditionsObject = (conditions, operator = ASSIGNMENT_RULE_OPERATORS.AND) =>
@@ -72,20 +72,20 @@ const prepareData = ({ assignmentRules, entities }) => {
             )}: ${value}`,
             conditionsRender: [
               ...resultObject.conditionsRender,
-              <KeyValueLabel key={id} keyMessageId={CONDITION_TYPES[type]} value={value} />
-            ]
+              <KeyValueLabel key={id} keyMessageId={CONDITION_TYPES[type]} value={value} />,
+            ],
           };
         },
         {
           conditionsString: "",
-          conditionsRender: conditions.length > 1 ? [<ConditionHeaderMessage key="header" operator={operator} />] : []
+          conditionsRender: conditions.length > 1 ? [<ConditionHeaderMessage key="header" operator={operator} />] : [],
         }
       );
 
   return assignmentRules.map(({ conditions = {}, operator = ASSIGNMENT_RULE_OPERATORS.AND, ...rest }) => ({
     ...rest,
     "pool/owner": `${rest.pool_name} ${rest.owner_name}`,
-    conditionsObject: getConditionsObject(conditions, operator)
+    conditionsObject: getConditionsObject(conditions, operator),
   }));
 };
 

@@ -29,7 +29,7 @@ const CollapsableMenuDrawer = ({ children }) => {
         variant="permanent"
         className={cx(classes.menu, hidden ? classes.hiddenMenu : undefined)}
         classes={{
-          paper: cx(classes.drawerPaper, hidden ? classes.drawerPaperHidden : undefined)
+          paper: cx(classes.drawerPaper, hidden ? classes.drawerPaperHidden : undefined),
         }}
         open
         PaperProps={{ "data-product-tour-id": PRODUCT_TOUR_IDS.MENU_DRAWER }}

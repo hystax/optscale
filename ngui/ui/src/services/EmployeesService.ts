@@ -10,12 +10,12 @@ export const useGet = () => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
   const {
-    apiData: { employees = [] }
+    apiData: { employees = [] },
   } = useApiData(GET_EMPLOYEES);
 
   const { isLoading, shouldInvoke } = useApiState(GET_EMPLOYEES, {
     organizationId,
-    roles: true
+    roles: true,
   });
 
   useEffect(() => {

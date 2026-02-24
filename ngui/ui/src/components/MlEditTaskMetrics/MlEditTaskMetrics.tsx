@@ -10,7 +10,7 @@ const MlEditTaskMetrics = ({ metrics, onAttachChange, isLoading = false, isUpdat
     <PageContentDescription
       position="bottom"
       alertProps={{
-        messageId: "mlTaskSpecificMetricsDescription"
+        messageId: "mlTaskSpecificMetricsDescription",
       }}
     />
   </>

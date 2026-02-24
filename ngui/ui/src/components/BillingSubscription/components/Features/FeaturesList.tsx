@@ -5,8 +5,8 @@ const FeaturesList = styled("ul")(({ theme }) => ({
   paddingInlineStart: theme.spacing(2),
   listStyleType: "'-  '",
   "& > li + li": {
-    marginTop: theme.spacing(0.5)
-  }
+    marginTop: theme.spacing(0.5),
+  },
 }));
 
 export default FeaturesList;

@@ -12,32 +12,32 @@ import useStyles from "./CustomersGallery.styles";
 const customersLogos = [
   {
     src: airbus,
-    altMessageId: "airbus"
+    altMessageId: "airbus",
   },
   {
     src: pwc,
-    altMessageId: "pwc"
+    altMessageId: "pwc",
   },
   {
     src: nokia,
-    altMessageId: "nokia"
+    altMessageId: "nokia",
   },
   {
     src: bentley,
-    altMessageId: "bentley"
+    altMessageId: "bentley",
   },
   {
     src: yvesRocher,
-    altMessageId: "yvesRocher"
+    altMessageId: "yvesRocher",
   },
   {
     src: dhl,
-    altMessageId: "dhl"
+    altMessageId: "dhl",
   },
   {
     src: tSystems,
-    altMessageId: "tSystems"
-  }
+    altMessageId: "tSystems",
+  },
 ];
 
 const CustomersGallery = () => {

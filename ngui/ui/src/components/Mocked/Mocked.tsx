@@ -15,7 +15,7 @@ const MESSAGE_TYPES = Object.freeze({
   DASHBOARD: "dashboard",
   ANOMALY_DETECTION_POLICY: "anomalyDetectionPolicy",
   QUOTAS_AND_BUDGETS_POLICY: "quotasAndBudgetsPolicy",
-  TAGGING_POLICY: "taggingPolicy"
+  TAGGING_POLICY: "taggingPolicy",
 });
 
 const renderMock = (backdropCondition, mock, backdropMessageType) =>
@@ -34,7 +34,7 @@ const connectCloudAccountMocksTypes = [
   MESSAGE_TYPES.CLOUD_ACCOUNTS,
   MESSAGE_TYPES.DASHBOARD,
   MESSAGE_TYPES.RECOMMENDATIONS,
-  MESSAGE_TYPES.K8S_RIGHTSIZING
+  MESSAGE_TYPES.K8S_RIGHTSIZING,
 ];
 
 const Mocked = ({
@@ -42,7 +42,7 @@ const Mocked = ({
   mock = children,
   backdropMessageType = MESSAGE_TYPES.CLOUD_ACCOUNTS,
   backdropCondition = true,
-  mockCondition = false
+  mockCondition = false,
 }) => {
   const { rootData: tours = {} } = useRootData(TOURS);
 

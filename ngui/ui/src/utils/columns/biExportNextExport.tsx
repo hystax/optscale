@@ -17,7 +17,7 @@ const biExportNextExport = () => ({
     const activity = getBIExportActivityStatus(original.status);
 
     return <BINextExportTimeLabel nextRun={nextRun} activity={activity} />;
-  }
+  },
 });
 
 export default biExportNextExport;

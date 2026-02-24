@@ -33,7 +33,7 @@ const Jenkins = () => (
             <Link to={ENVIRONMENTS} component={RouterLink}>
               {chunks}
             </Link>
-          )
+          ),
         }}
       />,
       <TextBlock key="description2" messageId="integrationsJenkinsDescription2" additionalCharactersAfterText=":" />,
@@ -42,9 +42,9 @@ const Jenkins = () => (
         key="description3"
         messageId="integrationsJenkinsDescription3"
         values={{
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         }}
-      />
+      />,
     ]}
   />
 );

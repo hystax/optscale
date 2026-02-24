@@ -19,8 +19,8 @@ const RegistrationForm = ({ onSubmit, isLoading = false, disabled = false, isInv
 
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      email
-    })
+      email,
+    }),
   });
   const { handleSubmit } = methods;
 
@@ -58,7 +58,7 @@ const RegistrationForm = ({ onSubmit, isLoading = false, disabled = false, isInv
                   <Link data-test-id="link_privacy_policy" href={HYSTAX_PRIVACY_POLICY} target="_blank" rel="noopener">
                     {chunks}
                   </Link>
-                )
+                ),
               }}
             />
           </Typography>

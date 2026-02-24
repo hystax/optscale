@@ -16,7 +16,7 @@ const MlArtifacts = ({ tasks, isLoading = false }) => {
   const actionBarDefinition = {
     title: {
       text: <FormattedMessage id="artifacts" />,
-      dataTestId: "lbl_artifacts"
+      dataTestId: "lbl_artifacts",
     },
     items: [
       {
@@ -25,9 +25,9 @@ const MlArtifacts = ({ tasks, isLoading = false }) => {
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_TASKS, GET_ML_ARTIFACTS])
-      }
-    ]
+        action: () => refetch([GET_ML_TASKS, GET_ML_ARTIFACTS]),
+      },
+    ],
   };
 
   return (

@@ -6,8 +6,8 @@ class CvocAgreementOpportunitiesModal extends BaseSideModal {
     messageId: "cvosAgreementOpportunities",
     dataTestIds: {
       title: "lbl_cvoc_agreement_opportunities_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_cvoc_agreement_opportunities";
@@ -15,7 +15,7 @@ class CvocAgreementOpportunitiesModal extends BaseSideModal {
   get content() {
     return (
       <DaysThreshold
-        messageId={"thresholds.cvosAgreementOpportunities"}
+        messageId="thresholds.cvosAgreementOpportunities"
         recommendationType={this.payload?.recommendationType}
         onSuccess={this.closeSideModal}
       />

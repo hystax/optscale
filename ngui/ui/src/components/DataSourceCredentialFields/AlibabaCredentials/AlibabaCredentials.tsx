@@ -4,7 +4,7 @@ import QuestionMark from "components/QuestionMark";
 
 export const FIELD_NAMES = Object.freeze({
   ACCESS_KEY_ID: "alibabaAccessKeyId",
-  SECRET_ACCESS_KEY: "alibabaSecretAccessKey"
+  SECRET_ACCESS_KEY: "alibabaSecretAccessKey",
 });
 
 const AlibabaCredentials = () => (
@@ -18,11 +18,11 @@ const AlibabaCredentials = () => (
           <QuestionMark
             messageId="alibabaAccessKeyIdTooltip"
             messageValues={{
-              i: (chunks) => <i>{chunks}</i>
+              i: (chunks) => <i>{chunks}</i>,
             }}
             dataTestId="qmark_access_key"
           />
-        )
+        ),
       }}
       label={<FormattedMessage id="alibabaAccessKeyId" />}
       autoComplete="off"
@@ -37,11 +37,11 @@ const AlibabaCredentials = () => (
           <QuestionMark
             messageId="alibabaSecretAccessKeyTooltip"
             messageValues={{
-              i: (chunks) => <i>{chunks}</i>
+              i: (chunks) => <i>{chunks}</i>,
             }}
             dataTestId="qmark_secret_key"
           />
-        )
+        ),
       }}
       label={<FormattedMessage id="alibabaSecretAccessKey" />}
       autoComplete="off"

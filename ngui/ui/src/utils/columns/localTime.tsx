@@ -9,7 +9,7 @@ const localTime = ({
   headerDataTestId,
   format = EN_FULL_FORMAT,
   defaultSort,
-  enableSorting
+  enableSorting,
 }) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -23,7 +23,7 @@ const localTime = ({
     return value ? formatFn(value, format) : undefined;
   },
   defaultSort,
-  enableSorting
+  enableSorting,
 });
 
 export default localTime;

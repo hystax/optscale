@@ -20,12 +20,12 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
             { value: subResource.region, messageId: "region" },
             { value: subResource.details?.service_name, messageId: "service" },
             { value: subResource.details?.k8s_node, messageId: "node" },
-            { value: subResource.details?.k8s_namespace, messageId: "namespace" }
+            { value: subResource.details?.k8s_namespace, messageId: "namespace" },
           ]
             .filter(({ value }) => Boolean(value))
             .map(({ value, messageId }) => ({
               key: value,
-              node: getCaptionText(value, messageId)
+              node: getCaptionText(value, messageId),
             }));
 
         return {
@@ -34,7 +34,7 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
             .filter(Boolean)
             .join(" "),
           locationString: `${subResource.details?.cloud_name} ${subResource.region} ${subResource.details?.cloud_type} ${subResource.details?.service_name} ${subResource.details?.k8s_node} ${subResource.details?.k8s_namespace}`,
-          locationCaptionNodes: getLocationCaptionNodes()
+          locationCaptionNodes: getLocationCaptionNodes(),
         };
       }),
     [data]
@@ -59,10 +59,10 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
               cloud_resource_id: original.cloud_resource_id,
               cloud_resource_hash: original.cloud_resource_hash,
               resource_id: original.id,
-              active: original.active
+              active: original.active,
             }}
           />
-        )
+        ),
       },
       {
         header: (
@@ -70,7 +70,7 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
             <FormattedMessage id="type" />
           </TextWithDataTestId>
         ),
-        accessorKey: "resource_type"
+        accessorKey: "resource_type",
       },
       {
         header: (
@@ -80,7 +80,7 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
         ),
         accessorKey: "locationString",
         style: {
-          whiteSpace: "nowrap"
+          whiteSpace: "nowrap",
         },
         cell: ({ row: { original } }) => (
           <CaptionedCell caption={original.locationCaptionNodes}>
@@ -91,7 +91,7 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
               type={original.details?.cloud_type}
             />
           </CaptionedCell>
-        )
+        ),
       },
       tags({
         id: "tags",
@@ -99,8 +99,8 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
-        getTags: (originalRow) => originalRow.tags
-      })
+        getTags: (originalRow) => originalRow.tags,
+      }),
     ],
     [isManageCloudCredentialsAllowed]
   );
@@ -111,7 +111,7 @@ const ClusterSubResourcesTable = ({ data = [] }) => {
       columns={columns}
       withSearch
       localization={{
-        emptyMessageId: "noSubResources"
+        emptyMessageId: "noSubResources",
       }}
       pageSize={50}
     />

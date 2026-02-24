@@ -11,7 +11,7 @@ import {
   addMinutes,
   addDays,
   roundTimeToInterval,
-  AMOUNT_30_MINUTES
+  AMOUNT_30_MINUTES,
 } from "utils/datetime";
 import { capitalize } from "utils/strings";
 import IntervalTimePopoverContent from "./IntervalTimePopoverContent";
@@ -20,40 +20,40 @@ const quickValuesItemsDefinition = [
   {
     key: "now",
     label: "now",
-    getValue: () => undefined
+    getValue: () => undefined,
   },
   {
     key: "3h",
     label: "valueHours",
     translateValues: {
       value: "3",
-      symbol: "+"
+      symbol: "+",
     },
-    getValue: (roundTo) => +addMinutes(roundTimeToInterval(+new Date(), roundTo), 180)
+    getValue: (roundTo) => +addMinutes(roundTimeToInterval(+new Date(), roundTo), 180),
   },
   {
     key: "1d",
     label: "valueDays",
     translateValues: {
       value: "1",
-      symbol: "+"
+      symbol: "+",
     },
-    getValue: (roundTo) => +addDays(roundTimeToInterval(+new Date(), roundTo), 1)
+    getValue: (roundTo) => +addDays(roundTimeToInterval(+new Date(), roundTo), 1),
   },
   {
     key: "3d",
     label: "valueDays",
     translateValues: {
       value: "3",
-      symbol: "+"
+      symbol: "+",
     },
-    getValue: (roundTo) => +addDays(roundTimeToInterval(+new Date(), roundTo), 3)
+    getValue: (roundTo) => +addDays(roundTimeToInterval(+new Date(), roundTo), 3),
   },
   {
     key: "noLimit",
     label: "noLimit",
-    getValue: () => null
-  }
+    getValue: () => null,
+  },
 ];
 
 const QuickValues = ({ quickValues, orQuickValues, onApply, intervalMinutes, dataTestIds = {} }) => {
@@ -65,7 +65,7 @@ const QuickValues = ({ quickValues, orQuickValues, onApply, intervalMinutes, dat
       .map((item) => ({
         ...item,
         dataTestId: `${itemDataTestId}_${item.key}`,
-        onClick: () => onApply(item.getValue(intervalMinutes))
+        onClick: () => onApply(item.getValue(intervalMinutes)),
       }));
 
   const itemsDefinition = getItemsDefinition(quickValues);
@@ -90,7 +90,7 @@ const Field = ({
   onApply,
   onClose,
   margin,
-  dataTestIds = {}
+  dataTestIds = {},
 }) => {
   const { input: inputDataTestId, iconButton: iconButtonDataTestId } = dataTestIds;
 
@@ -124,8 +124,8 @@ const Field = ({
           messageId: "set",
           variant: "contained",
           onClick: onApply,
-          closable: true
-        }
+          closable: true,
+        },
       ]}
       handleClose={onClose}
     />
@@ -148,7 +148,7 @@ const IntervalTimePicker = ({
   quickValues,
   intervalMinutes = AMOUNT_30_MINUTES,
   dataTestIds = {},
-  withTimePicker = false
+  withTimePicker = false,
 }) => {
   const intl = useIntl();
 
@@ -194,7 +194,7 @@ const IntervalTimePicker = ({
   return (
     <div
       style={{
-        display: "grid"
+        display: "grid",
       }}
     >
       <Field

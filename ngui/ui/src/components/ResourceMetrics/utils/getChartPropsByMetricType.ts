@@ -20,18 +20,18 @@ const cpuMetricChartProps = ({ metricType, metrics, colors, intl }) => {
     return {
       line: {
         id: "cpu",
-        data: formattedData
+        data: formattedData,
       },
       markerData: {
         name: "cpuAverage",
         value: getAverageLineValue(formattedData),
-        dataTestIdName: "cpu_average"
-      }
+        dataTestIdName: "cpu_average",
+      },
     };
   };
 
   const definitionGetters = {
-    cpuMetricData: getCpuMetricLineDefinition
+    cpuMetricData: getCpuMetricLineDefinition,
   };
 
   return getChartProps({
@@ -42,8 +42,8 @@ const cpuMetricChartProps = ({ metricType, metrics, colors, intl }) => {
     formatYValue: (value) =>
       intl.formatNumber(value, {
         format: "percentage",
-        maximumFractionDigits: 1
-      })
+        maximumFractionDigits: 1,
+      }),
   });
 };
 
@@ -53,18 +53,18 @@ const memoryMetricChartProps = ({ metricType, metrics, colors, intl }) => {
     return {
       line: {
         id: "memory",
-        data: formattedData
+        data: formattedData,
       },
       markerData: {
         name: "memoryAverage",
         value: getAverageLineValue(formattedData),
-        dataTestIdName: "memory_average"
-      }
+        dataTestIdName: "memory_average",
+      },
     };
   };
 
   const definitionGetters = {
-    memoryMetricData: getMemoryMetricLineDefinition
+    memoryMetricData: getMemoryMetricLineDefinition,
   };
 
   return getChartProps({
@@ -75,8 +75,8 @@ const memoryMetricChartProps = ({ metricType, metrics, colors, intl }) => {
     formatYValue: (value) =>
       intl.formatNumber(value, {
         format: "percentage",
-        maximumFractionDigits: 1
-      })
+        maximumFractionDigits: 1,
+      }),
   });
 };
 
@@ -84,30 +84,30 @@ const diskOperationsChartProps = ({ metricType, metrics, colors, intl }) => {
   const getReadMetricLineDefinition = (data) => ({
     line: {
       id: "read",
-      data
+      data,
     },
     markerData: {
       name: "readAverage",
       value: getAverageLineValue(data),
-      dataTestIdName: "disk_read_average"
-    }
+      dataTestIdName: "disk_read_average",
+    },
   });
 
   const getWriteMetricLineDefinition = (data) => ({
     line: {
       id: "write",
-      data
+      data,
     },
     markerData: {
       name: "writeAverage",
       value: getAverageLineValue(data),
-      dataTestIdName: "disk_write_average"
-    }
+      dataTestIdName: "disk_write_average",
+    },
   });
 
   const definitionGetters = {
     readMetricData: getReadMetricLineDefinition,
-    writeMetricData: getWriteMetricLineDefinition
+    writeMetricData: getWriteMetricLineDefinition,
   };
 
   return getChartProps({
@@ -118,10 +118,10 @@ const diskOperationsChartProps = ({ metricType, metrics, colors, intl }) => {
     formatYValue: (value) =>
       intl.formatMessage(
         {
-          id: "valuePerSec"
+          id: "valuePerSec",
         },
         { value: intl.formatNumber(value, { maximumFractionDigits: 1 }) }
-      )
+      ),
   });
 };
 
@@ -129,30 +129,30 @@ const networkChartProps = ({ metricType, metrics, colors, intl }) => {
   const getNetworkInLineDefinition = (data) => ({
     line: {
       id: "in",
-      data
+      data,
     },
     markerData: {
       name: "inTotal",
       value: getTotalLineValue(data),
-      dataTestIdName: "network_in_total"
-    }
+      dataTestIdName: "network_in_total",
+    },
   });
 
   const getNetworkOutLineDefinition = (data) => ({
     line: {
       id: "out",
-      data
+      data,
     },
     markerData: {
       name: "outTotal",
       value: getTotalLineValue(data),
-      dataTestIdName: "network_out_total"
-    }
+      dataTestIdName: "network_out_total",
+    },
   });
 
   const definitionGetters = {
     memoryInMetricData: getNetworkInLineDefinition,
-    memoryOutMetricData: getNetworkOutLineDefinition
+    memoryOutMetricData: getNetworkOutLineDefinition,
   };
 
   return getChartProps({
@@ -163,16 +163,16 @@ const networkChartProps = ({ metricType, metrics, colors, intl }) => {
     formatYValue: (value) =>
       intl.formatMessage(
         {
-          id: "valuePerSec"
+          id: "valuePerSec",
         },
         {
           value: formatDigitalUnit({
             value,
             baseUnit: IEC_UNITS.BYTE,
-            maximumFractionDigits: 1
-          })
+            maximumFractionDigits: 1,
+          }),
         }
-      )
+      ),
   });
 };
 
@@ -180,17 +180,17 @@ const bytesSentChartProps = ({ metricType, metrics, colors }) => {
   const getBytesSentMetricLineDefinition = (data) => ({
     line: {
       id: "bytesSent",
-      data
+      data,
     },
     markerData: {
       name: "bytesSentAverage",
       value: getAverageLineValue(data),
-      dataTestIdName: "bytes_sent"
-    }
+      dataTestIdName: "bytes_sent",
+    },
   });
 
   const definitionGetters = {
-    bytesSentMetricData: getBytesSentMetricLineDefinition
+    bytesSentMetricData: getBytesSentMetricLineDefinition,
   };
 
   return getChartProps({
@@ -202,8 +202,8 @@ const bytesSentChartProps = ({ metricType, metrics, colors }) => {
       formatDigitalUnit({
         value,
         baseUnit: IEC_UNITS.BYTE,
-        maximumFractionDigits: 1
-      })
+        maximumFractionDigits: 1,
+      }),
   });
 };
 
@@ -211,17 +211,17 @@ const packetsSentChartProps = ({ metricType, metrics, colors, intl }) => {
   const getPacketsSentMetricLineDefinition = (data) => ({
     line: {
       id: "packetsSent",
-      data
+      data,
     },
     markerData: {
       name: "packetsSentAverage",
       value: getAverageLineValue(data),
-      dataTestIdName: "packets_sent"
-    }
+      dataTestIdName: "packets_sent",
+    },
   });
 
   const definitionGetters = {
-    packetsSentMetricData: getPacketsSentMetricLineDefinition
+    packetsSentMetricData: getPacketsSentMetricLineDefinition,
   };
 
   return getChartProps({
@@ -231,8 +231,8 @@ const packetsSentChartProps = ({ metricType, metrics, colors, intl }) => {
     colors,
     formatYValue: (value) =>
       formatCompactNumber(intl.formatNumber)({
-        value: value
-      })
+        value: value,
+      }),
   });
 };
 
@@ -240,17 +240,17 @@ const diskIOUsageChartProps = ({ metricType, metrics, colors, intl }) => {
   const getDiskIOUsageMetricLineDefinition = (data) => ({
     line: {
       id: "diskIOUsage",
-      data
+      data,
     },
     markerData: {
       name: "diskIOUsageAverage",
       value: getAverageLineValue(data),
-      dataTestIdName: "disk_io_usage"
-    }
+      dataTestIdName: "disk_io_usage",
+    },
   });
 
   const definitionGetters = {
-    diskIOUsageMetricData: getDiskIOUsageMetricLineDefinition
+    diskIOUsageMetricData: getDiskIOUsageMetricLineDefinition,
   };
 
   return getChartProps({
@@ -261,8 +261,8 @@ const diskIOUsageChartProps = ({ metricType, metrics, colors, intl }) => {
     formatYValue: (value) =>
       intl.formatNumber(value, {
         format: "percentage",
-        maximumFractionDigits: 1
-      })
+        maximumFractionDigits: 1,
+      }),
   });
 };
 
@@ -270,17 +270,17 @@ const consolidatedDiskIOChartProps = ({ metricType, metrics, colors, intl }) => 
   const getConsolidatedDiskIOMetricLineDefinition = (data) => ({
     line: {
       id: "diskIO",
-      data
+      data,
     },
     markerData: {
       name: "diskIOAverage",
       value: getAverageLineValue(data),
-      dataTestIdName: "consolidated_disk_io"
-    }
+      dataTestIdName: "consolidated_disk_io",
+    },
   });
 
   const definitionGetters = {
-    consolidatedDiskIOMetricData: getConsolidatedDiskIOMetricLineDefinition
+    consolidatedDiskIOMetricData: getConsolidatedDiskIOMetricLineDefinition,
   };
 
   return getChartProps({
@@ -291,14 +291,14 @@ const consolidatedDiskIOChartProps = ({ metricType, metrics, colors, intl }) => 
     formatYValue: (value) =>
       intl.formatMessage(
         {
-          id: "inputOutputOperationsPerSecond"
+          id: "inputOutputOperationsPerSecond",
         },
         {
           value: formatCompactNumber(intl.formatNumber)({
-            value: value
-          })
+            value: value,
+          }),
         }
-      )
+      ),
   });
 };
 
@@ -306,17 +306,17 @@ const requestsChartProps = ({ metricType, metrics, colors, intl }) => {
   const getRequestsMetricLineDefinition = (data) => ({
     line: {
       id: "requests",
-      data
+      data,
     },
     markerData: {
       name: "requestsTotal",
       value: getTotalLineValue(data),
-      dataTestIdName: "requests"
-    }
+      dataTestIdName: "requests",
+    },
   });
 
   const definitionGetters = {
-    requestsMetricData: getRequestsMetricLineDefinition
+    requestsMetricData: getRequestsMetricLineDefinition,
   };
 
   return getChartProps({
@@ -326,15 +326,15 @@ const requestsChartProps = ({ metricType, metrics, colors, intl }) => {
     colors,
     formatYValue: (value) =>
       formatCompactNumber(intl.formatNumber)({
-        value: value
-      })
+        value: value,
+      }),
   });
 };
 
 const convertMetricDataToLineData = (metricData) =>
   metricData.map(({ date, value }) => ({
     x: date,
-    y: value
+    y: value,
   }));
 
 const getMetricsLineData = (metrics) => {

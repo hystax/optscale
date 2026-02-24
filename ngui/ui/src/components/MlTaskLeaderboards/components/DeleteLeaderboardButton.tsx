@@ -12,7 +12,7 @@ const DeleteLeaderboardButton = ({ leaderboard, onSuccess }) => {
       color="error"
       tooltip={{
         show: true,
-        messageId: "delete"
+        messageId: "delete",
       }}
       onClick={() => openSideModal(DeleteLeaderboardModal, { leaderboard, onSuccess })}
     />

@@ -51,7 +51,7 @@ const useTypographySettings = () => {
     h3 = {},
     h4 = {},
     h5 = {},
-    h6 = {}
+    h6 = {},
   } = typography;
 
   const typographyVariantSettings = {
@@ -64,7 +64,7 @@ const useTypographySettings = () => {
     h3: validateTypography(h3),
     h4: validateTypography(h4),
     h5: validateTypography(h5),
-    h6: validateTypography(h6)
+    h6: validateTypography(h6),
   };
 
   return typographyVariantSettings;
@@ -110,7 +110,7 @@ const usePaletteSettings = () => {
     info: validateCommonPaletteColors(info),
     warning: validateCommonPaletteColors(warning),
     error: validateCommonPaletteColors(error),
-    success: validateCommonPaletteColors(success)
+    success: validateCommonPaletteColors(success),
   };
 
   return paletteSettings;
@@ -123,10 +123,10 @@ const useChartPaletteSettings = () => {
   const chartPaletteSettings = Object.fromEntries(
     [
       ["chart", chart],
-      ["monoChart", monoChart]
+      ["monoChart", monoChart],
     ].map(([name, colors]) => [
       name,
-      Array.isArray(colors) && !isEmptyArray(colors) && colors.every(validateColorValue) ? colors : []
+      Array.isArray(colors) && !isEmptyArray(colors) && colors.every(validateColorValue) ? colors : [],
     ])
   );
 
@@ -141,6 +141,6 @@ export const useThemeSettingsOptions = () => {
   return {
     typography: typographySettings,
     palette: paletteSettings,
-    chartPalette: chartPaletteSettings
+    chartPalette: chartPaletteSettings,
   };
 };

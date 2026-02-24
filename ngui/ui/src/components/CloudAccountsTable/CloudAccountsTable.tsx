@@ -32,16 +32,16 @@ const NameCell = ({
       last_import_at: lastImportAt,
       last_import_attempt_at: lastImportAttemptAt,
       last_import_attempt_error: lastImportAttemptError,
-      children
+      children,
     },
-    index
+    index,
   },
-  colorScale
+  colorScale,
 }) => {
   const importStatus = getBillingImportStatus({
     timestamp: lastImportAt,
     attemptTimestamp: lastImportAttemptAt,
-    error: lastImportAttemptError
+    error: lastImportAttemptError,
   });
 
   return (
@@ -61,7 +61,7 @@ const NameCell = ({
                     </span>
                   </Tooltip>
                 </Typography>
-              )
+              ),
             }
           : undefined
       }
@@ -95,32 +95,32 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
             <Expander row={cellData.row} />
             <NameCell {...cellData} colorScale={colorScale} />
           </div>
-        )
+        ),
       },
       {
         header: intl.formatMessage({ id: "type" }),
         accessorKey: "type",
-        cell: ({ cell }) => <CloudType type={cell.getValue()} />
+        cell: ({ cell }) => <CloudType type={cell.getValue()} />,
       },
       {
         header: intl.formatMessage({ id: "resourcesChargedThisMonth" }),
         id: "details.resources",
         accessorFn: (originalRow) => originalRow.details?.resources,
-        emptyValue: "0"
+        emptyValue: "0",
       },
       {
         header: intl.formatMessage({ id: "expensesUpToDateThisMonth" }),
         id: "details.cost",
         accessorFn: (originalRow) => originalRow.details?.cost,
         cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       {
         header: intl.formatMessage({ id: "expensesForecastThisMonth" }),
         id: "details.forecast",
         accessorFn: (originalRow) => originalRow.details?.forecast,
-        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
-      }
+        cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
+      },
     ];
   }, [theme.palette.chart, classes.nameCellWrapper]);
 
@@ -148,9 +148,9 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
         variant: "contained",
         type: "button",
         action: () => navigate(CLOUD_ACCOUNT_CONNECT),
-        requiredActions: ["MANAGE_CLOUD_CREDENTIALS"]
-      }
-    ]
+        requiredActions: ["MANAGE_CLOUD_CREDENTIALS"],
+      },
+    ],
   };
 
   return isLoading ? (
@@ -158,18 +158,18 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
   ) : (
     <Table
       dataTestIds={{
-        container: "table_accs"
+        container: "table_accs",
       }}
       data={data}
       columns={columns}
       localization={{
-        emptyMessageId: "noDataSources"
+        emptyMessageId: "noDataSources",
       }}
       pageSize={50}
       withExpanded
       actionBar={{
         show: true,
-        definition: actionBarDefinition
+        definition: actionBarDefinition,
       }}
     />
   );

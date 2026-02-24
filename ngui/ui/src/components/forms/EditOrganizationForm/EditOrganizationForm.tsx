@@ -11,12 +11,12 @@ const EditOrganizationForm = ({
   currentOrganizationName,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: EditOrganizationFormProps) => {
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      organizationName: currentOrganizationName
-    })
+      organizationName: currentOrganizationName,
+    }),
   });
 
   const { handleSubmit } = methods;

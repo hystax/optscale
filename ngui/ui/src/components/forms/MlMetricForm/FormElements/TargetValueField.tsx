@@ -17,7 +17,7 @@ const TargetValueField = ({ isLoading = false }) => {
       min={0}
       isLoading={isLoading}
       validate={{
-        positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumber" }))
+        positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumber" })),
       }}
       dataTestId="input_name"
     />

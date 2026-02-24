@@ -11,7 +11,7 @@ const Error = ({ messageId }) => (
       left: 0,
       display: "flex",
       alignItems: "center",
-      pointerEvents: "none"
+      pointerEvents: "none",
     }}
   >
     <IconError messageId={messageId} />

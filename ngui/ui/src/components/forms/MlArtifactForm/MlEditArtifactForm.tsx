@@ -10,7 +10,7 @@ const MlEditArtifactForm = ({ artifact, onSubmit, onCancel, isLoadingProps = {} 
   const defaultValues = useMemo(() => getDefaultValues(artifact), [artifact]);
 
   const methods = useForm<FormValues>({
-    defaultValues
+    defaultValues,
   });
 
   const { handleSubmit, reset } = methods;
@@ -18,7 +18,7 @@ const MlEditArtifactForm = ({ artifact, onSubmit, onCancel, isLoadingProps = {} 
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...defaultValues
+      ...defaultValues,
     }));
   }, [defaultValues, reset]);
 

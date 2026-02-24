@@ -80,7 +80,7 @@ const SuggestionFilter = ({ suggestionGroups, label, onApplySuggestion, appliedF
         return [
           type,
           // Keep non-suggested values and add selected suggested values
-          [...nonSuggestedValues, ...selectedValues]
+          [...nonSuggestedValues, ...selectedValues],
         ];
       })
     );
@@ -97,7 +97,7 @@ const SuggestionFilter = ({ suggestionGroups, label, onApplySuggestion, appliedF
         ...prev,
         [groupId]: currentValues.includes(suggestion)
           ? currentValues.filter((item) => item !== suggestion)
-          : [...currentValues, suggestion]
+          : [...currentValues, suggestion],
       };
     });
   };
@@ -129,7 +129,7 @@ const SuggestionFilter = ({ suggestionGroups, label, onApplySuggestion, appliedF
         onClose={handleCancel}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "left"
+          horizontal: "left",
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", width: "350px" }}>

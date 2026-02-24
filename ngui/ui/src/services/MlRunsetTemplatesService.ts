@@ -5,14 +5,14 @@ import {
   getMlRunsetTemplates,
   updateMlRunsetTemplate,
   getMlRunsetTemplate,
-  deleteMlRunsetTemplate
+  deleteMlRunsetTemplate,
 } from "api";
 import {
   CREATE_ML_RUNSET_TEMPLATE,
   DELETE_ML_RUNSET_TEMPLATE,
   GET_ML_RUNSET_TEMPLATE,
   GET_ML_RUNSET_TEMPLATES,
-  UPDATE_ML_RUNSET_TEMPLATE
+  UPDATE_ML_RUNSET_TEMPLATE,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -25,7 +25,7 @@ const useGetAll = () => {
   const { organizationId } = useOrganizationInfo();
 
   const {
-    apiData: { templates: runsetTemplates = [] }
+    apiData: { templates: runsetTemplates = [] },
   } = useApiData(GET_ML_RUNSET_TEMPLATES);
 
   const { isLoading, shouldInvoke } = useApiState(GET_ML_RUNSET_TEMPLATES, { organizationId });

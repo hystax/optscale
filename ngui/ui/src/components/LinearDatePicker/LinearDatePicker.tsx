@@ -12,7 +12,7 @@ import { getMaxPickerDateSec, getMinPickerDateSec, secondsToMilliseconds } from 
 const AdHocDatesPickerContent = ({ defaultStartDate, defaultEndDate, isUtc, onApply, definedRanges = [] }) => {
   const [pickerDateRange, setPickerDateRange] = useState({
     startDate: defaultStartDate,
-    endDate: defaultEndDate
+    endDate: defaultEndDate,
   });
 
   return (
@@ -22,7 +22,7 @@ const AdHocDatesPickerContent = ({ defaultStartDate, defaultEndDate, isUtc, onAp
         onChange={(rangeInMS) => setPickerDateRange(rangeInMS)}
         initialDateRange={{
           startDate: defaultStartDate,
-          endDate: defaultEndDate
+          endDate: defaultEndDate,
         }}
         minDate={secondsToMilliseconds(getMinPickerDateSec(isUtc))}
         maxDate={secondsToMilliseconds(getMaxPickerDateSec(isUtc))}
@@ -65,7 +65,7 @@ const LinearDatePicker = ({ selectedRange, onSelectedRangeChange, ranges }) => (
       alignItems: "center",
       flexWrap: "wrap",
       gap: (theme) => theme.spacing(1),
-      minHeight: "40px"
+      minHeight: "40px",
     }}
   >
     <Box>
@@ -84,7 +84,7 @@ const LinearDatePicker = ({ selectedRange, onSelectedRangeChange, ranges }) => (
               onSelectedRangeChange({
                 name: def.getName(pickerDateRange.startDate, pickerDateRange.endDate),
                 interval: def.getInterval(pickerDateRange.startDate, pickerDateRange.endDate),
-                searchParams: def.getSearchParams(pickerDateRange.startDate, pickerDateRange.endDate)
+                searchParams: def.getSearchParams(pickerDateRange.startDate, pickerDateRange.endDate),
               });
             }}
           />
@@ -98,7 +98,7 @@ const LinearDatePicker = ({ selectedRange, onSelectedRangeChange, ranges }) => (
             onSelectedRangeChange({
               name: def.getName(),
               interval: def.getInterval(),
-              searchParams: def.getSearchParams()
+              searchParams: def.getSearchParams(),
             });
           }}
         >

@@ -35,7 +35,7 @@ const useActionBarItems = ({ downloadLimit, recommendation, dataSourceIds, withD
     limit: downloadLimit,
     type,
     status,
-    dataSourceIds
+    dataSourceIds,
   });
 
   const { download: downloadCleanupScript, isLoading: isDownloadCleanupScriptLoading } = useDownloadCleanupScript({ type });
@@ -55,16 +55,16 @@ const useActionBarItems = ({ downloadLimit, recommendation, dataSourceIds, withD
           {
             key: "xlsx",
             messageId: "xlsxFile",
-            action: () => downloadItems(DOWNLOAD_FILE_FORMATS.XLSX)
+            action: () => downloadItems(DOWNLOAD_FILE_FORMATS.XLSX),
           },
           {
             key: "json",
             messageId: "jsonFile",
-            action: () => downloadItems(DOWNLOAD_FILE_FORMATS.JSON)
-          }
-        ]
-      }
-    }
+            action: () => downloadItems(DOWNLOAD_FILE_FORMATS.JSON),
+          },
+        ],
+      },
+    },
   ];
 
   if (isActive && withCleanupScripts) {
@@ -88,10 +88,10 @@ const useActionBarItems = ({ downloadLimit, recommendation, dataSourceIds, withD
                 <Link href={DOCS_HYSTAX_CLEANUP_SCRIPTS} data-test-id="link_cleanup_script" target="_blank" rel="noopener">
                   {chunks}
                 </Link>
-              )
+              ),
             }}
           />
-        )
+        ),
       },
       disabled: !hasItems,
       isLoading: isDownloadCleanupScriptLoading,
@@ -100,10 +100,10 @@ const useActionBarItems = ({ downloadLimit, recommendation, dataSourceIds, withD
           ({ cloud_account_name: dataSourceName, cloud_type: dataSourceType, cloud_account_id: dataSourceId }) => ({
             key: dataSourceId,
             text: <CloudLabel disableLink name={dataSourceName} type={dataSourceType} />,
-            action: () => downloadCleanupScript(dataSourceId)
+            action: () => downloadCleanupScript(dataSourceId),
           })
-        )
-      }
+        ),
+      },
     });
   }
 
@@ -113,7 +113,7 @@ const useActionBarItems = ({ downloadLimit, recommendation, dataSourceIds, withD
       icon: <PlaylistRemoveIcon fontSize="small" />,
       messageId: "excludePools",
       action: () => openSideModal(ExcludePoolsFromRecommendationModal, { recommendationName: name, recommendationType: type }),
-      type: "button"
+      type: "button",
     });
   }
 
@@ -123,7 +123,7 @@ const useActionBarItems = ({ downloadLimit, recommendation, dataSourceIds, withD
       icon: <SettingsIcon fontSize="small" />,
       messageId: "settings",
       action: () => openSideModal(settingsSidemodalClass, { recommendationType: type }),
-      type: "button"
+      type: "button",
     });
   }
 
@@ -134,7 +134,7 @@ const ActionCell = ({ setting, resourceId, index, isGetResourceAllowedActionsLoa
   const isAllowedAction = useIsAllowed({
     entityType: SCOPE_TYPES.RESOURCE,
     entityId: resourceId,
-    requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"]
+    requiredActions: ["MANAGE_RESOURCES", "MANAGE_OWN_RESOURCES"],
   });
 
   return (
@@ -146,7 +146,7 @@ const ActionCell = ({ setting, resourceId, index, isGetResourceAllowedActionsLoa
       dataTestId={`btn_${setting.dataTestIdPrefix}_${index}`}
       tooltip={{
         show: true,
-        value: <FormattedMessage id={isAllowedAction ? setting.tooltipMessageId : "youDoNotHaveEnoughPermissions"} />
+        value: <FormattedMessage id={isAllowedAction ? setting.tooltipMessageId : "youDoNotHaveEnoughPermissions"} />,
       }}
     />
   );
@@ -169,7 +169,7 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
     downloadLimit: limit,
     recommendation,
     dataSourceIds,
-    withDownload
+    withDownload,
   });
 
   if (isEmptyObject(data)) {
@@ -183,12 +183,12 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
         ? {
             icon: <VisibilityOffOutlinedIcon />,
             tooltipMessageId: "dismissRecommendation",
-            dataTestIdPrefix: "dismiss"
+            dataTestIdPrefix: "dismiss",
           }
         : {
             icon: <VisibilityOutlinedIcon />,
             tooltipMessageId: "activateRecommendation",
-            dataTestIdPrefix: "activate"
+            dataTestIdPrefix: "activate",
           };
 
     columns = [
@@ -204,8 +204,8 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
         cell: ({
           row: {
             original: { resource_id: resourceId },
-            index
-          }
+            index,
+          },
         }) => (
           <ActionCell
             setting={setting}
@@ -214,8 +214,8 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
             isGetResourceAllowedActionsLoading={isGetResourceAllowedActionsLoading}
             patchResource={(id) => patchResource(id)}
           />
-        )
-      }
+        ),
+      },
     ];
   }
 
@@ -226,7 +226,7 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
           position="top"
           alertProps={{
             messageId: recommendation.descriptionMessageId,
-            messageValues: { strong: (chunks) => <strong>{chunks}</strong>, ...recommendation.descriptionMessageValues }
+            messageValues: { strong: (chunks) => <strong>{chunks}</strong>, ...recommendation.descriptionMessageValues },
           }}
         />
       )}
@@ -234,8 +234,8 @@ const Details = ({ type, limit, status, data, dataSourceIds = [], withDownload }
         actionBar={{
           show: true,
           definition: {
-            items: actionBarItems
-          }
+            items: actionBarItems,
+          },
         }}
         columns={columns}
         pageSize={50}

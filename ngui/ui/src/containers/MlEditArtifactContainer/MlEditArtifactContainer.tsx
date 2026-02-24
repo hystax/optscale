@@ -23,12 +23,12 @@ const MlEditArtifactContainer = () => {
       <Link key={1} to={ML_ARTIFACTS} component={RouterLink}>
         <FormattedMessage id="artifacts" />
       </Link>,
-      <Typography key={5}>{artifactName}</Typography>
+      <Typography key={5}>{artifactName}</Typography>,
     ],
     title: {
       isLoading: isGetArtifactLoading,
-      messageId: "editArtifactTitle"
-    }
+      messageId: "editArtifactTitle",
+    },
   };
 
   const redirect = () => navigate(ML_ARTIFACTS);
@@ -39,7 +39,7 @@ const MlEditArtifactContainer = () => {
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <MlEditArtifactForm

@@ -18,7 +18,7 @@ import {
   MaxValueInput,
   StartDatePicker,
   TagsInputs,
-  TYPE_REQUIRED
+  TYPE_REQUIRED,
 } from "./FormElements";
 
 const CreateOrganizationConstraintForm = ({ onSubmit, types, navigateAway }) => {
@@ -43,8 +43,8 @@ const CreateOrganizationConstraintForm = ({ onSubmit, types, navigateAway }) => 
       [CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.REQUIRED_TAG]: "",
       [CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.PROHIBITED_TAG]: "",
       [CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.CORRELATION_TAG_1]: "",
-      [CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.CORRELATION_TAG_2]: ""
-    }
+      [CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.CORRELATION_TAG_2]: "",
+    },
   });
   const { handleSubmit, watch } = methods;
 

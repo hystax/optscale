@@ -29,7 +29,7 @@ const detectedAt = ({ headerDataTestId, accessor = "detected_at" }: DetectedAtCo
     />
   ),
   accessorKey: accessor,
-  cell: ({ cell }: CellRowData) => <DetectedAt secondTimestamp={cell.getValue()} />
+  cell: ({ cell }: CellRowData) => <DetectedAt secondTimestamp={cell.getValue()} />,
 });
 
 export default detectedAt;

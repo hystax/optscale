@@ -15,12 +15,12 @@ const BIExports = ({ biExports, isLoading = false }) => (
         breadcrumbs: [
           <Link key={1} to={INTEGRATIONS} component={RouterLink}>
             <FormattedMessage id="integrations" />
-          </Link>
+          </Link>,
         ],
         title: {
           text: <FormattedMessage id="biExportTitle" />,
-          dataTestId: "lbl_bi_exports"
-        }
+          dataTestId: "lbl_bi_exports",
+        },
       }}
     />
     <PageContentWrapper>
@@ -28,7 +28,7 @@ const BIExports = ({ biExports, isLoading = false }) => (
       <PageContentDescription
         position="bottom"
         alertProps={{
-          messageId: "biExportsDescription"
+          messageId: "biExportsDescription",
         }}
       />
     </PageContentWrapper>

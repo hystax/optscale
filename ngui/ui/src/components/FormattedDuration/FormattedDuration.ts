@@ -15,12 +15,12 @@ const FormattedDuration = ({ durationInSeconds }) => {
           INTERVAL_DURATION_VALUE_TYPES.DAYS,
           INTERVAL_DURATION_VALUE_TYPES.HOURS,
           INTERVAL_DURATION_VALUE_TYPES.MINUTES,
-          INTERVAL_DURATION_VALUE_TYPES.SECONDS
+          INTERVAL_DURATION_VALUE_TYPES.SECONDS,
         ],
         duration: intervalToDuration({
           start: 0,
-          end: durationInSeconds * 1000
-        })
+          end: durationInSeconds * 1000,
+        }),
       });
 };
 

@@ -55,7 +55,7 @@ const PermissionsList = ({ roleTargetMessageId, invites }: PermissionsListProps)
                   </span>
                 </Tooltip>
               ),
-              strong: (chunks) => <strong>{chunks}</strong>
+              strong: (chunks) => <strong>{chunks}</strong>,
             }}
           />
         }
@@ -82,7 +82,7 @@ const AcceptInvitationTitle = ({ ownerName, ownerEmail, organizationNameInvitedT
                   : organizationNameInvitedTo}
               </span>
             </Tooltip>
-          )
+          ),
         }}
       />
     </SubTitle>

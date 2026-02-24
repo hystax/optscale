@@ -14,7 +14,7 @@ const MlTaskCreateFormOwnerField = ({ employees = [], isLoading = false }) => (
     isLoading={isLoading}
     items={employees.map((employee) => ({
       value: employee.id,
-      content: <ItemContent>{employee.name}</ItemContent>
+      content: <ItemContent>{employee.name}</ItemContent>,
     }))}
   />
 );

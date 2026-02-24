@@ -2,17 +2,17 @@ import { ACCESS_DENIED, API_END, API_ERROR, API_START, API_SUCCESS, RESET_TTL } 
 
 export const apiStart = (label, hash, entityId) => ({
   type: API_START,
-  payload: { label, hash, entityId }
+  payload: { label, hash, entityId },
 });
 
 export const apiEnd = (label) => ({
   type: API_END,
-  payload: label
+  payload: label,
 });
 
 export const accessDenied = (url) => ({
   type: ACCESS_DENIED,
-  payload: url
+  payload: url,
 });
 
 export const apiError = (label, response, errorHandlerType) => ({
@@ -20,22 +20,22 @@ export const apiError = (label, response, errorHandlerType) => ({
   payload: {
     label,
     response,
-    errorHandlerType
-  }
+    errorHandlerType,
+  },
 });
 
 export const apiSuccess = (payload) => ({
   type: API_SUCCESS,
-  payload
+  payload,
 });
 
 export const handleSuccess = (type) => (data, label) => ({
   type,
   label,
-  payload: data
+  payload: data,
 });
 
 export const resetTtl = (label) => ({
   type: RESET_TTL,
-  label
+  label,
 });

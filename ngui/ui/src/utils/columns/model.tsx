@@ -18,7 +18,7 @@ const model = ({ id, getName, getId, headerMessageId, headerDataTestId, defaultS
     <Link to={getMlModelUrl(getId(original))} component={RouterLink}>
       {getName(original)}
     </Link>
-  )
+  ),
 });
 
 export default model;

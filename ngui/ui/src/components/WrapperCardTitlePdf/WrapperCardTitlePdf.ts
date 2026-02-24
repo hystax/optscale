@@ -8,8 +8,8 @@ class WrapperCardTitlePdf extends PDFAble {
     return [
       {
         type: PDF_ELEMENTS.basics.H2,
-        value: titleText
-      }
+        value: titleText,
+      },
     ];
   };
 }

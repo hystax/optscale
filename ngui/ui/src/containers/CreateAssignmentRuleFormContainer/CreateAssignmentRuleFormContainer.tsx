@@ -26,7 +26,7 @@ import {
   TAG_VALUE_STARTS_WITH,
   RESOURCE_TYPE_IS,
   REGION_IS,
-  ASSIGNMENT_RULE_OPERATORS
+  ASSIGNMENT_RULE_OPERATORS,
 } from "utils/constants";
 import { getSearchParams } from "utils/network";
 import { parseJSON } from "utils/strings";
@@ -39,9 +39,9 @@ const PageActionBar = ({ isFormDataLoading }) => {
       </Link>,
       <Link key={2} to={ASSIGNMENT_RULES} component={RouterLink}>
         <FormattedMessage id="assignmentRulesTitle" />
-      </Link>
+      </Link>,
     ],
-    titleText: <FormattedMessage id="addAssignmentRuleTitle" />
+    titleText: <FormattedMessage id="addAssignmentRuleTitle" />,
   });
 
   const { titleText, breadcrumbs } = getActionBarDefinitions();
@@ -53,8 +53,8 @@ const PageActionBar = ({ isFormDataLoading }) => {
         title: {
           text: titleText,
           dataTestId: "lbl_add_rule",
-          isLoading: isFormDataLoading
-        }
+          isLoading: isFormDataLoading,
+        },
       }}
     />
   );
@@ -77,7 +77,7 @@ const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
           return {
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: value?.tagKey,
-            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue,
           };
         }
 
@@ -85,21 +85,21 @@ const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
           return {
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_KEY_FIELD_NAME]: value?.tagKey,
-            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TAG_VALUE_FIELD_NAME]: value?.tagValue,
           };
         }
 
         if (type === CLOUD_IS) {
           return {
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
-            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: value
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.CLOUD_IS_FIELD_NAME]: value,
           };
         }
 
         if (type === RESOURCE_TYPE_IS) {
           return {
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
-            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME]: value
+            [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.RESOURCE_TYPE_IS_FIELD_NAME]: value,
           };
         }
 
@@ -107,14 +107,14 @@ const getDefaultConditionsFromQueryParams = (conditionsQueryParam) => {
           return {
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
             [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.REGION_IS_FIELD_NAME]: {
-              regionName: value
-            }
+              regionName: value,
+            },
           };
         }
 
         return {
           [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.TYPE]: type,
-          [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: value
+          [FIELD_NAMES.CONDITIONS_FIELD_ARRAY.META_INFO]: value,
         };
       }
       return undefined;
@@ -139,7 +139,7 @@ const CreateAssignmentRuleFormContainer = () => {
     operator: ASSIGNMENT_RULE_OPERATORS.AND,
     conditions: conditionsQueryParam ? getDefaultConditionsFromQueryParams(conditionsQueryParam) : DEFAULT_CONDITIONS,
     poolId: "",
-    ownerId: ""
+    ownerId: "",
   });
 
   const redirect = () => {
@@ -150,12 +150,12 @@ const CreateAssignmentRuleFormContainer = () => {
 
   // Get available pools
   const {
-    apiData: { pools = [] }
+    apiData: { pools = [] },
   } = useApiData(GET_AVAILABLE_POOLS);
 
   // Get owners
   const {
-    apiData: { poolOwners = [] }
+    apiData: { poolOwners = [] },
   } = useApiData(GET_POOL_OWNERS);
 
   useEffect(() => {
@@ -172,7 +172,7 @@ const CreateAssignmentRuleFormContainer = () => {
           setDefaultValues((currentDefaultValues) => ({
             ...currentDefaultValues,
             poolId: organizationPoolId,
-            ownerId: defaultOwnerId
+            ownerId: defaultOwnerId,
           }));
 
           return dispatch(getPoolOwners(organizationPoolId));
@@ -191,7 +191,7 @@ const CreateAssignmentRuleFormContainer = () => {
       <PageContentWrapper>
         <Box
           sx={{
-            width: { md: "50%" }
+            width: { md: "50%" },
           }}
         >
           <AssignmentRuleForm
@@ -227,7 +227,7 @@ const CreateAssignmentRuleFormContainer = () => {
               isConjunctionTypeLoading: isFormDataLoading,
               isPoolSelectorLoading: isFormDataLoading,
               isOwnerSelectorLoading: isFormDataLoading,
-              isSubmitButtonLoading: isFormDataLoading || isCreateAssignmentRuleLoading
+              isSubmitButtonLoading: isFormDataLoading || isCreateAssignmentRuleLoading,
             }}
           />
         </Box>

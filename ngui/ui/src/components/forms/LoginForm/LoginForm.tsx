@@ -18,8 +18,8 @@ const LoginForm = ({ onSubmit, isLoading = false, disabled = false, isInvited = 
 
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      email
-    })
+      email,
+    }),
   });
 
   const { handleSubmit } = methods;
@@ -27,7 +27,7 @@ const LoginForm = ({ onSubmit, isLoading = false, disabled = false, isInvited = 
   const search = getSearch();
 
   const passwordRecoveryUrl = `${PASSWORD_RECOVERY}?${stringifySearchParams({
-    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability
+    [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability,
   })}`;
 
   return (

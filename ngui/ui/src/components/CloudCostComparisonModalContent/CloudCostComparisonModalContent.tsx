@@ -31,19 +31,19 @@ const ComparisonTable = ({ sizes }) => {
             </Tooltip>
           </Box>
         ),
-        enableSorting: false
+        enableSorting: false,
       },
       {
         header: intl.formatMessage({ id: "cpu" }),
         accessorKey: "cpu",
         cell: ({ row }) => row.original.cpu,
-        enableSorting: false
+        enableSorting: false,
       },
       {
         header: intl.formatMessage({ id: "ram" }),
         accessorKey: "ram",
         cell: ({ row }) => row.original.ram,
-        enableSorting: false
+        enableSorting: false,
       },
       {
         header: intl.formatMessage({ id: "cost" }),
@@ -53,24 +53,24 @@ const ComparisonTable = ({ sizes }) => {
             { id: "valuePerHour" },
             {
               value: moneyFormatter(FORMATTED_MONEY_TYPES.TINY, row.original.cost, {
-                format: row.original.currency
-              })
+                format: row.original.currency,
+              }),
             }
           ),
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       {
         header: intl.formatMessage({ id: "location" }),
         accessorKey: "location",
         cell: ({ row }) => row.original.location,
-        enableSorting: false
+        enableSorting: false,
       },
       {
         header: intl.formatMessage({ id: "instanceFamily" }),
         accessorKey: "instance_family",
         cell: ({ row }) => row.original.instance_family,
-        enableSorting: false
-      }
+        enableSorting: false,
+      },
     ],
     [intl, moneyFormatter, removeSize]
   );
@@ -80,7 +80,7 @@ const ComparisonTable = ({ sizes }) => {
       columns={columns}
       data={sizes}
       counters={{
-        show: false
+        show: false,
       }}
     />
   );

@@ -21,7 +21,7 @@ const useMenuItemState = (id) => {
 
   return {
     isExpanded,
-    updateIsExpanded
+    updateIsExpanded,
   };
 };
 

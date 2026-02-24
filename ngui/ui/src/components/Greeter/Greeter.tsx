@@ -75,7 +75,7 @@ const ImagesWithCaptions = () => {
         { caption: "optscale.welcome.caption3", src: anomalyDetectionToAvoidBudgetOverruns },
         { caption: "optscale.welcome.caption4", src: finopsReadinessMaturityAssessment },
         { caption: "optscale.welcome.caption5", src: itEnvironmentManagement },
-        { caption: "optscale.welcome.caption6", src: geoNetworkTrafficCostMap }
+        { caption: "optscale.welcome.caption6", src: geoNetworkTrafficCostMap },
       ].map(({ caption, src }, index) => (
         <Grid item lg={4} md={4} sm={6} key={caption} className={classes.imageWithCaptionWrapper}>
           <img
@@ -100,7 +100,7 @@ const LiveDemoButton = () => {
     const { [OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME]: capability } = getSearchParams();
 
     const url = buildQueryParameters(LIVE_DEMO, [
-      capability ? `${OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME}=${capability}` : ""
+      capability ? `${OPTSCALE_CAPABILITY_QUERY_PARAMETER_NAME}=${capability}` : "",
     ]);
 
     navigate(url);
@@ -158,7 +158,7 @@ const Greeter = ({ content }: GreeterProps) => {
 
   const gridDefinition = [
     {
-      key: "empty"
+      key: "empty",
     },
     {
       key: "link",
@@ -167,7 +167,7 @@ const Greeter = ({ content }: GreeterProps) => {
           <LiveDemoButton />
           <OptScaleLink />
         </div>
-      )
+      ),
     },
     {
       key: "form",
@@ -179,23 +179,23 @@ const Greeter = ({ content }: GreeterProps) => {
           <div>{content}</div>
         </Stack>
       ),
-      className: classes.centeredFlexColumnDirection
+      className: classes.centeredFlexColumnDirection,
     },
     {
       key: "bannerAndText",
       className: classes.centeredFlexColumnDirection,
-      children: <ImagesWithCaptions />
+      children: <ImagesWithCaptions />,
     },
     {
       key: "customers",
       className: classes.centeredFlexColumnDirection,
-      children: <CustomersGallery />
+      children: <CustomersGallery />,
     },
     {
       key: "integrations",
       className: classes.centeredFlexColumnDirection,
-      children: <IntegrationsGallery />
-    }
+      children: <IntegrationsGallery />,
+    },
   ];
 
   const spacing = SPACING_2;
@@ -212,12 +212,12 @@ const Greeter = ({ content }: GreeterProps) => {
       <TopAlertWrapper blacklistIds={[ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING, ALERT_TYPES.DATA_SOURCES_PROCEEDED]} />
       <div
         style={{
-          padding: theme.spacing(halfSpacing)
+          padding: theme.spacing(halfSpacing),
         }}
       >
         <Grid
           sx={{
-            m: -halfSpacing
+            m: -halfSpacing,
           }}
           spacing={spacing}
           container
@@ -228,7 +228,7 @@ const Greeter = ({ content }: GreeterProps) => {
             return (
               <Grid
                 sx={{
-                  p: spacing
+                  p: spacing,
                 }}
                 key={key}
                 md={6}

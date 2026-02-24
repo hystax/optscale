@@ -12,7 +12,7 @@ const useHoverableRows = ({ onClick, rootPool, isGetPoolDataReady }) => {
   const dispatch = useDispatch();
   const [selectedPool, setSelectedPool] = useSyncQueryParamWithState({
     queryParamName: POOL_QUERY_PARAM_NAME,
-    defaultValue: ""
+    defaultValue: "",
   });
 
   const handleRowClick = ({ id }) => {

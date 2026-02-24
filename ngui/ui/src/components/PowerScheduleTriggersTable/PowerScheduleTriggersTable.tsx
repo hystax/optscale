@@ -39,8 +39,8 @@ const PowerScheduleTriggersTable = ({ triggers = [], isLoading = false }: PowerS
           formatTimeString({
             timeString: original.time,
             timeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
-            parsedTimeStringFormat: EN_TIME_FORMAT
-          })
+            parsedTimeStringFormat: EN_TIME_FORMAT,
+          }),
       },
       {
         header: (
@@ -59,8 +59,8 @@ const PowerScheduleTriggersTable = ({ triggers = [], isLoading = false }: PowerS
               label={<FormattedMessage id={isOn ? "on" : "off"} />}
             />
           );
-        }
-      }
+        },
+      },
     ],
     []
   );
@@ -73,10 +73,10 @@ const PowerScheduleTriggersTable = ({ triggers = [], isLoading = false }: PowerS
         data={tableData}
         columns={columns}
         localization={{
-          emptyMessageId: "noTriggers"
+          emptyMessageId: "noTriggers",
         }}
         dataTestIds={{
-          container: "table_triggers"
+          container: "table_triggers",
         }}
       />
       <PageContentDescription
@@ -84,8 +84,8 @@ const PowerScheduleTriggersTable = ({ triggers = [], isLoading = false }: PowerS
         alertProps={{
           messageId: "triggersDescription",
           messageValues: {
-            br: <br />
-          }
+            br: <br />,
+          },
         }}
       />
     </>

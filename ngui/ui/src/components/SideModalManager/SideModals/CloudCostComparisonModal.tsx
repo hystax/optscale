@@ -7,8 +7,8 @@ class CloudCostComparisonModal extends BaseSideModal {
     showExpand: true,
     dataTestIds: {
       title: "lbl_cost_comparison",
-      closeButton: "btn_cost_comparison"
-    }
+      closeButton: "btn_cost_comparison",
+    },
   };
 
   dataTestId = "smodal_cost_comparison";

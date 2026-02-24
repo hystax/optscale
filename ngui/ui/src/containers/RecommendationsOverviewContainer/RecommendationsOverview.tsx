@@ -82,7 +82,7 @@ const RecommendationsOverview = ({
   lastCompleted,
   totalSaving,
   nextRun,
-  lastRun
+  lastRun,
 }: RecommendationsOverviewProps) => {
   const { classes } = useStyles();
   const checkDone = lastCompleted !== 0;
@@ -106,7 +106,7 @@ const RecommendationsOverview = ({
           riSpExpensesSummary={riSpExpensesSummary}
           isLoadingProps={{
             isRecommendationsLoading: !isDataReady,
-            isRiSpExpensesSummaryLoading
+            isRiSpExpensesSummaryLoading,
           }}
         />
       </div>

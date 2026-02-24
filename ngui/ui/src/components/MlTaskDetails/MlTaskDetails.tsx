@@ -23,37 +23,37 @@ const Tabs = ({ task, isLoading = false }) => {
     {
       title: ML_TASK_DETAILS_TABS.OVERVIEW,
       dataTestId: "tab_overview",
-      node: <TaskDetailsSummary task={task} isTaskDetailsLoading={isLoading} />
+      node: <TaskDetailsSummary task={task} isTaskDetailsLoading={isLoading} />,
     },
     {
       title: ML_TASK_DETAILS_TABS.RUNS,
       dataTestId: "tab_runs",
-      node: <MlTaskRunsListContainer />
+      node: <MlTaskRunsListContainer />,
     },
     {
       title: ML_TASK_DETAILS_TABS.MODEL_VERSIONS,
       dataTestId: "tab_model_versions",
-      node: <MlTaskModelVersionsContainer />
+      node: <MlTaskModelVersionsContainer />,
     },
     {
       title: ML_TASK_DETAILS_TABS.LEADERBOARDS,
       dataTestId: "tab_leaderboards",
-      node: <MlTaskLeaderboardsContainer task={task} />
+      node: <MlTaskLeaderboardsContainer task={task} />,
     },
     ...(isFinOpsEnabled
       ? [
           {
             title: ML_TASK_DETAILS_TABS.RECOMMENDATIONS,
             dataTestId: "tab_recommendations",
-            node: <MlTaskRecommendationsContainer />
-          }
+            node: <MlTaskRecommendationsContainer />,
+          },
         ]
       : []),
     {
       title: ML_TASK_DETAILS_TABS.EXECUTORS,
       dataTestId: "tab_executors",
-      node: <MlTaskExecutorsContainer />
-    }
+      node: <MlTaskExecutorsContainer />,
+    },
   ];
 
   return (
@@ -71,7 +71,7 @@ const Tabs = ({ task, isLoading = false }) => {
             activeTab,
             handleChange: (event, value) => {
               setActiveTab(value);
-            }
+            },
           }}
         />
       </div>

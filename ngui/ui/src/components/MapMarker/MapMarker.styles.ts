@@ -16,17 +16,17 @@ const useStyles = makeStyles()((theme) => ({
     borderWidth: "4px",
     borderStyle: "solid",
     "&:hover": {
-      zIndex: theme.zIndex.drawer
-    }
+      zIndex: theme.zIndex.drawer,
+    },
   },
   marker: {
     borderRadius: "50% 50% 50% 0",
-    transform: "rotate(-45deg)"
+    transform: "rotate(-45deg)",
   },
   cluster: {
     borderRadius: "50%",
     borderColor: theme.palette.divider,
-    transform: "translate(-50%, -100%)"
+    transform: "translate(-50%, -100%)",
   },
   markerTooltip: {
     border: "1px solid",
@@ -41,26 +41,26 @@ const useStyles = makeStyles()((theme) => ({
     marginTop: theme.spacing(1.7),
     marginBottom: theme.spacing(1.7),
     marginRight: 0,
-    marginLeft: 0
+    marginLeft: 0,
   },
   markerTooltipWrapper: {
     position: "absolute",
     willChange: "transform",
     display: "none",
     zIndex: theme.zIndex.tooltip,
-    transform: "translate3d(-50%, -0.5rem, 0px)"
+    transform: "translate3d(-50%, -0.5rem, 0px)",
   },
   markerTooltipWrapperShow: {
-    display: "block"
+    display: "block",
   },
   tooltipItem: {
     "&:not(:last-child)": {
       borderBottom: "1px solid",
       borderBottomColor: theme.palette.divider,
       paddingBottom: theme.spacing(SPACING_1),
-      marginBottom: theme.spacing(SPACING_1)
-    }
-  }
+      marginBottom: theme.spacing(SPACING_1),
+    },
+  },
 }));
 
 export default useStyles;

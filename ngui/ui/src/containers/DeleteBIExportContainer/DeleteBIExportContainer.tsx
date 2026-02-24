@@ -20,15 +20,15 @@ const DeleteBIExportContainer = ({ id, onCancel }) => {
       deleteButtonProps={{
         color: "error",
         variant: "contained",
-        onDelete: onSubmit
+        onDelete: onSubmit,
       }}
       dataTestIds={{
         text: "p_delete_bi_export",
         deleteButton: "btn_delete_bi_export_delete",
-        cancelButton: "btn_delete_bi_export_cancel"
+        cancelButton: "btn_delete_bi_export_cancel",
       }}
       message={{
-        messageId: "deleteBIExportQuestion"
+        messageId: "deleteBIExportQuestion",
       }}
     />
   );

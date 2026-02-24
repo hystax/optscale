@@ -8,7 +8,7 @@ import AwsUseAwsEdpDiscount from "../AwsUseAwsEdpDiscount";
 const AwsAssumedRoleInputs = ({
   readOnlyFields = [],
   showAssumedRoleCredentialsInModal = false,
-  showAdvancedOptions = true
+  showAdvancedOptions = true,
 }: {
   readOnlyFields?: string[];
   showAssumedRoleCredentialsInModal?: boolean;

@@ -13,7 +13,7 @@ it("renders without crashing", () => {
         height={100}
         thresholdArea={{
           start: 2,
-          end: 2
+          end: 2,
         }}
       />
     </TestProvider>

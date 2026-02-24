@@ -11,12 +11,12 @@ class ShareSettingsModal extends BaseSideModal {
       formattedMessageValues: {
         title: purpose ? (
           <PoolLabel disableLink type={purpose} name={this.payload?.poolName} iconProps={{ color: "white" }} />
-        ) : null
+        ) : null,
       },
       dataTestIds: {
         title: "lbl_share_pool",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

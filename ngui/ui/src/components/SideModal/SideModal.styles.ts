@@ -6,22 +6,22 @@ const useStyles = makeStyles()((theme) => ({
     overflow: "auto",
     width: "40vw",
     [theme.breakpoints.down("md")]: {
-      width: "60vw"
+      width: "60vw",
     },
     [theme.breakpoints.down("sm")]: {
-      width: "80vw"
+      width: "80vw",
     },
-    transition: "width 0.1s ease-out"
+    transition: "width 0.1s ease-out",
   },
   sideModalExpanded: {
     width: "80vw",
     [theme.breakpoints.down("md")]: {
-      width: "85vw"
+      width: "85vw",
     },
     [theme.breakpoints.down("sm")]: {
-      width: "90vw"
-    }
-  }
+      width: "90vw",
+    },
+  },
 }));
 
 export default useStyles;

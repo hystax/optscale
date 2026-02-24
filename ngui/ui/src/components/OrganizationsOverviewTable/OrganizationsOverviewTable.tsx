@@ -44,29 +44,29 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
         accessorKey: "name",
         cell: ({
           row: {
-            original: { name, id: organizationId, disabled }
-          }
+            original: { name, id: organizationId, disabled },
+          },
         }) => (
           <OrganizationLabel name={name} id={organizationId} dataTestId={`link_org_${organizationId}`} isInactive={disabled} />
-        )
+        ),
       },
       {
         header: <span data-test-id="lbl_pool">{intl.formatMessage({ id: "limit" })}</span>,
         accessorKey: "limit",
         cell: ({
           row: {
-            original: { currency }
+            original: { currency },
           },
-          cell
-        }) => <FormattedMoney format={currency} type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue() || 0} />
+          cell,
+        }) => <FormattedMoney format={currency} type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue() || 0} />,
       },
       {
         header: <span data-test-id="lbl_expenses">{intl.formatMessage({ id: "expenses" })}</span>,
         accessorKey: "cost",
         cell: ({
           row: {
-            original: { last_month_cost: lastMonthCost = 0, cost = 0, forecast = 0, currency }
-          }
+            original: { last_month_cost: lastMonthCost = 0, cost = 0, forecast = 0, currency },
+          },
         }) => (
           <>
             <KeyValueLabel
@@ -83,15 +83,15 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
             />
           </>
         ),
-        defaultSort: "desc"
+        defaultSort: "desc",
       },
       {
         header: <span data-test-id="lbl_savings">{intl.formatMessage({ id: "possibleMonthlySavings" })}</span>,
         accessorKey: "saving",
         cell: ({
           row: {
-            original: { saving, id: organizationId, currency }
-          }
+            original: { saving, id: organizationId, currency },
+          },
         }) =>
           saving ? (
             <Link
@@ -99,20 +99,20 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
               onClick={() =>
                 updateScope({
                   newScopeId: organizationId,
-                  redirectTo: RECOMMENDATIONS
+                  redirectTo: RECOMMENDATIONS,
                 })
               }
             >
               <FormattedMoney format={currency} value={saving} type={FORMATTED_MONEY_TYPES.COMMON} />
             </Link>
-          ) : null
+          ) : null,
       },
       {
         header: <span data-test-id="lbl_pools_exceeding_limits">{intl.formatMessage({ id: "poolsExceedingLimit" })}</span>,
         accessorKey: "exceededPools",
         enableSorting: false,
         cell: ({ row: { original } }) =>
-          getExceedingLimits("exceededPools", original).map((pool) => getExceedingLabel("cost", pool, original))
+          getExceedingLimits("exceededPools", original).map((pool) => getExceedingLabel("cost", pool, original)),
       },
       {
         header: (
@@ -121,8 +121,8 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
         enableSorting: false,
         accessorKey: "exceededForecasts",
         cell: ({ row: { original } }) =>
-          getExceedingLimits("exceededForecasts", original).map((pool) => getExceedingLabel("forecast", pool, original))
-      }
+          getExceedingLimits("exceededForecasts", original).map((pool) => getExceedingLabel("forecast", pool, original)),
+      },
     ],
     [updateScope]
   );
@@ -134,20 +134,20 @@ const OrganizationsOverviewTable = ({ data, total = data.length, isLoading = fal
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noOrganizations"
+        emptyMessageId: "noOrganizations",
       }}
       pageSize={50}
       counters={{ total }}
       getRowStyle={(rowData) => ({
         backgroundColor: rowData.exceededOrganizationIds.has(rowData.id)
           ? alpha(theme.palette.error.main, ALPHA)
-          : alpha(theme.palette.success.main, ALPHA)
+          : alpha(theme.palette.success.main, ALPHA),
       })}
       dataTestIds={{
         infoArea: {
           total: "counter_total",
-          displayed: "counter_displayed"
-        }
+          displayed: "counter_displayed",
+        },
       }}
     />
   );

@@ -1,9 +1,7 @@
 import BaseClient from "../baseClient.js";
 
 class SlackerClient extends BaseClient {
-  override baseURL = `${
-    process.env.SLACKER_ENDPOINT || this.endpoint
-  }/slacker/v2/`;
+  override baseURL = `${process.env.SLACKER_ENDPOINT || this.endpoint}/slacker/v2/`;
 
   async getInstallPath() {
     const installationPath = await this.get("install_path");

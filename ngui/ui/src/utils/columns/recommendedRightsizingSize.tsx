@@ -7,7 +7,7 @@ const recommendedRightsizingSize = ({
   messageId = "recommendedSize",
   accessorKey = "recommended_flavor",
   nameAccessor = "recommended_flavor",
-  cpuAccessor = "recommended_flavor_cpu"
+  cpuAccessor = "recommended_flavor_cpu",
 }) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -17,7 +17,7 @@ const recommendedRightsizingSize = ({
   accessorKey,
   cell: ({ row: { original } }) => (
     <RightsizingFlavorCell flavorName={original[nameAccessor]} flavorCpu={original[cpuAccessor]} />
-  )
+  ),
 });
 
 export default recommendedRightsizingSize;

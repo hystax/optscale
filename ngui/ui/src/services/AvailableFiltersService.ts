@@ -29,7 +29,7 @@ import {
   FIRST_SEEN_TO_FILTER,
   LAST_SEEN_FROM_FILTER,
   LAST_SEEN_TO_FILTER,
-  META_FILTER
+  META_FILTER,
 } from "utils/constants";
 
 export const mapAvailableFilterKeys = (params) => ({
@@ -53,7 +53,7 @@ export const mapAvailableFilterKeys = (params) => ({
   traffic_to: params[NETWORK_TRAFFIC_TO_FILTER],
   k8s_node: params[K8S_NODE_FILTER],
   k8s_service: params[K8S_SERVICE_FILTER],
-  k8s_namespace: params[K8S_NAMESPACE_FILTER]
+  k8s_namespace: params[K8S_NAMESPACE_FILTER],
 });
 
 export const mapFiltersToApiParams = (filters) => {
@@ -90,7 +90,7 @@ export const mapFiltersToApiParams = (filters) => {
     traffic_to: filters.traffic_to?.map(getObjectValue((obj) => `${obj.name}:${obj.cloud_type}`)),
     k8s_node: filters.k8s_node?.map(getObjectValue("name")),
     k8s_service: filters.k8s_service?.map(getObjectValue("name")),
-    k8s_namespace: filters.k8s_namespace?.map(getObjectValue("name"))
+    k8s_namespace: filters.k8s_namespace?.map(getObjectValue("name")),
   };
 };
 
@@ -98,13 +98,13 @@ export const useGet = (params = {}, exceptions) => {
   const dispatch = useDispatch();
   const { organizationId } = useOrganizationInfo();
   const {
-    apiData: { filter_values: filters }
+    apiData: { filter_values: filters },
   } = useApiData(GET_AVAILABLE_FILTERS, { filter_values: {} });
 
   const { isLoading, shouldInvoke } = useApiState(GET_AVAILABLE_FILTERS, {
     organizationId,
     start_date: params[START_DATE_FILTER],
-    end_date: params[END_DATE_FILTER]
+    end_date: params[END_DATE_FILTER],
   });
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export const useGet = (params = {}, exceptions) => {
       dispatch(
         getAvailableFilters(organizationId, {
           start_date: params[START_DATE_FILTER],
-          end_date: params[END_DATE_FILTER]
+          end_date: params[END_DATE_FILTER],
         })
       );
     }

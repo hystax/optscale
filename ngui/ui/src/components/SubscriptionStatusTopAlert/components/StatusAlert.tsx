@@ -11,8 +11,8 @@ const StatusAlert = ({ children, color }: StatusAlertProps) => (
       backgroundColor: (theme) => theme.palette[color].main,
       color: (theme) => theme.palette[color].contrastText,
       "& .MuiAlert-message": {
-        width: "100%"
-      }
+        width: "100%",
+      },
     }}
   >
     {children}

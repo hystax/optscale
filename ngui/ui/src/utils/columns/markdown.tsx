@@ -16,7 +16,7 @@ const markdown = ({ id, accessorFn, headerMessageId, headerDataTestId, enableSor
     const description = cell.getValue();
 
     return description ? <Markdown>{description}</Markdown> : CELL_EMPTY_VALUE;
-  }
+  },
 });
 
 export default markdown;

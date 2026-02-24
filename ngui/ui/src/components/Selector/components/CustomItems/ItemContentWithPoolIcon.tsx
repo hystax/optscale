@@ -25,13 +25,13 @@ const ItemContentWithPoolIcon = ({ poolType, label, children, tooltip: tooltipPr
       return {
         content: isLongLabel ? sliceByLimitWithEllipsis(label, MAX_LABEL_LENGTH) : label,
         tooltip: tooltipProp ?? {
-          title: label
-        }
+          title: label,
+        },
       };
     }
     return {
       content: children,
-      tooltipProp
+      tooltipProp,
     };
   };
 
@@ -42,7 +42,7 @@ const ItemContentWithPoolIcon = ({ poolType, label, children, tooltip: tooltipPr
       icon={{
         placement: "start",
         IconComponent: getIcon(poolType),
-        tooltipTitle: <PoolTypeIconTooltipContent type={poolType} />
+        tooltipTitle: <PoolTypeIconTooltipContent type={poolType} />,
       }}
       tooltip={tooltip}
     >

@@ -12,14 +12,14 @@ const EditModelVersionTagsFormContainer = ({
   modelId,
   modelVersion,
   onCancel,
-  onSuccess
+  onSuccess,
 }: EditModelVersionAliasFormContainerProps) => {
   const { useUpdateModelVersion } = MlModelsService();
   const { onUpdate, isLoading } = useUpdateModelVersion();
 
   const {
     tags,
-    run: { id: runId }
+    run: { id: runId },
   } = modelVersion;
 
   return (
@@ -29,12 +29,12 @@ const EditModelVersionTagsFormContainer = ({
         const tagsObject = Object.fromEntries(formData.tags.map(({ key, value }) => [key, value]));
 
         return onUpdate(modelId, runId, {
-          tags: tagsObject
+          tags: tagsObject,
         }).then(onSuccess);
       }}
       onCancel={onCancel}
       isLoadingProps={{
-        isSubmitLoading: isLoading
+        isSubmitLoading: isLoading,
       }}
     />
   );

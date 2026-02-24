@@ -10,11 +10,11 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "intelligent_tiering"
+    headerDataTestId: "intelligent_tiering",
   }),
   resourceLocation({
     headerDataTestId: "intelligent_tiering_location",
-    typeAccessor: "cloud_type"
+    typeAccessor: "cloud_type",
   }),
   {
     header: (
@@ -27,13 +27,13 @@ const columns = [
       const value = cell.getValue();
 
       return <FormattedMessage id={value ? "yes" : "no"} />;
-    }
+    },
   },
   detectedAt({ headerDataTestId: "intelligent_tiering_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "intelligent_tiering_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class IntelligentTiering extends BaseRecommendation {
@@ -62,8 +62,8 @@ class IntelligentTiering extends BaseRecommendation {
       { key: `${item.cloud_resource_id}-label`, value: <RecommendationListItemResourceLabel key={item.id} item={item} /> },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

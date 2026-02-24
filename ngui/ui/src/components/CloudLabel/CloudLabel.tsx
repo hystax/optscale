@@ -25,7 +25,7 @@ const CloudLabel = ({
   iconProps = {},
   disableLink = false,
   whiteSpace = "nowrap",
-  display = "flex"
+  display = "flex",
 }) => {
   const hasAdornment = startAdornment || endAdornment;
 
@@ -48,7 +48,7 @@ const CloudLabel = ({
   }
 
   return renderIconLabel({
-    display
+    display,
   });
 };
 

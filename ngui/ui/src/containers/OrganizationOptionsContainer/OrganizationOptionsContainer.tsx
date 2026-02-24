@@ -73,7 +73,7 @@ const OrganizationOptionsContainer = () => {
       isLoadingProps={{
         isGetOrganizationOptionsLoading,
         isGetOrganizationOptionLoading,
-        isUpdateOrganizationOptionLoading
+        isUpdateOrganizationOptionLoading,
       }}
       onSave={saveOption}
     />

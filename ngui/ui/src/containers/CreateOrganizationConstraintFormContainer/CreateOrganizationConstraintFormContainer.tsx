@@ -13,7 +13,7 @@ import {
   QUOTA_POLICY,
   RECURRING_BUDGET_POLICY,
   RESOURCE_COUNT_ANOMALY,
-  TAGGING_POLICY
+  TAGGING_POLICY,
 } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
 const getTaggingConditions = (formData) => {
@@ -30,15 +30,15 @@ const getTaggingConditions = (formData) => {
 
   return {
     [TYPE_REQUIRED]: {
-      without_tag: requiredTag
+      without_tag: requiredTag,
     },
     [TYPE_PROHIBITED]: {
-      tag: prohibitedTag
+      tag: prohibitedTag,
     },
     [TYPE_CORRELATION]: {
       tag: correlationTag1,
-      without_tag: correlationTag2
-    }
+      without_tag: correlationTag2,
+    },
   }[tagsStrategyType];
 };
 
@@ -46,26 +46,26 @@ const getDefinition = (type, formData) =>
   ({
     [RESOURCE_COUNT_ANOMALY]: {
       threshold_days: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.EVALUATION_PERIOD]),
-      threshold: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.THRESHOLD])
+      threshold: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.THRESHOLD]),
     },
     [EXPENSE_ANOMALY]: {
       threshold_days: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.EVALUATION_PERIOD]),
-      threshold: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.THRESHOLD])
+      threshold: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.THRESHOLD]),
     },
     [QUOTA_POLICY]: {
-      max_value: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.MAX_VALUE])
+      max_value: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.MAX_VALUE]),
     },
     [EXPIRING_BUDGET_POLICY]: {
       total_budget: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.TOTAL_BUDGET]),
-      start_date: millisecondsToSeconds(Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.START_DATE]))
+      start_date: millisecondsToSeconds(Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.START_DATE])),
     },
     [RECURRING_BUDGET_POLICY]: {
-      monthly_budget: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.MONTHLY_BUDGET])
+      monthly_budget: Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.MONTHLY_BUDGET]),
     },
     [TAGGING_POLICY]: {
       start_date: millisecondsToSeconds(Number(formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.START_DATE])),
-      conditions: getTaggingConditions(formData)
-    }
+      conditions: getTaggingConditions(formData),
+    },
   })[type];
 
 const CreateOrganizationConstraintFormContainer = ({ navigateAwayLink, types }) => {
@@ -106,12 +106,12 @@ const CreateOrganizationConstraintFormContainer = ({ navigateAwayLink, types }) 
           name: formData[CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.NAME],
           type,
           definition: getDefinition(type, formData),
-          filters: getFilters()
+          filters: getFilters(),
         };
 
         create({
           params,
-          onSuccess: navigateAway
+          onSuccess: navigateAway,
         });
       }}
     />

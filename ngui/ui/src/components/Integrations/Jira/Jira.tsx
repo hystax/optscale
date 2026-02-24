@@ -14,7 +14,7 @@ const Jira = ({
   connectedEmployees,
   connectedWorkspaces,
   isCurrentEmployeeConnectedToJira,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const { isGetEmployeesLoading = false, isGetJiraOrganizationStatusLoading = false } = isLoadingProps;
 
@@ -46,7 +46,7 @@ const Jira = ({
           values={{
             total: totalEmployees,
             connected: connectedEmployees,
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
         />,
         <TextBlock
@@ -68,7 +68,7 @@ const Jira = ({
               <li key={url}>{url}</li>
             ))}
           </ul>
-        )
+        ),
       ]}
     />
   );

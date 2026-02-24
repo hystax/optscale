@@ -16,10 +16,10 @@ export function MockState(defaultState = {}) {
             // merge existed permissions (if they exist) with new permissions
             [poolId]: Array.from(
               new Set([...(state.auth?.[GET_POOL_ALLOWED_ACTIONS]?.allowedActions?.[poolId] ?? []), ...allowedActions])
-            )
-          }
-        }
-      }
+            ),
+          },
+        },
+      },
     };
   };
 
@@ -36,10 +36,10 @@ export function MockState(defaultState = {}) {
             // merge existed permissions (if they exist) with new permissions
             [resourceId]: Array.from(
               new Set([...(state.auth?.[GET_RESOURCE_ALLOWED_ACTIONS]?.allowedActions?.[resourceId] ?? []), ...allowedActions])
-            )
-          }
-        }
-      }
+            ),
+          },
+        },
+      },
     };
   };
 
@@ -47,7 +47,7 @@ export function MockState(defaultState = {}) {
     state = {
       ...state,
       // get organization id from state or set a new value
-      organizationId: state.organizationId || organizationId
+      organizationId: state.organizationId || organizationId,
     };
   };
 
@@ -56,8 +56,8 @@ export function MockState(defaultState = {}) {
       ...state,
       restapi: {
         ...state.restapi,
-        ...payload
-      }
+        ...payload,
+      },
     };
   };
 
@@ -68,6 +68,6 @@ export function MockState(defaultState = {}) {
     mockRestapi,
     get state() {
       return state;
-    }
+    },
   };
 }

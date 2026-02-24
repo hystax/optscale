@@ -12,19 +12,19 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_s3_abandoned_buckets_resource"
+    headerDataTestId: "lbl_s3_abandoned_buckets_resource",
   }),
   resourceLocation({
     headerDataTestId: "lbl_s3_abandoned_buckets_location",
-    typeAccessor: "cloud_type"
+    typeAccessor: "cloud_type",
   }),
   poolOwner({
     headerDataTestId: "lbl_s3_abandoned_buckets_pool_owner",
-    id: "pool/owner"
+    id: "pool/owner",
   }),
   averageDataSize({
     headerDataTestId: "lbl_s3_abandoned_buckets_avg_data_size",
-    accessorKey: "avg_data_size"
+    accessorKey: "avg_data_size",
   }),
   {
     header: (
@@ -34,7 +34,7 @@ const columns = [
         helperMessageId="tier1S3BucketRequestHelp"
       />
     ),
-    accessorKey: "tier_1_request_quantity"
+    accessorKey: "tier_1_request_quantity",
   },
   {
     header: (
@@ -42,13 +42,13 @@ const columns = [
         <FormattedMessage id="getRequests" />
       </TextWithDataTestId>
     ),
-    accessorKey: "tier_2_request_quantity"
+    accessorKey: "tier_2_request_quantity",
   },
   detectedAt({ headerDataTestId: "lbl_s3_abandoned_buckets_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_s3_abandoned_buckets_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class AbandonedS3Buckets extends BaseRecommendation {
@@ -65,7 +65,7 @@ class AbandonedS3Buckets extends BaseRecommendation {
       days_threshold: daysThreshold,
       data_size_threshold: dataSizeAvg,
       tier_1_request_quantity_threshold: tier1RequestsQuantity,
-      tier_2_request_quantity_threshold: tier2RequestsQuantity
+      tier_2_request_quantity_threshold: tier2RequestsQuantity,
     } = this.options;
 
     return { daysThreshold, dataSizeAvg, tier1RequestsQuantity, tier2RequestsQuantity };
@@ -91,12 +91,12 @@ class AbandonedS3Buckets extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

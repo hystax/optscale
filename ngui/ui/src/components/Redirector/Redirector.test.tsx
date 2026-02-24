@@ -7,7 +7,7 @@ it("renders without crashing", () => {
   const root = createRoot(div);
   root.render(
     <TestProvider>
-      <Redirector condition={1 > 0} to={"/"}>
+      <Redirector condition={1 > 0} to="/">
         <div>test</div>
       </Redirector>
     </TestProvider>

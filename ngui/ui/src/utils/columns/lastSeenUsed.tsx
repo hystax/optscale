@@ -16,7 +16,7 @@ const lastSeenUsed = ({ headerDataTestId, headerHelperMessageId } = {}) => ({
     const value = cell.getValue();
 
     return value === 0 ? <FormattedMessage id="never" /> : unixTimestampToDateTime(value);
-  }
+  },
 });
 
 export default lastSeenUsed;

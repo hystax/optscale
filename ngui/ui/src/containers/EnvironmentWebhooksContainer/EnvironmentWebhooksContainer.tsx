@@ -9,7 +9,7 @@ const EnvironmentWebhooksContainer = ({ resourceId }) => {
 
   const requestParams = {
     objectType: ENVIRONMENT,
-    objectId: resourceId
+    objectId: resourceId,
   };
 
   const { isGetWebhooksLoading, webhooks } = useGet(requestParams);

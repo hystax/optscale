@@ -12,7 +12,7 @@ const CanceledAlert = ({ endDate }: CanceledAlertProps) => (
     <FormattedMessage
       id="yourSubscriptionWillBeCanceledOn"
       values={{
-        time: format(secondsToMilliseconds(endDate), EN_FORMAT)
+        time: format(secondsToMilliseconds(endDate), EN_FORMAT),
       }}
     />
   </Alert>

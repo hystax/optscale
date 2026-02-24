@@ -10,7 +10,7 @@ import {
   QUOTA_POLICY,
   RECURRING_BUDGET_POLICY,
   TAGGING_POLICY,
-  RESOURCE_COUNT_ANOMALY
+  RESOURCE_COUNT_ANOMALY,
 } from "utils/constants";
 
 const mapConstraintTypeToTitleMessageId = (type) => {
@@ -24,7 +24,7 @@ const mapConstraintTypeToTitleMessageId = (type) => {
       [QUOTA_POLICY]: policyViolationsHistoryTitle,
       [RECURRING_BUDGET_POLICY]: policyViolationsHistoryTitle,
       [EXPIRING_BUDGET_POLICY]: policyViolationsHistoryTitle,
-      [TAGGING_POLICY]: policyViolationsHistoryTitle
+      [TAGGING_POLICY]: policyViolationsHistoryTitle,
     }[type] ?? detectedAnomaliesHistoryTitle
   );
 };

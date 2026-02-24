@@ -29,7 +29,7 @@ const applyTypographySettings = (themeInput, settings) => {
 
   const mergeIfSettingIsNotEmpty = (target, settingName) => ({
     ...target,
-    ...(isEmptySetting(settingName) ? {} : settings.typography[settingName])
+    ...(isEmptySetting(settingName) ? {} : settings.typography[settingName]),
   });
 
   theme.typography.body1 = mergeIfSettingIsNotEmpty(theme.typography.body1, "body1");
@@ -49,7 +49,7 @@ const applyTypographySettings = (themeInput, settings) => {
 const generateResponsiveFontSizes = (themeInput) => {
   const theme = responsiveFontSizes(themeInput, {
     breakpoints: ["xs", "sm", "md", "lg", "xl"],
-    variants: ["h1", "h2", "h3", "h4", "h5", "h6"]
+    variants: ["h1", "h2", "h3", "h4", "h5", "h6"],
   });
 
   const getUpBreakpoint = (breakpoint) => theme.breakpoints.up(breakpoint);
@@ -61,53 +61,53 @@ const generateResponsiveFontSizes = (themeInput) => {
   theme.typography.subtitle1 = {
     ...theme.typography.subtitle1,
     [upXsBreakpoint]: {
-      fontSize: "0.85rem"
+      fontSize: "0.85rem",
     },
     [upLgBreakpoint]: {
-      fontSize: "0.92rem"
+      fontSize: "0.92rem",
     },
     [upXlBreakpoint]: {
-      fontSize: "1rem"
-    }
+      fontSize: "1rem",
+    },
   };
 
   theme.typography.subtitle2 = {
     ...theme.typography.subtitle2,
     [upXsBreakpoint]: {
-      fontSize: "0.75rem"
+      fontSize: "0.75rem",
     },
     [upLgBreakpoint]: {
-      fontSize: "0.8125rem"
+      fontSize: "0.8125rem",
     },
     [upXlBreakpoint]: {
-      fontSize: "0.875rem"
-    }
+      fontSize: "0.875rem",
+    },
   };
 
   theme.typography.body1 = {
     ...theme.typography.body1,
     [upXsBreakpoint]: {
-      fontSize: "0.85rem"
+      fontSize: "0.85rem",
     },
     [upLgBreakpoint]: {
-      fontSize: "0.92rem"
+      fontSize: "0.92rem",
     },
     [upXlBreakpoint]: {
-      fontSize: "1rem"
-    }
+      fontSize: "1rem",
+    },
   };
 
   theme.typography.body2 = {
     ...theme.typography.body2,
     [upXsBreakpoint]: {
-      fontSize: "0.75rem"
+      fontSize: "0.75rem",
     },
     [upLgBreakpoint]: {
-      fontSize: "0.8125rem"
+      fontSize: "0.8125rem",
     },
     [upXlBreakpoint]: {
-      fontSize: "0.875rem"
-    }
+      fontSize: "0.875rem",
+    },
   };
 
   return theme;

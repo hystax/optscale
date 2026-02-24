@@ -27,7 +27,7 @@ const RecommendationsTable = ({
   onRecommendationClick,
   isDownloadAvailable,
   isGetIsDownloadAvailableLoading,
-  selectedDataSourceIds
+  selectedDataSourceIds,
 }: RecommendationsTableProps) => {
   const tableData = useMemo(
     () =>
@@ -38,7 +38,7 @@ const RecommendationsTable = ({
         saving: r.saving,
         status: r.color || "ok",
         services: r.services,
-        recommendation: r
+        recommendation: r,
       })),
     [recommendations]
   );
@@ -50,9 +50,9 @@ const RecommendationsTable = ({
         accessorKey: "title",
         onClick: ({
           row: {
-            original: { recommendation }
-          }
-        }) => onRecommendationClick(recommendation)
+            original: { recommendation },
+          },
+        }) => onRecommendationClick(recommendation),
       }),
       status({ headerDataTestId: "status-header", accessorKey: "status" }),
       text({ headerDataTestId: "items-count-header", headerMessageId: "items", accessorKey: "items" }),
@@ -68,8 +68,8 @@ const RecommendationsTable = ({
             isGetIsDownloadAvailableLoading={isGetIsDownloadAvailableLoading}
             selectedDataSourceIds={selectedDataSourceIds}
           />
-        )
-      })
+        ),
+      }),
     ],
     [downloadLimit, isDownloadAvailable, onRecommendationClick, isGetIsDownloadAvailableLoading, selectedDataSourceIds]
   );
@@ -83,7 +83,7 @@ const RecommendationsTable = ({
           data={tableData}
           columns={columns}
           counters={{
-            show: false
+            show: false,
           }}
         />
       )}

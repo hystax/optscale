@@ -5,7 +5,7 @@ import { getSearchParams } from "utils/network";
 
 export const useExpensesData = (label) => {
   const {
-    apiData: { expenses = {} }
+    apiData: { expenses = {} },
   } = useApiData(label);
 
   const queryParams = getSearchParams();
@@ -21,7 +21,7 @@ export const useExpensesData = (label) => {
     breakdown = {},
     [filterBy]: filteredBreakdown = [],
     id: poolId,
-    type
+    type,
   } = expenses;
 
   return {
@@ -34,6 +34,6 @@ export const useExpensesData = (label) => {
     breakdown,
     filteredBreakdown,
     poolId,
-    dataSourceType: type
+    dataSourceType: type,
   };
 };

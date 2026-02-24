@@ -12,7 +12,7 @@ const EditModelVersionPathFormContainer = ({
   modelId,
   modelVersion,
   onCancel,
-  onSuccess
+  onSuccess,
 }: EditModelVersionAliasFormContainerProps) => {
   const { useUpdateModelVersion } = MlModelsService();
   const { onUpdate, isLoading } = useUpdateModelVersion();
@@ -23,7 +23,7 @@ const EditModelVersionPathFormContainer = ({
       onSubmit={(formData) => onUpdate(modelId, modelVersion.run.id, formData).then(onSuccess)}
       onCancel={onCancel}
       isLoadingProps={{
-        isSubmitLoading: isLoading
+        isSubmitLoading: isLoading,
       }}
     />
   );

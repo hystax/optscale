@@ -18,12 +18,12 @@ const cleanExpenses = [
     pool: {
       purpose: "business_unit",
       id: "65846b0e-d146-4932-adb0-20c4222c1e6f",
-      name: "Engineering"
+      name: "Engineering",
     },
     region: "eu-central-1",
     owner: {
       id: "9c458a6d-13b4-47d5-b921-b75ee8bf8101",
-      name: "Amy Smith"
+      name: "Amy Smith",
     },
     cloud_account_type: "aws_cnr",
     service_name: "AmazonEC2",
@@ -31,7 +31,7 @@ const cleanExpenses = [
     cloud_account_id: "8c63e980-6572-4b36-be82-a2bc59705888",
     cloud_account_name: "AWS HQ",
     resource_name: "sunflower-us-east-2",
-    cost: 22.5719317827
+    cost: 22.5719317827,
   },
   {
     resource_id: "3dd84f76-b16b-48e1-a22b-a6078a1c4ba4",
@@ -41,12 +41,12 @@ const cleanExpenses = [
     pool: {
       purpose: "business_unit",
       id: "65846b0e-d146-4932-adb0-20c4222c1e6f",
-      name: "Engineering"
+      name: "Engineering",
     },
     region: "DE Zone 1",
     owner: {
       id: "9c458a6d-13b4-47d5-b921-b75ee8bf8101",
-      name: "Marie Briggs"
+      name: "Marie Briggs",
     },
     cloud_account_type: "azure_cnr",
     service_name: "Microsoft.Compute",
@@ -55,7 +55,7 @@ const cleanExpenses = [
     cloud_account_id: "11fddd0e-3ece-410c-8e68-003abcc44576",
     cloud_account_name: "Azure trial",
     resource_name: "spottest",
-    cost: 14.5
+    cost: 14.5,
   },
   {
     resource_id: "258804b8-e684-42b9-a148-21795e749168",
@@ -65,12 +65,12 @@ const cleanExpenses = [
     pool: {
       purpose: "team",
       id: "65846b0e-d146-4932-adb0-20c4222c1e6f",
-      name: "QA"
+      name: "QA",
     },
     region: "eu-central-1",
     owner: {
       id: "9c458a6d-13b4-47d5-b921-b75ee8bf8101",
-      name: "Katy Ali"
+      name: "Katy Ali",
     },
     cloud_account_type: "aws_cnr",
     service_name: "AmazonEC2",
@@ -78,7 +78,7 @@ const cleanExpenses = [
     cloud_account_id: "8c63e980-6572-4b36-be82-a2bc59705888",
     cloud_account_name: "AWS HQ",
     resource_name: "sunflower-us-east-1",
-    cost: 28.7082291744
+    cost: 28.7082291744,
   },
   {
     resource_id: "c955ea30-349e-4fd1-8764-c766e676fd7a",
@@ -88,12 +88,12 @@ const cleanExpenses = [
     pool: {
       purpose: "business_unit",
       id: "8ce779dc-cc2a-4210-9770-00a2ce7ccf39",
-      name: "Marketing"
+      name: "Marketing",
     },
     region: "eu-central-1",
     owner: {
       id: "015c36f9-5c05-4da8-b445-932560a00191",
-      name: "Sally Wong"
+      name: "Sally Wong",
     },
     cloud_account_type: "aws_cnr",
     service_name: "AmazonEC2",
@@ -101,7 +101,7 @@ const cleanExpenses = [
     cloud_account_id: "8c63e980-6572-4b36-be82-a2bc59705888",
     cloud_account_name: "AWS HQ",
     resource_name: "mail-server",
-    cost: 24.639862891499998
+    cost: 24.639862891499998,
   },
   {
     resource_id: "eb9c3b77-d5e6-48f8-b1f5-0a9c7a92e44a",
@@ -111,12 +111,12 @@ const cleanExpenses = [
     pool: {
       purpose: "team",
       id: "65846b0e-d146-4932-adb0-20c4222c1e6f",
-      name: "Dev"
+      name: "Dev",
     },
     region: "eu-central-1",
     owner: {
       id: "9c458a6d-13b4-47d5-b921-b75ee8bf8101",
-      name: "Ella Price"
+      name: "Ella Price",
     },
     cloud_account_type: "aws_cnr",
     service_name: "AmazonEC2",
@@ -124,8 +124,8 @@ const cleanExpenses = [
     cloud_account_id: "8c63e980-6572-4b36-be82-a2bc59705888",
     cloud_account_name: "AWS HQ",
     resource_name: "jenkins-worker-1",
-    cost: 24.6400322778
-  }
+    cost: 24.6400322778,
+  },
 ].sort(({ cost: a }, { cost: b }) => b - a);
 
 const getOrganizationExpenses = () => {
@@ -136,16 +136,16 @@ const getOrganizationExpenses = () => {
     expenses: {
       this_month: {
         total: 118080.90259006835,
-        date: todayUnix
+        date: todayUnix,
       },
       this_month_forecast: {
         total: 141080.9,
-        date: todayUnix
+        date: todayUnix,
       },
       last_month: {
         total: 169000.02920730546,
-        date: lastMonthRangeEndUnix
-      }
+        date: lastMonthRangeEndUnix,
+      },
     },
     total: 160000,
     pools: [
@@ -155,9 +155,9 @@ const getOrganizationExpenses = () => {
         purpose: "business_unit",
         pool: 160000,
         this_month_expenses: 95546.0502165,
-        id: MOCKED_ORGANIZATION_POOL_ID
-      }
-    ]
+        id: MOCKED_ORGANIZATION_POOL_ID,
+      },
+    ],
   };
 };
 
@@ -170,26 +170,26 @@ const constraints = [
     organization_id: "1f12f2c0-4103-4d84-a20e-5ddbd9425e48 ",
     type: "resource_quota",
     definition: {
-      max_value: 3
+      max_value: 3,
     },
     filters: {
       region: [
         {
           name: "us-east-1",
-          cloud_type: "aws_cnr"
-        }
+          cloud_type: "aws_cnr",
+        },
       ],
       resource_type: [
         {
           name: "Bucket",
-          type: "regular"
-        }
-      ]
+          type: "regular",
+        },
+      ],
     },
     last_run: 1705495803,
     last_run_result: {
       limit: 3,
-      current: 9
+      current: 9,
     },
     limit_hits: [
       {
@@ -202,8 +202,8 @@ const constraints = [
         created_at: 1705278617,
         run_result: {
           limit: 3,
-          current: 9
-        }
+          current: 9,
+        },
       },
       {
         deleted_at: 0,
@@ -215,8 +215,8 @@ const constraints = [
         created_at: 1705368316,
         run_result: {
           limit: 3,
-          current: 9
-        }
+          current: 9,
+        },
       },
       {
         deleted_at: 0,
@@ -228,10 +228,10 @@ const constraints = [
         created_at: 1705450816,
         run_result: {
           limit: 3,
-          current: 9
-        }
-      }
-    ]
+          current: 9,
+        },
+      },
+    ],
   },
   {
     deleted_at: 0,
@@ -241,22 +241,22 @@ const constraints = [
     organization_id: "e318d2e2-b7db-4d68-aa01-f00d31890dcc",
     type: "recurring_budget",
     definition: {
-      monthly_budget: 100
+      monthly_budget: 100,
     },
     filters: {
       service_name: [
         {
           name: "AmazonS3",
-          cloud_type: "aws_cnr"
-        }
-      ]
+          cloud_type: "aws_cnr",
+        },
+      ],
     },
     last_run: 1705478713,
     last_run_result: {
       limit: 100,
-      current: 161.28690293860004
+      current: 161.28690293860004,
     },
-    limit_hits: []
+    limit_hits: [],
   },
   {
     deleted_at: 0,
@@ -269,8 +269,8 @@ const constraints = [
       start_date: 1672531200,
       conditions: {
         tag: "aqa_uuid",
-        without_tag: "aqa"
-      }
+        without_tag: "aqa",
+      },
     },
     filters: {
       active: [true],
@@ -278,13 +278,13 @@ const constraints = [
         {
           id: "de0c6b2e-d442-4ded-8295-18d720c38ac4",
           name: "Azure QA",
-          type: "azure_cnr"
-        }
-      ]
+          type: "azure_cnr",
+        },
+      ],
     },
     last_run: 1705498214,
     last_run_result: {
-      value: 15
+      value: 15,
     },
     limit_hits: [
       {
@@ -296,8 +296,8 @@ const constraints = [
         value: 15,
         created_at: 1705277406,
         run_result: {
-          value: 15
-        }
+          value: 15,
+        },
       },
       {
         deleted_at: 0,
@@ -308,8 +308,8 @@ const constraints = [
         value: 15,
         created_at: 1705364411,
         run_result: {
-          value: 15
-        }
+          value: 15,
+        },
       },
       {
         deleted_at: 0,
@@ -320,10 +320,10 @@ const constraints = [
         value: 15,
         created_at: 1705450816,
         run_result: {
-          value: 15
-        }
-      }
-    ]
+          value: 15,
+        },
+      },
+    ],
   },
   {
     deleted_at: 0,
@@ -334,15 +334,15 @@ const constraints = [
     type: "resource_count_anomaly",
     definition: {
       threshold_days: 7,
-      threshold: 20
+      threshold: 20,
     },
     filters: {
       resource_type: [
         {
           name: "Instance",
-          type: "regular"
-        }
-      ]
+          type: "regular",
+        },
+      ],
     },
     last_run: 1705487411,
     last_run_result: {
@@ -355,10 +355,10 @@ const constraints = [
         "1705104000": 60,
         "1705190400": 59,
         "1705276800": 60,
-        "1705363200": 58
-      }
+        "1705363200": 58,
+      },
     },
-    limit_hits: []
+    limit_hits: [],
   },
   {
     deleted_at: 0,
@@ -369,16 +369,16 @@ const constraints = [
     type: "expense_anomaly",
     definition: {
       threshold_days: 30,
-      threshold: 10
+      threshold: 10,
     },
     filters: {
       pool: [
         {
           id: "c1bfe08c-b8cb-448b-a3c5-d81800f05e41+",
           name: "Marketing",
-          purpose: "business_unit"
-        }
-      ]
+          purpose: "business_unit",
+        },
+      ],
     },
     last_run: 1705478713,
     last_run_result: {
@@ -414,10 +414,10 @@ const constraints = [
         "1705104000": 0.7612058675000002,
         "1705190400": 0.7611413376,
         "1705276800": 0.7611680756000001,
-        "1705363200": 0.37186812160000005
-      }
+        "1705363200": 0.37186812160000005,
+      },
     },
-    limit_hits: []
+    limit_hits: [],
   },
   {
     deleted_at: 0,
@@ -428,15 +428,15 @@ const constraints = [
     type: "resource_count_anomaly",
     definition: {
       threshold_days: 7,
-      threshold: 20
+      threshold: 20,
     },
     filters: {
       resource_type: [
         {
           name: "Instance",
-          type: "regular"
-        }
-      ]
+          type: "regular",
+        },
+      ],
     },
     last_run: 1705487411,
     last_run_result: {
@@ -449,11 +449,11 @@ const constraints = [
         "1705104000": 45,
         "1705190400": 79,
         "1705276800": 20,
-        "1705363200": 80
-      }
+        "1705363200": 80,
+      },
     },
-    limit_hits: []
-  }
+    limit_hits: [],
+  },
 ];
 
 const tasks = [
@@ -469,7 +469,7 @@ const tasks = [
         target_value: 3,
         name: "Iter",
         value: 57600,
-        reached: true
+        reached: true,
       },
       loss: {
         id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
@@ -477,7 +477,7 @@ const tasks = [
         target_value: 1.1,
         name: "Data Loss",
         value: 0.7866795659065247,
-        reached: true
+        reached: true,
       },
       epoch: {
         id: "ba8b5cbb-2e77-4326-91ea-756db9b43270",
@@ -485,9 +485,9 @@ const tasks = [
         target_value: 9,
         name: "Epochs",
         value: 10,
-        reached: false
-      }
-    }
+        reached: false,
+      },
+    },
   },
   {
     name: "House Prices",
@@ -501,7 +501,7 @@ const tasks = [
         target_value: 60,
         name: "Accuracy",
         value: 70.67,
-        reached: true
+        reached: true,
       },
       loss: {
         id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
@@ -509,7 +509,7 @@ const tasks = [
         target_value: 1.1,
         name: "Data Loss",
         value: 0.7786335945129395,
-        reached: true
+        reached: true,
       },
       iter: {
         id: "4254aa87-0095-45bc-84e7-139a560d5729",
@@ -517,9 +517,9 @@ const tasks = [
         target_value: 3,
         name: "Iter",
         value: 57600,
-        reached: true
-      }
-    }
+        reached: true,
+      },
+    },
   },
   {
     name: "Flower Classification",
@@ -533,7 +533,7 @@ const tasks = [
         target_value: 3,
         name: "Iter",
         value: 57600,
-        reached: true
+        reached: true,
       },
       loss: {
         id: "89b56825-6f37-41bb-9cea-6b5e88d0e416",
@@ -541,7 +541,7 @@ const tasks = [
         target_value: 1.1,
         name: "Data Loss",
         value: 0.7814914584159851,
-        reached: true
+        reached: true,
       },
       accuracy: {
         id: "95fded0b-dfdf-4a10-a154-7b2f390739f0",
@@ -549,7 +549,7 @@ const tasks = [
         target_value: 60,
         name: "Accuracy",
         value: 70.74000000000001,
-        reached: true
+        reached: true,
       },
       epoch: {
         id: "ba8b5cbb-2e77-4326-91ea-756db9b43270",
@@ -557,10 +557,10 @@ const tasks = [
         target_value: 9,
         name: "Epochs",
         value: 10,
-        reached: false
-      }
-    }
-  }
+        reached: false,
+      },
+    },
+  },
 ];
 
 const models = [
@@ -569,7 +569,7 @@ const models = [
     description: "Model for House Prices task",
     tags: {
       environment: "staging",
-      task: "House Prices"
+      task: "House Prices",
     },
     key: "houses_prices_model",
     created_at: 1711707203,
@@ -579,79 +579,79 @@ const models = [
         aliases: ["latest"],
         version: "7",
         tags: {
-          validation_status: "+"
+          validation_status: "+",
         },
         deleted_at: 0,
         run_id: "511d178d-3c00-4d07-b764-d8ca2eb5e5c9",
         model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
         created_at: 1711976089,
         alias: "latest",
-        id: "49cefad5-09b3-41f9-9767-83111bf4d248"
+        id: "49cefad5-09b3-41f9-9767-83111bf4d248",
       },
       {
         path: "https://s3.amazonaws.com/ml-bucket/houses_model_6.pkl",
         aliases: ["staging"],
         version: "6",
         tags: {
-          validation_status: "+"
+          validation_status: "+",
         },
         deleted_at: 0,
         run_id: "fec45ced-ed0c-487c-97a2-a926e6fd4467",
         model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
         created_at: 1711953447,
         alias: "staging",
-        id: "6564da92-e28e-411b-83af-881af824750c"
+        id: "6564da92-e28e-411b-83af-881af824750c",
       },
       {
         path: "https://s3.amazonaws.com/ml-bucket/houses_model_4.pkl",
         aliases: ["prod", "champion"],
         version: "4",
         tags: {
-          validation_status: "+"
+          validation_status: "+",
         },
         deleted_at: 0,
         run_id: "73e84364-5a59-4c19-add0-d1592e46baea",
         model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
         created_at: 1711952367,
         alias: "prod",
-        id: "63075ce9-9d8f-4e62-b534-400f1fd0aa2b"
+        id: "63075ce9-9d8f-4e62-b534-400f1fd0aa2b",
       },
       {
         path: "https://s3.amazonaws.com/ml-bucket/houses_model_4.pkl",
         aliases: ["prod", "champion"],
         version: "4",
         tags: {
-          validation_status: "+"
+          validation_status: "+",
         },
         deleted_at: 0,
         run_id: "73e84364-5a59-4c19-add0-d1592e46baea",
         model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
         created_at: 1711952367,
         alias: "champion",
-        id: "63075ce9-9d8f-4e62-b534-400f1fd0aa2b"
-      }
+        id: "63075ce9-9d8f-4e62-b534-400f1fd0aa2b",
+      },
     ],
     last_version: {
       path: "https://s3.amazonaws.com/ml-bucket/houses_model_7.csv",
       aliases: ["latest"],
       version: "7",
       tags: {
-        validation_status: "+"
+        validation_status: "+",
       },
       deleted_at: 0,
       run_id: "511d178d-3c00-4d07-b764-d8ca2eb5e5c9",
       model_id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
       created_at: 1711976089,
-      id: "49cefad5-09b3-41f9-9767-83111bf4d248"
+      id: "49cefad5-09b3-41f9-9767-83111bf4d248",
     },
-    id: "86f6684f-cd42-4e79-aaa6-30e48005740b"
+    id: "86f6684f-cd42-4e79-aaa6-30e48005740b",
   },
   {
     name: "Iris model prod",
     description: "Model for Flowers Classification task on prod",
     tags: {
       environment: "production",
-      task: "Flowers Classification"
+      task: "Flowers Classification",
     },
     key: "iris_model_prod",
     created_at: 1711707084,
@@ -661,37 +661,37 @@ const models = [
         aliases: ["champion"],
         version: "Version 1",
         tags: {
-          validation_status: "+"
+          validation_status: "+",
         },
         deleted_at: 0,
         run_id: "e8ab8ed1-94a9-4f5e-b07d-603ed3598a37",
         model_id: "db626a7e-164f-4226-8e2e-9a1951fbcd7b",
         created_at: 1711707697,
         alias: "champion",
-        id: "ec6bd4f5-f7ef-4982-bf79-e38415f30f24"
-      }
+        id: "ec6bd4f5-f7ef-4982-bf79-e38415f30f24",
+      },
     ],
     last_version: {
       path: "https://s3.amazonaws.com/ml-bucket/iris_model_prod_1.bin",
       aliases: ["champion"],
       version: "Version 1",
       tags: {
-        validation_status: "+"
+        validation_status: "+",
       },
       deleted_at: 0,
       run_id: "e8ab8ed1-94a9-4f5e-b07d-603ed3598a37",
       model_id: "db626a7e-164f-4226-8e2e-9a1951fbcd7b",
       created_at: 1711707697,
-      id: "ec6bd4f5-f7ef-4982-bf79-e38415f30f24"
+      id: "ec6bd4f5-f7ef-4982-bf79-e38415f30f24",
     },
-    id: "db626a7e-164f-4226-8e2e-9a1951fbcd7b"
+    id: "db626a7e-164f-4226-8e2e-9a1951fbcd7b",
   },
   {
     name: "Iris model testing",
     description: "Model for Flowers Classification task",
     tags: {
       task: "Flower Classification",
-      environment: "staging"
+      environment: "staging",
     },
     key: "iris_model_testing",
     created_at: 1711698668,
@@ -702,14 +702,14 @@ const models = [
         version: "Version 2",
         tags: {
           task: "Flowers Classification",
-          validation_status: "+"
+          validation_status: "+",
         },
         deleted_at: 0,
         run_id: "96922c7b-bc80-400a-a846-4ddc8c32b8e0",
         model_id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6",
         created_at: 1717408535,
         alias: "champion",
-        id: "f417eda9-0894-45b5-ac81-21f5da5d9579"
+        id: "f417eda9-0894-45b5-ac81-21f5da5d9579",
       },
       {
         path: "https://s3.amazonaws.com/ml-bucket/iris_model_1.pkl",
@@ -717,31 +717,31 @@ const models = [
         version: "Version 1",
         tags: {
           task: "Flower Classification",
-          validation_status: "-"
+          validation_status: "-",
         },
         deleted_at: 0,
         run_id: "4e2c4970-9c44-4823-9d1e-dda297df207d",
         model_id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6",
         created_at: 1717408063,
         alias: "challenger",
-        id: "f49947b8-8d9b-4a95-9d7b-abee390264c7"
-      }
+        id: "f49947b8-8d9b-4a95-9d7b-abee390264c7",
+      },
     ],
     last_version: {
       path: "https://s3.amazonaws.com/ml-bucket/iris_model_5.pkl",
       aliases: [],
       version: "Version 5",
       tags: {
-        validation_status: "+"
+        validation_status: "+",
       },
       deleted_at: 0,
       run_id: "e352dd33-7742-4019-b0df-0d26a82e8261",
       model_id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6",
       created_at: 1717410085,
-      id: "6f4c4c0a-188a-40c7-9066-02191614a3bb"
+      id: "6f4c4c0a-188a-40c7-9066-02191614a3bb",
     },
-    id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6"
-  }
+    id: "c8596b92-5ce1-4647-8e9d-7c0048aff8b6",
+  },
 ];
 
 const DashboardMocked = () => (

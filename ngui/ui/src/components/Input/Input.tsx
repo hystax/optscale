@@ -35,18 +35,18 @@ const Input = forwardRef((props, ref) => {
       inputProps={{
         ...inputProps,
         "data-test-id": dataTestId,
-        className: cx(inputClassName, inputProps.className)
+        className: cx(inputClassName, inputProps.className),
       }}
       sx={{
         sx,
         fieldset: {
           ...sx?.fieldset,
-          border: readOnly ? "none" : undefined
-        }
+          border: readOnly ? "none" : undefined,
+        },
       }}
       InputLabelProps={{
         shrink: true,
-        ...InputLabelProps
+        ...InputLabelProps,
       }}
       InputProps={InputProps}
       minRows={minRows}

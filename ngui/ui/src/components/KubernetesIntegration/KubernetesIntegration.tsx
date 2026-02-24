@@ -77,7 +77,7 @@ const KubernetesIntegration = ({ dataSourceId, user }: KubernetesIntegrationProp
               <Link data-test-id="link_guide" href={GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR} target="_blank" rel="noopener">
                 {GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR}
               </Link>
-            )
+            ),
           }}
         />
       </Typography>

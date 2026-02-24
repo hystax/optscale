@@ -16,18 +16,18 @@ const MlRunsetConfiguration = ({ runsetTemplate, latestRunset, onSubmit, onCance
           </Link>,
           <Link key={2} to={getMlRunsetTemplateUrl(runsetTemplate.id)} component={RouterLink}>
             {runsetTemplate.name}
-          </Link>
+          </Link>,
         ],
         title: {
           messageId: "runsetConfiguration",
-          isLoading: isLoading.isGetRunsetTemplateLoading
-        }
+          isLoading: isLoading.isGetRunsetTemplateLoading,
+        },
       }}
     />
     <PageContentWrapper>
       <Box
         sx={{
-          width: { md: "50%" }
+          width: { md: "50%" },
         }}
       >
         <MlRunsetConfigurationForm

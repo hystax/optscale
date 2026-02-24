@@ -13,7 +13,7 @@ const BookingOwnerSelector = ({
   currentEmployeeId = "",
   isSshRequired = false,
   isLoading = false,
-  readOnly = false
+  readOnly = false,
 }: BookingOwnerSelectorProps) => {
   const { trigger, watch } = useFormContext();
 
@@ -37,7 +37,7 @@ const BookingOwnerSelector = ({
           const hasDefaultSshKey =
             (owners.find(({ id }) => id === value) || { default_ssh_key_id: null }).default_ssh_key_id !== null;
           return !isSshRequired || isCurrentUser || hasDefaultSshKey || intl.formatMessage({ id: "userHasNoDefaultSshKey" });
-        }
+        },
       }}
       id="booking-owner-selector"
       fullWidth
@@ -50,7 +50,7 @@ const BookingOwnerSelector = ({
       isLoading={isLoading}
       items={sortedOwners.map(({ id, name }) => ({
         value: id,
-        content: <ItemContent>{name}</ItemContent>
+        content: <ItemContent>{name}</ItemContent>,
       }))}
     />
   );

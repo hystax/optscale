@@ -59,8 +59,8 @@ const RunsTable = ({ runs, isLoading = false }) => {
         cell: ({
           cell,
           row: {
-            original: { id, color, task_id: taskId }
-          }
+            original: { id, color, task_id: taskId },
+          },
         }) => (
           <CircleLabel
             figureColor={color}
@@ -71,26 +71,26 @@ const RunsTable = ({ runs, isLoading = false }) => {
               </Link>
             }
           />
-        )
+        ),
       },
       {
         header: <MlRunStatusHeaderCell />,
         accessorKey: "status",
         cell: ({
           row: {
-            original: { reason, status }
-          }
-        }) => <MlRunStatusCell reason={reason} status={status} />
+            original: { reason, status },
+          },
+        }) => <MlRunStatusCell reason={reason} status={status} />,
       },
       metrics({
         accessorKey: "reached_goals",
         onSortByMetricKeyChange: (newKey) => setSortByMetricKey(newKey),
         metricsKeyNameEntries,
-        sortByMetricKey
+        sortByMetricKey,
       }),
       dataset({
         id: "dataset",
-        accessorFn: (originalRow) => originalRow.dataset?.name
+        accessorFn: (originalRow) => originalRow.dataset?.name,
       }),
       hyperparameters(),
       startedAt({
@@ -98,16 +98,16 @@ const RunsTable = ({ runs, isLoading = false }) => {
         headerDataTestId: "lbl_started_at",
         accessorKey: "start",
         options: {
-          enableGlobalFilter: false
-        }
+          enableGlobalFilter: false,
+        },
       }),
       duration({
         headerMessageId: "duration",
         headerDataTestId: "lbl_duration",
         accessorKey: "duration",
         options: {
-          enableGlobalFilter: false
-        }
+          enableGlobalFilter: false,
+        },
       }),
       {
         header: (
@@ -118,10 +118,10 @@ const RunsTable = ({ runs, isLoading = false }) => {
         id: "executors",
         cell: ({
           row: {
-            original: { executors }
-          }
-        }) => <ExecutorsCellContent executors={executors} />
-      }
+            original: { executors },
+          },
+        }) => <ExecutorsCellContent executors={executors} />,
+      },
     ],
     [metricsKeyNameEntries, sortByMetricKey]
   );
@@ -137,12 +137,12 @@ const RunsTable = ({ runs, isLoading = false }) => {
         borderLeft:
           !isEmptyObject(reachedGoals) && Object.values(reachedGoals).every(({ reached }) => reached)
             ? `4px solid ${theme.palette.success.main}`
-            : undefined
+            : undefined,
       })}
       data={tableData}
       withSearch
       localization={{
-        emptyMessageId: "noRuns"
+        emptyMessageId: "noRuns",
       }}
       pageSize={50}
       queryParamPrefix="runs"

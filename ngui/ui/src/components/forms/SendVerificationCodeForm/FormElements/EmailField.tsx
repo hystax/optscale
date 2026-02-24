@@ -19,7 +19,7 @@ const EmailField = () => {
       margin="normal"
       pattern={{
         value: emailRegex,
-        message: intl.formatMessage({ id: "invalidEmailAddress" })
+        message: intl.formatMessage({ id: "invalidEmailAddress" }),
       }}
     />
   );

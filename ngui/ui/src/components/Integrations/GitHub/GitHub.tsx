@@ -29,7 +29,7 @@ const GitHub = () => (
             <Link to={ENVIRONMENTS} component={RouterLink}>
               {chunks}
             </Link>
-          )
+          ),
         }}
       />,
       <TextBlock key="description2" messageId="integrationsGitHubDescription2" additionalCharactersAfterText=":" />,
@@ -38,9 +38,9 @@ const GitHub = () => (
         key="description3"
         messageId="integrationsGitHubDescription3"
         values={{
-          strong: (chunks) => <strong>{chunks}</strong>
+          strong: (chunks) => <strong>{chunks}</strong>,
         }}
-      />
+      />,
     ]}
   />
 );

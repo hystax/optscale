@@ -24,7 +24,7 @@ const InviteEmployeesContainer = () => {
   }, [dispatch, organizationId, shouldInvoke]);
 
   const {
-    apiData: { pools = [] }
+    apiData: { pools = [] },
   } = useApiData(GET_AVAILABLE_POOLS);
 
   const onSubmit = (data, callback) =>

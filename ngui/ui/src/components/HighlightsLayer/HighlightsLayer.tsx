@@ -23,7 +23,7 @@ const getAreas = ({ shouldHighlight, xValues, getXCoordinateOfXValue }) => {
         const currentValueXCoordinate = getXCoordinateOfXValue(xValue);
         return {
           start: currentValueXCoordinate + getAreaStartShift(currentXValueIndex),
-          end: currentValueXCoordinate + getAreaEndShift(currentXValueIndex)
+          end: currentValueXCoordinate + getAreaEndShift(currentXValueIndex),
         };
       }
       return null;
@@ -41,7 +41,7 @@ const HighlightsLayer = ({ chartOptions, shouldHighlight }) => {
   const areas = getAreas({
     shouldHighlight,
     xValues,
-    getXCoordinateOfXValue
+    getXCoordinateOfXValue,
   });
 
   return !isEmptyArray(areas) ? (

@@ -11,7 +11,7 @@ const EditLeaderboardIconButton = ({ task, leaderboard, onSuccess }) => {
       icon={<EditOutlinedIcon fontSize="small" />}
       tooltip={{
         show: true,
-        messageId: "edit"
+        messageId: "edit",
       }}
       onClick={() => openSideModal(EditLeaderboardModal, { task, leaderboard, onSuccess })}
     />

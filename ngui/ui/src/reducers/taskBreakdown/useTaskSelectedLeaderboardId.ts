@@ -24,6 +24,6 @@ export const useTaskSelectedLeaderboardId = (taskId: string) => {
 
   return {
     selectedLeaderboardId,
-    onSelectionChange
+    onSelectionChange,
   };
 };

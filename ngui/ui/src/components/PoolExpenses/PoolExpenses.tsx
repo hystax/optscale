@@ -29,7 +29,7 @@ const CostOverLimit = ({ cost, limit }: PoolExpensesProps) => {
         <FormattedMessage
           id="thisMonthExpensesExceedThePoolLimitBy"
           values={{
-            value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost - limit} />
+            value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cost - limit} />,
           }}
         />
       }
@@ -55,10 +55,10 @@ const CostUnderLimit = ({ cost, limit }: PoolExpensesProps) => {
           <FormattedMessage
             id="leftX"
             values={{
-              value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={limit - cost} />
+              value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={limit - cost} />,
             }}
           />
-        )
+        ),
       }}
       color={SUCCESS}
       value={percent}

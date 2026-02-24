@@ -18,19 +18,19 @@ const DeleteWebhookContainer = ({ id, action, url, onCancel }) => {
       onCancel={onCancel}
       isLoading={isLoading}
       deleteButtonProps={{
-        onDelete: onSubmit
+        onDelete: onSubmit,
       }}
       dataTestIds={{
         text: "p_delete",
         deleteButton: "btn_smodal_delete",
-        cancelButton: "btn_cancel"
+        cancelButton: "btn_cancel",
       }}
       message={{
         messageId: "deleteWebhookQuestion",
         values: {
           action: intl.formatMessage({ id: action }).toLowerCase(),
-          url
-        }
+          url,
+        },
       }}
     />
   );

@@ -13,7 +13,7 @@ const MlExecutorsBreakdownLineChart = ({ breakdown, isLoading }) => (
     isLoading={isLoading}
     style={{ margin: { top: 25, right: 25, left: 70, bottom: 50 } }}
     axisLeft={{
-      format: (value) => value
+      format: (value) => value,
     }}
   />
 );

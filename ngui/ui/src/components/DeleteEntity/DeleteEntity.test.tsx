@@ -10,7 +10,7 @@ it("renders without crashing", () => {
       <DeleteEntity
         message={{ messageId: "deleteResourcesQuestion", values: { count: 1 } }}
         deleteButtonProps={{
-          onDelete: () => vi.fn
+          onDelete: () => vi.fn,
         }}
         onCancel={() => vi.fn}
       />

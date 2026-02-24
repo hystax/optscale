@@ -31,7 +31,7 @@ const EditResourceConstraintForm = ({
   onSubmit,
   onSuccess,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }) => {
   const methods = useForm();
   const { handleSubmit, setValue, trigger } = methods;
@@ -53,7 +53,7 @@ const EditResourceConstraintForm = ({
       onSubmit(
         { limit: newLimitValue, policyId: constraintId },
         {
-          onSuccess: () => onSuccess()
+          onSuccess: () => onSuccess(),
         }
       );
     } else {
@@ -77,9 +77,9 @@ const EditResourceConstraintForm = ({
             label: "noLimit",
             dataTestId: `btn_${type}_no_limit`,
             key: "noLimit",
-            onClick: () => updateLimitInput(0)
-          }
-        ]
+            onClick: () => updateLimitInput(0),
+          },
+        ],
       };
     }
     return {};
@@ -94,7 +94,7 @@ const EditResourceConstraintForm = ({
           <Box>
             {getInputByType({
               type: constraintType,
-              defaultValue: constraintLimit
+              defaultValue: constraintLimit,
             })}
             {!isEmptyObject(quickValue) && (
               <QuickDatePickerValues titleMessageId={quickValue.label} items={quickValue.items} orItems={quickValue.orItems} />

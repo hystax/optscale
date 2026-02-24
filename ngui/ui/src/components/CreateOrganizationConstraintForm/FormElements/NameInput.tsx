@@ -10,7 +10,7 @@ const FIELD_NAME = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.NAME;
 const NameInput = () => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const intl = useIntl();
@@ -25,18 +25,18 @@ const NameInput = () => {
       {...register(FIELD_NAME, {
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         maxLength: {
           value: NAME_MAX_SIZE,
           message: intl.formatMessage(
             { id: "maxLength" },
             { inputName: intl.formatMessage({ id: "value" }), max: NAME_MAX_SIZE }
-          )
+          ),
         },
         validate: {
-          notOnlyWhiteSpaces
-        }
+          notOnlyWhiteSpaces,
+        },
       })}
     />
   );

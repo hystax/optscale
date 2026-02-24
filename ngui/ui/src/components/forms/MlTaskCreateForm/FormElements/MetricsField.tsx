@@ -19,12 +19,12 @@ const MetricCard = ({ name, metricKey, tendency, aggregateFunction, targetValue,
       height: "100%",
       // TODO ML: Get the color programmatically?
       // Context: We use the same color as for the input borders
-      border: `1px solid #C4C4C4`
+      border: `1px solid #C4C4C4`,
     }}
   >
     <Box
       sx={{
-        padding: "0px 8px 8px 8px"
+        padding: "0px 8px 8px 8px",
       }}
     >
       <div>
@@ -69,7 +69,7 @@ const MetricsField = ({ metrics = [], isLoading = false }) => {
                       <Link data-test-id="link_metrics_library" href={ML_METRICS} target="_blank" rel="noopener">
                         {chunks}
                       </Link>
-                    )
+                    ),
                   }}
                 />
               </Typography>

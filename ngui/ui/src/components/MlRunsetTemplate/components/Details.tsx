@@ -28,7 +28,7 @@ const Details = ({
   resourceNamePrefix,
   tags,
   hyperparameters,
-  isLoading
+  isLoading,
 }) => {
   const { isDemo } = useOrganizationInfo();
 
@@ -156,10 +156,10 @@ const Details = ({
                         id="{key}:{value}"
                         values={{
                           key: intl.formatMessage({ id: "name" }).toLowerCase(),
-                          value: intl.formatMessage({ id: "environmentVariable" }).toLowerCase()
+                          value: intl.formatMessage({ id: "environmentVariable" }).toLowerCase(),
                         }}
                       />
-                    )
+                    ),
                   }}
                 />
               </Typography>
@@ -177,7 +177,7 @@ const Details = ({
                   value={
                     <CopyText
                       sx={{
-                        fontWeight: "inherit"
+                        fontWeight: "inherit",
                       }}
                       text={hyperparameterEnvironmentVariable}
                     >

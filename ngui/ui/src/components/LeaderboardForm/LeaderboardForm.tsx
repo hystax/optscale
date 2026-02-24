@@ -15,7 +15,7 @@ import {
   DatasetLabelsCoverageField,
   NameField,
   SelectedDatasets,
-  DatasetNavigator
+  DatasetNavigator,
 } from "./FormElements";
 import { FormValues } from "./types";
 
@@ -28,12 +28,12 @@ const LeaderboardForm = ({
   metrics,
   datasetLabels,
   isTemplate = false,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const { isGetDataLoading = false, isSubmitDataLoading = false } = isLoadingProps;
 
   const methods = useForm<FormValues>({
-    defaultValues
+    defaultValues,
   });
 
   const { handleSubmit, reset } = methods;
@@ -41,7 +41,7 @@ const LeaderboardForm = ({
   useEffect(() => {
     reset((formValues) => ({
       ...formValues,
-      ...defaultValues
+      ...defaultValues,
     }));
   }, [defaultValues, reset, groupingTags]);
 
@@ -62,11 +62,11 @@ const LeaderboardForm = ({
               ({
                 [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC]: id,
                 [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MAX]: max,
-                [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MIN]: min
+                [FIELD_NAMES.METRIC_RESTRICTIONS_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.METRIC_MIN]: min,
               }) => ({
                 id,
                 max: max ? Number(max) : undefined,
-                min: min ? Number(min) : undefined
+                min: min ? Number(min) : undefined,
               })
             ),
             groupByHyperparameters: formData[FIELD_NAMES.GROUP_BY_HYPERPARAMETERS_FIELD_NAME],
@@ -77,10 +77,10 @@ const LeaderboardForm = ({
               formData[FIELD_NAMES.DATASETS_COVERAGE_ARRAY_FIELD_NAMES.NAME].map(
                 ({
                   [FIELD_NAMES.DATASETS_COVERAGE_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.DATASET_LABEL]: datasetLabel,
-                  [FIELD_NAMES.DATASETS_COVERAGE_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.LAST_DATASETS_COVERED]: lastDataCovered
+                  [FIELD_NAMES.DATASETS_COVERAGE_ARRAY_FIELD_NAMES.ARRAY_FIELD_NAMES.LAST_DATASETS_COVERED]: lastDataCovered,
                 }) => [datasetLabel, Number(lastDataCovered)]
               )
-            )
+            ),
           };
 
           return onSubmit(submitData);

@@ -44,7 +44,7 @@ const PendingInvitationsAlert = () => {
               >
                 {chunks}
               </Link>
-            )
+            ),
           }}
         />
       }

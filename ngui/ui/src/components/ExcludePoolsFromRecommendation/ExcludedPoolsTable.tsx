@@ -21,7 +21,7 @@ const ExcludedPoolsTable = ({
   isChangeSettingsAllowed,
   isLoading = false,
   selectedPools,
-  onSelectedPoolChange
+  onSelectedPoolChange,
 }: ExcludedPoolsTableType) => {
   const tableData = useMemo(() => {
     const excludedPoolsIds = Object.keys(selectedPools);
@@ -36,8 +36,8 @@ const ExcludedPoolsTable = ({
         cell: ({ row: { original } }) => (
           <PoolLabel id={original.id} name={original.name} type={original.pool_purpose} disableLink />
         ),
-        defaultSort: "asc"
-      }
+        defaultSort: "asc",
+      },
     ],
     []
   );
@@ -45,7 +45,7 @@ const ExcludedPoolsTable = ({
   const getRowSelectionProps = () => ({
     withSelection: true,
     rowSelection: selectedPools,
-    onRowSelectionChange: (pools: SelectedPoolType) => onSelectedPoolChange(pools)
+    onRowSelectionChange: (pools: SelectedPoolType) => onSelectedPoolChange(pools),
   });
 
   return isLoading ? (
@@ -55,7 +55,7 @@ const ExcludedPoolsTable = ({
       data={tableData}
       columns={columns}
       localization={{
-        emptyMessageId: "noExclusions"
+        emptyMessageId: "noExclusions",
       }}
       withSearch
       pageSize={50}

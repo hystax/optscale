@@ -9,8 +9,8 @@ type ConnectSlackContainerProps = {
 const ConnectSlackContainer = ({ secret }: ConnectSlackContainerProps) => {
   const [connectSlackUser, { loading, error }] = useConnectSlackUserMutation({
     variables: {
-      secret
-    }
+      secret,
+    },
   });
 
   useEffect(() => {

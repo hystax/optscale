@@ -27,7 +27,7 @@ export const SECURITY_CATEGORY = "security";
 export const CATEGORIES = Object.freeze({
   [ALL_CATEGORY]: "all",
   [COST_CATEGORY]: "costOptimization",
-  [SECURITY_CATEGORY]: "security"
+  [SECURITY_CATEGORY]: "security",
 });
 
 export const SUPPORTED_CATEGORIES = Object.freeze(Object.keys(CATEGORIES));
@@ -50,7 +50,7 @@ export const RESOURCE_FILTERS = [
   TagFilter,
   WithoutTagFilter,
   NetworkTrafficFromFilter,
-  NetworkTrafficToFilter
+  NetworkTrafficToFilter,
 ];
 
 export const RESOURCE_FILTERS_NAMES = RESOURCE_FILTERS.map((ResourceFilter) => ResourceFilter.filterName);

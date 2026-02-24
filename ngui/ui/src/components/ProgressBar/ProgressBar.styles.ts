@@ -10,41 +10,41 @@ const useStyles = makeStyles()((theme, { height }) => ({
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    height
+    height,
   },
   progress: {
     position: "absolute",
     borderRadius: "0.3rem",
     width: "100%",
     height: "100%",
-    backgroundColor: lighten(theme.palette.common.black, 0.95)
+    backgroundColor: lighten(theme.palette.common.black, 0.95),
   },
   valuePrimary: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
   },
   barPrimary: {
-    backgroundColor: lighten(theme.palette.primary.main, ALPHA)
+    backgroundColor: lighten(theme.palette.primary.main, ALPHA),
   },
 
   valueSuccess: {
-    color: theme.palette.success.main
+    color: theme.palette.success.main,
   },
   barSuccess: {
-    backgroundColor: lighten(theme.palette.success.main, ALPHA)
+    backgroundColor: lighten(theme.palette.success.main, ALPHA),
   },
 
   valueError: {
-    color: theme.palette.error.main
+    color: theme.palette.error.main,
   },
   barError: {
-    backgroundColor: lighten(theme.palette.error.main, ALPHA)
+    backgroundColor: lighten(theme.palette.error.main, ALPHA),
   },
 
   valueWarning: {
-    color: theme.palette.warning.main
+    color: theme.palette.warning.main,
   },
   barWarning: {
-    backgroundColor: lighten(theme.palette.warning.main, ALPHA)
+    backgroundColor: lighten(theme.palette.warning.main, ALPHA),
   },
   valueWrapper: {
     width: "100%",
@@ -52,8 +52,8 @@ const useStyles = makeStyles()((theme, { height }) => ({
     textAlign: "center",
     paddingLeft: theme.spacing(SPACING_1),
     paddingRight: theme.spacing(SPACING_1),
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+  },
 }));
 
 export default useStyles;

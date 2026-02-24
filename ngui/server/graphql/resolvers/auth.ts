@@ -23,12 +23,12 @@ const resolvers: Resolvers = {
         throw new TypeError("Invalid input for StringArrayMap");
       }
       return value;
-    }
+    },
   }),
   Query: {
     organizationAllowedActions: async (_, { requestParams }, { dataSources }) => {
       return dataSources.auth.getOrganizationAllowedActions(requestParams);
-    }
+    },
   },
   Mutation: {
     token: async (_, { email, password, code }, { dataSources }) => {
@@ -42,8 +42,8 @@ const resolvers: Resolvers = {
     },
     signIn: async (_, { provider, token, tenantId, redirectUri }, { dataSources }) => {
       return dataSources.auth.signIn(provider, token, tenantId, redirectUri);
-    }
-  }
+    },
+  },
 };
 
 export default resolvers;

@@ -25,9 +25,9 @@ const resourceLocation = ({
   locationAccessors: {
     region: regionAccessor = "region",
     folderId: folderIdAccessor = "folder_id",
-    zoneId: zoneIdAccessor = "zone_id"
+    zoneId: zoneIdAccessor = "zone_id",
   } = {},
-  accessorKey: nameAccessor = "cloud_account_name"
+  accessorKey: nameAccessor = "cloud_account_name",
 }: ResourceLocationConfig = {}) => ({
   header: (
     <TextWithDataTestId dataTestId={headerDataTestId}>
@@ -40,21 +40,23 @@ const resourceLocation = ({
       dataSource={{
         id: original[idAccessor],
         name: original[nameAccessor],
-        type: original[typeAccessor]
+        type: original[typeAccessor],
       }}
       caption={[
         {
           key: "region",
-          node: original[regionAccessor] ? <KeyValueLabel keyMessageId="region" value={original[regionAccessor]} /> : null
+          node: original[regionAccessor] ? <KeyValueLabel keyMessageId="region" value={original[regionAccessor]} /> : null,
         },
         {
           key: "folderId",
-          node: original[folderIdAccessor] ? <KeyValueLabel keyMessageId="folderId" value={original[folderIdAccessor]} /> : null
+          node: original[folderIdAccessor] ? (
+            <KeyValueLabel keyMessageId="folderId" value={original[folderIdAccessor]} />
+          ) : null,
         },
         {
           key: "zoneId",
-          node: original[zoneIdAccessor] ? <KeyValueLabel keyMessageId="zoneId" value={original[zoneIdAccessor]} /> : null
-        }
+          node: original[zoneIdAccessor] ? <KeyValueLabel keyMessageId="zoneId" value={original[zoneIdAccessor]} /> : null,
+        },
       ].filter(({ node }) => node !== null)}
     />
   ),
@@ -67,12 +69,12 @@ const resourceLocation = ({
       name,
       `${intl.formatMessage({ id: "region" })}: ${region}`,
       `${intl.formatMessage({ id: "folderId" })}: ${folderId}`,
-      `${intl.formatMessage({ id: "zoneId" })}: ${zoneId}`
+      `${intl.formatMessage({ id: "zoneId" })}: ${zoneId}`,
     ]
       .join(" ")
       .toLocaleLowerCase()
       .includes(search);
-  }
+  },
 });
 
 export default resourceLocation;

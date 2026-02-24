@@ -5,21 +5,21 @@ import { AwsTypeDescription } from "./AwsConnectionFormElements";
 
 export const AUTHENTICATION_TYPES = Object.freeze({
   ASSUMED_ROLE: "assumedRole",
-  ACCESS_KEY: "accessKey"
+  ACCESS_KEY: "accessKey",
 });
 
 export const authenticationTypes = [
   {
     authenticationType: AUTHENTICATION_TYPES.ASSUMED_ROLE,
     messageId: "assumedRole",
-    cloudType: AWS_CNR
+    cloudType: AWS_CNR,
   },
-  { authenticationType: AUTHENTICATION_TYPES.ACCESS_KEY, messageId: "accessKey", cloudType: AWS_CNR }
+  { authenticationType: AUTHENTICATION_TYPES.ACCESS_KEY, messageId: "accessKey", cloudType: AWS_CNR },
 ];
 
 export const AWS_ROOT_INPUTS_FIELD_NAMES = {
   IS_FIND_REPORT: "isFindReport",
-  CONFIG_SCHEME: "configScheme"
+  CONFIG_SCHEME: "configScheme",
 };
 
 const awsDefaultAssumedRoleDescriptions = [
@@ -28,7 +28,7 @@ const awsDefaultAssumedRoleDescriptions = [
     key="2"
     messageId="createAwsDefaultAssumedRoleDocumentationReference3"
     linkUrl={DOCS_HYSTAX_CONNECT_AWS_ROOT}
-  />
+  />,
 ];
 
 const awsDefaultAccessKeyDescriptions = [
@@ -37,14 +37,14 @@ const awsDefaultAccessKeyDescriptions = [
     messageId="createAwsDefaultAssumedRoleDocumentationReference1"
     linkUrl={DOCS_HYSTAX_CONNECT_AWS_ROOT}
     linkDisplayBlock
-    type={"warning"}
+    type="warning"
   />,
   <AwsTypeDescription key="2" messageId="createAwsDefaultAssumedRoleDocumentationReference2" />,
   <AwsTypeDescription
     key="3"
     messageId="createAwsDefaultAssumedRoleDocumentationReference3"
     linkUrl={DOCS_HYSTAX_CONNECT_AWS_ROOT}
-  />
+  />,
 ];
 
 const awsMemberAccessKeyDescriptions = [
@@ -53,7 +53,7 @@ const awsMemberAccessKeyDescriptions = [
     messageId="createAwsDefaultAssumedRoleDocumentationReference1"
     linkUrl={DOCS_HYSTAX_CONNECT_AWS_ROOT}
     linkDisplayBlock
-    type={"warning"}
+    type="warning"
   />,
   <AwsTypeDescription key="2" messageId="createAwsDefaultAssumedRoleDocumentationReference4" />,
   <AwsTypeDescription
@@ -61,15 +61,15 @@ const awsMemberAccessKeyDescriptions = [
     messageId="createAwsDefaultAssumedRoleDocumentationReference3"
     linkUrl={DOCS_HYSTAX_CONNECT_AWS_ROOT}
     linkDisplayBlock={false}
-  />
+  />,
 ];
 
 export const awsConnectionAssumedRoleDescriptions = {
   [CONNECTION_TYPES.AWS_MANAGEMENT]: awsDefaultAssumedRoleDescriptions,
-  [CONNECTION_TYPES.AWS_MEMBER]: awsDefaultAssumedRoleDescriptions
+  [CONNECTION_TYPES.AWS_MEMBER]: awsDefaultAssumedRoleDescriptions,
 };
 
 export const awsConnectionKeyAccessDescriptions = {
   [CONNECTION_TYPES.AWS_MANAGEMENT]: awsDefaultAccessKeyDescriptions,
-  [CONNECTION_TYPES.AWS_MEMBER]: awsMemberAccessKeyDescriptions
+  [CONNECTION_TYPES.AWS_MEMBER]: awsMemberAccessKeyDescriptions,
 };

@@ -11,7 +11,7 @@ import { CONSTRAINT_MESSAGE_FORMAT } from "utils/constraints";
 
 export const MODE = Object.freeze({
   CREATE: "create",
-  UPDATE: "update"
+  UPDATE: "update",
 });
 
 const EditablePoolPolicyLimit = ({
@@ -22,7 +22,7 @@ const EditablePoolPolicyLimit = ({
   formattedPolicyLimit,
   onSubmit,
   isLoading = false,
-  dataTestIds = {}
+  dataTestIds = {},
 }) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
@@ -52,7 +52,7 @@ const EditablePoolPolicyLimit = ({
           const formattedData = {
             ...formData,
             type: policyType,
-            limit: Number.isInteger(limitNumber) ? limitNumber : undefined
+            limit: Number.isInteger(limitNumber) ? limitNumber : undefined,
           };
 
           if (policyId) {
@@ -92,7 +92,7 @@ const EditablePoolPolicyLimit = ({
           onClick={() => onEditMode()}
           tooltip={{
             show: isRestricted,
-            value: restrictionReasonMessage
+            value: restrictionReasonMessage,
           }}
           dataTestId={editButtonDataTestId}
         />

@@ -6,7 +6,7 @@ import Resources from "./Resources";
 
 export const data = {
   filterValues: {},
-  requestParams: { [START_DATE_FILTER]: 1637452800, [END_DATE_FILTER]: 1638057599, limit: 5000 }
+  requestParams: { [START_DATE_FILTER]: 1637452800, [END_DATE_FILTER]: 1638057599, limit: 5000 },
 };
 
 const ResourcesMocked = () => {

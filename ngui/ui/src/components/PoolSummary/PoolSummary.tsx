@@ -23,7 +23,7 @@ const renderTooltipBody = (sectionData) => {
   const {
     value,
     label,
-    data: { purpose }
+    data: { purpose },
   } = sectionData;
 
   return <KeyValueChartTooltipBody value={value} text={<PoolLabel name={label} type={purpose} disableLink />} />;
@@ -33,7 +33,7 @@ const buildChartData = (pools) =>
   pools.map(({ name, cost, purpose }) => ({
     id: name,
     value: cost,
-    purpose
+    purpose,
   }));
 
 const Chart = ({ poolPurpose, poolCost, childPools }) => {
@@ -49,9 +49,9 @@ const Chart = ({ poolPurpose, poolCost, childPools }) => {
             {
               name: <FormattedMessage id="(thisPool)" />,
               cost: thisPoolCost,
-              purpose: poolPurpose
+              purpose: poolPurpose,
             },
-            ...childPools
+            ...childPools,
           ])}
           style={{ height: 30, width: 30 }}
           renderTooltipBody={renderTooltipBody}

@@ -15,7 +15,7 @@ import {
   GCP_CNR,
   GCP_TENANT,
   KUBERNETES_CNR,
-  NEBIUS
+  NEBIUS,
 } from "utils/constants";
 import type { Config, Params } from "./types";
 
@@ -52,7 +52,7 @@ const ConnectCloudAccountContainer = () => {
       [ALIBABA_CNR]: "alibabaConfig",
       [NEBIUS]: "nebiusConfig",
       [DATABRICKS]: "databricksConfig",
-      [KUBERNETES_CNR]: "k8sConfig"
+      [KUBERNETES_CNR]: "k8sConfig",
     }[type];
 
     trackEvent({ category: GA_EVENT_CATEGORIES.DATA_SOURCE, action: "Try connect", label: type });
@@ -63,10 +63,10 @@ const ConnectCloudAccountContainer = () => {
         params: {
           name,
           type,
-          [configName]: config
-        }
+          [configName]: config,
+        },
       },
-      refetchQueries: [DataSourcesDocument]
+      refetchQueries: [DataSourcesDocument],
     }).then(() => {
       refetch([GET_AVAILABLE_FILTERS]);
       redirectToCloudsOverview();

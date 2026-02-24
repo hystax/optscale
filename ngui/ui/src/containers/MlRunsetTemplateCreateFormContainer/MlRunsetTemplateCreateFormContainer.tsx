@@ -16,13 +16,13 @@ const defaultValues = {
   [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.FIELD_NAME]: [
     {
       [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.HYPERPARAMETER_NAME]: "",
-      [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.ENVIRONMENT_VARIABLE]: ""
-    }
+      [FIELD_NAMES.HYPERPARAMETERS_FIELD_ARRAY.ENVIRONMENT_VARIABLE]: "",
+    },
   ],
   [FIELD_NAMES.TASKS]: [],
   [FIELD_NAMES.DATA_SOURCES]: [],
   [FIELD_NAMES.REGIONS]: [],
-  [FIELD_NAMES.INSTANCE_TYPES]: []
+  [FIELD_NAMES.INSTANCE_TYPES]: [],
 };
 
 const MlRunsetTemplateCreateFormContainer = () => {
@@ -50,7 +50,7 @@ const MlRunsetTemplateCreateFormContainer = () => {
       dataSources={dataSources}
       isLoading={{
         isGetAllTasksLoading,
-        isSubmitLoading: isCreateMlRunsetTemplateLoading
+        isSubmitLoading: isCreateMlRunsetTemplateLoading,
       }}
       onSubmit={onSubmit}
       onCancel={onCancel}

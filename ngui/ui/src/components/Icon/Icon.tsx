@@ -31,7 +31,7 @@ const Icon = ({
   fontSize = "small",
   color = "info",
   tooltip = {},
-  dataTestId
+  dataTestId,
 }: IconProps) => {
   const { classes, cx } = useStyles();
 

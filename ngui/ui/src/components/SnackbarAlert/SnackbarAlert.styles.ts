@@ -4,9 +4,9 @@ const useStyles = makeStyles()((theme) => ({
   root: {
     width: "100%",
     "& > *": {
-      marginTop: theme.spacing(4)
-    }
-  }
+      marginTop: theme.spacing(4),
+    },
+  },
 }));
 
 export default useStyles;

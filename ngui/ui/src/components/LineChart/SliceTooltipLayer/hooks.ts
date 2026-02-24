@@ -6,7 +6,7 @@ export const usePoints = <Series extends LineSeries>({
   getPointColor,
   getPointBorderColor,
   formatX,
-  formatY
+  formatY,
 }: {
   series: ComputedSeries<Series>[];
   getPointColor: (context: PointColorContext<Series>) => string;
@@ -37,17 +37,17 @@ export const usePoints = <Series extends LineSeries>({
                 data: {
                   ...datum.data,
                   xFormatted: formatX(datum.data.x as InferX<Series>),
-                  yFormatted: formatY(datum.data.y as InferY<Series>)
-                }
+                  yFormatted: formatY(datum.data.y as InferY<Series>),
+                },
               };
               point.color = getPointColor({
                 series: seriesItem,
-                point: point as Omit<Point<Series>, "color" | "borderColor">
+                point: point as Omit<Point<Series>, "color" | "borderColor">,
               });
               point.borderColor = getPointBorderColor(point as Omit<Point<Series>, "borderColor">);
 
               return point as Point<Series>;
-            })
+            }),
         ],
         [] as Point<Series>[]
       ),
@@ -58,7 +58,7 @@ export const useSlices = <Series extends LineSeries>({
   enableSlices,
   points,
   width,
-  height
+  height,
 }: {
   enableSlices: boolean;
   points: Point<Series>[];
@@ -110,7 +110,7 @@ export const useSlices = <Series extends LineSeries>({
           y: 0,
           width: sliceWidth,
           height,
-          points: slicePoints.reverse()
+          points: slicePoints.reverse(),
         } as SliceData<Series>;
       });
   }, [enableSlices, height, points, width]);

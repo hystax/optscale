@@ -6,5 +6,5 @@ const filter = (state, label, callback) => (typeof callback === "function" ? cal
 const selector = createSelector(filter, (result) => result);
 
 export const useRootData = (label, callback) => ({
-  rootData: useShallowEqualSelector((state) => selector(state, label, callback))
+  rootData: useShallowEqualSelector((state) => selector(state, label, callback)),
 });

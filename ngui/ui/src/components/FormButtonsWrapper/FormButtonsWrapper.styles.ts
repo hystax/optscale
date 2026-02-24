@@ -5,10 +5,10 @@ const useStyles = makeStyles()((theme) => ({
     "& > *": {
       marginRight: theme.spacing(1),
       "&:last-child": {
-        marginRight: 0
-      }
-    }
-  }
+        marginRight: 0,
+      },
+    },
+  },
 }));
 
 export default useStyles;

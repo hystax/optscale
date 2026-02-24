@@ -13,7 +13,7 @@ import {
   isPoolIdWithSubPools,
   RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME,
   RESOURCES_PERSPECTIVE_PARAMETER_NAME,
-  RESOURCES_SELECTED_PERSPECTIVE_PARAMETER_NAME
+  RESOURCES_SELECTED_PERSPECTIVE_PARAMETER_NAME,
 } from "urls";
 import { CLEAN_EXPENSES_BREAKDOWN_TYPES } from "utils/constants";
 import { millisecondsToSeconds } from "utils/datetime";
@@ -39,7 +39,7 @@ const Resources = () => {
       const getPoolFilters = () => {
         if (poolId.every((pool) => isPoolIdWithSubPools(pool))) {
           return {
-            poolId
+            poolId,
           };
         }
 
@@ -50,7 +50,7 @@ const Resources = () => {
             }
 
             return pool;
-          })
+          }),
         };
       };
 
@@ -59,13 +59,13 @@ const Resources = () => {
         ...(firstSeen
           ? {
               firstSeenFrom: firstSeen.from ? millisecondsToSeconds(firstSeen.from) : undefined,
-              firstSeenTo: firstSeen.to ? millisecondsToSeconds(firstSeen.to) : undefined
+              firstSeenTo: firstSeen.to ? millisecondsToSeconds(firstSeen.to) : undefined,
             }
           : {}),
         ...(lastSeen
           ? {
               lastSeenFrom: lastSeen.from ? millisecondsToSeconds(lastSeen.from) : undefined,
-              lastSeenTo: lastSeen.to ? millisecondsToSeconds(lastSeen.to) : undefined
+              lastSeenTo: lastSeen.to ? millisecondsToSeconds(lastSeen.to) : undefined,
             }
           : {}),
         ...restFilters,
@@ -73,32 +73,32 @@ const Resources = () => {
           ? {
               [DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME]: breakdownData.breakdownBy,
               [GROUP_BY_PARAM_NAME]: breakdownData.groupBy?.groupBy,
-              [GROUP_TYPE_PARAM_NAME]: breakdownData.groupBy?.groupType
+              [GROUP_TYPE_PARAM_NAME]: breakdownData.groupBy?.groupType,
             }
           : {}),
         ...(breakdownBy === CLEAN_EXPENSES_BREAKDOWN_TYPES.RESOURCE_COUNT
           ? {
-              [DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME]: breakdownData.breakdownBy
+              [DAILY_RESOURCE_COUNT_BREAKDOWN_BY_PARAMETER_NAME]: breakdownData.breakdownBy,
             }
           : {}),
         ...(breakdownBy === CLEAN_EXPENSES_BREAKDOWN_TYPES.META
           ? {
-              [DAILY_META_BREAKDOWN_BY_PARAMETER_NAME]: breakdownData.breakdownBy
+              [DAILY_META_BREAKDOWN_BY_PARAMETER_NAME]: breakdownData.breakdownBy,
             }
           : {}),
-        [RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME]: breakdownBy
+        [RESOURCES_BREAKDOWN_BY_QUERY_PARAMETER_NAME]: breakdownBy,
       };
 
       const toSearchParams = stringifySearchParams({
         ...restParams,
         ...perspectiveSearchParams,
-        [RESOURCES_SELECTED_PERSPECTIVE_PARAMETER_NAME]: perspective
+        [RESOURCES_SELECTED_PERSPECTIVE_PARAMETER_NAME]: perspective,
       });
 
       return (
         <Navigate
           to={getResourcesExpensesUrl({
-            computedParams: toSearchParams
+            computedParams: toSearchParams,
           })}
         />
       );

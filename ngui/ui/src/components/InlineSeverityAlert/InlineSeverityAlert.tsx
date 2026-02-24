@@ -18,7 +18,7 @@ const InlineSeverityAlert = ({
   messageValues,
   messageDataTestId,
   severity = "info",
-  sx = {}
+  sx = {},
 }: InlineSeverityAlertProps) => {
   const { classes } = useStyles();
 

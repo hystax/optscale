@@ -26,15 +26,15 @@ const CoverageTabContainer = ({ taskId, qualifiedRunIds, leaderboard, candidateD
 
                 return {
                   ...dataset,
-                  covered_by: runs.find((run) => run.dataset?.id === datasetId)
+                  covered_by: runs.find((run) => run.dataset?.id === datasetId),
                 };
               })
-              .filter(Boolean)
+              .filter(Boolean),
           ]) ?? []
       )}
       datasets={leaderboard.datasets.map((datum) => ({
         ...datum,
-        covered_by: runs.find(({ dataset: { id: datasetId } = {} }) => datasetId === datum.id)
+        covered_by: runs.find(({ dataset: { id: datasetId } = {} }) => datasetId === datum.id),
       }))}
       isLoading={isGetRunsBulkLoading || isDatasetsLoading}
     />

@@ -5,6 +5,6 @@ export const useGoalMetColors = () => {
 
   return {
     goalMet: theme.palette.success.light,
-    goalNotMet: theme.palette.warning.light
+    goalNotMet: theme.palette.warning.light,
   };
 };

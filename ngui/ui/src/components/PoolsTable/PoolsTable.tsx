@@ -71,17 +71,17 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
               </DashedTypography>
             </span>
           </Tooltip>
-        )
-      }
+        ),
+      },
     ],
-    poolId: rootPoolId
+    poolId: rootPoolId,
   };
 
   const columns = useMemo(
     () => [
       poolName({
         onExpensesExportClick: (id) => openEditModal(POOL_TABS.SHARE, id),
-        onConstraintsClick: (id) => openEditModal(POOL_TABS.CONSTRAINTS, id)
+        onConstraintsClick: (id) => openEditModal(POOL_TABS.CONSTRAINTS, id),
       }),
       poolLimit(),
       expenses({ defaultSort: "desc" }),
@@ -94,11 +94,11 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
           columnSelector: {
             accessor: "default_owner_name",
             messageId: "owner",
-            dataTestId: "btn_toggle_default_owner_name"
-          }
-        }
+            dataTestId: "btn_toggle_default_owner_name",
+          },
+        },
       }),
-      poolActions()
+      poolActions(),
     ],
     [openEditModal]
   );
@@ -113,7 +113,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
   const { isSelectedRow, handleRowClick } = useHoverableRows({
     onClick: (selectedPool) => openEditModal(POOL_TABS.GENERAL, selectedPool),
     rootPool,
-    isGetPoolDataReady
+    isGetPoolDataReady,
   });
 
   const getRowStyle = useGetRowStyle(rootPool);
@@ -128,7 +128,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
           columns={columns}
           actionBar={{
             show: true,
-            definition: actionBarDefinition
+            definition: actionBarDefinition,
           }}
           withExpanded
           getSubRows={getSubRows}
@@ -136,7 +136,7 @@ const PoolsTable = ({ rootPool, isLoadingProps = {} }) => {
           expanded={expanded}
           onExpandedChange={onExpandedChange}
           localization={{
-            emptyMessageId: "noPools"
+            emptyMessageId: "noPools",
           }}
           columnsSelectorUID="poolsTable"
           getRowStyle={getRowStyle}

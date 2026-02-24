@@ -28,13 +28,13 @@ const ExpensesModeButtonGroup = ({ activeExpensesMode, onClick, hasNetworkTraffi
       id: RESOURCE_PAGE_EXPENSES_TABS.GROUPED,
       messageId: "grouped",
       action: () => onClick(RESOURCE_PAGE_EXPENSES_TABS.GROUPED),
-      dataTestId: "btn_grouped"
+      dataTestId: "btn_grouped",
     },
     {
       id: RESOURCE_PAGE_EXPENSES_TABS.DETAILED,
       messageId: "detailed",
       action: () => onClick(RESOURCE_PAGE_EXPENSES_TABS.DETAILED),
-      dataTestId: "btn_detailed"
+      dataTestId: "btn_detailed",
     },
     ...(hasNetworkTrafficExpenses
       ? [
@@ -42,10 +42,10 @@ const ExpensesModeButtonGroup = ({ activeExpensesMode, onClick, hasNetworkTraffi
             id: RESOURCE_PAGE_EXPENSES_TABS.PAID_NETWORK_TRAFFIC,
             messageId: "paidNetworkTraffic",
             action: () => onClick(RESOURCE_PAGE_EXPENSES_TABS.PAID_NETWORK_TRAFFIC),
-            dataTestId: "btn_paid_network_traffic"
-          }
+            dataTestId: "btn_paid_network_traffic",
+          },
         ]
-      : [])
+      : []),
   ];
 
   return (
@@ -59,23 +59,23 @@ const ExpensesModeButtonGroup = ({ activeExpensesMode, onClick, hasNetworkTraffi
 const ResourceExpenses = ({ resourceId, firstSeen, lastSeen, hasNetworkTrafficExpenses = false }) => {
   const [startDate, endDate] = useResourceDetailsDefaultDateRange({
     lastSeen,
-    firstSeen
+    firstSeen,
   });
 
   const [activeExpensesMode, setActiveExpensesMode] = useActiveExpensesMode({
     modes: Object.values(RESOURCE_PAGE_EXPENSES_TABS),
-    defaultMode: RESOURCE_PAGE_EXPENSES_TABS.GROUPED
+    defaultMode: RESOURCE_PAGE_EXPENSES_TABS.GROUPED,
   });
 
   const [requestParams, setRequestParams] = useState({
     startDate,
-    endDate
+    endDate,
   });
 
   useEffect(() => {
     updateSearchParams({
       startDate: requestParams.startDate,
-      endDate: requestParams.endDate
+      endDate: requestParams.endDate,
     });
   }, [requestParams.startDate, requestParams.endDate]);
 
@@ -88,7 +88,7 @@ const ResourceExpenses = ({ resourceId, firstSeen, lastSeen, hasNetworkTrafficEx
     const params = {
       ...requestParams,
       startDate: newStartDate,
-      endDate: newEndDate
+      endDate: newEndDate,
     };
     setRequestParams(params);
   };
@@ -112,9 +112,9 @@ const ResourceExpenses = ({ resourceId, firstSeen, lastSeen, hasNetworkTrafficEx
               messageId: DATE_RANGE_FILTERS.ALL,
               startDate: firstSeenStartOfDay || millisecondsToSeconds(+new Date()),
               endDate: lastSeenEndOfDay || millisecondsToSeconds(+new Date()),
-              dataTestId: "btn_all"
+              dataTestId: "btn_all",
             }),
-            ...getBasicRangesSet()
+            ...getBasicRangesSet(),
           ]}
           rangeType={DATE_RANGE_TYPE.RESOURCES}
           minDate={firstSeenStartOfDay}

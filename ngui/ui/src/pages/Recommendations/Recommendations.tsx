@@ -30,7 +30,7 @@ const RecommendationsPage = ({ isMock }) => {
   const [selectedDataSourceIds, setSelectedDataSourceIds] = useSyncQueryParamWithState({
     queryParamName: DATA_SOURCES_QUERY_NAME,
     defaultValue: [],
-    parameterIsArray: true
+    parameterIsArray: true,
   });
 
   const selectedDataSourceTypes: string[] = Array.from(
@@ -46,7 +46,7 @@ const RecommendationsPage = ({ isMock }) => {
   const recommendationsActionBar = {
     title: {
       messageId: "recommendations",
-      dataTestId: "lbl_recommendations"
+      dataTestId: "lbl_recommendations",
     },
     items: [
       {
@@ -55,7 +55,7 @@ const RecommendationsPage = ({ isMock }) => {
         icon: <RestoreOutlinedIcon />,
         messageId: "archive",
         type: "button",
-        link: ARCHIVED_RECOMMENDATIONS
+        link: ARCHIVED_RECOMMENDATIONS,
       },
       {
         key: "forceCheck",
@@ -67,10 +67,10 @@ const RecommendationsPage = ({ isMock }) => {
         messageId: "forceCheck",
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
-      }
-    ]
+          value: restrictionReasonMessage,
+        },
+      },
+    ],
   };
 
   return (

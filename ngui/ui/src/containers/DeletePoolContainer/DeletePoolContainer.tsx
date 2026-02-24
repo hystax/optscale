@@ -33,20 +33,20 @@ const DeletePoolContainer = ({ id, onCancel }) => {
         onDelete: onSubmit,
         tooltip: {
           show: isRestricted,
-          value: restrictionReasonMessage
-        }
+          value: restrictionReasonMessage,
+        },
       }}
       dataTestIds={{
         text: "p_delete_pool",
         deleteButton: "btn_sm_delete",
-        cancelButton: "btn_sm_cancel"
+        cancelButton: "btn_sm_cancel",
       }}
       message={{
         messageId: "deletePoolQuestion",
         values: {
           strong: (chunks) => <strong>{chunks}</strong>,
-          pool: <PoolLabel name={name} type={type} disableLink />
-        }
+          pool: <PoolLabel name={name} type={type} disableLink />,
+        },
       }}
     >
       <>
@@ -55,7 +55,7 @@ const DeletePoolContainer = ({ id, onCancel }) => {
             id="deletePoolNotice"
             values={{
               strong: (chunks) => <strong>{chunks}</strong>,
-              break: <br />
+              break: <br />,
             }}
           />
         </Typography>

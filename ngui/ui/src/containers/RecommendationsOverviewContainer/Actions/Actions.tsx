@@ -28,7 +28,7 @@ const DownloadCleanupScripts = ({ recommendation }: DownloadCleanupScriptsProps)
               <Link href={DOCS_HYSTAX_CLEANUP_SCRIPTS} data-test-id="link_cleanup_script" target="_blank" rel="noopener">
                 {chunks}
               </Link>
-            )
+            ),
           }}
         />
       }
@@ -54,7 +54,7 @@ const DownloadItems = ({
   downloadLimit,
   isDownloadAvailable = false,
   isLoading = false,
-  selectedDataSourceIds
+  selectedDataSourceIds,
 }: DownloadItemsProps) => {
   const downloadItems = useDownloadItems(recommendation, downloadLimit, selectedDataSourceIds);
 
@@ -67,7 +67,7 @@ const DownloadItems = ({
           <FormattedMessage
             id="recommendationDownloadFeatureIsUnavailable"
             values={{
-              email: <MailTo email={EMAIL_SALES} text={EMAIL_SALES} />
+              email: <MailTo email={EMAIL_SALES} text={EMAIL_SALES} />,
             }}
           />
         )
@@ -86,7 +86,7 @@ const Actions = ({
   withMenu = false,
   isDownloadAvailable,
   isGetIsDownloadAvailableLoading,
-  selectedDataSourceIds
+  selectedDataSourceIds,
 }: ActionsProps) => {
   const { withCleanupScripts, hasItems } = recommendation;
 

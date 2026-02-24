@@ -34,14 +34,14 @@ const ExcludePoolsFromRecommendation = ({ recommendationType, onSuccess }: Exclu
   const onSubmit = () => {
     const newOptions = {
       ...options,
-      excluded_pools: selectedPools
+      excluded_pools: selectedPools,
     };
 
     updateRecommendationOptions(
       recommendationType,
       {
         settingType: SETTINGS_TYPE_SUCCESS_MESSAGE.EXCLUSIONS,
-        options: newOptions
+        options: newOptions,
       },
       onSuccess
     );
@@ -71,7 +71,7 @@ const ExcludePoolsFromRecommendation = ({ recommendationType, onSuccess }: Exclu
           disabled={!isChangeSettingsAllowed}
           tooltip={{
             show: !isChangeSettingsAllowed,
-            messageId: "youDoNotHaveEnoughPermissions"
+            messageId: "youDoNotHaveEnoughPermissions",
           }}
           type="submit"
           onClick={onSubmit}

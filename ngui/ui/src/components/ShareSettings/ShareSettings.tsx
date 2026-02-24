@@ -72,20 +72,20 @@ const ShareSettings = ({ canEdit, currentLink, onChange, isLoading }) => {
           {
             header: "shareLinkGoogleAllTimeHeader",
             tip: "shareLinkGoogleAllTimeTip",
-            formula: "shareLinkGoogleAllTimeFormula"
+            formula: "shareLinkGoogleAllTimeFormula",
           },
           {
             header: "shareLinkGoogleDailyHeader",
             tip: "shareLinkGoogleDailyTip",
-            formula: "shareLinkGoogleDailyFormula"
+            formula: "shareLinkGoogleDailyFormula",
           },
           {
             header: "shareLinkGoogleSingleHeader",
             tip: "shareLinkGoogleSingleTip",
-            formula: "shareLinkGoogleSingleFormula"
-          }
-        ]
-      }
+            formula: "shareLinkGoogleSingleFormula",
+          },
+        ],
+      },
     ];
 
     return (

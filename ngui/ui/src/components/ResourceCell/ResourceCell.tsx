@@ -18,7 +18,7 @@ const ResourceCell = ({ rowData, disableActivityIcon, disableConstraintViolation
     resource_name: resourceName,
     active: isActive = false,
     constraint_violated: isConstraintViolated = false,
-    power_schedule: powerScheduleId
+    power_schedule: powerScheduleId,
   } = rowData;
 
   const { labelIds: labelDataTestIds } = dataTestIds;
@@ -58,7 +58,7 @@ const ResourceCell = ({ rowData, disableActivityIcon, disableConstraintViolation
               variant="caption"
               sx={{
                 fontWeight: "normal",
-                whiteSpace: "nowrap"
+                whiteSpace: "nowrap",
               }}
             >
               <FormattedMessage id="constraintViolations" />

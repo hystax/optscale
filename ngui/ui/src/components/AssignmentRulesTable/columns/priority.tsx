@@ -8,7 +8,7 @@ const priority = () => ({
     </TextWithDataTestId>
   ),
   accessorKey: "priority",
-  defaultSort: "asc"
+  defaultSort: "asc",
 });
 
 export default priority;

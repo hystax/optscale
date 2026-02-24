@@ -9,7 +9,7 @@ import {
   EMPTY_UUID,
   CONNECTION_TYPE_SEARCH_PARAMETER,
   CONNECTION_TYPES,
-  SETTINGS_TABS
+  SETTINGS_TABS,
 } from "utils/constants";
 import { getLast30DaysRange, getCurrentMonthRange } from "utils/datetime";
 import { stringifySearchParams } from "utils/network";
@@ -238,7 +238,7 @@ export const getResourcesExpensesUrl = ({
     [END_DATE_FILTER]: sEndDate,
     [RESOURCES_PERSPECTIVE_PARAMETER_NAME]: perspective,
     organizationId,
-    ...restFilters
+    ...restFilters,
   });
 
   const computedParameters = computedParams ? `${computedParams}` : "";
@@ -258,7 +258,7 @@ export const RESOURCE_ASSIGNMENT_RULE_CREATE = concatenateUrl([
   RESOURCES_BASE,
   RESOURCE_IDENTIFIER,
   ASSIGNMENT_RULE_BASE,
-  CREATE
+  CREATE,
 ]);
 export const getCreateResourceAssignmentRuleUrl = (resourceId) =>
   RESOURCE_ASSIGNMENT_RULE_CREATE.replace(RESOURCE_IDENTIFIER, resourceId);
@@ -309,14 +309,14 @@ export const RI_SP_COVERAGE = concatenateUrl([RECOMMENDATIONS_BASE, RI_SP_COVERA
 export const RI_SP_QUERY_PARAMETERS = Object.freeze({
   START_DATE: START_DATE_FILTER,
   END_DATE: END_DATE_FILTER,
-  DATA_SOURCE_ID: "dataSourceId"
+  DATA_SOURCE_ID: "dataSourceId",
 });
 
 export const getRiSpCoverageUrl = ({ secondsStartDate, secondsEndDate, dataSourceId } = {}) => {
   const query = stringifySearchParams({
     [RI_SP_QUERY_PARAMETERS.START_DATE]: secondsStartDate,
     [RI_SP_QUERY_PARAMETERS.END_DATE]: secondsEndDate,
-    [RI_SP_QUERY_PARAMETERS.DATA_SOURCE_ID]: dataSourceId
+    [RI_SP_QUERY_PARAMETERS.DATA_SOURCE_ID]: dataSourceId,
   });
 
   return `${RI_SP_COVERAGE}${query ? `?${query}` : ""}`;
@@ -349,7 +349,7 @@ export const getMlPublicRunUrl = (runId, { organizationId, arceeToken }) => {
   const urlBase = ML_PUBLIC_RUN.replace(ML_TASK_RUN_IDENTIFIER, runId);
   const searchParams = new URLSearchParams({
     organizationId,
-    token: arceeToken
+    token: arceeToken,
   });
 
   return `${urlBase}?${searchParams.toString()}`;
@@ -395,7 +395,7 @@ export const getEditMlTaskUrl = (taskId, params) => {
         base,
         Object.entries(params)
           .map(([name, value]) => `${name}=${value}`)
-          .join("&")
+          .join("&"),
       ],
       "",
       "?"
@@ -420,7 +420,7 @@ export const getMlEditRunsetTemplateUrl = (templateId) =>
 export const ML_RUNSET_TEMPLATE_CONFIGURATION = concatenateUrl([
   ML_RUNSET_TEMPLATES_BASE,
   ML_RUNSET_TEMPLATE_IDENTIFIER,
-  ML_LAUNCH_BASE
+  ML_LAUNCH_BASE,
 ]);
 export const getMlRunsetConfigurationUrl = (templateId) =>
   ML_RUNSET_TEMPLATE_CONFIGURATION.replace(ML_RUNSET_TEMPLATE_IDENTIFIER, templateId);
@@ -435,7 +435,7 @@ export const getMlTaskRunUrl = (
   taskId: string,
   runId: string,
   {
-    tab
+    tab,
   }: {
     tab?: string;
   } = {}
@@ -451,7 +451,7 @@ export const ML_CREATE_RUN_ARTIFACT = concatenateUrl([
   ML_RUN_BASE,
   ML_TASK_RUN_IDENTIFIER,
   ML_ARTIFACTS_BASE,
-  CREATE
+  CREATE,
 ]);
 
 export const ML_EDIT_RUN_ARTIFACT = concatenateUrl([
@@ -461,7 +461,7 @@ export const ML_EDIT_RUN_ARTIFACT = concatenateUrl([
   ML_TASK_RUN_IDENTIFIER,
   ML_ARTIFACTS_BASE,
   ML_ARTIFACT_IDENTIFIER,
-  EDIT
+  EDIT,
 ]);
 
 export const ML_EDIT_ARTIFACT = concatenateUrl([ML_ARTIFACTS_BASE, ML_ARTIFACT_IDENTIFIER, EDIT]);
@@ -533,7 +533,7 @@ export const S3_DUPLICATE_FINDER = concatenateUrl([RECOMMENDATIONS_BASE, S3_DUPL
 export const S3_DUPLICATE_FINDER_CHECK = concatenateUrl([
   RECOMMENDATIONS_BASE,
   S3_DUPLICATE_FINDER_BASE,
-  S3_DUPLICATE_FINDER_CHECK_IDENTIFIER
+  S3_DUPLICATE_FINDER_CHECK_IDENTIFIER,
 ]);
 export const getS3DuplicateFinderCheck = (id) => S3_DUPLICATE_FINDER_CHECK.replace(S3_DUPLICATE_FINDER_CHECK_IDENTIFIER, id);
 

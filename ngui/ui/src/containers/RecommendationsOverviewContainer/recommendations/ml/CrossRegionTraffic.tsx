@@ -8,7 +8,7 @@ import {
   mlComputeLocation,
   mlDataLocation,
   mlDataTransferred,
-  estimatedExpenses as estimatedExpensesColumn
+  estimatedExpenses as estimatedExpensesColumn,
 } from "utils/columns";
 import BaseRecommendation from "../BaseRecommendation";
 
@@ -34,7 +34,7 @@ class CrossRegionTraffic extends BaseRecommendation {
         cloud_type: cloudType,
         cloud_resource_id: cloudResourceId,
         data_transferred: dataTransferred,
-        estimated_expenses: estimatedExpenses
+        estimated_expenses: estimatedExpenses,
       } = item;
       return [
         {
@@ -44,7 +44,7 @@ class CrossRegionTraffic extends BaseRecommendation {
               icon={<CloudTypeIcon type={cloudType} hasRightMargin />}
               label={<CloudResourceId resourceId={cloudResourceId} cloudResourceIdentifier={id} />}
             />
-          )
+          ),
         },
         {
           key: "dataTransferred",
@@ -52,7 +52,7 @@ class CrossRegionTraffic extends BaseRecommendation {
             <strong>
               <FormattedDigitalUnit value={dataTransferred} />
             </strong>
-          )
+          ),
         },
         {
           key: "expenses",
@@ -60,8 +60,8 @@ class CrossRegionTraffic extends BaseRecommendation {
             <strong>
               <FormattedMoney value={estimatedExpenses} />
             </strong>
-          )
-        }
+          ),
+        },
       ];
     });
   }

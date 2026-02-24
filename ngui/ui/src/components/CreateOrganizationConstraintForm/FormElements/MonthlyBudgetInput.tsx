@@ -12,7 +12,7 @@ const FIELD_NAME = CREATE_ORGANIZATION_CONSTRAINT_FORM_FIELD_NAMES.MONTHLY_BUDGE
 const MonthlyBudgetInput = () => {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   const { currencySymbol } = useOrganizationInfo();
@@ -29,18 +29,18 @@ const MonthlyBudgetInput = () => {
       {...register(FIELD_NAME, {
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         validate: {
-          positiveNumber
+          positiveNumber,
         },
         max: {
           value: MAX_INT_32,
-          message: intl.formatMessage({ id: "lessOrEqual" }, { max: MAX_INT_32 })
-        }
+          message: intl.formatMessage({ id: "lessOrEqual" }, { max: MAX_INT_32 }),
+        },
       })}
       InputProps={{
-        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>
+        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
       }}
     />
   );

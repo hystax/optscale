@@ -5,7 +5,7 @@ import {
   updatePoolPolicyActivity,
   createGlobalPoolPolicy,
   updatePoolPolicyLimit,
-  createPoolPolicy
+  createPoolPolicy,
 } from "api";
 import {
   CREATE_GLOBAL_POOL_POLICY,
@@ -13,7 +13,7 @@ import {
   UPDATE_GLOBAL_POOL_POLICY_ACTIVITY,
   UPDATE_GLOBAL_POOL_POLICY_LIMIT,
   UPDATE_POOL_POLICY_ACTIVITY,
-  UPDATE_POOL_POLICY_LIMIT
+  UPDATE_POOL_POLICY_LIMIT,
 } from "api/restapi/actionTypes";
 import { useApiState } from "hooks/useApiState";
 import { checkError } from "utils/api";
@@ -138,7 +138,7 @@ const useCreateGlobalPoolPolicy = () => {
 
   return {
     isLoading,
-    create
+    create,
   };
 };
 
@@ -166,7 +166,7 @@ const useCreatePoolPolicy = () => {
 
   return {
     isLoading,
-    create
+    create,
   };
 };
 
@@ -177,7 +177,7 @@ function PoolPolicyService() {
     useUpdateGlobalPoolPolicyActivity,
     useUpdatePoolPolicyActivity,
     useCreateGlobalPoolPolicy,
-    useCreatePoolPolicy
+    useCreatePoolPolicy,
   };
 }
 

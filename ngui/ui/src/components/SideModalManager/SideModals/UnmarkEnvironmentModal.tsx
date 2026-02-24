@@ -7,8 +7,8 @@ class UnmarkEnvironmentModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_unmark",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_unmark_environment";

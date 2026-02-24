@@ -7,8 +7,8 @@ class MlDeleteArtifactModal extends BaseSideModal {
     color: "error",
     dataTestIds: {
       title: "lbl_delete_ml_artifact",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_delete";

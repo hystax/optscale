@@ -26,11 +26,11 @@ const DEFAULT_ADDITIONAL_ROLE_CONDITION = { [ROLE]: "", [POOL_ID]: "" } as const
 const useStyles = makeStyles()(() => ({
   item: {
     width: "100%",
-    minWidth: 0
+    minWidth: 0,
   },
   deleteButton: {
-    alignItems: "flex-end"
-  }
+    alignItems: "flex-end",
+  },
 }));
 
 const flattenPoolTree = (poolsTree: PoolTreeNode[], level = 0): PoolTreeNode[] =>
@@ -43,7 +43,7 @@ const getPoolTree = (pools: InviteEmployeesFormProps["availablePools"], id: stri
     .map((pool) => ({
       ...pool,
       level,
-      children: getPoolTree(pools, pool.id, level + 1)
+      children: getPoolTree(pools, pool.id, level + 1),
     }));
 
 const AdditionalRolesFieldArray = ({ isGetAvailablePoolsLoading, availablePools, fields, onFieldAppend, onFieldRemove }) => {
@@ -71,7 +71,7 @@ const AdditionalRolesFieldArray = ({ isGetAvailablePoolsLoading, availablePools,
         value: obj.id,
         content: <ItemContentWithPoolIcon poolType={obj.pool_purpose} label={obj.name} />,
         depth: obj.level,
-        disabled: (field) => busyPoolIds.includes(obj.id) && obj.id !== field.value
+        disabled: (field) => busyPoolIds.includes(obj.id) && obj.id !== field.value,
       }))}
     />
   );
@@ -80,7 +80,7 @@ const AdditionalRolesFieldArray = ({ isGetAvailablePoolsLoading, availablePools,
     <Input
       required
       InputProps={{
-        readOnly: true
+        readOnly: true,
       }}
       defaultValue={organizationName}
       label={<FormattedMessage id="organization" />}
@@ -100,7 +100,7 @@ const AdditionalRolesFieldArray = ({ isGetAvailablePoolsLoading, availablePools,
         {
           [ORGANIZATION_MANAGER]: organizationFieldRender,
           [MANAGER]: poolFieldRenderer,
-          [ENGINEER]: poolFieldRenderer
+          [ENGINEER]: poolFieldRenderer,
         }[additionalRole] || poolFieldRenderer
       );
     };
@@ -125,7 +125,7 @@ const AdditionalRolesFieldArray = ({ isGetAvailablePoolsLoading, availablePools,
                   </Box>
                 ),
                 disabled: (field) =>
-                  role === ORGANIZATION_MANAGER && busyRoles.includes(ORGANIZATION_MANAGER) && role !== field.value
+                  role === ORGANIZATION_MANAGER && busyRoles.includes(ORGANIZATION_MANAGER) && role !== field.value,
               }))}
             />
           </Box>
@@ -141,7 +141,7 @@ const AdditionalRolesFieldArray = ({ isGetAvailablePoolsLoading, availablePools,
                   onClick={() => onFieldRemove(count)}
                   tooltip={{
                     show: true,
-                    value: <FormattedMessage id="delete" />
+                    value: <FormattedMessage id="delete" />,
                   }}
                   dataTestId={`btn_delete_${count}`}
                 />

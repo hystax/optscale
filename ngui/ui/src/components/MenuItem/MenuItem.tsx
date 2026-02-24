@@ -16,7 +16,7 @@ const MenuItem = ({
   nested = false,
   isRootPath: isRootPathFn,
   icon: Icon = null,
-  dataProductTourId
+  dataProductTourId,
 }) => {
   const { classes, cx } = useStyles();
   const intl = useIntl();

@@ -6,12 +6,12 @@ export const VIEW_TABLE = "table";
 const VIEWS = [
   {
     id: VIEW_CARDS,
-    messageId: "cards"
+    messageId: "cards",
   },
   {
     id: VIEW_TABLE,
-    messageId: "table"
-  }
+    messageId: "table",
+  },
 ];
 
 export const POSSIBLE_VIEWS = VIEWS.map(({ id }) => id);

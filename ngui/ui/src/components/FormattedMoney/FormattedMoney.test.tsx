@@ -14,44 +14,44 @@ it("Common renders without crashing", () => {
   const cases = [
     {
       value: undefined,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: null,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: -10000,
-      expected: "-$10,000"
+      expected: "-$10,000",
     },
     {
       value: -10.005,
-      expected: "-$10.01"
+      expected: "-$10.01",
     },
     {
       value: -0.001,
-      expected: "\u2248$0"
+      expected: "\u2248$0",
     },
     {
       value: 0,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: 0.001,
-      expected: "\u2248$0"
+      expected: "\u2248$0",
     },
     {
       value: 10.005,
-      expected: "$10.01"
+      expected: "$10.01",
     },
     {
       value: 10.05,
-      expected: "$10.05"
+      expected: "$10.05",
     },
     {
       value: 10000,
-      expected: "$10,000"
-    }
+      expected: "$10,000",
+    },
   ];
   const div = document.createElement("div");
   const root = createRoot(div);
@@ -67,44 +67,44 @@ it("Compact renders without crashing", () => {
   const cases = [
     {
       value: undefined,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: null,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: -10000,
-      expected: "-$10k"
+      expected: "-$10k",
     },
     {
       value: -10.005,
-      expected: "-$10.01"
+      expected: "-$10.01",
     },
     {
       value: -0.001,
-      expected: "\u2248$0"
+      expected: "\u2248$0",
     },
     {
       value: 0,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: 0.001,
-      expected: "\u2248$0"
+      expected: "\u2248$0",
     },
     {
       value: 10.005,
-      expected: "$10.01"
+      expected: "$10.01",
     },
     {
       value: 10.05,
-      expected: "$10.05"
+      expected: "$10.05",
     },
     {
       value: 10000,
-      expected: "$10k"
-    }
+      expected: "$10k",
+    },
   ];
   const div = document.createElement("div");
   const root = createRoot(div);
@@ -121,44 +121,44 @@ it("Tiny renders without crashing", () => {
   const cases = [
     {
       value: undefined,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: null,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: -10000,
-      expected: "-$10,000"
+      expected: "-$10,000",
     },
     {
       value: -10.005,
-      expected: "-$10.005"
+      expected: "-$10.005",
     },
     {
       value: -0.001,
-      expected: "-$0.001"
+      expected: "-$0.001",
     },
     {
       value: 0,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: 0.001,
-      expected: "$0.001"
+      expected: "$0.001",
     },
     {
       value: 10.005,
-      expected: "$10.005"
+      expected: "$10.005",
     },
     {
       value: 10.05,
-      expected: "$10.05"
+      expected: "$10.05",
     },
     {
       value: 10000,
-      expected: "$10,000"
-    }
+      expected: "$10,000",
+    },
   ];
   const div = document.createElement("div");
   const root = createRoot(div);
@@ -175,44 +175,44 @@ it("Tiny compact renders without crashing", () => {
   const cases = [
     {
       value: undefined,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: null,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: -10000,
-      expected: "-$10k"
+      expected: "-$10k",
     },
     {
       value: -10.005,
-      expected: "-$10.005"
+      expected: "-$10.005",
     },
     {
       value: -0.001,
-      expected: "-$0.001"
+      expected: "-$0.001",
     },
     {
       value: 0,
-      expected: "$0"
+      expected: "$0",
     },
     {
       value: 0.001,
-      expected: "$0.001"
+      expected: "$0.001",
     },
     {
       value: 10.005,
-      expected: "$10.005"
+      expected: "$10.005",
     },
     {
       value: 10.05,
-      expected: "$10.05"
+      expected: "$10.05",
     },
     {
       value: 10000,
-      expected: "$10k"
-    }
+      expected: "$10k",
+    },
   ];
   const div = document.createElement("div");
   const root = createRoot(div);

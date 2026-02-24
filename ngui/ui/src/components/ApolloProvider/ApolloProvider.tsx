@@ -28,19 +28,19 @@ const ApolloClientProvider = ({ children }: ApolloClientProviderProps) => {
   const httpLink = new HttpLink({
     uri: (operation) => `${httpBase}/api?op=${operation.operationName}`,
     headers: {
-      "x-optscale-token": token
-    }
+      "x-optscale-token": token,
+    },
   });
 
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: `${wsBase}/subscriptions`
+      url: `${wsBase}/subscriptions`,
     })
   );
 
   const retryLink = new RetryLink({
     attempts: { max: 3 },
-    delay: { initial: 300, max: 2000, jitter: true }
+    delay: { initial: 300, max: 2000, jitter: true },
   });
 
   const errorLink = onError(({ graphQLErrors, networkError, operation }: ErrorResponse) => {
@@ -87,7 +87,7 @@ const ApolloClientProvider = ({ children }: ApolloClientProviderProps) => {
 
   const client = new ApolloClient({
     cache,
-    link
+    link,
   });
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;

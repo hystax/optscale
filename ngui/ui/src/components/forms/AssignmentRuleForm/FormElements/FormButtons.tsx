@@ -23,7 +23,7 @@ const FormButtons = ({ isLoading = false, isEdit, onCancel }: FormButtonsProps) 
         disabled={isRestricted}
         tooltip={{
           show: isRestricted,
-          value: restrictionReasonMessage
+          value: restrictionReasonMessage,
         }}
       />
       <Button messageId="cancel" dataTestId="btn_cancel" onClick={onCancel} />

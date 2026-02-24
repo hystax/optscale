@@ -19,7 +19,7 @@ const TtlAnalysis = ({
   onEdit,
   shouldRenderReportLayout,
   TtlAnalysisFormProps,
-  TtlAnalysisReportProps
+  TtlAnalysisReportProps,
 }) => {
   const { type: topSectionComponentType, payload: topSectionComponentPayload = {} } = topSectionComponent;
 
@@ -37,18 +37,18 @@ const TtlAnalysis = ({
                   type={topSectionComponentPayload.poolType}
                   id={topSectionComponentPayload.poolId}
                 />
-              )
+              ),
             },
             {
               messageId: "ttl",
-              filterValue: <FormattedMessage id="hour" values={{ value: topSectionComponentPayload.ttl }} />
+              filterValue: <FormattedMessage id="hour" values={{ value: topSectionComponentPayload.ttl }} />,
             },
             {
               messageId: "dateRange",
               filterValue: `${unixTimestampToDateTime(topSectionComponentPayload.startDate)} - ${unixTimestampToDateTime(
                 topSectionComponentPayload.endDate
-              )}`
-            }
+              )}`,
+            },
           ],
           buttonsDefinition: [
             {
@@ -59,11 +59,11 @@ const TtlAnalysis = ({
                 startIcon: <CreateOutlinedIcon />,
                 onClick: onEdit,
                 messageId: "edit",
-                color: "primary"
-              }
-            }
-          ]
-        })
+                color: "primary",
+              },
+            },
+          ],
+        }),
     })[topSectionComponentType];
 
   const renderTopPageSection = getTopPageSectionRenderer();

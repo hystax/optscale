@@ -18,9 +18,9 @@ const EditOrganizationFormContainer = ({ onCancel, onSuccess }: EditOrganization
       variables: {
         organizationId,
         params: {
-          name: organizationName
-        }
-      }
+          name: organizationName,
+        },
+      },
     }).then(onSuccess);
   };
 

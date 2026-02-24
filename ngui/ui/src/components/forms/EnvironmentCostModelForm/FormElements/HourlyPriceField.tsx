@@ -20,10 +20,10 @@ const HourlyPriceField = () => {
       min={0}
       validate={{
         positiveNumber: (value) => (isPositiveNumberOrZero(value) ? true : intl.formatMessage({ id: "positiveNumber" })),
-        fractionDigits: costModelValueMaxFractionDigitsValidation
+        fractionDigits: costModelValueMaxFractionDigitsValidation,
       }}
       InputProps={{
-        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>
+        startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
       }}
       dataTestId="input_cpu"
     />

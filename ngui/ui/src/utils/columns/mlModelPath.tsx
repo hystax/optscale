@@ -20,7 +20,7 @@ const mlModelPath = ({ id, accessorKey, accessorFn, headerMessageId, headerDataT
     const path = cellProps.cell.getValue();
 
     return path ? <MlModelPathLabel path={path} /> : CELL_EMPTY_VALUE;
-  }
+  },
 });
 
 export default mlModelPath;

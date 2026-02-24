@@ -24,7 +24,7 @@ const MlRunsetOverview = ({
   stopRunset,
   isGetRunsetLoading = false,
   isGetRunsetRunsLoading = false,
-  isStopMlRunsetLoading = false
+  isStopMlRunsetLoading = false,
 }) => {
   const theme = useTheme();
   const refetch = useRefetchApis();
@@ -37,7 +37,7 @@ const MlRunsetOverview = ({
     runs_count: runsCount = 0,
     succeeded_runs: completedRuns = 0,
     cost = 0,
-    destroyed_at: destroyedAt
+    destroyed_at: destroyedAt,
   } = runset;
 
   const actionBarDefinition = {
@@ -48,11 +48,11 @@ const MlRunsetOverview = ({
       <Link key={2} to={getMlRunsetTemplateUrl(runsetTemplateId)} component={RouterLink}>
         {runsetTemplateName}
       </Link>,
-      <FormattedMessage key={3} id="runsets" />
+      <FormattedMessage key={3} id="runsets" />,
     ],
     title: {
       isLoading: isGetRunsetLoading,
-      text: <Typography>{formatRunFullName(runsetNumber, runsetName)}</Typography>
+      text: <Typography>{formatRunFullName(runsetNumber, runsetName)}</Typography>,
     },
     items: [
       {
@@ -61,7 +61,7 @@ const MlRunsetOverview = ({
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_RUNSET, GET_ML_RUNSETS_RUNS, GET_ML_RUNSET_EXECUTORS])
+        action: () => refetch([GET_ML_RUNSET, GET_ML_RUNSETS_RUNS, GET_ML_RUNSET_EXECUTORS]),
       },
       {
         key: "btn-stop",
@@ -74,10 +74,10 @@ const MlRunsetOverview = ({
         isLoading: isGetRunsetLoading || isStopMlRunsetLoading,
         tooltip: {
           show: true,
-          messageId: "stopRunsetButtonDescription"
-        }
-      }
-    ]
+          messageId: "stopRunsetButtonDescription",
+        },
+      },
+    ],
   };
 
   const [selectedRunNumbers, setSelectedRunNumbers] = useState();
@@ -87,7 +87,7 @@ const MlRunsetOverview = ({
   const runs = runsetRuns.map((run, index) => ({
     ...run,
     index,
-    color: colorScale(index)
+    color: colorScale(index),
   }));
 
   return (

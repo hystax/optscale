@@ -10,11 +10,11 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={CLOUD_ACCOUNTS} component={RouterLink}>
       <FormattedMessage id="dataSourcesTitle" />
-    </Link>
+    </Link>,
   ],
   title: {
-    text: <FormattedMessage id="connectDataSourceTitle" />
-  }
+    text: <FormattedMessage id="connectDataSourceTitle" />,
+  },
 };
 
 const ConnectCloudAccount = ({ isLoading, onSubmit, onCancel }) => (

@@ -13,5 +13,5 @@ export {
   AwsProperties,
   AzureProperties,
   GcpProperties,
-  NebiusProperties
+  NebiusProperties,
 };

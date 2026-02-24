@@ -8,6 +8,6 @@ export const useSelectionActions = () => {
   return {
     resetSelection: useCallback(() => dispatch(resetSelection()), [dispatch]),
     addSize: useCallback((size) => dispatch(addSize(size)), [dispatch]),
-    removeSize: useCallback((size) => dispatch(removeSizes(size)), [dispatch])
+    removeSize: useCallback((size) => dispatch(removeSizes(size)), [dispatch]),
   };
 };

@@ -9,8 +9,8 @@ class UpdateDataSourceCredentialsModal extends BaseSideModal {
       formattedMessageValues: { name: this.payload?.name },
       dataTestIds: {
         title: "lbl_update_data_source_credentials",
-        closeButton: "btn_close"
-      }
+        closeButton: "btn_close",
+      },
     };
   }
 

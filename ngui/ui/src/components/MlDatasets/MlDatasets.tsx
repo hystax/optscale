@@ -14,7 +14,7 @@ const PageActionBar = () => {
   const actionBarDefinition = {
     title: {
       messageId: "datasets",
-      dataTestId: "lbl_ml_datasets"
+      dataTestId: "lbl_ml_datasets",
     },
     items: [
       {
@@ -23,9 +23,9 @@ const PageActionBar = () => {
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_DATASETS])
-      }
-    ]
+        action: () => refetch([GET_ML_DATASETS]),
+      },
+    ],
   };
 
   return <ActionBar data={actionBarDefinition} />;

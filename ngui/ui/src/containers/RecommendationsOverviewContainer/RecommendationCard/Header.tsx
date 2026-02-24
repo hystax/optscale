@@ -19,7 +19,7 @@ const Header = ({ recommendationType, color, title, subtitle, value, valueLabel 
             <PushPinIcon
               style={{
                 marginTop: "4px",
-                transform: "rotate(45deg)"
+                transform: "rotate(45deg)",
               }}
               fontSize="small"
             />

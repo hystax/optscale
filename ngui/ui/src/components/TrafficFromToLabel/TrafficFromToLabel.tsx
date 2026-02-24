@@ -6,7 +6,7 @@ const TrafficFromToLabel = ({ from, to }) => (
     values={{
       from,
       to,
-      strong: (chunks) => <strong>{chunks}</strong>
+      strong: (chunks) => <strong>{chunks}</strong>,
     }}
   />
 );

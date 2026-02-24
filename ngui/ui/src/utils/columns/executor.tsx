@@ -19,23 +19,23 @@ const executor = ({ disableLink = false }) => ({
       discovered,
       platform_type: platformType,
       instance_id: instanceId,
-      resource
+      resource,
     } = original;
     return (
       <CaptionedCell
         caption={[
           {
             key: "name",
-            node: <KeyValueLabel keyMessageId="name" value={resource?.name} />
+            node: <KeyValueLabel keyMessageId="name" value={resource?.name} />,
           },
           {
             key: "region",
-            node: <KeyValueLabel keyMessageId="region" value={instanceRegion} />
+            node: <KeyValueLabel keyMessageId="region" value={instanceRegion} />,
           },
           {
             key: "size",
-            node: <KeyValueLabel keyMessageId="size" value={instanceType} />
-          }
+            node: <KeyValueLabel keyMessageId="size" value={instanceType} />,
+          },
         ]}
       >
         <ExecutorLabel
@@ -47,7 +47,7 @@ const executor = ({ disableLink = false }) => ({
         />
       </CaptionedCell>
     );
-  }
+  },
 });
 
 export default executor;

@@ -16,7 +16,7 @@ import {
   isWithinInterval,
   startOfMonth,
   endOfMonth,
-  fitDateIntoInterval
+  fitDateIntoInterval,
 } from "utils/datetime";
 import useStyles from "./Header.styles";
 
@@ -30,7 +30,7 @@ const Header = ({
   onClickNext,
   onClickPrevious,
   userBounds: { minDate: rowMinDate, maxDate: rowMaxDate },
-  dataTestIds = {}
+  dataTestIds = {},
 }) => {
   const { classes } = useStyles();
 
@@ -40,7 +40,7 @@ const Header = ({
     monthSelector: monthDataTestId,
     yearSelector: yearDataTestId,
     btnPrev: btnPrevDataTestId,
-    btnNext: btnNextDataTestId
+    btnNext: btnNextDataTestId,
   } = dataTestIds;
 
   const [years] = useState(generateYears(yearsTo, yearsFrom));

@@ -23,7 +23,7 @@ const getAreas = ({ shouldHighlight, xValues, getXCoordinateOfXValue }) => {
         return {
           xStart,
           xEnd,
-          width
+          width,
         };
       }
       return null;
@@ -44,7 +44,7 @@ export const useRenderWeekendsHighlightLayer = () => {
         return isOrganizationWeekend(date);
       },
       xValues: x.all,
-      getXCoordinateOfXValue: xScale
+      getXCoordinateOfXValue: xScale,
     });
 
     ctx.save();

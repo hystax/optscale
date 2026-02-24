@@ -11,7 +11,7 @@ const PowerSchedulesContainer = () => {
     <PowerSchedules
       isLoadingProps={{
         isGetPowerSchedulesLoading,
-        isUpdatePowerScheduleLoading
+        isUpdatePowerScheduleLoading,
       }}
       powerSchedules={powerSchedules}
       updatingEntityId={updatingEntityId}

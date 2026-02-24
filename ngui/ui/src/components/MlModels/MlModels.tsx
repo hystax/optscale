@@ -30,25 +30,25 @@ const ModelsTable = ({ models }: ModelsTableProps) => {
         getId: (rowOriginal) => rowOriginal.id,
         headerMessageId: "name",
         headerDataTestId: "lbl_model",
-        defaultSort: "asc"
+        defaultSort: "asc",
       }),
       text({
         headerMessageId: "key",
         headerDataTestId: "lbl_key",
-        accessorKey: "key"
+        accessorKey: "key",
       }),
       mlModelVersion({
         headerMessageId: "version",
         headerDataTestId: "lbl_latest_versions",
         id: "latestVersion",
-        accessorFn: (originalRow) => originalRow.last_version?.version
+        accessorFn: (originalRow) => originalRow.last_version?.version,
       }),
       mlModelUsedAliases(),
       utcTime({
         id: "createdAt",
         accessorFn: (originalRow) => originalRow.created_at,
         headerMessageId: "createdAt",
-        headerDataTestId: "lbl_created_at"
+        headerDataTestId: "lbl_created_at",
       }),
       {
         header: (
@@ -62,7 +62,7 @@ const ModelsTable = ({ models }: ModelsTableProps) => {
           const description = cell.getValue();
 
           return description ? <Markdown>{description}</Markdown> : CELL_EMPTY_VALUE;
-        }
+        },
       },
       tags({
         id: "tags",
@@ -70,8 +70,8 @@ const ModelsTable = ({ models }: ModelsTableProps) => {
           Object.entries(originalRow.tags ?? {})
             .map(([key, val]) => `${key}: ${val}`)
             .join(" "),
-        getTags: (rowOriginal) => rowOriginal.tags ?? {}
-      })
+        getTags: (rowOriginal) => rowOriginal.tags ?? {},
+      }),
     ],
     []
   );
@@ -89,10 +89,10 @@ const ModelsTable = ({ models }: ModelsTableProps) => {
           type: "button",
           dataTestId: "btn-create-model",
           link: ML_MODEL_CREATE,
-          requiredActions: ["EDIT_PARTNER"]
-        }
-      ]
-    }
+          requiredActions: ["EDIT_PARTNER"],
+        },
+      ],
+    },
   };
 
   return (
@@ -103,7 +103,7 @@ const ModelsTable = ({ models }: ModelsTableProps) => {
       actionBar={tableActionBarDefinition}
       pageSize={50}
       localization={{
-        emptyMessageId: "noModels"
+        emptyMessageId: "noModels",
       }}
     />
   );

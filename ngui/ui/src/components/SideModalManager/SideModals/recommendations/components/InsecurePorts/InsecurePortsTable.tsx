@@ -15,9 +15,9 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
         portString: formatProtocolPortAppLabel({
           port: port.port,
           protocol: port.protocol,
-          app: portsMap[port.port]
+          app: portsMap[port.port],
         }),
-        ...port
+        ...port,
       })),
 
     [formatProtocolPortAppLabel, ports, portsMap]
@@ -29,10 +29,10 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
         header: <FormattedMessage id="port" />,
         accessorKey: "portString",
         style: {
-          minWidth: 400
+          minWidth: 400,
         },
         defaultSort: "asc",
-        enableHiding: false
+        enableHiding: false,
       },
       {
         header: (
@@ -54,12 +54,12 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
                 color: "error",
                 requiredActions: ["MANAGE_RESOURCES"],
                 dataTestId: `btn_delete_${index}`,
-                action: () => onDelete(protocol, port)
-              }
+                action: () => onDelete(protocol, port),
+              },
             ]}
           />
-        )
-      }
+        ),
+      },
     ],
     [onDelete]
   );
@@ -75,7 +75,7 @@ const InsecurePortsTable = ({ ports, portsMap, onDelete, isLoading = false }) =>
       withSearch
       enableSearchQueryParam={false}
       localization={{
-        emptyMessageId: "noPorts"
+        emptyMessageId: "noPorts",
       }}
     />
   );

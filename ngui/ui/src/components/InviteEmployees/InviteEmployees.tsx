@@ -10,12 +10,12 @@ const actionBarDefinition = {
   breadcrumbs: [
     <Link key={1} to={USER_MANAGEMENT} component={RouterLink}>
       <FormattedMessage id="users" />
-    </Link>
+    </Link>,
   ],
   title: {
     text: <FormattedMessage id="inviteUsersTitle" />,
-    dataTestId: "lbl_users_invitation"
-  }
+    dataTestId: "lbl_users_invitation",
+  },
 };
 
 const InviteEmployees = ({ onSubmit, availablePools, isLoadingProps = {} }) => {

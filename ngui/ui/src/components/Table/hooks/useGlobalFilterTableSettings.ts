@@ -37,7 +37,7 @@ const useSearch = ({ queryParamPrefix, enableSearchQueryParam = true }) => {
 
   return {
     search,
-    onSearchChange
+    onSearchChange,
   };
 };
 
@@ -51,7 +51,7 @@ const useRange = ({ rangeFilter }) => {
 
   return {
     range,
-    onRangeChange
+    onRangeChange,
   };
 };
 
@@ -60,34 +60,34 @@ export const useGlobalFilterTableSettings = ({
   queryParamPrefix,
   enableSearchQueryParam,
   columns,
-  rangeFilter
+  rangeFilter,
 }) => {
   const { search, onSearchChange } = useSearch({
     queryParamPrefix,
-    enableSearchQueryParam
+    enableSearchQueryParam,
   });
 
   const { range, onRangeChange } = useRange({
-    rangeFilter
+    rangeFilter,
   });
 
   const globalFilter = useMemo(
     () => ({
       search,
-      range
+      range,
     }),
     [range, search]
   );
 
   return {
     state: {
-      globalFilter
+      globalFilter,
     },
     tableOptions: {
       getFilteredRowModel: getFilteredRowModel(),
-      globalFilterFn: globalFilterFn({ columns, withSearch, rangeFilter })
+      globalFilterFn: globalFilterFn({ columns, withSearch, rangeFilter }),
     },
     onSearchChange,
-    onRangeChange
+    onRangeChange,
   };
 };

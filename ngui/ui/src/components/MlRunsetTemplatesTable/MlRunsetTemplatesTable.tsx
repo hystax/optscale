@@ -27,8 +27,8 @@ const MlRunsetTemplatesTable = ({ data, isLoading }) => {
         cell: ({
           cell,
           row: {
-            original: { id }
-          }
+            original: { id },
+          },
         }) => {
           const name = cell.getValue();
 
@@ -37,10 +37,10 @@ const MlRunsetTemplatesTable = ({ data, isLoading }) => {
               {name}
             </Link>
           );
-        }
+        },
       },
       mlRunsCount({
-        accessorKey: "total_runs"
+        accessorKey: "total_runs",
       }),
       ...(isFinOpsEnabled
         ? [
@@ -53,9 +53,9 @@ const MlRunsetTemplatesTable = ({ data, isLoading }) => {
               accessorKey: "last_runset_cost",
               cell: ({
                 row: {
-                  original: { last_runset_cost: lastRunsetExpenses }
-                }
-              }) => <FormattedMoney value={lastRunsetExpenses} />
+                  original: { last_runset_cost: lastRunsetExpenses },
+                },
+              }) => <FormattedMoney value={lastRunsetExpenses} />,
             },
             {
               header: (
@@ -66,12 +66,12 @@ const MlRunsetTemplatesTable = ({ data, isLoading }) => {
               accessorKey: "total_cost",
               cell: ({
                 row: {
-                  original: { total_cost: total }
-                }
-              }) => <FormattedMoney value={total} />
-            }
+                  original: { total_cost: total },
+                },
+              }) => <FormattedMoney value={total} />,
+            },
           ]
-        : [])
+        : []),
     ],
     [isFinOpsEnabled]
   );
@@ -89,10 +89,10 @@ const MlRunsetTemplatesTable = ({ data, isLoading }) => {
           type: "button",
           dataTestId: "btn-create-runset-template",
           link: ML_RUNSET_TEMPLATE_CREATE,
-          requiredActions: ["EDIT_PARTNER"]
-        }
-      ]
-    }
+          requiredActions: ["EDIT_PARTNER"],
+        },
+      ],
+    },
   };
 
   return (

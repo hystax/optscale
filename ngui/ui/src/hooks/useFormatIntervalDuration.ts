@@ -12,7 +12,7 @@ export const useFormatIntervalDuration = () => {
         duration,
         precision,
         compact,
-        intlFormatter: intl
+        intlFormatter: intl,
       }),
     [intl]
   );

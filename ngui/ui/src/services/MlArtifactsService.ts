@@ -6,7 +6,7 @@ import {
   DELETE_ML_ARTIFACT,
   GET_ML_ARTIFACT,
   GET_ML_ARTIFACTS,
-  UPDATE_ML_ARTIFACT
+  UPDATE_ML_ARTIFACT,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
 import { useApiState } from "hooks/useApiState";
@@ -171,7 +171,7 @@ function MlArtifactsService() {
     useGetOne,
     useUpdate,
     useCreate,
-    useDelete
+    useDelete,
   };
 }
 

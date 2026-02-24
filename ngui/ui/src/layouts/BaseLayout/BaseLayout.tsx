@@ -46,7 +46,7 @@ const AppToolbar = ({
   showMainMenu = false,
   showOrganizationSelector = false,
   isOrganizationSelectorLoading = false,
-  isProductTourAvailable = false
+  isProductTourAvailable = false,
 }) => {
   const { classes, cx } = useStyles();
   const navigate = useNavigate();
@@ -144,12 +144,12 @@ const BaseLayout = ({ children, showMainMenu = false, showOrganizationSelector =
                     <Drawer
                       variant="temporary"
                       classes={{
-                        paper: classes.drawerPaper
+                        paper: classes.drawerPaper,
                       }}
                       onClose={handleDrawerToggle}
                       open={mobileOpen}
                       ModalProps={{
-                        keepMounted: true
+                        keepMounted: true,
                       }}
                     >
                       <MainMenu menu={mainMenu} />

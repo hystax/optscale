@@ -7,8 +7,8 @@ const UserEmailNotificationSettingsContainer = () => {
 
   const { loading, data } = useEmployeeEmailsQuery({
     variables: {
-      employeeId: currentEmployee.id
-    }
+      employeeId: currentEmployee.id,
+    },
   });
 
   return <UserEmailNotificationSettings employeeEmails={data?.employeeEmails ?? []} isLoading={loading} />;

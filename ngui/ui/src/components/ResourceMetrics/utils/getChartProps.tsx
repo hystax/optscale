@@ -24,7 +24,7 @@ const getValuesFormatter = (valueType) =>
         values={{
           value: (
             <FormattedDigitalUnit value={value} baseUnit={IEC_UNITS.BYTE} maximumFractionDigits={MAXIMUM_FRACTION_DIGITS} />
-          )
+          ),
         }}
       />
     ),
@@ -36,7 +36,7 @@ const getValuesFormatter = (valueType) =>
         id="inputOutputOperationsPerSecond"
         values={{ value: <FormattedNumber value={value} maximumFractionDigits={MAXIMUM_FRACTION_DIGITS} /> }}
       />
-    )
+    ),
   })[valueType];
 
 const getMarginLeftByValueType = (valueType) =>
@@ -46,7 +46,7 @@ const getMarginLeftByValueType = (valueType) =>
     [CHART_VALUE_TYPES.PER_SECOND]: 45,
     [CHART_VALUE_TYPES.IEC_BYTE_PER_SECOND]: 69,
     [CHART_VALUE_TYPES.IEC_BYTE_BASE]: 69,
-    [CHART_VALUE_TYPES.INPUT_OUTPUT_OPERATIONS_PER_SECOND]: 69
+    [CHART_VALUE_TYPES.INPUT_OUTPUT_OPERATIONS_PER_SECOND]: 69,
   })[valueType];
 
 const getChartProps = ({ metricType, valueType, linesWithMarkerData, colors, formatYValue }) => {
@@ -63,9 +63,9 @@ const getChartProps = ({ metricType, valueType, linesWithMarkerData, colors, for
         value: valuesFormatter(markerData.value),
         dataTestIds: {
           title: `lbl_${markerData.dataTestIdName}`,
-          value: `lbl_${markerData.dataTestIdName}_value`
-        }
-      }
+          value: `lbl_${markerData.dataTestIdName}_value`,
+        },
+      },
     })),
     colors
   );
@@ -79,7 +79,7 @@ const getChartProps = ({ metricType, valueType, linesWithMarkerData, colors, for
     // Formats values in a tooltip
     yFormat: (value) => valuesFormatter(value),
     dataTestId: `chart_${metricType}`,
-    emptyMessageId: "noDataIsAvailableForThePeriod"
+    emptyMessageId: "noDataIsAvailableForThePeriod",
   };
 };
 

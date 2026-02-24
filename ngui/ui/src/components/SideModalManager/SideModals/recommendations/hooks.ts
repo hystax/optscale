@@ -34,13 +34,13 @@ export const useFormWithValuesFromOptions = (options, onSave, valueKeys) => {
   const getFormValues = useCallback(
     (currentValues = {}) => ({
       ...currentValues,
-      ...objectMap(valueKeys, (optionsKey) => options[optionsKey])
+      ...objectMap(valueKeys, (optionsKey) => options[optionsKey]),
     }),
     [options, valueKeys]
   );
 
   const methods = useForm({
-    defaultValues: getFormValues()
+    defaultValues: getFormValues(),
   });
 
   const { handleSubmit, reset } = methods;
@@ -54,7 +54,7 @@ export const useFormWithValuesFromOptions = (options, onSave, valueKeys) => {
 
     const newOptions = {
       ...options,
-      ...objectMap(revertedKeys, (thresholdsKey) => formData[thresholdsKey])
+      ...objectMap(revertedKeys, (thresholdsKey) => formData[thresholdsKey]),
     };
 
     onSave(newOptions);

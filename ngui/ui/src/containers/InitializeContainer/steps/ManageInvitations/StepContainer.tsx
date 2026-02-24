@@ -13,10 +13,10 @@ const StepContainer = () => {
     data: invitations,
     networkStatus: getInvitationsNetworkStatus,
     error: getInvitationsError,
-    refetch: refetchInvitations
+    refetch: refetchInvitations,
   } = useInvitationsQuery({
     fetchPolicy: "no-cache",
-    notifyOnNetworkStatusChange: true
+    notifyOnNetworkStatusChange: true,
   });
 
   const onRefetch = ({ onSuccess, onError } = {}) => {

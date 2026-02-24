@@ -22,7 +22,7 @@ const PropertyNameField = ({ readOnly, defaultPropertyName, existingProperties }
           );
 
           return !propertyAlreadyExists || intl.formatMessage({ id: "propertyNamesMustBeUnique" });
-        }
+        },
       }}
     />
   );

@@ -15,7 +15,7 @@ const RegionsField = ({ isLoading }) => {
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext();
 
   return (
@@ -24,8 +24,8 @@ const RegionsField = ({ isLoading }) => {
       control={control}
       rules={{
         validate: {
-          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" }))
-        }
+          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" })),
+        },
       }}
       render={({ field: { value: formFieldValue, onChange } }) =>
         isLoading ? (

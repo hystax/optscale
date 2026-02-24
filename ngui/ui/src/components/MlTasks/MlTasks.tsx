@@ -20,7 +20,7 @@ import {
   STATUS_BE_FILTER,
   GOALS_FILTER,
   OWNER_ID_FILTER,
-  EMPTY_UUID
+  EMPTY_UUID,
 } from "utils/constants";
 import { getSearchParams, updateSearchParams } from "utils/network";
 import { isEmptyObject } from "utils/objects";
@@ -33,7 +33,7 @@ const PageActionBar = () => {
   const actionBarDefinition = {
     title: {
       messageId: "tasks",
-      dataTestId: "lbl_ml_tasks"
+      dataTestId: "lbl_ml_tasks",
     },
     items: [
       {
@@ -42,7 +42,7 @@ const PageActionBar = () => {
         messageId: "refresh",
         dataTestId: "btn_refresh",
         type: "button",
-        action: () => refetch([GET_ML_TASKS])
+        action: () => refetch([GET_ML_TASKS]),
       },
       {
         key: "btn-profiling-integration",
@@ -50,7 +50,7 @@ const PageActionBar = () => {
         messageId: "profilingIntegration",
         dataTestId: "btn_profiling_integration",
         type: "button",
-        action: () => openSideModal(ProfilingIntegrationModal, {})
+        action: () => openSideModal(ProfilingIntegrationModal, {}),
       },
       {
         key: "btn-manage-metrics",
@@ -58,7 +58,7 @@ const PageActionBar = () => {
         messageId: "manageMetrics",
         dataTestId: "btn_manage_metrics",
         type: "button",
-        link: ML_METRICS
+        link: ML_METRICS,
       },
       {
         key: "btn-executors",
@@ -66,9 +66,9 @@ const PageActionBar = () => {
         messageId: "executors",
         dataTestId: "btn_executors",
         type: "button",
-        link: ML_EXECUTORS
-      }
-    ]
+        link: ML_EXECUTORS,
+      },
+    ],
   };
 
   return <ActionBar data={actionBarDefinition} />;
@@ -88,11 +88,11 @@ const getFilterValues = ({ tasks }) => {
           id,
           {
             id,
-            name
-          }
+            name,
+          },
         ];
       })
-    ).values()
+    ).values(),
   ];
 
   const statuses = [
@@ -100,27 +100,27 @@ const getFilterValues = ({ tasks }) => {
       tasks.map(({ status }) => [
         status,
         {
-          name: status
-        }
+          name: status,
+        },
       ])
-    ).values()
+    ).values(),
   ];
 
   const goals = [
     {
       name: GOAL_STATUS.MET,
-      value: true
+      value: true,
     },
     {
       name: GOAL_STATUS.NOT_MET,
-      value: false
-    }
+      value: false,
+    },
   ];
 
   return {
     [OWNER_BE_FILTER]: owners,
     [STATUS_BE_FILTER]: statuses,
-    [GOALS_BE_FILTER]: goals
+    [GOALS_BE_FILTER]: goals,
   };
 };
 
@@ -131,7 +131,7 @@ const getRequestParams = () => {
     ML_TASKS_FILTERS_NAMES.reduce(
       (params, queryKey) => ({
         ...params,
-        [queryKey]: queryParams[queryKey]
+        [queryKey]: queryParams[queryKey],
       }),
       {}
     );
@@ -198,7 +198,7 @@ const MlTasks = ({ tasks, isLoading }) => {
         <PageContentDescription
           position="bottom"
           alertProps={{
-            messageId: "mlTasksDescription"
+            messageId: "mlTasksDescription",
           }}
         />
       </PageContentWrapper>

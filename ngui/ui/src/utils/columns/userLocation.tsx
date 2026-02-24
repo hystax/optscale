@@ -28,7 +28,7 @@ const userLocation = ({ headerDataTestId = "", accessorKey = "cloud_account_name
     </TextWithDataTestId>
   ),
   accessorKey,
-  cell: Cell
+  cell: Cell,
 });
 
 export default userLocation;

@@ -21,7 +21,7 @@ const RunTagsField = ({ groupingTags = [], isLoading = false }: RunTagsFieldProp
 
   const {
     control,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   return (
@@ -30,8 +30,8 @@ const RunTagsField = ({ groupingTags = [], isLoading = false }: RunTagsFieldProp
       control={control}
       rules={{
         validate: {
-          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" }))
-        }
+          required: (value) => (!isEmptyArray(value) ? true : intl.formatMessage({ id: "thisFieldIsRequired" })),
+        },
       }}
       render={({ field: { name, value: formFieldValue, onChange, onBlur, ref } }) =>
         isLoading ? (
@@ -67,7 +67,7 @@ const RunTagsField = ({ groupingTags = [], isLoading = false }: RunTagsFieldProp
                 ref={ref}
                 InputProps={{
                   ...params.InputProps,
-                  endAdornment: <QuestionMark messageId="groupRunsByTagsHint" dataTestId="qmark_group_runs_by_tags" />
+                  endAdornment: <QuestionMark messageId="groupRunsByTagsHint" dataTestId="qmark_group_runs_by_tags" />,
                 }}
               />
             )}

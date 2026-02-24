@@ -10,8 +10,8 @@ import { getDefaultValues } from "./utils";
 const EnvironmentWebhookForm = ({ url, onSubmit, onCancel, isLoading = false }: EnvironmentWebhookFormProps) => {
   const methods = useForm<FormValues>({
     defaultValues: getDefaultValues({
-      url
-    })
+      url,
+    }),
   });
 
   const { handleSubmit } = methods;

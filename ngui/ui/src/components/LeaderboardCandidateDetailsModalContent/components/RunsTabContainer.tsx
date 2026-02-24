@@ -19,14 +19,14 @@ const RunsTabContainer = ({ taskId, candidateDetails, qualifiedRunIds, otherData
     key: primaryMetricKey,
     name: primaryMetricName,
     aggregateFunction: primaryMetricAggregationFunction,
-    unit: primaryMetricUnit
+    unit: primaryMetricUnit,
   };
 
   const candidateSecondaryMetrics = Object.entries(candidateDetails.metrics ?? {}).map(([key, payload]) => ({
     key,
     name: payload.name,
     aggregateFunction: payload.func,
-    unit: payload.unit
+    unit: payload.unit,
   }));
 
   return (

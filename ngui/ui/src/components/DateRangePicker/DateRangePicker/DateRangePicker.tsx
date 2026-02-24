@@ -21,7 +21,7 @@ import {
   secondsToMilliseconds,
   moveDateFromUTC,
   moveDateToUTC,
-  isToday as isTodayDateFNS
+  isToday as isTodayDateFNS,
 } from "utils/datetime";
 import { objectMap } from "utils/objects";
 import { getBasicRangesSet } from "../defaults";
@@ -31,7 +31,7 @@ import useStyles from "./DateRangePicker.styles";
 
 export const MARKERS = Object.freeze({
   FIRST_MONTH: 1,
-  SECOND_MONTH: 2
+  SECOND_MONTH: 2,
 });
 
 const DateRangePicker = (props) => {
@@ -45,7 +45,7 @@ const DateRangePicker = (props) => {
     minDate,
     maxDate,
     isUtc = true,
-    definedRanges = getBasicRangesSet(isUtc)
+    definedRanges = getBasicRangesSet(isUtc),
   } = props;
 
   // Month component works only with local dates
@@ -192,13 +192,13 @@ const DateRangePicker = (props) => {
 
   const helpers = {
     inHoverRange,
-    isToday
+    isToday,
   };
 
   const handlers = {
     onDayClick,
     onDayHover,
-    onMonthNavigate
+    onMonthNavigate,
   };
 
   const canNavigateCloser = differenceInCalendarMonths(secondMonth, firstMonth) >= 2;
@@ -210,7 +210,7 @@ const DateRangePicker = (props) => {
     minDate: getTime(minDateValid),
     maxDate: getTime(maxDateValid),
     helpers,
-    handlers
+    handlers,
   };
 
   return open ? (
@@ -225,13 +225,13 @@ const DateRangePicker = (props) => {
             marker={MARKERS.FIRST_MONTH}
             userBounds={{
               minDate: getTime(minDateValid),
-              maxDate: getTime(subMonths(secondMonth, 1))
+              maxDate: getTime(subMonths(secondMonth, 1)),
             }}
             dataTestIds={{
               monthSelector: "selector_previous_month",
               yearSelector: "selector_previous_year",
               btnPrev: "btn_previous_left",
-              btnNext: "btn_previous_right"
+              btnNext: "btn_previous_right",
             }}
           />
           <div className={classes.divider} />
@@ -243,13 +243,13 @@ const DateRangePicker = (props) => {
             marker={MARKERS.SECOND_MONTH}
             userBounds={{
               minDate: getTime(addMonths(firstMonth, 1)),
-              maxDate: getTime(maxDateValid)
+              maxDate: getTime(maxDateValid),
             }}
             dataTestIds={{
               monthSelector: "selector_next_month",
               yearSelector: "selector_next_year",
               btnPrev: "btn_next_left",
-              btnNext: "btn_next_right"
+              btnNext: "btn_next_right",
             }}
           />
         </Grid>

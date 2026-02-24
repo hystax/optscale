@@ -15,7 +15,7 @@ const RelativeDateTimePicker = ({ definedRanges, defaultActiveRange, onChange })
     name: id,
     value: id,
     dataTestId,
-    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT
+    type: LINEAR_SELECTOR_ITEMS_TYPES.TEXT,
   }));
 
   const selectedTimeItem = timeItems.find(({ value }) => value === selectedRange);

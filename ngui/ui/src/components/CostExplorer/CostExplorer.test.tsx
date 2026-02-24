@@ -15,7 +15,7 @@ it("renders without crashing", () => {
     <TestProvider
       state={{
         rangeDates: {},
-        [EXPENSES_BREAKDOWN_PERIOD_TYPE]: EXPENSES_SPLIT_PERIODS.DAILY
+        [EXPENSES_BREAKDOWN_PERIOD_TYPE]: EXPENSES_SPLIT_PERIODS.DAILY,
       }}
     >
       <CostExplorer

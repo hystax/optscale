@@ -7,11 +7,11 @@ import JiraBusReducer, { JIRA_BUS } from "api/jira_bus/reducer";
 import ApiReducer, { API } from "api/reducer";
 import RestapiReducer, { RESTAPI } from "api/restapi/reducer";
 import ResourcesSortGroupsByReducer, {
-  RESOURCES_SORT_GROUPS_BY
+  RESOURCES_SORT_GROUPS_BY,
 } from "components/CleanExpensesTableGroup/SortGroupsBySelector/reducer";
 import MainMenuExpandedReducer, { MAIN_MENU_EXPANDED } from "components/CollapsableMenuDrawer/reducer";
 import ExpensesBreakdownPeriodTypeReducer, {
-  EXPENSES_BREAKDOWN_PERIOD_TYPE
+  EXPENSES_BREAKDOWN_PERIOD_TYPE,
 } from "components/ExpensesBreakdown/BreakdownByPeriodWidget/reducer";
 import CollapsedMenuItemsReducer, { COLLAPSED_MENU_ITEMS } from "components/MenuGroupWrapper/reducer";
 import PoolsTableReducer, { EXPANDED_POOL_ROWS } from "components/PoolsTable/reducer";
@@ -22,16 +22,16 @@ import InitializeReducer, { INITIAL } from "containers/InitializeContainer/redux
 import ScopeIdReducer, { SCOPE_ID } from "containers/OrganizationSelectorContainer/reducer";
 import RangeDatesReducer, { RANGE_DATES } from "containers/RangePickerFormContainer/reducer";
 import RecommendationsControlsStateReducer, {
-  RECOMMENDATIONS_CONTROLS_STATE
+  RECOMMENDATIONS_CONTROLS_STATE,
 } from "containers/RecommendationsOverviewContainer/redux/controlsState/reducer";
 import PinnedRecommendationsReducer, {
-  PINNED_RECOMMENDATIONS
+  PINNED_RECOMMENDATIONS,
 } from "containers/RecommendationsOverviewContainer/redux/pinnedRecommendations/reducer";
 import { SHOW_LESS_THAN_VALUE, reducer as ShowLessThanValueReducer } from "hooks/useShowLessThanValue";
 import { SHOW_WEEKENDS, reducer as ShowWeekendsReducer } from "hooks/useShowWeekends";
 import migrations, { CURRENT_VERSION } from "migrations";
 import CloudCostComparisonSelectedSizes, {
-  CLOUD_COST_COMPARISON_SELECTED_SIZES
+  CLOUD_COST_COMPARISON_SELECTED_SIZES,
 } from "reducers/cloudCostComparisonSelectedSizes/reducer";
 import ColumnsReducer, { COLUMNS } from "reducers/columns/reducer";
 import { RESET } from "reducers/route/actionTypes";
@@ -50,7 +50,7 @@ const persistConfig = {
   keyPrefix: "",
   blacklist: [AUTH, API, RESTAPI, JIRA_BUS, CLOUD_COST_COMPARISON_SELECTED_SIZES],
   version: CURRENT_VERSION,
-  migrate: createMigrate(migrations, { debug: true })
+  migrate: createMigrate(migrations, { debug: true }),
 };
 
 const authPersistConfig = {
@@ -58,7 +58,7 @@ const authPersistConfig = {
   storage: localForage,
   keyPrefix: "",
   version: 1,
-  whitelist: GET_TOKEN
+  whitelist: GET_TOKEN,
 };
 
 const appReducer = combineReducers({
@@ -84,7 +84,7 @@ const appReducer = combineReducers({
   [TASK_BREAKDOWN]: TaskBreakdown,
   [CLOUD_COST_COMPARISON_SELECTED_SIZES]: CloudCostComparisonSelectedSizes,
   [RECOMMENDATIONS_CONTROLS_STATE]: RecommendationsControlsStateReducer,
-  [TASK_RUNS_DASHBOARD]: taskRunsDashboard
+  [TASK_RUNS_DASHBOARD]: taskRunsDashboard,
 });
 
 const rootReducer = (incomingState, action) => {
@@ -111,7 +111,7 @@ const rootReducer = (incomingState, action) => {
     state = {
       /* eslint-disable no-underscore-dangle */
       ...rest,
-      [AUTH]: { _persist: (rest[AUTH] || {})._persist }
+      [AUTH]: { _persist: (rest[AUTH] || {})._persist },
       /* eslint-enable no-underscore-dangle */
     };
   }

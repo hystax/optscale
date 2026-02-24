@@ -15,11 +15,11 @@ const useGet = (params = {}) => {
 
   const { isLoading, shouldInvoke } = useApiState(GET_ASSIGNMENT_RULES, {
     organizationId,
-    poolId
+    poolId,
   });
 
   const {
-    apiData: { assignmentRules = {} }
+    apiData: { assignmentRules = {} },
   } = useApiData(GET_ASSIGNMENT_RULES);
 
   useEffect(() => {

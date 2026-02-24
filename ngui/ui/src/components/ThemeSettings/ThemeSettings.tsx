@@ -75,16 +75,16 @@ const ThemeSettings = () => {
   const tabs = [
     {
       title: "typography",
-      node: <TypographySettings />
+      node: <TypographySettings />,
     },
     {
       title: "palette",
-      node: <PaletteSettings />
+      node: <PaletteSettings />,
     },
     {
       title: "chartPalette",
-      node: <ChartPaletteSettings />
-    }
+      node: <ChartPaletteSettings />,
+    },
   ];
 
   return (
@@ -92,7 +92,7 @@ const ThemeSettings = () => {
       tabsProps={{
         tabs,
         defaultTab: "typography",
-        name: "theme-settings"
+        name: "theme-settings",
       }}
     />
   );

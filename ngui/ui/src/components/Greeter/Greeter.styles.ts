@@ -3,29 +3,29 @@ import { makeStyles } from "tss-react/mui";
 const getFormAndMapWrapperClasses = (theme) => {
   const wrapperClass = {
     [theme.breakpoints.down("xl")]: {
-      width: 400
+      width: 400,
     },
     [theme.breakpoints.down("sm")]: {
       maxWidth: 400,
-      width: "100%"
+      width: "100%",
     },
-    width: 600
+    width: 600,
   };
   return {
-    wrapper: wrapperClass
+    wrapper: wrapperClass,
   };
 };
 
 const useStyles = makeStyles()((theme) => ({
   root: {
-    height: "100vh"
+    height: "100vh",
   },
   centeredFlexColumnDirection: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "column",
-    textAlign: "center"
+    textAlign: "center",
   },
   linkWrapper: {
     width: "100%",
@@ -33,46 +33,46 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: "space-between",
     alignItems: "center",
     [theme.breakpoints.down("md")]: {
-      justifyContent: "space-around"
-    }
+      justifyContent: "space-around",
+    },
   },
   imagesWithCaptions: {
     maxWidth: "590px",
     [theme.breakpoints.down("md")]: {
-      justifyContent: "center"
+      justifyContent: "center",
     },
     [theme.breakpoints.up("xl")]: {
-      maxWidth: "690px"
-    }
+      maxWidth: "690px",
+    },
   },
   imageWithCaptionWrapper: {
     alignItems: "center",
     display: "flex",
     flexDirection: "column",
-    width: "100%"
+    width: "100%",
   },
   image: {
     maxWidth: "122px",
     width: "80%",
     marginBottom: theme.spacing(1.5),
     [theme.breakpoints.down("md")]: {
-      width: "50%"
-    }
+      width: "50%",
+    },
   },
   caption: {
     textAlign: "center",
-    lineHeight: 1.25
+    lineHeight: 1.25,
   },
   webIconMargin: {
-    marginRight: "0.5rem"
+    marginRight: "0.5rem",
   },
   leftSideGrid: {
-    backgroundColor: theme.palette.common.white
+    backgroundColor: theme.palette.common.white,
   },
   rightSideGrid: {
-    backgroundColor: "#333F53"
+    backgroundColor: "#333F53",
   },
-  ...getFormAndMapWrapperClasses(theme)
+  ...getFormAndMapWrapperClasses(theme),
 }));
 
 export default useStyles;

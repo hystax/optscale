@@ -53,7 +53,7 @@ const ClusterIcon = ({ dataTestId, hasRightMargin = false }: ClusterIconProps) =
     hasRightMargin={hasRightMargin}
     tooltip={{
       show: true,
-      messageId: "cluster"
+      messageId: "cluster",
     }}
   />
 );
@@ -65,7 +65,7 @@ const EnvironmentIcon = ({ dataTestId, hasRightMargin = false }: EnvironmentIcon
     hasRightMargin={hasRightMargin}
     tooltip={{
       show: true,
-      messageId: "environment"
+      messageId: "environment",
     }}
   />
 );

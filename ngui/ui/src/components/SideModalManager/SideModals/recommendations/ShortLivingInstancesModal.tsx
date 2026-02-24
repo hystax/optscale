@@ -9,7 +9,7 @@ import TextWithInlineInput from "./components/TextWithInlineInput";
 import { useCommonSettingsData, useFormWithValuesFromOptions } from "./hooks";
 
 const VALUE_KEYS = Object.freeze({
-  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold"
+  [THRESHOLD_INPUT_NAMES.DAYS_THRESHOLD]: "days_threshold",
 });
 
 const ShortLivingInstancesThresholds = ({ recommendationType, onSuccess }) => {
@@ -27,7 +27,7 @@ const ShortLivingInstancesThresholds = ({ recommendationType, onSuccess }) => {
         <TextWithInlineInput
           messageId="thresholds.shortLivingInstances"
           messageValues={{
-            strong: (chunks) => <strong>{chunks}</strong>
+            strong: (chunks) => <strong>{chunks}</strong>,
           }}
           isLoading={isGetDataLoading}
           lessOrEqualValidation={lessOrEqual(COMMON_YEAR_LENGTH)}
@@ -48,8 +48,8 @@ class ShortLivingInstancesModal extends BaseSideModal {
     messageId: "shortLivingInstances",
     dataTestIds: {
       title: "lbl_short_living_instances_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_short_living_instances";

@@ -19,7 +19,7 @@ const EnvironmentCostModelContainer = ({ resourceId, isGetPermissionsLoading = f
   }, [dispatch, resourceId, shouldInvoke]);
 
   const {
-    apiData: { value: { hourly_cost: hourlyPrice = 0 } = {} }
+    apiData: { value: { hourly_cost: hourlyPrice = 0 } = {} },
   } = useApiData(GET_RESOURCE_COST_MODEL);
 
   return (

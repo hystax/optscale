@@ -9,7 +9,7 @@ const tendency = ({ headerDataTestId = "lbl_tendency", accessorKey = "tendency" 
     const tendencyValue = cell.getValue();
 
     return tendencyValue ? <TendencyFormattedMessage tendency={tendencyValue} /> : CELL_EMPTY_VALUE;
-  }
+  },
 });
 
 export default tendency;

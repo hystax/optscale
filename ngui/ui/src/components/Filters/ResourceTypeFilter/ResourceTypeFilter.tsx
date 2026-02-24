@@ -29,18 +29,18 @@ class ResourceTypeFilter extends Filter {
     additionalProperties: false,
     properties: {
       name: {
-        type: "string"
+        type: "string",
       },
       type: {
         type: "string",
-        enum: Object.values(OPTSCALE_RESOURCE_TYPES)
-      }
-    }
+        enum: Object.values(OPTSCALE_RESOURCE_TYPES),
+      },
+    },
   };
 
   // TODO: Use ajv TS integration to create schema based on types def
   static appliedFilterSchema = {
-    type: "string"
+    type: "string",
   };
 
   static _getValue(filterItem) {
@@ -53,7 +53,7 @@ class ResourceTypeFilter extends Filter {
         resourceInfo={{
           resourceType: filterItem.name,
           clusterTypeId: filterItem.type === OPTSCALE_RESOURCE_TYPES.CLUSTER,
-          isEnvironment: filterItem.type === OPTSCALE_RESOURCE_TYPES.ENVIRONMENT
+          isEnvironment: filterItem.type === OPTSCALE_RESOURCE_TYPES.ENVIRONMENT,
         }}
       />
     );
@@ -75,24 +75,24 @@ class ResourceTypeFilter extends Filter {
       value: INSTANCE_REGULAR,
       label: this.constructor._getDisplayedValueRenderer({
         name: INSTANCE,
-        type: OPTSCALE_RESOURCE_TYPES.REGULAR
-      })
+        type: OPTSCALE_RESOURCE_TYPES.REGULAR,
+      }),
     },
     {
       name: this.constructor.filterName,
       value: VOLUME_REGULAR,
       label: this.constructor._getDisplayedValueRenderer({
         name: VOLUME,
-        type: OPTSCALE_RESOURCE_TYPES.REGULAR
-      })
-    }
+        type: OPTSCALE_RESOURCE_TYPES.REGULAR,
+      }),
+    },
   ];
 
   _getAppliedFilterItem(appliedFilter, filterItem) {
     return {
       value: appliedFilter,
       displayedValue: this.constructor.getDisplayedValueRenderer(filterItem),
-      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem)
+      displayedValueString: this.constructor.getDisplayedValueStringRenderer(filterItem),
     };
   }
 
@@ -100,7 +100,7 @@ class ResourceTypeFilter extends Filter {
     return sortObjects({
       array: items,
       field: "name",
-      type: "asc"
+      type: "asc",
     });
   }
 }

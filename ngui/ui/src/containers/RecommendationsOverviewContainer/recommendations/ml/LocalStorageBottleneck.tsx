@@ -10,14 +10,14 @@ const columns = [
     headerDataTestId: "lbl_location",
     idAccessor: "cloud_id",
     typeAccessor: "cloud_type",
-    accessorKey: "cloud_name"
+    accessorKey: "cloud_name",
   }),
   size({
     accessorKey: "size",
-    headerDataTestId: "lbl_size"
+    headerDataTestId: "lbl_size",
   }),
   mlIOPSCap(),
-  mlLocalStorageBottleneckDuration()
+  mlLocalStorageBottleneckDuration(),
 ];
 
 class LocalStorageBottleneck extends BaseRecommendation {
@@ -44,12 +44,12 @@ class LocalStorageBottleneck extends BaseRecommendation {
               icon={<CloudTypeIcon type={cloudType} hasRightMargin />}
               label={<CloudResourceId resourceId={cloudResourceId} cloudResourceIdentifier={id} />}
             />
-          )
+          ),
         },
         {
           key: "mlIOPSCap",
-          value: <strong>{mlIOPSCap().cell({ row: { original: item } })}</strong>
-        }
+          value: <strong>{mlIOPSCap().cell({ row: { original: item } })}</strong>,
+        },
       ];
     });
   }

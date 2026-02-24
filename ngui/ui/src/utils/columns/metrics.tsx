@@ -18,7 +18,7 @@ const SortableHeader = ({
   metricsKeyNameEntries,
   renderSortLabel,
   onSortByMetricKeyChange,
-  sortByMetricKey
+  sortByMetricKey,
 }) => (
   <Box display="flex">
     {renderSortLabel(label)}
@@ -67,18 +67,18 @@ const GoalTypeDescription = ({ goalType }: { goalType: "goalMet" | "goalNotMet" 
 
   const messageId = {
     goalMet: "runMetricsDescription.goalMet",
-    goalNotMet: "runMetricsDescription.goalNotMet"
+    goalNotMet: "runMetricsDescription.goalNotMet",
   }[goalType];
 
   return (
     <div
       style={{
-        display: "inline-flex"
+        display: "inline-flex",
       }}
     >
       <span
         style={{
-          paddingTop: "2px"
+          paddingTop: "2px",
         }}
       >
         <Circle fontSize="inherit" color={color} />
@@ -96,7 +96,7 @@ const metrics = ({
   onSortByMetricKeyChange,
   sortByMetricKey,
   columnSelector,
-  enableSorting = true
+  enableSorting = true,
 }) => {
   const isSortingEnables = enableSorting && !isEmptyArray(metricsKeyNameEntries);
 
@@ -108,7 +108,7 @@ const metrics = ({
       helperMessageValues={{
         br: <br />,
         goalMet: <GoalTypeDescription goalType="goalMet" />,
-        goalNotMet: <GoalTypeDescription goalType="goalNotMet" />
+        goalNotMet: <GoalTypeDescription goalType="goalNotMet" />,
       }}
     />
   );
@@ -158,7 +158,7 @@ const metrics = ({
 
       return <RunGoals goals={reachedMetricValues} displayInOneLine />;
     },
-    columnSelector
+    columnSelector,
   };
 };
 

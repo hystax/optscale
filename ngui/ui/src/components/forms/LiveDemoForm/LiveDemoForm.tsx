@@ -10,7 +10,7 @@ import { getDefaultValues } from "./utils";
 
 const LiveDemoForm = ({ onSubmit }: LiveDemoFormProps) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { handleSubmit } = methods;
@@ -21,7 +21,7 @@ const LiveDemoForm = ({ onSubmit }: LiveDemoFormProps) => {
         noValidate
         onSubmit={handleSubmit(onSubmit)}
         style={{
-          maxWidth: "430px"
+          maxWidth: "430px",
         }}
       >
         <EmailField />
@@ -43,7 +43,7 @@ const LiveDemoForm = ({ onSubmit }: LiveDemoFormProps) => {
                 <Link data-test-id="link_privacy_policy" href={HYSTAX_PRIVACY_POLICY} target="_blank" rel="noopener">
                   {chunks}
                 </Link>
-              )
+              ),
             }}
           />
         </Typography>

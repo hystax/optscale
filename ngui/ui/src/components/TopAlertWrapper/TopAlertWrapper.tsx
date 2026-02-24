@@ -100,7 +100,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
         onTrigger: () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.INACTIVE_ORGANIZATION, triggered: true });
         },
-        dataTestId: "top_alert_inactive_organization"
+        dataTestId: "top_alert_inactive_organization",
       },
       {
         id: ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING,
@@ -113,7 +113,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
         onTrigger: () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING, triggered: true });
         },
-        dataTestId: "top_alert_data_processing"
+        dataTestId: "top_alert_data_processing",
       },
       {
         id: ALERT_TYPES.DATA_SOURCES_PROCEEDED,
@@ -128,7 +128,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_ARE_PROCESSING, closed: false, triggered: false });
           updateOrganizationTopAlert({ id: ALERT_TYPES.DATA_SOURCES_PROCEEDED, closed: false, triggered: false });
         },
-        dataTestId: "top_alert_data_proceeded"
+        dataTestId: "top_alert_data_proceeded",
       },
       {
         id: ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT,
@@ -151,7 +151,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
                   >
                     {chunks}
                   </GitHubInlineButton>
-                )
+                ),
               }}
             />
           </Box>
@@ -161,8 +161,8 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
         onClose: () => {
           updateOrganizationTopAlert({ id: ALERT_TYPES.OPEN_SOURCE_ANNOUNCEMENT, closed: true });
         },
-        dataTestId: "top_alert_open_source_announcement"
-      }
+        dataTestId: "top_alert_open_source_announcement",
+      },
     ];
   }, [
     storedAlerts,
@@ -171,7 +171,7 @@ const TopAlertWrapper = ({ blacklistIds = [] }: TopAlertWrapperProps) => {
     hasDataSourceInProcessing,
     isExistingUser,
     userId,
-    updateOrganizationTopAlert
+    updateOrganizationTopAlert,
   ]);
 
   const currentAlert = useMemo(

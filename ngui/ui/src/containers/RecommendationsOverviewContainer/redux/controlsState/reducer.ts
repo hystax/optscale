@@ -5,7 +5,7 @@ export const RECOMMENDATIONS_CONTROLS_STATE = "recommendationsControlState";
 export const VALUE_ACCESSORS = Object.freeze({
   CATEGORY: "category",
   SERVICE: "service",
-  VIEW: "view"
+  VIEW: "view",
 });
 
 const reducer = (state = [], action) => {
@@ -13,17 +13,17 @@ const reducer = (state = [], action) => {
     case SET_CATEGORY:
       return {
         ...state,
-        [VALUE_ACCESSORS.CATEGORY]: action.payload
+        [VALUE_ACCESSORS.CATEGORY]: action.payload,
       };
     case SET_SERVICE:
       return {
         ...state,
-        [VALUE_ACCESSORS.SERVICE]: action.payload
+        [VALUE_ACCESSORS.SERVICE]: action.payload,
       };
     case SET_VIEW:
       return {
         ...state,
-        [VALUE_ACCESSORS.VIEW]: action.payload
+        [VALUE_ACCESSORS.VIEW]: action.payload,
       };
     default:
       return state;

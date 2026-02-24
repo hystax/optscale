@@ -11,8 +11,8 @@ import { TAGGING_POLICY_TYPES } from "utils/constants";
 const actionBarDefinition = {
   title: {
     messageId: "taggingPolicy.taggingPoliciesTitle",
-    dataTestId: "lbl_tagging_policies"
-  }
+    dataTestId: "lbl_tagging_policies",
+  },
 };
 
 const TaggingPoliciesContainer = () => {

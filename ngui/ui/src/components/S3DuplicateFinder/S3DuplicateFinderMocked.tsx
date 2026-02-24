@@ -17,15 +17,15 @@ const S3DuplicateFinderMocked = () => (
           filters: {
             cloud_account_id: "1544c42a-af06-461e-8930-cda0e569df10",
             buckets: ["report-bucket", "dev-bucket"],
-            min_size: 123
+            min_size: 123,
           },
           stats: {
             monthly_savings: 212,
             total_objects: 340,
             duplicated_objects: 210,
             total_size: 212345512,
-            duplicates_size: 5422231
-          }
+            duplicates_size: 5422231,
+          },
         },
         {
           deleted_at: 0,
@@ -39,14 +39,14 @@ const S3DuplicateFinderMocked = () => (
           filters: {
             cloud_account_id: "1544c42a-af06-461e-8930-cda0e569df10",
             buckets: ["report-bucket", "dev-bucket"],
-            min_size: 123
+            min_size: 123,
           },
           stats: {
             total_objects: 52,
             duplicated_objects: 25,
             total_size: 64265512,
-            duplicates_size: 522231
-          }
+            duplicates_size: 522231,
+          },
         },
         {
           deleted_at: 0,
@@ -60,16 +60,16 @@ const S3DuplicateFinderMocked = () => (
           filters: {
             cloud_account_id: "1544c42a-af06-461e-8930-cda0e569df10",
             buckets: ["report-bucket", "dev-bucket"],
-            min_size: 123
+            min_size: 123,
           },
           stats: {
             monthly_savings: 651,
             total_objects: 522,
             duplicated_objects: 325,
             total_size: 515265512,
-            duplicates_size: 62231
-          }
-        }
+            duplicates_size: 62231,
+          },
+        },
       ]}
       isLoading={false}
     />

@@ -12,7 +12,7 @@ const AlibabaProperties = ({ accountId, config, createdAt }: AlibabaPropertiesPr
         value={createdAt}
         dataTestIds={{
           key: `p_connected_at_id`,
-          value: `p_connected_at_value`
+          value: `p_connected_at_value`,
         }}
       />
       <KeyValueLabel
@@ -21,7 +21,7 @@ const AlibabaProperties = ({ accountId, config, createdAt }: AlibabaPropertiesPr
         value={accountId}
         dataTestIds={{
           key: `p_${ALIBABA_CNR}_id`,
-          value: `p_${ALIBABA_CNR}_value`
+          value: `p_${ALIBABA_CNR}_value`,
         }}
       />
       <KeyValueLabel

@@ -27,7 +27,7 @@ it("renders without crashing", () => {
               ul: (chunks) => <ul>{chunks}</ul>,
               li: (chunks) => <li>{chunks}</li>,
               strong: (chunks) => <strong>{chunks}</strong>,
-              br: <br />
+              br: <br />,
             }}
           />
         }

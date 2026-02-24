@@ -16,8 +16,8 @@ const Markdown = ({ children, urlTransform }: MarkdownProps) => (
   <Box
     sx={{
       "& > :last-child": {
-        marginBottom: 0
-      }
+        marginBottom: 0,
+      },
     }}
   >
     <ReactMarkdown
@@ -77,14 +77,14 @@ const Markdown = ({ children, urlTransform }: MarkdownProps) => (
                 display: "flex",
                 alignItems: "flex-start",
                 justifyContent: "space-between",
-                backgroundColor: THEME.plain.backgroundColor
+                backgroundColor: THEME.plain.backgroundColor,
               })}
             >
               {pChildren}
               <CopyText
                 text={codeText}
                 sx={{
-                  padding: PADDING
+                  padding: PADDING,
                 }}
               />
             </Typography>
@@ -104,7 +104,7 @@ const Markdown = ({ children, urlTransform }: MarkdownProps) => (
                       ...style,
                       margin: 0,
                       padding: PADDING,
-                      overflow: "auto"
+                      overflow: "auto",
                     }}
                   >
                     {tokens.map((line) => (
@@ -128,13 +128,13 @@ const Markdown = ({ children, urlTransform }: MarkdownProps) => (
                 backgroundColor: THEME.plain.backgroundColor,
                 px: theme.spacing(0.5),
                 py: theme.spacing(0.25),
-                borderRadius: theme.spacing(0.5)
+                borderRadius: theme.spacing(0.5),
               })}
             >
               {codeChildren}
             </Typography>
           );
-        }
+        },
       }}
       remarkPlugins={[remarkGfm]}
     >

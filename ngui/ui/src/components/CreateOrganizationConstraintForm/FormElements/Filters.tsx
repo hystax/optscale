@@ -28,7 +28,7 @@ const FiltersView = ({ filterValues }) => {
             onAppliedFiltersChange={(newFilters) => {
               onChange({
                 ...appliedFilters,
-                ...newFilters
+                ...newFilters,
               });
             }}
           />
@@ -48,7 +48,7 @@ const FiltersContainer = ({ exceptions }) => {
 
     return {
       startDate,
-      endDate
+      endDate,
     };
   }, []);
 

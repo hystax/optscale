@@ -5,7 +5,7 @@ const UPDATE_SHOW_WEEKENDS = "UPDATE_SHOW_WEEKENDS";
 
 const updateShowWeekends = (value) => ({
   type: UPDATE_SHOW_WEEKENDS,
-  payload: value
+  payload: value,
 });
 
 export const SHOW_WEEKENDS = "showWeekends";
@@ -30,6 +30,6 @@ export const useShowWeekends = () => {
 
   return {
     showWeekends,
-    onChange
+    onChange,
   };
 };

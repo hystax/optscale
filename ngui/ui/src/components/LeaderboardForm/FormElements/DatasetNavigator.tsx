@@ -55,9 +55,9 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
           { id: "timerange" },
           {
             from: format(secondsToMilliseconds(range[0]), EN_FULL_FORMAT),
-            to: format(secondsToMilliseconds(range[1]), EN_FULL_FORMAT)
+            to: format(secondsToMilliseconds(range[1]), EN_FULL_FORMAT),
           }
-        )
+        ),
     };
   };
 
@@ -82,27 +82,27 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
                 icon: <AddOutlinedIcon fontSize="small" />,
                 action: () => {
                   setValue(FIELD_NAMES.SELECTED_DATASETS, [...selectedDatasets, original]);
-                }
-              }
+                },
+              },
             ]}
           />
-        )
+        ),
       },
 
       leaderboardDataset({
         nameAccessor: "name",
         pathAccessor: "path",
-        deletedAccessor: "deleted"
+        deletedAccessor: "deleted",
       }),
       localTime({
         id: "created_at",
         accessorFn: (originalRow) => secondsToMilliseconds(originalRow.created_at),
         headerDataTestId: "lbl_updated_at",
         headerMessageId: "createdAt",
-        defaultSort: "desc"
+        defaultSort: "desc",
       }),
       leaderboardDatasetLabels(),
-      datasetTimespan()
+      datasetTimespan(),
     ],
     [selectedDatasets, setValue]
   );
@@ -118,11 +118,11 @@ const DatasetNavigator = ({ datasets, isLoading = false }) => {
       enableSearchQueryParam={false}
       enablePaginationQueryParam={false}
       localization={{
-        emptyMessageId: "noDatasets"
+        emptyMessageId: "noDatasets",
       }}
       rangeFilter={getRangeFilterDefinition()}
       counters={{
-        show: false
+        show: false,
       }}
     />
   );

@@ -23,7 +23,7 @@ const PoolForecast = ({ limit, forecast }: PoolForecastProps) => {
           <FormattedMessage
             id="forecastExceedsLimitBy"
             values={{
-              value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={forecast - limit} />
+              value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={forecast - limit} />,
             }}
           />
         ) : (

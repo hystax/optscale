@@ -10,13 +10,13 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_is_resource"
+    headerDataTestId: "lbl_is_resource",
   }),
   resourceLocation({
-    headerDataTestId: "lbl_is_location"
+    headerDataTestId: "lbl_is_location",
   }),
   size({
-    headerDataTestId: "lbl_is_size"
+    headerDataTestId: "lbl_is_size",
   }),
   detectedAt({ headerDataTestId: "lbl_is_detected_at" }),
   {
@@ -27,7 +27,7 @@ const columns = [
     ),
     accessorKey: "monthly_saving",
     defaultSort: "desc",
-    cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
+    cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
   },
   {
     header: (
@@ -36,8 +36,8 @@ const columns = [
       </TextWithDataTestId>
     ),
     accessorKey: "annually_monthly_saving",
-    cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />
-  }
+    cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
+  },
 ];
 
 class InstanceSubscription extends BaseRecommendation {
@@ -75,12 +75,12 @@ class InstanceSubscription extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-flavor`,
-        value: item.flavor
-      }
+        value: item.flavor,
+      },
     ]);
   }
 

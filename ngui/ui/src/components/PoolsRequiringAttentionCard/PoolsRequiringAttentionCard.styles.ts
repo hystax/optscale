@@ -5,8 +5,8 @@ const useStyles = makeStyles()((theme) => ({
   icon: {
     width: "4rem",
     height: "4rem",
-    marginBottom: theme.spacing(2)
-  }
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 export default useStyles;

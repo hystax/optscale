@@ -9,8 +9,8 @@ const reducer = (state = {}, action) => {
         ...state,
         [action.label]: {
           startDate: action.payload.startDate,
-          endDate: action.payload.endDate
-        }
+          endDate: action.payload.endDate,
+        },
       };
     default:
       return state;

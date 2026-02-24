@@ -11,7 +11,7 @@ const CurrencyField = () => {
 
   const {
     formState: { errors },
-    control
+    control,
   } = useFormContext();
 
   return (
@@ -21,12 +21,12 @@ const CurrencyField = () => {
       rules={{
         required: {
           value: true,
-          message: intl.formatMessage({ id: "thisFieldIsRequired" })
+          message: intl.formatMessage({ id: "thisFieldIsRequired" }),
         },
         validate: {
           isAllowedCurrency: (value) =>
-            currencyCodes.includes(value) ? true : intl.formatMessage({ id: "invalidCurrencyCode" })
-        }
+            currencyCodes.includes(value) ? true : intl.formatMessage({ id: "invalidCurrencyCode" }),
+        },
       }}
       render={({ field: { value, onChange } }) => (
         <CurrencyCodeAutocomplete

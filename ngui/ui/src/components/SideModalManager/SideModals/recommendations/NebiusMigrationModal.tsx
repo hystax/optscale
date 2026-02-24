@@ -7,8 +7,8 @@ class NebiusMigrationModal extends BaseSideModal {
     messageId: "migrationToNebiusTitle",
     dataTestIds: {
       title: "lbl_nebius_migration_sidemodal_title",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_nebius_migration";

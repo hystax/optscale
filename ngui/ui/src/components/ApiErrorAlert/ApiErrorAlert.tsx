@@ -11,7 +11,7 @@ const ApiErrorAlert = () => {
   const { apiStateData: latestErrorLabel } = useApiStateData("latestErrorLabel");
 
   const {
-    lastResult: { errorHandlerType, response: { data: { error = {} } = {}, config: { url } = {} } = {} }
+    lastResult: { errorHandlerType, response: { data: { error = {} } = {}, config: { url } = {} } = {} },
   } = useLastResult(latestErrorLabel);
 
   const { isLoading } = useApiState(latestErrorLabel);
@@ -41,7 +41,7 @@ const ApiErrorAlert = () => {
       openState={open}
       handleClose={handleClose}
       dataTestIds={{
-        snackbar: "alert_error"
+        snackbar: "alert_error",
       }}
     />
   ) : null;

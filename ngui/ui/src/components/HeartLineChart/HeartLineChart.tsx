@@ -65,7 +65,7 @@ const getGradient = (
 
 export const DEFAULT_COLORS = Object.freeze({
   START_THRESHOLD: "#00BE41",
-  END_THRESHOLD: "#FF0000"
+  END_THRESHOLD: "#FF0000",
 });
 
 const DOT_RADIUS = 3;
@@ -74,7 +74,7 @@ const MARGIN = Object.freeze({
   LEFT: DOT_RADIUS + 1,
   TOP: DOT_RADIUS + 1,
   BOTTOM: DOT_RADIUS + 1,
-  RIGHT: DOT_RADIUS + 1
+  RIGHT: DOT_RADIUS + 1,
 });
 
 const HeartLineChart = ({ values, width, height, thresholdArea, thresholdColors = {}, tooltip, debug = false }) => {
@@ -91,17 +91,17 @@ const HeartLineChart = ({ values, width, height, thresholdArea, thresholdColors 
 
       const yScale = getScale({
         domain: [maxValue, minValue],
-        range: innerHeight
+        range: innerHeight,
       });
 
       const xScale = getScale({
         domain: [0, values.length - 1],
-        range: innerWidth
+        range: innerWidth,
       });
 
       const points = values.map((value, index) => ({
         x: xScale(index),
-        y: yScale(value)
+        y: yScale(value),
       }));
 
       const thresholdStart = yScale(thresholdArea.start);
@@ -113,7 +113,7 @@ const HeartLineChart = ({ values, width, height, thresholdArea, thresholdColors 
         xStart: 0,
         yStart: 0,
         xEnd: innerWidth,
-        yEnd: innerHeight
+        yEnd: innerHeight,
       };
 
       const gradient = getGradient(ctx, {
@@ -124,7 +124,7 @@ const HeartLineChart = ({ values, width, height, thresholdArea, thresholdColors 
         thresholdEnd,
         startThresholdColor,
         endThresholdColor,
-        lineAreaRectangle
+        lineAreaRectangle,
       });
 
       ctx.strokeStyle = gradient;
@@ -137,11 +137,11 @@ const HeartLineChart = ({ values, width, height, thresholdArea, thresholdColors 
         points,
         originRelativeToCanvas: {
           x: MARGIN.LEFT,
-          y: MARGIN.TOP
+          y: MARGIN.TOP,
         },
         strokeStyle: gradient,
         fillStyle: gradient,
-        dotRadius: DOT_RADIUS
+        dotRadius: DOT_RADIUS,
       });
 
       if (debug) {

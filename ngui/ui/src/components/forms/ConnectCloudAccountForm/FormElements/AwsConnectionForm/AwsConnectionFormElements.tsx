@@ -10,7 +10,7 @@ import {
   AUTHENTICATION_TYPES,
   authenticationTypes,
   awsConnectionAssumedRoleDescriptions,
-  awsConnectionKeyAccessDescriptions
+  awsConnectionKeyAccessDescriptions,
 } from "./constants";
 import { AuthenticationType, AuthenticationTypeSelectorType, AwsTypeDescriptionProps } from "./types";
 
@@ -18,7 +18,7 @@ export const AwsTypeDescription = ({
   messageId,
   linkUrl,
   linkDisplayBlock = false,
-  type = "paragraph"
+  type = "paragraph",
 }: AwsTypeDescriptionProps) => {
   const content = (
     <Typography>
@@ -39,7 +39,7 @@ export const AwsTypeDescription = ({
               </Link>
             );
           },
-          strong: (chunks: ReactNode) => <strong>{chunks}</strong>
+          strong: (chunks: ReactNode) => <strong>{chunks}</strong>,
         }}
       />
     </Typography>
@@ -75,7 +75,7 @@ export const AuthenticationTypeSelector = ({ authenticationType, setAuthenticati
         id: subtype.authenticationType,
         messageId: subtype.messageId,
         dataTestId: `btn_${subtype.messageId}`,
-        action: () => setAuthenticationType(subtype.authenticationType)
+        action: () => setAuthenticationType(subtype.authenticationType),
       }))}
       activeButtonId={authenticationType}
       activeButtonIndex={undefined}

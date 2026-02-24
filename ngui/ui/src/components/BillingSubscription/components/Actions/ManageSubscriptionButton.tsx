@@ -12,8 +12,8 @@ const ManageSubscriptionButton = () => {
   const handleManageSubscription = async () => {
     const { data } = await createStripeBillingPortalSession({
       variables: {
-        organizationId
-      }
+        organizationId,
+      },
     });
 
     if (data?.createStripeBillingPortalSession?.url) {

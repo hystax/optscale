@@ -9,7 +9,7 @@ const ExpensesDailyBreakdownByContainer = ({ cleanExpensesRequestParams }) => {
   const { useGet } = DailyExpensesBreakdownByService();
 
   const [{ value: breakdownByValue }, onBreakdownByChange] = useBreakdownBy({
-    queryParamName: DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME
+    queryParamName: DAILY_EXPENSES_BREAKDOWN_BY_PARAMETER_NAME,
   });
 
   const requestParams = useMemo(

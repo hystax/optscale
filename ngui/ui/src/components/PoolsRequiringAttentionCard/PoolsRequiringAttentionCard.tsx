@@ -25,7 +25,7 @@ const SetRootPoolLimit = () => {
   const { classes } = useStyles();
 
   const isManageResourcesAllowed = useIsAllowed({
-    requiredActions: ["MANAGE_POOLS"]
+    requiredActions: ["MANAGE_POOLS"],
   });
 
   return (
@@ -65,9 +65,9 @@ const PoolsTable = ({ pools, sortColumn }) => {
         accessorKey: "name",
         cell: ({
           row: {
-            original: { name, purpose }
-          }
-        }) => <PoolLabel disableLink name={name} type={purpose} />
+            original: { name, purpose },
+          },
+        }) => <PoolLabel disableLink name={name} type={purpose} />,
       },
       expenses({ defaultSort: sortColumn === "cost" ? "desc" : undefined }),
       poolForecast({ defaultSort: sortColumn === "forecast" ? "desc" : undefined }),
@@ -77,8 +77,8 @@ const PoolsTable = ({ pools, sortColumn }) => {
         enableSorting: false,
         cell: ({
           row: {
-            original: { id }
-          }
+            original: { id },
+          },
         }) => (
           <>
             <IconButton
@@ -94,8 +94,8 @@ const PoolsTable = ({ pools, sortColumn }) => {
               tooltip={{ show: true, value: <FormattedMessage id="seeInCostExplorer" /> }}
             />
           </>
-        )
-      }
+        ),
+      },
     ],
     [navigate, sortColumn]
   );
@@ -112,13 +112,13 @@ const Tabs = ({ withExceededLimit, withForecastedOverspend }) => {
     {
       title: "exceededLimit",
       dataTestId: "tab_exceeded_limit",
-      node: <PoolsTable pools={withExceededLimit} sortColumn="cost" />
+      node: <PoolsTable pools={withExceededLimit} sortColumn="cost" />,
     },
     {
       title: "forecastedOverspend",
       dataTestId: "tab_forecasted_overspend",
-      node: <PoolsTable pools={withForecastedOverspend} sortColumn="forecast" />
-    }
+      node: <PoolsTable pools={withForecastedOverspend} sortColumn="forecast" />,
+    },
   ];
 
   return (
@@ -133,7 +133,7 @@ const Tabs = ({ withExceededLimit, withForecastedOverspend }) => {
             shouldhaveQueryParam: false,
             handleChange: (event, value) => {
               setActiveTab(value);
-            }
+            },
           }}
         />
       </div>
@@ -160,18 +160,18 @@ const PoolsRequiringAttentionCard = ({ withExceededLimit, withForecastedOverspen
       titleButton={{
         type: "icon",
         tooltip: {
-          title: <FormattedMessage id="goToPools" />
+          title: <FormattedMessage id="goToPools" />,
         },
         buttonProps: {
           icon: <ExitToAppOutlinedIcon />,
           isLoading,
           onClick: goToPools,
-          dataTestId: "btn_go_to_pools"
-        }
+          dataTestId: "btn_go_to_pools",
+        },
       }}
       dataTestIds={{
         wrapper: "block_pools",
-        title: "lbl_pools"
+        title: "lbl_pools",
       }}
       elevation={0}
     >

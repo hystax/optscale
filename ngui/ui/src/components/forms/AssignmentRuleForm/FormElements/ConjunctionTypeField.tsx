@@ -13,13 +13,13 @@ const ConjunctionTypeField = ({ name = FIELD_NAMES.OPERATOR, isLoading = false }
       {
         value: ASSIGNMENT_RULE_OPERATORS.AND,
         label: <FormattedMessage id="conjunctionTypes.and" />,
-        isLoading: isLoading
+        isLoading: isLoading,
       },
       {
         value: ASSIGNMENT_RULE_OPERATORS.OR,
         label: <FormattedMessage id="conjunctionTypes.or" />,
-        isLoading: isLoading
-      }
+        isLoading: isLoading,
+      },
     ]}
   />
 );

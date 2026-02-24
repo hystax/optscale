@@ -14,7 +14,7 @@ const EditModelVersionAliasFormContainer = ({
   aliasToVersionMap,
   modelVersion,
   onCancel,
-  onSuccess
+  onSuccess,
 }: EditModelVersionAliasFormContainerProps) => {
   const { useUpdateModelVersion } = MlModelsService();
   const { onUpdate, isLoading } = useUpdateModelVersion();
@@ -26,7 +26,7 @@ const EditModelVersionAliasFormContainer = ({
       onSubmit={(formData) => onUpdate(modelId, modelVersion.run.id, formData).then(onSuccess)}
       onCancel={onCancel}
       isLoadingProps={{
-        isSubmitLoading: isLoading
+        isSubmitLoading: isLoading,
       }}
     />
   );

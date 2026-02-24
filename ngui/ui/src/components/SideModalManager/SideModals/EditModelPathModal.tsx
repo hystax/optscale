@@ -6,8 +6,8 @@ class EditModelPathModal extends BaseSideModal {
     messageId: "manageVersionPathTitle",
     dataTestIds: {
       title: "lbl_edit_version_path",
-      closeButton: "btn_close"
-    }
+      closeButton: "btn_close",
+    },
   };
 
   dataTestId = "smodal_edit_version_path";

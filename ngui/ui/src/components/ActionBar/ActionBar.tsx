@@ -179,7 +179,7 @@ const renderItems = (barItems) => {
       dropdown: renderDropdown,
       switch: renderSwitch,
       buttonGroup: renderButtonGroup,
-      custom: ({ node }) => node
+      custom: ({ node }) => node,
     };
     return types[type];
   };
@@ -232,7 +232,7 @@ const ActionBar = ({ data, isPage = true }) => {
     buttonsRef,
     itemsLength: showable.length,
     mode: isPage ? HIDE_MODE : COLLAPSE_MODE,
-    breakpoint: "md"
+    breakpoint: "md",
   });
 
   const [hidden, visible] = splitIntoTwoChunks(showable, hiddenElementsLength);

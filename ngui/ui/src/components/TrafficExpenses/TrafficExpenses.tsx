@@ -25,7 +25,7 @@ import {
   NETWORK_TRAFFIC_FROM_FILTER,
   NETWORK_TRAFFIC_TO_FILTER,
   ANY_NETWORK_TRAFFIC_LOCATION,
-  DATE_RANGE_TYPE
+  DATE_RANGE_TYPE,
 } from "utils/constants";
 import { SPACING_2 } from "utils/layouts";
 import { REGION_EXPENSES_HEIGHT } from "utils/maps";
@@ -38,10 +38,10 @@ const getCloudSelectorButtons = (totalCosts, onDataSourceChange) =>
     messageId: "value(parenthesisValue)",
     messageValues: {
       value: <FormattedMessage id={CLOUD_ACCOUNT_TYPE[cloudType]} />,
-      parenthesisValue: <FormattedMoney value={cost} type={FORMATTED_MONEY_TYPES.COMPACT} disableTooltip />
+      parenthesisValue: <FormattedMoney value={cost} type={FORMATTED_MONEY_TYPES.COMPACT} disableTooltip />,
     },
     action: () => onDataSourceChange(cloudType),
-    dataTestId: `${cloudType}_option`
+    dataTestId: `${cloudType}_option`,
   }));
 
 const DATA_SOURCE_PARAM = "dataSource";
@@ -52,10 +52,10 @@ const Summary = ({ isLoading, totalCost, totalUsage }) => {
       key: "totalExpenses",
       valueComponentType: SUMMARY_VALUE_COMPONENT_TYPES.FormattedMoney,
       valueComponentProps: {
-        value: totalCost
+        value: totalCost,
       },
       captionMessageId: "totalExpenses",
-      isLoading
+      isLoading,
     },
     {
       key: "totalUsage",
@@ -63,12 +63,12 @@ const Summary = ({ isLoading, totalCost, totalUsage }) => {
       valueComponentProps: {
         id: "{value}",
         values: {
-          value: <FormattedDigitalUnit value={totalUsage} baseUnit={SI_UNITS.GIGABYTE} />
-        }
+          value: <FormattedDigitalUnit value={totalUsage} baseUnit={SI_UNITS.GIGABYTE} />,
+        },
       },
       captionMessageId: "totalUsage",
-      isLoading
-    }
+      isLoading,
+    },
   ];
 
   return <SummaryGrid summaryData={summaryData} />;
@@ -148,7 +148,7 @@ const TrafficExpenses = ({ expenses, isLoading = false }) => {
         sStartDate: startDateTimestamp,
         sEndDate: endDateTimestamp,
         [NETWORK_TRAFFIC_FROM_FILTER]: fromFilters,
-        [NETWORK_TRAFFIC_TO_FILTER]: toFilters
+        [NETWORK_TRAFFIC_TO_FILTER]: toFilters,
       })
     );
   };
@@ -157,7 +157,7 @@ const TrafficExpenses = ({ expenses, isLoading = false }) => {
     <div
       style={{
         display: "flex",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       <Typography component="span" sx={{ marginRight: 1 }}>
@@ -212,7 +212,7 @@ const TrafficExpenses = ({ expenses, isLoading = false }) => {
               data={tableData}
               columns={columns}
               localization={{
-                emptyMessageId: showLessThanValue ? "noTrafficExpenses" : "noTrafficExpensesHint"
+                emptyMessageId: showLessThanValue ? "noTrafficExpenses" : "noTrafficExpensesHint",
               }}
             />
           )}

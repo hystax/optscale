@@ -15,15 +15,15 @@ const leaderboardDatasetLabels = () => ({
   ),
   cell: ({
     row: {
-      original: { labels }
-    }
+      original: { labels },
+    },
   }) => (
     <Box display="flex" gap={SPACING_1} flexWrap="wrap">
       {labels.map((label) => (
         <LabelChip key={label} label={label} />
       ))}
     </Box>
-  )
+  ),
 });
 
 export default leaderboardDatasetLabels;

@@ -16,7 +16,7 @@ const biExportName = () => ({
   ),
   accessorKey: "name",
   style: {
-    maxWidth: "400px"
+    maxWidth: "400px",
   },
   defaultSort: "asc",
   cell: ({ row: { original } }) => {
@@ -48,7 +48,7 @@ const biExportName = () => ({
         />
       </CaptionedCell>
     );
-  }
+  },
 });
 
 export default biExportName;

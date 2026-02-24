@@ -9,7 +9,7 @@ const actions = ({ headerDataTestId, cell }) => ({
   ),
   enableSorting: false,
   id: "actions",
-  cell
+  cell,
 });
 
 export default actions;

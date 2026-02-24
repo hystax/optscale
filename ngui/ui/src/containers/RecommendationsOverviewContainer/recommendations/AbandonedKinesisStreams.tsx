@@ -10,11 +10,11 @@ import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
 
 const columns = [
   resource({
-    headerDataTestId: "lbl_abandoned_kinesis_streams_resource"
+    headerDataTestId: "lbl_abandoned_kinesis_streams_resource",
   }),
   resourceLocation({
     headerDataTestId: "lbl_abandoned_kinesis_streams_location",
-    typeAccessor: "cloud_type"
+    typeAccessor: "cloud_type",
   }),
   // TODO: replace with text.js column util
   {
@@ -23,7 +23,7 @@ const columns = [
         <FormattedMessage id="provisionedShards" />
       </TextWithDataTestId>
     ),
-    accessorKey: "shardhours_capacity"
+    accessorKey: "shardhours_capacity",
   },
   {
     header: (
@@ -32,13 +32,13 @@ const columns = [
       </TextWithDataTestId>
     ),
     accessorKey: "shardhours_price",
-    cell: ({ cell }) => <FormattedMoney value={cell.getValue()} type={FORMATTED_MONEY_TYPES.TINY} />
+    cell: ({ cell }) => <FormattedMoney value={cell.getValue()} type={FORMATTED_MONEY_TYPES.TINY} />,
   },
   detectedAt({ headerDataTestId: "lbl_abandoned_kinesis_streams_detected_at" }),
   possibleMonthlySavings({
     headerDataTestId: "lbl_abandoned_kinesis_streams_savings",
-    defaultSort: "desc"
-  })
+    defaultSort: "desc",
+  }),
 ];
 
 class AbandonedKinesisStreams extends BaseRecommendation {
@@ -76,12 +76,12 @@ class AbandonedKinesisStreams extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 

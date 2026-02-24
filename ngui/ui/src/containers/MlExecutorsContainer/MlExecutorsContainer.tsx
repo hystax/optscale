@@ -13,7 +13,7 @@ const MlExecutorsContainer = ({ dateRange }) => {
 
   const { useGet } = MlExecutorsService();
   const { isLoading, executors } = useGet({
-    organizationId
+    organizationId,
   });
 
   const isFinOpsEnabled = useIsOptScaleCapabilityEnabled(OPTSCALE_CAPABILITY.FINOPS);

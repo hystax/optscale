@@ -25,7 +25,7 @@ import useStyles from "./ResourceConstraintCard.styles";
 
 const CONSTRAINT_STATUS = Object.freeze({
   RESOURCE_SPECIFIC: "resource_specific",
-  POOL_POLICY: "pool_policy"
+  POOL_POLICY: "pool_policy",
 });
 
 const getStatus = (constraintStatus, { classes, constraintType, poolId }) => {
@@ -54,7 +54,7 @@ const getStatus = (constraintStatus, { classes, constraintType, poolId }) => {
                   >
                     {chunks}
                   </Link>
-                )
+                ),
               }}
             />
           </Typography>
@@ -75,7 +75,7 @@ const ResourceConstraintCard = ({
   limitHit,
   canEdit,
   poolId,
-  isLoadingProps = {}
+  isLoadingProps = {},
 }) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
@@ -83,7 +83,7 @@ const ResourceConstraintCard = ({
     isGetDataLoading = false,
     isUpdateLoading = false,
     isCreateLoading = false,
-    isDeleteLoading = false
+    isDeleteLoading = false,
   } = isLoadingProps;
 
   const { classes } = useStyles();
@@ -191,7 +191,7 @@ const ResourceConstraintCard = ({
             disabled={isRestricted}
             tooltip={{
               show: true,
-              value: isRestricted ? restrictionReasonMessage : <FormattedMessage id="edit" />
+              value: isRestricted ? restrictionReasonMessage : <FormattedMessage id="edit" />,
             }}
           />
         )}
@@ -204,7 +204,7 @@ const ResourceConstraintCard = ({
               show: true,
               value: format(secondsToMilliseconds(limitHit.time), EN_FULL_FORMAT),
               messageId: "violatedAt",
-              placement: "right"
+              placement: "right",
             }}
           />
         ) : null}

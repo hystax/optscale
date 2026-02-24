@@ -17,11 +17,11 @@ const AuthorizedKeyId = () => {
           <QuestionMark
             messageId="nebiusAuthorizedKeyIdTooltip"
             messageValues={{
-              i: (chunks) => <i>{chunks}</i>
+              i: (chunks) => <i>{chunks}</i>,
             }}
             dataTestId="qmark_authorized_key_id"
           />
-        )
+        ),
       }}
       label={intl.formatMessage({ id: "id" }).toUpperCase()}
       autoComplete="off"

@@ -18,10 +18,10 @@ const S3DuplicateFinder = ({ geminis, isLoading = false }) => {
     breadcrumbs: [
       <Link key={1} to={RECOMMENDATIONS} component={RouterLink}>
         <FormattedMessage id="recommendations" />
-      </Link>
+      </Link>,
     ],
     title: {
-      messageId: "s3DuplicateFinderTitle"
+      messageId: "s3DuplicateFinderTitle",
     },
     items: [
       {
@@ -30,9 +30,9 @@ const S3DuplicateFinder = ({ geminis, isLoading = false }) => {
         messageId: "settings",
         action: () => openSideModal(S3DuplicateFinderSettingsModal, { recommendationType: "type" }),
         type: "button",
-        requiredActions: ["EDIT_PARTNER"]
-      }
-    ]
+        requiredActions: ["EDIT_PARTNER"],
+      },
+    ],
   };
 
   return (

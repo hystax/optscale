@@ -11,7 +11,7 @@ import {
   AWS_RDS,
   AZURE_COMPUTE,
   GCP_COMPUTE_ENGINE,
-  NEBIUS_SERVICE
+  NEBIUS_SERVICE,
 } from "hooks/useRecommendationServices";
 import { detectedAt, recommendedRightsizingSize, resource, resourceLocation, rightsizingSize } from "utils/columns";
 import { ALIBABA_CNR, AWS_CNR, AZURE_CNR, FORMATTED_MONEY_TYPES, GCP_CNR, NEBIUS } from "utils/constants";
@@ -27,7 +27,7 @@ const RightsizingCpuUsageCell = ({ currentUsage, projectedUsage }) => (
           average: <FormattedNumber value={currentUsage.cpuUsage / 100} format="percentage2" />,
           max: <FormattedNumber value={currentUsage.cpuPeak / 100} format="percentage2" />,
           q50: <FormattedNumber value={currentUsage.cpuQuantile50 / 100} format="percentage2" />,
-          q99: <FormattedNumber value={currentUsage.cpuQuantile99 / 100} format="percentage2" />
+          q99: <FormattedNumber value={currentUsage.cpuQuantile99 / 100} format="percentage2" />,
         }}
       />
     </div>
@@ -39,7 +39,7 @@ const RightsizingCpuUsageCell = ({ currentUsage, projectedUsage }) => (
           average: <FormattedNumber value={projectedUsage.cpuUsage / 100} format="percentage2" />,
           max: <FormattedNumber value={projectedUsage.cpuPeak / 100} format="percentage2" />,
           q50: <FormattedNumber value={projectedUsage.cpuQuantile50 / 100} format="percentage2" />,
-          q99: <FormattedNumber value={projectedUsage.cpuQuantile99 / 100} format="percentage2" />
+          q99: <FormattedNumber value={projectedUsage.cpuQuantile99 / 100} format="percentage2" />,
         }}
       />
     </div>
@@ -97,29 +97,29 @@ class RightsizingInstances extends BaseRecommendation {
     return this.items.map((item) => [
       {
         key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel item={item} />
+        value: <RecommendationListItemResourceLabel item={item} />,
       },
       {
         key: `${item.cloud_resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />
-      }
+        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+      },
     ]);
   }
 
   columns = [
     resource({
-      headerDataTestId: "lbl_rightsizing_resource"
+      headerDataTestId: "lbl_rightsizing_resource",
     }),
     resourceLocation({
-      headerDataTestId: "lbl_rightsizing_instance_cloud"
+      headerDataTestId: "lbl_rightsizing_instance_cloud",
     }),
     rightsizingSize({
       messageId: "size",
-      headerDataTestId: "lbl_rightsizing_instance_size"
+      headerDataTestId: "lbl_rightsizing_instance_size",
     }),
     recommendedRightsizingSize({
       messageId: "recommendedSize",
-      headerDataTestId: "lbl_rightsizing_instance_recommended_flavor"
+      headerDataTestId: "lbl_rightsizing_instance_recommended_flavor",
     }),
     {
       header: <RightsizingCpuUsageHeaderCell options={this.options} />,
@@ -131,16 +131,16 @@ class RightsizingInstances extends BaseRecommendation {
             cpuUsage: original.cpu_usage,
             cpuPeak: original.cpu_peak,
             cpuQuantile50: original.cpu_quantile_50,
-            cpuQuantile99: original.cpu_quantile_99
+            cpuQuantile99: original.cpu_quantile_99,
           }}
           projectedUsage={{
             cpuUsage: original.project_cpu_avg,
             cpuPeak: original.project_cpu_peak,
             cpuQuantile50: original.projected_cpu_qtl_50,
-            cpuQuantile99: original.projected_cpu_qtl_99
+            cpuQuantile99: original.projected_cpu_qtl_99,
           }}
         />
-      )
+      ),
     },
     detectedAt({ headerDataTestId: "lbl_rightsizing_instance_detected_at" }),
     {
@@ -153,8 +153,8 @@ class RightsizingInstances extends BaseRecommendation {
       defaultSort: "desc",
       cell: ({ row: { original } }) => (
         <RightsizingPossibleSavingCell possibleSaving={original.saving} possibleSavingPercent={original.saving_percent} />
-      )
-    }
+      ),
+    },
   ];
 }
 

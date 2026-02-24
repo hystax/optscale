@@ -7,7 +7,7 @@ import { getDefaultValues } from "./utils";
 
 const MlEditTaskForm = ({ task, employees, onSubmit, onCancel, isGetEmployeesLoading = false, isSubmitLoading = false }) => {
   const methods = useForm<FormValues>({
-    defaultValues: getDefaultValues()
+    defaultValues: getDefaultValues(),
   });
 
   const { reset, handleSubmit } = methods;

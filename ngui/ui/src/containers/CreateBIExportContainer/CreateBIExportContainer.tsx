@@ -20,7 +20,7 @@ const CreateBIExportContainer = () => {
       onSubmit={onSubmit}
       onCancel={redirect}
       isLoadingProps={{
-        isSubmitLoading: isLoading
+        isSubmitLoading: isLoading,
       }}
     />
   );

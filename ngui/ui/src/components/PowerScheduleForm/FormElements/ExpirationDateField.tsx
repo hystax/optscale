@@ -9,7 +9,7 @@ const ExpirationDateField = ({ name = FIELD_NAMES.EXPIRATION_DATE, isLoading = f
   const {
     control,
     trigger,
-    formState: { errors, isSubmitted }
+    formState: { errors, isSubmitted },
   } = useFormContext();
 
   const intl = useIntl();
@@ -33,12 +33,12 @@ const ExpirationDateField = ({ name = FIELD_NAMES.EXPIRATION_DATE, isLoading = f
                 { id: "xMustBeGreaterThanOrEqualToY" },
                 {
                   x: intl.formatMessage({ id: "expirationDate" }),
-                  y: intl.formatMessage({ id: "initiationDate" })
+                  y: intl.formatMessage({ id: "initiationDate" }),
                 }
               )
             );
-          }
-        }
+          },
+        },
       }}
       render={({ field: { name: fieldName, onChange, value } }) => (
         <IntervalTimePicker
@@ -58,13 +58,13 @@ const ExpirationDateField = ({ name = FIELD_NAMES.EXPIRATION_DATE, isLoading = f
           validation={{
             dataTestId: `input_${fieldName}`,
             error: !!errors[fieldName],
-            helperText: errors[fieldName]?.message
+            helperText: errors[fieldName]?.message,
           }}
           dataTestIds={{
             field: {
               input: `input_${fieldName}`,
-              iconButton: `btn_${fieldName}select_date`
-            }
+              iconButton: `btn_${fieldName}select_date`,
+            },
           }}
         />
       )}

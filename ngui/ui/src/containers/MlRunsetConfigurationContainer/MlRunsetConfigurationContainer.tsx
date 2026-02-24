@@ -20,7 +20,7 @@ const useLatestRunset = () => {
 
   return {
     isLoading,
-    latestRunset: isEmptyArray(runsets) ? {} : getLatestRunset(runsets)
+    latestRunset: isEmptyArray(runsets) ? {} : getLatestRunset(runsets),
   };
 };
 
@@ -51,7 +51,7 @@ const MlRunsetConfigurationContainer = () => {
       isLoading={{
         isGetRunsetTemplateLoading,
         isGetLatestRunsetLoading,
-        isCreateRunsetLoading
+        isCreateRunsetLoading,
       }}
     />
   );

@@ -6,16 +6,16 @@ const useStyles = makeStyles()((theme) => ({
     maxWidth: 450,
     position: "fixed",
     zIndex: 9998,
-    transition: "all 0.1s ease-out"
+    transition: "all 0.1s ease-out",
   },
   skipButton: {
-    marginRight: "auto"
+    marginRight: "auto",
   },
   backButton: {
-    marginLeft: "auto"
+    marginLeft: "auto",
   },
   nextButton: {
-    marginLeft: "auto"
+    marginLeft: "auto",
   },
   arrowContainer: {
     position: "absolute",
@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: "center",
     left: "50%",
     bottom: 0,
-    transform: "translate(-50%, calc(100% + 10px))"
+    transform: "translate(-50%, calc(100% + 10px))",
   },
   arrow: {
     color: theme.palette.common.white,
@@ -37,14 +37,14 @@ const useStyles = makeStyles()((theme) => ({
             50% {
               transform: translateY(-5px);
             }
-            `} 1s infinite ease-in-out`
+            `} 1s infinite ease-in-out`,
   },
   hidden: {
-    opacity: 0
+    opacity: 0,
   },
   visible: {
-    opacity: 1
-  }
+    opacity: 1,
+  },
 }));
 
 export default useStyles;

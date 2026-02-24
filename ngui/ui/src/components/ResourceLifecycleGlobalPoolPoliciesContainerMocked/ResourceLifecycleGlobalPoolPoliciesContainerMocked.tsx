@@ -21,8 +21,8 @@ const mockedData = [
       purpose: "business_unit",
       default_owner_id: "48c2bf0f-e6c0-4060-93ff-c04c3599ac20",
       default_owner_name: "Charlie Skywalker",
-      unallocated_limit: 26765
-    }
+      unallocated_limit: 26765,
+    },
   },
   {
     deleted_at: 0,
@@ -44,8 +44,8 @@ const mockedData = [
       purpose: "business_unit",
       default_owner_id: "b09bcb1a-ad62-4eee-8283-bcc7b7e5b61d",
       default_owner_name: "Demo User",
-      unallocated_limit: 18179
-    }
+      unallocated_limit: 18179,
+    },
   },
   {
     deleted_at: 0,
@@ -67,8 +67,8 @@ const mockedData = [
       purpose: "cicd",
       default_owner_id: "60b5c2ec-dd76-4e5b-8a2e-1c932396829d",
       default_owner_name: "Luke Roberts",
-      unallocated_limit: 2915
-    }
+      unallocated_limit: 2915,
+    },
   },
   {
     deleted_at: 0,
@@ -90,9 +90,9 @@ const mockedData = [
       purpose: "team",
       default_owner_id: "a2459c67-d6f0-4131-83d5-1393f59cb8a1",
       default_owner_name: "Ellie Black",
-      unallocated_limit: 1325
-    }
-  }
+      unallocated_limit: 1325,
+    },
+  },
 ];
 
 const ResourceLifecycleGlobalPoolPoliciesContainerMocked = () => (

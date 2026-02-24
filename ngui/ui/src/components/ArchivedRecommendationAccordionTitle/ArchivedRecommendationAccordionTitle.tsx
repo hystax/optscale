@@ -27,7 +27,7 @@ const StyledKeyValueChip = ({ keyMessageId, value }: StyledKeyValueChipProps) =>
       // Override the border color to make it contrast with the background when an accordion is expanded
       borderColor: (theme) => theme.palette.info.dark,
       // Override the text color to make it contrast with the background when an accordion is expanded
-      color: "inherit"
+      color: "inherit",
     }}
     label={<KeyValueLabel keyMessageId={keyMessageId} isBoldValue={false} value={value} />}
   />
@@ -38,7 +38,7 @@ const ArchivedRecommendationAccordionTitle = ({
   reason,
   count,
   archivedAt,
-  dataTestId
+  dataTestId,
 }: ArchivedRecommendationAccordionTitleProps) => (
   <Box display="flex" flexWrap="wrap" alignItems="center" columnGap={1} rowGap={0.5} pb={1} pt={1} data-test-id={dataTestId}>
     <Typography>
