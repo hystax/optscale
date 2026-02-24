@@ -2,12 +2,13 @@
 ⭐ Drop a star to support OptScale ⭐
 </p>
 
-# FinOps and cloud cost management platform to run any cloud workload with optimal performance and cost
+# Open-Source FinOps & Cloud Cost Optimization Platform
 
 <p align="center">
 <a href="documentation/images/cover-GitHub.png"><img src="documentation/images/FinOps-platform.png" width="40%" align="middle"></a>
 </p>
-OptScale is an open source FinOps platform that optimizes cloud costs and performance for any workload, providing effective cloud cost management for all types of organizations.
+OptScale is an open-source  [FinOps and cloud cost optimization platform](https://hystax.com/optscale/finops-overview/) that helps engineering and finance teams control and reduce spend across AWS, Microsoft Azure, GCP, Alibaba Cloud, and Kubernetes clusters.
+It provides deep visibility into infrastructure costs, automated optimization recommendations, and governance tools for R&D and data platforms.
 <br>
 <br>
 <p align="center">
@@ -46,19 +47,39 @@ OptScale is an open source FinOps platform that optimizes cloud costs and perfor
 
 <br>
 
-## OptScale FinOps and cloud cost optimization capabilities
+## Overview
+OptScale connects to your cloud accounts and Kubernetes clusters, ingests billing and usage data, and analyzes infrastructure consumption to surface actionable insights that eliminate waste and optimize resource usage.
+It supports multi-cloud environments and integrates with popular data platforms, including Databricks, Amazon S3, and Amazon Redshift.
 
-<li>Optimal utilization of Reserved Instances, Savings Plans, and Spot Instances</li>
-<li>Unused resource detection</li>
-<li>R&D resource power management and rightsizing</li>
-<li>S3 duplicate object finder</li>
-<li>Resource bottleneck identification</li>
-<li>Optimal instance type and family selection</li>
-<li>Databricks support</li>
-<li>S3 and Redshift instrumentation</li>
-<li>VM Power Schedules</li>
+<br>
 
-  
+## Key Features
+### Cost optimization
+<li>Unused and idle resource detection for VMs, volumes, databases, and other cloud resources</li>
+<li>Rightsizing recommendations for overprovisioned instances and workloads</li>
+<li>R&D resource power management to automatically stop non-production environments outside working hours</li>
+<li>Commitment utilization analysis for Reserved Instances, Savings Plans, and Spot Instances</li>
+
+
+### FinOps and governance
+<li>FinOps dashboards for engineering, finance, and product teams to track and allocate cloud spend</li>
+<li>Budgeting and alerting for cost anomalies, spikes, and budget overruns</li>
+<li>Tagging and ownership visibility to attribute costs to teams, projects, and environments</li>
+<li>Policy-driven governance and automation controls</li>
+
+
+### Data and AI/ML workloads
+<li>Databricks cost analytics with detailed visibility into cluster usage and idle time</li>
+<li>S3 and object storage optimization (lifecycle, unused buckets, storage class recommendations)</li>
+<li>Redshift and data warehouse utilization analysis</li>
+
+
+### Kubernetes and multi‑cloud
+<li>Kubernetes cluster cost allocation per namespace, workload, and label with workload-level visibility</li>
+<li>Multi-cloud support for AWS, Microsoft Azure, Google Cloud, and Alibaba Cloud from a single OptScale instance</li>
+
+<br><br>Learn more about [OptScale features for FinOps and multi-cloud cost management](https://hystax.com/optscale/finops-capabilities-and-benefits/).
+
 <br>You can check OptScale [live demo](https://my.optscale.com/live-demo) to explore product features on a pre-generated demo organization.
 <br>Learn more about the Hystax OptScale platform and its capabilities at [our website](https://hystax.com).
 
@@ -98,7 +119,7 @@ NVMe SSD is recommended.
 
 **OS Required**: [Ubuntu 24.04](https://releases.ubuntu.com/noble/).
 
-_The current installation process should work also on Ubuntu 22.04_
+_The current installation process should also work on Ubuntu 22.04_
 
 #### Updating old installation
 please follow [this document](documentation/update_to_24.04.md) to upgrade your existing installation on Ubuntu 20.04.
