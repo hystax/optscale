@@ -7,8 +7,10 @@
 <p align="center">
 <a href="documentation/images/cover-GitHub.png"><img src="documentation/images/FinOps-platform.png" width="40%" align="middle"></a>
 </p>
-OptScale is an open-source  [FinOps and cloud cost optimization platform](https://hystax.com/optscale/finops-overview/) that helps engineering and finance teams control and reduce spend across AWS, Microsoft Azure, GCP, Alibaba Cloud, and Kubernetes clusters.
+
+<br>OptScale is an open-source  [FinOps and cloud cost optimization platform](https://hystax.com/optscale/finops-overview/) that helps engineering and finance teams control and reduce spend across AWS, Microsoft Azure, GCP, Alibaba Cloud, and Kubernetes clusters.
 It provides deep visibility into infrastructure costs, automated optimization recommendations, and governance tools for R&D and data platforms.
+
 <br>
 <br>
 <p align="center">
@@ -34,6 +36,7 @@ It provides deep visibility into infrastructure costs, automated optimization re
 <br>
 
 <div>
+<br>  
   <img src="documentation/images/Max_Kuzkin.png" width="80" align="left" style="border-radius: 50%; margin-right: 15px">
   <i>
     “Hystax OptScale has been a game-changer for our FinOps practice. Its powerful capabilities, flexibility, and seamless integration have empowered us to deliver unprecedented transparency, control, and cost optimization for our clients. We truly value our partnership with Hystax and are excited to innovate further together.”
