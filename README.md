@@ -74,7 +74,6 @@ It supports multi-cloud environments and integrates with popular data platforms,
 ### Data and AI/ML workloads
 <li>Databricks cost analytics with detailed visibility into cluster usage and idle time</li>
 <li>S3 and object storage optimization (lifecycle, unused buckets, storage class recommendations)</li>
-<li>Redshift and data warehouse utilization analysis</li>
 
 
 ### Kubernetes and multi‑cloud
