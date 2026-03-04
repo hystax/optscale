@@ -26,6 +26,7 @@ DEFAULT_ETCD_PORT = 80
 
 DAYS_IN_MONTH = 30
 PAIR = 2
+STATUS_SUCCESS = "SUCCESS"
 
 LOG = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ class Worker(ConsumerMixin):
 
     @property
     def valid_states(self):
-        return ["QUEUED"]
+        return ["QUEUED", STATUS_SUCCESS]
 
     @staticmethod
     def get_now_timestamp() -> int:
@@ -227,87 +228,6 @@ class Worker(ConsumerMixin):
             size *
             monthly_cost) if size and monthly_cost else 0
 
-    def _calculate_self_matrix(
-        self, gemini_id: str, buckets: list[str], buckets_stats: dict
-    ) -> dict:
-        """
-        Combined query to get duplicated objects within each bucket, resulted in a dictionary matrix.
-        Example for ["bucket_1", "bucket_2"]:
-
-        Query:  SELECT bucket, count, size * (1 - 1/count) FROM
-                (
-                    SELECT bucket, tag, count(id) count, sum(size) size
-                    FROM gemini WHERE id="1" AND bucket = "bucket_1"
-                    GROUP BY bucket, tag
-                    HAVING count > 1
-
-                    UNION ALL
-
-                    SELECT bucket, tag, count(id) count, sum(size) size
-                    FROM gemini WHERE id="1" AND bucket = "bucket_2"
-                    GROUP BY bucket, tag
-                    HAVING count > 1
-                )
-        Result: {
-                    "bucket_1": {
-                        "bucket_1": {
-                            "duplicated_objects": 3,
-                            "duplicates_size": 142458.0,
-                            "monthly_savings": 5551
-                        }
-                    },
-                    "bucket_2": {
-                        "bucket_2": {
-                            "duplicated_objects": 0,
-                            "duplicates_size": 0
-                        }
-                    }
-                }
-        """
-        queries = []
-        params = {"gemini_id": gemini_id}
-
-        for index, bucket in enumerate(buckets):
-            params[bucket] = bucket
-            queries.append(
-                f"SELECT bucket, tag, count(id) count, sum(size) size "
-                f"FROM gemini "
-                f"WHERE id=%(gemini_id)s AND bucket=%({bucket})s "
-                f"GROUP BY bucket, tag "
-                f"HAVING count > 1"
-            )
-        self_query = " UNION ALL ".join(queries)
-        self_result_q = self.clickhouse_client.query(
-            f"SELECT bucket, count, size * (1 - 1/count) FROM ({self_query})",
-            parameters=params,
-        )
-
-        self_matrix = {}
-
-        for bucket in buckets:
-            if self_matrix.get(bucket) is None:
-                self_matrix[bucket] = {
-                    bucket: {"duplicated_objects": 0, "duplicates_size": 0}
-                }
-
-            for row in self_result_q.result_rows:
-                if bucket in row:
-                    self_matrix[bucket][bucket]["duplicated_objects"] += row[1]
-                    self_matrix[bucket][bucket]["duplicates_size"] += row[2]
-
-            size = buckets_stats.get(bucket, {}).get("size", 0)
-            monthly_cost = buckets_stats.get(bucket, {}).get("monthly_cost")
-
-            if monthly_cost is not None:
-                self_matrix[bucket][bucket][
-                    "monthly_savings"
-                ] = self._calculate_monthly_savings(
-                    self_matrix[bucket][bucket]["duplicates_size"], size, monthly_cost
-                )
-
-        LOG.info(f"Self matrix: {self_matrix}")
-        return self_matrix
-
     def _calculate_cross_matrix(
         self, gemini_id: str, buckets: list[str], buckets_stats: dict
     ) -> dict:
@@ -315,48 +235,37 @@ class Worker(ConsumerMixin):
         A query to get duplicated objects across bucket pairs, resulted in a dictionary matrix.
         Example for ["bucket_1", "bucket_2", "bucket_3"]:
 
-        Query: SELECT index, sum(count) count, size * (1 - 1/count) FROM
-               (
-                    SELECT 0 index, tag, count(id) count, sum(size) size
-                    FROM gemini
-                    WHERE id="1" AND bucket IN ["bucket_1", "bucket_2"] AND tag in
-                    (
-                        SELECT tag
-                        FROM gemini
-                        WHERE id="1" AND bucket IN (bucket_1, bucket_2)
-                        GROUP BY tag
-                        HAVING COUNT(DISTINCT bucket) = 2
-                    ) GROUP BY tag
-
-                    UNION ALL
-
-                    SELECT 1 index, tag, count(id) count, sum(size) size
-                    FROM gemini
-                    WHERE id="1" AND bucket IN ["bucket_2", "bucket_3"] AND tag in
-                    (
-                        SELECT tag
-                        FROM gemini
-                        WHERE id="1" AND bucket IN (bucket_1, bucket_2)
-                        GROUP BY tag
-                        HAVING COUNT(DISTINCT bucket) = 2
-                    ) GROUP BY tag
-
-                    UNION ALL
-
-                    SELECT 2 index, tag, count(id) count, sum(size) size
-                    FROM gemini
-                    WHERE id="1" AND bucket IN ["bucket_3", "bucket_1"] AND tag in
-                    (
-                        SELECT tag
-                        FROM gemini
-                        WHERE id="1" AND bucket IN (bucket_1, bucket_2)
-                        GROUP BY tag
-                        HAVING COUNT(DISTINCT bucket) = 2
-                    ) GROUP BY tag
-                ) GROUP BY index, size ORDER BY index
+        Query:
+            WITH base AS (
+                SELECT
+                    tag,
+                    bucket,
+                    count(id) AS cnt,
+                    sum(size) AS size
+                FROM gemini
+                WHERE id = %(gemini_id)s
+                  AND bucket IN %(buckets)s
+                GROUP BY tag, bucket
+            )
+            SELECT
+                b1.bucket AS bucket_1,
+                b2.bucket AS bucket_2,
+                sum(b1.cnt + b2.cnt) AS total_count,
+                sum(b1.size) AS total_size
+            FROM base b1
+            INNER JOIN base b2
+                ON b1.tag = b2.tag
+            GROUP BY
+                b1.bucket,
+                b2.bucket
 
         Result: {
                     "bucket_1": {
+                        "bucket_1": {
+                            "duplicated_objects": 128,
+                            "duplicates_size": 3142458.0,
+                            "monthly_savings": 5222
+                        }
                         "bucket_2": {
                             "duplicated_objects": 3,
                             "duplicates_size": 142458.0,
@@ -369,106 +278,82 @@ class Worker(ConsumerMixin):
                     },
                     "bucket_2": {
                         "bucket_1": {"duplicated_objects": 3, "duplicates_size": 142458.0, "monthly_savings": 3331},
+                        "bucket_2": {"duplicated_objects": 0, "duplicates_size": 0, "monthly_savings": 0},
                         "bucket_3": {"duplicated_objects": 0, "duplicates_size": 0},
                     },
                     "bucket_3": {
                         "bucket_1": {"duplicated_objects": 0, "duplicates_size": 0},
+                        "bucket_2": {"duplicated_objects": 0, "duplicates_size": 0},
                         "bucket_3": {"duplicated_objects": 0, "duplicates_size": 0},
                     }
                 }
         """
 
-        bucket_pairs = list(combinations(buckets, PAIR))
-        queries = []
-        params = {"gemini_id": gemini_id}
-
-        for index, pair in enumerate(bucket_pairs):
-            p_0 = f'p_{index}_0'
-            p_1 = f'p_{index}_1'
-            pair_list_sql = ", ".join([f"'{bucket}'" for bucket in pair])
-            params.update({
-                p_0: pair[0],
-                p_1: pair[1],
-            })
-            queries.append(
-                f"SELECT {index} AS index, tag, bucket, count(id) AS count, "
-                f"sum(size) AS size "
-                f"FROM gemini "
-                f"WHERE id=%(gemini_id)s AND bucket IN ({pair_list_sql}) "
-                f"AND tag IN ("
-                f"SELECT tag FROM gemini "
-                f"WHERE id=%(gemini_id)s AND bucket IN (%({p_0})s, %({p_1})s) "
-                f"GROUP BY tag "
-                f"HAVING COUNT(DISTINCT bucket) = 2) "
-                f"GROUP BY tag, bucket"
+        query = f"""
+            WITH base AS (
+                SELECT
+                    tag,
+                    bucket,
+                    count(id) AS cnt,
+                    sum(size) AS size
+                FROM gemini
+                WHERE id = %(gemini_id)s
+                  AND bucket IN %(buckets)s
+                GROUP BY tag, bucket
             )
-        cross_query = " UNION ALL ".join(queries)
-        cross_result_q = self.clickhouse_client.query(
-            f"""
-                SELECT index, bucket, sum(count) count, size FROM ({cross_query})
-                GROUP BY index, bucket, size ORDER BY index
-            """,
-            parameters=params,
-            # Query-level paramters to set the values to unlimited.
-            # The query body exceeds the default limits if there are a lot of
-            # buckets.
-            settings={"max_query_size": 0, "max_ast_elements": 0},
-        )
-
+            SELECT
+                b1.bucket AS bucket_1,
+                b2.bucket AS bucket_2,
+                sum(b1.cnt + b2.cnt) AS total_count,
+                sum(b1.size) AS total_size
+            FROM base b1
+            INNER JOIN base b2
+                ON b1.tag = b2.tag
+            GROUP BY
+                b1.bucket,
+                b2.bucket
+        """
+        result_q = self.clickhouse_client.query(query, parameters={
+            'buckets': buckets, 'gemini_id': gemini_id
+        })
         cross_matrix = defaultdict(lambda: defaultdict(dict))
-
-        for index, pair in enumerate(bucket_pairs):
-            bucket_0 = pair[0]
-            bucket_1 = pair[1]
-            duplicated_objects = 0
-            bucket_0_duplicates_size = 0
-            bucket_1_duplicates_size = 0
-
-            filtered_cross_result = [
-                item for item in cross_result_q.result_rows if item[0] == index]
-
-            if filtered_cross_result:
-                for item in filtered_cross_result:
-                    duplicated_objects += item[2]
-                    if item[1] == bucket_0:
-                        bucket_0_duplicates_size += item[3]
-                    if item[1] == bucket_1:
-                        bucket_1_duplicates_size += item[3]
-
-            cross_matrix[bucket_0][bucket_1]["duplicated_objects"] = duplicated_objects
-            cross_matrix[bucket_0][bucket_1][
-                "duplicates_size"
-            ] = bucket_0_duplicates_size
-            cross_matrix[bucket_1][bucket_0]["duplicated_objects"] = duplicated_objects
-            cross_matrix[bucket_1][bucket_0][
-                "duplicates_size"
-            ] = bucket_1_duplicates_size
-
+        for r in result_q.result_rows:
+            bucket_0 = r[0]
+            bucket_1 = r[1]
+            bucket_0_duplicates_size = r[3]
             bucket_0_size = buckets_stats.get(bucket_0, {}).get("size", 0)
             bucket_0_monthly_cost = buckets_stats.get(
                 bucket_0, {}).get("monthly_cost")
-            bucket_1_size = buckets_stats.get(bucket_1, {}).get("size", 0)
-            bucket_1_monthly_cost = buckets_stats.get(
-                bucket_1, {}).get("monthly_cost")
-
+            duplicated_objects = r[2]
+            if bucket_0 == bucket_1:
+                # because of sum(b1.cnt + b2.cnt) for the same bucket
+                duplicated_objects = int(duplicated_objects / 2)
+            info = {
+                'duplicated_objects': duplicated_objects,
+                'duplicates_size': bucket_0_duplicates_size
+            }
             if bucket_0_monthly_cost is not None:
-                cross_matrix[bucket_0][bucket_1][
-                    "monthly_savings"
-                ] = self._calculate_monthly_savings(
-                    bucket_0_duplicates_size,
-                    bucket_0_size,
-                    bucket_0_monthly_cost,
-                )
+                info.update({
+                    'monthly_savings': self._calculate_monthly_savings(
+                        bucket_0_duplicates_size, bucket_0_size,
+                        bucket_0_monthly_cost)
+                })
+            cross_matrix[bucket_0][bucket_1] = info
 
-            if bucket_1_monthly_cost is not None:
-                cross_matrix[bucket_1][bucket_0][
-                    "monthly_savings"
-                ] = self._calculate_monthly_savings(
-                    bucket_1_duplicates_size,
-                    bucket_1_size,
-                    bucket_1_monthly_cost,
-                )
-
+        # fill empty values
+        bucket_pairs = list(combinations(buckets, PAIR))
+        for b in buckets:
+            bucket_pairs.append((b, b))
+        for pair in bucket_pairs:
+            for k in [
+                'duplicated_objects', 'duplicates_size', 'monthly_savings'
+            ]:
+                bucket_0, bucket_1 = pair[:2]
+                if k not in cross_matrix[bucket_0][bucket_1]:
+                    cross_matrix[bucket_0][bucket_1][k] = 0
+                if bucket_0 != bucket_1:
+                    if k not in cross_matrix[bucket_1][bucket_0]:
+                        cross_matrix[bucket_1][bucket_0][k] = 0
         LOG.info(f"Cross matrix {cross_matrix}")
         return cross_matrix
 
@@ -581,7 +466,9 @@ class Worker(ConsumerMixin):
             if status not in self.valid_states:
                 raise Exception(
                     f"Gemini {gemini['id']} in wrong status: {status}")
-
+            if status == STATUS_SUCCESS:
+                LOG.info(f"Found success Gemini {gemini['id']}")
+                return
             last_run = self.get_now_timestamp()
 
             self._set_status(gemini_id, {"last_run": last_run}, "RUNNING")
@@ -636,18 +523,8 @@ class Worker(ConsumerMixin):
                 all_bucket_names, cloud_account_ids, stats, last_run
             )
 
-            self_matrix = self._calculate_self_matrix(
-                gemini_id, all_bucket_names, buckets_stats
-            )
-            matrix = self_matrix
-
-            # Skip cross matrix if there is just one bucket
-            if len(buckets) > 1:
-                cross_matrix = self._calculate_cross_matrix(
-                    gemini_id, all_bucket_names, buckets_stats
-                )
-                for key in self_matrix.keys():
-                    matrix[key].update(cross_matrix[key])
+            matrix = self._calculate_cross_matrix(
+                gemini_id, all_bucket_names, buckets_stats)
 
             duplicates_stats = self._calculate_objects_with_duplicates(
                 gemini_id, all_bucket_names, buckets_stats
@@ -665,7 +542,7 @@ class Worker(ConsumerMixin):
 
             self._set_status(
                 gemini_id, {
-                    "last_completed": self.get_now_timestamp()}, "SUCCESS")
+                    "last_completed": self.get_now_timestamp()}, STATUS_SUCCESS)
 
             LOG.info(f"Successful gemini run for {gemini_id}")
 
