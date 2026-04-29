@@ -25,21 +25,31 @@ class _Sku:
         self.name = name
 
 
+class _AppliedScopeProps:
+    def __init__(self, subscription_id=None):
+        self.subscription_id = subscription_id
+
+
 class _Props:
     def __init__(self, term="1 Year", applied_scope_type=None,
-                 applied_scopes=None):
+                 applied_scopes=None, applied_scope_properties=None):
         self.term = term
         self.applied_scope_type = applied_scope_type
         self.applied_scopes = applied_scopes or []
+        self.applied_scope_properties = applied_scope_properties
 
 
 class _Reservation:
     def __init__(self, sku_name, applied_scope_type=None,
-                 applied_scopes=None, term="1 Year"):
+                 applied_scopes=None, term="1 Year",
+                 applied_scope_properties=None):
         self.sku = _Sku(sku_name)
-        self.properties = _Props(term=term,
-                                 applied_scope_type=applied_scope_type,
-                                 applied_scopes=applied_scopes)
+        self.properties = _Props(
+            term=term,
+            applied_scope_type=applied_scope_type,
+            applied_scopes=applied_scopes,
+            applied_scope_properties=applied_scope_properties,
+        )
 
 
 def _install_fake_azure_sdk():
@@ -159,6 +169,45 @@ def test_single_scope_other_subscription_skipped(api_mock):
     with mock.patch.object(reservations,
                            "_fetch_retail_reservation_rate",
                            return_value=0.99):
+        rate = get_effective_storage_rate(
+            credential=mock.Mock(), subscription_id="subB",
+            region="eastus", redundancy="LRS", tier="Hot")
+    assert rate is None
+
+
+def test_single_scope_via_applied_scope_properties(api_mock):
+    """Newer reservation payloads can carry the target subscription on
+    properties.applied_scope_properties.subscription_id with applied_scopes
+    empty/deprecated. Helper must accept either source."""
+    res = _Reservation(
+        sku_name="Blob_Storage_Reserved_Capacity_LRS_Hot_100TB",
+        applied_scope_type="Single",
+        applied_scopes=[],
+        applied_scope_properties=_AppliedScopeProps(
+            subscription_id="/subscriptions/subA"),
+    )
+    api_mock.return_value.reservation.list_all.return_value = iter([res])
+    with mock.patch.object(reservations,
+                           "_fetch_retail_reservation_rate",
+                           return_value=0.04):
+        rate = get_effective_storage_rate(
+            credential=mock.Mock(), subscription_id="subA",
+            region="eastus", redundancy="LRS", tier="Hot")
+    assert rate == 0.04
+
+
+def test_single_scope_via_applied_scope_properties_other_sub_skipped(api_mock):
+    res = _Reservation(
+        sku_name="Blob_Storage_Reserved_Capacity_LRS_Hot_100TB",
+        applied_scope_type="Single",
+        applied_scopes=[],
+        applied_scope_properties=_AppliedScopeProps(
+            subscription_id="/subscriptions/subA"),
+    )
+    api_mock.return_value.reservation.list_all.return_value = iter([res])
+    with mock.patch.object(reservations,
+                           "_fetch_retail_reservation_rate",
+                           return_value=0.04):
         rate = get_effective_storage_rate(
             credential=mock.Mock(), subscription_id="subB",
             region="eastus", redundancy="LRS", tier="Hot")
