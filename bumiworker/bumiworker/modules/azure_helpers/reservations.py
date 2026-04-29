@@ -13,6 +13,14 @@ Two-hop flow:
       reservation unitPrice; we divide by capacity_gb / months_in_term to
       get $/GB-month.
 
+Tenant-wide list_all() returns every reservation visible to the SPN. We
+filter to reservations whose applied_scope covers the target
+subscription:
+  - Shared scope -> tenant-wide, applies
+  - Single scope -> applies only if subscription_id is in applied_scopes
+  - ManagementGroup scope -> conservatively skipped (we don't resolve
+    MG membership; under-discounting is safer than phantom discounts)
+
 RBAC: SPN must hold the built-in `Reservations Reader` role on the tenant
 (or the specific reservation orders) for the list_all call to return
 results. Without it the call yields a 403 AuthorizationFailed; this is a
@@ -126,10 +134,23 @@ def get_effective_storage_rate(credential, subscription_id, region,
     NEVER raises. Failure modes are all under-discount (safe); we never
     over-discount the forecast.
     """
-    # cache key is (region, redundancy, tier) not (region, sku, term):
-    # helper resolves a single $/GB-month per (region, redundancy, tier) regardless of
-    # reservation size (100TB vs 1PB SKUs share the rate at GB-month granularity).
-    cache_key = ((region or "").lower(), (redundancy or "").upper(), tier)
+    # cache key is (subscription_id, region, redundancy, tier) not
+    # (region, sku, term): helper resolves a single $/GB-month per
+    # (region, redundancy, tier) regardless of reservation size (100TB
+    # vs 1PB SKUs share the rate at GB-month granularity). subscription_id
+    # is load-bearing — _CACHE is a module global shared across every
+    # subscription processed in this worker, and applied_scope filtering
+    # below produces different rates (or None) per subscription. Without
+    # subscription_id in the key, a sibling subscription that genuinely
+    # has no reservation would either inherit a phantom rate (false-
+    # positive recommendation, over-savings) or poison a real rate with
+    # a cached None.
+    cache_key = (
+        (subscription_id or "").lower(),
+        (region or "").lower(),
+        (redundancy or "").upper(),
+        tier,
+    )
     now = time.monotonic()
     cached = _CACHE.get(cache_key)
     if cached and (now - cached[0]) < CACHE_TTL_SECS:
@@ -163,12 +184,25 @@ def get_effective_storage_rate(credential, subscription_id, region,
 
     norm_red = (redundancy or "").upper().replace("-", "")
     try:
+        sub_lower = (subscription_id or "").lower()
         for r in reservations:
             sku = getattr(getattr(r, "sku", None), "name", None) or ""
             props = getattr(r, "properties", None)
             term = getattr(props, "term", None) if props else None
-            # `applied_scopes` is a list of subscription IDs; we don't
-            # filter on it here since list_all is already tenant-wide.
+            # Scope filter: list_all() is tenant-wide. Shared scope is
+            # the accept-all branch (reservation applies to every sub in
+            # the billing scope). Single scope must match this
+            # subscription explicitly. ManagementGroup is skipped — we
+            # don't resolve MG -> sub membership, and under-discount is
+            # safer than a phantom rate.
+            scope_type = (getattr(props, "applied_scope_type", None) or "").lower() if props else ""
+            applied_scopes = (getattr(props, "applied_scopes", None) or []) if props else []
+            norm_scopes = [s.rsplit("/", 1)[-1].lower() for s in applied_scopes]
+            if scope_type == "single":
+                if sub_lower not in norm_scopes:
+                    continue
+            elif scope_type == "managementgroup":
+                continue
             m = SKU_PATTERN.match(sku)
             if not m:
                 continue
