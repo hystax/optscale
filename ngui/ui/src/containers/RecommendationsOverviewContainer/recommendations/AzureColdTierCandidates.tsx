@@ -1,9 +1,10 @@
 import { FormattedMessage } from "react-intl";
 import FormattedMoney from "components/FormattedMoney";
 import RecommendationListItemResourceLabel from "components/RecommendationListItemResourceLabel";
+import AzureColdTierCandidatesModal from "components/SideModalManager/SideModals/recommendations/AzureColdTierCandidatesModal";
 import TextWithDataTestId from "components/TextWithDataTestId";
-import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { AZURE_STORAGE } from "hooks/useRecommendationServices";
+import { detectedAt, possibleMonthlySavings, resource, resourceLocation } from "utils/columns";
 import { AZURE_CNR, FORMATTED_MONEY_TYPES } from "utils/constants";
 import { TODO } from "utils/types";
 import BaseRecommendation, { CATEGORY } from "./BaseRecommendation";
@@ -112,6 +113,10 @@ class AzureColdTierCandidates extends BaseRecommendation {
   categories = [CATEGORY.COST];
 
   withExclusions = true;
+
+  hasSettings = true;
+
+  settingsSidemodalClass = AzureColdTierCandidatesModal;
 
   static resourceDescriptionMessageId = "azureColdTierCandidatesResourceRecommendation";
 

@@ -218,7 +218,7 @@
   "azureColdTierCandidatesResourceRecommendation": "This Azure storage account holds blob capacity that would save money if moved to the Cold tier.",
   "azureColdTierCandidatesSignal": "Signal used",
   "azureColdTierCandidatesTierMove": "Tier move",
-  "azureColdTierCandidatesTitle": "<strong>{value} {value, plural,\n =1 {Azure cold-tier candidate}\n other {Azure cold-tier candidates}}</strong>.",
+  "azureColdTierCandidatesTitle": "Azure Cold-Tier Candidates",
   "azureSubscription": "Azure subscription",
   "azureTenant": "Azure tenant",
   "back": "Back",
