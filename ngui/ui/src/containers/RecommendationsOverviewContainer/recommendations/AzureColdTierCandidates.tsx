@@ -115,16 +115,19 @@ class AzureColdTierCandidates extends BaseRecommendation {
   static resourceDescriptionMessageId = "azureColdTierCandidatesResourceRecommendation";
 
   get previewItems() {
-    return this.items.map((item: TODO) => [
-      {
-        key: `${item.cloud_resource_id}-label`,
-        value: <RecommendationListItemResourceLabel key={item.id} item={item} />,
-      },
-      {
-        key: `${item.cloud_resource_id}-${item.resource_id}-saving`,
-        value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
-      },
-    ]);
+    return this.items.map((item: TODO) => {
+      const tierPair = `${item.current_tier ?? ""}-${item.target_tier ?? ""}`;
+      return [
+        {
+          key: `${item.cloud_resource_id}-${tierPair}-label`,
+          value: <RecommendationListItemResourceLabel key={item.id} item={item} />,
+        },
+        {
+          key: `${item.cloud_resource_id}-${tierPair}-saving`,
+          value: <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={item.saving} />,
+        },
+      ];
+    });
   }
 
   columns = columns as never[];
