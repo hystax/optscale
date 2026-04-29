@@ -98,6 +98,26 @@ def http_error():
 
 # ---- BUG 1: cache isolation by subscription_id ------------------------
 
+def test_reservation_api_ctor_signature(api_mock):
+    """AzureReservationAPI is a tenant-wide service: ctor takes
+    (credentials, base_url=None, **kwargs). subscription_id MUST NOT be
+    passed positionally — doing so makes it base_url and list_all hits
+    an invalid endpoint (silently 0 reservations -> phantom over-savings).
+    """
+    api_mock.return_value.reservation.list_all.return_value = iter([])
+    creds = mock.Mock(name="credential")
+    get_effective_storage_rate(
+        credential=creds, subscription_id="any-sub",
+        region="eastus", redundancy="LRS", tier="Hot")
+    args, kwargs = api_mock.call_args
+    assert args == (creds,), (
+        f"AzureReservationAPI ctor must receive only credentials positionally; "
+        f"got args={args} kwargs={kwargs}. subscription_id leaking into base_url "
+        f"breaks reservation.list_all()."
+    )
+    assert "subscription_id" not in kwargs
+
+
 def test_cache_isolated_by_subscription_id(api_mock):
     """A second call with a different subscription_id must NOT reuse the
     first call's cached entry — list_all must be invoked again."""

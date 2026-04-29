@@ -165,8 +165,14 @@ def get_effective_storage_rate(credential, subscription_id, region,
         _CACHE[cache_key] = (now, None)
         return None
 
+    # AzureReservationAPI is a tenant-wide service: ctor is
+    # AzureReservationAPI(credentials, base_url=None, **kwargs); subscription_id
+    # is NOT a positional arg. Passing it positionally would make it base_url
+    # and reservation.list_all() would hit an invalid endpoint, then the broad
+    # except below would swallow it as "no reservations" -> all rates None ->
+    # phantom over-savings on tenants with real Blob reservations.
     try:
-        client = AzureReservationAPI(credential, subscription_id)
+        client = AzureReservationAPI(credential)
     except Exception as exc:
         LOG.debug("AzureReservationAPI init failed: %s", exc)
         _CACHE[cache_key] = (now, None)
