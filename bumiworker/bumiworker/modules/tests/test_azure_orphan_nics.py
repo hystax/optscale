@@ -543,4 +543,28 @@ class TestArchiveModule:
         )
 
         assert len(result) == 1
+
+
+# ---------------------------------------------------------------------------
+# Zero-saving allowlist registration
+# ---------------------------------------------------------------------------
+
+class TestZeroSavingRegistration:
+    """azure_orphan_nics emits saving=0.0; ResourceRecommendations service
+    drops zero-saving rows unless the module is registered in
+    modules_with_possible_zero_saving.  Lock the registration here so
+    a future refactor of the service module surfaces in our test suite.
+    """
+
+    def test_module_in_zero_saving_allowlist(self):
+        import inspect
+        from bumiworker.bumiworker.modules.service import resource_recommendations
+        src = inspect.getsource(
+            resource_recommendations.ResourceRecommendations.__init__
+        )
+        assert "'azure_orphan_nics'" in src or '"azure_orphan_nics"' in src, (
+            "azure_orphan_nics emits saving=0.0 rows; without registration "
+            "in modules_with_possible_zero_saving they are dropped from "
+            "resources.recommendations.modules."
+        )
         assert result[0]["reason"] == ArchiveReason.RECOMMENDATION_IRRELEVANT
