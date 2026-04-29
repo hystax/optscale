@@ -10,22 +10,44 @@ The discovery layer captures meta used by downstream tier-recommendation
 modules (cold/archive). When the SDK renames a field, those modules
 silently lose signal — these locks force the rename to surface as a
 test failure during dependency bumps.
+
+Implementation note: ``azure-mgmt`` models split fields into two groups:
+- writable / client-supplied → present in ``__init__`` parameters
+- server-populated read-only (e.g. ``StorageAccount.access_tier``,
+  ``Sku.tier``) → present only in ``_attribute_map``
+
+Discovery reads server-populated fields via ``getattr``, so these locks
+introspect ``_attribute_map`` rather than the constructor signature.
 """
 import inspect
 
 import pytest
 
 
+def _attribute_map(cls):
+    """Return the SDK model's `_attribute_map` keys as a set.
+
+    `_attribute_map` is the ``msrest``-style declaration of every
+    serialized field on the model — both writable and read-only — so
+    this is the right surface to assert against for fields populated
+    by the service rather than the caller.
+    """
+    return set(getattr(cls, '_attribute_map', {}).keys())
+
+
 def test_storage_account_exposes_tier_fields():
     """``StorageAccount`` exposes the fields ``discover_bucket_resources``
     reads via ``getattr``: access_tier, kind, sku, is_hns_enabled,
     immutable_storage_with_versioning.
+
+    ``access_tier``, ``kind`` and ``sku`` are server-populated read-only
+    properties — they live in ``_attribute_map`` but not in
+    ``__init__``. ``is_hns_enabled`` and ``immutable_storage_with_versioning``
+    are caller-supplied at create-time AND surfaced on read; both maps
+    list them.
     """
     models = pytest.importorskip("azure.mgmt.storage.models")
-    cls = models.StorageAccount
-
-    init_sig = inspect.signature(cls.__init__)
-    params = set(init_sig.parameters.keys())
+    fields = _attribute_map(models.StorageAccount)
 
     expected = {
         'access_tier',
@@ -34,7 +56,7 @@ def test_storage_account_exposes_tier_fields():
         'is_hns_enabled',
         'immutable_storage_with_versioning',
     }
-    missing = expected - params
+    missing = expected - fields
     assert not missing, (
         f"StorageAccount missing expected fields: {missing}. "
         f"Discovery in tools/cloud_adapter/clouds/azure.py reads these "
@@ -64,15 +86,18 @@ def test_sku_exposes_name_and_tier():
     """``Sku.name`` (e.g. Standard_LRS) and ``Sku.tier`` (Standard /
     Premium) are read by the discovery layer to filter premium accounts
     out of cold/archive recommendations.
+
+    ``Sku.tier`` is a read-only / server-populated property in this
+    SDK version — present in ``_attribute_map`` but not in
+    ``__init__``. ``Sku.name`` is caller-supplied and listed in both.
     """
     models = pytest.importorskip("azure.mgmt.storage.models")
     cls = getattr(models, 'Sku', None)
     assert cls is not None, "Sku model missing from SDK"
 
-    init_sig = inspect.signature(cls.__init__)
-    params = set(init_sig.parameters.keys())
-    assert 'name' in params, "Sku.name missing — premium filter breaks"
-    assert 'tier' in params, "Sku.tier missing — premium filter breaks"
+    fields = _attribute_map(cls)
+    assert 'name' in fields, "Sku.name missing — premium filter breaks"
+    assert 'tier' in fields, "Sku.tier missing — premium filter breaks"
 
 
 def test_blob_service_properties_exposes_tracking_policy():
@@ -85,15 +110,13 @@ def test_blob_service_properties_exposes_tracking_policy():
     cls = getattr(models, 'BlobServiceProperties', None)
     assert cls is not None, "BlobServiceProperties missing from SDK"
 
-    init_sig = inspect.signature(cls.__init__)
-    params = set(init_sig.parameters.keys())
-
+    fields = _attribute_map(cls)
     expected = {
         'last_access_time_tracking_policy',
         'is_versioning_enabled',
         'delete_retention_policy',
     }
-    missing = expected - params
+    missing = expected - fields
     assert not missing, (
         f"BlobServiceProperties missing expected fields: {missing}. "
         f"discover_bucket_resources reads these to populate the "
@@ -110,9 +133,8 @@ def test_last_access_time_tracking_policy_enable_field():
     cls = getattr(models, 'LastAccessTimeTrackingPolicy', None)
     assert cls is not None, "LastAccessTimeTrackingPolicy missing from SDK"
 
-    init_sig = inspect.signature(cls.__init__)
-    params = set(init_sig.parameters.keys())
-    assert 'enable' in params, (
+    fields = _attribute_map(cls)
+    assert 'enable' in fields, (
         "LastAccessTimeTrackingPolicy.enable missing — tracking-gate breaks."
     )
 
@@ -123,9 +145,8 @@ def test_delete_retention_policy_fields():
     cls = getattr(models, 'DeleteRetentionPolicy', None)
     assert cls is not None, "DeleteRetentionPolicy missing from SDK"
 
-    init_sig = inspect.signature(cls.__init__)
-    params = set(init_sig.parameters.keys())
-    assert {'enabled', 'days'}.issubset(params), (
+    fields = _attribute_map(cls)
+    assert {'enabled', 'days'}.issubset(fields), (
         "DeleteRetentionPolicy.enabled / .days missing — soft-delete "
         "metadata capture breaks."
     )
@@ -139,9 +160,8 @@ def test_immutable_storage_with_versioning_enabled_field():
         "ImmutableStorageAccount missing from SDK — WORM detection breaks."
     )
 
-    init_sig = inspect.signature(cls.__init__)
-    params = set(init_sig.parameters.keys())
-    assert 'enabled' in params, (
+    fields = _attribute_map(cls)
+    assert 'enabled' in fields, (
         "ImmutableStorageAccount.enabled missing — WORM gate breaks."
     )
 
@@ -149,15 +169,17 @@ def test_immutable_storage_with_versioning_enabled_field():
 def test_blob_services_operations_present():
     """``StorageManagementClient`` exposes ``blob_services`` and
     ``management_policies`` operation groups used by discovery.
+
+    Operations groups are attached at construction; we probe for the
+    operation classes in the operations module rather than instantiating
+    a client (which requires credentials).
     """
     storage_module = pytest.importorskip("azure.mgmt.storage")
     client_cls = getattr(storage_module, 'StorageManagementClient', None)
     assert client_cls is not None, "StorageManagementClient missing"
+    # Reference the constructor so a radical SDK rewrite still surfaces.
+    assert inspect.signature(client_cls.__init__) is not None
 
-    init_sig = inspect.signature(client_cls.__init__)
-    # Operations groups are attached at construction; we can't easily
-    # introspect without an instance, so probe for the operations
-    # classes in the operations module.
     ops_module = pytest.importorskip("azure.mgmt.storage.operations")
     assert hasattr(ops_module, 'BlobServicesOperations'), (
         "BlobServicesOperations missing — extra blob-service properties "
@@ -167,6 +189,3 @@ def test_blob_services_operations_present():
         "ManagementPoliciesOperations missing — lifecycle-policy detection "
         "in discover_bucket_resources breaks."
     )
-    # Reference init_sig to keep the introspection live; if SDK shape
-    # changes radically, signature check provides a fallback alarm.
-    assert init_sig is not None
