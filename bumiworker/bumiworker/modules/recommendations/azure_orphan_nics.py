@@ -220,6 +220,63 @@ def _touch_resource(coll, doc_id: str, now_ts: int) -> None:
     )
 
 
+def _emit_rows_from_existing_sentinels(
+    coll,
+    cloud_account_id: str,
+    cloud_account_name: Optional[str],
+    excluded_pools: Dict,
+) -> List[Dict[str, Any]]:
+    """Re-emit recommendation rows from live native sentinels.
+
+    Used as a safe fallback when an account's live Azure scan fails — the
+    previous run's findings are preserved in the checklist so
+    ArchiveBase.get_archive_candidates does not flag them as disappeared,
+    which would trigger false RECOMMENDATION_IRRELEVANT archival of NICs
+    that are still genuinely orphan.
+
+    Reads the same sentinel docs the recommendation module wrote on a
+    healthy run.  No fresh Azure SDK call.  Skipped sentinels (deleted_at
+    != 0) are excluded so resolved NICs don't reappear.
+    """
+    rows: List[Dict[str, Any]] = []
+    sentinels = coll.find(
+        {
+            "cloud_account_id": cloud_account_id,
+            "deleted_at": 0,
+            "meta.created_by": "azure_orphan_nics_native",
+        },
+        {
+            "_id": 1,
+            "cloud_resource_id": 1,
+            "name": 1,
+            "region": 1,
+            "pool_id": 1,
+        },
+    )
+    for s in sentinels:
+        pool_id = s.get("pool_id")
+        rows.append(
+            {
+                "cloud_resource_id": s["cloud_resource_id"],
+                "resource_name": s.get("name"),
+                "resource_id": s["_id"],
+                "cloud_account_id": cloud_account_id,
+                "cloud_type": "azure_cnr",
+                "cloud_account_name": cloud_account_name,
+                "saving": 0.0,
+                "region": s.get("region"),
+                "is_excluded": (
+                    (pool_id in excluded_pools)
+                    if (excluded_pools and pool_id)
+                    else False
+                ),
+                "folder_id": None,
+                "zone_id": None,
+            }
+        )
+    return rows
+
+
 def _reconcile_deleted(
     coll,
     cloud_account_id: str,
@@ -289,23 +346,42 @@ class AzureOrphanNics(ModuleBase):
                 nics = _list_orphan_nics(creds)
             except Exception:
                 LOG.exception(
-                    "orphan-NIC enumeration failed for cloud_account_id=%s", ca_id
+                    "orphan-NIC enumeration failed for cloud_account_id=%s;"
+                    " preserving previous-run rows from live sentinels to"
+                    " avoid mass false archival",
+                    ca_id,
                 )
+                try:
+                    rows.extend(_emit_rows_from_existing_sentinels(
+                        coll, ca_id, ca.get("name"), excluded_pools,
+                    ))
+                except Exception:
+                    LOG.exception(
+                        "fallback sentinel-emit also failed for cloud_account_id=%s;"
+                        " rows for this account will be missing this cycle and may"
+                        " trigger false archival downstream",
+                        ca_id,
+                    )
                 continue
 
             current_arm_ids = {n.arm_id for n in nics}
             try:
                 _reconcile_deleted(coll, ca_id, current_arm_ids, now_ts)
             except PyMongoError:
-                # Reconciliation populates the deleted_at signal that the
-                # archive module relies on.  If it fails, sentinels stay
-                # stuck on the previous run's state — emitting fresh rows
-                # would create duplicate / stale recommendations.  Skip the
-                # account this cycle; next run will reconcile cleanly.
                 LOG.exception(
-                    "reconciliation failed for cloud_account_id=%s; skipping account",
+                    "reconciliation failed for cloud_account_id=%s;"
+                    " preserving previous-run rows to avoid mass false archival",
                     ca_id,
                 )
+                try:
+                    rows.extend(_emit_rows_from_existing_sentinels(
+                        coll, ca_id, ca.get("name"), excluded_pools,
+                    ))
+                except Exception:
+                    LOG.exception(
+                        "fallback sentinel-emit also failed for cloud_account_id=%s",
+                        ca_id,
+                    )
                 continue
 
             mongo_failure = False
@@ -356,10 +432,19 @@ class AzureOrphanNics(ModuleBase):
                     }
                 )
             if mongo_failure:
-                # Partial rows from this account were already appended; drop
-                # them so the recommendation set is either complete-for-account
-                # or absent-for-account.
+                # Drop partial rows from this account, replace with full
+                # sentinel-derived set so archive does not see disappearance.
                 rows = [r for r in rows if r["cloud_account_id"] != ca_id]
+                try:
+                    rows.extend(_emit_rows_from_existing_sentinels(
+                        coll, ca_id, ca.get("name"), excluded_pools,
+                    ))
+                except Exception:
+                    LOG.exception(
+                        "fallback sentinel-emit failed after partial-mongo failure"
+                        " for cloud_account_id=%s",
+                        ca_id,
+                    )
 
         return rows
 

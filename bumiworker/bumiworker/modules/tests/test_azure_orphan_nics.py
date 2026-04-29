@@ -5,6 +5,7 @@ skipped gracefully rather than erroring with ImportError.
 """
 import uuid
 from datetime import datetime
+from typing import Optional
 from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
@@ -15,6 +16,7 @@ azure_mgmt_network_models = pytest.importorskip("azure.mgmt.network.models")
 from azure.mgmt.network.models import NetworkInterface  # noqa: E402
 
 from bumiworker.bumiworker.modules.recommendations.azure_orphan_nics import (  # noqa: E402
+    _emit_rows_from_existing_sentinels,
     _list_orphan_nics,
     _reconcile_deleted,
     _resolve_or_insert_resource,
@@ -319,6 +321,130 @@ class TestReconcileDeleted:
 
         assert count == 0
         coll.bulk_write.assert_not_called()
+
+
+class TestSentinelEmitFallback:
+    """_emit_rows_from_existing_sentinels returns correct row shape.
+
+    Design property: when a per-account Azure scan fails (transient API error,
+    SPN expiry, network blip), calling this helper re-emits the same rows that
+    a healthy prior run produced.  ArchiveBase.get_archive_candidates therefore
+    sees no diff for the failed account and does not trigger false
+    RECOMMENDATION_IRRELEVANT archival of live orphan NICs.
+    """
+
+    def _make_sentinel(
+        self,
+        doc_id: str,
+        cloud_resource_id: str,
+        name: str,
+        region: str,
+        pool_id: Optional[str] = None,
+    ) -> dict:
+        s = {
+            "_id": doc_id,
+            "cloud_resource_id": cloud_resource_id,
+            "name": name,
+            "region": region,
+        }
+        if pool_id is not None:
+            s["pool_id"] = pool_id
+        return s
+
+    def test_emit_rows_from_existing_sentinels_returns_expected_shape(self):
+        """Two sentinels returned: one excluded, one not; row shape must match spec."""
+        from unittest.mock import MagicMock
+
+        excluded_pool = "pool-excluded"
+        included_pool = "pool-included"
+        excluded_pools = {excluded_pool: True}
+
+        sentinel_excluded = self._make_sentinel(
+            "id-excl",
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/networkinterfaces/nic-excl",
+            "nic-excl",
+            "eastus",
+            pool_id=excluded_pool,
+        )
+        sentinel_included = self._make_sentinel(
+            "id-incl",
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/networkinterfaces/nic-incl",
+            "nic-incl",
+            "westus",
+            pool_id=included_pool,
+        )
+
+        coll = MagicMock()
+        coll.find.return_value = iter([sentinel_excluded, sentinel_included])
+
+        rows = _emit_rows_from_existing_sentinels(
+            coll, "ca-test", "My Test Account", excluded_pools
+        )
+
+        assert len(rows) == 2
+
+        # Verify coll.find was called with the correct filter
+        call_filter = coll.find.call_args[0][0]
+        assert call_filter["cloud_account_id"] == "ca-test"
+        assert call_filter["deleted_at"] == 0
+        assert call_filter["meta.created_by"] == "azure_orphan_nics_native"
+
+        # Build a lookup by resource_id for deterministic assertions
+        by_id = {r["resource_id"]: r for r in rows}
+        assert set(by_id) == {"id-excl", "id-incl"}
+
+        # Common fields must be present on every row
+        for row in rows:
+            assert row["saving"] == 0.0
+            assert row["cloud_type"] == "azure_cnr"
+            assert row["cloud_account_id"] == "ca-test"
+            assert row["cloud_account_name"] == "My Test Account"
+            assert row["folder_id"] is None
+            assert row["zone_id"] is None
+
+        excl_row = by_id["id-excl"]
+        assert excl_row["cloud_resource_id"] == sentinel_excluded["cloud_resource_id"]
+        assert excl_row["resource_name"] == "nic-excl"
+        assert excl_row["region"] == "eastus"
+        assert excl_row["is_excluded"] is True
+
+        incl_row = by_id["id-incl"]
+        assert incl_row["cloud_resource_id"] == sentinel_included["cloud_resource_id"]
+        assert incl_row["resource_name"] == "nic-incl"
+        assert incl_row["region"] == "westus"
+        assert incl_row["is_excluded"] is False
+
+    def test_emit_rows_empty_when_no_live_sentinels(self):
+        """No live sentinels → empty list; no exception."""
+        from unittest.mock import MagicMock
+
+        coll = MagicMock()
+        coll.find.return_value = iter([])
+
+        rows = _emit_rows_from_existing_sentinels(coll, "ca-empty", "Empty", {})
+        assert rows == []
+
+    def test_emit_rows_pool_id_absent_is_not_excluded(self):
+        """Sentinel with no pool_id must set is_excluded=False even with non-empty excluded_pools."""
+        from unittest.mock import MagicMock
+
+        sentinel_no_pool = {
+            "_id": "id-np",
+            "cloud_resource_id": "/subscriptions/s/resourcegroups/r/providers/microsoft.network/networkinterfaces/np",
+            "name": "np",
+            "region": "centralus",
+            # pool_id intentionally absent
+        }
+
+        coll = MagicMock()
+        coll.find.return_value = iter([sentinel_no_pool])
+
+        rows = _emit_rows_from_existing_sentinels(
+            coll, "ca-np", "No Pool", {"some-pool": True}
+        )
+
+        assert len(rows) == 1
+        assert rows[0]["is_excluded"] is False
 
 
 class TestTouchResourceGuard:
