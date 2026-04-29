@@ -45,6 +45,36 @@ class TestStorageAccountAttributeMapLocked:
                 "SDK contract may have changed"
             )
 
+    def test_service_managed_fields_present_or_getattr_defensive(self):
+        """Lock the three service-managed NIC attributes added by Codex P1 fix.
+
+        These fields are present in azure-mgmt-network >= 4.0 (REST API 2019+)
+        and confirmed in the _attribute_map for the pinned version 30.2.0.
+        If a future SDK version renames one of these fields this test will
+        surface the drift so the runtime getattr default path can be reviewed.
+
+        NOTE: the production filter uses ``getattr(nic, field, None)`` so it
+        degrades gracefully even if a field is absent from the SDK — it will
+        not crash, it will simply not exclude that category of service-managed
+        NIC.  This test documents the expected SDK contract; it is
+        intentionally soft (warns via assertion message) rather than hard
+        (would block deployment on SDK upgrade).
+        """
+        attr_map = NetworkInterface._attribute_map
+        service_managed_fields = (
+            "private_endpoint",
+            "private_link_service",
+            "virtual_machine_scale_set",
+        )
+        for field in service_managed_fields:
+            assert field in attr_map, (
+                f"NetworkInterface._attribute_map missing '{field}' in "
+                "azure-mgmt-network==30.2.0; runtime getattr-defensive code "
+                "will NOT exclude this service-managed NIC category.  "
+                "If the SDK renamed this field, update the getattr key in "
+                "_list_orphan_nics to match the new name."
+            )
+
 
 class TestOrphanFilter:
     """_list_orphan_nics returns only NICs with virtual_machine == None."""
@@ -126,6 +156,96 @@ class TestOrphanFilter:
 
         assert result[0].arm_id == nic.id.lower()
         assert result[0].arm_id != nic.id  # was mixed-case
+
+    def _make_service_nic(self, nic_id: str, name: str, **service_attrs):
+        """Return a plain Mock NIC (no spec) with service-managed attributes set.
+
+        Plain Mock (not spec=NetworkInterface) is used intentionally: the
+        production code calls ``getattr(nic, field, None)`` which works on any
+        object.  Using plain Mock lets us set arbitrary attributes without
+        worrying about whether the pinned SDK version exposes them in spec.
+        """
+        nic = Mock()
+        nic.id = nic_id
+        nic.name = name
+        nic.location = "eastus"
+        nic.virtual_machine = None
+        # Default all service-managed fields to None; caller overrides.
+        nic.virtual_machine_scale_set = None
+        nic.private_endpoint = None
+        nic.private_link_service = None
+        for attr, value in service_attrs.items():
+            setattr(nic, attr, value)
+        return nic
+
+    def test_skips_service_managed_nics(self):
+        """Codex P1: service-managed NICs must be excluded from orphan results.
+
+        Covers:
+        - Private Endpoint NICs (private_endpoint set)
+        - Private Link Service NICs (private_link_service set)
+        - VMSS instance NICs (virtual_machine_scale_set set)
+
+        Only the plain unattached NIC (all service flags None) should be
+        returned as an orphan candidate.
+        """
+        base_id = "/subscriptions/SUB/providers/Microsoft.Network/networkInterfaces/"
+
+        # Genuine orphan: no VM, no service flag → must be returned.
+        nic_orphan = self._make_service_nic(base_id + "nic-orphan", "nic-orphan")
+
+        # Private Endpoint backing NIC → must be skipped.
+        nic_pe = self._make_service_nic(
+            base_id + "nic-pe",
+            "nic-pe",
+            private_endpoint=Mock(),
+        )
+
+        # Private Link Service backing NIC → must be skipped.
+        nic_pls = self._make_service_nic(
+            base_id + "nic-pls",
+            "nic-pls",
+            private_link_service=Mock(),
+        )
+
+        # VMSS instance NIC (no virtual_machine, but vmss ref present) → skipped.
+        nic_vmss = self._make_service_nic(
+            base_id + "nic-vmss",
+            "nic-vmss",
+            virtual_machine_scale_set=Mock(),
+        )
+
+        mock_client = Mock()
+        mock_client.network_interfaces.list_all.return_value = [
+            nic_orphan,
+            nic_pe,
+            nic_pls,
+            nic_vmss,
+        ]
+
+        creds = {
+            "tenant": "t1",
+            "client_id": "c1",
+            "secret": "s1",
+            "subscription_id": "sub1",
+        }
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations.azure_orphan_nics"
+            ".NetworkManagementClient",
+            return_value=mock_client,
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations.azure_orphan_nics"
+            ".ClientSecretCredential"
+        ):
+            result = _list_orphan_nics(creds)
+
+        assert len(result) == 1, (
+            f"Expected only 1 orphan NIC; got {len(result)}: "
+            f"{[r.name for r in result]}"
+        )
+        assert result[0].name == "nic-orphan"
+        assert result[0].arm_id == (base_id + "nic-orphan").lower()
 
 
 class TestSiblingFindInvariant:

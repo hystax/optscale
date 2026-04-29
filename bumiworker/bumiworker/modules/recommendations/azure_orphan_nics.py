@@ -104,7 +104,28 @@ def _get_azure_creds(rest_client, organization_id: str) -> Dict[str, Dict]:
 
 
 def _list_orphan_nics(creds: Dict) -> List[OrphanNic]:
-    """Return list of OrphanNic tuples for NICs with no VM attachment."""
+    """Return list of OrphanNic tuples for NICs with no VM attachment.
+
+    Excludes NICs that are service-managed and not user-deletable as orphan
+    cleanup targets:
+
+    - ``virtual_machine``: standard VM attachment (SDK-native attribute).
+    - ``virtual_machine_scale_set``: VMSS instance NIC — VMSS orchestration
+      mode attaches NICs to scale-set instances without populating
+      ``virtual_machine``, so this field is checked separately.
+    - ``private_endpoint``: NIC is the backing interface for a
+      ``Microsoft.Network/privateEndpoints`` resource.  Deleting it would
+      break private DNS resolution and connectivity to the target service.
+    - ``private_link_service``: NIC is the backing interface for a
+      ``Microsoft.Network/privateLinkServices`` resource.
+
+    Defensive ``getattr`` is used for the three service-managed fields so
+    that a future SDK rename surfaces as a clean "field absent → None" path
+    rather than an ``AttributeError``; the runtime contract relies on
+    ``getattr`` with default, not on ``_attribute_map`` presence.  SDK
+    signature locks are covered by
+    ``TestStorageAccountAttributeMapLocked.test_required_fields_present``.
+    """
     cred = ClientSecretCredential(
         creds["tenant"], creds["client_id"], creds["secret"]
     )
@@ -112,6 +133,12 @@ def _list_orphan_nics(creds: Dict) -> List[OrphanNic]:
     out: List[OrphanNic] = []
     for nic in client.network_interfaces.list_all():
         if nic.virtual_machine is not None:
+            continue
+        if getattr(nic, "virtual_machine_scale_set", None) is not None:
+            continue
+        if getattr(nic, "private_endpoint", None) is not None:
+            continue
+        if getattr(nic, "private_link_service", None) is not None:
             continue
         out.append(
             OrphanNic(
