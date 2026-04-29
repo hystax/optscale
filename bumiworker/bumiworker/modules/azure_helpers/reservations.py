@@ -203,16 +203,39 @@ def get_effective_storage_rate(credential, subscription_id, region,
             # safer than a phantom rate.
             scope_type = (getattr(props, "applied_scope_type", None) or "").lower() if props else ""
             applied_scopes = (getattr(props, "applied_scopes", None) or []) if props else []
-            norm_scopes = [s.rsplit("/", 1)[-1].lower() for s in applied_scopes]
             # Newer reservation payloads expose the single-scope target on
             # properties.applied_scope_properties.subscription_id with
             # applied_scopes empty/deprecated. Accept either source.
             scope_props = getattr(props, "applied_scope_properties", None) if props else None
             scope_props_sub = getattr(scope_props, "subscription_id", None) if scope_props else None
             if scope_props_sub:
-                norm_scopes.append(scope_props_sub.rsplit("/", 1)[-1].lower())
+                applied_scopes = list(applied_scopes) + [scope_props_sub]
+            # Extract subscription IDs while tracking whether the scope is
+            # narrower than subscription-level. A scope like
+            # "/subscriptions/<sub>/resourceGroups/<rg>" is RG-scoped: the
+            # reservation only discounts resources in that RG, and we can
+            # not see the storage account's RG from this helper. Conservative
+            # behaviour: skip RG-scoped reservations entirely (under-discount
+            # is safer than phantom). A bare "/subscriptions/<sub>" or any
+            # value lacking the subscriptions/ marker (legacy short form)
+            # collapses to its last segment as the sub id.
+            sub_scopes: list[str] = []
+            saw_rg_scope = False
+            for raw in applied_scopes:
+                norm = raw.lower()
+                marker = "/subscriptions/"
+                if marker in norm:
+                    tail = norm.split(marker, 1)[1]
+                    parts = tail.split("/", 1)
+                    sub_scopes.append(parts[0])
+                    if len(parts) > 1 and "resourcegroups/" in parts[1]:
+                        saw_rg_scope = True
+                else:
+                    sub_scopes.append(norm.rsplit("/", 1)[-1])
             if scope_type == "single":
-                if sub_lower not in norm_scopes:
+                if saw_rg_scope:
+                    continue
+                if sub_lower not in sub_scopes:
                     continue
             elif scope_type == "managementgroup":
                 continue

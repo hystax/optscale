@@ -175,6 +175,28 @@ def test_single_scope_other_subscription_skipped(api_mock):
     assert rate is None
 
 
+def test_single_scope_resource_group_scoped_skipped(api_mock):
+    """A reservation single-scoped to a specific resource group should
+    NOT discount sibling RGs in the same subscription. The helper has
+    no resource RG context, so RG-scoped reservations are conservatively
+    skipped (under-discount is safer than phantom)."""
+    res = _Reservation(
+        sku_name="Blob_Storage_Reserved_Capacity_LRS_Hot_100TB",
+        applied_scope_type="Single",
+        applied_scopes=["/subscriptions/subA/resourceGroups/rg1"],
+    )
+    api_mock.return_value.reservation.list_all.return_value = iter([res])
+    with mock.patch.object(reservations,
+                           "_fetch_retail_reservation_rate",
+                           return_value=0.05):
+        rate = get_effective_storage_rate(
+            credential=mock.Mock(), subscription_id="subA",
+            region="eastus", redundancy="LRS", tier="Hot")
+    assert rate is None, (
+        "RG-scoped reservation must not discount the helper's "
+        "subscription-level rate query")
+
+
 def test_single_scope_via_applied_scope_properties(api_mock):
     """Newer reservation payloads can carry the target subscription on
     properties.applied_scope_properties.subscription_id with applied_scopes
