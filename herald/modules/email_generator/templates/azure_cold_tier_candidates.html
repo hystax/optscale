@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+
+<head>
+	<title>azure_cold_tier_candidates</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		* { box-sizing: border-box; }
+		body { margin: 0; padding: 0; }
+		a[x-apple-data-detectors] { color: inherit !important; text-decoration: inherit !important; }
+		#MessageViewBody a { color: inherit; text-decoration: none; }
+		p { line-height: inherit; }
+		@media (max-width:620px) {
+			.row-content { width: 100% !important; }
+			.stack .column { width: 100%; display: block; }
+		}
+	</style>
+</head>
+
+<body style="background-color: #f7f6f5; margin: 0; padding: 0;">
+	<!-- Subject filtering hint: keep the literal "azure_cold_tier_candidates"
+	     module name in the subject and visible header so users can filter
+	     digest mail by module (locked decision § 9 #7). -->
+	<table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f7f6f5;">
+		<tbody>
+			<tr>
+				<td>
+					<table class="row" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f7f6f5;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #fff; color: #000; width: 600px;" width="600">
+										<tbody>
+											<tr>
+												<td class="column" width="100%" style="text-align: left; vertical-align: top; padding-top: 15px; padding-bottom: 15px;">
+													<table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+														<tr>
+															<td style="padding: 5px 15px;">
+																<div style="font-family: 'Trebuchet MS', Tahoma, sans-serif; font-size: 12px; color: #333f53; line-height: 1.5;">
+																	<p style="margin: 0; font-size: 16px; text-align: center;">Organization</p>
+																	<p style="margin: 0; font-size: 16px; text-align: center;"><strong>{{texts.organization.name}}</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f7f6f5;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #4ab4ee; color: #000; width: 600px;" width="600">
+										<tbody>
+											<tr>
+												<td class="column" width="100%" style="text-align: left; vertical-align: top;">
+													<table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+														<tr>
+															<td style="width:100%;padding:20px 0;">
+																<div align="center" style="line-height:10px"><img src="{{images.logo}}" style="display: block; height: auto; border: 0; width: 154px; max-width: 100%;" width="154" alt="logo"></div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f7f6f5;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #fff; color: #000; width: 600px;" width="600">
+										<tbody>
+											<tr>
+												<td class="column" width="100%" style="text-align: left; vertical-align: top; padding: 20px;">
+													<div style="font-family: 'Trebuchet MS', Tahoma, sans-serif; font-size: 14px; color: #333f53; line-height: 1.5;">
+														<p style="margin: 0; font-size: 16px; text-align: center;"><strong>Azure cold-tier candidates [azure_cold_tier_candidates]</strong></p>
+														<p style="margin: 12px 0 0 0; font-size: 14px;">{{texts.candidate_count}} Azure storage accounts have blob capacity that would save money if moved to the Cold tier. Estimated monthly savings: <strong>${{texts.total_savings}}</strong>.</p>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					{% for item in texts.items %}
+					<table class="row" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f7f6f5;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #fff; color: #000; width: 600px;" width="600">
+										<tbody>
+											<tr>
+												<td class="column" width="60%" style="text-align: left; vertical-align: top; border-bottom: 1px dotted #333F53; padding: 5px 20px;">
+													<div style="font-family: 'Trebuchet MS', Tahoma, sans-serif; font-size: 14px; color: #333f53;">
+														<strong>{{item.resource_name}}</strong> ({{item.region}})<br/>
+														{{item.current_tier}} &rarr; {{item.target_tier}} &middot; {{item.gb}} GB &middot; {{item.confidence}}
+													</div>
+												</td>
+												<td class="column" width="40%" style="text-align: right; vertical-align: top; border-bottom: 1px dotted #333F53; padding: 5px 20px;">
+													<div style="font-family: 'Trebuchet MS', Tahoma, sans-serif; font-size: 14px; color: #333f53;">
+														<strong>${{item.saving}}/mo</strong>
+														{% if item.reservation_applied %}<br/><span style="font-size:11px;">PAYG ${{item.saving_breakdown.payg}} / eff ${{item.saving_breakdown.effective}}</span>{% endif %}
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					{% endfor %}
+					<table class="row" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f7f6f5;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="10" cellspacing="0" role="presentation" style="background-color: #fff; color: #000; width: 600px;" width="600">
+										<tbody>
+											<tr>
+												<td class="column" width="100%" style="text-align: center; vertical-align: top;">
+													<a href="https://{{etcd.control_panel_link}}/recommendations?category=cost&tab=active&organizationId={{texts.organization.id}}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;color:#fff;background-color:#f58535;border-radius:4px;padding: 8px 20px;font-family:Arial, sans-serif;">
+														Go to {{etcd.product_name}}
+													</a>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f7f6f5;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #fff; color: #000; width: 600px;" width="600">
+										<tbody>
+											<tr>
+												<td class="column" width="100%" style="text-align: center; vertical-align: top; padding: 10px 20px;">
+													<div style="font-family: 'Trebuchet MS', Tahoma, sans-serif; font-size: 12px; color: #004c74;">
+														{% if texts.address|length %}<p style="margin:0;">{{texts.address}}</p>{% endif %}
+														<p style="margin:0;">{{texts.copyright}} {{texts.copyright_company_name}}. All Rights Reserved.</p>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+
+</html>
