@@ -1188,12 +1188,83 @@ class Azure(CloudBase):
         All of this may be confusing, it will be resolved in
         https://datatrendstech.atlassian.net/browse/OSB-646 and related epic
 
+        Augments the base BucketResource with Azure storage-account meta
+        used by tier-recommendation modules:
+        - access_tier / kind / sku_name / sku_tier — drives Premium and
+          archive-eligibility filters (Hot/Cool/Cold tiering applies only
+          to StorageV2/BlobStorage block blobs).
+        - is_hns_enabled / immutable_storage_with_versioning_enabled — flag
+          accounts where lifecycle moves are blocked or behave differently.
+        - last_access_time_tracking_enabled / is_versioning_enabled /
+          delete_retention_days — captured in one extra ARM call per
+          account (blob_services.get_service_properties). Tracking flag is
+          a precondition for cold/archive forecasts: when off, blobs have
+          no last-access timestamps and the signal is unreliable.
+        - lifecycle_policy_present — surfaced via management_policies.get;
+          informational only (existing policies are not assumed correct).
+
+        Adds 1–2 ARM read calls per account beyond the base list. Gated by
+        kind/sku.tier so premium/file-only accounts skip the blob_services
+        call entirely.
+
         :return: list(model.BucketResource)
         """
         accounts = self._retry(self.storage.storage_accounts.list)
         for account in accounts:
             tags = account.tags or {}
             cloud_console_link = self._generate_cloud_link(account.id)
+            info = self._parse_azure_id(account.id)
+            rg = info['group_name']
+            account_name = info['name']
+
+            kind = getattr(account, 'kind', None)
+            sku = getattr(account, 'sku', None)
+            sku_name = getattr(sku, 'name', None) if sku else None
+            sku_tier = getattr(sku, 'tier', None) if sku else None
+            access_tier = getattr(account, 'access_tier', None)
+            is_hns_enabled = getattr(account, 'is_hns_enabled', None)
+            immut = getattr(
+                account, 'immutable_storage_with_versioning', None)
+            immut_enabled = (
+                getattr(immut, 'enabled', None) if immut else None)
+
+            last_access_tracking = None
+            is_versioning = None
+            delete_retention = None
+            # Blob service properties only meaningful for block-blob-capable
+            # standard accounts. Skip premium / file-only kinds to avoid
+            # unnecessary ARM reads.
+            if (kind in ('StorageV2', 'BlobStorage')
+                    and sku_tier == 'Standard'):
+                try:
+                    bs_props = self._retry(
+                        self.storage.blob_services.get_service_properties,
+                        rg, account_name)
+                    lat_policy = getattr(
+                        bs_props, 'last_access_time_tracking_policy', None)
+                    if lat_policy is not None:
+                        last_access_tracking = getattr(
+                            lat_policy, 'enable', None)
+                    is_versioning = getattr(
+                        bs_props, 'is_versioning_enabled', None)
+                    drp = getattr(bs_props, 'delete_retention_policy', None)
+                    if drp is not None and getattr(drp, 'enabled', False):
+                        delete_retention = getattr(drp, 'days', None)
+                except (HttpResponseError, ResourceNotFoundError):
+                    pass
+
+            lifecycle_present = None
+            if kind in ('StorageV2', 'BlobStorage', 'BlockBlobStorage'):
+                try:
+                    self._retry(
+                        self.storage.management_policies.get,
+                        rg, account_name, 'default')
+                    lifecycle_present = True
+                except ResourceNotFoundError:
+                    lifecycle_present = False
+                except HttpResponseError:
+                    lifecycle_present = None
+
             res = BucketResource(
                 cloud_resource_id=account.id.lower(),
                 cloud_account_id=self.cloud_account_id,
@@ -1201,7 +1272,18 @@ class Azure(CloudBase):
                 organization_id=self.organization_id,
                 name=account.name,
                 tags=tags,
-                cloud_console_link=cloud_console_link)
+                cloud_console_link=cloud_console_link,
+                access_tier=access_tier,
+                kind=kind,
+                sku_name=sku_name,
+                sku_tier=sku_tier,
+                is_hns_enabled=is_hns_enabled,
+                immutable_storage_with_versioning_enabled=immut_enabled,
+                last_access_time_tracking_enabled=last_access_tracking,
+                is_versioning_enabled=is_versioning,
+                delete_retention_days=delete_retention,
+                lifecycle_policy_present=lifecycle_present,
+            )
             yield res
 
     def bucket_discovery_calls(self):
