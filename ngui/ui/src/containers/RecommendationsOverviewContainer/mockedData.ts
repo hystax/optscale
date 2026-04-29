@@ -107,6 +107,53 @@ const MOCKED_DATA = {
       ],
       limit: 3,
     },
+    azure_orphan_nics: {
+      count: 3,
+      saving: 0,
+      options: { excluded_pools: {}, skip_cloud_accounts: [] },
+      items: [
+        {
+          resource_id: "00000000-0000-0000-0000-000000000a01",
+          resource_name: "nic-orphan-prod-01",
+          cloud_resource_id:
+            "/subscriptions/sub-1/resourcegroups/rg-prod/providers/microsoft.network/networkinterfaces/nic-orphan-prod-01",
+          region: "australiaeast",
+          cloud_account_id: "1ef6f7ed-4600-4541-a6d7-43fc151feeb9",
+          cloud_type: "azure_cnr",
+          cloud_account_name: "Azure Prod",
+          is_excluded: false,
+          saving: 0,
+          detected_at: 1714348818,
+        },
+        {
+          resource_id: "00000000-0000-0000-0000-000000000a02",
+          resource_name: "nic-orphan-dev-02",
+          cloud_resource_id:
+            "/subscriptions/sub-1/resourcegroups/rg-dev/providers/microsoft.network/networkinterfaces/nic-orphan-dev-02",
+          region: "australiasoutheast",
+          cloud_account_id: "1ef6f7ed-4600-4541-a6d7-43fc151feeb9",
+          cloud_type: "azure_cnr",
+          cloud_account_name: "Azure Prod",
+          is_excluded: false,
+          saving: 0,
+          detected_at: 1714348818,
+        },
+        {
+          resource_id: "00000000-0000-0000-0000-000000000a03",
+          resource_name: "nic-orphan-staging-03",
+          cloud_resource_id:
+            "/subscriptions/sub-1/resourcegroups/rg-staging/providers/microsoft.network/networkinterfaces/nic-orphan-staging-03",
+          region: "eastus",
+          cloud_account_id: "1ef6f7ed-4600-4541-a6d7-43fc151feeb9",
+          cloud_type: "azure_cnr",
+          cloud_account_name: "Azure Prod",
+          is_excluded: false,
+          saving: 0,
+          detected_at: 1714348818,
+        },
+      ],
+      limit: 3,
+    },
     inactive_console_users: {
       count: 4,
       options: { days_threshold: 91, skip_cloud_accounts: [] },
