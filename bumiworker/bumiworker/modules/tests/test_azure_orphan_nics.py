@@ -215,6 +215,66 @@ class TestNoSiblingRaises:
             )
 
 
+class TestExactMatchSkipsOverlaySentinel:
+    """Step-1 find_one must exclude overlay sentinels (created_by="azure_alias_wrapper").
+
+    When the only live doc for a given cloud_resource_id is an overlay sentinel,
+    _resolve_or_insert_resource must treat it as not found and fall through to
+    the sibling lookup, then insert a NEW native sentinel.  Two sentinels for
+    the same NIC during the Phase B overlap window is acceptable; UI dedupe is
+    the overlay's responsibility.
+    """
+
+    def test_overlay_sentinel_treated_as_not_found(self):
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "p1", "employee_id": "e1"}
+        # First find_one (exact-match with $or guard) returns None because the
+        # only matching doc is an overlay sentinel excluded by the filter.
+        # Second find_one (sibling lookup) returns a valid sibling.
+        coll.find_one.side_effect = [None, sibling_doc]
+
+        arm_id = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/networkinterfaces/nic1"
+        _resolve_or_insert_resource(coll, "ca1", arm_id, "nic1", "eastus", 1000)
+
+        # A new native sentinel must have been inserted.
+        coll.insert_one.assert_called_once()
+        inserted = coll.insert_one.call_args[0][0]
+        assert inserted["meta"]["created_by"] == "azure_orphan_nics_native"
+
+    def test_first_find_one_filter_contains_or_clause(self):
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "p1", "employee_id": "e1"}
+        coll.find_one.side_effect = [None, sibling_doc]
+
+        arm_id = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/networkinterfaces/nic2"
+        _resolve_or_insert_resource(coll, "ca1", arm_id, "nic2", "westus", 2000)
+
+        first_call_filter = coll.find_one.call_args_list[0][0][0]
+        assert "$or" in first_call_filter, (
+            "step-1 find_one must include $or to exclude overlay sentinels"
+        )
+        or_clauses = first_call_filter["$or"]
+        # Must contain the $exists: False branch (real cloud-adapter docs).
+        assert {"meta.created_by": {"$exists": False}} in or_clauses
+        # Must contain the native-sentinel branch.
+        assert {"meta.created_by": "azure_orphan_nics_native"} in or_clauses
+
+    def test_native_sentinel_is_still_reused(self):
+        """When step-1 finds our own sentinel it is reused — no insert."""
+        coll = MagicMock()
+        native_doc = {"_id": "nat1", "pool_id": "p2"}
+        coll.find_one.side_effect = [native_doc]
+
+        arm_id = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/networkinterfaces/nic3"
+        res_id, pool_id = _resolve_or_insert_resource(
+            coll, "ca1", arm_id, "nic3", "eastus", 3000
+        )
+
+        assert res_id == "nat1"
+        assert pool_id == "p2"
+        coll.insert_one.assert_not_called()
+
+
 class TestReconcileDeleted:
     """_reconcile_deleted marks missing sentinels with deleted_at."""
 

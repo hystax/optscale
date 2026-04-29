@@ -133,8 +133,10 @@ def _resolve_or_insert_resource(
 ) -> Tuple[str, Optional[str]]:
     """Return ``(resource_id, pool_id)``.  Inserts a sentinel doc when absent.
 
-    Step 1: exact match on ``cloud_resource_id`` among live (``deleted_at==0``)
-    docs for this cloud account.
+    Step 1: exact match scoped to real cloud-adapter docs (no meta.created_by)
+    OR our own sentinels — overlay sentinels (created_by="azure_alias_wrapper")
+    are explicitly excluded so the two systems do not share lifecycle state
+    during the Phase B overlap window.
 
     Step 2: if absent, borrow ``pool_id``/``employee_id`` from the oldest
     qualifying sibling in the same account.  The sibling filter MUST require
@@ -146,6 +148,10 @@ def _resolve_or_insert_resource(
             "cloud_resource_id": arm_id_lower,
             "cloud_account_id": cloud_account_id,
             "deleted_at": 0,
+            "$or": [
+                {"meta.created_by": {"$exists": False}},
+                {"meta.created_by": "azure_orphan_nics_native"},
+            ],
         },
         {"_id": 1, "pool_id": 1},
     )
