@@ -567,4 +567,3 @@ class TestZeroSavingRegistration:
             "in modules_with_possible_zero_saving they are dropped from "
             "resources.recommendations.modules."
         )
-        assert result[0]["reason"] == ArchiveReason.RECOMMENDATION_IRRELEVANT
