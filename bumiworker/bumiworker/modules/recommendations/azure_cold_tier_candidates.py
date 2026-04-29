@@ -41,6 +41,14 @@ CREATED_BY = 'azure_cold_tier_candidates'
 class AzureColdTierCandidates(ModuleBase):
     SUPPORTED_CLOUD_TYPES = ['azure_cnr']
 
+    # A single storage account can qualify under multiple tier-pair transitions
+    # (e.g. Hot->Cold and Cool->Cold) within one run.  Including current_tier
+    # and target_tier in the key prevents the two rows from colliding in
+    # detection/archive/dismissal flows, which key rows by unique_record_keys.
+    @property
+    def unique_record_keys(self):
+        return 'cloud_account_id', 'cloud_resource_id', 'current_tier', 'target_tier',
+
     PAIR_THRESHOLDS = {
         ('Hot', 'Cold'):  {'min_gb': 100, 'min_saving': 1.0,
                            'min_confidence': 'medium'},

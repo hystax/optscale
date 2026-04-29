@@ -81,17 +81,11 @@ const columns = [
   },
   detectedAt({ headerDataTestId: "azure_cold_tier_detected_at" }),
   {
-    header: (
-      <TextWithDataTestId dataTestId="azure_cold_tier_savings">
-        <FormattedMessage id="possibleMonthlySavings" />
-      </TextWithDataTestId>
-    ),
-    accessorKey: "saving",
-    cell: savingCell,
     ...possibleMonthlySavings({
       headerDataTestId: "azure_cold_tier_savings",
       defaultSort: "desc",
     }),
+    cell: savingCell,
   },
 ];
 
