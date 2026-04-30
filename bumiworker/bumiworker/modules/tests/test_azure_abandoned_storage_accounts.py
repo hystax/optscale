@@ -292,7 +292,7 @@ class TestIdleAgeCapacityBoundaries:
         ), patch(
             "bumiworker.bumiworker.modules.recommendations"
             ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
-            return_value=0.02,
+            return_value=(0.02, False),
         ):
             mock_smc.return_value.storage_accounts.list.return_value = [acct]
             scan = _scan_one_account(
@@ -668,15 +668,17 @@ class TestCacheKeyIsolation:
             ".azure_abandoned_storage_accounts.urllib.request.urlopen",
             side_effect=fake_urlopen,
         ):
-            p1 = _get_retail_price_per_gb(
+            p1, t1 = _get_retail_price_per_gb(
                 "sub-X", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
-            p2 = _get_retail_price_per_gb(
+            p2, t2 = _get_retail_price_per_gb(
                 "sub-X", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
 
         assert call_count == 1
         assert p1 == p2 == pytest.approx(0.02)
+        assert t1 is False
+        assert t2 is False
 
 
 # ---------------------------------------------------------------------------
@@ -729,7 +731,7 @@ class TestZeroSavingDropped:
         ), patch(
             "bumiworker.bumiworker.modules.recommendations"
             ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
-            return_value=0.0,  # price = 0 → saving = 0
+            return_value=(0.0, False),  # price = 0 → saving = 0
         ):
             mock_smc.return_value.storage_accounts.list.return_value = [acct]
             scan = _scan_one_account(
@@ -1118,7 +1120,7 @@ class TestScanAuthoritative:
         ), patch(
             "bumiworker.bumiworker.modules.recommendations"
             ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
-            return_value=0.02,
+            return_value=(0.02, False),
         ):
             mock_smc.return_value.storage_accounts.list.return_value = accounts_list
             return _scan_one_account(
@@ -1283,37 +1285,41 @@ class TestRetailPriceCacheKeyNormalization:
     def test_region_none_returns_none_no_cache_write(self):
         cache: dict = {}
         lock = threading.Lock()
-        result = _get_retail_price_per_gb(
+        price, transient = _get_retail_price_per_gb(
             "sub1", None, "Standard_LRS", "StorageV2", "Hot", cache, lock
         )
-        assert result is None
+        assert price is None
+        assert transient is False
         assert len(cache) == 0, "None region must not poison cache"
 
     def test_region_empty_returns_none_no_cache_write(self):
         cache: dict = {}
         lock = threading.Lock()
-        result = _get_retail_price_per_gb(
+        price, transient = _get_retail_price_per_gb(
             "sub1", "", "Standard_LRS", "StorageV2", "Hot", cache, lock
         )
-        assert result is None
+        assert price is None
+        assert transient is False
         assert len(cache) == 0
 
     def test_sku_name_empty_returns_none_no_cache_write(self):
         cache: dict = {}
         lock = threading.Lock()
-        result = _get_retail_price_per_gb(
+        price, transient = _get_retail_price_per_gb(
             "sub1", "eastus", "", "StorageV2", "Hot", cache, lock
         )
-        assert result is None
+        assert price is None
+        assert transient is False
         assert len(cache) == 0
 
     def test_kind_none_returns_none_no_cache_write(self):
         cache: dict = {}
         lock = threading.Lock()
-        result = _get_retail_price_per_gb(
+        price, transient = _get_retail_price_per_gb(
             "sub1", "eastus", "Standard_LRS", None, "Hot", cache, lock
         )
-        assert result is None
+        assert price is None
+        assert transient is False
         assert len(cache) == 0
 
     def test_access_tier_none_and_hot_share_same_cache_key(self):
@@ -1337,10 +1343,10 @@ class TestRetailPriceCacheKeyNormalization:
             ".azure_abandoned_storage_accounts.urllib.request.urlopen",
             side_effect=fake_urlopen,
         ):
-            p_none = _get_retail_price_per_gb(
+            p_none, t_none = _get_retail_price_per_gb(
                 "sub1", "eastus", "Standard_LRS", "StorageV2", None, cache, lock
             )
-            p_hot = _get_retail_price_per_gb(
+            p_hot, t_hot = _get_retail_price_per_gb(
                 "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
 
@@ -1350,6 +1356,8 @@ class TestRetailPriceCacheKeyNormalization:
         )
         assert p_none == pytest.approx(0.02)
         assert p_hot == pytest.approx(0.02)
+        assert t_none is False
+        assert t_hot is False
 
 
 # ---------------------------------------------------------------------------
@@ -1519,11 +1527,12 @@ class TestRetailPricePagination:
             ".azure_abandoned_storage_accounts.urllib.request.urlopen",
             side_effect=fake_urlopen,
         ):
-            price = _get_retail_price_per_gb(
+            price, transient = _get_retail_price_per_gb(
                 "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
 
         assert price == pytest.approx(0.02)
+        assert transient is False
         cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
         assert cache[cache_key] == pytest.approx(0.02)
 
@@ -1557,11 +1566,12 @@ class TestRetailPricePagination:
             ".azure_abandoned_storage_accounts.urllib.request.urlopen",
             side_effect=fake_urlopen,
         ):
-            price = _get_retail_price_per_gb(
+            price, transient = _get_retail_price_per_gb(
                 "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
 
         assert price is None
+        assert transient is False
         cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
         assert cache_key in cache
         assert cache[cache_key] is None
@@ -1596,11 +1606,14 @@ class TestRetailPricePagination:
             ".azure_abandoned_storage_accounts.urllib.request.urlopen",
             side_effect=fake_urlopen,
         ):
-            price = _get_retail_price_per_gb(
+            price, transient = _get_retail_price_per_gb(
                 "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
 
         assert price is None
+        assert transient is True, (
+            "HTTP error mid-pagination must set transient_error=True"
+        )
         cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
         assert cache_key not in cache, (
             "transient HTTP error must not poison the cache — next run must retry"
@@ -1625,13 +1638,14 @@ class TestRetailPricePagination:
             ".azure_abandoned_storage_accounts.urllib.request.urlopen",
             side_effect=fake_urlopen_retry,
         ):
-            price2 = _get_retail_price_per_gb(
+            price2, transient2 = _get_retail_price_per_gb(
                 "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
 
         assert price2 == pytest.approx(0.02), (
             "second call (after transient error) must succeed and return price"
         )
+        assert transient2 is False
 
     def test_pagination_cap_reached_caches_none(self):
         """Cap of RETAIL_PRICES_MAX_PAGES reached → None cached (defensive)."""
@@ -1670,11 +1684,14 @@ class TestRetailPricePagination:
             ".azure_abandoned_storage_accounts.urllib.request.urlopen",
             side_effect=counting_urlopen,
         ):
-            price = _get_retail_price_per_gb(
+            price, transient = _get_retail_price_per_gb(
                 "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
             )
 
         assert price is None
+        assert transient is False, (
+            "pagination cap (no HTTP error) must not be treated as transient"
+        )
         assert call_count_holder[0] == RETAIL_PRICES_MAX_PAGES, (
             f"Expected exactly {RETAIL_PRICES_MAX_PAGES} page fetches at cap; "
             f"got {call_count_holder[0]}"
@@ -1735,7 +1752,7 @@ class TestUsedCapacityNoneIsProbeFailure:
         ), patch(
             "bumiworker.bumiworker.modules.recommendations"
             ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
-            return_value=0.02,
+            return_value=(0.02, False),
         ):
             mock_smc.return_value.storage_accounts.list.return_value = [acct]
             return _scan_one_account(
@@ -1959,4 +1976,391 @@ class TestArchiveOptionsChanged:
         assert len(result) == 1
         assert result[0]["reason"] != ArchiveReason.OPTIONS_CHANGED, (
             "absent key in previous_options must not trigger OPTIONS_CHANGED"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Class 21: Pricing transient error is a probe failure
+# ---------------------------------------------------------------------------
+
+
+class TestPricingTransientErrorIsProbeFailure:
+    """HTTP failure in _get_retail_price_per_gb → probe_failures incremented.
+
+    A Retail Prices API outage that affects ≥ 50% of probed accounts must trip
+    non-authoritative so _reconcile_deleted is skipped and valid recommendations
+    are not archived.
+    """
+
+    def test_http_error_trips_non_authoritative_when_majority_fail(self):
+        """Transient pricing error for the only account → 100% failure rate → non-authoritative."""
+        import urllib.error
+
+        creds = _make_creds()
+        acct = _make_acct()
+
+        def metrics_side_effect(resource_uri, **kwargs):
+            m = Mock()
+            ts = Mock()
+            dp = Mock()
+            if "Transactions" in kwargs.get("metricnames", ""):
+                dp.total = 0.0
+            else:
+                # 2 GB used capacity — valid probe result
+                dp.average = 2.0 * 1024 ** 3
+            ts.data = [dp]
+            m.timeseries = [ts]
+            result = Mock()
+            result.value = [m]
+            return result
+
+        monitor = MagicMock()
+        monitor.metrics.list.side_effect = metrics_side_effect
+
+        def fake_urlopen(url, timeout=None):
+            raise urllib.error.URLError("Retail Prices API unavailable")
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient",
+            return_value=monitor,
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            mock_smc.return_value.storage_accounts.list.return_value = [acct]
+            scan = _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=9e18,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+
+        assert scan.authoritative is False, (
+            "transient pricing API error for all probed accounts must trip "
+            "non-authoritative so _reconcile_deleted is not called"
+        )
+        assert scan.accounts == []
+
+    def test_http_error_returns_none_true_tuple(self):
+        """_get_retail_price_per_gb returns (None, True) on HTTP failure."""
+        import urllib.error
+
+        def fake_urlopen(url, timeout=None):
+            raise urllib.error.URLError("connection refused")
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            price, transient = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price is None
+        assert transient is True, (
+            "_get_retail_price_per_gb must return transient_error=True on HTTP failure"
+        )
+        cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
+        assert cache_key not in cache, (
+            "transient error must not be cached so next run retries"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Class 22: Pricing "no meter" is NOT a probe failure
+# ---------------------------------------------------------------------------
+
+
+class TestPricingNoMeterIsNotProbeFailure:
+    """Pagination exhausts without finding the meter → (None, False) → no probe_failures.
+
+    A legitimate "no meter for this region/sku" outcome must not inflate the
+    probe failure counter, since doing so would incorrectly suppress archival
+    for subscriptions in unsupported regions.
+    """
+
+    def test_no_meter_returns_none_false_tuple(self):
+        """Pagination exhausts without any meter match → (None, False)."""
+        def fake_urlopen(url, timeout=None):
+            resp = MagicMock()
+            resp.__enter__ = lambda s: s
+            resp.__exit__ = MagicMock(return_value=False)
+            resp.read.return_value = b'{"Items": []}'
+            return resp
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            price, transient = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price is None
+        assert transient is False, (
+            "pagination exhausted without meter must return transient_error=False"
+        )
+
+    def test_no_meter_does_not_increment_probe_failures(self):
+        """Account skipped due to no meter → scan remains authoritative."""
+        creds = _make_creds()
+        acct = _make_acct()
+
+        def metrics_side_effect(resource_uri, **kwargs):
+            m = Mock()
+            ts = Mock()
+            dp = Mock()
+            if "Transactions" in kwargs.get("metricnames", ""):
+                dp.total = 0.0
+            else:
+                dp.average = 2.0 * 1024 ** 3
+            ts.data = [dp]
+            m.timeseries = [ts]
+            result = Mock()
+            result.value = [m]
+            return result
+
+        monitor = MagicMock()
+        monitor.metrics.list.side_effect = metrics_side_effect
+
+        # Return (None, False) — no meter, not a transient error
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient",
+            return_value=monitor,
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
+            return_value=(None, False),
+        ):
+            mock_smc.return_value.storage_accounts.list.return_value = [acct]
+            scan = _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=9e18,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+
+        # Account skipped (no price) but scan is still authoritative since
+        # probe_failures was NOT incremented.
+        assert scan.authoritative is True, (
+            "legitimate no-meter result must not increment probe_failures; "
+            "scan must remain authoritative"
+        )
+        assert scan.accounts == []
+
+
+# ---------------------------------------------------------------------------
+# Class 23: Pricing cache hit None is not transient
+# ---------------------------------------------------------------------------
+
+
+class TestPricingCacheHitNoneIsNotTransient:
+    """Second call after pagination exhaust returns (None, False) from cache.
+
+    The cache stores None for legitimate no-meter results.  A subsequent call
+    in the same run must return (None, False) — not (None, True) — so the
+    caller does not miscount it as a probe failure.
+    """
+
+    def test_cache_hit_none_returns_false_transient(self):
+        """Cache already has None for this key → returns (None, False)."""
+        cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
+        cache = {cache_key: None}  # pre-populated from pagination exhaust
+        lock = threading.Lock()
+
+        # urlopen must NOT be called — the cache hit should short-circuit
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+        ) as mock_urlopen:
+            price, transient = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price is None
+        assert transient is False, (
+            "cache hit returning None must have transient_error=False; "
+            "only live HTTP failures are transient"
+        )
+        mock_urlopen.assert_not_called()
+
+    def test_cache_hit_price_returns_false_transient(self):
+        """Cache has a valid price → returns (price, False)."""
+        cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
+        cache = {cache_key: 0.023}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+        ) as mock_urlopen:
+            price, transient = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price == pytest.approx(0.023)
+        assert transient is False
+        mock_urlopen.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Class 24: Missing credentials emits preserved sentinels
+# ---------------------------------------------------------------------------
+
+
+class TestMissingCredentialsEmitsSentinels:
+    """Missing creds for a CA must preserve sentinel rows, not silently drop them.
+
+    Previous behaviour: ``if not creds: continue`` silently skipped the CA,
+    causing all its recommendations to vanish from the current checklist and be
+    archived on the next cycle as RECOMMENDATION_IRRELEVANT — even though the
+    accounts may still be idle; only the credentials were temporarily absent.
+
+    Fixed behaviour: sentinel rows are re-emitted for the missing-creds CA
+    before ``continue``, matching every other per-account failure path.
+    """
+
+    def _make_module(self, coll_mock):
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        module = AzureAbandonedStorageAccounts.__new__(AzureAbandonedStorageAccounts)
+        module.organization_id = "org1"
+        module.created_at = 1700000000
+        module._mongo_client = MagicMock()
+        module._mongo_client.restapi.resources = coll_mock
+        module._rest_client = MagicMock()
+        module.option_ordered_map = {}
+        return module
+
+    def test_fallback_sentinel_rows_emitted_for_missing_creds_ca(self):
+        """CA with no creds → sentinel rows preserved; bulk_write not called."""
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        sentinel_doc = {
+            "_id": "sent_nocreds",
+            "cloud_resource_id": (
+                "/subscriptions/sub2/resourcegroups/rg/providers/"
+                "microsoft.storage/storageaccounts/idle"
+            ),
+            "name": "idle",
+            "region": "australiaeast",
+            "pool_id": "pool1",
+        }
+
+        coll = MagicMock()
+        coll.find.return_value = iter([sentinel_doc])
+
+        module = self._make_module(coll)
+
+        with patch.object(
+            module,
+            "get_options_values",
+            return_value=(7, 100, 30, 1.0, {}, []),
+        ), patch.object(
+            module,
+            "get_cloud_accounts",
+            # Two CAs: ca1 has creds, ca2 does not
+            return_value={
+                "ca1": {"name": "Has Creds"},
+                "ca2": {"name": "No Creds"},
+            },
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_azure_creds",
+            # Only ca1 has credentials; ca2 is absent from the map
+            return_value={
+                "ca1": {
+                    "subscription_id": "sub1",
+                    "tenant": "t",
+                    "client_id": "c",
+                    "secret": "s",
+                }
+            },
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._scan_one_account",
+            return_value=ScanResult(accounts=[], authoritative=True),
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._reconcile_deleted",
+            return_value=0,
+        ):
+            rows = module._get()
+
+        # Sentinel row for ca2 must be present despite missing creds
+        ca2_rows = [r for r in rows if r["cloud_account_id"] == "ca2"]
+        assert len(ca2_rows) == 1, (
+            "missing-creds CA must emit preserved sentinel rows, not silently "
+            "drop them — silent drop causes false RECOMMENDATION_IRRELEVANT archival"
+        )
+        assert ca2_rows[0]["resource_id"] == "sent_nocreds"
+        assert ca2_rows[0]["saving"] == 0.0
+        assert ca2_rows[0]["data_source"] == "preserved_sentinel"
+
+    def test_reconcile_deleted_not_called_for_missing_creds_ca(self):
+        """_reconcile_deleted must never be called for a CA with missing creds."""
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        coll = MagicMock()
+        coll.find.return_value = iter([])  # no sentinels — that's fine
+
+        module = self._make_module(coll)
+
+        with patch.object(
+            module,
+            "get_options_values",
+            return_value=(7, 100, 30, 1.0, {}, []),
+        ), patch.object(
+            module,
+            "get_cloud_accounts",
+            return_value={"ca2": {"name": "No Creds"}},
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_azure_creds",
+            return_value={},  # no creds for anyone
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._reconcile_deleted",
+        ) as mock_reconcile:
+            rows = module._get()
+
+        mock_reconcile.assert_not_called(), (
+            "_reconcile_deleted must not be called when a CA has no credentials"
         )

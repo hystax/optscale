@@ -363,8 +363,8 @@ def _get_retail_price_per_gb(
     access_tier: Optional[str],
     cache: Dict,
     lock: threading.Lock,
-) -> Optional[float]:
-    """Return the retail price per GB/month for this account type.
+) -> Tuple[Optional[float], bool]:
+    """Return ``(price_per_gb, transient_error)`` for this account type.
 
     Uses the Azure Retail Prices API (no auth required).  Results are cached
     per ``(subscription_id, region, sku_name, kind, access_tier)`` tuple for
@@ -376,24 +376,29 @@ def _get_retail_price_per_gb(
     pages are exhausted.  A defensive cap of ``RETAIL_PRICES_MAX_PAGES`` pages
     prevents runaway pagination.
 
-    Returns None on HTTP error mid-pagination (transient — NOT cached so the
-    next run retries).  Returns None (and caches it) only after all pages are
-    scanned without finding a matching meter — that represents a legitimate
-    "no such meter for this region/sku" result.
+    ``transient_error=True`` iff an HTTP/network exception was raised during a
+    pagination request — the result is NOT cached so the next run retries.
+    ``transient_error=False`` on cache hit, missing required fields, unknown
+    meter, or pagination cap reached — these are all legitimate non-error
+    outcomes.  Callers must increment ``probe_failures`` only when
+    ``transient_error=True``; doing so for legitimate no-meter cases would
+    misrepresent the scan quality and suppress valid archival decisions.
     """
     if not region or not sku_name or not kind:
-        return None
+        return (None, False)
     tier_key = access_tier or "Hot"
     cache_key = (subscription_id, region, sku_name, kind, tier_key)
     with lock:
         if cache_key in cache:
-            return cache[cache_key]
+            # Cache hit: value may be None (legitimate "no such meter") or a
+            # float.  Either way, not a transient error.
+            return (cache[cache_key], False)
 
     meter_substr = _meter_name_for(sku_name, kind, access_tier)
     if meter_substr is None:
         with lock:
             cache[cache_key] = None
-        return None
+        return (None, False)
 
     filter_expr = (
         f"serviceName eq 'Storage' and armRegionName eq '{region}' "
@@ -422,7 +427,7 @@ def _get_retail_price_per_gb(
                 exc_info=True,
             )
             # Transient error mid-pagination — do not cache so next run retries.
-            return None
+            return (None, True)
 
         for item in payload.get("Items", []):
             meter_name = item.get("meterName") or ""
@@ -430,7 +435,7 @@ def _get_retail_price_per_gb(
                 price = float(item["retailPrice"])
                 with lock:
                     cache[cache_key] = price
-                return price
+                return (price, False)
 
         url = payload.get("NextPageLink") or None
         pages += 1
@@ -448,7 +453,7 @@ def _get_retail_price_per_gb(
     # legitimate "no such meter" result so we do not hammer the API repeatedly.
     with lock:
         cache[cache_key] = None
-    return None
+    return (None, False)
 
 
 def _scan_one_account(
@@ -495,6 +500,7 @@ def _scan_one_account(
     skipped_active = 0
     skipped_no_probe = 0
     skipped_capacity = 0
+    skipped_no_price = 0
     probe_attempts = 0
     probe_failures = 0
     deadline_tripped = False
@@ -553,8 +559,9 @@ def _scan_one_account(
             continue
 
         price_per_gb: Optional[float] = None
+        price_transient = False
         if region:
-            price_per_gb = _get_retail_price_per_gb(
+            price_per_gb, price_transient = _get_retail_price_per_gb(
                 sub_id,
                 region,
                 sku_name,
@@ -564,7 +571,16 @@ def _scan_one_account(
                 price_lock,
             )
 
-        saving = round((price_per_gb or 0.0) * used_capacity_gb, 6)
+        if price_per_gb is None:
+            if price_transient:
+                # HTTP/network failure fetching the pricing API — count as a
+                # probe failure so a Retail Prices outage trips the
+                # non-authoritative guard and _reconcile_deleted is skipped.
+                probe_failures += 1
+            skipped_no_price += 1
+            continue
+
+        saving = round(price_per_gb * used_capacity_gb, 6)
 
         if saving <= 0:
             continue
@@ -594,8 +610,8 @@ def _scan_one_account(
     LOG.info(
         "azure storage scan sub=%s: total=%d idle_candidates=%d "
         "skipped_service=%d skipped_age=%d skipped_active=%d "
-        "skipped_no_probe=%d skipped_capacity=%d skipped_budget=%d "
-        "probe_attempts=%d probe_failures=%d authoritative=%s",
+        "skipped_no_probe=%d skipped_capacity=%d skipped_no_price=%d "
+        "skipped_budget=%d probe_attempts=%d probe_failures=%d authoritative=%s",
         sub_id,
         len(accounts),
         len(out),
@@ -604,6 +620,7 @@ def _scan_one_account(
         skipped_active,
         skipped_no_probe,
         skipped_capacity,
+        skipped_no_price,
         skipped_budget,
         probe_attempts,
         probe_failures,
@@ -890,8 +907,21 @@ class AzureAbandonedStorageAccounts(ModuleBase):
                 creds = creds_by_ca.get(ca_id)
                 if not creds:
                     LOG.warning(
-                        "no credentials for cloud_account_id=%s; skipping", ca_id
+                        "no credentials for cloud_account_id=%s; preserving sentinels",
+                        ca_id,
                     )
+                    try:
+                        rows.extend(
+                            _emit_rows_from_existing_sentinels(
+                                coll, ca_id, ca.get("name"), excluded_pools
+                            )
+                        )
+                    except Exception:
+                        LOG.exception(
+                            "fallback sentinel-emit failed for ca=%s during"
+                            " creds lookup",
+                            ca_id,
+                        )
                     continue
                 fut = executor.submit(
                     _scan_one_account,
