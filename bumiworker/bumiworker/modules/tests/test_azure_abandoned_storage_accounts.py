@@ -1471,3 +1471,487 @@ class TestLiveScanDataSource:
         assert rows[0]["data_source"] == "live_scan"
         assert rows[0]["saving"] == pytest.approx(0.04)
         assert rows[0]["transactions"] == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Class 17: Retail Prices pagination (Finding 1)
+# ---------------------------------------------------------------------------
+
+
+class TestRetailPricePagination:
+    """_get_retail_price_per_gb iterates NextPageLink before caching None."""
+
+    def _make_page(self, items, next_link=None):
+        payload = {"Items": items}
+        if next_link:
+            payload["NextPageLink"] = next_link
+        return json.dumps(payload).encode("utf-8")
+
+    def test_meter_on_page_two_is_found_and_cached(self):
+        """Meter absent on page 1, present on page 2 → found, price cached."""
+        page1_body = self._make_page(
+            [{"meterName": "Cool LRS Data Stored", "retailPrice": 0.01}],
+            next_link="https://prices.azure.com/api/retail/prices?page=2",
+        )
+        page2_body = self._make_page(
+            [{"meterName": "Hot LRS Data Stored", "retailPrice": 0.02}],
+        )
+
+        responses = iter([page1_body, page2_body])
+
+        def fake_urlopen(url, timeout=None):
+            resp = MagicMock()
+            resp.__enter__ = lambda s: s
+            resp.__exit__ = MagicMock(return_value=False)
+            resp.read.return_value = next(responses)
+            return resp
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            price = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price == pytest.approx(0.02)
+        cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
+        assert cache[cache_key] == pytest.approx(0.02)
+
+    def test_meter_absent_across_all_pages_caches_none(self):
+        """Meter never present across 3 pages → cached None."""
+        pages = [
+            self._make_page(
+                [{"meterName": "Cool LRS Data Stored", "retailPrice": 0.01}],
+                next_link="https://prices.azure.com/page=2",
+            ),
+            self._make_page(
+                [{"meterName": "Archive LRS Data Stored", "retailPrice": 0.001}],
+                next_link="https://prices.azure.com/page=3",
+            ),
+            self._make_page([]),
+        ]
+        responses = iter(pages)
+
+        def fake_urlopen(url, timeout=None):
+            resp = MagicMock()
+            resp.__enter__ = lambda s: s
+            resp.__exit__ = MagicMock(return_value=False)
+            resp.read.return_value = next(responses)
+            return resp
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            price = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price is None
+        cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
+        assert cache_key in cache
+        assert cache[cache_key] is None
+
+    def test_http_error_on_page_two_returns_none_not_cached(self):
+        """HTTP error mid-pagination → return None without caching (transient)."""
+        import urllib.error
+
+        page1_body = self._make_page(
+            [],
+            next_link="https://prices.azure.com/page=2",
+        )
+
+        call_count = 0
+
+        def fake_urlopen(url, timeout=None):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                resp = MagicMock()
+                resp.__enter__ = lambda s: s
+                resp.__exit__ = MagicMock(return_value=False)
+                resp.read.return_value = page1_body
+                return resp
+            raise urllib.error.URLError("connection reset")
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            price = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price is None
+        cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
+        assert cache_key not in cache, (
+            "transient HTTP error must not poison the cache — next run must retry"
+        )
+
+        # Second call with empty cache should attempt the API again.
+        call_count = 0
+
+        def fake_urlopen_retry(url, timeout=None):
+            nonlocal call_count
+            call_count += 1
+            resp = MagicMock()
+            resp.__enter__ = lambda s: s
+            resp.__exit__ = MagicMock(return_value=False)
+            resp.read.return_value = self._make_page(
+                [{"meterName": "Hot LRS Data Stored", "retailPrice": 0.02}]
+            )
+            return resp
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen_retry,
+        ):
+            price2 = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price2 == pytest.approx(0.02), (
+            "second call (after transient error) must succeed and return price"
+        )
+
+    def test_pagination_cap_reached_caches_none(self):
+        """Cap of RETAIL_PRICES_MAX_PAGES reached → None cached (defensive)."""
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            RETAIL_PRICES_MAX_PAGES,
+        )
+
+        def make_page_with_next(i):
+            return self._make_page(
+                [],
+                next_link=f"https://prices.azure.com/page={i + 1}",
+            )
+
+        page_responses = [make_page_with_next(i) for i in range(RETAIL_PRICES_MAX_PAGES + 5)]
+        responses = iter(page_responses)
+
+        def fake_urlopen(url, timeout=None):
+            resp = MagicMock()
+            resp.__enter__ = lambda s: s
+            resp.__exit__ = MagicMock(return_value=False)
+            resp.read.return_value = next(responses)
+            return resp
+
+        cache: dict = {}
+        lock = threading.Lock()
+        call_count_holder = [0]
+
+        original_urlopen = fake_urlopen
+
+        def counting_urlopen(url, timeout=None):
+            call_count_holder[0] += 1
+            return original_urlopen(url, timeout=timeout)
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=counting_urlopen,
+        ):
+            price = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert price is None
+        assert call_count_holder[0] == RETAIL_PRICES_MAX_PAGES, (
+            f"Expected exactly {RETAIL_PRICES_MAX_PAGES} page fetches at cap; "
+            f"got {call_count_holder[0]}"
+        )
+        cache_key = ("sub1", "eastus", "Standard_LRS", "StorageV2", "Hot")
+        assert cache_key in cache
+        assert cache[cache_key] is None
+
+
+# ---------------------------------------------------------------------------
+# Class 18: UsedCapacity None vs 0.0 semantics (Finding 2)
+# ---------------------------------------------------------------------------
+
+
+class TestUsedCapacityNoneIsProbeFailure:
+    """capacity probe returning None counts toward probe_failures."""
+
+    def _run_with_capacity_result(self, capacity_return_value):
+        """Run _scan_one_account with one account; capacity probe returns given value."""
+        from azure.core.exceptions import HttpResponseError
+
+        creds = _make_creds()
+
+        acct = _make_acct()
+
+        def metrics_side_effect(resource_uri, **kwargs):
+            m = Mock()
+            ts = Mock()
+            if "Transactions" in kwargs.get("metricnames", ""):
+                dp = Mock()
+                dp.total = 0.0
+                ts.data = [dp]
+            else:
+                if capacity_return_value is None:
+                    raise HttpResponseError(message="monitor unavailable")
+                dp = Mock()
+                # capacity_return_value already in bytes
+                dp.average = capacity_return_value
+                ts.data = [dp]
+            m.timeseries = [ts]
+            result = Mock()
+            result.value = [m]
+            return result
+
+        monitor = MagicMock()
+        monitor.metrics.list.side_effect = metrics_side_effect
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient",
+            return_value=monitor,
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
+            return_value=0.02,
+        ):
+            mock_smc.return_value.storage_accounts.list.return_value = [acct]
+            return _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=9e18,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+
+    def test_capacity_probe_error_makes_scan_non_authoritative(self):
+        """Capacity probe error (None) for the only account → 100% failure → non-authoritative."""
+        scan = self._run_with_capacity_result(None)
+        assert scan.authoritative is False, (
+            "capacity probe error must count toward probe_failures, "
+            "triggering non-authoritative scan"
+        )
+        assert scan.accounts == []
+
+    def test_capacity_zero_is_not_probe_failure(self):
+        """Genuine empty timeseries (0.0 bytes) is NOT a probe failure."""
+        # 0 bytes → 0.0 GB, which is < min_used_capacity_gb=1.0 → skipped_capacity
+        # but probe_attempts=1, probe_failures=0 → authoritative=True
+        scan = self._run_with_capacity_result(0)
+        assert scan.authoritative is True, (
+            "genuine empty capacity (0.0 GB) must not be counted as a probe failure"
+        )
+        assert scan.accounts == []
+
+    def test_probe_returns_0_gb_skips_via_min_capacity_filter(self):
+        """An account with 0.0 GB is skipped due to min_used_capacity_gb, not probe failure."""
+        scan = self._run_with_capacity_result(0)
+        # Account not in results (0.0 GB < 1.0 GB minimum) but scan is authoritative
+        assert scan.accounts == []
+        assert scan.authoritative is True
+
+
+class TestUsedCapacityZeroIsNotProbeFailure:
+    """_probe_used_capacity_gb returns 0.0 on empty timeseries."""
+
+    def test_empty_timeseries_returns_zero(self):
+        monitor = MagicMock()
+        result = Mock()
+        metric = Mock()
+        metric.timeseries = []
+        result.value = [metric]
+        monitor.metrics.list.return_value = result
+
+        arm_id = "/subscriptions/sub1/rg/r/microsoft.storage/storageaccounts/x"
+        val = _probe_used_capacity_gb(monitor, arm_id)
+        assert val == 0.0, (
+            "_probe_used_capacity_gb must return 0.0 (not None) when timeseries is empty"
+        )
+
+    def test_exception_returns_none(self):
+        from azure.core.exceptions import HttpResponseError
+
+        monitor = MagicMock()
+        monitor.metrics.list.side_effect = HttpResponseError(message="throttled")
+
+        arm_id = "/subscriptions/sub1/rg/r/microsoft.storage/storageaccounts/x"
+        val = _probe_used_capacity_gb(monitor, arm_id)
+        assert val is None, (
+            "_probe_used_capacity_gb must return None on exception"
+        )
+
+    def test_data_points_all_none_average_returns_zero(self):
+        """All data points have average=None → latest stays None → return 0.0."""
+        monitor = MagicMock()
+        result = Mock()
+        metric = Mock()
+        ts = Mock()
+        dp = Mock()
+        dp.average = None
+        ts.data = [dp]
+        metric.timeseries = [ts]
+        result.value = [metric]
+        monitor.metrics.list.return_value = result
+
+        arm_id = "/subscriptions/sub1/rg/r/microsoft.storage/storageaccounts/x"
+        val = _probe_used_capacity_gb(monitor, arm_id)
+        assert val == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Class 19: Archive OPTIONS_CHANGED vs current values (Finding 3)
+# ---------------------------------------------------------------------------
+
+
+class TestArchiveOptionsChanged:
+    """Archive OPTIONS_CHANGED compares against current persisted values, not defaults."""
+
+    def _make_archive_instance_with_current(self, current_idle_days=14):
+        from bumiworker.bumiworker.modules.archive.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        instance = AzureAbandonedStorageAccounts.__new__(AzureAbandonedStorageAccounts)
+        instance._mongo_client = MagicMock()
+        instance.reason_description_map = {
+            ArchiveReason.RECOMMENDATION_APPLIED: "applied",
+            ArchiveReason.RECOMMENDATION_IRRELEVANT: "irrelevant",
+            ArchiveReason.RESOURCE_DELETED: "resource deleted",
+            ArchiveReason.CLOUD_ACCOUNT_DELETED: "cloud account deleted",
+            ArchiveReason.OPTIONS_CHANGED: "options changed",
+        }
+        instance.option_ordered_map = {
+            "idle_days_window": {"default": 7},
+            "idle_transactions_threshold": {"default": 100},
+            "min_account_age_days": {"default": 30},
+            "min_used_capacity_gb": {"default": 1.0},
+            "excluded_pools": {"default": {}},
+            "skip_cloud_accounts": {"default": []},
+        }
+        # Inject get_options_values to return current_idle_days as first element
+        instance.get_options_values = lambda: (
+            current_idle_days,
+            100,
+            30,
+            1.0,
+            {},
+            [],
+        )
+        return instance
+
+    def _make_sentinel_doc(self, res_id="r1"):
+        return {"_id": res_id, "deleted_at": 0, "cloud_account_id": "ca1"}
+
+    def test_stable_non_default_threshold_not_options_changed(self):
+        """Org keeps idle_days_window=14 (non-default); previous also 14 → NOT OPTIONS_CHANGED."""
+        instance = self._make_archive_instance_with_current(current_idle_days=14)
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [self._make_sentinel_doc()]
+        )
+
+        result = instance._get(
+            previous_options={
+                "idle_days_window": 14,
+                "idle_transactions_threshold": 100,
+                "min_account_age_days": 30,
+                "min_used_capacity_gb": 1.0,
+            },
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        # Should be RECOMMENDATION_IRRELEVANT (invariant violation) — NOT OPTIONS_CHANGED
+        assert len(result) == 1
+        assert result[0]["reason"] != ArchiveReason.OPTIONS_CHANGED, (
+            "keeping idle_days_window=14 stable must not trigger OPTIONS_CHANGED"
+        )
+
+    def test_changed_threshold_triggers_options_changed(self):
+        """Previous=7, current=14 → OPTIONS_CHANGED."""
+        instance = self._make_archive_instance_with_current(current_idle_days=14)
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [self._make_sentinel_doc()]
+        )
+
+        result = instance._get(
+            previous_options={
+                "idle_days_window": 7,
+                "idle_transactions_threshold": 100,
+                "min_account_age_days": 30,
+                "min_used_capacity_gb": 1.0,
+            },
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] == ArchiveReason.OPTIONS_CHANGED
+
+    def test_default_values_unchanged_not_options_changed(self):
+        """Default values for both previous and current → NOT OPTIONS_CHANGED."""
+        instance = self._make_archive_instance_with_current(current_idle_days=7)
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [self._make_sentinel_doc()]
+        )
+
+        result = instance._get(
+            previous_options={
+                "idle_days_window": 7,
+                "idle_transactions_threshold": 100,
+                "min_account_age_days": 30,
+                "min_used_capacity_gb": 1.0,
+            },
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] != ArchiveReason.OPTIONS_CHANGED
+
+    def test_missing_key_in_previous_options_not_flagged(self):
+        """Brand-new threshold key absent from previous_options must not trigger OPTIONS_CHANGED."""
+        instance = self._make_archive_instance_with_current(current_idle_days=14)
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [self._make_sentinel_doc()]
+        )
+
+        # previous_options lacks min_used_capacity_gb (added in a later release)
+        result = instance._get(
+            previous_options={
+                "idle_days_window": 14,
+                "idle_transactions_threshold": 100,
+                "min_account_age_days": 30,
+                # min_used_capacity_gb absent
+            },
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] != ArchiveReason.OPTIONS_CHANGED, (
+            "absent key in previous_options must not trigger OPTIONS_CHANGED"
+        )

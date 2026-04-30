@@ -266,7 +266,13 @@ def _probe_used_capacity_gb(
 ) -> Optional[float]:
     """Most-recent 'UsedCapacity' Average over a 48-hour window, in GB.
 
-    Returns None on exception or when no data point is available.
+    Returns 0.0 when the call succeeds but the timeseries is empty (genuine
+    "no capacity reported" — account exists but Azure Monitor has no data yet).
+    Returns None ONLY on exception (probe failed — treat as transient error).
+
+    This mirrors the ``_probe_transactions`` convention: 0.0 means confirmed
+    empty, None means error.  Callers must count None toward probe_failures;
+    0.0 is a legitimate data point and must not increment the failure counter.
     """
     try:
         end = datetime.now(timezone.utc)
@@ -289,9 +295,7 @@ def _probe_used_capacity_gb(
                     v = getattr(d, "average", None)
                     if v is not None:
                         latest = float(v)
-        if latest is None:
-            return None
-        return latest / (1024 ** 3)
+        return (latest / (1024 ** 3)) if latest is not None else 0.0
     except (HttpResponseError, ServiceRequestError, AzureError) as exc:
         LOG.warning("used capacity probe failed for %s: %s", arm_id, exc, exc_info=True)
         return None
@@ -348,6 +352,9 @@ def _meter_name_for(
     return f"Hot {display_redundancy} Data Stored"
 
 
+RETAIL_PRICES_MAX_PAGES = 20
+
+
 def _get_retail_price_per_gb(
     subscription_id: str,
     region: str,
@@ -364,7 +371,15 @@ def _get_retail_price_per_gb(
     the lifetime of the run.  The ``lock`` must be passed by the caller to
     guard concurrent dict access across ThreadPoolExecutor workers.
 
-    Returns None on HTTP error or when no matching meter is found.
+    Pagination: the API returns results across multiple pages via
+    ``NextPageLink``.  All pages are iterated until the meter is found or all
+    pages are exhausted.  A defensive cap of ``RETAIL_PRICES_MAX_PAGES`` pages
+    prevents runaway pagination.
+
+    Returns None on HTTP error mid-pagination (transient — NOT cached so the
+    next run retries).  Returns None (and caches it) only after all pages are
+    scanned without finding a matching meter — that represents a legitimate
+    "no such meter for this region/sku" result.
     """
     if not region or not sku_name or not kind:
         return None
@@ -390,34 +405,50 @@ def _get_retail_price_per_gb(
             "$filter": filter_expr,
         }
     )
-    url = f"{RETAIL_PRICES_URL}?{params}"
+    url: Optional[str] = f"{RETAIL_PRICES_URL}?{params}"
+    pages = 0
 
-    try:
-        req = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT_SECS)
-        raw = req.read().decode("utf-8")
-        data = json.loads(raw)
-    except (urllib.error.URLError, OSError, ValueError) as exc:
+    while url and pages < RETAIL_PRICES_MAX_PAGES:
+        try:
+            with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT_SECS) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+        except (urllib.error.URLError, OSError, ValueError) as exc:
+            LOG.warning(
+                "retail prices API request failed for %s %s (page %d): %s",
+                region,
+                meter_substr,
+                pages + 1,
+                exc,
+                exc_info=True,
+            )
+            # Transient error mid-pagination — do not cache so next run retries.
+            return None
+
+        for item in payload.get("Items", []):
+            meter_name = item.get("meterName") or ""
+            if meter_substr.lower() in meter_name.lower():
+                price = float(item["retailPrice"])
+                with lock:
+                    cache[cache_key] = price
+                return price
+
+        url = payload.get("NextPageLink") or None
+        pages += 1
+
+    if pages >= RETAIL_PRICES_MAX_PAGES and url:
         LOG.warning(
-            "retail prices API request failed for %s %s: %s",
+            "retail prices pagination cap (%d pages) reached for %s %s; "
+            "meter not found — caching None",
+            RETAIL_PRICES_MAX_PAGES,
             region,
             meter_substr,
-            exc,
-            exc_info=True,
         )
-        with lock:
-            cache[cache_key] = None
-        return None
 
-    price: Optional[float] = None
-    for item in data.get("Items", []):
-        meter_name = item.get("meterName") or ""
-        if meter_substr.lower() in meter_name.lower():
-            price = float(item["retailPrice"])
-            break
-
+    # All pages exhausted without finding the meter.  Cache None as a
+    # legitimate "no such meter" result so we do not hammer the API repeatedly.
     with lock:
-        cache[cache_key] = price
-    return price
+        cache[cache_key] = None
+    return None
 
 
 def _scan_one_account(
@@ -507,7 +538,17 @@ def _scan_one_account(
 
         used_capacity_gb = _probe_used_capacity_gb(monitor_client, arm_id)
 
-        if used_capacity_gb is None or used_capacity_gb < min_used_capacity_gb:
+        if used_capacity_gb is None:
+            # Probe error (exception in SDK call) — count toward failure rate
+            # so transient Azure Monitor outages trip the non-authoritative
+            # fallback rather than dropping every account silently.
+            probe_failures += 1
+            skipped_no_probe += 1
+            continue
+
+        if used_capacity_gb < min_used_capacity_gb:
+            # Genuine empty timeseries (0.0) or real capacity below threshold —
+            # neither is a probe failure.
             skipped_capacity += 1
             continue
 

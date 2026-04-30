@@ -77,10 +77,25 @@ class AzureAbandonedStorageAccounts(
                 continue
 
             # Check whether any of the four threshold options changed.
-            current_options = self.option_ordered_map
+            # Compare against CURRENT persisted values (not hardcoded defaults)
+            # so that an org which keeps a stable non-default threshold (e.g.
+            # idle_days_window=14) does not get OPTIONS_CHANGED on every run.
+            current_options_values = self.get_options_values()
+            current_options = dict(
+                zip(
+                    [
+                        "idle_days_window",
+                        "idle_transactions_threshold",
+                        "min_account_age_days",
+                        "min_used_capacity_gb",
+                        "excluded_pools",
+                        "skip_cloud_accounts",
+                    ],
+                    current_options_values,
+                )
+            )
             options_changed = any(
-                previous_options.get(k)
-                != (current_options.get(k) or {}).get("default")
+                previous_options[k] != current_options.get(k)
                 for k in _THRESHOLD_KEYS
                 if k in previous_options
             )
