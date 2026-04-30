@@ -594,14 +594,15 @@ class TestPerAccountFailureFallback:
         ):
             rows = module._get()
 
-        # Fallback sentinel row must be present with None saving (not 0.0)
+        # Fallback sentinel row must be present with zero-valued numeric fields
         assert len(rows) == 1
         assert rows[0]["resource_id"] == "sent1"
-        assert rows[0]["saving"] is None, (
-            "fallback row saving must be None, not 0.0, to avoid conflation "
-            "with real zero-saving accounts"
+        assert rows[0]["saving"] == 0.0, (
+            "fallback row saving must be 0.0; healthy path never emits saving<=0 "
+            "so zero uniquely identifies fallback rows without breaking the "
+            "rest_api optimization controller None-handling code paths"
         )
-        assert rows[0]["transactions"] is None
+        assert rows[0]["transactions"] == 0.0
         assert rows[0]["data_source"] == "preserved_sentinel"
 
 
@@ -999,18 +1000,22 @@ class TestSentinelEmitFallback:
 
         assert len(rows) == 1
         row = rows[0]
-        assert row["saving"] is None, (
-            "fallback saving must be None to distinguish from real $0"
+        assert row["saving"] == 0.0, (
+            "fallback saving must be 0.0; healthy path drops saving<=0 rows "
+            "so zero uniquely identifies fallback without breaking rest_api "
+            "controller None-handling code paths"
         )
-        assert row["transactions"] is None, (
-            "fallback transactions must be None"
+        assert row["transactions"] == 0.0, (
+            "fallback transactions must be 0.0"
+        )
+        assert row["used_capacity_gb"] == 0.0, (
+            "fallback used_capacity_gb must be 0.0"
         )
         assert row["data_source"] == "preserved_sentinel"
         assert row["cloud_type"] == "azure_cnr"
         assert row["cloud_account_id"] == "ca1"
         assert row["folder_id"] is None
         assert row["zone_id"] is None
-        assert row["used_capacity_gb"] is None
         assert row["age_days"] is None
 
     def test_excluded_pool_is_excluded(self):

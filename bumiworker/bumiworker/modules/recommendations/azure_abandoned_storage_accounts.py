@@ -748,16 +748,23 @@ def _emit_rows_from_existing_sentinels(
     ArchiveBase.get_archive_candidates does not treat them as disappeared and
     trigger false RECOMMENDATION_IRRELEVANT archival of still-idle accounts.
 
-    Fallback rows carry ``saving=None`` (not 0.0) to be distinguishable from
-    a legitimately computed $0 saving.  ``resource_recommendations.py``
-    filters ``saving is None`` rows unless the module is in
-    ``modules_without_saving`` — which this module is NOT — so fallback rows
-    are dropped from per-resource recommendations (correct: preserves them in
-    the checklist for archive purposes only) but are not silently conflated
-    with real zero-saving accounts.
+    Fallback rows carry ``saving=0.0``, ``transactions=0.0``, and
+    ``used_capacity_gb=0.0``.  The healthy scan path filters out any account
+    with ``saving <= 0`` (see ``_scan_one_account``), so a zero saving can
+    never appear on a real healthy row for this module.  Zero-valued fallback
+    rows are therefore uniquely identifiable without resorting to ``None``,
+    which would break the rest_api optimization controller: the controller
+    pops the ``saving`` key when it encounters ``saving is None``, causing a
+    ``KeyError`` on the next numeric row, and ``limit_optimization_data``
+    sorts by ``-x.get('saving', 0)`` which raises ``TypeError`` when the
+    value is ``None`` rather than missing.
 
-    The ``data_source`` discriminator field is set to ``"preserved_sentinel"``
-    on fallback rows and ``"live_scan"`` on healthy-path rows.
+    The ``data_source="preserved_sentinel"`` discriminator is preserved for
+    tooling and observability.  Because this module is NOT listed in
+    ``modules_with_possible_zero_saving``, ``resource_recommendations.py``
+    will drop these rows from per-resource dismiss/reactivate flows, which
+    is correct — fallback rows belong only in the checklist for archive
+    protection.
     """
     rows: List[Dict[str, Any]] = []
     sentinels = coll.find(
@@ -784,7 +791,7 @@ def _emit_rows_from_existing_sentinels(
                 "cloud_account_id": ca_id,
                 "cloud_type": "azure_cnr",
                 "cloud_account_name": ca_name,
-                "saving": None,
+                "saving": 0.0,
                 "region": s.get("region"),
                 "is_excluded": (
                     (pool_id in excluded_pools)
@@ -793,8 +800,8 @@ def _emit_rows_from_existing_sentinels(
                 ),
                 "folder_id": None,
                 "zone_id": None,
-                "used_capacity_gb": None,
-                "transactions": None,
+                "used_capacity_gb": 0.0,
+                "transactions": 0.0,
                 "age_days": None,
                 "detected_at": None,
                 "data_source": "preserved_sentinel",
