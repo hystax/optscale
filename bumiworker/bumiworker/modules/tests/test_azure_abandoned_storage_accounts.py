@@ -5,6 +5,7 @@ the entire suite is skipped gracefully rather than erroring with ImportError.
 """
 import sys
 import threading
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -25,6 +26,9 @@ sys.modules.setdefault("azure.mgmt.storage.models", _fake_storage_models)
 sys.modules.setdefault("azure.mgmt.monitor.models", _fake_monitor_models)
 
 from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (  # noqa: E402
+    CACHE_KEY,
+    CACHE_NAMESPACE,
+    CACHE_SCHEMA_VERSION,
     NATIVE_MARKER,
     ScanResult,
     StorageAccountInfo,
@@ -32,6 +36,7 @@ from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accou
     _emit_rows_from_existing_sentinels,
     _get_retail_price_per_gb,
     _is_service_managed,
+    _load_active_cache,
     _meter_name_for,
     _probe_transactions,
     _probe_used_capacity_gb,
@@ -39,6 +44,7 @@ from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accou
     _resolve_or_insert_resource,
     _scan_one_account,
     _touch_resource,
+    _write_active_cache,
 )
 from bumiworker.bumiworker.consts import ArchiveReason  # noqa: E402
 
@@ -1240,7 +1246,7 @@ class TestScanAuthoritative:
         module._rest_client = MagicMock()
         module.option_ordered_map = {}
 
-        non_auth_result = ScanResult(accounts=[], authoritative=False)
+        non_auth_result = ScanResult(accounts=[], authoritative=False, confirmed_active=[])
 
         with patch.object(
             module, "get_options_values", return_value=(7, 100, 30, 1.0, {}, [])
@@ -1439,7 +1445,7 @@ class TestLiveScanDataSource:
             kind="StorageV2",
             access_tier="Hot",
         )
-        live_result = ScanResult(accounts=[acct_info], authoritative=True)
+        live_result = ScanResult(accounts=[acct_info], authoritative=True, confirmed_active=[])
 
         sentinel_pool_doc = {"_id": "res1", "pool_id": "p1"}
         coll = MagicMock()
@@ -2314,7 +2320,7 @@ class TestMissingCredentialsEmitsSentinels:
         ), patch(
             "bumiworker.bumiworker.modules.recommendations"
             ".azure_abandoned_storage_accounts._scan_one_account",
-            return_value=ScanResult(accounts=[], authoritative=True),
+            return_value=ScanResult(accounts=[], authoritative=True, confirmed_active=[]),
         ), patch(
             "bumiworker.bumiworker.modules.recommendations"
             ".azure_abandoned_storage_accounts._reconcile_deleted",
@@ -2364,3 +2370,276 @@ class TestMissingCredentialsEmitsSentinels:
         mock_reconcile.assert_not_called(), (
             "_reconcile_deleted must not be called when a CA has no credentials"
         )
+
+
+# ---------------------------------------------------------------------------
+# Cross-run active-confirmed cache (Option 2 optimisation)
+# ---------------------------------------------------------------------------
+
+
+class TestActiveConfirmedCache:
+    """``meta.optscale_native_cache.azure_idle`` cache short-circuits the
+    Transactions probe for accounts confirmed active within ``idle_days_window/2``.
+
+    Idle accounts are always re-probed (no false-positive risk). Cache hits do
+    NOT count toward ``probe_attempts`` / ``probe_failures`` so the
+    authoritative-rate gate stays meaningful for accounts probed this run.
+    """
+
+    @staticmethod
+    def _make_acct(arm_id, name, location="eastus", sku="Standard_LRS",
+                   kind="StorageV2", access_tier="Hot", age_days=120):
+        return Mock(
+            id=arm_id,
+            name=name,
+            location=location,
+            sku=Mock(name=sku),
+            kind=kind,
+            access_tier=access_tier,
+            creation_time=datetime.now(timezone.utc) - timedelta(days=age_days),
+            tags={},
+        )
+
+    def test_load_active_cache_hit_with_valid_schema(self):
+        coll = MagicMock()
+        coll.find_one.return_value = {
+            "meta": {
+                CACHE_NAMESPACE: {
+                    CACHE_KEY: {
+                        "last_active_at": 1000,
+                        "last_transactions": 500.0,
+                        "schema_version": CACHE_SCHEMA_VERSION,
+                    }
+                }
+            }
+        }
+        result = _load_active_cache(coll, "ca1", "/subscriptions/x/.../sa1")
+        assert result == (1000, 500.0)
+
+    def test_load_active_cache_miss_no_doc(self):
+        coll = MagicMock()
+        coll.find_one.return_value = None
+        assert _load_active_cache(coll, "ca1", "/x") is None
+
+    def test_load_active_cache_miss_schema_mismatch(self):
+        coll = MagicMock()
+        coll.find_one.return_value = {
+            "meta": {
+                CACHE_NAMESPACE: {
+                    CACHE_KEY: {
+                        "last_active_at": 1000,
+                        "last_transactions": 500.0,
+                        "schema_version": CACHE_SCHEMA_VERSION + 99,
+                    }
+                }
+            }
+        }
+        assert _load_active_cache(coll, "ca1", "/x") is None
+
+    def test_load_active_cache_filter_excludes_overlay_sentinels(self):
+        """Cache lookup MUST exclude overlay sentinels — same dual-target filter
+        used by ``_resolve_or_insert_resource`` so the two systems do not share
+        cache state."""
+        coll = MagicMock()
+        coll.find_one.return_value = None
+        _load_active_cache(coll, "ca1", "/x")
+        call_filter = coll.find_one.call_args[0][0]
+        assert "$or" in call_filter
+        # Verify either no created_by OR native marker — never overlay marker
+        or_clauses = call_filter["$or"]
+        assert {"meta.created_by": {"$exists": False}} in or_clauses
+        assert {"meta.created_by": NATIVE_MARKER} in or_clauses
+
+    def test_write_active_cache_uses_namespaced_set(self):
+        coll = MagicMock()
+        _write_active_cache(coll, "ca1", "/x", 5000, 300.0)
+        call_args = coll.update_one.call_args
+        update_doc = call_args[0][1]
+        assert "$set" in update_doc
+        cache_path = f"meta.{CACHE_NAMESPACE}.{CACHE_KEY}"
+        assert cache_path in update_doc["$set"]
+        cache_payload = update_doc["$set"][cache_path]
+        assert cache_payload == {
+            "last_active_at": 5000,
+            "last_transactions": 300.0,
+            "schema_version": CACHE_SCHEMA_VERSION,
+        }
+
+    def test_scan_cache_hit_skips_transactions_probe(self):
+        """Account confirmed active in prior run within cooldown skips probe entirely."""
+        creds = {
+            "subscription_id": "sub1", "tenant": "t", "client_id": "c",
+            "secret": "s",
+        }
+        coll = MagicMock()
+        # Cache hit: 1 hour ago, 500 transactions (>= threshold 100)
+        now_ts = 10_000_000
+        coll.find_one.return_value = {
+            "meta": {
+                CACHE_NAMESPACE: {
+                    CACHE_KEY: {
+                        "last_active_at": now_ts - 3600,
+                        "last_transactions": 500.0,
+                        "schema_version": CACHE_SCHEMA_VERSION,
+                    }
+                }
+            }
+        }
+        acct = self._make_acct("/subscriptions/sub1/.../sa1", "sa1")
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as MockSMC, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient"
+        ) as MockMMC, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._probe_transactions"
+        ) as mock_probe_tx:
+            MockSMC.return_value.storage_accounts.list.return_value = [acct]
+            result = _scan_one_account(
+                creds, 7, 100, 30, 1.0, time.time() + 60,
+                {}, threading.Lock(),
+                coll=coll, ca_id="ca1", cache_now_ts=now_ts,
+            )
+
+        # Probe must NOT have been called — cache hit short-circuited it
+        mock_probe_tx.assert_not_called()
+        # Empty accounts (skipped as active via cache) but authoritative
+        assert result.accounts == []
+        assert result.authoritative is True
+        assert result.confirmed_active == []
+
+    def test_scan_cache_expired_re_probes(self):
+        """Cache older than cooldown → re-probe."""
+        creds = {
+            "subscription_id": "sub1", "tenant": "t", "client_id": "c",
+            "secret": "s",
+        }
+        coll = MagicMock()
+        now_ts = 10_000_000
+        # Cache hit but stale: 4 days ago > cooldown of 3.5 days (idle_window=7/2)
+        coll.find_one.return_value = {
+            "meta": {
+                CACHE_NAMESPACE: {
+                    CACHE_KEY: {
+                        "last_active_at": now_ts - 4 * 86400,
+                        "last_transactions": 500.0,
+                        "schema_version": CACHE_SCHEMA_VERSION,
+                    }
+                }
+            }
+        }
+        acct = self._make_acct("/subscriptions/sub1/.../sa1", "sa1")
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as MockSMC, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._probe_transactions",
+            return_value=600.0,
+        ) as mock_probe_tx:
+            MockSMC.return_value.storage_accounts.list.return_value = [acct]
+            result = _scan_one_account(
+                creds, 7, 100, 30, 1.0, time.time() + 60,
+                {}, threading.Lock(),
+                coll=coll, ca_id="ca1", cache_now_ts=now_ts,
+            )
+
+        mock_probe_tx.assert_called_once()
+        # Account was probed and confirmed active → captured in confirmed_active
+        assert result.confirmed_active == [
+            ("/subscriptions/sub1/.../sa1".lower(), 600.0)
+        ]
+
+    def test_cache_hit_not_counted_toward_probe_attempts(self):
+        """Cache hits MUST NOT inflate probe_attempts — authoritative-rate
+        gate must remain meaningful for accounts actually probed this run."""
+        creds = {
+            "subscription_id": "sub1", "tenant": "t", "client_id": "c",
+            "secret": "s",
+        }
+        coll = MagicMock()
+        now_ts = 10_000_000
+        coll.find_one.return_value = {
+            "meta": {
+                CACHE_NAMESPACE: {
+                    CACHE_KEY: {
+                        "last_active_at": now_ts - 3600,
+                        "last_transactions": 500.0,
+                        "schema_version": CACHE_SCHEMA_VERSION,
+                    }
+                }
+            }
+        }
+        # Two cached-active + one probe-failing account
+        accounts_in = [
+            self._make_acct(f"/subscriptions/sub1/.../sa{i}", f"sa{i}")
+            for i in (1, 2, 3)
+        ]
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as MockSMC, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._probe_transactions",
+            return_value=None,  # the one probed account fails
+        ):
+            MockSMC.return_value.storage_accounts.list.return_value = accounts_in
+            result = _scan_one_account(
+                creds, 7, 100, 30, 1.0, time.time() + 60,
+                {}, threading.Lock(),
+                coll=coll, ca_id="ca1", cache_now_ts=now_ts,
+            )
+
+        # All 3 hit cache → probe_attempts==0, authoritative=True (no probes done)
+        # If cache hits DID count, we'd have 3 attempts and 3 failures (>=50%) → False.
+        assert result.authoritative is True
+
+    def test_scan_without_coll_disables_cache(self):
+        """Backwards compat: callers passing no ``coll`` get probe-on-every-run
+        behaviour with no cache reads or writes."""
+        creds = {
+            "subscription_id": "sub1", "tenant": "t", "client_id": "c",
+            "secret": "s",
+        }
+        acct = self._make_acct("/subscriptions/sub1/.../sa1", "sa1")
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as MockSMC, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._probe_transactions",
+            return_value=600.0,
+        ) as mock_probe_tx:
+            MockSMC.return_value.storage_accounts.list.return_value = [acct]
+            result = _scan_one_account(
+                creds, 7, 100, 30, 1.0, time.time() + 60,
+                {}, threading.Lock(),
+                # no coll/ca_id passed
+            )
+
+        mock_probe_tx.assert_called_once()
+        # confirmed_active stays empty when cache is disabled (no point tracking)
+        assert result.confirmed_active == []

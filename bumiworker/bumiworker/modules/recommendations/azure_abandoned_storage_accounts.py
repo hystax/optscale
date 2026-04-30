@@ -107,6 +107,12 @@ class ScanResult(NamedTuple):
 
     accounts: List[StorageAccountInfo]
     authoritative: bool
+    # arm_ids confirmed active *this run* (probe returned >= threshold) plus
+    # the observed transactions count.  Caller persists these to
+    # ``meta.optscale_native_cache.azure_idle`` so the next run within the
+    # cooldown window can short-circuit the probe.  Empty when the cross-run
+    # cache feature is disabled (no ``coll`` passed to ``_scan_one_account``).
+    confirmed_active: List[Tuple[str, float]]
 
 
 # ---------------------------------------------------------------------------
@@ -456,6 +462,89 @@ def _get_retail_price_per_gb(
     return (None, False)
 
 
+CACHE_NAMESPACE = "optscale_native_cache"
+CACHE_KEY = "azure_idle"
+CACHE_SCHEMA_VERSION = 1
+
+
+def _load_active_cache(
+    coll, ca_id: str, arm_id_lower: str
+) -> Optional[Tuple[int, float]]:
+    """Return ``(last_active_at, last_transactions)`` from cache, or None.
+
+    Looks up either a real cloud-adapter doc or our own native sentinel for
+    the resource and reads the ``meta.optscale_native_cache.azure_idle``
+    namespace.  Overlay sentinels (``created_by="azure_alias_wrapper"``) are
+    excluded for the same reason as ``_resolve_or_insert_resource``.
+
+    Returns None when no doc exists (first-ever scan) or when the cache
+    fields are absent (doc predates this optimisation, or cache was cleared).
+    """
+    doc = coll.find_one(
+        {
+            "cloud_resource_id": arm_id_lower,
+            "cloud_account_id": ca_id,
+            "deleted_at": 0,
+            "$or": [
+                {"meta.created_by": {"$exists": False}},
+                {"meta.created_by": NATIVE_MARKER},
+            ],
+        },
+        {f"meta.{CACHE_NAMESPACE}.{CACHE_KEY}": 1},
+    )
+    if not doc:
+        return None
+    cache = (
+        ((doc.get("meta") or {}).get(CACHE_NAMESPACE) or {}).get(CACHE_KEY) or {}
+    )
+    if cache.get("schema_version") != CACHE_SCHEMA_VERSION:
+        return None
+    last_active_at = cache.get("last_active_at")
+    last_transactions = cache.get("last_transactions")
+    if last_active_at is None or last_transactions is None:
+        return None
+    return int(last_active_at), float(last_transactions)
+
+
+def _write_active_cache(
+    coll,
+    ca_id: str,
+    arm_id_lower: str,
+    last_active_at: int,
+    last_transactions: float,
+) -> None:
+    """Persist confirmed-active cache fields under ``meta.optscale_native_cache``.
+
+    Targets either a real cloud-adapter doc OR our own native sentinel — the
+    same dual-target filter used by ``_load_active_cache``.  Only fields under
+    the ``meta.optscale_native_cache`` namespace are written; no other fields
+    are touched, so concurrent updates by the cloud adapter cannot collide.
+
+    No-op when no matching doc exists (active account ingested by neither
+    side).  The next scan will probe and try again — self-healing.
+    """
+    coll.update_one(
+        {
+            "cloud_resource_id": arm_id_lower,
+            "cloud_account_id": ca_id,
+            "deleted_at": 0,
+            "$or": [
+                {"meta.created_by": {"$exists": False}},
+                {"meta.created_by": NATIVE_MARKER},
+            ],
+        },
+        {
+            "$set": {
+                f"meta.{CACHE_NAMESPACE}.{CACHE_KEY}": {
+                    "last_active_at": int(last_active_at),
+                    "last_transactions": float(last_transactions),
+                    "schema_version": CACHE_SCHEMA_VERSION,
+                }
+            }
+        },
+    )
+
+
 def _scan_one_account(
     creds: Dict,
     idle_days_window: int,
@@ -465,6 +554,9 @@ def _scan_one_account(
     deadline: float,
     price_cache: Dict,
     price_lock: threading.Lock,
+    coll=None,
+    ca_id: Optional[str] = None,
+    cache_now_ts: Optional[int] = None,
 ) -> ScanResult:
     """Scan one Azure subscription for idle storage accounts.
 
@@ -477,7 +569,25 @@ def _scan_one_account(
     when the list+probe pipeline ran without per-account probe failures
     dominating (failure rate < 50%) and the deadline did not trip.  Callers
     must NOT reconcile-delete sentinels when ``authoritative=False``.
+
+    Cross-run active-confirmed cache:
+      When ``coll`` and ``ca_id`` are provided, accounts confirmed active in a
+      prior run within ``idle_days_window/2`` seconds (the cooldown) skip the
+      Transactions probe and are short-circuited as still-active.  Cache hits
+      are NOT counted toward ``probe_attempts``/``probe_failures``: the
+      authoritative-rate gate must remain meaningful for the accounts we
+      actually probed this run.  Cooldown = ``idle_days_window/2`` so a
+      transition from active to idle is detected within at most one full idle
+      window plus the cooldown — within the natural latency the operator
+      already accepts for a ``idle_days_window``-day signal.  Idle accounts
+      are always re-probed (no false-positive risk), only confirmed-active
+      accounts are short-circuited.
     """
+    cooldown_secs = max(1, (idle_days_window * 86400) // 2)
+    cache_enabled = coll is not None and ca_id is not None
+    now_ts = cache_now_ts if cache_now_ts is not None else int(time.time())
+    confirmed_active: List[Tuple[str, float]] = []
+
     cred = ClientSecretCredential(
         creds["tenant"], creds["client_id"], creds["secret"]
     )
@@ -491,13 +601,14 @@ def _scan_one_account(
         LOG.warning(
             "storage_accounts.list failed for sub=%s: %s", sub_id, exc, exc_info=True
         )
-        return ScanResult(accounts=[], authoritative=False)
+        return ScanResult(accounts=[], authoritative=False, confirmed_active=[])
 
     out: List[StorageAccountInfo] = []
     skipped_age = 0
     skipped_service = 0
     skipped_budget = 0
     skipped_active = 0
+    skipped_active_cached = 0
     skipped_no_probe = 0
     skipped_capacity = 0
     skipped_no_price = 0
@@ -531,6 +642,28 @@ def _scan_one_account(
         access_tier: Optional[str] = getattr(acct, "access_tier", None)
         region: Optional[str] = getattr(acct, "location", None)
 
+        if cache_enabled:
+            try:
+                cached = _load_active_cache(coll, ca_id, arm_id)
+            except PyMongoError as exc:
+                LOG.warning(
+                    "cache lookup failed for %s; falling back to probe: %s",
+                    arm_id,
+                    exc,
+                )
+                cached = None
+            if (
+                cached is not None
+                and (now_ts - cached[0]) < cooldown_secs
+                and cached[1] >= idle_transactions_threshold
+            ):
+                # Cache hit on a confirmed-active account within cooldown.
+                # Skip the Transactions probe; do NOT count toward
+                # probe_attempts / probe_failures (the authoritative-rate
+                # gate must remain meaningful for accounts probed this run).
+                skipped_active_cached += 1
+                continue
+
         probe_attempts += 1
         transactions = _probe_transactions(monitor_client, arm_id, idle_days_window)
         if transactions is None:
@@ -540,6 +673,8 @@ def _scan_one_account(
 
         if transactions >= idle_transactions_threshold:
             skipped_active += 1
+            if cache_enabled:
+                confirmed_active.append((arm_id, transactions))
             continue
 
         used_capacity_gb = _probe_used_capacity_gb(monitor_client, arm_id)
@@ -610,14 +745,16 @@ def _scan_one_account(
     LOG.info(
         "azure storage scan sub=%s: total=%d idle_candidates=%d "
         "skipped_service=%d skipped_age=%d skipped_active=%d "
-        "skipped_no_probe=%d skipped_capacity=%d skipped_no_price=%d "
-        "skipped_budget=%d probe_attempts=%d probe_failures=%d authoritative=%s",
+        "skipped_active_cached=%d skipped_no_probe=%d skipped_capacity=%d "
+        "skipped_no_price=%d skipped_budget=%d probe_attempts=%d "
+        "probe_failures=%d authoritative=%s",
         sub_id,
         len(accounts),
         len(out),
         skipped_service,
         skipped_age,
         skipped_active,
+        skipped_active_cached,
         skipped_no_probe,
         skipped_capacity,
         skipped_no_price,
@@ -626,7 +763,11 @@ def _scan_one_account(
         probe_failures,
         authoritative,
     )
-    return ScanResult(accounts=out, authoritative=authoritative)
+    return ScanResult(
+        accounts=out,
+        authoritative=authoritative,
+        confirmed_active=confirmed_active,
+    )
 
 
 def _resolve_or_insert_resource(
@@ -933,6 +1074,9 @@ class AzureAbandonedStorageAccounts(ModuleBase):
                     deadline,
                     price_cache,
                     price_lock,
+                    coll,
+                    ca_id,
+                    detected_at,
                 )
                 futures[fut] = (ca_id, ca)
 
@@ -985,6 +1129,24 @@ class AzureAbandonedStorageAccounts(ModuleBase):
 
                 accounts: List[StorageAccountInfo] = result.accounts
                 current_arm_ids: Set[str] = {a.arm_id for a in accounts}
+
+                # Persist cross-run active-confirmed cache.  Best-effort:
+                # cache write failures are logged but do not abort the run.
+                # The cache only short-circuits the Transactions probe on the
+                # next run; missing it just costs an extra metric call.
+                for arm_id_active, tx_active in result.confirmed_active:
+                    try:
+                        _write_active_cache(
+                            coll, ca_id, arm_id_active, detected_at, tx_active
+                        )
+                    except PyMongoError as exc:
+                        LOG.warning(
+                            "cache write failed for ca=%s arm=%s: %s",
+                            ca_id,
+                            arm_id_active,
+                            exc,
+                        )
+
                 try:
                     _reconcile_deleted(coll, ca_id, current_arm_ids, detected_at)
                 except PyMongoError:
