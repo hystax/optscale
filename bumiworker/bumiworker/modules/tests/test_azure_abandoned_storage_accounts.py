@@ -1,0 +1,1473 @@
+"""Unit tests for bumiworker azure_abandoned_storage_accounts recommendation + archive modules.
+
+SDK availability guard: if azure.mgmt.storage or azure.mgmt.monitor are absent
+the entire suite is skipped gracefully rather than erroring with ImportError.
+"""
+import sys
+import threading
+import uuid
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+from unittest.mock import MagicMock, Mock, patch, call
+
+import pytest
+
+azure_identity = pytest.importorskip("azure.identity")
+azure_mgmt_storage = pytest.importorskip("azure.mgmt.storage")
+azure_mgmt_monitor = pytest.importorskip("azure.mgmt.monitor")
+
+# Inject fake SDK modules that the recommendation module imports so the tests
+# can run without requiring the full azure SDK to be installed with all
+# sub-packages.
+_fake_storage_models = type(sys)("azure.mgmt.storage.models")
+_fake_monitor_models = type(sys)("azure.mgmt.monitor.models")
+sys.modules.setdefault("azure.mgmt.storage.models", _fake_storage_models)
+sys.modules.setdefault("azure.mgmt.monitor.models", _fake_monitor_models)
+
+from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (  # noqa: E402
+    NATIVE_MARKER,
+    ScanResult,
+    StorageAccountInfo,
+    _account_age_days,
+    _emit_rows_from_existing_sentinels,
+    _get_retail_price_per_gb,
+    _is_service_managed,
+    _meter_name_for,
+    _probe_transactions,
+    _probe_used_capacity_gb,
+    _reconcile_deleted,
+    _resolve_or_insert_resource,
+    _scan_one_account,
+    _touch_resource,
+)
+from bumiworker.bumiworker.consts import ArchiveReason  # noqa: E402
+
+
+# ---------------------------------------------------------------------------
+# Helper factories
+# ---------------------------------------------------------------------------
+
+
+def _make_acct(
+    name: str = "myaccount",
+    sku_name: str = "Standard_LRS",
+    kind: str = "StorageV2",
+    access_tier: str = "Hot",
+    tags: Optional[dict] = None,
+    creation_time=None,
+    arm_id: Optional[str] = None,
+    location: str = "australiasoutheast",
+) -> Mock:
+    acct = Mock()
+    acct.name = name
+    acct.id = arm_id or (
+        f"/subscriptions/sub1/resourceGroups/rg1/providers/"
+        f"Microsoft.Storage/storageAccounts/{name}"
+    )
+    acct.location = location
+    acct.kind = kind
+    acct.access_tier = access_tier
+    acct.tags = tags or {}
+    acct.creation_time = creation_time or (
+        datetime.now(timezone.utc) - timedelta(days=60)
+    )
+    sku = Mock()
+    sku.name = sku_name
+    acct.sku = sku
+    return acct
+
+
+def _make_monitor_empty():
+    """Return a MonitorManagementClient mock with empty timeseries."""
+    monitor = MagicMock()
+    metric_value = Mock()
+    metric_value.timeseries = []
+    metric_value.value = [metric_value]
+    result = Mock()
+    result.value = [metric_value]
+    monitor.metrics.list.return_value = result
+    return monitor
+
+
+# ---------------------------------------------------------------------------
+# Class 1: SDK constructor signature lock
+# ---------------------------------------------------------------------------
+
+
+class TestSdkCtorSignatureLock:
+    """Lock StorageManagementClient + MonitorManagementClient ctor signatures.
+
+    _scan_one_account calls: StorageManagementClient(cred, subscription_id)
+    and MonitorManagementClient(cred, subscription_id).  If the SDK renames or
+    reorders these positional args the lock test surfaces the drift before
+    production code breaks.
+    """
+
+    def test_storage_management_client_accepts_credential_and_sub(self):
+        from azure.mgmt.storage import StorageManagementClient
+        import inspect
+
+        sig = inspect.signature(StorageManagementClient.__init__)
+        params = list(sig.parameters.keys())
+        # self + credential + subscription_id must all be present
+        assert "credential" in params or len(params) >= 3, (
+            "StorageManagementClient.__init__ signature changed; update "
+            "_scan_one_account ctor call"
+        )
+
+    def test_monitor_management_client_accepts_credential_and_sub(self):
+        from azure.mgmt.monitor import MonitorManagementClient
+        import inspect
+
+        sig = inspect.signature(MonitorManagementClient.__init__)
+        params = list(sig.parameters.keys())
+        assert "credential" in params or len(params) >= 3, (
+            "MonitorManagementClient.__init__ signature changed; update "
+            "_scan_one_account ctor call"
+        )
+
+    def test_scan_one_account_constructs_track2_clients(self):
+        """Verify ClientSecretCredential is used (not msrestazure)."""
+        creds = {
+            "tenant": "t1",
+            "client_id": "c1",
+            "secret": "s1",
+            "subscription_id": "sub1",
+        }
+
+        acct = _make_acct()
+        monitor = _make_monitor_empty()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ) as mock_csc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient"
+        ) as mock_mmc:
+            mock_smc.return_value.storage_accounts.list.return_value = []
+            mock_mmc.return_value = monitor
+
+            _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=9e18,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+
+        mock_csc.assert_called_once_with("t1", "c1", "s1")
+        mock_smc.assert_called_once()
+        mock_mmc.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# Class 2: Service-managed account exclusions
+# ---------------------------------------------------------------------------
+
+
+class TestServiceManagedExclusions:
+    """_is_service_managed returns True for each platform-managed branch."""
+
+    def test_file_storage_kind(self):
+        acct = _make_acct(kind="FileStorage", sku_name="Premium_LRS")
+        assert _is_service_managed(acct) is True
+
+    def test_premium_lrs_storage_v2(self):
+        acct = _make_acct(kind="StorageV2", sku_name="Premium_LRS")
+        assert _is_service_managed(acct) is True
+
+    def test_premium_zrs_storage(self):
+        acct = _make_acct(kind="Storage", sku_name="Premium_ZRS")
+        assert _is_service_managed(acct) is True
+
+    def test_ms_resource_usage_tag(self):
+        acct = _make_acct(
+            kind="StorageV2",
+            sku_name="Standard_LRS",
+            tags={"ms-resource-usage": "azure-cloud-shell"},
+        )
+        assert _is_service_managed(acct) is True
+
+    def test_diag_name_plus_hidden_link_tag(self):
+        acct = _make_acct(
+            name="diagstoragexyz",
+            kind="StorageV2",
+            sku_name="Standard_LRS",
+            tags={"hidden-link:/some/resource": "Resource"},
+        )
+        assert _is_service_managed(acct) is True
+
+    def test_diag_name_without_hidden_link_not_excluded(self):
+        acct = _make_acct(
+            name="diagstorage",
+            kind="StorageV2",
+            sku_name="Standard_LRS",
+            tags={},
+        )
+        assert _is_service_managed(acct) is False
+
+    def test_normal_account_not_excluded(self):
+        acct = _make_acct(kind="StorageV2", sku_name="Standard_LRS")
+        assert _is_service_managed(acct) is False
+
+    def test_block_blob_storage_premium_not_excluded_as_service_managed(self):
+        """BlockBlobStorage with Premium_LRS is a detection TARGET, not service-managed.
+
+        It only passes the Premium_LRS + (Storage|StorageV2) check when kind
+        is Storage or StorageV2.  BlockBlobStorage must NOT be filtered here.
+        """
+        acct = _make_acct(kind="BlockBlobStorage", sku_name="Premium_LRS")
+        assert _is_service_managed(acct) is False
+
+    def test_defensive_sku_none(self):
+        """sku=None must not raise AttributeError."""
+        acct = Mock()
+        acct.name = "test"
+        acct.kind = "StorageV2"
+        acct.sku = None
+        acct.tags = {}
+        assert _is_service_managed(acct) is False
+
+
+# ---------------------------------------------------------------------------
+# Class 3: Idle / age / capacity boundaries
+# ---------------------------------------------------------------------------
+
+
+class TestIdleAgeCapacityBoundaries:
+    """Accounts are dropped at correct threshold boundaries."""
+
+    def _run_scan(self, acct, transactions=0.0, used_bytes=2.0 * 1024 ** 3):
+        """Run _scan_one_account with a single account and controlled probe results."""
+        creds = {
+            "tenant": "t",
+            "client_id": "c",
+            "secret": "s",
+            "subscription_id": "sub1",
+        }
+
+        def make_monitor(txn, cap):
+            monitor = MagicMock()
+
+            def metrics_list(**kwargs):
+                m = Mock()
+                ts = Mock()
+                if "Transactions" in kwargs.get("metricnames", ""):
+                    dp = Mock()
+                    dp.total = txn
+                    ts.data = [dp]
+                else:
+                    dp = Mock()
+                    dp.average = cap
+                    ts.data = [dp]
+                m.timeseries = [ts]
+                result = Mock()
+                result.value = [m]
+                return result
+
+            monitor.metrics.list.side_effect = (
+                lambda resource_uri, **kw: metrics_list(**kw)
+            )
+            return monitor
+
+        monitor = make_monitor(transactions, used_bytes)
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient",
+            return_value=monitor,
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
+            return_value=0.02,
+        ):
+            mock_smc.return_value.storage_accounts.list.return_value = [acct]
+            scan = _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=9e18,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+            return scan.accounts
+
+    def test_account_below_age_threshold_excluded(self):
+        young = _make_acct(
+            creation_time=datetime.now(timezone.utc) - timedelta(days=5)
+        )
+        result = self._run_scan(young)
+        assert result == []
+
+    def test_account_at_age_threshold_included(self):
+        old_enough = _make_acct(
+            creation_time=datetime.now(timezone.utc) - timedelta(days=30)
+        )
+        result = self._run_scan(old_enough)
+        assert len(result) == 1
+
+    def test_account_above_transaction_threshold_excluded(self):
+        acct = _make_acct()
+        result = self._run_scan(acct, transactions=150.0)
+        assert result == []
+
+    def test_account_at_transaction_threshold_boundary_excluded(self):
+        acct = _make_acct()
+        result = self._run_scan(acct, transactions=100.0)
+        assert result == []
+
+    def test_account_below_transaction_threshold_included(self):
+        acct = _make_acct()
+        result = self._run_scan(acct, transactions=99.0)
+        assert len(result) == 1
+
+    def test_capacity_below_min_excluded(self):
+        acct = _make_acct()
+        # 0.5 GB < 1.0 GB default minimum
+        result = self._run_scan(acct, used_bytes=0.5 * 1024 ** 3)
+        assert result == []
+
+
+# ---------------------------------------------------------------------------
+# Class 4: Retail price meter derivation
+# ---------------------------------------------------------------------------
+
+
+class TestMeterNameDerivation:
+    """_meter_name_for returns correct meter substrings for all variants."""
+
+    def test_premium_block_blob_lrs(self):
+        assert _meter_name_for("Premium_LRS", "BlockBlobStorage", None) == (
+            "Premium Block Blob"
+        )
+
+    def test_premium_block_blob_zrs(self):
+        assert _meter_name_for("Premium_ZRS", "BlockBlobStorage", "Hot") == (
+            "Premium Block Blob"
+        )
+
+    def test_hot_lrs(self):
+        assert _meter_name_for("Standard_LRS", "StorageV2", "Hot") == (
+            "Hot LRS Data Stored"
+        )
+
+    def test_hot_zrs(self):
+        assert _meter_name_for("Standard_ZRS", "StorageV2", "Hot") == (
+            "Hot ZRS Data Stored"
+        )
+
+    def test_hot_grs(self):
+        assert _meter_name_for("Standard_GRS", "StorageV2", "Hot") == (
+            "Hot GRS Data Stored"
+        )
+
+    def test_hot_ragrs(self):
+        assert _meter_name_for("Standard_RAGRS", "StorageV2", "Hot") == (
+            "Hot RA-GRS Data Stored"
+        )
+
+    def test_hot_ragzrs_longest_prefix_first(self):
+        """Standard_RAGZRS must match RAGZRS not GZRS or ZRS."""
+        result = _meter_name_for("Standard_RAGZRS", "StorageV2", "Hot")
+        assert result == "Hot RA-GZRS Data Stored"
+
+    def test_cool_lrs(self):
+        assert _meter_name_for("Standard_LRS", "StorageV2", "Cool") == (
+            "Cool LRS Data Stored"
+        )
+
+    def test_cool_grs(self):
+        assert _meter_name_for("Standard_GRS", "StorageV2", "Cool") == (
+            "Cool GRS Data Stored"
+        )
+
+    def test_cold_lrs(self):
+        assert _meter_name_for("Standard_LRS", "StorageV2", "Cold") == (
+            "Cold LRS Data Stored"
+        )
+
+    def test_unknown_sku_returns_none(self):
+        assert _meter_name_for("Unknown_BLOB", "StorageV2", "Hot") is None
+
+    def test_none_sku_returns_none(self):
+        assert _meter_name_for(None, "StorageV2", "Hot") is None
+
+    def test_hot_gzrs(self):
+        assert _meter_name_for("Standard_GZRS", "StorageV2", "Hot") == (
+            "Hot GZRS Data Stored"
+        )
+
+    def test_none_access_tier_defaults_to_hot(self):
+        assert _meter_name_for("Standard_LRS", "StorageV2", None) == (
+            "Hot LRS Data Stored"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Class 5: Sibling find invariant (employee_id / pool_id non-null + sort)
+# ---------------------------------------------------------------------------
+
+
+class TestSiblingFindInvariant:
+    """_resolve_or_insert_resource second find_one must enforce non-null guards."""
+
+    def test_sibling_query_has_null_guards_and_sort(self):
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "p1", "employee_id": "e1"}
+        coll.find_one.side_effect = [None, sibling_doc]
+
+        arm_id = (
+            "/subscriptions/sub1/resourcegroups/rg1/providers/"
+            "microsoft.storage/storageaccounts/myaccount"
+        )
+        _resolve_or_insert_resource(coll, "ca1", arm_id, "myaccount", "eastus", 1000)
+
+        assert coll.find_one.call_count == 2
+        second_call_args = coll.find_one.call_args_list[1][0]
+        sibling_filter = second_call_args[0]
+
+        assert sibling_filter.get("employee_id") == {"$ne": None}
+        assert sibling_filter.get("pool_id") == {"$ne": None}
+
+        sort_arg = (
+            second_call_args[2]
+            if len(second_call_args) > 2
+            else coll.find_one.call_args_list[1][1].get("sort")
+        )
+        assert sort_arg == [("created_at", 1), ("_id", 1)]
+
+    def test_raises_when_no_sibling(self):
+        coll = MagicMock()
+        coll.find_one.return_value = None
+
+        with pytest.raises(RuntimeError):
+            _resolve_or_insert_resource(
+                coll,
+                "ca1",
+                "/subscriptions/s/rg/r/microsoft.storage/storageaccounts/x",
+                "x",
+                "eastus",
+                1000,
+            )
+
+
+# ---------------------------------------------------------------------------
+# Class 6: Overlay $or scoping
+# ---------------------------------------------------------------------------
+
+
+class TestOverlayOrScoping:
+    """Step-1 find_one must exclude overlay sentinels via $or."""
+
+    def test_first_find_one_filter_contains_or_clause(self):
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "p1", "employee_id": "e1"}
+        coll.find_one.side_effect = [None, sibling_doc]
+
+        arm_id = (
+            "/subscriptions/sub1/resourcegroups/rg1/providers/"
+            "microsoft.storage/storageaccounts/acct1"
+        )
+        _resolve_or_insert_resource(coll, "ca1", arm_id, "acct1", "westus", 2000)
+
+        first_call_filter = coll.find_one.call_args_list[0][0][0]
+        assert "$or" in first_call_filter, (
+            "step-1 find_one must include $or to exclude overlay sentinels"
+        )
+        or_clauses = first_call_filter["$or"]
+        assert {"meta.created_by": {"$exists": False}} in or_clauses
+        assert {"meta.created_by": NATIVE_MARKER} in or_clauses
+
+    def test_overlay_sentinel_treated_as_not_found(self):
+        """When step-1 returns None (overlay sentinel excluded), new native sentinel inserted."""
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "p1", "employee_id": "e1"}
+        coll.find_one.side_effect = [None, sibling_doc]
+
+        arm_id = (
+            "/subscriptions/sub1/resourcegroups/rg1/providers/"
+            "microsoft.storage/storageaccounts/acct2"
+        )
+        _resolve_or_insert_resource(coll, "ca1", arm_id, "acct2", "eastus", 1000)
+
+        coll.insert_one.assert_called_once()
+        inserted = coll.insert_one.call_args[0][0]
+        assert inserted["meta"]["created_by"] == NATIVE_MARKER
+
+    def test_native_sentinel_reused(self):
+        """When step-1 finds our own sentinel it is reused without insert."""
+        coll = MagicMock()
+        native_doc = {"_id": "nat1", "pool_id": "p2"}
+        coll.find_one.side_effect = [native_doc]
+
+        arm_id = (
+            "/subscriptions/sub1/resourcegroups/rg1/providers/"
+            "microsoft.storage/storageaccounts/acct3"
+        )
+        res_id, pool_id = _resolve_or_insert_resource(
+            coll, "ca1", arm_id, "acct3", "eastus", 3000
+        )
+
+        assert res_id == "nat1"
+        assert pool_id == "p2"
+        coll.insert_one.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Class 7: Per-account scan failure fallback
+# ---------------------------------------------------------------------------
+
+
+class TestPerAccountFailureFallback:
+    """On Azure scan failure the module falls back to existing sentinels."""
+
+    def _make_module(self, coll_mock):
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        module = AzureAbandonedStorageAccounts.__new__(AzureAbandonedStorageAccounts)
+        module.organization_id = "org1"
+        module.created_at = 1700000000
+        module._mongo_client = MagicMock()
+        module._mongo_client.restapi.resources = coll_mock
+        module._rest_client = MagicMock()
+        module.option_ordered_map = {}
+        return module
+
+    def test_fallback_rows_emitted_on_scan_exception(self):
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        sentinel_doc = {
+            "_id": "sent1",
+            "cloud_resource_id": "/subscriptions/sub1/resourcegroups/rg/providers/microsoft.storage/storageaccounts/x",
+            "name": "x",
+            "region": "eastus",
+            "pool_id": "p1",
+        }
+
+        coll = MagicMock()
+        coll.find.return_value = iter([sentinel_doc])
+
+        module = self._make_module(coll)
+
+        with patch.object(
+            module,
+            "get_options_values",
+            return_value=(7, 100, 30, 1.0, {}, []),
+        ), patch.object(
+            module,
+            "get_cloud_accounts",
+            return_value={"ca1": {"name": "Test Account"}},
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_azure_creds",
+            return_value={
+                "ca1": {
+                    "subscription_id": "sub1",
+                    "tenant": "t",
+                    "client_id": "c",
+                    "secret": "s",
+                }
+            },
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._scan_one_account",
+            side_effect=RuntimeError("Azure API down"),
+        ):
+            rows = module._get()
+
+        # Fallback sentinel row must be present with None saving (not 0.0)
+        assert len(rows) == 1
+        assert rows[0]["resource_id"] == "sent1"
+        assert rows[0]["saving"] is None, (
+            "fallback row saving must be None, not 0.0, to avoid conflation "
+            "with real zero-saving accounts"
+        )
+        assert rows[0]["transactions"] is None
+        assert rows[0]["data_source"] == "preserved_sentinel"
+
+
+# ---------------------------------------------------------------------------
+# Class 8: Cache key isolation
+# ---------------------------------------------------------------------------
+
+
+class TestCacheKeyIsolation:
+    """Two distinct subscriptions with same params → two separate API calls."""
+
+    def test_different_subscriptions_not_shared(self):
+        """Cache is keyed on (subscription_id, region, sku, kind, access_tier).
+
+        Two different subscription_ids with otherwise identical params must
+        each trigger their own retail prices API call.
+        """
+        call_count = 0
+
+        def fake_urlopen(url, timeout=None):
+            nonlocal call_count
+            call_count += 1
+            response = MagicMock()
+            response.read.return_value = b'{"Items": []}'
+            return response
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            _get_retail_price_per_gb(
+                "sub-A", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+            _get_retail_price_per_gb(
+                "sub-B", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert call_count == 2, (
+            "Expected 2 API calls for 2 distinct subscription_ids; "
+            f"got {call_count}"
+        )
+
+    def test_same_subscription_cached(self):
+        """Identical params on same subscription must only call API once."""
+        call_count = 0
+
+        def fake_urlopen(url, timeout=None):
+            nonlocal call_count
+            call_count += 1
+            response = MagicMock()
+            response.read.return_value = b'{"Items": [{"meterName": "Hot LRS Data Stored", "retailPrice": 0.02}]}'
+            return response
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            p1 = _get_retail_price_per_gb(
+                "sub-X", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+            p2 = _get_retail_price_per_gb(
+                "sub-X", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert call_count == 1
+        assert p1 == p2 == pytest.approx(0.02)
+
+
+# ---------------------------------------------------------------------------
+# Class 9: Zero-saving NOT registered
+# ---------------------------------------------------------------------------
+
+
+class TestZeroSavingDropped:
+    """Accounts with saving <= 0 are not emitted on the healthy path."""
+
+    def test_zero_saving_not_in_results(self):
+        creds = {
+            "tenant": "t",
+            "client_id": "c",
+            "secret": "s",
+            "subscription_id": "sub1",
+        }
+        acct = _make_acct()
+
+        monitor = MagicMock()
+
+        def metrics_list(resource_uri, **kwargs):
+            m = Mock()
+            ts = Mock()
+            if "Transactions" in kwargs.get("metricnames", ""):
+                dp = Mock()
+                dp.total = 0.0
+                ts.data = [dp]
+            else:
+                dp = Mock()
+                dp.average = 2.0 * 1024 ** 3  # 2 GB
+                ts.data = [dp]
+            m.timeseries = [ts]
+            result = Mock()
+            result.value = [m]
+            return result
+
+        monitor.metrics.list.side_effect = metrics_list
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient",
+            return_value=monitor,
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
+            return_value=0.0,  # price = 0 → saving = 0
+        ):
+            mock_smc.return_value.storage_accounts.list.return_value = [acct]
+            scan = _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=9e18,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+
+        assert scan.accounts == [], (
+            "Accounts with saving=0 must NOT appear in _scan_one_account results"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Class 10: Reconcile deleted
+# ---------------------------------------------------------------------------
+
+
+class TestReconcileDeleted:
+    """_reconcile_deleted marks sentinels absent from current scan as deleted."""
+
+    def test_marks_absent_sentinel(self):
+        coll = MagicMock()
+        sentinel_a = {
+            "_id": "doc_a",
+            "cloud_resource_id": "/subscriptions/sub/rg/r/microsoft.storage/storageaccounts/a",
+        }
+        sentinel_b = {
+            "_id": "doc_b",
+            "cloud_resource_id": "/subscriptions/sub/rg/r/microsoft.storage/storageaccounts/b",
+        }
+        coll.find.return_value = iter([sentinel_a, sentinel_b])
+
+        current_arm_ids = {sentinel_a["cloud_resource_id"]}
+        now_ts = 1700000000
+
+        count = _reconcile_deleted(coll, "ca1", current_arm_ids, now_ts)
+
+        assert count == 1
+        coll.bulk_write.assert_called_once()
+        ops = coll.bulk_write.call_args[0][0]
+        assert len(ops) == 1
+        assert ops[0]._filter == {"_id": "doc_b"}
+        assert ops[0]._doc == {"$set": {"deleted_at": now_ts}}
+
+    def test_no_bulk_write_when_all_present(self):
+        coll = MagicMock()
+        sentinel_a = {
+            "_id": "doc_a",
+            "cloud_resource_id": "/subscriptions/sub/rg/r/microsoft.storage/storageaccounts/a",
+        }
+        coll.find.return_value = iter([sentinel_a])
+        current_arm_ids = {sentinel_a["cloud_resource_id"]}
+
+        count = _reconcile_deleted(coll, "ca1", current_arm_ids, 9999)
+
+        assert count == 0
+        coll.bulk_write.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Class 11: Sentinel doc shape
+# ---------------------------------------------------------------------------
+
+
+class TestSentinelDocShape:
+    """Inserted sentinel document must have all required fields."""
+
+    def test_all_required_fields(self):
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "p1", "employee_id": "e1"}
+        coll.find_one.side_effect = [None, sibling_doc]
+
+        mixed_arm = (
+            "/Subscriptions/SUB1/ResourceGroups/RG1/providers/"
+            "Microsoft.Storage/storageAccounts/MyAccount"
+        )
+        now_ts = 1700000000
+        _resolve_or_insert_resource(coll, "ca1", mixed_arm, "MyAccount", "eastus", now_ts)
+
+        assert coll.insert_one.call_count == 1
+        inserted = coll.insert_one.call_args[0][0]
+
+        required_fields = [
+            "_id",
+            "cloud_account_id",
+            "cloud_resource_id",
+            "name",
+            "region",
+            "resource_type",
+            "service_name",
+            "tags",
+            "created_at",
+            "deleted_at",
+            "first_seen",
+            "last_seen",
+            "_first_seen_date",
+            "_last_seen_date",
+            "active",
+            "pool_id",
+            "employee_id",
+        ]
+        for field in required_fields:
+            assert field in inserted, f"sentinel doc missing field '{field}'"
+
+        assert inserted["cloud_resource_id"] == mixed_arm.lower()
+        assert inserted["meta"]["created_by"] == NATIVE_MARKER
+        assert inserted["active"] is False
+        assert inserted["resource_type"] == "Storage Account"
+        assert inserted["service_name"] == "microsoft.storage"
+        assert inserted["pool_id"] == "p1"
+        assert inserted["employee_id"] == "e1"
+
+        for date_field in ("_first_seen_date", "_last_seen_date"):
+            dt = inserted[date_field]
+            assert isinstance(dt, datetime)
+            assert dt.hour == 0
+            assert dt.minute == 0
+            assert dt.second == 0
+            assert dt.microsecond == 0
+
+
+# ---------------------------------------------------------------------------
+# Class 12: Archive module
+# ---------------------------------------------------------------------------
+
+
+class TestArchiveModule:
+    """Tests for bumiworker.modules.archive.azure_abandoned_storage_accounts._get."""
+
+    def _make_archive_instance(self):
+        from bumiworker.bumiworker.modules.archive.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        instance = AzureAbandonedStorageAccounts.__new__(AzureAbandonedStorageAccounts)
+        instance._mongo_client = MagicMock()
+        instance.reason_description_map = {
+            ArchiveReason.RECOMMENDATION_APPLIED: "Storage account deleted or no longer idle",
+            ArchiveReason.RECOMMENDATION_IRRELEVANT: "Storage account no longer meets idle criteria",
+            ArchiveReason.RESOURCE_DELETED: "resource deleted",
+            ArchiveReason.CLOUD_ACCOUNT_DELETED: "cloud account deleted",
+            ArchiveReason.OPTIONS_CHANGED: "options changed",
+        }
+        # Minimal option_ordered_map for OPTIONS_CHANGED comparison
+        instance.option_ordered_map = {
+            "idle_days_window": {"default": 7},
+            "idle_transactions_threshold": {"default": 100},
+            "min_account_age_days": {"default": 30},
+            "min_used_capacity_gb": {"default": 1.0},
+        }
+        return instance
+
+    def test_applied_when_deleted_at_nonzero(self):
+        instance = self._make_archive_instance()
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [{"_id": "r1", "deleted_at": 12345, "cloud_account_id": "ca1"}]
+        )
+
+        result = instance._get(
+            previous_options={"idle_days_window": 7, "idle_transactions_threshold": 100,
+                               "min_account_age_days": 30, "min_used_capacity_gb": 1.0},
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] == ArchiveReason.RECOMMENDATION_APPLIED
+
+    def test_resource_deleted_when_doc_missing(self):
+        instance = self._make_archive_instance()
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter([])
+
+        result = instance._get(
+            previous_options={"idle_days_window": 7, "idle_transactions_threshold": 100,
+                               "min_account_age_days": 30, "min_used_capacity_gb": 1.0},
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] == ArchiveReason.RESOURCE_DELETED
+
+    def test_cloud_account_deleted(self):
+        instance = self._make_archive_instance()
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [{"_id": "r1", "deleted_at": 0, "cloud_account_id": "ca1"}]
+        )
+
+        result = instance._get(
+            previous_options={"idle_days_window": 7, "idle_transactions_threshold": 100,
+                               "min_account_age_days": 30, "min_used_capacity_gb": 1.0},
+            optimizations=[opt],
+            cloud_accounts_map={},  # ca1 absent
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] == ArchiveReason.CLOUD_ACCOUNT_DELETED
+
+    def test_options_changed_when_threshold_differs(self):
+        instance = self._make_archive_instance()
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [{"_id": "r1", "deleted_at": 0, "cloud_account_id": "ca1"}]
+        )
+
+        result = instance._get(
+            previous_options={
+                "idle_days_window": 14,  # changed from default 7
+                "idle_transactions_threshold": 100,
+                "min_account_age_days": 30,
+                "min_used_capacity_gb": 1.0,
+            },
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] == ArchiveReason.OPTIONS_CHANGED
+
+    def test_irrelevant_when_doc_active_and_left_scan(self):
+        """Invariant violation: optimization left scan, sentinel still has deleted_at=0."""
+        instance = self._make_archive_instance()
+        opt = {"resource_id": "r1", "cloud_account_id": "ca1"}
+        instance._mongo_client.restapi.resources.find.return_value = iter(
+            [{"_id": "r1", "deleted_at": 0, "cloud_account_id": "ca1"}]
+        )
+
+        result = instance._get(
+            previous_options={"idle_days_window": 7, "idle_transactions_threshold": 100,
+                               "min_account_age_days": 30, "min_used_capacity_gb": 1.0},
+            optimizations=[opt],
+            cloud_accounts_map={"ca1": {"name": "test"}},
+        )
+
+        assert len(result) == 1
+        assert result[0]["reason"] == ArchiveReason.RECOMMENDATION_IRRELEVANT
+
+
+# ---------------------------------------------------------------------------
+# Supplementary: _emit_rows_from_existing_sentinels
+# ---------------------------------------------------------------------------
+
+
+class TestSentinelEmitFallback:
+    """_emit_rows_from_existing_sentinels row shape and edge cases."""
+
+    def test_returns_correct_row_shape(self):
+        sentinel = {
+            "_id": "s1",
+            "cloud_resource_id": "/subscriptions/sub/rg/r/microsoft.storage/storageaccounts/acct",
+            "name": "acct",
+            "region": "eastus",
+            "pool_id": "p1",
+        }
+        coll = MagicMock()
+        coll.find.return_value = iter([sentinel])
+
+        rows = _emit_rows_from_existing_sentinels(coll, "ca1", "My Acct", {})
+
+        assert len(rows) == 1
+        row = rows[0]
+        assert row["saving"] is None, (
+            "fallback saving must be None to distinguish from real $0"
+        )
+        assert row["transactions"] is None, (
+            "fallback transactions must be None"
+        )
+        assert row["data_source"] == "preserved_sentinel"
+        assert row["cloud_type"] == "azure_cnr"
+        assert row["cloud_account_id"] == "ca1"
+        assert row["folder_id"] is None
+        assert row["zone_id"] is None
+        assert row["used_capacity_gb"] is None
+        assert row["age_days"] is None
+
+    def test_excluded_pool_is_excluded(self):
+        sentinel = {
+            "_id": "s1",
+            "cloud_resource_id": "/subscriptions/sub/rg/r/microsoft.storage/storageaccounts/acct",
+            "name": "acct",
+            "region": "eastus",
+            "pool_id": "excluded-pool",
+        }
+        coll = MagicMock()
+        coll.find.return_value = iter([sentinel])
+
+        rows = _emit_rows_from_existing_sentinels(
+            coll, "ca1", "My Acct", {"excluded-pool": True}
+        )
+
+        assert rows[0]["is_excluded"] is True
+
+    def test_empty_when_no_sentinels(self):
+        coll = MagicMock()
+        coll.find.return_value = iter([])
+        rows = _emit_rows_from_existing_sentinels(coll, "ca1", "My Acct", {})
+        assert rows == []
+
+
+# ---------------------------------------------------------------------------
+# Supplementary: _touch_resource guard
+# ---------------------------------------------------------------------------
+
+
+class TestTouchResourceGuard:
+    """_touch_resource filter must include meta.created_by guard."""
+
+    def test_update_one_filter_has_created_by_guard(self):
+        coll = MagicMock()
+        _touch_resource(coll, "doc1", 1700000000)
+
+        coll.update_one.assert_called_once()
+        update_filter = coll.update_one.call_args[0][0]
+        assert update_filter.get("meta.created_by") == NATIVE_MARKER
+        assert update_filter.get("_id") == "doc1"
+
+
+# ---------------------------------------------------------------------------
+# Class 13: ScanResult authoritative flag
+# ---------------------------------------------------------------------------
+
+
+def _make_creds(sub_id: str = "sub1") -> dict:
+    return {
+        "tenant": "t",
+        "client_id": "c",
+        "secret": "s",
+        "subscription_id": sub_id,
+    }
+
+
+def _make_metrics_side_effect(txn=0.0, cap_bytes=2.0 * 1024 ** 3):
+    """Return a side_effect callable for monitor.metrics.list."""
+
+    def _side_effect(resource_uri, **kwargs):
+        m = Mock()
+        ts = Mock()
+        if "Transactions" in kwargs.get("metricnames", ""):
+            dp = Mock()
+            dp.total = txn
+            ts.data = [dp]
+        else:
+            dp = Mock()
+            dp.average = cap_bytes
+            ts.data = [dp]
+        m.timeseries = [ts]
+        result = Mock()
+        result.value = [m]
+        return result
+
+    return _side_effect
+
+
+class TestScanAuthoritative:
+    """_scan_one_account.authoritative reflects pipeline health."""
+
+    def _run(self, accounts_list, monitor_side_effect=None, deadline=9e18):
+        creds = _make_creds()
+        monitor = MagicMock()
+        if monitor_side_effect is not None:
+            monitor.metrics.list.side_effect = monitor_side_effect
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient",
+            return_value=monitor,
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_retail_price_per_gb",
+            return_value=0.02,
+        ):
+            mock_smc.return_value.storage_accounts.list.return_value = accounts_list
+            return _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=deadline,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+
+    def test_clean_run_all_probes_succeed_is_authoritative(self):
+        """All probes succeed → authoritative=True."""
+        accts = [_make_acct(name=f"acct{i}") for i in range(3)]
+        scan = self._run(accts, _make_metrics_side_effect())
+        assert scan.authoritative is True
+        assert len(scan.accounts) > 0
+
+    def test_empty_subscription_is_authoritative(self):
+        """Zero accounts in subscription → authoritative=True (no probes attempted)."""
+        scan = self._run([])
+        assert scan.authoritative is True
+        assert scan.accounts == []
+
+    def test_probe_failure_rate_below_50_pct_is_authoritative(self):
+        """2 succeed, 1 fails → 33% failure rate → authoritative=True."""
+        from azure.core.exceptions import HttpResponseError
+
+        accts = [_make_acct(name=f"a{i}") for i in range(3)]
+        call_count = 0
+
+        def _side_effect(resource_uri, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            # First transactions probe fails; others succeed
+            if "Transactions" in kwargs.get("metricnames", "") and call_count == 1:
+                raise HttpResponseError(message="quota exceeded")
+            return _make_metrics_side_effect()(resource_uri, **kwargs)
+
+        scan = self._run(accts, _side_effect)
+        assert scan.authoritative is True
+
+    def test_probe_failure_rate_at_50_pct_is_non_authoritative(self):
+        """2 accounts probed, both fail → 100% → authoritative=False."""
+        from azure.core.exceptions import HttpResponseError
+
+        accts = [_make_acct(name=f"b{i}") for i in range(2)]
+
+        def _all_fail(resource_uri, **kwargs):
+            if "Transactions" in kwargs.get("metricnames", ""):
+                raise HttpResponseError(message="throttled")
+            return _make_metrics_side_effect()(resource_uri, **kwargs)
+
+        scan = self._run(accts, _all_fail)
+        assert scan.authoritative is False
+
+    def test_storage_accounts_list_raises_is_non_authoritative(self):
+        """storage_accounts.list() raises AzureError → authoritative=False."""
+        from azure.core.exceptions import AzureError as AzErr
+
+        creds = _make_creds()
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.ClientSecretCredential"
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.StorageManagementClient"
+        ) as mock_smc, patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.MonitorManagementClient"
+        ):
+            mock_smc.return_value.storage_accounts.list.side_effect = AzErr(
+                "network error"
+            )
+            scan = _scan_one_account(
+                creds,
+                idle_days_window=7,
+                idle_transactions_threshold=100,
+                min_account_age_days=30,
+                min_used_capacity_gb=1.0,
+                deadline=9e18,
+                price_cache={},
+                price_lock=threading.Lock(),
+            )
+        assert scan.authoritative is False
+        assert scan.accounts == []
+
+    def test_deadline_trip_before_sweep_is_non_authoritative(self):
+        """Deadline already passed → every account is skipped_budget → non-authoritative."""
+        accts = [_make_acct(name="late_acct")]
+        scan = self._run(accts, _make_metrics_side_effect(), deadline=0.0)
+        assert scan.authoritative is False
+
+    def test_non_authoritative_scan_triggers_sentinel_fallback_in_module(self):
+        """Non-authoritative ScanResult must trigger fallback in _get, not reconcile-delete."""
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        sentinel_doc = {
+            "_id": "sent_auth",
+            "cloud_resource_id": "/sub/rg/p/microsoft.storage/storageaccounts/x",
+            "name": "x",
+            "region": "eastus",
+            "pool_id": "p1",
+        }
+        coll = MagicMock()
+        coll.find.return_value = iter([sentinel_doc])
+
+        module = AzureAbandonedStorageAccounts.__new__(AzureAbandonedStorageAccounts)
+        module.organization_id = "org1"
+        module.created_at = 1700000000
+        module._mongo_client = MagicMock()
+        module._mongo_client.restapi.resources = coll
+        module._rest_client = MagicMock()
+        module.option_ordered_map = {}
+
+        non_auth_result = ScanResult(accounts=[], authoritative=False)
+
+        with patch.object(
+            module, "get_options_values", return_value=(7, 100, 30, 1.0, {}, [])
+        ), patch.object(
+            module,
+            "get_cloud_accounts",
+            return_value={"ca1": {"name": "Test Account"}},
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_azure_creds",
+            return_value={
+                "ca1": {
+                    "subscription_id": "sub1",
+                    "tenant": "t",
+                    "client_id": "c",
+                    "secret": "s",
+                }
+            },
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._scan_one_account",
+            return_value=non_auth_result,
+        ):
+            rows = module._get()
+
+        # Reconcile-delete must NOT have been called
+        coll.bulk_write.assert_not_called()
+        # Fallback sentinel row must be present
+        assert len(rows) == 1
+        assert rows[0]["resource_id"] == "sent_auth"
+        assert rows[0]["data_source"] == "preserved_sentinel"
+
+
+# ---------------------------------------------------------------------------
+# Class 14: Retail price cache key normalization
+# ---------------------------------------------------------------------------
+
+
+class TestRetailPriceCacheKeyNormalization:
+    """_get_retail_price_per_gb cache-key guard for None/empty required fields."""
+
+    def test_region_none_returns_none_no_cache_write(self):
+        cache: dict = {}
+        lock = threading.Lock()
+        result = _get_retail_price_per_gb(
+            "sub1", None, "Standard_LRS", "StorageV2", "Hot", cache, lock
+        )
+        assert result is None
+        assert len(cache) == 0, "None region must not poison cache"
+
+    def test_region_empty_returns_none_no_cache_write(self):
+        cache: dict = {}
+        lock = threading.Lock()
+        result = _get_retail_price_per_gb(
+            "sub1", "", "Standard_LRS", "StorageV2", "Hot", cache, lock
+        )
+        assert result is None
+        assert len(cache) == 0
+
+    def test_sku_name_empty_returns_none_no_cache_write(self):
+        cache: dict = {}
+        lock = threading.Lock()
+        result = _get_retail_price_per_gb(
+            "sub1", "eastus", "", "StorageV2", "Hot", cache, lock
+        )
+        assert result is None
+        assert len(cache) == 0
+
+    def test_kind_none_returns_none_no_cache_write(self):
+        cache: dict = {}
+        lock = threading.Lock()
+        result = _get_retail_price_per_gb(
+            "sub1", "eastus", "Standard_LRS", None, "Hot", cache, lock
+        )
+        assert result is None
+        assert len(cache) == 0
+
+    def test_access_tier_none_and_hot_share_same_cache_key(self):
+        """access_tier=None normalises to 'Hot' — same key as explicit 'Hot'."""
+        call_count = 0
+
+        def fake_urlopen(url, timeout=None):
+            nonlocal call_count
+            call_count += 1
+            response = MagicMock()
+            response.read.return_value = (
+                b'{"Items": [{"meterName": "Hot LRS Data Stored", "retailPrice": 0.02}]}'
+            )
+            return response
+
+        cache: dict = {}
+        lock = threading.Lock()
+
+        with patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts.urllib.request.urlopen",
+            side_effect=fake_urlopen,
+        ):
+            p_none = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", None, cache, lock
+            )
+            p_hot = _get_retail_price_per_gb(
+                "sub1", "eastus", "Standard_LRS", "StorageV2", "Hot", cache, lock
+            )
+
+        assert call_count == 1, (
+            "access_tier=None and 'Hot' must share the same cache key; "
+            f"got {call_count} API calls"
+        )
+        assert p_none == pytest.approx(0.02)
+        assert p_hot == pytest.approx(0.02)
+
+
+# ---------------------------------------------------------------------------
+# Class 15: Concurrent insert race (DuplicateKeyError recovery)
+# ---------------------------------------------------------------------------
+
+
+class TestResolveResourceConcurrent:
+    """_resolve_or_insert_resource recovers from concurrent DuplicateKeyError."""
+
+    def test_duplicate_key_on_insert_retries_find(self):
+        from pymongo.errors import DuplicateKeyError as DKE
+
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "pool-race", "employee_id": "emp1"}
+        # Step-1 find_one: miss (None) → insert races → step-1 re-find: hit
+        concurrently_inserted = {"_id": "concurrent_id", "pool_id": "pool-race"}
+
+        find_one_responses = [None, sibling_doc, concurrently_inserted]
+        coll.find_one.side_effect = find_one_responses
+        coll.insert_one.side_effect = DKE("E11000 duplicate key")
+
+        arm_id = (
+            "/subscriptions/sub1/resourcegroups/rg1/providers/"
+            "microsoft.storage/storageaccounts/raceaccount"
+        )
+        res_id, pool_id = _resolve_or_insert_resource(
+            coll, "ca1", arm_id, "raceaccount", "eastus", 1700000000
+        )
+
+        assert res_id == "concurrent_id"
+        assert pool_id == "pool-race"
+        # insert_one was attempted once
+        coll.insert_one.assert_called_once()
+
+    def test_duplicate_key_re_find_miss_re_raises(self):
+        """If re-find after DuplicateKeyError also misses, DuplicateKeyError propagates."""
+        from pymongo.errors import DuplicateKeyError as DKE
+
+        coll = MagicMock()
+        sibling_doc = {"_id": "sib1", "pool_id": "p1", "employee_id": "e1"}
+        # step-1 miss, sibling found, insert races, re-find also misses
+        coll.find_one.side_effect = [None, sibling_doc, None]
+        coll.insert_one.side_effect = DKE("E11000 duplicate key")
+
+        arm_id = (
+            "/subscriptions/sub1/resourcegroups/rg1/providers/"
+            "microsoft.storage/storageaccounts/ghostaccount"
+        )
+        with pytest.raises(DKE):
+            _resolve_or_insert_resource(
+                coll, "ca1", arm_id, "ghostaccount", "eastus", 1700000000
+            )
+
+
+# ---------------------------------------------------------------------------
+# Class 16: Live scan data_source discriminator
+# ---------------------------------------------------------------------------
+
+
+class TestLiveScanDataSource:
+    """Healthy-path rows carry data_source='live_scan'."""
+
+    def test_live_scan_rows_have_data_source_live_scan(self):
+        from bumiworker.bumiworker.modules.recommendations.azure_abandoned_storage_accounts import (
+            AzureAbandonedStorageAccounts,
+        )
+
+        # Minimal live account
+        acct_info = StorageAccountInfo(
+            arm_id="/subscriptions/sub1/resourcegroups/rg1/providers/microsoft.storage/storageaccounts/acct",
+            name="acct",
+            location="eastus",
+            age_days=60,
+            transactions=0.0,
+            used_capacity_gb=2.0,
+            saving=0.04,
+            sku_name="Standard_LRS",
+            kind="StorageV2",
+            access_tier="Hot",
+        )
+        live_result = ScanResult(accounts=[acct_info], authoritative=True)
+
+        sentinel_pool_doc = {"_id": "res1", "pool_id": "p1"}
+        coll = MagicMock()
+        # find_one for _resolve_or_insert_resource: step-1 hits
+        coll.find_one.return_value = sentinel_pool_doc
+        # _reconcile_deleted needs coll.find
+        coll.find.return_value = iter([])
+
+        module = AzureAbandonedStorageAccounts.__new__(AzureAbandonedStorageAccounts)
+        module.organization_id = "org1"
+        module.created_at = 1700000000
+        module._mongo_client = MagicMock()
+        module._mongo_client.restapi.resources = coll
+        module._rest_client = MagicMock()
+        module.option_ordered_map = {}
+
+        with patch.object(
+            module, "get_options_values", return_value=(7, 100, 30, 1.0, {}, [])
+        ), patch.object(
+            module,
+            "get_cloud_accounts",
+            return_value={"ca1": {"name": "Test Account"}},
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._get_azure_creds",
+            return_value={
+                "ca1": {
+                    "subscription_id": "sub1",
+                    "tenant": "t",
+                    "client_id": "c",
+                    "secret": "s",
+                }
+            },
+        ), patch(
+            "bumiworker.bumiworker.modules.recommendations"
+            ".azure_abandoned_storage_accounts._scan_one_account",
+            return_value=live_result,
+        ):
+            rows = module._get()
+
+        assert len(rows) == 1
+        assert rows[0]["data_source"] == "live_scan"
+        assert rows[0]["saving"] == pytest.approx(0.04)
+        assert rows[0]["transactions"] == 0.0
