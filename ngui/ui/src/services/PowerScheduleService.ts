@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   getPowerSchedules,
@@ -8,6 +8,9 @@ import {
   updatePowerSchedule,
   attachInstancesToSchedule,
   removeInstancesFromSchedule,
+  powerScheduleTagAction,
+  getPowerScheduleResourcesLiveState,
+  runPowerSchedule,
 } from "api";
 import {
   ATTACH_INSTANCES_TO_SCHEDULE,
@@ -15,7 +18,10 @@ import {
   DELETE_POWER_SCHEDULE,
   GET_POWER_SCHEDULE,
   GET_POWER_SCHEDULES,
+  GET_POWER_SCHEDULE_RESOURCES_LIVE_STATE,
+  POWER_SCHEDULE_TAG_ACTION,
   REMOVE_INSTANCES_FROM_SCHEDULE,
+  RUN_POWER_SCHEDULE,
   UPDATE_POWER_SCHEDULE,
 } from "api/restapi/actionTypes";
 import { useApiData } from "hooks/useApiData";
@@ -24,6 +30,11 @@ import { useOrganizationInfo } from "hooks/useOrganizationInfo";
 import { isError } from "utils/api";
 import { POWER_SCHEDULE_ACTIONS } from "utils/constants";
 import { ObjectValues } from "utils/types";
+
+export type TagSelector = {
+  tags: Record<string, string>;
+  resource_types?: string[];
+};
 
 export type PowerScheduleResponse =
   | {
@@ -41,11 +52,14 @@ export type PowerScheduleResponse =
       organization_id: string;
       enabled: boolean;
       last_run_error: string | null;
+      last_run_details: { cloud_resource_id: string; resource_type: string; action: string; error: string }[] | null;
       resources_count: number;
       resources: object[];
+      tag_selector?: TagSelector | null;
       triggers: {
         time: string;
         action: ObjectValues<typeof POWER_SCHEDULE_ACTIONS>;
+        days_of_week?: number[];
       }[];
     }
   | Record<string, never>;
@@ -55,11 +69,13 @@ export type PowerScheduleApiParams = {
   triggers: {
     time: string;
     action: ObjectValues<typeof POWER_SCHEDULE_ACTIONS>;
+    days_of_week?: number[];
   }[];
   timezone: string;
   enabled?: boolean;
   start_date?: number;
   end_date?: number;
+  tag_selector?: TagSelector | null;
 };
 
 const useGetAll = (): {
@@ -130,6 +146,16 @@ const useGet = (
     isLoading,
     powerSchedule: apiData,
   };
+};
+
+const useGetManually = (powerScheduleId: string) => {
+  const dispatch = useDispatch();
+
+  const refresh = useCallback(() => {
+    dispatch(getPowerSchedule(powerScheduleId));
+  }, [dispatch, powerScheduleId]);
+
+  return { refresh };
 };
 
 const useDelete = () => {
@@ -212,8 +238,98 @@ const useRemoveInstancesFromSchedule = () => {
   return { onRemove, isLoading };
 };
 
+export type PowerByTagsParams = {
+  action: "power_on" | "power_off";
+  tags: Record<string, string>;
+  resource_types?: string[];
+  dry_run?: boolean;
+};
+
+const usePowerByTags = () => {
+  const dispatch = useDispatch();
+
+  const { organizationId } = useOrganizationInfo();
+  const { isLoading } = useApiState(POWER_SCHEDULE_TAG_ACTION);
+  const { apiData } = useApiData(POWER_SCHEDULE_TAG_ACTION);
+
+  const onPowerByTags = (params: PowerByTagsParams): Promise<unknown> =>
+    new Promise((resolve, reject) => {
+      dispatch((_, getState) => {
+        dispatch(powerScheduleTagAction(organizationId, params)).then(() => {
+          if (!isError(POWER_SCHEDULE_TAG_ACTION, getState())) {
+            const stored = getState()?.restapi?.[POWER_SCHEDULE_TAG_ACTION];
+            return resolve(stored);
+          }
+          return reject();
+        });
+      });
+    });
+
+  return { onPowerByTags, isLoading, tagActionData: apiData };
+};
+
+type LiveStateResource = {
+  cloud_resource_id: string;
+  cloud_account_id: string;
+  region: string;
+  resource_type: string;
+};
+
+const useGetResourcesLiveState = () => {
+  const dispatch = useDispatch();
+  const { organizationId } = useOrganizationInfo();
+
+  const onGetLiveState = useCallback(
+    (resources: LiveStateResource[]): Promise<Record<string, string | boolean>> =>
+      new Promise((resolve) => {
+        dispatch((_, getState) => {
+          dispatch(getPowerScheduleResourcesLiveState(organizationId, resources)).then(() => {
+            const stored = (getState() as Record<string, unknown>)?.restapi?.[
+              GET_POWER_SCHEDULE_RESOURCES_LIVE_STATE
+            ] as Record<string, string | boolean> | undefined;
+            return resolve(stored ?? {});
+          });
+        });
+      }),
+    [dispatch, organizationId]
+  );
+
+  return { onGetLiveState };
+};
+
+const useRunNow = () => {
+  const dispatch = useDispatch();
+  const { isLoading } = useApiState(RUN_POWER_SCHEDULE);
+
+  const onRunNow = (powerScheduleId: string, action: "power_on" | "power_off"): Promise<void> =>
+    new Promise((resolve, reject) => {
+      dispatch((_, getState) => {
+        dispatch(runPowerSchedule(powerScheduleId, action)).then(() => {
+          if (!isError(RUN_POWER_SCHEDULE, getState())) {
+            return resolve();
+          }
+          return reject();
+        });
+      });
+    });
+
+  return { onRunNow, isLoading };
+};
+
 function PowerScheduleService() {
-  return { useGetAll, useCreate, useGet, useDelete, useUpdate, useAttachInstancesToSchedule, useRemoveInstancesFromSchedule };
+  return {
+    useGetAll,
+    useCreate,
+    useGet,
+    useGetManually,
+    useDelete,
+    useUpdate,
+    useAttachInstancesToSchedule,
+    useRemoveInstancesFromSchedule,
+    usePowerByTags,
+    useGetResourcesLiveState,
+    useRunNow,
+  };
 }
 
 export default PowerScheduleService;

@@ -30,7 +30,8 @@ from rest_api.rest_api_server.models.types import (
     ImportState, AssignmentRequestStatus,
     ThresholdBasedType, ThresholdType, NotWhiteSpaceString,
     ConditionType, RuleOperator, ConstraintType, PoolPurpose, BaseText,
-    InviteAssignmentScopeType, NullableJSON, CachedResourceType, NullableFloat,
+    InviteAssignmentScopeType, NullableJSON, NullableJSONList,
+    CachedResourceType, NullableFloat,
     CostModelType, WebhookObjectType, WebhookActionType,
     MediumNullableString, MediumString, MediumLargeNullableString,
     ConstraintLimitState, OrganizationConstraintType, ConstraintDefinition,
@@ -1692,6 +1693,10 @@ class PowerSchedule(Base, CreatedMixin, MutableMixin, ValidatorMixin):
                       nullable=False, info=ColumnPermissions.update_only)
     last_run_error = Column(NullableText("last_run_error"), nullable=True,
                             info=ColumnPermissions.update_only)
+    last_run_details = Column(NullableJSONList('last_run_details'), nullable=True,
+                              info=ColumnPermissions.update_only)
+    tag_selector = Column(NullableJSON('tag_selector'), nullable=True,
+                          info=ColumnPermissions.full)
 
     __table_args__ = (UniqueConstraint(
         "organization_id", "name", "deleted_at",
@@ -1703,7 +1708,7 @@ class PowerSchedule(Base, CreatedMixin, MutableMixin, ValidatorMixin):
 
     @validates('organization_id', 'name', 'timezone', 'enabled',
                'start_date', 'end_date', 'last_eval', 'last_run',
-               'last_run_error')
+               'last_run_error', 'last_run_details', 'tag_selector')
     def _validate(self, key, value):
         return self.get_validator(key, value)
 
@@ -1713,6 +1718,10 @@ class PowerSchedule(Base, CreatedMixin, MutableMixin, ValidatorMixin):
         # pylint: disable=no-member
         for trigger in self.triggers:
             result['triggers'].append(trigger.to_dict(short=True))
+        if isinstance(result.get('tag_selector'), str):
+            result['tag_selector'] = json.loads(result['tag_selector'])
+        if isinstance(result.get('last_run_details'), str):
+            result['last_run_details'] = json.loads(result['last_run_details'])
         return result
 
 
@@ -1730,10 +1739,12 @@ class PowerScheduleTrigger(Base, BaseMixin, ValidatorMixin):
                   info=ColumnPermissions.full)
     action = Column(PowerScheduleAction, nullable=False,
                     info=ColumnPermissions.full)
+    days_of_week = Column(NullableJSONList('days_of_week'), nullable=True,
+                          info=ColumnPermissions.full)
     created_at = Column(Integer, default=now_timestamp, nullable=False,
                         info=ColumnPermissions.create_only)
 
-    @validates("power_schedule_id", "time", "action")
+    @validates("power_schedule_id", "time", "action", "days_of_week")
     def _validate(self, key, value):
         return self.get_validator(key, value)
 
@@ -1744,9 +1755,13 @@ class PowerScheduleTrigger(Base, BaseMixin, ValidatorMixin):
     def to_dict(self, short=False):
         trigger = super().to_dict()
         trigger["action"] = trigger["action"].value
+        if isinstance(trigger.get('days_of_week'), str):
+            import json as _json
+            trigger['days_of_week'] = _json.loads(trigger['days_of_week'])
         if short:
-            fields_to_show = ["time", "action"]
+            fields_to_show = ["time", "action", "days_of_week"]
             trigger = {k: v for k, v in trigger.items() if k in fields_to_show}
+            trigger = {k: v for k, v in trigger.items() if v is not None}
         return trigger
 
 

@@ -40,6 +40,9 @@ class ResourceTypes(Enum):
     k8s_pod = 'K8s Pod'
     snapshot_chain = 'Snapshot Chain'
     rds_instance = 'RDS Instance'
+    redshift_cluster = 'Redshift Cluster'
+    redshift_serverless = 'Redshift Serverless'
+    emr_application = 'EMR Application'
     ip_address = 'IP Address'
     savings_plan = 'Savings Plan'
     reserved_instances = 'Reserved Instances'
@@ -435,13 +438,15 @@ class RdsInstanceResource(CloudResource):
     __slots__ = ('name', 'flavor', 'zone_id', 'category', 'engine',
                  'engine_version', 'storage_type', 'cloud_created_at',
                  'cpu_count', 'vpc_id', 'vpc_name', 'folder_id',
-                 'source_cluster_id', 'ram', 'platform_name')
+                 'source_cluster_id', 'ram', 'platform_name',
+                 'stopped_allocated', 'architecture')
 
     def __init__(self, name=None, flavor=None, zone_id=None, category=None,
                  engine=None, engine_version=None, storage_type=None,
                  cloud_created_at=0, cpu_count=None, vpc_id=None,
                  vpc_name=None, folder_id=None, source_cluster_id=None,
-                 ram=None, platform_name=None, **kwargs):
+                 ram=None, platform_name=None, stopped_allocated=False,
+                 architecture=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.flavor = flavor
@@ -458,6 +463,8 @@ class RdsInstanceResource(CloudResource):
         self.source_cluster_id = source_cluster_id
         self.ram = ram
         self.platform_name = platform_name
+        self.stopped_allocated = stopped_allocated
+        self.architecture = architecture
 
     def __repr__(self):
         return 'RDS Instance {0} name={1} flavor={2}'.format(
@@ -479,8 +486,87 @@ class RdsInstanceResource(CloudResource):
             'folder_id': self.folder_id,
             'source_cluster_id': self.source_cluster_id,
             'ram': self.ram,
-            'platform_name': self.platform_name
+            'platform_name': self.platform_name,
+            'stopped_allocated': self.stopped_allocated,
         })
+        return meta
+
+
+class RedshiftClusterResource(CloudResource):
+    __slots__ = ('name', 'flavor', 'stopped_allocated', 'engine',
+                 'engine_version', 'cpu_count', 'ram')
+
+    def __init__(self, name=None, flavor=None, stopped_allocated=False,
+                 engine=None, engine_version=None, cpu_count=None, ram=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.flavor = flavor
+        self.stopped_allocated = stopped_allocated
+        self.engine = engine
+        self.engine_version = engine_version
+        self.cpu_count = cpu_count
+        self.ram = ram
+
+    def __repr__(self):
+        return 'Redshift Cluster {0} name={1} flavor={2}'.format(
+            self.cloud_resource_id, self.name, self.flavor)
+
+    @property
+    def meta(self):
+        meta = super().meta
+        meta.update({
+            'flavor': self.flavor,
+            'stopped_allocated': self.stopped_allocated,
+            'engine': self.engine,
+            'engine_version': self.engine_version,
+            'cpu_count': self.cpu_count,
+            'ram': self.ram,
+        })
+        return meta
+
+
+class EmrApplicationResource(CloudResource):
+    __slots__ = ('name', 'stopped_allocated', 'application_type')
+
+    def __init__(self, name=None, stopped_allocated=False,
+                 application_type=None, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.stopped_allocated = stopped_allocated
+        self.application_type = application_type
+
+    def __repr__(self):
+        return 'EMR Application {0} name={1}'.format(
+            self.cloud_resource_id, self.name)
+
+    @property
+    def meta(self):
+        meta = super().meta
+        meta.update({
+            'stopped_allocated': self.stopped_allocated,
+            'application_type': self.application_type,
+        })
+        return meta
+
+
+
+class RedshiftServerlessWorkgroupResource(CloudResource):
+    __slots__ = ('name', 'stopped_allocated')
+
+    def __init__(self, name=None, stopped_allocated=False, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.stopped_allocated = stopped_allocated
+
+    def __repr__(self):
+        return 'Redshift Serverless {0} name={1}'.format(
+            self.cloud_resource_id, self.name)
+
+    @property
+    def meta(self):
+        meta = super().meta
+        meta.update({'stopped_allocated': self.stopped_allocated})
         return meta
 
 
@@ -660,6 +746,9 @@ RES_MODEL_MAP = {
     ResourceTypes.k8s_pod.name: PodResource,
     ResourceTypes.snapshot_chain.name: SnapshotChainResource,
     ResourceTypes.rds_instance.name: RdsInstanceResource,
+    ResourceTypes.redshift_cluster.name: RedshiftClusterResource,
+    ResourceTypes.emr_application.name: EmrApplicationResource,
+    ResourceTypes.redshift_serverless.name: RedshiftServerlessWorkgroupResource,
     ResourceTypes.ip_address.name: IpAddressResource,
     ResourceTypes.savings_plan.name: SavingsPlanResource,
     ResourceTypes.reserved_instances.name: ReservedInstancesResource,

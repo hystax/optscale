@@ -10,7 +10,7 @@ import {
   startOfDay,
 } from "utils/datetime";
 import { FIELD_NAMES } from "./constants";
-import { FormValues } from "./types";
+import { FormValues, TagEntry } from "./types";
 
 export const getNameApiParam = (formData: FormValues): PowerScheduleApiParams["name"] => formData[FIELD_NAMES.NAME];
 
@@ -27,11 +27,28 @@ export const getEndDateApiParam = (formData: FormValues): PowerScheduleApiParams
     ? millisecondsToSeconds(moveDateFromUTC(endOfDay(formData[FIELD_NAMES.EXPIRATION_DATE] as Date)))
     : undefined;
 
+export const getTagSelectorApiParam = (formData: FormValues): PowerScheduleApiParams["tag_selector"] => {
+  const { tagSelector } = formData;
+  if (!tagSelector?.enabled) return undefined;
+  const validTags = (tagSelector.tags ?? []).filter((t: TagEntry) => t.key.trim() && t.value.trim());
+  if (!validTags.length) return undefined;
+  const resourceTypes = [
+    ...(tagSelector.includeEc2 ? ["Instance"] : []),
+    ...(tagSelector.includeRds ? ["RDS Instance"] : []),
+  ];
+  if (!resourceTypes.length) return undefined;
+  return {
+    tags: Object.fromEntries(validTags.map(({ key, value }: TagEntry) => [key.trim(), value.trim()])),
+    resource_types: resourceTypes,
+  };
+};
+
 export const getTriggersApiParam = (formData: FormValues): PowerScheduleApiParams["triggers"] =>
   formData[FIELD_NAMES.TRIGGERS_FIELD_ARRAY.FIELD_NAME]
     .map((trigger) => {
       const formTime = trigger[FIELD_NAMES.TRIGGERS_FIELD_ARRAY.TIME];
       const meridiem = trigger[FIELD_NAMES.TRIGGERS_FIELD_ARRAY.MERIDIEM];
+      const daysOfWeek = trigger[FIELD_NAMES.TRIGGERS_FIELD_ARRAY.DAYS_OF_WEEK];
 
       return {
         time: formatTimeString({
@@ -40,6 +57,7 @@ export const getTriggersApiParam = (formData: FormValues): PowerScheduleApiParam
           parsedTimeStringFormat: EN_TIME_FORMAT_24_HOURS_CLOCK_HH_MM,
         }),
         action: trigger.action,
+        ...(daysOfWeek?.length ? { days_of_week: daysOfWeek } : {}),
       };
     })
     .sort((a, b) => {

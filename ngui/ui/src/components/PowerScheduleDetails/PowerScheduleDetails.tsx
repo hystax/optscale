@@ -1,13 +1,30 @@
 import { useState } from "react";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import FlashOnOutlinedIcon from "@mui/icons-material/FlashOnOutlined";
 import PlayCircleOutlineOutlinedIcon from "@mui/icons-material/PlayCircleOutlineOutlined";
 import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOutlined";
+import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import StopCircleOutlinedIcon from "@mui/icons-material/StopCircleOutlined";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
 import { Link, Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import ActionBar from "components/ActionBar";
+import Button from "components/Button";
 import IconLabel from "components/IconLabel";
 import PageContentWrapper from "components/PageContentWrapper";
 import PowerScheduleInstances from "components/PowerScheduleInstances";
@@ -27,9 +44,12 @@ type PowerScheduleDetailsProps = {
   powerSchedule: PowerScheduleResponse;
   onActivate: () => void;
   onDeactivate: () => void;
+  onRefresh?: () => void;
+  onRunNow?: (action: "power_on" | "power_off") => void;
   isLoadingProps?: {
     isGetPowerScheduleLoading?: boolean;
     isUpdatePowerScheduleLoading?: boolean;
+    isRunNowLoading?: boolean;
   };
 };
 
@@ -38,12 +58,15 @@ const TABS = Object.freeze({
   TRIGGERS: "triggers",
 });
 
-const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadingProps = {} }: PowerScheduleDetailsProps) => {
+const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, onRefresh, onRunNow, isLoadingProps = {} }: PowerScheduleDetailsProps) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
   const navigate = useNavigate();
 
-  const { isGetPowerScheduleLoading = false, isUpdatePowerScheduleLoading = false } = isLoadingProps;
+  const { isGetPowerScheduleLoading = false, isUpdatePowerScheduleLoading = false, isRunNowLoading = false } = isLoadingProps;
+
+  const [runDialogOpen, setRunDialogOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<"power_on" | "power_off">("power_on");
 
   const openSideModal = useOpenSideModal();
 
@@ -55,6 +78,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
     end_date: endDate,
     last_run: lastRun,
     last_run_error: lastRunError,
+    last_run_details: lastRunDetails,
     resources_count: resourcesOnSchedule,
     resources: instances = [],
     triggers = [],
@@ -130,6 +154,21 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
             },
           },
       {
+        key: "runNow",
+        icon: <FlashOnOutlinedIcon fontSize="small" />,
+        messageId: "runNow",
+        type: "button",
+        dataTestId: "btn_run_now",
+        isLoading: isGetPowerScheduleLoading || isRunNowLoading,
+        action: () => setRunDialogOpen(true),
+        requiredActions: ["EDIT_PARTNER"],
+        disabled: isRestricted,
+        tooltip: {
+          show: isRestricted,
+          value: restrictionReasonMessage,
+        },
+      },
+      {
         key: "delete",
         icon: <DeleteOutlinedIcon fontSize="small" />,
         messageId: "delete",
@@ -139,6 +178,15 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
         action: () => openSideModal(DeletePowerScheduleModal, { id, name }),
         requiredActions: ["EDIT_PARTNER"],
       },
+      {
+        key: "refresh",
+        icon: <RefreshOutlinedIcon fontSize="small" />,
+        messageId: "refreshResources",
+        type: "button",
+        dataTestId: "btn_refresh_resources",
+        isLoading: isGetPowerScheduleLoading,
+        action: onRefresh ?? (() => {}),
+      },
     ],
   };
 
@@ -146,7 +194,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
     {
       title: TABS.INSTANCES,
       dataTestId: "tab_instances",
-      node: <PowerScheduleInstances instances={instances} />,
+      node: <PowerScheduleInstances instances={instances} powerSchedule={powerSchedule} />,
     },
     {
       title: TABS.TRIGGERS,
@@ -159,6 +207,32 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
 
   return (
     <>
+      <Dialog open={runDialogOpen} onClose={() => setRunDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>
+          <FormattedMessage id="runNow" />
+        </DialogTitle>
+        <DialogContent>
+          <RadioGroup
+            value={pendingAction}
+            onChange={(e) => setPendingAction(e.target.value as "power_on" | "power_off")}
+          >
+            <FormControlLabel value="power_on" control={<Radio />} label={<FormattedMessage id="powerOn" />} />
+            <FormControlLabel value="power_off" control={<Radio />} label={<FormattedMessage id="powerOff" />} />
+          </RadioGroup>
+        </DialogContent>
+        <DialogActions>
+          <Button messageId="cancel" onClick={() => setRunDialogOpen(false)} />
+          <Button
+            messageId="run"
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              setRunDialogOpen(false);
+              onRunNow?.(pendingAction);
+            }}
+          />
+        </DialogActions>
+      </Dialog>
       <ActionBar data={actionBarDefinition} />
       <PageContentWrapper>
         <Stack spacing={SPACING_4}>
@@ -173,6 +247,44 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, isLoadi
               isLoading={isGetPowerScheduleLoading}
             />
           </div>
+          {!isGetPowerScheduleLoading && lastRunDetails && lastRunDetails.length > 0 && (
+            <div>
+              <Typography variant="subtitle1" gutterBottom>
+                <FormattedMessage id="lastRunDetails" />
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <FormattedMessage id="cloudResourceId" />
+                      </TableCell>
+                      <TableCell>
+                        <FormattedMessage id="resourceType" />
+                      </TableCell>
+                      <TableCell>
+                        <FormattedMessage id="action" />
+                      </TableCell>
+                      <TableCell>
+                        <FormattedMessage id="error" />
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {lastRunDetails.map((detail, index) => (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <TableRow key={index}>
+                        <TableCell>{detail.cloud_resource_id}</TableCell>
+                        <TableCell>{detail.resource_type}</TableCell>
+                        <TableCell>{detail.action}</TableCell>
+                        <TableCell sx={{ wordBreak: "break-word", maxWidth: 400 }}>{detail.error}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </div>
+          )}
           <div>
             <PowerScheduleTriggersChart triggers={triggers} isLoading={isGetPowerScheduleLoading} />
           </div>

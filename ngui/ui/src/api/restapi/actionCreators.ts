@@ -261,6 +261,11 @@ import {
   UPDATE_POWER_SCHEDULE,
   ATTACH_INSTANCES_TO_SCHEDULE,
   REMOVE_INSTANCES_FROM_SCHEDULE,
+  POWER_SCHEDULE_TAG_ACTION,
+  SET_POWER_SCHEDULE_TAG_ACTION,
+  GET_POWER_SCHEDULE_RESOURCES_LIVE_STATE,
+  RUN_POWER_SCHEDULE,
+  SET_POWER_SCHEDULE_RESOURCES_LIVE_STATE,
   SET_ML_TASK_RUNS_BULK,
   GET_ML_TASK_RUNS_BULK,
   GET_ML_LEADERBOARDS,
@@ -2655,6 +2660,33 @@ export const removeInstancesFromSchedule = (powerScheduleId, instancesToRemove) 
       action: "detach",
       instance_id: instancesToRemove,
     },
+  });
+
+export const powerScheduleTagAction = (organizationId, params) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/power_schedule_tag_actions`,
+    method: "POST",
+    label: POWER_SCHEDULE_TAG_ACTION,
+    onSuccess: handleSuccess(SET_POWER_SCHEDULE_TAG_ACTION),
+    affectedRequests: params?.dry_run ? [] : [GET_POWER_SCHEDULE, GET_POWER_SCHEDULES],
+    params,
+  });
+
+export const getPowerScheduleResourcesLiveState = (organizationId, resources) =>
+  apiAction({
+    url: `${API_URL}/organizations/${organizationId}/power_schedules/resources_live_state`,
+    method: "POST",
+    label: GET_POWER_SCHEDULE_RESOURCES_LIVE_STATE,
+    onSuccess: handleSuccess(SET_POWER_SCHEDULE_RESOURCES_LIVE_STATE),
+    params: { resources },
+  });
+
+export const runPowerSchedule = (powerScheduleId, action) =>
+  apiAction({
+    url: `${API_URL}/power_schedules/${powerScheduleId}/run`,
+    method: "POST",
+    label: RUN_POWER_SCHEDULE,
+    params: { action },
   });
 
 export const getLayouts = (organizationId, { layoutType, entityId, includeShared, arceeToken }) =>

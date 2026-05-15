@@ -5,7 +5,7 @@ import { useIntl } from "react-intl";
 import FormContentDescription from "components/FormContentDescription";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
-import { powerScheduleInstance, resourceLocation, resourcePoolOwner, size, tags } from "utils/columns";
+import { powerScheduleInstance, resourceLocation, resourcePoolOwner, resourceState, resourceType, size, tags } from "utils/columns";
 import { isEmptyObject } from "utils/objects";
 import { FormValues } from "../types";
 
@@ -22,7 +22,17 @@ const TableField = ({ instances, value, onChange }) => {
         activeAccessor: "active",
         powerScheduleAccessor: "power_schedule",
         headerDataTestId: "lbl_instance_to_add",
-        titleMessageId: "instance",
+        titleMessageId: "resource",
+      }),
+      resourceType({
+        headerDataTestId: "lbl_resource_type",
+      }),
+      resourceState({
+        headerDataTestId: "lbl_resource_state",
+        accessorFn: (row: Record<string, unknown>) => {
+          const meta = row.meta as { stopped_allocated?: boolean } | undefined;
+          return meta?.stopped_allocated;
+        },
       }),
       resourcePoolOwner({
         id: "pool/owner",
@@ -127,7 +137,7 @@ const InstancesField = ({ instances, instancesCountLimit, isLoading = false }) =
                 alertProps={{
                   messageId: "rowsLimitWarning",
                   messageValues: {
-                    entities: intl.formatMessage({ id: "instances" }).toLocaleLowerCase(),
+                    entities: intl.formatMessage({ id: "resources" }).toLocaleLowerCase(),
                     count: instancesCountLimit,
                   },
                 }}

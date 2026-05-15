@@ -6,12 +6,20 @@ import { AddInstanceToScheduleModal, RemoveInstancesFromScheduleModal } from "co
 import Table from "components/Table";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { isEmptyArray } from "utils/arrays";
-import { powerScheduleInstance, resourceLocation, resourcePoolOwner, size, tags } from "utils/columns";
+import { powerScheduleInstance, resourceLocation, resourcePoolOwner, resourceState, resourceType, size, tags } from "utils/columns";
 
 type PowerScheduleInstance = {
   id: string;
   cloud_resource_id: string;
   name: string;
+  active: boolean;
+  resource_type: string;
+  tag_matched?: boolean;
+  meta?: {
+    stopped_allocated?: string | boolean;
+    flavor?: string;
+    [key: string]: unknown;
+  };
   pool_id: string;
   pool_name: string;
   pool_purpose: string;
@@ -24,17 +32,15 @@ type PowerScheduleInstance = {
     cloud_type: string;
   };
   cloud_account_id: string;
-  meta: {
-    flavor: string;
-  };
   tags: Record<string, string>;
 };
 
 type PowerScheduleInstancesProps = {
   instances: PowerScheduleInstance[];
+  powerSchedule?: object;
 };
 
-const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
+const PowerScheduleInstances = ({ instances, powerSchedule }: PowerScheduleInstancesProps) => {
   const { powerScheduleId } = useParams();
 
   const openSideModal = useOpenSideModal();
@@ -44,6 +50,9 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
       instances.map((instance) => ({
         id: instance.id,
         active: instance.active,
+        resource_type: instance.resource_type,
+        tag_matched: instance.tag_matched ?? false,
+        stopped_allocated: instance.meta?.stopped_allocated,
         cloud_resource_id: instance.cloud_resource_id,
         name: instance.name,
         owner_name: instance.details?.owner_name,
@@ -66,8 +75,15 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
         idAccessor: "id",
         nameAccessor: "name",
         activeAccessor: "active",
+        tagMatchedAccessor: "tag_matched",
         headerDataTestId: "lbl_instance",
-        titleMessageId: "instance",
+        titleMessageId: "resource",
+      }),
+      resourceType({
+        headerDataTestId: "lbl_resource_type",
+      }),
+      resourceState({
+        headerDataTestId: "lbl_resource_state",
       }),
       resourcePoolOwner({
         id: "pool/owner",
@@ -134,7 +150,7 @@ const PowerScheduleInstances = ({ instances }: PowerScheduleInstancesProps) => {
           type: "button",
           dataTestId: "btn_add_instances_to_schedule",
           requiredActions: ["EDIT_PARTNER"],
-          action: () => openSideModal(AddInstanceToScheduleModal, { powerScheduleId }),
+          action: () => openSideModal(AddInstanceToScheduleModal, { powerScheduleId, powerSchedule }),
         },
         (tableContext) => {
           const { rows: selectedRows } = tableContext.getFilteredSelectedRowModel();

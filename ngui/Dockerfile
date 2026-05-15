@@ -21,7 +21,7 @@ FROM source AS builder
 
 WORKDIR /usr/src/app
 
-RUN pnpm run -r build
+RUN NODE_OPTIONS="--max-old-space-size=3000" pnpm run -r build
   
 # Prepare production dependencies for the server
 RUN pnpm deploy --filter=server --prod ./prod/server && \

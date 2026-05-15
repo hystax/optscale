@@ -33,6 +33,7 @@ import DeleteOrganizationModal from "./DeleteOrganizationModal";
 import DeleteOrganizationOptionModal from "./DeleteOrganizationOptionModal";
 import DeletePoolModal from "./DeletePoolModal";
 import DeletePowerScheduleModal from "./DeletePowerScheduleModal";
+import PowerByTagsModal from "./PowerByTagsModal";
 import DeleteSshKeyModal from "./DeleteSshKeyModal";
 import DeleteWebhookModal from "./DeleteWebhookModal";
 import DisconnectCloudAccountModal from "./DisconnectCloudAccountModal";
@@ -120,6 +121,7 @@ export {
   AddInstanceToScheduleModal,
   RemoveInstancesFromScheduleModal,
   DeletePowerScheduleModal,
+  PowerByTagsModal,
   MlDeleteDatasetModal,
   LeaderboardCandidateDetailsModal,
   SelectStageOrMilestoneModal,

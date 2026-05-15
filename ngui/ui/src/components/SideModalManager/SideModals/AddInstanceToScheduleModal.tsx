@@ -13,7 +13,13 @@ class AddInstanceToScheduleModal extends BaseSideModal {
   dataTestId = "smodal_add_instances_to_schedule_title";
 
   get content() {
-    return <AddInstanceToScheduleContainer powerScheduleId={this.payload?.powerScheduleId} handleClose={this.closeSideModal} />;
+    return (
+      <AddInstanceToScheduleContainer
+        powerScheduleId={this.payload?.powerScheduleId}
+        powerSchedule={this.payload?.powerSchedule}
+        handleClose={this.closeSideModal}
+      />
+    );
   }
 }
 

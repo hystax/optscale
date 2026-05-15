@@ -1,4 +1,5 @@
-import { Typography } from "@mui/material";
+import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
+import { Chip, Typography } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import CaptionedCell from "components/CaptionedCell";
 import Circle from "components/Circle";
@@ -14,6 +15,7 @@ const powerScheduleInstance = ({
   nameAccessor,
   powerScheduleAccessor,
   activeAccessor,
+  tagMatchedAccessor,
   headerDataTestId,
   titleMessageId,
 }) => ({
@@ -55,6 +57,22 @@ const powerScheduleInstance = ({
               {
                 key: "powerSchedule",
                 node: <OnScheduleLabel powerScheduleId={original[powerScheduleAccessor]} />,
+              },
+            ]
+          : []),
+        ...(tagMatchedAccessor && original[tagMatchedAccessor]
+          ? [
+              {
+                key: "tagMatched",
+                node: (
+                  <Chip
+                    icon={<LabelOutlinedIcon />}
+                    label={<FormattedMessage id="viaTagFilter" />}
+                    size="small"
+                    color="info"
+                    variant="outlined"
+                  />
+                ),
               },
             ]
           : []),
