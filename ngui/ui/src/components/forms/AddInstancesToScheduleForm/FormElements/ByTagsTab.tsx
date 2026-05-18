@@ -152,10 +152,7 @@ const ByTagsTab = ({ onSubmitByTags, isSubmitLoading, onCancel, existingTagSelec
       return;
     }
     const validTags = (debouncedTags ?? []).filter((t: TagEntry) => t.key.trim() && t.value.trim());
-    const resourceTypes = [
-      ...(includeEc2 ? ["Instance"] : []),
-      ...(includeRds ? ["RDS Instance"] : []),
-    ];
+    const resourceTypes = [...(includeEc2 ? ["Instance"] : []), ...(includeRds ? ["RDS Instance"] : [])];
     if (!validTags.length || !resourceTypes.length) {
       setPreviewResources([]);
       return;
@@ -230,9 +227,9 @@ const ByTagsTab = ({ onSubmitByTags, isSubmitLoading, onCancel, existingTagSelec
                   dataTestId={`tag_filter_key_${index}`}
                   validate={{
                     unique: (value, formValues) => {
-                      const count = (
-                        (formValues as FormValues)[FIELD_NAMES.TAG_ENTRIES] ?? []
-                      ).filter((t: TagEntry) => t.key === value).length;
+                      const count = ((formValues as FormValues)[FIELD_NAMES.TAG_ENTRIES] ?? []).filter(
+                        (t: TagEntry) => t.key === value,
+                      ).length;
                       return count === 1 || intl.formatMessage({ id: "thisFieldMustBeUnique" });
                     },
                   }}
@@ -282,12 +279,7 @@ const ByTagsTab = ({ onSubmitByTags, isSubmitLoading, onCancel, existingTagSelec
         />
         <Button messageId="cancel" dataTestId="btn_cancel_tag_filter" onClick={onCancel} />
         {existingTagSelector && onRemoveTagFilter && (
-          <Button
-            messageId="removeTagFilter"
-            dataTestId="btn_remove_tag_filter"
-            color="error"
-            onClick={onRemoveTagFilter}
-          />
+          <Button messageId="removeTagFilter" dataTestId="btn_remove_tag_filter" color="error" onClick={onRemoveTagFilter} />
         )}
       </Box>
     </Stack>

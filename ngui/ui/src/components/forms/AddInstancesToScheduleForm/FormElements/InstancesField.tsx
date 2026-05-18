@@ -5,7 +5,15 @@ import { useIntl } from "react-intl";
 import FormContentDescription from "components/FormContentDescription";
 import Table from "components/Table";
 import TableLoader from "components/TableLoader";
-import { powerScheduleInstance, resourceLocation, resourcePoolOwner, resourceState, resourceType, size, tags } from "utils/columns";
+import {
+  powerScheduleInstance,
+  resourceLocation,
+  resourcePoolOwner,
+  resourceState,
+  resourceType,
+  size,
+  tags,
+} from "utils/columns";
 import { isEmptyObject } from "utils/objects";
 import { FormValues } from "../types";
 

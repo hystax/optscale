@@ -55,7 +55,7 @@ class PowerScheduleController(BaseController, OrganizationValidatorMixin,
             raise WrongArgumentsException(Err.OE0461, ['end_date'])
 
     def _get_tag_matched_resources(self, power_schedule, explicit_cloud_ids,
-                                    live=True):
+                                   live=True):
         """Return resources matching the schedule's tag_selector.
 
         When live=False (list endpoint, count only) only MongoDB is queried.
@@ -154,7 +154,6 @@ class PowerScheduleController(BaseController, OrganizationValidatorMixin,
                     except Exception as exc:
                         LOG.warning('Aurora describe ca=%s region=%s: %s',
                                     ca.id, region, exc)
-
 
         return results
 
@@ -731,7 +730,6 @@ class PowerScheduleController(BaseController, OrganizationValidatorMixin,
             'action': action,
             'matched_resources': matched_resources,
         }
-
 
     def run_now(self, power_schedule_id: str, action: str) -> dict:
         """Immediately execute power_on or power_off for all schedule resources."""

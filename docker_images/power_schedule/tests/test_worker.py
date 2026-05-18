@@ -61,7 +61,8 @@ class TestPSWorker(unittest.TestCase):
             'stop_instance': 0,
             'error': 0,
             'not_active': 0,
-            'reason': None
+            'reason': None,
+            'resource_errors': []
         }
 
     def test_outdated_schedule(self):

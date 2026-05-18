@@ -284,9 +284,9 @@ const useGetResourcesLiveState = () => {
       new Promise((resolve) => {
         dispatch((_, getState) => {
           dispatch(getPowerScheduleResourcesLiveState(organizationId, resources)).then(() => {
-            const stored = (getState() as Record<string, unknown>)?.restapi?.[
-              GET_POWER_SCHEDULE_RESOURCES_LIVE_STATE
-            ] as Record<string, string | boolean> | undefined;
+            const stored = (getState() as Record<string, unknown>)?.restapi?.[GET_POWER_SCHEDULE_RESOURCES_LIVE_STATE] as
+              | Record<string, string | boolean>
+              | undefined;
             return resolve(stored ?? {});
           });
         });

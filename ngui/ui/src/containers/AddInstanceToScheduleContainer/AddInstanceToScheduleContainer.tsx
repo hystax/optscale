@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import {
-  INSTANCE_REGULAR,
-  RDS_INSTANCE_REGULAR,
-} from "components/Filters/ResourceTypeFilter/ResourceTypeFilter";
+import { INSTANCE_REGULAR, RDS_INSTANCE_REGULAR } from "components/Filters/ResourceTypeFilter/ResourceTypeFilter";
 import AddInstancesToScheduleForm from "components/forms/AddInstancesToScheduleForm";
 import { FIELD_NAMES } from "components/forms/AddInstancesToScheduleForm/constants";
 import { FormValues, TagEntry } from "components/forms/AddInstancesToScheduleForm/types";
@@ -46,10 +43,7 @@ const useGetInstances = (range, selectedDataSourceIds, appliedFilters) => {
           [END_DATE_FILTER]: end,
           [CLOUD_ACCOUNT_ID_FILTER]: selectedDataSourceIds,
           [ACTIVE_FILTER]: true,
-          [RESOURCE_TYPE_FILTER]: [
-            INSTANCE_REGULAR,
-            RDS_INSTANCE_REGULAR,
-          ],
+          [RESOURCE_TYPE_FILTER]: [INSTANCE_REGULAR, RDS_INSTANCE_REGULAR],
           limit: INSTANCES_COUNT_LIMIT,
           ...appliedFilters,
         });
@@ -175,9 +169,7 @@ const AddInstanceToScheduleContainer = ({
 
   const onSubmitByTags = () => {
     const formData = getValues();
-    const validTags = (formData[FIELD_NAMES.TAG_ENTRIES] ?? []).filter(
-      (t: TagEntry) => t.key.trim() && t.value.trim()
-    );
+    const validTags = (formData[FIELD_NAMES.TAG_ENTRIES] ?? []).filter((t: TagEntry) => t.key.trim() && t.value.trim());
     if (!validTags.length) return;
     const resourceTypes = [
       ...(formData[FIELD_NAMES.TAG_INCLUDE_EC2] ? ["Instance"] : []),

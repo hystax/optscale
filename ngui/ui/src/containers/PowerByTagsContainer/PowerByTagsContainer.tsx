@@ -113,10 +113,18 @@ const PreviewTable = ({ resources, isLoading }: { resources: MatchedResource[]; 
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ background: "rgba(0,0,0,0.04)" }}>
-              <th style={{ padding: "6px 10px", textAlign: "left" }}><FormattedMessage id="name" /></th>
-              <th style={{ padding: "6px 10px", textAlign: "left" }}><FormattedMessage id="resourceType" /></th>
-              <th style={{ padding: "6px 10px", textAlign: "left" }}><FormattedMessage id="region" /></th>
-              <th style={{ padding: "6px 10px", textAlign: "left" }}><FormattedMessage id="state" /></th>
+              <th style={{ padding: "6px 10px", textAlign: "left" }}>
+                <FormattedMessage id="name" />
+              </th>
+              <th style={{ padding: "6px 10px", textAlign: "left" }}>
+                <FormattedMessage id="resourceType" />
+              </th>
+              <th style={{ padding: "6px 10px", textAlign: "left" }}>
+                <FormattedMessage id="region" />
+              </th>
+              <th style={{ padding: "6px 10px", textAlign: "left" }}>
+                <FormattedMessage id="state" />
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -125,7 +133,9 @@ const PreviewTable = ({ resources, isLoading }: { resources: MatchedResource[]; 
                 <td style={{ padding: "5px 10px" }}>{r.name}</td>
                 <td style={{ padding: "5px 10px" }}>{r.resource_type}</td>
                 <td style={{ padding: "5px 10px" }}>{r.region}</td>
-                <td style={{ padding: "5px 10px" }}><StateLabel stopped_allocated={r.stopped_allocated} /></td>
+                <td style={{ padding: "5px 10px" }}>
+                  <StateLabel stopped_allocated={r.stopped_allocated} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -165,10 +175,7 @@ const PowerByTagsContainer = ({ handleClose }: PowerByTagsContainerProps) => {
 
   useEffect(() => {
     const validTags = debouncedTags.filter((t) => t.key.trim() && t.value.trim());
-    const resourceTypes = [
-      ...(includeEc2 ? ["Instance"] : []),
-      ...(includeRds ? ["RDS Instance"] : []),
-    ];
+    const resourceTypes = [...(includeEc2 ? ["Instance"] : []), ...(includeRds ? ["RDS Instance"] : [])];
     if (!validTags.length || !resourceTypes.length) {
       setPreviewResources([]);
       return;
@@ -186,10 +193,7 @@ const PowerByTagsContainer = ({ handleClose }: PowerByTagsContainerProps) => {
   const onSubmit = (formData: FormValues) => {
     const validTags = formData.tags.filter((t) => t.key.trim() && t.value.trim());
     const tags = Object.fromEntries(validTags.map(({ key, value }) => [key.trim(), value.trim()]));
-    const resourceTypes = [
-      ...(formData.includeEc2 ? ["Instance"] : []),
-      ...(formData.includeRds ? ["RDS Instance"] : []),
-    ];
+    const resourceTypes = [...(formData.includeEc2 ? ["Instance"] : []), ...(formData.includeRds ? ["RDS Instance"] : [])];
     onPowerByTags({ action: formData.action, tags, resource_types: resourceTypes }).then(() => handleClose());
   };
 

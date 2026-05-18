@@ -22,8 +22,7 @@ const PowerScheduleDetailsContainer = () => {
 
   const onActivate = () => onUpdate(powerScheduleId, { enabled: true });
   const onDeactivate = () => onUpdate(powerScheduleId, { enabled: false });
-  const handleRunNow = (action: "power_on" | "power_off") =>
-    onRunNow(powerScheduleId, action).then(() => refresh());
+  const handleRunNow = (action: "power_on" | "power_off") => onRunNow(powerScheduleId, action).then(() => refresh());
 
   return (
     <PowerScheduleDetails
