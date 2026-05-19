@@ -4,7 +4,6 @@ import "intl-pluralrules";
 import "core-js/stable";
 import "text-security/text-security-disc.css";
 import { createRoot } from "react-dom/client";
-import { RawIntlProvider } from "react-intl";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
@@ -18,8 +17,8 @@ import SideModalManager from "components/SideModalManager";
 import ThemeProviderWrapper from "components/ThemeProviderWrapper";
 import Tour from "components/Tour";
 import { CommunityDocsContextProvider } from "contexts/CommunityDocsContext";
+import { LocaleContextProvider } from "contexts/LocaleContext";
 import configureStore from "store";
-import { intl } from "translations/react-intl-config";
 import { microsoftOAuthConfiguration } from "utils/integrations";
 
 const { store, persistor } = configureStore();
@@ -34,7 +33,7 @@ root.render(
   // <StrictMode>
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <RawIntlProvider value={intl}>
+      <LocaleContextProvider>
         <BrowserRouter>
           <ApolloProvider>
             <ActivityListener />
@@ -53,7 +52,7 @@ root.render(
             </MsalProvider>
           </ApolloProvider>
         </BrowserRouter>
-      </RawIntlProvider>
+      </LocaleContextProvider>
     </PersistGate>
   </Provider>
   // </StrictMode>

@@ -1098,6 +1098,7 @@
   "kubernetesIntegration.thirdStep.title": "3. Wait for metrics",
   "kubernetesIntegration.thirdStep.waitForMetrics": "Please await the completion of the metric generation process, which typically requires approximately one hour.",
   "labels": "Labels",
+  "language": "Language",
   "last": "Last",
   "last30Days": "Last 30 days",
   "last7Days": "Last 7 days",
