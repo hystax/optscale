@@ -1,21 +1,12 @@
 import { useEffect, useState } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import {
-  Box,
-  Checkbox,
-  CircularProgress,
-  Collapse,
-  FormControlLabel,
-  FormGroup,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, CircularProgress, Collapse, FormControlLabel, FormGroup, Switch, Typography } from "@mui/material";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Button from "components/Button";
-import IconButton from "components/IconButton";
 import { TextInput } from "components/forms/common/fields";
+import IconButton from "components/IconButton";
 import { useDebouncedValue } from "hooks/useDebouncedValue";
 import PowerScheduleService from "services/PowerScheduleService";
 import { SPACING_1 } from "utils/layouts";
@@ -97,7 +88,7 @@ const PreviewTable = ({ resources, isLoading }: { resources: MatchedResource[]; 
 
 const TagSelectorField = ({ isLoading = false }: { isLoading?: boolean }) => {
   const intl = useIntl();
-  const { control, setValue, watch } = useFormContext<FormValues>();
+  const { control, setValue } = useFormContext<FormValues>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "tagSelector.tags",
@@ -135,6 +126,7 @@ const TagSelectorField = ({ isLoading = false }: { isLoading?: boolean }) => {
       })
       .catch(() => setPreviewResources([]))
       .finally(() => setIsPreviewLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedTags, includeEc2, includeRds, enabled]);
 
   return (
@@ -192,9 +184,9 @@ const TagSelectorField = ({ isLoading = false }: { isLoading?: boolean }) => {
                       disabled={isLoading}
                       validate={{
                         unique: (value, formValues) => {
-                          const count = (
-                            (formValues.tagSelector as FormValues["tagSelector"])?.tags ?? []
-                          ).filter((t: TagEntry) => t.key === value).length;
+                          const count = ((formValues.tagSelector as FormValues["tagSelector"])?.tags ?? []).filter(
+                            (t: TagEntry) => t.key === value
+                          ).length;
                           return count === 1 || intl.formatMessage({ id: "thisFieldMustBeUnique" });
                         },
                       }}

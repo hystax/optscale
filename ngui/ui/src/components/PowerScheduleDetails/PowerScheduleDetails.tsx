@@ -6,6 +6,7 @@ import PlayCircleOutlineOutlinedIcon from "@mui/icons-material/PlayCircleOutline
 import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import StopCircleOutlinedIcon from "@mui/icons-material/StopCircleOutlined";
+import { Link, Stack } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -20,7 +21,6 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { Link, Stack } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import ActionBar from "components/ActionBar";
@@ -58,7 +58,14 @@ const TABS = Object.freeze({
   TRIGGERS: "triggers",
 });
 
-const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, onRefresh, onRunNow, isLoadingProps = {} }: PowerScheduleDetailsProps) => {
+const PowerScheduleDetails = ({
+  powerSchedule,
+  onActivate,
+  onDeactivate,
+  onRefresh,
+  onRunNow,
+  isLoadingProps = {},
+}: PowerScheduleDetailsProps) => {
   const { isRestricted, restrictionReasonMessage } = useOrganizationActionRestrictions();
 
   const navigate = useNavigate();
@@ -212,10 +219,7 @@ const PowerScheduleDetails = ({ powerSchedule, onActivate, onDeactivate, onRefre
           <FormattedMessage id="runNow" />
         </DialogTitle>
         <DialogContent>
-          <RadioGroup
-            value={pendingAction}
-            onChange={(e) => setPendingAction(e.target.value as "power_on" | "power_off")}
-          >
+          <RadioGroup value={pendingAction} onChange={(e) => setPendingAction(e.target.value as "power_on" | "power_off")}>
             <FormControlLabel value="power_on" control={<Radio />} label={<FormattedMessage id="powerOn" />} />
             <FormControlLabel value="power_off" control={<Radio />} label={<FormattedMessage id="powerOff" />} />
           </RadioGroup>

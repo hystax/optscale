@@ -32,10 +32,7 @@ export const getTagSelectorApiParam = (formData: FormValues): PowerScheduleApiPa
   if (!tagSelector?.enabled) return undefined;
   const validTags = (tagSelector.tags ?? []).filter((t: TagEntry) => t.key.trim() && t.value.trim());
   if (!validTags.length) return undefined;
-  const resourceTypes = [
-    ...(tagSelector.includeEc2 ? ["Instance"] : []),
-    ...(tagSelector.includeRds ? ["RDS Instance"] : []),
-  ];
+  const resourceTypes = [...(tagSelector.includeEc2 ? ["Instance"] : []), ...(tagSelector.includeRds ? ["RDS Instance"] : [])];
   if (!resourceTypes.length) return undefined;
   return {
     tags: Object.fromEntries(validTags.map(({ key, value }: TagEntry) => [key.trim(), value.trim()])),

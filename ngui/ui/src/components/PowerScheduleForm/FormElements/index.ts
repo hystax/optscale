@@ -6,4 +6,12 @@ import TagSelectorField from "./TagSelectorField";
 import TimeZoneField from "./TimeZoneField";
 import TriggersFieldArray from "./TriggersFieldArray";
 
-export { NameField, TimeZoneField, InitiationDateField, ExpirationDateField, TriggersFieldArray, FormButtons, TagSelectorField };
+export {
+  NameField,
+  TimeZoneField,
+  InitiationDateField,
+  ExpirationDateField,
+  TriggersFieldArray,
+  FormButtons,
+  TagSelectorField,
+};

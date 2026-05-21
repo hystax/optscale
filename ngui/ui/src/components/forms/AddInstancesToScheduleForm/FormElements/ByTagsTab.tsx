@@ -2,22 +2,13 @@ import { useEffect, useState } from "react";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import {
-  Alert,
-  Box,
-  Checkbox,
-  CircularProgress,
-  FormControlLabel,
-  FormGroup,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Checkbox, CircularProgress, FormControlLabel, FormGroup, Stack, Typography } from "@mui/material";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Button from "components/Button";
 import ButtonLoader from "components/ButtonLoader";
-import IconButton from "components/IconButton";
 import { TextInput } from "components/forms/common/fields";
+import IconButton from "components/IconButton";
 import { useAllDataSources } from "hooks/coreData/useAllDataSources";
 import { useDebouncedValue } from "hooks/useDebouncedValue";
 import PowerScheduleService from "services/PowerScheduleService";
@@ -120,7 +111,7 @@ type ByTagsTabProps = {
 
 const ByTagsTab = ({ onSubmitByTags, isSubmitLoading, onCancel, existingTagSelector, onRemoveTagFilter }: ByTagsTabProps) => {
   const intl = useIntl();
-  const { control, setValue, watch } = useFormContext<FormValues>();
+  const { control, setValue } = useFormContext<FormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: FIELD_NAMES.TAG_ENTRIES });
 
   const allDataSources = useAllDataSources();
@@ -165,6 +156,7 @@ const ByTagsTab = ({ onSubmitByTags, isSubmitLoading, onCancel, existingTagSelec
       })
       .catch(() => setPreviewResources([]))
       .finally(() => setIsPreviewLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedTags, includeEc2, includeRds, hasAwsSelected]);
 
   if (!selectedIds.length) {
@@ -228,7 +220,7 @@ const ByTagsTab = ({ onSubmitByTags, isSubmitLoading, onCancel, existingTagSelec
                   validate={{
                     unique: (value, formValues) => {
                       const count = ((formValues as FormValues)[FIELD_NAMES.TAG_ENTRIES] ?? []).filter(
-                        (t: TagEntry) => t.key === value,
+                        (t: TagEntry) => t.key === value
                       ).length;
                       return count === 1 || intl.formatMessage({ id: "thisFieldMustBeUnique" });
                     },

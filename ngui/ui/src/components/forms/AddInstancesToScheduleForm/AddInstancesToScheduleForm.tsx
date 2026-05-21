@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type FormEventHandler, useState } from "react";
 import { Box, Tab, Tabs } from "@mui/material";
 import { FormattedMessage } from "react-intl";
 import { type TagSelector } from "services/PowerScheduleService";
@@ -6,7 +6,7 @@ import { TABS } from "./constants";
 import { ByTagsTab, DataSourcesField, FiltersField, FormButtons, InstancesField } from "./FormElements";
 
 type AddInstancesToScheduleFormProps = {
-  onSubmit: React.FormEventHandler;
+  onSubmit: FormEventHandler;
   onSubmitByTags: () => void;
   onRemoveTagFilter?: () => void;
   instances: unknown[];
@@ -54,11 +54,7 @@ const AddInstancesToScheduleForm = ({
       {activeTab === TABS.MANUAL && (
         <>
           <FiltersField filterValues={filterValues} isLoading={isGetFilterValuesLoading} />
-          <InstancesField
-            instances={instances}
-            isLoading={isGetInstancesLoading}
-            instancesCountLimit={instancesCountLimit}
-          />
+          <InstancesField instances={instances} isLoading={isGetInstancesLoading} instancesCountLimit={instancesCountLimit} />
           <FormButtons onCancel={onCancel} isLoading={isSubmitLoading} />
         </>
       )}

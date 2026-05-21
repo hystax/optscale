@@ -1,10 +1,5 @@
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import {
-  Box,
-  FormControl,
-  FormLabel,
-  Typography,
-} from "@mui/material";
+import { Box, FormControl, FormLabel, Typography } from "@mui/material";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { FormattedMessage, useIntl } from "react-intl";
 import Button from "components/Button";
@@ -29,7 +24,10 @@ const DAYS_OF_WEEK_FIELD = FIELD_NAMES.TRIGGERS_FIELD_ARRAY.DAYS_OF_WEEK;
 const MAX_TRIGGERS = 8;
 
 const TimeField = ({ index, timeFieldsCount }: { index: number; timeFieldsCount: number }) => {
-  const { formState: { isSubmitted }, trigger } = useFormContext();
+  const {
+    formState: { isSubmitted },
+    trigger,
+  } = useFormContext();
   const intl = useIntl();
 
   return (
@@ -46,9 +44,7 @@ const TimeField = ({ index, timeFieldsCount }: { index: number; timeFieldsCount:
       }}
       validate={{
         unique: (value, formValues) => {
-          const allFull = formValues[FIELD_NAME].map(
-            ({ [TIME_FIELD]: t, [MERIDIEM_FIELD]: m }) => `${t} ${m}`
-          );
+          const allFull = formValues[FIELD_NAME].map(({ [TIME_FIELD]: t, [MERIDIEM_FIELD]: m }) => `${t} ${m}`);
           const current = `${value} ${formValues[FIELD_NAME][index][MERIDIEM_FIELD]}`;
           return (
             allFull.filter((v) => v === current).length === 1 ||
@@ -62,9 +58,15 @@ const TimeField = ({ index, timeFieldsCount }: { index: number; timeFieldsCount:
 };
 
 const MeridiemField = ({ index, timeFieldsCount }: { index: number; timeFieldsCount: number }) => {
-  const { control, formState: { isSubmitted }, trigger } = useFormContext<FormValues>();
+  const {
+    control,
+    formState: { isSubmitted },
+    trigger,
+  } = useFormContext<FormValues>();
   return (
-    <FormControl sx={{ display: "flex", alignItems: "center", flexDirection: "row", gap: 0, flexWrap: "nowrap", minWidth: "initial" }}>
+    <FormControl
+      sx={{ display: "flex", alignItems: "center", flexDirection: "row", gap: 0, flexWrap: "nowrap", minWidth: "initial" }}
+    >
       <Controller
         name={`${FIELD_NAME}.${index}.${MERIDIEM_FIELD}`}
         control={control}
@@ -120,7 +122,7 @@ const DaysOfWeekField = ({ index }: { index: number }) => {
           <Box display="flex" alignItems="center" flexWrap="wrap" gap={0.25}>
             {DAY_OF_WEEK_LABELS.map((label, d) => (
               <Day
-                key={d}
+                key={label}
                 value={label}
                 filled={selected.includes(d)}
                 outlined={selected.includes(d)}

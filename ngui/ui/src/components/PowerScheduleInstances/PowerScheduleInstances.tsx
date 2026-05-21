@@ -6,7 +6,15 @@ import { AddInstanceToScheduleModal, RemoveInstancesFromScheduleModal } from "co
 import Table from "components/Table";
 import { useOpenSideModal } from "hooks/useOpenSideModal";
 import { isEmptyArray } from "utils/arrays";
-import { powerScheduleInstance, resourceLocation, resourcePoolOwner, resourceState, resourceType, size, tags } from "utils/columns";
+import {
+  powerScheduleInstance,
+  resourceLocation,
+  resourcePoolOwner,
+  resourceState,
+  resourceType,
+  size,
+  tags,
+} from "utils/columns";
 
 type PowerScheduleInstance = {
   id: string;

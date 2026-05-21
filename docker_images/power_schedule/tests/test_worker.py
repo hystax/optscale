@@ -446,6 +446,12 @@ class TestPSWorker(unittest.TestCase):
         result = self.default_result.copy()
         result['error'] = 1
         result['reason'] = 'error'
+        result['resource_errors'] = [{
+            'cloud_resource_id': 'cloud_resource_id',
+            'resource_type': 'Instance',
+            'action': 'stop_instance',
+            'error': 'error',
+        }]
         self.assertEqual(result, self.worker.result)
         self.worker.rest_cl.power_schedule_update.assert_called_once()
         self.assertIn(

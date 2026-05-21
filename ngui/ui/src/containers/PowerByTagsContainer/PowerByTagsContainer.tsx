@@ -188,6 +188,7 @@ const PowerByTagsContainer = ({ handleClose }: PowerByTagsContainerProps) => {
       })
       .catch(() => setPreviewResources([]))
       .finally(() => setIsPreviewLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedTags, includeEc2, includeRds]);
 
   const onSubmit = (formData: FormValues) => {
