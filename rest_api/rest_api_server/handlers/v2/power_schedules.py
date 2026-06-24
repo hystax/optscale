@@ -371,6 +371,20 @@ class PowerSchedulesAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
                         type: boolean
                         description: should power schedule be applied or not
                         required: False
+                    tag_selector:
+                        type: object
+                        description: |
+                            Optional tag-based resource selector. Resources
+                            matching all tags will be included in schedule runs.
+                            Set to null to clear.
+                        required: False
+                        properties:
+                            tags:
+                                type: object
+                                description: Tag key-value pairs to match
+                            resource_types:
+                                type: array
+                                description: Resource types (Instance, RDS Instance)
                     last_run:
                         type: integer
                         description: timestamp of the last run
@@ -485,6 +499,124 @@ class PowerSchedulesAsyncItemHandler(BaseAsyncItemHandler, BaseAuthHandler):
             'EDIT_PARTNER', 'power_schedule', power_schedule_id)
         await run_task(self.controller.delete, power_schedule_id, **kwargs)
         self.set_status(204)
+
+
+class PowerScheduleTagActionsAsyncHandler(BaseAsyncCollectionHandler,
+                                          BaseAuthHandler):
+    def _get_controller_class(self):
+        return PowerScheduleAsyncController
+
+    async def post(self, organization_id):
+        """
+        ---
+        description: |
+            Immediately start or stop AWS EC2/RDS/Aurora resources that match
+            ALL supplied tags (AND condition).
+            Required permission: EDIT_PARTNER
+        summary: Power on/off AWS resources by tags
+        tags: [power_schedules]
+        parameters:
+        -   name: organization_id
+            in: path
+            description: Organization id
+            required: true
+            type: string
+        -   in: body
+            name: body
+            required: true
+            schema:
+                type: object
+                properties:
+                    action:
+                        type: string
+                        enum: [power_on, power_off]
+                        required: true
+                    tags:
+                        type: object
+                        description: AWS tag key-value pairs (AND condition)
+                        required: true
+                        example: {"env": "staging", "team": "ops"}
+                    cloud_account_id:
+                        type: string
+                        description: Limit to a specific cloud account (optional)
+                        required: false
+        responses:
+            200:
+                description: Action results
+                schema:
+                    type: object
+                    example:
+                        action: "power_on"
+                        matched: 3
+                        succeeded: 3
+                        failed: 0
+            400:
+                description: Wrong arguments
+            401:
+                description: Unauthorized
+            403:
+                description: Forbidden
+            404:
+                description: Not found
+        security:
+        - token: []
+        """
+        await self.check_permissions(
+            'EDIT_PARTNER', 'organization', organization_id)
+        data = self._request_body()
+        action = data.get('action')
+        if action not in ('power_on', 'power_off'):
+            raise OptHTTPError.from_opt_exception(
+                400, WrongArgumentsException(Err.OE0217, ['action']))
+        tags = data.get('tags')
+        if not tags or not isinstance(tags, dict):
+            raise OptHTTPError.from_opt_exception(
+                400, WrongArgumentsException(Err.OE0216, ['tags']))
+        try:
+            res = await run_task(
+                self.controller.power_by_tags, organization_id, data)
+        except NotFoundException as exc:
+            raise OptHTTPError.from_opt_exception(404, exc)
+        self.write(json.dumps(res))
+
+
+class PowerScheduleRunAsyncHandler(BaseAsyncCollectionHandler, BaseAuthHandler):
+    def _get_controller_class(self):
+        return PowerScheduleAsyncController
+
+    async def post(self, power_schedule_id):
+        await self.check_permissions(
+            'EDIT_PARTNER', 'power_schedule', power_schedule_id)
+        data = self._request_body()
+        action = data.get('action')
+        if action not in ('power_on', 'power_off'):
+            raise OptHTTPError.from_opt_exception(
+                400, WrongArgumentsException(Err.OE0217, ['action']))
+        try:
+            result = await run_task(
+                self.controller.run_now, power_schedule_id, action)
+        except NotFoundException as exc:
+            raise OptHTTPError.from_opt_exception(404, exc)
+        self.write(json.dumps(result))
+
+
+class PowerScheduleResourcesLiveStateHandler(BaseAsyncCollectionHandler,
+                                             BaseAuthHandler):
+    def _get_controller_class(self):
+        return PowerScheduleAsyncController
+
+    async def post(self, organization_id):
+        await self.check_permissions(
+            'INFO_ORGANIZATION', 'organization', organization_id)
+        data = self._request_body()
+        resources = data.get('resources', [])
+        if not isinstance(resources, list):
+            raise OptHTTPError.from_opt_exception(
+                400, WrongArgumentsException(Err.OE0385, ['resources']))
+        result = await run_task(
+            self.controller.get_resources_live_state,
+            organization_id, resources)
+        self.write(json.dumps(result))
 
 
 class PowerSchedulesActionsAsyncHandler(BaseAsyncCollectionHandler,

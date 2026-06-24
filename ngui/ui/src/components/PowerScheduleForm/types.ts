@@ -15,5 +15,6 @@ export type FormValues = {
     time: string;
     action: Action;
     meridiem: Meridiem;
+    daysOfWeek: number[];
   }[];
 };

@@ -101,6 +101,8 @@ import {
   SET_S3_DUPLICATES_ORGANIZATION_SETTINGS,
   SET_POWER_SCHEDULES,
   SET_POWER_SCHEDULE,
+  SET_POWER_SCHEDULE_TAG_ACTION,
+  SET_POWER_SCHEDULE_RESOURCES_LIVE_STATE,
   SET_ML_TASK_RUNS_BULK,
   SET_ML_LEADERBOARDS,
   SET_ML_LEADERBOARD,
@@ -825,6 +827,18 @@ const reducer = (state = {}, action) => {
       };
     }
     case SET_POWER_SCHEDULE: {
+      return {
+        ...state,
+        [action.label]: action.payload,
+      };
+    }
+    case SET_POWER_SCHEDULE_TAG_ACTION: {
+      return {
+        ...state,
+        [action.label]: action.payload,
+      };
+    }
+    case SET_POWER_SCHEDULE_RESOURCES_LIVE_STATE: {
       return {
         ...state,
         [action.label]: action.payload,

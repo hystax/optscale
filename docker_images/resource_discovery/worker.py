@@ -16,7 +16,8 @@ import urllib3
 from tools.cloud_adapter.cloud import Cloud as CloudAdapter
 from tools.cloud_adapter.exceptions import InvalidResourceTypeException
 from tools.cloud_adapter.model import (
-    ResourceTypes, RES_MODEL_MAP, InstanceResource, RdsInstanceResource
+    ResourceTypes, RES_MODEL_MAP, InstanceResource, RdsInstanceResource,
+    RedshiftClusterResource, EmrApplicationResource
 )
 from tools.optscale_time import utcnow, utcnow_timestamp
 from optscale_client.config_client.client import Client as ConfigClient
@@ -158,9 +159,11 @@ class ResourcesSaver:
                     flavors[flavor_name] = flavor
                     resource.cpu_count = flavor['cpu']
                     resource.ram = flavor['ram'] * BYTES_IN_MB
-            if not resource.architecture and resource.cloud_type in [
-                'aws_cnr', 'azure_cnr', 'alibaba_cnr'
-            ]:
+            if (not resource.architecture and
+                    isinstance(resource, InstanceResource) and
+                    resource.cloud_type in [
+                        'aws_cnr', 'azure_cnr', 'alibaba_cnr'
+                    ]):
                 flavor_arch = flavor_archs.get(flavor_name)
                 if not flavor_arch:
                     _, arch_info = self.insider_cl.get_architecture(

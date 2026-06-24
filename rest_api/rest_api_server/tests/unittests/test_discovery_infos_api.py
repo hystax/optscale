@@ -47,8 +47,8 @@ class TestDiscoveryInfo(TestApiBase):
             self.org_id, valid_aws_creds, update_discovery_info=False)
         code, res = self.client.discovery_info_list(cloud_account['id'])
         self.assertEqual(code, 200)
-        # aws discovers 6 types of resources (images not included)
-        self.assertEqual(6, len(res.get('discovery_info')))
+        # aws discovers 9 types of resources (images not included)
+        self.assertEqual(9, len(res.get('discovery_info')))
         for di_info in res['discovery_info']:
             self.assertEqual(di_info['last_discovery_at'], 0)
             self.assertEqual(di_info['last_error_at'], 0)

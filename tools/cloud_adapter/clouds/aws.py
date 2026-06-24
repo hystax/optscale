@@ -237,6 +237,9 @@ class Aws(S3CloudMixin):
             IpAddressResource: self.ip_address_discovery_calls,
             BucketResource: self.bucket_discovery_calls,
             LoadBalancerResource: self.load_balancer_discovery_calls,
+            RdsInstanceResource: self.rds_instance_discovery_calls,
+            EmrApplicationResource: self.emr_application_discovery_calls,
+            RedshiftServerlessWorkgroupResource: self.redshift_serverless_discovery_calls,
         }
 
     @property
@@ -1011,8 +1014,37 @@ class Aws(S3CloudMixin):
     def snapshot_chain_discovery_calls(self):
         return []
 
+    def discover_region_rds_instances(self, region):
+        rds = self.session.client('rds', region)
+        paginator = rds.get_paginator('describe_db_instances')
+        for page in paginator.paginate():
+            for db in page.get('DBInstances', []):
+                status = db.get('DBInstanceStatus', '')
+                stopped = status == 'stopped'
+                cluster_id = db.get('DBClusterIdentifier')
+                tags_raw = db.get('TagList', [])
+                tags = {t['Key']: t['Value'] for t in tags_raw}
+                resource = RdsInstanceResource(
+                    cloud_resource_id=db['DBInstanceIdentifier'],
+                    cloud_account_id=self.cloud_account_id,
+                    organization_id=self.organization_id,
+                    region=region,
+                    name=db.get('DBInstanceIdentifier'),
+                    flavor=db.get('DBInstanceClass'),
+                    engine=db.get('Engine'),
+                    engine_version=db.get('EngineVersion'),
+                    storage_type=db.get('StorageType'),
+                    vpc_id=db.get('DBSubnetGroup', {}).get('VpcId'),
+                    source_cluster_id=cluster_id,
+                    tags=tags,
+                    stopped_allocated=stopped,
+                )
+                self._set_cloud_link(resource, region)
+                yield resource
+
     def rds_instance_discovery_calls(self):
-        return []
+        return [(self.discover_region_rds_instances, (r,))
+                for r in self.list_regions()]
 
     @staticmethod
     def _get_network_interfaces_attachments(client, eni_ids):
@@ -2004,6 +2036,100 @@ class Aws(S3CloudMixin):
     def set_currency(self, currency):
         pass
 
+    def describe_instances_by_tags(self, tags: dict, region: str):
+        """Yield EC2 instances in region matching ALL given tags with live state."""
+        ec2 = self.session.client('ec2', region)
+        filters = [{'Name': f'tag:{k}', 'Values': [v]} for k, v in tags.items()]
+        filters.append({'Name': 'instance-state-name',
+                        'Values': ['pending', 'running', 'stopping', 'stopped']})
+        paginator = ec2.get_paginator('describe_instances')
+        for page in paginator.paginate(Filters=filters):
+            for reservation in page['Reservations']:
+                for inst in reservation['Instances']:
+                    state_name = inst.get('State', {}).get('Name', 'unknown')
+                    yield {
+                        'cloud_resource_id': inst['InstanceId'],
+                        'name': self._extract_tag(inst, 'Name') or inst['InstanceId'],
+                        'resource_type': 'Instance',
+                        'stopped_allocated': state_name,
+                        'region': region,
+                        'tags': self._extract_tags(inst),
+                        'flavor': inst.get('InstanceType'),
+                    }
+
+    def describe_rds_instances_by_tags(self, tags: dict, region: str):
+        """Yield RDS instances in region matching ALL given tags with live state."""
+        rds = self.session.client('rds', region)
+        paginator = rds.get_paginator('describe_db_instances')
+        for page in paginator.paginate():
+            for db in page.get('DBInstances', []):
+                db_tags = {t['Key']: t['Value'] for t in db.get('TagList', [])}
+                if not all(db_tags.get(k) == v for k, v in tags.items()):
+                    continue
+                status = db.get('DBInstanceStatus', 'available')
+                yield {
+                    'cloud_resource_id': db['DBInstanceIdentifier'],
+                    'name': db.get('DBInstanceIdentifier'),
+                    'resource_type': 'RDS Instance',
+                    'stopped_allocated': status,
+                    'region': region,
+                    'tags': db_tags,
+                    'flavor': db.get('DBInstanceClass'),
+                    'source_cluster_id': db.get('DBClusterIdentifier'),
+                    'engine': db.get('Engine'),
+                }
+
+    def describe_aurora_clusters_by_tags(self, tags: dict, region: str):
+        """Yield Aurora clusters in region matching ALL given tags with live state."""
+        rds = self.session.client('rds', region)
+        paginator = rds.get_paginator('describe_db_clusters')
+        for page in paginator.paginate():
+            for cluster in page.get('DBClusters', []):
+                cluster_tags = {t['Key']: t['Value']
+                                for t in cluster.get('TagList', [])}
+                if not all(cluster_tags.get(k) == v for k, v in tags.items()):
+                    continue
+                status = cluster.get('Status', 'available')
+                yield {
+                    'cloud_resource_id': cluster['DBClusterIdentifier'],
+                    'name': cluster.get('DBClusterIdentifier'),
+                    'resource_type': 'Aurora Cluster',
+                    'stopped_allocated': status,
+                    'region': region,
+                    'tags': cluster_tags,
+                    'flavor': cluster.get('DBClusterInstanceClass') or '',
+                    'engine': cluster.get('Engine'),
+                }
+
+    def get_ec2_instances_state(self, instance_ids: list, region: str) -> dict:
+        """Return {instance_id: state_name} for the given EC2 IDs."""
+        if not instance_ids:
+            return {}
+        ec2 = self.session.client('ec2', region)
+        result = {}
+        resp = ec2.describe_instances(InstanceIds=instance_ids)
+        for reservation in resp.get('Reservations', []):
+            for inst in reservation.get('Instances', []):
+                state_name = inst.get('State', {}).get('Name', 'unknown')
+                result[inst['InstanceId']] = state_name
+        return result
+
+    def get_rds_instances_state(self, db_ids: list, region: str) -> dict:
+        """Return {db_id: status} for the given RDS instance IDs."""
+        if not db_ids:
+            return {}
+        rds = self.session.client('rds', region)
+        result = {}
+        for db_id in db_ids:
+            try:
+                resp = rds.describe_db_instances(DBInstanceIdentifier=db_id)
+                for db in resp.get('DBInstances', []):
+                    status = db.get('DBInstanceStatus', 'available')
+                    result[db['DBInstanceIdentifier']] = status
+            except Exception:
+                pass
+        return result
+
     def start_instance(self, instance_ids: list, region):
         ec2 = self.session.client('ec2', region)
         try:
@@ -2027,3 +2153,413 @@ class Aws(S3CloudMixin):
                 raise InvalidResourceStateException(str(exc))
             else:
                 raise
+
+    def wait_instances_stopped(self, instance_ids: list, region):
+        ec2 = self.session.client('ec2', region)
+        waiter = ec2.get_waiter('instance_stopped')
+        waiter.wait(
+            InstanceIds=instance_ids,
+            WaiterConfig={'Delay': 15, 'MaxAttempts': 40}
+        )
+
+    def start_rds_instance(self, db_instance_ids: list, region):
+        rds = self.session.client('rds', region)
+        for db_id in db_instance_ids:
+            try:
+                rds.start_db_instance(DBInstanceIdentifier=db_id)
+            except ClientError as exc:
+                code = exc.response['Error']['Code']
+                if code == 'DBInstanceNotFound':
+                    raise ResourceNotFound(str(exc))
+                elif code == 'InvalidDBInstanceState':
+                    raise InvalidResourceStateException(str(exc))
+                else:
+                    raise
+
+    def stop_rds_instance(self, db_instance_ids: list, region):
+        rds = self.session.client('rds', region)
+        for db_id in db_instance_ids:
+            try:
+                rds.stop_db_instance(DBInstanceIdentifier=db_id)
+            except ClientError as exc:
+                code = exc.response['Error']['Code']
+                if code == 'DBInstanceNotFound':
+                    raise ResourceNotFound(str(exc))
+                elif code == 'InvalidDBInstanceState':
+                    raise InvalidResourceStateException(str(exc))
+                else:
+                    raise
+
+    def wait_rds_available(self, db_instance_id: str, region):
+        rds = self.session.client('rds', region)
+        # The boto3 db_instance_available waiter retries on DBInstanceNotFound
+        # (30 min timeout). Pre-check to fail fast if the instance doesn't exist.
+        try:
+            resp = rds.describe_db_instances(
+                DBInstanceIdentifier=db_instance_id)
+            if not resp.get('DBInstances'):
+                return
+        except ClientError as exc:
+            if exc.response['Error']['Code'] == 'DBInstanceNotFound':
+                return
+            raise
+        waiter = rds.get_waiter('db_instance_available')
+        waiter.wait(
+            DBInstanceIdentifier=db_instance_id,
+            WaiterConfig={'Delay': 30, 'MaxAttempts': 60}
+        )
+
+    def start_aurora_cluster(self, cluster_ids: list, region):
+        rds = self.session.client('rds', region)
+        for cluster_id in cluster_ids:
+            try:
+                rds.start_db_cluster(DBClusterIdentifier=cluster_id)
+            except ClientError as exc:
+                code = exc.response['Error']['Code']
+                if code == 'DBClusterNotFoundFault':
+                    raise ResourceNotFound(str(exc))
+                elif code == 'InvalidDBClusterStateFault':
+                    raise InvalidResourceStateException(str(exc))
+                else:
+                    raise
+
+    def stop_aurora_cluster(self, cluster_ids: list, region):
+        rds = self.session.client('rds', region)
+        for cluster_id in cluster_ids:
+            try:
+                rds.stop_db_cluster(DBClusterIdentifier=cluster_id)
+            except ClientError as exc:
+                code = exc.response['Error']['Code']
+                if code == 'DBClusterNotFoundFault':
+                    raise ResourceNotFound(str(exc))
+                elif code == 'InvalidDBClusterStateFault':
+                    raise InvalidResourceStateException(str(exc))
+                else:
+                    raise
+
+    def wait_aurora_cluster_available(self, cluster_id: str, region):
+        rds = self.session.client('rds', region)
+        try:
+            resp = rds.describe_db_clusters(DBClusterIdentifier=cluster_id)
+            if not resp.get('DBClusters'):
+                return
+        except ClientError as exc:
+            if exc.response['Error']['Code'] == 'DBClusterNotFoundFault':
+                return
+            raise
+        waiter = rds.get_waiter('db_cluster_available')
+        waiter.wait(
+            DBClusterIdentifier=cluster_id,
+            WaiterConfig={'Delay': 30, 'MaxAttempts': 60}
+        )
+
+    # ------------------------------------------------------------------ #
+    #  Redshift                                                            #
+    # ------------------------------------------------------------------ #
+
+    def describe_redshift_clusters_by_tags(self, tags: dict, region: str):
+        """Yield Redshift clusters in *region* matching ALL given tags."""
+        redshift = self.session.client('redshift', region)
+        paginator = redshift.get_paginator('describe_clusters')
+        for page in paginator.paginate():
+            for cluster in page.get('Clusters', []):
+                cluster_tags = {t['Key']: t['Value']
+                                for t in cluster.get('Tags', [])}
+                if not all(cluster_tags.get(k) == v
+                           for k, v in tags.items()):
+                    continue
+                status = cluster.get('ClusterStatus', 'available')
+                yield {
+                    'cloud_resource_id': cluster['ClusterIdentifier'],
+                    'name': cluster['ClusterIdentifier'],
+                    'resource_type': 'Redshift Cluster',
+                    'stopped_allocated': status,
+                    'region': region,
+                    'tags': cluster_tags,
+                    'flavor': cluster.get('NodeType'),
+                    'engine': 'redshift',
+                    'engine_version': cluster.get('ClusterVersion'),
+                }
+
+    def start_redshift_cluster(self, cluster_id: str, region: str):
+        redshift = self.session.client('redshift', region)
+        try:
+            redshift.resume_cluster(ClusterIdentifier=cluster_id)
+        except ClientError as exc:
+            code = exc.response['Error']['Code']
+            if code == 'ClusterNotFound':
+                raise ResourceNotFound(str(exc))
+            elif code == 'InvalidClusterStateFault':
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise
+
+    def stop_redshift_cluster(self, cluster_id: str, region: str):
+        redshift = self.session.client('redshift', region)
+        try:
+            redshift.pause_cluster(ClusterIdentifier=cluster_id)
+        except ClientError as exc:
+            code = exc.response['Error']['Code']
+            if code == 'ClusterNotFound':
+                raise ResourceNotFound(str(exc))
+            elif code == 'InvalidClusterStateFault':
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise
+
+    def get_redshift_clusters_state(self, cluster_ids: list,
+                                    region: str) -> dict:
+        """Return {cluster_id: status} for given Redshift IDs."""
+        if not cluster_ids:
+            return {}
+        redshift = self.session.client('redshift', region)
+        result = {}
+        try:
+            resp = redshift.describe_clusters()
+            for cluster in resp.get('Clusters', []):
+                cid = cluster['ClusterIdentifier']
+                if cid in cluster_ids:
+                    status = cluster.get('ClusterStatus', 'available')
+                    result[cid] = status
+        except Exception:
+            pass
+        return result
+
+    def wait_redshift_available(self, cluster_id: str, region: str):
+        redshift = self.session.client('redshift', region)
+        import time as _time
+        for _ in range(60):
+            try:
+                resp = redshift.describe_clusters(
+                    ClusterIdentifier=cluster_id)
+                status = resp['Clusters'][0].get('ClusterStatus', '')
+                if status == 'available':
+                    return
+            except Exception:
+                pass
+            _time.sleep(30)
+
+    # ------------------------------------------------------------------ #
+    #  Redshift Serverless                                                 #
+    # ------------------------------------------------------------------ #
+
+    def discover_region_redshift_serverless_workgroups(self, region):
+        client = self.session.client('redshift-serverless', region)
+        try:
+            paginator = client.get_paginator('list_workgroups')
+        except Exception:
+            return
+        for page in paginator.paginate():
+            for wg in page.get('workgroups', []):
+                wg_arn = wg.get('workgroupArn', '')
+                try:
+                    tags_resp = client.list_tags_for_resource(
+                        resourceArn=wg_arn)
+                    wg_tags = {t['key']: t['value']
+                               for t in tags_resp.get('tags', [])}
+                except Exception:
+                    wg_tags = {}
+                resource = RedshiftServerlessWorkgroupResource(
+                    cloud_account_id=self.cloud_account_id,
+                    organization_id=self.organization_id,
+                    cloud_resource_id=wg.get('workgroupName', wg_arn),
+                    region=region,
+                    name=wg.get('workgroupName', wg_arn),
+                    stopped_allocated=wg.get('status', 'AVAILABLE'),
+                    tags=wg_tags,
+                )
+                yield resource
+
+    def redshift_serverless_discovery_calls(self):
+        return [(self.discover_region_redshift_serverless_workgroups, (r,))
+                for r in self.list_regions()]
+
+    def describe_redshift_serverless_workgroups_by_tags(self, tags: dict,
+                                                        region: str):
+        """Yield Redshift Serverless workgroups in *region* matching ALL tags."""
+        client = self.session.client('redshift-serverless', region)
+        try:
+            paginator = client.get_paginator('list_workgroups')
+        except Exception:
+            return
+        for page in paginator.paginate():
+            for wg in page.get('workgroups', []):
+                wg_arn = wg.get('workgroupArn', '')
+                try:
+                    tags_resp = client.list_tags_for_resource(
+                        resourceArn=wg_arn)
+                    wg_tags = {t['key']: t['value']
+                               for t in tags_resp.get('tags', [])}
+                except Exception:
+                    wg_tags = {}
+                if not all(wg_tags.get(k) == v for k, v in tags.items()):
+                    continue
+                status = wg.get('status', 'AVAILABLE')
+                yield {
+                    'cloud_resource_id': wg.get('workgroupName', wg_arn),
+                    'name': wg.get('workgroupName', wg_arn),
+                    'resource_type': 'Redshift Serverless',
+                    'stopped_allocated': status,
+                    'region': region,
+                    'tags': wg_tags,
+                }
+
+    def start_redshift_serverless_workgroup(self, workgroup_name: str,
+                                            region: str):
+        client = self.session.client('redshift-serverless', region)
+        try:
+            client.resume_workgroup(workgroupName=workgroup_name)
+        except ClientError as exc:
+            code = exc.response['Error']['Code']
+            if code == 'ResourceNotFoundException':
+                raise ResourceNotFound(str(exc))
+            if code == 'ConflictException':
+                raise InvalidResourceStateException(str(exc))
+            raise
+
+    def stop_redshift_serverless_workgroup(self, workgroup_name: str,
+                                           region: str):
+        client = self.session.client('redshift-serverless', region)
+        try:
+            client.pause_workgroup(workgroupName=workgroup_name)
+        except ClientError as exc:
+            code = exc.response['Error']['Code']
+            if code == 'ResourceNotFoundException':
+                raise ResourceNotFound(str(exc))
+            if code == 'ConflictException':
+                raise InvalidResourceStateException(str(exc))
+            raise
+
+    def get_redshift_serverless_workgroups_state(self, workgroup_names: list,
+                                                 region: str) -> dict:
+        """Return {workgroup_name: status} for given Redshift Serverless workgroups."""
+        if not workgroup_names:
+            return {}
+        client = self.session.client('redshift-serverless', region)
+        result = {}
+        for name in workgroup_names:
+            try:
+                resp = client.get_workgroup(workgroupName=name)
+                status = resp.get('workgroup', {}).get('status', 'AVAILABLE')
+                result[name] = status
+            except Exception:
+                pass
+        return result
+
+    # ------------------------------------------------------------------ #
+    #  EMR Serverless                                                      #
+    # ------------------------------------------------------------------ #
+
+    def discover_region_emr_applications(self, region):
+        emr = self.session.client('emr-serverless', region)
+        try:
+            paginator = emr.get_paginator('list_applications')
+        except Exception:
+            return
+        for page in paginator.paginate(
+                states=['CREATED', 'STARTED', 'STOPPED']):
+            for app in page.get('applications', []):
+                app_arn = app.get('arn', '')
+                try:
+                    tags_resp = emr.list_tags_for_resource(
+                        resourceArn=app_arn)
+                    app_tags = tags_resp.get('tags', {})
+                except Exception:
+                    app_tags = {}
+                resource = EmrApplicationResource(
+                    cloud_account_id=self.cloud_account_id,
+                    organization_id=self.organization_id,
+                    cloud_resource_id=app['id'],
+                    region=region,
+                    name=app.get('name', app['id']),
+                    stopped_allocated=app.get('state', 'STARTED'),
+                    application_type=app.get('type', ''),
+                    tags=app_tags,
+                )
+                yield resource
+
+    def emr_application_discovery_calls(self):
+        return [(self.discover_region_emr_applications, (r,))
+                for r in self.list_regions()]
+
+    def describe_emr_applications_by_tags(self, tags: dict, region: str):
+        """Yield EMR Serverless applications in *region* matching ALL tags."""
+        emr = self.session.client('emr-serverless', region)
+        try:
+            paginator = emr.get_paginator('list_applications')
+        except Exception:
+            return
+        for page in paginator.paginate(
+                states=['CREATED', 'STARTED', 'STOPPED']):
+            for app in page.get('applications', []):
+                app_arn = app.get('arn', '')
+                try:
+                    tags_resp = emr.list_tags_for_resource(
+                        resourceArn=app_arn)
+                    app_tags = tags_resp.get('tags', {})
+                except Exception:
+                    app_tags = {}
+                if not all(app_tags.get(k) == v for k, v in tags.items()):
+                    continue
+                state = app.get('state', 'STARTED')
+                yield {
+                    'cloud_resource_id': app['id'],
+                    'name': app.get('name', app['id']),
+                    'resource_type': 'EMR Application',
+                    'stopped_allocated': state,
+                    'region': region,
+                    'tags': app_tags,
+                    'application_type': app.get('type', ''),
+                }
+
+    def start_emr_application(self, app_id: str, region: str):
+        emr = self.session.client('emr-serverless', region)
+        try:
+            emr.start_application(applicationId=app_id)
+        except ClientError as exc:
+            code = exc.response['Error']['Code']
+            if code == 'ResourceNotFoundException':
+                raise ResourceNotFound(str(exc))
+            elif code == 'ConflictException':
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise
+
+    def stop_emr_application(self, app_id: str, region: str):
+        emr = self.session.client('emr-serverless', region)
+        try:
+            emr.stop_application(applicationId=app_id)
+        except ClientError as exc:
+            code = exc.response['Error']['Code']
+            if code == 'ResourceNotFoundException':
+                raise ResourceNotFound(str(exc))
+            elif code == 'ConflictException':
+                raise InvalidResourceStateException(str(exc))
+            else:
+                raise
+
+    def get_emr_applications_state(self, app_ids: list,
+                                   region: str) -> dict:
+        """Return {app_id: state} for given EMR application IDs."""
+        if not app_ids:
+            return {}
+        emr = self.session.client('emr-serverless', region)
+        result = {}
+        for app_id in app_ids:
+            try:
+                resp = emr.get_application(applicationId=app_id)
+                state = resp['application'].get('state', 'STARTED')
+                result[app_id] = state
+            except Exception:
+                pass
+        return result
+
+    def wait_emr_application_started(self, app_id: str, region: str):
+        """Poll until EMR Serverless application reaches STARTED state."""
+        import time as _time
+        for _ in range(40):
+            states = self.get_emr_applications_state([app_id], region)
+            if states.get(app_id) == 'STARTED':
+                return
+            _time.sleep(15)
+

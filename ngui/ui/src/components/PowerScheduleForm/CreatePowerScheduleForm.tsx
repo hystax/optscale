@@ -35,6 +35,7 @@ const CreatePowerScheduleForm = ({ onSubmit, onCancel, isLoadingProps = {} }: Cr
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.TIME]: "",
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.MERIDIEM]: MERIDIEM_NAMES.AM,
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.ACTION]: POWER_SCHEDULE_ACTIONS.POWER_ON,
+          [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.DAYS_OF_WEEK]: [],
         },
       ],
     },

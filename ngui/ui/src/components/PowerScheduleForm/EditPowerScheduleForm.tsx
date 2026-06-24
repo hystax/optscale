@@ -59,6 +59,7 @@ const getDefaultFormValues = (powerSchedule: EditPowerScheduleFormProps["powerSc
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.TIME]: time,
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.MERIDIEM]: meridiem as Meridiem,
           [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.ACTION]: trigger.action,
+          [FIELD_NAMES.TRIGGERS_FIELD_ARRAY.DAYS_OF_WEEK]: (trigger as { days_of_week?: number[] }).days_of_week ?? [],
         };
       }) ?? [],
 });

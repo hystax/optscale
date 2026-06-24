@@ -172,6 +172,12 @@ class UrlsV2(Urls):
             r"%s/power_schedules/(?P<power_schedule_id>["r"^/]+)",
         'power_schedules_actions':
             r"%s/power_schedules/(?P<power_schedule_id>["r"^/]+)/actions",
+        'power_schedule_run':
+            r"%s/power_schedules/(?P<power_schedule_id>[^/]+)/run",
+        'power_schedule_tag_actions':
+            r"%s/organizations/(?P<organization_id>[^/]+)/power_schedule_tag_actions",
+        'power_schedules_resources_live_state':
+            r"%s/organizations/(?P<organization_id>[^/]+)/power_schedules/resources_live_state",
         'layouts_collection':
             r"%s/organizations/(?P<organization_id>[^/]+)/layouts",
         'layouts': r"%s/organizations/(?P<organization_id>[^/]+)/"

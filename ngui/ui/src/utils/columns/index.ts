@@ -60,6 +60,7 @@ import recommendedSize from "./recommendedSize";
 import resource from "./resource";
 import resourceLocation from "./resourceLocation";
 import resourcePoolOwner from "./resourcePoolOwner";
+import resourceState from "./resourceState";
 import resourceType from "./resourceType";
 import rightsizingSize from "./rightsizingSize";
 import run from "./run";
@@ -93,6 +94,7 @@ export {
   recommendedRightsizingSize,
   lastTimeLocal,
   resourceType,
+  resourceState,
   discoveryStatus,
   tendency,
   formattedNumber,

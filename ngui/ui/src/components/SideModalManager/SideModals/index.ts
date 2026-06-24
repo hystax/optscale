@@ -49,6 +49,7 @@ import MlDeleteArtifactModal from "./MlDeleteArtifactModal";
 import MlDeleteDatasetModal from "./MlDeleteDatasetModal";
 import MlDeleteTaskModal from "./MlDeleteTaskModal";
 import PoolModal from "./PoolModal";
+import PowerByTagsModal from "./PowerByTagsModal";
 import ProfilingIntegrationModal from "./ProfilingIntegrationModal";
 import ReapplyClusterTypesModal from "./ReapplyClusterTypesModal";
 import ReapplyRulesetModal from "./ReapplyRulesetModal";
@@ -120,6 +121,7 @@ export {
   AddInstanceToScheduleModal,
   RemoveInstancesFromScheduleModal,
   DeletePowerScheduleModal,
+  PowerByTagsModal,
   MlDeleteDatasetModal,
   LeaderboardCandidateDetailsModal,
   SelectStageOrMilestoneModal,

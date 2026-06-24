@@ -10,6 +10,18 @@ const getRegularResourceType = (typeName) => [typeName, OPTSCALE_RESOURCE_TYPES.
 const INSTANCE = "Instance";
 export const INSTANCE_REGULAR = getRegularResourceType(INSTANCE);
 
+const RDS_INSTANCE = "RDS Instance";
+export const RDS_INSTANCE_REGULAR = getRegularResourceType(RDS_INSTANCE);
+
+const REDSHIFT_CLUSTER = "Redshift Cluster";
+export const REDSHIFT_CLUSTER_REGULAR = getRegularResourceType(REDSHIFT_CLUSTER);
+
+const EMR_APPLICATION = "EMR Application";
+export const EMR_APPLICATION_REGULAR = getRegularResourceType(EMR_APPLICATION);
+
+const REDSHIFT_SERVERLESS = "Redshift Serverless";
+export const REDSHIFT_SERVERLESS_REGULAR = getRegularResourceType(REDSHIFT_SERVERLESS);
+
 const VOLUME = "Volume";
 const VOLUME_REGULAR = getRegularResourceType(VOLUME);
 
@@ -75,6 +87,14 @@ class ResourceTypeFilter extends Filter {
       value: INSTANCE_REGULAR,
       label: this.constructor._getDisplayedValueRenderer({
         name: INSTANCE,
+        type: OPTSCALE_RESOURCE_TYPES.REGULAR,
+      }),
+    },
+    {
+      name: this.constructor.filterName,
+      value: RDS_INSTANCE_REGULAR,
+      label: this.constructor._getDisplayedValueRenderer({
+        name: RDS_INSTANCE,
         type: OPTSCALE_RESOURCE_TYPES.REGULAR,
       }),
     },

@@ -218,6 +218,22 @@ class NullableJSON(JSON):
         return value
 
 
+class NullableJSONList(NullableJSON):
+    """Like NullableJSON but accepts JSON arrays (lists) in addition to dicts."""
+
+    def validator(self, value):
+        if value is not None:
+            try:
+                parsed = json.loads(value)
+                if not isinstance(parsed, (dict, list)):
+                    raise WrongArgumentsException(Err.OE0219, [self.key])
+            except WrongArgumentsException:
+                raise
+            except BaseException:
+                raise WrongArgumentsException(Err.OE0219, [self.key])
+        return value
+
+
 class NullableMediumJSON(NullableJSON):
     def load_dialect_impl(self, dialect):
         if dialect.name == 'mysql':
