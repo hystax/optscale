@@ -22,16 +22,12 @@ import FormButtonsWrapper from "components/FormButtonsWrapper";
 import FormContentDescription from "components/FormContentDescription";
 import { FIELD_NAMES as NEBIUS_FIELD_NAMES } from "components/NebiusConfigFormElements";
 import { useOrganizationActionRestrictions } from "hooks/useOrganizationActionRestrictions";
-import { intl } from "translations/react-intl-config";
 import {
-  DOCS_HYSTAX_CONNECT_AWS_ROOT,
   DOCS_HYSTAX_CONNECT_ALIBABA_CLOUD,
   DOCS_HYSTAX_CONNECT_AZURE_TENANT,
   DOCS_HYSTAX_CONNECT_GOOGLE_CLOUD,
-  DOCS_HYSTAX_AWS_LINKED_DISCOVER_RESOURCES,
   GITHUB_HYSTAX_K8S_COST_METRICS_COLLECTOR,
   DATABRICKS_CREATE_SERVICE_PRINCIPAL,
-  DOCS_HYSTAX_MIGRATE_FROM_CUR_TO_DATA_EXPORTS_CUR_2_0,
   DOCS_HYSTAX_CONNECT_AZURE_SUBSCRIPTION,
 } from "urls";
 import {
@@ -48,83 +44,14 @@ import {
   GCP_TENANT,
 } from "utils/constants";
 import { readFileAsText } from "utils/files";
-import { SPACING_2 } from "utils/layouts";
 import { CredentialInputs } from "./FormElements";
 import { AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS as AWS_ROOT_UPDATE_DATA_EXPORT_PARAMETERS } from "./FormElements/CredentialInputs";
 import type { UpdateDataSourceCredentialsFormProps } from "./types";
 
-const getAwsDescription = (config) => {
-  if (config.assume_role_account_id && config.assume_role_name) {
-    return (
-      <Typography sx={{ marginBottom: SPACING_2 }}>
-        <FormattedMessage id="createAwsAssumedRoleDescription" values={{ action: intl.formatMessage({ id: "save" }) }} />
-      </Typography>
-    );
-  }
-
-  if (config.linked) {
-    return (
-      <Typography gutterBottom>
-        <FormattedMessage
-          id="createAwsLinkedDocumentationReference3"
-          values={{
-            discoverResourcesLink: (chunks) => (
-              <Link
-                data-test-id="link_iam_user"
-                href={DOCS_HYSTAX_AWS_LINKED_DISCOVER_RESOURCES}
-                target="_blank"
-                rel="noopener"
-              >
-                {chunks}
-              </Link>
-            ),
-          }}
-        />
-      </Typography>
-    );
-  }
-
-  return (
-    <Typography gutterBottom component="div">
-      <div>
-        <FormattedMessage
-          id="createAwsRootDocumentationReference"
-          values={{
-            link: (chunks) => (
-              <Link data-test-id="link_guide" href={DOCS_HYSTAX_CONNECT_AWS_ROOT} target="_blank" rel="noopener">
-                {chunks}
-              </Link>
-            ),
-            strong: (chunks) => <strong>{chunks}</strong>,
-          }}
-        />
-      </div>
-      <div>
-        <FormattedMessage
-          id="migrateToCur2.0"
-          values={{
-            link: (chunks) => (
-              <Link
-                data-test-id="link_guide"
-                href={DOCS_HYSTAX_MIGRATE_FROM_CUR_TO_DATA_EXPORTS_CUR_2_0}
-                target="_blank"
-                rel="noopener"
-              >
-                {chunks}
-              </Link>
-            ),
-            strong: (chunks) => <strong>{chunks}</strong>,
-          }}
-        />
-      </div>
-    </Typography>
-  );
-};
-
-const Description = ({ type, config }) => {
+const Description = ({ type }) => {
   switch (type) {
     case AWS_CNR:
-      return getAwsDescription(config);
+      return "";
     case AZURE_TENANT:
       return (
         <Typography gutterBottom>
@@ -296,7 +223,12 @@ const getConfig = (type, config) => {
           };
         },
         parseFormDataToApiParams: (formData) => {
-          if (config.assume_role_account_id && config.assume_role_name) {
+          const hasSecret = formData[AWS_LINKED_CREDENTIALS_FIELD_NAMES.SECRET_ACCESS_KEY];
+          const isAssumeRoleData =
+            formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID] &&
+            formData[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_NAME];
+
+          if (!hasSecret && isAssumeRoleData) {
             return config.linked
               ? {
                   config: {

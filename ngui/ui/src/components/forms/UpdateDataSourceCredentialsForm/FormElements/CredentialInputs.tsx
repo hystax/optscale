@@ -1,6 +1,4 @@
-import { Box, Typography } from "@mui/material";
-import { useFormContext } from "react-hook-form";
-import { FormattedMessage } from "react-intl";
+import { Box } from "@mui/material";
 import {
   AlibabaCredentials,
   AzureTenantCredentials,
@@ -13,17 +11,9 @@ import {
   DATABRICKS_CREDENTIALS_FIELD_NAMES,
   DatabricksCredentials,
   KubernetesCredentials,
-  AwsLinkedCredentials,
-  AwsRootCredentials,
-  AwsBillingBucket,
-  AwsExportType,
-  AwsUseAwsEdpDiscount,
   GcpTenantCredentials,
   GCP_TENANT_CREDENTIALS_FIELD_NAMES,
-  AwsAssumedRoleInputs,
-  AWS_ROLE_CREDENTIALS_FIELD_NAMES,
 } from "components/DataSourceCredentialFields";
-import { Switch } from "components/forms/common/fields";
 import {
   BillingReportBucketTitle,
   CloudName,
@@ -42,61 +32,14 @@ import {
   KUBERNETES_CNR,
   GCP_TENANT,
 } from "utils/constants";
+import AwsCredentials from "./Credentials/AwsCredentials";
 
 export const AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS = "updateDataExportParameters";
 
-const CostAndUsageReport = () => {
-  const { watch } = useFormContext();
-
-  const checked = watch(AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS);
-
-  return (
-    <>
-      <Switch
-        name={AWS_POOL_UPDATE_DATA_EXPORT_PARAMETERS}
-        label={
-          <Typography>
-            <FormattedMessage id="updateDataExportParameters" />
-          </Typography>
-        }
-      />
-      {checked && (
-        <>
-          <AwsExportType />
-          <AwsBillingBucket />
-        </>
-      )}
-    </>
-  );
-};
-
 const CredentialInputs = ({ type, config }) => {
-  const getAwsInputs = (config) => {
-    if (config.assume_role_account_id && config.assume_role_name) {
-      return (
-        <AwsAssumedRoleInputs
-          readOnlyFields={[AWS_ROLE_CREDENTIALS_FIELD_NAMES.ASSUME_ROLE_ACCOUNT_ID]}
-          showAdvancedOptions={!config.linked}
-        />
-      );
-    }
-
-    if (config.linked) {
-      return <AwsLinkedCredentials />;
-    }
-
-    return (
-      <>
-        <AwsRootCredentials />
-        <AwsUseAwsEdpDiscount />
-        <CostAndUsageReport />
-      </>
-    );
-  };
-
   switch (type) {
     case AWS_CNR:
-      return getAwsInputs(config);
+      return <AwsCredentials type={type} config={config} />;
     case AZURE_TENANT:
       return <AzureTenantCredentials readOnlyFields={[AZURE_TENANT_CREDENTIALS_FIELD_NAMES.TENANT]} />;
     case AZURE_CNR:

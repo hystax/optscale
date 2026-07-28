@@ -434,6 +434,7 @@
   "createAnomalyDetectionPolicyTitle": "Create Anomaly Detection Policy",
   "createAutomaticAssignmentRuleBackdropMessage": "Please add an assignment rule to let OptScale automatically assign newly discovered resources to a pool.",
   "createAwsAssumedRoleDescription": "Connection through Assumed Role provides the most modern and secure way to connect OptScale to your AWS account. Please fill the fields below with the necessary information, then click the \"Show Role\" button to get the Assumed Role definition. Once you create the corresponding Role in the AWS Account you're connecting, click the {action} button.",
+  "createAwsAssumedRoleLinkedDescription": "Connection through Assumed Role provides the most modern and secure way to connect OptScale to your AWS account. Please fill the fields below with the necessary information, then click the {action} button.",
   "createAwsDefaultAssumedRoleDocumentationReference1": "We recommend using the Assume Role method to provide access to your AWS account. For more information, please see the <link>documentation</link>.",
   "createAwsDefaultAssumedRoleDocumentationReference2": "Please provide programmatic credentials for an IAM user with access to resource and billing data.",
   "createAwsDefaultAssumedRoleDocumentationReference3": "For more information and instructions, see our documentation here: <link></link>",
