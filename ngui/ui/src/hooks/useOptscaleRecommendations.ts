@@ -5,6 +5,7 @@ import AbandonedKinesisStreams from "containers/RecommendationsOverviewContainer
 import AbandonedLoadBalancers from "containers/RecommendationsOverviewContainer/recommendations/AbandonedLoadBalancers";
 import AbandonedNebiusS3Buckets from "containers/RecommendationsOverviewContainer/recommendations/AbandonedNebiusS3Buckets";
 import AbandonedS3Buckets from "containers/RecommendationsOverviewContainer/recommendations/AbandonedS3Buckets";
+import AzureOrphanNics from "containers/RecommendationsOverviewContainer/recommendations/AzureOrphanNics";
 import CvocAgreementOpportunities from "containers/RecommendationsOverviewContainer/recommendations/CvocAgreementOpportunities";
 import InactiveConsoleUsers from "containers/RecommendationsOverviewContainer/recommendations/InactiveConsoleUsers";
 import InactiveUsers from "containers/RecommendationsOverviewContainer/recommendations/InactiveUsers";
@@ -64,6 +65,7 @@ export const useOptscaleRecommendations = ({ withDeprecated = false }: { withDep
       PublicS3Buckets,
       SnapshotsWithNonUsedImages,
       AbandonedImages,
+      AzureOrphanNics,
       ...(isNebiusConnectionEnabled ? NEBIUS_RECOMMENDATIONS : []),
       ...(withDeprecated ? DEPRECATED_RECOMMENDATIONS : []),
     ];
