@@ -55,6 +55,7 @@ etcd:
       auth_provider_x509_cert_url: ""
       client_x509_cert_url: ""
   domains_blacklists:
+    marketing: []
     new_employee_email: []
     registration: []
     failed_import_email: []

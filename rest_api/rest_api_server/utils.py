@@ -643,3 +643,13 @@ def handle_http_exc(func):
 def timestamp_to_day_start(timestamp) -> datetime:
     return utcfromtimestamp(timestamp).replace(
         hour=0, minute=0, second=0, microsecond=0)
+
+
+def is_match_domain(domain_exp, email_str):
+    if domain_exp.startswith('@'):
+        domain_regex = f'{re.escape(domain_exp)}$'
+    elif domain_exp.startswith('/'):
+        domain_regex = domain_exp[1:]
+    else:
+        domain_regex = f'@{re.escape(domain_exp)}$'
+    return re.search(domain_regex, email_str, re.IGNORECASE)

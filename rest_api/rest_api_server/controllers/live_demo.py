@@ -34,7 +34,7 @@ from rest_api.rest_api_server.models.models import (
     OrganizationConstraint, OrganizationLimitHit, OrganizationGemini,
     ProfilingToken, PowerSchedule, PowerScheduleTrigger)
 from rest_api.rest_api_server.utils import (
-    gen_id, encode_config, timestamp_to_day_start)
+    gen_id, encode_config, timestamp_to_day_start, is_match_domain)
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
 
@@ -1080,11 +1080,18 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                         self._duplication_module_res_info_map[
                             module_name][resource_id] = cloud_resource_id
 
+    def _is_marketing_excluded(self, email: str) -> bool:
+        try:
+            domains = self._config.marketing_domains_blacklist()
+        except etcd.EtcdKeyNotFound:
+            return False
+        return any(is_match_domain(d, email) for d in domains)
+
     def create(self, pregenerate=False, **kwargs):
         result = self._create(pregenerate)
         subscribe_email = kwargs.get('email')
         subscribe = kwargs.get('subscribe', False)
-        if subscribe_email:
+        if subscribe_email and not self._is_marketing_excluded(subscribe_email):
             self._send_subscribe_email(subscribe_email, subscribe)
         return result
 

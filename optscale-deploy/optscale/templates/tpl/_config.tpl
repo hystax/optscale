@@ -52,6 +52,10 @@ etcd:
         {{ $key }}: {{ $value | quote }}
     {{- end }}
   domains_blacklists:
+    marketing:
+      {{- range .Values.domains_blacklists.marketing }}
+        - {{ . | quote }}
+      {{- end}}
     new_employee_email:
       {{- range .Values.domains_blacklists.new_employee_email }}
         - {{ . | quote }}
