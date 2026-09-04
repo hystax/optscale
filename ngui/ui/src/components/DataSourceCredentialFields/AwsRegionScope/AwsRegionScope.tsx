@@ -39,7 +39,12 @@ const RegionsField = ({
           multiple
           freeSolo
           value={value ?? []}
-          onChange={(_event, newValue) => onChange(newValue)}
+          onChange={(_event, newValue: string[]) => {
+            const normalized = Array.from(
+              new Set(newValue.map((region) => region.trim().toLowerCase()).filter((region) => region !== ""))
+            );
+            onChange(normalized);
+          }}
           onBlur={onBlur}
           disableCloseOnSelect
           options={AWS_REGION_CODES}
