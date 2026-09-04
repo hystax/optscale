@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 import { Typography } from "@mui/material";
@@ -18,7 +19,7 @@ import Tooltip from "components/Tooltip";
 import { intl } from "translations/react-intl-config";
 import { CLOUD_ACCOUNT_CONNECT } from "urls";
 import { getColorScale } from "utils/charts";
-import { FORMATTED_MONEY_TYPES } from "utils/constants";
+import { AWS_CNR, FORMATTED_MONEY_TYPES } from "utils/constants";
 import { BILLING_IMPORT_STATUS, getBillingImportStatus, summarizeChildrenDetails } from "utils/dataSources";
 import useStyles from "./CloudAccountsTable.styles";
 
@@ -33,6 +34,7 @@ const NameCell = ({
       last_import_attempt_at: lastImportAttemptAt,
       last_import_attempt_error: lastImportAttemptError,
       children,
+      isMasterAwsAccount,
     },
     index,
   },
@@ -72,6 +74,13 @@ const NameCell = ({
         type={type}
         dataTestId={`link_cloud_${index}`}
         startAdornment={cost && !children ? <Circle color={colorScale(id)} mr={1} /> : null}
+        endAdornment={
+          isMasterAwsAccount ? (
+            <Tooltip title={<FormattedMessage id="awsRootAccountTooltip" />}>
+              <AccountTreeOutlinedIcon fontSize="small" color="action" sx={{ ml: 1 }} data-test-id={`icon_aws_root_${index}`} />
+            </Tooltip>
+          ) : null
+        }
       />
     </CaptionedCell>
   );
@@ -128,10 +137,15 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
     () =>
       cloudAccounts
         .map((dataSource) => {
-          const { id } = dataSource;
+          const { id, type, config } = dataSource;
           const children = cloudAccounts.filter(({ parent_id: parentId }) => parentId === id);
           const childrenDetails = summarizeChildrenDetails(children);
-          return { ...dataSource, children, details: { ...dataSource.details, ...childrenDetails } };
+          return {
+            ...dataSource,
+            children,
+            isMasterAwsAccount: type === AWS_CNR && !config?.linked,
+            details: { ...dataSource.details, ...childrenDetails },
+          };
         })
         .filter(({ parent_id: parentId }) => !parentId),
     [cloudAccounts]
