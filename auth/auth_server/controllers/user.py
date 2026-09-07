@@ -72,26 +72,27 @@ class UserController(BaseController):
         except etcd.EtcdKeyNotFound:
             return []
 
+    @staticmethod
+    def is_match_domain(domain_exp, email_str):
+        if domain_exp.startswith('@'):
+            domain_regex = f'{re.escape(domain_exp)}$'
+        elif domain_exp.startswith('/'):
+            domain_regex = domain_exp[1:]
+        else:
+            domain_regex = f'@{re.escape(domain_exp)}$'
+        return re.search(domain_regex, email_str, re.IGNORECASE)
+
     def _check_input(self, email, display_name, is_active, password,
                      type_id, scope_id):
-        def is_match(domain_exp, email_str):
-            if domain_exp.startswith('@'):
-                domain_regex = f'{re.escape(domain_exp)}$'
-            elif domain_exp.startswith('/'):
-                domain_regex = domain_exp[1:]
-            else:
-                domain_regex = f'@{re.escape(domain_exp)}$'
-            return re.search(domain_regex, email_str.lower())
-
         if email is None or password is None:
             raise WrongArgumentsException(Err.OA0039, [])
         domain_whitelist = self.domain_whitelist
         for domain in self.domain_blacklist:
-            if is_match(domain, email):
+            if self.is_match_domain(domain, email):
                 raise WrongArgumentsException(Err.OA0070, [domain])
         if domain_whitelist:
             in_whitelist = any(filter(
-                lambda x: is_match(x, email), domain_whitelist))
+                lambda x: self.is_match_domain(x, email), domain_whitelist))
             if not in_whitelist:
                 raise WrongArgumentsException(
                     Err.OA0070, [email.split('@')[-1]])
@@ -131,8 +132,17 @@ class UserController(BaseController):
             User.deleted.is_(False)
         ).one_or_none()
 
+    def _is_marketing_excluded(self, email: str) -> bool:
+        try:
+            domains = self._config.marketing_domains_blacklist()
+        except etcd.EtcdKeyNotFound:
+            return False
+        return any(self.is_match_domain(d, email) for d in domains)
+
     def _sync_user_with_zoho(self, display_name, email):
         if is_hystax_email(email) or is_demo_email(email):
+            return
+        if self._is_marketing_excluded(email):
             return
         try:
             reg_app = RegisteredApp.get_from_etcd(self._config)

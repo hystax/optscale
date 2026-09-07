@@ -1040,6 +1040,7 @@ optscale_error_emails:
 # filled from optscale overlay
 # Optscale email domains blacklists
 domains_blacklists:
+  marketing:
   registration:
   new_employee_email:
   failed_import_email:

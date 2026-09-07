@@ -2347,6 +2347,9 @@ class TestLiveDemosApi(TestApiBase):
     def test_live_demo_subscriber_email(self):
         patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
               'get_top_resources_by_total_cost', return_value=[]).start()
+        patch('rest_api.rest_api_server.controllers.live_demo'
+              '.LiveDemoController._is_marketing_excluded',
+              return_value=False).start()
         p_send = patch('rest_api.rest_api_server.controllers.live_demo.'
                        'LiveDemoController._send_subscribe_email').start()
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'

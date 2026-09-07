@@ -207,6 +207,7 @@
   "awsRoleName": "Assumed Role Name",
   "awsRoleNameTooltip": "The name of the IAM Role that should be assumed.",
   "awsRoot": "AWS Root",
+  "awsRootAccountTooltip": "This is a master (root) AWS account.",
   "awsSecretAccessKey": "AWS Secret access key",
   "awsSecretAccessKeyTooltip": "Secret access key from IAM user. Can be found in <i>your_user_accessKeys.csv</i> downloaded during access key creation.",
   "awsUseExternalId": "Use External ID",

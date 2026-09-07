@@ -510,6 +510,18 @@ class Client(etcd.Client):
         return self.read_list("/{0}/{1}".format(blacklist_branch,
                                                 blacklist_key))
 
+    def marketing_domains_blacklist(self):
+        """
+        Get marketing exclusion domain list. Tries /domains_blacklists/marketing
+        first; falls back to /domains_blacklists/new_employee_email.
+        :return: list
+        """
+        blacklist_branch = 'domains_blacklists'
+        try:
+            return self.read_list("/{0}/marketing".format(blacklist_branch))
+        except etcd.EtcdKeyNotFound:
+            return self.domains_blacklist(blacklist_key='new_employee_email')
+
     def domains_whitelist(self, whitelist_key='registration'):
         """
         Get list of email domains from /domains_whitelists/{whitelist_key}
