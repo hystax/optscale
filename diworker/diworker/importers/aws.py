@@ -145,8 +145,14 @@ class AWSReportImporter(CSVBaseReportImporter):
 
     def unpack_report_files(self):
         for date, reports in self.report_files.items():
-            self.report_files[date] = [
-                self.unpack_report(r, date) for r in self.report_files[date]]
+            new_reports = []
+            for old_path in reports:
+                new_path = self.unpack_report(old_path, date)
+                if new_path != old_path and old_path in self.report_file_keys:
+                    self.report_file_keys[new_path] = self.report_file_keys.pop(
+                        old_path)
+                new_reports.append(new_path)
+            self.report_files[date] = new_reports
 
     @staticmethod
     def get_unique_field_list(include_date=True):
@@ -195,46 +201,22 @@ class AWSReportImporter(CSVBaseReportImporter):
             'end_date',
             'cost',
             'report_identity',
+            'report_key',
             '_rec_n'
         ]
 
-    @staticmethod
-    def _is_first_import_in_month(last_import_dt: datetime):
-        now = opttime.utcnow()
-        if (last_import_dt.month + 1 == now.month and
-                last_import_dt.year == now.year) or (
-                    now.month == 1 and last_import_dt.year + 1 == now.year):
-            return True
-
-    def get_current_reports(self, reports_groups, last_import_modified_at):
+    def get_current_reports(self, reports_groups, previous_states):
         current_reports = defaultdict(list)
-        reports_count = 0
-        # during first report in the current month download all reports
-        # from the previous month to do full reimport
-        if self._is_first_import_in_month(last_import_modified_at):
-            last_import_modified_at = opttime.startmonth(
-                last_import_modified_at)
         for date, reports in reports_groups.items():
-            for report in reports:
-                if report.get('LastModified', -1) > last_import_modified_at:
-                    # use all reports for month
-                    current_reports[date].extend(reports)
-                    reports_count += len(reports)
-                    break
-        LOG.info('Selected %s reports', reports_count)
+            if any(self._etag_changed(r, previous_states) for r in reports):
+                LOG.info('Group selected (etag changed): %s', date)
+                current_reports[date].extend(reports)
+            else:
+                LOG.info('Group skipped (etag unchanged): %s', date)
+        total = sum(len(r) for r in current_reports.values())
+        total_checked = sum(len(r) for r in reports_groups.values())
+        LOG.info('Selected %d/%d files for import', total, total_checked)
         return current_reports
-
-    @cached_property
-    def min_date_import_threshold(self) -> datetime:
-        last_import_dt = datetime.fromtimestamp(
-            self.cloud_acc.get('last_import_modified_at', 0), tz=timezone.utc)
-        last_import_dt = last_import_dt.replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
-        if self._is_first_import_in_month(last_import_dt):
-            # import full previous month on the first import in month
-            return last_import_dt.replace(day=1)
-        return last_import_dt - timedelta(days=self.csv_rewrite_days)
 
     def get_raw_upsert_filters(self, expense):
         filters = super().get_raw_upsert_filters(expense)
@@ -255,16 +237,7 @@ class AWSReportImporter(CSVBaseReportImporter):
         account_id_ca_id_map[self.cloud_acc['account_id']] = self.cloud_acc_id
         return account_id_ca_id_map
 
-    def load_raw_data(self):
-        account_id_ca_id_map = self.get_linked_account_map()
-        report_files = []
-        for r in self.report_files.values():
-            report_files.extend(r)
-        for report_path in report_files:
-            self.load_report(report_path, account_id_ca_id_map)
-        self.clear_rudiments()
-
-    def load_report(self, report_path, account_id_ca_id_map):
+    def load_report(self, report_path, account_id_ca_id_map, report_key=None):
         skipped_accounts = set()
         billing_period = None
         LOG.info('loading report %s', report_path)
@@ -272,14 +245,14 @@ class AWSReportImporter(CSVBaseReportImporter):
         try:
             billing_period, skipped_accounts = self.load_parquet_report(
                 report_path, account_id_ca_id_map, billing_period,
-                skipped_accounts)
+                skipped_accounts, report_key=report_key)
         except pyarrow.lib.ArrowInvalid as exc:
             LOG.warning(
                 f"Could not open source file as Parquet {report_path}: "
                 f"{str(exc)}. Will try to open it as CSV")
             billing_period, skipped_accounts = self.load_csv_report(
                 report_path, account_id_ca_id_map, billing_period,
-                skipped_accounts)
+                skipped_accounts, report_key=report_key)
 
         if billing_period:
             self.billing_periods.add(billing_period)
@@ -412,7 +385,7 @@ class AWSReportImporter(CSVBaseReportImporter):
         return {col: self._get_legacy_csv_key(col) for col in columns}
 
     def load_csv_report(self, report_path, account_id_ca_id_map,
-                        billing_period, skipped_accounts):
+                        billing_period, skipped_accounts, report_key=None):
         date_start = opttime.utcnow()
         with open(report_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -476,6 +449,8 @@ class AWSReportImporter(CSVBaseReportImporter):
                         del row[k]
                 self._set_resource_id(row)
                 row['created_at'] = self.import_start_ts
+                if report_key is not None:
+                    row['report_key'] = report_key
                 chunk.append(row)
 
             if chunk:
@@ -483,7 +458,7 @@ class AWSReportImporter(CSVBaseReportImporter):
         return billing_period, skipped_accounts
 
     def load_parquet_report(self, report_path, account_id_ca_id_map,
-                            billing_period, skipped_accounts):
+                            billing_period, skipped_accounts, report_key=None):
         date_start = opttime.utcnow()
         dataframe = pq.read_pandas(report_path).to_pandas()
         new_columns = self._convert_to_legacy_csv_columns(
@@ -552,6 +527,8 @@ class AWSReportImporter(CSVBaseReportImporter):
                          x['lineItem/LineItemType'] == 'RIFee')]
             for expense in expenses:
                 expense['created_at'] = self.import_start_ts
+                if report_key is not None:
+                    expense['report_key'] = report_key
                 if self._is_flavor_usage(expense):
                     expense['box_usage'] = True
                 self._set_resource_id(expense)

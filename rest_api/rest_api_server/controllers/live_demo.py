@@ -494,8 +494,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         obj = self.set_now_ts(
             ['last_import_at', 'last_import_attempt_at',
-             'last_import_modified_at', 'last_getting_metrics_at',
-             'last_getting_metric_attempt_at'], obj)
+             'last_getting_metrics_at', 'last_getting_metric_attempt_at'], obj)
         return CloudAccount(**obj)
 
     def build_checklist(self, obj, now, organization_id, **kwargs):

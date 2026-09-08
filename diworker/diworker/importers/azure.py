@@ -85,7 +85,8 @@ class AzureImporterBase(BaseReportImporter):
 
     def get_update_fields(self):
         custom_fields = {
-            'end_date', 'usage_quantity', 'cost', 'report_identity', '_rec_n'}
+            'end_date', 'usage_quantity', 'cost', 'report_identity',
+            'report_key', '_rec_n'}
         legacy_fields = {
             'cost', 'effective_price'}
         modern_fields = {

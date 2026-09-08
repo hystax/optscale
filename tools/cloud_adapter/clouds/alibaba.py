@@ -1410,9 +1410,6 @@ class Alibaba(CloudBase):
         except KeyError:
             raise ValueError('Unexpected response format: {}'.format(response))
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def set_currency(self, currency):
         self._currency = currency
 

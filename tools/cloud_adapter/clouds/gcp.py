@@ -1862,9 +1862,6 @@ class Gcp(CloudBase):
     def rds_instance_discovery_calls(self):
         return []
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def configure_report(self):
         pass
 

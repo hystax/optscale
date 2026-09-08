@@ -214,9 +214,6 @@ class Databricks(CloudBase):
     def set_currency(self, currency):
         self._currency = currency
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def get_regions_coordinates(self, load=True):
         return {}
 

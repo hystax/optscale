@@ -45,7 +45,6 @@ ACTIVE_IMPORT_THRESHOLD = 1800
 HEARTBEAT_INTERVAL = 300
 DEFAULT_MAX_WORKERS = 4
 DEFAULT_MAX_TENANT_WORKERS = 1
-DEFAULT_CSV_REWRITE_DAYS = 10
 MIGRATIONS_READY_FILE = '/tmp/diworker-migrations-ready'
 
 
@@ -187,20 +186,19 @@ class DIWorker(ConsumerMixin):
         LOG.info('Starting processing for task: %s, purpose %s',
                  task, 'recalculation ' if is_recalculation else 'import')
         rest_cl.report_import_update(report_import_id, {'state': 'in_progress'})
-
         importer_params = {
             'cloud_account_id': cloud_acc_id,
             'rest_cl': rest_cl,
             'config_cl': config_cl,
             'mongo_raw': mongo_cl.restapi['raw_expenses'],
             'mongo_resources': mongo_cl.restapi['resources'],
+            'mongo_report_files': mongo_cl.restapi['report_import_files'],
             'clickhouse_cl': clickhouse_cl,
             'import_file': import_dict.get('import_file'),
             'recalculate': is_recalculation,
             'max_tenant_concurrent': int(self.diworker_settings.get(
                 'max_tenant_import_workers', DEFAULT_MAX_TENANT_WORKERS)),
-            'csv_rewrite_days': int(self.diworker_settings.get(
-                'csv_rewrite_days') or DEFAULT_CSV_REWRITE_DAYS)
+            'csv_rewrite_days': self.diworker_settings.get('csv_rewrite_days')
         }
         importer = None
         ca = None

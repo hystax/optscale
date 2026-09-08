@@ -39,6 +39,7 @@ class CleanMongoDB(object):
             # linked to cloud_account_id
             self.mongo_client.restapi.raw_expenses: ROWS_LIMIT,
             self.mongo_client.restapi.resources: ROWS_LIMIT,
+            self.mongo_client.restapi.report_import_files: ROWS_LIMIT,
             # linked to organization_id
             self.mongo_client.restapi.archived_recommendations: ROWS_LIMIT,
             self.mongo_client.restapi.checklists: ROWS_LIMIT,
@@ -305,7 +306,8 @@ class CleanMongoDB(object):
 
     def _delete_by_cloud_account(self, cloud_account_id, is_demo):
         restapi_collections = [self.mongo_client.restapi.raw_expenses,
-                               self.mongo_client.restapi.resources]
+                               self.mongo_client.restapi.resources,
+                               self.mongo_client.restapi.report_import_files]
         LOG.info(f'Started processing for cloud account {cloud_account_id}')
         for collection in restapi_collections:
             archive = False
@@ -321,7 +323,8 @@ class CleanMongoDB(object):
 
     def cloud_account_limits(self):
         collections = [self.mongo_client.restapi.resources,
-                       self.mongo_client.restapi.raw_expenses]
+                       self.mongo_client.restapi.raw_expenses,
+                       self.mongo_client.restapi.report_import_files]
         return [self.limits[x] for x in collections]
 
     def delete_by_cloud_account(self):

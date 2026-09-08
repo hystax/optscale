@@ -1016,9 +1016,6 @@ class Azure(CloudBase):
             'warnings': billing_info.get('warnings', [])
         }
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def _generate_cloud_link(self, resource_id):
         if self.base_url == BaseUrl.AZURE_CN:
             portal_url = PortalUrl.AZURE_CN

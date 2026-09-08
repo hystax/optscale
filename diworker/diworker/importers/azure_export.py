@@ -22,11 +22,9 @@ CHUNK_SIZE = 200
 
 class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
 
-    def _download_report_files(self, current_reports, last_import_modified_at):
+    def _download_report_files(self, current_reports):
         for date, reports in current_reports.items():
             for report in reports:
-                if last_import_modified_at < report['last_modified']:
-                    last_import_modified_at = report['last_modified']
                 target_path = self.get_new_report_path(date)
                 os.makedirs(os.path.join(self.reports_dir, date),
                             exist_ok=True)
@@ -34,20 +32,9 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
                     self.cloud_adapter.download_report_file(report['name'],
                                                             f_report)
                 self.report_files[date].append(target_path)
-        return last_import_modified_at
-
-    def get_current_reports(self, reports_groups, last_import_modified_at):
-        current_reports = defaultdict(list)
-        reports_count = 0
-        for date, reports in reports_groups.items():
-            for report in reports:
-                if report.get('last_modified', -1) > last_import_modified_at:
-                    # use all reports for month
-                    current_reports[date].extend(reports)
-                    reports_count += len(reports)
-                    break
-        LOG.info('Selected %s reports', reports_count)
-        return current_reports
+                cloud_key = report['name']
+                self.report_file_keys[target_path] = cloud_key
+                self.report_cloud_etags[cloud_key] = self._get_file_etag(report)
 
     def unpack_report(self, report_file, date):
         dest_dir = self.get_new_report_path(date)
@@ -62,10 +49,29 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
         else:
             return report_file
 
+    def get_current_reports(self, reports_groups, previous_states):
+        current_reports = defaultdict(list)
+        for date, reports in reports_groups.items():
+            if any(self._etag_changed(r, previous_states) for r in reports):
+                LOG.info('Group selected (etag changed): %s', date)
+                current_reports[date].extend(reports)
+            else:
+                LOG.info('Group skipped (etag unchanged): %s', date)
+        total = sum(len(r) for r in current_reports.values())
+        total_checked = sum(len(r) for r in reports_groups.values())
+        LOG.info('Selected %d/%d files for import', total, total_checked)
+        return current_reports
+
     def unpack_report_files(self):
         for date, reports in self.report_files.items():
-            self.report_files[date] = [
-                self.unpack_report(r, date) for r in self.report_files[date]]
+            new_reports = []
+            for old_path in reports:
+                new_path = self.unpack_report(old_path, date)
+                if new_path != old_path and old_path in self.report_file_keys:
+                    self.report_file_keys[new_path] = self.report_file_keys.pop(
+                        old_path)
+                new_reports.append(new_path)
+            self.report_files[date] = new_reports
 
     @retry_backoff(AzureConsumptionException,
                    raise_errors=[
@@ -79,7 +85,7 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
             for r in self.report_files.values():
                 report_files.extend(r)
             for report_path in report_files:
-                self.load_report(report_path)
+                self._process_report_file(report_path, {})
         else:
             raise Exception(
                 f'Unsupported expense import scheme: {import_scheme}')
@@ -87,7 +93,6 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
             self.generate_reservations_expenses(self.min_date_import_threshold)
         except Exception as exc:
             LOG.exception("Failed getting reservations info: %s", str(exc))
-        self.clear_rudiments()
 
     def data_import(self):
         import_scheme = self.cloud_adapter.expense_import_scheme
@@ -100,21 +105,19 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
         else:
             LOG.info('Importing raw data')
             self.load_raw_data()
-        LOG.info('Generating clean records')
-        self.generate_clean_records()
 
-    def load_report(self, report_path, *_args):
+    def load_report(self, report_path, *_args, report_key=None):
         LOG.info('loading report %s', report_path)
 
         try:
             skipped_accounts = self.load_parquet_report(
-                report_path)
+                report_path, report_key=report_key)
         except pyarrow.lib.ArrowInvalid as exc:
             LOG.warning(
                 f"Could not open source file as Parquet {report_path}: "
                 f"{str(exc)}. Will try to open it as CSV")
             skipped_accounts = self.load_csv_report(
-                report_path)
+                report_path, report_key=report_key)
 
         if len(skipped_accounts) > 0:
             LOG.warning('Import skipped for the following subscriptions: %s',
@@ -133,7 +136,7 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
             return [self._get_legacy_key(col) for col in columns]
         return {col: self._get_legacy_key(col) for col in columns}
 
-    def load_csv_report(self, report_path):
+    def load_csv_report(self, report_path, report_key=None):
         date_start = datetime.now(tz=timezone.utc)
         subscription_id = self.cloud_acc['account_id']
         skipped_accounts = set()
@@ -164,6 +167,8 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
                 row['kind'] = 'export'
                 self._fill_custom_fields(row)
                 self._clean_tree(row)
+                if report_key is not None:
+                    row['report_key'] = report_key
                 chunk.append(row)
 
                 if len(chunk) == CHUNK_SIZE:
@@ -178,7 +183,7 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
                 self.update_raw_records(chunk)
         return skipped_accounts
 
-    def load_parquet_report(self, report_path):
+    def load_parquet_report(self, report_path, report_key=None):
         date_start = datetime.now(tz=timezone.utc)
         skipped_accounts = set()
         subscription_id = self.cloud_acc['account_id']
@@ -226,6 +231,8 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
             for expense in expenses:
                 expense['kind'] = 'export'
                 self._fill_custom_fields(expense)
+                if report_key is not None:
+                    expense['report_key'] = report_key
             if expenses:
                 self.update_raw_records(expenses)
                 now = datetime.now(tz=timezone.utc)
