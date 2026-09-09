@@ -644,8 +644,7 @@ class CSVBaseReportImporter(BaseReportImporter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.billing_periods = set()
-        self.detected_cloud_accounts = set()
-        self.detected_cloud_accounts.add(self.cloud_acc_id)
+        self.detected_cloud_accounts = {self.cloud_acc_id}
         self.reports_dir = f'{REPORTS_PATH_PREFIX}/{uuid.uuid4()}'
         os.makedirs(self.reports_dir)
         self.report_files = defaultdict(list)
@@ -862,7 +861,6 @@ class CSVBaseReportImporter(BaseReportImporter):
         LOG.info('Generating clean records')
         self.generate_clean_records()
         self.billing_periods = set()
-        self.detected_cloud_accounts = {self.cloud_acc_id}
         self.create_traffic_processing_tasks()
         self.create_risp_processing_tasks()
         if report_key:
