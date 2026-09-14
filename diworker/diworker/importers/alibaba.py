@@ -152,7 +152,7 @@ class AlibabaReportImporter(BaseReportImporter):
 
     def load_raw_data(self):
         chunk = []
-        now = opttime.utcnow()
+        now = self.period_end
         current_day = self.period_start.replace(
             hour=0, minute=0, second=0, microsecond=0)
         while current_day <= now:
@@ -347,7 +347,7 @@ class AlibabaReportImporter(BaseReportImporter):
     def get_full_months_in_period(self):
         full_month_dates = []
         start = self.period_start
-        end = opttime.utcnow()
+        end = self.period_end
         month_start = datetime(
             year=start.year, month=start.month, day=1,
             hour=0, minute=0, second=0)

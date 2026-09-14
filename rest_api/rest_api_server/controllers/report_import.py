@@ -19,7 +19,8 @@ from rest_api.rest_api_server.controllers.base import BaseController
 from rest_api.rest_api_server.controllers.base_async import BaseAsyncControllerWrapper
 from rest_api.rest_api_server.controllers.checklist import ChecklistController
 from rest_api.rest_api_server.utils import (raise_unexpected_exception,
-                                            check_int_attribute)
+                                            check_int_attribute,
+                                            check_bool_attribute)
 
 ACTIVE_IMPORT_THRESHOLD = 1800  # 30 min
 DEFAULT_NOT_PROCESSED_REPORT_THRESHOLD_SECONDS = 10800  # 3 hrs
@@ -35,13 +36,21 @@ class ReportImportBaseController(BaseController):
     RETRY_POLICY = {'max_retries': 15, 'interval_start': 0,
                     'interval_step': 1, 'interval_max': 3}
 
-    def create(self, cloud_account_id, import_file=None, recalculate=False, priority=1):
+    def create(self, cloud_account_id, import_file=None, recalculate=False,
+               priority=1, import_from=None, import_to=None, reimport=False):
         report_import = super().create(
             cloud_account_id=cloud_account_id,
             import_file=import_file,
-            is_recalculation=recalculate
+            is_recalculation=recalculate,
         )
-        self.publish_task({'report_import_id': report_import.id}, priority)
+        task_params = {'report_import_id': report_import.id}
+        if import_from is not None:
+            task_params['import_from'] = import_from
+        if import_to is not None:
+            task_params['import_to'] = import_to
+        if reimport:
+            task_params['reimport'] = reimport
+        self.publish_task(task_params, priority)
         if recalculate:
             self._publish_report_import_activity(
                 report_import, 'recalculation_started')
@@ -214,6 +223,9 @@ class ReportImportScheduleController(ReportImportBaseController):
         cloud_account_type = kwargs.pop("cloud_account_type", None)
         cloud_account_id = kwargs.pop("cloud_account_id", None)
         priority = kwargs.pop("priority", 1)
+        import_from = kwargs.pop("import_from", None)
+        import_to = kwargs.pop("import_to", None)
+        reimport = kwargs.pop("reimport", False)
         if period is not None:
             # if import period is set there should be no other parameters
             if (organization_id is not None or
@@ -223,6 +235,20 @@ class ReportImportScheduleController(ReportImportBaseController):
             check_int_attribute('period', period)
         if period is None and organization_id is None and cloud_account_id is None:
             raise WrongArgumentsException(Err.OE0532, [])
+        if (import_from is not None or import_to is not None or
+                reimport) and cloud_account_id is None:
+            raise WrongArgumentsException(
+                Err.OE0561, ['import_from, import_to or reimport',
+                             'cloud_account_id'])
+        if import_from is not None:
+            check_int_attribute('import_from', import_from, min_length=0)
+        if import_to is not None:
+            check_int_attribute('import_to', import_to, min_length=0)
+        if import_from is not None and import_to is not None and import_from > import_to:
+            raise WrongArgumentsException(
+                Err.OE0446, ['import_to', 'import_from'])
+        if reimport is not False:
+            check_bool_attribute('reimport', reimport)
         if kwargs:
             raise_unexpected_exception(kwargs.keys())
         self._check_args(
@@ -240,7 +266,12 @@ class ReportImportScheduleController(ReportImportBaseController):
                 if decoded_cfg.get('linked', False):
                     continue
             if not self.check_unprocessed_imports(ca.id):
-                result.append(self.create(ca.id, priority=priority))
+                result.append(self.create(
+                    ca.id, priority=priority,
+                    import_from=import_from,
+                    import_to=import_to,
+                    reimport=reimport,
+                ))
         return result
 
 

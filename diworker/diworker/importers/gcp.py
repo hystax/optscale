@@ -137,7 +137,7 @@ class GcpReportImporter(BaseReportImporter):
     def load_raw_data(self):
         current_day = self.period_start.replace(
             hour=0, minute=0, second=0, microsecond=0)
-        now = opttime.utcnow()
+        now = self.period_end
         while current_day <= now:
             chunk = []
             end_date = current_day + timedelta(days=1)

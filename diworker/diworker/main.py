@@ -196,6 +196,9 @@ class DIWorker(ConsumerMixin):
             'clickhouse_cl': clickhouse_cl,
             'import_file': import_dict.get('import_file'),
             'recalculate': is_recalculation,
+            'import_from': task.get('import_from'),
+            'import_to': task.get('import_to'),
+            'reimport': task.get('reimport', False),
             'max_tenant_concurrent': int(self.diworker_settings.get(
                 'max_tenant_import_workers', DEFAULT_MAX_TENANT_WORKERS)),
             'csv_rewrite_days': self.diworker_settings.get('csv_rewrite_days')

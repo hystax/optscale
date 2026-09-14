@@ -17,6 +17,12 @@ class NebiusReportImporter(CSVBaseReportImporter):
         super().__init__(*args, **kwargs)
 
     @staticmethod
+    def _group_key_range(key):
+        dt = datetime.strptime(key, '%Y%m')
+        end = dt.replace(month=dt.month % 12 + 1, year=dt.year + dt.month // 12)
+        return dt.strftime('%Y%m%d'), end.strftime('%Y%m%d')
+
+    @staticmethod
     def get_unique_field_list(include_date=True):
         unique_list = [
             'resource_id',

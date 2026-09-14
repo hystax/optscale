@@ -257,13 +257,18 @@ class KubernetesReportImporter(BaseReportImporter):
         self._nodes_provider = None
         self._currency = None
         self.period_start = None
-        if self.cloud_acc.get('last_import_at'):
-            last_import_at = self.get_last_import_date(self.cloud_acc_id)
-            if last_import_at:
-                self.period_start = last_import_at.replace(
-                    hour=0, minute=0, second=0, microsecond=0)
-        if self.period_start is None:
-            self.set_period_start()
+        if self.import_from is not None:
+            self.period_start = opttime.utcfromtimestamp(
+                self.import_from).replace(
+                hour=0, minute=0, second=0, microsecond=0)
+        else:
+            if self.cloud_acc.get('last_import_at'):
+                last_import_at = self.get_last_import_date(self.cloud_acc_id)
+                if last_import_at:
+                    self.period_start = last_import_at.replace(
+                        hour=0, minute=0, second=0, microsecond=0)
+            if self.period_start is None:
+                self.set_period_start()
 
     @property
     def cloud_adapter(self):
@@ -420,8 +425,8 @@ class KubernetesReportImporter(BaseReportImporter):
             return container_id.split('/pod')[-1]
 
     def load_raw_data(self):
-        now = opttime.utcnow()
-        dt = now + timedelta(days=1)
+        end = self.period_end
+        dt = end + timedelta(days=1)
         days = (dt - self.period_start).days
         LOG.info('Loading metrics for period %s - %s' % (
             self.period_start, dt))
@@ -438,7 +443,7 @@ class KubernetesReportImporter(BaseReportImporter):
         node_info = self.get_node_info(days, dt)
         self.nodes_provider.load_data(period=days, dt=dt)
         pod_service_map = self.cloud_adapter.get_pod_services(
-            int(now.timestamp()))
+            int(end.timestamp()))
         chunk = []
         for metric_name, query_cost_func_set in meter_map.items():
             query, cost_func = query_cost_func_set
@@ -467,8 +472,8 @@ class KubernetesReportImporter(BaseReportImporter):
                     start_date = opttime.utcfromtimestamp(
                         dt_timestamp) - timedelta(days=1)
                     end_date = opttime.utcfromtimestamp(dt_timestamp)
-                    if end_date > now:
-                        end_date = now
+                    if end_date > end:
+                        end_date = end
                     worked_hrs = (end_date - start_date
                                   ).total_seconds() / SECONDS_IN_HOUR
                     end_date = end_date - timedelta(seconds=1)
