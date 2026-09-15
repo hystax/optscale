@@ -20,12 +20,21 @@ const NEBIUS = Object.freeze({
   PRICING_UNIT: "pricing_unit",
 });
 
+const AZURE = Object.freeze({
+  KIND: "kind",
+  KIND_MODERN: "modern",
+  USAGE_QUANTITY: "usage_quantity",
+});
+
+// AWS/Nebius/Azure carry a meaningful usage quantity; other cloud types don't.
+const USAGE_TRACKED_CLOUD_TYPES = [AWS_CNR, NEBIUS_DATA_SOURCE, AZURE_CNR];
+
 const getFormattedOrdinateValues = (currentValue, currentPointValue) => {
   const values = {
     y: (currentPointValue.y || 0) + currentValue.expense,
   };
 
-  if (currentValue.cloudType === AWS_CNR) {
+  if (USAGE_TRACKED_CLOUD_TYPES.includes(currentValue.cloudType)) {
     values.usage = (currentPointValue.usage || 0) + (currentValue.usage || 0);
     values.usageUnit = currentValue.usageUnit || currentPointValue.usageUnit;
   }
@@ -82,10 +91,37 @@ const getUsage = (cloudType, item) =>
         usage: +item[NEBIUS.PRICING_QUANTITY],
         usageUnit: item[NEBIUS.PRICING_UNIT],
       }),
+      [AZURE_CNR]: () => {
+        // Azure raw records have multiple "generations" (kind: legacy/modern/raw/export,
+        // or absent on old data) with inconsistent usage fields. Only "modern" records are
+        // known to carry a reliable usage_quantity/meter_details.unit pair.
+        if (item[AZURE.KIND] !== AZURE.KIND_MODERN) {
+          return {
+            usage: 0,
+            usageUnit: undefined,
+          };
+        }
+        const rawUsageQuantity = item[AZURE.USAGE_QUANTITY];
+        const hasNumericUsageQuantity =
+          typeof rawUsageQuantity === "number" || (typeof rawUsageQuantity === "string" && rawUsageQuantity.trim() !== "");
+        const usageQuantity = +rawUsageQuantity;
+        const usageUnit = item.meter_details?.unit;
+        if (!hasNumericUsageQuantity || !Number.isFinite(usageQuantity) || !usageUnit) {
+          return {
+            usage: 0,
+            usageUnit: undefined,
+          };
+        }
+        return {
+          usage: usageQuantity,
+          usageUnit: `* ${usageUnit}`,
+        };
+      },
     })[cloudType] ?? (() => {})
   )();
 
 const buildData = (cloudType, item) => ({
+  cloudType,
   date: formatISO(item.start_date),
   expense: item.cost ?? 0,
   ...getUsage(cloudType, item),
