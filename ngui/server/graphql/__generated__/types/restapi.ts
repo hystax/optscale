@@ -656,6 +656,7 @@ export type Mutation = {
   createStripeCheckoutSession?: Maybe<StripeSession>;
   deleteDataSource?: Maybe<Scalars["String"]["output"]>;
   deleteOrganization?: Maybe<Scalars["String"]["output"]>;
+  scheduleDataSourceReimport?: Maybe<Scalars["Boolean"]["output"]>;
   scheduleGeminiDataPreparation?: Maybe<ScheduleGeminiDataPreparation>;
   updateDataSource?: Maybe<DataSourceInterface>;
   updateEmployeeEmail?: Maybe<EmployeeEmail>;
@@ -690,6 +691,11 @@ export type MutationDeleteDataSourceArgs = {
 
 export type MutationDeleteOrganizationArgs = {
   organizationId: Scalars["ID"]["input"];
+};
+
+export type MutationScheduleDataSourceReimportArgs = {
+  dataSourceId: Scalars["ID"]["input"];
+  importFrom: Scalars["Int"]["input"];
 };
 
 export type MutationScheduleGeminiDataPreparationArgs = {
@@ -1002,7 +1008,6 @@ export type UpdateDataSourceInput = {
   gcpTenantConfig?: InputMaybe<GcpTenantConfigInput>;
   k8sConfig?: InputMaybe<K8sConfigInput>;
   lastImportAt?: InputMaybe<Scalars["Int"]["input"]>;
-  lastImportModifiedAt?: InputMaybe<Scalars["Int"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
   nebiusConfig?: InputMaybe<NebiusConfigInput>;
 };
@@ -1811,6 +1816,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationDeleteOrganizationArgs, "organizationId">
+  >;
+  scheduleDataSourceReimport?: Resolver<
+    Maybe<ResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationScheduleDataSourceReimportArgs, "dataSourceId" | "importFrom">
   >;
   scheduleGeminiDataPreparation?: Resolver<
     Maybe<ResolversTypes["ScheduleGeminiDataPreparation"]>,

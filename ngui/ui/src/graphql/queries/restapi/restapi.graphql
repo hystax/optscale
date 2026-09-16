@@ -336,6 +336,10 @@ mutation UpdateDataSource($dataSourceId: ID!, $params: UpdateDataSourceInput!) {
   }
 }
 
+mutation ScheduleDataSourceReimport($dataSourceId: ID!, $importFrom: Int!) {
+  scheduleDataSourceReimport(dataSourceId: $dataSourceId, importFrom: $importFrom)
+}
+
 mutation DeleteDataSource($dataSourceId: ID!) {
   deleteDataSource(dataSourceId: $dataSourceId)
 }
