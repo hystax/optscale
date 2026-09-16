@@ -47,7 +47,8 @@ class DatabricksReportImporter(BaseReportImporter):
 
     def load_raw_data(self):
         start_date = self.period_start.strftime("%Y-%m")
-        end_date = opttime.utcnow().strftime("%Y-%m")
+        end_time = self.period_end
+        end_date = end_time.strftime("%Y-%m")
         usages = self.cloud_adapter.download_usage(
             start_date, end_date)
         if not usages:
@@ -62,9 +63,12 @@ class DatabricksReportImporter(BaseReportImporter):
                 chunk = []
             self._fill_custom_fields(usage_obj, sku_prices)
             self._clean_tree(usage_obj)
-            if usage_obj['start_date'] >= self.period_start.replace(
-                    tzinfo=timezone.utc):
-                chunk.append(usage_obj)
+            obj_date = usage_obj['start_date']
+            if obj_date < self.period_start.replace(tzinfo=timezone.utc):
+                continue
+            if obj_date > self.period_end.replace(tzinfo=timezone.utc):
+                continue
+            chunk.append(usage_obj)
         if chunk:
             self.update_raw_records(chunk)
 

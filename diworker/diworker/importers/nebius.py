@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import csv
 import logging
-from collections import defaultdict
 from datetime import datetime, timezone
 import tools.optscale_time as opttime
 
@@ -16,6 +15,12 @@ class NebiusReportImporter(CSVBaseReportImporter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def _group_key_range(key):
+        dt = datetime.strptime(key, '%Y%m')
+        end = dt.replace(month=dt.month % 12 + 1, year=dt.year + dt.month // 12)
+        return dt.strftime('%Y%m%d'), end.strftime('%Y%m%d')
 
     @staticmethod
     def get_unique_field_list(include_date=True):
@@ -40,19 +45,9 @@ class NebiusReportImporter(CSVBaseReportImporter):
             'misc_credit',
             'updated_at',
             'report_identity',
+            'report_key',
             '_rec_n'
         ]
-
-    def get_current_reports(self, reports_groups, last_import_modified_at):
-        current_reports = defaultdict(list)
-        reports_count = 0
-        for date, reports in reports_groups.items():
-            for report in reports:
-                if report.get('LastModified', -1) > last_import_modified_at:
-                    current_reports[date].append(report)
-                    reports_count += 1
-        LOG.info('Selected %s reports', reports_count)
-        return current_reports
 
     def get_raw_upsert_filters(self, expense):
         filters = super().get_raw_upsert_filters(expense)
@@ -75,14 +70,14 @@ class NebiusReportImporter(CSVBaseReportImporter):
     def compose_resource_id(self, expense):
         return expense['sku_name']
 
-    def load_report(self, report_path, account_id_ca_id_map):
+    def load_report(self, report_path, account_id_ca_id_map, report_key=None):
         skipped_accounts = set()
         billing_period = None
         LOG.info('loading report %s', report_path)
 
         billing_period, skipped_accounts = self.load_csv_report(
             report_path, account_id_ca_id_map, billing_period,
-            skipped_accounts)
+            skipped_accounts, report_key=report_key)
 
         if billing_period:
             self.billing_periods.add(billing_period)
@@ -93,7 +88,7 @@ class NebiusReportImporter(CSVBaseReportImporter):
                         skipped_accounts)
 
     def load_csv_report(self, report_path, account_id_ca_id_map,
-                        billing_period, skipped_accounts):
+                        billing_period, skipped_accounts, report_key=None):
         date_start = opttime.utcnow()
         with open(report_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -134,6 +129,8 @@ class NebiusReportImporter(CSVBaseReportImporter):
                 row['report_identity'] = self.report_identity
                 record_number += 1
                 row['_rec_n'] = record_number
+                if report_key is not None:
+                    row['report_key'] = report_key
                 chunk.append(row)
             if chunk:
                 self.update_raw_records(chunk)

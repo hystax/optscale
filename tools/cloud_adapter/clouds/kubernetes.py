@@ -175,9 +175,6 @@ class Kubernetes(CloudBase):
     def configure_report(self):
         pass
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def volume_discovery_calls(self):
         return []
 

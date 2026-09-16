@@ -988,9 +988,6 @@ class Nebius(S3CloudMixin):
     def set_currency(self, currency):
         pass
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def start_instance(self, instance_id):
         request = StartInstanceRequest(instance_id=instance_id)
         try:

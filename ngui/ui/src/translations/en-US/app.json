@@ -232,7 +232,7 @@
   "billingImportFailed": "Billing import failed",
   "billingOnly": "Billing only",
   "billingReimportTitle": "Billing Reimport",
-  "billingReimportWarning": "Reimporting billing starting from the selected import date will overwrite existing billing data. This action may cause discrepancies or breaks in the current billing records and can take some time to complete. The new billing data will be imported during the next billing import report processing. Please proceed with caution, as this process cannot be undone. Ensure that this action is necessary and that you are prepared for any potential data loss and inaccuracies in billing tracking.",
+  "billingReimportWarning": "Reimporting billing starting from the selected import date will overwrite existing billing data. This action may cause discrepancies or breaks in the current billing records and can take some time to complete. The reimport will be scheduled immediately. Please proceed with caution, as this process cannot be undone. Ensure that this action is necessary and that you are prepared for any potential data loss and inaccuracies in billing tracking.",
   "billingReportBucket": "Billing report bucket",
   "billingSubscriptionFeatures.24HourSupportSevenDaysAWeek": "24-hour support, seven days a week",
   "billingSubscriptionFeatures.8HourSupportFiveDaysAWeek": "8-hour support, five days a week",

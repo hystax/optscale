@@ -32,6 +32,8 @@ _THROTTLE_LOCK = threading.Lock()
 
 GZIP_ENDING = '.gz'
 REPORTS_PATH_PREFIX = 'reports'
+ETAG_STABLE_DAYS = 5
+DEFAULT_CSV_REWRITE_DAYS = 10
 
 
 def _get_throttle_semaphore(parent_id: str,
@@ -46,25 +48,42 @@ class BaseReportImporter:
     def __init__(self, cloud_account_id, rest_cl, config_cl, mongo_raw,
                  mongo_resources, clickhouse_cl, import_file=None,
                  recalculate=False, detect_period_start=True,
-                 max_tenant_concurrent=1, csv_rewrite_days=5):
+                 max_tenant_concurrent=1,
+                 csv_rewrite_days=None,
+                 mongo_report_files=None,
+                 import_from=None, import_to=None, reimport=False):
         self.cloud_acc_id = cloud_account_id
         self.max_tenant_concurrent = max_tenant_concurrent
-        self.csv_rewrite_days = csv_rewrite_days
+        csv_rewrite_days = int(csv_rewrite_days or 0)
+        self.csv_rewrite_days = csv_rewrite_days if (
+                csv_rewrite_days > 0) else DEFAULT_CSV_REWRITE_DAYS
+        LOG.info('csv_rewrite_days: %d', self.csv_rewrite_days)
         self.rest_cl = rest_cl
         self.config_cl = config_cl
         self.mongo_raw = mongo_raw
         self.mongo_resources = mongo_resources
+        self.mongo_report_files = mongo_report_files
         self.clickhouse_cl = clickhouse_cl
         self.import_file = import_file
         self._cloud_adapter = None
         self._mongo = None
         self._s3_client = None
         self.recalculate = recalculate
+        self.import_from = import_from
+        self.import_to = import_to
+        self.reimport = reimport
         self.period_start = None
         if detect_period_start:
             self.detect_period_start()
+        if self.import_from is not None:
+            self.period_start = opttime.utcfromtimestamp(self.import_from)
+        now = opttime.utcnow()
+        if self.import_to is not None:
+            self.period_end = min(opttime.utcfromtimestamp(self.import_to), now)
+        else:
+            self.period_end = now
         self.imported_raw_dates_map = defaultdict(dict)
-        self.report_identity = opttime.utcnow().timestamp()
+        self.report_identity = now.timestamp()
 
     @property
     def cloud_acc(self):
@@ -482,10 +501,17 @@ class BaseReportImporter:
         self.clickhouse_cl.insert(
             'expenses', expenses, column_names=column_names)
 
+    @property
+    def _is_targeted_import(self):
+        return (self.import_from is not None or
+                self.import_to is not None or
+                self.reimport)
+
     def update_cloud_import_time(self, ts):
-        self.rest_cl.cloud_account_update(self.cloud_acc_id,
-                                          {'last_import_at': ts,
-                                           'last_import_attempt_at': ts})
+        if not self._is_targeted_import:
+            self.rest_cl.cloud_account_update(self.cloud_acc_id,
+                                              {'last_import_at': ts,
+                                               'last_import_attempt_at': ts})
 
     def update_cloud_import_attempt(self, ts, error=None):
         self.rest_cl.cloud_account_update(
@@ -636,18 +662,21 @@ class CSVBaseReportImporter(BaseReportImporter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.billing_periods = set()
-        self.detected_cloud_accounts = set()
-        self.detected_cloud_accounts.add(self.cloud_acc_id)
+        self.detected_cloud_accounts = {self.cloud_acc_id}
         self.reports_dir = f'{REPORTS_PATH_PREFIX}/{uuid.uuid4()}'
         os.makedirs(self.reports_dir)
         self.report_files = defaultdict(list)
-        self.last_import_modified_at = self.cloud_acc.get(
-            'last_import_modified_at', 0)
+        self.report_file_keys = {}
+        self.report_cloud_etags = {}
+        self._previous_file_states = {}
 
     @cached_property
     def min_date_import_threshold(self) -> datetime:
-        last_import_dt = datetime.fromtimestamp(
-            self.cloud_acc.get('last_import_modified_at', 0), tz=timezone.utc)
+        if self.import_from is not None:
+            dt = datetime.fromtimestamp(self.import_from, tz=timezone.utc)
+            return dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        base_ts = self.cloud_acc.get('last_import_at', 0)
+        last_import_dt = datetime.fromtimestamp(base_ts, tz=timezone.utc)
         return last_import_dt.replace(
             hour=0, minute=0, second=0, microsecond=0
         ) - timedelta(days=self.csv_rewrite_days)
@@ -664,32 +693,113 @@ class CSVBaseReportImporter(BaseReportImporter):
         with open(self.report_files['reports'][0], 'wb') as f_report:
             self.s3_client.download_fileobj(bucket, filename, f_report)
 
-    def get_current_reports(self, reports_groups, last_import_modified_at):
-        raise NotImplementedError
+    @staticmethod
+    def _get_file_key(report):
+        return report.get('Key') or report.get('name')
+
+    @staticmethod
+    def _group_key_range(key):
+        return key[:8], key[9:17]
+
+    @staticmethod
+    def _get_file_etag(report):
+        return str(report.get('ETag') or report.get('etag', '')).strip('"')
+
+    def _etag_changed(self, report, previous_states):
+        key = self._get_file_key(report)
+        stored_etag = previous_states.get(key, {}).get('etag', '')
+        return stored_etag != self._get_file_etag(report)
+
+    def get_previous_file_states(self):
+        return {
+            d['file_key']: d
+            for d in self.mongo_report_files.find(
+                {'cloud_account_id': self.cloud_acc_id}
+            )
+        }
+
+    def _is_period_stable(self, reports, previous_states):
+        if not reports:
+            return True
+        threshold = datetime.utcnow() - timedelta(days=ETAG_STABLE_DAYS)
+        for report in reports:
+            key = self._get_file_key(report)
+            state = previous_states.get(key)
+            if not state:
+                return False
+            if self._get_file_etag(report) != state.get('etag', ''):
+                LOG.info('Period not stable: etag changed for %s', key)
+                return False
+            if state.get('etag_changed_at', datetime.min) > threshold:
+                LOG.info('Period not stable: etag_changed_at too recent for %s',
+                         key)
+                return False
+        return True
+
+    def get_current_reports(self, reports_groups, previous_states):
+        current_reports = defaultdict(list)
+        for date, reports in reports_groups.items():
+            for report in reports:
+                key = self._get_file_key(report)
+                if self._etag_changed(report, previous_states):
+                    LOG.info('File selected (etag changed): %s', key)
+                    current_reports[date].append(report)
+                else:
+                    LOG.info('File skipped (etag unchanged): %s', key)
+        total = sum(len(r) for r in current_reports.values())
+        total_checked = sum(len(r) for r in reports_groups.values())
+        LOG.info('Selected %d/%d files for import', total, total_checked)
+        return current_reports
+
+    def save_file_states(self, reports_groups, previous_states):
+        now = datetime.utcnow()
+        ops = []
+        etag_changed_keys = []
+        for reports in reports_groups.values():
+            for report in reports:
+                file_key = self._get_file_key(report)
+                current_etag = self._get_file_etag(report)
+                stored_etag = previous_states.get(file_key, {}).get('etag', '')
+                set_fields = {'etag': current_etag}
+                if stored_etag != current_etag:
+                    set_fields['etag_changed_at'] = now
+                    etag_changed_keys.append(file_key)
+                ops.append(UpdateOne(
+                    filter={
+                        'cloud_account_id': self.cloud_acc_id,
+                        'file_key': file_key,
+                    },
+                    update={'$set': set_fields},
+                    upsert=True,
+                ))
+        LOG.info('Saving states for %d files, etag changed: %d',
+                 len(ops), len(etag_changed_keys))
+        if etag_changed_keys:
+            LOG.info('Files with changed etag: %s', etag_changed_keys)
+        if ops:
+            self.mongo_report_files.bulk_write(ops)
 
     def _get_legacy_key(self, old_key):
         return
 
-    def _download_report_files(self, current_reports, last_import_modified_at):
+    def _download_report_files(self, current_reports):
         for date, reports in current_reports.items():
             for report in reports:
-                if last_import_modified_at < report['LastModified']:
-                    last_import_modified_at = report['LastModified']
                 target_path = self.get_new_report_path(date)
                 os.makedirs(os.path.join(self.reports_dir, date),
                             exist_ok=True)
+                cloud_key = self._get_file_key(report)
                 try:
-                    # python2 way
                     with open(target_path, 'wb') as f_report:
-                        self.cloud_adapter.download_report_file(report['Key'],
-                                                                f_report)
+                        self.cloud_adapter.download_report_file(
+                            cloud_key, f_report)
                 except TypeError:
-                    # python3 way
                     with open(target_path, 'w') as f_report:
-                        self.cloud_adapter.download_report_file(report['Key'],
-                                                                f_report)
+                        self.cloud_adapter.download_report_file(
+                            cloud_key, f_report)
                 self.report_files[date].append(target_path)
-        return last_import_modified_at
+                self.report_file_keys[target_path] = cloud_key
+                self.report_cloud_etags[cloud_key] = self._get_file_etag(report)
 
     @staticmethod
     def gunzip_report(report_path, dest_dir):
@@ -713,34 +823,79 @@ class CSVBaseReportImporter(BaseReportImporter):
 
         return new_report_path
 
-    def download_from_cloud(self):
-        reports_groups = self.cloud_adapter.get_report_files()
-        if self.last_import_modified_at <= 0:
-            last_import_modified_at = datetime.min.replace(
-                tzinfo=timezone.utc)
-            LOG.info('Decided to download latest reports set')
-            current_reports = defaultdict(list)
-            report_groups_keys = list(reports_groups.keys())
-            report_groups_keys.sort()
-            # to get reports for the current and three previous months
+    def _select_groups_to_check(self, reports_groups, previous_states):
+        if self.reimport:
+            LOG.info('Reimport requested, downloading all range-filtered groups')
+            return reports_groups
+        if not previous_states or self.cloud_acc['last_import_at'] == 0:
+            LOG.info('No previous file states found or first import in '
+                     'progress, downloading latest reports')
             num_last_reports = 4 if self.need_extend_report_interval else 1
-            report_groups_keys = report_groups_keys[-num_last_reports:]
-            for key in report_groups_keys:
-                current_reports[key].extend(reports_groups[key])
-        else:
-            last_import_modified_at = datetime.fromtimestamp(
-                self.last_import_modified_at, tz=timezone.utc)
-            current_reports = self.get_current_reports(
-                reports_groups, last_import_modified_at)
+            sorted_keys = sorted(reports_groups.keys())[-num_last_reports:]
+            return {k: reports_groups[k] for k in sorted_keys}
+        groups_to_check = {}
+        sorted_keys = sorted(reports_groups.keys())
+        for i, key in enumerate(sorted_keys):
+            is_last = (i == len(sorted_keys) - 1)
+            never_imported = not any(
+                self._get_file_key(r) in previous_states
+                for r in reports_groups[key]
+            )
+            if not is_last and never_imported and self.import_from is None:
+                continue
+            if is_last or not self._is_period_stable(
+                    reports_groups[key], previous_states):
+                groups_to_check[key] = reports_groups[key]
+        stable_keys = set(reports_groups.keys()) - set(groups_to_check.keys())
+        if stable_keys:
+            LOG.info('Groups skipped as stable: %s', sorted(stable_keys))
+        return groups_to_check
 
-        last_import_modified_at = self._download_report_files(
-            current_reports, last_import_modified_at)
-        self.last_import_modified_at = int(last_import_modified_at.timestamp())
+    def _get_filtered_report_groups(self):
+        reports_groups = self.cloud_adapter.get_report_files()
+        if self.import_from is not None or self.import_to is not None:
+            import_from_key = (
+                datetime.fromtimestamp(
+                    self.import_from, tz=timezone.utc).strftime('%Y%m%d')
+                if self.import_from is not None else None
+            )
+            import_to_key = (
+                datetime.fromtimestamp(
+                    self.import_to, tz=timezone.utc).strftime('%Y%m%d')
+                if self.import_to is not None else None
+            )
+            reports_groups = {
+                k: v for k, v in reports_groups.items()
+                if (not import_from_key or
+                    self._group_key_range(k)[1] > import_from_key)
+                and (not import_to_key or
+                     self._group_key_range(k)[0] <= import_to_key)
+            }
+            LOG.info('Filtered report groups by date range [%s, %s]: %s',
+                     import_from_key, import_to_key,
+                     sorted(reports_groups.keys()))
+        return reports_groups
+
+    def download_from_cloud(self):
+        if self.mongo_report_files is None:
+            raise ValueError(
+                'mongo_report_files is required for cloud-backed imports')
+        reports_groups = self._get_filtered_report_groups()
+        previous_states = self.get_previous_file_states()
+        self._previous_file_states = previous_states
+        LOG.info('Available report groups: %s', sorted(reports_groups.keys()))
+        LOG.info('Found %d previous file states', len(previous_states))
+        groups_to_check = self._select_groups_to_check(
+            reports_groups, previous_states)
+        LOG.info('Groups to check: %s', sorted(groups_to_check.keys()))
+        etag_states = {} if self.reimport else previous_states
+        current_reports = self.get_current_reports(groups_to_check, etag_states)
+        self._download_report_files(current_reports)
 
     def unpack_report_files(self):
         pass
 
-    def load_report(self, report_path, account_id_ca_id_ma):
+    def load_report(self, report_path, account_id_ca_id_map, report_key=None):
         raise NotImplementedError
 
     def prepare(self):
@@ -753,25 +908,61 @@ class CSVBaseReportImporter(BaseReportImporter):
     def get_linked_account_map(self):
         return {self.cloud_acc['account_id']: self.cloud_acc_id}
 
+    def _process_report_file(self, report_path, account_id_ca_id_map):
+        report_key = self.report_file_keys.get(report_path)
+        self.load_report(report_path, account_id_ca_id_map, report_key=report_key)
+        if report_key:
+            self._clear_file_rudiments(report_key)
+        else:
+            self.clear_rudiments()
+        LOG.info('Generating clean records')
+        self.generate_clean_records()
+        self.billing_periods = set()
+        self.create_traffic_processing_tasks()
+        self.create_risp_processing_tasks()
+        if report_key:
+            self._save_one_file_state(report_key)
+        self.imported_raw_dates_map = defaultdict(dict)
+
     def _import_reports_ordered_by_date(self, account_id_ca_id_map):
-        dates = [x for x in self.report_files]
-        dates.sort(reverse=True)
-        for date in dates:
-            reports = self.report_files[date]
-            for report in reports:
-                self.load_report(report, account_id_ca_id_map)
-            LOG.info('Generating clean records')
-            self.generate_clean_records()
-            self.billing_periods = set()
+        for date in sorted(self.report_files, reverse=True):
+            for report in self.report_files[date]:
+                self._process_report_file(report, account_id_ca_id_map)
 
     def data_import(self):
+        account_id_ca_id_map = self.get_linked_account_map()
         if self.cloud_acc['last_import_at'] == 0 and self.import_file is None:
             # on first auto report import we will load raw data from reports and
             # generate expenses month by month from newest to oldest
-            account_id_ca_id_map = self.get_linked_account_map()
             self._import_reports_ordered_by_date(account_id_ca_id_map)
         else:
-            super().data_import()
+            report_files = [r for reports in self.report_files.values()
+                            for r in reports]
+            for report_path in report_files:
+                self._process_report_file(report_path, account_id_ca_id_map)
+
+    def _clear_file_rudiments(self, report_key):
+        query = {
+            'cloud_account_id': {'$in': list(self.detected_cloud_accounts)},
+            'report_key': report_key,
+            'report_identity': {'$lt': self.report_identity},
+            'start_date': {'$gte': self.min_date_import_threshold}
+        }
+        result = self.mongo_raw.delete_many(query)
+        LOG.info('Cleared %s rudiments for %s', result.deleted_count, report_key)
+
+    def _save_one_file_state(self, cloud_key):
+        current_etag = self.report_cloud_etags.get(cloud_key, '')
+        stored_etag = self._previous_file_states.get(cloud_key, {}).get('etag', '')
+        set_fields = {'etag': current_etag}
+        if stored_etag != current_etag:
+            set_fields['etag_changed_at'] = datetime.utcnow()
+        self.mongo_report_files.update_one(
+            {'cloud_account_id': self.cloud_acc_id, 'file_key': cloud_key},
+            {'$set': set_fields},
+            upsert=True
+        )
+        LOG.info('Saved state for %s', cloud_key)
 
     def load_raw_data(self):
         account_id_ca_id_map = {self.cloud_acc['account_id']: self.cloud_acc_id}
@@ -779,8 +970,9 @@ class CSVBaseReportImporter(BaseReportImporter):
         for r in self.report_files.values():
             report_files.extend(r)
         for report_path in report_files:
-            self.load_report(report_path, account_id_ca_id_map)
-        self.clear_rudiments()
+            report_key = self.report_file_keys.get(report_path)
+            self.load_report(report_path, account_id_ca_id_map,
+                             report_key=report_key)
 
     def get_resource_ids(self, cloud_account_id, billing_period):
         raise NotImplementedError
@@ -810,9 +1002,9 @@ class CSVBaseReportImporter(BaseReportImporter):
                  'last_import_attempt_error': error[:255]})
 
     def update_cloud_import_time(self, ts):
-        for cloud_acc_id in self.detected_cloud_accounts:
-            self.rest_cl.cloud_account_update(
-                cloud_acc_id,
-                {'last_import_at': ts,
-                 'last_import_modified_at': self.last_import_modified_at,
-                 'last_import_attempt_at': ts})
+        if not self._is_targeted_import:
+            for cloud_acc_id in self.detected_cloud_accounts:
+                self.rest_cl.cloud_account_update(
+                    cloud_acc_id,
+                    {'last_import_at': ts,
+                     'last_import_attempt_at': ts})

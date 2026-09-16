@@ -218,6 +218,71 @@ class TestScheduleImportsApi(TestApiBase):
             code, ret = self.client.schedule_import(0)
             self.assertEqual(len(ret['report_imports']), 1)
 
+    def test_import_from_negative(self):
+        code, ret = self.client.schedule_import(0, import_from=1000000)
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['error_code'], 'OE0561')
+        code, ret = self.client.schedule_import(0, import_to=1000000)
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['error_code'], 'OE0561')
+        code, ret = self.client.schedule_import(0, reimport=True)
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['error_code'], 'OE0561')
+
+    def test_import_range_param_validation(self):
+        ca_id = self._create_cloud_acc_object()
+        code, ret = self.client.schedule_import(cloud_account_id=ca_id,
+                                                import_to='xxx')
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['error_code'], 'OE0223')
+
+        code, ret = self.client.schedule_import(cloud_account_id=ca_id,
+                                                import_to='xxx')
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['error_code'], 'OE0223')
+
+        code, ret = self.client.schedule_import(cloud_account_id=ca_id,
+                                                reimport='xxx')
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['error_code'], 'OE0226')
+
+    def test_reimport_not_boolean(self):
+        ca_id = self._create_cloud_acc_object()
+        code, ret = self.client.post(self.client.schedule_import_url(),
+                                     {'cloud_account_id': ca_id,
+                                      'reimport': 'yes'})
+        self.assertEqual(code, 400)
+        self.assertEqual(ret['error']['error_code'], 'OE0226')
+
+    def test_schedule_with_import_params(self):
+        ca_id = self._create_cloud_acc_object()
+        ts = int(datetime(2026, 3, 1).timestamp())
+        code, ret = self.client.schedule_import(
+            cloud_account_id=ca_id,
+            import_from=ts,
+            import_to=ts + 86400 * 30,
+            reimport=True)
+        self.assertEqual(code, 201)
+        self.assertEqual(len(ret['report_imports']), 1)
+        self.assertEqual(ret['report_imports'][0]['cloud_account_id'], ca_id)
+
+    def test_import_from_greater_than_import_to(self):
+        ca_id = self._create_cloud_acc_object()
+        ts = int(datetime(2026, 3, 15).timestamp())
+        code, ret = self.client.schedule_import(
+            cloud_account_id=ca_id,
+            import_from=ts,
+            import_to=ts - 86400)
+        self.assertEqual(code, 400)
+        self.verify_error_code(ret, 'OE0446')
+
+    def test_schedule_reimport_only(self):
+        ca_id = self._create_cloud_acc_object()
+        code, ret = self.client.schedule_import(
+            cloud_account_id=ca_id, reimport=True)
+        self.assertEqual(code, 201)
+        self.assertEqual(len(ret['report_imports']), 1)
+
     def test_create_active_duplicate(self):
         code, org2 = self.client.organization_create({'name': 'org2'})
         self._create_cloud_acc_object(import_period=0, org_id=org2['id'])

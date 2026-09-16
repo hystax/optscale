@@ -234,13 +234,17 @@ class Client(Client_v1):
         return 'schedule_imports'
 
     def schedule_import(self, period=None, cloud_account_id=None, organization_id=None,
-                        cloud_account_type=None, priority=None):
+                        cloud_account_type=None, priority=None,
+                        import_from=None, import_to=None, reimport=False):
         body = {
             'period': period,
             'cloud_account_id': cloud_account_id,
             'organization_id': organization_id,
             'cloud_account_type': cloud_account_type,
-            'priority': priority
+            'priority': priority,
+            'import_from': import_from,
+            'import_to': import_to,
+            'reimport': reimport
         }
         return self.post(self.schedule_import_url(), body)
 

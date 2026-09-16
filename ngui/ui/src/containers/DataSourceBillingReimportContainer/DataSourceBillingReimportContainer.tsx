@@ -1,5 +1,5 @@
 import DataSourceBillingReimportForm from "components/forms/DataSourceBillingReimportForm/DataSourceBillingReimportForm";
-import { DataSourceDocument, useUpdateDataSourceMutation } from "graphql/__generated__/hooks/restapi";
+import { DataSourceDocument, useScheduleDataSourceReimportMutation } from "graphql/__generated__/hooks/restapi";
 import { getStartOfDayInUTCinSeconds } from "utils/datetime";
 
 type DataSourceBillingReimportContainerProps = {
@@ -8,20 +8,17 @@ type DataSourceBillingReimportContainerProps = {
 };
 
 const DataSourceBillingReimportContainer = ({ dataSourceId, onSuccess }: DataSourceBillingReimportContainerProps) => {
-  const [updateDataSource, { loading }] = useUpdateDataSourceMutation();
+  const [scheduleDataSourceReimport, { loading }] = useScheduleDataSourceReimportMutation();
 
   return (
     <DataSourceBillingReimportForm
       onSubmit={(formData) => {
         const importFrom = getStartOfDayInUTCinSeconds(formData.importFrom);
 
-        return updateDataSource({
+        return scheduleDataSourceReimport({
           variables: {
             dataSourceId,
-            params: {
-              lastImportAt: importFrom,
-              lastImportModifiedAt: importFrom,
-            },
+            importFrom,
           },
           refetchQueries: [DataSourceDocument],
         }).then(onSuccess);

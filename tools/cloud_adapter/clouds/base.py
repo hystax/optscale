@@ -98,10 +98,6 @@ class CloudBase(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def configure_last_import_modified_at(self):
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def get_regions_coordinates(self, load=True):
         raise NotImplementedError
 

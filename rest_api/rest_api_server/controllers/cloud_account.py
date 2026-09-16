@@ -358,10 +358,6 @@ class CloudAccountController(BaseController, ClickHouseMixin):
             adapter_cls, config, organization)
         self.check_cloud_account_exists(org_id, cloud_acc_type, account_id)
         kwargs['account_id'] = account_id
-        last_import_modified_at = self._configure_last_import_modified_at(
-            adapter_cls, config)
-        if last_import_modified_at:
-            kwargs['last_import_modified_at'] = last_import_modified_at
         LOG.info('Creating cloud account. Input data: %s', kwargs)
         ca_obj = CloudAccount(**kwargs)
         self._validate(ca_obj, True, **kwargs)
@@ -505,10 +501,6 @@ class CloudAccountController(BaseController, ClickHouseMixin):
         except CloudConnectionError as ex:
             raise TimeoutException(Err.OE0455, [str(ex)])
 
-    def _configure_last_import_modified_at(self, adapter_cls, config):
-        adapter = adapter_cls(config)
-        return adapter.configure_last_import_modified_at()
-
     @staticmethod
     def _need_notification(kwargs):
         return bool(set(kwargs.keys()).intersection(set(NOTIFY_FIELDS)))
@@ -636,18 +628,11 @@ class CloudAccountController(BaseController, ClickHouseMixin):
                 warnings.extend(configuration_res['warnings'])
                 kwargs['config'] = encode_config(config)
 
-        last_import_update = self._configure_last_import_modified_at(
-            adapter_cls, config)
-        if last_import_update:
-            last_import_modified_at = last_import_update
-            kwargs['last_import_modified_at'] = last_import_modified_at
-
         if kwargs:
             updated_cloud_account = super().update(item_id, **kwargs)
             self._publish_validation_warnings_activities(updated_cloud_account,
                                                          warnings)
-            for import_f in ['last_import_at', 'last_import_modified_at',
-                             'last_import_attempt_at',
+            for import_f in ['last_import_at', 'last_import_attempt_at',
                              'last_import_attempt_error']:
                 kwargs.pop(import_f, None)
         else:

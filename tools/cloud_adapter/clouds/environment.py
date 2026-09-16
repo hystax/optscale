@@ -16,9 +16,6 @@ class Environment(CloudBase):
     def discovery_calls_map(self):
         return {}
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def volume_discovery_calls(self):
         raise NotImplementedError
 

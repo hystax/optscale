@@ -1699,9 +1699,6 @@ class Aws(S3CloudMixin):
             'warnings': []
         }
 
-    def configure_last_import_modified_at(self):
-        pass
-
     def try_to_find_existing_reports(self):
         try:
             LOG.info('Trying to find existing report files')

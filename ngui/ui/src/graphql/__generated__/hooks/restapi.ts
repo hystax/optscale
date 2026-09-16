@@ -656,6 +656,7 @@ export type Mutation = {
   createStripeCheckoutSession?: Maybe<StripeSession>;
   deleteDataSource?: Maybe<Scalars["String"]["output"]>;
   deleteOrganization?: Maybe<Scalars["String"]["output"]>;
+  scheduleDataSourceReimport?: Maybe<Scalars["Boolean"]["output"]>;
   scheduleGeminiDataPreparation?: Maybe<ScheduleGeminiDataPreparation>;
   updateDataSource?: Maybe<DataSourceInterface>;
   updateEmployeeEmail?: Maybe<EmployeeEmail>;
@@ -690,6 +691,11 @@ export type MutationDeleteDataSourceArgs = {
 
 export type MutationDeleteOrganizationArgs = {
   organizationId: Scalars["ID"]["input"];
+};
+
+export type MutationScheduleDataSourceReimportArgs = {
+  dataSourceId: Scalars["ID"]["input"];
+  importFrom: Scalars["Int"]["input"];
 };
 
 export type MutationScheduleGeminiDataPreparationArgs = {
@@ -1002,7 +1008,6 @@ export type UpdateDataSourceInput = {
   gcpTenantConfig?: InputMaybe<GcpTenantConfigInput>;
   k8sConfig?: InputMaybe<K8sConfigInput>;
   lastImportAt?: InputMaybe<Scalars["Int"]["input"]>;
-  lastImportModifiedAt?: InputMaybe<Scalars["Int"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
   nebiusConfig?: InputMaybe<NebiusConfigInput>;
 };
@@ -2227,6 +2232,13 @@ export type UpdateDataSourceMutation = {
       }
     | null;
 };
+
+export type ScheduleDataSourceReimportMutationVariables = Exact<{
+  dataSourceId: Scalars["ID"]["input"];
+  importFrom: Scalars["Int"]["input"];
+}>;
+
+export type ScheduleDataSourceReimportMutation = { __typename?: "Mutation"; scheduleDataSourceReimport?: boolean | null };
 
 export type DeleteDataSourceMutationVariables = Exact<{
   dataSourceId: Scalars["ID"]["input"];
@@ -3842,6 +3854,49 @@ export type UpdateDataSourceMutationResult = Apollo.MutationResult<UpdateDataSou
 export type UpdateDataSourceMutationOptions = Apollo.BaseMutationOptions<
   UpdateDataSourceMutation,
   UpdateDataSourceMutationVariables
+>;
+export const ScheduleDataSourceReimportDocument = gql`
+  mutation ScheduleDataSourceReimport($dataSourceId: ID!, $importFrom: Int!) {
+    scheduleDataSourceReimport(dataSourceId: $dataSourceId, importFrom: $importFrom)
+  }
+`;
+export type ScheduleDataSourceReimportMutationFn = Apollo.MutationFunction<
+  ScheduleDataSourceReimportMutation,
+  ScheduleDataSourceReimportMutationVariables
+>;
+
+/**
+ * __useScheduleDataSourceReimportMutation__
+ *
+ * To run a mutation, you first call `useScheduleDataSourceReimportMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useScheduleDataSourceReimportMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [scheduleDataSourceReimportMutation, { data, loading, error }] = useScheduleDataSourceReimportMutation({
+ *   variables: {
+ *      dataSourceId: // value for 'dataSourceId'
+ *      importFrom: // value for 'importFrom'
+ *   },
+ * });
+ */
+export function useScheduleDataSourceReimportMutation(
+  baseOptions?: Apollo.MutationHookOptions<ScheduleDataSourceReimportMutation, ScheduleDataSourceReimportMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<ScheduleDataSourceReimportMutation, ScheduleDataSourceReimportMutationVariables>(
+    ScheduleDataSourceReimportDocument,
+    options
+  );
+}
+export type ScheduleDataSourceReimportMutationHookResult = ReturnType<typeof useScheduleDataSourceReimportMutation>;
+export type ScheduleDataSourceReimportMutationResult = Apollo.MutationResult<ScheduleDataSourceReimportMutation>;
+export type ScheduleDataSourceReimportMutationOptions = Apollo.BaseMutationOptions<
+  ScheduleDataSourceReimportMutation,
+  ScheduleDataSourceReimportMutationVariables
 >;
 export const DeleteDataSourceDocument = gql`
   mutation DeleteDataSource($dataSourceId: ID!) {

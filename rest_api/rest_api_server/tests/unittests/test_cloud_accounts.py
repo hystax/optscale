@@ -931,21 +931,14 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 201)
         now = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
         code, resp = self.client.cloud_account_update(
-            cloud_acc['id'], {'last_import_at': now,
-                              'last_import_modified_at': now})
+            cloud_acc['id'], {'last_import_at': now})
         self.assertEqual(code, 200)
         self.assertEqual(resp['last_import_at'], now)
-        self.assertEqual(resp['last_import_modified_at'], now)
 
         patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler.'
               'check_cluster_secret', return_value=False).start()
         code, resp = self.client.cloud_account_update(
             cloud_acc['id'], {'last_import_at': 456})
-        self.assertEqual(code, 400)
-        self.assertEqual(resp['error']['error_code'], 'OE0559')
-
-        code, resp = self.client.cloud_account_update(
-            cloud_acc['id'], {'last_import_modified_at': 789})
         self.assertEqual(code, 400)
         self.assertEqual(resp['error']['error_code'], 'OE0559')
 
@@ -1464,7 +1457,7 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 201)
         now = int(datetime.datetime.now(
             tz=datetime.timezone.utc).timestamp()) - 31 * 24 * 60 * 60
-        for param in ['last_import_at', 'last_import_modified_at']:
+        for param in ['last_import_at']:
             params = {param: 1}
             patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler.'
                   'check_cluster_secret', return_value=True).start()
@@ -1550,7 +1543,6 @@ class TestCloudAccountApi(TestApiBase):
             'secret_access_key': 'new_secret',
             'config_scheme': 'create_report'},
             'last_import_at': now,
-            'last_import_modified_at': now,
             'last_import_attempt_at': now,
             'last_import_attempt_error': 'error'
         }
@@ -1576,13 +1568,8 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 200)
         p_publish_activities2.assert_not_called()
 
-        code, cloud_acc = self.client.cloud_account_update(
-            cloud_acc['id'], {'last_import_modified_at': 1})
-        self.assertEqual(code, 200)
-        p_publish_activities2.assert_not_called()
-
         code, cloud_acc = self.client.cloud_account_update(cloud_acc['id'], {
-            'last_import_modified_at': 1, 'last_import_at': 1})
+            'last_import_at': 1})
         self.assertEqual(code, 200)
         p_publish_activities2.assert_not_called()
 
