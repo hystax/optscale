@@ -1,0 +1,10 @@
+# Azure SDKs added by the IntellectIT fork that are NOT pulled
+# transitively by upstream `cloud-adapter`. All Azure SDK calls in
+# bumiworker now use the TokenCredential protocol via
+# `azure.identity.ClientSecretCredential`. Other `azure-mgmt-*` and
+# `azure-identity` versions resolve transitively from
+# `tools/cloud_adapter` (per `bumiworker/uv.lock`) and are not pinned
+# here.
+
+azure-mgmt-advisor==9.0.0
+azure-mgmt-reservations==2.3.0
