@@ -2,6 +2,7 @@ import { handleSuccess } from "api/actionCreators";
 import { MINUTE, HALF_HOUR, HOUR, ERROR_HANDLER_TYPE_LOCAL, SUCCESS_HANDLER_TYPE_ALERT } from "api/constants";
 import { apiAction, getApiUrl, hashParams } from "api/utils";
 import { DAILY_EXPENSE_LIMIT, TOTAL_EXPENSE_LIMIT, TTL } from "utils/constraints";
+import type { UtmParams } from "utils/utm";
 import {
   GET_ORGANIZATION_OPTIONS,
   SET_ORGANIZATION_OPTIONS,
@@ -1278,7 +1279,15 @@ export const getLiveDemo = () =>
     errorHandlerType: ERROR_HANDLER_TYPE_LOCAL,
   });
 
-export const createLiveDemo = ({ email, subscribeToNewsletter }) =>
+export const createLiveDemo = ({
+  email,
+  subscribeToNewsletter,
+  utm,
+}: {
+  email?: string;
+  subscribeToNewsletter?: boolean;
+  utm?: UtmParams;
+}) =>
   apiAction({
     url: `${API_URL}/live_demo`,
     method: "POST",
@@ -1288,6 +1297,10 @@ export const createLiveDemo = ({ email, subscribeToNewsletter }) =>
     params: {
       email,
       subscribe: subscribeToNewsletter,
+      // The /live_demo REST endpoint expects UTM parameters as flat top-level fields —
+      // apiAction sends POST `params` as the request body (see ui/src/middleware/api.ts's
+      // `dataOrParams`), so this spreads directly into the JSON body.
+      ...(utm ?? {}),
     },
   });
 

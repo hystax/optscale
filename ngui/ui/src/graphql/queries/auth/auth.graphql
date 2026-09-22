@@ -10,8 +10,8 @@ mutation CreateToken($email: String!, $password: String, $code: String) {
   }
 }
 
-mutation CreateUser($email: String!, $password: String!, $name: String!) {
-  user(email: $email, password: $password, name: $name) {
+mutation CreateUser($email: String!, $password: String!, $name: String!, $utm: UtmParams) {
+  user(email: $email, password: $password, name: $name, utm: $utm) {
     token
     user_id
     user_email
@@ -19,8 +19,8 @@ mutation CreateUser($email: String!, $password: String!, $name: String!) {
   }
 }
 
-mutation SignIn($provider: String!, $token: String!, $tenantId: String, $redirectUri: String) {
-  signIn(provider: $provider, token: $token, tenantId: $tenantId, redirectUri: $redirectUri) {
+mutation SignIn($provider: String!, $token: String!, $tenantId: String, $redirectUri: String, $utm: UtmParams) {
+  signIn(provider: $provider, token: $token, tenantId: $tenantId, redirectUri: $redirectUri, utm: $utm) {
     token
     user_id
     user_email
