@@ -107,7 +107,7 @@ services:
       <<: *healthcheck-tcp
 
   minio:
-    image: minio/minio:RELEASE.2020-03-19T21-49-00Z
+    image: hystax/minio:local@sha256:d146037cf1c5475a896c35ff41b88b8c1f084361180fd7541d375cc8c1c21adb
     <<: *restart
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
