@@ -156,6 +156,7 @@ BASE_CONSOLE_LINK = "https://console.cloud.google.com"
 DEFAULT_CURRENCY = "USD"
 OPTSCALE_TRACKING_TAG = "optscale_tracking_id"
 STANDARD_BILLING_PREFIX = "gcp_billing_export_v1"
+VIEW_PARTITION_TIME = 'partition_time'
 
 COMPUTE_SERVICE_ID = "6F81-5844-456A"
 
@@ -945,6 +946,21 @@ class Gcp(CloudBase):
     def _billing_table_full_name(self):
         return f"{self.billing_project_id}.{self.billing_dataset}.{self.billing_table}"
 
+    @cached_property
+    def _billing_table_meta(self):
+        return self.bigquery_client.get_table(self._billing_table_full_name())
+
+    @property
+    def _billing_source_is_view(self) -> bool:
+        return self._billing_table_meta.table_type in ("VIEW", "MATERIALIZED_VIEW")
+
+    @property
+    def _view_has_partition_time(self) -> bool:
+        return any(
+            f.name == VIEW_PARTITION_TIME and f.field_type == "TIMESTAMP"
+            for f in (self._billing_table_meta.schema or [])
+        )
+
     @staticmethod
     def _get_billing_threshold_date():
         # billing threshold means datasets should be updated at least 3 days ago
@@ -952,12 +968,19 @@ class Gcp(CloudBase):
             hour=0, minute=0, second=0, microsecond=0
         ) - timedelta(days=BILLING_THRESHOLD)
 
+    def _make_date_filter(self, date_value, op: str = "=") -> str:
+        partition_time_field = '_PARTITIONTIME'
+        if self._billing_source_is_view:
+            partition_time_field = VIEW_PARTITION_TIME
+        return f'TIMESTAMP_TRUNC({partition_time_field}, DAY) {op} TIMESTAMP("{date_value}")'
+
     def _test_bigquery_connection(self):
         dt = self._get_billing_threshold_date()
+        date_filter = self._make_date_filter(dt, ">=")
         query = f"""
             SELECT currency
             FROM `{self._billing_table_full_name()}`
-            WHERE TIMESTAMP_TRUNC(_PARTITIONTIME, DAY) >= TIMESTAMP("{dt}")
+            WHERE {date_filter}
             LIMIT 1
         """
         query_job = self.bigquery_client.query(query, **DEFAULT_KWARGS)
@@ -982,7 +1005,15 @@ class Gcp(CloudBase):
                 )
 
     def _validate_billing_type(self):
-        if not self.billing_table.startswith(STANDARD_BILLING_PREFIX):
+        if self._billing_source_is_view:
+            if not self._view_has_partition_time:
+                raise tools.cloud_adapter.exceptions.InvalidParameterException(
+                    f"Billing view must expose partition time as a column "
+                    f"named '{VIEW_PARTITION_TIME}' of type TIMESTAMP. "
+                    f"Add '_PARTITIONTIME AS {VIEW_PARTITION_TIME}' to "
+                    f"your view's SELECT list."
+                )
+        elif not self.billing_table.startswith(STANDARD_BILLING_PREFIX):
             raise tools.cloud_adapter.exceptions.InvalidParameterException(
                 "Invalid billing type. Expected billing type to be Standard."
             )
@@ -1029,6 +1060,7 @@ class Gcp(CloudBase):
 
     def get_usage(self, start_date, end_date):
         table_name = self._billing_table_full_name()
+        date_filter = self._make_date_filter(start_date)
         query = f"""
         SELECT
             service.description as service,
@@ -1047,7 +1079,7 @@ class Gcp(CloudBase):
             credits, adjustment_info
         FROM `{table_name}`
         WHERE
-            TIMESTAMP_TRUNC(_PARTITIONTIME, DAY) = TIMESTAMP("{start_date}") AND
+            {date_filter} AND
             project.id = "{self.project_id}"
         """
         return self.bigquery_client.query(
