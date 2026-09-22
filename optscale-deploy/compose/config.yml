@@ -280,3 +280,4 @@ etcd:
     api_key: ""
     webhook_secret: ""
     enabled: false
+  product_tracking_id: optscale_tracking_id

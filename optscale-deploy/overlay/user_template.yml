@@ -82,6 +82,9 @@ google_calendar_service:
 #  encryption key
 encryption_key: fffffxdddeadb33f
 
+#  gcp tracking id (tag)
+product_tracking_id: optscale_tracking_id
+
 # This overlay should be used for all non-production environments (?)
 # - https://console.developers.google.com/ to see registered origins for the Google OAuth client"
 # - https://portal.azure.com/ to see registered origins for the Microsoft OAuth client"
