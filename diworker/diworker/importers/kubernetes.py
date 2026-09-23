@@ -480,6 +480,7 @@ class KubernetesReportImporter(BaseReportImporter):
                     cost = cost_func(
                         node, value, total_metrics[dt_timestamp][node_name],
                         worked_hrs)
+                    namespace = expense.get('namespace')
                     expense.update({
                         'metric': metric_name,
                         'value': value,
@@ -491,7 +492,8 @@ class KubernetesReportImporter(BaseReportImporter):
                         'cost': cost,
                         'node_info': node_info[dt_timestamp][node_name],
                         'total_pods_value': total_metrics[dt_timestamp][node_name],
-                        'service': pod_service_map.get(pod_name)
+                        'service': pod_service_map.get(
+                            (namespace, pod_name))
                     })
                     chunk.append(expense)
         if chunk:
