@@ -206,7 +206,8 @@ services:
       - sh
       - -c
       - |
-        python - <<'PY'
+        set -e
+        uv --project docker_images/configurator run python - <<'PY'
         import os
         import etcd
         from optscale_client.config_client.client import Client
@@ -227,7 +228,7 @@ services:
                 pass
         PY
         uv --project docker_images/configurator run python3 docker_images/configurator/configurator.py /config/config
-        python - <<'PY'
+        uv --project docker_images/configurator run python - <<'PY'
         import os
         from optscale_client.config_client.client import Client
 
