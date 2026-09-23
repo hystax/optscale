@@ -29,18 +29,10 @@ export default gql`
     name: String
   }
 
-  input UtmParams {
-    utm_source: String
-    utm_medium: String
-    utm_campaign: String
-    utm_term: String
-    utm_content: String
-  }
-
   type Mutation {
     token(email: String!, password: String, code: String): Token
-    user(email: String!, password: String!, name: String!, utm: UtmParams): User
+    user(email: String!, password: String!, name: String!): User
     updateUser(id: ID!, params: UpdateUserParams!): Token
-    signIn(provider: String!, token: String!, tenantId: String, redirectUri: String, utm: UtmParams): Token
+    signIn(provider: String!, token: String!, tenantId: String, redirectUri: String): Token
   }
 `;

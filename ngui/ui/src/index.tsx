@@ -20,7 +20,6 @@ import { CommunityDocsContextProvider } from "contexts/CommunityDocsContext";
 import { LocaleContextProvider } from "contexts/LocaleContext";
 import configureStore from "store";
 import { microsoftOAuthConfiguration } from "utils/integrations";
-import { captureUtmParams } from "utils/utm";
 
 const { store, persistor } = configureStore();
 
@@ -28,9 +27,6 @@ const pca = new PublicClientApplication(microsoftOAuthConfiguration);
 
 const container = document.getElementById("root");
 const root = createRoot(container);
-
-// Runs before routing/redirects can drop the URL's utm_*/click-ID parameters
-captureUtmParams();
 
 root.render(
   // 10 Nov, 2023: google-map-react has been updated, verify the strinc mode.

@@ -31,7 +31,6 @@ import { ERROR_CODES } from "utils/errorCodes";
 import { SPACING_4 } from "utils/layouts";
 import macaroon from "utils/macaroons";
 import { stringifySearchParams, getSearchParams } from "utils/network";
-import { consumeUtmParams } from "utils/utm";
 
 const AuthorizationContainer = () => {
   const { pathname } = useLocation();
@@ -73,7 +72,7 @@ const AuthorizationContainer = () => {
   };
 
   const handleRegister = async ({ email, password, name }: { email: string; password: string; name: string }) => {
-    const { data } = await consumeUtmParams((utm) => createUser({ variables: { email, password, name, utm } }));
+    const { data } = await createUser({ variables: { email, password, name } });
 
     trackEvent({ category: GA_EVENT_CATEGORIES.USER, action: "Registered", label: "optscale" });
 
@@ -101,28 +100,15 @@ const AuthorizationContainer = () => {
   };
 
   const handleThirdPartySignIn = async ({ provider, token: thirdPartyToken, tenantId, redirectUri }) => {
-    const { data, caveats } = await consumeUtmParams(
-      async (utm) => {
-        const { data: signInData } = await signIn({
-          variables: { provider, token: thirdPartyToken, tenantId, redirectUri, utm },
-        });
-        const signInToken = signInData?.signIn?.token;
-        return {
-          data: signInData,
-          caveats: signInToken ? macaroon.processCaveats(macaroon.deserialize(signInToken).getCaveats()) : {},
-        };
-      },
-      // Attribution is consumed by a registration; a plain sign-in must keep the stored
-      // set available for a future registration attempt.
-      { shouldClear: ({ caveats: signInCaveats }) => Boolean(signInCaveats.register) }
-    );
+    const { data } = await signIn({
+      variables: { provider, token: thirdPartyToken, tenantId, redirectUri },
+    });
 
+    const caveats = macaroon.processCaveats(macaroon.deserialize(data.signIn.token).getCaveats());
     if (caveats.register) {
       trackEvent({ category: GA_EVENT_CATEGORIES.USER, action: "Registered", label: caveats.provider });
     }
-    if (data?.signIn?.token) {
-      dispatch(initialize({ ...data.signIn, caveats }));
-    }
+    dispatch(initialize({ ...data.signIn, caveats }));
   };
 
   const isInvited = queryInvited !== undefined;

@@ -3,7 +3,6 @@ import {
   MutationTokenArgs,
   MutationUpdateUserArgs,
   OrganizationAllowedActionsRequestParams,
-  UtmParams,
 } from "../../graphql/__generated__/types/auth";
 import { getParams } from "../../utils/getParams.js";
 
@@ -34,10 +33,9 @@ class AuthClient extends BaseClient {
     };
   }
 
-  async createUser(email, password, name, utm?: UtmParams) {
+  async createUser(email, password, name) {
     const result = await this.post("users", {
-      // The Auth service accepts UTM parameters as flat top-level body fields.
-      body: { email, password, display_name: name, ...utm },
+      body: { email, password, display_name: name },
     });
 
     return {
@@ -60,14 +58,13 @@ class AuthClient extends BaseClient {
     };
   }
 
-  async signIn(provider, token, tenantId, redirectUri, utm?: UtmParams) {
+  async signIn(provider, token, tenantId, redirectUri) {
     const result = await this.post("signin", {
       body: {
         provider,
         token,
         tenant_id: tenantId,
         redirect_uri: redirectUri,
-        ...utm,
       },
     });
 
