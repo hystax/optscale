@@ -946,19 +946,14 @@ class Gcp(CloudBase):
         return f"{self.billing_project_id}.{self.billing_dataset}.{self.billing_table}"
 
     @cached_property
-    def _billing_table_meta(self):
-        return self.bigquery_client.get_table(self._billing_table_full_name())
-
-    @property
-    def _billing_source_is_view(self) -> bool:
-        return self._billing_table_meta.table_type in ("VIEW", "MATERIALIZED_VIEW")
+    def _billing_table_schema(self) -> dict:
+        query = f"SELECT * FROM `{self._billing_table_full_name()}` LIMIT 0"
+        result = self.bigquery_client.query(query, **DEFAULT_KWARGS).result()
+        return {f.name: f.field_type for f in result.schema}
 
     @property
     def _view_has_partition_time(self) -> bool:
-        return any(
-            f.name == VIEW_PARTITION_TIME and f.field_type == "TIMESTAMP"
-            for f in (self._billing_table_meta.schema or [])
-        )
+        return self._billing_table_schema.get(VIEW_PARTITION_TIME) == "TIMESTAMP"
 
     @staticmethod
     def _get_billing_threshold_date():
@@ -968,10 +963,8 @@ class Gcp(CloudBase):
         ) - timedelta(days=BILLING_THRESHOLD)
 
     def _make_date_filter(self, date_value, op: str = "=") -> str:
-        partition_time_field = '_PARTITIONTIME'
-        if self._billing_source_is_view:
-            partition_time_field = VIEW_PARTITION_TIME
-        return f'TIMESTAMP_TRUNC({partition_time_field}, DAY) {op} TIMESTAMP("{date_value}")'
+        field = VIEW_PARTITION_TIME if self._view_has_partition_time else '_PARTITIONTIME'
+        return f'TIMESTAMP_TRUNC({field}, DAY) {op} TIMESTAMP("{date_value}")'
 
     def _test_bigquery_connection(self):
         dt = self._get_billing_threshold_date()
@@ -1003,19 +996,33 @@ class Gcp(CloudBase):
                     f'Invalid pricing data table: {str(e)}'
                 )
 
-    def _validate_billing_type(self):
-        if self._billing_source_is_view:
-            if not self._view_has_partition_time:
+    def _validate_standard_partition_time(self):
+        query = f"""
+            SELECT 1 FROM `{self._billing_table_full_name()}`
+            WHERE _PARTITIONTIME IS NOT NULL LIMIT 0
+        """
+        try:
+            self.bigquery_client.query(query, **DEFAULT_KWARGS).result()
+        except Exception as e:
+            if "_PARTITIONTIME" in str(e):
                 raise tools.cloud_adapter.exceptions.InvalidParameterException(
-                    f"Billing view must expose partition time as a column "
-                    f"named '{VIEW_PARTITION_TIME}' of type TIMESTAMP. "
-                    f"Add '_PARTITIONTIME AS {VIEW_PARTITION_TIME}' to "
-                    f"your view's SELECT list."
+                    f"Billing view must expose partition time as a column named "
+                    f"'{VIEW_PARTITION_TIME}' of type TIMESTAMP. Add "
+                    f"'_PARTITIONTIME AS {VIEW_PARTITION_TIME}' to your view's SELECT list."
                 )
-        elif not self.billing_table.startswith(STANDARD_BILLING_PREFIX):
+            raise
+
+    def _validate_billing_type(self):
+        if self._view_has_partition_time:
+            return
+        if not self.billing_table.startswith(STANDARD_BILLING_PREFIX):
             raise tools.cloud_adapter.exceptions.InvalidParameterException(
-                "Invalid billing type. Expected billing type to be Standard."
+                f"Invalid billing type. Use a standard billing export (name starting with "
+                f"'{STANDARD_BILLING_PREFIX}') or a view that exposes "
+                f"'_PARTITIONTIME AS {VIEW_PARTITION_TIME}' in its SELECT list."
             )
+        # make sure _PARTITIONTIME exists for view with standard prefix
+        self._validate_standard_partition_time()
 
     def _validate_billing_config(self):
         if "." in self.billing_dataset:
