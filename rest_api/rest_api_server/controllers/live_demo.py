@@ -34,7 +34,8 @@ from rest_api.rest_api_server.models.models import (
     OrganizationConstraint, OrganizationLimitHit, OrganizationGemini,
     ProfilingToken, PowerSchedule, PowerScheduleTrigger)
 from rest_api.rest_api_server.utils import (
-    gen_id, encode_config, timestamp_to_day_start, is_match_domain)
+    gen_id, encode_config, encode_string, timestamp_to_day_start,
+    is_match_domain)
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
 
 
@@ -46,6 +47,7 @@ DEMO_ORG_TEMPLATE = 'Sunflower Inc'
 DEMO_USER_NAME = 'Demo User'
 EMAIL_TEMPLATE = '%s@sunflower.demo'
 PRESET_FILENAME = 'rest_api/live_demo.json'
+TRACKING_TAG_MASK = ('_tracking_id', 'tracking_id')
 DUPLICATION_MODULE_NAMES = {'abandoned_instances', 'rightsizing_instances'}
 DUPLICATION_COUNT = 3
 TOP_NO_DUPLICATE_RESOURCES = 10
@@ -554,6 +556,29 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         return CostModel(**obj)
 
+    @staticmethod
+    def mask_tracking_tags(tags, encoded=False):
+        if not tags:
+            return
+        old_name, new_name = TRACKING_TAG_MASK
+        keys = []
+        for key in tags:
+            plain_key = key
+            if encoded:
+                try:
+                    plain_key = encode_string(key, decode=True)
+                except ValueError:
+                    # not a valid base64 key, nothing to decode
+                    continue
+            if old_name in plain_key:
+                keys.append(key)
+        if not keys:
+            return
+        value = tags[keys[0]]
+        for key in keys:
+            tags.pop(key, None)
+        tags[encode_string(new_name) if encoded else new_name] = value
+
     def build_resource(self, obj, objects_group, now, organization_id, **kwargs):
         for k in ['_id', 'cluster_id']:
             if not obj.get(k):
@@ -592,6 +617,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                     if module.get(field):
                         module[field] = module[field] * self.multiplier
         obj['total_cost'] = obj.get('total_cost', 0) * self.multiplier
+        # resource tag keys are stored base64 encoded
+        self.mask_tracking_tags(obj.get('tags'), encoded=True)
         return obj
 
     def build_raw_expense(self, obj, now, **kwargs):
@@ -599,6 +626,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['cost'] = obj['cost'] * self.multiplier
         obj = self.offsets_to_datetimes(['end_date', 'start_date'], now, obj)
         obj = self.refresh_relations(['cloud_account_id'], obj)
+        # raw expense tag keys are stored as is
+        self.mask_tracking_tags(obj.get('tags'))
         for field in ['pricing/publicOnDemandCost', 'lineItem/UnblendedCost',
                       'reservation/EffectiveCost',
                       'savingsPlan/SavingsPlanEffectiveCost']:

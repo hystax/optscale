@@ -2,7 +2,7 @@ import json
 import time
 import uuid
 from copy import deepcopy
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch
 
 import optscale_client.rest_api_client
 
@@ -16,6 +16,7 @@ from rest_api.rest_api_server.models.models import (
     ResourceConstraint, PoolPolicy, OrganizationConstraint,
     OrganizationLimitHit, PowerSchedule, PowerScheduleTrigger)
 from rest_api.rest_api_server.tests.unittests.test_api_base import TestApiBase
+from rest_api.rest_api_server.utils import encode_string
 import tools.optscale_time as opttime
 
 
@@ -55,7 +56,14 @@ BASIC_PRESET = {
             "employee_id": "083298ff-6575-4adb-a82a-92cea7bc8ff0",
             "meta": {'instance_type': 't3.large'},
             "name": PRESET_RESOURCE_NAME,
-            "tags": {},
+            # resource tag keys are stored base64 encoded
+            "tags": {
+                encode_string("optscale_tracking_id"):
+                    PRESET_CLOUD_RESOURCE_ID,
+                encode_string("custom_tracking_id"):
+                    PRESET_CLOUD_RESOURCE_ID,
+                encode_string("kept_tag"): "kept_value"
+            },
             "deleted_at_offset": 0,
             "_id": "14d75330-c111-482a-97d0-0fe4b3b7125c",
             "cloud_account_id": "8c63e980-6572-4b36-be82-a2bc59705888",
@@ -138,6 +146,12 @@ BASIC_PRESET = {
             "cost": 0.88250706,
             "resource_id": PRESET_CLOUD_RESOURCE_ID,
             "pricing/publicOnDemandCost": 0.12345,
+            # raw expense tag keys are stored as is
+            "tags": {
+                "optscale_tracking_id": PRESET_CLOUD_RESOURCE_ID,
+                "custom_tracking_id": PRESET_CLOUD_RESOURCE_ID,
+                "kept_tag": "kept_value"
+            },
         }
     ],
     "rules": [],
@@ -2029,6 +2043,21 @@ class TestLiveDemosApi(TestApiBase):
                         self.assertIn('start', resource.get('meta', {}))
                         self.assertIn('end', resource.get('meta', {}))
                         self.assertIn('instance_type', resource.get('meta', {}))
+                        # tracking_id tags are masked into a single one
+                        self.assertEqual(
+                            resource['tags'],
+                            {
+                                encode_string('tracking_id'):
+                                    PRESET_CLOUD_RESOURCE_ID,
+                                encode_string('kept_tag'): 'kept_value'
+                            })
+                raw_expense = list(self.raw_expenses.find())[0]
+                self.assertEqual(
+                    raw_expense['tags'],
+                    {
+                        'tracking_id': PRESET_CLOUD_RESOURCE_ID,
+                        'kept_tag': 'kept_value'
+                    })
 
     def test_live_demo_org_constraint_create(self):
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController'
