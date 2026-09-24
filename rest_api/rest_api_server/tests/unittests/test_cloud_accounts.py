@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from freezegun import freeze_time
 from sqlalchemy import and_
-from unittest.mock import patch, ANY, call
+from unittest.mock import patch, ANY, call, PropertyMock, MagicMock
 from rest_api.rest_api_server.models.models import (
     CloudAccount, DiscoveryInfo, OrganizationLimitHit, Organization)
 from rest_api.rest_api_server.models.db_base import BaseDB
@@ -2180,10 +2180,58 @@ class TestCloudAccountApi(TestApiBase):
     def test_create_gcp_non_standard_billing(self):
         ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
         ca_config['config']['billing_data']['table_name'] = "bad_table_name"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
         code, resp = self.client.cloud_account_create(
             self.org_id, ca_config)
         self.assertEqual(code, 400)
         self.verify_error_code(resp, 'OE0455')
+
+    def test_create_gcp_billing_view_with_standard_prefix_name(self):
+        # view named with standard prefix is accepted when it has partition_time
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "gcp_billing_export_v1_filtered"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock,
+              return_value={'partition_time': 'TIMESTAMP'}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._test_bigquery_connection').start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._validate_cloud_connection').start()
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 200)
+
+    def test_create_gcp_billing_view_with_standard_prefix_no_partition_time(self):
+        # standard-prefix view without partition_time — detected via failed _PARTITIONTIME query
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "gcp_billing_export_v1_filtered"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp.bigquery_client').start().query\
+            .return_value.result.side_effect = Exception(
+                "Unrecognized name: _PARTITIONTIME")
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 400)
+        self.assertIn("partition_time", resp['error']['reason'])
+
+    def test_create_gcp_billing_view_with_partition_time(self):
+        # view exposing _PARTITIONTIME AS partition_time — uses partition pruning
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "dev_project_view"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock,
+              return_value={'partition_time': 'TIMESTAMP'}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._test_bigquery_connection').start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._validate_cloud_connection').start()
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 200)
+
+    def test_create_gcp_billing_view_without_partition_time(self):
+        ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
+        ca_config['config']['billing_data']['table_name'] = "dev_project_view"
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
+        code, resp = self.client.cloud_account_verify(ca_config)
+        self.assertEqual(code, 400)
+        self.assertIn("partition_time", resp['error']['reason'])
 
     def test_create_gcp_incorrect_table_name(self):
         ca_config = copy.deepcopy(self.valid_gcp_cloud_acc)
@@ -2615,6 +2663,10 @@ class TestCloudAccountApi(TestApiBase):
         }
         patch('tools.cloud_adapter.clouds.gcp_tenant.GcpTenant'
               '._test_bigquery_connection').start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._billing_table_schema',
+              new_callable=PropertyMock, return_value={}).start()
+        patch('tools.cloud_adapter.clouds.gcp.Gcp._validate_standard_partition_time'
+              ).start()
         code, resp = self.create_cloud_account(self.org_id, body)
         self.assertEqual(code, 400)
         self.verify_error_code(resp, 'OE0455')

@@ -4,6 +4,7 @@ import resource
 import threading
 import time
 import traceback
+from etcd import EtcdKeyError
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Event, Thread
@@ -58,7 +59,8 @@ class ResourcesSaver:
         **{v: k for k, v in RES_MODEL_MAP.items()}
     }
 
-    def __init__(self, rest_cl, insider_cl, limit, timeout, pause_timeout):
+    def __init__(self, rest_cl, insider_cl, limit, timeout, pause_timeout,
+                 product_tracking_id):
         queue_len = int(limit / CHUNK_SIZE) if CHUNK_SIZE else 0
         self.queue = queue.Queue(queue_len)
         self.insider_cl = insider_cl
@@ -66,6 +68,7 @@ class ResourcesSaver:
         self.timeout = timeout
         self.pause_timeout = pause_timeout
         self.recording_available = Event()
+        self.product_tracking_id = product_tracking_id
         self.empty = Event()
         self._proc = None
         self.start()
@@ -222,7 +225,7 @@ class ResourcesSaver:
                 behavior='update_existing', return_resources=True)
         for res in resources:
             try:
-                res.post_discover()
+                res.post_discover(tracking_id=self.product_tracking_id)
             except Exception as exc:
                 LOG.error('Post discover actions failed: %s', str(exc))
 
@@ -236,8 +239,20 @@ class DiscoveryWorker(ConsumerMixin):
         self._rest_cl = None
         self._res_saving = None
         self.running = True
+        self._product_tracking_id = None
         self.thread = Thread(target=self.heartbeat)
         self.thread.start()
+
+    @property
+    def product_tracking_id(self):
+        if not self._product_tracking_id:
+            try:
+                self._product_tracking_id = self.config_cl.product_tracking_id()
+            except EtcdKeyError:
+                self._product_tracking_id = None
+            if not self._product_tracking_id:
+                raise Exception('product_tracking_id is not set')
+        return self._product_tracking_id
 
     def __del__(self):
         if self._res_saving:
@@ -268,7 +283,8 @@ class DiscoveryWorker(ConsumerMixin):
                 rest_cl=self.rest_cl,
                 limit=self.discover_size,
                 timeout=self.timeout,
-                pause_timeout=self.writing_timeout
+                pause_timeout=self.writing_timeout,
+                product_tracking_id=self.product_tracking_id
             )
         return self._res_saving
 

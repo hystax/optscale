@@ -1,6 +1,7 @@
 import base64
 import logging
 import uuid
+from collections import defaultdict
 from typing import Dict, Any, Union
 
 import requests
@@ -100,11 +101,12 @@ class Kubernetes(CloudBase):
             'kube_pod_labels{cloud_account_id="%s"}' % self.cloud_account_id,
             now)
         pod_label_metrics = self._get_result_metrics(pod_label_result_list)
-        pod_name_labels_map = {}
+        pod_name_labels_map = defaultdict(dict)
         for pod_label_metric in pod_label_metrics:
             pod_name = pod_label_metric.get('pod')
+            namespace = pod_label_metric.get('namespace')
             pod_labels = self._extract_labels(pod_label_metric)
-            pod_name_labels_map[pod_name] = pod_labels
+            pod_name_labels_map[(namespace, pod_name)].update(pod_labels)
         return pod_name_labels_map
 
     def _get_service_selectors(self, now: int) -> Dict[str, Dict[str, Any]]:
@@ -117,17 +119,21 @@ class Kubernetes(CloudBase):
         service_selector_map = {}
         for metric in service_selectors_metrics:
             service_name = metric.get('service')
+            namespace = metric.get('namespace')
             selector = self._extract_labels(metric)
             if selector:
-                service_selector_map[service_name] = selector
+                service_selector_map[(namespace, service_name)] = selector
         return service_selector_map
 
     @staticmethod
     def _get_service(
             pod_labels: Dict[str, Any],
-            service_selector_map: Dict[str, Dict[str, Any]]
+            service_selector_map: Dict[str, Dict[str, Any]],
+            namespace: str
     ) -> Union[str, None]:
-        for service, selector in service_selector_map.items():
+        for (service_namespace, service), selector in service_selector_map.items():
+            if service_namespace != namespace:
+                continue
             if all(map(lambda k: selector[k] == pod_labels.get(k),
                        selector.keys())):
                 return service
@@ -136,10 +142,10 @@ class Kubernetes(CloudBase):
         res = {}
         pod_name_labels_map = self._get_pod_labels(now)
         service_selectors_map = self._get_service_selectors(now)
-        for pod, labels in pod_name_labels_map.items():
-            service = self._get_service(labels, service_selectors_map)
+        for (namespace, pod), labels in pod_name_labels_map.items():
+            service = self._get_service(labels, service_selectors_map, namespace)
             if service:
-                res[pod] = service
+                res[(namespace, pod)] = service
         return res
 
     @staticmethod
@@ -194,8 +200,9 @@ class Kubernetes(CloudBase):
         service_selectors_map = self._get_service_selectors(now)
         for pod_metric in pod_info_metrics:
             pod_name = pod_metric.get('pod')
-            labels = pod_name_labels_map.get(pod_name)
-            service = self._get_service(labels, service_selectors_map)
+            namespace = pod_metric.get('namespace')
+            labels = pod_name_labels_map[(namespace, pod_name)]
+            service = self._get_service(labels, service_selectors_map, namespace)
             pod_resource = PodResource(
                 cloud_resource_id=pod_metric.get('uid'),
                 name=pod_name,
@@ -207,7 +214,7 @@ class Kubernetes(CloudBase):
                 host_ip=pod_metric.get('host_ip'),
                 instance_address=pod_metric.get('instance'),
                 k8s_node=pod_metric.get('node'),
-                k8s_namespace=pod_metric.get('namespace'),
+                k8s_namespace=namespace,
                 pod_ip=pod_metric.get('pod_ip'),
                 k8s_service=service,
                 k8s_cluster=pod_metric.get('cluster')

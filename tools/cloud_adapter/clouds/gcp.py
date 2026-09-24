@@ -154,8 +154,8 @@ DEFAULT_KWARGS = {
 
 BASE_CONSOLE_LINK = "https://console.cloud.google.com"
 DEFAULT_CURRENCY = "USD"
-OPTSCALE_TRACKING_TAG = "optscale_tracking_id"
 STANDARD_BILLING_PREFIX = "gcp_billing_export_v1"
+VIEW_PARTITION_TIME = 'partition_time'
 
 COMPUTE_SERVICE_ID = "6F81-5844-456A"
 
@@ -358,7 +358,7 @@ class GcpResource:
         return region
 
     def _get_console_link(self):
-        raise NotImplemented()
+        raise NotImplementedError
 
     def _get_common_fields(self):
         tags = self._extract_tags()
@@ -377,17 +377,17 @@ class GcpResource:
     def _cloud_resource_hash(self):
         return hashlib.sha1(self._cloud_object.self_link.encode()).hexdigest()
 
-    def _need_to_update_tags(self):
-        optscale_tag_value = self.tags.get(OPTSCALE_TRACKING_TAG)
+    def _need_to_update_tags(self, tracking_id):
+        optscale_tag_value = self.tags.get(tracking_id)
         return optscale_tag_value != self.cloud_resource_hash
 
     def _set_tag(self, key, value):
-        raise NotImplemented()
+        raise NotImplementedError
 
-    def post_discover(self):
-        if not self._need_to_update_tags():
+    def post_discover(self, tracking_id):
+        if not self._need_to_update_tags(tracking_id):
             return
-        self._set_tag(OPTSCALE_TRACKING_TAG, self.cloud_resource_hash)
+        self._set_tag(tracking_id, self.cloud_resource_hash)
 
     def _get_project_id(self):
         return self._cloud_adapter.project_id
@@ -483,9 +483,9 @@ class GcpInstance(tools.cloud_adapter.model.InstanceResource, GcpResource):
             **DEFAULT_KWARGS,
         )
 
-    def post_discover(self):
+    def post_discover(self, tracking_id):
         # Need to explicitly specify which parent's implementation to use
-        return GcpResource.post_discover(self)
+        return GcpResource.post_discover(self, tracking_id)
 
 
 class GcpVolume(tools.cloud_adapter.model.VolumeResource, GcpResource):
@@ -546,9 +546,9 @@ class GcpVolume(tools.cloud_adapter.model.VolumeResource, GcpResource):
             **DEFAULT_KWARGS,
         )
 
-    def post_discover(self):
+    def post_discover(self, tracking_id):
         # Need to explicitly specify which parent's implementation to use
-        return GcpResource.post_discover(self)
+        return GcpResource.post_discover(self, tracking_id)
 
 
 class GcpImage(tools.cloud_adapter.model.ImageResource, GcpResource):
@@ -589,9 +589,9 @@ class GcpImage(tools.cloud_adapter.model.ImageResource, GcpResource):
             **DEFAULT_KWARGS,
         )
 
-    def post_discover(self):
+    def post_discover(self, tracking_id):
         # Need to explicitly specify which parent's implementation to use
-        return GcpResource.post_discover(self)
+        return GcpResource.post_discover(self, tracking_id)
 
 
 class GcpSnapshot(tools.cloud_adapter.model.SnapshotResource, GcpResource):
@@ -636,9 +636,9 @@ class GcpSnapshot(tools.cloud_adapter.model.SnapshotResource, GcpResource):
             **DEFAULT_KWARGS,
         )
 
-    def post_discover(self):
+    def post_discover(self, tracking_id):
         # Need to explicitly specify which parent's implementation to use
-        return GcpResource.post_discover(self)
+        return GcpResource.post_discover(self, tracking_id)
 
 
 class GcpBucket(tools.cloud_adapter.model.BucketResource, GcpResource):
@@ -689,9 +689,9 @@ class GcpBucket(tools.cloud_adapter.model.BucketResource, GcpResource):
         self._cloud_object.labels = labels
         self._cloud_object.patch(**DEFAULT_KWARGS)
 
-    def post_discover(self):
+    def post_discover(self, tracking_id):
         # Need to explicitly specify which parent's implementation to use
-        return GcpResource.post_discover(self)
+        return GcpResource.post_discover(self, tracking_id)
 
 
 class GcpAddress(tools.cloud_adapter.model.IpAddressResource, GcpResource):
@@ -747,9 +747,9 @@ class GcpAddress(tools.cloud_adapter.model.IpAddressResource, GcpResource):
                 **DEFAULT_KWARGS,
             )
 
-    def post_discover(self):
+    def post_discover(self, tracking_id):
         # Need to explicitly specify which parent's implementation to use
-        return GcpResource.post_discover(self)
+        return GcpResource.post_discover(self, tracking_id)
 
 
 class Gcp(CloudBase):
@@ -945,6 +945,16 @@ class Gcp(CloudBase):
     def _billing_table_full_name(self):
         return f"{self.billing_project_id}.{self.billing_dataset}.{self.billing_table}"
 
+    @cached_property
+    def _billing_table_schema(self) -> dict:
+        query = f"SELECT * FROM `{self._billing_table_full_name()}` LIMIT 0"
+        result = self.bigquery_client.query(query, **DEFAULT_KWARGS).result()
+        return {f.name: f.field_type for f in result.schema}
+
+    @property
+    def _view_has_partition_time(self) -> bool:
+        return self._billing_table_schema.get(VIEW_PARTITION_TIME) == "TIMESTAMP"
+
     @staticmethod
     def _get_billing_threshold_date():
         # billing threshold means datasets should be updated at least 3 days ago
@@ -952,12 +962,17 @@ class Gcp(CloudBase):
             hour=0, minute=0, second=0, microsecond=0
         ) - timedelta(days=BILLING_THRESHOLD)
 
+    def _make_date_filter(self, date_value, op: str = "=") -> str:
+        field = VIEW_PARTITION_TIME if self._view_has_partition_time else '_PARTITIONTIME'
+        return f'TIMESTAMP_TRUNC({field}, DAY) {op} TIMESTAMP("{date_value}")'
+
     def _test_bigquery_connection(self):
         dt = self._get_billing_threshold_date()
+        date_filter = self._make_date_filter(dt, ">=")
         query = f"""
             SELECT currency
             FROM `{self._billing_table_full_name()}`
-            WHERE TIMESTAMP_TRUNC(_PARTITIONTIME, DAY) >= TIMESTAMP("{dt}")
+            WHERE {date_filter}
             LIMIT 1
         """
         query_job = self.bigquery_client.query(query, **DEFAULT_KWARGS)
@@ -981,11 +996,33 @@ class Gcp(CloudBase):
                     f'Invalid pricing data table: {str(e)}'
                 )
 
+    def _validate_standard_partition_time(self):
+        query = f"""
+            SELECT 1 FROM `{self._billing_table_full_name()}`
+            WHERE _PARTITIONTIME IS NOT NULL LIMIT 0
+        """
+        try:
+            self.bigquery_client.query(query, **DEFAULT_KWARGS).result()
+        except Exception as e:
+            if "_PARTITIONTIME" in str(e):
+                raise tools.cloud_adapter.exceptions.InvalidParameterException(
+                    f"Billing view must expose partition time as a column named "
+                    f"'{VIEW_PARTITION_TIME}' of type TIMESTAMP. Add "
+                    f"'_PARTITIONTIME AS {VIEW_PARTITION_TIME}' to your view's SELECT list."
+                )
+            raise
+
     def _validate_billing_type(self):
+        if self._view_has_partition_time:
+            return
         if not self.billing_table.startswith(STANDARD_BILLING_PREFIX):
             raise tools.cloud_adapter.exceptions.InvalidParameterException(
-                "Invalid billing type. Expected billing type to be Standard."
+                f"Invalid billing type. Use a standard billing export (name starting with "
+                f"'{STANDARD_BILLING_PREFIX}') or a view that exposes "
+                f"'_PARTITIONTIME AS {VIEW_PARTITION_TIME}' in its SELECT list."
             )
+        # make sure _PARTITIONTIME exists for view with standard prefix
+        self._validate_standard_partition_time()
 
     def _validate_billing_config(self):
         if "." in self.billing_dataset:
@@ -1029,6 +1066,7 @@ class Gcp(CloudBase):
 
     def get_usage(self, start_date, end_date):
         table_name = self._billing_table_full_name()
+        date_filter = self._make_date_filter(start_date)
         query = f"""
         SELECT
             service.description as service,
@@ -1047,7 +1085,7 @@ class Gcp(CloudBase):
             credits, adjustment_info
         FROM `{table_name}`
         WHERE
-            TIMESTAMP_TRUNC(_PARTITIONTIME, DAY) = TIMESTAMP("{start_date}") AND
+            {date_filter} AND
             project.id = "{self.project_id}"
         """
         return self.bigquery_client.query(

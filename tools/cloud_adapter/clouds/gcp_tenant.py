@@ -80,11 +80,12 @@ class GcpTenant(Gcp):
 
     def _list_projects(self):
         dt = self._get_billing_threshold_date()
+        date_filter = self._make_date_filter(dt, ">=")
         # find actual project name from latest dataset update
         query = f"""
             SELECT project.id, project.name, max(export_time)
             FROM `{self._billing_table_full_name()}`
-            WHERE TIMESTAMP_TRUNC(_PARTITIONTIME, DAY) >= TIMESTAMP("{dt}")
+            WHERE {date_filter}
             GROUP BY project.id, project.name
             """
         query_job = self.bigquery_client.query(query, **DEFAULT_KWARGS)

@@ -652,3 +652,9 @@ class Client(etcd.Client):
 
         dr = dr.replace("\n", ",").replace(";", ",")
         return [x.strip() for x in dr.split(",") if x.strip()]
+
+    def product_tracking_id(self):
+        """
+        Product tracking tag
+        """
+        return self.get("/product_tracking_id").value

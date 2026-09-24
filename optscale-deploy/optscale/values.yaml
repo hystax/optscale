@@ -1107,6 +1107,7 @@ encryption_salt:
 encryption_salt_auth:
 disable_email_verification:
 force_aws_edp_strip:
+product_tracking_id: optscale_tracking_id
 
 # settings for bi_scheduler
 bi_settings:
