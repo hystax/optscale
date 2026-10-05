@@ -268,6 +268,8 @@ const Tabs = ({
   lastMetricsRetrievalAttempt,
   lastGettingMetricAttemptError,
   discoveryInfos,
+  lastImportFromCloudAccountId,
+  lastImportFromAwsAccountId,
   config,
   isLoading,
   isTenant,
@@ -286,6 +288,8 @@ const Tabs = ({
           type={type}
           config={config}
           createdAt={createdAt}
+          lastImportFromCloudAccountId={lastImportFromCloudAccountId}
+          lastImportFromAwsAccountId={lastImportFromAwsAccountId}
         />
       ),
       renderCondition: () => type !== ENVIRONMENT,
@@ -352,6 +356,8 @@ const CloudAccountDetails = ({ data = {}, isLoading = false }) => {
     last_getting_metrics_at: lastMetricsRetrieval,
     last_getting_metric_attempt_at: lastMetricsRetrievalAttempt,
     last_getting_metric_attempt_error: lastGettingMetricAttemptError,
+    last_import_from_cloud_account_id: lastImportFromCloudAccountId,
+    last_import_from_aws_account_id: lastImportFromAwsAccountId,
     details = {},
     config = {},
   } = data;
@@ -409,6 +415,8 @@ const CloudAccountDetails = ({ data = {}, isLoading = false }) => {
               lastMetricsRetrievalAttempt={lastMetricsRetrievalAttempt}
               lastGettingMetricAttemptError={lastGettingMetricAttemptError}
               discoveryInfos={discoveryInfos}
+              lastImportFromCloudAccountId={lastImportFromCloudAccountId}
+              lastImportFromAwsAccountId={lastImportFromAwsAccountId}
               config={config}
               isLoading={isLoading}
               isTenant={isTenant}

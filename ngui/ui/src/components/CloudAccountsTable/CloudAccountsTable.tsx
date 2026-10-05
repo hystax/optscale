@@ -23,22 +23,59 @@ import { AWS_CNR, FORMATTED_MONEY_TYPES } from "utils/constants";
 import { BILLING_IMPORT_STATUS, getBillingImportStatus, summarizeChildrenDetails } from "utils/dataSources";
 import useStyles from "./CloudAccountsTable.styles";
 
+const LastImportedFromCaption = ({ cloudAccounts, lastImportFromCloudAccountId, lastImportFromAwsAccountId, dataTestId }) => {
+  const rootDataSource = lastImportFromCloudAccountId
+    ? cloudAccounts.find(({ id: cloudAccountId }) => cloudAccountId === lastImportFromCloudAccountId)
+    : undefined;
+
+  const getValue = () => {
+    if (rootDataSource) {
+      return <CloudLabel id={rootDataSource.id} name={rootDataSource.name} type={rootDataSource.type} />;
+    }
+
+    if (lastImportFromCloudAccountId || lastImportFromAwsAccountId) {
+      return (
+        <>
+          {lastImportFromAwsAccountId ?? lastImportFromCloudAccountId} <FormattedMessage id="deletedLabel" />
+        </>
+      );
+    }
+
+    return <FormattedMessage id="unknown" />;
+  };
+
+  return (
+    <Typography
+      component="div"
+      variant="caption"
+      data-test-id={dataTestId}
+      sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}
+    >
+      <FormattedMessage id="lastFilledByRootAccount" />: {getValue()}
+    </Typography>
+  );
+};
+
 const NameCell = ({
   row: {
     original: {
       id,
       name,
       type,
+      config,
       details: { cost } = {},
       last_import_at: lastImportAt,
       last_import_attempt_at: lastImportAttemptAt,
       last_import_attempt_error: lastImportAttemptError,
+      last_import_from_cloud_account_id: lastImportFromCloudAccountId,
+      last_import_from_aws_account_id: lastImportFromAwsAccountId,
       children,
       isMasterAwsAccount,
     },
     index,
   },
   colorScale,
+  cloudAccounts,
 }) => {
   const importStatus = getBillingImportStatus({
     timestamp: lastImportAt,
@@ -46,28 +83,39 @@ const NameCell = ({
     error: lastImportAttemptError,
   });
 
+  const isLinkedAwsAccount = type === AWS_CNR && config?.linked;
+
+  const captions = [
+    importStatus === BILLING_IMPORT_STATUS.ERROR && {
+      key: "import_failed",
+      node: (
+        <Typography component="div" variant="caption">
+          <Tooltip title={lastImportAttemptError}>
+            <span>
+              <IconLabel
+                icon={<ErrorOutlineOutlinedIcon fontSize="inherit" color="error" />}
+                label={<FormattedMessage id="billingImportFailed" />}
+              />
+            </span>
+          </Tooltip>
+        </Typography>
+      ),
+    },
+    isLinkedAwsAccount && {
+      key: "last_import_from",
+      node: (
+        <LastImportedFromCaption
+          cloudAccounts={cloudAccounts}
+          lastImportFromCloudAccountId={lastImportFromCloudAccountId}
+          lastImportFromAwsAccountId={lastImportFromAwsAccountId}
+          dataTestId={`caption_last_import_from_${index}`}
+        />
+      ),
+    },
+  ].filter(Boolean);
+
   return (
-    <CaptionedCell
-      caption={
-        importStatus === BILLING_IMPORT_STATUS.ERROR
-          ? {
-              key: "import_failed",
-              node: (
-                <Typography component="div" variant="caption">
-                  <Tooltip title={lastImportAttemptError}>
-                    <span>
-                      <IconLabel
-                        icon={<ErrorOutlineOutlinedIcon fontSize="inherit" color="error" />}
-                        label={<FormattedMessage id="billingImportFailed" />}
-                      />
-                    </span>
-                  </Tooltip>
-                </Typography>
-              ),
-            }
-          : undefined
-      }
-    >
+    <CaptionedCell caption={captions.length ? captions : undefined}>
       <CloudLabel
         id={id}
         name={name}
@@ -102,7 +150,7 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
         cell: (cellData) => (
           <div className={classes.nameCellWrapper}>
             <Expander row={cellData.row} />
-            <NameCell {...cellData} colorScale={colorScale} />
+            <NameCell {...cellData} colorScale={colorScale} cloudAccounts={cloudAccounts} />
           </div>
         ),
       },
@@ -131,7 +179,7 @@ const CloudAccountsTable = ({ cloudAccounts = [], isLoading = false }) => {
         cell: ({ cell }) => <FormattedMoney type={FORMATTED_MONEY_TYPES.COMMON} value={cell.getValue()} />,
       },
     ];
-  }, [theme.palette.chart, classes.nameCellWrapper]);
+  }, [theme.palette.chart, classes.nameCellWrapper, cloudAccounts]);
 
   const data = useMemo(
     () =>
