@@ -14,6 +14,7 @@ import { isError } from "utils/api";
 import { SPACING_6 } from "utils/layouts";
 import macaroon from "utils/macaroons";
 import { getSearchParams } from "utils/network";
+import { consumeUtmParams } from "utils/utm";
 import { createLiveDemoSelectors } from "./utils";
 
 type GenerateLiveDemoContainerProps = {
@@ -72,7 +73,11 @@ const GenerateLiveDemoContainer = ({ email, subscribeToNewsletter }: GenerateLiv
         // This will not redirect users back to login, this page is allowed without a token.
         await dispatch(reset());
 
-        await dispatch(createLiveDemo({ email, subscribeToNewsletter }));
+        await consumeUtmParams((utm) => dispatch(createLiveDemo({ email, subscribeToNewsletter, utm })), {
+          // A demo session isn't a conversion — the stored attribution must survive so a
+          // subsequent registration from the same browser is still attributed.
+          shouldClear: () => false,
+        });
         if (isError(CREATE_LIVE_DEMO, getState())) {
           throw new Error("Failed to create live demo");
         }

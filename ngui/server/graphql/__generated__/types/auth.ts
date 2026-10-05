@@ -32,6 +32,7 @@ export type MutationSignInArgs = {
   redirectUri?: InputMaybe<Scalars["String"]["input"]>;
   tenantId?: InputMaybe<Scalars["String"]["input"]>;
   token: Scalars["String"]["input"];
+  utm?: InputMaybe<UtmParams>;
 };
 
 export type MutationTokenArgs = {
@@ -49,6 +50,7 @@ export type MutationUserArgs = {
   email: Scalars["String"]["input"];
   name: Scalars["String"]["input"];
   password: Scalars["String"]["input"];
+  utm?: InputMaybe<UtmParams>;
 };
 
 export type OrganizationAllowedActionsRequestParams = {
@@ -83,6 +85,14 @@ export type User = {
   user_email: Scalars["String"]["output"];
   user_id: Scalars["ID"]["output"];
   verified: Scalars["Boolean"]["output"];
+};
+
+export type UtmParams = {
+  utm_campaign?: InputMaybe<Scalars["String"]["input"]>;
+  utm_content?: InputMaybe<Scalars["String"]["input"]>;
+  utm_medium?: InputMaybe<Scalars["String"]["input"]>;
+  utm_source?: InputMaybe<Scalars["String"]["input"]>;
+  utm_term?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -181,6 +191,7 @@ export type ResolversTypes = {
   Token: ResolverTypeWrapper<Token>;
   UpdateUserParams: UpdateUserParams;
   User: ResolverTypeWrapper<User>;
+  UtmParams: UtmParams;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -195,6 +206,7 @@ export type ResolversParentTypes = {
   Token: Token;
   UpdateUserParams: UpdateUserParams;
   User: User;
+  UtmParams: UtmParams;
 };
 
 export type MutationResolvers<
