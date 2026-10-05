@@ -119,8 +119,8 @@ export type AwsDataSource = DataSourceInterface & {
   last_import_at: Scalars["Int"]["output"];
   last_import_attempt_at: Scalars["Int"]["output"];
   last_import_attempt_error?: Maybe<Scalars["String"]["output"]>;
-  last_import_from_aws_account_id?: Maybe<Scalars["String"]["output"]>;
-  last_import_from_cloud_account_id?: Maybe<Scalars["String"]["output"]>;
+  last_import_source_account_id?: Maybe<Scalars["String"]["output"]>;
+  last_import_source_id?: Maybe<Scalars["String"]["output"]>;
   name: Scalars["String"]["output"];
   parent_id?: Maybe<Scalars["String"]["output"]>;
   type: DataSourceType;
@@ -1364,8 +1364,8 @@ export type AwsDataSourceResolvers<
   last_import_at?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   last_import_attempt_at?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   last_import_attempt_error?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
-  last_import_from_aws_account_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
-  last_import_from_cloud_account_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  last_import_source_account_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  last_import_source_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   parent_id?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes["DataSourceType"], ParentType, ContextType>;

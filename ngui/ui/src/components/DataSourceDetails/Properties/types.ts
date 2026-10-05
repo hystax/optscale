@@ -45,8 +45,8 @@ export type AlibabaPropertiesProps = BasePropertiesProps & {
 };
 
 export type AwsPropertiesProps = BasePropertiesProps & {
-  lastImportFromCloudAccountId?: string | null;
-  lastImportFromAwsAccountId?: string | null;
+  lastImportSourceId?: string | null;
+  lastImportSourceAccountId?: string | null;
   config: {
     createdAt: number;
     access_key_id: string;

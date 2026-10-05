@@ -23,9 +23,9 @@ import { AWS_CNR, FORMATTED_MONEY_TYPES } from "utils/constants";
 import { BILLING_IMPORT_STATUS, getBillingImportStatus, summarizeChildrenDetails } from "utils/dataSources";
 import useStyles from "./CloudAccountsTable.styles";
 
-const LastImportedFromCaption = ({ cloudAccounts, lastImportFromCloudAccountId, lastImportFromAwsAccountId, dataTestId }) => {
-  const rootDataSource = lastImportFromCloudAccountId
-    ? cloudAccounts.find(({ id: cloudAccountId }) => cloudAccountId === lastImportFromCloudAccountId)
+const LastImportedFromCaption = ({ cloudAccounts, lastImportSourceId, lastImportSourceAccountId, dataTestId }) => {
+  const rootDataSource = lastImportSourceId
+    ? cloudAccounts.find(({ id: cloudAccountId }) => cloudAccountId === lastImportSourceId)
     : undefined;
 
   const getValue = () => {
@@ -33,10 +33,10 @@ const LastImportedFromCaption = ({ cloudAccounts, lastImportFromCloudAccountId, 
       return <CloudLabel id={rootDataSource.id} name={rootDataSource.name} type={rootDataSource.type} />;
     }
 
-    if (lastImportFromCloudAccountId || lastImportFromAwsAccountId) {
+    if (lastImportSourceId || lastImportSourceAccountId) {
       return (
         <>
-          {lastImportFromAwsAccountId ?? lastImportFromCloudAccountId} <FormattedMessage id="deletedLabel" />
+          {lastImportSourceAccountId ?? lastImportSourceId} <FormattedMessage id="deletedLabel" />
         </>
       );
     }
@@ -67,8 +67,8 @@ const NameCell = ({
       last_import_at: lastImportAt,
       last_import_attempt_at: lastImportAttemptAt,
       last_import_attempt_error: lastImportAttemptError,
-      last_import_from_cloud_account_id: lastImportFromCloudAccountId,
-      last_import_from_aws_account_id: lastImportFromAwsAccountId,
+      last_import_source_id: lastImportSourceId,
+      last_import_source_account_id: lastImportSourceAccountId,
       children,
       isMasterAwsAccount,
     },
@@ -106,8 +106,8 @@ const NameCell = ({
       node: (
         <LastImportedFromCaption
           cloudAccounts={cloudAccounts}
-          lastImportFromCloudAccountId={lastImportFromCloudAccountId}
-          lastImportFromAwsAccountId={lastImportFromAwsAccountId}
+          lastImportSourceId={lastImportSourceId}
+          lastImportSourceAccountId={lastImportSourceAccountId}
           dataTestId={`caption_last_import_from_${index}`}
         />
       ),

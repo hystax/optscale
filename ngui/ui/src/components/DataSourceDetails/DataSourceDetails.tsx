@@ -72,8 +72,8 @@ const DataSourceDetails = ({
   type,
   createdAt,
   config = {},
-  lastImportFromCloudAccountId,
-  lastImportFromAwsAccountId,
+  lastImportSourceId,
+  lastImportSourceAccountId,
 }: DataSourceDetailsProps) => {
   const Properties = propertiesMap[type];
   const renderHelp: ReactNode = renderHelpMap(id, config)[type];
@@ -92,8 +92,8 @@ const DataSourceDetails = ({
                 accountId={accountId}
                 id={id}
                 parentId={parentId}
-                lastImportFromCloudAccountId={lastImportFromCloudAccountId}
-                lastImportFromAwsAccountId={lastImportFromAwsAccountId}
+                lastImportSourceId={lastImportSourceId}
+                lastImportSourceAccountId={lastImportSourceAccountId}
               />
             }
           />

@@ -85,8 +85,8 @@ export default gql`
     last_getting_metrics_at: Int!
     last_getting_metric_attempt_at: Int!
     last_getting_metric_attempt_error: String
-    last_import_from_cloud_account_id: String
-    last_import_from_aws_account_id: String
+    last_import_source_id: String
+    last_import_source_account_id: String
     details: DataSourceDetails
     config: AwsConfig
   }

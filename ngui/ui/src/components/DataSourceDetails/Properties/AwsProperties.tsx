@@ -71,13 +71,7 @@ const LastImportFromRootAccount = ({
   return rootAccountKeyValueLabel(<FormattedMessage id="unknown" />);
 };
 
-const AwsProperties = ({
-  accountId,
-  config,
-  createdAt,
-  lastImportFromCloudAccountId,
-  lastImportFromAwsAccountId,
-}: AwsPropertiesProps) => {
+const AwsProperties = ({ accountId, config, createdAt, lastImportSourceId, lastImportSourceAccountId }: AwsPropertiesProps) => {
   const {
     access_key_id: accessKeyId,
     assume_role_account_id: assumeRoleAccountId,
@@ -218,9 +212,7 @@ const AwsProperties = ({
           dataTestIds={{ key: "p_excluded_regions_key", value: "p_excluded_regions_value" }}
         />
       )}
-      {linked && (
-        <LastImportFromRootAccount cloudAccountId={lastImportFromCloudAccountId} awsAccountId={lastImportFromAwsAccountId} />
-      )}
+      {linked && <LastImportFromRootAccount cloudAccountId={lastImportSourceId} awsAccountId={lastImportSourceAccountId} />}
     </>
   );
 };
