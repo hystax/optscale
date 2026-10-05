@@ -960,6 +960,19 @@ class AWSReportImporter(CSVBaseReportImporter):
                 self.rest_cl.cloud_account_update(
                     self.cloud_acc_id, {'config': config})
 
+    def update_cloud_import_time(self, ts):
+        super().update_cloud_import_time(ts)
+        self.update_linked_accounts_import_source()
+
+    def update_linked_accounts_import_source(self):
+        linked_cloud_acc_ids = self.detected_cloud_accounts - {
+            self.cloud_acc_id}
+        for cloud_acc_id in linked_cloud_acc_ids:
+            self.rest_cl.cloud_account_update(
+                cloud_acc_id,
+                {'last_import_source_id': self.cloud_acc_id,
+                 'last_import_source_account_id': self.cloud_acc['account_id']})
+
     def create_traffic_processing_tasks(self):
         self._create_traffic_processing_tasks()
 

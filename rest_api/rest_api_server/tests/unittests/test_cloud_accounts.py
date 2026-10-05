@@ -1588,6 +1588,48 @@ class TestCloudAccountApi(TestApiBase):
         self.assertEqual(code, 200)
         p_publish_activities2.assert_not_called()
 
+    def test_update_last_import_source(self):
+        code, root = self.create_cloud_account(
+            self.org_id, self.valid_aws_cloud_acc)
+        self.assertEqual(code, 201)
+        self.assertIsNone(root['last_import_source_id'])
+        self.assertIsNone(root['last_import_source_account_id'])
+        params = {
+            'last_import_source_id': root['id'],
+            'last_import_source_account_id': root['account_id']
+        }
+        code, resp = self.client.cloud_account_update(root['id'], params)
+        self.assertEqual(code, 200)
+        for k, v in params.items():
+            self.assertEqual(resp[k], v)
+        code, resp = self.client.cloud_account_get(root['id'])
+        self.assertEqual(code, 200)
+        for k, v in params.items():
+            self.assertEqual(resp[k], v)
+        code, resp = self.client.cloud_account_list(self.org_id)
+        self.assertEqual(code, 200)
+        for k, v in params.items():
+            self.assertEqual(resp['cloud_accounts'][0][k], v)
+
+        code, resp = self.client.cloud_account_update(
+            root['id'], {'last_import_source_id': 'not_uuid'})
+        self.assertEqual(code, 400)
+
+        patch('rest_api.rest_api_server.handlers.v1.base.BaseAuthHandler.'
+              'check_cluster_secret', return_value=False).start()
+        for k, v in params.items():
+            code, resp = self.client.cloud_account_update(root['id'], {k: v})
+            self.assertEqual(code, 400)
+            self.verify_error_code(resp, 'OE0449')
+
+    def test_create_with_last_import_source(self):
+        for param in ['last_import_source_id',
+                      'last_import_source_account_id']:
+            body = self.valid_aws_cloud_acc.copy()
+            body[param] = str(uuid.uuid4())
+            code, resp = self.create_cloud_account(self.org_id, body)
+            self.assertEqual(code, 400)
+
     def test_create_linked_aws_cloud_acc(self):
         self.p_configure_aws.stop()
         self.valid_aws_cloud_acc['config']['linked'] = True
