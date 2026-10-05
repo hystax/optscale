@@ -37,6 +37,13 @@ from rest_api.rest_api_server.utils import (
     gen_id, encode_config, encode_string, timestamp_to_day_start,
     is_match_domain)
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
+from tools.zoho_integrator.zoho_integrator import ZohoIntegrator, UTM_FIELDS
+from tools.zoho_integrator.zoho_client import ZohoClient
+from tools.zoho_integrator.registered_app import RegisteredApp
+
+ZOHO_LIVE_DEMO_LEAD_SOURCE = "Optscale live demo"
+ZOHO_LIVE_DEMO_LEAD_SOURCE_DESCRIPTION = "OS Live Demo"
+ZOHO_LIVE_DEMO_TAGS = ["OptScale", "OptScale Live Demo"]
 
 
 LOG = logging.getLogger(__name__)
@@ -1119,9 +1126,39 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         result = self._create(pregenerate)
         subscribe_email = kwargs.get('email')
         subscribe = kwargs.get('subscribe', False)
+        utm_fields = {p: kwargs[p].strip() for p in UTM_FIELDS
+                      if kwargs.get(p)}
         if subscribe_email and not self._is_marketing_excluded(subscribe_email):
-            self._send_subscribe_email(subscribe_email, subscribe)
+            self._send_subscribe_email(subscribe_email, subscribe,
+                                       utm_fields=utm_fields or None)
+            self._sync_live_demo_with_zoho(subscribe_email, subscribe,
+                                           utm_fields=utm_fields or None)
         return result
+
+    def _sync_live_demo_with_zoho(self, email: str, subscribe: bool,
+                                  utm_fields: dict = None) -> None:
+        try:
+            reg_app = RegisteredApp.get_from_config(self._config)
+            if not reg_app:
+                LOG.error("Zoho: Sync skipped for %s. No credentials in etcd",
+                          email)
+                return
+            zoho_client = ZohoClient(reg_app)
+            zoho_integrator = ZohoIntegrator(zoho_client)
+            zoho_integrator.create_or_update(
+                email=email,
+                full_name="",
+                lead_source=ZOHO_LIVE_DEMO_LEAD_SOURCE,
+                lead_source_description=ZOHO_LIVE_DEMO_LEAD_SOURCE_DESCRIPTION,
+                tags=ZOHO_LIVE_DEMO_TAGS,
+                email_opt_out=not subscribe,
+                utm_fields=utm_fields,
+            )
+        except Exception as e:
+            LOG.error(
+                "Zoho: Sync failed for live demo request from %s: %s",
+                email, str(e)
+            )
 
     def _create(self, pregenerate=False):
         if not pregenerate:
@@ -1155,7 +1192,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'password': password
         }
 
-    def _send_subscribe_email(self, email, subscribe):
+    def _send_subscribe_email(self, email, subscribe, utm_fields=None):
         recipient = self._config.optscale_email_recipient()
         if not recipient:
             return
@@ -1168,6 +1205,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 },
             }
         }
+        if utm_fields:
+            template_params['texts']['user'].update(utm_fields)
         HeraldClient(
             url=self._config.herald_url(),
             secret=self._config.cluster_secret()

@@ -38,6 +38,7 @@ dependencies = [
     "tornado===6.5.5",
     "xlsxwriter==1.4.4",
     "subspector-client",
+    "zoho-integrator",
 ]
 
 [dependency-groups]
@@ -79,3 +80,4 @@ check-alembic-down-revisions = { path = "../tools/check_alembic_down_revisions",
 restapi-client = { path = "../optscale_client/rest_api_client", editable = true }
 subspector-client = { path = "../optscale_client/subspector_client", editable = true }
 optscale-telemetry = { path = "../tools/optscale_telemetry", editable = true }
+zoho-integrator = { path = "../tools/zoho_integrator", editable = true }

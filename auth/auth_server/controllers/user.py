@@ -3,9 +3,9 @@ import re
 from sqlalchemy.sql import func
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
-from auth.zoho_integrator.zoho_integrator import ZohoIntegrator
-from auth.zoho_integrator.zoho_client import ZohoClient
-from auth.zoho_integrator.registered_app import RegisteredApp
+from tools.zoho_integrator.zoho_integrator import ZohoIntegrator
+from tools.zoho_integrator.zoho_client import ZohoClient
+from tools.zoho_integrator.registered_app import RegisteredApp
 from auth.auth_server.controllers.base import BaseController
 from auth.auth_server.controllers.base_async import BaseAsyncControllerWrapper
 from auth.auth_server.exceptions import Err
@@ -22,6 +22,10 @@ from tools.optscale_exceptions.common_exc import (
 from optscale_client.config_client.client import etcd
 
 LOG = logging.getLogger(__name__)
+
+ZOHO_REG_LEAD_SOURCE = "OptScale Registration"
+ZOHO_REG_LEAD_SOURCE_DESCR = "OS Registration"
+ZOHO_REG_TAGS = ["OptScale", "OptScale Registration"]
 
 
 class UserController(BaseController):
@@ -139,17 +143,24 @@ class UserController(BaseController):
             return False
         return any(self.is_match_domain(d, email) for d in domains)
 
-    def _sync_user_with_zoho(self, display_name, email):
+    def _sync_user_with_zoho(self, display_name, email, utm_fields=None):
         if is_hystax_email(email) or is_demo_email(email):
             return
         if self._is_marketing_excluded(email):
             return
         try:
-            reg_app = RegisteredApp.get_from_etcd(self._config)
+            reg_app = RegisteredApp.get_from_config(self._config)
             if reg_app:
                 zoho_client = ZohoClient(reg_app)
                 zoho_integrator = ZohoIntegrator(zoho_client)
-                zoho_integrator.create_or_update(email, display_name)
+                zoho_integrator.create_or_update(
+                    email=email,
+                    full_name=display_name,
+                    lead_source=ZOHO_REG_LEAD_SOURCE,
+                    lead_source_description=ZOHO_REG_LEAD_SOURCE_DESCR,
+                    tags=ZOHO_REG_TAGS,
+                    utm_fields=utm_fields,
+                )
                 LOG.info(
                     "User %s was successfully synced with zoho", display_name)
         except Exception as e:
@@ -157,6 +168,7 @@ class UserController(BaseController):
 
     def create(self, **kwargs):
         token = kwargs.pop('token')
+        utm_fields = kwargs.pop('utm_fields', None)
         self_registration = kwargs.pop('self_registration', False)
         self.check_create_restrictions(**kwargs)
         (email, display_name, is_active, password, type_id,
@@ -192,7 +204,7 @@ class UserController(BaseController):
             self.session.commit()
         except IntegrityError as ex:
             raise WrongArgumentsException(Err.OA0061, [str(ex)])
-        self._sync_user_with_zoho(display_name, email)
+        self._sync_user_with_zoho(display_name, email, utm_fields=utm_fields)
         return user
 
     def delete(self, item_id, **kwargs):

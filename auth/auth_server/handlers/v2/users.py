@@ -8,10 +8,13 @@ from auth.auth_server.handlers.v1.users import (
     UserAsyncItemHandler as UserAsyncItemHandler_v1,
     UserAsyncCollectionHandler as UserAsyncCollectionHandler_v1)
 from auth.auth_server.handlers.v2.base import BaseHandler as BaseHandler_v2
-from auth.auth_server.utils import ModelEncoder, run_task
+from auth.auth_server.utils import (
+    ModelEncoder, run_task, check_string_attribute)
+from tools.zoho_integrator.zoho_integrator import UTM_FIELDS
 
 from tools.optscale_exceptions.common_exc import (NotFoundException,
-                                                  ForbiddenException)
+                                                  ForbiddenException,
+                                                  WrongArgumentsException)
 from tools.optscale_exceptions.http_exc import OptHTTPError
 
 
@@ -240,6 +243,16 @@ class UserAsyncCollectionHandler(UserAsyncCollectionHandler_v1,
                     token: {type: string, description: Token}
                     verified: {type: boolean,
                         description: "Is email verified?"}
+                    utm_source: {type: string, description: UTM source,
+                        required: false}
+                    utm_medium: {type: string, description: UTM medium,
+                        required: false}
+                    utm_campaign: {type: string, description: UTM campaign,
+                        required: false}
+                    utm_term: {type: string, description: UTM term,
+                        required: false}
+                    utm_content: {type: string, description: UTM content,
+                        required: false}
         responses:
             201: {description: Success (returns created user data)}
             400:
@@ -293,10 +306,20 @@ class UserAsyncCollectionHandler(UserAsyncCollectionHandler_v1,
         if not self.check_cluster_secret(raises=False):
             # verified users can be created only by secret
             body.pop('verified', None)
+        utm_fields = {}
+        for param in UTM_FIELDS:
+            value = body.pop(param, None)
+            if value is not None:
+                try:
+                    check_string_attribute(param, value)
+                except WrongArgumentsException:
+                    LOG.warning('Users: Invalid %s parameter passed', param)
+                    continue
+                utm_fields[param] = value.strip()
         self._validate_params(**body)
         res = await run_task(
             self.controller.create, **body, **self.token,
-            self_registration=True)
+            self_registration=True, utm_fields=utm_fields or None)
         user = res.to_dict()
         token_ctl = TokenAsyncController(self.session(), self._config)
         try:

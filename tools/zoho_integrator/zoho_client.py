@@ -24,9 +24,9 @@ from zcrmsdk.src.com.zoho.crm.api.tags import (TagsOperations,
                                                AddTagsToRecordParam)
 from zcrmsdk.src.com.zoho.crm.api.util import APIResponse
 
-from auth.zoho_integrator.registered_app import RegisteredApp
+from tools.zoho_integrator.registered_app import RegisteredApp
 
-LOG = logging.getLogger(__file__)
+LOG = logging.getLogger(__name__)
 
 ZOHO_SDK_TOKENS_FILE = "zoho_tokens.csv"
 ZOHO_SDK_RESOURCES_DIR = "zoho_resources"
@@ -61,7 +61,8 @@ class ZohoClient:
             )
             self._initialized = True
         except Exception as e:
-            LOG.error("Wasn't able to initialize zoho client. Err: %s", str(e))
+            LOG.error("Zoho: Failed to initialize SDK for user %s: %s",
+                      self.app.email, str(e))
             raise
 
     def _get_token(self) -> OAuthToken:
@@ -88,16 +89,16 @@ class ZohoClient:
             return list_of_objects[0]
         raise RecordNotFoundException
 
-    def handle_api_response(
-            self, response: APIResponse
-    ) -> Union[List, object]:
+    def handle_api_response(self, response: APIResponse) -> Union[List, object]:
         if response is not None:
             status_code = response.get_status_code()
             if not (http.HTTPStatus.BAD_REQUEST > status_code >=
                     http.HTTPStatus.OK):
-                LOG.error("API request has failed. Status code: %s",
-                          status_code)
-                raise APIFailedException()
+                LOG.error(
+                    "Zoho: API request failed with status code %s, "
+                    "response: %s", status_code, response.get_object())
+                raise APIFailedException(
+                    f"Zoho API returned status {status_code}")
             data = response.get_object()
             if isinstance(data, ResponseWrapper) or isinstance(data,
                                                                ActionWrapper):
@@ -122,7 +123,6 @@ class ZohoClient:
     def add_tags(
         self, module: str, id_: int, tag_names: List[str]
     ) -> Union[List, object]:
-        LOG.info("Add tags %s to record with id %s", tag_names, id_)
         tags_operations = TagsOperations()
         param_instance = ParameterMap()
         for tag_name in tag_names:

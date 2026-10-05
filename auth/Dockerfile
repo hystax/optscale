@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y libsodium-dev \
 
 COPY tools tools
 COPY optscale_client optscale_client
-COPY auth/zoho_integrator auth/zoho_integrator
 
 COPY auth/__init__.py auth/__init__.py
 COPY auth/pyproject.toml auth/pyproject.toml

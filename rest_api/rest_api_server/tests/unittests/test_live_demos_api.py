@@ -2381,11 +2381,14 @@ class TestLiveDemosApi(TestApiBase):
               return_value=False).start()
         p_send = patch('rest_api.rest_api_server.controllers.live_demo.'
                        'LiveDemoController._send_subscribe_email').start()
+        p_zoho = patch('rest_api.rest_api_server.controllers.live_demo.'
+                       'LiveDemoController._sync_live_demo_with_zoho').start()
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
                    'load_preset', return_value=deepcopy(self.preset)).start():
             code, response = self.client.live_demo_create()
             self.assertEqual(code, 201)
             p_send.assert_not_called()
+            p_zoho.assert_not_called()
         with patch('rest_api.rest_api_server.controllers.live_demo.LiveDemoController.'
                    'load_preset', return_value=deepcopy(self.preset)).start():
             code, response = self.client.live_demo_create({
@@ -2394,6 +2397,7 @@ class TestLiveDemosApi(TestApiBase):
             })
             self.assertEqual(code, 201)
             p_send.assert_called_once()
+            p_zoho.assert_called_once()
 
     def test_pregenerated_live_demo(self):
         p_gen_task = patch('rest_api.rest_api_server.controllers.live_demo.'
