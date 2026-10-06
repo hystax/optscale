@@ -1,5 +1,6 @@
 import AbandonedImages from "./AbandonedImages";
 import AbandonedInstances from "./AbandonedInstances";
+import AzureAbandonedStorageAccounts from "./AzureAbandonedStorageAccounts";
 import AbandonedKinesisStreams from "./AbandonedKinesisStreams";
 import AbandonedLoadBalancers from "./AbandonedLoadBalancers";
 import AbandonedNebiusS3Buckets from "./AbandonedNebiusS3Buckets";
@@ -64,6 +65,7 @@ export const OPTSCALE_RECOMMENDATIONS = Object.fromEntries(
     SnapshotsWithNonUsedImages,
     AbandonedImages,
     AbandonedNebiusS3Buckets,
+    AzureAbandonedStorageAccounts,
     CvocAgreementOpportunities,
   ].map((Rec) => [new Rec().type, Rec])
 );
