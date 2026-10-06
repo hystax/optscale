@@ -290,6 +290,12 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
     last_import_attempt_error = Column(
         NullableText('last_import_attempt_error'),
         nullable=True, info=ColumnPermissions.update_only)
+    last_import_source_id = Column(
+        NullableUuid('last_import_source_id'),
+        nullable=True, info=ColumnPermissions.update_only)
+    last_import_source_account_id = Column(
+        NullableString('last_import_source_account_id'),
+        nullable=True, info=ColumnPermissions.update_only)
     last_getting_metrics_at = Column(
         NullableInt('last_getting_metrics_at'), default=0,
         nullable=False, info=ColumnPermissions.update_only)
@@ -314,7 +320,8 @@ class CloudAccount(Base, CreatedMixin, ImmutableMixin, ValidatorMixin):
 
     @validates('name', 'type', 'organization_id', 'config', 'auto_import',
                'import_period', 'last_import_at', 'account_id', 'parent_id',
-               'process_recommendations')
+               'process_recommendations', 'last_import_source_id',
+               'last_import_source_account_id')
     def _validate_params(self, key, param):
         return self.get_validator(key, param)
 

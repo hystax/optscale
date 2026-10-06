@@ -1,19 +1,10 @@
-# Registered OAuth app params
 from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Optional
-from etcd import EtcdKeyError
 
 from zcrmsdk.src.com.zoho.crm.api.dc import USDataCenter, DataCenter
-from optscale_client.config_client.client import Client as ConfigClient
 
-
-ETCD_EMAIL_KEY = "regapp_email"
-ETCD_CLIENT_ID_KEY = "regapp_client_id"
-ETCD_CLIENT_SECRET_KEY = "regapp_client_secret"
-ETCD_REFRESH_TOKEN_KEY = "regapp_refresh_token"
-ETCD_REDIRECT_URI_KEY = "regapp_redirect_uri"
 
 LOG = logging.getLogger(__name__)
 
@@ -28,7 +19,7 @@ class RegisteredApp:
     redirect_uri: str
 
     @staticmethod
-    def get_from_etcd(config_client: ConfigClient) -> Optional[RegisteredApp]:
+    def get_from_config(config_client) -> Optional[RegisteredApp]:
         try:
             (
                 email,
@@ -37,8 +28,9 @@ class RegisteredApp:
                 ref_token,
                 redirect_uri,
             ) = config_client.zoho_params()
-        except EtcdKeyError:
-            LOG.error("Couldn't get etcd params for zoho client")
+        except Exception as e:
+            LOG.error("Zoho: Couldn't get etcd params for zoho client: %s",
+                      str(e))
             return None
         return RegisteredApp(
             email=email,

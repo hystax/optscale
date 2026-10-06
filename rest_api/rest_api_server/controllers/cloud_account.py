@@ -632,9 +632,6 @@ class CloudAccountController(BaseController, ClickHouseMixin):
             updated_cloud_account = super().update(item_id, **kwargs)
             self._publish_validation_warnings_activities(updated_cloud_account,
                                                          warnings)
-            for import_f in ['last_import_at', 'last_import_attempt_at',
-                             'last_import_attempt_error']:
-                kwargs.pop(import_f, None)
         else:
             updated_cloud_account = cloud_acc_obj
 

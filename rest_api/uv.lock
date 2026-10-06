@@ -2042,6 +2042,7 @@ dependencies = [
     { name = "subspector-client" },
     { name = "tornado" },
     { name = "xlsxwriter" },
+    { name = "zoho-integrator" },
 ]
 
 [package.dev-dependencies]
@@ -2094,6 +2095,7 @@ requires-dist = [
     { name = "subspector-client", editable = "../optscale_client/subspector_client" },
     { name = "tornado", specifier = "===6.5.5" },
     { name = "xlsxwriter", specifier = "==1.4.4" },
+    { name = "zoho-integrator", editable = "../tools/zoho_integrator" },
 ]
 
 [package.metadata.requires-dev]
@@ -2314,6 +2316,20 @@ wheels = [
 ]
 
 [[package]]
+name = "zcrmsdk"
+version = "3.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+    { name = "requests" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e2/a5/a56dd09c81a49f789833d8ef17dc6e37f61b5b76e40549bfaab21560f344/zcrmsdk-3.1.0.tar.gz", hash = "sha256:01aa7a6486e4d94f8ba5cfbb42d8956440a557bd224a6629bf2e19af1bd55eba", size = 172557, upload-time = "2021-05-13T12:59:33.124Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/d9/96b9bd56dddac6aec9fa9c658bd7b90c15bd3f5b6f69481cc4e0061e1a26/zcrmsdk-3.1.0-py2.py3-none-any.whl", hash = "sha256:32700c37a13f321f277c7681b9a78053d023d7b9b109daf9e104c26f8f3bddfe", size = 379469, upload-time = "2021-05-13T12:59:29.079Z" },
+]
+
+[[package]]
 name = "zipp"
 version = "3.23.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2321,6 +2337,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/e3/02/0f2892c661036d50e
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2e/54/647ade08bf0db230bfea292f893923872fd20be6ac6f53b2b936ba839d75/zipp-3.23.0-py3-none-any.whl", hash = "sha256:071652d6115ed432f5ce1d34c336c0adfd6a884660d1e9712a256d3d3bd4b14e", size = 10276, upload-time = "2025-06-08T17:06:38.034Z" },
 ]
+
+[[package]]
+name = "zoho-integrator"
+version = "0.0.0"
+source = { editable = "../tools/zoho_integrator" }
+dependencies = [
+    { name = "zcrmsdk" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "zcrmsdk", specifier = "==3.1.0" }]
 
 [[package]]
 name = "zstandard"

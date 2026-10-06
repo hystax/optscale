@@ -59,4 +59,6 @@ export type DataSourceDetailsProps = {
   createdAt: number;
   type: CloudAccountType;
   config: ConfigMap;
+  lastImportSourceId?: string | null;
+  lastImportSourceAccountId?: string | null;
 };

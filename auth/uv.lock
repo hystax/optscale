@@ -60,7 +60,7 @@ dependencies = [
     { name = "restapi-client" },
     { name = "sqlalchemy" },
     { name = "tornado" },
-    { name = "zcrmsdk" },
+    { name = "zoho-integrator" },
 ]
 
 [package.dev-dependencies]
@@ -95,7 +95,7 @@ requires-dist = [
     { name = "restapi-client", directory = "../optscale_client/rest_api_client" },
     { name = "sqlalchemy", specifier = "==1.3.24" },
     { name = "tornado", specifier = "===6.5.5" },
-    { name = "zcrmsdk", specifier = "==3.1.0" },
+    { name = "zoho-integrator", directory = "../tools/zoho_integrator" },
 ]
 
 [package.metadata.requires-dev]
@@ -1261,3 +1261,14 @@ sdist = { url = "https://files.pythonhosted.org/packages/e3/02/0f2892c661036d50e
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2e/54/647ade08bf0db230bfea292f893923872fd20be6ac6f53b2b936ba839d75/zipp-3.23.0-py3-none-any.whl", hash = "sha256:071652d6115ed432f5ce1d34c336c0adfd6a884660d1e9712a256d3d3bd4b14e", size = 10276, upload-time = "2025-06-08T17:06:38.034Z" },
 ]
+
+[[package]]
+name = "zoho-integrator"
+version = "0.0.0"
+source = { directory = "../tools/zoho_integrator" }
+dependencies = [
+    { name = "zcrmsdk" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "zcrmsdk", specifier = "==3.1.0" }]

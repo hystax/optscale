@@ -34,8 +34,16 @@ from rest_api.rest_api_server.models.models import (
     OrganizationConstraint, OrganizationLimitHit, OrganizationGemini,
     ProfilingToken, PowerSchedule, PowerScheduleTrigger)
 from rest_api.rest_api_server.utils import (
-    gen_id, encode_config, timestamp_to_day_start, is_match_domain)
+    gen_id, encode_config, encode_string, timestamp_to_day_start,
+    is_match_domain)
 from optscale_client.herald_client.client_v2 import Client as HeraldClient
+from tools.zoho_integrator.zoho_integrator import ZohoIntegrator, UTM_FIELDS
+from tools.zoho_integrator.zoho_client import ZohoClient
+from tools.zoho_integrator.registered_app import RegisteredApp
+
+ZOHO_LIVE_DEMO_LEAD_SOURCE = "Optscale live demo"
+ZOHO_LIVE_DEMO_LEAD_SOURCE_DESCRIPTION = "OS Live Demo"
+ZOHO_LIVE_DEMO_TAGS = ["OptScale", "OptScale Live Demo"]
 
 
 LOG = logging.getLogger(__name__)
@@ -46,6 +54,7 @@ DEMO_ORG_TEMPLATE = 'Sunflower Inc'
 DEMO_USER_NAME = 'Demo User'
 EMAIL_TEMPLATE = '%s@sunflower.demo'
 PRESET_FILENAME = 'rest_api/live_demo.json'
+TRACKING_TAG_MASK = ('_tracking_id', 'tracking_id')
 DUPLICATION_MODULE_NAMES = {'abandoned_instances', 'rightsizing_instances'}
 DUPLICATION_COUNT = 3
 TOP_NO_DUPLICATE_RESOURCES = 10
@@ -554,6 +563,29 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj = self.offsets_to_timestamps(['created_at'], now, obj)
         return CostModel(**obj)
 
+    @staticmethod
+    def mask_tracking_tags(tags, encoded=False):
+        if not tags:
+            return
+        old_name, new_name = TRACKING_TAG_MASK
+        keys = []
+        for key in tags:
+            plain_key = key
+            if encoded:
+                try:
+                    plain_key = encode_string(key, decode=True)
+                except ValueError:
+                    # not a valid base64 key, nothing to decode
+                    continue
+            if old_name in plain_key:
+                keys.append(key)
+        if not keys:
+            return
+        value = tags[keys[0]]
+        for key in keys:
+            tags.pop(key, None)
+        tags[encode_string(new_name) if encoded else new_name] = value
+
     def build_resource(self, obj, objects_group, now, organization_id, **kwargs):
         for k in ['_id', 'cluster_id']:
             if not obj.get(k):
@@ -592,6 +624,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                     if module.get(field):
                         module[field] = module[field] * self.multiplier
         obj['total_cost'] = obj.get('total_cost', 0) * self.multiplier
+        # resource tag keys are stored base64 encoded
+        self.mask_tracking_tags(obj.get('tags'), encoded=True)
         return obj
 
     def build_raw_expense(self, obj, now, **kwargs):
@@ -599,6 +633,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         obj['cost'] = obj['cost'] * self.multiplier
         obj = self.offsets_to_datetimes(['end_date', 'start_date'], now, obj)
         obj = self.refresh_relations(['cloud_account_id'], obj)
+        # raw expense tag keys are stored as is
+        self.mask_tracking_tags(obj.get('tags'))
         for field in ['pricing/publicOnDemandCost', 'lineItem/UnblendedCost',
                       'reservation/EffectiveCost',
                       'savingsPlan/SavingsPlanEffectiveCost']:
@@ -1090,9 +1126,39 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
         result = self._create(pregenerate)
         subscribe_email = kwargs.get('email')
         subscribe = kwargs.get('subscribe', False)
+        utm_fields = {p: kwargs[p].strip() for p in UTM_FIELDS
+                      if kwargs.get(p)}
         if subscribe_email and not self._is_marketing_excluded(subscribe_email):
-            self._send_subscribe_email(subscribe_email, subscribe)
+            self._send_subscribe_email(subscribe_email, subscribe,
+                                       utm_fields=utm_fields or None)
+            self._sync_live_demo_with_zoho(subscribe_email, subscribe,
+                                           utm_fields=utm_fields or None)
         return result
+
+    def _sync_live_demo_with_zoho(self, email: str, subscribe: bool,
+                                  utm_fields: dict = None) -> None:
+        try:
+            reg_app = RegisteredApp.get_from_config(self._config)
+            if not reg_app:
+                LOG.error("Zoho: Sync skipped for %s. No credentials in etcd",
+                          email)
+                return
+            zoho_client = ZohoClient(reg_app)
+            zoho_integrator = ZohoIntegrator(zoho_client)
+            zoho_integrator.create_or_update(
+                email=email,
+                full_name="",
+                lead_source=ZOHO_LIVE_DEMO_LEAD_SOURCE,
+                lead_source_description=ZOHO_LIVE_DEMO_LEAD_SOURCE_DESCRIPTION,
+                tags=ZOHO_LIVE_DEMO_TAGS,
+                email_opt_out=not subscribe,
+                utm_fields=utm_fields,
+            )
+        except Exception as e:
+            LOG.error(
+                "Zoho: Sync failed for live demo request from %s: %s",
+                email, str(e)
+            )
 
     def _create(self, pregenerate=False):
         if not pregenerate:
@@ -1126,7 +1192,7 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
             'password': password
         }
 
-    def _send_subscribe_email(self, email, subscribe):
+    def _send_subscribe_email(self, email, subscribe, utm_fields=None):
         recipient = self._config.optscale_email_recipient()
         if not recipient:
             return
@@ -1139,6 +1205,8 @@ class LiveDemoController(BaseController, MongoMixin, ClickHouseMixin):
                 },
             }
         }
+        if utm_fields:
+            template_params['texts']['user'].update(utm_fields)
         HeraldClient(
             url=self._config.herald_url(),
             secret=self._config.cluster_secret()

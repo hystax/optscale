@@ -65,7 +65,16 @@ const childrenListMap = (id: string) => ({
   [DATABRICKS]: null,
 });
 
-const DataSourceDetails = ({ id, accountId, parentId, type, createdAt, config = {} }: DataSourceDetailsProps) => {
+const DataSourceDetails = ({
+  id,
+  accountId,
+  parentId,
+  type,
+  createdAt,
+  config = {},
+  lastImportSourceId,
+  lastImportSourceAccountId,
+}: DataSourceDetailsProps) => {
   const Properties = propertiesMap[type];
   const renderHelp: ReactNode = renderHelpMap(id, config)[type];
   const childrenList: ReactNode = childrenListMap(id)[type];
@@ -77,7 +86,15 @@ const DataSourceDetails = ({ id, accountId, parentId, type, createdAt, config = 
           <SummaryList
             titleMessage={<FormattedMessage id="properties" />}
             items={
-              <Properties config={config} createdAt={formatUTC(createdAt)} accountId={accountId} id={id} parentId={parentId} />
+              <Properties
+                config={config}
+                createdAt={formatUTC(createdAt)}
+                accountId={accountId}
+                id={id}
+                parentId={parentId}
+                lastImportSourceId={lastImportSourceId}
+                lastImportSourceAccountId={lastImportSourceAccountId}
+              />
             }
           />
         </div>

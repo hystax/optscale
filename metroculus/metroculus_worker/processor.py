@@ -591,7 +591,10 @@ class MetricsProcessor(object):
         for cloud_resource_id, (
                 res_id, pod, namespace) in resource_ids_map.items():
             namespace_pod_map[namespace][pod] = res_id
-        period = int((end_date - start_date).total_seconds() / 60.0)
+        period = max(
+            int((end_date - start_date).total_seconds() / 60.0),
+            METRIC_INTERVAL * 2 // 60  # 2 points minimum
+        )
         params = (cloud_account_id, period, METRIC_INTERVAL)
         extended_params = params + params[1:]
         now = int(end_date.timestamp())
@@ -601,6 +604,7 @@ class MetricsProcessor(object):
                 {k8s_metric_key: default_metric_value for k8s_metric_key in
                  K8S_METRIC_QUERY_MAP.get(limit_key, {})})
         k8s_metric_map = {}
+        start_timestamp = int(start_date.timestamp())
         for metric_type, metric_query_map in K8S_METRIC_QUERY_MAP.items():
             for metric_name, query_format in metric_query_map.items():
                 query_format_count = query_format.count('%s')
@@ -630,6 +634,8 @@ class MetricsProcessor(object):
                     usage_values = metric_usage.get('values')
                     for usage_value in usage_values:
                         metric_date = usage_value[0]
+                        if metric_date < start_timestamp:
+                            continue
                         metric_value = float(usage_value[1])
                         if metric_date not in k8s_metric_entry_map:
                             k8s_metric_entry_map[metric_date] = {}

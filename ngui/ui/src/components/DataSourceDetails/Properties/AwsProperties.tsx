@@ -1,10 +1,77 @@
+import { ReactNode } from "react";
 import { FormattedMessage } from "react-intl";
+import CloudLabel from "components/CloudLabel";
+import CopyText from "components/CopyText";
 import KeyValueLabel from "components/KeyValueLabel/KeyValueLabel";
+import { useAllDataSources } from "hooks/coreData/useAllDataSources";
 import { isEmptyArray } from "utils/arrays";
 import { AWS_CNR, AWS_ROOT_CONNECT_CUR_VERSION, AWS_ROOT_CONNECT_CUR_VERSION_MESSAGE_ID } from "utils/constants";
 import { AwsPropertiesProps } from "./types";
 
-const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => {
+const LastImportFromRootAccount = ({
+  cloudAccountId,
+  awsAccountId,
+}: {
+  cloudAccountId?: string | null;
+  awsAccountId?: string | null;
+}) => {
+  const dataSources = useAllDataSources();
+  const rootDataSource = cloudAccountId ? dataSources.find((dataSource) => dataSource?.id === cloudAccountId) : undefined;
+
+  const rootAccountKeyValueLabel = (value: ReactNode) => (
+    <KeyValueLabel
+      keyMessageId="lastFilledByRootAccount"
+      value={value}
+      dataTestIds={{ key: "p_last_import_from_key", value: "p_last_import_from_value" }}
+    />
+  );
+
+  const rootAccountIdKeyValueLabel = () =>
+    awsAccountId ? (
+      <KeyValueLabel
+        keyMessageId="rootAccountId"
+        value={
+          <CopyText sx={{ fontWeight: "inherit" }} text={awsAccountId}>
+            {awsAccountId}
+          </CopyText>
+        }
+        dataTestIds={{ key: "p_last_import_from_aws_id_key", value: "p_last_import_from_aws_id_value" }}
+      />
+    ) : null;
+
+  // Root is still connected — link to it, plus its AWS account ID as its own copyable property.
+  if (rootDataSource) {
+    return (
+      <>
+        {rootAccountKeyValueLabel(<CloudLabel id={rootDataSource.id} name={rootDataSource.name} type={rootDataSource.type} />)}
+        {rootAccountIdKeyValueLabel()}
+      </>
+    );
+  }
+
+  // Root was deleted (or its AWS account ID wasn't captured) — show whichever recorded ID we have as text, no link.
+  if (cloudAccountId || awsAccountId) {
+    const fallbackId = awsAccountId ?? cloudAccountId ?? "";
+    return (
+      <>
+        {rootAccountKeyValueLabel(
+          <>
+            <CopyText sx={{ fontWeight: "inherit" }} text={fallbackId}>
+              {fallbackId}
+            </CopyText>{" "}
+            <FormattedMessage id="deletedLabel" />
+          </>
+        )}
+        {rootAccountIdKeyValueLabel()}
+      </>
+    );
+  }
+
+  // Never imported from a root.
+  return rootAccountKeyValueLabel(<FormattedMessage id="unknown" />);
+};
+
+const AwsProperties = ({ accountId, config, createdAt, lastImportSourceId, lastImportSourceAccountId }: AwsPropertiesProps) => {
   const {
     access_key_id: accessKeyId,
     assume_role_account_id: assumeRoleAccountId,
@@ -145,6 +212,7 @@ const AwsProperties = ({ accountId, config, createdAt }: AwsPropertiesProps) => 
           dataTestIds={{ key: "p_excluded_regions_key", value: "p_excluded_regions_value" }}
         />
       )}
+      {linked && <LastImportFromRootAccount cloudAccountId={lastImportSourceId} awsAccountId={lastImportSourceAccountId} />}
     </>
   );
 };

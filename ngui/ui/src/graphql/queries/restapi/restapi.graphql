@@ -1,4 +1,6 @@
 fragment AwsDataSourceConfigFragment on AwsDataSource {
+  last_import_source_id
+  last_import_source_account_id
   config {
     assume_role_account_id
     assume_role_name
