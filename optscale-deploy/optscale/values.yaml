@@ -19,6 +19,8 @@ etcd:
     peerPort: 2380
   hb_interval: 500 # Adjust if you have slow system
   election_timeout: 5000 # hb_interval x10
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 mariadb:
   name: &mariadb_name mariadb
@@ -36,6 +38,8 @@ mariadb:
     type: ClusterIP
     externalPort: 3306
     internalPort: 3306
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 mongo:
   external: false
@@ -57,6 +61,8 @@ mongo:
     username: root
     password: SecurePassword-01-02
     key: secureShardingKeyFFFDDa129
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 rabbitmq:
   name: &rabbit_name rabbitmq
@@ -81,6 +87,8 @@ rabbitmq:
     username: optscale
     password: secure-password-here
     cookie: dWkhXehOApH1OHshvByfpfTf3Cd8wwkADei7mWd5JF
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 redis:
   name: &redis_name redis
@@ -195,6 +203,8 @@ elk:
   env:
     htpasswd_user: userforelk
     htpasswd_pass: passwordforelk
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 filebeat:
   name: &filebeat filebeat
@@ -248,6 +258,8 @@ minio:
   credentials:
     access: optscale-minio
     secret: secret_password
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 diworker:
   name: &diworker_name diworker
@@ -376,6 +388,8 @@ influxdb:
     type: ClusterIP
     externalPort: &influx_external_port 80
     internalPort: 8086
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 # enable to deploy cleaninfluxdb pod
 deploy_cleaninfluxdb: "true"
@@ -499,6 +513,8 @@ clickhouse:
     httpPort: 8123
     externalPort: 9000
   replicas: 1
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 zohocrm:
   regapp:
@@ -743,6 +759,8 @@ thanos_receive:
     httpExternalPort: 10902
     grpcExternalPort: 10901
     remoteWriteExternalPort: 19291
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 thanos_storegateway:
   name: &thanos_storegateway_name thanos-storegateway
@@ -758,6 +776,8 @@ thanos_storegateway:
     type: ClusterIP
     httpExternalPort: 10902
     grpcExternalPort: 10901
+  # Storage configuration: set to true to use PVC (gp3-expand), false to use node filesystem
+  usePersistentVolume: true
 
 thanos_query:
   name: &thanos_query_name thanos-query

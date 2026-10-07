@@ -62,10 +62,25 @@ spec:
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}
+{{- if not $config.usePersistentVolume }}
       volumes:
       - name: influxdb-storage
         hostPath:
           path: /optscale/influxdb
           type: DirectoryOrCreate
-      nodeSelector:
-        node-role.kubernetes.io/control-plane:
+{{- end }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: influxdb-storage
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 50Gi
+{{- end }}

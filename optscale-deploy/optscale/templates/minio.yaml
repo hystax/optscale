@@ -81,8 +81,25 @@ spec:
           mountPath: /data
           readOnly: false
 {{ include "ready_probe" $config | indent 8 }}
+{{- if not $config.usePersistentVolume }}
       volumes:
       - name: minio-persistent-storage
         hostPath:
           path: /optscale/minio
           type: DirectoryOrCreate
+{{- end }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: minio-persistent-storage
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 50Gi
+{{- end }}

@@ -93,9 +93,26 @@ spec:
           mountPath: /var/lib/elasticsearch
           readOnly: false
           mountPropagation: HostToContainer
+{{- if not $config.usePersistentVolume }}
       volumes:
       - name: etcd-persistent-storage
         hostPath:
           path: /optscale/elk-7
           type: DirectoryOrCreate
+{{- end }}
+{{- if $config.usePersistentVolume }}
+  volumeClaimTemplates:
+  - metadata:
+      name: etcd-persistent-storage
+      labels:
+        app: {{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      storageClassName: gp3-expand
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 50Gi
+{{- end }}
 {{- end -}}
