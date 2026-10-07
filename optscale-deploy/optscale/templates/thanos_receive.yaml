@@ -213,7 +213,7 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
-      storageClassName: gp3-expand
+{{ include "pvc_storage_class" . | indent 6 }}
       accessModes:
         - ReadWriteOnce
       resources:

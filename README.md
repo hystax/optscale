@@ -157,6 +157,41 @@ Edit file with overlay - [optscale-deploy/overlay/user_template.yml](optscale-de
 
 Pay attention to "service_credentials" parameter, as OptScale uses it to retrieve cloud pricing data for recommendations calculation.
 
+##### Persistent storage
+
+Dynamic PVC-backed storage is disabled by default for each stateful service.
+Select a storage class and enable PVCs for the required services in
+`optscale-deploy/optscale/values.yaml` or an overlay:
+
+```yaml
+storageClass: aws-gp3
+
+etcd:
+  usePersistentVolume: true
+mariadb:
+  usePersistentVolume: true
+```
+
+The same `usePersistentVolume` option is available for `mongo`, `rabbitmq`,
+`elk`, `minio`, `influxdb`, `clickhouse`, `thanos_receive`, and
+`thanos_storegateway`.
+
+`storageClass` accepts one of the storage classes provided by
+`optscale-deploy/optscale/templates/storageclass.yaml`:
+
+| Value | Provider | CSI provisioner | Storage type |
+| --- | --- | --- | --- |
+| `aws-gp3` | AWS | `ebs.csi.aws.com` | Encrypted GP3 |
+| `azure-standard` | Azure | `disk.csi.azure.com` | Standard SSD LRS |
+| `gcp-balanced` | GCP | `pd.csi.storage.gke.io` | Balanced persistent disk |
+
+The corresponding CSI driver must be installed in the cluster. Set
+`storageClass` to an empty string to use the cluster's default storage class.
+
+To use another storage class, add its `StorageClass` manifest to
+`optscale-deploy/optscale/templates/storageclass.yaml`, then set
+`storageClass` to the same value as the manifest's `metadata.name`.
+
 #### Cluster installation
 
 Run the following command to start cluster from the required version:
