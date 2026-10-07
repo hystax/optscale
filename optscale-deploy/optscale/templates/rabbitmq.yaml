@@ -161,6 +161,7 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   hostPath:
     path: "/optscale/rabbitmq"
+    type: DirectoryOrCreate
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
