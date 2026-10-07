@@ -37,13 +37,13 @@ It provides deep visibility into infrastructure costs, automated optimization re
 <br>
 
 <div>
-<br>  
+<br>
   <img src="documentation/images/OptScale-AI-description-ReadMe-GitHub.png" width="92" align="left" style="border-radius: 50%; margin-right: 15px">
   <b>
     🔖 NEW 🔖 <br>Cloud costs under control? Time to go beyond – into AI.
   </b>
   <br> OptScale AI covers it all – cost control, security and guardrails, and full visibility over every AI prompt, model, and agent.
-  
+
   <b>Try free at [optscale.ai](https://optscale.ai) </b>
 </div>
 
@@ -51,7 +51,7 @@ It provides deep visibility into infrastructure costs, automated optimization re
 <br>
 
 <div>
-<br>  
+<br>
   <img src="documentation/images/Max_Kuzkin.png" width="80" align="left" style="border-radius: 50%; margin-right: 15px">
   <i>
     “Hystax OptScale has been a game-changer for our FinOps practice. Its powerful capabilities, flexibility, and seamless integration have empowered us to deliver unprecedented transparency, control, and cost optimization for our clients. We truly value our partnership with Hystax and are excited to innovate further together.”
@@ -151,7 +151,7 @@ See [optscale-deploy/compose/README.md](optscale-deploy/compose/README.md) for f
 
 The minimum hardware requirements for OptScale cluster: CPU: 8+ cores, RAM: 16Gb, SSD: 150+ Gb.
 
-NVMe SSD is recommended.  
+NVMe SSD is recommended.
 
 **OS Required**: [Ubuntu 24.04](https://releases.ubuntu.com/noble/).
 
@@ -231,13 +231,18 @@ Pay attention to "service_credentials" parameter, as OptScale uses it to retriev
 
 #### Cluster installation
 
-Run the following command to start cluster from the required version:
+By default, `runkube.py` pulls the requested OptScale images onto each node
+and deploys the node-local `local` tags with `imagePullPolicy: Never`.
+`--no-pull` skips image loading when the images are already present on every
+node.
+
+Run the following command to deploy the requested version:
 
 ```
 ./runkube.py --with-elk  -o overlay/user_template.yml -- <deployment name> <version>
 ```
 
-or use `--no-pull` to start cluster from local images:
+For images already present on every node, skip pulling:
 
 ```
 ./runkube.py --with-elk --no-pull -o overlay/user_template.yml -- <deployment name> local
@@ -256,6 +261,54 @@ If you have insecure registry (with self-signed certificate) you can use --insec
 ./runkube.py --insecure --with-elk  -o overlay/user_template.yml -- <deployment name> <version>
 
 ```
+
+To let Kubernetes pull images directly from a registry, use
+`--use-remote-registry`. The existing `--dregistry` option selects the
+registry namespace, and `<version>` is used as the image tag:
+
+```
+./runkube.py --use-remote-registry \
+  --dregistry index.docker.io/<namespace> --with-elk \
+  -o overlay/user_template.yml -- <deployment name> <version>
+```
+
+Remote mode generates an overlay with `imagePullPolicy: Always` for
+chart-managed containers.
+
+All first-party OptScale images are pulled by Kubernetes from the selected
+namespace and use `<version>` as their tag. Third-party and separately
+versioned images (for example, MinIO, RabbitMQ, ClickHouse, and BusyBox) keep
+their chart-configured image references and tags.
+
+For a private registry, list an existing Kubernetes pull secret in the overlay:
+
+```yaml
+imagePullSecrets:
+  - name: registry-creds
+```
+
+For Docker Hub, set `dockerhub_dockercfg` to the base64-encoded `.dockercfg`
+contents and reference the chart-created secret:
+
+```yaml
+dockerhub_dockercfg: <base64-encoded-dockercfg>
+imagePullSecrets:
+  - name: dockerhub-creds
+```
+
+`--dregistry` defaults to `index.docker.io/hystax`.
+
+When using the legacy HA etcd operator, the etcd image tag must have exactly
+one leading `v` because the operator adds that prefix. The operator's [v1beta2
+PodPolicy API](https://github.com/coreos/etcd-operator/blob/master/pkg/apis/etcd/v1beta2/cluster.go)
+does not support `imagePullSecrets`; configure credentials on the namespace's
+default ServiceAccount for private-registry HA deployments.
+
+`--no-pull`, `--dregistry_user`, `--dregistry_password`, `--use-socket`, and
+`--insecure` configure node-local image loading. In remote-registry mode,
+configure registry TLS trust on the Kubernetes nodes and use
+`imagePullSecrets` for authentication; these local-pull flags do not configure
+Kubernetes image pulls.
 
 **deployment name** must follow the RFC 1123: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
 
@@ -289,7 +342,7 @@ In case of the following error:
 
 When running  ```build.sh --use-nerdctl```:
 ```
-FATA[0000] rootless containerd not running? (hint: use `containerd-rootless-setuptool.sh install` to start rootless containerd): stat /run/user/1000/containerd-rootless: no such file or directory 
+FATA[0000] rootless containerd not running? (hint: use `containerd-rootless-setuptool.sh install` to start rootless containerd): stat /run/user/1000/containerd-rootless: no such file or directory
 Building image for trapper_worker, build tag: local
 FATA[0000] rootless containerd not running? (hint: use `containerd-rootless-setuptool.sh install` to start rootless containerd): stat /run/user/1000/containerd-rootless: no such file or directory 
 ```

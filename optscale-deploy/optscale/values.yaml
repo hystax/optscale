@@ -952,9 +952,12 @@ public_port: 443
 
 # filled from base overlay
 # only for humans, no robots here
+# Image loading defaults to the node-local workflow used by runkube.py.
 docker_registry:
 docker_tag:
-
+imagePullPolicy: Never
+imagePullSecrets: []
+dockerhub_dockercfg:
 # filled from base overlay
 optscale_key:
 

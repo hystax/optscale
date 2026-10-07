@@ -39,13 +39,12 @@ spec:
             app: {{ $config.name }}-{{ $period }}
             release: {{ $.Release.Name }}
         spec:
-{{ include "image.pullSecrets" $ | indent 10 }}
           initContainers:
 {{ include "wait_for_service" $.Values.rest_api | indent 10 }}
           containers:
           - name: {{ $config.name }}-{{ $period }}
-            image: "{{ include "image.ref" (dict "registry" $.Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" $.Values.docker_tag) }}"
-            imagePullPolicy: {{ $.Values.imagePullPolicy }}
+            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            imagePullPolicy: {{ $config.image.pullPolicy }}
             env:
             - name: PERIOD
               value: "{{ $period }}"

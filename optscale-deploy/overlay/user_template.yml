@@ -47,13 +47,15 @@ service_credentials:
 #  encryption salt for encode user information
 encryption_salt: my~encypt10n~s@lt
 
-# Image source is selected with runkube.py's --use-node-filesystem or
-# --use-remote-registry flag. Uncomment these only to override that selection.
-# docker_registry: index.docker.io/hystax
-# docker_tag: ""
+# runkube.py uses node-local images unless --use-remote-registry is passed.
+# Remote mode fills these values from --dregistry and the positional <version>.
+# Leave commented to use the CLI values; set them to override those values.
+# docker_registry: registry.example/optscale
+# docker_tag: "v1"
 # imagePullPolicy: Always
 
-# Set this for private registries. The secret is injected into every OptScale pod.
+# Pull secrets are applied to chart-managed OptScale pods. Legacy HA etcd
+# operator pods use the namespace's default ServiceAccount credentials.
 imagePullSecrets: []
 # - name: dockerhub-creds
 # `dockerhub-creds` is created when `dockerhub_dockercfg` contains base64-encoded
