@@ -111,14 +111,15 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
 {{- if .Values.elk.enabled }}
       initContainers:
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
-        imagePullPolicy: {{ $config.image.pullPolicy }}
+        image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         command:
           - "/usr/local/bin/etcd"
           - "-listen-client-urls"
@@ -190,9 +191,11 @@ spec:
         app: configurator
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
       containers:
       - name: configurator
-        image: configurator:local
+        image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" "configurator" "tag" "local" "dockerTag" .Values.docker_tag) }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         volumeMounts:
         - name: config-volume
           mountPath: /config

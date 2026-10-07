@@ -47,6 +47,19 @@ service_credentials:
 #  encryption salt for encode user information
 encryption_salt: my~encypt10n~s@lt
 
+# Image source is selected with runkube.py's --use-node-filesystem or
+# --use-remote-registry flag. Uncomment these only to override that selection.
+# docker_registry: index.docker.io/hystax
+# docker_tag: ""
+# imagePullPolicy: Always
+
+# Set this for private registries. The secret is injected into every OptScale pod.
+imagePullSecrets: []
+# - name: dockerhub-creds
+# `dockerhub-creds` is created when `dockerhub_dockercfg` contains base64-encoded
+# Docker Hub `.dockercfg` JSON; other names must already exist in the namespace.
+dockerhub_dockercfg: ""
+
 # SMTP server and credentials used for sending emails
 smtp:
   server:
