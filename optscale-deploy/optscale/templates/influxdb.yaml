@@ -69,6 +69,8 @@ spec:
           path: /optscale/influxdb
           type: DirectoryOrCreate
 {{- end }}
+      nodeSelector:
+        node-role.kubernetes.io/control-plane:
 {{- if $config.usePersistentVolume }}
   volumeClaimTemplates:
   - metadata:

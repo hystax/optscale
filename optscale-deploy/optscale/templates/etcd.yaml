@@ -163,6 +163,8 @@ spec:
           path: /optscale/etcd
           type: DirectoryOrCreate
 {{- end }}
+      nodeSelector:
+        node-role.kubernetes.io/control-plane:
 {{- if $config.usePersistentVolume }}
   volumeClaimTemplates:
   - metadata:
@@ -232,4 +234,6 @@ spec:
       - name: config-volume
         configMap:
           name: optscale-etcd
+      nodeSelector:
+        node-role.kubernetes.io/control-plane:
   backoffLimit: 10
