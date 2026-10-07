@@ -216,12 +216,24 @@ source ~/.profile
 ```
 to add local ~/bin path to the system $PATH variable
 
-**Note:** you can build local images running
+**Note:** build local images with `build.sh`; the default tag is `local`:
 
-```
+```sh
 cd .. && ./build.sh --use-nerdctl
 ```
-Images will build with version(tag) = local
+
+Build a single component with the existing positional tag syntax, or build selected components in parallel with `--tag`:
+
+```sh
+./build.sh auth build
+./build.sh auth diworker --tag build
+```
+
+Push images to a registry by adding `--push`, registry, and credentials. Without `-r`, images are pushed under the `hystax` namespace:
+
+```sh
+./build.sh auth --tag release --push -r registry.example -u username -p password
+```
 
 #### Creating user overlay
 
