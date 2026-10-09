@@ -222,7 +222,9 @@ to add local ~/bin path to the system $PATH variable
 cd .. && ./build.sh --use-nerdctl
 ```
 
-Build a single component with the existing positional tag syntax, or build selected components in parallel with `--tag`:
+Build one component with the legacy positional tag syntax, or select multiple
+components using `--tag` (required to disambiguate a component list from the
+legacy two-argument form):
 
 ```sh
 ./build.sh auth build

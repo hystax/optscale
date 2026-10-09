@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: ./build.sh [component ...] [tag] [--tag tag] [--push] [-r registry] [-u username] [-p password] [--no-cache] [--use-nerdctl]
+# Usage: ./build.sh [component] [legacy-tag] | [component ... --tag tag] [--push] [-r registry] [-u username] [-p password] [--no-cache] [--use-nerdctl]
 
 set -e
 

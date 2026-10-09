@@ -21,12 +21,12 @@ spec:
       labels:
         app: {{ .Values.clickhouse.name }}
         release: {{ .Release.Name }}
-    spec:
-{{ include "image.pullSecrets" $ | indent 6 }}
 {{- if .Values.elk.enabled }}
       initContainers:
 {{ include "wait_for_elk" . | indent 6 }}
 {{- end }}
+    spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
       containers:
         - name: {{ .Values.clickhouse.name }}
           image: "clickhouse/clickhouse-server:24.12"

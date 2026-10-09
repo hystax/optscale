@@ -51,7 +51,7 @@ def edit_pod_spec(spec, cluster_id):
             'echo -e "$ret\nrestore finished"',
         ],
         'image': spec['spec']['containers'][0]['image'],
-        'imagePullPolicy': 'Never',
+        'imagePullPolicy': 'Always',
         'name': 'restore',
         'resources': {},
         'volumeMounts': [{'mountPath': '/var/etcd', 'name': 'etcd-data'}],

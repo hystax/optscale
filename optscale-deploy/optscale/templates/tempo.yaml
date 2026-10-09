@@ -48,6 +48,7 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
       containers:
         - name: {{ $config.name }}
           image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
