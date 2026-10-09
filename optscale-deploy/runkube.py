@@ -55,7 +55,7 @@ class Runkube:
     def __init__(self, name, config, overlays, dport, dregistry, dregistry_user,
                  dregistry_password, no_pull, pull_by_master_ip, with_elk,
                  external_clickhouse, external_mongo, use_socket, insecure,
-                 version, wait_timeout=0):
+                 version, wait_timeout=0, use_remote_registry=False):
         self.name = name
         if config is None:
             self.config = os.path.join(os.environ.get('HOME'), '.kube/config')
@@ -80,6 +80,7 @@ class Runkube:
         self.version = version
         self._versions_info = None
         self.wait_timeout = wait_timeout
+        self.use_remote_registry = use_remote_registry
 
     @property
     def kube_cl(self):
@@ -221,11 +222,15 @@ class Runkube:
         cert = base64.b64decode(secret.data['tls.crt'])
         key = base64.b64decode(secret.data['tls.key'])
         base_overlay = {'optscale_key': key, 'certificates': {'optscale': cert}}
-        for name, image_id in self.get_image_id_map().items():
-            base_overlay[name] = {'image': {'id': image_id}}
+        if self.use_remote_registry:
+            base_overlay['docker_registry'] = self.dregistry
+            base_overlay['docker_tag'] = self.version
+            base_overlay['imagePullPolicy'] = 'Always'
+        else:
+            for name, image_id in self.get_image_id_map().items():
+                base_overlay[name] = {'image': {'id': image_id}}
 
         base_overlay['public_ip'] = self.master_ip
-        base_overlay['docker_registry'] = self.dregistry
         base_overlay['release'] = self.name
         if self.overlays:
             base_overlay['overlay_list'] = ','.join(self.overlays)
@@ -354,15 +359,19 @@ class Runkube:
     def start(self, check, update):
         self.check_releases(update)
         self.check_version()
-        for node in self.get_node_ips():
-            ctrd_cl = self.get_ctrd_cl(node)
-            if not self.no_pull:
-                LOG.info("Pulling images for %s", node)
-                images = self.pull_images(ctrd_cl)
-            else:
-                LOG.info('Сomparing local images for %s' % node)
-                images = self.get_local_images(ctrd_cl)
-            self.tag_images_local(images, ctrd_cl)
+        if self.use_remote_registry:
+            LOG.info("Using images from remote registry %s with tag %s",
+                     self.dregistry, self.version)
+        else:
+            for node in self.get_node_ips():
+                ctrd_cl = self.get_ctrd_cl(node)
+                if not self.no_pull:
+                    LOG.info("Pulling images for %s", node)
+                    images = self.pull_images(ctrd_cl)
+                else:
+                    LOG.info('Сomparing local images for %s' % node)
+                    images = self.get_local_images(ctrd_cl)
+                self.tag_images_local(images, ctrd_cl)
         overlays = []
         LOG.debug("Creating temp dir %s", TEMP_DIR)
         os.makedirs(TEMP_DIR, mode=0o755, exist_ok=True)
@@ -436,6 +445,9 @@ if __name__ == '__main__':
                         type=str)
     parser.add_argument('--no-pull', help="Don't pull images before deploy",
                         action='store_true')
+    parser.add_argument(
+        '--use-remote-registry', action='store_true',
+        help='Let Kubernetes pull images directly from --dregistry')
     parser.add_argument('-v', '--verbose', help="Enable debug logging",
                         action='store_true')
     parser.add_argument('--pull-by-master-ip', action='store_true',
@@ -484,6 +496,7 @@ if __name__ == '__main__':
         insecure=args.insecure,
         version=args.version,
         wait_timeout=args.wait,
+        use_remote_registry=args.use_remote_registry,
     )
     if args.delete or args.restart:
         acr.delete()

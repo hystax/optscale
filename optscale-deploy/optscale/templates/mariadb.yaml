@@ -85,6 +85,7 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
 {{ include "anti-affinity" $config | indent 6 }}
       initContainers:
 {{- if .Values.elk.enabled }}
@@ -101,8 +102,8 @@ spec:
           mountPath: /etc/mysql/conf.d
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
-        imagePullPolicy: {{ $config.image.pullPolicy }}
+        image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:
         - name: MARIADB_CNF_SHA
           value: {{ include "mariadb.cnf" . | sha256sum }}
@@ -191,9 +192,11 @@ spec:
           labels:
             release: {{ .Release.Name }}
         spec:
+{{ include "image.pullSecrets" $ | indent 10 }}
           containers:
           - name: db-backup
-            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+            image: "{{ include "image.ref" (dict "registry" $.Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" $.Values.docker_tag) }}"
+            imagePullPolicy: {{ $.Values.imagePullPolicy }}
             env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:

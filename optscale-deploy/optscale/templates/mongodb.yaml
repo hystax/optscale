@@ -94,6 +94,7 @@ spec:
         app: {{ $config.name }}
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
       terminationGracePeriodSeconds: 30
       initContainers:
 {{- if .Values.elk.enabled }}
@@ -120,7 +121,7 @@ spec:
         - name: keydir
           mountPath: /keydir-readonly
       - name: bootstrap
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+        image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
         command:
           - peer-finder
         args:
@@ -164,8 +165,8 @@ spec:
           mountPath: /work-dir
       containers:
       - name: {{ $config.name }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
-        imagePullPolicy: "{{ $config.image.pullPolicy }}"
+        image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         ports:
         - name: mongodb
           containerPort: {{ $config.service.internalPort }}
