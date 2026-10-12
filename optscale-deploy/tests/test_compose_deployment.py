@@ -124,6 +124,8 @@ def k8s_equivalent_names(values):
         "demo-org-cleanup": {value_name(values, "demo_org_cleanup")},
         "diproxy": {value_service_name(values, "diproxy")},
         "diworker": {value_name(values, "diworker")},
+        "diworker-raw": {value_name(values, "diworker_raw")},
+        "diworker-clean": {value_name(values, "diworker_clean")},
         "etcd-client": {value_service_name(values, "etcd")},
         "failed-imports-dataset-generator": {
             value_name(values, "failed_imports_dataset_generator")

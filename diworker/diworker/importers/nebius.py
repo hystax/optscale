@@ -146,9 +146,10 @@ class NebiusReportImporter(CSVBaseReportImporter):
         return tags
 
     def get_resource_ids(self, cloud_account_id, billing_period):
+        start_date_filter = {'$gte': self.min_date_import_threshold}
         base_filters = {
             'cloud_account_id': cloud_account_id,
-            'start_date': {'$gte': self.min_date_import_threshold}
+            'start_date': start_date_filter
         }
         if billing_period:
             base_filters['date'] = billing_period

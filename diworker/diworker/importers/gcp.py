@@ -151,8 +151,7 @@ class GcpReportImporter(BaseReportImporter):
     def load_raw_data(self):
         current_day = self.period_start.replace(
             hour=0, minute=0, second=0, microsecond=0)
-        now = self.period_end
-        while current_day <= now:
+        while current_day <= self.period_end:
             chunk = []
             end_date = current_day + timedelta(days=1)
             # sometimes Gcp splits the same expenses for a date into
@@ -284,8 +283,13 @@ class GcpReportImporter(BaseReportImporter):
                                          unique_id_field=unique_id_field)
 
         base_filters = [{'cloud_account_id': self.cloud_acc_id}]
+        date_filters = {}
         if self.period_start:
-            base_filters.append({'start_date': {'$gte': self.period_start}})
+            date_filters = {'$gte': self.period_start}
+        if self.import_to is not None:
+            date_filters['$lte'] = self.period_end
+        if date_filters:
+            base_filters.append({'start_date': date_filters})
 
         distinct_filters = {}
         for f in base_filters:

@@ -159,8 +159,8 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
                     usage_datetime = datetime.strptime(exp_date, '%Y-%m-%d')
                 else:
                     usage_datetime = datetime.strptime(row['date'], '%m/%d/%Y')
-                if usage_datetime.replace(
-                        tzinfo=timezone.utc) < self.min_date_import_threshold:
+                usage_datetime_utc = usage_datetime.replace(tzinfo=timezone.utc)
+                if usage_datetime_utc < self.min_date_import_threshold:
                     continue
                 record_number += 1
                 row['_rec_n'] = record_number
@@ -245,9 +245,13 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
         return super(AzureImporterBase, self).get_resource_ids(
             cloud_account_id, period_start)
 
+    def finalize_raw_import(self):
+        try:
+            self.generate_reservations_expenses(self.min_date_import_threshold)
+        except Exception as exc:
+            LOG.exception("Failed getting reservations info: %s", str(exc))
+
     def generate_clean_records(self, regeneration=False):
-        if not self.report_files:
-            return
         resource_ids = self.get_resource_ids(self.cloud_acc_id,
                                              self.min_date_import_threshold)
         self._generate_clean_records(resource_ids, self.cloud_acc_id,
