@@ -277,6 +277,24 @@ diworker:
     tag: *tag
     pullPolicy: Never
 
+diworker_raw:
+  name: diworker-raw
+  replicaCount: 1
+  image:
+    id:
+    repository: *diworker_name
+    tag: *tag
+    pullPolicy: Never
+
+diworker_clean:
+  name: diworker-clean
+  replicaCount: 1
+  image:
+    id:
+    repository: *diworker_name
+    tag: *tag
+    pullPolicy: Never
+
 katara_service:
   name: &katara_name katara
   api:

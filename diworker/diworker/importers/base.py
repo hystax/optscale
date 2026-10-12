@@ -133,6 +133,12 @@ class BaseReportImporter:
             return False
         return True
 
+    @property
+    def _reimport_period_start(self):
+        this_month_start = opttime.utcnow().replace(
+            day=1, hour=0, minute=0, second=0, microsecond=0)
+        return this_month_start - relativedelta(months=3)
+
     def get_raw_upsert_filters(self, expense):
         return {f: expense.get(f, {'$exists': False})
                 for f in self.get_unique_field_list()}
@@ -368,6 +374,8 @@ class BaseReportImporter:
         base_filters = {'cloud_account_id': cloud_account_id}
         if period_start:
             base_filters['start_date'] = {'$gte': period_start}
+            if self.period_end:
+                base_filters['start_date']['$lte'] = self.period_end
         resource_ids = self.mongo_raw.aggregate([
             {'$match': base_filters},
             {'$group': {'_id': '$resource_id'}}
@@ -405,7 +413,10 @@ class BaseReportImporter:
             ], allowDiskUse=True)
 
     def _get_billing_period_filters(self, period_start):
-        return {'start_date': {'$gte': period_start}}
+        f = {'start_date': {'$gte': period_start}}
+        if self.period_end:
+            f['start_date']['$lte'] = self.period_end
+        return f
 
     def _generate_clean_records(self, resource_ids, cloud_account_id,
                                 period_start):
@@ -519,6 +530,18 @@ class BaseReportImporter:
             {'last_import_attempt_at': ts,
              'last_import_attempt_error': error[:255]})
 
+    def finalize_raw_import(self):
+        """Called by Worker 3 after all raw files are imported, before clean generation."""
+        pass
+
+    def get_state_to_serialize(self):
+        """Return importer-specific state to pass to Worker 3 via the queue message."""
+        return {}
+
+    def restore_serialized_state(self, state):
+        """Restore importer-specific state received from Worker 2."""
+        pass
+
     def update_cloud_account_config(self):
         pass
 
@@ -565,9 +588,7 @@ class BaseReportImporter:
 
     def set_period_start(self):
         if self.need_extend_report_interval:
-            this_month_start = opttime.utcnow().replace(
-                day=1, hour=0, minute=0, second=0, microsecond=0)
-            self.period_start = this_month_start - relativedelta(months=+3)
+            self.period_start = self._reimport_period_start
         else:
             self.period_start = get_month_start(opttime.utcnow())
 
@@ -589,6 +610,8 @@ class BaseReportImporter:
             'start_date': {'$gte': self.period_start},
             'cloud_account_id': cloud_account_id
         }
+        if self.import_to is not None:
+            query['start_date']['$lte'] = self.period_end
         r = self.mongo_raw.delete_many(query)
         LOG.info('Raw expenses for cloud account %s since %s were '
                  'deleted: %s' % (
@@ -874,9 +897,15 @@ class CSVBaseReportImporter(BaseReportImporter):
             LOG.info('Filtered report groups by date range [%s, %s]: %s',
                      import_from_key, import_to_key,
                      sorted(reports_groups.keys()))
+        else:
+            threshold_key = self._reimport_period_start.strftime('%Y%m%d')
+            reports_groups = {
+                k: v for k, v in reports_groups.items()
+                if self._group_key_range(k)[1] > threshold_key
+            }
         return reports_groups
 
-    def download_from_cloud(self):
+    def _select_files_to_download(self):
         if self.mongo_report_files is None:
             raise ValueError(
                 'mongo_report_files is required for cloud-backed imports')
@@ -889,8 +918,45 @@ class CSVBaseReportImporter(BaseReportImporter):
             reports_groups, previous_states)
         LOG.info('Groups to check: %s', sorted(groups_to_check.keys()))
         etag_states = {} if self.reimport else previous_states
-        current_reports = self.get_current_reports(groups_to_check, etag_states)
+        return self.get_current_reports(groups_to_check, etag_states)
+
+    def download_from_cloud(self):
+        current_reports = self._select_files_to_download()
         self._download_report_files(current_reports)
+
+    def get_files_to_process(self):
+        """Return JSON-serializable list of changed files, newest date first."""
+        current_reports = self._select_files_to_download()
+        return [
+            {
+                'date': date,
+                'report': {
+                    'Key': self._get_file_key(report),
+                    'ETag': self._get_file_etag(report),
+                },
+                'stored_etag': self._previous_file_states.get(
+                    self._get_file_key(report), {}).get('etag', ''),
+            }
+            for date, reports in sorted(current_reports.items(), reverse=True)
+            for report in reports
+        ]
+
+    def prepare_one_file(self, date, report):
+        """Download and register a single cloud report file."""
+        target_path = self.get_new_report_path(date)
+        os.makedirs(os.path.join(self.reports_dir, date), exist_ok=True)
+        cloud_key = self._get_file_key(report)
+        try:
+            with open(target_path, 'wb') as f_report:
+                self.cloud_adapter.download_report_file(cloud_key, f_report)
+        except TypeError:
+            with open(target_path, 'w') as f_report:
+                self.cloud_adapter.download_report_file(cloud_key, f_report)
+        self.report_files[date].append(target_path)
+        self.report_file_keys[target_path] = cloud_key
+        self.report_cloud_etags[cloud_key] = self._get_file_etag(report)
+        self.unpack_report_files()
+        return self.report_files[date][-1]
 
     def unpack_report_files(self):
         pass
@@ -978,9 +1044,6 @@ class CSVBaseReportImporter(BaseReportImporter):
         raise NotImplementedError
 
     def generate_clean_records(self, regeneration=False):
-        # useless if there is nothing to import
-        if not self.report_files and not regeneration:
-            return
         billing_periods = {
             None} if not self.billing_periods else self.billing_periods
         for cc_id in self.detected_cloud_accounts:

@@ -651,3 +651,11 @@ class KubernetesReportImporter(BaseReportImporter):
             nodes_data = {'nodes': nodes}
             self.rest_cl.node_create_bulk(self.cloud_acc_id, nodes_data)
             super().update_cloud_import_time(ts)
+
+    def get_state_to_serialize(self):
+        return {'nodes': self.nodes_provider.dump_nodes()}
+
+    def restore_serialized_state(self, state):
+        for node_dict in state.get('nodes', []):
+            node = Node(**node_dict)
+            self.nodes_provider._nodes[node.name] = node

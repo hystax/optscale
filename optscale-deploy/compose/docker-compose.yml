@@ -542,8 +542,30 @@ services:
       clickhouse:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "test -f /tmp/diworker-migrations-ready"]
+      test: ["CMD-SHELL", "test -f /tmp/diworker-orchestrator-ready"]
       <<: *healthcheck-tcp
+
+  diworker-raw:
+    image: ${COMPANY:-hystax}/diworker:${OPTSCALE_VERSION:-latest}
+    command: ["uv", "run", "--project", "diworker", "python", "-u", "/src/diworker/diworker/raw_worker.py"]
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      diworker:
+        condition: service_healthy
+
+  diworker-clean:
+    image: ${COMPANY:-hystax}/diworker:${OPTSCALE_VERSION:-latest}
+    command: ["uv", "run", "--project", "diworker", "python", "-u", "/src/diworker/diworker/clean_worker.py"]
+    <<: *restart
+    environment:
+      <<: *etcd-env
+      OTEL_ENABLED: "false"
+    depends_on:
+      diworker:
+        condition: service_healthy
 
   katara-worker:
     image: ${COMPANY:-hystax}/katara_worker:${OPTSCALE_VERSION:-latest}

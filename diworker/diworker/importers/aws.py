@@ -909,9 +909,10 @@ class AWSReportImporter(CSVBaseReportImporter):
             ], allowDiskUse=True)
 
     def _get_billing_period_filters(self, billing_period):
+        start_date_filter = {'$gte': self.min_date_import_threshold}
         return {
             'bill/BillingPeriodStartDate': billing_period,
-            'start_date': {'$gte': self.min_date_import_threshold}
+            'start_date': start_date_filter
         }
 
     @staticmethod
