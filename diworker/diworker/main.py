@@ -2,16 +2,14 @@
 import logging
 import shutil
 
-from tools.optscale_time.optscale_time import utcnow_timestamp
-
-from diworker.diworker.importers.base import CSVBaseReportImporter
+from diworker.diworker.importers.base import (
+    BaseReportImporter, CSVBaseReportImporter)
 from diworker.diworker.importers.factory import get_importer_class
 from diworker.diworker.worker_base import (
     BaseWorker, RAW_QUEUE, CLEAN_QUEUE, ORCHESTRATOR_QUEUE, run_worker)
 
 LOG = logging.getLogger(__name__)
 ENVIRONMENT_CLOUD_TYPE = 'environment'
-ACTIVE_IMPORT_THRESHOLD = 1800
 MIGRATIONS_READY_FILE = '/tmp/diworker-orchestrator-ready'
 
 
@@ -38,40 +36,25 @@ class OrchestratorWorker(BaseWorker):
 
         _, import_dict = rest_cl.report_import_get(report_import_id)
 
-        if import_dict.get('state') == 'in_progress':
-            updated_at = import_dict.get('updated_at')
-            threshold = int(
-                self.diworker_settings.get('active_import_threshold_secs')
-                or ACTIVE_IMPORT_THRESHOLD)
-            if updated_at is None or updated_at >= utcnow_timestamp() - threshold:
-                LOG.warning('Import %s is already in progress, skipping '
-                            'redelivered task', report_import_id)
-                return False
-            LOG.warning('Import %s is in progress, but its last heartbeat is '
-                        'at %s, will process the task', report_import_id,
-                        updated_at)
-
         cloud_acc_id = import_dict['cloud_account_id']
 
         active_imports = rest_cl.report_import_list(
             cloud_acc_id, show_active=True)[1]['report_imports']
         conflicts = [x for x in active_imports if x['id'] != report_import_id]
         if conflicts:
-            rest_cl.report_import_update(report_import_id, {
-                'state': 'failed',
-                'state_reason': 'Import cancelled due another import: %s'
-                                % conflicts[0]['id'],
-            })
+            reason = 'Import cancelled due another import: %s' % (
+                conflicts[0]['id'])
+            self._cancel_import(report_import_id, import_dict, reason,
+                                config_cl, rest_cl, mongo_cl)
             return False
 
         _, ca = rest_cl.cloud_account_get(cloud_acc_id)
         _, org = rest_cl.organization_get(ca['organization_id'])
         if org.get('disabled'):
-            rest_cl.report_import_update(report_import_id, {
-                'state': 'failed',
-                'state_reason': 'Import cancelled due to disabled organization: %s'
-                                % report_import_id,
-            })
+            reason = ('Import cancelled due to disabled organization: %s'
+                      % report_import_id)
+            self._cancel_import(report_import_id, import_dict, reason,
+                                config_cl, rest_cl, mongo_cl)
             return False
 
         # added lock for heartbeats. Now we should return true
@@ -102,11 +85,19 @@ class OrchestratorWorker(BaseWorker):
             importer_params = self.get_importer_params(
                 cloud_acc_id, import_dict, config_cl, rest_cl, mongo_cl,
                 clickhouse_cl=None)
-            importer = importer_class(**importer_params)
+            importer = None
             try:
+                importer = importer_class(**importer_params)
                 files = importer.get_files_to_process()
+            except Exception as exc:
+                if importer is None:
+                    importer = BaseReportImporter(
+                        **{**importer_params, 'detect_period_start': False})
+                self.fail_import(rest_cl, report_import_id, ca, importer, exc)
+                raise
             finally:
-                shutil.rmtree(importer.reports_dir, ignore_errors=True)
+                if isinstance(importer, CSVBaseReportImporter):
+                    shutil.rmtree(importer.reports_dir, ignore_errors=True)
             if not files:
                 LOG.info('No changed files for %s, skipping to finalize',
                          report_import_id)
@@ -128,6 +119,19 @@ class OrchestratorWorker(BaseWorker):
         LOG.info('Routing %s to raw queue', report_import_id)
         self.publish(RAW_QUEUE, raw_task)
         return True
+
+    def _cancel_import(self, report_import_id, import_dict, reason,
+                       config_cl, rest_cl, mongo_cl):
+        try:
+            rest_cl.report_import_update(report_import_id, {
+                'state': 'failed', 'state_reason': reason})
+        finally:
+            if import_dict.get('import_file'):
+                importer_params = self.get_importer_params(
+                    import_dict['cloud_account_id'], import_dict, config_cl,
+                    rest_cl, mongo_cl, clickhouse_cl=None)
+                self.remove_import_file(BaseReportImporter(
+                    **importer_params, detect_period_start=False))
 
 
 if __name__ == '__main__':

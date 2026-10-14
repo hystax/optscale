@@ -7,7 +7,7 @@ from datetime import datetime
 from diworker.diworker.importers.base import BaseReportImporter
 from diworker.diworker.importers.factory import get_importer_class
 from diworker.diworker.worker_base import (
-    BaseWorker, CLEAN_QUEUE, _is_rate_limit_exc, run_worker)
+    BaseWorker, CLEAN_QUEUE, run_worker)
 
 LOG = logging.getLogger(__name__)
 ENVIRONMENT_CLOUD_TYPE = 'environment'
@@ -37,7 +37,6 @@ class CleanWorker(BaseWorker):
         _, import_dict = rest_cl.report_import_get(report_import_id)
         cloud_acc_id = import_dict['cloud_account_id']
         _, ca = rest_cl.cloud_account_get(cloud_acc_id)
-        previous_attempt_ts = ca.get('last_import_attempt_at', 0)
         start_last_import_ts = ca.get('last_import_at', 0)
 
         import_dict['import_from'] = task.get('import_from')
@@ -60,18 +59,10 @@ class CleanWorker(BaseWorker):
             self._maybe_publish_first_import_event(
                 rest_cl, ca, start_last_import_ts)
         except Exception as exc:
-            if hasattr(exc, 'details'):
-                LOG.error('Mongo exception details: %s', exc.details)
-            now = int(time.time())
-            rest_cl.report_import_update(report_import_id, {
-                'state': 'failed', 'state_reason': str(exc)})
             if importer is None:
                 importer = BaseReportImporter(
                     **{**importer_params, 'detect_period_start': False})
-            importer.update_cloud_import_attempt(now, str(exc))
-            self.send_report_failed_email(
-                ca, previous_attempt_ts, now,
-                is_throttled=_is_rate_limit_exc(exc))
+            self.fail_import(rest_cl, report_import_id, ca, importer, exc)
             raise
         return True
 

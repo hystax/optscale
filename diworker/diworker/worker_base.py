@@ -101,7 +101,8 @@ class BaseWorker(ConsumerMixin):
         self.config_cl_params = config_params
         self._active_ids = set()
         self._active_lock = Lock()
-        self._pending_acks = queue.Queue()
+        self._pending_acks = queue.Queue()  # items: (connection_gen, message)
+        self._connection_gen = 0
         self.running = True
         Thread(target=self._heartbeat, args=(config_params,),
                daemon=True).start()
@@ -168,7 +169,7 @@ class BaseWorker(ConsumerMixin):
             'csv_rewrite_days': self.diworker_settings.get('csv_rewrite_days'),
         }
 
-    def publish(self, queue_name, task):
+    def publish(self, queue_name, task, priority=0):
         exchange = Exchange(EXCHANGE_NAME, type='direct')
         queue = Queue(queue_name, exchange, routing_key=queue_name,
                       queue_arguments=QUEUE_ARGUMENTS)
@@ -176,7 +177,8 @@ class BaseWorker(ConsumerMixin):
         with producers[conn].acquire(block=True) as producer:
             producer.publish(task, serializer='json', exchange=exchange,
                              declare=[exchange, queue],
-                             routing_key=queue_name, retry=True)
+                             routing_key=queue_name, retry=True,
+                             priority=priority)
 
     def publish_activities_task(self, organization_id, object_id, object_type,
                                 action, routing_key, meta=None):
@@ -193,6 +195,29 @@ class BaseWorker(ConsumerMixin):
             producer.publish(task, serializer='json', exchange=exchange,
                              declare=[exchange], routing_key=routing_key,
                              retry=True)
+
+    def fail_import(self, rest_cl, report_import_id, cloud_account, importer,
+                    exc):
+        try:
+            if hasattr(exc, 'details'):
+                LOG.error('Mongo exception details: %s', exc.details)
+            now = int(time.time())
+            rest_cl.report_import_update(report_import_id, {
+                'state': 'failed', 'state_reason': str(exc)})
+            importer.update_cloud_import_attempt(now, str(exc))
+            self.send_report_failed_email(
+                cloud_account, cloud_account.get('last_import_attempt_at', 0),
+                now, is_throttled=_is_rate_limit_exc(exc))
+        finally:
+            self.remove_import_file(importer)
+
+    @staticmethod
+    def remove_import_file(importer):
+        try:
+            importer.remove_import_file()
+        except Exception:
+            LOG.exception('Failed to remove import file %s',
+                          importer.import_file)
 
     def send_report_failed_email(self, cloud_account, previous_attempt_ts,
                                  now, is_throttled=False):
@@ -219,9 +244,13 @@ class BaseWorker(ConsumerMixin):
             prefetch_count=self.max_workers)]
 
     def _on_message(self, body, message):
-        self.executor.submit(self._execute, body, message)
+        if message.delivery_info.get('redelivered'):
+            LOG.warning('Skipping redelivered task: %s', body)
+            message.ack()
+            return
+        self.executor.submit(self._execute, body, message, self._connection_gen)
 
-    def _execute(self, body, message):
+    def _execute(self, body, message, gen):
         import_id = body.get('report_import_id')
         config_cl, rest_cl, mongo_cl, clickhouse_cl = None, None, None, None
         locked = True
@@ -244,14 +273,29 @@ class BaseWorker(ConsumerMixin):
             if locked:
                 with self._active_lock:
                     self._active_ids.discard(import_id)
-        self._pending_acks.put(message)
+        self._pending_acks.put((gen, message))
 
     def on_iteration(self):
         while True:
             try:
-                self._pending_acks.get_nowait().ack()
+                gen, message = self._pending_acks.get_nowait()
+                if gen == self._connection_gen:
+                    message.ack()
             except queue.Empty:
                 break
+
+    def on_connection_revived(self):
+        self._connection_gen += 1
+        dropped = 0
+        while True:
+            try:
+                self._pending_acks.get_nowait()
+                dropped += 1
+            except queue.Empty:
+                break
+        if dropped:
+            LOG.warning('Connection revived: dropped %d stale acks '
+                        '(messages will be redelivered)', dropped)
 
     def process_task(self, task, config_cl, rest_cl, mongo_cl, clickhouse_cl):
         raise NotImplementedError
