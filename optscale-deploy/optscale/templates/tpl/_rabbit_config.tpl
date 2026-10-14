@@ -16,7 +16,7 @@ load_definitions = /etc/definitions/definitions.json
 vm_memory_high_watermark.absolute = {{ .Values.rabbitmq.memory_limit }}MB
 
 ## Delivery acknowledgement timeout
-consumer_timeout = {{ .Values.rabbitmq.consumer_timeout_ms }}
+consumer_timeout = {{ .Values.rabbitmq.consumer_timeout_ms | int64 }}
 
 ## Explicitly deny deprecated features
 deprecated_features.permit.queue_master_locator = false
