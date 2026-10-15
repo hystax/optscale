@@ -1,6 +1,8 @@
 from datetime import timedelta
 from unittest.mock import patch, ANY
 
+from rest_api.rest_api_server.controllers.report_import import (
+    ACTIVE_IMPORT_THRESHOLD)
 from rest_api.rest_api_server.models.enums import ImportStates
 from rest_api.rest_api_server.models.db_factory import DBFactory, DBType
 from rest_api.rest_api_server.models.db_base import BaseDB
@@ -346,7 +348,8 @@ class TestReportImportsApi(TestApiBase):
         self.assertEqual(len(imports), 1)
         self.assertEqual(imports[0]['id'], import_id)
 
-        with freeze_time(utcnow() + timedelta(minutes=31)):
+        with freeze_time(utcnow() + timedelta(
+                seconds=ACTIVE_IMPORT_THRESHOLD + 60)):
             code, resp = self.client.report_import_list(
                 self.cloud_acc_id, show_active=True)
         self.assertEqual(code, 200)

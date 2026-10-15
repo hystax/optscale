@@ -4,6 +4,7 @@ from unittest.mock import patch
 from freezegun import freeze_time
 
 from rest_api.rest_api_server.controllers.report_import import (
+    ACTIVE_IMPORT_THRESHOLD,
     DEFAULT_QUEUE_MESSAGE_EXPIRATION_SECONDS,
     DEFAULT_NOT_PROCESSED_REPORT_THRESHOLD_SECONDS,
 )
@@ -296,6 +297,7 @@ class TestScheduleImportsApi(TestApiBase):
             self.client.report_import_update(imp['id'], {})
             code, ret = self.client.schedule_import(0)
             self.assertEqual(len(ret['report_imports']), 0)
-        with freeze_time(opttime.utcnow() + timedelta(hours=10, minutes=31)):
+        with freeze_time(opttime.utcnow() + timedelta(
+                hours=10, seconds=ACTIVE_IMPORT_THRESHOLD + 60)):
             code, ret = self.client.schedule_import(0)
             self.assertEqual(len(ret['report_imports']), 1)

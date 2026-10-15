@@ -9,6 +9,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY docker_images/cleanelkdb/clean-elk-db.sh .
+COPY docker_images/cleanelkdb/clean-elk-db.sh /src/clean-elk-db.sh
 
 CMD ["sh", "/src/clean-elk-db.sh"]

@@ -452,6 +452,12 @@ class BaseReportImporter:
     def cleanup(self):
         pass
 
+    def remove_import_file(self):
+        """Remove the manually uploaded report from the object store."""
+        if self.import_file:
+            bucket, filename = self.import_file.split('/')
+            self.s3_client.delete_object(Bucket=bucket, Key=filename)
+
     def get_unique_field_list(self):
         raise NotImplementedError
 
@@ -1053,9 +1059,7 @@ class CSVBaseReportImporter(BaseReportImporter):
 
     def cleanup(self):
         shutil.rmtree(self.reports_dir, ignore_errors=True)
-        if self.import_file:
-            bucket, filename = self.import_file.split('/')
-            self.s3_client.delete_object(Bucket=bucket, Key=filename)
+        self.remove_import_file()
 
     def update_cloud_import_attempt(self, ts, error=None):
         for cloud_acc_id in self.detected_cloud_accounts:

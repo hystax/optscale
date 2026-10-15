@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import logging
 import shutil
-import time
 from contextlib import nullcontext
 
 from diworker.diworker.importers.base import (
     CSVBaseReportImporter, _get_throttle_semaphore)
 from diworker.diworker.importers.factory import get_importer_class
 from diworker.diworker.worker_base import (
-    BaseWorker, RAW_QUEUE, CLEAN_QUEUE, _is_rate_limit_exc, run_worker)
+    BaseWorker, RAW_QUEUE, CLEAN_QUEUE, run_worker)
 
 LOG = logging.getLogger(__name__)
 
@@ -51,7 +50,6 @@ class RawWorker(BaseWorker):
         _, import_dict = rest_cl.report_import_get(report_import_id)
         cloud_acc_id = import_dict['cloud_account_id']
         _, ca = rest_cl.cloud_account_get(cloud_acc_id)
-        previous_attempt_ts = ca.get('last_import_attempt_at', 0)
 
         import_dict['import_from'] = task.get('import_from')
         import_dict['import_to'] = task.get('import_to')
@@ -75,15 +73,7 @@ class RawWorker(BaseWorker):
             with throttle:
                 self._run(task, importer, cloud_acc_id, recalculate)
         except Exception as exc:
-            if hasattr(exc, 'details'):
-                LOG.error('Mongo exception details: %s', exc.details)
-            now = int(time.time())
-            rest_cl.report_import_update(report_import_id, {
-                'state': 'failed', 'state_reason': str(exc)})
-            importer.update_cloud_import_attempt(now, str(exc))
-            self.send_report_failed_email(
-                ca, previous_attempt_ts, now,
-                is_throttled=_is_rate_limit_exc(exc))
+            self.fail_import(rest_cl, report_import_id, ca, importer, exc)
             raise
         return True
 
@@ -166,7 +156,7 @@ class RawWorker(BaseWorker):
                 'import_from': task.get('import_from'),
                 'import_to': task.get('import_to'),
                 'reimport': task.get('reimport', False),
-            })
+            }, priority=5)
         else:
             self.publish(CLEAN_QUEUE, {
                 'report_import_id': report_import_id,
@@ -183,11 +173,15 @@ class RawWorker(BaseWorker):
     def _run_api_based(self, task, importer, cloud_acc_id):
         report_import_id = task['report_import_id']
         LOG.info('Importing via API/manual for %s', report_import_id)
-        importer.prepare()
-        importer.load_raw_data()
         is_csv = isinstance(importer, CSVBaseReportImporter)
-        if is_csv:
-            importer.clear_rudiments()
+        try:
+            importer.prepare()
+            importer.load_raw_data()
+            if is_csv:
+                importer.clear_rudiments()
+        finally:
+            if is_csv:
+                shutil.rmtree(importer.reports_dir, ignore_errors=True)
         billing_periods = list(getattr(importer, 'billing_periods', set()))
         detected_accounts = list(
             getattr(importer, 'detected_cloud_accounts', {cloud_acc_id}))

@@ -63,6 +63,7 @@ rabbitmq:
   replicaCount: 1
   mnesiaSize: 10Gi
   memory_limit: 512
+  consumer_timeout_ms: 3600000 # 1 hour to acknowledge a delivered message
   enableClassicMirroring: false # MUST be false on 4.x
   enableQuorumDefaults: true # optional: default policy for quorum queues
   quorum:
@@ -1034,7 +1035,6 @@ invite_expiration_days: 30 # days before invite url expiration
 import_reports:
   message_expiration_secs: 10800 # 3 hours expiration to process a queue message
   not_processed_threshold_secs: 10800 # 3 hours gap for report generating
-  active_import_threshold_secs: 1800 # 30 min hb gap after which an import counts as dead
   max_workers: 10
   csv_rewrite_days: 10
 

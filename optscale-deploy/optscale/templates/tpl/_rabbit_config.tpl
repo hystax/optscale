@@ -15,6 +15,9 @@ load_definitions = /etc/definitions/definitions.json
 ## Memory-based Flow Control threshold
 vm_memory_high_watermark.absolute = {{ .Values.rabbitmq.memory_limit }}MB
 
+## Delivery acknowledgement timeout
+consumer_timeout = {{ .Values.rabbitmq.consumer_timeout_ms | int64 }}
+
 ## Explicitly deny deprecated features
 deprecated_features.permit.queue_master_locator = false
 ## disabling metrics_collection will break a tab in the UI
