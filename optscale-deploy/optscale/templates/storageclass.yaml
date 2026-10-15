@@ -1,0 +1,40 @@
+{{- if eq .Values.storageClass "aws-gp3" }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: aws-gp3
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  encrypted: "true"
+  csi.storage.k8s.io/fstype: ext4
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+{{- else if eq .Values.storageClass "azure-standard" }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azure-standard
+provisioner: disk.csi.azure.com
+parameters:
+  skuName: StandardSSD_LRS
+  fsType: ext4
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+{{- else if eq .Values.storageClass "gcp-balanced" }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gcp-balanced
+provisioner: pd.csi.storage.gke.io
+parameters:
+  type: pd-balanced
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+{{- end }}

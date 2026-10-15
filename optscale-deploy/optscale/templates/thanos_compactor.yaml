@@ -35,6 +35,7 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   hostPath:
     path: "/optscale/{{ $config.name }}"
+    type: DirectoryOrCreate
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
