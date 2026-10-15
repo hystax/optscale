@@ -47,6 +47,21 @@ service_credentials:
 #  encryption salt for encode user information
 encryption_salt: my~encypt10n~s@lt
 
+# runkube.py uses node-local images unless --use-remote-registry is passed.
+# Remote mode fills these values from --dregistry and the positional <version>.
+# Leave commented to use the CLI values; set them to override those values.
+# docker_registry: registry.example/optscale
+# docker_tag: "v1"
+# imagePullPolicy: Always
+
+# Pull secrets are applied to chart-managed OptScale pods. Legacy HA etcd
+# operator pods use the namespace's default ServiceAccount credentials.
+imagePullSecrets: []
+# - name: dockerhub-creds
+# `dockerhub-creds` is created when `dockerhub_dockercfg` contains base64-encoded
+# Docker Hub `.dockercfg` JSON; other names must already exist in the namespace.
+dockerhub_dockercfg: ""
+
 # SMTP server and credentials used for sending emails
 smtp:
   server:

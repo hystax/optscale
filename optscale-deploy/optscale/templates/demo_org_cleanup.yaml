@@ -27,12 +27,13 @@ spec:
             app: {{ $config.name }}
             release: {{ .Release.Name }}
         spec:
+{{ include "image.pullSecrets" $ | indent 10 }}
           initContainers:
 {{ include "wait_for_service" .Values.rest_api | indent 10 }}
           containers:
           - name: {{ $config.name }}
-            image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
-            imagePullPolicy: {{ $config.image.pullPolicy }}
+            image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
+            imagePullPolicy: {{ .Values.imagePullPolicy }}
             env:
             - name: IMAGE_ID
               value: {{ $config.image.id }}

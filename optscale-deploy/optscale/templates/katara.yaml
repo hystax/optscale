@@ -39,12 +39,13 @@ spec:
         app: {{ $config.name }}{{ $config.scheduler.role }}
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
       initContainers:
 {{ include "wait_for_service" .Values.katara_service | indent 6 }}
       containers:
       - name: {{ $config.name }}{{ $config.scheduler.role }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
-        imagePullPolicy: {{ $config.image.pullPolicy }}
+        image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         env:
         - name: IMAGE_ID
           value: {{ $config.image.id }}
@@ -75,6 +76,7 @@ spec:
         app: {{ $config.name }}{{ $config.api.role }}
         release: {{ .Release.Name }}
     spec:
+{{ include "image.pullSecrets" $ | indent 6 }}
       initContainers:
 {{- if .Values.elk.enabled }}
 {{ include "wait_for_elk" . | indent 6 }}
@@ -84,8 +86,8 @@ spec:
 {{ include "wait_for_service" .Values.rest_api | indent 6 }}
       containers:
       - name: {{ $config.name }}{{ $config.api.role }}
-        image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
-        imagePullPolicy: {{ $config.image.pullPolicy }}
+        image: "{{ include "image.ref" (dict "registry" .Values.docker_registry "repository" $config.image.repository "tag" $config.image.tag "dockerTag" .Values.docker_tag) }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         ports:
         - containerPort: {{ $config.service.internalPort }}
         env:

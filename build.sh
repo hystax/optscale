@@ -1,124 +1,152 @@
 #!/usr/bin/env bash
+# Usage: ./build.sh [component] [legacy-tag] | [component ... --tag tag] [--push] [-r registry] [-u username] [-p password] [--no-cache] [--use-nerdctl]
 
-# ./build.sh [component] [tag] [-r registry] [-u username] [-p password] [--no-cache] [--use-nerdctl]
-# leave registry empty if default registry [docker.io] used
+set -e
 
-# Initialize default values
 COMPANY="hystax"
 REGISTRY=""
 LOGIN=""
 PASSWORD=""
-COMPONENT=""
+COMPONENTS_LIST=()
+POSITIONAL_ARGS=()
 INPUT_TAG=""
-FLAGS=""
+TAG_PROVIDED=false
 NO_CACHE=false
 USE_NERDCTL=false
 BUILD_TOOL="docker"
+PUSH=false
 
-# Parse command line arguments
 while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -r) REGISTRY="$2"; shift ;;
-        -u) LOGIN="$2"; shift ;;
-        -p) PASSWORD="$2"; shift ;;
+    case "$1" in
+        --tag|-r|-u|-p)
+            if [[ "$#" -lt 2 ]]; then
+                echo "Error: $1 requires a value" >&2
+                exit 2
+            fi
+            case "$1" in
+                --tag) INPUT_TAG="$2"; TAG_PROVIDED=true ;;
+                -r) REGISTRY="$2" ;;
+                -u) LOGIN="$2" ;;
+                -p) PASSWORD="$2" ;;
+            esac
+            shift
+            ;;
+        --push) PUSH=true ;;
         --no-cache) NO_CACHE=true ;;
         --use-nerdctl) USE_NERDCTL=true ;;
-        *)
-            # Check if COMPONENT is empty
-            if [[ -z "$COMPONENT" ]]; then
-                COMPONENT="$1"
-            else
-                # If COMPONENT is already set, then set BUILD_TAG
-                INPUT_TAG="$1"
-            fi
-            ;;
+        *) POSITIONAL_ARGS+=("$1") ;;
     esac
     shift
 done
 
-# Set build tool based on flag
+if [[ "$TAG_PROVIDED" != true && ${#POSITIONAL_ARGS[@]} -eq 2 ]]; then
+    COMPONENTS_LIST=("${POSITIONAL_ARGS[0]}")
+    INPUT_TAG="${POSITIONAL_ARGS[1]}"
+else
+    COMPONENTS_LIST=("${POSITIONAL_ARGS[@]}")
+fi
+
+BUILD_TAG=${INPUT_TAG:-local}
+
 if [[ "$USE_NERDCTL" == true ]]; then
     BUILD_TOOL="nerdctl"
 fi
 
-# Set --no-cache flag
+BUILD_FLAGS=()
 if [[ "$NO_CACHE" == true ]]; then
-    FLAGS="--no-cache"
+    BUILD_FLAGS+=(--no-cache)
 fi
 
-COMMIT_ID=$(git rev-parse --verify HEAD)
-
-use_registry() {
-  if [[ -n "${LOGIN}" && -n "${PASSWORD}" ]]; then
-    true
-  else
-    false
-  fi
-}
-
-BUILD_TAG=${INPUT_TAG:-'local'}
-FIND_CMD="find . -mindepth 2 -maxdepth 3 -print | grep Dockerfile | grep -vE '(test|.j2)'"
-FIND_CMD="${FIND_CMD} | grep $COMPONENT/"
-
-if use_registry; then
-  echo "$BUILD_TOOL login"
-  $BUILD_TOOL login ${REGISTRY} -u "${LOGIN}" -p "${PASSWORD}"
+if [[ -n "$LOGIN" && -n "$PASSWORD" ]]; then
+    PUSH=true
 fi
 
-retag() {
-  if use_registry; then
-    if [ -z $3 ]; then
-      if $BUILD_TOOL pull "${COMPANY}/$1:${COMMIT_ID}"; then
-        $BUILD_TOOL tag "${COMPANY}/$1:${COMMIT_ID}" "$1:$2"
-        return 0
-      else
-        return 1
-      fi
-    else
-      if $BUILD_TOOL pull "$3/$1:${COMMIT_ID}"; then
-        $BUILD_TOOL tag "$3/$1:${COMMIT_ID}" "$1:$2"
-        return 0
-      else
-        return 1
-      fi
+if [[ "$PUSH" == true ]]; then
+    if [[ -z "$LOGIN" || -z "$PASSWORD" ]]; then
+        echo "Error: --push requires -u (username) and -p (password)" >&2
+        exit 1
     fi
-  fi
-  return 1
+    if [[ -n "$REGISTRY" ]]; then
+        "$BUILD_TOOL" login "$REGISTRY" -u "$LOGIN" -p "$PASSWORD"
+    else
+        "$BUILD_TOOL" login -u "$LOGIN" -p "$PASSWORD"
+    fi
+fi
+
+discover_dockerfiles() {
+    find . -mindepth 2 -maxdepth 3 -print | grep Dockerfile | grep -vE '(test|.j2)'
 }
 
-push_image () {
-   echo "Pushing $1:$2"
-    if [ -z $3 ]; then
-      $BUILD_TOOL tag "$1:$2" "$COMPANY/$1:$2"
-      $BUILD_TOOL tag "$1:$2" "$COMPANY/$1:$COMMIT_ID"
-      $BUILD_TOOL push "$COMPANY/$1:$2"
-      $BUILD_TOOL push "$COMPANY/$1:$COMMIT_ID"
+push_image() {
+    local component=$1
+    local target
+
+    if [[ -n "$REGISTRY" ]]; then
+        target="$REGISTRY/$component:$BUILD_TAG"
     else
-      $BUILD_TOOL tag "$1:$2" "$3/$1:$2"
-      $BUILD_TOOL tag "$1:$2" "$3/$1:$COMMIT_ID"
-      $BUILD_TOOL push "$3/$1:$2"
-      $BUILD_TOOL push "$3/$1:$COMMIT_ID"
+        target="$COMPANY/$component:$BUILD_TAG"
+    fi
+
+    "$BUILD_TOOL" tag "$component:$BUILD_TAG" "$target"
+    "$BUILD_TOOL" push "$target"
+}
+
+build_and_push_component() {
+    local dockerfile=$1
+    local component=$2
+
+    echo "[$component] Starting build with tag $BUILD_TAG"
+    "$BUILD_TOOL" build "${BUILD_FLAGS[@]}" --platform linux/amd64 \
+        -t "$component:$BUILD_TAG" -f "$dockerfile" .
+
+    if [[ "$PUSH" == true ]]; then
+        echo "[$component] Pushing image"
+        push_image "$component"
     fi
 }
 
-for DOCKERFILE in $(eval ${FIND_CMD} | xargs)
-do
-    COMPONENT=$(echo "${DOCKERFILE}" | awk -F '/' '{print $(NF-1)}')
-    retag  $COMPONENT $BUILD_TAG $REGISTRY
-    if [ "$?" -eq 0 ]; then
-      echo "component $COMPONENT re-tagged $COMMIT_ID -> $BUILD_TAG"
-    else
-      echo "Building image for ${COMPONENT}, build tag: ${BUILD_TAG}"
-      $BUILD_TOOL build $FLAGS -t ${COMPONENT}:${BUILD_TAG} -f ${DOCKERFILE} .
-      
-      # If the build fails, exit with the same status code as the build command
-      build_status_code="$?"
-      if [ "$build_status_code" -gt 0 ]; then
-        exit $build_status_code
-      fi
+pids=()
+components=()
+while IFS= read -r dockerfile; do
+    component=${dockerfile%/*}
+    component=${component##*/}
+
+    if [[ ${#COMPONENTS_LIST[@]} -gt 0 ]]; then
+        selected=false
+        for requested in "${COMPONENTS_LIST[@]}"; do
+            if [[ "$component" == "$requested" ]]; then
+                selected=true
+                break
+            fi
+        done
+        [[ "$selected" == true ]] || continue
     fi
 
-    if use_registry; then
-      push_image $COMPONENT $BUILD_TAG $REGISTRY
+    echo "Queuing $component with tag $BUILD_TAG"
+    build_and_push_component "$dockerfile" "$component" &
+    pids+=("$!")
+    components+=("$component")
+done < <(discover_dockerfiles)
+
+if [[ ${#pids[@]} -eq 0 ]]; then
+    echo "Error: no matching Dockerfiles found" >&2
+    exit 1
+fi
+
+failed=false
+failed_components=()
+for i in "${!pids[@]}"; do
+    if wait "${pids[$i]}"; then
+        echo "[${components[$i]}] Complete"
+    else
+        status=$?
+        echo "[${components[$i]}] Failed (exit code $status)" >&2
+        failed=true
+        failed_components+=("${components[$i]}")
     fi
 done
+
+if [[ "$failed" == true ]]; then
+    echo "Failed components: ${failed_components[*]}" >&2
+    exit 1
+fi
