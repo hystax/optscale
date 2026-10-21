@@ -1,12 +1,10 @@
 import logging
-import time
 import os
 import requests
 import gzip
 import shutil
 import threading
 import uuid
-from contextlib import nullcontext
 from functools import cached_property
 
 from collections import defaultdict
@@ -34,6 +32,7 @@ GZIP_ENDING = '.gz'
 REPORTS_PATH_PREFIX = 'reports'
 ETAG_STABLE_DAYS = 5
 DEFAULT_CSV_REWRITE_DAYS = 10
+RAW_SERVICE_FIELDS = {'report_identity', 'report_key', '_rec_n'}
 
 
 def _get_throttle_semaphore(parent_id: str,
@@ -66,7 +65,6 @@ class BaseReportImporter:
         self.clickhouse_cl = clickhouse_cl
         self.import_file = import_file
         self._cloud_adapter = None
-        self._mongo = None
         self._s3_client = None
         self.recalculate = recalculate
         self.import_from = import_from
@@ -144,9 +142,10 @@ class BaseReportImporter:
                 for f in self.get_unique_field_list()}
 
     def update_raw_records(self, chunk):
-        update_fields = self.get_update_fields()
+        update_fields = set(self.get_update_fields()) | RAW_SERVICE_FIELDS
         upsert_bulk = []
         for e in chunk:
+            e['report_identity'] = self.report_identity
             self._update_imported_raw_interval(e)
             upsert_bulk.append(UpdateOne(
                 filter=self.get_raw_upsert_filters(e),
@@ -467,68 +466,29 @@ class BaseReportImporter:
     def process_alerts(self):
         self.rest_cl.alert_process(self.cloud_acc['organization_id'])
 
-    def data_import(self):
-        if self.recalculate:
-            LOG.info('Recalculating raw expenses')
-            self.recalculate_raw_expenses()
-            # need to re-create clean expenses based on updated raw data
-            regeneration = True
-        else:
-            LOG.info('Importing raw data')
-            self.load_raw_data()
-            regeneration = False
-        LOG.info('Generating clean records')
-        self.generate_clean_records(regeneration=regeneration)
-
-    def import_report(self):
-        parent_id = self.cloud_acc.get('parent_id')
-        throttle = (
-            _get_throttle_semaphore(parent_id, self.max_tenant_concurrent)
-            if parent_id else nullcontext()
-        )
-        with throttle:
-            self._run_import()
-
-    def _run_import(self):
-        LOG.info('Started import for %s', self.cloud_acc_id)
-        self.prepare()
-        try:
-            self.data_import()
-        finally:
-            LOG.info('Cleanup')
-            self.cleanup()
-
-        LOG.info('Updating import time')
-        self.update_cloud_import_time(int(time.time()))
-        self.update_cloud_account_config()
-        LOG.info('Import completed')
-
-        LOG.info('Processing alerts')
-        self.process_alerts()
-
-        LOG.info('Creating traffic processing tasks')
-        self.create_traffic_processing_tasks()
-
-        LOG.info('Creating risp processing tasks')
-        self.create_risp_processing_tasks()
-
-        LOG.info('Processing completed')
-
     def update_clickhouse_expenses(self, expenses, column_names):
         self.clickhouse_cl.insert(
             'expenses', expenses, column_names=column_names)
 
     @property
     def _is_targeted_import(self):
-        return (self.import_from is not None or
+        return (self.import_file is not None or
+                self.import_from is not None or
                 self.import_to is not None or
                 self.reimport)
 
-    def update_cloud_import_time(self, ts):
+    def _get_import_time_update(self, ts):
         if not self._is_targeted_import:
-            self.rest_cl.cloud_account_update(self.cloud_acc_id,
-                                              {'last_import_at': ts,
-                                               'last_import_attempt_at': ts})
+            return {'last_import_at': ts, 'last_import_attempt_at': ts}
+        if self.import_file is not None:
+            # manual upload doesn't move last_import_at
+            return {'last_import_attempt_at': ts}
+        return None
+
+    def update_cloud_import_time(self, ts):
+        update = self._get_import_time_update(ts)
+        if update:
+            self.rest_cl.cloud_account_update(self.cloud_acc_id, update)
 
     def update_cloud_import_attempt(self, ts, error=None):
         self.rest_cl.cloud_account_update(
@@ -536,9 +496,8 @@ class BaseReportImporter:
             {'last_import_attempt_at': ts,
              'last_import_attempt_error': error[:255]})
 
-    def finalize_raw_import(self):
-        """Called by Worker 3 after all raw files are imported, before clean generation."""
-        pass
+    def finalize_raw_import(self, report_key=None, is_last=True):
+        self.clear_rudiments()
 
     def get_state_to_serialize(self):
         """Return importer-specific state to pass to Worker 3 via the queue message."""
@@ -587,7 +546,6 @@ class BaseReportImporter:
         elif ca_last_import_at:
             self.period_start = opttime.utcfromtimestamp(
                 self.cloud_acc['last_import_at'])
-            self.remove_raw_expenses_from_period_start(self.cloud_acc_id)
 
         if self.period_start is None:
             self.set_period_start()
@@ -610,18 +568,6 @@ class BaseReportImporter:
         if result and tzinfo:
             result = result.replace(tzinfo=tzinfo)
         return result
-
-    def remove_raw_expenses_from_period_start(self, cloud_account_id):
-        query = {
-            'start_date': {'$gte': self.period_start},
-            'cloud_account_id': cloud_account_id
-        }
-        if self.import_to is not None:
-            query['start_date']['$lte'] = self.period_end
-        r = self.mongo_raw.delete_many(query)
-        LOG.info('Raw expenses for cloud account %s since %s were '
-                 'deleted: %s' % (
-                    cloud_account_id, self.period_start, r.raw_result))
 
     def create_traffic_processing_tasks(self):
         return
@@ -701,6 +647,8 @@ class CSVBaseReportImporter(BaseReportImporter):
 
     @cached_property
     def min_date_import_threshold(self) -> datetime:
+        if self.import_file is not None:
+            return datetime.fromtimestamp(0, tz=timezone.utc)
         if self.import_from is not None:
             dt = datetime.fromtimestamp(self.import_from, tz=timezone.utc)
             return dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -779,56 +727,6 @@ class CSVBaseReportImporter(BaseReportImporter):
         total_checked = sum(len(r) for r in reports_groups.values())
         LOG.info('Selected %d/%d files for import', total, total_checked)
         return current_reports
-
-    def save_file_states(self, reports_groups, previous_states):
-        now = datetime.utcnow()
-        ops = []
-        etag_changed_keys = []
-        for reports in reports_groups.values():
-            for report in reports:
-                file_key = self._get_file_key(report)
-                current_etag = self._get_file_etag(report)
-                stored_etag = previous_states.get(file_key, {}).get('etag', '')
-                set_fields = {'etag': current_etag}
-                if stored_etag != current_etag:
-                    set_fields['etag_changed_at'] = now
-                    etag_changed_keys.append(file_key)
-                ops.append(UpdateOne(
-                    filter={
-                        'cloud_account_id': self.cloud_acc_id,
-                        'file_key': file_key,
-                    },
-                    update={'$set': set_fields},
-                    upsert=True,
-                ))
-        LOG.info('Saving states for %d files, etag changed: %d',
-                 len(ops), len(etag_changed_keys))
-        if etag_changed_keys:
-            LOG.info('Files with changed etag: %s', etag_changed_keys)
-        if ops:
-            self.mongo_report_files.bulk_write(ops)
-
-    def _get_legacy_key(self, old_key):
-        return
-
-    def _download_report_files(self, current_reports):
-        for date, reports in current_reports.items():
-            for report in reports:
-                target_path = self.get_new_report_path(date)
-                os.makedirs(os.path.join(self.reports_dir, date),
-                            exist_ok=True)
-                cloud_key = self._get_file_key(report)
-                try:
-                    with open(target_path, 'wb') as f_report:
-                        self.cloud_adapter.download_report_file(
-                            cloud_key, f_report)
-                except TypeError:
-                    with open(target_path, 'w') as f_report:
-                        self.cloud_adapter.download_report_file(
-                            cloud_key, f_report)
-                self.report_files[date].append(target_path)
-                self.report_file_keys[target_path] = cloud_key
-                self.report_cloud_etags[cloud_key] = self._get_file_etag(report)
 
     @staticmethod
     def gunzip_report(report_path, dest_dir):
@@ -926,10 +824,6 @@ class CSVBaseReportImporter(BaseReportImporter):
         etag_states = {} if self.reimport else previous_states
         return self.get_current_reports(groups_to_check, etag_states)
 
-    def download_from_cloud(self):
-        current_reports = self._select_files_to_download()
-        self._download_report_files(current_reports)
-
     def get_files_to_process(self):
         """Return JSON-serializable list of changed files, newest date first."""
         current_reports = self._select_files_to_download()
@@ -971,47 +865,21 @@ class CSVBaseReportImporter(BaseReportImporter):
         raise NotImplementedError
 
     def prepare(self):
-        if self.import_file is not None:
-            self.download_from_object_store()
-        else:
-            self.download_from_cloud()
+        # API-based path for CSV importers is used by manual uploads only
+        if self.import_file is None:
+            raise ValueError(
+                'Manual import failed: uploaded report file is missing')
+        self.download_from_object_store()
         self.unpack_report_files()
 
     def get_linked_account_map(self):
         return {self.cloud_acc['account_id']: self.cloud_acc_id}
 
-    def _process_report_file(self, report_path, account_id_ca_id_map):
-        report_key = self.report_file_keys.get(report_path)
-        self.load_report(report_path, account_id_ca_id_map, report_key=report_key)
+    def finalize_raw_import(self, report_key=None, is_last=True):
         if report_key:
             self._clear_file_rudiments(report_key)
         else:
             self.clear_rudiments()
-        LOG.info('Generating clean records')
-        self.generate_clean_records()
-        self.billing_periods = set()
-        self.create_traffic_processing_tasks()
-        self.create_risp_processing_tasks()
-        if report_key:
-            self._save_one_file_state(report_key)
-        self.imported_raw_dates_map = defaultdict(dict)
-
-    def _import_reports_ordered_by_date(self, account_id_ca_id_map):
-        for date in sorted(self.report_files, reverse=True):
-            for report in self.report_files[date]:
-                self._process_report_file(report, account_id_ca_id_map)
-
-    def data_import(self):
-        account_id_ca_id_map = self.get_linked_account_map()
-        if self.cloud_acc['last_import_at'] == 0 and self.import_file is None:
-            # on first auto report import we will load raw data from reports and
-            # generate expenses month by month from newest to oldest
-            self._import_reports_ordered_by_date(account_id_ca_id_map)
-        else:
-            report_files = [r for reports in self.report_files.values()
-                            for r in reports]
-            for report_path in report_files:
-                self._process_report_file(report_path, account_id_ca_id_map)
 
     def _clear_file_rudiments(self, report_key):
         query = {
@@ -1037,7 +905,7 @@ class CSVBaseReportImporter(BaseReportImporter):
         LOG.info('Saved state for %s', cloud_key)
 
     def load_raw_data(self):
-        account_id_ca_id_map = {self.cloud_acc['account_id']: self.cloud_acc_id}
+        account_id_ca_id_map = self.get_linked_account_map()
         report_files = []
         for r in self.report_files.values():
             report_files.extend(r)
@@ -1069,9 +937,7 @@ class CSVBaseReportImporter(BaseReportImporter):
                  'last_import_attempt_error': error[:255]})
 
     def update_cloud_import_time(self, ts):
-        if not self._is_targeted_import:
+        update = self._get_import_time_update(ts)
+        if update:
             for cloud_acc_id in self.detected_cloud_accounts:
-                self.rest_cl.cloud_account_update(
-                    cloud_acc_id,
-                    {'last_import_at': ts,
-                     'last_import_attempt_at': ts})
+                self.rest_cl.cloud_account_update(cloud_acc_id, update)

@@ -43,10 +43,7 @@ class NebiusReportImporter(CSVBaseReportImporter):
             'monetary_grant_credit',
             'cud_credit',
             'misc_credit',
-            'updated_at',
-            'report_identity',
-            'report_key',
-            '_rec_n'
+            'updated_at'
         ]
 
     def get_raw_upsert_filters(self, expense):

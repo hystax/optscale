@@ -8,11 +8,6 @@ from decimal import Decimal
 from collections import defaultdict
 from datetime import datetime, timezone
 from gzip import BadGzipFile
-from diworker.diworker.utils import retry_backoff
-from tools.cloud_adapter.clouds.azure import (
-    AzureConsumptionException, ExpenseImportScheme, AzureAuthenticationError,
-    AzureResourceNotFoundError)
-
 from diworker.diworker.importers.base import CSVBaseReportImporter
 from diworker.diworker.importers.azure import AzureImporterBase
 
@@ -21,20 +16,6 @@ CHUNK_SIZE = 200
 
 
 class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
-
-    def _download_report_files(self, current_reports):
-        for date, reports in current_reports.items():
-            for report in reports:
-                target_path = self.get_new_report_path(date)
-                os.makedirs(os.path.join(self.reports_dir, date),
-                            exist_ok=True)
-                with open(target_path, 'wb') as f_report:
-                    self.cloud_adapter.download_report_file(report['name'],
-                                                            f_report)
-                self.report_files[date].append(target_path)
-                cloud_key = report['name']
-                self.report_file_keys[target_path] = cloud_key
-                self.report_cloud_etags[cloud_key] = self._get_file_etag(report)
 
     def unpack_report(self, report_file, date):
         dest_dir = self.get_new_report_path(date)
@@ -72,39 +53,6 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
                         old_path)
                 new_reports.append(new_path)
             self.report_files[date] = new_reports
-
-    @retry_backoff(AzureConsumptionException,
-                   raise_errors=[
-                       AzureAuthenticationError, AzureResourceNotFoundError
-                   ], raise_codes=[403])
-    def load_raw_data(self):
-        import_scheme = self.cloud_adapter.expense_import_scheme
-        if import_scheme == ExpenseImportScheme.export.value:
-            LOG.info('Loading data from export files')
-            report_files = []
-            for r in self.report_files.values():
-                report_files.extend(r)
-            for report_path in report_files:
-                self._process_report_file(report_path, {})
-        else:
-            raise Exception(
-                f'Unsupported expense import scheme: {import_scheme}')
-        try:
-            self.generate_reservations_expenses(self.min_date_import_threshold)
-        except Exception as exc:
-            LOG.exception("Failed getting reservations info: %s", str(exc))
-
-    def data_import(self):
-        import_scheme = self.cloud_adapter.expense_import_scheme
-        if (import_scheme == ExpenseImportScheme.export.value and
-                self.cloud_acc['last_import_at'] == 0 and
-                self.import_file is None):
-            # on the first import order report files by date from newest to
-            # oldest
-            self._import_reports_ordered_by_date({})
-        else:
-            LOG.info('Importing raw data')
-            self.load_raw_data()
 
     def load_report(self, report_path, *_args, report_key=None):
         LOG.info('loading report %s', report_path)
@@ -245,11 +193,14 @@ class AzureExportImporter(CSVBaseReportImporter, AzureImporterBase):
         return super(AzureImporterBase, self).get_resource_ids(
             cloud_account_id, period_start)
 
-    def finalize_raw_import(self):
-        try:
-            self.generate_reservations_expenses(self.min_date_import_threshold)
-        except Exception as exc:
-            LOG.exception("Failed getting reservations info: %s", str(exc))
+    def finalize_raw_import(self, report_key=None, is_last=True):
+        super().finalize_raw_import(report_key, is_last)
+        if is_last:
+            try:
+                self.generate_reservations_expenses(
+                    self.min_date_import_threshold)
+            except Exception as exc:
+                LOG.exception("Failed getting reservations info: %s", str(exc))
 
     def generate_clean_records(self, regeneration=False):
         resource_ids = self.get_resource_ids(self.cloud_acc_id,

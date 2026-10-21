@@ -195,7 +195,6 @@ class AlibabaReportImporter(BaseReportImporter):
             current_day += timedelta(days=1)
         self._flush_raw_chunk(chunk)
         self.generate_rdd_records(self.cloud_acc_id)
-        self.clear_rudiments()
 
     def _get_discount_fields(self):
         return [
@@ -217,7 +216,7 @@ class AlibabaReportImporter(BaseReportImporter):
             'InstanceSpec',
             'InstanceConfig'
         ] + self.get_cost_related_fields()
-        optscale_fields = ['cost', 'report_identity']
+        optscale_fields = ['cost']
         if optscale_f_incl:
             return cloud_fields + optscale_fields
         else:

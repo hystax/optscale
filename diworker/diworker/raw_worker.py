@@ -127,15 +127,13 @@ class RawWorker(BaseWorker):
             report_key = importer.report_file_keys.get(report_path)
             importer.load_report(report_path, account_id_ca_id_map,
                                  report_key=report_key)
+            importer.finalize_raw_import(report_key, is_last=not remaining)
             if report_key:
-                importer._clear_file_rudiments(report_key)
                 acc_file_states.append({
                     'key': report_key,
                     'current_etag': importer.report_cloud_etags.get(report_key, ''),
                     'stored_etag': current_file.get('stored_etag', ''),
                 })
-            else:
-                importer.clear_rudiments()
         finally:
             shutil.rmtree(importer.reports_dir, ignore_errors=True)
 
@@ -177,8 +175,7 @@ class RawWorker(BaseWorker):
         try:
             importer.prepare()
             importer.load_raw_data()
-            if is_csv:
-                importer.clear_rudiments()
+            importer.finalize_raw_import()
         finally:
             if is_csv:
                 shutil.rmtree(importer.reports_dir, ignore_errors=True)
