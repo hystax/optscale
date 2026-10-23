@@ -143,20 +143,21 @@ class BaseHandler(tornado.web.RequestHandler):
 class BaseAuthHandler(BaseHandler):
 
     @property
-    def token(self):
+    def _raw_token(self):
         auth_header = self.request.headers.get('Authorization')
         if not auth_header:
-            return {'token': None}
-        return {'token': auth_header[7:]}
+            return None
+        return auth_header[7:]
+
+    @property
+    def token(self):
+        return {'token': self._raw_token}
 
     async def check_token(self):
         try:
-            token = self.get_argument('access_token', None)
+            token = self._raw_token
             if not token:
-                auth_header = self.request.headers.get('Authorization', None)
-                if not auth_header:
-                    raise UnauthorizedException(Err.OA0062, [])
-                token = auth_header[7:]
+                raise UnauthorizedException(Err.OA0062, [])
             await self.controller.check_token_valid(token)
         except UnauthorizedException as ex:
             raise OptHTTPError.from_opt_exception(401, ex)

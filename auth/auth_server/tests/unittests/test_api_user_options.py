@@ -188,6 +188,21 @@ class TestUserOptionsApi(TestAuthBase):
         code, _ = self.client.user_options_get('abcd', self.name1)
         self.assertEqual(code, 404)
 
+    def test_query_access_token_rejected(self):
+        # the token is only accepted in the Authorization header; passing
+        # it as an access_token query argument must not authenticate and
+        # must not let the caller reach another user's options
+        base = '/auth/v2/users/%s/options/%s?access_token=%s'
+        resp = self.fetch(base % (self.user_id2, self.name2,
+                                  self.client.token))
+        self.assertEqual(resp.code, 401)
+        resp = self.fetch(base % (self.user_id2, self.name2,
+                                  self.client.token), method='DELETE')
+        self.assertEqual(resp.code, 401)
+        # header auth still works for the caller's own options
+        code, resp = self.client.user_options_get(self.user_id1, self.name1)
+        self.assertEqual(code, 200)
+
     def test_list_user_option(self):
         code, resp = self.client.user_options_list(self.user_id1)
         self.assertEqual(code, 200)
