@@ -287,9 +287,6 @@ class KubernetesReportImporter(BaseReportImporter):
             self._currency = organization.get('currency', 'USD')
         return self._currency
 
-    def prepare(self):
-        pass
-
     @property
     def nodes_provider(self):
         if self._nodes_provider is None:

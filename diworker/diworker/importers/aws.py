@@ -77,7 +77,6 @@ class AWSReportImporter(CSVBaseReportImporter):
             'Load Balancer': []
         }
         self.import_start_ts = int(opttime.utcnow().timestamp())
-        self.current_billing_period = None
 
     @cached_property
     def strip_edp(self):
@@ -199,10 +198,7 @@ class AWSReportImporter(CSVBaseReportImporter):
             'reservation/UnusedAmortizedUpfrontFeeForBillingPeriod',
             'reservation/AmortizedUpfrontFeeForBillingPeriod',
             'end_date',
-            'cost',
-            'report_identity',
-            'report_key',
-            '_rec_n'
+            'cost'
         ]
 
     def get_current_reports(self, reports_groups, previous_states):
@@ -398,7 +394,6 @@ class AWSReportImporter(CSVBaseReportImporter):
                 if billing_period is None:
                     billing_period = row['bill/BillingPeriodStartDate']
                     LOG.info('detected billing period: %s', billing_period)
-                    self.current_billing_period = billing_period
 
                 if len(chunk) == CHUNK_SIZE:
                     self.update_raw_records(chunk)
@@ -481,7 +476,6 @@ class AWSReportImporter(CSVBaseReportImporter):
                             billing_period is None):
                         billing_period = value
                         LOG.info('detected billing period: %s', billing_period)
-                        self.current_billing_period = billing_period
                     elif field_name == 'lineItem/UsageAccountId':
                         cloud_account_id = account_id_ca_id_map.get(value)
                         if cloud_account_id is None:

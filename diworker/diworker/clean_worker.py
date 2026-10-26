@@ -2,7 +2,7 @@
 import logging
 import time
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 
 from diworker.diworker.importers.base import BaseReportImporter
 from diworker.diworker.importers.factory import get_importer_class
@@ -16,8 +16,10 @@ ENVIRONMENT_CLOUD_TYPE = 'environment'
 def _restore_dates_map(raw_dates_map):
     return {
         ca_id: {
-            'start_date': datetime.fromtimestamp(dates['start']),
-            'end_date': datetime.fromtimestamp(dates['end']),
+            'start_date': datetime.fromtimestamp(dates['start'],
+                                                 tz=timezone.utc),
+            'end_date': datetime.fromtimestamp(dates['end'],
+                                               tz=timezone.utc),
         }
         for ca_id, dates in raw_dates_map.items()
     }
@@ -98,10 +100,6 @@ class CleanWorker(BaseWorker):
 
         try:
             if not skip_generate:
-                LOG.info('Finalizing raw import for %s',
-                         import_dict['cloud_account_id'])
-                importer.finalize_raw_import()
-
                 LOG.info('Generating clean records for %s',
                          import_dict['cloud_account_id'])
                 importer.generate_clean_records(regeneration=regeneration)

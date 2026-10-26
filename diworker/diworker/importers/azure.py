@@ -85,8 +85,7 @@ class AzureImporterBase(BaseReportImporter):
 
     def get_update_fields(self):
         custom_fields = {
-            'end_date', 'usage_quantity', 'cost', 'report_identity',
-            'report_key', '_rec_n'}
+            'end_date', 'usage_quantity', 'cost'}
         legacy_fields = {
             'cost', 'effective_price'}
         modern_fields = {
@@ -473,7 +472,6 @@ class AzureApiImporter(AzureImporterBase):
             self.generate_reservations_expenses(self.period_start)
         except Exception as exc:
             LOG.exception("Failed getting reservations info: %s", str(exc))
-        self.clear_rudiments()
 
     @retry_backoff(AzureConsumptionException,
                    raise_errors=[
