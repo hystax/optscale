@@ -44,6 +44,10 @@ case "$OPTSCALE_MODE" in
     # ── Workers (uv-managed) ─────────────────────────────────────────
     diworker)
         exec uv run --project diworker python -u diworker/diworker/main.py ;;
+    diworker-raw)
+        exec uv run --project diworker python -u diworker/diworker/raw_worker.py ;;
+    diworker-clean)
+        exec uv run --project diworker python -u diworker/diworker/clean_worker.py ;;
     katara-worker)
         exec uv run --project katara/katara_worker python -u katara/katara_worker/main.py ;;
     insider-worker)

@@ -274,7 +274,6 @@ etcd:
     demo_org_lifetime_hrs: ""
   diworker:
     max_report_imports_workers: 10
-    active_import_threshold_secs: 1800
   exchange_rates: {}
   stripe:
     api_key: ""

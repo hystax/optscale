@@ -555,8 +555,28 @@ services:
       clickhouse:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "test -f /tmp/diworker-migrations-ready"]
+      test: ["CMD-SHELL", "test -f /tmp/diworker-orchestrator-ready"]
       <<: *healthcheck-tcp
+
+  diworker-raw:
+    <<: [*optscale-app, *restart]
+    environment:
+      <<: *etcd-env
+      OPTSCALE_MODE: diworker-raw
+      OTEL_ENABLED: "false"
+    depends_on:
+      diworker:
+        condition: service_healthy
+
+  diworker-clean:
+    <<: [*optscale-app, *restart]
+    environment:
+      <<: *etcd-env
+      OPTSCALE_MODE: diworker-clean
+      OTEL_ENABLED: "false"
+    depends_on:
+      diworker:
+        condition: service_healthy
 
   katara-worker:
     <<: [*optscale-app, *restart]

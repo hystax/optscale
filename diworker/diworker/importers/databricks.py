@@ -160,6 +160,12 @@ class DatabricksReportImporter(BaseReportImporter):
         self.rest_cl.sku_cost_model_update(
             self.cloud_acc_id, {'value': cost_map})
 
+    def get_state_to_serialize(self):
+        return {'discovered_skus': list(self.discovered_skus)}
+
+    def restore_serialized_state(self, state):
+        self.discovered_skus = set(state.get('discovered_skus', []))
+
     def recalculate_raw_expenses(self):
         expenses = self.mongo_raw.find({'cloud_account_id': self.cloud_acc_id})
         chunk = []

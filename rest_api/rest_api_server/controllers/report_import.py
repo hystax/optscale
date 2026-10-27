@@ -22,7 +22,7 @@ from rest_api.rest_api_server.utils import (raise_unexpected_exception,
                                             check_int_attribute,
                                             check_bool_attribute)
 
-ACTIVE_IMPORT_THRESHOLD = 1800  # 30 min
+ACTIVE_IMPORT_THRESHOLD = 3600  # 1 hr
 DEFAULT_NOT_PROCESSED_REPORT_THRESHOLD_SECONDS = 10800  # 3 hrs
 DEFAULT_QUEUE_MESSAGE_EXPIRATION_SECONDS = 10800  # 3 hrs
 LOG = logging.getLogger(__name__)
