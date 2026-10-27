@@ -10,7 +10,6 @@ from pathlib import Path
 
 LOG = logging.getLogger(__name__)
 
-# ponytail: cache lives in raw-worker pod storage; mount shared storage only when deployment needs it.
 DEFAULT_CACHE_DIR = '/var/cache/optscale/aws_reports'
 DEFAULT_CACHE_TTL_DAYS = 2
 
